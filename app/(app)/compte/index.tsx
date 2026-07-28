@@ -148,42 +148,32 @@ export default function CompteScreen() {
   }
 
   const hasActiveSubscription = !!organization?.stripe_subscription_id;
+  const currentPlan = plans.find((p) => p.id === organization?.plan_id);
 
-  async function selectPlan(plan: Plan) {
+  async function handleBillingButton() {
     if (!organization || !isAdmin || billingBusy) return;
     setBillingError(null);
 
     if (hasActiveSubscription) {
-      // Any change while a Stripe subscription exists goes through the portal,
-      // so billing state never drifts out of sync with what Stripe is charging.
-      return openManageBilling();
-    }
-
-    if (plan.price_chf_monthly === 0) {
-      await supabase.from('organizations').update({ plan_id: plan.id }).eq('id', organization.id);
-      refreshOrganization();
-      load();
+      setBillingBusy('portal');
+      const { url, error } = await openBillingPortal();
+      setBillingBusy(null);
+      if (error || !url) {
+        setBillingError(error ?? "Impossible d'ouvrir la gestion de l'abonnement.");
+        return;
+      }
+      Linking.openURL(url);
       return;
     }
 
-    setBillingBusy(plan.id);
-    const { url, error } = await startCheckout(plan.id);
+    // No Stripe subscription yet: start on the entry-level paid plan. Once
+    // subscribed, this same button switches to the Stripe portal, where
+    // upgrading to Pro/Entreprise or cancelling happens on Stripe's side.
+    setBillingBusy('solo');
+    const { url, error } = await startCheckout('solo');
     setBillingBusy(null);
     if (error || !url) {
-      setBillingError(error ?? "Impossible de démarrer le paiement.");
-      return;
-    }
-    Linking.openURL(url);
-  }
-
-  async function openManageBilling() {
-    if (!organization || !isAdmin || billingBusy) return;
-    setBillingError(null);
-    setBillingBusy('portal');
-    const { url, error } = await openBillingPortal();
-    setBillingBusy(null);
-    if (error || !url) {
-      setBillingError(error ?? "Impossible d'ouvrir la gestion de l'abonnement.");
+      setBillingError(error ?? 'Impossible de démarrer le paiement.');
       return;
     }
     Linking.openURL(url);
@@ -347,42 +337,41 @@ export default function CompteScreen() {
             </View>
           </Section>
 
-          <Section icon="credit-card" title="Plan & abonnement">
+          <Section icon="credit-card" title="Abonnement">
+            <View style={styles.planRow}>
+              <Text style={styles.planName}>{currentPlan?.name ?? '—'}</Text>
+              <Text style={styles.planPrice}>
+                {currentPlan ? `CHF ${currentPlan.price_chf_monthly}/mois` : ''}
+              </Text>
+            </View>
+            {currentPlan ? (
+              <Text style={styles.meta}>
+                {(currentPlan.storage_quota_mb / 1024).toFixed(currentPlan.storage_quota_mb < 1024 ? 1 : 0)} Go de
+                stockage · {currentPlan.max_members} membre{currentPlan.max_members > 1 ? 's' : ''}
+              </Text>
+            ) : null}
             {hasActiveSubscription ? (
               <View style={styles.subscriptionBanner}>
                 <Feather name="check-circle" size={16} color={colors.success} />
                 <Text style={styles.subscriptionBannerText}>
                   Abonnement {organization?.subscription_status === 'active' ? 'actif' : organization?.subscription_status}.
-                  Gérez votre moyen de paiement, changez de plan ou résiliez depuis le portail Stripe.
+                  Le changement de plan, le moyen de paiement et la résiliation se gèrent depuis le portail Stripe.
                 </Text>
               </View>
-            ) : null}
-            {plans.map((p) => (
-              <Pressable key={p.id} onPress={() => selectPlan(p)} disabled={!isAdmin || !!billingBusy}>
-                <Card style={[styles.planCard, organization?.plan_id === p.id && styles.planCardActive]}>
-                  <View style={styles.planRow}>
-                    <Text style={styles.planName}>{p.name}</Text>
-                    <Text style={styles.planPrice}>CHF {p.price_chf_monthly}/mois</Text>
-                  </View>
-                  <Text style={styles.meta}>
-                    {(p.storage_quota_mb / 1024).toFixed(0)} Go de stockage · {p.max_members} membre(s)
-                  </Text>
-                  {p.price_chf_monthly > 0 && !p.stripe_price_id ? (
-                    <Text style={styles.planNotice}>Paiement en ligne pas encore configuré pour ce plan.</Text>
-                  ) : null}
-                  {billingBusy === p.id ? <Text style={styles.planNotice}>Ouverture du paiement…</Text> : null}
-                </Card>
-              </Pressable>
-            ))}
+            ) : (
+              <Text style={styles.hint}>
+                Passez à un plan payant pour débloquer les levés RTK, le cadastre suisse et davantage de stockage.
+              </Text>
+            )}
             {billingError ? <Text style={styles.billingError}>{billingError}</Text> : null}
-            {hasActiveSubscription ? (
+            {isAdmin ? (
               <Button
-                title="Gérer mon abonnement"
+                title={hasActiveSubscription ? 'Gérer mon abonnement' : 'Passer à un plan payant'}
                 icon="external-link"
-                variant="secondary"
-                onPress={openManageBilling}
-                loading={billingBusy === 'portal'}
-                style={{ marginTop: spacing.sm }}
+                variant={hasActiveSubscription ? 'secondary' : 'primary'}
+                onPress={handleBillingButton}
+                loading={!!billingBusy}
+                style={{ marginTop: spacing.md }}
               />
             ) : null}
           </Section>
@@ -539,23 +528,11 @@ const styles = StyleSheet.create({
     color: colors.text,
     lineHeight: 17,
   },
-  planNotice: {
-    fontSize: 11,
-    color: colors.accent,
-    marginTop: spacing.xs,
-  },
   billingError: {
     fontSize: fontSize.xs,
     color: colors.danger,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
-  },
-  planCard: {
-    marginBottom: spacing.md,
-  },
-  planCardActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
   },
   planRow: {
     flexDirection: 'row',
