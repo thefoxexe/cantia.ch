@@ -245,7 +245,7 @@ Deno.serve(async (req: Request) => {
           capY -= 12;
         }
         const coords = formatCoords(photo.latitude, photo.longitude);
-        const meta = [coords ? `📍 ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  ·  ');
+        const meta = [coords ? `GPS ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  ·  ');
         drawText(page, truncate(meta, font, 8, cellW), x, capY, font, 8, MUTED);
 
         col += 1;

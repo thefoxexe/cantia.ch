@@ -40,6 +40,32 @@ export default function NewReportScreen() {
     }
   }
 
+  // Gallery photos can be old and taken anywhere, so we never stamp them with
+  // the device's current position — only their own EXIF GPS data, if present.
+  function exifCoords(exif: Record<string, any> | null | undefined): { latitude: number | null; longitude: number | null } {
+    if (!exif) return { latitude: null, longitude: null };
+    const gps = exif.GPS ?? exif;
+    let lat = gps?.Latitude ?? exif.GPSLatitude ?? null;
+    let lon = gps?.Longitude ?? exif.GPSLongitude ?? null;
+    if (typeof lat !== 'number' || typeof lon !== 'number') return { latitude: null, longitude: null };
+    const latRef = gps?.LatitudeRef ?? exif.GPSLatitudeRef;
+    const lonRef = gps?.LongitudeRef ?? exif.GPSLongitudeRef;
+    if (latRef === 'S' && lat > 0) lat = -lat;
+    if (lonRef === 'W' && lon > 0) lon = -lon;
+    return { latitude: lat, longitude: lon };
+  }
+
+  function exifTakenAt(exif: Record<string, any> | null | undefined): string {
+    const raw = exif?.DateTimeOriginal ?? exif?.DateTime ?? exif?.['{Exif}']?.DateTimeOriginal;
+    if (typeof raw === 'string') {
+      // EXIF dates look like "2026:07:28 20:31:00" — convert to a parseable ISO-ish form.
+      const iso = raw.replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+      const parsed = new Date(iso);
+      if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
+    }
+    return new Date().toISOString();
+  }
+
   async function addFromCamera() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
@@ -61,14 +87,13 @@ export default function NewReportScreen() {
       Alert.alert('Permission requise', "Autorisez l'accès à vos photos pour en importer.");
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsMultipleSelection: true });
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsMultipleSelection: true, exif: true });
     if (result.canceled || !result.assets?.length) return;
-    const coords = await captureLocation();
     const added = result.assets.map((a) => ({
       uri: a.uri,
       caption: '',
-      ...coords,
-      takenAt: new Date().toISOString(),
+      ...exifCoords(a.exif),
+      takenAt: exifTakenAt(a.exif),
     }));
     setPhotos((prev) => [...prev, ...added]);
   }
