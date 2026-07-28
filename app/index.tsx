@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { useLanguage, planLabel, LANGUAGES, type Lang } from '../lib/i18n';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -20,6 +20,9 @@ export default function LandingScreen() {
   const servicesY = useRef(0);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { width } = useWindowDimensions();
+  const isCompactNav = width < breakpoints.tablet;
 
   useEffect(() => {
     supabase
@@ -30,10 +33,12 @@ export default function LandingScreen() {
   }, []);
 
   const scrollToPricing = useCallback(() => {
+    setMenuOpen(false);
     scrollRef.current?.scrollTo({ y: pricingY.current - 24, animated: true });
   }, []);
 
   const scrollToServices = useCallback(() => {
+    setMenuOpen(false);
     scrollRef.current?.scrollTo({ y: servicesY.current - 24, animated: true });
   }, []);
 
@@ -42,28 +47,70 @@ export default function LandingScreen() {
       <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll}>
         <View style={styles.nav}>
           <Text style={styles.navBrand}>OPUS</Text>
-          <View style={styles.navLinks}>
-            <View style={styles.langSwitcher}>
-              {LANGUAGES.map((l) => (
-                <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
-                  <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
-                </Pressable>
-              ))}
+
+          {isCompactNav ? (
+            <View style={styles.navCompactRight}>
+              <Link href="/(auth)/signup" asChild>
+                <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+              </Link>
+              <Pressable
+                onPress={() => setMenuOpen((v) => !v)}
+                style={styles.hamburgerButton}
+                hitSlop={8}
+                accessibilityLabel="Menu"
+              >
+                <Feather name={menuOpen ? 'x' : 'menu'} size={22} color={colors.text} />
+              </Pressable>
             </View>
-            <Pressable onPress={scrollToServices}>
-              <Text style={styles.navLink}>{t.nav.services}</Text>
-            </Pressable>
-            <Pressable onPress={scrollToPricing}>
-              <Text style={styles.navLink}>{t.nav.pricing}</Text>
-            </Pressable>
-            <Link href="/(auth)/login">
-              <Text style={styles.navLink}>{t.nav.login}</Text>
-            </Link>
-            <Link href="/(auth)/signup" asChild>
-              <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
-            </Link>
-          </View>
+          ) : (
+            <View style={styles.navLinks}>
+              <View style={styles.langSwitcher}>
+                {LANGUAGES.map((l) => (
+                  <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
+                    <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Pressable onPress={scrollToServices}>
+                <Text style={styles.navLink}>{t.nav.services}</Text>
+              </Pressable>
+              <Pressable onPress={scrollToPricing}>
+                <Text style={styles.navLink}>{t.nav.pricing}</Text>
+              </Pressable>
+              <Link href="/(auth)/login">
+                <Text style={styles.navLink}>{t.nav.login}</Text>
+              </Link>
+              <Link href="/(auth)/signup" asChild>
+                <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+              </Link>
+            </View>
+          )}
         </View>
+
+        {isCompactNav && menuOpen ? (
+          <View style={styles.mobileMenu}>
+            <Pressable onPress={scrollToServices} style={styles.mobileMenuItem}>
+              <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
+            </Pressable>
+            <Pressable onPress={scrollToPricing} style={styles.mobileMenuItem}>
+              <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
+            </Pressable>
+            <Link href="/(auth)/login" asChild>
+              <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
+              </Pressable>
+            </Link>
+            <View style={styles.mobileMenuLangRow}>
+              <View style={styles.langSwitcher}>
+                {LANGUAGES.map((l) => (
+                  <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
+                    <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : null}
 
         {/* ---- Hero ---- */}
         <View style={styles.hero}>
@@ -397,6 +444,42 @@ const styles = StyleSheet.create({
   navCta: {
     height: 38,
     paddingHorizontal: spacing.lg,
+  },
+  navCompactRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  hamburgerButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mobileMenu: {
+    maxWidth: 1080,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
+    gap: spacing.xs,
+  },
+  mobileMenuItem: {
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  mobileMenuText: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  mobileMenuLangRow: {
+    paddingVertical: spacing.md,
+    alignItems: 'flex-start',
   },
   hero: {
     maxWidth: 1080,
