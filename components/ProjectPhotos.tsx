@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
@@ -25,11 +25,22 @@ const FILTERS: { key: DateFilter; label: string }[] = [
   { key: '30d', label: '30 derniers jours' },
 ];
 
+function dayKey(iso: string): string {
+  return iso.slice(0, 10);
+}
+
+function formatDayHeading(iso: string): string {
+  const d = new Date(iso);
+  const text = d.toLocaleDateString('fr-CH', { day: 'numeric', month: 'long', year: 'numeric' });
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 export function ProjectPhotos({ projectId }: { projectId: string }) {
   const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<DateFilter>('all');
+  const [containerWidth, setContainerWidth] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -68,6 +79,25 @@ export function ProjectPhotos({ projectId }: { projectId: string }) {
     return photos.filter((p) => new Date(p.taken_at).getTime() >= cutoff);
   }, [photos, filter]);
 
+  const groups = useMemo(() => {
+    const map = new Map<string, ProjectPhoto[]>();
+    for (const p of filtered) {
+      const key = dayKey(p.taken_at);
+      const list = map.get(key);
+      if (list) list.push(p);
+      else map.set(key, [p]);
+    }
+    return Array.from(map.entries());
+  }, [filtered]);
+
+  const gap = spacing.md;
+  const cols = containerWidth >= 900 ? 4 : containerWidth >= 640 ? 3 : containerWidth >= 340 ? 2 : 1;
+  const cardWidth = containerWidth > 0 ? (containerWidth - gap * (cols - 1)) / cols : undefined;
+
+  function onGridLayout(e: LayoutChangeEvent) {
+    setContainerWidth(e.nativeEvent.layout.width);
+  }
+
   function openMap(photo: ProjectPhoto) {
     if (photo.latitude == null || photo.longitude == null) return;
     Linking.openURL(`https://www.google.com/maps?q=${photo.latitude},${photo.longitude}`);
@@ -90,34 +120,41 @@ export function ProjectPhotos({ projectId }: { projectId: string }) {
       {filtered.length === 0 && !loading ? (
         <EmptyState title="Aucune photo" subtitle="Les photos ajoutées à vos rapports apparaîtront ici." />
       ) : (
-        <View style={styles.grid}>
-          {filtered.map((photo) => (
-            <View key={photo.id} style={styles.photoCard}>
-              {urls[photo.storage_path] ? (
-                <Image source={{ uri: urls[photo.storage_path] }} style={styles.photoImg} />
-              ) : (
-                <View style={[styles.photoImg, styles.photoPlaceholder]} />
-              )}
-              <View style={styles.photoInfo}>
-                {photo.caption ? (
-                  <Text style={styles.photoCaption} numberOfLines={1}>
-                    {photo.caption}
-                  </Text>
-                ) : null}
-                <Text style={styles.photoMeta} numberOfLines={1}>
-                  {photo.report_title}
-                </Text>
-                <View style={styles.photoFooter}>
-                  <Text style={styles.photoDate}>
-                    {new Date(photo.taken_at).toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: '2-digit' })}
-                  </Text>
-                  {photo.latitude != null ? (
-                    <Pressable onPress={() => openMap(photo)} style={styles.mapLink} hitSlop={6}>
-                      <Feather name="map-pin" size={12} color={colors.accent} />
-                      <Text style={styles.mapLinkText}>Carte</Text>
-                    </Pressable>
-                  ) : null}
-                </View>
+        <View onLayout={onGridLayout}>
+          {groups.map(([key, dayPhotos]) => (
+            <View key={key} style={styles.group}>
+              <Text style={styles.groupHeading}>{formatDayHeading(dayPhotos[0].taken_at)}</Text>
+              <View style={styles.grid}>
+                {dayPhotos.map((photo) => (
+                  <View key={photo.id} style={[styles.photoCard, cardWidth ? { width: cardWidth } : { flexGrow: 1, minWidth: 140 }]}>
+                    {urls[photo.storage_path] ? (
+                      <Image source={{ uri: urls[photo.storage_path] }} style={styles.photoImg} />
+                    ) : (
+                      <View style={[styles.photoImg, styles.photoPlaceholder]} />
+                    )}
+                    <View style={styles.photoInfo}>
+                      {photo.caption ? (
+                        <Text style={styles.photoCaption} numberOfLines={1}>
+                          {photo.caption}
+                        </Text>
+                      ) : null}
+                      <Text style={styles.photoMeta} numberOfLines={1}>
+                        {photo.report_title}
+                      </Text>
+                      <View style={styles.photoFooter}>
+                        <Text style={styles.photoDate}>
+                          {new Date(photo.taken_at).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
+                        {photo.latitude != null ? (
+                          <Pressable onPress={() => openMap(photo)} style={styles.mapLink} hitSlop={6}>
+                            <Feather name="map-pin" size={12} color={colors.accent} />
+                            <Text style={styles.mapLinkText}>Carte</Text>
+                          </Pressable>
+                        ) : null}
+                      </View>
+                    </View>
+                  </View>
+                ))}
               </View>
             </View>
           ))}
@@ -154,13 +191,21 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '700',
   },
+  group: {
+    marginBottom: spacing.xl,
+  },
+  groupHeading: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
   },
   photoCard: {
-    width: 160,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,

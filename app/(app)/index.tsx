@@ -93,7 +93,6 @@ export default function DashboardScreen() {
           {isModuleEnabled(organization?.enabled_modules, 'devis') ? (
             <QuickAction icon="file-plus" label="Nouveau devis" onPress={() => router.push('/(app)/devis/new')} />
           ) : null}
-          <QuickAction icon="cloud" label="Ouvrir le cloud" onPress={() => router.push('/(app)/cloud')} />
         </View>
       </ScrollView>
     </Screen>

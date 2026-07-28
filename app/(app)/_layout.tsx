@@ -40,10 +40,6 @@ export default function AppTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="cloud"
-        options={{ title: 'Cloud', tabBarIcon: ({ color }) => <TabIcon name="cloud" color={color} /> }}
-      />
-      <Tabs.Screen
         name="compte"
         options={{ title: 'Compte', tabBarIcon: ({ color }) => <TabIcon name="settings" color={color} /> }}
       />

@@ -91,7 +91,7 @@ export default function FacturationScreen() {
 
           {isAdmin ? (
             <Button
-              title={hasActiveSubscription ? 'Gérer mon abonnement' : 'Passer à un plan payant'}
+              title={hasActiveSubscription ? 'Changer de plan' : 'Passer à un plan payant'}
               icon="external-link"
               variant={hasActiveSubscription ? 'secondary' : 'primary'}
               onPress={handleBillingButton}

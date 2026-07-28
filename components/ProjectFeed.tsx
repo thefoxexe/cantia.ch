@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -126,6 +126,10 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   const selectedEntries = useMemo(() => entries.filter((e) => selected.has(e.id)), [entries, selected]);
 
+  // Newest-first for the inverted FlatList: index 0 renders at the bottom of
+  // the screen, so the feed opens already scrolled to the latest message.
+  const invertedData = useMemo(() => [...entries].reverse(), [entries]);
+
   async function confirmGenerate() {
     if (!organization || selectedEntries.length === 0 || generating) return;
     setGenerating(true);
@@ -154,8 +158,68 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     Linking.openURL(`https://www.google.com/maps?q=${entry.latitude},${entry.longitude}`);
   }
 
+  function renderEntry(entry: FeedEntry) {
+    const isMe = entry.created_by === user?.id;
+    const author = (entry.created_by && authorNames[entry.created_by]) || 'Membre';
+    const isSelected = selected.has(entry.id);
+    const time = new Date(entry.created_at).toLocaleString('fr-CH', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    return (
+      <Pressable
+        onPress={() => (selecting ? toggleSelect(entry.id) : undefined)}
+        style={[styles.bubbleRow, isMe && styles.bubbleRowMe]}
+      >
+        {selecting ? (
+          <Feather
+            name={isSelected ? 'check-circle' : 'circle'}
+            size={18}
+            color={isSelected ? colors.primary : colors.textMuted}
+            style={styles.selectIcon}
+          />
+        ) : null}
+        <View style={[styles.bubble, isMe && styles.bubbleMe]}>
+          <View style={styles.bubbleHeader}>
+            <Text style={styles.bubbleAuthor}>{isMe ? 'Vous' : author}</Text>
+            <Text style={styles.bubbleTime}>{time}</Text>
+          </View>
+          {entry.type === 'note' ? (
+            <Text style={styles.bubbleText}>{entry.body}</Text>
+          ) : (
+            <View>
+              {urls[entry.storage_path ?? ''] ? (
+                <Image source={{ uri: urls[entry.storage_path!] }} style={styles.bubblePhoto} />
+              ) : (
+                <View style={[styles.bubblePhoto, styles.bubblePhotoPlaceholder]}>
+                  <ActivityIndicator color={colors.textMuted} />
+                </View>
+              )}
+              {entry.caption ? <Text style={styles.bubbleCaption}>{entry.caption}</Text> : null}
+              {entry.latitude != null ? (
+                <Pressable onPress={() => openMap(entry)} style={styles.mapLink} hitSlop={6}>
+                  <Feather name="map-pin" size={11} color={colors.accent} />
+                  <Text style={styles.mapLinkText}>Voir sur la carte</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          )}
+          {entry.report_id ? (
+            <View style={styles.usedBadge}>
+              <Feather name="check" size={10} color={colors.success} />
+              <Text style={styles.usedBadgeText}>Inclus dans un rapport</Text>
+            </View>
+          ) : null}
+        </View>
+      </Pressable>
+    );
+  }
+
   return (
-    <View>
+    <View style={styles.container}>
       <View style={styles.toolbar}>
         <Pressable style={styles.toolbarButton} onPress={toggleSelecting}>
           <Feather name={selecting ? 'x' : 'file-text'} size={15} color={colors.primary} />
@@ -170,73 +234,21 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       ) : null}
 
       {entries.length === 0 && !loading ? (
-        <EmptyState
-          title="Aucune activité pour l'instant"
-          subtitle="Décrivez l'avancement, ajoutez des photos — c'est le journal de bord du chantier."
-        />
-      ) : (
-        <View style={{ gap: spacing.sm }}>
-          {entries.map((entry) => {
-            const isMe = entry.created_by === user?.id;
-            const author = (entry.created_by && authorNames[entry.created_by]) || 'Membre';
-            const isSelected = selected.has(entry.id);
-            const time = new Date(entry.created_at).toLocaleString('fr-CH', {
-              day: '2-digit',
-              month: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-            });
-
-            return (
-              <Pressable
-                key={entry.id}
-                onPress={() => (selecting ? toggleSelect(entry.id) : undefined)}
-                style={[styles.bubbleRow, isMe && styles.bubbleRowMe]}
-              >
-                {selecting ? (
-                  <Feather
-                    name={isSelected ? 'check-circle' : 'circle'}
-                    size={18}
-                    color={isSelected ? colors.primary : colors.textMuted}
-                    style={styles.selectIcon}
-                  />
-                ) : null}
-                <View style={[styles.bubble, isMe && styles.bubbleMe]}>
-                  <View style={styles.bubbleHeader}>
-                    <Text style={styles.bubbleAuthor}>{isMe ? 'Vous' : author}</Text>
-                    <Text style={styles.bubbleTime}>{time}</Text>
-                  </View>
-                  {entry.type === 'note' ? (
-                    <Text style={styles.bubbleText}>{entry.body}</Text>
-                  ) : (
-                    <View>
-                      {urls[entry.storage_path ?? ''] ? (
-                        <Image source={{ uri: urls[entry.storage_path!] }} style={styles.bubblePhoto} />
-                      ) : (
-                        <View style={[styles.bubblePhoto, styles.bubblePhotoPlaceholder]}>
-                          <ActivityIndicator color={colors.textMuted} />
-                        </View>
-                      )}
-                      {entry.caption ? <Text style={styles.bubbleCaption}>{entry.caption}</Text> : null}
-                      {entry.latitude != null ? (
-                        <Pressable onPress={() => openMap(entry)} style={styles.mapLink} hitSlop={6}>
-                          <Feather name="map-pin" size={11} color={colors.accent} />
-                          <Text style={styles.mapLinkText}>Voir sur la carte</Text>
-                        </Pressable>
-                      ) : null}
-                    </View>
-                  )}
-                  {entry.report_id ? (
-                    <View style={styles.usedBadge}>
-                      <Feather name="check" size={10} color={colors.success} />
-                      <Text style={styles.usedBadgeText}>Inclus dans un rapport</Text>
-                    </View>
-                  ) : null}
-                </View>
-              </Pressable>
-            );
-          })}
+        <View style={styles.emptyWrap}>
+          <EmptyState
+            title="Aucune activité pour l'instant"
+            subtitle="Décrivez l'avancement, ajoutez des photos — c'est le journal de bord du chantier."
+          />
         </View>
+      ) : (
+        <FlatList
+          data={invertedData}
+          inverted
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => renderEntry(item)}
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.listContent}
+        />
       )}
 
       {selecting && selected.size > 0 ? (
@@ -295,10 +307,17 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    maxWidth: 880,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.lg,
+  },
   toolbar: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: spacing.md,
+    paddingTop: spacing.md,
   },
   toolbarButton: {
     flexDirection: 'row',
@@ -318,7 +337,15 @@ const styles = StyleSheet.create({
   selectHint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginBottom: spacing.md,
+    marginTop: spacing.sm,
+  },
+  emptyWrap: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  listContent: {
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
   },
   bubbleRow: {
     flexDirection: 'row',
@@ -402,16 +429,17 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   generatePanel: {
-    marginTop: spacing.lg,
     gap: spacing.sm,
+    paddingTop: spacing.sm,
   },
   error: {
     color: colors.danger,
     fontSize: fontSize.sm,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   composer: {
-    marginTop: spacing.lg,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,

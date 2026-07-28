@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
@@ -66,114 +66,125 @@ export default function ChantierDetailScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Card>
-          <View style={styles.headerRow}>
-            <Text style={styles.title}>{project.name}</Text>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.iconButton}>
+          <Feather name="arrow-left" size={20} color={colors.text} />
+        </Pressable>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title} numberOfLines={1}>
+            {project.name}
+          </Text>
+          <View style={styles.metaRow}>
+            {project.client_name ? (
+              <Text style={styles.metaText} numberOfLines={1}>
+                {project.client_name}
+              </Text>
+            ) : null}
             <StatusBadge status={project.status} />
           </View>
-          {project.client_name ? <Text style={styles.meta}>Client : {project.client_name}</Text> : null}
-          {project.address ? <Text style={styles.meta}>{project.address}</Text> : null}
-        </Card>
+        </View>
+        <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/settings`)} hitSlop={8} style={styles.iconButton}>
+          <Feather name="settings" size={20} color={colors.text} />
+        </Pressable>
+      </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
-          {visibleTabs.map((t) => (
-            <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabItem}>
-              <Feather name={t.icon} size={16} color={activeTab === t.key ? colors.primary : colors.textMuted} />
-              <Text style={[styles.tabLabel, activeTab === t.key && styles.tabLabelActive]}>{t.label}</Text>
-              {activeTab === t.key ? <View style={styles.tabIndicator} /> : null}
-            </Pressable>
-          ))}
-        </ScrollView>
-
-        {activeTab === 'feed' ? (
-          <View>
-            <FeatureHint
-              id="chantier-feed"
-              icon="message-circle"
-              title="Le journal de bord du chantier"
-              text="Décrivez l'avancement, ajoutez des photos au fil de l'eau. Sélectionnez ensuite ce que vous voulez pour générer un rapport PDF."
-            />
-            <ProjectFeed projectId={id} />
-          </View>
-        ) : null}
-
-        {activeTab === 'reports' ? (
-          <View>
-            <Pressable style={styles.newButton} onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}>
-              <Feather name="plus" size={16} color="#fff" />
-              <Text style={styles.newButtonText}>Nouveau rapport de chantier</Text>
-            </Pressable>
-
-            {reports.length === 0 && !loading ? (
-              <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
-            ) : (
-              <View style={{ gap: spacing.md }}>
-                {reports.map((r) => (
-                  <Pressable key={r.id} onPress={() => router.push(`/(app)/chantiers/${id}/rapports/${r.id}`)}>
-                    <Card>
-                      <View style={styles.headerRow}>
-                        <Text style={styles.reportTitle}>{r.title}</Text>
-                        <StatusBadge status={r.status} />
-                      </View>
-                      <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
-                      <View style={styles.pdfLink}>
-                        <Feather name={r.pdf_path ? 'file-text' : 'alert-triangle'} size={14} color={r.pdf_path ? colors.primary : colors.accent} />
-                        <Text style={styles.pdfLinkText}>{r.pdf_path ? 'Voir le rapport' : 'PDF non généré — voir le rapport'}</Text>
-                      </View>
-                    </Card>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </View>
-        ) : null}
-
-        {activeTab === 'documents' ? (
-          <View>
-            <FeatureHint
-              id="chantier-documents"
-              icon="folder"
-              title="Un classeur numérique par chantier"
-              text="Organisez vos plans et documents en dossiers et sous-dossiers, comme dans un classeur physique."
-            />
-            <ProjectDocuments projectId={id} />
-          </View>
-        ) : null}
-        {activeTab === 'photos' ? (
-          <View>
-            <FeatureHint
-              id="chantier-photos"
-              icon="image"
-              title="Toutes vos photos, filtrables"
-              text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
-            />
-            <ProjectPhotos projectId={id} />
-          </View>
-        ) : null}
-        {activeTab === 'survey' ? (
-          <View>
-            <FeatureHint
-              id="chantier-survey"
-              icon="crosshair"
-              title="Levés de précision"
-              text="Ajoutez des points de chantier, visualisez-les sur le cadastre et l’orthophoto officiels, puis exportez-les en DXF, CSV, XML ou GPX."
-            />
-            <ProjectSurvey projectId={id} organizationId={project.organization_id} />
-          </View>
-        ) : null}
-        {activeTab === 'metre' ? (
-          <View>
-            <FeatureHint
-              id="chantier-metre"
-              icon="list"
-              title="Métré poste par poste"
-              text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
-            />
-            <ProjectMetre projectId={id} organizationId={project.organization_id} />
-          </View>
-        ) : null}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
+        {visibleTabs.map((t) => (
+          <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabItem}>
+            <Feather name={t.icon} size={16} color={activeTab === t.key ? colors.primary : colors.textMuted} />
+            <Text style={[styles.tabLabel, activeTab === t.key && styles.tabLabelActive]}>{t.label}</Text>
+            {activeTab === t.key ? <View style={styles.tabIndicator} /> : null}
+          </Pressable>
+        ))}
       </ScrollView>
+
+      {activeTab === 'feed' ? (
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <ProjectFeed projectId={id} />
+        </KeyboardAvoidingView>
+      ) : (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
+          {activeTab === 'reports' ? (
+            <View>
+              <Pressable style={styles.newButton} onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}>
+                <Feather name="plus" size={16} color="#fff" />
+                <Text style={styles.newButtonText}>Nouveau rapport de chantier</Text>
+              </Pressable>
+
+              {reports.length === 0 && !loading ? (
+                <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
+              ) : (
+                <View style={{ gap: spacing.md }}>
+                  {reports.map((r) => (
+                    <Pressable key={r.id} onPress={() => router.push(`/(app)/chantiers/${id}/rapports/${r.id}`)}>
+                      <Card>
+                        <View style={styles.headerRow}>
+                          <Text style={styles.reportTitle}>{r.title}</Text>
+                          <StatusBadge status={r.status} />
+                        </View>
+                        <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
+                        <View style={styles.pdfLink}>
+                          <Feather
+                            name={r.pdf_path ? 'file-text' : 'alert-triangle'}
+                            size={14}
+                            color={r.pdf_path ? colors.primary : colors.accent}
+                          />
+                          <Text style={styles.pdfLinkText}>{r.pdf_path ? 'Voir le rapport' : 'PDF non généré — voir le rapport'}</Text>
+                        </View>
+                      </Card>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </View>
+          ) : null}
+
+          {activeTab === 'documents' ? (
+            <View>
+              <FeatureHint
+                id="chantier-documents"
+                icon="folder"
+                title="Un classeur numérique par chantier"
+                text="Organisez vos plans et documents en dossiers et sous-dossiers, comme dans un classeur physique."
+              />
+              <ProjectDocuments projectId={id} />
+            </View>
+          ) : null}
+          {activeTab === 'photos' ? (
+            <View>
+              <FeatureHint
+                id="chantier-photos"
+                icon="image"
+                title="Toutes vos photos, filtrables"
+                text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
+              />
+              <ProjectPhotos projectId={id} />
+            </View>
+          ) : null}
+          {activeTab === 'survey' ? (
+            <View>
+              <FeatureHint
+                id="chantier-survey"
+                icon="crosshair"
+                title="Levés de précision"
+                text="Ajoutez des points de chantier, visualisez-les sur le cadastre et l’orthophoto officiels, puis exportez-les en DXF, CSV, XML ou GPX."
+              />
+              <ProjectSurvey projectId={id} organizationId={project.organization_id} />
+            </View>
+          ) : null}
+          {activeTab === 'metre' ? (
+            <View>
+              <FeatureHint
+                id="chantier-metre"
+                icon="list"
+                title="Métré poste par poste"
+                text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
+              />
+              <ProjectMetre projectId={id} organizationId={project.organization_id} />
+            </View>
+          ) : null}
+        </ScrollView>
+      )}
     </Screen>
   );
 }
@@ -187,6 +198,39 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    maxWidth: 880,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: 2,
+  },
+  metaText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    flexShrink: 1,
+  },
   headerRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -194,12 +238,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     marginBottom: spacing.xs,
-  },
-  title: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
-    color: colors.text,
-    flexShrink: 1,
   },
   reportTitle: {
     fontSize: fontSize.md,
@@ -214,11 +252,14 @@ const styles = StyleSheet.create({
   tabBar: {
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    marginTop: -spacing.sm,
     flexGrow: 0,
+    maxWidth: 880,
+    width: '100%',
+    alignSelf: 'center',
   },
   tabBarContent: {
     flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
   },
   tabItem: {
     flexDirection: 'row',

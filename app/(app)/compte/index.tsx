@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
+import { formatBytes } from '../../../lib/api/storage';
 import { Button, Card, Container, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -22,15 +23,20 @@ export default function CompteMenuScreen() {
   const router = useRouter();
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [planName, setPlanName] = useState<string | null>(null);
+  const [quotaBytes, setQuotaBytes] = useState(0);
+  const [usedBytes, setUsedBytes] = useState(0);
 
   const load = useCallback(async () => {
     if (!organization) return;
-    const [{ count }, { data: plan }] = await Promise.all([
+    const [{ count }, { data: plan }, { data: used }] = await Promise.all([
       supabase.from('organization_members').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id),
-      supabase.from('plans').select('name').eq('id', organization.plan_id).maybeSingle(),
+      supabase.from('plans').select('name, storage_quota_mb').eq('id', organization.plan_id).maybeSingle(),
+      supabase.rpc('get_storage_usage_bytes', { org_id: organization.id }),
     ]);
     setMemberCount(count ?? null);
     setPlanName(plan?.name ?? null);
+    setQuotaBytes((plan?.storage_quota_mb ?? 0) * 1024 * 1024);
+    setUsedBytes(used ?? 0);
   }, [organization]);
 
   useFocusEffect(
@@ -82,6 +88,9 @@ export default function CompteMenuScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <Text style={styles.pageTitle}>Paramètres</Text>
+
+          <StorageBar planName={planName} usedBytes={usedBytes} quotaBytes={quotaBytes} />
+
           <Card style={styles.menuCard}>
             {items.map((item, i) => (
               <Pressable
@@ -108,7 +117,66 @@ export default function CompteMenuScreen() {
   );
 }
 
+function StorageBar({ planName, usedBytes, quotaBytes }: { planName: string | null; usedBytes: number; quotaBytes: number }) {
+  const router = useRouter();
+  const ratio = quotaBytes > 0 ? Math.min(usedBytes / quotaBytes, 1) : 0;
+  const nearLimit = ratio >= 0.9;
+
+  return (
+    <Pressable onPress={() => router.push('/(app)/compte/facturation')}>
+      <Card style={styles.storageCard}>
+        <View style={styles.storageHeader}>
+          <Text style={styles.storageTitle}>Stockage{planName ? ` · Plan ${planName}` : ''}</Text>
+          <Feather name="chevron-right" size={16} color={colors.textMuted} />
+        </View>
+        <View style={styles.usageBarTrack}>
+          <View style={[styles.usageBarFill, { width: `${ratio * 100}%` }, nearLimit && styles.usageBarFillDanger]} />
+        </View>
+        <Text style={[styles.storageText, nearLimit && styles.storageTextDanger]}>
+          {formatBytes(usedBytes)} utilisés sur {quotaBytes > 0 ? formatBytes(quotaBytes) : '—'}
+        </Text>
+      </Card>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
+  storageCard: {
+    marginBottom: spacing.lg,
+  },
+  storageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  storageTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  usageBarTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.border,
+    overflow: 'hidden',
+  },
+  usageBarFill: {
+    height: 8,
+    backgroundColor: colors.primary,
+  },
+  usageBarFillDanger: {
+    backgroundColor: colors.danger,
+  },
+  storageText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+  },
+  storageTextDanger: {
+    color: colors.danger,
+    fontWeight: '600',
+  },
   pageTitle: {
     fontSize: fontSize.xl,
     fontWeight: '800',
