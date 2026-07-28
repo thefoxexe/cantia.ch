@@ -8,6 +8,7 @@ export interface Plan {
   max_members: number;
   price_chf_monthly: number;
   has_rtk: boolean;
+  stripe_price_id: string | null;
 }
 
 export interface Organization {
@@ -26,6 +27,9 @@ export interface Organization {
   devis_terms: string | null;
   devis_template: string;
   plan_id: string;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_status: string | null;
   created_at: string;
   updated_at: string;
 }

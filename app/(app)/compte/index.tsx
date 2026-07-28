@@ -1,11 +1,12 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
+import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
 import { Button, Card, Container, Field, Screen } from '../../../components/ui';
 import { DevisTemplatePicker } from '../../../components/DevisTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -45,6 +46,8 @@ export default function CompteScreen() {
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [billingBusy, setBillingBusy] = useState<string | null>(null);
+  const [billingError, setBillingError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
@@ -128,11 +131,46 @@ export default function CompteScreen() {
     refreshOrganization();
   }
 
-  async function changePlan(planId: string) {
-    if (!organization || !isAdmin) return;
-    await supabase.from('organizations').update({ plan_id: planId }).eq('id', organization.id);
-    refreshOrganization();
-    load();
+  const hasActiveSubscription = !!organization?.stripe_subscription_id;
+
+  async function selectPlan(plan: Plan) {
+    if (!organization || !isAdmin || billingBusy) return;
+    setBillingError(null);
+
+    if (hasActiveSubscription) {
+      // Any change while a Stripe subscription exists goes through the portal,
+      // so billing state never drifts out of sync with what Stripe is charging.
+      return openManageBilling();
+    }
+
+    if (plan.price_chf_monthly === 0) {
+      await supabase.from('organizations').update({ plan_id: plan.id }).eq('id', organization.id);
+      refreshOrganization();
+      load();
+      return;
+    }
+
+    setBillingBusy(plan.id);
+    const { url, error } = await startCheckout(plan.id);
+    setBillingBusy(null);
+    if (error || !url) {
+      setBillingError(error ?? "Impossible de démarrer le paiement.");
+      return;
+    }
+    Linking.openURL(url);
+  }
+
+  async function openManageBilling() {
+    if (!organization || !isAdmin || billingBusy) return;
+    setBillingError(null);
+    setBillingBusy('portal');
+    const { url, error } = await openBillingPortal();
+    setBillingBusy(null);
+    if (error || !url) {
+      setBillingError(error ?? "Impossible d'ouvrir la gestion de l'abonnement.");
+      return;
+    }
+    Linking.openURL(url);
   }
 
   async function toggleMemberRole(member: OrganizationMember) {
@@ -270,8 +308,17 @@ export default function CompteScreen() {
           </Section>
 
           <Section icon="credit-card" title="Plan & abonnement">
+            {hasActiveSubscription ? (
+              <View style={styles.subscriptionBanner}>
+                <Feather name="check-circle" size={16} color={colors.success} />
+                <Text style={styles.subscriptionBannerText}>
+                  Abonnement {organization?.subscription_status === 'active' ? 'actif' : organization?.subscription_status}.
+                  Gérez votre moyen de paiement, changez de plan ou résiliez depuis le portail Stripe.
+                </Text>
+              </View>
+            ) : null}
             {plans.map((p) => (
-              <Pressable key={p.id} onPress={() => changePlan(p.id)} disabled={!isAdmin}>
+              <Pressable key={p.id} onPress={() => selectPlan(p)} disabled={!isAdmin || !!billingBusy}>
                 <Card style={[styles.planCard, organization?.plan_id === p.id && styles.planCardActive]}>
                   <View style={styles.planRow}>
                     <Text style={styles.planName}>{p.name}</Text>
@@ -280,9 +327,24 @@ export default function CompteScreen() {
                   <Text style={styles.meta}>
                     {(p.storage_quota_mb / 1024).toFixed(0)} Go de stockage · {p.max_members} membre(s)
                   </Text>
+                  {p.price_chf_monthly > 0 && !p.stripe_price_id ? (
+                    <Text style={styles.planNotice}>Paiement en ligne pas encore configuré pour ce plan.</Text>
+                  ) : null}
+                  {billingBusy === p.id ? <Text style={styles.planNotice}>Ouverture du paiement…</Text> : null}
                 </Card>
               </Pressable>
             ))}
+            {billingError ? <Text style={styles.billingError}>{billingError}</Text> : null}
+            {hasActiveSubscription ? (
+              <Button
+                title="Gérer mon abonnement"
+                icon="external-link"
+                variant="secondary"
+                onPress={openManageBilling}
+                loading={billingBusy === 'portal'}
+                style={{ marginTop: spacing.sm }}
+              />
+            ) : null}
           </Section>
 
           <Section icon="users" title="Équipe">
@@ -406,6 +468,32 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  subscriptionBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  subscriptionBannerText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
+    lineHeight: 17,
+  },
+  planNotice: {
+    fontSize: 11,
+    color: colors.accent,
+    marginTop: spacing.xs,
+  },
+  billingError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
   planCard: {
     marginBottom: spacing.md,
