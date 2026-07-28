@@ -7,6 +7,7 @@ export interface Plan {
   storage_quota_mb: number;
   max_members: number;
   price_chf_monthly: number;
+  has_rtk: boolean;
 }
 
 export interface Organization {
@@ -23,6 +24,7 @@ export interface Organization {
   default_vat_rate: number;
   devis_validity_days: number;
   devis_terms: string | null;
+  devis_template: string;
   plan_id: string;
   created_at: string;
   updated_at: string;
@@ -129,4 +131,35 @@ export interface Folder {
   name: string;
   created_by: string | null;
   created_at: string;
+}
+
+export interface SurveyPoint {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  code: string;
+  description: string | null;
+  latitude: number;
+  longitude: number;
+  elevation: number | null;
+  lv95_e: number | null;
+  lv95_n: number | null;
+  source: string;
+  sort_order: number;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface MetreItem {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  reference: string | null;
+  description: string;
+  quantity: number;
+  unit: string | null;
+  sort_order: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }

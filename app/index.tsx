@@ -1,8 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
+import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -15,7 +18,7 @@ const PAIN_POINTS: { icon: IconName; title: string; text: string }[] = [
   {
     icon: 'clock',
     title: 'Rapports faits le soir, en retard',
-    text: 'Le temps de reconstituer un rapport propre à partir de photos éparpillées.',
+    text: 'Le temps de reconstituer un rapport propre à partir de photos éparpillées.',
   },
   {
     icon: 'folder',
@@ -43,12 +46,12 @@ const FEATURES: { icon: IconName; title: string; text: string }[] = [
   {
     icon: 'zap',
     title: 'Devis en quelques minutes',
-    text: 'Notes de rendez-vous transformées en devis PDF chiffré, avec suivi de statut (envoyé, accepté, refusé).',
+    text: 'Notes de rendez-vous transformées en devis PDF chiffré, avec suivi de statut et plusieurs modèles au choix.',
   },
   {
-    icon: 'lock',
-    title: 'Cloud chiffré',
-    text: 'Vos documents sensibles stockés de manière sécurisée, accessibles depuis le chantier ou le bureau.',
+    icon: 'map-pin',
+    title: 'Levés & cadastre suisse',
+    text: 'Points de chantier positionnés sur le cadastre et l’orthophoto officiels, export DXF / CSV / XML.',
   },
   {
     icon: 'users',
@@ -69,14 +72,38 @@ const TRADES = [
 ];
 
 export default function LandingScreen() {
+  const scrollRef = useRef<ScrollView>(null);
+  const pricingY = useRef(0);
+  const [plans, setPlans] = useState<Plan[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('plans')
+      .select('*')
+      .order('price_chf_monthly', { ascending: true })
+      .then(({ data }) => setPlans(data ?? []));
+  }, []);
+
+  const scrollToPricing = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: pricingY.current - 24, animated: true });
+  }, []);
+
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll}>
         <View style={styles.nav}>
           <Text style={styles.navBrand}>OPUS</Text>
-          <Link href="/(auth)/login">
-            <Text style={styles.navLink}>Se connecter</Text>
-          </Link>
+          <View style={styles.navLinks}>
+            <Pressable onPress={scrollToPricing}>
+              <Text style={styles.navLink}>Tarifs</Text>
+            </Pressable>
+            <Link href="/(auth)/login">
+              <Text style={styles.navLink}>Se connecter</Text>
+            </Link>
+            <Link href="/(auth)/signup" asChild>
+              <Button title="Essayer gratuitement" onPress={() => {}} style={styles.navCta} />
+            </Link>
+          </View>
         </View>
 
         {/* ---- Hero ---- */}
@@ -146,14 +173,49 @@ export default function LandingScreen() {
           </Text>
         </Section>
 
+        {/* ---- Pricing ---- */}
+        <View onLayout={(e) => (pricingY.current = e.nativeEvent.layout.y)}>
+          <Section title="Un plan pour chaque taille d’équipe" center>
+            <View style={styles.pricingGrid}>
+              {plans.map((p) => (
+                <View key={p.id} style={[styles.priceCard, p.id === 'solo' && styles.priceCardHighlight]}>
+                  {p.id === 'solo' ? (
+                    <View style={styles.priceBadge}>
+                      <Text style={styles.priceBadgeText}>Le plus choisi</Text>
+                    </View>
+                  ) : null}
+                  <Text style={styles.priceName}>{p.name}</Text>
+                  <View style={styles.priceAmountRow}>
+                    <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${p.price_chf_monthly}`}</Text>
+                    <Text style={styles.pricePeriod}>/mois</Text>
+                  </View>
+                  <View style={styles.priceFeatures}>
+                    <PriceFeature text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
+                    <PriceFeature text={`${p.max_members} membre${p.max_members > 1 ? 's' : ''}`} />
+                    <PriceFeature text="Rapports & devis illimités" />
+                    <PriceFeature text="Levés & cadastre suisse" muted={!p.has_rtk} included={p.has_rtk} />
+                  </View>
+                  <Link href="/(auth)/signup" asChild>
+                    <Button
+                      title={p.price_chf_monthly === 0 ? 'Commencer gratuitement' : 'Choisir ce plan'}
+                      onPress={() => {}}
+                      variant={p.id === 'solo' ? 'primary' : 'secondary'}
+                    />
+                  </Link>
+                </View>
+              ))}
+            </View>
+          </Section>
+        </View>
+
         {/* ---- Swiss positioning ---- */}
         <Section>
           <View style={styles.swissBand}>
             <Feather name="flag" size={22} color={colors.primary} />
             <Text style={styles.swissTitle}>Conçu pour le marché suisse</Text>
             <Text style={styles.swissText}>
-              Montants en francs suisses, TVA suisse intégrée par défaut, et une plateforme pensée dès le départ
-              pour les PME et artisans indépendants du pays.
+              Montants en francs suisses, TVA suisse intégrée par défaut, cadastre et orthophoto officiels — une
+              plateforme pensée dès le départ pour les PME et artisans indépendants du pays.
             </Text>
           </View>
         </Section>
@@ -162,7 +224,7 @@ export default function LandingScreen() {
         <Section title="Bientôt sur mobile" center>
           <Text style={styles.mobileText}>
             L’application web fonctionne dès aujourd’hui sur ordinateur, tablette et téléphone. Les applications
-            natives arrivent prochainement.
+            natives arrivent prochainement, avec la connexion à un récepteur RTK pour les levés de précision.
           </Text>
           <View style={styles.storeRow}>
             <View style={styles.storeBadge}>
@@ -216,6 +278,19 @@ function Section({
   );
 }
 
+function PriceFeature({ text, muted, included }: { text: string; muted?: boolean; included?: boolean }) {
+  return (
+    <View style={styles.priceFeatureRow}>
+      <Feather
+        name={muted ? 'x' : 'check'}
+        size={14}
+        color={muted ? colors.textMuted : included === false ? colors.textMuted : colors.success}
+      />
+      <Text style={[styles.priceFeatureText, muted && styles.priceFeatureTextMuted]}>{text}</Text>
+    </View>
+  );
+}
+
 function AppPreview() {
   return (
     <View style={styles.preview}>
@@ -265,6 +340,8 @@ const styles = StyleSheet.create({
   },
   nav: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
     justifyContent: 'space-between',
     alignItems: 'center',
     maxWidth: 1080,
@@ -279,10 +356,19 @@ const styles = StyleSheet.create({
     color: colors.primary,
     letterSpacing: 2,
   },
+  navLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xl,
+  },
   navLink: {
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
+  },
+  navCta: {
+    height: 38,
+    paddingHorizontal: spacing.lg,
   },
   hero: {
     maxWidth: 1080,
@@ -517,6 +603,72 @@ const styles = StyleSheet.create({
     maxWidth: 560,
     alignSelf: 'center',
     lineHeight: 20,
+  },
+  pricingGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.lg,
+  },
+  priceCard: {
+    width: 250,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.md,
+  },
+  priceCardHighlight: {
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  priceBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  priceBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  priceName: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  priceAmountRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  priceAmount: {
+    fontSize: fontSize.xxl,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  pricePeriod: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: 4,
+  },
+  priceFeatures: {
+    gap: spacing.xs,
+  },
+  priceFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  priceFeatureText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  priceFeatureTextMuted: {
+    color: colors.textMuted,
   },
   swissBand: {
     alignItems: 'center',
