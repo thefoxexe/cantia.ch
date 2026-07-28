@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { Button, Card, Container, Field, Screen } from '../../../../components/ui';
 import { SettingsHeader } from '../../../../components/SettingsHeader';
@@ -16,11 +16,15 @@ const STATUSES: { key: string; label: string }[] = [
 
 export default function ChantierSettingsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { role } = useAuth();
+  const isAdmin = role === 'owner' || role === 'admin';
   const [name, setName] = useState('');
   const [clientName, setClientName] = useState('');
   const [address, setAddress] = useState('');
   const [status, setStatus] = useState('active');
   const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const [accessUserIds, setAccessUserIds] = useState<Set<string>>(new Set());
+  const [restricted, setRestricted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -31,12 +35,13 @@ export default function ChantierSettingsScreen() {
       setClientName(project.client_name ?? '');
       setAddress(project.address ?? '');
       setStatus(project.status);
-      const { data: memberRows } = await supabase
-        .from('organization_members')
-        .select('*')
-        .eq('organization_id', project.organization_id)
-        .order('created_at');
+      const [{ data: memberRows }, { data: accessRows }] = await Promise.all([
+        supabase.from('organization_members').select('*').eq('organization_id', project.organization_id).order('created_at'),
+        supabase.from('project_members').select('user_id').eq('project_id', id),
+      ]);
       setMembers(memberRows ?? []);
+      setRestricted((accessRows ?? []).length > 0);
+      setAccessUserIds(new Set((accessRows ?? []).map((r) => r.user_id)));
     }
     setLoaded(true);
   }, [id]);
@@ -60,6 +65,32 @@ export default function ChantierSettingsScreen() {
       })
       .eq('id', id);
     setSaving(false);
+  }
+
+  function hasAccess(userId: string): boolean {
+    return restricted ? accessUserIds.has(userId) : true;
+  }
+
+  async function toggleMemberAccess(member: OrganizationMember) {
+    if (!isAdmin || member.role === 'owner' || member.role === 'admin') return;
+
+    if (!restricted) {
+      // First restriction on an open chantier: materialize explicit access
+      // for everyone except the member being excluded right now.
+      const rows = members.filter((m) => m.user_id !== member.user_id).map((m) => ({ project_id: id, user_id: m.user_id }));
+      if (rows.length) await supabase.from('project_members').insert(rows);
+    } else if (accessUserIds.has(member.user_id)) {
+      await supabase.from('project_members').delete().eq('project_id', id).eq('user_id', member.user_id);
+    } else {
+      await supabase.from('project_members').insert({ project_id: id, user_id: member.user_id });
+    }
+    load();
+  }
+
+  async function openToEveryone() {
+    if (!isAdmin) return;
+    await supabase.from('project_members').delete().eq('project_id', id);
+    load();
   }
 
   if (!loaded) {
@@ -95,23 +126,40 @@ export default function ChantierSettingsScreen() {
 
           <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
 
-          <Text style={styles.sectionTitle}>Accès</Text>
-          <Card>
-            <View style={styles.accessNote}>
-              <Feather name="info" size={14} color={colors.textMuted} />
-              <Text style={styles.accessNoteText}>
-                Pour l'instant, tous les membres de votre équipe voient ce chantier. La restriction d'accès par
-                chantier arrive dans une prochaine mise à jour.
+          <View style={styles.accessHeader}>
+            <Text style={styles.sectionTitle}>Accès</Text>
+            {restricted ? (
+              <Text style={styles.openLink} onPress={openToEveryone}>
+                Rendre accessible à tous
               </Text>
-            </View>
-            {members.map((m, i) => (
-              <View key={m.id} style={[styles.memberRow, i < members.length - 1 && styles.memberRowBorder]}>
-                <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
-                <Text style={styles.memberRole}>
-                  {m.role === 'owner' ? 'Propriétaire' : m.role === 'admin' ? 'Administrateur' : 'Membre'}
-                </Text>
-              </View>
-            ))}
+            ) : null}
+          </View>
+          <Text style={styles.accessHint}>
+            {restricted
+              ? 'Ce chantier est restreint : seules les personnes activées ci-dessous y ont accès (fil, rapports, documents, photos, levés).'
+              : "Par défaut, tous les membres de l'équipe ont accès à ce chantier. Désactivez une personne pour restreindre l'accès."}
+          </Text>
+          <Card style={{ padding: 0, overflow: 'hidden' }}>
+            {members.map((m, i) => {
+              const alwaysOn = m.role === 'owner' || m.role === 'admin';
+              return (
+                <View key={m.id} style={[styles.memberRow, i < members.length - 1 && styles.memberRowBorder]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
+                    <Text style={styles.memberRole}>
+                      {alwaysOn ? (m.role === 'owner' ? 'Propriétaire · toujours accès' : 'Administrateur · toujours accès') : 'Membre'}
+                    </Text>
+                  </View>
+                  <Switch
+                    value={alwaysOn || hasAccess(m.user_id)}
+                    onValueChange={() => toggleMemberAccess(m)}
+                    disabled={!isAdmin || alwaysOn}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor="#fff"
+                  />
+                </View>
+              );
+            })}
           </Card>
         </Container>
       </ScrollView>
@@ -131,33 +179,37 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },
+  accessHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.xxl,
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
+  },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,
-    marginTop: spacing.xxl,
-    marginBottom: spacing.md,
   },
-  accessNote: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-    marginBottom: spacing.md,
+  openLink: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
   },
-  accessNoteText: {
-    flex: 1,
+  accessHint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 17,
+    marginBottom: spacing.md,
   },
   memberRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   memberRowBorder: {
     borderBottomWidth: 1,
@@ -171,5 +223,6 @@ const styles = StyleSheet.create({
   memberRole: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+    marginTop: 2,
   },
 });

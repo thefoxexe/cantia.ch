@@ -1,21 +1,28 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { LanguageProvider } from '../lib/i18n';
+import { getPendingInvite } from '../lib/pendingInvite';
 
 function RootNavigation() {
   const { session, organization, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  // undefined = not read from storage yet, null = no pending invite.
+  const [pendingInvite, setPendingInvite] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    getPendingInvite().then(setPendingInvite);
+  }, []);
 
   // The landing page and auth screens render immediately regardless of
   // `loading` — only the redirect decision waits for auth to resolve, so a
   // slow/hanging auth check never blocks the public pages from showing.
   useEffect(() => {
-    if (loading) return;
+    if (loading || pendingInvite === undefined) return;
     const segmentList = segments as string[];
     const inAuthGroup = segmentList[0] === '(auth)';
     const inAppGroup = segmentList[0] === '(app)';
@@ -27,11 +34,17 @@ function RootNavigation() {
     } else if (session && organization) {
       if (inAuthGroup || isLanding) router.replace('/(app)');
     } else if (session && !organization) {
-      if (subroute !== 'onboarding') router.replace('/(auth)/onboarding');
+      // A pending invite (from visiting a /join/<token> link) takes priority
+      // over the "create your own company" onboarding flow.
+      if (pendingInvite) {
+        if (subroute !== 'join') router.replace(`/(auth)/join/${pendingInvite}`);
+      } else if (subroute !== 'onboarding') {
+        router.replace('/(auth)/onboarding');
+      }
     } else if (inAppGroup) {
       router.replace('/(auth)/login');
     }
-  }, [session, organization, loading, segments, router]);
+  }, [session, organization, loading, pendingInvite, segments, router]);
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }

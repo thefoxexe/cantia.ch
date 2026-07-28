@@ -36,6 +36,26 @@ export interface Organization {
   updated_at: string;
 }
 
+export interface OrganizationInvite {
+  id: string;
+  organization_id: string;
+  token: string;
+  role: OrgRole;
+  created_by: string | null;
+  created_at: string;
+  expires_at: string;
+  used_by: string | null;
+  used_at: string | null;
+  revoked: boolean;
+}
+
+export interface ProjectMember {
+  id: string;
+  project_id: string;
+  user_id: string;
+  created_at: string;
+}
+
 export interface OrganizationMember {
   id: string;
   organization_id: string;
