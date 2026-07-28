@@ -7,6 +7,7 @@ import { getSignedUrl } from '../../../../lib/api/storage';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
+import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
@@ -109,8 +110,28 @@ export default function ChantierDetailScreen() {
           </View>
         ) : null}
 
-        {tab === 'documents' ? <ProjectDocuments projectId={id} /> : null}
-        {tab === 'photos' ? <ProjectPhotos projectId={id} /> : null}
+        {tab === 'documents' ? (
+          <View>
+            <FeatureHint
+              id="chantier-documents"
+              icon="folder"
+              title="Un classeur numérique par chantier"
+              text="Organisez vos plans et documents en dossiers et sous-dossiers, comme dans un classeur physique."
+            />
+            <ProjectDocuments projectId={id} />
+          </View>
+        ) : null}
+        {tab === 'photos' ? (
+          <View>
+            <FeatureHint
+              id="chantier-photos"
+              icon="image"
+              title="Toutes vos photos, filtrables"
+              text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
+            />
+            <ProjectPhotos projectId={id} />
+          </View>
+        ) : null}
       </ScrollView>
     </Screen>
   );

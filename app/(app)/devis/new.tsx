@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, Screen } from '../../../components/ui';
+import { FeatureHint } from '../../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 interface Line {
@@ -99,6 +100,12 @@ export default function NewDevisScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
+          <FeatureHint
+            id="devis-new"
+            icon="file-text"
+            title="Choisissez le style de votre PDF"
+            text="Plusieurs modèles de devis sont disponibles (classique, moderne, minimal, structuré). Sélectionnez celui que vous préférez et ajoutez votre logo dans Compte → Modèle de devis PDF."
+          />
           <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
           <Field label="Adresse du client" value={clientAddress} onChangeText={setClientAddress} placeholder="Adresse" />
           <Field

@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { Card, Screen } from '../../components/ui';
+import { FeatureHint } from '../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -62,6 +63,13 @@ export default function DashboardScreen() {
       >
         <Text style={styles.hello}>Bonjour</Text>
         <Text style={styles.org}>{organization?.name}</Text>
+
+        <FeatureHint
+          id="dashboard-welcome"
+          icon="compass"
+          title="Bienvenue sur Opus"
+          text="Créez un chantier, ajoutez des rapports et des documents sur le terrain, puis générez vos devis en quelques minutes."
+        />
 
         <View style={styles.grid}>
           <Card style={styles.tile}>
