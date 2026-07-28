@@ -13,10 +13,11 @@ const PAGE_WIDTH = 595.28; // A4 pt
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 
-const INK = rgb(0.12, 0.14, 0.18);
-const MUTED = rgb(0.45, 0.48, 0.53);
-const BRAND = rgb(0.14, 0.35, 0.85);
-const LINE = rgb(0.85, 0.87, 0.9);
+const INK = rgb(0.0941, 0.1098, 0.1059);
+const MUTED = rgb(0.3608, 0.3961, 0.3765);
+const BRAND = rgb(0.1216, 0.2392, 0.2275);
+const ACCENT = rgb(0.6902, 0.4118, 0.1725);
+const LINE = rgb(0.8824, 0.8706, 0.8314);
 
 function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const lines: string[] = [];
@@ -172,6 +173,11 @@ Deno.serve(async (req: Request) => {
       drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
       y -= 12;
     }
+    const contactLine = [org?.phone, org?.email, org?.website].filter(Boolean).join(' · ');
+    if (contactLine) {
+      drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
+      y -= 12;
+    }
     y -= 16;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
     y -= 26;
@@ -194,7 +200,7 @@ Deno.serve(async (req: Request) => {
 
     // ---- Notes ----
     if (report.notes?.trim()) {
-      drawText(page, 'Notes', MARGIN, y, fontBold, 12, BRAND);
+      drawText(page, 'Notes', MARGIN, y, fontBold, 12, ACCENT);
       y -= 16;
       const lines = wrapText(report.notes, font, 10.5, PAGE_WIDTH - 2 * MARGIN);
       for (const line of lines) {
@@ -209,7 +215,7 @@ Deno.serve(async (req: Request) => {
     const photoList = photos ?? [];
     if (photoList.length > 0) {
       if (y < MARGIN + 220) newPage();
-      drawText(page, `Photos (${photoList.length})`, MARGIN, y, fontBold, 12, BRAND);
+      drawText(page, `Photos (${photoList.length})`, MARGIN, y, fontBold, 12, ACCENT);
       y -= 18;
 
       const cols = 2;

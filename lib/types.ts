@@ -17,6 +17,12 @@ export interface Organization {
   signature_url: string | null;
   address: string | null;
   ide_number: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  default_vat_rate: number;
+  devis_validity_days: number;
+  devis_terms: string | null;
   plan_id: string;
   created_at: string;
   updated_at: string;
@@ -106,10 +112,21 @@ export interface OpusFile {
   id: string;
   organization_id: string;
   project_id: string | null;
+  folder_id: string | null;
   name: string;
   storage_path: string;
   size_bytes: number;
   mime_type: string | null;
   uploaded_by: string | null;
+  created_at: string;
+}
+
+export interface Folder {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  parent_id: string | null;
+  name: string;
+  created_by: string | null;
   created_at: string;
 }

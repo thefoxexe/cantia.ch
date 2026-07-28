@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { Card, Screen } from '../../components/ui';
-import { colors, fontSize, spacing } from '../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../lib/theme';
+
+type IconName = keyof typeof Feather.glyphMap;
 
 interface Counts {
   projects: number;
@@ -13,7 +16,7 @@ interface Counts {
 }
 
 export default function DashboardScreen() {
-  const { organization, user } = useAuth();
+  const { organization } = useAuth();
   const router = useRouter();
   const [counts, setCounts] = useState<Counts>({ projects: 0, reports: 0, devisPending: 0 });
   const [refreshing, setRefreshing] = useState(false);
@@ -57,7 +60,7 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <Text style={styles.hello}>Bonjour 👋</Text>
+        <Text style={styles.hello}>Bonjour</Text>
         <Text style={styles.org}>{organization?.name}</Text>
 
         <View style={styles.grid}>
@@ -77,20 +80,24 @@ export default function DashboardScreen() {
 
         <Text style={styles.sectionTitle}>Actions rapides</Text>
         <View style={styles.actions}>
-          <QuickAction label="+ Nouveau chantier" onPress={() => router.push('/(app)/chantiers/new')} />
-          <QuickAction label="+ Nouveau devis" onPress={() => router.push('/(app)/devis/new')} />
-          <QuickAction label="☁️ Ouvrir le cloud" onPress={() => router.push('/(app)/cloud')} />
+          <QuickAction icon="plus-circle" label="Nouveau chantier" onPress={() => router.push('/(app)/chantiers/new')} />
+          <QuickAction icon="file-plus" label="Nouveau devis" onPress={() => router.push('/(app)/devis/new')} />
+          <QuickAction icon="cloud" label="Ouvrir le cloud" onPress={() => router.push('/(app)/cloud')} />
         </View>
       </ScrollView>
     </Screen>
   );
 }
 
-function QuickAction({ label, onPress }: { label: string; onPress: () => void }) {
+function QuickAction({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress}>
       <Card style={styles.action}>
+        <View style={styles.actionIcon}>
+          <Feather name={icon} size={18} color={colors.primary} />
+        </View>
         <Text style={styles.actionText}>{label}</Text>
+        <Feather name="chevron-right" size={18} color={colors.textMuted} />
       </Card>
     </Pressable>
   );
@@ -100,6 +107,9 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 2,
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
   hello: {
     fontSize: fontSize.md,
@@ -142,9 +152,21 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   action: {
-    paddingVertical: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+  },
+  actionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
   },
   actionText: {
+    flex: 1,
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,

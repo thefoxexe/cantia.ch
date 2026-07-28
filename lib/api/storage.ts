@@ -27,6 +27,17 @@ export async function getSignedUrl(path: string, expiresInSeconds = 3600): Promi
   return data.signedUrl;
 }
 
+export async function getSignedUrls(paths: string[], expiresInSeconds = 3600): Promise<Record<string, string>> {
+  if (paths.length === 0) return {};
+  const { data, error } = await supabase.storage.from(STORAGE_BUCKET).createSignedUrls(paths, expiresInSeconds);
+  if (error || !data) return {};
+  const map: Record<string, string> = {};
+  for (const item of data) {
+    if (item.path && item.signedUrl) map[item.path] = item.signedUrl;
+  }
+  return map;
+}
+
 export async function deleteFromOrgBucket(path: string): Promise<{ error: string | null }> {
   const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
   return { error: error?.message ?? null };

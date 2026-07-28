@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Alert, FlatList, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { deleteFromOrgBucket, formatBytes, getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
@@ -106,7 +107,8 @@ export default function CloudScreen() {
       </Card>
 
       <Pressable style={styles.uploadButton} onPress={handleUpload} disabled={uploading}>
-        <Text style={styles.uploadButtonText}>{uploading ? 'Envoi en cours…' : '⬆️ Importer un document'}</Text>
+        <Feather name="upload" size={16} color="#fff" />
+        <Text style={styles.uploadButtonText}>{uploading ? 'Envoi en cours…' : 'Importer un document'}</Text>
       </Pressable>
 
       <FlatList
@@ -122,16 +124,17 @@ export default function CloudScreen() {
         }
         renderItem={({ item }) => (
           <Card style={styles.fileRow}>
+            <Feather name="file" size={18} color={colors.textMuted} />
             <Pressable style={{ flex: 1 }} onPress={() => openFile(item)}>
               <Text style={styles.fileName} numberOfLines={1}>
-                📎 {item.name}
+                {item.name}
               </Text>
               <Text style={styles.meta}>
                 {formatBytes(item.size_bytes)} · {new Date(item.created_at).toLocaleDateString('fr-CH')}
               </Text>
             </Pressable>
-            <Pressable onPress={() => removeFile(item)}>
-              <Text style={styles.remove}>✕</Text>
+            <Pressable onPress={() => removeFile(item)} hitSlop={8}>
+              <Feather name="trash-2" size={16} color={colors.textMuted} />
             </Pressable>
           </Card>
         )}
@@ -163,6 +166,8 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   uploadButton: {
+    flexDirection: 'row',
+    gap: spacing.sm,
     backgroundColor: colors.primary,
     borderRadius: radius.md,
     height: 48,
@@ -178,6 +183,7 @@ const styles = StyleSheet.create({
   fileRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.md,
     paddingVertical: spacing.md,
   },
   fileName: {
@@ -189,10 +195,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
-  },
-  remove: {
-    fontSize: fontSize.lg,
-    color: colors.danger,
-    paddingHorizontal: spacing.sm,
   },
 });

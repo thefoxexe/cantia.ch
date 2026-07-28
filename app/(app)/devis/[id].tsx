@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
-import { Button, Card, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, Screen, StatusBadge } from '../../../components/ui';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Devis, DevisItem, DevisStatus } from '../../../lib/types';
 
@@ -75,7 +75,8 @@ export default function DevisDetailScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll}>
+      <Container>
         <Card>
           <View style={styles.headerRow}>
             <Text style={styles.number}>{devis.number}</Text>
@@ -139,15 +140,22 @@ export default function DevisDetailScreen() {
           style={{ marginTop: spacing.lg }}
         />
         {devis.pdf_path ? (
-          <Button title="📄 Ouvrir le PDF" onPress={openPdf} variant="secondary" style={{ marginTop: spacing.md }} />
+          <Button
+            title="Ouvrir le PDF"
+            icon="file-text"
+            onPress={openPdf}
+            variant="secondary"
+            style={{ marginTop: spacing.md }}
+          />
         ) : null}
+      </Container>
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 2,
   },

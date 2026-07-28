@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, Screen } from '../../../components/ui';
@@ -63,6 +64,7 @@ export default function NewDevisScreen() {
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
         notes: notes.trim() || null,
+        vat_rate: organization.default_vat_rate,
         created_by: user?.id,
       })
       .select()
@@ -94,87 +96,111 @@ export default function NewDevisScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
-      <ScrollView>
-        <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
-        <Field label="Adresse du client" value={clientAddress} onChangeText={setClientAddress} placeholder="Adresse" />
-        <Field
-          label="E-mail du client"
-          value={clientEmail}
-          onChangeText={setClientEmail}
-          placeholder="client@exemple.ch"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+    <Screen>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
+        <View style={styles.content}>
+          <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
+          <Field label="Adresse du client" value={clientAddress} onChangeText={setClientAddress} placeholder="Adresse" />
+          <Field
+            label="E-mail du client"
+            value={clientEmail}
+            onChangeText={setClientEmail}
+            placeholder="client@exemple.ch"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-        <Text style={styles.fieldLabel}>Notes de rendez-vous</Text>
-        <TextInput
-          style={styles.notes}
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Ce que le client souhaite…"
-          placeholderTextColor={colors.textMuted}
-          multiline
-          textAlignVertical="top"
-        />
+          <Text style={styles.fieldLabel}>Notes de rendez-vous</Text>
+          <TextInput
+            style={styles.notes}
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Ce que le client souhaite…"
+            placeholderTextColor={colors.textMuted}
+            multiline
+            textAlignVertical="top"
+          />
 
-        <Text style={styles.sectionTitle}>Lignes du devis</Text>
-        {lines.map((line, i) => (
-          <View key={i} style={styles.lineCard}>
-            <TextInput
-              style={styles.lineDesc}
-              value={line.description}
-              onChangeText={(t) => updateLine(i, { description: t })}
-              placeholder="Description de la prestation"
-              placeholderTextColor={colors.textMuted}
-              multiline
-            />
-            <View style={styles.lineRow}>
-              <TextInput
-                style={styles.lineSmall}
-                value={line.quantity}
-                onChangeText={(t) => updateLine(i, { quantity: t })}
-                placeholder="Qté"
-                keyboardType="decimal-pad"
-                placeholderTextColor={colors.textMuted}
-              />
-              <TextInput
-                style={styles.lineSmall}
-                value={line.unit}
-                onChangeText={(t) => updateLine(i, { unit: t })}
-                placeholder="Unité"
-                placeholderTextColor={colors.textMuted}
-              />
-              <TextInput
-                style={styles.lineSmall}
-                value={line.unitPrice}
-                onChangeText={(t) => updateLine(i, { unitPrice: t })}
-                placeholder="Prix CHF"
-                keyboardType="decimal-pad"
-                placeholderTextColor={colors.textMuted}
-              />
-              <Pressable onPress={() => removeLine(i)}>
-                <Text style={styles.remove}>✕</Text>
-              </Pressable>
-            </View>
-          </View>
-        ))}
+          <Text style={styles.sectionTitle}>Lignes du devis</Text>
+          {lines.map((line, i) => {
+            const lineTotal = (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0);
+            return (
+              <View key={i} style={styles.lineCard}>
+                <View style={styles.lineCardHeader}>
+                  <Text style={styles.lineIndex}>Ligne {i + 1}</Text>
+                  {lines.length > 1 ? (
+                    <Pressable onPress={() => removeLine(i)} hitSlop={8}>
+                      <Feather name="trash-2" size={16} color={colors.textMuted} />
+                    </Pressable>
+                  ) : null}
+                </View>
+                <TextInput
+                  style={styles.lineDesc}
+                  value={line.description}
+                  onChangeText={(t) => updateLine(i, { description: t })}
+                  placeholder="Description de la prestation"
+                  placeholderTextColor={colors.textMuted}
+                  multiline
+                />
+                <View style={styles.lineFields}>
+                  <View style={styles.lineFieldQty}>
+                    <Text style={styles.lineFieldLabel}>Qté</Text>
+                    <TextInput
+                      style={styles.lineInput}
+                      value={line.quantity}
+                      onChangeText={(t) => updateLine(i, { quantity: t })}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.textMuted}
+                    />
+                  </View>
+                  <View style={styles.lineFieldUnit}>
+                    <Text style={styles.lineFieldLabel}>Unité</Text>
+                    <TextInput
+                      style={styles.lineInput}
+                      value={line.unit}
+                      onChangeText={(t) => updateLine(i, { unit: t })}
+                      placeholder="pce, h, m²…"
+                      placeholderTextColor={colors.textMuted}
+                    />
+                  </View>
+                  <View style={styles.lineFieldPrice}>
+                    <Text style={styles.lineFieldLabel}>Prix unit. CHF</Text>
+                    <TextInput
+                      style={styles.lineInput}
+                      value={line.unitPrice}
+                      onChangeText={(t) => updateLine(i, { unitPrice: t })}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.textMuted}
+                    />
+                  </View>
+                </View>
+                <Text style={styles.lineTotal}>Sous-total : CHF {lineTotal.toFixed(2)}</Text>
+              </View>
+            );
+          })}
 
-        <Pressable style={styles.addLine} onPress={addLine}>
-          <Text style={styles.addLineText}>+ Ajouter une ligne</Text>
-        </Pressable>
+          <Pressable style={styles.addLine} onPress={addLine}>
+            <Feather name="plus" size={16} color={colors.primary} />
+            <Text style={styles.addLineText}>Ajouter une ligne</Text>
+          </Pressable>
 
-        <Text style={styles.total}>Total HT estimé : CHF {total.toFixed(2)}</Text>
+          <Text style={styles.total}>Total HT estimé : CHF {total.toFixed(2)}</Text>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Button title="Créer le devis" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+          <Button title="Créer le devis" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+        </View>
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  content: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
+  },
   fieldLabel: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
@@ -206,38 +232,75 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     marginBottom: spacing.md,
   },
+  lineCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  lineIndex: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   lineDesc: {
     fontSize: fontSize.md,
     color: colors.text,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+    minHeight: 44,
   },
-  lineRow: {
+  lineFields: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
-    alignItems: 'center',
   },
-  lineSmall: {
-    flex: 1,
+  lineFieldQty: {
+    flexBasis: 80,
+    flexGrow: 1,
+  },
+  lineFieldUnit: {
+    flexBasis: 100,
+    flexGrow: 1,
+  },
+  lineFieldPrice: {
+    flexBasis: 130,
+    flexGrow: 1.4,
+  },
+  lineFieldLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  lineInput: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
-    height: 38,
+    height: 40,
     fontSize: fontSize.sm,
     color: colors.text,
+    backgroundColor: colors.bg,
   },
-  remove: {
-    fontSize: fontSize.lg,
-    color: colors.danger,
-    paddingHorizontal: spacing.xs,
+  lineTotal: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'right',
+    marginTop: spacing.md,
   },
   addLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
     borderStyle: 'dashed',
     borderRadius: radius.md,
     paddingVertical: spacing.md,
-    alignItems: 'center',
     marginBottom: spacing.lg,
   },
   addLineText: {

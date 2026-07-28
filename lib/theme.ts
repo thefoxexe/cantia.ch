@@ -1,18 +1,21 @@
 export const colors = {
-  bg: '#F5F6F8',
+  bg: '#F5F4F0',
   surface: '#FFFFFF',
-  border: '#E3E6EA',
-  text: '#1B1F24',
-  textMuted: '#6B7280',
-  primary: '#1E4FD6',
-  primaryDark: '#15379E',
-  primarySoft: '#EAF0FF',
-  danger: '#D6431E',
-  dangerSoft: '#FCE9E3',
-  success: '#1E9E5A',
-  successSoft: '#E4F6EC',
-  warning: '#C77D0A',
-  warningSoft: '#FBF0DD',
+  surfaceAlt: '#F0EEE7',
+  border: '#E1DED4',
+  text: '#181C1B',
+  textMuted: '#5C6560',
+  primary: '#1F3D3A',
+  primaryDark: '#12211F',
+  primarySoft: '#E3EAE8',
+  accent: '#B0692C',
+  accentSoft: '#F3E4D4',
+  danger: '#AB3327',
+  dangerSoft: '#F5E1DE',
+  success: '#2E6B4F',
+  successSoft: '#E2EEE6',
+  warning: '#9C6510',
+  warningSoft: '#F3E8D6',
 };
 
 export const spacing = {
@@ -22,12 +25,14 @@ export const spacing = {
   lg: 16,
   xl: 24,
   xxl: 32,
+  xxxl: 48,
 };
 
 export const radius = {
   sm: 8,
   md: 12,
   lg: 16,
+  xl: 22,
   pill: 999,
 };
 
@@ -38,4 +43,10 @@ export const fontSize = {
   lg: 17,
   xl: 20,
   xxl: 26,
+  xxxl: 34,
+};
+
+export const breakpoints = {
+  tablet: 640,
+  desktop: 960,
 };

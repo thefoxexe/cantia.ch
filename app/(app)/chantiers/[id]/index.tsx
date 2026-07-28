@@ -1,11 +1,22 @@
 import { useCallback, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../lib/supabase';
 import { getSignedUrl } from '../../../../lib/api/storage';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
+import { ProjectDocuments } from '../../../../components/ProjectDocuments';
+import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
+
+type Tab = 'reports' | 'documents' | 'photos';
+
+const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
+  { key: 'reports', label: 'Rapports', icon: 'file-text' },
+  { key: 'documents', label: 'Documents', icon: 'folder' },
+  { key: 'photos', label: 'Photos', icon: 'image' },
+];
 
 export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -13,6 +24,7 @@ export default function ChantierDetailScreen() {
   const [project, setProject] = useState<Project | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<Tab>('reports');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -56,34 +68,49 @@ export default function ChantierDetailScreen() {
           {project.address ? <Text style={styles.meta}>{project.address}</Text> : null}
         </Card>
 
-        <Pressable
-          style={styles.newButton}
-          onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}
-        >
-          <Text style={styles.newButtonText}>+ Nouveau rapport de chantier</Text>
-        </Pressable>
+        <View style={styles.tabBar}>
+          {TABS.map((t) => (
+            <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabItem}>
+              <Feather name={t.icon} size={16} color={tab === t.key ? colors.primary : colors.textMuted} />
+              <Text style={[styles.tabLabel, tab === t.key && styles.tabLabelActive]}>{t.label}</Text>
+              {tab === t.key ? <View style={styles.tabIndicator} /> : null}
+            </Pressable>
+          ))}
+        </View>
 
-        <Text style={styles.sectionTitle}>Rapports</Text>
-        {reports.length === 0 && !loading ? (
-          <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
-        ) : (
-          <View style={{ gap: spacing.md }}>
-            {reports.map((r) => (
-              <Card key={r.id}>
-                <View style={styles.headerRow}>
-                  <Text style={styles.reportTitle}>{r.title}</Text>
-                  <StatusBadge status={r.status} />
-                </View>
-                <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
-                {r.pdf_path ? (
-                  <Pressable onPress={() => openPdf(r.pdf_path!)}>
-                    <Text style={styles.pdfLink}>📄 Ouvrir le PDF</Text>
-                  </Pressable>
-                ) : null}
-              </Card>
-            ))}
+        {tab === 'reports' ? (
+          <View>
+            <Pressable style={styles.newButton} onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}>
+              <Feather name="plus" size={16} color="#fff" />
+              <Text style={styles.newButtonText}>Nouveau rapport de chantier</Text>
+            </Pressable>
+
+            {reports.length === 0 && !loading ? (
+              <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
+            ) : (
+              <View style={{ gap: spacing.md }}>
+                {reports.map((r) => (
+                  <Card key={r.id}>
+                    <View style={styles.headerRow}>
+                      <Text style={styles.reportTitle}>{r.title}</Text>
+                      <StatusBadge status={r.status} />
+                    </View>
+                    <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
+                    {r.pdf_path ? (
+                      <Pressable onPress={() => openPdf(r.pdf_path!)} style={styles.pdfLink}>
+                        <Feather name="file-text" size={14} color={colors.primary} />
+                        <Text style={styles.pdfLinkText}>Ouvrir le PDF</Text>
+                      </Pressable>
+                    ) : null}
+                  </Card>
+                ))}
+              </View>
+            )}
           </View>
-        )}
+        ) : null}
+
+        {tab === 'documents' ? <ProjectDocuments projectId={id} /> : null}
+        {tab === 'photos' ? <ProjectPhotos projectId={id} /> : null}
       </ScrollView>
     </Screen>
   );
@@ -94,6 +121,9 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.lg,
     paddingBottom: spacing.xxl * 2,
+    maxWidth: 880,
+    width: '100%',
+    alignSelf: 'center',
   },
   headerRow: {
     flexDirection: 'row',
@@ -117,26 +147,60 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
   },
+  tabBar: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    marginTop: -spacing.sm,
+  },
+  tabItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    position: 'relative',
+  },
+  tabLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  tabLabelActive: {
+    color: colors.primary,
+  },
+  tabIndicator: {
+    position: 'absolute',
+    bottom: -1,
+    left: spacing.md,
+    right: spacing.md,
+    height: 2,
+    backgroundColor: colors.primary,
+  },
   newButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
     backgroundColor: colors.primary,
     borderRadius: radius.md,
     height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: spacing.lg,
   },
   newButtonText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: fontSize.md,
   },
-  sectionTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
   pdfLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  pdfLinkText: {
     color: colors.primary,
     fontWeight: '600',
-    marginTop: spacing.xs,
+    fontSize: fontSize.sm,
   },
 });

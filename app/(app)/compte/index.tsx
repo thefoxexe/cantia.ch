@@ -2,18 +2,25 @@ import { useCallback, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
-import { Button, Card, Field, Screen } from '../../../components/ui';
+import { Button, Card, Container, Field, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { OrganizationMember, Plan } from '../../../lib/types';
+import type { OrgRole, OrganizationMember, Plan } from '../../../lib/types';
 
 export default function CompteScreen() {
-  const { organization, role, refreshOrganization, signOut } = useAuth();
+  const { organization, role, user, refreshOrganization, signOut } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
   const [address, setAddress] = useState(organization?.address ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
+  const [phone, setPhone] = useState(organization?.phone ?? '');
+  const [email, setEmail] = useState(organization?.email ?? '');
+  const [website, setWebsite] = useState(organization?.website ?? '');
+  const [vatRate, setVatRate] = useState(String(organization?.default_vat_rate ?? 8.1));
+  const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
+  const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
   const [saving, setSaving] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
@@ -26,9 +33,15 @@ export default function CompteScreen() {
     setName(organization.name);
     setAddress(organization.address ?? '');
     setIdeNumber(organization.ide_number ?? '');
+    setPhone(organization.phone ?? '');
+    setEmail(organization.email ?? '');
+    setWebsite(organization.website ?? '');
+    setVatRate(String(organization.default_vat_rate ?? 8.1));
+    setValidityDays(String(organization.devis_validity_days ?? 30));
+    setDevisTerms(organization.devis_terms ?? '');
 
     const [{ data: memberRows }, { data: planRows }] = await Promise.all([
-      supabase.from('organization_members').select('*').eq('organization_id', organization.id),
+      supabase.from('organization_members').select('*').eq('organization_id', organization.id).order('created_at'),
       supabase.from('plans').select('*').order('price_chf_monthly', { ascending: true }),
     ]);
     setMembers(memberRows ?? []);
@@ -49,7 +62,17 @@ export default function CompteScreen() {
     setSaving(true);
     await supabase
       .from('organizations')
-      .update({ name: name.trim(), address: address.trim() || null, ide_number: ideNumber.trim() || null })
+      .update({
+        name: name.trim(),
+        address: address.trim() || null,
+        ide_number: ideNumber.trim() || null,
+        phone: phone.trim() || null,
+        email: email.trim() || null,
+        website: website.trim() || null,
+        default_vat_rate: Number(vatRate) || 0,
+        devis_validity_days: Number(validityDays) || 30,
+        devis_terms: devisTerms.trim() || null,
+      })
       .eq('id', organization.id);
     setSaving(false);
     refreshOrganization();
@@ -83,74 +106,184 @@ export default function CompteScreen() {
     load();
   }
 
+  async function toggleMemberRole(member: OrganizationMember) {
+    if (!isAdmin || member.role === 'owner') return;
+    const nextRole: OrgRole = member.role === 'admin' ? 'member' : 'admin';
+    await supabase.from('organization_members').update({ role: nextRole }).eq('id', member.id);
+    load();
+  }
+
+  async function removeMember(member: OrganizationMember) {
+    if (!isAdmin || member.role === 'owner' || member.user_id === user?.id) return;
+    await supabase.from('organization_members').delete().eq('id', member.id);
+    load();
+  }
+
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.sectionTitle}>Entreprise</Text>
-        <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
-        <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
-        <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
-        {isAdmin ? <Button title="Enregistrer" onPress={handleSave} loading={saving} /> : null}
-
-        <Text style={styles.sectionTitle}>Identité visuelle</Text>
-        <View style={styles.brandingRow}>
-          <View style={styles.brandingItem}>
-            <Text style={styles.brandingLabel}>Logo</Text>
-            {logoUrl ? <Image source={{ uri: logoUrl }} style={styles.logoPreview} /> : null}
-            <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
-              <Text style={styles.brandingButtonText}>Choisir un logo</Text>
-            </Pressable>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+        <Container>
+          <Text style={styles.sectionTitle}>Entreprise</Text>
+          <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
+          <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
+          <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
+          <View style={styles.row2}>
+            <View style={styles.row2Item}>
+              <Field
+                label="Téléphone"
+                value={phone}
+                onChangeText={setPhone}
+                editable={isAdmin}
+                keyboardType="phone-pad"
+                placeholder="+41 79 000 00 00"
+              />
+            </View>
+            <View style={styles.row2Item}>
+              <Field
+                label="E-mail entreprise"
+                value={email}
+                onChangeText={setEmail}
+                editable={isAdmin}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="contact@entreprise.ch"
+              />
+            </View>
           </View>
-          <View style={styles.brandingItem}>
-            <Text style={styles.brandingLabel}>Signature</Text>
-            {signatureUrl ? <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} /> : null}
-            <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
-              <Text style={styles.brandingButtonText}>Choisir une signature</Text>
-            </Pressable>
-          </View>
-        </View>
-        <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
+          <Field
+            label="Site web"
+            value={website}
+            onChangeText={setWebsite}
+            editable={isAdmin}
+            autoCapitalize="none"
+            placeholder="www.entreprise.ch"
+          />
 
-        <Text style={styles.sectionTitle}>Plan & abonnement</Text>
-        {plans.map((p) => (
-          <Pressable key={p.id} onPress={() => changePlan(p.id)} disabled={!isAdmin}>
-            <Card style={[styles.planCard, organization?.plan_id === p.id && styles.planCardActive]}>
-              <View style={styles.planRow}>
-                <Text style={styles.planName}>{p.name}</Text>
-                <Text style={styles.planPrice}>CHF {p.price_chf_monthly}/mois</Text>
+          <Text style={styles.sectionTitle}>Réglages des devis</Text>
+          <View style={styles.row2}>
+            <View style={styles.row2Item}>
+              <Field label="TVA par défaut (%)" value={vatRate} onChangeText={setVatRate} editable={isAdmin} keyboardType="decimal-pad" />
+            </View>
+            <View style={styles.row2Item}>
+              <Field
+                label="Validité (jours)"
+                value={validityDays}
+                onChangeText={setValidityDays}
+                editable={isAdmin}
+                keyboardType="number-pad"
+              />
+            </View>
+          </View>
+          <Field
+            label="Mentions / conditions (pied de page PDF)"
+            value={devisTerms}
+            onChangeText={setDevisTerms}
+            editable={isAdmin}
+            placeholder="Ex : Paiement à 30 jours net. TVA non incluse dans les acomptes."
+            multiline
+            style={styles.terms}
+          />
+
+          {isAdmin ? (
+            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+          ) : null}
+
+          <Text style={styles.sectionTitle}>Identité visuelle</Text>
+          <View style={styles.brandingRow}>
+            <View style={styles.brandingItem}>
+              <Text style={styles.brandingLabel}>Logo</Text>
+              {logoUrl ? (
+                <Image source={{ uri: logoUrl }} style={styles.logoPreview} />
+              ) : (
+                <View style={[styles.logoPreview, styles.brandPlaceholder]}>
+                  <Feather name="image" size={20} color={colors.textMuted} />
+                </View>
+              )}
+              <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
+                <Text style={styles.brandingButtonText}>Choisir un logo</Text>
+              </Pressable>
+            </View>
+            <View style={styles.brandingItem}>
+              <Text style={styles.brandingLabel}>Signature</Text>
+              {signatureUrl ? (
+                <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} />
+              ) : (
+                <View style={[styles.signaturePreview, styles.brandPlaceholder]}>
+                  <Feather name="edit-3" size={20} color={colors.textMuted} />
+                </View>
+              )}
+              <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
+                <Text style={styles.brandingButtonText}>Choisir une signature</Text>
+              </Pressable>
+            </View>
+          </View>
+          <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
+
+          <Text style={styles.sectionTitle}>Plan & abonnement</Text>
+          {plans.map((p) => (
+            <Pressable key={p.id} onPress={() => changePlan(p.id)} disabled={!isAdmin}>
+              <Card style={[styles.planCard, organization?.plan_id === p.id && styles.planCardActive]}>
+                <View style={styles.planRow}>
+                  <Text style={styles.planName}>{p.name}</Text>
+                  <Text style={styles.planPrice}>CHF {p.price_chf_monthly}/mois</Text>
+                </View>
+                <Text style={styles.meta}>
+                  {(p.storage_quota_mb / 1024).toFixed(0)} Go de stockage · {p.max_members} membre(s)
+                </Text>
+              </Card>
+            </Pressable>
+          ))}
+
+          <Text style={styles.sectionTitle}>Équipe</Text>
+          {members.map((m) => (
+            <Card key={m.id} style={styles.memberRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
+                <Text style={styles.memberRole}>
+                  {m.role === 'owner' ? 'Propriétaire' : m.role === 'admin' ? 'Administrateur' : 'Membre'}
+                </Text>
               </View>
-              <Text style={styles.meta}>
-                {(p.storage_quota_mb / 1024).toFixed(0)} Go de stockage · {p.max_members} membre(s)
-              </Text>
+              {isAdmin && m.role !== 'owner' ? (
+                <View style={styles.memberActions}>
+                  <Pressable style={styles.memberActionButton} onPress={() => toggleMemberRole(m)}>
+                    <Text style={styles.memberActionText}>{m.role === 'admin' ? 'Rétrograder' : 'Promouvoir'}</Text>
+                  </Pressable>
+                  {m.user_id !== user?.id ? (
+                    <Pressable hitSlop={8} onPress={() => removeMember(m)}>
+                      <Feather name="user-x" size={16} color={colors.danger} />
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : null}
             </Card>
-          </Pressable>
-        ))}
+          ))}
 
-        <Text style={styles.sectionTitle}>Équipe</Text>
-        {members.map((m) => (
-          <Card key={m.id} style={styles.memberRow}>
-            <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
-            <Text style={styles.memberRole}>{m.role}</Text>
-          </Card>
-        ))}
-
-        <Button title="Se déconnecter" variant="secondary" onPress={signOut} style={{ marginTop: spacing.xl }} />
+          <Button title="Se déconnecter" icon="log-out" variant="secondary" onPress={signOut} style={{ marginTop: spacing.xl }} />
+        </Container>
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: spacing.xl,
-    paddingBottom: spacing.xxl * 2,
-  },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
+  },
+  row2: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  row2Item: {
+    flex: 1,
+  },
+  terms: {
+    minHeight: 70,
+    paddingTop: spacing.md,
+    textAlignVertical: 'top',
   },
   brandingRow: {
     flexDirection: 'row',
@@ -165,18 +298,25 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.sm,
   },
+  brandPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
   logoPreview: {
     width: 80,
     height: 80,
     borderRadius: radius.md,
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
     marginBottom: spacing.sm,
   },
   signaturePreview: {
     width: 120,
     height: 60,
     borderRadius: radius.sm,
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
     marginBottom: spacing.sm,
   },
   brandingButton: {
@@ -231,10 +371,28 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: fontSize.md,
     color: colors.text,
+    fontWeight: '600',
   },
   memberRole: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.xs,
     color: colors.textMuted,
-    textTransform: 'capitalize',
+    marginTop: 2,
+  },
+  memberActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  memberActionButton: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  memberActionText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
   },
 });

@@ -10,10 +10,17 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+
+type IconName = keyof typeof Feather.glyphMap;
 
 export function Screen({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
   return <View style={[styles.screen, style]}>{children}</View>;
+}
+
+export function Container({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  return <View style={[styles.container, style]}>{children}</View>;
 }
 
 export function Card({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
@@ -24,6 +31,7 @@ export function Button({
   title,
   onPress,
   variant = 'primary',
+  icon,
   loading = false,
   disabled = false,
   style,
@@ -31,11 +39,13 @@ export function Button({
   title: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'danger';
+  icon?: IconName;
   loading?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const isDisabled = disabled || loading;
+  const textColor = variant === 'secondary' ? colors.text : '#fff';
   return (
     <Pressable
       onPress={onPress}
@@ -53,14 +63,10 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={variant === 'secondary' ? colors.primary : '#fff'} />
       ) : (
-        <Text
-          style={[
-            styles.buttonText,
-            variant === 'secondary' && styles.buttonTextSecondary,
-          ]}
-        >
-          {title}
-        </Text>
+        <>
+          {icon ? <Feather name={icon} size={17} color={textColor} style={{ marginRight: spacing.sm }} /> : null}
+          <Text style={[styles.buttonText, variant === 'secondary' && styles.buttonTextSecondary]}>{title}</Text>
+        </>
       )}
     </Pressable>
   );
@@ -121,11 +127,17 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   button: {
+    flexDirection: 'row',
     height: 48,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+  },
+  container: {
+    maxWidth: 880,
+    width: '100%',
+    alignSelf: 'center',
   },
   buttonPrimary: {
     backgroundColor: colors.primary,

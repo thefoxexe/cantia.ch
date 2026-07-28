@@ -13,10 +13,11 @@ const PAGE_WIDTH = 595.28; // A4 pt
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 
-const INK = rgb(0.12, 0.14, 0.18);
-const MUTED = rgb(0.45, 0.48, 0.53);
-const BRAND = rgb(0.14, 0.35, 0.85);
-const LINE = rgb(0.85, 0.87, 0.9);
+const INK = rgb(0.0941, 0.1098, 0.1059);
+const MUTED = rgb(0.3608, 0.3961, 0.3765);
+const BRAND = rgb(0.1216, 0.2392, 0.2275);
+const ACCENT = rgb(0.6902, 0.4118, 0.1725);
+const LINE = rgb(0.8824, 0.8706, 0.8314);
 
 function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const lines: string[] = [];
@@ -150,12 +151,17 @@ Deno.serve(async (req: Request) => {
       drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
       y -= 12;
     }
+    const contactLine = [org?.phone, org?.email, org?.website].filter(Boolean).join(' · ');
+    if (contactLine) {
+      drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
+      y -= 12;
+    }
     y -= 16;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
     y -= 28;
 
     // ---- Title ----
-    drawText(page, `Devis ${devis.number ?? ''}`, MARGIN, y, fontBold, 16, INK);
+    drawText(page, `Devis ${devis.number ?? ''}`, MARGIN, y, fontBold, 16, ACCENT);
     drawText(page, formatDate(devis.created_at), PAGE_WIDTH - MARGIN - 90, y, font, 10, MUTED);
     y -= 22;
 
@@ -239,8 +245,20 @@ Deno.serve(async (req: Request) => {
     drawTotalsLine(page, fontBold, y, 'Total TTC', chf(total), 12);
     y -= 30;
 
-    drawText(page, 'Devis valable 30 jours. Prix en francs suisses (CHF).', MARGIN, y, font, 8.5, MUTED);
-    y -= 30;
+    const validityDays = org?.devis_validity_days ?? 30;
+    const termsLines = wrapText(
+      org?.devis_terms?.trim()
+        ? `${org.devis_terms.trim()} Devis valable ${validityDays} jours. Prix en francs suisses (CHF).`
+        : `Devis valable ${validityDays} jours. Prix en francs suisses (CHF).`,
+      font,
+      8.5,
+      PAGE_WIDTH - 2 * MARGIN,
+    );
+    for (const line of termsLines) {
+      drawText(page, line, MARGIN, y, font, 8.5, MUTED);
+      y -= 11;
+    }
+    y -= 19;
 
     if (org?.signature_url) {
       const bytes = await fetchStorageBytes(admin, BUCKET, org.signature_url);

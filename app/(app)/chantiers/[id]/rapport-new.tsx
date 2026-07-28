@@ -3,6 +3,7 @@ import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View 
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../../lib/api/storage';
@@ -161,10 +162,12 @@ export default function NewReportScreen() {
         <Text style={styles.fieldLabel}>Photos ({photos.length})</Text>
         <View style={styles.photoButtons}>
           <Pressable style={styles.photoButton} onPress={addFromCamera}>
-            <Text style={styles.photoButtonText}>📷 Prendre une photo</Text>
+            <Feather name="camera" size={16} color={colors.text} />
+            <Text style={styles.photoButtonText}>Prendre une photo</Text>
           </Pressable>
           <Pressable style={styles.photoButton} onPress={addFromGallery}>
-            <Text style={styles.photoButtonText}>🖼️ Depuis la galerie</Text>
+            <Feather name="image" size={16} color={colors.text} />
+            <Text style={styles.photoButtonText}>Depuis la galerie</Text>
           </Pressable>
         </View>
 
@@ -179,12 +182,15 @@ export default function NewReportScreen() {
                 placeholder="Légende (optionnel)"
                 placeholderTextColor={colors.textMuted}
               />
-              <Text style={styles.geo}>
-                {p.latitude != null ? `📍 ${p.latitude.toFixed(4)}, ${p.longitude!.toFixed(4)}` : 'Position non disponible'}
-              </Text>
+              <View style={styles.geoRow}>
+                <Feather name="map-pin" size={11} color={colors.textMuted} />
+                <Text style={styles.geo}>
+                  {p.latitude != null ? `${p.latitude.toFixed(4)}, ${p.longitude!.toFixed(4)}` : 'Position non disponible'}
+                </Text>
+              </View>
             </View>
-            <Pressable onPress={() => removePhoto(i)}>
-              <Text style={styles.remove}>✕</Text>
+            <Pressable onPress={() => removePhoto(i)} hitSlop={8}>
+              <Feather name="x" size={18} color={colors.danger} />
             </Pressable>
           </View>
         ))}
@@ -228,11 +234,14 @@ const styles = StyleSheet.create({
   },
   photoButton: {
     flex: 1,
+    flexDirection: 'row',
+    gap: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.surface,
   },
   photoButtonText: {
@@ -262,15 +271,15 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
   },
+  geoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: spacing.xs,
+  },
   geo: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: spacing.xs,
-  },
-  remove: {
-    fontSize: fontSize.lg,
-    color: colors.danger,
-    paddingHorizontal: spacing.sm,
   },
   error: {
     color: colors.danger,
