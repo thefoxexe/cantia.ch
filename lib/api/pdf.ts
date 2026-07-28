@@ -1,19 +1,11 @@
-import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
 
 export async function generateReportPdf(reportId: string): Promise<{ url: string | null; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('generate-report-pdf', {
-    body: { report_id: reportId },
-  });
-  if (error) return { url: null, error: error.message };
-  if (data?.error) return { url: null, error: data.error };
-  return { url: data?.url ?? null, error: null };
+  const { data, error } = await invokeFunction<{ url: string }>('generate-report-pdf', { report_id: reportId });
+  return { url: data?.url ?? null, error };
 }
 
 export async function generateDevisPdf(devisId: string): Promise<{ url: string | null; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('generate-devis-pdf', {
-    body: { devis_id: devisId },
-  });
-  if (error) return { url: null, error: error.message };
-  if (data?.error) return { url: null, error: data.error };
-  return { url: data?.url ?? null, error: null };
+  const { data, error } = await invokeFunction<{ url: string }>('generate-devis-pdf', { devis_id: devisId });
+  return { url: data?.url ?? null, error };
 }

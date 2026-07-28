@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
+import { invokeFunction } from '../lib/api/functions';
 import { wgs84ToLv95 } from '../lib/swissCoords';
 import { SwissMap } from './SwissMap';
 import { Button, Card, EmptyState, Field } from './ui';
@@ -139,21 +140,15 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
   async function runExport() {
     setExporting(true);
     setExportMessage(null);
-    const { data, error } = await supabase.functions.invoke('export-survey-points', {
-      body: {
-        project_id: projectId,
-        format,
-        delivery,
-        email: delivery === 'email' ? email.trim() : null,
-      },
+    const { data, error } = await invokeFunction<{ url?: string }>('export-survey-points', {
+      project_id: projectId,
+      format,
+      delivery,
+      email: delivery === 'email' ? email.trim() : null,
     });
     setExporting(false);
     if (error) {
-      setExportMessage({ kind: 'error', text: error.message });
-      return;
-    }
-    if (data?.error) {
-      setExportMessage({ kind: 'error', text: data.error });
+      setExportMessage({ kind: 'error', text: error });
       return;
     }
     if (delivery === 'download' && data?.url) {
