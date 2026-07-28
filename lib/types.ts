@@ -88,6 +88,22 @@ export interface ReportPhoto {
   sort_order: number;
 }
 
+export interface FeedEntry {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  type: 'note' | 'photo';
+  body: string | null;
+  storage_path: string | null;
+  caption: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  taken_at: string | null;
+  report_id: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
 export interface Devis {
   id: string;
   organization_id: string;

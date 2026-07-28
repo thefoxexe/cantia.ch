@@ -6,6 +6,7 @@ import { useAuth } from '../../../../lib/auth-context';
 import { isModuleEnabled } from '../../../../lib/modules';
 import { supabase } from '../../../../lib/supabase';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
+import { ProjectFeed } from '../../../../components/ProjectFeed';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
@@ -14,9 +15,10 @@ import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'reports' | 'documents' | 'photos' | 'survey' | 'metre';
+type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'survey' | 'metre';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
+  { key: 'feed', label: "Fil d'actualité", icon: 'message-circle' },
   { key: 'reports', label: 'Rapports', icon: 'file-text' },
   { key: 'documents', label: 'Documents', icon: 'folder' },
   { key: 'photos', label: 'Photos', icon: 'image' },
@@ -28,12 +30,14 @@ export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { organization } = useAuth();
-  const visibleTabs = TABS.filter((t) => t.key === 'reports' || isModuleEnabled(organization?.enabled_modules, t.key as any));
+  const visibleTabs = TABS.filter(
+    (t) => t.key === 'feed' || t.key === 'reports' || isModuleEnabled(organization?.enabled_modules, t.key as any),
+  );
   const [project, setProject] = useState<Project | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>('reports');
-  const activeTab = visibleTabs.some((t) => t.key === tab) ? tab : 'reports';
+  const [tab, setTab] = useState<Tab>('feed');
+  const activeTab = visibleTabs.some((t) => t.key === tab) ? tab : 'feed';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -81,6 +85,18 @@ export default function ChantierDetailScreen() {
             </Pressable>
           ))}
         </ScrollView>
+
+        {activeTab === 'feed' ? (
+          <View>
+            <FeatureHint
+              id="chantier-feed"
+              icon="message-circle"
+              title="Le journal de bord du chantier"
+              text="Décrivez l'avancement, ajoutez des photos au fil de l'eau. Sélectionnez ensuite ce que vous voulez pour générer un rapport PDF."
+            />
+            <ProjectFeed projectId={id} />
+          </View>
+        ) : null}
 
         {activeTab === 'reports' ? (
           <View>
