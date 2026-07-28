@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,15 +7,25 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { Button, Card, Container, Field, Screen } from '../../../components/ui';
+import { DevisTemplatePicker } from '../../../components/DevisTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { OrgRole, OrganizationMember, Plan } from '../../../lib/types';
 
-const DEVIS_TEMPLATES: { id: string; name: string; description: string }[] = [
-  { id: 'classic', name: 'Classique', description: 'Sobre, en-tête discret, lignes fines.' },
-  { id: 'moderne', name: 'Moderne', description: 'Bandeau de couleur, titre marqué, total mis en avant.' },
-  { id: 'minimal', name: 'Minimal', description: 'Beaucoup de blanc, typographie épurée.' },
-  { id: 'structure', name: 'Structuré', description: 'Tableau quadrillé, lignes alternées, idéal si beaucoup de postes.' },
-];
+type IconName = keyof typeof Feather.glyphMap;
+
+function Section({ icon, title, children }: { icon: IconName; title: string; children: ReactNode }) {
+  return (
+    <Card style={styles.sectionCard}>
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionIcon}>
+          <Feather name={icon} size={16} color={colors.primary} />
+        </View>
+        <Text style={styles.sectionTitle}>{title}</Text>
+      </View>
+      {children}
+    </Card>
+  );
+}
 
 export default function CompteScreen() {
   const { organization, role, user, refreshOrganization, signOut } = useAuth();
@@ -140,286 +150,204 @@ export default function CompteScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <Text style={styles.sectionTitle}>Entreprise</Text>
-          <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
-          <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
-          <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
-          <View style={styles.row2}>
-            <View style={styles.row2Item}>
-              <Field
-                label="Téléphone"
-                value={phone}
-                onChangeText={setPhone}
-                editable={isAdmin}
-                keyboardType="phone-pad"
-                placeholder="+41 79 000 00 00"
-              />
-            </View>
-            <View style={styles.row2Item}>
-              <Field
-                label="E-mail entreprise"
-                value={email}
-                onChangeText={setEmail}
-                editable={isAdmin}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholder="contact@entreprise.ch"
-              />
-            </View>
-          </View>
-          <Field
-            label="Site web"
-            value={website}
-            onChangeText={setWebsite}
-            editable={isAdmin}
-            autoCapitalize="none"
-            placeholder="www.entreprise.ch"
-          />
-
-          <Text style={styles.sectionTitle}>Réglages des devis</Text>
-          <View style={styles.row2}>
-            <View style={styles.row2Item}>
-              <Field label="TVA par défaut (%)" value={vatRate} onChangeText={setVatRate} editable={isAdmin} keyboardType="decimal-pad" />
-            </View>
-            <View style={styles.row2Item}>
-              <Field
-                label="Validité (jours)"
-                value={validityDays}
-                onChangeText={setValidityDays}
-                editable={isAdmin}
-                keyboardType="number-pad"
-              />
-            </View>
-          </View>
-          <Field
-            label="Mentions / conditions (pied de page PDF)"
-            value={devisTerms}
-            onChangeText={setDevisTerms}
-            editable={isAdmin}
-            placeholder="Ex : Paiement à 30 jours net. TVA non incluse dans les acomptes."
-            multiline
-            style={styles.terms}
-          />
-
-          {isAdmin ? (
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
-          ) : null}
-
-          <Text style={styles.sectionTitle}>Modèle de devis PDF</Text>
-          <Text style={styles.hint}>
-            Choisissez la mise en page utilisée pour générer vos devis. Le modèle sélectionné s’applique
-            automatiquement à tous vos prochains devis.
-          </Text>
-          {!organization?.logo_url ? (
-            <View style={styles.templateWarning}>
-              <Feather name="alert-triangle" size={14} color={colors.accent} />
-              <Text style={styles.templateWarningText}>
-                Aucun logo chargé — vos devis PDF partiront sans logo. Ajoutez-en un dans « Identité visuelle »
-                ci-dessous.
-              </Text>
-            </View>
-          ) : null}
-          <View style={styles.templateGrid}>
-            {DEVIS_TEMPLATES.map((t) => {
-              const active = devisTemplate === t.id;
-              return (
-                <Pressable key={t.id} onPress={() => selectDevisTemplate(t.id)} disabled={!isAdmin}>
-                  <Card style={[styles.templateCard, active && styles.templateCardActive]}>
-                    <View style={styles.templatePreview}>
-                      <TemplateSwatch kind={t.id} />
-                      {active ? (
-                        <View style={styles.templateCheck}>
-                          <Feather name="check" size={12} color={colors.surface} />
-                        </View>
-                      ) : null}
-                    </View>
-                    <Text style={styles.templateName}>{t.name}</Text>
-                    <Text style={styles.templateDesc}>{t.description}</Text>
-                  </Card>
-                </Pressable>
-              );
-            })}
-          </View>
-          {savingTemplate ? <Text style={styles.hint}>Enregistrement du modèle…</Text> : null}
-
-          <Text style={styles.sectionTitle}>Identité visuelle</Text>
-          <View style={styles.brandingRow}>
-            <View style={styles.brandingItem}>
-              <Text style={styles.brandingLabel}>Logo</Text>
-              {logoUrl ? (
-                <Image source={{ uri: logoUrl }} style={styles.logoPreview} />
-              ) : (
-                <View style={[styles.logoPreview, styles.brandPlaceholder]}>
-                  <Feather name="image" size={20} color={colors.textMuted} />
-                </View>
-              )}
-              <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
-                <Text style={styles.brandingButtonText}>Choisir un logo</Text>
-              </Pressable>
-            </View>
-            <View style={styles.brandingItem}>
-              <Text style={styles.brandingLabel}>Signature</Text>
-              {signatureUrl ? (
-                <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} />
-              ) : (
-                <View style={[styles.signaturePreview, styles.brandPlaceholder]}>
-                  <Feather name="edit-3" size={20} color={colors.textMuted} />
-                </View>
-              )}
-              <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
-                <Text style={styles.brandingButtonText}>Choisir une signature</Text>
-              </Pressable>
-            </View>
-          </View>
-          <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
-
-          <Text style={styles.sectionTitle}>Plan & abonnement</Text>
-          {plans.map((p) => (
-            <Pressable key={p.id} onPress={() => changePlan(p.id)} disabled={!isAdmin}>
-              <Card style={[styles.planCard, organization?.plan_id === p.id && styles.planCardActive]}>
-                <View style={styles.planRow}>
-                  <Text style={styles.planName}>{p.name}</Text>
-                  <Text style={styles.planPrice}>CHF {p.price_chf_monthly}/mois</Text>
-                </View>
-                <Text style={styles.meta}>
-                  {(p.storage_quota_mb / 1024).toFixed(0)} Go de stockage · {p.max_members} membre(s)
-                </Text>
-              </Card>
-            </Pressable>
-          ))}
-
-          <Text style={styles.sectionTitle}>Équipe</Text>
-          {members.map((m) => (
-            <Card key={m.id} style={styles.memberRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
-                <Text style={styles.memberRole}>
-                  {m.role === 'owner' ? 'Propriétaire' : m.role === 'admin' ? 'Administrateur' : 'Membre'}
-                </Text>
+          <Section icon="briefcase" title="Entreprise">
+            <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
+            <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
+            <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
+            <View style={styles.row2}>
+              <View style={styles.row2Item}>
+                <Field
+                  label="Téléphone"
+                  value={phone}
+                  onChangeText={setPhone}
+                  editable={isAdmin}
+                  keyboardType="phone-pad"
+                  placeholder="+41 79 000 00 00"
+                />
               </View>
-              {isAdmin && m.role !== 'owner' ? (
-                <View style={styles.memberActions}>
-                  <Pressable style={styles.memberActionButton} onPress={() => toggleMemberRole(m)}>
-                    <Text style={styles.memberActionText}>{m.role === 'admin' ? 'Rétrograder' : 'Promouvoir'}</Text>
-                  </Pressable>
-                  {m.user_id !== user?.id ? (
-                    <Pressable hitSlop={8} onPress={() => removeMember(m)}>
-                      <Feather name="user-x" size={16} color={colors.danger} />
-                    </Pressable>
-                  ) : null}
-                </View>
-              ) : null}
-            </Card>
-          ))}
+              <View style={styles.row2Item}>
+                <Field
+                  label="E-mail entreprise"
+                  value={email}
+                  onChangeText={setEmail}
+                  editable={isAdmin}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholder="contact@entreprise.ch"
+                />
+              </View>
+            </View>
+            <Field
+              label="Site web"
+              value={website}
+              onChangeText={setWebsite}
+              editable={isAdmin}
+              autoCapitalize="none"
+              placeholder="www.entreprise.ch"
+            />
+            {isAdmin ? (
+              <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+            ) : null}
+          </Section>
 
-          <Button title="Se déconnecter" icon="log-out" variant="secondary" onPress={signOut} style={{ marginTop: spacing.xl }} />
+          <Section icon="file-text" title="Réglages des devis">
+            <View style={styles.row2}>
+              <View style={styles.row2Item}>
+                <Field label="TVA par défaut (%)" value={vatRate} onChangeText={setVatRate} editable={isAdmin} keyboardType="decimal-pad" />
+              </View>
+              <View style={styles.row2Item}>
+                <Field
+                  label="Validité (jours)"
+                  value={validityDays}
+                  onChangeText={setValidityDays}
+                  editable={isAdmin}
+                  keyboardType="number-pad"
+                />
+              </View>
+            </View>
+            <Field
+              label="Mentions / conditions (pied de page PDF)"
+              value={devisTerms}
+              onChangeText={setDevisTerms}
+              editable={isAdmin}
+              placeholder="Ex : Paiement à 30 jours net. TVA non incluse dans les acomptes."
+              multiline
+              style={styles.terms}
+            />
+            {isAdmin ? (
+              <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+            ) : null}
+          </Section>
+
+          <Section icon="layout" title="Modèle de devis PDF">
+            <Text style={styles.hint}>
+              Choisissez la mise en page utilisée pour générer vos devis. Elle s’applique automatiquement à tous vos
+              prochains devis (vous pourrez toujours en changer ici).
+            </Text>
+            <View style={{ marginTop: spacing.md }}>
+              <DevisTemplatePicker
+                value={devisTemplate}
+                onChange={selectDevisTemplate}
+                disabled={!isAdmin}
+                hasLogo={!!organization?.logo_url}
+              />
+            </View>
+            {savingTemplate ? <Text style={styles.hint}>Enregistrement du modèle…</Text> : null}
+          </Section>
+
+          <Section icon="image" title="Identité visuelle">
+            <View style={styles.brandingRow}>
+              <View style={styles.brandingItem}>
+                <Text style={styles.brandingLabel}>Logo</Text>
+                {logoUrl ? (
+                  <Image source={{ uri: logoUrl }} style={styles.logoPreview} />
+                ) : (
+                  <View style={[styles.logoPreview, styles.brandPlaceholder]}>
+                    <Feather name="image" size={20} color={colors.textMuted} />
+                  </View>
+                )}
+                <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
+                  <Text style={styles.brandingButtonText}>Choisir un logo</Text>
+                </Pressable>
+              </View>
+              <View style={styles.brandingItem}>
+                <Text style={styles.brandingLabel}>Signature</Text>
+                {signatureUrl ? (
+                  <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} />
+                ) : (
+                  <View style={[styles.signaturePreview, styles.brandPlaceholder]}>
+                    <Feather name="edit-3" size={20} color={colors.textMuted} />
+                  </View>
+                )}
+                <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
+                  <Text style={styles.brandingButtonText}>Choisir une signature</Text>
+                </Pressable>
+              </View>
+            </View>
+            <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
+          </Section>
+
+          <Section icon="credit-card" title="Plan & abonnement">
+            {plans.map((p) => (
+              <Pressable key={p.id} onPress={() => changePlan(p.id)} disabled={!isAdmin}>
+                <Card style={[styles.planCard, organization?.plan_id === p.id && styles.planCardActive]}>
+                  <View style={styles.planRow}>
+                    <Text style={styles.planName}>{p.name}</Text>
+                    <Text style={styles.planPrice}>CHF {p.price_chf_monthly}/mois</Text>
+                  </View>
+                  <Text style={styles.meta}>
+                    {(p.storage_quota_mb / 1024).toFixed(0)} Go de stockage · {p.max_members} membre(s)
+                  </Text>
+                </Card>
+              </Pressable>
+            ))}
+          </Section>
+
+          <Section icon="users" title="Équipe">
+            {members.map((m) => (
+              <Card key={m.id} style={styles.memberRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
+                  <Text style={styles.memberRole}>
+                    {m.role === 'owner' ? 'Propriétaire' : m.role === 'admin' ? 'Administrateur' : 'Membre'}
+                  </Text>
+                </View>
+                {isAdmin && m.role !== 'owner' ? (
+                  <View style={styles.memberActions}>
+                    <Pressable style={styles.memberActionButton} onPress={() => toggleMemberRole(m)}>
+                      <Text style={styles.memberActionText}>{m.role === 'admin' ? 'Rétrograder' : 'Promouvoir'}</Text>
+                    </Pressable>
+                    {m.user_id !== user?.id ? (
+                      <Pressable hitSlop={8} onPress={() => removeMember(m)}>
+                        <Feather name="user-x" size={16} color={colors.danger} />
+                      </Pressable>
+                    ) : null}
+                  </View>
+                ) : null}
+              </Card>
+            ))}
+          </Section>
+
+          <Button title="Se déconnecter" icon="log-out" variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
         </Container>
       </ScrollView>
     </Screen>
   );
 }
 
-function TemplateSwatch({ kind }: { kind: string }) {
-  if (kind === 'moderne') {
-    return (
-      <View style={swatch.base}>
-        <View style={[swatch.band, { backgroundColor: colors.primary }]} />
-        <View style={swatch.bodyPad}>
-          <View style={[swatch.line, { width: '60%' }]} />
-          <View style={[swatch.line, { width: '40%' }]} />
-        </View>
-      </View>
-    );
-  }
-  if (kind === 'minimal') {
-    return (
-      <View style={swatch.base}>
-        <View style={swatch.bodyPadLarge}>
-          <View style={[swatch.line, { width: '35%', height: 6, backgroundColor: colors.text }]} />
-          <View style={{ height: 8 }} />
-          <View style={[swatch.line, { width: '55%' }]} />
-          <View style={[swatch.line, { width: '30%' }]} />
-        </View>
-      </View>
-    );
-  }
-  if (kind === 'structure') {
-    return (
-      <View style={swatch.base}>
-        <View style={swatch.bodyPad}>
-          <View style={[swatch.gridHeader, { backgroundColor: colors.primary }]} />
-          <View style={[swatch.gridRow, { backgroundColor: colors.surfaceAlt }]} />
-          <View style={swatch.gridRow} />
-          <View style={[swatch.gridRow, { backgroundColor: colors.surfaceAlt }]} />
-        </View>
-      </View>
-    );
-  }
-  return (
-    <View style={swatch.base}>
-      <View style={swatch.bodyPad}>
-        <View style={[swatch.line, { width: '45%' }]} />
-        <View style={{ height: 6 }} />
-        <View style={[swatch.line, { width: '70%' }]} />
-        <View style={[swatch.line, { width: '50%' }]} />
-      </View>
-    </View>
-  );
-}
-
-const swatch = StyleSheet.create({
-  base: {
-    width: '100%',
-    aspectRatio: 1.3,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    overflow: 'hidden',
-  },
-  band: {
-    height: '32%',
-    width: '100%',
-  },
-  bodyPad: {
-    padding: 10,
-    gap: 5,
-  },
-  bodyPadLarge: {
-    padding: 14,
-  },
-  line: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.border,
-  },
-  gridHeader: {
-    height: 8,
-    borderRadius: 2,
-  },
-  gridRow: {
-    height: 8,
-    borderRadius: 1,
-    marginTop: 3,
-  },
-});
-
 const styles = StyleSheet.create({
+  sectionCard: {
+    marginBottom: spacing.lg,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  sectionIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sectionTitle: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
   },
   row2: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.md,
   },
   row2Item: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 160,
   },
   terms: {
     minHeight: 70,
@@ -428,10 +356,12 @@ const styles = StyleSheet.create({
   },
   brandingRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.lg,
   },
   brandingItem: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 120,
     alignItems: 'center',
   },
   brandingLabel: {
@@ -477,58 +407,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.sm,
   },
-  templateWarning: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.accentSoft,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  templateWarningText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.text,
-  },
-  templateGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
-  templateCard: {
-    width: 168,
-  },
-  templateCardActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
-  },
-  templatePreview: {
-    position: 'relative',
-    marginBottom: spacing.sm,
-  },
-  templateCheck: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  templateName: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  templateDesc: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
   planCard: {
     marginBottom: spacing.md,
   },
@@ -538,7 +416,9 @@ const styles = StyleSheet.create({
   },
   planRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: spacing.xs,
   },
   planName: {
     fontSize: fontSize.md,
@@ -557,8 +437,10 @@ const styles = StyleSheet.create({
   },
   memberRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.sm,
     marginBottom: spacing.sm,
   },
   memberName: {
