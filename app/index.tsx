@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
@@ -27,36 +27,76 @@ const PAIN_POINTS: { icon: IconName; title: string; text: string }[] = [
   },
 ];
 
-const FEATURES: { icon: IconName; title: string; text: string }[] = [
+const FEATURES: { icon: IconName; title: string; text: string; detail: string[] }[] = [
   {
     icon: 'file-text',
     title: 'Rapports de chantier automatiques',
     text: 'Notes et photos géoréférencées sur le terrain, transformées en rapport PDF avec votre logo et votre signature.',
+    detail: [
+      'Photos automatiquement horodatées et géolocalisées',
+      'Génération du PDF en un clic, avec votre logo et votre signature',
+      'Historique complet consultable à tout moment, par chantier',
+    ],
   },
   {
     icon: 'folder',
     title: 'Documents en arborescence',
     text: 'Chaque chantier a son propre classeur numérique : dossiers, sous-dossiers, plans, soumissions.',
+    detail: [
+      'Dossiers et sous-dossiers illimités, par chantier',
+      'Tout type de fichier : plans, PDF, photos, contrats',
+      'Retrouvez un document en quelques secondes',
+    ],
   },
   {
     icon: 'image',
     title: 'Galerie photos intelligente',
     text: 'Toutes les photos d’un chantier au même endroit, filtrables par date et localisables sur la carte.',
+    detail: [
+      'Toutes les photos d’un chantier regroupées automatiquement',
+      'Filtres par date : 7 jours, 30 jours ou tout l’historique',
+      'Ouverture directe de la localisation sur la carte',
+    ],
   },
   {
     icon: 'zap',
     title: 'Devis en quelques minutes',
     text: 'Notes de rendez-vous transformées en devis PDF chiffré, avec suivi de statut et plusieurs modèles au choix.',
+    detail: [
+      '4 modèles de PDF au choix : classique, moderne, minimal, structuré',
+      'Calcul automatique de la TVA et des totaux',
+      'Suivi de statut : brouillon, envoyé, accepté, refusé',
+    ],
+  },
+  {
+    icon: 'list',
+    title: 'Métré poste par poste',
+    text: 'Un tableau de quantités par poste, avec totaux automatiques, transformé en devis en un clic.',
+    detail: [
+      'Tableau de postes avec référence, quantité et unité',
+      'Totaux automatiques par unité (m², m³, ml…)',
+      'Transfert en un clic vers un devis pré-rempli',
+    ],
   },
   {
     icon: 'map-pin',
     title: 'Levés & cadastre suisse',
-    text: 'Points de chantier positionnés sur le cadastre et l’orthophoto officiels, export DXF / CSV / XML.',
+    text: 'Points de chantier positionnés sur le cadastre et l’orthophoto officiels, export DXF / CSV / XML / GPX.',
+    detail: [
+      'Carte interactive avec cadastre et orthophoto officiels suisses',
+      'Ajout de points par position GPS ou directement sur la carte',
+      'Export DXF, LandXML, CSV ou GPX — réservé aux plans payants',
+    ],
   },
   {
     icon: 'users',
     title: 'Pensé pour l’équipe',
     text: 'De l’artisan indépendant à l’entreprise avec plusieurs collaborateurs et rôles.',
+    detail: [
+      'Rôles propriétaire, administrateur et membre',
+      'Ajout de collaborateurs selon votre plan',
+      'Paramètres d’entreprise centralisés : TVA, logo, mentions',
+    ],
   },
 ];
 
@@ -74,7 +114,9 @@ const TRADES = [
 export default function LandingScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const pricingY = useRef(0);
+  const servicesY = useRef(0);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [expandedFeature, setExpandedFeature] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
@@ -88,12 +130,19 @@ export default function LandingScreen() {
     scrollRef.current?.scrollTo({ y: pricingY.current - 24, animated: true });
   }, []);
 
+  const scrollToServices = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: servicesY.current - 24, animated: true });
+  }, []);
+
   return (
     <Screen>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll}>
         <View style={styles.nav}>
           <Text style={styles.navBrand}>OPUS</Text>
           <View style={styles.navLinks}>
+            <Pressable onPress={scrollToServices}>
+              <Text style={styles.navLink}>Services</Text>
+            </Pressable>
             <Pressable onPress={scrollToPricing}>
               <Text style={styles.navLink}>Tarifs</Text>
             </Pressable>
@@ -143,20 +192,43 @@ export default function LandingScreen() {
           </View>
         </Section>
 
-        {/* ---- Features ---- */}
-        <Section title="Tout ce qu’il faut, du chantier au bureau">
-          <View style={styles.featureGrid}>
-            {FEATURES.map((f) => (
-              <View key={f.title} style={styles.featureCard}>
-                <View style={styles.featureIcon}>
-                  <Feather name={f.icon} size={18} color={colors.primary} />
-                </View>
-                <Text style={styles.featureTitle}>{f.title}</Text>
-                <Text style={styles.featureText}>{f.text}</Text>
-              </View>
-            ))}
-          </View>
-        </Section>
+        {/* ---- Services ---- */}
+        <View onLayout={(e) => (servicesY.current = e.nativeEvent.layout.y)}>
+          <Section title="Tout ce qu’il faut, du chantier au bureau">
+            <Text style={styles.sectionSubtitle}>Touchez un service pour voir en détail ce qu’il fait vraiment.</Text>
+            <View style={styles.featureGrid}>
+              {FEATURES.map((f) => {
+                const expanded = expandedFeature === f.title;
+                return (
+                  <Pressable
+                    key={f.title}
+                    style={styles.featureCard}
+                    onPress={() => setExpandedFeature(expanded ? null : f.title)}
+                  >
+                    <View style={styles.featureCardHeader}>
+                      <View style={styles.featureIcon}>
+                        <Feather name={f.icon} size={18} color={colors.primary} />
+                      </View>
+                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    </View>
+                    <Text style={styles.featureTitle}>{f.title}</Text>
+                    <Text style={styles.featureText}>{f.text}</Text>
+                    {expanded ? (
+                      <View style={styles.featureDetail}>
+                        {f.detail.map((line) => (
+                          <View key={line} style={styles.featureDetailRow}>
+                            <Feather name="check" size={13} color={colors.success} />
+                            <Text style={styles.featureDetailText}>{line}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Section>
+        </View>
 
         {/* ---- Trades ---- */}
         <Section title="Pensé pour votre métier" center>
@@ -227,20 +299,8 @@ export default function LandingScreen() {
             natives arrivent prochainement, avec la connexion à un récepteur RTK pour les levés de précision.
           </Text>
           <View style={styles.storeRow}>
-            <View style={styles.storeBadge}>
-              <Feather name="smartphone" size={16} color={colors.text} />
-              <View>
-                <Text style={styles.storeBadgeSmall}>Bientôt disponible</Text>
-                <Text style={styles.storeBadgeBig}>App Store</Text>
-              </View>
-            </View>
-            <View style={styles.storeBadge}>
-              <Feather name="smartphone" size={16} color={colors.text} />
-              <View>
-                <Text style={styles.storeBadgeSmall}>Bientôt disponible</Text>
-                <Text style={styles.storeBadgeBig}>Google Play</Text>
-              </View>
-            </View>
+            <StoreBadge kind="apple" />
+            <StoreBadge kind="google" />
           </View>
         </Section>
 
@@ -253,8 +313,36 @@ export default function LandingScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerBrand}>OPUS</Text>
-          <Text style={styles.footerText}>Plateforme de gestion de chantier pour le bâtiment suisse.</Text>
+          <View style={styles.footerGrid}>
+            <View style={styles.footerBrandCol}>
+              <Text style={styles.footerBrand}>OPUS</Text>
+              <Text style={styles.footerText}>
+                Plateforme de gestion de chantier pour le bâtiment suisse — rapports, documents, devis, levés et
+                métré au même endroit.
+              </Text>
+            </View>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerColTitle}>Produit</Text>
+              <Pressable onPress={scrollToServices}>
+                <Text style={styles.footerLink}>Services</Text>
+              </Pressable>
+              <Pressable onPress={scrollToPricing}>
+                <Text style={styles.footerLink}>Tarifs</Text>
+              </Pressable>
+            </View>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerColTitle}>Compte</Text>
+              <Link href="/(auth)/login">
+                <Text style={styles.footerLink}>Se connecter</Text>
+              </Link>
+              <Link href="/(auth)/signup">
+                <Text style={styles.footerLink}>Créer un compte</Text>
+              </Link>
+            </View>
+          </View>
+          <View style={styles.footerBottom}>
+            <Text style={styles.footerCopy}>© {new Date().getFullYear()} Opus. Conçu pour le bâtiment suisse.</Text>
+          </View>
         </View>
       </ScrollView>
     </Screen>
@@ -287,6 +375,19 @@ function PriceFeature({ text, muted, included }: { text: string; muted?: boolean
         color={muted ? colors.textMuted : included === false ? colors.textMuted : colors.success}
       />
       <Text style={[styles.priceFeatureText, muted && styles.priceFeatureTextMuted]}>{text}</Text>
+    </View>
+  );
+}
+
+function StoreBadge({ kind }: { kind: 'apple' | 'google' }) {
+  const isApple = kind === 'apple';
+  return (
+    <View style={styles.storeBadge}>
+      <Ionicons name={isApple ? 'logo-apple' : 'logo-google-playstore'} size={26} color="#fff" />
+      <View>
+        <Text style={styles.storeBadgeSmall}>Bientôt disponible</Text>
+        <Text style={styles.storeBadgeBig}>{isApple ? 'App Store' : 'Google Play'}</Text>
+      </View>
     </View>
   );
 }
@@ -514,6 +615,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     maxWidth: 640,
   },
+  sectionSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: -spacing.lg,
+    marginBottom: spacing.xl,
+  },
   centerText: {
     textAlign: 'center',
     alignSelf: 'center',
@@ -558,6 +665,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  featureCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
   featureIcon: {
     width: 40,
     height: 40,
@@ -565,7 +678,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
   },
   featureTitle: {
     fontSize: fontSize.md,
@@ -577,6 +689,24 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 20,
+  },
+  featureDetail: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    gap: spacing.sm,
+  },
+  featureDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  featureDetailText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    lineHeight: 19,
   },
   tradeRow: {
     flexDirection: 'row',
@@ -711,21 +841,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
+    paddingVertical: spacing.sm,
+    backgroundColor: '#111414',
   },
   storeBadgeSmall: {
     fontSize: 10,
-    color: colors.textMuted,
+    color: '#C7CCC9',
   },
   storeBadgeBig: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.text,
+    color: '#fff',
   },
   finalCta: {
     maxWidth: 1080,
@@ -752,14 +880,53 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
+  footerGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xxl,
+    marginBottom: spacing.xl,
+  },
+  footerBrandCol: {
+    flexGrow: 2,
+    flexBasis: 240,
+    maxWidth: 340,
+  },
+  footerCol: {
+    flexGrow: 1,
+    flexBasis: 140,
+    gap: spacing.sm,
+  },
+  footerColTitle: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: spacing.xs,
+  },
+  footerLink: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+  },
   footerBrand: {
     fontSize: fontSize.sm,
     fontWeight: '800',
     color: colors.primary,
     letterSpacing: 1,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   footerText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 18,
+  },
+  footerBottom: {
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  footerCopy: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
   },
