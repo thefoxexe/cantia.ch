@@ -7,16 +7,18 @@ import { getSignedUrl } from '../../../../lib/api/storage';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
+import { ProjectSurvey } from '../../../../components/ProjectSurvey';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'reports' | 'documents' | 'photos';
+type Tab = 'reports' | 'documents' | 'photos' | 'survey';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'reports', label: 'Rapports', icon: 'file-text' },
   { key: 'documents', label: 'Documents', icon: 'folder' },
   { key: 'photos', label: 'Photos', icon: 'image' },
+  { key: 'survey', label: 'Levés', icon: 'crosshair' },
 ];
 
 export default function ChantierDetailScreen() {
@@ -130,6 +132,17 @@ export default function ChantierDetailScreen() {
               text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
             />
             <ProjectPhotos projectId={id} />
+          </View>
+        ) : null}
+        {tab === 'survey' ? (
+          <View>
+            <FeatureHint
+              id="chantier-survey"
+              icon="crosshair"
+              title="Levés de précision"
+              text="Ajoutez des points de chantier, visualisez-les sur le cadastre et l’orthophoto officiels, puis exportez-les en DXF, CSV, XML ou GPX."
+            />
+            <ProjectSurvey projectId={id} organizationId={project.organization_id} />
           </View>
         ) : null}
       </ScrollView>
