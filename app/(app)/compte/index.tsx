@@ -10,6 +10,13 @@ import { Button, Card, Container, Field, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { OrgRole, OrganizationMember, Plan } from '../../../lib/types';
 
+const DEVIS_TEMPLATES: { id: string; name: string; description: string }[] = [
+  { id: 'classic', name: 'Classique', description: 'Sobre, en-tête discret, lignes fines.' },
+  { id: 'moderne', name: 'Moderne', description: 'Bandeau de couleur, titre marqué, total mis en avant.' },
+  { id: 'minimal', name: 'Minimal', description: 'Beaucoup de blanc, typographie épurée.' },
+  { id: 'structure', name: 'Structuré', description: 'Tableau quadrillé, lignes alternées, idéal si beaucoup de postes.' },
+];
+
 export default function CompteScreen() {
   const { organization, role, user, refreshOrganization, signOut } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
@@ -21,6 +28,8 @@ export default function CompteScreen() {
   const [vatRate, setVatRate] = useState(String(organization?.default_vat_rate ?? 8.1));
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
+  const [devisTemplate, setDevisTemplate] = useState(organization?.devis_template ?? 'classic');
+  const [savingTemplate, setSavingTemplate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
@@ -39,6 +48,7 @@ export default function CompteScreen() {
     setVatRate(String(organization.default_vat_rate ?? 8.1));
     setValidityDays(String(organization.devis_validity_days ?? 30));
     setDevisTerms(organization.devis_terms ?? '');
+    setDevisTemplate(organization.devis_template ?? 'classic');
 
     const [{ data: memberRows }, { data: planRows }] = await Promise.all([
       supabase.from('organization_members').select('*').eq('organization_id', organization.id).order('created_at'),
@@ -97,6 +107,15 @@ export default function CompteScreen() {
       if (kind === 'logo') setLogoUrl(url);
       else setSignatureUrl(url);
     }
+  }
+
+  async function selectDevisTemplate(templateId: string) {
+    if (!organization || !isAdmin || templateId === devisTemplate) return;
+    setDevisTemplate(templateId);
+    setSavingTemplate(true);
+    await supabase.from('organizations').update({ devis_template: templateId }).eq('id', organization.id);
+    setSavingTemplate(false);
+    refreshOrganization();
   }
 
   async function changePlan(planId: string) {
@@ -188,6 +207,43 @@ export default function CompteScreen() {
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}
 
+          <Text style={styles.sectionTitle}>Modèle de devis PDF</Text>
+          <Text style={styles.hint}>
+            Choisissez la mise en page utilisée pour générer vos devis. Le modèle sélectionné s’applique
+            automatiquement à tous vos prochains devis.
+          </Text>
+          {!organization?.logo_url ? (
+            <View style={styles.templateWarning}>
+              <Feather name="alert-triangle" size={14} color={colors.accent} />
+              <Text style={styles.templateWarningText}>
+                Aucun logo chargé — vos devis PDF partiront sans logo. Ajoutez-en un dans « Identité visuelle »
+                ci-dessous.
+              </Text>
+            </View>
+          ) : null}
+          <View style={styles.templateGrid}>
+            {DEVIS_TEMPLATES.map((t) => {
+              const active = devisTemplate === t.id;
+              return (
+                <Pressable key={t.id} onPress={() => selectDevisTemplate(t.id)} disabled={!isAdmin}>
+                  <Card style={[styles.templateCard, active && styles.templateCardActive]}>
+                    <View style={styles.templatePreview}>
+                      <TemplateSwatch kind={t.id} />
+                      {active ? (
+                        <View style={styles.templateCheck}>
+                          <Feather name="check" size={12} color={colors.surface} />
+                        </View>
+                      ) : null}
+                    </View>
+                    <Text style={styles.templateName}>{t.name}</Text>
+                    <Text style={styles.templateDesc}>{t.description}</Text>
+                  </Card>
+                </Pressable>
+              );
+            })}
+          </View>
+          {savingTemplate ? <Text style={styles.hint}>Enregistrement du modèle…</Text> : null}
+
           <Text style={styles.sectionTitle}>Identité visuelle</Text>
           <View style={styles.brandingRow}>
             <View style={styles.brandingItem}>
@@ -265,6 +321,91 @@ export default function CompteScreen() {
   );
 }
 
+function TemplateSwatch({ kind }: { kind: string }) {
+  if (kind === 'moderne') {
+    return (
+      <View style={swatch.base}>
+        <View style={[swatch.band, { backgroundColor: colors.primary }]} />
+        <View style={swatch.bodyPad}>
+          <View style={[swatch.line, { width: '60%' }]} />
+          <View style={[swatch.line, { width: '40%' }]} />
+        </View>
+      </View>
+    );
+  }
+  if (kind === 'minimal') {
+    return (
+      <View style={swatch.base}>
+        <View style={swatch.bodyPadLarge}>
+          <View style={[swatch.line, { width: '35%', height: 6, backgroundColor: colors.text }]} />
+          <View style={{ height: 8 }} />
+          <View style={[swatch.line, { width: '55%' }]} />
+          <View style={[swatch.line, { width: '30%' }]} />
+        </View>
+      </View>
+    );
+  }
+  if (kind === 'structure') {
+    return (
+      <View style={swatch.base}>
+        <View style={swatch.bodyPad}>
+          <View style={[swatch.gridHeader, { backgroundColor: colors.primary }]} />
+          <View style={[swatch.gridRow, { backgroundColor: colors.surfaceAlt }]} />
+          <View style={swatch.gridRow} />
+          <View style={[swatch.gridRow, { backgroundColor: colors.surfaceAlt }]} />
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={swatch.base}>
+      <View style={swatch.bodyPad}>
+        <View style={[swatch.line, { width: '45%' }]} />
+        <View style={{ height: 6 }} />
+        <View style={[swatch.line, { width: '70%' }]} />
+        <View style={[swatch.line, { width: '50%' }]} />
+      </View>
+    </View>
+  );
+}
+
+const swatch = StyleSheet.create({
+  base: {
+    width: '100%',
+    aspectRatio: 1.3,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+  },
+  band: {
+    height: '32%',
+    width: '100%',
+  },
+  bodyPad: {
+    padding: 10,
+    gap: 5,
+  },
+  bodyPadLarge: {
+    padding: 14,
+  },
+  line: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+  },
+  gridHeader: {
+    height: 8,
+    borderRadius: 2,
+  },
+  gridRow: {
+    height: 8,
+    borderRadius: 1,
+    marginTop: 3,
+  },
+});
+
 const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: fontSize.lg,
@@ -335,6 +476,58 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  templateWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  templateWarningText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
+  },
+  templateGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
+  templateCard: {
+    width: 168,
+  },
+  templateCardActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  templatePreview: {
+    position: 'relative',
+    marginBottom: spacing.sm,
+  },
+  templateCheck: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  templateName: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  templateDesc: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   planCard: {
     marginBottom: spacing.md,

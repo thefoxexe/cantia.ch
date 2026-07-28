@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { PDFDocument, PDFFont, PDFPage, RGB, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, PDFFont, PDFImage, PDFPage, RGB, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
 
 const BUCKET = 'opus-storage';
 
@@ -18,6 +18,8 @@ const MUTED = rgb(0.3608, 0.3961, 0.3765);
 const BRAND = rgb(0.1216, 0.2392, 0.2275);
 const ACCENT = rgb(0.6902, 0.4118, 0.1725);
 const LINE = rgb(0.8824, 0.8706, 0.8314);
+const WHITE = rgb(1, 1, 1);
+const PAPER_ALT = rgb(0.9569, 0.9490, 0.9412);
 
 function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const lines: string[] = [];
@@ -46,12 +48,17 @@ function drawText(page: PDFPage, text: string, x: number, y: number, font: PDFFo
   page.drawText(text, { x, y, size, font, color });
 }
 
+function drawTextRight(page: PDFPage, text: string, xRight: number, y: number, font: PDFFont, size: number, color: RGB = INK) {
+  const w = font.widthOfTextAtSize(text, size);
+  page.drawText(text, { x: xRight - w, y, size, font, color });
+}
+
 async function fetchStorageBytes(
-  supabase: { storage: { from: (b: string) => any } },
+  admin: ReturnType<typeof createClient>,
   bucket: string,
   path: string,
 ): Promise<{ bytes: Uint8Array; contentType: string } | null> {
-  const { data, error } = await supabase.storage.from(bucket).download(path);
+  const { data, error } = await admin.storage.from(bucket).download(path);
   if (error || !data) return null;
   const buf = new Uint8Array(await data.arrayBuffer());
   const contentType = (data.type as string) || guessContentType(path);
@@ -87,6 +94,544 @@ function chf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
 }
 
+interface RenderCtx {
+  pdfDoc: PDFDocument;
+  font: PDFFont;
+  fontBold: PDFFont;
+  org: any;
+  devis: any;
+  items: any[];
+  logoImg: PDFImage | null;
+  signatureImg: PDFImage | null;
+}
+
+const TEMPLATES = ['classic', 'moderne', 'minimal', 'structure'] as const;
+type TemplateId = (typeof TEMPLATES)[number];
+
+function normalizeTemplate(id: string | null | undefined): TemplateId {
+  return (TEMPLATES as readonly string[]).includes(id ?? '') ? (id as TemplateId) : 'classic';
+}
+
+// ---------------------------------------------------------------------------
+// Template: classic — sober header, thin rules, understated (default)
+// ---------------------------------------------------------------------------
+function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+  const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg } = ctx;
+  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let y = PAGE_HEIGHT - MARGIN;
+  let pageNum = 1;
+
+  const newPage = () => {
+    drawFooter(page, font, pageNum, 'Généré via Opus');
+    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    pageNum += 1;
+    y = PAGE_HEIGHT - MARGIN;
+  };
+
+  if (logoImg) {
+    const h = 46;
+    const w = (logoImg.width / logoImg.height) * h;
+    page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h + 10, width: w, height: h });
+  }
+
+  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 17, BRAND);
+  y -= 16;
+  const orgLine = [org?.address, org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
+  if (orgLine) {
+    drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
+    y -= 12;
+  }
+  const contactLine = [org?.phone, org?.email, org?.website].filter(Boolean).join(' · ');
+  if (contactLine) {
+    drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
+    y -= 12;
+  }
+  y -= 16;
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
+  y -= 28;
+
+  drawText(page, `Devis ${devis.number ?? ''}`, MARGIN, y, fontBold, 16, ACCENT);
+  drawTextRight(page, formatDate(devis.created_at), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
+  y -= 22;
+
+  const clientLines = [
+    devis.client_name,
+    devis.client_address,
+    devis.client_email,
+    devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
+  ].filter(Boolean) as string[];
+  drawText(page, 'Client', MARGIN, y, fontBold, 10, MUTED);
+  y -= 14;
+  for (const line of clientLines) {
+    drawText(page, line, MARGIN, y, font, 10.5, INK);
+    y -= 14;
+  }
+  y -= 16;
+
+  if (devis.notes?.trim()) {
+    const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
+    for (const line of lines) {
+      drawText(page, line, MARGIN, y, font, 9.5, MUTED);
+      y -= 12;
+    }
+    y -= 12;
+  }
+
+  const colX = { desc: MARGIN, qty: 330, unit: 380, price: 430, total: 500 };
+  const tableRight = PAGE_WIDTH - MARGIN;
+
+  const drawTableHeader = () => {
+    drawText(page, 'Description', colX.desc, y, fontBold, 9.5, MUTED);
+    drawText(page, 'Qté', colX.qty, y, fontBold, 9.5, MUTED);
+    drawText(page, 'Unité', colX.unit, y, fontBold, 9.5, MUTED);
+    drawText(page, 'Prix', colX.price, y, fontBold, 9.5, MUTED);
+    drawText(page, 'Total', colX.total, y, fontBold, 9.5, MUTED);
+    y -= 8;
+    page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
+    y -= 16;
+  };
+
+  drawTableHeader();
+
+  let subtotal = 0;
+  for (const item of items) {
+    const lineTotal = Number(item.quantity) * Number(item.unit_price);
+    subtotal += lineTotal;
+
+    const descLines = wrapText(item.description, font, 10, colX.qty - colX.desc - 10);
+    if (y - descLines.length * 13 < MARGIN + 120) {
+      newPage();
+      drawTableHeader();
+    }
+    const rowTop = y;
+    for (const line of descLines) {
+      drawText(page, line, colX.desc, y, font, 10, INK);
+      y -= 13;
+    }
+    drawText(page, String(item.quantity), colX.qty, rowTop, font, 10, INK);
+    drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 10, INK);
+    drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 10, INK);
+    drawText(page, chf(lineTotal), colX.total, rowTop, font, 10, INK);
+    y -= 6;
+  }
+
+  y -= 6;
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
+  y -= 20;
+
+  if (y < MARGIN + 100) newPage();
+
+  const vat = subtotal * (Number(devis.vat_rate) / 100);
+  const total = subtotal + vat;
+
+  drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
+  y -= 15;
+  drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
+  y -= 15;
+  drawTotalsLine(page, fontBold, y, 'Total TTC', chf(total), 12);
+  y -= 30;
+
+  y = drawTerms(page, font, org, y);
+
+  if (signatureImg) {
+    if (y < MARGIN + 90) newPage();
+    const h = 50;
+    const w = (signatureImg.width / signatureImg.height) * h;
+    drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y, font, 9, MUTED);
+    page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
+  }
+
+  drawFooter(page, font, pageNum, 'Généré via Opus');
+  return pdfDoc.save();
+}
+
+// ---------------------------------------------------------------------------
+// Template: moderne — bold pine-green header band, big white title
+// ---------------------------------------------------------------------------
+function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+  const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg } = ctx;
+  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let pageNum = 1;
+
+  const BAND_H = 118;
+  page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H, width: PAGE_WIDTH, height: BAND_H, color: BRAND });
+
+  if (logoImg) {
+    const h = 40;
+    const w = (logoImg.width / logoImg.height) * h;
+    page.drawRectangle({ x: PAGE_WIDTH - MARGIN - w - 14, y: PAGE_HEIGHT - BAND_H + 20, width: w + 14, height: h + 14, color: WHITE });
+    page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w - 7, y: PAGE_HEIGHT - BAND_H + 27, width: w, height: h });
+  }
+
+  drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - 40, fontBold, 15, WHITE);
+  const orgLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
+  if (orgLine) drawText(page, orgLine, MARGIN, PAGE_HEIGHT - 56, font, 9, rgb(0.85, 0.89, 0.87));
+  drawText(page, `DEVIS ${devis.number ?? ''}`, MARGIN, PAGE_HEIGHT - 92, fontBold, 22, WHITE);
+  drawText(page, formatDate(devis.created_at), MARGIN, PAGE_HEIGHT - 108, font, 9.5, rgb(0.85, 0.89, 0.87));
+
+  let y = PAGE_HEIGHT - BAND_H - 34;
+
+  const newPage = () => {
+    drawFooter(page, font, pageNum, org?.name ?? 'Opus');
+    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    pageNum += 1;
+    y = PAGE_HEIGHT - MARGIN;
+  };
+
+  const clientBoxTop = y;
+  const clientLines = [
+    devis.client_name,
+    devis.client_address,
+    devis.client_email,
+    devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
+  ].filter(Boolean) as string[];
+  drawText(page, 'DESTINATAIRE', MARGIN, y, fontBold, 8.5, ACCENT);
+  y -= 15;
+  for (const line of clientLines) {
+    drawText(page, line, MARGIN, y, font, 10.5, INK);
+    y -= 14;
+  }
+  page.drawLine({ start: { x: MARGIN, y: clientBoxTop + 6 }, end: { x: MARGIN, y: y + 6 }, thickness: 2, color: ACCENT });
+  y -= 12;
+
+  if (devis.notes?.trim()) {
+    const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
+    for (const line of lines) {
+      drawText(page, line, MARGIN, y, font, 9.5, MUTED);
+      y -= 12;
+    }
+    y -= 10;
+  }
+
+  const colX = { desc: MARGIN, qty: 330, unit: 380, price: 430, total: 500 };
+  const tableRight = PAGE_WIDTH - MARGIN;
+
+  const drawTableHeader = () => {
+    page.drawRectangle({ x: MARGIN - 6, y: y - 4, width: tableRight - MARGIN + 12, height: 20, color: PAPER_ALT });
+    drawText(page, 'DESCRIPTION', colX.desc, y, fontBold, 8.5, BRAND);
+    drawText(page, 'QTÉ', colX.qty, y, fontBold, 8.5, BRAND);
+    drawText(page, 'UNITÉ', colX.unit, y, fontBold, 8.5, BRAND);
+    drawText(page, 'PRIX', colX.price, y, fontBold, 8.5, BRAND);
+    drawText(page, 'TOTAL', colX.total, y, fontBold, 8.5, BRAND);
+    y -= 24;
+  };
+
+  drawTableHeader();
+
+  let subtotal = 0;
+  for (const item of items) {
+    const lineTotal = Number(item.quantity) * Number(item.unit_price);
+    subtotal += lineTotal;
+
+    const descLines = wrapText(item.description, font, 10, colX.qty - colX.desc - 10);
+    if (y - descLines.length * 13 < MARGIN + 130) {
+      newPage();
+      drawTableHeader();
+    }
+    const rowTop = y;
+    for (const line of descLines) {
+      drawText(page, line, colX.desc, y, font, 10, INK);
+      y -= 13;
+    }
+    drawText(page, String(item.quantity), colX.qty, rowTop, font, 10, INK);
+    drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 10, INK);
+    drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 10, INK);
+    drawText(page, chf(lineTotal), colX.total, rowTop, fontBold, 10, BRAND);
+    y -= 8;
+    page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 0.5, color: LINE });
+    y -= 6;
+  }
+
+  y -= 10;
+  if (y < MARGIN + 120) newPage();
+
+  const vat = subtotal * (Number(devis.vat_rate) / 100);
+  const total = subtotal + vat;
+
+  drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
+  y -= 16;
+  drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
+  y -= 8;
+  page.drawRectangle({ x: 500 - 150, y: y - 22, width: 150 + MARGIN, height: 26, color: BRAND });
+  drawText(page, 'TOTAL TTC', 500 - 140, y - 14, fontBold, 11, WHITE);
+  drawTextRight(page, chf(total), PAGE_WIDTH - MARGIN, y - 14, fontBold, 12, WHITE);
+  y -= 44;
+
+  y = drawTerms(page, font, org, y);
+
+  if (signatureImg) {
+    if (y < MARGIN + 90) newPage();
+    const h = 50;
+    const w = (signatureImg.width / signatureImg.height) * h;
+    drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y, font, 9, MUTED);
+    page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
+  }
+
+  drawFooter(page, font, pageNum, org?.name ?? 'Opus');
+  return pdfDoc.save();
+}
+
+// ---------------------------------------------------------------------------
+// Template: minimal — generous whitespace, thin rules only, no color blocks
+// ---------------------------------------------------------------------------
+function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+  const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg } = ctx;
+  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let y = PAGE_HEIGHT - MARGIN - 10;
+  let pageNum = 1;
+
+  const newPage = () => {
+    drawFooter(page, font, pageNum, org?.name ?? 'Opus');
+    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    pageNum += 1;
+    y = PAGE_HEIGHT - MARGIN;
+  };
+
+  if (logoImg) {
+    const h = 34;
+    const w = (logoImg.width / logoImg.height) * h;
+    page.drawImage(logoImg, { x: MARGIN, y: y - h + 8, width: w, height: h });
+    y -= h + 18;
+  }
+
+  drawText(page, (org?.name ?? 'Entreprise').toUpperCase(), MARGIN, y, font, 10, MUTED);
+  y -= 34;
+  drawText(page, `Devis ${devis.number ?? ''}`, MARGIN, y, fontBold, 24, INK);
+  y -= 20;
+  drawText(page, formatDate(devis.created_at), MARGIN, y, font, 9.5, MUTED);
+  y -= 40;
+
+  const clientLines = [
+    devis.client_name,
+    devis.client_address,
+    devis.client_email,
+    devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
+  ].filter(Boolean) as string[];
+  for (const line of clientLines) {
+    drawText(page, line, MARGIN, y, font, 10.5, INK);
+    y -= 14;
+  }
+  y -= 20;
+
+  if (devis.notes?.trim()) {
+    const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
+    for (const line of lines) {
+      drawText(page, line, MARGIN, y, font, 9.5, MUTED);
+      y -= 12;
+    }
+    y -= 16;
+  }
+
+  const colX = { desc: MARGIN, qty: 350, unit: 400, price: 450, total: 500 };
+  const tableRight = PAGE_WIDTH - MARGIN;
+
+  let subtotal = 0;
+  for (const item of items) {
+    const lineTotal = Number(item.quantity) * Number(item.unit_price);
+    subtotal += lineTotal;
+
+    const descLines = wrapText(item.description, font, 10, colX.qty - colX.desc - 10);
+    if (y - descLines.length * 13 < MARGIN + 130) {
+      newPage();
+    }
+    const rowTop = y;
+    for (const line of descLines) {
+      drawText(page, line, colX.desc, y, font, 10, INK);
+      y -= 13;
+    }
+    drawText(page, String(item.quantity), colX.qty, rowTop, font, 9.5, MUTED);
+    drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 9.5, MUTED);
+    drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 9.5, MUTED);
+    drawText(page, chf(lineTotal), colX.total, rowTop, font, 10, INK);
+    y -= 12;
+    page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 0.5, color: LINE });
+    y -= 12;
+  }
+
+  y -= 4;
+  if (y < MARGIN + 100) newPage();
+
+  const vat = subtotal * (Number(devis.vat_rate) / 100);
+  const total = subtotal + vat;
+
+  drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
+  y -= 16;
+  drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
+  y -= 12;
+  page.drawLine({ start: { x: 500 - 130, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: INK });
+  y -= 16;
+  drawTotalsLine(page, fontBold, y, 'Total TTC', chf(total), 13);
+  y -= 34;
+
+  y = drawTerms(page, font, org, y);
+
+  if (signatureImg) {
+    if (y < MARGIN + 90) newPage();
+    const h = 44;
+    const w = (signatureImg.width / signatureImg.height) * h;
+    page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h, width: w, height: h });
+  }
+
+  drawFooter(page, font, pageNum, org?.name ?? 'Opus');
+  return pdfDoc.save();
+}
+
+// ---------------------------------------------------------------------------
+// Template: structure — bordered grid table with alternating rows (dense)
+// ---------------------------------------------------------------------------
+function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+  const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg } = ctx;
+  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let y = PAGE_HEIGHT - MARGIN;
+  let pageNum = 1;
+
+  const newPage = () => {
+    drawFooter(page, font, pageNum, org?.name ?? 'Opus');
+    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    pageNum += 1;
+    y = PAGE_HEIGHT - MARGIN;
+  };
+
+  if (logoImg) {
+    const h = 42;
+    const w = (logoImg.width / logoImg.height) * h;
+    page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h + 6, width: w, height: h });
+  }
+  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, BRAND);
+  y -= 14;
+  const orgLine = [org?.address, org?.ide_number ? `IDE ${org.ide_number}` : null, org?.phone, org?.email]
+    .filter(Boolean)
+    .join(' · ');
+  if (orgLine) {
+    for (const line of wrapText(orgLine, font, 8.5, PAGE_WIDTH - 2 * MARGIN - 110)) {
+      drawText(page, line, MARGIN, y, font, 8.5, MUTED);
+      y -= 11;
+    }
+  }
+  y -= 12;
+
+  page.drawRectangle({ x: MARGIN, y: y - 26, width: PAGE_WIDTH - 2 * MARGIN, height: 26, color: PAPER_ALT });
+  drawText(page, `DEVIS N° ${devis.number ?? ''}`, MARGIN + 8, y - 18, fontBold, 11, INK);
+  drawTextRight(page, formatDate(devis.created_at), PAGE_WIDTH - MARGIN - 8, y - 18, font, 9.5, MUTED);
+  y -= 40;
+
+  const boxTop = y;
+  const clientLines = [
+    devis.client_name,
+    devis.client_address,
+    devis.client_email,
+    devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
+  ].filter(Boolean) as string[];
+  drawText(page, 'Client', MARGIN + 8, y - 10, fontBold, 8.5, MUTED);
+  let cy = y - 24;
+  for (const line of clientLines) {
+    drawText(page, line, MARGIN + 8, cy, font, 10, INK);
+    cy -= 13;
+  }
+  const boxBottom = Math.min(cy - 4, y - 60);
+  page.drawRectangle({
+    x: MARGIN,
+    y: boxBottom,
+    width: PAGE_WIDTH - 2 * MARGIN,
+    height: boxTop - boxBottom,
+    borderColor: LINE,
+    borderWidth: 1,
+  });
+  y = boxBottom - 20;
+
+  if (devis.notes?.trim()) {
+    const lines = wrapText(devis.notes, font, 9, PAGE_WIDTH - 2 * MARGIN);
+    for (const line of lines) {
+      drawText(page, line, MARGIN, y, font, 9, MUTED);
+      y -= 12;
+    }
+    y -= 10;
+  }
+
+  const colX = { desc: MARGIN + 8, qty: 330, unit: 380, price: 430, total: 500 };
+  const tableLeft = MARGIN;
+  const tableRight = PAGE_WIDTH - MARGIN;
+
+  const drawTableHeader = () => {
+    page.drawRectangle({ x: tableLeft, y: y - 20, width: tableRight - tableLeft, height: 20, color: BRAND });
+    drawText(page, 'DESCRIPTION', colX.desc, y - 14, fontBold, 8.5, WHITE);
+    drawText(page, 'QTÉ', colX.qty, y - 14, fontBold, 8.5, WHITE);
+    drawText(page, 'UNITÉ', colX.unit, y - 14, fontBold, 8.5, WHITE);
+    drawText(page, 'PRIX', colX.price, y - 14, fontBold, 8.5, WHITE);
+    drawText(page, 'TOTAL', colX.total, y - 14, fontBold, 8.5, WHITE);
+    y -= 20;
+  };
+
+  drawTableHeader();
+
+  let subtotal = 0;
+  let rowIdx = 0;
+  for (const item of items) {
+    const lineTotal = Number(item.quantity) * Number(item.unit_price);
+    subtotal += lineTotal;
+
+    const descLines = wrapText(item.description, font, 9.5, colX.qty - colX.desc - 10);
+    const rowH = Math.max(20, descLines.length * 12 + 8);
+
+    if (y - rowH < MARGIN + 140) {
+      newPage();
+      drawTableHeader();
+      rowIdx = 0;
+    }
+
+    if (rowIdx % 2 === 1) {
+      page.drawRectangle({ x: tableLeft, y: y - rowH, width: tableRight - tableLeft, height: rowH, color: PAPER_ALT });
+    }
+    let ty = y - 13;
+    for (const line of descLines) {
+      drawText(page, line, colX.desc, ty, font, 9.5, INK);
+      ty -= 12;
+    }
+    drawText(page, String(item.quantity), colX.qty, y - 13, font, 9.5, INK);
+    drawText(page, item.unit ?? 'pce', colX.unit, y - 13, font, 9.5, INK);
+    drawText(page, chf(Number(item.unit_price)), colX.price, y - 13, font, 9.5, INK);
+    drawText(page, chf(lineTotal), colX.total, y - 13, fontBold, 9.5, INK);
+    y -= rowH;
+    rowIdx += 1;
+  }
+  page.drawRectangle({ x: tableLeft, y, width: tableRight - tableLeft, height: 1, color: LINE });
+  y -= 20;
+
+  if (y < MARGIN + 110) newPage();
+
+  const vat = subtotal * (Number(devis.vat_rate) / 100);
+  const total = subtotal + vat;
+
+  drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
+  y -= 15;
+  drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
+  y -= 18;
+  page.drawRectangle({ x: 500 - 140, y: y - 6, width: 140 + MARGIN - 8, height: 22, borderColor: BRAND, borderWidth: 1.2 });
+  drawText(page, 'TOTAL TTC', 500 - 132, y, fontBold, 11, BRAND);
+  drawTextRight(page, chf(total), PAGE_WIDTH - MARGIN - 8, y, fontBold, 11, BRAND);
+  y -= 40;
+
+  y = drawTerms(page, font, org, y);
+
+  if (signatureImg) {
+    if (y < MARGIN + 90) newPage();
+    const h = 48;
+    const w = (signatureImg.width / signatureImg.height) * h;
+    drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y, font, 9, MUTED);
+    page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
+  }
+
+  drawFooter(page, font, pageNum, org?.name ?? 'Opus');
+  return pdfDoc.save();
+}
+
+const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => Uint8Array | Promise<Uint8Array>> = {
+  classic: renderClassic,
+  moderne: renderModerne,
+  minimal: renderMinimal,
+  structure: renderStructure,
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -121,160 +666,31 @@ Deno.serve(async (req: Request) => {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    let y = PAGE_HEIGHT - MARGIN;
-    let pageNum = 1;
-
-    const newPage = () => {
-      drawFooter(page, font, pageNum);
-      page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-      pageNum += 1;
-      y = PAGE_HEIGHT - MARGIN;
-    };
-
-    // ---- Header ----
-    let logoImg = null;
+    let logoImg: PDFImage | null = null;
     if (org?.logo_url) {
       const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
       if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
-    if (logoImg) {
-      const h = 46;
-      const w = (logoImg.width / logoImg.height) * h;
-      page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h + 10, width: w, height: h });
-    }
-
-    drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 17, BRAND);
-    y -= 16;
-    const orgLine = [org?.address, org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
-    if (orgLine) {
-      drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
-      y -= 12;
-    }
-    const contactLine = [org?.phone, org?.email, org?.website].filter(Boolean).join(' · ');
-    if (contactLine) {
-      drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
-      y -= 12;
-    }
-    y -= 16;
-    page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-    y -= 28;
-
-    // ---- Title ----
-    drawText(page, `Devis ${devis.number ?? ''}`, MARGIN, y, fontBold, 16, ACCENT);
-    drawText(page, formatDate(devis.created_at), PAGE_WIDTH - MARGIN - 90, y, font, 10, MUTED);
-    y -= 22;
-
-    const clientLines = [
-      devis.client_name,
-      devis.client_address,
-      devis.client_email,
-      devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
-    ].filter(Boolean) as string[];
-    drawText(page, 'Client', MARGIN, y, fontBold, 10, MUTED);
-    y -= 14;
-    for (const line of clientLines) {
-      drawText(page, line, MARGIN, y, font, 10.5, INK);
-      y -= 14;
-    }
-    y -= 16;
-
-    if (devis.notes?.trim()) {
-      const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
-      for (const line of lines) {
-        drawText(page, line, MARGIN, y, font, 9.5, MUTED);
-        y -= 12;
-      }
-      y -= 12;
-    }
-
-    // ---- Items table ----
-    const colX = { desc: MARGIN, qty: 330, unit: 380, price: 430, total: 500 };
-    const tableRight = PAGE_WIDTH - MARGIN;
-
-    const drawTableHeader = () => {
-      drawText(page, 'Description', colX.desc, y, fontBold, 9.5, MUTED);
-      drawText(page, 'Qté', colX.qty, y, fontBold, 9.5, MUTED);
-      drawText(page, 'Unité', colX.unit, y, fontBold, 9.5, MUTED);
-      drawText(page, 'Prix', colX.price, y, fontBold, 9.5, MUTED);
-      drawText(page, 'Total', colX.total, y, fontBold, 9.5, MUTED);
-      y -= 8;
-      page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
-      y -= 16;
-    };
-
-    drawTableHeader();
-
-    let subtotal = 0;
-    for (const item of items ?? []) {
-      const lineTotal = Number(item.quantity) * Number(item.unit_price);
-      subtotal += lineTotal;
-
-      const descLines = wrapText(item.description, font, 10, colX.qty - colX.desc - 10);
-      if (y - descLines.length * 13 < MARGIN + 120) {
-        newPage();
-        drawTableHeader();
-      }
-      const rowTop = y;
-      for (const line of descLines) {
-        drawText(page, line, colX.desc, y, font, 10, INK);
-        y -= 13;
-      }
-      drawText(page, String(item.quantity), colX.qty, rowTop, font, 10, INK);
-      drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 10, INK);
-      drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 10, INK);
-      drawText(page, chf(lineTotal), colX.total, rowTop, font, 10, INK);
-      y -= 6;
-    }
-
-    y -= 6;
-    page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
-    y -= 20;
-
-    if (y < MARGIN + 100) {
-      newPage();
-    }
-
-    const vat = subtotal * (Number(devis.vat_rate) / 100);
-    const total = subtotal + vat;
-
-    drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
-    y -= 15;
-    drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
-    y -= 15;
-    drawTotalsLine(page, fontBold, y, 'Total TTC', chf(total), 12);
-    y -= 30;
-
-    const validityDays = org?.devis_validity_days ?? 30;
-    const termsLines = wrapText(
-      org?.devis_terms?.trim()
-        ? `${org.devis_terms.trim()} Devis valable ${validityDays} jours. Prix en francs suisses (CHF).`
-        : `Devis valable ${validityDays} jours. Prix en francs suisses (CHF).`,
-      font,
-      8.5,
-      PAGE_WIDTH - 2 * MARGIN,
-    );
-    for (const line of termsLines) {
-      drawText(page, line, MARGIN, y, font, 8.5, MUTED);
-      y -= 11;
-    }
-    y -= 19;
-
+    let signatureImg: PDFImage | null = null;
     if (org?.signature_url) {
       const bytes = await fetchStorageBytes(admin, BUCKET, org.signature_url);
-      if (bytes) {
-        if (y < MARGIN + 90) newPage();
-        const img = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
-        const h = 50;
-        const w = (img.width / img.height) * h;
-        drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y, font, 9, MUTED);
-        page.drawImage(img, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
-      }
+      if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
 
-    drawFooter(page, font, pageNum);
+    const templateId = normalizeTemplate(org?.devis_template);
+    const render = RENDERERS[templateId];
 
-    const pdfBytes = await pdfDoc.save();
+    const pdfBytes = await render({
+      pdfDoc,
+      font,
+      fontBold,
+      org,
+      devis,
+      items: items ?? [],
+      logoImg,
+      signatureImg,
+    });
+
     const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
       .from(BUCKET)
@@ -286,7 +702,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 
-    return json({ path, url: signed?.signedUrl ?? null });
+    return json({ path, url: signed?.signedUrl ?? null, template: templateId });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);
@@ -296,12 +712,30 @@ Deno.serve(async (req: Request) => {
 function drawTotalsLine(page: PDFPage, font: PDFFont, y: number, label: string, value: string, size = 10.5) {
   const x = 500 - 130;
   drawText(page, label, x, y, font, size, INK);
-  drawText(page, value, 500, y, font, size, INK);
+  drawTextRight(page, value, PAGE_WIDTH - MARGIN, y, font, size, INK);
 }
 
-function drawFooter(page: PDFPage, font: PDFFont, pageNum: number) {
-  drawText(page, 'Généré via Opus', MARGIN, 24, font, 8, MUTED);
-  drawText(page, `Page ${pageNum}`, PAGE_WIDTH - MARGIN - 40, 24, font, 8, MUTED);
+function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number): number {
+  const validityDays = org?.devis_validity_days ?? 30;
+  const termsLines = wrapText(
+    org?.devis_terms?.trim()
+      ? `${org.devis_terms.trim()} Devis valable ${validityDays} jours. Prix en francs suisses (CHF).`
+      : `Devis valable ${validityDays} jours. Prix en francs suisses (CHF).`,
+    font,
+    8.5,
+    PAGE_WIDTH - 2 * MARGIN,
+  );
+  let cursor = y;
+  for (const line of termsLines) {
+    drawText(page, line, MARGIN, cursor, font, 8.5, MUTED);
+    cursor -= 11;
+  }
+  return cursor - 8;
+}
+
+function drawFooter(page: PDFPage, font: PDFFont, pageNum: number, brand: string) {
+  drawText(page, brand, MARGIN, 24, font, 8, MUTED);
+  drawTextRight(page, `Page ${pageNum}`, PAGE_WIDTH - MARGIN, 24, font, 8, MUTED);
 }
 
 function json(body: unknown, status = 200): Response {
