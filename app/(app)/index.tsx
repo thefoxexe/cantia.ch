@@ -131,11 +131,13 @@ const styles = StyleSheet.create({
   },
   grid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.md,
     marginBottom: spacing.xl,
   },
   tile: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 96,
     alignItems: 'center',
     paddingVertical: spacing.lg,
   },

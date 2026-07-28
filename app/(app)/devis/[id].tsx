@@ -161,8 +161,10 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.xs,
     marginBottom: spacing.xs,
   },
   number: {

@@ -358,8 +358,10 @@ const styles = StyleSheet.create({
   },
   navLinks: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: spacing.xl,
+    justifyContent: 'flex-end',
+    gap: spacing.md,
   },
   navLink: {
     fontSize: fontSize.sm,

@@ -73,7 +73,7 @@ export default function ChantierDetailScreen() {
           {project.address ? <Text style={styles.meta}>{project.address}</Text> : null}
         </Card>
 
-        <View style={styles.tabBar}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
           {TABS.map((t) => (
             <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabItem}>
               <Feather name={t.icon} size={16} color={tab === t.key ? colors.primary : colors.textMuted} />
@@ -81,7 +81,7 @@ export default function ChantierDetailScreen() {
               {tab === t.key ? <View style={styles.tabIndicator} /> : null}
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
 
         {tab === 'reports' ? (
           <View>
@@ -174,8 +174,10 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.xs,
     marginBottom: spacing.xs,
   },
   title: {
@@ -195,10 +197,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   tabBar: {
-    flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     marginTop: -spacing.sm,
+    flexGrow: 0,
+  },
+  tabBarContent: {
+    flexDirection: 'row',
   },
   tabItem: {
     flexDirection: 'row',
