@@ -33,6 +33,8 @@ export default function ChantiersListScreen() {
 
   return (
     <Screen style={{ padding: spacing.xl }}>
+      <Text style={styles.pageTitle}>Chantiers</Text>
+
       <Pressable style={styles.newButton} onPress={() => router.push('/(app)/chantiers/new')}>
         <Text style={styles.newButtonText}>+ Nouveau chantier</Text>
       </Pressable>
@@ -64,6 +66,12 @@ export default function ChantiersListScreen() {
 }
 
 const styles = StyleSheet.create({
+  pageTitle: {
+    fontSize: fontSize.xl,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.lg,
+  },
   newButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.md,

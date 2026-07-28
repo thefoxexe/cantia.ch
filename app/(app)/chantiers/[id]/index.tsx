@@ -70,19 +70,9 @@ export default function ChantierDetailScreen() {
         <Pressable onPress={() => router.back()} hitSlop={8} style={styles.iconButton}>
           <Feather name="arrow-left" size={20} color={colors.text} />
         </Pressable>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title} numberOfLines={1}>
-            {project.name}
-          </Text>
-          <View style={styles.metaRow}>
-            {project.client_name ? (
-              <Text style={styles.metaText} numberOfLines={1}>
-                {project.client_name}
-              </Text>
-            ) : null}
-            <StatusBadge status={project.status} />
-          </View>
-        </View>
+        <Text style={styles.title} numberOfLines={1}>
+          {project.name}
+        </Text>
         <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/settings`)} hitSlop={8} style={styles.iconButton}>
           <Feather name="settings" size={20} color={colors.text} />
         </Pressable>
@@ -216,20 +206,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
+    flex: 1,
     fontSize: fontSize.lg,
     fontWeight: '800',
     color: colors.text,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: 2,
-  },
-  metaText: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    flexShrink: 1,
   },
   headerRow: {
     flexDirection: 'row',
