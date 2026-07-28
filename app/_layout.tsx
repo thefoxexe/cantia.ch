@@ -14,16 +14,18 @@ function RootNavigation() {
 
   useEffect(() => {
     if (loading) return;
-    const inAuthGroup = segments[0] === '(auth)';
+    const segmentList = segments as string[];
+    const inAuthGroup = segmentList[0] === '(auth)';
+    const inAppGroup = segmentList[0] === '(app)';
+    const isLanding = segmentList.length === 0;
+    const subroute = segmentList[1];
 
-    const subroute = (segments as string[])[1];
-
-    if (!session && !inAuthGroup) {
+    if (session && organization) {
+      if (inAuthGroup || isLanding) router.replace('/(app)');
+    } else if (session && !organization) {
+      if (subroute !== 'onboarding') router.replace('/(auth)/onboarding');
+    } else if (inAppGroup) {
       router.replace('/(auth)/login');
-    } else if (session && !organization && subroute !== 'onboarding') {
-      router.replace('/(auth)/onboarding');
-    } else if (session && organization && inAuthGroup) {
-      router.replace('/(app)');
     }
   }, [session, organization, loading, segments, router]);
 

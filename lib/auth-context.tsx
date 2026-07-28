@@ -25,17 +25,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadOrganization = useCallback(async (userId: string) => {
-    const { data: membership } = await supabase
-      .from('organization_members')
-      .select('role, organization_id, organizations(*)')
-      .eq('user_id', userId)
-      .limit(1)
-      .maybeSingle();
+    try {
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('role, organization_id, organizations(*)')
+        .eq('user_id', userId)
+        .limit(1)
+        .maybeSingle();
 
-    if (membership?.organizations) {
-      setOrganization(membership.organizations as unknown as Organization);
-      setRole(membership.role as OrgRole);
-    } else {
+      if (membership?.organizations) {
+        setOrganization(membership.organizations as unknown as Organization);
+        setRole(membership.role as OrgRole);
+      } else {
+        setOrganization(null);
+        setRole(null);
+      }
+    } catch (err) {
+      console.error('Failed to load organization', err);
       setOrganization(null);
       setRole(null);
     }
@@ -46,11 +52,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [session, loadOrganization]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session?.user) await loadOrganization(data.session.user.id);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        setSession(data.session);
+        if (data.session?.user) await loadOrganization(data.session.user.id);
+      })
+      .catch((err) => {
+        console.error('Failed to get session', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       setSession(newSession);
