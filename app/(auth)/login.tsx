@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { Button, Field, Screen } from '../../components/ui';
@@ -24,7 +24,8 @@ export default function LoginScreen() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.brand}>Opus</Text>
+          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.brand}>Opus-Flow</Text>
           <Text style={styles.subtitle}>La plateforme des artisans et entreprises du bâtiment</Text>
 
           <View style={styles.form}>
@@ -65,6 +66,12 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     width: '100%',
     alignSelf: 'center',
+  },
+  logo: {
+    width: 48,
+    height: 36,
+    alignSelf: 'center',
+    marginBottom: spacing.md,
   },
   brand: {
     fontSize: 34,

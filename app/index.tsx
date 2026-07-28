@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
@@ -46,7 +46,10 @@ export default function LandingScreen() {
     <Screen>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll}>
         <View style={styles.nav}>
-          <Text style={styles.navBrand}>OPUS</Text>
+          <View style={styles.navBrandRow}>
+            <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+            <Text style={styles.navBrand}>Opus-Flow</Text>
+          </View>
 
           {isCompactNav ? (
             <View style={styles.navCompactRight}>
@@ -262,7 +265,10 @@ export default function LandingScreen() {
         <View style={styles.footer}>
           <View style={styles.footerGrid}>
             <View style={styles.footerBrandCol}>
-              <Text style={styles.footerBrand}>OPUS</Text>
+              <View style={styles.footerBrandRow}>
+                <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
+                <Text style={styles.footerBrand}>Opus-Flow</Text>
+              </View>
               <Text style={styles.footerText}>{t.footer.blurb}</Text>
             </View>
             <View style={styles.footerCol}>
@@ -281,6 +287,15 @@ export default function LandingScreen() {
               </Link>
               <Link href="/(auth)/signup">
                 <Text style={styles.footerLink}>{t.footer.signup}</Text>
+              </Link>
+            </View>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerColTitle}>{t.footer.legal}</Text>
+              <Link href="/mentions-legales">
+                <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
+              </Link>
+              <Link href="/confidentialite">
+                <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
               </Link>
             </View>
           </View>
@@ -399,14 +414,32 @@ const styles = StyleSheet.create({
     maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
+    marginTop: spacing.xl,
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  navBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  navLogo: {
+    width: 26,
+    height: 20,
   },
   navBrand: {
     fontSize: fontSize.md,
     fontWeight: '800',
-    color: colors.primary,
-    letterSpacing: 2,
+    color: colors.text,
+    letterSpacing: 0.3,
   },
   navLinks: {
     flexDirection: 'row',
@@ -916,12 +949,21 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
   },
+  footerBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  footerLogo: {
+    width: 22,
+    height: 17,
+  },
   footerBrand: {
     fontSize: fontSize.sm,
     fontWeight: '800',
-    color: colors.primary,
-    letterSpacing: 1,
-    marginBottom: spacing.sm,
+    color: colors.text,
+    letterSpacing: 0.3,
   },
   footerText: {
     fontSize: fontSize.xs,

@@ -40,7 +40,7 @@ export default function OnboardingScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Bienvenue sur Opus</Text>
+        <Text style={styles.title}>Bienvenue sur Opus-Flow</Text>
         <Text style={styles.subtitle}>Créez votre espace entreprise pour commencer.</Text>
 
         <Field

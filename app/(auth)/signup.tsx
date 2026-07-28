@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { Button, Field, Screen } from '../../components/ui';
@@ -33,7 +33,8 @@ export default function SignupScreen() {
     return (
       <Screen>
         <View style={styles.container}>
-          <Text style={styles.brand}>Opus</Text>
+          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.brand}>Opus-Flow</Text>
           <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>
             Compte créé. Si la confirmation par e-mail est activée, vérifiez votre boîte mail avant de vous
             connecter.
@@ -48,7 +49,8 @@ export default function SignupScreen() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.brand}>Opus</Text>
+          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.brand}>Opus-Flow</Text>
           <Text style={styles.subtitle}>Créez votre compte</Text>
 
           <View style={styles.form}>
@@ -89,6 +91,12 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     width: '100%',
     alignSelf: 'center',
+  },
+  logo: {
+    width: 48,
+    height: 36,
+    alignSelf: 'center',
+    marginBottom: spacing.md,
   },
   brand: {
     fontSize: 34,

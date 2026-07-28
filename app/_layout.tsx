@@ -22,7 +22,9 @@ function RootNavigation() {
     const isLanding = segmentList.length === 0;
     const subroute = segmentList[1];
 
-    if (session && organization) {
+    if (session && organization && !organization.plan_selected) {
+      if (subroute !== 'choose-plan') router.replace('/(auth)/choose-plan');
+    } else if (session && organization) {
       if (inAuthGroup || isLanding) router.replace('/(app)');
     } else if (session && !organization) {
       if (subroute !== 'onboarding') router.replace('/(auth)/onboarding');

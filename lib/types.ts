@@ -31,6 +31,7 @@ export interface Organization {
   stripe_subscription_id: string | null;
   subscription_status: string | null;
   enabled_modules: string[];
+  plan_selected: boolean;
   created_at: string;
   updated_at: string;
 }

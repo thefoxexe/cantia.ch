@@ -39,10 +39,13 @@ interface Dict {
     blurb: string;
     product: string;
     account: string;
+    legal: string;
     servicesLink: string;
     pricingLink: string;
     login: string;
     signup: string;
+    legalLink: string;
+    privacyLink: string;
     copyright: string;
   };
 }
@@ -53,7 +56,7 @@ const fr: Dict = {
     kicker: 'Pour les entreprises du bâtiment en Suisse',
     headline: 'Moins de temps sur l’administratif, plus de temps sur le chantier',
     subheadline:
-      'Opus regroupe vos rapports de chantier, vos devis et vos documents en un seul endroit. Vous saisissez une fois, sur le terrain, et tout est mis en forme automatiquement.',
+      'Opus-Flow regroupe vos rapports de chantier, vos devis et vos documents en un seul endroit. Vous saisissez une fois, sur le terrain, et tout est mis en forme automatiquement.',
     cta1: 'Créer mon compte gratuitement',
     cta2: 'Se connecter',
   },
@@ -134,7 +137,7 @@ const fr: Dict = {
       },
       {
         title: 'Pensé pour l’équipe',
-        text: 'Opus s’adapte à votre taille, de l’artisan indépendant à l’entreprise avec plusieurs collaborateurs et des rôles différents.',
+        text: 'Opus-Flow s’adapte à votre taille, de l’artisan indépendant à l’entreprise avec plusieurs collaborateurs et des rôles différents.',
         detail: [
           'Rôles propriétaire, administrateur et membre',
           'Ajout de collaborateurs selon votre plan',
@@ -161,7 +164,7 @@ const fr: Dict = {
   },
   swiss: {
     title: 'Conçu pour le marché suisse',
-    text: 'Les montants sont en francs suisses, la TVA suisse est intégrée par défaut, et vous avez accès au cadastre et à l’orthophoto officiels. Opus a été pensé dès le départ pour les PME et les artisans indépendants du pays.',
+    text: 'Les montants sont en francs suisses, la TVA suisse est intégrée par défaut, et vous avez accès au cadastre et à l’orthophoto officiels. Opus-Flow a été pensé dès le départ pour les PME et les artisans indépendants du pays.',
   },
   mobile: {
     title: 'Bientôt sur mobile',
@@ -171,18 +174,21 @@ const fr: Dict = {
     googlePlay: 'Google Play',
   },
   finalCta: {
-    title: 'Essayez Opus sur votre prochain chantier',
+    title: 'Essayez Opus-Flow sur votre prochain chantier',
     button: 'Créer mon compte gratuitement',
   },
   footer: {
     blurb: 'La plateforme de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, levés et métré, tous au même endroit.',
     product: 'Produit',
     account: 'Compte',
+    legal: 'Légal',
     servicesLink: 'Services',
     pricingLink: 'Tarifs',
     login: 'Se connecter',
     signup: 'Créer un compte',
-    copyright: '© {year} Opus. Conçu pour le bâtiment suisse.',
+    legalLink: 'Mentions légales',
+    privacyLink: 'Confidentialité',
+    copyright: '© {year} Opus-Flow. Conçu pour le bâtiment suisse.',
   },
 };
 
@@ -192,7 +198,7 @@ const en: Dict = {
     kicker: 'For Swiss construction businesses',
     headline: 'Less time on paperwork, more time on site',
     subheadline:
-      'Opus brings your site reports, quotes and documents together in one place. You capture everything once, on site, and it’s formatted automatically.',
+      'Opus-Flow brings your site reports, quotes and documents together in one place. You capture everything once, on site, and it’s formatted automatically.',
     cta1: 'Create my free account',
     cta2: 'Log in',
   },
@@ -273,7 +279,7 @@ const en: Dict = {
       },
       {
         title: 'Built for your team',
-        text: 'Opus grows with you, from a solo tradesperson to a company with several teammates and different roles.',
+        text: 'Opus-Flow grows with you, from a solo tradesperson to a company with several teammates and different roles.',
         detail: [
           'Owner, admin and member roles',
           'Add teammates depending on your plan',
@@ -300,7 +306,7 @@ const en: Dict = {
   },
   swiss: {
     title: 'Built for the Swiss market',
-    text: 'Amounts are shown in Swiss francs, Swiss VAT is included by default, and you get access to the official cadastre and aerial imagery. Opus was built from day one for Swiss SMEs and independent tradespeople.',
+    text: 'Amounts are shown in Swiss francs, Swiss VAT is included by default, and you get access to the official cadastre and aerial imagery. Opus-Flow was built from day one for Swiss SMEs and independent tradespeople.',
   },
   mobile: {
     title: 'Coming soon on mobile',
@@ -310,18 +316,21 @@ const en: Dict = {
     googlePlay: 'Google Play',
   },
   finalCta: {
-    title: 'Try Opus on your next site',
+    title: 'Try Opus-Flow on your next site',
     button: 'Create my free account',
   },
   footer: {
     blurb: 'The site management platform for Swiss construction. Reports, documents, quotes, surveys and quantities, all in one place.',
     product: 'Product',
     account: 'Account',
+    legal: 'Legal',
     servicesLink: 'Services',
     pricingLink: 'Pricing',
     login: 'Log in',
     signup: 'Create an account',
-    copyright: '© {year} Opus. Built for Swiss construction.',
+    legalLink: 'Legal notice',
+    privacyLink: 'Privacy',
+    copyright: '© {year} Opus-Flow. Built for Swiss construction.',
   },
 };
 
@@ -331,7 +340,7 @@ const de: Dict = {
     kicker: 'Für Bauunternehmen in der Schweiz',
     headline: 'Weniger Zeit für Administration, mehr Zeit auf der Baustelle',
     subheadline:
-      'Opus bündelt Ihre Baustellenrapporte, Offerten und Dokumente an einem Ort. Sie erfassen alles einmal, direkt vor Ort, und es wird automatisch aufbereitet.',
+      'Opus-Flow bündelt Ihre Baustellenrapporte, Offerten und Dokumente an einem Ort. Sie erfassen alles einmal, direkt vor Ort, und es wird automatisch aufbereitet.',
     cta1: 'Kostenloses Konto erstellen',
     cta2: 'Anmelden',
   },
@@ -412,7 +421,7 @@ const de: Dict = {
       },
       {
         title: 'Gemacht für Ihr Team',
-        text: 'Opus wächst mit Ihnen mit, vom selbstständigen Handwerker bis zum Unternehmen mit mehreren Mitarbeitenden und unterschiedlichen Rollen.',
+        text: 'Opus-Flow wächst mit Ihnen mit, vom selbstständigen Handwerker bis zum Unternehmen mit mehreren Mitarbeitenden und unterschiedlichen Rollen.',
         detail: [
           'Rollen: Inhaber, Administrator, Mitglied',
           'Teammitglieder je nach Plan hinzufügen',
@@ -439,7 +448,7 @@ const de: Dict = {
   },
   swiss: {
     title: 'Gemacht für den Schweizer Markt',
-    text: 'Beträge in Schweizer Franken, Schweizer MwSt. standardmässig inbegriffen, Zugang zum offiziellen Kataster und Orthofoto. Opus wurde von Anfang an für Schweizer KMU und selbstständige Handwerker entwickelt.',
+    text: 'Beträge in Schweizer Franken, Schweizer MwSt. standardmässig inbegriffen, Zugang zum offiziellen Kataster und Orthofoto. Opus-Flow wurde von Anfang an für Schweizer KMU und selbstständige Handwerker entwickelt.',
   },
   mobile: {
     title: 'Bald auf dem Handy',
@@ -449,18 +458,21 @@ const de: Dict = {
     googlePlay: 'Google Play',
   },
   finalCta: {
-    title: 'Testen Sie Opus auf Ihrer nächsten Baustelle',
+    title: 'Testen Sie Opus-Flow auf Ihrer nächsten Baustelle',
     button: 'Kostenloses Konto erstellen',
   },
   footer: {
     blurb: 'Die Plattform für Baustellenverwaltung im Schweizer Bauwesen. Rapporte, Dokumente, Offerten, Vermessung und Aufmass, alles an einem Ort.',
     product: 'Produkt',
     account: 'Konto',
+    legal: 'Rechtliches',
     servicesLink: 'Leistungen',
     pricingLink: 'Preise',
     login: 'Anmelden',
     signup: 'Konto erstellen',
-    copyright: '© {year} Opus. Gemacht für das Schweizer Bauwesen.',
+    legalLink: 'Impressum',
+    privacyLink: 'Datenschutz',
+    copyright: '© {year} Opus-Flow. Gemacht für das Schweizer Bauwesen.',
   },
 };
 
@@ -468,9 +480,8 @@ const DICTS: Record<Lang, Dict> = { fr, en, de };
 
 const PLAN_NAMES: Record<string, Record<Lang, string>> = {
   free: { fr: 'Gratuit', en: 'Free', de: 'Gratis' },
-  solo: { fr: 'Artisan Solo', en: 'Solo Tradesperson', de: 'Handwerker Solo' },
+  solo: { fr: 'Indépendant', en: 'Independent', de: 'Selbstständig' },
   pro: { fr: 'Pro', en: 'Pro', de: 'Pro' },
-  entreprise: { fr: 'Entreprise', en: 'Business', de: 'Unternehmen' },
 };
 
 export function planLabel(planId: string, fallbackName: string, lang: Lang): string {

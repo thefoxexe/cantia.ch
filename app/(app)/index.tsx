@@ -68,7 +68,7 @@ export default function DashboardScreen() {
         <FeatureHint
           id="dashboard-welcome"
           icon="compass"
-          title="Bienvenue sur Opus"
+          title="Bienvenue sur Opus-Flow"
           text="Créez un chantier, ajoutez des rapports et des documents sur le terrain, puis générez vos devis en quelques minutes."
         />
 

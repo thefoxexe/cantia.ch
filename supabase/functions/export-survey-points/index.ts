@@ -98,7 +98,7 @@ function buildGpx(points: SurveyPointRow[]): string {
     })
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Opus" xmlns="http://www.topografix.com/GPX/1/1">
+<gpx version="1.1" creator="Opus-Flow" xmlns="http://www.topografix.com/GPX/1/1">
 ${waypoints}
 </gpx>`;
 }
@@ -119,7 +119,7 @@ async function sendExportEmail(toEmail: string, downloadUrl: string, projectName
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: 'Opus <noreply@opus-app.ch>',
+      from: 'Opus-Flow <noreply@opusflow.ch>',
       to: [toEmail],
       subject: `Votre export de points — ${projectName}`,
       html: `<p>Votre export des points de levé (${format.toUpperCase()}) pour <strong>${projectName}</strong> est prêt.</p><p><a href="${downloadUrl}">Télécharger le fichier</a> (lien valable 24h).</p>`,

@@ -295,7 +295,7 @@ Deno.serve(async (req: Request) => {
 });
 
 function drawFooter(page: PDFPage, font: PDFFont, pageNum: number) {
-  drawText(page, 'Généré via Opus', MARGIN, 24, font, 8, MUTED);
+  drawText(page, 'Généré via Opus-Flow', MARGIN, 24, font, 8, MUTED);
   drawText(page, `Page ${pageNum}`, PAGE_WIDTH - MARGIN - 40, 24, font, 8, MUTED);
 }
 

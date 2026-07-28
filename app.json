@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Opus",
-    "slug": "opus",
+    "name": "Opus-Flow",
+    "slug": "opus-flow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "opus",
+    "scheme": "opusflow",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
@@ -13,25 +13,25 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Opus utilise vos photos pour illustrer vos rapports de chantier.",
-          "cameraPermission": "Opus utilise l'appareil photo pour documenter vos chantiers."
+          "photosPermission": "Opus-Flow utilise vos photos pour illustrer vos rapports de chantier.",
+          "cameraPermission": "Opus-Flow utilise l'appareil photo pour documenter vos chantiers."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Opus géolocalise vos photos de chantier pour vos rapports."
+          "locationWhenInUsePermission": "Opus-Flow géolocalise vos photos de chantier pour vos rapports."
         }
       ]
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ch.opus.app"
+      "bundleIdentifier": "ch.opusflow.app"
     },
     "android": {
-      "package": "ch.opus.app",
+      "package": "ch.opusflow.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#1F3D3A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
