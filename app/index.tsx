@@ -4,119 +4,22 @@ import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
 import { supabase } from '../lib/supabase';
+import { useLanguage, planLabel, LANGUAGES, type Lang } from '../lib/i18n';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
-const PAIN_POINTS: { icon: IconName; title: string; text: string }[] = [
-  {
-    icon: 'edit-3',
-    title: 'Notes papier qui se perdent',
-    text: 'Les infos prises sur le chantier n’arrivent jamais intactes jusqu’au bureau.',
-  },
-  {
-    icon: 'clock',
-    title: 'Rapports faits le soir, en retard',
-    text: 'Le temps de reconstituer un rapport propre à partir de photos éparpillées.',
-  },
-  {
-    icon: 'folder',
-    title: 'Documents introuvables',
-    text: 'Plans, soumissions, photos... répartis entre le classeur, le mail et le téléphone.',
-  },
-];
-
-const FEATURES: { icon: IconName; title: string; text: string; detail: string[] }[] = [
-  {
-    icon: 'file-text',
-    title: 'Rapports de chantier automatiques',
-    text: 'Notes et photos géoréférencées sur le terrain, transformées en rapport PDF avec votre logo et votre signature.',
-    detail: [
-      'Photos automatiquement horodatées et géolocalisées',
-      'Génération du PDF en un clic, avec votre logo et votre signature',
-      'Historique complet consultable à tout moment, par chantier',
-    ],
-  },
-  {
-    icon: 'folder',
-    title: 'Documents en arborescence',
-    text: 'Chaque chantier a son propre classeur numérique : dossiers, sous-dossiers, plans, soumissions.',
-    detail: [
-      'Dossiers et sous-dossiers illimités, par chantier',
-      'Tout type de fichier : plans, PDF, photos, contrats',
-      'Retrouvez un document en quelques secondes',
-    ],
-  },
-  {
-    icon: 'image',
-    title: 'Galerie photos intelligente',
-    text: 'Toutes les photos d’un chantier au même endroit, filtrables par date et localisables sur la carte.',
-    detail: [
-      'Toutes les photos d’un chantier regroupées automatiquement',
-      'Filtres par date : 7 jours, 30 jours ou tout l’historique',
-      'Ouverture directe de la localisation sur la carte',
-    ],
-  },
-  {
-    icon: 'zap',
-    title: 'Devis en quelques minutes',
-    text: 'Notes de rendez-vous transformées en devis PDF chiffré, avec suivi de statut et plusieurs modèles au choix.',
-    detail: [
-      '4 modèles de PDF au choix : classique, moderne, minimal, structuré',
-      'Calcul automatique de la TVA et des totaux',
-      'Suivi de statut : brouillon, envoyé, accepté, refusé',
-    ],
-  },
-  {
-    icon: 'list',
-    title: 'Métré poste par poste',
-    text: 'Un tableau de quantités par poste, avec totaux automatiques, transformé en devis en un clic.',
-    detail: [
-      'Tableau de postes avec référence, quantité et unité',
-      'Totaux automatiques par unité (m², m³, ml…)',
-      'Transfert en un clic vers un devis pré-rempli',
-    ],
-  },
-  {
-    icon: 'map-pin',
-    title: 'Levés & cadastre suisse',
-    text: 'Points de chantier positionnés sur le cadastre et l’orthophoto officiels, export DXF / CSV / XML / GPX.',
-    detail: [
-      'Carte interactive avec cadastre et orthophoto officiels suisses',
-      'Ajout de points par position GPS ou directement sur la carte',
-      'Export DXF, LandXML, CSV ou GPX — réservé aux plans payants',
-    ],
-  },
-  {
-    icon: 'users',
-    title: 'Pensé pour l’équipe',
-    text: 'De l’artisan indépendant à l’entreprise avec plusieurs collaborateurs et rôles.',
-    detail: [
-      'Rôles propriétaire, administrateur et membre',
-      'Ajout de collaborateurs selon votre plan',
-      'Paramètres d’entreprise centralisés : TVA, logo, mentions',
-    ],
-  },
-];
-
-const TRADES = [
-  'Génie civil',
-  'Maçonnerie',
-  'Serrurerie',
-  'Électricité',
-  'Plomberie',
-  'Menuiserie',
-  'Peinture',
-  'Carrelage',
-];
+const PAIN_ICONS: IconName[] = ['edit-3', 'clock', 'folder'];
+const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'list', 'map-pin', 'users'];
 
 export default function LandingScreen() {
+  const { t, lang, setLang } = useLanguage();
   const scrollRef = useRef<ScrollView>(null);
   const pricingY = useRef(0);
   const servicesY = useRef(0);
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [expandedFeature, setExpandedFeature] = useState<string | null>(null);
+  const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
 
   useEffect(() => {
     supabase
@@ -140,17 +43,24 @@ export default function LandingScreen() {
         <View style={styles.nav}>
           <Text style={styles.navBrand}>OPUS</Text>
           <View style={styles.navLinks}>
+            <View style={styles.langSwitcher}>
+              {LANGUAGES.map((l) => (
+                <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
+                  <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+                </Pressable>
+              ))}
+            </View>
             <Pressable onPress={scrollToServices}>
-              <Text style={styles.navLink}>Services</Text>
+              <Text style={styles.navLink}>{t.nav.services}</Text>
             </Pressable>
             <Pressable onPress={scrollToPricing}>
-              <Text style={styles.navLink}>Tarifs</Text>
+              <Text style={styles.navLink}>{t.nav.pricing}</Text>
             </Pressable>
             <Link href="/(auth)/login">
-              <Text style={styles.navLink}>Se connecter</Text>
+              <Text style={styles.navLink}>{t.nav.login}</Text>
             </Link>
             <Link href="/(auth)/signup" asChild>
-              <Button title="Essayer gratuitement" onPress={() => {}} style={styles.navCta} />
+              <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
             </Link>
           </View>
         </View>
@@ -159,32 +69,29 @@ export default function LandingScreen() {
         <View style={styles.hero}>
           <View style={styles.heroCopy}>
             <View style={styles.kicker}>
-              <Text style={styles.kickerText}>Pour les entreprises du bâtiment en Suisse</Text>
+              <Text style={styles.kickerText}>{t.hero.kicker}</Text>
             </View>
-            <Text style={styles.headline}>Moins de temps sur l’administratif, plus de temps sur le chantier</Text>
-            <Text style={styles.subheadline}>
-              Opus centralise vos rapports de chantier, vos devis et vos documents — saisis une seule fois, sur le
-              terrain, et automatiquement mis en forme.
-            </Text>
+            <Text style={styles.headline}>{t.hero.headline}</Text>
+            <Text style={styles.subheadline}>{t.hero.subheadline}</Text>
             <View style={styles.ctaRow}>
               <Link href="/(auth)/signup" asChild>
-                <Button title="Créer mon compte gratuitement" onPress={() => {}} style={styles.ctaButton} />
+                <Button title={t.hero.cta1} onPress={() => {}} style={styles.ctaButton} />
               </Link>
               <Link href="/(auth)/login" asChild>
-                <Button title="Se connecter" onPress={() => {}} variant="secondary" style={styles.ctaButton} />
+                <Button title={t.hero.cta2} onPress={() => {}} variant="secondary" style={styles.ctaButton} />
               </Link>
             </View>
           </View>
 
-          <AppPreview />
+          <AppPreview lang={lang} />
         </View>
 
         {/* ---- Pain points ---- */}
-        <Section title="Le bâtiment perd du temps sur l’administratif" center>
+        <Section title={t.pain.title} center>
           <View style={styles.painGrid}>
-            {PAIN_POINTS.map((p) => (
+            {t.pain.items.map((p, i) => (
               <View key={p.title} style={styles.painCard}>
-                <Feather name={p.icon} size={20} color={colors.accent} />
+                <Feather name={PAIN_ICONS[i]} size={20} color={colors.accent} />
                 <Text style={styles.painTitle}>{p.title}</Text>
                 <Text style={styles.painText}>{p.text}</Text>
               </View>
@@ -194,20 +101,20 @@ export default function LandingScreen() {
 
         {/* ---- Services ---- */}
         <View onLayout={(e) => (servicesY.current = e.nativeEvent.layout.y)}>
-          <Section title="Tout ce qu’il faut, du chantier au bureau">
-            <Text style={styles.sectionSubtitle}>Touchez un service pour voir en détail ce qu’il fait vraiment.</Text>
+          <Section title={t.services.title}>
+            <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
             <View style={styles.featureGrid}>
-              {FEATURES.map((f) => {
-                const expanded = expandedFeature === f.title;
+              {t.services.items.map((f, i) => {
+                const expanded = expandedFeature === i;
                 return (
                   <Pressable
                     key={f.title}
                     style={styles.featureCard}
-                    onPress={() => setExpandedFeature(expanded ? null : f.title)}
+                    onPress={() => setExpandedFeature(expanded ? null : i)}
                   >
                     <View style={styles.featureCardHeader}>
                       <View style={styles.featureIcon}>
-                        <Feather name={f.icon} size={18} color={colors.primary} />
+                        <Feather name={FEATURE_ICONS[i]} size={18} color={colors.primary} />
                       </View>
                       <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                     </View>
@@ -231,45 +138,44 @@ export default function LandingScreen() {
         </View>
 
         {/* ---- Trades ---- */}
-        <Section title="Pensé pour votre métier" center>
+        <Section title={t.trades.title} center>
           <View style={styles.tradeRow}>
-            {TRADES.map((t) => (
-              <View key={t} style={styles.tradeChip}>
-                <Text style={styles.tradeChipText}>{t}</Text>
+            {t.trades.list.map((trade) => (
+              <View key={trade} style={styles.tradeChip}>
+                <Text style={styles.tradeChipText}>{trade}</Text>
               </View>
             ))}
           </View>
-          <Text style={styles.tradeNote}>
-            Chaque compte se personnalise selon votre corps de métier — modèles de rapports, TVA et mise en page
-            de devis compris.
-          </Text>
+          <Text style={styles.tradeNote}>{t.trades.note}</Text>
         </Section>
 
         {/* ---- Pricing ---- */}
         <View onLayout={(e) => (pricingY.current = e.nativeEvent.layout.y)}>
-          <Section title="Un plan pour chaque taille d’équipe" center>
+          <Section title={t.pricing.title} center>
             <View style={styles.pricingGrid}>
               {plans.map((p) => (
                 <View key={p.id} style={[styles.priceCard, p.id === 'solo' && styles.priceCardHighlight]}>
                   {p.id === 'solo' ? (
                     <View style={styles.priceBadge}>
-                      <Text style={styles.priceBadgeText}>Le plus choisi</Text>
+                      <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
                     </View>
                   ) : null}
-                  <Text style={styles.priceName}>{p.name}</Text>
+                  <Text style={styles.priceName}>{planLabel(p.id, p.name, lang)}</Text>
                   <View style={styles.priceAmountRow}>
                     <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${p.price_chf_monthly}`}</Text>
-                    <Text style={styles.pricePeriod}>/mois</Text>
+                    <Text style={styles.pricePeriod}>/{lang === 'de' ? 'Monat' : lang === 'en' ? 'month' : 'mois'}</Text>
                   </View>
                   <View style={styles.priceFeatures}>
-                    <PriceFeature text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
-                    <PriceFeature text={`${p.max_members} membre${p.max_members > 1 ? 's' : ''}`} />
-                    <PriceFeature text="Rapports & devis illimités" />
-                    <PriceFeature text="Levés & cadastre suisse" muted={!p.has_rtk} included={p.has_rtk} />
+                    <PriceFeature
+                      text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
+                    />
+                    <PriceFeature text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
+                    <PriceFeature text={t.pricing.unlimited} />
+                    <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
                   </View>
                   <Link href="/(auth)/signup" asChild>
                     <Button
-                      title={p.price_chf_monthly === 0 ? 'Commencer gratuitement' : 'Choisir ce plan'}
+                      title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
                       onPress={() => {}}
                       variant={p.id === 'solo' ? 'primary' : 'secondary'}
                     />
@@ -284,31 +190,25 @@ export default function LandingScreen() {
         <Section>
           <View style={styles.swissBand}>
             <Feather name="flag" size={22} color={colors.primary} />
-            <Text style={styles.swissTitle}>Conçu pour le marché suisse</Text>
-            <Text style={styles.swissText}>
-              Montants en francs suisses, TVA suisse intégrée par défaut, cadastre et orthophoto officiels — une
-              plateforme pensée dès le départ pour les PME et artisans indépendants du pays.
-            </Text>
+            <Text style={styles.swissTitle}>{t.swiss.title}</Text>
+            <Text style={styles.swissText}>{t.swiss.text}</Text>
           </View>
         </Section>
 
         {/* ---- Mobile apps ---- */}
-        <Section title="Bientôt sur mobile" center>
-          <Text style={styles.mobileText}>
-            L’application web fonctionne dès aujourd’hui sur ordinateur, tablette et téléphone. Les applications
-            natives arrivent prochainement, avec la connexion à un récepteur RTK pour les levés de précision.
-          </Text>
+        <Section title={t.mobile.title} center>
+          <Text style={styles.mobileText}>{t.mobile.text}</Text>
           <View style={styles.storeRow}>
-            <StoreBadge kind="apple" />
-            <StoreBadge kind="google" />
+            <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
+            <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
           </View>
         </Section>
 
         {/* ---- Final CTA ---- */}
         <View style={styles.finalCta}>
-          <Text style={styles.finalCtaTitle}>Essayez Opus sur votre prochain chantier</Text>
+          <Text style={styles.finalCtaTitle}>{t.finalCta.title}</Text>
           <Link href="/(auth)/signup" asChild>
-            <Button title="Créer mon compte gratuitement" onPress={() => {}} style={{ minWidth: 260 }} />
+            <Button title={t.finalCta.button} onPress={() => {}} style={{ minWidth: 260 }} />
           </Link>
         </View>
 
@@ -316,32 +216,29 @@ export default function LandingScreen() {
           <View style={styles.footerGrid}>
             <View style={styles.footerBrandCol}>
               <Text style={styles.footerBrand}>OPUS</Text>
-              <Text style={styles.footerText}>
-                Plateforme de gestion de chantier pour le bâtiment suisse — rapports, documents, devis, levés et
-                métré au même endroit.
-              </Text>
+              <Text style={styles.footerText}>{t.footer.blurb}</Text>
             </View>
             <View style={styles.footerCol}>
-              <Text style={styles.footerColTitle}>Produit</Text>
+              <Text style={styles.footerColTitle}>{t.footer.product}</Text>
               <Pressable onPress={scrollToServices}>
-                <Text style={styles.footerLink}>Services</Text>
+                <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
               </Pressable>
               <Pressable onPress={scrollToPricing}>
-                <Text style={styles.footerLink}>Tarifs</Text>
+                <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
               </Pressable>
             </View>
             <View style={styles.footerCol}>
-              <Text style={styles.footerColTitle}>Compte</Text>
+              <Text style={styles.footerColTitle}>{t.footer.account}</Text>
               <Link href="/(auth)/login">
-                <Text style={styles.footerLink}>Se connecter</Text>
+                <Text style={styles.footerLink}>{t.footer.login}</Text>
               </Link>
               <Link href="/(auth)/signup">
-                <Text style={styles.footerLink}>Créer un compte</Text>
+                <Text style={styles.footerLink}>{t.footer.signup}</Text>
               </Link>
             </View>
           </View>
           <View style={styles.footerBottom}>
-            <Text style={styles.footerCopy}>© {new Date().getFullYear()} Opus. Conçu pour le bâtiment suisse.</Text>
+            <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
           </View>
         </View>
       </ScrollView>
@@ -379,20 +276,27 @@ function PriceFeature({ text, muted, included }: { text: string; muted?: boolean
   );
 }
 
-function StoreBadge({ kind }: { kind: 'apple' | 'google' }) {
+function StoreBadge({ kind, label, comingSoon }: { kind: 'apple' | 'google'; label: string; comingSoon: string }) {
   const isApple = kind === 'apple';
   return (
     <View style={styles.storeBadge}>
       <Ionicons name={isApple ? 'logo-apple' : 'logo-google-playstore'} size={26} color="#fff" />
       <View>
-        <Text style={styles.storeBadgeSmall}>Bientôt disponible</Text>
-        <Text style={styles.storeBadgeBig}>{isApple ? 'App Store' : 'Google Play'}</Text>
+        <Text style={styles.storeBadgeSmall}>{comingSoon}</Text>
+        <Text style={styles.storeBadgeBig}>{label}</Text>
       </View>
     </View>
   );
 }
 
-function AppPreview() {
+const PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports: string; devis: string; project: string; devisNumber: string; photos: string }> = {
+  fr: { greeting: 'Bonjour', sites: 'Chantiers', reports: 'Rapports', devis: 'Devis', project: 'Villa ABC — Dalle sur rail', devisNumber: 'Devis DEV-2026-0032', photos: '18 photos géolocalisées' },
+  en: { greeting: 'Hello', sites: 'Sites', reports: 'Reports', devis: 'Quotes', project: 'Villa ABC — Slab on rail', devisNumber: 'Quote QT-2026-0032', photos: '18 geolocated photos' },
+  de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa ABC — Bodenplatte', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
+};
+
+function AppPreview({ lang }: { lang: Lang }) {
+  const copy = PREVIEW_COPY[lang];
   return (
     <View style={styles.preview}>
       <View style={styles.previewChrome}>
@@ -401,33 +305,33 @@ function AppPreview() {
         <View style={styles.previewDot} />
       </View>
       <View style={styles.previewBody}>
-        <Text style={styles.previewGreeting}>Bonjour</Text>
+        <Text style={styles.previewGreeting}>{copy.greeting}</Text>
         <Text style={styles.previewOrg}>Dupont Serrurerie Sàrl</Text>
         <View style={styles.previewStatsRow}>
           <View style={styles.previewStat}>
             <Text style={styles.previewStatValue}>12</Text>
-            <Text style={styles.previewStatLabel}>Chantiers</Text>
+            <Text style={styles.previewStatLabel}>{copy.sites}</Text>
           </View>
           <View style={styles.previewStat}>
             <Text style={styles.previewStatValue}>34</Text>
-            <Text style={styles.previewStatLabel}>Rapports</Text>
+            <Text style={styles.previewStatLabel}>{copy.reports}</Text>
           </View>
           <View style={styles.previewStat}>
             <Text style={styles.previewStatValue}>7</Text>
-            <Text style={styles.previewStatLabel}>Devis</Text>
+            <Text style={styles.previewStatLabel}>{copy.devis}</Text>
           </View>
         </View>
         <View style={styles.previewListRow}>
           <Feather name="hard-drive" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>Villa ABC — Dalle sur rail</Text>
+          <Text style={styles.previewListText}>{copy.project}</Text>
         </View>
         <View style={styles.previewListRow}>
           <Feather name="file-text" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>Devis DEV-2026-0032</Text>
+          <Text style={styles.previewListText}>{copy.devisNumber}</Text>
         </View>
         <View style={styles.previewListRow}>
           <Feather name="image" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>18 photos géolocalisées</Text>
+          <Text style={styles.previewListText}>{copy.photos}</Text>
         </View>
       </View>
     </View>
@@ -460,9 +364,30 @@ const styles = StyleSheet.create({
   navLinks: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    flexShrink: 1,
+    minWidth: 0,
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: spacing.md,
+  },
+  langSwitcher: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    overflow: 'hidden',
+  },
+  langButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  langButtonText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  langButtonTextActive: {
+    color: colors.primary,
   },
   navLink: {
     fontSize: fontSize.sm,
