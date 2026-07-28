@@ -11,7 +11,7 @@ language sql security definer stable set search_path = public as $$
 $$;
 
 create or replace function public.check_survey_points_plan()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   if not public.org_has_rtk(new.organization_id) then
     raise exception 'Les levés de précision nécessitent un plan payant (dès Artisan Solo).';
