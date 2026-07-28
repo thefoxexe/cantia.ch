@@ -1,0 +1,307 @@
+import { useCallback, useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../lib/auth-context';
+import { supabase } from '../lib/supabase';
+import { Button, EmptyState } from './ui';
+import { colors, fontSize, radius, spacing } from '../lib/theme';
+import type { MetreItem } from '../lib/types';
+
+export function ProjectMetre({ projectId, organizationId }: { projectId: string; organizationId: string }) {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [items, setItems] = useState<MetreItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [transferring, setTransferring] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('metre_items')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('sort_order', { ascending: true });
+    setItems(data ?? []);
+    setLoading(false);
+  }, [projectId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  async function addItem() {
+    const { data } = await supabase
+      .from('metre_items')
+      .insert({
+        organization_id: organizationId,
+        project_id: projectId,
+        reference: '',
+        description: '',
+        quantity: 0,
+        unit: 'pce',
+        sort_order: items.length,
+        created_by: user?.id ?? null,
+      })
+      .select()
+      .single();
+    if (data) setItems((prev) => [...prev, data]);
+  }
+
+  function patchLocal(id: string, patch: Partial<MetreItem>) {
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+  }
+
+  async function saveItem(item: MetreItem) {
+    await supabase
+      .from('metre_items')
+      .update({
+        reference: item.reference,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+      })
+      .eq('id', item.id);
+  }
+
+  async function removeItem(id: string) {
+    await supabase.from('metre_items').delete().eq('id', id);
+    setItems((prev) => prev.filter((it) => it.id !== id));
+  }
+
+  const byUnit = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const it of items) {
+      const unit = it.unit || 'pce';
+      totals[unit] = (totals[unit] ?? 0) + Number(it.quantity || 0);
+    }
+    return totals;
+  }, [items]);
+
+  async function transferToDevis() {
+    if (items.length === 0) return;
+    setTransferring(true);
+    const { data: devis, error } = await supabase
+      .from('devis')
+      .insert({
+        organization_id: organizationId,
+        project_id: projectId,
+        client_name: 'À compléter',
+        notes: 'Devis généré depuis le métré.',
+        status: 'draft',
+      })
+      .select()
+      .single();
+
+    if (!error && devis) {
+      await supabase.from('devis_items').insert(
+        items
+          .filter((it) => it.description.trim())
+          .map((it, i) => ({
+            devis_id: devis.id,
+            description: it.reference ? `${it.reference} — ${it.description}` : it.description,
+            quantity: it.quantity,
+            unit: it.unit,
+            unit_price: 0,
+            sort_order: i,
+          })),
+      );
+      router.push(`/(app)/devis/${devis.id}`);
+    }
+    setTransferring(false);
+  }
+
+  return (
+    <View>
+      <View style={styles.actionsRow}>
+        <Pressable style={styles.newButton} onPress={addItem}>
+          <Feather name="plus" size={16} color="#fff" />
+          <Text style={styles.newButtonText}>Ajouter une ligne</Text>
+        </Pressable>
+        {items.length > 0 ? (
+          <Button
+            title="Créer un devis depuis ce métré"
+            variant="secondary"
+            icon="file-plus"
+            onPress={transferToDevis}
+            loading={transferring}
+          />
+        ) : null}
+      </View>
+
+      {items.length === 0 && !loading ? (
+        <EmptyState title="Aucune ligne de métré" subtitle="Détaillez vos quantités poste par poste avant de chiffrer le devis." />
+      ) : (
+        <View style={styles.table}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.th, styles.colRef]}>Réf.</Text>
+            <Text style={[styles.th, styles.colDesc]}>Désignation</Text>
+            <Text style={[styles.th, styles.colQty]}>Qté</Text>
+            <Text style={[styles.th, styles.colUnit]}>Unité</Text>
+            <View style={styles.colDel} />
+          </View>
+          {items.map((it) => (
+            <View key={it.id} style={styles.row}>
+              <TextInput
+                style={[styles.cellInput, styles.colRef]}
+                value={it.reference ?? ''}
+                onChangeText={(t) => patchLocal(it.id, { reference: t })}
+                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                placeholder="1.1"
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colDesc]}
+                value={it.description}
+                onChangeText={(t) => patchLocal(it.id, { description: t })}
+                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                placeholder="Désignation du poste"
+                placeholderTextColor={colors.textMuted}
+                multiline
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colQty]}
+                value={String(it.quantity)}
+                onChangeText={(t) => patchLocal(it.id, { quantity: Number(t) || 0 })}
+                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                keyboardType="decimal-pad"
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colUnit]}
+                value={it.unit ?? ''}
+                onChangeText={(t) => patchLocal(it.id, { unit: t })}
+                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                placeholder="m², m³, ml…"
+                placeholderTextColor={colors.textMuted}
+              />
+              <Pressable style={styles.colDel} hitSlop={8} onPress={() => removeItem(it.id)}>
+                <Feather name="trash-2" size={15} color={colors.danger} />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {Object.keys(byUnit).length > 0 ? (
+        <View style={styles.totals}>
+          <Text style={styles.totalsTitle}>Totaux par unité</Text>
+          <View style={styles.totalsRow}>
+            {Object.entries(byUnit).map(([unit, qty]) => (
+              <View key={unit} style={styles.totalChip}>
+                <Text style={styles.totalChipText}>
+                  {qty.toLocaleString('fr-CH', { maximumFractionDigits: 2 })} {unit}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  actionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  newButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  newButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: fontSize.sm,
+  },
+  table: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: colors.surfaceAlt,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  th: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  colRef: {
+    flexBasis: 60,
+    flexGrow: 0.6,
+  },
+  colDesc: {
+    flexBasis: 160,
+    flexGrow: 3,
+  },
+  colQty: {
+    flexBasis: 70,
+    flexGrow: 0.8,
+  },
+  colUnit: {
+    flexBasis: 80,
+    flexGrow: 0.8,
+  },
+  colDel: {
+    width: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: spacing.xs,
+  },
+  cellInput: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xs,
+  },
+  totals: {
+    marginTop: spacing.lg,
+  },
+  totalsTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  totalsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  totalChip: {
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  totalChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+});

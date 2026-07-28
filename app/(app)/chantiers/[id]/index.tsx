@@ -8,17 +8,19 @@ import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
+import { ProjectMetre } from '../../../../components/ProjectMetre';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'reports' | 'documents' | 'photos' | 'survey';
+type Tab = 'reports' | 'documents' | 'photos' | 'survey' | 'metre';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'reports', label: 'Rapports', icon: 'file-text' },
   { key: 'documents', label: 'Documents', icon: 'folder' },
   { key: 'photos', label: 'Photos', icon: 'image' },
   { key: 'survey', label: 'Levés', icon: 'crosshair' },
+  { key: 'metre', label: 'Métré', icon: 'list' },
 ];
 
 export default function ChantierDetailScreen() {
@@ -143,6 +145,17 @@ export default function ChantierDetailScreen() {
               text="Ajoutez des points de chantier, visualisez-les sur le cadastre et l’orthophoto officiels, puis exportez-les en DXF, CSV, XML ou GPX."
             />
             <ProjectSurvey projectId={id} organizationId={project.organization_id} />
+          </View>
+        ) : null}
+        {tab === 'metre' ? (
+          <View>
+            <FeatureHint
+              id="chantier-metre"
+              icon="list"
+              title="Métré poste par poste"
+              text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
+            />
+            <ProjectMetre projectId={id} organizationId={project.organization_id} />
           </View>
         ) : null}
       </ScrollView>
