@@ -1,11 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { isModuleEnabled } from '../../../../lib/modules';
 import { supabase } from '../../../../lib/supabase';
-import { getSignedUrl } from '../../../../lib/api/storage';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
@@ -53,11 +52,6 @@ export default function ChantierDetailScreen() {
     }, [load]),
   );
 
-  async function openPdf(path: string) {
-    const url = await getSignedUrl(path);
-    if (url) Linking.openURL(url);
-  }
-
   if (!project) {
     return (
       <Screen style={{ padding: spacing.xl }}>
@@ -100,19 +94,19 @@ export default function ChantierDetailScreen() {
             ) : (
               <View style={{ gap: spacing.md }}>
                 {reports.map((r) => (
-                  <Card key={r.id}>
-                    <View style={styles.headerRow}>
-                      <Text style={styles.reportTitle}>{r.title}</Text>
-                      <StatusBadge status={r.status} />
-                    </View>
-                    <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
-                    {r.pdf_path ? (
-                      <Pressable onPress={() => openPdf(r.pdf_path!)} style={styles.pdfLink}>
-                        <Feather name="file-text" size={14} color={colors.primary} />
-                        <Text style={styles.pdfLinkText}>Ouvrir le PDF</Text>
-                      </Pressable>
-                    ) : null}
-                  </Card>
+                  <Pressable key={r.id} onPress={() => router.push(`/(app)/chantiers/${id}/rapports/${r.id}`)}>
+                    <Card>
+                      <View style={styles.headerRow}>
+                        <Text style={styles.reportTitle}>{r.title}</Text>
+                        <StatusBadge status={r.status} />
+                      </View>
+                      <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
+                      <View style={styles.pdfLink}>
+                        <Feather name={r.pdf_path ? 'file-text' : 'alert-triangle'} size={14} color={r.pdf_path ? colors.primary : colors.accent} />
+                        <Text style={styles.pdfLinkText}>{r.pdf_path ? 'Voir le rapport' : 'PDF non généré — voir le rapport'}</Text>
+                      </View>
+                    </Card>
+                  </Pressable>
                 ))}
               </View>
             )}
