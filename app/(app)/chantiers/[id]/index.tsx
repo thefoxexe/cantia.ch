@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../../../lib/auth-context';
+import { isModuleEnabled } from '../../../../lib/modules';
 import { supabase } from '../../../../lib/supabase';
 import { getSignedUrl } from '../../../../lib/api/storage';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
@@ -26,10 +28,13 @@ const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] =
 export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { organization } = useAuth();
+  const visibleTabs = TABS.filter((t) => t.key === 'reports' || isModuleEnabled(organization?.enabled_modules, t.key as any));
   const [project, setProject] = useState<Project | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('reports');
+  const activeTab = visibleTabs.some((t) => t.key === tab) ? tab : 'reports';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -74,16 +79,16 @@ export default function ChantierDetailScreen() {
         </Card>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
-          {TABS.map((t) => (
+          {visibleTabs.map((t) => (
             <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabItem}>
-              <Feather name={t.icon} size={16} color={tab === t.key ? colors.primary : colors.textMuted} />
-              <Text style={[styles.tabLabel, tab === t.key && styles.tabLabelActive]}>{t.label}</Text>
-              {tab === t.key ? <View style={styles.tabIndicator} /> : null}
+              <Feather name={t.icon} size={16} color={activeTab === t.key ? colors.primary : colors.textMuted} />
+              <Text style={[styles.tabLabel, activeTab === t.key && styles.tabLabelActive]}>{t.label}</Text>
+              {activeTab === t.key ? <View style={styles.tabIndicator} /> : null}
             </Pressable>
           ))}
         </ScrollView>
 
-        {tab === 'reports' ? (
+        {activeTab === 'reports' ? (
           <View>
             <Pressable style={styles.newButton} onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}>
               <Feather name="plus" size={16} color="#fff" />
@@ -114,7 +119,7 @@ export default function ChantierDetailScreen() {
           </View>
         ) : null}
 
-        {tab === 'documents' ? (
+        {activeTab === 'documents' ? (
           <View>
             <FeatureHint
               id="chantier-documents"
@@ -125,7 +130,7 @@ export default function ChantierDetailScreen() {
             <ProjectDocuments projectId={id} />
           </View>
         ) : null}
-        {tab === 'photos' ? (
+        {activeTab === 'photos' ? (
           <View>
             <FeatureHint
               id="chantier-photos"
@@ -136,7 +141,7 @@ export default function ChantierDetailScreen() {
             <ProjectPhotos projectId={id} />
           </View>
         ) : null}
-        {tab === 'survey' ? (
+        {activeTab === 'survey' ? (
           <View>
             <FeatureHint
               id="chantier-survey"
@@ -147,7 +152,7 @@ export default function ChantierDetailScreen() {
             <ProjectSurvey projectId={id} organizationId={project.organization_id} />
           </View>
         ) : null}
-        {tab === 'metre' ? (
+        {activeTab === 'metre' ? (
           <View>
             <FeatureHint
               id="chantier-metre"

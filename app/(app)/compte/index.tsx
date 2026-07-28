@@ -1,5 +1,5 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
 import { Button, Card, Container, Field, Screen } from '../../../components/ui';
 import { DevisTemplatePicker } from '../../../components/DevisTemplatePicker';
+import { TOGGLEABLE_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { OrgRole, OrganizationMember, Plan } from '../../../lib/types';
 
@@ -48,6 +49,8 @@ export default function CompteScreen() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingBusy, setBillingBusy] = useState<string | null>(null);
   const [billingError, setBillingError] = useState<string | null>(null);
+  const [enabledModules, setEnabledModules] = useState<string[]>(organization?.enabled_modules ?? []);
+  const [savingModules, setSavingModules] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
@@ -62,6 +65,7 @@ export default function CompteScreen() {
     setValidityDays(String(organization.devis_validity_days ?? 30));
     setDevisTerms(organization.devis_terms ?? '');
     setDevisTemplate(organization.devis_template ?? 'classic');
+    setEnabledModules(organization.enabled_modules ?? []);
 
     const [{ data: memberRows }, { data: planRows }] = await Promise.all([
       supabase.from('organization_members').select('*').eq('organization_id', organization.id).order('created_at'),
@@ -128,6 +132,18 @@ export default function CompteScreen() {
     setSavingTemplate(true);
     await supabase.from('organizations').update({ devis_template: templateId }).eq('id', organization.id);
     setSavingTemplate(false);
+    refreshOrganization();
+  }
+
+  async function toggleModule(key: ModuleKey) {
+    if (!organization || !isAdmin || savingModules) return;
+    const next = isModuleEnabled(enabledModules, key)
+      ? enabledModules.filter((m) => m !== key)
+      : [...enabledModules, key];
+    setEnabledModules(next);
+    setSavingModules(true);
+    await supabase.from('organizations').update({ enabled_modules: next }).eq('id', organization.id);
+    setSavingModules(false);
     refreshOrganization();
   }
 
@@ -307,6 +323,30 @@ export default function CompteScreen() {
             <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
           </Section>
 
+          <Section icon="sliders" title="Outils & modules">
+            <Text style={styles.hint}>
+              Désactivez ce que vous n’utilisez pas pour garder une application simple. Rapports reste toujours
+              actif.
+            </Text>
+            <View style={{ marginTop: spacing.md, gap: spacing.md }}>
+              {TOGGLEABLE_MODULES.map((m) => (
+                <View key={m.key} style={styles.moduleRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.moduleLabel}>{m.label}</Text>
+                    <Text style={styles.moduleDesc}>{m.description}</Text>
+                  </View>
+                  <Switch
+                    value={isModuleEnabled(enabledModules, m.key)}
+                    onValueChange={() => toggleModule(m.key)}
+                    disabled={!isAdmin}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor="#fff"
+                  />
+                </View>
+              ))}
+            </View>
+          </Section>
+
           <Section icon="credit-card" title="Plan & abonnement">
             {hasActiveSubscription ? (
               <View style={styles.subscriptionBanner}>
@@ -468,6 +508,21 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  moduleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  moduleLabel: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  moduleDesc: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   subscriptionBanner: {
     flexDirection: 'row',

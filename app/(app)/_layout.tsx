@@ -1,5 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useAuth } from '../../lib/auth-context';
+import { isModuleEnabled } from '../../lib/modules';
 import { colors } from '../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -9,6 +11,9 @@ function TabIcon({ name, color }: { name: IconName; color: unknown }) {
 }
 
 export default function AppTabsLayout() {
+  const { organization } = useAuth();
+  const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
+
   return (
     <Tabs
       screenOptions={{
@@ -28,7 +33,11 @@ export default function AppTabsLayout() {
       />
       <Tabs.Screen
         name="devis"
-        options={{ title: 'Devis', tabBarIcon: ({ color }) => <TabIcon name="file-text" color={color} /> }}
+        options={{
+          title: 'Devis',
+          tabBarIcon: ({ color }) => <TabIcon name="file-text" color={color} />,
+          href: devisEnabled ? undefined : null,
+        }}
       />
       <Tabs.Screen
         name="cloud"

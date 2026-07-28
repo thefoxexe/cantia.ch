@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
+import { isModuleEnabled } from '../../lib/modules';
 import { Card, Screen } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -89,7 +90,9 @@ export default function DashboardScreen() {
         <Text style={styles.sectionTitle}>Actions rapides</Text>
         <View style={styles.actions}>
           <QuickAction icon="plus-circle" label="Nouveau chantier" onPress={() => router.push('/(app)/chantiers/new')} />
-          <QuickAction icon="file-plus" label="Nouveau devis" onPress={() => router.push('/(app)/devis/new')} />
+          {isModuleEnabled(organization?.enabled_modules, 'devis') ? (
+            <QuickAction icon="file-plus" label="Nouveau devis" onPress={() => router.push('/(app)/devis/new')} />
+          ) : null}
           <QuickAction icon="cloud" label="Ouvrir le cloud" onPress={() => router.push('/(app)/cloud')} />
         </View>
       </ScrollView>
