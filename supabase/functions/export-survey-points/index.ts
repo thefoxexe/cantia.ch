@@ -11,6 +11,7 @@ const corsHeaders = {
 interface SurveyPointRow {
   code: string;
   description: string | null;
+  class: string | null;
   latitude: number;
   longitude: number;
   elevation: number | null;
@@ -23,10 +24,11 @@ function xmlEscape(s: string): string {
 }
 
 function buildCsv(points: SurveyPointRow[]): string {
-  const header = 'code,description,longitude,latitude,elevation,lv95_e,lv95_n';
+  const header = 'code,class,description,longitude,latitude,elevation,lv95_e,lv95_n';
   const rows = points.map((p) =>
     [
       p.code,
+      p.class ?? '',
       p.description ?? '',
       p.longitude,
       p.latitude,
@@ -46,12 +48,13 @@ function buildDxf(points: SurveyPointRow[]): string {
     const x = p.lv95_e ?? 0;
     const y = p.lv95_n ?? 0;
     const z = p.elevation ?? 0;
-    lines.push('0', 'POINT', '8', 'LEVES', '10', String(x), '20', String(y), '30', String(z));
+    const layer = p.class ? p.class.replace(/[^A-Za-z0-9_-]/g, '_') : 'LEVES';
+    lines.push('0', 'POINT', '8', layer, '10', String(x), '20', String(y), '30', String(z));
     lines.push(
       '0',
       'TEXT',
       '8',
-      'LEVES_TEXT',
+      `${layer}_TEXT`,
       '10',
       String(x + 0.3),
       '20',
@@ -71,10 +74,10 @@ function buildDxf(points: SurveyPointRow[]): string {
 // LandXML CgPoints — widely supported "point XML" survey format (Civil 3D, etc.)
 function buildLandXml(points: SurveyPointRow[]): string {
   const cgPoints = points
-    .map(
-      (p) =>
-        `    <CgPoint name="${xmlEscape(p.code)}" code="${xmlEscape(p.description ?? '')}">${(p.lv95_n ?? 0).toFixed(3)} ${(p.lv95_e ?? 0).toFixed(3)} ${(p.elevation ?? 0).toFixed(3)}</CgPoint>`,
-    )
+    .map((p) => {
+      const code = [p.class, p.description].filter(Boolean).join(' - ');
+      return `    <CgPoint name="${xmlEscape(p.code)}" code="${xmlEscape(code)}">${(p.lv95_n ?? 0).toFixed(3)} ${(p.lv95_e ?? 0).toFixed(3)} ${(p.elevation ?? 0).toFixed(3)}</CgPoint>`;
+    })
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2" date="${new Date().toISOString().slice(0, 10)}">
@@ -88,8 +91,9 @@ function buildGpx(points: SurveyPointRow[]): string {
   const waypoints = points
     .map((p) => {
       const eleLine = p.elevation != null ? `\n    <ele>${p.elevation}</ele>` : '';
+      const desc = [p.class, p.description].filter(Boolean).join(' — ');
       return `  <wpt lat="${p.latitude}" lon="${p.longitude}">${eleLine}
-    <name>${xmlEscape(p.code)}</name>${p.description ? `\n    <desc>${xmlEscape(p.description)}</desc>` : ''}
+    <name>${xmlEscape(p.code)}</name>${desc ? `\n    <desc>${xmlEscape(desc)}</desc>` : ''}
   </wpt>`;
     })
     .join('\n');
@@ -155,7 +159,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: points } = await admin
       .from('survey_points')
-      .select('code, description, latitude, longitude, elevation, lv95_e, lv95_n')
+      .select('code, description, class, latitude, longitude, elevation, lv95_e, lv95_n')
       .eq('project_id', project_id)
       .order('sort_order', { ascending: true });
 

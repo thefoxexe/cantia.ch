@@ -139,6 +139,7 @@ export interface SurveyPoint {
   project_id: string;
   code: string;
   description: string | null;
+  class: string | null;
   latitude: number;
   longitude: number;
   elevation: number | null;

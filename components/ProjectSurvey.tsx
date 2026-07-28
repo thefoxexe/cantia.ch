@@ -1,11 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
-import { geoportalUrl, wgs84ToLv95 } from '../lib/swissCoords';
+import { wgs84ToLv95 } from '../lib/swissCoords';
+import { SwissMap } from './SwissMap';
 import { Button, Card, EmptyState, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { Plan, SurveyPoint } from '../lib/types';
@@ -20,6 +21,15 @@ const FORMATS: { key: ExportFormat; label: string }[] = [
   { key: 'gpx', label: 'GPX' },
 ];
 
+function nextCode(points: SurveyPoint[]): string {
+  let max = 0;
+  for (const p of points) {
+    const m = /^P(\d+)$/i.exec(p.code.trim());
+    if (m) max = Math.max(max, Number(m[1]));
+  }
+  return `P${max + 1}`;
+}
+
 export function ProjectSurvey({ projectId, organizationId }: { projectId: string; organizationId: string }) {
   const { organization, user } = useAuth();
   const router = useRouter();
@@ -30,6 +40,8 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
   const [description, setDescription] = useState('');
+  const [pointClass, setPointClass] = useState('');
+  const [newClassInput, setNewClassInput] = useState('');
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');
   const [elevation, setElevation] = useState('');
@@ -61,6 +73,23 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
     }, [load]),
   );
 
+  const knownClasses = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of points) if (p.class) set.add(p.class);
+    return Array.from(set);
+  }, [points]);
+
+  function openForm(prefillLat?: number, prefillLon?: number) {
+    setCode(nextCode(points));
+    setDescription('');
+    setPointClass('');
+    setNewClassInput('');
+    setLat(prefillLat != null ? String(prefillLat) : '');
+    setLon(prefillLon != null ? String(prefillLon) : '');
+    setElevation('');
+    setShowForm(true);
+  }
+
   async function useMyLocation() {
     setLocating(true);
     try {
@@ -81,11 +110,13 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
     if (!code.trim() || Number.isNaN(latNum) || Number.isNaN(lonNum)) return;
     setSaving(true);
     const { e, n } = wgs84ToLv95(latNum, lonNum);
+    const finalClass = (newClassInput.trim() || pointClass || '').trim() || null;
     await supabase.from('survey_points').insert({
       organization_id: organizationId,
       project_id: projectId,
       code: code.trim(),
       description: description.trim() || null,
+      class: finalClass,
       latitude: latNum,
       longitude: lonNum,
       elevation: elevation.trim() ? Number(elevation) : null,
@@ -95,11 +126,6 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
       sort_order: points.length,
       created_by: user?.id ?? null,
     });
-    setCode('');
-    setDescription('');
-    setLat('');
-    setLon('');
-    setElevation('');
     setShowForm(false);
     setSaving(false);
     load();
@@ -108,11 +134,6 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
   async function deletePoint(id: string) {
     await supabase.from('survey_points').delete().eq('id', id);
     load();
-  }
-
-  function openOnGeoportal(point?: SurveyPoint) {
-    const list = point ? [{ lat: point.latitude, lon: point.longitude }] : points.map((p) => ({ lat: p.latitude, lon: p.longitude }));
-    Linking.openURL(geoportalUrl(list));
   }
 
   async function runExport() {
@@ -166,17 +187,17 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
 
   return (
     <View>
+      <SwissMap
+        points={points.map((p) => ({ id: p.id, code: p.code, description: p.description, pointClass: p.class, lat: p.latitude, lon: p.longitude }))}
+        onMapPress={(pLat, pLon) => openForm(pLat, pLon)}
+      />
+      <Text style={styles.mapHint}>Touchez la carte pour ajouter un point à cet endroit.</Text>
+
       <View style={styles.actionsRow}>
-        <Pressable style={styles.newButton} onPress={() => setShowForm((s) => !s)}>
+        <Pressable style={styles.newButton} onPress={() => openForm()}>
           <Feather name="plus" size={16} color="#fff" />
           <Text style={styles.newButtonText}>Ajouter un point</Text>
         </Pressable>
-        {points.length > 0 ? (
-          <Pressable style={styles.secondaryButton} onPress={() => openOnGeoportal()}>
-            <Feather name="map" size={16} color={colors.primary} />
-            <Text style={styles.secondaryButtonText}>Voir sur le cadastre</Text>
-          </Pressable>
-        ) : null}
         {points.length > 0 ? (
           <Pressable style={styles.secondaryButton} onPress={() => setShowExport((s) => !s)}>
             <Feather name="download" size={16} color={colors.primary} />
@@ -187,8 +208,40 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
 
       {showForm ? (
         <Card style={{ marginBottom: spacing.lg }}>
-          <Field label="Code du point" value={code} onChangeText={setCode} placeholder="P1" />
-          <Field label="Description" value={description} onChangeText={setDescription} placeholder="Angle bâtiment" />
+          <View style={styles.row3}>
+            <View style={styles.row3ItemSmall}>
+              <Field label="Code" value={code} onChangeText={setCode} placeholder="P1" />
+            </View>
+            <View style={styles.row3Item}>
+              <Field label="Description" value={description} onChangeText={setDescription} placeholder="Angle bâtiment" />
+            </View>
+          </View>
+
+          <Text style={styles.chipLabel}>Classe du point</Text>
+          <View style={styles.chipRow}>
+            {knownClasses.map((c) => (
+              <Pressable
+                key={c}
+                onPress={() => {
+                  setPointClass(c);
+                  setNewClassInput('');
+                }}
+                style={[styles.chip, pointClass === c && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, pointClass === c && styles.chipTextActive]}>{c}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <Field
+            label="Nouvelle classe (optionnel)"
+            value={newClassInput}
+            onChangeText={(t) => {
+              setNewClassInput(t);
+              setPointClass('');
+            }}
+            placeholder="Ex : borne, regard, angle bâtiment…"
+          />
+
           <View style={styles.row3}>
             <View style={styles.row3Item}>
               <Field label="Latitude" value={lat} onChangeText={setLat} keyboardType="decimal-pad" placeholder="46.94809" />
@@ -208,7 +261,10 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
             loading={locating}
             style={{ marginBottom: spacing.md }}
           />
-          <Button title="Ajouter le point" icon="check" onPress={addPoint} loading={saving} />
+          <View style={styles.formButtonsRow}>
+            <Button title="Annuler" variant="secondary" onPress={() => setShowForm(false)} style={{ flex: 1 }} />
+            <Button title="Ajouter le point" icon="check" onPress={addPoint} loading={saving} style={{ flex: 1 }} />
+          </View>
         </Card>
       ) : null}
 
@@ -261,13 +317,20 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
       ) : null}
 
       {points.length === 0 && !loading ? (
-        <EmptyState title="Aucun point de levé" subtitle="Ajoutez un premier point manuellement ou via votre position." />
+        <EmptyState title="Aucun point de levé" subtitle="Touchez la carte, ou ajoutez un point manuellement / via votre position." />
       ) : (
         <View style={{ gap: spacing.sm }}>
           {points.map((p) => (
             <Card key={p.id} style={styles.pointRow}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.pointCode}>{p.code}</Text>
+                <View style={styles.pointHeaderRow}>
+                  <Text style={styles.pointCode}>{p.code}</Text>
+                  {p.class ? (
+                    <View style={styles.classBadge}>
+                      <Text style={styles.classBadgeText}>{p.class}</Text>
+                    </View>
+                  ) : null}
+                </View>
                 {p.description ? <Text style={styles.pointMeta}>{p.description}</Text> : null}
                 <Text style={styles.pointMeta}>
                   {p.latitude.toFixed(6)}, {p.longitude.toFixed(6)}
@@ -279,9 +342,6 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
                   </Text>
                 ) : null}
               </View>
-              <Pressable hitSlop={8} onPress={() => openOnGeoportal(p)} style={{ marginRight: spacing.md }}>
-                <Feather name="map-pin" size={16} color={colors.accent} />
-              </Pressable>
               <Pressable hitSlop={8} onPress={() => deletePoint(p.id)}>
                 <Feather name="trash-2" size={16} color={colors.danger} />
               </Pressable>
@@ -307,6 +367,11 @@ const styles = StyleSheet.create({
   upsellText: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  mapHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -344,6 +409,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: fontSize.sm,
   },
+  formButtonsRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
   row3: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -352,6 +421,10 @@ const styles = StyleSheet.create({
   row3Item: {
     flexGrow: 1,
     flexBasis: 140,
+  },
+  row3ItemSmall: {
+    flexGrow: 0.6,
+    flexBasis: 90,
   },
   exportTitle: {
     fontSize: fontSize.md,
@@ -370,6 +443,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   chip: {
     paddingHorizontal: spacing.md,
@@ -403,10 +477,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  pointHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   pointCode: {
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
+  },
+  classBadge: {
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  classBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.accent,
   },
   pointMeta: {
     fontSize: fontSize.xs,
