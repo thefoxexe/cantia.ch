@@ -1,5 +1,19 @@
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  Linking,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -15,6 +29,7 @@ import type { FeedEntry } from '../lib/types';
 interface StagedPhoto {
   id: string;
   uri: string;
+  mimeType: string | null;
   caption: string;
   latitude: number | null;
   longitude: number | null;
@@ -24,6 +39,7 @@ interface StagedPhoto {
 export function ProjectFeed({ projectId }: { projectId: string }) {
   const { organization, user } = useAuth();
   const router = useRouter();
+  const { width: winWidth } = useWindowDimensions();
   const [entries, setEntries] = useState<FeedEntry[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
@@ -31,10 +47,24 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [composerHeight, setComposerHeight] = useState(72);
 
+  // The "pile" of captured/picked photos not yet sent — shown as a
+  // fanned stack bottom-left, reviewed/sent via the swipeable modal.
   const [stagedPhotos, setStagedPhotos] = useState<StagedPhoto[]>([]);
-  const [showPhotoStaging, setShowPhotoStaging] = useState(false);
   const [sendingPhotos, setSendingPhotos] = useState(false);
+
+  // The single most-recently captured photo, shown in a quick Kraaft-style
+  // popup (caption + send + "shoot another") right after the shutter —
+  // separate from the stack so a rapid-fire session doesn't force a caption
+  // on every single frame.
+  const [quickPhoto, setQuickPhoto] = useState<StagedPhoto | null>(null);
+  const [quickSending, setQuickSending] = useState(false);
+  const [quickError, setQuickError] = useState<string | null>(null);
+
+  const [showStackReview, setShowStackReview] = useState(false);
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const reviewScrollRef = useRef<ScrollView>(null);
 
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -73,6 +103,24 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     }, [load]),
   );
 
+  // Keep the review modal's paged position in sync with the stack —
+  // a delete mid-review shifts everything left by one, and the last
+  // photo being sent/removed should close the modal instead of showing
+  // an empty page.
+  useEffect(() => {
+    if (!showStackReview) return;
+    if (stagedPhotos.length === 0) {
+      setShowStackReview(false);
+      return;
+    }
+    const clamped = Math.min(reviewIndex, stagedPhotos.length - 1);
+    if (clamped !== reviewIndex) {
+      setReviewIndex(clamped);
+      reviewScrollRef.current?.scrollTo({ x: clamped * winWidth, animated: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stagedPhotos.length, showStackReview]);
+
   async function sendNote() {
     if (!organization || !text.trim() || sending) return;
     setSending(true);
@@ -102,18 +150,16 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     if (result.canceled || !result.assets?.length) return;
     const asset = result.assets[0];
     const coords = await captureLocation();
-    setStagedPhotos((prev) => [
-      ...prev,
-      {
-        id: `${Date.now()}-${Math.random()}`,
-        uri: asset.uri,
-        caption: '',
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        takenAt: new Date().toISOString(),
-      },
-    ]);
-    setShowPhotoStaging(true);
+    setQuickError(null);
+    setQuickPhoto({
+      id: `${Date.now()}-${Math.random()}`,
+      uri: asset.uri,
+      mimeType: asset.mimeType ?? null,
+      caption: '',
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      takenAt: new Date().toISOString(),
+    });
   }
 
   async function pickFromGallery() {
@@ -129,14 +175,67 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       return {
         id: `${Date.now()}-${Math.random()}`,
         uri: asset.uri,
+        mimeType: asset.mimeType ?? null,
         caption: '',
         latitude: coords.latitude,
         longitude: coords.longitude,
         takenAt: exifTakenAt(asset.exif),
       };
     });
+    const startIndex = stagedPhotos.length;
     setStagedPhotos((prev) => [...prev, ...newPhotos]);
-    setShowPhotoStaging(true);
+    setReviewIndex(startIndex);
+    setShowStackReview(true);
+  }
+
+  // Dismissing the quick popup (X, or shooting another frame) never loses
+  // the photo — it drops into the stack so it can still be captioned or
+  // sent later from the review modal.
+  function stashQuickPhoto() {
+    setQuickPhoto((current) => {
+      if (current) setStagedPhotos((prev) => [...prev, current]);
+      return null;
+    });
+    setQuickError(null);
+  }
+
+  async function retakeFromQuick() {
+    stashQuickPhoto();
+    await takePhoto();
+  }
+
+  function updateQuickCaption(caption: string) {
+    setQuickPhoto((p) => (p ? { ...p, caption } : p));
+  }
+
+  async function sendQuickPhoto() {
+    if (!organization || !quickPhoto || quickSending) return;
+    setQuickSending(true);
+    setQuickError(null);
+    const { error: err } = await addPhotoEntry({
+      organizationId: organization.id,
+      projectId,
+      userId: user?.id,
+      uri: quickPhoto.uri,
+      mimeType: quickPhoto.mimeType,
+      caption: quickPhoto.caption,
+      latitude: quickPhoto.latitude,
+      longitude: quickPhoto.longitude,
+      takenAt: quickPhoto.takenAt,
+    });
+    setQuickSending(false);
+    if (err) {
+      setQuickError(err);
+      return;
+    }
+    setQuickPhoto(null);
+    load();
+  }
+
+  function openStackReview() {
+    if (stagedPhotos.length === 0) return;
+    setReviewIndex(0);
+    setShowStackReview(true);
   }
 
   function updateStagedCaption(id: string, caption: string) {
@@ -163,6 +262,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         projectId,
         userId: user?.id,
         uri: photo.uri,
+        mimeType: photo.mimeType,
         caption: photo.caption,
         latitude: photo.latitude,
         longitude: photo.longitude,
@@ -178,7 +278,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       setStagedPhotos(remaining);
     }
     setSendingPhotos(false);
-    setShowPhotoStaging(false);
+    setShowStackReview(false);
     load();
   }
 
@@ -348,8 +448,26 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
+      {!selecting && stagedPhotos.length > 0 ? (
+        <Pressable
+          style={[styles.stackIndicator, { bottom: composerHeight + spacing.sm }]}
+          onPress={openStackReview}
+        >
+          {stagedPhotos.slice(-3).map((p, i) => (
+            <Image
+              key={p.id}
+              source={{ uri: p.uri }}
+              style={[styles.stackThumb, { left: i * 9, bottom: i * 5, zIndex: i }]}
+            />
+          ))}
+          <View style={styles.stackBadge}>
+            <Text style={styles.stackBadgeText}>{stagedPhotos.length}</Text>
+          </View>
+        </Pressable>
+      ) : null}
+
       {!selecting ? (
-        <View style={styles.composer}>
+        <View style={styles.composer} onLayout={(e) => setComposerHeight(e.nativeEvent.layout.height)}>
           <TextInput
             style={styles.composerInput}
             value={text}
@@ -376,70 +494,136 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         </View>
       ) : null}
 
+      {/* Quick single-photo popup, shown immediately after the shutter — a
+          caption, a send button, and a camera button to rapid-fire another
+          shot without having to caption every single frame. */}
       <Modal
-        visible={showPhotoStaging}
-        animationType="slide"
+        visible={!!quickPhoto}
+        animationType="fade"
         transparent
-        onRequestClose={() => {
-          if (!sendingPhotos) setShowPhotoStaging(false);
-        }}
+        onRequestClose={stashQuickPhoto}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {stagedPhotos.length > 0 ? `${stagedPhotos.length} photo${stagedPhotos.length > 1 ? 's' : ''}` : 'Photos'}
+        <View style={styles.quickOverlay}>
+          <Pressable style={styles.quickClose} onPress={stashQuickPhoto} hitSlop={10}>
+            <Feather name="x" size={22} color="#fff" />
+          </Pressable>
+          {stagedPhotos.length > 0 ? (
+            <Pressable
+              style={styles.quickStackHint}
+              onPress={() => {
+                stashQuickPhoto();
+                openStackReview();
+              }}
+            >
+              <Feather name="layers" size={13} color="#fff" />
+              <Text style={styles.quickStackHintText}>
+                {stagedPhotos.length} en attente
               </Text>
-              <Pressable hitSlop={8} onPress={() => setShowPhotoStaging(false)} disabled={sendingPhotos}>
-                <Feather name="x" size={20} color={colors.textMuted} />
-              </Pressable>
-            </View>
-            <ScrollView contentContainerStyle={styles.modalBody}>
-              {stagedPhotos.length === 0 ? (
-                <Text style={styles.stagingEmptyText}>Prenez une photo ou choisissez-en depuis la galerie.</Text>
-              ) : (
-                <View style={{ gap: spacing.md }}>
-                  {stagedPhotos.map((photo, i) => (
-                    <View key={photo.id} style={styles.stagedItem}>
-                      <Image source={{ uri: photo.uri }} style={styles.stagedThumb} />
-                      <View style={styles.stagedItemBody}>
-                        <TextInput
-                          style={styles.stagedCaptionInput}
-                          value={photo.caption}
-                          onChangeText={(t) => updateStagedCaption(photo.id, t)}
-                          placeholder={`Commentaire photo ${i + 1} (optionnel)`}
-                          placeholderTextColor={colors.textMuted}
-                          multiline
-                        />
-                      </View>
-                      <Pressable hitSlop={8} onPress={() => removeStagedPhoto(photo.id)} disabled={sendingPhotos}>
-                        <Feather name="trash-2" size={16} color={colors.danger} />
-                      </Pressable>
-                    </View>
-                  ))}
-                </View>
-              )}
-              {error ? <Text style={styles.error}>{error}</Text> : null}
-            </ScrollView>
-            <View style={styles.stagingActions}>
-              <Pressable style={styles.stagingActionButton} onPress={takePhoto} disabled={sendingPhotos}>
-                <Feather name="camera" size={16} color={colors.primary} />
-                <Text style={styles.stagingActionText}>Reprendre une photo</Text>
-              </Pressable>
-              <Pressable style={styles.stagingActionButton} onPress={pickFromGallery} disabled={sendingPhotos}>
-                <Feather name="image" size={16} color={colors.primary} />
-                <Text style={styles.stagingActionText}>Galerie</Text>
-              </Pressable>
-            </View>
-            <Button
-              title={sendingPhotos ? 'Envoi en cours…' : `Envoyer ${stagedPhotos.length} photo${stagedPhotos.length > 1 ? 's' : ''}`}
-              icon="send"
-              onPress={sendStagedPhotos}
-              loading={sendingPhotos}
-              disabled={stagedPhotos.length === 0}
-              style={styles.stagingSendButton}
+            </Pressable>
+          ) : null}
+          {quickPhoto ? <Image source={{ uri: quickPhoto.uri }} style={styles.quickImage} resizeMode="contain" /> : null}
+          <View style={styles.quickFooter}>
+            {quickError ? <Text style={styles.quickErrorText}>{quickError}</Text> : null}
+            <TextInput
+              style={styles.quickCaptionInput}
+              value={quickPhoto?.caption ?? ''}
+              onChangeText={updateQuickCaption}
+              placeholder="Ajouter une légende…"
+              placeholderTextColor="rgba(255,255,255,0.55)"
             />
+            <View style={styles.quickActions}>
+              <Pressable style={styles.quickCameraButton} onPress={retakeFromQuick} disabled={quickSending}>
+                <Feather name="camera" size={20} color={colors.text} />
+              </Pressable>
+              <Pressable
+                style={[styles.quickSendButton, quickSending && styles.composerSendDisabled]}
+                onPress={sendQuickPhoto}
+                disabled={quickSending}
+              >
+                {quickSending ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <>
+                    <Feather name="send" size={16} color="#fff" />
+                    <Text style={styles.quickSendText}>Envoyer</Text>
+                  </>
+                )}
+              </Pressable>
+            </View>
           </View>
+        </View>
+      </Modal>
+
+      {/* Swipeable review of the staged stack — caption or delete each
+          photo, then send them all at once. */}
+      <Modal
+        visible={showStackReview}
+        animationType="slide"
+        onRequestClose={() => setShowStackReview(false)}
+        onShow={() => reviewScrollRef.current?.scrollTo({ x: reviewIndex * winWidth, animated: false })}
+      >
+        <View style={styles.reviewContainer}>
+          <View style={styles.reviewHeader}>
+            <Pressable onPress={() => setShowStackReview(false)} hitSlop={8}>
+              <Feather name="x" size={22} color={colors.text} />
+            </Pressable>
+            <Text style={styles.reviewCounter}>
+              {stagedPhotos.length > 0 ? `${reviewIndex + 1} / ${stagedPhotos.length}` : ''}
+            </Text>
+            <View style={{ width: 22 }} />
+          </View>
+          <ScrollView
+            ref={reviewScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => {
+              const idx = Math.round(e.nativeEvent.contentOffset.x / winWidth);
+              setReviewIndex(idx);
+            }}
+          >
+            {stagedPhotos.map((photo, i) => (
+              <View key={photo.id} style={[styles.reviewPage, { width: winWidth }]}>
+                <Image source={{ uri: photo.uri }} style={styles.reviewImage} resizeMode="contain" />
+                <View style={styles.reviewFooter}>
+                  <TextInput
+                    style={styles.reviewCaptionInput}
+                    value={photo.caption}
+                    onChangeText={(t) => updateStagedCaption(photo.id, t)}
+                    placeholder={`Légende photo ${i + 1} (optionnel)`}
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  <Pressable
+                    style={styles.reviewDeleteButton}
+                    onPress={() => removeStagedPhoto(photo.id)}
+                    disabled={sendingPhotos}
+                  >
+                    <Feather name="trash-2" size={16} color={colors.danger} />
+                    <Text style={styles.reviewDeleteText}>Supprimer</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+          {error ? <Text style={[styles.error, { paddingHorizontal: spacing.lg }]}>{error}</Text> : null}
+          <View style={styles.reviewBottomActions}>
+            <Pressable style={styles.stagingActionButton} onPress={takePhoto} disabled={sendingPhotos}>
+              <Feather name="camera" size={16} color={colors.primary} />
+              <Text style={styles.stagingActionText}>Reprendre une photo</Text>
+            </Pressable>
+            <Pressable style={styles.stagingActionButton} onPress={pickFromGallery} disabled={sendingPhotos}>
+              <Feather name="image" size={16} color={colors.primary} />
+              <Text style={styles.stagingActionText}>Galerie</Text>
+            </Pressable>
+          </View>
+          <Button
+            title={sendingPhotos ? 'Envoi en cours…' : `Envoyer ${stagedPhotos.length} photo${stagedPhotos.length > 1 ? 's' : ''}`}
+            icon="send"
+            onPress={sendStagedPhotos}
+            loading={sendingPhotos}
+            disabled={stagedPhotos.length === 0}
+            style={styles.reviewSendButton}
+          />
         </View>
       </Modal>
     </View>
@@ -577,6 +761,40 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     marginTop: spacing.sm,
   },
+  stackIndicator: {
+    position: 'absolute',
+    left: spacing.lg,
+    width: 66,
+    height: 60,
+    zIndex: 5,
+  },
+  stackThumb: {
+    position: 'absolute',
+    width: 48,
+    height: 48,
+    borderRadius: radius.sm,
+    borderWidth: 2,
+    borderColor: colors.bg,
+    backgroundColor: colors.surfaceAlt,
+  },
+  stackBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  stackBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#fff',
+  },
   composer: {
     marginTop: spacing.sm,
     marginBottom: spacing.md,
@@ -618,71 +836,143 @@ const styles = StyleSheet.create({
   composerSendDisabled: {
     opacity: 0.5,
   },
-  modalOverlay: {
+  quickOverlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: '#0B0B0BEE',
+    justifyContent: 'center',
   },
-  modalSheet: {
+  quickClose: {
+    position: 'absolute',
+    top: spacing.xxl,
+    left: spacing.lg,
+    zIndex: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  quickStackHint: {
+    position: 'absolute',
+    top: spacing.xxl,
+    right: spacing.lg,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  quickStackHintText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  quickImage: {
+    width: '100%',
+    height: '68%',
+  },
+  quickFooter: {
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  quickErrorText: {
+    color: '#FF8A80',
+    fontSize: fontSize.sm,
+  },
+  quickCaptionInput: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: '#fff',
+  },
+  quickActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  quickCameraButton: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  quickSendButton: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    height: 48,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+  },
+  quickSendText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  reviewContainer: {
+    flex: 1,
     backgroundColor: colors.bg,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    maxHeight: '88%',
   },
-  modalHeader: {
+  reviewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
-  modalTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
+  reviewCounter: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
     color: colors.text,
   },
-  modalBody: {
-    padding: spacing.lg,
-  },
-  stagingEmptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    textAlign: 'center',
-    paddingVertical: spacing.xl,
-  },
-  stagedItem: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    alignItems: 'flex-start',
-  },
-  stagedThumb: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
-  },
-  stagedItemBody: {
+  reviewPage: {
     flex: 1,
   },
-  stagedCaptionInput: {
-    fontSize: fontSize.sm,
-    color: colors.text,
+  reviewImage: {
+    flex: 1,
+    backgroundColor: colors.surfaceAlt,
+  },
+  reviewFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.lg,
+  },
+  reviewCaptionInput: {
+    flex: 1,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    minHeight: 44,
-    textAlignVertical: 'top',
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
   },
-  stagingActions: {
+  reviewDeleteButton: {
+    alignItems: 'center',
+    gap: 2,
+  },
+  reviewDeleteText: {
+    fontSize: 10,
+    color: colors.danger,
+    fontWeight: '600',
+  },
+  reviewBottomActions: {
     flexDirection: 'row',
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
   },
   stagingActionButton: {
     flexDirection: 'row',
@@ -699,7 +989,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
-  stagingSendButton: {
+  reviewSendButton: {
     margin: spacing.lg,
   },
 });

@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
+import { assetFileInfo } from '../../../lib/imageAsset';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
@@ -69,8 +70,7 @@ export default function EntrepriseScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
     if (result.canceled || !result.assets?.length) return;
     const asset = result.assets[0];
-    const ext = (asset.uri.split('.').pop() ?? 'jpg').split('?')[0].toLowerCase();
-    const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
+    const { ext, contentType } = assetFileInfo(asset);
     const subPath = `branding/${kind}-${Date.now()}.${ext}`;
     const { path } = await uploadToOrgBucket(organization.id, subPath, asset.uri, contentType);
     if (path) {

@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { uploadToOrgBucket } from './storage';
+import { assetFileInfo } from '../imageAsset';
 import { generateReportPdf } from './pdf';
 import type { FeedEntry } from '../types';
 
@@ -33,13 +34,13 @@ export async function addPhotoEntry(params: {
   projectId: string;
   userId: string | undefined;
   uri: string;
+  mimeType?: string | null;
   caption: string;
   latitude: number | null;
   longitude: number | null;
   takenAt: string;
 }): Promise<{ error: string | null }> {
-  const ext = (params.uri.split('.').pop() ?? 'jpg').split('?')[0].toLowerCase();
-  const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
+  const { ext, contentType } = assetFileInfo(params);
   const subPath = `feed/${params.projectId}/${Date.now()}.${ext}`;
   const { path, error: uploadError } = await uploadToOrgBucket(params.organizationId, subPath, params.uri, contentType);
   if (!path) return { error: uploadError ?? "Échec de l'envoi de la photo" };

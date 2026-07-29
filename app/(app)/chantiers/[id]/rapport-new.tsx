@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../../lib/api/storage';
+import { assetFileInfo } from '../../../../lib/imageAsset';
 import { generateReportPdf } from '../../../../lib/api/pdf';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
@@ -13,6 +14,7 @@ import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface PendingPhoto {
   uri: string;
+  mimeType: string | null;
   caption: string;
   latitude: number | null;
   longitude: number | null;
@@ -38,9 +40,10 @@ export default function NewReportScreen() {
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
     if (result.canceled || !result.assets?.length) return;
     const coords = await captureLocation();
+    const asset = result.assets![0];
     setPhotos((prev) => [
       ...prev,
-      { uri: result.assets![0].uri, caption: '', ...coords, takenAt: new Date().toISOString() },
+      { uri: asset.uri, mimeType: asset.mimeType ?? null, caption: '', ...coords, takenAt: new Date().toISOString() },
     ]);
   }
 
@@ -54,6 +57,7 @@ export default function NewReportScreen() {
     if (result.canceled || !result.assets?.length) return;
     const added = result.assets.map((a) => ({
       uri: a.uri,
+      mimeType: a.mimeType ?? null,
       caption: '',
       ...exifCoords(a.exif),
       takenAt: exifTakenAt(a.exif),
@@ -97,8 +101,7 @@ export default function NewReportScreen() {
       for (let i = 0; i < photos.length; i++) {
         setStep(`Envoi photo ${i + 1}/${photos.length}…`);
         const p = photos[i];
-        const ext = (p.uri.split('.').pop() ?? 'jpg').split('?')[0].toLowerCase();
-        const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
+        const { ext, contentType } = assetFileInfo(p);
         const subPath = `reports/${report.id}/photos/${Date.now()}-${i}.${ext}`;
         const { path } = await uploadToOrgBucket(organization.id, subPath, p.uri, contentType);
         if (path) {

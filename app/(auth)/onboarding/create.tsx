@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../lib/api/storage';
+import { assetFileInfo } from '../../../lib/imageAsset';
 import { Button, Field, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
@@ -16,7 +17,7 @@ export default function CreateOrganizationScreen() {
   const [name, setName] = useState('');
   const [website, setWebsite] = useState('');
   const [trade, setTrade] = useState<string | null>(null);
-  const [logoUri, setLogoUri] = useState<string | null>(null);
+  const [logoAsset, setLogoAsset] = useState<{ uri: string; mimeType?: string | null } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +26,7 @@ export default function CreateOrganizationScreen() {
     if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
     if (result.canceled || !result.assets?.length) return;
-    setLogoUri(result.assets[0].uri);
+    setLogoAsset({ uri: result.assets[0].uri, mimeType: result.assets[0].mimeType });
   }
 
   async function handleCreate() {
@@ -52,11 +53,16 @@ export default function CreateOrganizationScreen() {
     if (orgId) {
       const updates: Record<string, string | null> = {};
       if (website.trim()) updates.website = website.trim();
-      if (logoUri) {
-        const ext = (logoUri.split('.').pop() ?? 'jpg').split('?')[0].toLowerCase();
-        const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
-        const { path } = await uploadToOrgBucket(orgId, `branding/logo-${Date.now()}.${ext}`, logoUri, contentType);
+      if (logoAsset) {
+        const { ext, contentType } = assetFileInfo(logoAsset);
+        const { path, error: uploadError } = await uploadToOrgBucket(
+          orgId,
+          `branding/logo-${Date.now()}.${ext}`,
+          logoAsset.uri,
+          contentType,
+        );
         if (path) updates.logo_url = path;
+        else if (uploadError) console.error('Logo upload failed:', uploadError);
       }
       if (Object.keys(updates).length) {
         await supabase.from('organizations').update(updates).eq('id', orgId);
@@ -97,15 +103,15 @@ export default function CreateOrganizationScreen() {
 
         <Text style={styles.fieldLabel}>Logo (optionnel)</Text>
         <View style={styles.logoRow}>
-          {logoUri ? (
-            <Image source={{ uri: logoUri }} style={styles.logoPreview} />
+          {logoAsset ? (
+            <Image source={{ uri: logoAsset.uri }} style={styles.logoPreview} />
           ) : (
             <View style={[styles.logoPreview, styles.logoPlaceholder]}>
               <Feather name="image" size={20} color={colors.textMuted} />
             </View>
           )}
           <Pressable style={styles.logoButton} onPress={pickLogo}>
-            <Text style={styles.logoButtonText}>{logoUri ? 'Changer le logo' : 'Choisir un logo'}</Text>
+            <Text style={styles.logoButtonText}>{logoAsset ? 'Changer le logo' : 'Choisir un logo'}</Text>
           </Pressable>
         </View>
 
