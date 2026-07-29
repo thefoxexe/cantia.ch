@@ -94,6 +94,15 @@ export function EmptyState({ title, subtitle }: { title: string; subtitle?: stri
   );
 }
 
+export function LoadingScreen({ label = 'Chargement…' }: { label?: string }) {
+  return (
+    <View style={styles.loading}>
+      <ActivityIndicator size="large" color={colors.primary} />
+      <Text style={styles.loadingText}>{label}</Text>
+    </View>
+  );
+}
+
 const STATUS_STYLES: Record<string, { bg: string; fg: string; label: string }> = {
   draft: { bg: colors.warningSoft, fg: colors.warning, label: 'Brouillon' },
   sent: { bg: colors.primarySoft, fg: colors.primary, label: 'Envoyé' },
@@ -195,6 +204,18 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.xs,
     textAlign: 'center',
+  },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.xxl,
+  },
+  loadingText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '500',
   },
   badge: {
     paddingHorizontal: spacing.sm,

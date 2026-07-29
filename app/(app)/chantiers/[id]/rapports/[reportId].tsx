@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../../lib/supabase';
 import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../../lib/api/pdf';
-import { Button, Card, Container, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
 
@@ -104,8 +104,8 @@ export default function ReportDetailScreen() {
 
   if (loading || !report) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
-        <Text>Chargement…</Text>
+      <Screen>
+        <LoadingScreen />
       </Screen>
     );
   }

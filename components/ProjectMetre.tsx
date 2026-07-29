@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
-import { Button, EmptyState } from './ui';
+import { Button, Card, EmptyState } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { MetreItem } from '../lib/types';
 
@@ -134,53 +134,64 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
       {items.length === 0 && !loading ? (
         <EmptyState title="Aucune ligne de métré" subtitle="Détaillez vos quantités poste par poste avant de chiffrer le devis." />
       ) : (
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.th, styles.colRef]}>Réf.</Text>
-            <Text style={[styles.th, styles.colDesc]}>Désignation</Text>
-            <Text style={[styles.th, styles.colQty]}>Qté</Text>
-            <Text style={[styles.th, styles.colUnit]}>Unité</Text>
-            <View style={styles.colDel} />
-          </View>
+        <View style={{ gap: spacing.md }}>
           {items.map((it) => (
-            <View key={it.id} style={styles.row}>
-              <TextInput
-                style={[styles.cellInput, styles.colRef]}
-                value={it.reference ?? ''}
-                onChangeText={(t) => patchLocal(it.id, { reference: t })}
-                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                placeholder="1.1"
-                placeholderTextColor={colors.textMuted}
-              />
-              <TextInput
-                style={[styles.cellInput, styles.colDesc]}
-                value={it.description}
-                onChangeText={(t) => patchLocal(it.id, { description: t })}
-                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                placeholder="Désignation du poste"
-                placeholderTextColor={colors.textMuted}
-                multiline
-              />
-              <TextInput
-                style={[styles.cellInput, styles.colQty]}
-                value={String(it.quantity)}
-                onChangeText={(t) => patchLocal(it.id, { quantity: Number(t) || 0 })}
-                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                keyboardType="decimal-pad"
-                placeholderTextColor={colors.textMuted}
-              />
-              <TextInput
-                style={[styles.cellInput, styles.colUnit]}
-                value={it.unit ?? ''}
-                onChangeText={(t) => patchLocal(it.id, { unit: t })}
-                onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                placeholder="m², m³, ml…"
-                placeholderTextColor={colors.textMuted}
-              />
-              <Pressable style={styles.colDel} hitSlop={8} onPress={() => removeItem(it.id)}>
-                <Feather name="trash-2" size={15} color={colors.danger} />
-              </Pressable>
-            </View>
+            <Card key={it.id} style={styles.itemCard}>
+              <View style={styles.itemHeaderRow}>
+                <View style={styles.refField}>
+                  <Text style={styles.fieldLabel}>Réf.</Text>
+                  <TextInput
+                    style={styles.cellInput}
+                    value={it.reference ?? ''}
+                    onChangeText={(t) => patchLocal(it.id, { reference: t })}
+                    onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                    placeholder="1.1"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
+                <Pressable style={styles.deleteButton} hitSlop={8} onPress={() => removeItem(it.id)}>
+                  <Feather name="trash-2" size={16} color={colors.danger} />
+                </Pressable>
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>Désignation</Text>
+                <TextInput
+                  style={[styles.cellInput, styles.descInput]}
+                  value={it.description}
+                  onChangeText={(t) => patchLocal(it.id, { description: t })}
+                  onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                  placeholder="Désignation du poste"
+                  placeholderTextColor={colors.textMuted}
+                  multiline
+                />
+              </View>
+
+              <View style={styles.row2}>
+                <View style={styles.row2Item}>
+                  <Text style={styles.fieldLabel}>Quantité</Text>
+                  <TextInput
+                    style={styles.cellInput}
+                    value={String(it.quantity)}
+                    onChangeText={(t) => patchLocal(it.id, { quantity: Number(t) || 0 })}
+                    onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                    keyboardType="decimal-pad"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
+                <View style={styles.row2Item}>
+                  <Text style={styles.fieldLabel}>Unité</Text>
+                  <TextInput
+                    style={styles.cellInput}
+                    value={it.unit ?? ''}
+                    onChangeText={(t) => patchLocal(it.id, { unit: t })}
+                    onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
+                    placeholder="m², m³, ml…"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
+              </View>
+            </Card>
           ))}
         </View>
       )}
@@ -224,60 +235,60 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: fontSize.sm,
   },
-  table: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
+  itemCard: {
+    gap: spacing.sm,
   },
-  tableHeader: {
+  itemHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceAlt,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
+    alignItems: 'flex-end',
+    gap: spacing.md,
   },
-  th: {
+  refField: {
+    width: 90,
+    gap: 4,
+  },
+  deleteButton: {
+    marginLeft: 'auto',
+    height: 40,
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Quantité/Unité wrap to full width on narrow screens instead of being
+  // squeezed into fixed-width table columns — the old table layout summed
+  // to well over a phone's screen width, so typing into a cell meant
+  // fighting a horizontally squished, unreadable row.
+  row2: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+  },
+  row2Item: {
+    flexGrow: 1,
+    flexBasis: 120,
+    gap: 4,
+  },
+  field: {
+    gap: 4,
+  },
+  fieldLabel: {
     fontSize: fontSize.xs,
-    fontWeight: '700',
+    fontWeight: '600',
     color: colors.textMuted,
     textTransform: 'uppercase',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  colRef: {
-    flexBasis: 60,
-    flexGrow: 0.6,
-  },
-  colDesc: {
-    flexBasis: 160,
-    flexGrow: 3,
-  },
-  colQty: {
-    flexBasis: 70,
-    flexGrow: 0.8,
-  },
-  colUnit: {
-    flexBasis: 80,
-    flexGrow: 0.8,
-  },
-  colDel: {
-    width: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: spacing.xs,
-  },
   cellInput: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.md,
     color: colors.text,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  descInput: {
+    minHeight: 44,
+    textAlignVertical: 'top',
   },
   totals: {
     marginTop: spacing.lg,

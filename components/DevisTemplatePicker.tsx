@@ -161,10 +161,16 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    gap: spacing.lg,
   },
+  // Non-compact cards fill the available width in a responsive 2-up grid
+  // (1-up on narrow screens) instead of a fixed 168px thumbnail — the old
+  // fixed width left four small tiles bunched in a single row on wide
+  // screens, wasting the rest of the page.
   card: {
-    width: 168,
+    flexGrow: 1,
+    flexBasis: 260,
+    minWidth: 220,
   },
   cardCompact: {
     width: 120,

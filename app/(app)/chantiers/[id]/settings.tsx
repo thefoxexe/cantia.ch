@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { Button, Card, Container, Field, Screen } from '../../../../components/ui';
+import { Button, Card, Container, Field, LoadingScreen, Screen } from '../../../../components/ui';
 import { SettingsHeader } from '../../../../components/SettingsHeader';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { OrganizationMember } from '../../../../lib/types';
@@ -95,8 +95,8 @@ export default function ChantierSettingsScreen() {
 
   if (!loaded) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
-        <Text>Chargement…</Text>
+      <Screen>
+        <LoadingScreen />
       </Screen>
     );
   }

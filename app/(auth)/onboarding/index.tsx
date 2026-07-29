@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { getMyPendingRequest, cancelJoinRequest, type MyJoinRequest } from '../../../lib/api/invites';
-import { Button, Screen } from '../../../components/ui';
+import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 export default function OnboardingHubScreen() {
@@ -27,8 +27,8 @@ export default function OnboardingHubScreen() {
 
   if (pending === undefined) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
-        <Text>Chargement…</Text>
+      <Screen>
+        <LoadingScreen />
       </Screen>
     );
   }

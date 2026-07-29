@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { isModuleEnabled } from '../../../../lib/modules';
 import { supabase } from '../../../../lib/supabase';
-import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
+import { Card, EmptyState, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectFeed } from '../../../../components/ProjectFeed';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
@@ -58,8 +58,8 @@ export default function ChantierDetailScreen() {
 
   if (!project) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
-        <Text>Chargement…</Text>
+      <Screen>
+        <LoadingScreen />
       </Screen>
     );
   }

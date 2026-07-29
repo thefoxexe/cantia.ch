@@ -21,9 +21,29 @@ const LINE = rgb(0.8824, 0.8706, 0.8314);
 const WHITE = rgb(1, 1, 1);
 const PAPER_ALT = rgb(0.9569, 0.9490, 0.9412);
 
+// pdf-lib's standard fonts use WinAnsi (cp1252) encoding, which can't encode
+// most unicode punctuation/space variants — e.g. Intl.NumberFormat('fr-CH', {
+// style: 'currency' }) inserts a narrow no-break space (U+202F) as the
+// thousands separator for any amount >= 1000. Left unsanitized, drawText
+// throws mid-render, which previously produced blank/broken PDFs. Every
+// string that reaches the page goes through wrapText, drawText, or
+// drawTextRight, so sanitizing here is a single choke point.
+function sanitizePdfText(text: string): string {
+  return (text || '')
+    .replace(/[  -   　]/g, ' ')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, '-')
+    .replace(/…/g, '...')
+    .replace(/œ/g, 'oe')
+    .replace(/Œ/g, 'OE')
+    .replace(/Ÿ/g, 'Y')
+    .replace(/[^\x00-\xFF]/g, '?');
+}
+
 function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const lines: string[] = [];
-  for (const paragraph of (text || '').split('\n')) {
+  for (const paragraph of sanitizePdfText(text).split('\n')) {
     const words = paragraph.split(' ').filter(Boolean);
     if (words.length === 0) {
       lines.push('');
@@ -45,12 +65,13 @@ function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): 
 }
 
 function drawText(page: PDFPage, text: string, x: number, y: number, font: PDFFont, size: number, color: RGB = INK) {
-  page.drawText(text, { x, y, size, font, color });
+  page.drawText(sanitizePdfText(text), { x, y, size, font, color });
 }
 
 function drawTextRight(page: PDFPage, text: string, xRight: number, y: number, font: PDFFont, size: number, color: RGB = INK) {
-  const w = font.widthOfTextAtSize(text, size);
-  page.drawText(text, { x: xRight - w, y, size, font, color });
+  const safe = sanitizePdfText(text);
+  const w = font.widthOfTextAtSize(safe, size);
+  page.drawText(safe, { x: xRight - w, y, size, font, color });
 }
 
 async function fetchStorageBytes(
@@ -91,7 +112,10 @@ function formatDate(iso: string): string {
 }
 
 function chf(amount: number): string {
-  return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
+  // Sanitized at the source: box-width measurements below call
+  // widthOfTextAtSize directly on this string (not through drawText), so
+  // relying on the drawText/drawTextRight choke point alone isn't enough.
+  return sanitizePdfText(new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount));
 }
 
 interface RenderCtx {
@@ -177,15 +201,24 @@ function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     y -= 12;
   }
 
-  const colX = { desc: MARGIN, qty: 330, unit: 380, price: 430, total: 500 };
+  // Price/Total need real room: a 6-digit CHF amount ("999 999.95 CHF") is
+  // ~85pt wide at this font size, so those two columns get ~90-100pt each
+  // instead of the old fixed 50-70pt gaps that amounts routinely outgrew.
+  const colX = { desc: MARGIN, qty: 300, unit: 335, price: 375, total: 463 };
   const tableRight = PAGE_WIDTH - MARGIN;
+  // Numeric columns are right-aligned to the next column's start (minus a
+  // gap) rather than left-aligned at their own x — a fixed left-aligned
+  // start let long CHF amounts (thousands separator, 4+ digits) run into
+  // the next column, e.g. "1'156.50 CHF" colliding with "Total". Right-
+  // aligning keeps every amount, however wide, inside its own column.
+  const colRight = { qty: colX.unit - 10, unit: colX.price - 10, price: colX.total - 10, total: tableRight };
 
   const drawTableHeader = () => {
     drawText(page, 'Description', colX.desc, y, fontBold, 9.5, MUTED);
-    drawText(page, 'Qté', colX.qty, y, fontBold, 9.5, MUTED);
-    drawText(page, 'Unité', colX.unit, y, fontBold, 9.5, MUTED);
-    drawText(page, 'Prix', colX.price, y, fontBold, 9.5, MUTED);
-    drawText(page, 'Total', colX.total, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, 'Qté', colRight.qty, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, 'Unité', colRight.unit, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, 'Prix', colRight.price, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, 'Total', colRight.total, y, fontBold, 9.5, MUTED);
     y -= 8;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
     y -= 16;
@@ -208,10 +241,10 @@ function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
       drawText(page, line, colX.desc, y, font, 10, INK);
       y -= 13;
     }
-    drawText(page, String(item.quantity), colX.qty, rowTop, font, 10, INK);
-    drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 10, INK);
-    drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 10, INK);
-    drawText(page, chf(lineTotal), colX.total, rowTop, font, 10, INK);
+    drawTextRight(page, String(item.quantity), colRight.qty, rowTop, font, 10, INK);
+    drawTextRight(page, item.unit ?? 'pce', colRight.unit, rowTop, font, 10, INK);
+    drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop, font, 10, INK);
+    drawTextRight(page, chf(lineTotal), colRight.total, rowTop, font, 10, INK);
     y -= 6;
   }
 
@@ -278,6 +311,10 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     y = PAGE_HEIGHT - MARGIN;
   };
 
+  // The accent bar sits to the left of an indented text column instead of
+  // sharing the text's x position — drawn at the same x as the text, it
+  // used to cut straight through the "D" of "DESTINATAIRE".
+  const clientTextX = MARGIN + 12;
   const clientBoxTop = y;
   const clientLines = [
     devis.client_name,
@@ -285,10 +322,10 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     devis.client_email,
     devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
   ].filter(Boolean) as string[];
-  drawText(page, 'DESTINATAIRE', MARGIN, y, fontBold, 8.5, ACCENT);
+  drawText(page, 'DESTINATAIRE', clientTextX, y, fontBold, 8.5, ACCENT);
   y -= 15;
   for (const line of clientLines) {
-    drawText(page, line, MARGIN, y, font, 10.5, INK);
+    drawText(page, line, clientTextX, y, font, 10.5, INK);
     y -= 14;
   }
   page.drawLine({ start: { x: MARGIN, y: clientBoxTop + 6 }, end: { x: MARGIN, y: y + 6 }, thickness: 2, color: ACCENT });
@@ -303,16 +340,17 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     y -= 10;
   }
 
-  const colX = { desc: MARGIN, qty: 330, unit: 380, price: 430, total: 500 };
+  const colX = { desc: MARGIN, qty: 300, unit: 335, price: 375, total: 463 };
   const tableRight = PAGE_WIDTH - MARGIN;
+  const colRight = { qty: colX.unit - 10, unit: colX.price - 10, price: colX.total - 10, total: tableRight };
 
   const drawTableHeader = () => {
     page.drawRectangle({ x: MARGIN - 6, y: y - 4, width: tableRight - MARGIN + 12, height: 20, color: PAPER_ALT });
     drawText(page, 'DESCRIPTION', colX.desc, y, fontBold, 8.5, BRAND);
-    drawText(page, 'QTÉ', colX.qty, y, fontBold, 8.5, BRAND);
-    drawText(page, 'UNITÉ', colX.unit, y, fontBold, 8.5, BRAND);
-    drawText(page, 'PRIX', colX.price, y, fontBold, 8.5, BRAND);
-    drawText(page, 'TOTAL', colX.total, y, fontBold, 8.5, BRAND);
+    drawTextRight(page, 'QTÉ', colRight.qty, y, fontBold, 8.5, BRAND);
+    drawTextRight(page, 'UNITÉ', colRight.unit, y, fontBold, 8.5, BRAND);
+    drawTextRight(page, 'PRIX', colRight.price, y, fontBold, 8.5, BRAND);
+    drawTextRight(page, 'TOTAL', colRight.total, y, fontBold, 8.5, BRAND);
     y -= 24;
   };
 
@@ -333,10 +371,10 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
       drawText(page, line, colX.desc, y, font, 10, INK);
       y -= 13;
     }
-    drawText(page, String(item.quantity), colX.qty, rowTop, font, 10, INK);
-    drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 10, INK);
-    drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 10, INK);
-    drawText(page, chf(lineTotal), colX.total, rowTop, fontBold, 10, BRAND);
+    drawTextRight(page, String(item.quantity), colRight.qty, rowTop, font, 10, INK);
+    drawTextRight(page, item.unit ?? 'pce', colRight.unit, rowTop, font, 10, INK);
+    drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop, font, 10, INK);
+    drawTextRight(page, chf(lineTotal), colRight.total, rowTop, fontBold, 10, BRAND);
     y -= 8;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 0.5, color: LINE });
     y -= 6;
@@ -352,9 +390,15 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   y -= 16;
   drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
   y -= 8;
-  page.drawRectangle({ x: 500 - 150, y: y - 22, width: 150 + MARGIN, height: 26, color: BRAND });
-  drawText(page, 'TOTAL TTC', 500 - 140, y - 14, fontBold, 11, WHITE);
-  drawTextRight(page, chf(total), PAGE_WIDTH - MARGIN, y - 14, fontBold, 12, WHITE);
+  // Box width is measured from the actual total text instead of a fixed
+  // 150pt guess — a large total (5+ digits) used to overflow that fixed
+  // width, spilling WHITE text past the colored box onto the white page.
+  const totalTTCStr = chf(total);
+  const totalTTCBoxRight = PAGE_WIDTH - MARGIN;
+  const totalTTCBoxLeft = Math.min(500 - 150, totalTTCBoxRight - fontBold.widthOfTextAtSize(totalTTCStr, 12) - 100);
+  page.drawRectangle({ x: totalTTCBoxLeft, y: y - 22, width: totalTTCBoxRight - totalTTCBoxLeft, height: 26, color: BRAND });
+  drawText(page, 'TOTAL TTC', totalTTCBoxLeft + 10, y - 14, fontBold, 11, WHITE);
+  drawTextRight(page, totalTTCStr, totalTTCBoxRight - 10, y - 14, fontBold, 12, WHITE);
   y -= 44;
 
   y = drawTerms(page, font, org, y);
@@ -422,8 +466,14 @@ function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     y -= 16;
   }
 
-  const colX = { desc: MARGIN, qty: 350, unit: 400, price: 450, total: 500 };
+  const colX = { desc: MARGIN, qty: 300, unit: 335, price: 375, total: 463 };
   const tableRight = PAGE_WIDTH - MARGIN;
+  // Right-aligned to each column's own right edge — left-aligned at a fixed
+  // x, a wide CHF amount (thousands separator, 4+ digits) in "Prix" used to
+  // run straight into "Total" with no gap between them. Price/Total also
+  // get ~90-100pt each instead of the old 50pt gaps, enough for a 6-digit
+  // amount ("999 999.95 CHF" is ~85pt wide at this font size).
+  const colRight = { qty: colX.unit - 10, unit: colX.price - 10, price: colX.total - 10, total: tableRight };
 
   let subtotal = 0;
   for (const item of items) {
@@ -439,10 +489,10 @@ function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
       drawText(page, line, colX.desc, y, font, 10, INK);
       y -= 13;
     }
-    drawText(page, String(item.quantity), colX.qty, rowTop, font, 9.5, MUTED);
-    drawText(page, item.unit ?? 'pce', colX.unit, rowTop, font, 9.5, MUTED);
-    drawText(page, chf(Number(item.unit_price)), colX.price, rowTop, font, 9.5, MUTED);
-    drawText(page, chf(lineTotal), colX.total, rowTop, font, 10, INK);
+    drawTextRight(page, String(item.quantity), colRight.qty, rowTop, font, 9.5, MUTED);
+    drawTextRight(page, item.unit ?? 'pce', colRight.unit, rowTop, font, 9.5, MUTED);
+    drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop, font, 9.5, MUTED);
+    drawTextRight(page, chf(lineTotal), colRight.total, rowTop, font, 10, INK);
     y -= 12;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 0.5, color: LINE });
     y -= 12;
@@ -548,17 +598,18 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     y -= 10;
   }
 
-  const colX = { desc: MARGIN + 8, qty: 330, unit: 380, price: 430, total: 500 };
+  const colX = { desc: MARGIN + 8, qty: 300, unit: 335, price: 375, total: 463 };
   const tableLeft = MARGIN;
   const tableRight = PAGE_WIDTH - MARGIN;
+  const colRight = { qty: colX.unit - 10, unit: colX.price - 10, price: colX.total - 10, total: tableRight - 8 };
 
   const drawTableHeader = () => {
     page.drawRectangle({ x: tableLeft, y: y - 20, width: tableRight - tableLeft, height: 20, color: BRAND });
     drawText(page, 'DESCRIPTION', colX.desc, y - 14, fontBold, 8.5, WHITE);
-    drawText(page, 'QTÉ', colX.qty, y - 14, fontBold, 8.5, WHITE);
-    drawText(page, 'UNITÉ', colX.unit, y - 14, fontBold, 8.5, WHITE);
-    drawText(page, 'PRIX', colX.price, y - 14, fontBold, 8.5, WHITE);
-    drawText(page, 'TOTAL', colX.total, y - 14, fontBold, 8.5, WHITE);
+    drawTextRight(page, 'QTÉ', colRight.qty, y - 14, fontBold, 8.5, WHITE);
+    drawTextRight(page, 'UNITÉ', colRight.unit, y - 14, fontBold, 8.5, WHITE);
+    drawTextRight(page, 'PRIX', colRight.price, y - 14, fontBold, 8.5, WHITE);
+    drawTextRight(page, 'TOTAL', colRight.total, y - 14, fontBold, 8.5, WHITE);
     y -= 20;
   };
 
@@ -587,10 +638,10 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
       drawText(page, line, colX.desc, ty, font, 9.5, INK);
       ty -= 12;
     }
-    drawText(page, String(item.quantity), colX.qty, y - 13, font, 9.5, INK);
-    drawText(page, item.unit ?? 'pce', colX.unit, y - 13, font, 9.5, INK);
-    drawText(page, chf(Number(item.unit_price)), colX.price, y - 13, font, 9.5, INK);
-    drawText(page, chf(lineTotal), colX.total, y - 13, fontBold, 9.5, INK);
+    drawTextRight(page, String(item.quantity), colRight.qty, y - 13, font, 9.5, INK);
+    drawTextRight(page, item.unit ?? 'pce', colRight.unit, y - 13, font, 9.5, INK);
+    drawTextRight(page, chf(Number(item.unit_price)), colRight.price, y - 13, font, 9.5, INK);
+    drawTextRight(page, chf(lineTotal), colRight.total, y - 13, fontBold, 9.5, INK);
     y -= rowH;
     rowIdx += 1;
   }
@@ -606,9 +657,16 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   y -= 15;
   drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
   y -= 18;
-  page.drawRectangle({ x: 500 - 140, y: y - 6, width: 140 + MARGIN - 8, height: 22, borderColor: BRAND, borderWidth: 1.2 });
-  drawText(page, 'TOTAL TTC', 500 - 132, y, fontBold, 11, BRAND);
-  drawTextRight(page, chf(total), PAGE_WIDTH - MARGIN - 8, y, fontBold, 11, BRAND);
+  // Box width is measured from the actual total text instead of a fixed
+  // 140pt guess — a large total (5+ digits) used to overflow that fixed
+  // width, so the box's own border ended up drawn straight through the
+  // last character(s) of the amount.
+  const structTotalStr = chf(total);
+  const structBoxRight = PAGE_WIDTH - MARGIN - 8;
+  const structBoxLeft = Math.min(500 - 140, structBoxRight - fontBold.widthOfTextAtSize(structTotalStr, 11) - 100);
+  page.drawRectangle({ x: structBoxLeft, y: y - 6, width: structBoxRight - structBoxLeft, height: 22, borderColor: BRAND, borderWidth: 1.2 });
+  drawText(page, 'TOTAL TTC', structBoxLeft + 8, y, fontBold, 11, BRAND);
+  drawTextRight(page, structTotalStr, structBoxRight - 8, y, fontBold, 11, BRAND);
   y -= 40;
 
   y = drawTerms(page, font, org, y);

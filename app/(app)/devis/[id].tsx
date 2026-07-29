@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
-import { Button, Card, Container, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Devis, DevisItem, DevisStatus } from '../../../lib/types';
 
@@ -63,8 +63,8 @@ export default function DevisDetailScreen() {
 
   if (!devis) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
-        <Text>Chargement…</Text>
+      <Screen>
+        <LoadingScreen />
       </Screen>
     );
   }

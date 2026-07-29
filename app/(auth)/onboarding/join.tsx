@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { cancelJoinRequest, getMyPendingRequest, requestToJoin, searchOrganizations, type MyJoinRequest } from '../../../lib/api/invites';
-import { Button, Screen } from '../../../components/ui';
+import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { OrganizationSearchResult } from '../../../lib/types';
 
@@ -60,8 +60,8 @@ export default function JoinOrganizationScreen() {
 
   if (pending === undefined) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
-        <Text>Chargement…</Text>
+      <Screen>
+        <LoadingScreen />
       </Screen>
     );
   }

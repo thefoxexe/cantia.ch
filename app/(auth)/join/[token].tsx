@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { acceptInvite, getInvitePreview } from '../../../lib/api/invites';
 import { setPendingInvite, clearPendingInvite } from '../../../lib/pendingInvite';
-import { Button, Screen } from '../../../components/ui';
+import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function JoinScreen() {
@@ -72,9 +72,7 @@ export default function JoinScreen() {
   if (valid === null) {
     return (
       <Screen>
-        <View style={styles.container}>
-          <Text style={styles.subtitle}>Chargement…</Text>
-        </View>
+        <LoadingScreen />
       </Screen>
     );
   }
@@ -123,9 +121,7 @@ export default function JoinScreen() {
     if (currentMemberCount === null) {
       return (
         <Screen>
-          <View style={styles.container}>
-            <Text style={styles.subtitle}>Chargement…</Text>
-          </View>
+          <LoadingScreen />
         </Screen>
       );
     }
