@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
@@ -24,6 +24,9 @@ export default function LandingScreen() {
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
 
+  const menuAnim = useRef(new Animated.Value(0)).current;
+  const heroAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     supabase
       .from('plans')
@@ -31,6 +34,24 @@ export default function LandingScreen() {
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => setPlans(data ?? []));
   }, []);
+
+  useEffect(() => {
+    Animated.timing(heroAnim, {
+      toValue: 1,
+      duration: 520,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [heroAnim]);
+
+  useEffect(() => {
+    Animated.timing(menuAnim, {
+      toValue: menuOpen ? 1 : 0,
+      duration: 220,
+      easing: menuOpen ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [menuOpen, menuAnim]);
 
   const scrollToPricing = useCallback(() => {
     setMenuOpen(false);
@@ -90,33 +111,79 @@ export default function LandingScreen() {
           )}
         </View>
 
-        {isCompactNav && menuOpen ? (
-          <View style={styles.mobileMenu}>
-            <Pressable onPress={scrollToServices} style={styles.mobileMenuItem}>
-              <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
-            </Pressable>
-            <Pressable onPress={scrollToPricing} style={styles.mobileMenuItem}>
-              <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
-            </Pressable>
-            <Link href="/(auth)/login" asChild>
-              <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
-              </Pressable>
-            </Link>
-            <View style={styles.mobileMenuLangRow}>
-              <View style={styles.langSwitcher}>
-                {LANGUAGES.map((l) => (
-                  <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
-                    <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
-                  </Pressable>
-                ))}
+        {isCompactNav ? (
+          <Modal visible={menuOpen} animationType="none" transparent onRequestClose={() => setMenuOpen(false)}>
+            <Animated.View style={[styles.menuBackdrop, { opacity: menuAnim }]}>
+              <Pressable style={StyleSheet.absoluteFill} onPress={() => setMenuOpen(false)} />
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.mobileMenu,
+                {
+                  opacity: menuAnim,
+                  transform: [
+                    {
+                      translateY: menuAnim.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <View style={styles.mobileMenuHeader}>
+                <View style={styles.navBrandRow}>
+                  <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+                  <Text style={styles.navBrand}>Opus-Flow</Text>
+                </View>
+                <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel="Fermer">
+                  <Feather name="x" size={20} color={colors.text} />
+                </Pressable>
               </View>
-            </View>
-          </View>
+
+              <Pressable onPress={scrollToServices} style={styles.mobileMenuItem}>
+                <Feather name="grid" size={17} color={colors.primary} />
+                <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
+                <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+              </Pressable>
+              <Pressable onPress={scrollToPricing} style={styles.mobileMenuItem}>
+                <Feather name="tag" size={17} color={colors.primary} />
+                <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
+                <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+              </Pressable>
+              <Link href="/(auth)/login" asChild>
+                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                  <Feather name="log-in" size={17} color={colors.primary} />
+                  <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
+                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                </Pressable>
+              </Link>
+
+              <Link href="/(auth)/signup" asChild>
+                <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
+              </Link>
+
+              <View style={styles.mobileMenuLangRow}>
+                <View style={styles.langSwitcher}>
+                  {LANGUAGES.map((l) => (
+                    <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
+                      <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </Animated.View>
+          </Modal>
         ) : null}
 
         {/* ---- Hero ---- */}
-        <View style={styles.hero}>
+        <Animated.View
+          style={[
+            styles.hero,
+            {
+              opacity: heroAnim,
+              transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
+            },
+          ]}
+        >
           <View style={styles.heroCopy}>
             <View style={styles.kicker}>
               <Text style={styles.kickerText}>{t.hero.kicker}</Text>
@@ -134,7 +201,7 @@ export default function LandingScreen() {
           </View>
 
           <AppPreview lang={lang} />
-        </View>
+        </Animated.View>
 
         {/* ---- Pain points ---- */}
         <Section title={t.pain.title} center>
@@ -159,7 +226,11 @@ export default function LandingScreen() {
                 return (
                   <Pressable
                     key={f.title}
-                    style={styles.featureCard}
+                    style={({ pressed, hovered }: any) => [
+                      styles.featureCard,
+                      expanded && styles.featureCardActive,
+                      (pressed || hovered) && styles.featureCardHovered,
+                    ]}
                     onPress={() => setExpandedFeature(expanded ? null : i)}
                   >
                     <View style={styles.featureCardHeader}>
@@ -352,9 +423,9 @@ function StoreBadge({ kind, label, comingSoon }: { kind: 'apple' | 'google'; lab
 }
 
 const PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports: string; devis: string; project: string; devisNumber: string; photos: string }> = {
-  fr: { greeting: 'Bonjour', sites: 'Chantiers', reports: 'Rapports', devis: 'Devis', project: 'Villa ABC — Dalle sur rail', devisNumber: 'Devis DEV-2026-0032', photos: '18 photos géolocalisées' },
-  en: { greeting: 'Hello', sites: 'Sites', reports: 'Reports', devis: 'Quotes', project: 'Villa ABC — Slab on rail', devisNumber: 'Quote QT-2026-0032', photos: '18 geolocated photos' },
-  de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa ABC — Bodenplatte', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
+  fr: { greeting: 'Bonjour', sites: 'Chantiers', reports: 'Rapports', devis: 'Devis', project: 'Villa Dupont — rénovation', devisNumber: 'Devis DEV-2026-0032', photos: '18 photos géolocalisées' },
+  en: { greeting: 'Hello', sites: 'Sites', reports: 'Reports', devis: 'Quotes', project: 'Villa Dupont — renovation', devisNumber: 'Quote QT-2026-0032', photos: '18 geolocated photos' },
+  de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa Dupont — Renovation', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
 };
 
 function AppPreview({ lang }: { lang: Lang }) {
@@ -492,27 +563,63 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  menuBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 20, 18, 0.45)',
+  },
   mobileMenu: {
-    maxWidth: 1080,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    gap: spacing.xs,
+    position: 'absolute',
+    top: spacing.xl,
+    left: spacing.md,
+    right: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    gap: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 14 },
+  },
+  mobileMenuHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: spacing.md,
+    marginBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   mobileMenuItem: {
-    paddingVertical: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   mobileMenuText: {
+    flex: 1,
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
   },
+  mobileMenuChevron: {
+    marginLeft: 'auto',
+  },
+  mobileMenuCta: {
+    marginTop: spacing.lg,
+  },
   mobileMenuLangRow: {
-    paddingVertical: spacing.md,
-    alignItems: 'flex-start',
+    paddingTop: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hero: {
     maxWidth: 1080,
@@ -705,6 +812,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  featureCardHovered: {
+    borderColor: colors.primary,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  featureCardActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
   featureCardHeader: {
     flexDirection: 'row',

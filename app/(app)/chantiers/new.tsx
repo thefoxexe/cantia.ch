@@ -49,7 +49,7 @@ export default function NewChantierScreen() {
       <ScrollView>
         <SettingsHeader title="Nouveau chantier" backTo="/(app)/chantiers" />
 
-        <Field label="Nom du chantier" value={name} onChangeText={setName} placeholder="Ex : Dalle sur rail - Rue du Lac 12" />
+        <Field label="Nom du chantier" value={name} onChangeText={setName} placeholder="Ex : Villa Dupont - Rue du Lac 12" />
         <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
         <Field label="Adresse" value={address} onChangeText={setAddress} placeholder="Adresse du chantier" />
         {error ? <Text style={{ color: colors.danger, fontSize: fontSize.sm, marginBottom: spacing.md }}>{error}</Text> : null}

@@ -137,7 +137,7 @@ export default function NewReportScreen() {
       <ScrollView>
         <SettingsHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}`} />
 
-        <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Dalle sur rail - suivi coulage" />
+        <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
 
         <Text style={styles.fieldLabel}>Notes</Text>
         <TextInput

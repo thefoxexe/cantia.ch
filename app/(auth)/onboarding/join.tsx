@@ -100,7 +100,7 @@ export default function JoinOrganizationScreen() {
             style={styles.searchInput}
             value={query}
             onChangeText={setQuery}
-            placeholder="Ex : Editec"
+            placeholder="Nom de l'entreprise"
             placeholderTextColor={colors.textMuted}
             autoCapitalize="none"
           />

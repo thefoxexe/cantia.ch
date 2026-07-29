@@ -25,10 +25,10 @@ const FORMATS: { key: ExportFormat; label: string }[] = [
 function nextCode(points: SurveyPoint[]): string {
   let max = 0;
   for (const p of points) {
-    const m = /^P(\d+)$/i.exec(p.code.trim());
+    const m = /^(\d+)$/.exec(p.code.trim());
     if (m) max = Math.max(max, Number(m[1]));
   }
-  return `P${max + 1}`;
+  return String(max + 1);
 }
 
 export function ProjectSurvey({ projectId, organizationId }: { projectId: string; organizationId: string }) {
@@ -87,15 +87,39 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
     return Array.from(set);
   }, [points]);
 
-  function openForm(prefillLat?: number, prefillLon?: number) {
+  async function openForm(prefillLat?: number, prefillLon?: number) {
     setCode(nextCode(points));
     setDescription('');
     setPointClass('');
     setNewClassInput('');
-    setLat(prefillLat != null ? String(prefillLat) : '');
-    setLon(prefillLon != null ? String(prefillLon) : '');
     setElevation('');
     setShowForm(true);
+
+    if (prefillLat != null && prefillLon != null) {
+      // Tapped a spot on the map: use that spot, not the live position —
+      // this is how you log a point you can see but aren't standing at.
+      setLat(String(prefillLat));
+      setLon(String(prefillLon));
+      return;
+    }
+
+    // Opened via the toolbar (not a map tap): default straight to the
+    // device's current position, same as the live blue dot on the map,
+    // instead of requiring a separate "Utiliser ma position" tap first.
+    setLat('');
+    setLon('');
+    setLocating(true);
+    try {
+      const perm = await Location.requestForegroundPermissionsAsync();
+      if (perm.granted) {
+        const loc = await Location.getCurrentPositionAsync({});
+        setLat(String(loc.coords.latitude));
+        setLon(String(loc.coords.longitude));
+        if (loc.coords.altitude != null) setElevation(String(Math.round(loc.coords.altitude * 100) / 100));
+      }
+    } finally {
+      setLocating(false);
+    }
   }
 
   async function useMyLocation() {
@@ -220,7 +244,7 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
             <ScrollView contentContainerStyle={styles.modalBody}>
               <View style={styles.row3}>
                 <View style={styles.row3ItemSmall}>
-                  <Field label="Code" value={code} onChangeText={setCode} placeholder="P1" />
+                  <Field label="Code" value={code} onChangeText={setCode} placeholder="1" />
                 </View>
                 <View style={styles.row3Item}>
                   <Field label="Description" value={description} onChangeText={setDescription} placeholder="Angle bâtiment" />

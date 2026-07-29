@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { PDFDocument, PDFFont, PDFPage, RGB, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, PDFFont, PDFImage, PDFPage, RGB, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
 
 const BUCKET = 'opus-storage';
 
@@ -12,16 +12,38 @@ const corsHeaders = {
 const PAGE_WIDTH = 595.28; // A4 pt
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
+const BAND_H = 108;
 
 const INK = rgb(0.0941, 0.1098, 0.1059);
 const MUTED = rgb(0.3608, 0.3961, 0.3765);
 const BRAND = rgb(0.1216, 0.2392, 0.2275);
 const ACCENT = rgb(0.6902, 0.4118, 0.1725);
 const LINE = rgb(0.8824, 0.8706, 0.8314);
+const WHITE = rgb(1, 1, 1);
+const PAPER_ALT = rgb(0.9569, 0.9490, 0.9412);
+const BAND_MUTED = rgb(0.85, 0.89, 0.87);
+
+// pdf-lib's standard fonts use WinAnsi (cp1252) encoding, which can't encode
+// most unicode punctuation/space variants that pasted text or Intl
+// formatters can produce. Sanitizing here (the choke point every string
+// passes through) keeps a stray character from throwing mid-render and
+// leaving the report half-generated.
+function sanitizePdfText(text: string): string {
+  return (text || '')
+    .replace(/[  -   　]/g, ' ')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, '-')
+    .replace(/…/g, '...')
+    .replace(/œ/g, 'oe')
+    .replace(/Œ/g, 'OE')
+    .replace(/Ÿ/g, 'Y')
+    .replace(/[^\x00-\xFF]/g, '?');
+}
 
 function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const lines: string[] = [];
-  for (const paragraph of (text || '').split('\n')) {
+  for (const paragraph of sanitizePdfText(text).split('\n')) {
     const words = paragraph.split(' ').filter(Boolean);
     if (words.length === 0) {
       lines.push('');
@@ -43,7 +65,13 @@ function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): 
 }
 
 function drawText(page: PDFPage, text: string, x: number, y: number, font: PDFFont, size: number, color: RGB = INK) {
-  page.drawText(text, { x, y, size, font, color });
+  page.drawText(sanitizePdfText(text), { x, y, size, font, color });
+}
+
+function drawTextRight(page: PDFPage, text: string, xRight: number, y: number, font: PDFFont, size: number, color: RGB = INK) {
+  const safe = sanitizePdfText(text);
+  const w = font.widthOfTextAtSize(safe, size);
+  page.drawText(safe, { x: xRight - w, y, size, font, color });
 }
 
 async function fetchStorageBytes(
@@ -143,64 +171,79 @@ Deno.serve(async (req: Request) => {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
+    let logoImg: PDFImage | null = null;
+    if (org?.logo_url) {
+      const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
+      if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
+    }
+
     let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    let y = PAGE_HEIGHT - MARGIN;
     let pageNum = 1;
 
+    // ---- Header band ----
+    const drawBand = () => {
+      page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H, width: PAGE_WIDTH, height: BAND_H, color: BRAND });
+      if (logoImg) {
+        const h = 36;
+        const w = (logoImg.width / logoImg.height) * h;
+        page.drawRectangle({ x: PAGE_WIDTH - MARGIN - w - 12, y: PAGE_HEIGHT - BAND_H + 18, width: w + 12, height: h + 12, color: WHITE });
+        page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w - 6, y: PAGE_HEIGHT - BAND_H + 24, width: w, height: h });
+      }
+      drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - 38, fontBold, 14, WHITE);
+      const contactLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
+      if (contactLine) drawText(page, contactLine, MARGIN, PAGE_HEIGHT - 54, font, 8.5, BAND_MUTED);
+      drawText(page, 'RAPPORT DE CHANTIER', MARGIN, PAGE_HEIGHT - 84, fontBold, 15, WHITE);
+    };
+    drawBand();
+
+    let y = PAGE_HEIGHT - BAND_H - 32;
+
     const newPage = () => {
-      drawFooter(page, font, pageNum);
+      drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
       page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
       pageNum += 1;
       y = PAGE_HEIGHT - MARGIN;
     };
 
-    // ---- Header ----
-    let logoImg = null;
-    if (org?.logo_url) {
-      const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
-      if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
-    }
-    if (logoImg) {
-      const h = 46;
-      const w = (logoImg.width / logoImg.height) * h;
-      page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h + 10, width: w, height: h });
-    }
+    // ---- Title / meta card ----
+    drawText(page, report.title, MARGIN, y, fontBold, 17, INK);
+    drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
+    y -= 22;
 
-    drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 17, BRAND);
-    y -= 16;
-    const orgLine = [org?.address, org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
-    if (orgLine) {
-      drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
-      y -= 12;
-    }
-    const contactLine = [org?.phone, org?.email, org?.website].filter(Boolean).join(' · ');
-    if (contactLine) {
-      drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
-      y -= 12;
-    }
-    y -= 16;
-    page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-    y -= 26;
-
-    // ---- Title / meta ----
-    drawText(page, report.title, MARGIN, y, fontBold, 15, INK);
-    y -= 20;
     const project = report.projects;
     const metaLines = [
       project?.name ? `Chantier : ${project.name}` : null,
       project?.client_name ? `Client : ${project.client_name}` : null,
       project?.address ? `Adresse : ${project.address}` : null,
-      `Date du rapport : ${formatDate(report.created_at)}`,
     ].filter(Boolean) as string[];
-    for (const line of metaLines) {
-      drawText(page, line, MARGIN, y, font, 10.5, INK);
-      y -= 15;
+    if (metaLines.length) {
+      const boxTop = y;
+      let my = y - 12;
+      for (const line of metaLines) {
+        drawText(page, line, MARGIN + 10, my, font, 10, INK);
+        my -= 14;
+      }
+      const boxBottom = my + 2;
+      page.drawRectangle({
+        x: MARGIN,
+        y: boxBottom,
+        width: PAGE_WIDTH - 2 * MARGIN,
+        height: boxTop - boxBottom + 4,
+        color: PAPER_ALT,
+      });
+      page.drawRectangle({ x: MARGIN, y: boxBottom, width: 3, height: boxTop - boxBottom + 4, color: ACCENT });
+      // Redraw the text on top of the box (order matters: box first, then text).
+      my = y - 12;
+      for (const line of metaLines) {
+        drawText(page, line, MARGIN + 10, my, font, 10, INK);
+        my -= 14;
+      }
+      y = boxBottom - 20;
     }
-    y -= 12;
 
     // ---- Notes ----
     if (report.notes?.trim()) {
-      drawText(page, 'Notes', MARGIN, y, fontBold, 12, ACCENT);
+      drawText(page, 'NOTES', MARGIN, y, fontBold, 10, ACCENT);
       y -= 16;
       const lines = wrapText(report.notes, font, 10.5, PAGE_WIDTH - 2 * MARGIN);
       for (const line of lines) {
@@ -208,45 +251,68 @@ Deno.serve(async (req: Request) => {
         drawText(page, line, MARGIN, y, font, 10.5, INK);
         y -= 14;
       }
-      y -= 14;
+      y -= 10;
+      page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
+      y -= 20;
     }
 
     // ---- Photos ----
     const photoList = photos ?? [];
     if (photoList.length > 0) {
-      if (y < MARGIN + 220) newPage();
-      drawText(page, `Photos (${photoList.length})`, MARGIN, y, fontBold, 12, ACCENT);
-      y -= 18;
+      if (y < MARGIN + 240) newPage();
+      drawText(page, `PHOTOS (${photoList.length})`, MARGIN, y, fontBold, 10, ACCENT);
+      y -= 20;
 
       const cols = 2;
       const gap = 16;
       const cellW = (PAGE_WIDTH - 2 * MARGIN - gap * (cols - 1)) / cols;
-      const imgH = 150;
-      const cellH = imgH + 40;
+      const imgH = 155;
+      const captionH = 36;
+      const cardPad = 8;
+      const cellH = imgH + captionH + cardPad * 2 + 10;
       let col = 0;
 
       for (const photo of photoList) {
-        if (y - cellH < MARGIN + 30) newPage();
+        if (y - cellH < MARGIN + 30) {
+          newPage();
+          drawText(page, 'PHOTOS (suite)', MARGIN, y, fontBold, 10, ACCENT);
+          y -= 20;
+          col = 0;
+        }
         const x = MARGIN + col * (cellW + gap);
+        const cardTop = y;
+        const cardBottom = y - cellH + 10;
+
+        page.drawRectangle({
+          x,
+          y: cardBottom,
+          width: cellW,
+          height: cardTop - cardBottom,
+          color: rgb(1, 1, 1),
+          borderColor: LINE,
+          borderWidth: 1,
+        });
 
         const bytes = await fetchStorageBytes(admin, BUCKET, photo.storage_path);
+        const imgTop = cardTop - cardPad;
         if (bytes) {
           const img = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
-          const scale = Math.min(cellW / img.width, imgH / img.height);
+          const innerW = cellW - cardPad * 2;
+          const scale = Math.min(innerW / img.width, imgH / img.height);
           const w = img.width * scale;
           const h = img.height * scale;
-          page.drawImage(img, { x: x + (cellW - w) / 2, y: y - imgH + (imgH - h), width: w, height: h });
-          page.drawRectangle({ x, y: y - imgH, width: cellW, height: imgH, borderColor: LINE, borderWidth: 1 });
+          page.drawRectangle({ x: x + cardPad, y: imgTop - imgH, width: innerW, height: imgH, color: PAPER_ALT });
+          page.drawImage(img, { x: x + cardPad + (innerW - w) / 2, y: imgTop - imgH + (imgH - h) / 2, width: w, height: h });
         }
 
-        let capY = y - imgH - 13;
+        let capY = imgTop - imgH - 14;
         if (photo.caption) {
-          drawText(page, truncate(photo.caption, font, 9, cellW), x, capY, font, 9, INK);
+          drawText(page, truncate(photo.caption, fontBold, 9.5, cellW - cardPad * 2), x + cardPad, capY, fontBold, 9.5, INK);
           capY -= 12;
         }
         const coords = formatCoords(photo.latitude, photo.longitude);
         const meta = [coords ? `GPS ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  ·  ');
-        drawText(page, truncate(meta, font, 8, cellW), x, capY, font, 8, MUTED);
+        drawText(page, truncate(meta, font, 8, cellW - cardPad * 2), x + cardPad, capY, font, 8, MUTED);
 
         col += 1;
         if (col === cols) {
@@ -255,6 +321,7 @@ Deno.serve(async (req: Request) => {
         }
       }
       if (col !== 0) y -= cellH;
+      y -= 6;
     }
 
     // ---- Signature ----
@@ -270,7 +337,7 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    drawFooter(page, font, pageNum);
+    drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
 
     const pdfBytes = await pdfDoc.save();
 
@@ -294,18 +361,19 @@ Deno.serve(async (req: Request) => {
   }
 });
 
-function drawFooter(page: PDFPage, font: PDFFont, pageNum: number) {
-  drawText(page, 'Généré via Opus-Flow', MARGIN, 24, font, 8, MUTED);
-  drawText(page, `Page ${pageNum}`, PAGE_WIDTH - MARGIN - 40, 24, font, 8, MUTED);
+function drawFooter(page: PDFPage, font: PDFFont, pageNum: number, brand: string) {
+  drawText(page, brand, MARGIN, 24, font, 8, MUTED);
+  drawTextRight(page, `Page ${pageNum}`, PAGE_WIDTH - MARGIN, 24, font, 8, MUTED);
 }
 
 function truncate(text: string, font: PDFFont, size: number, maxWidth: number): string {
-  if (font.widthOfTextAtSize(text, size) <= maxWidth) return text;
-  let result = text;
-  while (result.length > 1 && font.widthOfTextAtSize(result + '…', size) > maxWidth) {
+  const safe = sanitizePdfText(text);
+  if (font.widthOfTextAtSize(safe, size) <= maxWidth) return safe;
+  let result = safe;
+  while (result.length > 1 && font.widthOfTextAtSize(result + '...', size) > maxWidth) {
     result = result.slice(0, -1);
   }
-  return result + '…';
+  return result + '...';
 }
 
 function json(body: unknown, status = 200): Response {

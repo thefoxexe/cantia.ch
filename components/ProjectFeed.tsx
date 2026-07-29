@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Image, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -12,6 +12,15 @@ import { Button, EmptyState, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { FeedEntry } from '../lib/types';
 
+interface StagedPhoto {
+  id: string;
+  uri: string;
+  caption: string;
+  latitude: number | null;
+  longitude: number | null;
+  takenAt: string;
+}
+
 export function ProjectFeed({ projectId }: { projectId: string }) {
   const { organization, user } = useAuth();
   const router = useRouter();
@@ -22,6 +31,10 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+
+  const [stagedPhotos, setStagedPhotos] = useState<StagedPhoto[]>([]);
+  const [showPhotoStaging, setShowPhotoStaging] = useState(false);
+  const [sendingPhotos, setSendingPhotos] = useState(false);
 
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -42,7 +55,15 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     for (const m of members ?? []) names[m.user_id] = m.full_name || 'Membre';
     setAuthorNames(names);
     const photoPaths = feed.filter((e) => e.type === 'photo' && e.storage_path).map((e) => e.storage_path!);
-    if (photoPaths.length) setUrls(await getSignedUrls(photoPaths));
+    if (photoPaths.length) {
+      // Merge instead of replace: a transient network error made
+      // getSignedUrls return {}, which wiped out every already-loaded photo
+      // (not just the new one) and left them spinning until the page was
+      // revisited. Merging means a failed batch just leaves those entries
+      // to retry on the next load instead of blanking working ones.
+      const fresh = await getSignedUrls(photoPaths);
+      setUrls((prev) => ({ ...prev, ...fresh }));
+    }
     setLoading(false);
   }, [organization, projectId]);
 
@@ -71,41 +92,93 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     load();
   }
 
-  async function sendPhoto(fromCamera: boolean) {
-    if (!organization || sending) return;
-    const perm = fromCamera
-      ? await ImagePicker.requestCameraPermissionsAsync()
-      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+  async function takePhoto() {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission requise', fromCamera ? "Autorisez l'accès à l'appareil photo." : 'Autorisez l’accès à vos photos.');
+      Alert.alert('Permission requise', "Autorisez l'accès à l'appareil photo.");
       return;
     }
-    const result = fromCamera
-      ? await ImagePicker.launchCameraAsync({ quality: 0.7 })
-      : await ImagePicker.launchImageLibraryAsync({ quality: 0.7, exif: true });
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
     if (result.canceled || !result.assets?.length) return;
-
     const asset = result.assets[0];
-    const coords = fromCamera ? await captureLocation() : exifCoords(asset.exif);
-    const takenAt = fromCamera ? new Date().toISOString() : exifTakenAt(asset.exif);
+    const coords = await captureLocation();
+    setStagedPhotos((prev) => [
+      ...prev,
+      {
+        id: `${Date.now()}-${Math.random()}`,
+        uri: asset.uri,
+        caption: '',
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        takenAt: new Date().toISOString(),
+      },
+    ]);
+    setShowPhotoStaging(true);
+  }
 
-    setSending(true);
-    setError(null);
-    const { error: err } = await addPhotoEntry({
-      organizationId: organization.id,
-      projectId,
-      userId: user?.id,
-      uri: asset.uri,
-      caption: text,
-      ...coords,
-      takenAt,
-    });
-    setSending(false);
-    if (err) {
-      setError(err);
+  async function pickFromGallery() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Permission requise', 'Autorisez l’accès à vos photos.');
       return;
     }
-    setText('');
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, exif: true, allowsMultipleSelection: true });
+    if (result.canceled || !result.assets?.length) return;
+    const newPhotos: StagedPhoto[] = result.assets.map((asset) => {
+      const coords = exifCoords(asset.exif);
+      return {
+        id: `${Date.now()}-${Math.random()}`,
+        uri: asset.uri,
+        caption: '',
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        takenAt: exifTakenAt(asset.exif),
+      };
+    });
+    setStagedPhotos((prev) => [...prev, ...newPhotos]);
+    setShowPhotoStaging(true);
+  }
+
+  function updateStagedCaption(id: string, caption: string) {
+    setStagedPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, caption } : p)));
+  }
+
+  function removeStagedPhoto(id: string) {
+    setStagedPhotos((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  // Sends staged photos one by one, dropping each from local state only
+  // once it's actually confirmed sent — so if one fails partway through
+  // (e.g. a network blip), the ones already sent aren't re-sent on retry
+  // and the rest stay staged instead of silently vanishing.
+  async function sendStagedPhotos() {
+    if (!organization || stagedPhotos.length === 0 || sendingPhotos) return;
+    setSendingPhotos(true);
+    setError(null);
+    let remaining = stagedPhotos;
+    while (remaining.length > 0) {
+      const photo = remaining[0];
+      const { error: err } = await addPhotoEntry({
+        organizationId: organization.id,
+        projectId,
+        userId: user?.id,
+        uri: photo.uri,
+        caption: photo.caption,
+        latitude: photo.latitude,
+        longitude: photo.longitude,
+        takenAt: photo.takenAt,
+      });
+      if (err) {
+        setError(err);
+        setStagedPhotos(remaining);
+        setSendingPhotos(false);
+        return;
+      }
+      remaining = remaining.slice(1);
+      setStagedPhotos(remaining);
+    }
+    setSendingPhotos(false);
+    setShowPhotoStaging(false);
     load();
   }
 
@@ -286,10 +359,10 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
             multiline
           />
           <View style={styles.composerActions}>
-            <Pressable style={styles.composerIconButton} onPress={() => sendPhoto(true)} disabled={sending}>
+            <Pressable style={styles.composerIconButton} onPress={takePhoto} disabled={sending}>
               <Feather name="camera" size={18} color={colors.text} />
             </Pressable>
-            <Pressable style={styles.composerIconButton} onPress={() => sendPhoto(false)} disabled={sending}>
+            <Pressable style={styles.composerIconButton} onPress={pickFromGallery} disabled={sending}>
               <Feather name="image" size={18} color={colors.text} />
             </Pressable>
             <Pressable
@@ -302,6 +375,73 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
           </View>
         </View>
       ) : null}
+
+      <Modal
+        visible={showPhotoStaging}
+        animationType="slide"
+        transparent
+        onRequestClose={() => {
+          if (!sendingPhotos) setShowPhotoStaging(false);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {stagedPhotos.length > 0 ? `${stagedPhotos.length} photo${stagedPhotos.length > 1 ? 's' : ''}` : 'Photos'}
+              </Text>
+              <Pressable hitSlop={8} onPress={() => setShowPhotoStaging(false)} disabled={sendingPhotos}>
+                <Feather name="x" size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={styles.modalBody}>
+              {stagedPhotos.length === 0 ? (
+                <Text style={styles.stagingEmptyText}>Prenez une photo ou choisissez-en depuis la galerie.</Text>
+              ) : (
+                <View style={{ gap: spacing.md }}>
+                  {stagedPhotos.map((photo, i) => (
+                    <View key={photo.id} style={styles.stagedItem}>
+                      <Image source={{ uri: photo.uri }} style={styles.stagedThumb} />
+                      <View style={styles.stagedItemBody}>
+                        <TextInput
+                          style={styles.stagedCaptionInput}
+                          value={photo.caption}
+                          onChangeText={(t) => updateStagedCaption(photo.id, t)}
+                          placeholder={`Commentaire photo ${i + 1} (optionnel)`}
+                          placeholderTextColor={colors.textMuted}
+                          multiline
+                        />
+                      </View>
+                      <Pressable hitSlop={8} onPress={() => removeStagedPhoto(photo.id)} disabled={sendingPhotos}>
+                        <Feather name="trash-2" size={16} color={colors.danger} />
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+              )}
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+            </ScrollView>
+            <View style={styles.stagingActions}>
+              <Pressable style={styles.stagingActionButton} onPress={takePhoto} disabled={sendingPhotos}>
+                <Feather name="camera" size={16} color={colors.primary} />
+                <Text style={styles.stagingActionText}>Reprendre une photo</Text>
+              </Pressable>
+              <Pressable style={styles.stagingActionButton} onPress={pickFromGallery} disabled={sendingPhotos}>
+                <Feather name="image" size={16} color={colors.primary} />
+                <Text style={styles.stagingActionText}>Galerie</Text>
+              </Pressable>
+            </View>
+            <Button
+              title={sendingPhotos ? 'Envoi en cours…' : `Envoyer ${stagedPhotos.length} photo${stagedPhotos.length > 1 ? 's' : ''}`}
+              icon="send"
+              onPress={sendStagedPhotos}
+              loading={sendingPhotos}
+              disabled={stagedPhotos.length === 0}
+              style={styles.stagingSendButton}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -477,5 +617,89 @@ const styles = StyleSheet.create({
   },
   composerSendDisabled: {
     opacity: 0.5,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '88%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  stagingEmptyText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingVertical: spacing.xl,
+  },
+  stagedItem: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignItems: 'flex-start',
+  },
+  stagedThumb: {
+    width: 72,
+    height: 72,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+  },
+  stagedItemBody: {
+    flex: 1,
+  },
+  stagedCaptionInput: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    minHeight: 44,
+    textAlignVertical: 'top',
+  },
+  stagingActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  stagingActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  stagingActionText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  stagingSendButton: {
+    margin: spacing.lg,
   },
 });
