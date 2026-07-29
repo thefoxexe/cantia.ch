@@ -75,6 +75,14 @@ Deno.serve(async (req: Request) => {
       success_url,
       cancel_url,
       allow_promotion_codes: true,
+      // The account has Managed Payments on by default, which requires every
+      // line item's product to carry a Managed-Payments-eligible tax code.
+      // Our products are intentionally "Nontaxable" (Bastien isn't VAT-
+      // registered and must not charge VAT), which Managed Payments rejects
+      // outright — so it's turned off per-session instead of hunting for a
+      // "taxable" code that would risk Stripe Tax adding VAT back.
+      // @ts-expect-error managed_payments isn't in the stripe-node 17.5.0 typings yet, but Stripe's own error response names this exact parameter.
+      managed_payments: { enabled: false },
     });
 
     return json({ url: session.url });

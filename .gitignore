@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# CRBX/CAN fixtures — never commit real .crbx/.01S files (CRB-owned data).
+/fixtures/*
+!/fixtures/README.md
