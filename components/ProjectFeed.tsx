@@ -16,12 +16,21 @@ import {
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as Network from 'expo-network';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { getSignedUrls } from '../lib/api/storage';
 import { addNoteEntry, addPhotoEntry, generateReportFromFeed, listFeedEntries } from '../lib/api/feed';
 import { captureLocation, exifCoords, exifTakenAt } from '../lib/geo';
+import {
+  enqueuePhoto,
+  flushPhotoQueue,
+  isOffline,
+  listQueuedPhotos,
+  resolveQueuedPhotoUri,
+  type QueuedPhoto,
+} from '../lib/offline/photoQueue';
 import { Button, EmptyState, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { FeedEntry } from '../lib/types';
@@ -35,6 +44,8 @@ interface StagedPhoto {
   longitude: number | null;
   takenAt: string;
 }
+
+type FeedListItem = { kind: 'entry'; entry: FeedEntry } | { kind: 'pending'; photo: QueuedPhoto };
 
 export function ProjectFeed({ projectId }: { projectId: string }) {
   const { organization, user } = useAuth();
@@ -73,6 +84,13 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Photos captured with no/flaky signal — queued locally (durably, so they
+  // survive an app restart) and shown right in the feed with a "en attente"
+  // badge until the connection lets them actually upload.
+  const [pendingLocal, setPendingLocal] = useState<QueuedPhoto[]>([]);
+  const [pendingPreviewUris, setPendingPreviewUris] = useState<Record<string, string>>({});
+  const [offline, setOffline] = useState(false);
+
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
@@ -97,11 +115,48 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     setLoading(false);
   }, [organization, projectId]);
 
+  const refreshPendingLocal = useCallback(async () => {
+    const queued = await listQueuedPhotos(projectId);
+    setPendingLocal(queued);
+    const resolved = await Promise.all(
+      queued.map(async (q) => [q.id, await resolveQueuedPhotoUri(q).catch(() => null)] as const),
+    );
+    setPendingPreviewUris((prev) => {
+      const next: Record<string, string> = {};
+      for (const [id, uri] of resolved) if (uri) next[id] = uri;
+      // Drop anything no longer queued so we don't leak stale object URLs.
+      for (const id of Object.keys(prev)) {
+        if (!(id in next) && queued.some((q) => q.id === id)) next[id] = prev[id];
+      }
+      return next;
+    });
+  }, [projectId]);
+
+  const flushAndRefresh = useCallback(async () => {
+    const sent = await flushPhotoQueue();
+    await refreshPendingLocal();
+    if (sent > 0) load();
+  }, [refreshPendingLocal, load]);
+
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [load]),
+      refreshPendingLocal();
+      flushAndRefresh();
+    }, [load, refreshPendingLocal, flushAndRefresh]),
   );
+
+  useEffect(() => {
+    Network.getNetworkStateAsync()
+      .then((state) => setOffline(state.isConnected === false || state.isInternetReachable === false))
+      .catch(() => {});
+    const sub = Network.addNetworkStateListener((state) => {
+      const nowOffline = state.isConnected === false || state.isInternetReachable === false;
+      setOffline(nowOffline);
+      if (!nowOffline) flushAndRefresh();
+    });
+    return () => sub.remove();
+  }, [flushAndRefresh]);
 
   // Keep the review modal's paged position in sync with the stack —
   // a delete mid-review shifts everything left by one, and the last
@@ -233,6 +288,27 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     if (!organization || !quickPhoto || quickSending) return;
     setQuickSending(true);
     setQuickError(null);
+
+    // No signal on-site — queue it durably instead of blocking on a request
+    // that has nowhere to go, and stop pretending it "failed".
+    if (await isOffline()) {
+      await enqueuePhoto({
+        organizationId: organization.id,
+        projectId,
+        userId: user?.id,
+        uri: quickPhoto.uri,
+        mimeType: quickPhoto.mimeType,
+        caption: quickPhoto.caption,
+        latitude: quickPhoto.latitude,
+        longitude: quickPhoto.longitude,
+        takenAt: quickPhoto.takenAt,
+      });
+      setQuickSending(false);
+      setQuickPhoto(null);
+      refreshPendingLocal();
+      return;
+    }
+
     const { error: err, entry } = await addPhotoEntry({
       organizationId: organization.id,
       projectId,
@@ -275,6 +351,30 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     if (!organization || stagedPhotos.length === 0 || sendingPhotos) return;
     setSendingPhotos(true);
     setError(null);
+
+    // No signal — queue the whole stack durably rather than blocking the
+    // review modal on requests that can't go anywhere right now.
+    if (await isOffline()) {
+      for (const photo of stagedPhotos) {
+        await enqueuePhoto({
+          organizationId: organization.id,
+          projectId,
+          userId: user?.id,
+          uri: photo.uri,
+          mimeType: photo.mimeType,
+          caption: photo.caption,
+          latitude: photo.latitude,
+          longitude: photo.longitude,
+          takenAt: photo.takenAt,
+        });
+      }
+      setStagedPhotos([]);
+      setSendingPhotos(false);
+      setShowStackReview(false);
+      refreshPendingLocal();
+      return;
+    }
+
     let remaining = stagedPhotos;
     while (remaining.length > 0) {
       const photo = remaining[0];
@@ -322,7 +422,15 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   // Newest-first for the inverted FlatList: index 0 renders at the bottom of
   // the screen, so the feed opens already scrolled to the latest message.
-  const invertedData = useMemo(() => [...entries].reverse(), [entries]);
+  // Locally-queued (not-yet-sent) photos are merged in after the real
+  // entries — they're always the most recent thing on the chantier.
+  const invertedData = useMemo<FeedListItem[]>(() => {
+    const real: FeedListItem[] = entries.map((entry) => ({ kind: 'entry', entry }));
+    const pending: FeedListItem[] = [...pendingLocal]
+      .sort((a, b) => new Date(a.takenAt).getTime() - new Date(b.takenAt).getTime())
+      .map((photo) => ({ kind: 'pending', photo }));
+    return [...real, ...pending].reverse();
+  }, [entries, pendingLocal]);
 
   async function confirmGenerate() {
     if (!organization || selectedEntries.length === 0 || generating) return;
@@ -412,6 +520,32 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     );
   }
 
+  function renderPendingPhoto(photo: QueuedPhoto) {
+    const uri = pendingPreviewUris[photo.id];
+    return (
+      <View style={[styles.bubbleRow, styles.bubbleRowMe]}>
+        <View style={[styles.bubble, styles.bubbleMe, styles.bubblePendingBubble]}>
+          <View style={styles.bubbleHeader}>
+            <Text style={styles.bubbleAuthor}>Vous</Text>
+            <View style={styles.pendingTag}>
+              <Feather name="clock" size={10} color={colors.textMuted} />
+              <Text style={styles.pendingTagText}>En attente</Text>
+            </View>
+          </View>
+          {uri ? (
+            <Image source={{ uri }} style={styles.bubblePhoto} />
+          ) : (
+            <View style={[styles.bubblePhoto, styles.bubblePhotoPlaceholder]}>
+              <ActivityIndicator color={colors.textMuted} />
+            </View>
+          )}
+          {photo.caption ? <Text style={styles.bubbleCaption}>{photo.caption}</Text> : null}
+          <Text style={styles.pendingHint}>S'enverra automatiquement dès que le réseau revient</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.toolbar}>
@@ -427,7 +561,19 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         </Text>
       ) : null}
 
-      {entries.length === 0 && !loading ? (
+      {offline ? (
+        <View style={styles.offlineBanner}>
+          <Feather name="wifi-off" size={13} color={colors.textMuted} />
+          <Text style={styles.offlineBannerText}>
+            Hors-ligne
+            {pendingLocal.length > 0
+              ? ` — ${pendingLocal.length} photo${pendingLocal.length > 1 ? 's' : ''} en attente`
+              : ''}
+          </Text>
+        </View>
+      ) : null}
+
+      {entries.length === 0 && pendingLocal.length === 0 && !loading ? (
         <View style={styles.emptyWrap}>
           <EmptyState
             title="Aucune activité pour l'instant"
@@ -438,8 +584,8 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         <FlatList
           data={invertedData}
           inverted
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => renderEntry(item)}
+          keyExtractor={(item) => (item.kind === 'entry' ? item.entry.id : `pending-${item.photo.id}`)}
+          renderItem={({ item }) => (item.kind === 'entry' ? renderEntry(item.entry) : renderPendingPhoto(item.photo))}
           style={{ flex: 1 }}
           contentContainerStyle={styles.listContent}
         />
@@ -776,6 +922,40 @@ const styles = StyleSheet.create({
   generatePanel: {
     gap: spacing.sm,
     paddingTop: spacing.sm,
+  },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: spacing.xs,
+    marginTop: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+  },
+  offlineBannerText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  bubblePendingBubble: {
+    opacity: 0.7,
+  },
+  pendingTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  pendingTagText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  pendingHint: {
+    fontSize: 10,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    fontStyle: 'italic',
   },
   error: {
     color: colors.danger,
