@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../../lib/supabase';
 import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../../lib/api/pdf';
+import { polishReportNotes } from '../../../../../lib/api/ai';
 import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
@@ -27,6 +28,7 @@ export default function ReportDetailScreen() {
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
+  const [polishing, setPolishing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -69,6 +71,23 @@ export default function ReportDetailScreen() {
     }
     await load();
     if (url) Linking.openURL(url);
+  }
+
+  async function polishNotes() {
+    if (!report) return;
+    setPolishing(true);
+    setError(null);
+    const { notes, error: polishError } = await polishReportNotes(reportId);
+    setPolishing(false);
+    if (polishError) {
+      setError(polishError);
+      return;
+    }
+    if (notes) {
+      setEditTitle(report.title);
+      setEditNotes(notes);
+      setEditing(true);
+    }
   }
 
   function startEditing() {
@@ -171,6 +190,19 @@ export default function ReportDetailScreen() {
                 variant={report.pdf_path ? 'secondary' : 'primary'}
                 onPress={regenerate}
                 loading={regenerating}
+                style={{ flex: 1 }}
+              />
+            </View>
+          ) : null}
+
+          {!editing && report.notes?.trim() ? (
+            <View style={styles.actionsRow}>
+              <Button
+                title="Rédiger avec l'IA"
+                icon="zap"
+                variant="secondary"
+                onPress={polishNotes}
+                loading={polishing}
                 style={{ flex: 1 }}
               />
             </View>
