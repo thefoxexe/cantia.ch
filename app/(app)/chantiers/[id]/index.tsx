@@ -7,6 +7,7 @@ import { isModuleEnabled } from '../../../../lib/modules';
 import { supabase } from '../../../../lib/supabase';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectFeed } from '../../../../components/ProjectFeed';
+import { ProjectFeedMap } from '../../../../components/ProjectFeedMap';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
@@ -15,13 +16,14 @@ import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'survey' | 'metre';
+type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'feed', label: "Fil d'actualité", icon: 'message-circle' },
   { key: 'reports', label: 'Rapports', icon: 'file-text' },
   { key: 'documents', label: 'Documents', icon: 'folder' },
   { key: 'photos', label: 'Photos', icon: 'image' },
+  { key: 'map', label: 'Carte', icon: 'map' },
   { key: 'survey', label: 'Levés', icon: 'crosshair' },
   { key: 'metre', label: 'Métré', icon: 'list' },
 ];
@@ -30,9 +32,13 @@ export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { organization } = useAuth();
-  const visibleTabs = TABS.filter(
-    (t) => t.key === 'feed' || t.key === 'reports' || isModuleEnabled(organization?.enabled_modules, t.key as any),
-  );
+  const visibleTabs = TABS.filter((t) => {
+    if (t.key === 'feed' || t.key === 'reports') return true;
+    // The map is just another view of the same geolocated photos, so it
+    // rides on the "photos" module toggle instead of needing its own.
+    if (t.key === 'map') return isModuleEnabled(organization?.enabled_modules, 'photos');
+    return isModuleEnabled(organization?.enabled_modules, t.key as any);
+  });
   const [project, setProject] = useState<Project | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,6 +156,17 @@ export default function ChantierDetailScreen() {
                 text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
               />
               <ProjectPhotos projectId={id} />
+            </View>
+          ) : null}
+          {activeTab === 'map' ? (
+            <View>
+              <FeatureHint
+                id="chantier-map"
+                icon="map"
+                title="Toutes les photos, sur une carte"
+                text="Les photos géolocalisées du fil d'actualité apparaissent ici sur le cadastre et l'orthophoto suisses."
+              />
+              <ProjectFeedMap projectId={id} />
             </View>
           ) : null}
           {activeTab === 'survey' ? (
