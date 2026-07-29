@@ -481,7 +481,7 @@ const DICTS: Record<Lang, Dict> = { fr, en, de };
 const PLAN_NAMES: Record<string, Record<Lang, string>> = {
   free: { fr: 'Gratuit', en: 'Free', de: 'Gratis' },
   solo: { fr: 'Indépendant', en: 'Independent', de: 'Selbstständig' },
-  pro: { fr: 'Pro', en: 'Pro', de: 'Pro' },
+  pro: { fr: 'Entreprise', en: 'Business', de: 'Unternehmen' },
 };
 
 export function planLabel(planId: string, fallbackName: string, lang: Lang): string {
