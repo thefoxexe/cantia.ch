@@ -4,7 +4,15 @@ import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { createInvite, inviteUrl, listActiveInvites, revokeInvite } from '../../../lib/api/invites';
+import {
+  createInvite,
+  inviteUrl,
+  listActiveInvites,
+  listPendingRequestsForOrg,
+  respondToJoinRequest,
+  revokeInvite,
+  type PendingJoinRequest,
+} from '../../../lib/api/invites';
 import { Button, Card, Container, Screen } from '../../../components/ui';
 import { SettingsHeader } from '../../../components/SettingsHeader';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -14,23 +22,28 @@ export default function EquipeScreen() {
   const { organization, role, user } = useAuth();
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [invites, setInvites] = useState<OrganizationInvite[]>([]);
+  const [joinRequests, setJoinRequests] = useState<PendingJoinRequest[]>([]);
   const [maxMembers, setMaxMembers] = useState<number | null>(null);
   const [inviting, setInviting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
   const atCapacity = maxMembers != null && members.length >= maxMembers;
 
   const load = useCallback(async () => {
     if (!organization) return;
-    const [{ data: memberRows }, { data: planRow }, inviteRows] = await Promise.all([
+    const [{ data: memberRows }, { data: planRow }, inviteRows, requestRows] = await Promise.all([
       supabase.from('organization_members').select('*').eq('organization_id', organization.id).order('created_at'),
       supabase.from('plans').select('max_members').eq('id', organization.plan_id).maybeSingle(),
       listActiveInvites(organization.id),
+      isAdmin ? listPendingRequestsForOrg(organization.id) : Promise.resolve([]),
     ]);
     setMembers(memberRows ?? []);
     setMaxMembers(planRow?.max_members ?? null);
     setInvites(inviteRows);
-  }, [organization]);
+    setJoinRequests(requestRows);
+  }, [organization, isAdmin]);
 
   useFocusEffect(
     useCallback(() => {
@@ -64,6 +77,18 @@ export default function EquipeScreen() {
     load();
   }
 
+  async function handleRespond(request: PendingJoinRequest, approve: boolean) {
+    setRequestError(null);
+    setRespondingId(request.id);
+    const { error } = await respondToJoinRequest(request.id, approve);
+    setRespondingId(null);
+    if (error) {
+      setRequestError(error);
+      return;
+    }
+    load();
+  }
+
   async function handleShare(invite: OrganizationInvite) {
     const url = inviteUrl(invite.token);
     if (Platform.OS === 'web') {
@@ -88,6 +113,39 @@ export default function EquipeScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <SettingsHeader title="Équipe" backTo="/(app)/compte" />
+
+          {isAdmin && joinRequests.length > 0 ? (
+            <View style={styles.inviteSection}>
+              <Text style={styles.sectionTitle}>Demandes d'adhésion</Text>
+              {requestError ? <Text style={styles.error}>{requestError}</Text> : null}
+              {joinRequests.map((r) => (
+                <Card key={r.id} style={styles.requestCard}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.memberName}>{r.requester_name || r.requester_email}</Text>
+                    <Text style={styles.memberRole}>{r.requester_email}</Text>
+                  </View>
+                  <View style={styles.requestActions}>
+                    <Pressable
+                      style={[styles.requestButton, styles.requestButtonAccept]}
+                      onPress={() => handleRespond(r, true)}
+                      disabled={respondingId === r.id}
+                    >
+                      <Feather name="check" size={13} color={colors.success} />
+                      <Text style={[styles.requestButtonText, { color: colors.success }]}>Accepter</Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.requestButton, styles.requestButtonReject]}
+                      onPress={() => handleRespond(r, false)}
+                      disabled={respondingId === r.id}
+                    >
+                      <Feather name="x" size={13} color={colors.danger} />
+                      <Text style={[styles.requestButtonText, { color: colors.danger }]}>Refuser</Text>
+                    </Pressable>
+                  </View>
+                </Card>
+              ))}
+            </View>
+          ) : null}
 
           {isAdmin ? (
             <View style={styles.inviteSection}>
@@ -163,6 +221,48 @@ const styles = StyleSheet.create({
   inviteSection: {
     marginBottom: spacing.xl,
     gap: spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  requestCard: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  requestActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  requestButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  requestButtonAccept: {
+    borderColor: colors.successSoft,
+    backgroundColor: colors.successSoft,
+  },
+  requestButtonReject: {
+    borderColor: colors.dangerSoft,
+    backgroundColor: colors.dangerSoft,
+  },
+  requestButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+  },
+  error: {
+    color: colors.danger,
+    fontSize: fontSize.sm,
   },
   capacityHint: {
     fontSize: fontSize.xs,

@@ -49,6 +49,7 @@ function buildHtml(points: MapPoint[]): string {
   html, body, #map { height: 100%; margin: 0; padding: 0; background: #F5F4F0; }
   .opus-marker { display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.4); font-size:10px; font-weight:700; color:#fff; }
   .leaflet-control-layers { font-size: 13px; }
+  .opus-me-dot { width:16px; height:16px; border-radius:50%; background:#1a73e8; border:3px solid #fff; box-shadow:0 0 0 3px rgba(26,115,232,0.35), 0 1px 4px rgba(0,0,0,0.4); }
 </style>
 </head>
 <body>
@@ -99,6 +100,29 @@ function buildHtml(points: MapPoint[]): string {
   map.on('click', function (e) {
     post({ type: 'map-press', lat: e.latlng.lat, lon: e.latlng.lng });
   });
+
+  var meMarker = null;
+  var meCircle = null;
+  var meIcon = L.divIcon({ className: '', html: '<div class="opus-me-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
+  map.on('locationfound', function (e) {
+    if (!meMarker) {
+      meMarker = L.marker(e.latlng, { icon: meIcon, zIndexOffset: 1000 }).addTo(map);
+    } else {
+      meMarker.setLatLng(e.latlng);
+    }
+    if (e.accuracy) {
+      if (!meCircle) {
+        meCircle = L.circle(e.latlng, { radius: e.accuracy, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12 }).addTo(map);
+      } else {
+        meCircle.setLatLng(e.latlng);
+        meCircle.setRadius(e.accuracy);
+      }
+    }
+  });
+  map.on('locationerror', function (e) {
+    post({ type: 'location-error', message: e.message });
+  });
+  map.locate({ watch: true, enableHighAccuracy: true, setView: false });
 </script>
 </body>
 </html>`;
@@ -124,6 +148,7 @@ export function SwissMap({ points, height = 340, onMapPress }: SwissMapProps) {
         onMessage={(e) => handleMessage(e.nativeEvent.data)}
         javaScriptEnabled
         domStorageEnabled
+        geolocationEnabled
         originWhitelist={['*']}
       />
     </View>

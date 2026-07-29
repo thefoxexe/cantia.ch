@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
@@ -73,6 +73,13 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
       load();
     }, [load]),
   );
+
+  useEffect(() => {
+    // Requested up front so the map's live "my location" marker can use the
+    // OS-level permission immediately, instead of the WebView's geolocation
+    // call silently failing on first load.
+    Location.requestForegroundPermissionsAsync();
+  }, []);
 
   const knownClasses = useMemo(() => {
     const set = new Set<string>();
@@ -182,135 +189,155 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
 
   return (
     <View>
-      <SwissMap
-        points={points.map((p) => ({ id: p.id, code: p.code, description: p.description, pointClass: p.class, lat: p.latitude, lon: p.longitude }))}
-        onMapPress={(pLat, pLon) => openForm(pLat, pLon)}
-      />
-      <Text style={styles.mapHint}>Touchez la carte pour ajouter un point à cet endroit.</Text>
-
-      <View style={styles.actionsRow}>
-        <Pressable style={styles.newButton} onPress={() => openForm()}>
+      <View style={styles.toolbar}>
+        <Pressable style={styles.toolbarButton} onPress={() => openForm()}>
           <Feather name="plus" size={16} color="#fff" />
-          <Text style={styles.newButtonText}>Ajouter un point</Text>
+          <Text style={styles.toolbarButtonText}>Ajouter un point</Text>
         </Pressable>
         {points.length > 0 ? (
-          <Pressable style={styles.secondaryButton} onPress={() => setShowExport((s) => !s)}>
+          <Pressable style={styles.toolbarButtonSecondary} onPress={() => setShowExport(true)}>
             <Feather name="download" size={16} color={colors.primary} />
-            <Text style={styles.secondaryButtonText}>Exporter</Text>
+            <Text style={styles.toolbarButtonSecondaryText}>Exporter</Text>
           </Pressable>
         ) : null}
       </View>
 
-      {showForm ? (
-        <Card style={{ marginBottom: spacing.lg }}>
-          <View style={styles.row3}>
-            <View style={styles.row3ItemSmall}>
-              <Field label="Code" value={code} onChangeText={setCode} placeholder="P1" />
-            </View>
-            <View style={styles.row3Item}>
-              <Field label="Description" value={description} onChangeText={setDescription} placeholder="Angle bâtiment" />
-            </View>
-          </View>
+      <SwissMap
+        points={points.map((p) => ({ id: p.id, code: p.code, description: p.description, pointClass: p.class, lat: p.latitude, lon: p.longitude }))}
+        onMapPress={(pLat, pLon) => openForm(pLat, pLon)}
+      />
+      <Text style={styles.mapHint}>Touchez la carte pour ajouter un point à cet endroit. Votre position s’affiche en direct sur la carte.</Text>
 
-          <Text style={styles.chipLabel}>Classe du point</Text>
-          <View style={styles.chipRow}>
-            {knownClasses.map((c) => (
-              <Pressable
-                key={c}
-                onPress={() => {
-                  setPointClass(c);
-                  setNewClassInput('');
+      <Modal visible={showForm} animationType="slide" transparent onRequestClose={() => setShowForm(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Ajouter un point</Text>
+              <Pressable hitSlop={8} onPress={() => setShowForm(false)}>
+                <Feather name="x" size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={styles.modalBody}>
+              <View style={styles.row3}>
+                <View style={styles.row3ItemSmall}>
+                  <Field label="Code" value={code} onChangeText={setCode} placeholder="P1" />
+                </View>
+                <View style={styles.row3Item}>
+                  <Field label="Description" value={description} onChangeText={setDescription} placeholder="Angle bâtiment" />
+                </View>
+              </View>
+
+              <Text style={styles.chipLabel}>Classe du point</Text>
+              <View style={styles.chipRow}>
+                {knownClasses.map((c) => (
+                  <Pressable
+                    key={c}
+                    onPress={() => {
+                      setPointClass(c);
+                      setNewClassInput('');
+                    }}
+                    style={[styles.chip, pointClass === c && styles.chipActive]}
+                  >
+                    <Text style={[styles.chipText, pointClass === c && styles.chipTextActive]}>{c}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Field
+                label="Nouvelle classe (optionnel)"
+                value={newClassInput}
+                onChangeText={(t) => {
+                  setNewClassInput(t);
+                  setPointClass('');
                 }}
-                style={[styles.chip, pointClass === c && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, pointClass === c && styles.chipTextActive]}>{c}</Text>
+                placeholder="Ex : borne, regard, angle bâtiment…"
+              />
+
+              <View style={styles.row3}>
+                <View style={styles.row3Item}>
+                  <Field label="Latitude" value={lat} onChangeText={setLat} keyboardType="decimal-pad" placeholder="46.94809" />
+                </View>
+                <View style={styles.row3Item}>
+                  <Field label="Longitude" value={lon} onChangeText={setLon} keyboardType="decimal-pad" placeholder="7.44744" />
+                </View>
+                <View style={styles.row3Item}>
+                  <Field label="Altitude (m)" value={elevation} onChangeText={setElevation} keyboardType="decimal-pad" placeholder="540.2" />
+                </View>
+              </View>
+              <Button
+                title="Utiliser ma position"
+                variant="secondary"
+                icon="crosshair"
+                onPress={useMyLocation}
+                loading={locating}
+                style={{ marginBottom: spacing.md }}
+              />
+              <View style={styles.formButtonsRow}>
+                <Button title="Annuler" variant="secondary" onPress={() => setShowForm(false)} style={{ flex: 1 }} />
+                <Button title="Ajouter le point" icon="check" onPress={addPoint} loading={saving} style={{ flex: 1 }} />
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showExport} animationType="slide" transparent onRequestClose={() => setShowExport(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Exporter les points</Text>
+              <Pressable hitSlop={8} onPress={() => setShowExport(false)}>
+                <Feather name="x" size={20} color={colors.textMuted} />
               </Pressable>
-            ))}
-          </View>
-          <Field
-            label="Nouvelle classe (optionnel)"
-            value={newClassInput}
-            onChangeText={(t) => {
-              setNewClassInput(t);
-              setPointClass('');
-            }}
-            placeholder="Ex : borne, regard, angle bâtiment…"
-          />
-
-          <View style={styles.row3}>
-            <View style={styles.row3Item}>
-              <Field label="Latitude" value={lat} onChangeText={setLat} keyboardType="decimal-pad" placeholder="46.94809" />
             </View>
-            <View style={styles.row3Item}>
-              <Field label="Longitude" value={lon} onChangeText={setLon} keyboardType="decimal-pad" placeholder="7.44744" />
-            </View>
-            <View style={styles.row3Item}>
-              <Field label="Altitude (m)" value={elevation} onChangeText={setElevation} keyboardType="decimal-pad" placeholder="540.2" />
-            </View>
+            <ScrollView contentContainerStyle={styles.modalBody}>
+              <Text style={styles.chipLabel}>Format</Text>
+              <View style={styles.chipRow}>
+                {FORMATS.map((f) => (
+                  <Pressable
+                    key={f.key}
+                    onPress={() => setFormat(f.key)}
+                    style={[styles.chip, format === f.key && styles.chipActive]}
+                  >
+                    <Text style={[styles.chipText, format === f.key && styles.chipTextActive]}>{f.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text style={styles.chipLabel}>Livraison</Text>
+              <View style={styles.chipRow}>
+                <Pressable
+                  onPress={() => setDelivery('download')}
+                  style={[styles.chip, delivery === 'download' && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, delivery === 'download' && styles.chipTextActive]}>Télécharger</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setDelivery('email')}
+                  style={[styles.chip, delivery === 'email' && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, delivery === 'email' && styles.chipTextActive]}>Par e-mail</Text>
+                </Pressable>
+              </View>
+              {delivery === 'email' ? (
+                <Field label="E-mail de réception" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+              ) : null}
+              {exportMessage ? (
+                <Text style={[styles.exportMessage, exportMessage.kind === 'error' && styles.exportMessageError]}>
+                  {exportMessage.text}
+                </Text>
+              ) : null}
+              <Button
+                title={exporting ? 'Génération en cours…' : 'Générer l’export'}
+                icon="download"
+                onPress={runExport}
+                loading={exporting}
+                style={{ marginTop: spacing.sm }}
+              />
+            </ScrollView>
           </View>
-          <Button
-            title="Utiliser ma position"
-            variant="secondary"
-            icon="crosshair"
-            onPress={useMyLocation}
-            loading={locating}
-            style={{ marginBottom: spacing.md }}
-          />
-          <View style={styles.formButtonsRow}>
-            <Button title="Annuler" variant="secondary" onPress={() => setShowForm(false)} style={{ flex: 1 }} />
-            <Button title="Ajouter le point" icon="check" onPress={addPoint} loading={saving} style={{ flex: 1 }} />
-          </View>
-        </Card>
-      ) : null}
+        </View>
+      </Modal>
 
-      {showExport ? (
-        <Card style={{ marginBottom: spacing.lg }}>
-          <Text style={styles.exportTitle}>Exporter les points</Text>
-          <Text style={styles.chipLabel}>Format</Text>
-          <View style={styles.chipRow}>
-            {FORMATS.map((f) => (
-              <Pressable
-                key={f.key}
-                onPress={() => setFormat(f.key)}
-                style={[styles.chip, format === f.key && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, format === f.key && styles.chipTextActive]}>{f.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <Text style={styles.chipLabel}>Livraison</Text>
-          <View style={styles.chipRow}>
-            <Pressable
-              onPress={() => setDelivery('download')}
-              style={[styles.chip, delivery === 'download' && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, delivery === 'download' && styles.chipTextActive]}>Télécharger</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setDelivery('email')}
-              style={[styles.chip, delivery === 'email' && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, delivery === 'email' && styles.chipTextActive]}>Par e-mail</Text>
-            </Pressable>
-          </View>
-          {delivery === 'email' ? (
-            <Field label="E-mail de réception" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-          ) : null}
-          {exportMessage ? (
-            <Text style={[styles.exportMessage, exportMessage.kind === 'error' && styles.exportMessageError]}>
-              {exportMessage.text}
-            </Text>
-          ) : null}
-          <Button
-            title={exporting ? 'Génération en cours…' : 'Générer l’export'}
-            icon="download"
-            onPress={runExport}
-            loading={exporting}
-            style={{ marginTop: spacing.sm }}
-          />
-        </Card>
-      ) : null}
-
+      <Text style={styles.sectionTitle}>Points enregistrés {points.length > 0 ? `(${points.length})` : ''}</Text>
       {points.length === 0 && !loading ? (
         <EmptyState title="Aucun point de levé" subtitle="Touchez la carte, ou ajoutez un point manuellement / via votre position." />
       ) : (
@@ -368,13 +395,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
-  actionsRow: {
+  toolbar: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
-  newButton: {
+  toolbarButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
@@ -383,12 +410,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  newButtonText: {
+  toolbarButtonText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: fontSize.sm,
   },
-  secondaryButton: {
+  toolbarButtonSecondary: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
@@ -399,10 +426,46 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     backgroundColor: colors.surface,
   },
-  secondaryButtonText: {
+  toolbarButtonSecondaryText: {
     color: colors.primary,
     fontWeight: '700',
     fontSize: fontSize.sm,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '88%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
   formButtonsRow: {
     flexDirection: 'row',
@@ -420,12 +483,6 @@ const styles = StyleSheet.create({
   row3ItemSmall: {
     flexGrow: 0.6,
     flexBasis: 90,
-  },
-  exportTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.sm,
   },
   chipLabel: {
     fontSize: fontSize.xs,

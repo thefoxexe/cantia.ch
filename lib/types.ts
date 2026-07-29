@@ -49,6 +49,24 @@ export interface OrganizationInvite {
   revoked: boolean;
 }
 
+export type JoinRequestStatus = 'pending' | 'accepted' | 'rejected';
+
+export interface OrganizationJoinRequest {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  status: JoinRequestStatus;
+  requested_at: string;
+  decided_at: string | null;
+  decided_by: string | null;
+}
+
+export interface OrganizationSearchResult {
+  id: string;
+  name: string;
+  member_count: number;
+}
+
 export interface ProjectMember {
   id: string;
   project_id: string;
