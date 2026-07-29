@@ -1,5 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+  Animated,
+  Easing,
+  Image,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
@@ -12,20 +25,71 @@ type IconName = keyof typeof Feather.glyphMap;
 
 const PAIN_ICONS: IconName[] = ['edit-3', 'clock', 'folder'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'list', 'map-pin', 'users'];
+const NAV_HEIGHT = 68;
 
 export default function LandingScreen() {
   const { t, lang, setLang } = useLanguage();
   const scrollRef = useRef<ScrollView>(null);
-  const pricingY = useRef(0);
-  const servicesY = useRef(0);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { width } = useWindowDimensions();
+  const [scrolled, setScrolled] = useState(false);
+  const { width, height: windowHeight } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
+
+  // Scroll-triggered section reveals: each section registers its own y
+  // offset on layout, and the shared scroll handler below fades + lifts it
+  // in once it's ~85% into the viewport. Plain refs (not state) hold the
+  // per-section Animated.Value / offset / "already played" bookkeeping so
+  // that a scroll re-render never has to walk through setState.
+  const sectionOffsets = useRef<Record<string, number>>({}).current;
+  const sectionAnims = useRef<Record<string, Animated.Value>>({}).current;
+  const sectionTriggered = useRef<Record<string, boolean>>({}).current;
+  const scrollYRef = useRef(0);
+
+  const getSectionAnim = useCallback((key: string): Animated.Value => {
+    if (!sectionAnims[key]) sectionAnims[key] = new Animated.Value(0);
+    return sectionAnims[key];
+  }, [sectionAnims]);
+
+  const checkReveals = useCallback(
+    (scrollY: number, viewportH: number) => {
+      for (const key of Object.keys(sectionOffsets)) {
+        if (sectionTriggered[key]) continue;
+        if (scrollY + viewportH * 0.85 > sectionOffsets[key]) {
+          sectionTriggered[key] = true;
+          Animated.timing(getSectionAnim(key), {
+            toValue: 1,
+            duration: 640,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }).start();
+        }
+      }
+    },
+    [getSectionAnim, sectionOffsets, sectionTriggered],
+  );
+
+  const registerSection = useCallback(
+    (key: string, y: number) => {
+      sectionOffsets[key] = y;
+      checkReveals(scrollYRef.current, windowHeight);
+    },
+    [checkReveals, sectionOffsets, windowHeight],
+  );
+
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = e.nativeEvent.contentOffset.y;
+      scrollYRef.current = y;
+      setScrolled((prev) => (prev !== y > 4 ? y > 4 : prev));
+      checkReveals(y, e.nativeEvent.layoutMeasurement.height);
+    },
+    [checkReveals],
+  );
 
   useEffect(() => {
     supabase
@@ -36,12 +100,9 @@ export default function LandingScreen() {
   }, []);
 
   useEffect(() => {
-    Animated.timing(heroAnim, {
-      toValue: 1,
-      duration: 520,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
+    Animated.stagger(90, [
+      Animated.timing(heroAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+    ]).start();
   }, [heroAnim]);
 
   useEffect(() => {
@@ -55,60 +116,292 @@ export default function LandingScreen() {
 
   const scrollToPricing = useCallback(() => {
     setMenuOpen(false);
-    scrollRef.current?.scrollTo({ y: pricingY.current - 24, animated: true });
-  }, []);
+    const y = sectionOffsets.pricing ?? 0;
+    scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: true });
+  }, [sectionOffsets]);
 
   const scrollToServices = useCallback(() => {
     setMenuOpen(false);
-    scrollRef.current?.scrollTo({ y: servicesY.current - 24, animated: true });
-  }, []);
+    const y = sectionOffsets.services ?? 0;
+    scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: true });
+  }, [sectionOffsets]);
 
   return (
     <Screen>
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll}>
-        <View style={styles.nav}>
-          <View style={styles.navBrandRow}>
-            <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
-            <Text style={styles.navBrand}>Opus-Flow</Text>
+      <View style={styles.stage}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.scroll}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        >
+          <View style={{ height: NAV_HEIGHT }} />
+
+          {/* ---- Hero ---- */}
+          <View style={styles.heroWrap}>
+            <View pointerEvents="none" style={styles.heroBlobA} />
+            <View pointerEvents="none" style={styles.heroBlobB} />
+            <Animated.View
+              style={[
+                styles.hero,
+                {
+                  opacity: heroAnim,
+                  transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) }],
+                },
+              ]}
+            >
+              <View style={styles.heroCopy}>
+                <View style={styles.kicker}>
+                  <Feather name="zap" size={12} color={colors.primary} />
+                  <Text style={styles.kickerText}>{t.hero.kicker}</Text>
+                </View>
+                <Text style={styles.headline}>{t.hero.headline}</Text>
+                <Text style={styles.subheadline}>{t.hero.subheadline}</Text>
+                <View style={styles.ctaRow}>
+                  <Link href="/(auth)/signup" asChild>
+                    <Button title={t.hero.cta1} onPress={() => {}} style={styles.ctaButton} />
+                  </Link>
+                  <Link href="/(auth)/login" asChild>
+                    <Button title={t.hero.cta2} onPress={() => {}} variant="secondary" style={styles.ctaButton} />
+                  </Link>
+                </View>
+              </View>
+
+              <AppPreview lang={lang} />
+            </Animated.View>
           </View>
 
-          {isCompactNav ? (
-            <View style={styles.navCompactRight}>
-              <Link href="/(auth)/signup" asChild>
-                <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
-              </Link>
-              <Pressable
-                onPress={() => setMenuOpen((v) => !v)}
-                style={styles.hamburgerButton}
-                hitSlop={8}
-                accessibilityLabel="Menu"
-              >
-                <Feather name={menuOpen ? 'x' : 'menu'} size={22} color={colors.text} />
-              </Pressable>
+          {/* ---- Pain points ---- */}
+          <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
+            <View style={styles.painGrid}>
+              {t.pain.items.map((p, i) => (
+                <View key={p.title} style={styles.painCard}>
+                  <View style={styles.painIconBadge}>
+                    <Feather name={PAIN_ICONS[i]} size={18} color={colors.accent} />
+                  </View>
+                  <Text style={styles.painTitle}>{p.title}</Text>
+                  <Text style={styles.painText}>{p.text}</Text>
+                </View>
+              ))}
             </View>
-          ) : (
-            <View style={styles.navLinks}>
-              <View style={styles.langSwitcher}>
-                {LANGUAGES.map((l) => (
-                  <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
-                    <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+          </Reveal>
+
+          {/* ---- Services ---- */}
+          <Reveal id="services" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={styles.sectionTitle}>{t.services.title}</Text>
+            <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
+            <View style={styles.featureGrid}>
+              {t.services.items.map((f, i) => {
+                const expanded = expandedFeature === i;
+                return (
+                  <Pressable
+                    key={f.title}
+                    style={({ pressed, hovered }: any) => [
+                      styles.featureCard,
+                      expanded && styles.featureCardActive,
+                      (pressed || hovered) && styles.featureCardHovered,
+                    ]}
+                    onPress={() => setExpandedFeature(expanded ? null : i)}
+                  >
+                    <View style={styles.featureCardHeader}>
+                      <View style={styles.featureIcon}>
+                        <Feather name={FEATURE_ICONS[i]} size={18} color={colors.primary} />
+                      </View>
+                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    </View>
+                    <Text style={styles.featureTitle}>{f.title}</Text>
+                    <Text style={styles.featureText}>{f.text}</Text>
+                    {expanded ? (
+                      <View style={styles.featureDetail}>
+                        {f.detail.map((line) => (
+                          <View key={line} style={styles.featureDetailRow}>
+                            <Feather name="check" size={13} color={colors.success} />
+                            <Text style={styles.featureDetailText}>{line}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
                   </Pressable>
-                ))}
+                );
+              })}
+            </View>
+          </Reveal>
+
+          {/* ---- Trades ---- */}
+          <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
+            <View style={styles.tradeRow}>
+              {t.trades.list.map((trade) => (
+                <View key={trade} style={styles.tradeChip}>
+                  <Text style={styles.tradeChipText}>{trade}</Text>
+                </View>
+              ))}
+            </View>
+            <Text style={styles.tradeNote}>{t.trades.note}</Text>
+          </Reveal>
+
+          {/* ---- Pricing ---- */}
+          <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
+            <View style={styles.pricingGrid}>
+              {plans.map((p) => (
+                <View key={p.id} style={[styles.priceCard, p.id === 'solo' && styles.priceCardHighlight]}>
+                  {p.id === 'solo' ? (
+                    <View style={styles.priceBadge}>
+                      <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
+                    </View>
+                  ) : null}
+                  <Text style={styles.priceName}>{planLabel(p.id, p.name, lang)}</Text>
+                  <View style={styles.priceAmountRow}>
+                    <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${p.price_chf_monthly}`}</Text>
+                    <Text style={styles.pricePeriod}>/{lang === 'de' ? 'Monat' : lang === 'en' ? 'month' : 'mois'}</Text>
+                  </View>
+                  <View style={styles.priceFeatures}>
+                    <PriceFeature
+                      text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
+                    />
+                    <PriceFeature text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
+                    <PriceFeature text={t.pricing.unlimited} />
+                    <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
+                  </View>
+                  <Link href="/(auth)/signup" asChild>
+                    <Button
+                      title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
+                      onPress={() => {}}
+                      variant={p.id === 'solo' ? 'primary' : 'secondary'}
+                    />
+                  </Link>
+                </View>
+              ))}
+            </View>
+          </Reveal>
+
+          {/* ---- Swiss positioning ---- */}
+          <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
+            <View style={styles.swissBand}>
+              <View style={styles.swissIconBadge}>
+                <Feather name="flag" size={22} color={colors.primary} />
               </View>
-              <Pressable onPress={scrollToServices}>
-                <Text style={styles.navLink}>{t.nav.services}</Text>
-              </Pressable>
-              <Pressable onPress={scrollToPricing}>
-                <Text style={styles.navLink}>{t.nav.pricing}</Text>
-              </Pressable>
-              <Link href="/(auth)/login">
-                <Text style={styles.navLink}>{t.nav.login}</Text>
-              </Link>
+              <Text style={styles.swissTitle}>{t.swiss.title}</Text>
+              <Text style={styles.swissText}>{t.swiss.text}</Text>
+            </View>
+          </Reveal>
+
+          {/* ---- Mobile apps ---- */}
+          <Reveal id="mobile" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.mobile.title}</Text>
+            <Text style={styles.mobileText}>{t.mobile.text}</Text>
+            <View style={styles.storeRow}>
+              <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
+              <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
+            </View>
+          </Reveal>
+
+          {/* ---- Final CTA ---- */}
+          <Reveal id="finalCta" getAnim={getSectionAnim} onRegister={registerSection} style={styles.finalCtaOuter} from={18}>
+            <View style={styles.finalCta}>
+              <Text style={styles.finalCtaTitle}>{t.finalCta.title}</Text>
               <Link href="/(auth)/signup" asChild>
-                <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+                <Button
+                  title={t.finalCta.button}
+                  onPress={() => {}}
+                  variant="secondary"
+                  style={styles.finalCtaButton}
+                />
               </Link>
             </View>
-          )}
+          </Reveal>
+
+          <View style={styles.footer}>
+            <View style={styles.footerGrid}>
+              <View style={styles.footerBrandCol}>
+                <View style={styles.footerBrandRow}>
+                  <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
+                  <Text style={styles.footerBrand}>Opus-Flow</Text>
+                </View>
+                <Text style={styles.footerText}>{t.footer.blurb}</Text>
+              </View>
+              <View style={styles.footerCol}>
+                <Text style={styles.footerColTitle}>{t.footer.product}</Text>
+                <Pressable onPress={scrollToServices}>
+                  <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
+                </Pressable>
+                <Pressable onPress={scrollToPricing}>
+                  <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
+                </Pressable>
+              </View>
+              <View style={styles.footerCol}>
+                <Text style={styles.footerColTitle}>{t.footer.account}</Text>
+                <Link href="/(auth)/login">
+                  <Text style={styles.footerLink}>{t.footer.login}</Text>
+                </Link>
+                <Link href="/(auth)/signup">
+                  <Text style={styles.footerLink}>{t.footer.signup}</Text>
+                </Link>
+              </View>
+              <View style={styles.footerCol}>
+                <Text style={styles.footerColTitle}>{t.footer.legal}</Text>
+                <Link href="/mentions-legales">
+                  <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
+                </Link>
+                <Link href="/confidentialite">
+                  <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
+                </Link>
+              </View>
+            </View>
+            <View style={styles.footerBottom}>
+              <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* ---- Fixed nav ---- */}
+        <View style={[styles.navFixed, scrolled && styles.navFixedScrolled]}>
+          <View style={styles.nav}>
+            <View style={styles.navBrandRow}>
+              <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+              <Text style={styles.navBrand}>Opus-Flow</Text>
+            </View>
+
+            {isCompactNav ? (
+              <View style={styles.navCompactRight}>
+                <Link href="/(auth)/signup" asChild>
+                  <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+                </Link>
+                <Pressable
+                  onPress={() => setMenuOpen((v) => !v)}
+                  style={styles.hamburgerButton}
+                  hitSlop={8}
+                  accessibilityLabel="Menu"
+                >
+                  <Feather name={menuOpen ? 'x' : 'menu'} size={22} color={colors.text} />
+                </Pressable>
+              </View>
+            ) : (
+              <View style={styles.navLinks}>
+                <View style={styles.langSwitcher}>
+                  {LANGUAGES.map((l) => (
+                    <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
+                      <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Pressable onPress={scrollToServices}>
+                  <Text style={styles.navLink}>{t.nav.services}</Text>
+                </Pressable>
+                <Pressable onPress={scrollToPricing}>
+                  <Text style={styles.navLink}>{t.nav.pricing}</Text>
+                </Pressable>
+                <Link href="/(auth)/login">
+                  <Text style={styles.navLink}>{t.nav.login}</Text>
+                </Link>
+                <Link href="/(auth)/signup" asChild>
+                  <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+                </Link>
+              </View>
+            )}
+          </View>
         </View>
 
         {isCompactNav ? (
@@ -173,226 +466,47 @@ export default function LandingScreen() {
             </Animated.View>
           </Modal>
         ) : null}
-
-        {/* ---- Hero ---- */}
-        <Animated.View
-          style={[
-            styles.hero,
-            {
-              opacity: heroAnim,
-              transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
-            },
-          ]}
-        >
-          <View style={styles.heroCopy}>
-            <View style={styles.kicker}>
-              <Text style={styles.kickerText}>{t.hero.kicker}</Text>
-            </View>
-            <Text style={styles.headline}>{t.hero.headline}</Text>
-            <Text style={styles.subheadline}>{t.hero.subheadline}</Text>
-            <View style={styles.ctaRow}>
-              <Link href="/(auth)/signup" asChild>
-                <Button title={t.hero.cta1} onPress={() => {}} style={styles.ctaButton} />
-              </Link>
-              <Link href="/(auth)/login" asChild>
-                <Button title={t.hero.cta2} onPress={() => {}} variant="secondary" style={styles.ctaButton} />
-              </Link>
-            </View>
-          </View>
-
-          <AppPreview lang={lang} />
-        </Animated.View>
-
-        {/* ---- Pain points ---- */}
-        <Section title={t.pain.title} center>
-          <View style={styles.painGrid}>
-            {t.pain.items.map((p, i) => (
-              <View key={p.title} style={styles.painCard}>
-                <Feather name={PAIN_ICONS[i]} size={20} color={colors.accent} />
-                <Text style={styles.painTitle}>{p.title}</Text>
-                <Text style={styles.painText}>{p.text}</Text>
-              </View>
-            ))}
-          </View>
-        </Section>
-
-        {/* ---- Services ---- */}
-        <View onLayout={(e) => (servicesY.current = e.nativeEvent.layout.y)}>
-          <Section title={t.services.title}>
-            <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
-            <View style={styles.featureGrid}>
-              {t.services.items.map((f, i) => {
-                const expanded = expandedFeature === i;
-                return (
-                  <Pressable
-                    key={f.title}
-                    style={({ pressed, hovered }: any) => [
-                      styles.featureCard,
-                      expanded && styles.featureCardActive,
-                      (pressed || hovered) && styles.featureCardHovered,
-                    ]}
-                    onPress={() => setExpandedFeature(expanded ? null : i)}
-                  >
-                    <View style={styles.featureCardHeader}>
-                      <View style={styles.featureIcon}>
-                        <Feather name={FEATURE_ICONS[i]} size={18} color={colors.primary} />
-                      </View>
-                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
-                    </View>
-                    <Text style={styles.featureTitle}>{f.title}</Text>
-                    <Text style={styles.featureText}>{f.text}</Text>
-                    {expanded ? (
-                      <View style={styles.featureDetail}>
-                        {f.detail.map((line) => (
-                          <View key={line} style={styles.featureDetailRow}>
-                            <Feather name="check" size={13} color={colors.success} />
-                            <Text style={styles.featureDetailText}>{line}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    ) : null}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Section>
-        </View>
-
-        {/* ---- Trades ---- */}
-        <Section title={t.trades.title} center>
-          <View style={styles.tradeRow}>
-            {t.trades.list.map((trade) => (
-              <View key={trade} style={styles.tradeChip}>
-                <Text style={styles.tradeChipText}>{trade}</Text>
-              </View>
-            ))}
-          </View>
-          <Text style={styles.tradeNote}>{t.trades.note}</Text>
-        </Section>
-
-        {/* ---- Pricing ---- */}
-        <View onLayout={(e) => (pricingY.current = e.nativeEvent.layout.y)}>
-          <Section title={t.pricing.title} center>
-            <View style={styles.pricingGrid}>
-              {plans.map((p) => (
-                <View key={p.id} style={[styles.priceCard, p.id === 'solo' && styles.priceCardHighlight]}>
-                  {p.id === 'solo' ? (
-                    <View style={styles.priceBadge}>
-                      <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
-                    </View>
-                  ) : null}
-                  <Text style={styles.priceName}>{planLabel(p.id, p.name, lang)}</Text>
-                  <View style={styles.priceAmountRow}>
-                    <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${p.price_chf_monthly}`}</Text>
-                    <Text style={styles.pricePeriod}>/{lang === 'de' ? 'Monat' : lang === 'en' ? 'month' : 'mois'}</Text>
-                  </View>
-                  <View style={styles.priceFeatures}>
-                    <PriceFeature
-                      text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
-                    />
-                    <PriceFeature text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
-                    <PriceFeature text={t.pricing.unlimited} />
-                    <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
-                  </View>
-                  <Link href="/(auth)/signup" asChild>
-                    <Button
-                      title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
-                      onPress={() => {}}
-                      variant={p.id === 'solo' ? 'primary' : 'secondary'}
-                    />
-                  </Link>
-                </View>
-              ))}
-            </View>
-          </Section>
-        </View>
-
-        {/* ---- Swiss positioning ---- */}
-        <Section>
-          <View style={styles.swissBand}>
-            <Feather name="flag" size={22} color={colors.primary} />
-            <Text style={styles.swissTitle}>{t.swiss.title}</Text>
-            <Text style={styles.swissText}>{t.swiss.text}</Text>
-          </View>
-        </Section>
-
-        {/* ---- Mobile apps ---- */}
-        <Section title={t.mobile.title} center>
-          <Text style={styles.mobileText}>{t.mobile.text}</Text>
-          <View style={styles.storeRow}>
-            <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
-            <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
-          </View>
-        </Section>
-
-        {/* ---- Final CTA ---- */}
-        <View style={styles.finalCta}>
-          <Text style={styles.finalCtaTitle}>{t.finalCta.title}</Text>
-          <Link href="/(auth)/signup" asChild>
-            <Button title={t.finalCta.button} onPress={() => {}} style={{ minWidth: 260 }} />
-          </Link>
-        </View>
-
-        <View style={styles.footer}>
-          <View style={styles.footerGrid}>
-            <View style={styles.footerBrandCol}>
-              <View style={styles.footerBrandRow}>
-                <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
-                <Text style={styles.footerBrand}>Opus-Flow</Text>
-              </View>
-              <Text style={styles.footerText}>{t.footer.blurb}</Text>
-            </View>
-            <View style={styles.footerCol}>
-              <Text style={styles.footerColTitle}>{t.footer.product}</Text>
-              <Pressable onPress={scrollToServices}>
-                <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
-              </Pressable>
-              <Pressable onPress={scrollToPricing}>
-                <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
-              </Pressable>
-            </View>
-            <View style={styles.footerCol}>
-              <Text style={styles.footerColTitle}>{t.footer.account}</Text>
-              <Link href="/(auth)/login">
-                <Text style={styles.footerLink}>{t.footer.login}</Text>
-              </Link>
-              <Link href="/(auth)/signup">
-                <Text style={styles.footerLink}>{t.footer.signup}</Text>
-              </Link>
-            </View>
-            <View style={styles.footerCol}>
-              <Text style={styles.footerColTitle}>{t.footer.legal}</Text>
-              <Link href="/mentions-legales">
-                <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
-              </Link>
-              <Link href="/confidentialite">
-                <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
-              </Link>
-            </View>
-          </View>
-          <View style={styles.footerBottom}>
-            <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
-          </View>
-        </View>
-      </ScrollView>
+      </View>
     </Screen>
   );
 }
 
-function Section({
-  title,
-  center,
+// Defined at module scope (not nested inside LandingScreen) so its
+// component identity is stable across renders — a component defined
+// inside another component's render body gets a new function identity
+// every render, which makes React unmount/remount it. If that remount
+// landed right as an Animated.timing had just started, the fresh
+// Animated.View mounted at the value's current (still ~0) progress and
+// nothing resumed it, permanently freezing that section at opacity 0.
+function Reveal({
+  id,
+  getAnim,
+  onRegister,
   children,
+  style,
+  from = 26,
 }: {
-  title?: string;
-  center?: boolean;
+  id: string;
+  getAnim: (id: string) => Animated.Value;
+  onRegister: (id: string, y: number) => void;
   children: React.ReactNode;
+  style?: any;
+  from?: number;
 }) {
+  const anim = getAnim(id);
   return (
-    <View style={styles.section}>
-      {title ? <Text style={[styles.sectionTitle, center && styles.centerText]}>{title}</Text> : null}
+    <Animated.View
+      onLayout={(e) => onRegister(id, e.nativeEvent.layout.y)}
+      style={[
+        style,
+        {
+          opacity: anim,
+          transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [from, 0] }) }],
+        },
+      ]}
+    >
       {children}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -472,30 +586,40 @@ function AppPreview({ lang }: { lang: Lang }) {
 }
 
 const styles = StyleSheet.create({
+  stage: {
+    flex: 1,
+  },
   scroll: {
     flexGrow: 1,
     paddingBottom: spacing.xxxl,
   },
+  navFixed: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: NAV_HEIGHT,
+    backgroundColor: 'rgba(245, 244, 240, 0.92)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+  },
+  navFixedScrolled: {
+    borderBottomColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+  },
   nav: {
+    flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.md,
     justifyContent: 'space-between',
     alignItems: 'center',
     maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
-    marginTop: spacing.xl,
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
   },
   navBrandRow: {
     flexDirection: 'row',
@@ -621,6 +745,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  heroWrap: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heroBlobA: {
+    position: 'absolute',
+    top: -140,
+    right: -120,
+    width: 420,
+    height: 420,
+    borderRadius: 210,
+    backgroundColor: colors.primarySoft,
+    opacity: 0.7,
+  },
+  heroBlobB: {
+    position: 'absolute',
+    top: 80,
+    left: -160,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: colors.accentSoft,
+    opacity: 0.5,
+  },
   hero: {
     maxWidth: 1080,
     width: '100%',
@@ -638,6 +786,9 @@ const styles = StyleSheet.create({
     minWidth: 320,
   },
   kicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     alignSelf: 'flex-start',
     backgroundColor: colors.primarySoft,
     borderRadius: radius.pill,
@@ -651,10 +802,11 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   headline: {
-    fontSize: 38,
+    fontSize: 44,
     fontWeight: '800',
     color: colors.text,
-    lineHeight: 46,
+    lineHeight: 52,
+    letterSpacing: -0.5,
     marginBottom: spacing.md,
   },
   subheadline: {
@@ -682,9 +834,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.1,
+    shadowRadius: 32,
+    shadowOffset: { width: 0, height: 18 },
   },
   previewChrome: {
     flexDirection: 'row',
@@ -787,11 +939,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  painIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
   painTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
-    marginTop: spacing.md,
     marginBottom: spacing.xs,
   },
   painText: {
@@ -913,6 +1073,11 @@ const styles = StyleSheet.create({
   priceCardHighlight: {
     borderColor: colors.primary,
     borderWidth: 2,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    transform: [{ scale: 1.03 }],
   },
   priceBadge: {
     alignSelf: 'flex-start',
@@ -967,6 +1132,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: colors.primarySoft,
   },
+  swissIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   swissTitle: {
     fontSize: fontSize.xl,
     fontWeight: '800',
@@ -1014,6 +1187,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
+  finalCtaOuter: {
+    width: '100%',
+    backgroundColor: colors.primary,
+    marginTop: spacing.xxl,
+  },
   finalCta: {
     maxWidth: 1080,
     width: '100%',
@@ -1025,10 +1203,13 @@ const styles = StyleSheet.create({
   finalCtaTitle: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
-    color: colors.text,
+    color: '#fff',
     textAlign: 'center',
     marginBottom: spacing.xl,
     maxWidth: 520,
+  },
+  finalCtaButton: {
+    minWidth: 260,
   },
   footer: {
     maxWidth: 1080,
@@ -1036,8 +1217,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   footerGrid: {
     flexDirection: 'row',
