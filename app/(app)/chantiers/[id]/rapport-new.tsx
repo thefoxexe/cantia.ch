@@ -135,7 +135,7 @@ export default function NewReportScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <SettingsHeader title="Nouveau rapport" />
+        <SettingsHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}`} />
 
         <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Dalle sur rail - suivi coulage" />
 

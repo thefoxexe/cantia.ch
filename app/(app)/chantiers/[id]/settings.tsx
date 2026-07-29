@@ -105,7 +105,7 @@ export default function ChantierSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Paramètres du chantier" />
+          <SettingsHeader title="Paramètres du chantier" backTo={`/(app)/chantiers/${id}`} />
 
           <Field label="Nom du chantier" value={name} onChangeText={setName} />
           <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />

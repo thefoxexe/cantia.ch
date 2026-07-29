@@ -87,7 +87,7 @@ export default function EquipeScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Équipe" />
+          <SettingsHeader title="Équipe" backTo="/(app)/compte" />
 
           {isAdmin ? (
             <View style={styles.inviteSection}>

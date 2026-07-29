@@ -67,7 +67,7 @@ export default function ChantierDetailScreen() {
   return (
     <Screen>
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.iconButton}>
+        <Pressable onPress={() => router.replace('/(app)/chantiers')} hitSlop={8} style={styles.iconButton}>
           <Feather name="arrow-left" size={20} color={colors.text} />
         </Pressable>
         <Text style={styles.title} numberOfLines={1}>

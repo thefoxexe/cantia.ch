@@ -36,7 +36,7 @@ export default function ModulesScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Outils & modules" />
+          <SettingsHeader title="Outils & modules" backTo="/(app)/compte" />
           <Text style={styles.hint}>
             Désactivez ce que vous n’utilisez pas pour garder une application simple. Rapports reste toujours actif.
           </Text>

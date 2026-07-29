@@ -118,7 +118,7 @@ export default function ReportDetailScreen() {
             title="Retour"
             icon="arrow-left"
             variant="secondary"
-            onPress={() => router.back()}
+            onPress={() => router.replace(`/(app)/chantiers/${projectId}`)}
             style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
           />
 

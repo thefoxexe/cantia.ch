@@ -60,7 +60,7 @@ export default function DevisSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Devis & modèle PDF" />
+          <SettingsHeader title="Devis & modèle PDF" backTo="/(app)/compte" />
 
           <View style={styles.row2}>
             <View style={styles.row2Item}>

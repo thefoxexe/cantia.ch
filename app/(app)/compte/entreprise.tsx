@@ -84,7 +84,7 @@ export default function EntrepriseScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Profil entreprise" />
+          <SettingsHeader title="Profil entreprise" backTo="/(app)/compte" />
 
           <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
           <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />

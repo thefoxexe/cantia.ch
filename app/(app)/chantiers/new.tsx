@@ -47,7 +47,7 @@ export default function NewChantierScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <SettingsHeader title="Nouveau chantier" />
+        <SettingsHeader title="Nouveau chantier" backTo="/(app)/chantiers" />
 
         <Field label="Nom du chantier" value={name} onChangeText={setName} placeholder="Ex : Dalle sur rail - Rue du Lac 12" />
         <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />

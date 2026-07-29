@@ -61,7 +61,7 @@ export default function FacturationScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Facturation" />
+          <SettingsHeader title="Facturation" backTo="/(app)/compte" />
 
           <View style={styles.planRow}>
             <Text style={styles.planName}>{plan?.name ?? '—'}</Text>

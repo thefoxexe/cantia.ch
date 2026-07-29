@@ -3,11 +3,14 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, spacing } from '../lib/theme';
 
-export function SettingsHeader({ title }: { title: string }) {
+// Tab switches on web can replace history in a way that leaves nothing to
+// pop back to, so router.back() isn't reliable here — pass backTo to always
+// land on a known parent screen instead of guessing from history.
+export function SettingsHeader({ title, backTo }: { title: string; backTo?: string }) {
   const router = useRouter();
   return (
     <View style={styles.row}>
-      <Pressable onPress={() => router.back()} hitSlop={8} style={styles.back}>
+      <Pressable onPress={() => (backTo ? router.replace(backTo as any) : router.back())} hitSlop={8} style={styles.back}>
         <Feather name="arrow-left" size={20} color={colors.text} />
       </Pressable>
       <Text style={styles.title}>{title}</Text>
