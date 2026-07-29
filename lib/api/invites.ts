@@ -49,7 +49,7 @@ export function inviteUrl(token: string): string {
   if (typeof window !== 'undefined' && window.location) {
     return `${window.location.origin}/join/${token}`;
   }
-  return `https://opusflow.ch/join/${token}`;
+  return `https://cantia.ch/join/${token}`;
 }
 
 export async function searchOrganizations(query: string): Promise<OrganizationSearchResult[]> {

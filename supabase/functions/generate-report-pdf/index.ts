@@ -199,7 +199,7 @@ Deno.serve(async (req: Request) => {
     let y = PAGE_HEIGHT - BAND_H - 32;
 
     const newPage = () => {
-      drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+      drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
       page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
       pageNum += 1;
       y = PAGE_HEIGHT - MARGIN;
@@ -337,7 +337,7 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+    drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
 
     const pdfBytes = await pdfDoc.save();
 

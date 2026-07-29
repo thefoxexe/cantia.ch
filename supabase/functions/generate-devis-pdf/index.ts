@@ -146,7 +146,7 @@ function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   let pageNum = 1;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, 'Généré via Opus-Flow');
+    drawFooter(page, font, pageNum, 'Généré via Cantia');
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
@@ -274,7 +274,7 @@ function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, 'Généré via Opus-Flow');
+  drawFooter(page, font, pageNum, 'Généré via Cantia');
   return pdfDoc.save();
 }
 
@@ -305,7 +305,7 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   let y = PAGE_HEIGHT - BAND_H - 34;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+    drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
@@ -411,7 +411,7 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+  drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
   return pdfDoc.save();
 }
 
@@ -425,7 +425,7 @@ function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   let pageNum = 1;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+    drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
@@ -522,7 +522,7 @@ function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+  drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
   return pdfDoc.save();
 }
 
@@ -536,7 +536,7 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   let pageNum = 1;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+    drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
@@ -679,7 +679,7 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, org?.name ?? 'Opus-Flow');
+  drawFooter(page, font, pageNum, org?.name ?? 'Cantia');
   return pdfDoc.save();
 }
 

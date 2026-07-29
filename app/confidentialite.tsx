@@ -30,7 +30,7 @@ export default function ConfidentialiteScreen() {
 
           <LegalSection title="Finalité du traitement">
             <Text style={styles.p}>
-              Ces données sont utilisées exclusivement pour fournir le service Opus-Flow : générer vos rapports et
+              Ces données sont utilisées exclusivement pour fournir le service Cantia : générer vos rapports et
               devis, organiser vos chantiers et gérer votre abonnement. Elles ne sont jamais vendues à des tiers.
             </Text>
           </LegalSection>
@@ -47,7 +47,7 @@ export default function ConfidentialiteScreen() {
             <Text style={styles.p}>
               Conformément à la loi suisse sur la protection des données (LPD) et, le cas échéant, au RGPD, vous
               disposez d'un droit d'accès, de rectification et de suppression de vos données. Vous pouvez exercer ce
-              droit à tout moment en nous écrivant à privacy@opusflow.ch, ou en supprimant directement vos données
+              droit à tout moment en nous écrivant à privacy@cantia.ch, ou en supprimant directement vos données
               depuis l'application.
             </Text>
           </LegalSection>
@@ -68,7 +68,7 @@ export default function ConfidentialiteScreen() {
           </LegalSection>
 
           <LegalSection title="Contact">
-            <Text style={styles.p}>Pour toute question relative à vos données, écrivez-nous à privacy@opusflow.ch.</Text>
+            <Text style={styles.p}>Pour toute question relative à vos données, écrivez-nous à privacy@cantia.ch.</Text>
           </LegalSection>
         </Container>
       </ScrollView>

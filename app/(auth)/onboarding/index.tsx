@@ -53,7 +53,7 @@ export default function OnboardingHubScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Bienvenue sur Opus-Flow</Text>
+        <Text style={styles.title}>Bienvenue sur Cantia</Text>
         <Text style={styles.subtitle}>Voulez-vous créer une entreprise ou rejoindre une entreprise existante ?</Text>
 
         <Pressable style={styles.choiceCard} onPress={() => router.push('/(auth)/onboarding/create')}>
@@ -62,7 +62,7 @@ export default function OnboardingHubScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.choiceTitle}>Créer une entreprise</Text>
-            <Text style={styles.choiceText}>Vous êtes le premier de votre entreprise sur Opus-Flow.</Text>
+            <Text style={styles.choiceText}>Vous êtes le premier de votre entreprise sur Cantia.</Text>
           </View>
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </Pressable>
@@ -73,7 +73,7 @@ export default function OnboardingHubScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.choiceTitle}>Rejoindre une entreprise</Text>
-            <Text style={styles.choiceText}>Votre entreprise utilise déjà Opus-Flow.</Text>
+            <Text style={styles.choiceText}>Votre entreprise utilise déjà Cantia.</Text>
           </View>
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </Pressable>

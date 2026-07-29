@@ -39,7 +39,7 @@ export default function SignupScreen() {
       <Screen>
         <View style={styles.container}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Opus-Flow</Text>
+          <Text style={styles.brand}>Cantia</Text>
           <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>
             Compte créé. Si la confirmation par e-mail est activée, vérifiez votre boîte mail avant de vous
             connecter.
@@ -55,7 +55,7 @@ export default function SignupScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Opus-Flow</Text>
+          <Text style={styles.brand}>Cantia</Text>
           <Text style={styles.subtitle}>Créez votre compte</Text>
 
           <View style={styles.form}>
@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   logo: {
-    width: 48,
-    height: 36,
+    width: 44,
+    height: 44,
     alignSelf: 'center',
     marginBottom: spacing.md,
   },

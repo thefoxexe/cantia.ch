@@ -95,7 +95,7 @@ export default function NewChantierScreen() {
       <Modal visible={showModulesPrompt} animationType="fade" transparent onRequestClose={confirmModules}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
-            <Text style={styles.sheetTitle}>Bienvenue sur Opus-Flow</Text>
+            <Text style={styles.sheetTitle}>Bienvenue sur Cantia</Text>
             <Text style={styles.sheetSubtitle}>
               Avant votre premier chantier, choisissez les outils que vous voulez utiliser. Vous pourrez changer ça à
               tout moment depuis Compte → Outils & modules.

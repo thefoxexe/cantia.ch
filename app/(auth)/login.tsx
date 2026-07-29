@@ -25,7 +25,7 @@ export default function LoginScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Opus-Flow</Text>
+          <Text style={styles.brand}>Cantia</Text>
           <Text style={styles.subtitle}>La plateforme des artisans et entreprises du bâtiment</Text>
 
           <View style={styles.form}>
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   logo: {
-    width: 48,
-    height: 36,
+    width: 44,
+    height: 44,
     alignSelf: 'center',
     marginBottom: spacing.md,
   },

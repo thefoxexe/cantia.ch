@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const KEY = 'opusflow:pendingInvite';
+const KEY = 'cantia:pendingInvite';
 
 export async function setPendingInvite(token: string): Promise<void> {
   await AsyncStorage.setItem(KEY, token);

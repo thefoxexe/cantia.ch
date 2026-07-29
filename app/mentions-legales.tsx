@@ -21,9 +21,9 @@ export default function MentionsLegalesScreen() {
 
           <LegalSection title="Éditeur du site">
             <Text style={styles.p}>
-              Le site et l'application Opus-Flow sont édités par Opus-Flow, entreprise individuelle basée en Suisse.
+              Le site et l'application Cantia sont édités par Cantia, entreprise individuelle basée en Suisse.
               Pour toute question relative à l'identité légale de l'éditeur, contactez-nous à l'adresse
-              legal@opusflow.ch.
+              legal@cantia.ch.
             </Text>
           </LegalSection>
 
@@ -37,7 +37,7 @@ export default function MentionsLegalesScreen() {
 
           <LegalSection title="Propriété intellectuelle">
             <Text style={styles.p}>
-              L'ensemble des éléments du site et de l'application Opus-Flow (marque, logo, textes, interface,
+              L'ensemble des éléments du site et de l'application Cantia (marque, logo, textes, interface,
               structure) est protégé par le droit d'auteur. Toute reproduction ou représentation, totale ou
               partielle, sans autorisation préalable est interdite.
             </Text>
@@ -45,14 +45,14 @@ export default function MentionsLegalesScreen() {
 
           <LegalSection title="Responsabilité">
             <Text style={styles.p}>
-              Opus-Flow met tout en œuvre pour assurer l'exactitude et la mise à jour des informations diffusées sur
+              Cantia met tout en œuvre pour assurer l'exactitude et la mise à jour des informations diffusées sur
               le site, mais ne saurait être tenu responsable des erreurs, omissions ou de l'indisponibilité
               temporaire du service.
             </Text>
           </LegalSection>
 
           <LegalSection title="Contact">
-            <Text style={styles.p}>Pour toute question, écrivez-nous à legal@opusflow.ch.</Text>
+            <Text style={styles.p}>Pour toute question, écrivez-nous à legal@cantia.ch.</Text>
           </LegalSection>
         </Container>
       </ScrollView>

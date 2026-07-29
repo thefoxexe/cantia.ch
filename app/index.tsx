@@ -344,7 +344,7 @@ export default function LandingScreen() {
               <View style={styles.footerBrandCol}>
                 <View style={styles.footerBrandRow}>
                   <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
-                  <Text style={styles.footerBrand}>Opus-Flow</Text>
+                  <Text style={styles.footerBrand}>Cantia</Text>
                 </View>
                 <Text style={styles.footerText}>{t.footer.blurb}</Text>
               </View>
@@ -387,7 +387,7 @@ export default function LandingScreen() {
           <View style={styles.nav}>
             <View style={styles.navBrandRow}>
               <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
-              <Text style={styles.navBrand}>Opus-Flow</Text>
+              <Text style={styles.navBrand}>Cantia</Text>
             </View>
 
             {isCompactNav ? (
@@ -443,7 +443,7 @@ export default function LandingScreen() {
               <View style={styles.mobileMenuHeader}>
                 <View style={styles.navBrandRow}>
                   <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
-                  <Text style={styles.navBrand}>Opus-Flow</Text>
+                  <Text style={styles.navBrand}>Cantia</Text>
                 </View>
                 <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel="Fermer">
                   <Feather name="x" size={22} color={colors.text} />
@@ -694,8 +694,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   navLogo: {
-    width: 26,
-    height: 20,
+    width: 24,
+    height: 24,
   },
   navBrand: {
     fontSize: fontSize.md,
@@ -1306,8 +1306,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   footerLogo: {
-    width: 22,
-    height: 17,
+    width: 20,
+    height: 20,
   },
   footerBrand: {
     fontSize: fontSize.sm,

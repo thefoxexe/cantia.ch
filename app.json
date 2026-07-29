@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Opus-Flow",
-    "slug": "opus-flow",
+    "name": "Cantia",
+    "slug": "cantia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "opusflow",
+    "scheme": "cantia",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
@@ -13,23 +13,23 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Opus-Flow utilise vos photos pour illustrer vos rapports de chantier.",
-          "cameraPermission": "Opus-Flow utilise l'appareil photo pour documenter vos chantiers."
+          "photosPermission": "Cantia utilise vos photos pour illustrer vos rapports de chantier.",
+          "cameraPermission": "Cantia utilise l'appareil photo pour documenter vos chantiers."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Opus-Flow géolocalise vos photos de chantier pour vos rapports."
+          "locationWhenInUsePermission": "Cantia géolocalise vos photos de chantier pour vos rapports."
         }
       ]
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ch.opusflow.app"
+      "bundleIdentifier": "ch.cantia.app"
     },
     "android": {
-      "package": "ch.opusflow.app",
+      "package": "ch.cantia.app",
       "adaptiveIcon": {
         "backgroundColor": "#1F3D3A",
         "foregroundImage": "./assets/android-icon-foreground.png",
