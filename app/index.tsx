@@ -391,19 +391,14 @@ export default function LandingScreen() {
             </View>
 
             {isCompactNav ? (
-              <View style={styles.navCompactRight}>
-                <Link href="/(auth)/signup" asChild>
-                  <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
-                </Link>
-                <Pressable
-                  onPress={() => setMenuOpen((v) => !v)}
-                  style={styles.hamburgerButton}
-                  hitSlop={8}
-                  accessibilityLabel="Menu"
-                >
-                  <Feather name={menuOpen ? 'x' : 'menu'} size={22} color={colors.text} />
-                </Pressable>
-              </View>
+              <Pressable
+                onPress={() => setMenuOpen((v) => !v)}
+                style={styles.hamburgerButton}
+                hitSlop={8}
+                accessibilityLabel="Menu"
+              >
+                <Feather name={menuOpen ? 'x' : 'menu'} size={22} color={colors.text} />
+              </Pressable>
             ) : (
               <View style={styles.navLinks}>
                 <View style={styles.langSwitcher}>
@@ -744,11 +739,6 @@ const styles = StyleSheet.create({
   navCta: {
     height: 38,
     paddingHorizontal: spacing.lg,
-  },
-  navCompactRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
   },
   hamburgerButton: {
     width: 38,
