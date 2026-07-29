@@ -116,10 +116,7 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
   return (
     <View>
       <View style={styles.actionsRow}>
-        <Pressable style={styles.newButton} onPress={addItem}>
-          <Feather name="plus" size={16} color="#fff" />
-          <Text style={styles.newButtonText}>Ajouter une ligne</Text>
-        </Pressable>
+        <Button title="Ajouter une ligne" icon="plus" onPress={addItem} />
         {items.length > 0 ? (
           <Button
             title="Créer un devis depuis ce métré"
@@ -220,20 +217,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.md,
     marginBottom: spacing.lg,
-  },
-  newButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  newButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: fontSize.sm,
   },
   itemCard: {
     gap: spacing.sm,
