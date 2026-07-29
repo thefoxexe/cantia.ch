@@ -13,6 +13,7 @@ function TabIcon({ name, color }: { name: IconName; color: unknown }) {
 export default function AppTabsLayout() {
   const { organization } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
+  const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning');
 
   return (
     <Tabs
@@ -37,6 +38,14 @@ export default function AppTabsLayout() {
           title: 'Devis',
           tabBarIcon: ({ color }) => <TabIcon name="file-text" color={color} />,
           href: devisEnabled ? undefined : null,
+        }}
+      />
+      <Tabs.Screen
+        name="planning"
+        options={{
+          title: 'Planning',
+          tabBarIcon: ({ color }) => <TabIcon name="calendar" color={color} />,
+          href: planningEnabled ? undefined : null,
         }}
       />
       <Tabs.Screen

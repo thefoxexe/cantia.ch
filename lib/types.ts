@@ -143,6 +143,19 @@ export interface FeedEntry {
   created_at: string;
 }
 
+export interface PlanningAssignment {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  member_user_id: string;
+  starts_on: string;
+  ends_on: string;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Devis {
   id: string;
   organization_id: string;
