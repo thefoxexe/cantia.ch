@@ -3,8 +3,7 @@ import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Container, Screen } from '../../../components/ui';
-import { SettingsHeader } from '../../../components/SettingsHeader';
+import { Container, PageHeader, Screen } from '../../../components/ui';
 import { TOGGLEABLE_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
@@ -36,7 +35,7 @@ export default function ModulesScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Outils & modules" backTo="/(app)/compte" />
+          <PageHeader title="Outils & modules" backTo="/(app)/compte" />
           <Text style={styles.hint}>
             Désactivez ce que vous n’utilisez pas pour garder une application simple. Rapports reste toujours actif.
           </Text>

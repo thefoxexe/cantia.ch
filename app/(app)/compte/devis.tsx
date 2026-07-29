@@ -3,8 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Container, Field, Screen } from '../../../components/ui';
-import { SettingsHeader } from '../../../components/SettingsHeader';
+import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { DevisTemplatePicker } from '../../../components/DevisTemplatePicker';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
@@ -60,7 +59,7 @@ export default function DevisSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Devis & modèle PDF" backTo="/(app)/compte" />
+          <PageHeader title="Devis & modèle PDF" backTo="/(app)/compte" />
 
           <View style={styles.row2}>
             <View style={styles.row2Item}>

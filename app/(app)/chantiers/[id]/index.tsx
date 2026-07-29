@@ -5,14 +5,14 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { isModuleEnabled } from '../../../../lib/modules';
 import { supabase } from '../../../../lib/supabase';
-import { Card, EmptyState, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectFeed } from '../../../../components/ProjectFeed';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
 import { ProjectMetre } from '../../../../components/ProjectMetre';
 import { FeatureHint } from '../../../../components/FeatureHint';
-import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
 type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'survey' | 'metre';
@@ -66,17 +66,16 @@ export default function ChantierDetailScreen() {
 
   return (
     <Screen>
-      <View style={styles.topBar}>
-        <Pressable onPress={() => router.replace('/(app)/chantiers')} hitSlop={8} style={styles.iconButton}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
-        </Pressable>
-        <Text style={styles.title} numberOfLines={1}>
-          {project.name}
-        </Text>
-        <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/settings`)} hitSlop={8} style={styles.iconButton}>
-          <Feather name="settings" size={20} color={colors.text} />
-        </Pressable>
-      </View>
+      <PageHeader
+        title={project.name}
+        backTo="/(app)/chantiers"
+        style={styles.topBar}
+        right={
+          <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/settings`)} hitSlop={8} style={styles.iconButton}>
+            <Feather name="settings" size={20} color={colors.text} />
+          </Pressable>
+        }
+      />
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
         {visibleTabs.map((t) => (
@@ -96,10 +95,12 @@ export default function ChantierDetailScreen() {
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
           {activeTab === 'reports' ? (
             <View>
-              <Pressable style={styles.newButton} onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}>
-                <Feather name="plus" size={16} color="#fff" />
-                <Text style={styles.newButtonText}>Nouveau rapport de chantier</Text>
-              </Pressable>
+              <Button
+                title="Nouveau rapport de chantier"
+                icon="plus"
+                onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}
+                style={{ marginBottom: spacing.lg }}
+              />
 
               {reports.length === 0 && !loading ? (
                 <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
@@ -189,27 +190,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
     maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
+    marginBottom: 0,
   },
   iconButton: {
     width: 36,
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  title: {
-    flex: 1,
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
   },
   headerRow: {
     flexDirection: 'row',
@@ -264,21 +257,6 @@ const styles = StyleSheet.create({
     right: spacing.md,
     height: 2,
     backgroundColor: colors.primary,
-  },
-  newButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    height: 48,
-    marginBottom: spacing.lg,
-  },
-  newButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: fontSize.md,
   },
   pdfLink: {
     flexDirection: 'row',

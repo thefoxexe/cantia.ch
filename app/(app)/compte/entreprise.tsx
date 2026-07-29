@@ -6,8 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
-import { Button, Container, Field, Screen } from '../../../components/ui';
-import { SettingsHeader } from '../../../components/SettingsHeader';
+import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 export default function EntrepriseScreen() {
@@ -84,7 +83,7 @@ export default function EntrepriseScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Profil entreprise" backTo="/(app)/compte" />
+          <PageHeader title="Profil entreprise" backTo="/(app)/compte" />
 
           <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
           <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />

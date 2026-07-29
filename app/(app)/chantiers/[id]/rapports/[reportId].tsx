@@ -6,7 +6,7 @@ import { supabase } from '../../../../../lib/supabase';
 import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../../lib/api/pdf';
 import { polishReportNotes } from '../../../../../lib/api/ai';
-import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, Container, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
 
@@ -133,12 +133,10 @@ export default function ReportDetailScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.container}>
         <Container>
-          <Button
-            title="Retour"
-            icon="arrow-left"
-            variant="secondary"
-            onPress={() => router.replace(`/(app)/chantiers/${projectId}`)}
-            style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
+          <PageHeader
+            title={report.title}
+            backTo={`/(app)/chantiers/${projectId}`}
+            right={!editing ? <StatusBadge status={report.status} /> : undefined}
           />
 
           <Card>
@@ -167,10 +165,6 @@ export default function ReportDetailScreen() {
               </View>
             ) : (
               <>
-                <View style={styles.headerRow}>
-                  <Text style={styles.title}>{report.title}</Text>
-                  <StatusBadge status={report.status} />
-                </View>
                 <Text style={styles.meta}>{new Date(report.created_at).toLocaleDateString('fr-CH')}</Text>
                 {report.notes ? <Text style={styles.notes}>{report.notes}</Text> : null}
               </>
@@ -245,20 +239,6 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 2,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  title: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
-    color: colors.text,
-    flexShrink: 1,
   },
   meta: {
     fontSize: fontSize.sm,

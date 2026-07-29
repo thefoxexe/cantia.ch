@@ -8,8 +8,7 @@ import { supabase } from '../../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../lib/api/pdf';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
-import { Button, Field, Screen } from '../../../../components/ui';
-import { SettingsHeader } from '../../../../components/SettingsHeader';
+import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface PendingPhoto {
@@ -135,7 +134,7 @@ export default function NewReportScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <SettingsHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}`} />
+        <PageHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}`} />
 
         <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
 

@@ -3,8 +3,7 @@ import { ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Field, Screen } from '../../../components/ui';
-import { SettingsHeader } from '../../../components/SettingsHeader';
+import { Button, Field, PageHeader, Screen } from '../../../components/ui';
 import { spacing } from '../../../lib/theme';
 import { Text } from 'react-native';
 import { colors, fontSize } from '../../../lib/theme';
@@ -47,7 +46,7 @@ export default function NewChantierScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <SettingsHeader title="Nouveau chantier" backTo="/(app)/chantiers" />
+        <PageHeader title="Nouveau chantier" backTo="/(app)/chantiers" />
 
         <Field label="Nom du chantier" value={name} onChangeText={setName} placeholder="Ex : Villa Dupont - Rue du Lac 12" />
         <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />

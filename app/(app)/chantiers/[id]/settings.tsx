@@ -3,8 +3,7 @@ import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { Button, Card, Container, Field, LoadingScreen, Screen } from '../../../../components/ui';
-import { SettingsHeader } from '../../../../components/SettingsHeader';
+import { Button, Card, Container, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { OrganizationMember } from '../../../../lib/types';
 
@@ -105,7 +104,7 @@ export default function ChantierSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Paramètres du chantier" backTo={`/(app)/chantiers/${id}`} />
+          <PageHeader title="Paramètres du chantier" backTo={`/(app)/chantiers/${id}`} />
 
           <Field label="Nom du chantier" value={name} onChangeText={setName} />
           <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />

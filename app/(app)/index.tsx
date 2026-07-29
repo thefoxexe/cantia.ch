@@ -17,6 +17,12 @@ interface Counts {
   devisPending: number;
 }
 
+const TILES: { key: keyof Counts; label: string; icon: IconName }[] = [
+  { key: 'projects', label: 'Chantiers actifs', icon: 'layers' },
+  { key: 'reports', label: 'Rapports', icon: 'file-text' },
+  { key: 'devisPending', label: 'Devis en cours', icon: 'clipboard' },
+];
+
 export default function DashboardScreen() {
   const { organization } = useAuth();
   const router = useRouter();
@@ -62,8 +68,12 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <Text style={styles.hello}>Bonjour</Text>
-        <Text style={styles.org}>{organization?.name}</Text>
+        <View style={styles.helloRow}>
+          <View>
+            <Text style={styles.hello}>Bonjour</Text>
+            <Text style={styles.org}>{organization?.name}</Text>
+          </View>
+        </View>
 
         <FeatureHint
           id="dashboard-welcome"
@@ -73,18 +83,15 @@ export default function DashboardScreen() {
         />
 
         <View style={styles.grid}>
-          <Card style={styles.tile}>
-            <Text style={styles.tileValue}>{counts.projects}</Text>
-            <Text style={styles.tileLabel}>Chantiers actifs</Text>
-          </Card>
-          <Card style={styles.tile}>
-            <Text style={styles.tileValue}>{counts.reports}</Text>
-            <Text style={styles.tileLabel}>Rapports</Text>
-          </Card>
-          <Card style={styles.tile}>
-            <Text style={styles.tileValue}>{counts.devisPending}</Text>
-            <Text style={styles.tileLabel}>Devis en cours</Text>
-          </Card>
+          {TILES.map((tile) => (
+            <Card key={tile.key} style={styles.tile}>
+              <View style={styles.tileIcon}>
+                <Feather name={tile.icon} size={16} color={colors.primary} />
+              </View>
+              <Text style={styles.tileValue}>{counts[tile.key]}</Text>
+              <Text style={styles.tileLabel}>{tile.label}</Text>
+            </Card>
+          ))}
         </View>
 
         <Text style={styles.sectionTitle}>Actions rapides</Text>
@@ -121,6 +128,12 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  helloRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xl,
+  },
   hello: {
     fontSize: fontSize.md,
     color: colors.textMuted,
@@ -129,7 +142,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.xl,
   },
   grid: {
     flexDirection: 'row',
@@ -142,6 +154,15 @@ const styles = StyleSheet.create({
     flexBasis: 96,
     alignItems: 'center',
     paddingVertical: spacing.lg,
+  },
+  tileIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
   },
   tileValue: {
     fontSize: fontSize.xxl,

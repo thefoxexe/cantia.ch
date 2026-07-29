@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -10,6 +10,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
@@ -25,6 +26,40 @@ export function Container({ children, style }: { children: React.ReactNode; styl
 
 export function Card({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
   return <View style={[styles.card, style]}>{children}</View>;
+}
+
+// Reusable back-button + title row, matching what most nested screens need.
+// Tab switches on web can replace history in a way that leaves nothing to
+// pop back to, so router.back() isn't reliable — pass backTo to always land
+// on a known parent screen instead of guessing from history.
+export function PageHeader({
+  title,
+  backTo,
+  right,
+  style,
+}: {
+  title: string;
+  backTo?: string;
+  right?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const router = useRouter();
+  return (
+    <View style={[styles.pageHeader, style]}>
+      <Pressable
+        onPress={() => (backTo ? router.replace(backTo as any) : router.back())}
+        hitSlop={8}
+        style={styles.pageHeaderBack}
+        accessibilityLabel="Retour"
+      >
+        <Feather name="arrow-left" size={20} color={colors.text} />
+      </Pressable>
+      <Text style={styles.pageHeaderTitle} numberOfLines={1}>
+        {title}
+      </Text>
+      {right ? <View style={styles.pageHeaderRight}>{right}</View> : null}
+    </View>
+  );
 }
 
 export function Button({
@@ -56,7 +91,7 @@ export function Button({
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'danger' && styles.buttonDanger,
         isDisabled && styles.buttonDisabled,
-        pressed && !isDisabled && { opacity: 0.85 },
+        pressed && !isDisabled && (variant === 'secondary' ? styles.buttonPressedSecondary : styles.buttonPressed),
         style,
       ]}
     >
@@ -75,12 +110,27 @@ export function Button({
 export function Field({
   label,
   style,
+  onFocus,
+  onBlur,
   ...props
 }: { label: string } & TextInputProps) {
+  const [focused, setFocused] = useState(false);
   return (
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{label}</Text>
-      <TextInput placeholderTextColor={colors.textMuted} style={[styles.input, style]} {...props} />
+      <TextInput
+        placeholderTextColor={colors.textMuted}
+        style={[styles.input, focused && styles.inputFocused, style]}
+        onFocus={(e) => {
+          setFocused(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          onBlur?.(e);
+        }}
+        {...props}
+      />
     </View>
   );
 }
@@ -134,6 +184,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
+    shadowColor: '#0B0F0E',
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 1,
+  },
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  pageHeaderBack: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  pageHeaderTitle: {
+    flex: 1,
+    fontSize: fontSize.xl,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  pageHeaderRight: {
+    flexShrink: 0,
   },
   button: {
     flexDirection: 'row',
@@ -150,6 +230,11 @@ const styles = StyleSheet.create({
   },
   buttonPrimary: {
     backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   buttonSecondary: {
     backgroundColor: colors.surface,
@@ -158,9 +243,23 @@ const styles = StyleSheet.create({
   },
   buttonDanger: {
     backgroundColor: colors.danger,
+    shadowColor: colors.danger,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   buttonDisabled: {
     opacity: 0.5,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  buttonPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
+  },
+  buttonPressedSecondary: {
+    backgroundColor: colors.surfaceAlt,
   },
   buttonText: {
     color: '#fff',
@@ -188,6 +287,10 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     color: colors.text,
     backgroundColor: colors.surface,
+  },
+  inputFocused: {
+    borderColor: colors.primary,
+    borderWidth: 1.5,
   },
   empty: {
     alignItems: 'center',

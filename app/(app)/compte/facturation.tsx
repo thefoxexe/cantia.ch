@@ -6,8 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
 import { openExternalUrl } from '../../../lib/openUrl';
-import { Button, Container, Screen } from '../../../components/ui';
-import { SettingsHeader } from '../../../components/SettingsHeader';
+import { Button, Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
@@ -61,7 +60,7 @@ export default function FacturationScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <SettingsHeader title="Facturation" backTo="/(app)/compte" />
+          <PageHeader title="Facturation" backTo="/(app)/compte" />
 
           <View style={styles.planRow}>
             <Text style={styles.planName}>{plan?.name ?? '—'}</Text>
