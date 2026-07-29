@@ -39,6 +39,9 @@ export default function LandingScreen() {
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
+  const menuItemAnims = useRef(
+    Array.from({ length: 5 }, () => new Animated.Value(0)),
+  ).current;
 
   // Scroll-triggered section reveals: each section registers its own y
   // offset on layout, and the shared scroll handler below fades + lifts it
@@ -106,13 +109,36 @@ export default function LandingScreen() {
   }, [heroAnim]);
 
   useEffect(() => {
-    Animated.timing(menuAnim, {
-      toValue: menuOpen ? 1 : 0,
-      duration: 220,
-      easing: menuOpen ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [menuOpen, menuAnim]);
+    if (menuOpen) {
+      Animated.parallel([
+        Animated.timing(menuAnim, {
+          toValue: 1,
+          duration: 260,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.stagger(
+          55,
+          menuItemAnims.map((v) =>
+            Animated.timing(v, {
+              toValue: 1,
+              duration: 360,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }),
+          ),
+        ),
+      ]).start();
+    } else {
+      Animated.timing(menuAnim, {
+        toValue: 0,
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+      menuItemAnims.forEach((v) => v.setValue(0));
+    }
+  }, [menuOpen, menuAnim, menuItemAnims]);
 
   const scrollToPricing = useCallback(() => {
     setMenuOpen(false);
@@ -406,17 +432,14 @@ export default function LandingScreen() {
 
         {isCompactNav ? (
           <Modal visible={menuOpen} animationType="none" transparent onRequestClose={() => setMenuOpen(false)}>
-            <Animated.View style={[styles.menuBackdrop, { opacity: menuAnim }]}>
-              <Pressable style={StyleSheet.absoluteFill} onPress={() => setMenuOpen(false)} />
-            </Animated.View>
             <Animated.View
               style={[
-                styles.mobileMenu,
+                styles.mobileMenuFull,
                 {
                   opacity: menuAnim,
                   transform: [
                     {
-                      translateY: menuAnim.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }),
+                      translateY: menuAnim.interpolate({ inputRange: [0, 1], outputRange: [-24, 0] }),
                     },
                   ],
                 },
@@ -428,41 +451,63 @@ export default function LandingScreen() {
                   <Text style={styles.navBrand}>Opus-Flow</Text>
                 </View>
                 <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel="Fermer">
-                  <Feather name="x" size={20} color={colors.text} />
+                  <Feather name="x" size={22} color={colors.text} />
                 </Pressable>
               </View>
 
-              <Pressable onPress={scrollToServices} style={styles.mobileMenuItem}>
-                <Feather name="grid" size={17} color={colors.primary} />
-                <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
-                <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-              </Pressable>
-              <Pressable onPress={scrollToPricing} style={styles.mobileMenuItem}>
-                <Feather name="tag" size={17} color={colors.primary} />
-                <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
-                <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-              </Pressable>
-              <Link href="/(auth)/login" asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="log-in" size={17} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
-
-              <Link href="/(auth)/signup" asChild>
-                <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
-              </Link>
-
-              <View style={styles.mobileMenuLangRow}>
-                <View style={styles.langSwitcher}>
-                  {LANGUAGES.map((l) => (
-                    <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
-                      <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+              <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
+                <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} icon="grid" label={t.nav.services} />
+                <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} icon="tag" label={t.nav.pricing} />
+                <Animated.View
+                  style={{
+                    opacity: menuItemAnims[2],
+                    transform: [
+                      { translateY: menuItemAnims[2].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                    ],
+                  }}
+                >
+                  <Link href="/(auth)/login" asChild>
+                    <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                      <Feather name="log-in" size={18} color={colors.primary} />
+                      <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
+                      <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                     </Pressable>
-                  ))}
-                </View>
-              </View>
+                  </Link>
+                </Animated.View>
+
+                <Animated.View
+                  style={{
+                    opacity: menuItemAnims[3],
+                    transform: [
+                      { translateY: menuItemAnims[3].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                    ],
+                  }}
+                >
+                  <Link href="/(auth)/signup" asChild>
+                    <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
+                  </Link>
+                </Animated.View>
+
+                <Animated.View
+                  style={[
+                    styles.mobileMenuLangRow,
+                    {
+                      opacity: menuItemAnims[4],
+                      transform: [
+                        { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      ],
+                    },
+                  ]}
+                >
+                  <View style={styles.langSwitcher}>
+                    {LANGUAGES.map((l) => (
+                      <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
+                        <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </Animated.View>
+              </ScrollView>
             </Animated.View>
           </Modal>
         ) : null}
@@ -506,6 +551,33 @@ function Reveal({
       ]}
     >
       {children}
+    </Animated.View>
+  );
+}
+
+function MenuItem({
+  anim,
+  icon,
+  label,
+  onPress,
+}: {
+  anim: Animated.Value;
+  icon: React.ComponentProps<typeof Feather>['name'];
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Animated.View
+      style={{
+        opacity: anim,
+        transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
+      }}
+    >
+      <Pressable style={styles.mobileMenuItem} onPress={onPress}>
+        <Feather name={icon} size={18} color={colors.primary} />
+        <Text style={styles.mobileMenuText}>{label}</Text>
+        <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+      </Pressable>
     </Animated.View>
   );
 }
@@ -687,50 +759,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuBackdrop: {
+  mobileMenuFull: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(15, 20, 18, 0.45)',
-  },
-  mobileMenu: {
-    position: 'absolute',
-    top: spacing.xl,
-    left: spacing.md,
-    right: spacing.md,
     backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    gap: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.16,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 14 },
   },
   mobileMenuHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: spacing.md,
-    marginBottom: spacing.sm,
+    paddingTop: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  mobileMenuBody: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xxl,
+    flexGrow: 1,
   },
   mobileMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   mobileMenuText: {
     flex: 1,
-    fontSize: fontSize.md,
+    fontSize: fontSize.lg,
     fontWeight: '600',
     color: colors.text,
   },
@@ -738,10 +801,10 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   mobileMenuCta: {
-    marginTop: spacing.lg,
+    marginTop: spacing.xl,
   },
   mobileMenuLangRow: {
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
   },
