@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
+import { openExternalUrl } from '../../lib/openUrl';
 import { Button, Card, Screen } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
@@ -29,19 +30,29 @@ export default function ChoosePlanScreen() {
     setError(null);
     setBusyPlan(planId);
 
-    // The choice is locked in the moment you pick a plan — you can always
-    // upgrade, downgrade or cancel later from Facturation, but this gate
-    // only ever needs to be crossed once.
-    await supabase.from('organizations').update({ plan_selected: true }).eq('id', organization.id);
-    await refreshOrganization();
-
+    // Fetch the Stripe URL before touching plan_selected: flipping that
+    // flag first triggers the root layout's redirect away from this screen,
+    // which raced the checkout request and left Stripe's tab never opened.
     const { url, error: err } = await startCheckout(planId);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? 'Impossible de démarrer le paiement.');
       return;
     }
-    Linking.openURL(url);
+
+    // The choice is locked in the moment you pick a plan — you can always
+    // upgrade, downgrade or cancel later from Facturation, but this gate
+    // only ever needs to be crossed once.
+    await supabase.from('organizations').update({ plan_selected: true }).eq('id', organization.id);
+
+    if (Platform.OS === 'web') {
+      // Leaving the SPA for Stripe entirely — no need to refresh local state
+      // first, the app reloads fresh on return.
+      openExternalUrl(url);
+    } else {
+      await refreshOrganization();
+      openExternalUrl(url);
+    }
   }
 
   async function stayFree() {

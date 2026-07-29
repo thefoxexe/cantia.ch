@@ -7,6 +7,7 @@ import { colors, fontSize, spacing } from '../../lib/theme';
 
 export default function SignupScreen() {
   const { signUp } = useAuth();
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -15,12 +16,16 @@ export default function SignupScreen() {
 
   async function handleSubmit() {
     setError(null);
+    if (!fullName.trim()) {
+      setError('Votre nom est requis.');
+      return;
+    }
     if (password.length < 6) {
       setError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email.trim(), password);
+    const { error } = await signUp(email.trim(), password, fullName.trim());
     setLoading(false);
     if (error) {
       setError(error);
@@ -54,6 +59,13 @@ export default function SignupScreen() {
           <Text style={styles.subtitle}>Créez votre compte</Text>
 
           <View style={styles.form}>
+            <Field
+              label="Nom complet"
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Ex : Bastien Ryser"
+              autoCapitalize="words"
+            />
             <Field
               label="E-mail"
               autoCapitalize="none"

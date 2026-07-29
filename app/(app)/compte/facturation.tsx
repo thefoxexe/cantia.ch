@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
+import { openExternalUrl } from '../../../lib/openUrl';
 import { Button, Container, Screen } from '../../../components/ui';
 import { SettingsHeader } from '../../../components/SettingsHeader';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -42,7 +43,7 @@ export default function FacturationScreen() {
         setError(err ?? "Impossible d'ouvrir la gestion de l'abonnement.");
         return;
       }
-      Linking.openURL(url);
+      openExternalUrl(url);
       return;
     }
 
@@ -53,7 +54,7 @@ export default function FacturationScreen() {
       setError(err ?? 'Impossible de démarrer le paiement.');
       return;
     }
-    Linking.openURL(url);
+    openExternalUrl(url);
   }
 
   return (
