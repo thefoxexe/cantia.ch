@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { LanguageProvider } from '../lib/i18n';
 import { getPendingInvite } from '../lib/pendingInvite';
+import { isAppHost } from '../lib/appHost';
 
 function RootNavigation() {
   const { session, organization, loading } = useAuth();
@@ -42,6 +43,10 @@ function RootNavigation() {
         router.replace('/(auth)/onboarding');
       }
     } else if (inAppGroup) {
+      router.replace('/(auth)/login');
+    } else if (isLanding && isAppHost()) {
+      // app.cantia.ch never shows the marketing landing page — an anonymous
+      // visitor there lands straight on the login screen instead.
       router.replace('/(auth)/login');
     }
   }, [session, organization, loading, pendingInvite, segments, router]);

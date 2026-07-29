@@ -19,6 +19,7 @@ import { Button, Screen } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { useLanguage, planLabel, LANGUAGES, type Lang } from '../lib/i18n';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
+import { authHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -184,10 +185,10 @@ export default function LandingScreen() {
                 <Text style={styles.headline}>{t.hero.headline}</Text>
                 <Text style={styles.subheadline}>{t.hero.subheadline}</Text>
                 <View style={styles.ctaRow}>
-                  <Link href="/(auth)/signup" asChild>
+                  <Link href={authHref('signup')} asChild>
                     <Button title={t.hero.cta1} onPress={() => {}} style={styles.ctaButton} />
                   </Link>
-                  <Link href="/(auth)/login" asChild>
+                  <Link href={authHref('login')} asChild>
                     <Button title={t.hero.cta2} onPress={() => {}} variant="secondary" style={styles.ctaButton} />
                   </Link>
                 </View>
@@ -291,7 +292,7 @@ export default function LandingScreen() {
                     <PriceFeature text={t.pricing.unlimited} />
                     <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
                   </View>
-                  <Link href="/(auth)/signup" asChild>
+                  <Link href={authHref('signup')} asChild>
                     <Button
                       title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
                       onPress={() => {}}
@@ -328,7 +329,7 @@ export default function LandingScreen() {
           <Reveal id="finalCta" getAnim={getSectionAnim} onRegister={registerSection} style={styles.finalCtaOuter} from={18}>
             <View style={styles.finalCta}>
               <Text style={styles.finalCtaTitle}>{t.finalCta.title}</Text>
-              <Link href="/(auth)/signup" asChild>
+              <Link href={authHref('signup')} asChild>
                 <Button
                   title={t.finalCta.button}
                   onPress={() => {}}
@@ -359,10 +360,10 @@ export default function LandingScreen() {
               </View>
               <View style={styles.footerCol}>
                 <Text style={styles.footerColTitle}>{t.footer.account}</Text>
-                <Link href="/(auth)/login">
+                <Link href={authHref('login')}>
                   <Text style={styles.footerLink}>{t.footer.login}</Text>
                 </Link>
-                <Link href="/(auth)/signup">
+                <Link href={authHref('signup')}>
                   <Text style={styles.footerLink}>{t.footer.signup}</Text>
                 </Link>
               </View>
@@ -414,10 +415,10 @@ export default function LandingScreen() {
                 <Pressable onPress={scrollToPricing}>
                   <Text style={styles.navLink}>{t.nav.pricing}</Text>
                 </Pressable>
-                <Link href="/(auth)/login">
+                <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
                 </Link>
-                <Link href="/(auth)/signup" asChild>
+                <Link href={authHref('signup')} asChild>
                   <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
                 </Link>
               </View>
@@ -461,7 +462,7 @@ export default function LandingScreen() {
                     ],
                   }}
                 >
-                  <Link href="/(auth)/login" asChild>
+                  <Link href={authHref('login')} asChild>
                     <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                       <Feather name="log-in" size={18} color={colors.primary} />
                       <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
@@ -478,7 +479,7 @@ export default function LandingScreen() {
                     ],
                   }}
                 >
-                  <Link href="/(auth)/signup" asChild>
+                  <Link href={authHref('signup')} asChild>
                     <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
                   </Link>
                 </Animated.View>
