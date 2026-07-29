@@ -15,7 +15,7 @@ Deno.serve(async (req: Request) => {
     if (!stripeKey) {
       return json({ error: "Le paiement en ligne n'est pas encore configuré côté serveur." }, 500);
     }
-    const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', httpClient: Stripe.createFetchHttpClient() });
+    const stripe = new Stripe(stripeKey, { apiVersion: '2025-03-31.basil', httpClient: Stripe.createFetchHttpClient() });
 
     const { plan_id, success_url, cancel_url } = await req.json();
     if (!plan_id) return json({ error: 'plan_id requis' }, 400);

@@ -8,7 +8,7 @@ Deno.serve(async (req: Request) => {
     console.error('Stripe secrets not configured');
     return new Response('Stripe not configured', { status: 500 });
   }
-  const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', httpClient: Stripe.createFetchHttpClient() });
+  const stripe = new Stripe(stripeKey, { apiVersion: '2025-03-31.basil', httpClient: Stripe.createFetchHttpClient() });
 
   const signature = req.headers.get('stripe-signature');
   const body = await req.text();
