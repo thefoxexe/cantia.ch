@@ -13,6 +13,7 @@ import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface PendingPhoto {
+  id: string;
   uri: string;
   mimeType: string | null;
   caption: string;
@@ -39,12 +40,18 @@ export default function NewReportScreen() {
     }
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
     if (result.canceled || !result.assets?.length) return;
-    const coords = await captureLocation();
     const asset = result.assets![0];
+    const id = `${Date.now()}-${Math.random()}`;
+    // Adding the photo to the list shouldn't wait on a GPS fix, which can
+    // take several seconds — show it right away and fill in coordinates
+    // once captureLocation() resolves.
     setPhotos((prev) => [
       ...prev,
-      { uri: asset.uri, mimeType: asset.mimeType ?? null, caption: '', ...coords, takenAt: new Date().toISOString() },
+      { id, uri: asset.uri, mimeType: asset.mimeType ?? null, caption: '', latitude: null, longitude: null, takenAt: new Date().toISOString() },
     ]);
+    captureLocation().then((coords) => {
+      setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, ...coords } : p)));
+    });
   }
 
   async function addFromGallery() {
@@ -56,6 +63,7 @@ export default function NewReportScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsMultipleSelection: true, exif: true });
     if (result.canceled || !result.assets?.length) return;
     const added = result.assets.map((a) => ({
+      id: `${Date.now()}-${Math.random()}`,
       uri: a.uri,
       mimeType: a.mimeType ?? null,
       caption: '',

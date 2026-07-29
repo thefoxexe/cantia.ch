@@ -121,11 +121,24 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stagedPhotos.length, showStackReview]);
 
+  // Appends a just-sent entry straight into local state instead of
+  // re-fetching the whole feed + re-signing every photo URL — the send
+  // already has everything needed to show it immediately, so a photo
+  // shouldn't take a full reload's worth of network round trips just to
+  // appear. For photos, the local picker URI is reused directly since it's
+  // the exact same file that was just uploaded.
+  function appendSentEntry(entry: FeedEntry, localUri?: string) {
+    setEntries((prev) => [...prev, entry]);
+    if (localUri && entry.storage_path) {
+      setUrls((prev) => ({ ...prev, [entry.storage_path!]: localUri }));
+    }
+  }
+
   async function sendNote() {
     if (!organization || !text.trim() || sending) return;
     setSending(true);
     setError(null);
-    const { error: err } = await addNoteEntry({
+    const { error: err, entry } = await addNoteEntry({
       organizationId: organization.id,
       projectId,
       userId: user?.id,
@@ -137,7 +150,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       return;
     }
     setText('');
-    load();
+    if (entry) appendSentEntry(entry);
   }
 
   async function takePhoto() {
@@ -149,16 +162,24 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
     if (result.canceled || !result.assets?.length) return;
     const asset = result.assets[0];
-    const coords = await captureLocation();
+    const id = `${Date.now()}-${Math.random()}`;
     setQuickError(null);
+    // Show the popup immediately with the shot — GPS fixes can take several
+    // seconds, and blocking the popup on `captureLocation()` was the reason
+    // it felt slow to appear after pressing the shutter. Coordinates are
+    // filled in once available instead.
     setQuickPhoto({
-      id: `${Date.now()}-${Math.random()}`,
+      id,
       uri: asset.uri,
       mimeType: asset.mimeType ?? null,
       caption: '',
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      latitude: null,
+      longitude: null,
       takenAt: new Date().toISOString(),
+    });
+    captureLocation().then((coords) => {
+      setQuickPhoto((p) => (p && p.id === id ? { ...p, ...coords } : p));
+      setStagedPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, ...coords } : p)));
     });
   }
 
@@ -212,7 +233,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     if (!organization || !quickPhoto || quickSending) return;
     setQuickSending(true);
     setQuickError(null);
-    const { error: err } = await addPhotoEntry({
+    const { error: err, entry } = await addPhotoEntry({
       organizationId: organization.id,
       projectId,
       userId: user?.id,
@@ -228,8 +249,8 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       setQuickError(err);
       return;
     }
+    if (entry) appendSentEntry(entry, quickPhoto.uri);
     setQuickPhoto(null);
-    load();
   }
 
   function openStackReview() {
@@ -257,7 +278,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     let remaining = stagedPhotos;
     while (remaining.length > 0) {
       const photo = remaining[0];
-      const { error: err } = await addPhotoEntry({
+      const { error: err, entry } = await addPhotoEntry({
         organizationId: organization.id,
         projectId,
         userId: user?.id,
@@ -274,12 +295,12 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         setSendingPhotos(false);
         return;
       }
+      if (entry) appendSentEntry(entry, photo.uri);
       remaining = remaining.slice(1);
       setStagedPhotos(remaining);
     }
     setSendingPhotos(false);
     setShowStackReview(false);
-    load();
   }
 
   function toggleSelecting() {

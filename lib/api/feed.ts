@@ -18,15 +18,19 @@ export async function addNoteEntry(params: {
   projectId: string;
   userId: string | undefined;
   body: string;
-}): Promise<{ error: string | null }> {
-  const { error } = await supabase.from('feed_entries').insert({
-    organization_id: params.organizationId,
-    project_id: params.projectId,
-    type: 'note',
-    body: params.body.trim(),
-    created_by: params.userId,
-  });
-  return { error: error?.message ?? null };
+}): Promise<{ error: string | null; entry: FeedEntry | null }> {
+  const { data, error } = await supabase
+    .from('feed_entries')
+    .insert({
+      organization_id: params.organizationId,
+      project_id: params.projectId,
+      type: 'note',
+      body: params.body.trim(),
+      created_by: params.userId,
+    })
+    .select()
+    .single();
+  return { error: error?.message ?? null, entry: data ?? null };
 }
 
 export async function addPhotoEntry(params: {
@@ -39,24 +43,28 @@ export async function addPhotoEntry(params: {
   latitude: number | null;
   longitude: number | null;
   takenAt: string;
-}): Promise<{ error: string | null }> {
+}): Promise<{ error: string | null; entry: FeedEntry | null }> {
   const { ext, contentType } = assetFileInfo(params);
   const subPath = `feed/${params.projectId}/${Date.now()}.${ext}`;
   const { path, error: uploadError } = await uploadToOrgBucket(params.organizationId, subPath, params.uri, contentType);
-  if (!path) return { error: uploadError ?? "Échec de l'envoi de la photo" };
+  if (!path) return { error: uploadError ?? "Échec de l'envoi de la photo", entry: null };
 
-  const { error } = await supabase.from('feed_entries').insert({
-    organization_id: params.organizationId,
-    project_id: params.projectId,
-    type: 'photo',
-    storage_path: path,
-    caption: params.caption.trim() || null,
-    latitude: params.latitude,
-    longitude: params.longitude,
-    taken_at: params.takenAt,
-    created_by: params.userId,
-  });
-  return { error: error?.message ?? null };
+  const { data, error } = await supabase
+    .from('feed_entries')
+    .insert({
+      organization_id: params.organizationId,
+      project_id: params.projectId,
+      type: 'photo',
+      storage_path: path,
+      caption: params.caption.trim() || null,
+      latitude: params.latitude,
+      longitude: params.longitude,
+      taken_at: params.takenAt,
+      created_by: params.userId,
+    })
+    .select()
+    .single();
+  return { error: error?.message ?? null, entry: data ?? null };
 }
 
 export async function deleteFeedEntry(id: string): Promise<{ error: string | null }> {
