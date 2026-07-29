@@ -24,8 +24,10 @@ const TILES: { key: keyof Counts; label: string; icon: IconName }[] = [
 ];
 
 export default function DashboardScreen() {
-  const { organization } = useAuth();
+  const { organization, user } = useAuth();
   const router = useRouter();
+  const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
+  const firstName = fullName?.trim().split(' ')[0] || null;
   const [counts, setCounts] = useState<Counts>({ projects: 0, reports: 0, devisPending: 0 });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -70,7 +72,7 @@ export default function DashboardScreen() {
       >
         <View style={styles.helloRow}>
           <View>
-            <Text style={styles.hello}>Bonjour</Text>
+            <Text style={styles.hello}>{firstName ? `Salut ${firstName}` : 'Salut'}</Text>
             <Text style={styles.org}>{organization?.name}</Text>
           </View>
         </View>

@@ -85,7 +85,12 @@ export function DevisTemplatePicker({
         {DEVIS_TEMPLATES.map((t) => {
           const active = value === t.id;
           return (
-            <Pressable key={t.id} onPress={() => onChange(t.id)} disabled={disabled}>
+            <Pressable
+              key={t.id}
+              onPress={() => onChange(t.id)}
+              disabled={disabled}
+              style={compact ? styles.cardWrapCompact : styles.cardWrap}
+            >
               <Card style={[styles.card, compact && styles.cardCompact, active && styles.cardActive]}>
                 <View style={styles.preview}>
                   <TemplateSwatch kind={t.id} />
@@ -163,17 +168,23 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.lg,
   },
-  // Non-compact cards fill the available width in a responsive 2-up grid
-  // (1-up on narrow screens) instead of a fixed 168px thumbnail — the old
-  // fixed width left four small tiles bunched in a single row on wide
-  // screens, wasting the rest of the page.
-  card: {
+  // The sizing constraints live on the Pressable (the actual flex item
+  // inside `grid`), not on the Card it wraps — a View's flexGrow/flexBasis
+  // only affects layout when applied to the flex child itself. Non-compact
+  // cards fill the available width in a responsive 2-up grid (1-up on
+  // narrow screens) instead of a fixed thumbnail.
+  cardWrap: {
     flexGrow: 1,
     flexBasis: 260,
     minWidth: 220,
   },
-  cardCompact: {
+  cardWrapCompact: {
     width: 120,
+  },
+  card: {
+    flex: 1,
+  },
+  cardCompact: {
     padding: spacing.sm,
   },
   cardActive: {

@@ -8,20 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../lib/api/storage';
 import { Button, Field, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-
-const TRADES = [
-  'Génie civil',
-  'Maçonnerie',
-  'Serrurerie',
-  'Électricité',
-  'Plomberie / Sanitaire',
-  'Menuiserie / Charpente',
-  'Peinture',
-  'Carrelage',
-  'Chauffage / Ventilation',
-  'Paysagisme',
-  'Autre',
-];
+import { TRADES } from '../../../lib/trades';
 
 export default function CreateOrganizationScreen() {
   const { user, createOrganization, refreshOrganization } = useAuth();

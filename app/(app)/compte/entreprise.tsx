@@ -8,10 +8,12 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { TRADES } from '../../../lib/trades';
 
 export default function EntrepriseScreen() {
   const { organization, role, refreshOrganization } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
+  const [trade, setTrade] = useState(organization?.trade ?? null);
   const [address, setAddress] = useState(organization?.address ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
   const [phone, setPhone] = useState(organization?.phone ?? '');
@@ -25,6 +27,7 @@ export default function EntrepriseScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setName(organization.name);
+    setTrade(organization.trade ?? null);
     setAddress(organization.address ?? '');
     setIdeNumber(organization.ide_number ?? '');
     setPhone(organization.phone ?? '');
@@ -47,6 +50,7 @@ export default function EntrepriseScreen() {
       .from('organizations')
       .update({
         name: name.trim(),
+        trade,
         address: address.trim() || null,
         ide_number: ideNumber.trim() || null,
         phone: phone.trim() || null,
@@ -86,6 +90,20 @@ export default function EntrepriseScreen() {
           <PageHeader title="Profil entreprise" backTo="/(app)/compte" />
 
           <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
+
+          <Text style={styles.fieldLabel}>Métier</Text>
+          <View style={styles.chips}>
+            {TRADES.map((t) => (
+              <Pressable
+                key={t}
+                onPress={() => isAdmin && setTrade(t)}
+                style={[styles.chip, trade === t && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, trade === t && styles.chipTextActive]}>{t}</Text>
+              </Pressable>
+            ))}
+          </View>
+
           <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
           <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
           <View style={styles.row2}>
@@ -166,6 +184,38 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xxl,
     marginBottom: spacing.md,
+  },
+  fieldLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+    fontWeight: '500',
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  chip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  chipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  chipText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  chipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   row2: {
     flexDirection: 'row',
