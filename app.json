@@ -22,6 +22,13 @@
         {
           "locationWhenInUsePermission": "Cantia géolocalise vos photos de chantier pour vos rapports."
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Cantia utilise le microphone pour dicter vos rapports de chantier.",
+          "speechRecognitionPermission": "Cantia utilise la reconnaissance vocale pour transcrire vos rapports dictés."
+        }
       ]
     ],
     "ios": {

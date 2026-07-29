@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,6 +9,7 @@ import { uploadToOrgBucket } from '../../../../lib/api/storage';
 import { assetFileInfo } from '../../../../lib/imageAsset';
 import { generateReportPdf } from '../../../../lib/api/pdf';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
+import { useDictation } from '../../../../lib/useDictation';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -31,6 +32,26 @@ export default function NewReportScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<string | null>(null);
+
+  // Notes present before dictation started, so the live transcript is
+  // appended rather than overwriting anything already typed.
+  const notesBaseRef = useRef('');
+  const dictation = useDictation((sessionTranscript) => {
+    const base = notesBaseRef.current;
+    setNotes(base + (base && sessionTranscript ? ' ' : '') + sessionTranscript);
+  });
+
+  async function toggleDictation() {
+    if (dictation.listening) {
+      dictation.stop();
+      return;
+    }
+    notesBaseRef.current = notes;
+    const started = await dictation.start('fr-FR');
+    if (!started) {
+      Alert.alert('Permission requise', "Autorisez l'accès au microphone pour dicter votre rapport.");
+    }
+  }
 
   async function addFromCamera() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
@@ -149,7 +170,20 @@ export default function NewReportScreen() {
 
         <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
 
-        <Text style={styles.fieldLabel}>Notes</Text>
+        <View style={styles.notesLabelRow}>
+          <Text style={styles.fieldLabel}>Notes</Text>
+          {dictation.supported ? (
+            <Pressable
+              onPress={toggleDictation}
+              style={[styles.dictateButton, dictation.listening && styles.dictateButtonActive]}
+            >
+              <Feather name="mic" size={13} color={dictation.listening ? '#fff' : colors.primary} />
+              <Text style={[styles.dictateButtonText, dictation.listening && styles.dictateButtonTextActive]}>
+                {dictation.listening ? 'Écoute…' : 'Dicter'}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
         <TextInput
           style={styles.notes}
           value={notes}
@@ -216,6 +250,34 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.xs,
     fontWeight: '500',
+  },
+  notesLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dictateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    marginBottom: spacing.xs,
+  },
+  dictateButtonActive: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
+  },
+  dictateButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  dictateButtonTextActive: {
+    color: '#fff',
   },
   notes: {
     minHeight: 100,
