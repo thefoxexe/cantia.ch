@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { LanguageProvider } from '../lib/i18n';
 import { getPendingInvite } from '../lib/pendingInvite';
-import { isAppHost } from '../lib/appHost';
+import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
 
 function RootNavigation() {
   const { session, organization, loading } = useAuth();
@@ -17,6 +17,10 @@ function RootNavigation() {
 
   useEffect(() => {
     getPendingInvite().then(setPendingInvite);
+  }, []);
+
+  useEffect(() => {
+    excludeAppHostFromIndexing();
   }, []);
 
   // The landing page and auth screens render immediately regardless of

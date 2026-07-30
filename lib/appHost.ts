@@ -25,6 +25,20 @@ export function isAppHost(): boolean {
   return hostname() === APP_HOST;
 }
 
+// cantia.ch and app.cantia.ch are one static export (see the comment up
+// top), so app/+html.tsx can't give app.cantia.ch a different <head> at
+// build time — it has to opt itself out of indexing at runtime instead.
+// Safe to call on every platform: a no-op off-web or on the marketing host.
+export function excludeAppHostFromIndexing(): void {
+  if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+  if (!isAppHost()) return;
+  if (document.querySelector('meta[name="robots"]')) return;
+  const meta = document.createElement('meta');
+  meta.name = 'robots';
+  meta.content = 'noindex, nofollow';
+  document.head.appendChild(meta);
+}
+
 // Href for the "Se connecter" / "Créer un compte" links on the marketing
 // site: on cantia.ch these must cross over to app.cantia.ch (the browser
 // address bar should end up there); everywhere else, keep the normal
