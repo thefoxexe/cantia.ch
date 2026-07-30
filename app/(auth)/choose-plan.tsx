@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
-import { openExternalUrl } from '../../lib/openUrl';
+import { openCheckoutUrl } from '../../lib/openUrl';
 import { Button, Card, Screen } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
@@ -48,11 +48,18 @@ export default function ChoosePlanScreen() {
     if (Platform.OS === 'web') {
       // Leaving the SPA for Stripe entirely — no need to refresh local state
       // first, the app reloads fresh on return.
-      openExternalUrl(url);
-    } else {
-      await refreshOrganization();
-      openExternalUrl(url);
+      openCheckoutUrl(url);
+      return;
     }
+
+    await refreshOrganization();
+    // On native this opens an in-app browser sheet and waits for it to close
+    // (either Stripe redirecting back to our app, or the user dismissing it
+    // manually) instead of handing off to an external browser with no way
+    // back — see lib/openUrl.ts.
+    await openCheckoutUrl(url);
+    await refreshOrganization();
+    setBusyPlan(null);
   }
 
   async function stayFree() {

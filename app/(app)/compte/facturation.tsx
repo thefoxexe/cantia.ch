@@ -5,13 +5,13 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
-import { openExternalUrl } from '../../../lib/openUrl';
+import { openCheckoutUrl } from '../../../lib/openUrl';
 import { Button, Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
 export default function FacturationScreen() {
-  const { organization, role } = useAuth();
+  const { organization, role, refreshOrganization } = useAuth();
   const [plan, setPlan] = useState<Plan | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,23 +37,29 @@ export default function FacturationScreen() {
     if (hasActiveSubscription) {
       setBusy(true);
       const { url, error: err } = await openBillingPortal();
-      setBusy(false);
       if (err || !url) {
+        setBusy(false);
         setError(err ?? "Impossible d'ouvrir la gestion de l'abonnement.");
         return;
       }
-      openExternalUrl(url);
+      await openCheckoutUrl(url);
+      await refreshOrganization();
+      await load();
+      setBusy(false);
       return;
     }
 
     setBusy(true);
     const { url, error: err } = await startCheckout('solo');
-    setBusy(false);
     if (err || !url) {
+      setBusy(false);
       setError(err ?? 'Impossible de démarrer le paiement.');
       return;
     }
-    openExternalUrl(url);
+    await openCheckoutUrl(url);
+    await refreshOrganization();
+    await load();
+    setBusy(false);
   }
 
   return (
