@@ -17,12 +17,14 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Network from 'expo-network';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { getSignedUrls } from '../lib/api/storage';
-import { addNoteEntry, addPhotoEntry, generateReportFromFeed, listFeedEntries } from '../lib/api/feed';
+import { addNoteEntry, addPhotoEntry, addVoiceEntry, generateReportFromFeed, listFeedEntries } from '../lib/api/feed';
 import { captureLocation, exifCoords, exifTakenAt } from '../lib/geo';
+import { useVoiceRecorder } from '../lib/useVoiceRecorder';
 import {
   enqueuePhoto,
   flushPhotoQueue,
@@ -47,6 +49,13 @@ interface StagedPhoto {
 
 type FeedListItem = { kind: 'entry'; entry: FeedEntry } | { kind: 'pending'; photo: QueuedPhoto };
 
+function formatDuration(seconds: number | null | undefined): string {
+  const total = Math.max(0, seconds ?? 0);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
 export function ProjectFeed({ projectId }: { projectId: string }) {
   const { organization, user } = useAuth();
   const router = useRouter();
@@ -59,6 +68,17 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [composerHeight, setComposerHeight] = useState(72);
+
+  // Real voice messages: recorder gives a playable audio file plus a live
+  // transcript (see lib/useVoiceRecorder.ts for the platform split), and a
+  // single shared player instance handles playback for whichever bubble is
+  // currently playing.
+  const voiceRecorder = useVoiceRecorder();
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [sendingVoice, setSendingVoice] = useState(false);
+  const [playingEntryId, setPlayingEntryId] = useState<string | null>(null);
+  const player = useAudioPlayer();
+  const playerStatus = useAudioPlayerStatus(player);
 
   // The "pile" of captured/picked photos not yet sent — shown as a
   // fanned stack bottom-left, reviewed/sent via the swipeable modal.
@@ -187,6 +207,64 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     if (localUri && entry.storage_path) {
       setUrls((prev) => ({ ...prev, [entry.storage_path!]: localUri }));
     }
+  }
+
+  useEffect(() => {
+    if (playerStatus.didJustFinish) setPlayingEntryId(null);
+  }, [playerStatus.didJustFinish]);
+
+  function togglePlayback(entry: FeedEntry) {
+    if (!entry.storage_path) return;
+    const url = urls[entry.storage_path];
+    if (!url) return;
+    if (playingEntryId === entry.id) {
+      player.pause();
+      setPlayingEntryId(null);
+      return;
+    }
+    player.replace(url);
+    player.play();
+    setPlayingEntryId(entry.id);
+  }
+
+  async function startVoiceRecording() {
+    setVoiceError(null);
+    const started = await voiceRecorder.start();
+    if (!started) {
+      Alert.alert('Permission requise', "Autorisez l'accès au microphone pour envoyer un message vocal.");
+    }
+  }
+
+  function cancelVoiceRecording() {
+    voiceRecorder.cancel();
+  }
+
+  async function stopAndSendVoice() {
+    if (!organization) return;
+    const recording = await voiceRecorder.stop();
+    if (!recording) {
+      setVoiceError("Échec de l'enregistrement du message vocal.");
+      return;
+    }
+    setSendingVoice(true);
+    const { error: err, entry } = await addVoiceEntry({
+      organizationId: organization.id,
+      projectId,
+      userId: user?.id,
+      uri: recording.uri,
+      mimeType: recording.mimeType,
+      durationSeconds: recording.durationSeconds,
+      transcript: recording.transcript,
+      latitude: null,
+      longitude: null,
+      takenAt: new Date().toISOString(),
+    });
+    setSendingVoice(false);
+    if (err) {
+      setVoiceError(err);
+      return;
+    }
+    if (entry) appendSentEntry(entry, recording.uri);
   }
 
   async function sendNote() {
@@ -491,6 +569,21 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
           </View>
           {entry.type === 'note' ? (
             <Text style={styles.bubbleText}>{entry.body}</Text>
+          ) : entry.type === 'voice' ? (
+            <View>
+              <Pressable onPress={() => togglePlayback(entry)} style={styles.voiceRow} hitSlop={6}>
+                <View style={styles.voicePlayButton}>
+                  <Feather
+                    name={playingEntryId === entry.id && playerStatus.playing ? 'pause' : 'play'}
+                    size={14}
+                    color="#fff"
+                  />
+                </View>
+                <View style={styles.voiceWave} />
+                <Text style={styles.voiceDuration}>{formatDuration(entry.duration_seconds)}</Text>
+              </Pressable>
+              {entry.transcript ? <Text style={styles.voiceTranscript}>{entry.transcript}</Text> : null}
+            </View>
           ) : (
             <View>
               {urls[entry.storage_path ?? ''] ? (
@@ -635,29 +728,55 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
       {!selecting ? (
         <View style={styles.composer} onLayout={(e) => setComposerHeight(e.nativeEvent.layout.height)}>
-          <TextInput
-            style={styles.composerInput}
-            value={text}
-            onChangeText={setText}
-            placeholder="Décrivez l'avancement, une remarque…"
-            placeholderTextColor={colors.textMuted}
-            multiline
-          />
-          <View style={styles.composerActions}>
-            <Pressable style={styles.composerIconButton} onPress={takePhoto} disabled={sending}>
-              <Feather name="camera" size={18} color={colors.text} />
-            </Pressable>
-            <Pressable style={styles.composerIconButton} onPress={pickFromGallery} disabled={sending}>
-              <Feather name="image" size={18} color={colors.text} />
-            </Pressable>
-            <Pressable
-              style={[styles.composerSend, (!text.trim() || sending) && styles.composerSendDisabled]}
-              onPress={sendNote}
-              disabled={!text.trim() || sending}
-            >
-              {sending ? <ActivityIndicator color="#fff" size="small" /> : <Feather name="send" size={16} color="#fff" />}
-            </Pressable>
-          </View>
+          {voiceRecorder.recording ? (
+            <View style={styles.recordingRow}>
+              <View style={styles.recordingDot} />
+              <Text style={styles.recordingTime}>{formatDuration(voiceRecorder.elapsedSeconds)}</Text>
+              <Text style={styles.recordingHint}>Enregistrement…</Text>
+              <View style={{ flex: 1 }} />
+              <Pressable style={styles.recordingCancelButton} onPress={cancelVoiceRecording} hitSlop={8}>
+                <Feather name="trash-2" size={16} color={colors.danger} />
+              </Pressable>
+              <Pressable
+                style={styles.composerSend}
+                onPress={stopAndSendVoice}
+                disabled={sendingVoice}
+                hitSlop={8}
+              >
+                {sendingVoice ? <ActivityIndicator color="#fff" size="small" /> : <Feather name="send" size={16} color="#fff" />}
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              <TextInput
+                style={styles.composerInput}
+                value={text}
+                onChangeText={setText}
+                placeholder="Décrivez l'avancement, une remarque…"
+                placeholderTextColor={colors.textMuted}
+                multiline
+              />
+              <View style={styles.composerActions}>
+                <Pressable style={styles.composerIconButton} onPress={takePhoto} disabled={sending}>
+                  <Feather name="camera" size={18} color={colors.text} />
+                </Pressable>
+                <Pressable style={styles.composerIconButton} onPress={pickFromGallery} disabled={sending}>
+                  <Feather name="image" size={18} color={colors.text} />
+                </Pressable>
+                <Pressable style={styles.composerIconButton} onPress={startVoiceRecording} disabled={sending}>
+                  <Feather name="mic" size={18} color={colors.text} />
+                </Pressable>
+                <Pressable
+                  style={[styles.composerSend, (!text.trim() || sending) && styles.composerSendDisabled]}
+                  onPress={sendNote}
+                  disabled={!text.trim() || sending}
+                >
+                  {sending ? <ActivityIndicator color="#fff" size="small" /> : <Feather name="send" size={16} color="#fff" />}
+                </Pressable>
+              </View>
+            </>
+          )}
+          {voiceError ? <Text style={styles.error}>{voiceError}</Text> : null}
         </View>
       ) : null}
 
@@ -897,6 +1016,37 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xs,
   },
+  voiceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minWidth: 160,
+  },
+  voicePlayButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+  },
+  voiceWave: {
+    flex: 1,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+  },
+  voiceDuration: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  voiceTranscript: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    fontStyle: 'italic',
+  },
   mapLink: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1036,6 +1186,35 @@ const styles = StyleSheet.create({
   },
   composerSendDisabled: {
     opacity: 0.5,
+  },
+  recordingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minHeight: 40,
+  },
+  recordingDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.danger,
+  },
+  recordingTime: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  recordingHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  recordingCancelButton: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceAlt,
   },
   quickOverlay: {
     flex: 1,

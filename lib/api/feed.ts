@@ -68,6 +68,47 @@ export async function addPhotoEntry(params: {
   return { error: error?.message ?? null, entry: data ?? null };
 }
 
+export async function addVoiceEntry(params: {
+  organizationId: string;
+  projectId: string;
+  userId: string | undefined;
+  uri: string;
+  mimeType: string;
+  durationSeconds: number;
+  transcript: string;
+  latitude: number | null;
+  longitude: number | null;
+  takenAt: string;
+}): Promise<{ error: string | null; entry: FeedEntry | null }> {
+  const ext = params.mimeType === 'audio/webm' ? 'webm' : 'm4a';
+  const subPath = `feed/${params.projectId}/voice-${Date.now()}.${ext}`;
+  const { path, error: uploadError } = await uploadToOrgBucket(
+    params.organizationId,
+    subPath,
+    params.uri,
+    params.mimeType,
+  );
+  if (!path) return { error: uploadError ?? "Échec de l'envoi du message vocal", entry: null };
+
+  const { data, error } = await supabase
+    .from('feed_entries')
+    .insert({
+      organization_id: params.organizationId,
+      project_id: params.projectId,
+      type: 'voice',
+      storage_path: path,
+      transcript: params.transcript.trim() || null,
+      duration_seconds: params.durationSeconds,
+      latitude: params.latitude,
+      longitude: params.longitude,
+      taken_at: params.takenAt,
+      created_by: params.userId,
+    })
+    .select()
+    .single();
+  return { error: error?.message ?? null, entry: data ?? null };
+}
+
 export async function deleteFeedEntry(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from('feed_entries').delete().eq('id', id);
   return { error: error?.message ?? null };
@@ -85,8 +126,10 @@ export async function generateReportFromFeed(params: {
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
+  // Voice entries contribute their live-transcribed text just like typed
+  // notes — the AI polishing pass below turns all of it into report prose.
   const noteLines = sorted
-    .filter((e) => e.type === 'note')
+    .filter((e) => (e.type === 'note' && e.body) || (e.type === 'voice' && e.transcript))
     .map((e) => {
       const author = (e.created_by && params.authorNames[e.created_by]) || 'Membre';
       const when = new Date(e.created_at).toLocaleString('fr-CH', {
@@ -95,7 +138,8 @@ export async function generateReportFromFeed(params: {
         hour: '2-digit',
         minute: '2-digit',
       });
-      return `[${when}] ${author} : ${e.body}`;
+      const text = e.type === 'voice' ? e.transcript : e.body;
+      return `[${when}] ${author} : ${text}`;
     });
 
   const { data: report, error: reportError } = await supabase

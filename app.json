@@ -29,6 +29,13 @@
           "microphonePermission": "Cantia utilise le microphone pour dicter vos rapports de chantier.",
           "speechRecognitionPermission": "Cantia utilise la reconnaissance vocale pour transcrire vos rapports dictés."
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Cantia utilise le microphone pour enregistrer vos messages vocaux de chantier.",
+          "enableBackgroundPlayback": false
+        }
       ]
     ],
     "ios": {

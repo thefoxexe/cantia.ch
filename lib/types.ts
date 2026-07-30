@@ -131,13 +131,15 @@ export interface FeedEntry {
   id: string;
   organization_id: string;
   project_id: string;
-  type: 'note' | 'photo';
+  type: 'note' | 'photo' | 'voice';
   body: string | null;
   storage_path: string | null;
   caption: string | null;
   latitude: number | null;
   longitude: number | null;
   taken_at: string | null;
+  transcript: string | null;
+  duration_seconds: number | null;
   report_id: string | null;
   created_by: string | null;
   created_at: string;
