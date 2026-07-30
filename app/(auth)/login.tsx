@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
+import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { Button, Field, Screen } from '../../components/ui';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
@@ -48,6 +49,13 @@ export default function LoginScreen() {
             <Button title="Se connecter" onPress={handleSubmit} loading={loading} />
           </View>
 
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>ou</Text>
+            <View style={styles.dividerLine} />
+          </View>
+          <GoogleSignInButton />
+
           <Link href="/(auth)/signup" style={styles.link}>
             <Text style={styles.linkText}>Pas encore de compte ? Créer un compte</Text>
           </Link>
@@ -88,6 +96,23 @@ const styles = StyleSheet.create({
   },
   form: {
     marginTop: spacing.md,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  dividerText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontWeight: '600',
   },
   error: {
     color: colors.danger,

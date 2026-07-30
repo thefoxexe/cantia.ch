@@ -10,7 +10,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // Needed so the web build picks the session up automatically when
+    // Google's OAuth redirect lands back on the app with tokens in the URL
+    // (see auth-context.tsx's signInWithGoogle). No-op on native — there's
+    // no `window` for this to key off of there.
+    detectSessionInUrl: true,
   },
 });
 
