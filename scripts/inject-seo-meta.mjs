@@ -21,6 +21,7 @@ const description =
 const ogImage = 'https://cantia.ch/og-image.jpg';
 
 const metaTags = `
+    <meta name="google-site-verification" content="ICyYP8Ky3MHHG3HsDL3rbEYb6Vy_2yy95uHmnLI74Sw" />
     <meta name="description" content="${description}" />
     <meta name="theme-color" content="#1F3D3A" />
     <meta property="og:type" content="website" />
