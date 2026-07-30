@@ -64,7 +64,7 @@ export default function EntrepriseScreen() {
   }
 
   async function pickBranding(kind: 'logo' | 'signature') {
-    if (!organization) return;
+    if (!organization || !isAdmin) return;
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
@@ -97,12 +97,18 @@ export default function EntrepriseScreen() {
               <Pressable
                 key={t}
                 onPress={() => isAdmin && setTrade(t)}
-                style={[styles.chip, trade === t && styles.chipActive]}
+                disabled={!isAdmin}
+                style={[styles.chip, trade === t && styles.chipActive, !isAdmin && styles.chipDisabled]}
               >
                 <Text style={[styles.chipText, trade === t && styles.chipTextActive]}>{t}</Text>
               </Pressable>
             ))}
           </View>
+          {!isAdmin ? (
+            <Text style={styles.readOnlyHint}>
+              Seul un propriétaire ou administrateur peut modifier le profil de l'entreprise.
+            </Text>
+          ) : null}
 
           <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
           <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
@@ -152,9 +158,11 @@ export default function EntrepriseScreen() {
                   <Feather name="image" size={20} color={colors.textMuted} />
                 </View>
               )}
-              <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
-                <Text style={styles.brandingButtonText}>Choisir un logo</Text>
-              </Pressable>
+              {isAdmin ? (
+                <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
+                  <Text style={styles.brandingButtonText}>Choisir un logo</Text>
+                </Pressable>
+              ) : null}
             </View>
             <View style={styles.brandingItem}>
               <Text style={styles.brandingLabel}>Signature</Text>
@@ -165,9 +173,11 @@ export default function EntrepriseScreen() {
                   <Feather name="edit-3" size={20} color={colors.textMuted} />
                 </View>
               )}
-              <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
-                <Text style={styles.brandingButtonText}>Choisir une signature</Text>
-              </Pressable>
+              {isAdmin ? (
+                <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
+                  <Text style={styles.brandingButtonText}>Choisir une signature</Text>
+                </Pressable>
+              ) : null}
             </View>
           </View>
           <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
@@ -216,6 +226,15 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: colors.primary,
     fontWeight: '600',
+  },
+  chipDisabled: {
+    opacity: 0.6,
+  },
+  readOnlyHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.lg,
   },
   row2: {
     flexDirection: 'row',

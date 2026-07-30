@@ -214,17 +214,13 @@ function LandingContent() {
           <Reveal id="showcase" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.showcase.title}</Text>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
-            <View style={styles.showcaseGrid}>
-              <ShowcaseCard caption={t.showcase.feedCaption}>
-                <FeedMockup />
-              </ShowcaseCard>
-              <ShowcaseCard caption={t.showcase.reportCaption}>
-                <ReportMockup />
-              </ShowcaseCard>
-              <ShowcaseCard caption={t.showcase.devisCaption}>
-                <DevisMockup />
-              </ShowcaseCard>
-            </View>
+            <ShowcaseSlider
+              cards={[
+                { key: 'feed', caption: t.showcase.feedCaption, content: <FeedMockup /> },
+                { key: 'report', caption: t.showcase.reportCaption, content: <ReportMockup /> },
+                { key: 'devis', caption: t.showcase.devisCaption, content: <DevisMockup /> },
+              ]}
+            />
           </Reveal>
 
           {/* ---- Pain points ---- */}
@@ -687,6 +683,49 @@ function AppPreview({ lang }: { lang: Lang }) {
 // "browser chrome" framing as the hero's AppPreview, kept deliberately
 // schematic (placeholder blocks instead of real photos) so swapping in
 // actual screenshots later is a drop-in replacement, not a redesign.
+const SHOWCASE_CARD_WIDTH = 300;
+const SHOWCASE_GAP = spacing.lg;
+
+// A horizontal, snap-to-card slider instead of three stacked boxes — the
+// hero above already reads as one block, so three more full-width cards
+// straight after it felt like a wall of boxes. Swiping/dragging invites a
+// glance at each screen instead of a long scroll past all of them at once.
+function ShowcaseSlider({ cards }: { cards: { key: string; caption: string; content: React.ReactNode }[] }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const idx = Math.round(x / (SHOWCASE_CARD_WIDTH + SHOWCASE_GAP));
+    setActiveIndex(Math.max(0, Math.min(cards.length - 1, idx)));
+  }, [cards.length]);
+
+  return (
+    <View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={SHOWCASE_CARD_WIDTH + SHOWCASE_GAP}
+        decelerationRate="fast"
+        snapToAlignment="start"
+        contentContainerStyle={styles.showcaseSliderContent}
+        onScroll={handleScroll}
+        scrollEventThrottle={32}
+      >
+        {cards.map((c) => (
+          <View key={c.key} style={styles.showcaseSlideWrap}>
+            <ShowcaseCard caption={c.caption}>{c.content}</ShowcaseCard>
+          </View>
+        ))}
+      </ScrollView>
+      <View style={styles.sliderDots}>
+        {cards.map((c, i) => (
+          <View key={c.key} style={[styles.sliderDot, i === activeIndex && styles.sliderDotActive]} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function ShowcaseCard({ children, caption }: { children: React.ReactNode; caption: string }) {
   return (
     <View style={styles.showcaseCard}>
@@ -1076,11 +1115,29 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: '500',
   },
-  showcaseGrid: {
+  showcaseSliderContent: {
+    paddingHorizontal: spacing.xl,
+    alignSelf: 'center',
+  },
+  showcaseSlideWrap: {
+    width: SHOWCASE_CARD_WIDTH,
+    marginRight: SHOWCASE_GAP,
+  },
+  sliderDots: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: spacing.lg,
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+  },
+  sliderDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.border,
+  },
+  sliderDotActive: {
+    backgroundColor: colors.primary,
+    width: 18,
   },
   showcaseCard: {
     width: 300,

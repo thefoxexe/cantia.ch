@@ -133,7 +133,7 @@ export function Field({
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput
         placeholderTextColor={colors.textMuted}
-        style={[styles.input, focused && styles.inputFocused, style]}
+        style={[styles.input, focused && styles.inputFocused, props.editable === false && styles.inputDisabled, style]}
         onFocus={(e) => {
           setFocused(true);
           onFocus?.(e);
@@ -304,6 +304,10 @@ const styles = StyleSheet.create({
   inputFocused: {
     borderColor: colors.primary,
     borderWidth: 1.5,
+  },
+  inputDisabled: {
+    backgroundColor: colors.surfaceAlt,
+    color: colors.textMuted,
   },
   empty: {
     alignItems: 'center',
