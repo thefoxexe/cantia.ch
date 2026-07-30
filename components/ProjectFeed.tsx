@@ -122,14 +122,21 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     const names: Record<string, string> = {};
     for (const m of members ?? []) names[m.user_id] = m.full_name || 'Membre';
     setAuthorNames(names);
-    const photoPaths = feed.filter((e) => e.type === 'photo' && e.storage_path).map((e) => e.storage_path!);
-    if (photoPaths.length) {
+    // Voice entries need a signed URL too, same as photos — without this,
+    // playback only ever worked for the sender (an optimistic local file
+    // uri set right after recording, see below), and broke the moment
+    // anyone else loaded the feed from the server, since their storage_path
+    // never made it into `urls`.
+    const mediaPaths = feed
+      .filter((e) => (e.type === 'photo' || e.type === 'voice') && e.storage_path)
+      .map((e) => e.storage_path!);
+    if (mediaPaths.length) {
       // Merge instead of replace: a transient network error made
       // getSignedUrls return {}, which wiped out every already-loaded photo
       // (not just the new one) and left them spinning until the page was
       // revisited. Merging means a failed batch just leaves those entries
       // to retry on the next load instead of blanking working ones.
-      const fresh = await getSignedUrls(photoPaths);
+      const fresh = await getSignedUrls(mediaPaths);
       setUrls((prev) => ({ ...prev, ...fresh }));
     }
     setLoading(false);

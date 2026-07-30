@@ -38,6 +38,7 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
   const [plan, setPlan] = useState<Plan | null>(null);
   const [points, setPoints] = useState<SurveyPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedPointId, setExpandedPointId] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
@@ -371,33 +372,45 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
         <EmptyState title="Aucun point de levé" subtitle="Touchez la carte, ou ajoutez un point manuellement / via votre position." />
       ) : (
         <View style={{ gap: spacing.sm }}>
-          {points.map((p) => (
-            <Card key={p.id} style={styles.pointRow}>
-              <View style={{ flex: 1 }}>
-                <View style={styles.pointHeaderRow}>
-                  <Text style={styles.pointCode}>{p.code}</Text>
-                  {p.class ? (
-                    <View style={styles.classBadge}>
-                      <Text style={styles.classBadgeText}>{p.class}</Text>
-                    </View>
+          {points.map((p) => {
+            const expanded = expandedPointId === p.id;
+            // Collapsed by default: code / class / description only.
+            // Coordinates are detail, not something you need to scan past
+            // for every point in the list — tap a point to see them.
+            const { e, n } = wgs84ToLv95(p.latitude, p.longitude);
+            return (
+              <Card key={p.id} style={styles.pointRow}>
+                <Pressable
+                  style={{ flex: 1 }}
+                  onPress={() => setExpandedPointId(expanded ? null : p.id)}
+                >
+                  <View style={styles.pointHeaderRow}>
+                    <Text style={styles.pointCode}>{p.code}</Text>
+                    {p.class ? (
+                      <View style={styles.classBadge}>
+                        <Text style={styles.classBadgeText}>{p.class}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  {p.description ? <Text style={styles.pointMeta}>{p.description}</Text> : null}
+                  {expanded ? (
+                    <>
+                      <Text style={styles.pointMeta}>
+                        LV95 E {Math.round(e).toLocaleString('fr-CH')} / N {Math.round(n).toLocaleString('fr-CH')}
+                        {p.elevation != null ? ` · ${p.elevation} m` : ''}
+                      </Text>
+                      <Text style={styles.pointMetaMuted}>
+                        {p.latitude.toFixed(6)}, {p.longitude.toFixed(6)} (WGS84)
+                      </Text>
+                    </>
                   ) : null}
-                </View>
-                {p.description ? <Text style={styles.pointMeta}>{p.description}</Text> : null}
-                <Text style={styles.pointMeta}>
-                  {p.latitude.toFixed(6)}, {p.longitude.toFixed(6)}
-                  {p.elevation != null ? ` · ${p.elevation} m` : ''}
-                </Text>
-                {p.lv95_e != null && p.lv95_n != null ? (
-                  <Text style={styles.pointMetaMuted}>
-                    LV95 E {Math.round(p.lv95_e).toLocaleString('fr-CH')} / N {Math.round(p.lv95_n).toLocaleString('fr-CH')}
-                  </Text>
-                ) : null}
-              </View>
-              <Pressable hitSlop={8} onPress={() => deletePoint(p.id)}>
-                <Feather name="trash-2" size={16} color={colors.danger} />
-              </Pressable>
-            </Card>
-          ))}
+                </Pressable>
+                <Pressable hitSlop={8} onPress={() => deletePoint(p.id)}>
+                  <Feather name="trash-2" size={16} color={colors.danger} />
+                </Pressable>
+              </Card>
+            );
+          })}
         </View>
       )}
     </View>
