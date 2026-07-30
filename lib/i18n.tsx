@@ -18,6 +18,13 @@ interface FeatureItem {
 interface Dict {
   nav: { services: string; pricing: string; login: string; cta: string };
   hero: { kicker: string; headline: string; subheadline: string; cta1: string; cta2: string };
+  showcase: {
+    title: string;
+    subtitle: string;
+    feedCaption: string;
+    reportCaption: string;
+    devisCaption: string;
+  };
   pain: { title: string; items: { title: string; text: string }[] };
   services: { title: string; subtitle: string; items: FeatureItem[] };
   trades: { title: string; note: string; list: string[] };
@@ -59,6 +66,13 @@ const fr: Dict = {
       'Cantia regroupe vos rapports de chantier, vos devis et vos documents en un seul endroit. Vous saisissez une fois, sur le terrain, et tout est mis en forme automatiquement.',
     cta1: 'Créer mon compte gratuitement',
     cta2: 'Se connecter',
+  },
+  showcase: {
+    title: 'Cantia, concrètement',
+    subtitle: 'Du fil de chantier au document fini, sans ressaisie.',
+    feedCaption: 'Notes, photos et messages vocaux géolocalisés — toute l’équipe voit tout en temps réel.',
+    reportCaption: 'L’IA transforme le fil de la journée en rapport prêt à envoyer, automatiquement.',
+    devisCaption: 'Un devis professionnel, TVA et conditions incluses, généré en quelques minutes.',
   },
   pain: {
     title: 'Le bâtiment perd du temps sur l’administratif',
@@ -202,6 +216,13 @@ const en: Dict = {
     cta1: 'Create my free account',
     cta2: 'Log in',
   },
+  showcase: {
+    title: 'Cantia, up close',
+    subtitle: 'From the site feed to the finished document, without retyping anything.',
+    feedCaption: 'Notes, photos and geolocated voice messages — the whole team sees everything in real time.',
+    reportCaption: 'AI turns the day’s feed into a ready-to-send report, automatically.',
+    devisCaption: 'A professional quote, VAT and terms included, generated in a few minutes.',
+  },
   pain: {
     title: 'Construction loses time on paperwork',
     items: [
@@ -343,6 +364,13 @@ const de: Dict = {
       'Cantia bündelt Ihre Baustellenrapporte, Offerten und Dokumente an einem Ort. Sie erfassen alles einmal, direkt vor Ort, und es wird automatisch aufbereitet.',
     cta1: 'Kostenloses Konto erstellen',
     cta2: 'Anmelden',
+  },
+  showcase: {
+    title: 'Cantia im Detail',
+    subtitle: 'Vom Baustellen-Feed bis zum fertigen Dokument, ohne alles neu abzutippen.',
+    feedCaption: 'Notizen, Fotos und georeferenzierte Sprachnachrichten — das ganze Team sieht alles in Echtzeit.',
+    reportCaption: 'Die KI macht aus dem Tages-Feed automatisch einen versandfertigen Rapport.',
+    devisCaption: 'Eine professionelle Offerte, MWST und Bedingungen inklusive, in wenigen Minuten erstellt.',
   },
   pain: {
     title: 'Der Bau verliert Zeit mit Administration',

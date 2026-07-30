@@ -210,6 +210,23 @@ function LandingContent() {
             </Animated.View>
           </View>
 
+          {/* ---- Showcase ---- */}
+          <Reveal id="showcase" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.showcase.title}</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
+            <View style={styles.showcaseGrid}>
+              <ShowcaseCard caption={t.showcase.feedCaption}>
+                <FeedMockup />
+              </ShowcaseCard>
+              <ShowcaseCard caption={t.showcase.reportCaption}>
+                <ReportMockup />
+              </ShowcaseCard>
+              <ShowcaseCard caption={t.showcase.devisCaption}>
+                <DevisMockup />
+              </ShowcaseCard>
+            </View>
+          </Reveal>
+
           {/* ---- Pain points ---- */}
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
@@ -665,6 +682,98 @@ function AppPreview({ lang }: { lang: Lang }) {
   );
 }
 
+// ---- Showcase mockups ----
+// Stylized recreations of the real screens (not screenshots yet) — same
+// "browser chrome" framing as the hero's AppPreview, kept deliberately
+// schematic (placeholder blocks instead of real photos) so swapping in
+// actual screenshots later is a drop-in replacement, not a redesign.
+function ShowcaseCard({ children, caption }: { children: React.ReactNode; caption: string }) {
+  return (
+    <View style={styles.showcaseCard}>
+      <View style={styles.previewChrome}>
+        <View style={styles.previewDot} />
+        <View style={styles.previewDot} />
+        <View style={styles.previewDot} />
+      </View>
+      <View style={styles.showcaseBody}>{children}</View>
+      <Text style={styles.showcaseCaption}>{caption}</Text>
+    </View>
+  );
+}
+
+function FeedMockup() {
+  return (
+    <View style={{ gap: spacing.sm }}>
+      <View style={styles.mockBubble}>
+        <Text style={styles.mockBubbleAuthor}>Marc</Text>
+        <Text style={styles.mockBubbleText}>Fondations coulées, prêt pour le coffrage demain.</Text>
+      </View>
+      <View style={styles.mockBubble}>
+        <View style={styles.mockPhotoRow}>
+          <View style={styles.mockPhotoThumb}>
+            <Feather name="image" size={14} color={colors.primary} />
+          </View>
+          <Text style={styles.mockBubbleText}>Façade nord — avant enduit</Text>
+        </View>
+      </View>
+      <View style={[styles.mockBubble, styles.mockBubbleVoice]}>
+        <View style={styles.mockPlayButton}>
+          <Feather name="play" size={9} color="#fff" />
+        </View>
+        <View style={styles.mockWave} />
+        <Text style={styles.mockDuration}>0:42</Text>
+      </View>
+    </View>
+  );
+}
+
+function ReportMockup() {
+  return (
+    <View style={{ gap: spacing.sm }}>
+      <View style={styles.mockRowBetween}>
+        <Text style={styles.mockTitle}>Rapport — 30.07</Text>
+        <View style={styles.mockAiBadge}>
+          <Feather name="zap" size={9} color={colors.primary} />
+          <Text style={styles.mockAiBadgeText}>IA</Text>
+        </View>
+      </View>
+      <View style={styles.mockTextLine} />
+      <View style={[styles.mockTextLine, { width: '88%' }]} />
+      <View style={[styles.mockTextLine, { width: '65%' }]} />
+      <View style={styles.mockThumbRow}>
+        <View style={styles.mockThumbSquare} />
+        <View style={styles.mockThumbSquare} />
+        <View style={styles.mockThumbSquare} />
+      </View>
+    </View>
+  );
+}
+
+function DevisMockup() {
+  return (
+    <View style={{ gap: spacing.sm }}>
+      <View style={styles.mockRowBetween}>
+        <Text style={styles.mockTitle}>DEV-2026-0032</Text>
+        <View style={styles.mockStatusBadge}>
+          <Text style={styles.mockStatusBadgeText}>Envoyé</Text>
+        </View>
+      </View>
+      <View style={styles.mockLineRow}>
+        <Text style={styles.mockLineText}>Maçonnerie — fondations</Text>
+        <Text style={styles.mockLineAmount}>CHF 4’200</Text>
+      </View>
+      <View style={styles.mockLineRow}>
+        <Text style={styles.mockLineText}>Coffrage &amp; ferraillage</Text>
+        <Text style={styles.mockLineAmount}>CHF 2’850</Text>
+      </View>
+      <View style={styles.mockTotalRow}>
+        <Text style={styles.mockTotalLabel}>Total TTC</Text>
+        <Text style={styles.mockTotalAmount}>CHF 7’050</Text>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   stage: {
     flex: 1,
@@ -966,6 +1075,173 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
     fontWeight: '500',
+  },
+  showcaseGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.lg,
+  },
+  showcaseCard: {
+    width: 300,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  showcaseBody: {
+    padding: spacing.lg,
+    minHeight: 168,
+  },
+  showcaseCaption: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 17,
+    padding: spacing.lg,
+    paddingTop: 0,
+  },
+  mockBubble: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+  },
+  mockBubbleAuthor: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 2,
+  },
+  mockBubbleText: {
+    fontSize: 11,
+    color: colors.text,
+    lineHeight: 15,
+  },
+  mockPhotoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  mockPhotoThumb: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mockBubbleVoice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  mockPlayButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mockWave: {
+    flex: 1,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+  },
+  mockDuration: {
+    fontSize: 10,
+    color: colors.textMuted,
+  },
+  mockRowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  mockTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  mockAiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  mockAiBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  mockTextLine: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.border,
+    width: '100%',
+  },
+  mockThumbRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  mockThumbSquare: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  mockStatusBadge: {
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  mockStatusBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: colors.accent,
+  },
+  mockLineRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  mockLineText: {
+    fontSize: 11,
+    color: colors.text,
+    flexShrink: 1,
+  },
+  mockLineAmount: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  mockTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.xs,
+    marginTop: 2,
+  },
+  mockTotalLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  mockTotalAmount: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.primary,
   },
   section: {
     maxWidth: 1080,
