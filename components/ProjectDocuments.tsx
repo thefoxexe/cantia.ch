@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { deleteFromOrgBucket, formatBytes, getSignedUrl, uploadToOrgBucket } from '../lib/api/storage';
-import { Linking } from 'react-native';
+import { downloadFile } from '../lib/downloadFile';
 import { EmptyState } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { Folder, OpusFile } from '../lib/types';
@@ -114,7 +114,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
 
   async function openFile(file: OpusFile) {
     const url = await getSignedUrl(file.storage_path);
-    if (url) Linking.openURL(url);
+    if (url) await downloadFile(url, file.name);
   }
 
   async function removeFile(file: OpusFile) {

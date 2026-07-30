@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
-import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../../lib/supabase';
 import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../../lib/api/pdf';
 import { polishReportNotes } from '../../../../../lib/api/ai';
+import { downloadFile } from '../../../../../lib/downloadFile';
 import { Button, Card, Container, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
@@ -57,7 +58,9 @@ export default function ReportDetailScreen() {
   async function openPdf() {
     if (!report?.pdf_path) return;
     const url = await getSignedUrl(report.pdf_path);
-    if (url) Linking.openURL(url);
+    if (!url) return;
+    const { error: dlError } = await downloadFile(url, `${report.title || 'rapport'}.pdf`);
+    if (dlError) setError(dlError);
   }
 
   async function regenerate() {
@@ -70,7 +73,10 @@ export default function ReportDetailScreen() {
       return;
     }
     await load();
-    if (url) Linking.openURL(url);
+    if (url) {
+      const { error: dlError } = await downloadFile(url, `${report?.title || 'rapport'}.pdf`);
+      if (dlError) setError(dlError);
+    }
   }
 
   async function polishNotes() {

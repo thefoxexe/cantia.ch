@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
+import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Devis, DevisItem, DevisStatus } from '../../../lib/types';
@@ -58,7 +59,9 @@ export default function DevisDetailScreen() {
   async function openPdf() {
     if (!devis?.pdf_path) return;
     const url = await getSignedUrl(devis.pdf_path);
-    if (url) Linking.openURL(url);
+    if (!url) return;
+    const { error: dlError } = await downloadFile(url, `Devis ${devis.number || devis.client_name}.pdf`);
+    if (dlError) setError(dlError);
   }
 
   if (!devis) {

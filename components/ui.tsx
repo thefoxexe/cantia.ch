@@ -12,12 +12,25 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
 
+// A separate spacer (rather than folding insets.top into the `padding`
+// merged from the `style` prop) sidesteps padding/paddingTop shorthand
+// precedence, which resolves inconsistently between native (Yoga) and web
+// (CSS) when both are present in a merged style array. On phones with a
+// notch/status bar, content was rendering flush under it (reported on a
+// Samsung S26); on web, insets.top is 0 so this is a no-op there.
 export function Screen({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <View style={[styles.screen, style]}>{children}</View>;
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={[styles.screen, style]}>
+      <View style={{ height: insets.top + spacing.sm }} />
+      {children}
+    </View>
+  );
 }
 
 export function Container({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {

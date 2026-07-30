@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { invokeFunction } from '../lib/api/functions';
 import { wgs84ToLv95 } from '../lib/swissCoords';
+import { downloadFile } from '../lib/downloadFile';
 import { SwissMap } from './SwissMap';
 import { Button, Card, EmptyState, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
@@ -183,7 +184,11 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
       return;
     }
     if (delivery === 'download' && data?.url) {
-      Linking.openURL(data.url);
+      const { error: dlError } = await downloadFile(data.url, `Export chantier.${format}`);
+      if (dlError) {
+        setExportMessage({ kind: 'error', text: dlError });
+        return;
+      }
       setExportMessage({ kind: 'success', text: 'Export généré — le téléchargement a démarré.' });
     } else if (delivery === 'email') {
       setExportMessage({ kind: 'success', text: `Export envoyé à ${email}.` });
