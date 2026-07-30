@@ -63,6 +63,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   const [entries, setEntries] = useState<FeedEntry[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
+  const [authorAvatars, setAuthorAvatars] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const [text, setText] = useState('');
@@ -116,12 +117,19 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     setLoading(true);
     const [feed, { data: members }] = await Promise.all([
       listFeedEntries(projectId),
-      supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
+      supabase.from('organization_members').select('user_id, full_name, avatar_url').eq('organization_id', organization.id),
     ]);
     setEntries(feed);
     const names: Record<string, string> = {};
     for (const m of members ?? []) names[m.user_id] = m.full_name || 'Membre';
     setAuthorNames(names);
+    const avatarPaths = (members ?? []).filter((m) => m.avatar_url) as { user_id: string; avatar_url: string }[];
+    if (avatarPaths.length) {
+      const signed = await getSignedUrls(avatarPaths.map((m) => m.avatar_url));
+      const byUser: Record<string, string> = {};
+      for (const m of avatarPaths) if (signed[m.avatar_url]) byUser[m.user_id] = signed[m.avatar_url];
+      setAuthorAvatars(byUser);
+    }
     // Voice entries need a signed URL too, same as photos — without this,
     // playback only ever worked for the sender (an optimistic local file
     // uri set right after recording, see below), and broke the moment
@@ -569,6 +577,15 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
             style={styles.selectIcon}
           />
         ) : null}
+        {!isMe ? (
+          entry.created_by && authorAvatars[entry.created_by] ? (
+            <Image source={{ uri: authorAvatars[entry.created_by] }} style={styles.avatarBubble} />
+          ) : (
+            <View style={styles.avatarBubbleFallback}>
+              <Text style={styles.avatarBubbleInitial}>{author.charAt(0).toUpperCase()}</Text>
+            </View>
+          )
+        ) : null}
         <View style={[styles.bubble, isMe && styles.bubbleMe]}>
           <View style={styles.bubbleHeader}>
             <Text style={styles.bubbleAuthor}>{isMe ? 'Vous' : author}</Text>
@@ -974,6 +991,25 @@ const styles = StyleSheet.create({
   },
   selectIcon: {
     marginBottom: spacing.sm,
+  },
+  avatarBubble: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceAlt,
+  },
+  avatarBubbleFallback: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarBubbleInitial: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
   },
   bubble: {
     maxWidth: '78%',

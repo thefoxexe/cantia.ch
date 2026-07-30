@@ -47,6 +47,13 @@ export default function CompteMenuScreen() {
 
   const items: MenuItem[] = [
     {
+      key: 'profil',
+      icon: 'user',
+      title: 'Mon profil',
+      subtitle: 'Photo, nom affiché, langue',
+      route: '/(app)/compte/profil',
+    },
+    {
       key: 'entreprise',
       icon: 'briefcase',
       title: 'Profil entreprise',

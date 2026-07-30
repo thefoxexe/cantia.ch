@@ -80,6 +80,7 @@ export interface OrganizationMember {
   user_id: string;
   role: OrgRole;
   full_name: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
