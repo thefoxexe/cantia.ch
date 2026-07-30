@@ -6,6 +6,7 @@ import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,7 +14,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, Redirect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
 import { supabase } from '../lib/supabase';
@@ -28,7 +29,18 @@ const PAIN_ICONS: IconName[] = ['edit-3', 'clock', 'folder'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'list', 'map-pin', 'users'];
 const NAV_HEIGHT = 68;
 
+// The compiled Android/iOS app has no marketing site to show — it goes
+// straight to the auth flow (app/_layout.tsx then takes over once the
+// session is known, sending a logged-in user to the dashboard instead).
+// This is a plain platform check ahead of LandingContent's hooks, not a
+// conditional hook call, so it stays rules-of-hooks safe while skipping the
+// landing page's data fetching/animations entirely on native.
 export default function LandingScreen() {
+  if (Platform.OS !== 'web') return <Redirect href="/(auth)/login" />;
+  return <LandingContent />;
+}
+
+function LandingContent() {
   const { t, lang, setLang } = useLanguage();
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);

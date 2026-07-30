@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // The marketing site (cantia.ch) and the authenticated app (app.cantia.ch)
 // are the same Expo Router web build, deployed once and reachable under two
 // domains — which one is which is decided at runtime from the hostname, not
@@ -15,7 +17,11 @@ export function isMarketingHost(): boolean {
   return h != null && MARKETING_HOSTS.includes(h);
 }
 
+// The compiled Android/iOS app has no hostname to read — it's never the
+// marketing site, always the app, so it must behave like app.cantia.ch:
+// no landing page, straight to login (or the dashboard once session-checked).
 export function isAppHost(): boolean {
+  if (Platform.OS !== 'web') return true;
   return hostname() === APP_HOST;
 }
 
