@@ -170,12 +170,17 @@ const styles = StyleSheet.create({
   },
   // The sizing constraints live on the Pressable (the actual flex item
   // inside `grid`), not on the Card it wraps — a View's flexGrow/flexBasis
-  // only affects layout when applied to the flex child itself. Non-compact
-  // cards fill the available width in a responsive 2-up grid (1-up on
-  // narrow screens) instead of a fixed thumbnail.
+  // only affects layout when applied to the flex child itself. flexBasis is
+  // a percentage (not a fixed px width like 260) specifically so exactly two
+  // cards ever share a row: a fixed 260px basis left room for three per row
+  // on wide screens, so the 4th card (Structuré) wrapped alone onto its own
+  // row and, with flexGrow, stretched to fill the entire row width — several
+  // times bigger than its siblings. 48%+48%+gap always wraps after two,
+  // keeping all four cards the same size everywhere (2-up on wide screens,
+  // 1-up on narrow ones).
   cardWrap: {
     flexGrow: 1,
-    flexBasis: 260,
+    flexBasis: '48%',
     minWidth: 220,
   },
   cardWrapCompact: {
