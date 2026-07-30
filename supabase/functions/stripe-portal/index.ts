@@ -17,7 +17,7 @@ Deno.serve(async (req: Request) => {
     }
     const stripe = new Stripe(stripeKey, { apiVersion: '2025-03-31.basil', httpClient: Stripe.createFetchHttpClient() });
 
-    const { return_url } = await req.json();
+    const { return_url, flow } = await req.json();
     if (!return_url) return json({ error: 'return_url requis' }, 400);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -49,10 +49,20 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'Aucun abonnement Stripe actif pour cette entreprise.' }, 400);
     }
 
-    const session = await stripe.billingPortal.sessions.create({
+    const params: Stripe.BillingPortal.SessionCreateParams = {
       customer: org.stripe_customer_id,
       return_url,
-    });
+    };
+    // "Résilier mon abonnement" skips the portal's own menu and drops the
+    // user straight into Stripe's cancellation flow for their subscription.
+    if (flow === 'cancel' && org.stripe_subscription_id) {
+      params.flow_data = {
+        type: 'subscription_cancel',
+        subscription_cancel: { subscription: org.stripe_subscription_id },
+      };
+    }
+
+    const session = await stripe.billingPortal.sessions.create(params);
 
     return json({ url: session.url });
   } catch (err) {

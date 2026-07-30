@@ -30,9 +30,10 @@ export async function startCheckout(planId: string): Promise<{ url: string | nul
   return { url: data?.url ?? null, error };
 }
 
-export async function openBillingPortal(): Promise<{ url: string | null; error: string | null }> {
+export async function openBillingPortal(flow?: 'cancel'): Promise<{ url: string | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ url: string }>('stripe-portal', {
     return_url: redirectUrl('checkout-return'),
+    flow,
   });
   return { url: data?.url ?? null, error };
 }
