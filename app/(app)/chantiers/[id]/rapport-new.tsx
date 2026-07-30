@@ -8,6 +8,7 @@ import { supabase } from '../../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../../lib/api/storage';
 import { assetFileInfo } from '../../../../lib/imageAsset';
 import { generateReportPdf } from '../../../../lib/api/pdf';
+import { polishReportNotes } from '../../../../lib/api/ai';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
@@ -143,6 +144,18 @@ export default function NewReportScreen() {
             taken_at: p.takenAt,
             sort_order: i,
           });
+        }
+      }
+
+      // Always let the AI turn the raw (often dictated) notes into proper
+      // report prose — no separate manual "Rédiger avec l'IA" step to
+      // remember. Best-effort: if it fails (e.g. no notes at all), the
+      // report still gets created and PDF'd with whatever notes exist.
+      if (notes.trim()) {
+        setStep('Rédaction du rapport par IA…');
+        const { notes: polished } = await polishReportNotes(report.id);
+        if (polished) {
+          await supabase.from('reports').update({ notes: polished }).eq('id', report.id);
         }
       }
 

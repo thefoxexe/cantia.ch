@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { uploadToOrgBucket } from './storage';
 import { assetFileInfo } from '../imageAsset';
 import { generateReportPdf } from './pdf';
+import { polishReportNotes } from './ai';
 import type { FeedEntry } from '../types';
 
 export async function listFeedEntries(projectId: string): Promise<FeedEntry[]> {
@@ -128,6 +129,17 @@ export async function generateReportFromFeed(params: {
   const entryIds = sorted.map((e) => e.id);
   if (entryIds.length > 0) {
     await supabase.from('feed_entries').update({ report_id: report.id }).in('id', entryIds);
+  }
+
+  // Turn the raw "[heure] Auteur : message" concatenation into real report
+  // prose automatically — generating a report from the feed shouldn't leave
+  // a chat transcript as the final text, and there's no separate creation
+  // form here to add a manual "Rédiger avec l'IA" step to.
+  if (noteLines.length > 0) {
+    const { notes: polished } = await polishReportNotes(report.id);
+    if (polished) {
+      await supabase.from('reports').update({ notes: polished }).eq('id', report.id);
+    }
   }
 
   const { error: pdfError } = await generateReportPdf(report.id);
