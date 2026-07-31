@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
+import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -30,6 +31,7 @@ export default function EntrepriseScreen() {
   const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
   const [saving, setSaving] = useState(false);
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
+  const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
@@ -103,6 +105,14 @@ export default function EntrepriseScreen() {
         setSignatureUrl(url);
       }
     }
+  }
+
+  async function analyzeWebsite() {
+    if (!website.trim() || analyzingWebsite) return;
+    setAnalyzingWebsite(true);
+    const found = await suggestBrandColorsFromWebsite(website.trim());
+    setAnalyzingWebsite(false);
+    if (found.length) setBrandColor(found[0]);
   }
 
   return (
@@ -220,9 +230,15 @@ export default function EntrepriseScreen() {
           ) : (
             <>
               <Text style={styles.fieldLabel}>Couleur de marque</Text>
-              <Text style={styles.hint}>
-                Suggérée automatiquement à partir des couleurs de votre logo (depuis le site web) — modifiable ci-dessous.
-              </Text>
+              <Text style={styles.hint}>Suggérée automatiquement quand vous changez de logo (depuis le site web) — modifiable ci-dessous.</Text>
+              {isAdmin && website.trim() ? (
+                <Pressable onPress={analyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
+                  <Feather name="globe" size={13} color={colors.primary} />
+                  <Text style={styles.analyzeLinkText}>
+                    {analyzingWebsite ? 'Analyse du site en cours…' : 'Analyser les couleurs de mon site web'}
+                  </Text>
+                </Pressable>
+              ) : null}
               <View style={styles.colorRow}>
                 {BRAND_COLOR_PRESETS.map((hex) => (
                   <Pressable
@@ -401,6 +417,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  analyzeLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  analyzeLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
   },
   errorHint: {
     fontSize: fontSize.xs,

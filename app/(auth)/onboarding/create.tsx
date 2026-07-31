@@ -6,10 +6,15 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../lib/api/storage';
-import { assetFileInfo } from '../../../lib/imageAsset';
+import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
+import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
+import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Field, Screen } from '../../../components/ui';
+import { BRAND_COLOR_PRESETS, HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
+
+const DEFAULT_BRAND_COLOR = '#1F3D3A';
 
 export default function CreateOrganizationScreen() {
   const { user, createOrganization, refreshOrganization } = useAuth();
@@ -18,15 +23,35 @@ export default function CreateOrganizationScreen() {
   const [website, setWebsite] = useState('');
   const [trade, setTrade] = useState<string | null>(null);
   const [logoAsset, setLogoAsset] = useState<{ uri: string; mimeType?: string | null } | null>(null);
+  const [brandColor, setBrandColor] = useState(DEFAULT_BRAND_COLOR);
+  const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
+  const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function addSuggestions(hexList: string[]) {
+    if (!hexList.length) return;
+    setSuggestedColors((prev) => [...new Set([...hexList, ...prev])].slice(0, 4));
+    setBrandColor(hexList[0]);
+  }
 
   async function pickLogo() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
     if (result.canceled || !result.assets?.length) return;
-    setLogoAsset({ uri: result.assets[0].uri, mimeType: result.assets[0].mimeType });
+    const asset = result.assets[0];
+    setLogoAsset({ uri: asset.uri, mimeType: asset.mimeType });
+    const suggested = await suggestBrandColorFromImage(asset.uri);
+    if (suggested) addSuggestions([suggested]);
+  }
+
+  async function analyzeWebsite() {
+    if (!website.trim() || analyzingWebsite) return;
+    setAnalyzingWebsite(true);
+    const found = await suggestBrandColorsFromWebsite(website.trim());
+    setAnalyzingWebsite(false);
+    addSuggestions(found);
   }
 
   async function handleCreate() {
@@ -53,14 +78,13 @@ export default function CreateOrganizationScreen() {
     if (orgId) {
       const updates: Record<string, string | null> = {};
       if (website.trim()) updates.website = website.trim();
+      if (HEX_COLOR_RE.test(brandColor) && brandColor.toLowerCase() !== DEFAULT_BRAND_COLOR.toLowerCase()) {
+        updates.brand_color = brandColor;
+      }
       if (logoAsset) {
-        const { ext, contentType } = assetFileInfo(logoAsset);
-        const { path, error: uploadError } = await uploadToOrgBucket(
-          orgId,
-          `branding/logo-${Date.now()}.${ext}`,
-          logoAsset.uri,
-          contentType,
-        );
+        const raw = assetFileInfo(logoAsset);
+        const { uri, ext, contentType } = await normalizeImageOrientation(logoAsset.uri, raw.contentType);
+        const { path, error: uploadError } = await uploadToOrgBucket(orgId, `branding/logo-${Date.now()}.${ext}`, uri, contentType);
         if (path) updates.logo_url = path;
         else if (uploadError) console.error('Logo upload failed:', uploadError);
       }
@@ -114,6 +138,32 @@ export default function CreateOrganizationScreen() {
             <Text style={styles.logoButtonText}>{logoAsset ? 'Changer le logo' : 'Choisir un logo'}</Text>
           </Pressable>
         </View>
+
+        <Text style={styles.fieldLabel}>Couleur de marque</Text>
+        {suggestedColors.length ? (
+          <Text style={styles.hint}>Suggérée à partir de votre logo et/ou site web — choisissez une autre couleur si elle ne vous convient pas.</Text>
+        ) : (
+          <Text style={styles.hint}>Ajoutez un logo ou un site web pour une suggestion automatique, ou choisissez une couleur ci-dessous.</Text>
+        )}
+        <View style={styles.colorRow}>
+          {[...new Set([...suggestedColors, ...BRAND_COLOR_PRESETS])].map((hex) => (
+            <Pressable
+              key={hex}
+              onPress={() => setBrandColor(hex)}
+              style={[styles.colorSwatch, { backgroundColor: hex }, brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive]}
+            >
+              {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color={colors.surface} /> : null}
+            </Pressable>
+          ))}
+        </View>
+        {website.trim() ? (
+          <Pressable onPress={analyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
+            <Feather name="globe" size={13} color={colors.primary} />
+            <Text style={styles.analyzeLinkText}>
+              {analyzingWebsite ? 'Analyse du site en cours…' : 'Analyser les couleurs de mon site web'}
+            </Text>
+          </Pressable>
+        ) : null}
 
         <Text style={styles.fieldLabel}>Métier</Text>
         <View style={styles.chips}>
@@ -199,6 +249,40 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.text,
+  },
+  hint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+  },
+  colorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  colorSwatch: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorSwatchActive: {
+    borderColor: colors.text,
+  },
+  analyzeLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.lg,
+  },
+  analyzeLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
   },
   chips: {
     flexDirection: 'row',
