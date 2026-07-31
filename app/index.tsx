@@ -211,25 +211,9 @@ function LandingContent() {
                 </View>
               </View>
 
-              <AppPreview phoneWidth={heroPhoneWidth} />
+              <AppPreview phoneWidth={heroPhoneWidth} lang={lang} />
             </Animated.View>
           </View>
-
-          {/* ---- Showcase ---- */}
-          <Reveal id="showcase" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.showcase.title}</Text>
-            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
-            <PhoneCarousel
-              phoneWidth={showcasePhoneWidth}
-              showCaptions
-              items={[
-                { key: 'feed', caption: t.showcase.feedCaption, source: SCREENS.feedSelect },
-                { key: 'report', caption: t.showcase.reportCaption, source: SCREENS.reportPdf },
-                { key: 'devisNew', caption: t.showcase.devisNewCaption, source: SCREENS.devisNew },
-                { key: 'devis', caption: t.showcase.devisCaption, source: SCREENS.devisTotal },
-              ]}
-            />
-          </Reveal>
 
           {/* ---- Pain points ---- */}
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
@@ -288,9 +272,25 @@ function LandingContent() {
             </View>
           </Reveal>
 
+          {/* ---- Showcase ---- */}
+          <Reveal id="showcase" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.showcase.title}</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
+            <PhoneCarousel
+              phoneWidth={showcasePhoneWidth}
+              showCaptions
+              autoAdvanceMs={30000}
+              items={[
+                { key: 'feed', caption: t.showcase.feedCaption, source: SCREENS.feedSelect },
+                { key: 'report', caption: t.showcase.reportCaption, source: SCREENS.reportPdf },
+                { key: 'devisNew', caption: t.showcase.devisNewCaption, source: SCREENS.devisNew },
+                { key: 'devis', caption: t.showcase.devisCaption, source: SCREENS.devisTotal },
+              ]}
+            />
+          </Reveal>
+
           {/* ---- Trades ---- */}
-          <View style={styles.bandSurface}>
-          <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+          <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
             <View style={styles.tradeRow}>
               {t.trades.list.map((trade) => (
@@ -303,7 +303,7 @@ function LandingContent() {
           </Reveal>
 
           {/* ---- Pricing ---- */}
-          <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+          <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
             <View style={styles.pricingGrid}>
               {plans.map((p) => (
@@ -337,7 +337,6 @@ function LandingContent() {
               ))}
             </View>
           </Reveal>
-          </View>
 
           {/* ---- Swiss positioning ---- */}
           <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
@@ -644,7 +643,6 @@ function StoreBadge({ kind, label, comingSoon }: { kind: 'apple' | 'google'; lab
 // phone aspect ratio (the screenshots' own 1080x2340), so the frame is
 // never guessing at a shape — it's sized directly from the image.
 const SCREENS = {
-  feedChat: require('../assets/screens/feed-chat.jpg'),
   feedSelect: require('../assets/screens/feed-select.jpg'),
   reportPdf: require('../assets/screens/report-pdf.jpg'),
   devisNew: require('../assets/screens/devis-new.jpg'),
@@ -652,14 +650,22 @@ const SCREENS = {
 };
 const SCREEN_ASPECT = 1080 / 2340;
 
-// A real phone frame (notch, rounded bezel, home indicator) wrapping a real
-// screenshot, sized off SCREEN_ASPECT so it's never "not phone-shaped" —
-// used for both the hero (bigger) and the showcase slider (smaller).
-// No fake notch: the real screenshots already carry their own status bar
-// (clock, wifi, battery), so a separately-drawn notch would just double up
-// on — or clash with — what's already in the image. A thin bezel + rounded
-// corners + home indicator is enough to read as "this is a phone".
-function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: number; rotate?: number }) {
+// The phone bezel/rounded-corners/home-indicator chrome, shared by the
+// hero's designed mockup and the showcase's real screenshots — screenWidth/
+// screenHeight (matching a real phone's 1080x2340 aspect) are handed to
+// `children` so both callers size their content off the same numbers
+// instead of guessing. No fake notch: real screenshots already carry their
+// own status bar, and the dashboard mockup draws its own — a separately
+// drawn notch would just double up on what's already there.
+function PhoneChrome({
+  width,
+  rotate = 0,
+  children,
+}: {
+  width: number;
+  rotate?: number;
+  children: (screenWidth: number, screenHeight: number) => React.ReactNode;
+}) {
   const bezel = Math.round(width * 0.035);
   const screenWidth = width - bezel * 2;
   const screenHeight = Math.round(screenWidth / SCREEN_ASPECT);
@@ -672,93 +678,167 @@ function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: numb
       ]}
     >
       <View style={{ width: screenWidth, height: screenHeight, borderRadius: outerRadius - bezel, overflow: 'hidden' }}>
-        <Image source={source} style={{ width: screenWidth, height: screenHeight }} resizeMode="cover" />
+        {children(screenWidth, screenHeight)}
       </View>
       <View style={styles.phoneHomeIndicator} />
     </View>
   );
 }
 
-const SHOWCASE_GAP = spacing.lg;
+function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: number; rotate?: number }) {
+  return (
+    <PhoneChrome width={width} rotate={rotate}>
+      {(w, h) => <Image source={source} style={{ width: w, height: h }} resizeMode="cover" />}
+    </PhoneChrome>
+  );
+}
 
-// One shared swipe/dot carousel for both the hero and the "Cantia,
-// concrètement" showcase — same interaction (drag left/right, dots track
-// position), just a different phone size and optional captions. phoneWidth
-// is passed in rather than hardcoded so the caller can size it off the
-// viewport — a hero phone fixed at 260px looked oversized on a narrow
-// phone screen instead of shrinking to fit.
+const HERO_PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports: string; devis: string; project: string; devisNumber: string; photos: string }> = {
+  fr: { greeting: 'Bonjour', sites: 'Chantiers', reports: 'Rapports', devis: 'Devis', project: 'Villa Dupont — rénovation', devisNumber: 'Devis DEV-2026-0032', photos: '18 photos géolocalisées' },
+  en: { greeting: 'Hello', sites: 'Sites', reports: 'Reports', devis: 'Quotes', project: 'Villa Dupont — renovation', devisNumber: 'Quote QT-2026-0032', photos: '18 geolocated photos' },
+  de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa Dupont — Renovation', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
+};
+
+// The hero goes back to a designed mockup (not a real screenshot) — a
+// hand-drawn dashboard scales cleanly to any phone frame, where a real
+// screenshot's fixed aspect ratio either crops or letterboxes depending on
+// the frame size. Real screenshots stay where they add the most proof:
+// the showcase carousel further down the page.
+function DashboardMockup({ width, height, lang }: { width: number; height: number; lang: Lang }) {
+  const copy = HERO_PREVIEW_COPY[lang];
+  return (
+    <View style={{ width, height, backgroundColor: colors.surface, padding: spacing.lg, justifyContent: 'space-between' }}>
+      <View>
+        <View style={styles.phoneStatusBar}>
+          <Text style={styles.phoneClock}>9:41</Text>
+          <View style={styles.phoneStatusIcons}>
+            <Feather name="wifi" size={11} color={colors.text} />
+            <Feather name="battery" size={13} color={colors.text} />
+          </View>
+        </View>
+        <Text style={styles.previewGreeting}>{copy.greeting}</Text>
+        <Text style={styles.previewOrg}>Dupont Serrurerie Sàrl</Text>
+        <View style={styles.previewStatsRow}>
+          <View style={styles.previewStat}>
+            <Text style={styles.previewStatValue}>12</Text>
+            <Text style={styles.previewStatLabel}>{copy.sites}</Text>
+          </View>
+          <View style={styles.previewStat}>
+            <Text style={styles.previewStatValue}>34</Text>
+            <Text style={styles.previewStatLabel}>{copy.reports}</Text>
+          </View>
+          <View style={styles.previewStat}>
+            <Text style={styles.previewStatValue}>7</Text>
+            <Text style={styles.previewStatLabel}>{copy.devis}</Text>
+          </View>
+        </View>
+        <View style={styles.previewListRow}>
+          <Feather name="hard-drive" size={14} color={colors.primary} />
+          <Text style={styles.previewListText}>{copy.project}</Text>
+        </View>
+        <View style={styles.previewListRow}>
+          <Feather name="file-text" size={14} color={colors.primary} />
+          <Text style={styles.previewListText}>{copy.devisNumber}</Text>
+        </View>
+        <View style={styles.previewListRow}>
+          <Feather name="image" size={14} color={colors.primary} />
+          <Text style={styles.previewListText}>{copy.photos}</Text>
+        </View>
+      </View>
+      <View style={styles.previewTabBar}>
+        <Feather name="home" size={16} color={colors.primary} />
+        <Feather name="layers" size={16} color={colors.textMuted} />
+        <Feather name="file-text" size={16} color={colors.textMuted} />
+        <Feather name="calendar" size={16} color={colors.textMuted} />
+        <Feather name="settings" size={16} color={colors.textMuted} />
+      </View>
+    </View>
+  );
+}
+
+function AppPreview({ phoneWidth, lang }: { phoneWidth: number; lang: Lang }) {
+  return (
+    <PhoneChrome width={phoneWidth} rotate={-3}>
+      {(w, h) => <DashboardMockup width={w} height={h} lang={lang} />}
+    </PhoneChrome>
+  );
+}
+
+// A controlled, one-at-a-time carousel: paging (never rests half-cropped
+// between two slides the way free-scroll-with-peek did), explicit
+// prev/next arrows, and an optional auto-advance timer that resets on any
+// navigation (manual or automatic) so it always waits a fresh interval
+// after whatever the visitor — or the timer itself — last did.
 function PhoneCarousel({
   items,
   phoneWidth,
   rotate = 0,
   showCaptions = false,
+  autoAdvanceMs,
 }: {
   items: { key: string; source: number; caption?: string }[];
   phoneWidth: number;
   rotate?: number;
   showCaptions?: boolean;
+  autoAdvanceMs?: number;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const slotWidth = phoneWidth + spacing.xl * 2;
+  const scrollRef = useRef<ScrollView>(null);
+  const slideWidth = phoneWidth + spacing.xl * 2;
 
-  const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / (slotWidth + SHOWCASE_GAP));
+  const goTo = useCallback((idx: number) => {
+    const clamped = ((idx % items.length) + items.length) % items.length;
+    setActiveIndex(clamped);
+    scrollRef.current?.scrollTo({ x: clamped * slideWidth, animated: true });
+  }, [items.length, slideWidth]);
+
+  useEffect(() => {
+    if (!autoAdvanceMs) return;
+    const id = setTimeout(() => goTo(activeIndex + 1), autoAdvanceMs);
+    return () => clearTimeout(id);
+  }, [autoAdvanceMs, activeIndex, goTo]);
+
+  const handleMomentumEnd = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const idx = Math.round(e.nativeEvent.contentOffset.x / slideWidth);
     setActiveIndex(Math.max(0, Math.min(items.length - 1, idx)));
-  }, [items.length, slotWidth]);
+  }, [items.length, slideWidth]);
 
   return (
-    <View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={slotWidth + SHOWCASE_GAP}
-        decelerationRate="fast"
-        snapToAlignment="start"
-        contentContainerStyle={styles.showcaseSliderContent}
-        onScroll={handleScroll}
-        scrollEventThrottle={32}
-      >
-        {items.map((it) => (
-          <View key={it.key} style={[styles.showcaseSlideWrap, { width: slotWidth }]}>
-            <View style={styles.showcaseCard}>
-              <PhoneFrame source={it.source} width={phoneWidth} rotate={rotate} />
-              {showCaptions && it.caption ? <Text style={styles.showcaseCaption}>{it.caption}</Text> : null}
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+    <View style={styles.carouselOuter}>
+      <View style={styles.carouselRow}>
+        <Pressable onPress={() => goTo(activeIndex - 1)} style={styles.carouselArrow} hitSlop={8}>
+          <Feather name="chevron-left" size={18} color={colors.text} />
+        </Pressable>
+        <View style={{ width: slideWidth, overflow: 'hidden' }}>
+          <ScrollView
+            ref={scrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={handleMomentumEnd}
+            style={{ width: slideWidth }}
+          >
+            {items.map((it) => (
+              <View key={it.key} style={{ width: slideWidth, alignItems: 'center' }}>
+                <PhoneFrame source={it.source} width={phoneWidth} rotate={rotate} />
+                {showCaptions && it.caption ? <Text style={styles.showcaseCaption}>{it.caption}</Text> : null}
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+        <Pressable onPress={() => goTo(activeIndex + 1)} style={styles.carouselArrow} hitSlop={8}>
+          <Feather name="chevron-right" size={18} color={colors.text} />
+        </Pressable>
+      </View>
       {items.length > 1 ? (
         <View style={styles.sliderDots}>
           {items.map((it, i) => (
-            <View key={it.key} style={[styles.sliderDot, i === activeIndex && styles.sliderDotActive]} />
+            <Pressable key={it.key} onPress={() => goTo(i)} hitSlop={6}>
+              <View style={[styles.sliderDot, i === activeIndex && styles.sliderDotActive]} />
+            </Pressable>
           ))}
         </View>
       ) : null}
-    </View>
-  );
-}
-
-function AppPreview({ phoneWidth }: { phoneWidth: number }) {
-  return (
-    // A bare PhoneCarousel has no width of its own — its horizontal
-    // ScrollView happily grows to fit all 5 phones in a row on a wide
-    // screen, instead of acting as a slider. Capping the wrapper to one
-    // phone-width (plus a little breathing room) is what keeps it a
-    // one-at-a-time slider sitting next to the hero copy, not a second
-    // full-width showcase strip.
-    <View style={{ width: '100%', maxWidth: phoneWidth + spacing.xxl * 2, alignSelf: 'center' }}>
-      <PhoneCarousel
-        phoneWidth={phoneWidth}
-        rotate={-3}
-        items={[
-          { key: 'feedChat', source: SCREENS.feedChat },
-          { key: 'feedSelect', source: SCREENS.feedSelect },
-          { key: 'reportPdf', source: SCREENS.reportPdf },
-          { key: 'devisNew', source: SCREENS.devisNew },
-          { key: 'devisTotal', source: SCREENS.devisTotal },
-        ]}
-      />
     </View>
   );
 }
@@ -1004,12 +1084,96 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.35)',
     marginTop: spacing.sm,
   },
-  showcaseSliderContent: {
-    paddingHorizontal: spacing.xl,
-    alignSelf: 'center',
+  phoneStatusBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
   },
-  showcaseSlideWrap: {
-    marginRight: SHOWCASE_GAP,
+  phoneClock: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  phoneStatusIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  previewGreeting: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  previewOrg: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.lg,
+  },
+  previewStatsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  previewStat: {
+    flex: 1,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+  },
+  previewStatValue: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  previewStatLabel: {
+    fontSize: 9,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  previewListRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  previewListText: {
+    fontSize: 10,
+    color: colors.text,
+    flexShrink: 1,
+  },
+  previewTabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  carouselOuter: {
+    alignItems: 'center',
+  },
+  carouselRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+  },
+  carouselArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sliderDots: {
     flexDirection: 'row',
@@ -1027,9 +1191,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     width: 18,
   },
-  showcaseCard: {
-    alignItems: 'center',
-  },
   showcaseCaption: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
@@ -1045,13 +1206,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xxl,
   },
-  // Full-bleed band behind trades+pricing — everything else on the page
-  // sits on the same flat background, which reads as one long scroll; a
-  // contrasting band breaks the page into visual chapters.
-  bandSurface: {
+  // Trades/pricing as their own rounded cards, not a full-bleed band: a
+  // band needs an extra wrapping View, and that View's own layout box broke
+  // the nav's "Tarifs" scroll-to (onLayout y is relative to the *immediate*
+  // parent, so nesting pricing's Reveal one level deeper silently made its
+  // registered offset relative to the band instead of the scroll content).
+  sectionCard: {
     backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
+    borderRadius: radius.xl,
+    borderWidth: 1,
     borderColor: colors.border,
   },
   sectionTitle: {
