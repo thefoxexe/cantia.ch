@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, LayoutChangeEvent, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -36,6 +36,20 @@ const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 const MIN_SIZE = 16;
+
+// Purely visual guides (not stored, not enforced) helping an admin place
+// header content near the top and footer content near the bottom of the
+// same free canvas — see the "3 zones" framing raised in conversation.
+// Blocks can still be dragged anywhere; these bands just orient the eye.
+const HEADER_ZONE_H = 150;
+const FOOTER_ZONE_H = 90;
+
+// A real drag-and-drop canvas editor needs room: palette + canvas + inspector
+// side by side, like Shopify's theme editor. Below this width there isn't
+// enough space to do that without everything becoming unusably cramped, so
+// the editor refuses to render at all and asks for a bigger screen instead
+// of degrading into a broken mobile layout.
+const MIN_EDITOR_WIDTH = 900;
 
 interface BindingMeta {
   label: string;
@@ -81,6 +95,7 @@ interface TemplateRow {
 
 export default function PdfEditorScreen() {
   const { templateId } = useLocalSearchParams<{ templateId: string }>();
+  const { width: windowWidth } = useWindowDimensions();
   const [template, setTemplate] = useState<TemplateRow | null>(null);
   const [blocks, setBlocks] = useState<PdfBlock[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,6 +182,23 @@ export default function PdfEditorScreen() {
   }
 
   const backTo = template.kind === 'report' ? '/(app)/compte/rapports' : '/(app)/compte/devis';
+
+  if (windowWidth < MIN_EDITOR_WIDTH) {
+    return (
+      <Screen>
+        <PageHeader title={template.name} backTo={backTo} />
+        <View style={styles.tooSmall}>
+          <Feather name="monitor" size={40} color={colors.textMuted} />
+          <Text style={styles.tooSmallTitle}>Écran trop petit pour l'éditeur</Text>
+          <Text style={styles.tooSmallText}>
+            L'éditeur de modèle a besoin de place pour afficher la palette d'outils, l'aperçu et les réglages côte à
+            côte. Ouvrez cette page sur un ordinateur ou une tablette en mode paysage.
+          </Text>
+        </View>
+      </Screen>
+    );
+  }
+
   const scale = canvasWidth > 0 ? canvasWidth / PAGE_WIDTH : 0;
   const selectedBlock = blocks.find((b) => b.id === selectedId) ?? null;
   const availableBindings = (Object.keys(BINDING_META) as PdfBlockBinding[]).filter((b) => BINDING_META[b].kinds.includes(template.kind));
@@ -184,146 +216,162 @@ export default function PdfEditorScreen() {
         }
       />
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.paletteRow}>
-        {availableBindings.map((binding) => {
-          const meta = BINDING_META[binding];
-          const used = meta.maxOne && blocks.some((b) => b.binding === binding);
-          return (
-            <Pressable
-              key={binding}
-              disabled={!!used}
-              onPress={() => addBlock(binding)}
-              style={[styles.paletteChip, used && styles.paletteChipDisabled]}
-            >
-              <Feather name="plus" size={13} color={used ? colors.textMuted : colors.primary} />
-              <Text style={[styles.paletteChipText, used && styles.paletteChipTextDisabled]}>{meta.label}</Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      <ScrollView contentContainerStyle={styles.body}>
-        <View style={styles.canvasOuter} onLayout={onCanvasLayout}>
-          {scale > 0 ? (
-            <Pressable onPress={() => setSelectedId(null)} style={[styles.canvas, { width: PAGE_WIDTH * scale, height: PAGE_HEIGHT * scale }]}>
-              {blocks
-                .slice()
-                .sort((a, b) => a.z - b.z)
-                .map((b) => (
-                  <EditableBlock
-                    key={b.id}
-                    block={b}
-                    scale={scale}
-                    selected={b.id === selectedId}
-                    onSelect={() => setSelectedId(b.id)}
-                    onChange={updateBlock}
-                  />
-                ))}
-            </Pressable>
-          ) : null}
-        </View>
-
-        <Text style={styles.hint}>
-          Touchez un bloc pour le sélectionner : glissez pour le déplacer, tirez le coin en bas à droite pour le
-          redimensionner. Ajoutez-en avec les boutons ci-dessus.
-        </Text>
-      </ScrollView>
-
-      <Modal visible={!!selectedBlock} animationType="slide" transparent onRequestClose={() => setSelectedId(null)}>
-        <View style={styles.modalOverlay}>
-          <Pressable style={styles.modalBackdrop} onPress={() => setSelectedId(null)} />
-          {selectedBlock ? (
-            <View style={styles.modalSheet}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
-                <View style={styles.modalHeaderActions}>
-                  <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
-                    <Feather name="trash-2" size={19} color={colors.danger} />
-                  </Pressable>
-                  <Pressable hitSlop={8} onPress={() => setSelectedId(null)}>
-                    <Feather name="x" size={21} color={colors.textMuted} />
-                  </Pressable>
+      <View style={styles.workspace}>
+        <ScrollView style={styles.paletteColumn} contentContainerStyle={styles.paletteColumnContent}>
+          <Text style={styles.columnTitle}>Blocs</Text>
+          {availableBindings.map((binding) => {
+            const meta = BINDING_META[binding];
+            const used = meta.maxOne && blocks.some((b) => b.binding === binding);
+            return (
+              <Pressable
+                key={binding}
+                disabled={!!used}
+                onPress={() => addBlock(binding)}
+                style={[styles.paletteItem, used && styles.paletteItemDisabled]}
+              >
+                <View style={styles.paletteItemIcon}>
+                  <Feather name="plus" size={13} color={used ? colors.textMuted : colors.primary} />
                 </View>
-              </View>
-              <ScrollView contentContainerStyle={styles.modalBody}>
-                {selectedBlock.binding === 'static' ? (
-                  <Field
-                    label="Texte"
-                    value={selectedBlock.text ?? ''}
-                    onChangeText={(t) => updateBlock(selectedBlock.id, { text: t })}
-                    multiline
-                    placeholder="Votre texte"
-                  />
-                ) : null}
+                <Text style={[styles.paletteItemText, used && styles.paletteItemTextDisabled]}>{meta.label}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
 
-                <View style={styles.numRow}>
-                  <NumField label="X" value={selectedBlock.x} onChange={(v) => updateBlock(selectedBlock.id, { x: v })} />
-                  <NumField label="Y" value={selectedBlock.y} onChange={(v) => updateBlock(selectedBlock.id, { y: v })} />
-                </View>
-                <View style={styles.numRow}>
-                  <NumField label="Largeur" value={selectedBlock.width} onChange={(v) => updateBlock(selectedBlock.id, { width: v })} />
-                  <NumField label="Hauteur" value={selectedBlock.height} onChange={(v) => updateBlock(selectedBlock.id, { height: v })} />
-                </View>
-
-                {COLOR_CAPABLE.includes(selectedBlock.binding) ? (
-                  <>
-                    <Text style={styles.fieldLabel}>Couleur du texte</Text>
-                    <ColorPickerRow
-                      value={selectedBlock.style?.color}
-                      allowNone
-                      onChange={(hex) => updateStyle(selectedBlock.id, { color: hex ?? undefined })}
+        <ScrollView style={styles.canvasColumn} contentContainerStyle={styles.canvasColumnContent}>
+          <View style={styles.canvasOuter} onLayout={onCanvasLayout}>
+            {scale > 0 ? (
+              <Pressable onPress={() => setSelectedId(null)} style={[styles.canvas, { width: PAGE_WIDTH * scale, height: PAGE_HEIGHT * scale }]}>
+                <ZoneGuides scale={scale} />
+                {blocks
+                  .slice()
+                  .sort((a, b) => a.z - b.z)
+                  .map((b) => (
+                    <EditableBlock
+                      key={b.id}
+                      block={b}
+                      scale={scale}
+                      selected={b.id === selectedId}
+                      onSelect={() => setSelectedId(b.id)}
+                      onChange={updateBlock}
                     />
-                  </>
-                ) : null}
+                  ))}
+              </Pressable>
+            ) : null}
+          </View>
+        </ScrollView>
 
-                {ALIGN_CAPABLE.includes(selectedBlock.binding) ? (
-                  <>
-                    <Text style={styles.fieldLabel}>Alignement</Text>
-                    <View style={styles.alignRow}>
-                      {(
-                        [
-                          { id: 'left', icon: 'align-left' },
-                          { id: 'center', icon: 'align-center' },
-                          { id: 'right', icon: 'align-right' },
-                        ] as const
-                      ).map((a) => {
-                        const active = (selectedBlock.style?.align ?? 'left') === a.id;
-                        return (
-                          <Pressable
-                            key={a.id}
-                            onPress={() => updateStyle(selectedBlock.id, { align: a.id })}
-                            style={[styles.alignChip, active && styles.alignChipActive]}
-                          >
-                            <Feather name={a.icon} size={15} color={active ? colors.primary : colors.textMuted} />
-                          </Pressable>
-                        );
-                      })}
-                    </View>
-                  </>
-                ) : null}
-
-                {BACKGROUND_CAPABLE.includes(selectedBlock.binding) ? (
-                  <>
-                    <Text style={styles.fieldLabel}>Fond</Text>
-                    <ColorPickerRow
-                      value={selectedBlock.style?.background}
-                      allowNone
-                      onChange={(hex) => updateStyle(selectedBlock.id, { background: hex })}
-                    />
-                    <Text style={styles.fieldLabel}>Bordure</Text>
-                    <ColorPickerRow
-                      value={selectedBlock.style?.borderColor}
-                      allowNone
-                      onChange={(hex) => updateStyle(selectedBlock.id, { borderColor: hex })}
-                    />
-                  </>
-                ) : null}
-              </ScrollView>
+        <ScrollView style={styles.inspectorColumn} contentContainerStyle={styles.inspectorColumnContent}>
+          {!selectedBlock ? (
+            <View style={styles.inspectorPlaceholder}>
+              <Feather name="mouse-pointer" size={24} color={colors.textMuted} />
+              <Text style={styles.inspectorPlaceholderText}>
+                Sélectionnez un bloc dans l'aperçu pour modifier son texte, sa taille, sa position et son style.
+              </Text>
             </View>
-          ) : null}
-        </View>
-      </Modal>
+          ) : (
+            <>
+              <View style={styles.inspectorHeader}>
+                <Text style={styles.columnTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
+                <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
+                  <Feather name="trash-2" size={18} color={colors.danger} />
+                </Pressable>
+              </View>
+
+              {selectedBlock.binding === 'static' ? (
+                <Field
+                  label="Texte"
+                  value={selectedBlock.text ?? ''}
+                  onChangeText={(t) => updateBlock(selectedBlock.id, { text: t })}
+                  multiline
+                  placeholder="Votre texte"
+                />
+              ) : null}
+
+              <View style={styles.numRow}>
+                <NumField label="X" value={selectedBlock.x} onChange={(v) => updateBlock(selectedBlock.id, { x: v })} />
+                <NumField label="Y" value={selectedBlock.y} onChange={(v) => updateBlock(selectedBlock.id, { y: v })} />
+              </View>
+              <View style={styles.numRow}>
+                <NumField label="Largeur" value={selectedBlock.width} onChange={(v) => updateBlock(selectedBlock.id, { width: v })} />
+                <NumField label="Hauteur" value={selectedBlock.height} onChange={(v) => updateBlock(selectedBlock.id, { height: v })} />
+              </View>
+
+              {COLOR_CAPABLE.includes(selectedBlock.binding) ? (
+                <>
+                  <Text style={styles.fieldLabel}>Couleur du texte</Text>
+                  <ColorPickerRow
+                    value={selectedBlock.style?.color}
+                    allowNone
+                    onChange={(hex) => updateStyle(selectedBlock.id, { color: hex ?? undefined })}
+                  />
+                </>
+              ) : null}
+
+              {ALIGN_CAPABLE.includes(selectedBlock.binding) ? (
+                <>
+                  <Text style={styles.fieldLabel}>Alignement</Text>
+                  <View style={styles.alignRow}>
+                    {(
+                      [
+                        { id: 'left', icon: 'align-left' },
+                        { id: 'center', icon: 'align-center' },
+                        { id: 'right', icon: 'align-right' },
+                      ] as const
+                    ).map((a) => {
+                      const active = (selectedBlock.style?.align ?? 'left') === a.id;
+                      return (
+                        <Pressable
+                          key={a.id}
+                          onPress={() => updateStyle(selectedBlock.id, { align: a.id })}
+                          style={[styles.alignChip, active && styles.alignChipActive]}
+                        >
+                          <Feather name={a.icon} size={15} color={active ? colors.primary : colors.textMuted} />
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </>
+              ) : null}
+
+              {BACKGROUND_CAPABLE.includes(selectedBlock.binding) ? (
+                <>
+                  <Text style={styles.fieldLabel}>Fond</Text>
+                  <ColorPickerRow
+                    value={selectedBlock.style?.background}
+                    allowNone
+                    onChange={(hex) => updateStyle(selectedBlock.id, { background: hex })}
+                  />
+                  <Text style={styles.fieldLabel}>Bordure</Text>
+                  <ColorPickerRow
+                    value={selectedBlock.style?.borderColor}
+                    allowNone
+                    onChange={(hex) => updateStyle(selectedBlock.id, { borderColor: hex })}
+                  />
+                </>
+              ) : null}
+            </>
+          )}
+        </ScrollView>
+      </View>
     </Screen>
+  );
+}
+
+// Visual-only header/body/footer bands — a block's stored x/y is unaffected
+// by which band it visually falls in; this is purely a placement guide, not
+// a data model (see the top-of-file comment on HEADER_ZONE_H/FOOTER_ZONE_H).
+function ZoneGuides({ scale }: { scale: number }) {
+  const headerY = HEADER_ZONE_H * scale;
+  const footerY = (PAGE_HEIGHT - FOOTER_ZONE_H) * scale;
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      <View style={[styles.zoneLine, { top: headerY }]} />
+      <View style={[styles.zoneLine, { top: footerY }]} />
+      <Text style={[styles.zoneLabel, { top: 4 }]}>EN-TÊTE</Text>
+      <Text style={[styles.zoneLabel, { top: headerY + 4 }]}>CORPS</Text>
+      <Text style={[styles.zoneLabel, { top: footerY + 4 }]}>PIED DE PAGE</Text>
+    </View>
   );
 }
 
@@ -487,37 +535,82 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
   },
-  paletteRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  paletteChip: {
-    flexDirection: 'row',
+  tooSmall: {
+    flex: 1,
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
+    justifyContent: 'center',
+    padding: spacing.xxl,
+    gap: spacing.sm,
+  },
+  tooSmallTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: spacing.sm,
+  },
+  tooSmallText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    maxWidth: 380,
+  },
+  workspace: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  columnTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  paletteColumn: {
+    width: 220,
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
     backgroundColor: colors.surface,
   },
-  paletteChipDisabled: {
+  paletteColumnContent: {
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  paletteItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bg,
+  },
+  paletteItemDisabled: {
     opacity: 0.4,
   },
-  paletteChipText: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.primary,
+  paletteItemIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  paletteChipTextDisabled: {
+  paletteItemText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  paletteItemTextDisabled: {
     color: colors.textMuted,
   },
-  body: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl * 2,
+  canvasColumn: {
+    flex: 1,
+  },
+  canvasColumnContent: {
+    padding: spacing.xxl,
     alignItems: 'center',
   },
   canvasOuter: {
@@ -531,6 +624,25 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     position: 'relative',
     overflow: 'hidden',
+  },
+  zoneLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.accent,
+    opacity: 0.5,
+  },
+  zoneLabel: {
+    position: 'absolute',
+    left: 6,
+    fontSize: 8,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    color: colors.accent,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    paddingHorizontal: 3,
   },
   block: {
     position: 'absolute',
@@ -566,56 +678,35 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
   },
+  inspectorColumn: {
+    width: 320,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  inspectorColumnContent: {
+    padding: spacing.lg,
+  },
+  inspectorPlaceholder: {
+    alignItems: 'center',
+    paddingVertical: spacing.xxl,
+    gap: spacing.md,
+  },
+  inspectorPlaceholderText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  inspectorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
   numRow: {
     flexDirection: 'row',
     gap: spacing.md,
     marginBottom: spacing.md,
-  },
-  hint: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.lg,
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  modalBackdrop: {
-    ...StyleSheet.absoluteFill,
-  },
-  modalSheet: {
-    backgroundColor: colors.bg,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    maxHeight: '85%',
-    minHeight: '55%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  modalHeaderActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  modalTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  modalBody: {
-    padding: spacing.lg,
   },
   fieldLabel: {
     fontSize: fontSize.sm,
