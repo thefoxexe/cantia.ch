@@ -154,8 +154,29 @@ function drawDividerBlock(page: PDFPage, block: PdfBlock) {
   }
 }
 
+// Lets any block (text, image, whatever) carry an optional fill/border —
+// used by the editor's "Fond" / "Bordure" controls. Drawn first so it sits
+// behind the block's own content. Dividers manage their own rect fill
+// (shapeKind: 'rect') and are excluded to avoid drawing the same rectangle
+// twice.
+function drawBlockBackground(page: PDFPage, block: PdfBlock) {
+  const bg = block.style?.background && HEX_RE.test(block.style.background) ? hexToRgb(block.style.background) : undefined;
+  const hasBorder = !!block.style?.borderColor && HEX_RE.test(block.style.borderColor);
+  if (!bg && !hasBorder) return;
+  page.drawRectangle({
+    x: block.x,
+    y: blockBottomY(block),
+    width: block.width,
+    height: block.height,
+    color: bg,
+    borderColor: hasBorder ? hexToRgb(block.style!.borderColor!) : undefined,
+    borderWidth: hasBorder ? (block.style?.borderWidth ?? 1) : 0,
+  });
+}
+
 function drawAnchoredBlock(page: PDFPage, block: PdfBlock, kind: 'devis' | 'report', ctx: CustomLayoutCtx) {
   const { font, fontBold, logoImg, signatureImg } = ctx;
+  if (block.binding !== 'divider') drawBlockBackground(page, block);
   switch (block.binding) {
     case 'logo':
       return drawImageBlock(page, block, logoImg);

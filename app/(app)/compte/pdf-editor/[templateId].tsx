@@ -1,13 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ActivityIndicator, LayoutChangeEvent, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { supabase } from '../../../../lib/supabase';
-import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { BRAND_COLOR_PRESETS } from '../../../../components/PdfTemplatePicker';
+import { EmptyState, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
-import type { PdfBlock, PdfBlockBinding } from '../../../../lib/types';
+import type { PdfBlock, PdfBlockBinding, PdfBlockStyle } from '../../../../lib/types';
+
+// Bindings drawn via drawTextBlock (or, for 'notes', the flow-block text
+// loop) — the ones where a text color / alignment actually changes
+// anything in the rendered PDF. Image/table/divider bindings ignore these.
+const COLOR_CAPABLE: PdfBlockBinding[] = ['org.name', 'org.contact', 'document.title', 'document.meta', 'notes', 'static'];
+const ALIGN_CAPABLE: PdfBlockBinding[] = ['org.name', 'org.contact', 'document.title', 'document.meta', 'static'];
+// 'notes'/'photos'/'items_table'/'totals' are drawn outside drawAnchoredBlock
+// (as paginated "flow" content, see pdf-blocks.ts) and never read
+// style.background/borderColor — hiding the controls here instead of
+// showing a color that silently does nothing in the generated PDF.
+const BACKGROUND_CAPABLE: PdfBlockBinding[] = [
+  'logo',
+  'signature',
+  'org.name',
+  'org.contact',
+  'document.title',
+  'document.meta',
+  'static',
+];
 
 // Must match PAGE_WIDTH/PAGE_HEIGHT/MARGIN in supabase/functions/_shared/pdf-helpers.ts —
 // block x/y/width/height are stored in these same PDF points, top-left/y-down, so what's
@@ -91,6 +111,11 @@ export default function PdfEditorScreen() {
 
   const updateBlock = useCallback((id: string, patch: Partial<PdfBlock>) => {
     setBlocks((prev) => prev.map((b) => (b.id === id ? clampBlock({ ...b, ...patch }) : b)));
+    setDirty(true);
+  }, []);
+
+  const updateStyle = useCallback((id: string, patch: Partial<PdfBlockStyle>) => {
+    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, style: { ...b.style, ...patch } } : b)));
     setDirty(true);
   }, []);
 
@@ -198,40 +223,138 @@ export default function PdfEditorScreen() {
           ) : null}
         </View>
 
-        {selectedBlock ? (
-          <Card style={styles.inspector}>
-            <View style={styles.inspectorHeader}>
-              <Text style={styles.inspectorTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
-              <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
-                <Feather name="trash-2" size={18} color={colors.danger} />
-              </Pressable>
-            </View>
-            {selectedBlock.binding === 'static' ? (
-              <Field
-                label="Texte"
-                value={selectedBlock.text ?? ''}
-                onChangeText={(t) => updateBlock(selectedBlock.id, { text: t })}
-                multiline
-                placeholder="Votre texte"
-              />
-            ) : null}
-            <View style={styles.numRow}>
-              <NumField label="X" value={selectedBlock.x} onChange={(v) => updateBlock(selectedBlock.id, { x: v })} />
-              <NumField label="Y" value={selectedBlock.y} onChange={(v) => updateBlock(selectedBlock.id, { y: v })} />
-            </View>
-            <View style={styles.numRow}>
-              <NumField label="Largeur" value={selectedBlock.width} onChange={(v) => updateBlock(selectedBlock.id, { width: v })} />
-              <NumField label="Hauteur" value={selectedBlock.height} onChange={(v) => updateBlock(selectedBlock.id, { height: v })} />
-            </View>
-          </Card>
-        ) : (
-          <Text style={styles.hint}>
-            Touchez un bloc pour le sélectionner : glissez pour le déplacer, tirez le coin en bas à droite pour le
-            redimensionner. Ajoutez-en avec les boutons ci-dessus.
-          </Text>
-        )}
+        <Text style={styles.hint}>
+          Touchez un bloc pour le sélectionner : glissez pour le déplacer, tirez le coin en bas à droite pour le
+          redimensionner. Ajoutez-en avec les boutons ci-dessus.
+        </Text>
       </ScrollView>
+
+      <Modal visible={!!selectedBlock} animationType="slide" transparent onRequestClose={() => setSelectedId(null)}>
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setSelectedId(null)} />
+          {selectedBlock ? (
+            <View style={styles.modalSheet}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
+                <View style={styles.modalHeaderActions}>
+                  <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
+                    <Feather name="trash-2" size={19} color={colors.danger} />
+                  </Pressable>
+                  <Pressable hitSlop={8} onPress={() => setSelectedId(null)}>
+                    <Feather name="x" size={21} color={colors.textMuted} />
+                  </Pressable>
+                </View>
+              </View>
+              <ScrollView contentContainerStyle={styles.modalBody}>
+                {selectedBlock.binding === 'static' ? (
+                  <Field
+                    label="Texte"
+                    value={selectedBlock.text ?? ''}
+                    onChangeText={(t) => updateBlock(selectedBlock.id, { text: t })}
+                    multiline
+                    placeholder="Votre texte"
+                  />
+                ) : null}
+
+                <View style={styles.numRow}>
+                  <NumField label="X" value={selectedBlock.x} onChange={(v) => updateBlock(selectedBlock.id, { x: v })} />
+                  <NumField label="Y" value={selectedBlock.y} onChange={(v) => updateBlock(selectedBlock.id, { y: v })} />
+                </View>
+                <View style={styles.numRow}>
+                  <NumField label="Largeur" value={selectedBlock.width} onChange={(v) => updateBlock(selectedBlock.id, { width: v })} />
+                  <NumField label="Hauteur" value={selectedBlock.height} onChange={(v) => updateBlock(selectedBlock.id, { height: v })} />
+                </View>
+
+                {COLOR_CAPABLE.includes(selectedBlock.binding) ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Couleur du texte</Text>
+                    <ColorPickerRow
+                      value={selectedBlock.style?.color}
+                      allowNone
+                      onChange={(hex) => updateStyle(selectedBlock.id, { color: hex ?? undefined })}
+                    />
+                  </>
+                ) : null}
+
+                {ALIGN_CAPABLE.includes(selectedBlock.binding) ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Alignement</Text>
+                    <View style={styles.alignRow}>
+                      {(
+                        [
+                          { id: 'left', icon: 'align-left' },
+                          { id: 'center', icon: 'align-center' },
+                          { id: 'right', icon: 'align-right' },
+                        ] as const
+                      ).map((a) => {
+                        const active = (selectedBlock.style?.align ?? 'left') === a.id;
+                        return (
+                          <Pressable
+                            key={a.id}
+                            onPress={() => updateStyle(selectedBlock.id, { align: a.id })}
+                            style={[styles.alignChip, active && styles.alignChipActive]}
+                          >
+                            <Feather name={a.icon} size={15} color={active ? colors.primary : colors.textMuted} />
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  </>
+                ) : null}
+
+                {BACKGROUND_CAPABLE.includes(selectedBlock.binding) ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Fond</Text>
+                    <ColorPickerRow
+                      value={selectedBlock.style?.background}
+                      allowNone
+                      onChange={(hex) => updateStyle(selectedBlock.id, { background: hex })}
+                    />
+                    <Text style={styles.fieldLabel}>Bordure</Text>
+                    <ColorPickerRow
+                      value={selectedBlock.style?.borderColor}
+                      allowNone
+                      onChange={(hex) => updateStyle(selectedBlock.id, { borderColor: hex })}
+                    />
+                  </>
+                ) : null}
+              </ScrollView>
+            </View>
+          ) : null}
+        </View>
+      </Modal>
     </Screen>
+  );
+}
+
+function ColorPickerRow({
+  value,
+  onChange,
+  allowNone,
+}: {
+  value: string | null | undefined;
+  onChange: (hex: string | null) => void;
+  allowNone?: boolean;
+}) {
+  return (
+    <View style={styles.colorRow}>
+      {allowNone ? (
+        <Pressable
+          onPress={() => onChange(null)}
+          style={[styles.colorSwatch, styles.colorSwatchNone, !value && styles.colorSwatchActive]}
+        >
+          <Feather name="slash" size={13} color={colors.textMuted} />
+        </Pressable>
+      ) : null}
+      {BRAND_COLOR_PRESETS.map((hex) => {
+        const active = value?.toLowerCase() === hex.toLowerCase();
+        return (
+          <Pressable key={hex} onPress={() => onChange(hex)} style={[styles.colorSwatch, { backgroundColor: hex }, active && styles.colorSwatchActive]}>
+            {active ? <Feather name="check" size={13} color="#fff" /> : null}
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
@@ -443,25 +566,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
   },
-  inspector: {
-    width: '100%',
-    maxWidth: 700,
-    marginTop: spacing.lg,
-    gap: spacing.md,
-  },
-  inspectorHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  inspectorTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
   numRow: {
     flexDirection: 'row',
     gap: spacing.md,
+    marginBottom: spacing.md,
   },
   hint: {
     fontSize: fontSize.xs,
@@ -469,5 +577,91 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.lg,
     maxWidth: 400,
+    alignSelf: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFill,
+  },
+  modalSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '85%',
+    minHeight: '55%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  fieldLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+    fontWeight: '500',
+  },
+  colorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  colorSwatch: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorSwatchNone: {
+    backgroundColor: colors.surfaceAlt,
+    borderColor: colors.border,
+  },
+  colorSwatchActive: {
+    borderColor: colors.text,
+  },
+  alignRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  alignChip: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+  },
+  alignChipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
 });
