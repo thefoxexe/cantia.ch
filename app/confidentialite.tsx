@@ -37,9 +37,17 @@ export default function ConfidentialiteScreen() {
 
           <LegalSection title="Sous-traitants">
             <Text style={styles.p}>
-              Nous utilisons Supabase (base de données, authentification, stockage) et Stripe (paiement des
-              abonnements) comme sous-traitants techniques. Chacun applique ses propres mesures de sécurité et de
-              conformité.
+              Nous utilisons Supabase (base de données, authentification, stockage), Netlify (diffusion de
+              l'interface web) et Stripe (paiement des abonnements) comme sous-traitants techniques. Chacun applique
+              ses propres mesures de sécurité et de conformité.
+            </Text>
+          </LegalSection>
+
+          <LegalSection title="Localisation des données">
+            <Text style={styles.p}>
+              Vos données — base de données, fichiers, photos et documents — sont hébergées et traitées en Suisse,
+              dans le centre de données Supabase basé à Zurich. Elles ne quittent pas le territoire suisse dans le
+              cadre du fonctionnement normal du service.
             </Text>
           </LegalSection>
 

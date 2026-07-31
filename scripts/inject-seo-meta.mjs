@@ -20,10 +20,46 @@ const description =
   "Rapports de chantier, devis, photos géolocalisées, documents et levés cadastraux suisses — tout au même endroit. Le logiciel de gestion de chantier pensé pour le bâtiment en Suisse.";
 const ogImage = 'https://cantia.ch/og-image.jpg';
 
+// Organization + SoftwareApplication JSON-LD: the structured-data
+// equivalent of the meta tags above, read by search engines for rich
+// results and by AI/LLM crawlers (alongside llms.txt) to understand what
+// the product actually is without having to parse the rendered UI.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://cantia.ch/#organization',
+      name: 'Cantia',
+      url: 'https://cantia.ch/',
+      logo: 'https://cantia.ch/og-image.jpg',
+      email: 'legal@cantia.ch',
+      areaServed: { '@type': 'Country', name: 'Switzerland' },
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Cantia',
+      operatingSystem: 'Android, iOS, Web',
+      applicationCategory: 'BusinessApplication',
+      description,
+      url: 'https://cantia.ch/',
+      image: ogImage,
+      publisher: { '@id': 'https://cantia.ch/#organization' },
+      offers: {
+        '@type': 'AggregateOffer',
+        priceCurrency: 'CHF',
+        lowPrice: '0',
+        offerCount: '3',
+      },
+    },
+  ],
+};
+
 const metaTags = `
     <meta name="google-site-verification" content="ICyYP8Ky3MHHG3HsDL3rbEYb6Vy_2yy95uHmnLI74Sw" />
     <meta name="description" content="${description}" />
     <meta name="theme-color" content="#1F3D3A" />
+    <link rel="canonical" href="https://cantia.ch/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cantia" />
     <meta property="og:url" content="https://cantia.ch/" />
@@ -36,7 +72,8 @@ const metaTags = `
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
-    <meta name="twitter:image" content="${ogImage}" />`;
+    <meta name="twitter:image" content="${ogImage}" />
+    <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`;
 
 let html = readFileSync(distIndex, 'utf8');
 

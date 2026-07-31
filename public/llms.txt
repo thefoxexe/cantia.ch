@@ -1,0 +1,15 @@
+# Cantia
+
+> Cantia est un logiciel de gestion de chantier pour les artisans et entreprises du bâtiment en Suisse. Il regroupe en un seul endroit : rapports de chantier générés automatiquement par IA à partir de notes et photos géolocalisées, devis professionnels, documents de chantier classés en arborescence, galerie photos, fil d'actualité collaboratif (notes, photos, messages vocaux), levés de points avec coordonnées suisses (LV95) et cadastre/orthophoto suisses, et planning d'équipe. Disponible sur le web et en application mobile (Android/iOS).
+
+Cantia s'adresse aux entreprises de construction, artisans indépendants et corps de métier du bâtiment (maçonnerie, électricité, plomberie, charpente, peinture, etc.) en Suisse. Les données sont hébergées en Suisse (Zurich). Facturation en francs suisses (CHF), TVA suisse.
+
+## Pages principales
+
+- [Accueil](https://cantia.ch/): présentation du produit, fonctionnalités, tarifs.
+- [Confidentialité](https://cantia.ch/confidentialite): politique de confidentialité et protection des données.
+- [Mentions légales](https://cantia.ch/mentions-legales): éditeur, hébergement, propriété intellectuelle.
+
+## Plans et tarifs
+
+Cantia propose un plan gratuit et des plans payants (Indépendant, Entreprise) facturés mensuellement en CHF, avec stockage cloud, nombre de membres et fonctionnalités croissants (dont les levés RTK et le cadastre suisse sur les plans payants).

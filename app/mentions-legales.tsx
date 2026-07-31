@@ -30,8 +30,10 @@ export default function MentionsLegalesScreen() {
           <LegalSection title="Hébergement">
             <Text style={styles.p}>
               L'application est hébergée par Supabase Inc. (base de données, authentification et stockage de
-              fichiers) et par Vercel Inc. (diffusion de l'interface web). Les données sont stockées dans des centres
-              de données situés dans l'Union européenne.
+              fichiers) et par Netlify, Inc. (diffusion de l'interface web). Vos données — base de données et
+              fichiers — sont stockées de manière sécurisée dans le centre de données Supabase de Zurich, en Suisse.
+              L'interface web est distribuée via le réseau mondial de Netlify, qui ne stocke aucune de vos données
+              personnelles.
             </Text>
           </LegalSection>
 
