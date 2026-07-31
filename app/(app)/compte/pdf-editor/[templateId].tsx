@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, LayoutChangeEvent, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { supabase } from '../../../../lib/supabase';
 import { BRAND_COLOR_PRESETS } from '../../../../components/PdfTemplatePicker';
 import { EmptyState, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
@@ -44,12 +44,15 @@ const MIN_SIZE = 16;
 const HEADER_ZONE_H = 150;
 const FOOTER_ZONE_H = 90;
 
-// A real drag-and-drop canvas editor needs room: palette + canvas + inspector
-// side by side, like Shopify's theme editor. Below this width there isn't
-// enough space to do that without everything becoming unusably cramped, so
-// the editor refuses to render at all and asks for a bigger screen instead
-// of degrading into a broken mobile layout.
-const MIN_EDITOR_WIDTH = 900;
+// Three tiers instead of one hard cutoff — an iPad (portrait ~768-834pt,
+// landscape ~1024pt) needs to actually work, only a phone doesn't:
+// - < BLOCKED_WIDTH: refuse to render, ask for a bigger screen (phones).
+// - < COMPACT_WIDTH: still the full editor, but the palette becomes a
+//   horizontal strip and the inspector a bottom sheet, so the canvas isn't
+//   squeezed by two fixed side columns on a narrower tablet screen.
+// - >= COMPACT_WIDTH: Shopify-style 3 fixed columns side by side.
+const BLOCKED_WIDTH = 640;
+const COMPACT_WIDTH = 1080;
 
 interface BindingMeta {
   label: string;
@@ -103,6 +106,7 @@ export default function PdfEditorScreen() {
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [canvasWidth, setCanvasWidth] = useState(0);
+  const toastOpacity = useSharedValue(0);
 
   useEffect(() => {
     let active = true;
@@ -165,12 +169,20 @@ export default function PdfEditorScreen() {
     setSaving(true);
     const { error } = await supabase.rpc('update_pdf_template_blocks', { p_template: template.id, p_blocks: blocks });
     setSaving(false);
-    if (!error) setDirty(false);
+    if (!error) {
+      setDirty(false);
+      toastOpacity.value = withTiming(1, { duration: 150 });
+      setTimeout(() => {
+        toastOpacity.value = withTiming(0, { duration: 300 });
+      }, 1400);
+    }
   }
 
   function onCanvasLayout(e: LayoutChangeEvent) {
     setCanvasWidth(e.nativeEvent.layout.width);
   }
+
+  const toastStyle = useAnimatedStyle(() => ({ opacity: toastOpacity.value }));
 
   if (loading) return <LoadingScreen />;
   if (!template) {
@@ -183,7 +195,7 @@ export default function PdfEditorScreen() {
 
   const backTo = template.kind === 'report' ? '/(app)/compte/rapports' : '/(app)/compte/devis';
 
-  if (windowWidth < MIN_EDITOR_WIDTH) {
+  if (windowWidth < BLOCKED_WIDTH) {
     return (
       <Screen>
         <PageHeader title={template.name} backTo={backTo} />
@@ -191,170 +203,231 @@ export default function PdfEditorScreen() {
           <Feather name="monitor" size={40} color={colors.textMuted} />
           <Text style={styles.tooSmallTitle}>Écran trop petit pour l'éditeur</Text>
           <Text style={styles.tooSmallText}>
-            L'éditeur de modèle a besoin de place pour afficher la palette d'outils, l'aperçu et les réglages côte à
-            côte. Ouvrez cette page sur un ordinateur ou une tablette en mode paysage.
+            L'éditeur de modèle a besoin de place pour afficher la palette d'outils, l'aperçu et les réglages.
+            Ouvrez cette page sur une tablette ou un ordinateur.
           </Text>
         </View>
       </Screen>
     );
   }
 
+  const compact = windowWidth < COMPACT_WIDTH;
   const scale = canvasWidth > 0 ? canvasWidth / PAGE_WIDTH : 0;
   const selectedBlock = blocks.find((b) => b.id === selectedId) ?? null;
   const availableBindings = (Object.keys(BINDING_META) as PdfBlockBinding[]).filter((b) => BINDING_META[b].kinds.includes(template.kind));
 
+  const saveButton = (
+    <Pressable onPress={handleSave} disabled={saving || !dirty} hitSlop={8} style={[styles.saveBtn, !dirty && styles.saveBtnIdle]}>
+      {saving ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="check" size={15} color="#fff" />}
+      <Text style={styles.saveBtnText}>{dirty ? 'Enregistrer' : 'Enregistré'}</Text>
+    </Pressable>
+  );
+
+  const canvas = (
+    <View style={styles.canvasOuter} onLayout={onCanvasLayout}>
+      {scale > 0 ? (
+        <Pressable onPress={() => setSelectedId(null)} style={[styles.canvas, { width: PAGE_WIDTH * scale, height: PAGE_HEIGHT * scale }]}>
+          <ZoneGuides scale={scale} />
+          {blocks
+            .slice()
+            .sort((a, b) => a.z - b.z)
+            .map((b) => (
+              <EditableBlock
+                key={b.id}
+                block={b}
+                scale={scale}
+                selected={b.id === selectedId}
+                onSelect={() => setSelectedId(b.id)}
+                onChange={updateBlock}
+              />
+            ))}
+        </Pressable>
+      ) : null}
+    </View>
+  );
+
   return (
     <Screen>
-      <PageHeader
-        title={template.name}
-        backTo={backTo}
-        right={
-          <Pressable onPress={handleSave} disabled={saving || !dirty} hitSlop={8} style={[styles.saveBtn, !dirty && styles.saveBtnIdle]}>
-            {saving ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="check" size={15} color="#fff" />}
-            <Text style={styles.saveBtnText}>{dirty ? 'Enregistrer' : 'Enregistré'}</Text>
-          </Pressable>
-        }
-      />
+      <PageHeader title={template.name} backTo={backTo} right={saveButton} />
 
-      <View style={styles.workspace}>
-        <ScrollView style={styles.paletteColumn} contentContainerStyle={styles.paletteColumnContent}>
-          <Text style={styles.columnTitle}>Blocs</Text>
-          {availableBindings.map((binding) => {
-            const meta = BINDING_META[binding];
-            const used = meta.maxOne && blocks.some((b) => b.binding === binding);
-            return (
-              <Pressable
-                key={binding}
-                disabled={!!used}
-                onPress={() => addBlock(binding)}
-                style={[styles.paletteItem, used && styles.paletteItemDisabled]}
-              >
-                <View style={styles.paletteItemIcon}>
+      {compact ? (
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.paletteRow}>
+            {availableBindings.map((binding) => {
+              const meta = BINDING_META[binding];
+              const used = meta.maxOne && blocks.some((b) => b.binding === binding);
+              return (
+                <Pressable
+                  key={binding}
+                  disabled={!!used}
+                  onPress={() => addBlock(binding)}
+                  style={[styles.paletteChip, used && styles.paletteChipDisabled]}
+                >
                   <Feather name="plus" size={13} color={used ? colors.textMuted : colors.primary} />
-                </View>
-                <Text style={[styles.paletteItemText, used && styles.paletteItemTextDisabled]}>{meta.label}</Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        <ScrollView style={styles.canvasColumn} contentContainerStyle={styles.canvasColumnContent}>
-          <View style={styles.canvasOuter} onLayout={onCanvasLayout}>
-            {scale > 0 ? (
-              <Pressable onPress={() => setSelectedId(null)} style={[styles.canvas, { width: PAGE_WIDTH * scale, height: PAGE_HEIGHT * scale }]}>
-                <ZoneGuides scale={scale} />
-                {blocks
-                  .slice()
-                  .sort((a, b) => a.z - b.z)
-                  .map((b) => (
-                    <EditableBlock
-                      key={b.id}
-                      block={b}
-                      scale={scale}
-                      selected={b.id === selectedId}
-                      onSelect={() => setSelectedId(b.id)}
-                      onChange={updateBlock}
-                    />
-                  ))}
-              </Pressable>
-            ) : null}
-          </View>
-        </ScrollView>
-
-        <ScrollView style={styles.inspectorColumn} contentContainerStyle={styles.inspectorColumnContent}>
-          {!selectedBlock ? (
-            <View style={styles.inspectorPlaceholder}>
-              <Feather name="mouse-pointer" size={24} color={colors.textMuted} />
-              <Text style={styles.inspectorPlaceholderText}>
-                Sélectionnez un bloc dans l'aperçu pour modifier son texte, sa taille, sa position et son style.
-              </Text>
-            </View>
-          ) : (
-            <>
-              <View style={styles.inspectorHeader}>
-                <Text style={styles.columnTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
-                <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
-                  <Feather name="trash-2" size={18} color={colors.danger} />
+                  <Text style={[styles.paletteChipText, used && styles.paletteChipTextDisabled]}>{meta.label}</Text>
                 </Pressable>
-              </View>
+              );
+            })}
+          </ScrollView>
 
-              {selectedBlock.binding === 'static' ? (
-                <Field
-                  label="Texte"
-                  value={selectedBlock.text ?? ''}
-                  onChangeText={(t) => updateBlock(selectedBlock.id, { text: t })}
-                  multiline
-                  placeholder="Votre texte"
-                />
-              ) : null}
+          <ScrollView contentContainerStyle={styles.compactCanvasArea}>{canvas}</ScrollView>
 
-              <View style={styles.numRow}>
-                <NumField label="X" value={selectedBlock.x} onChange={(v) => updateBlock(selectedBlock.id, { x: v })} />
-                <NumField label="Y" value={selectedBlock.y} onChange={(v) => updateBlock(selectedBlock.id, { y: v })} />
-              </View>
-              <View style={styles.numRow}>
-                <NumField label="Largeur" value={selectedBlock.width} onChange={(v) => updateBlock(selectedBlock.id, { width: v })} />
-                <NumField label="Hauteur" value={selectedBlock.height} onChange={(v) => updateBlock(selectedBlock.id, { height: v })} />
-              </View>
-
-              {COLOR_CAPABLE.includes(selectedBlock.binding) ? (
-                <>
-                  <Text style={styles.fieldLabel}>Couleur du texte</Text>
-                  <ColorPickerRow
-                    value={selectedBlock.style?.color}
-                    allowNone
-                    onChange={(hex) => updateStyle(selectedBlock.id, { color: hex ?? undefined })}
-                  />
-                </>
-              ) : null}
-
-              {ALIGN_CAPABLE.includes(selectedBlock.binding) ? (
-                <>
-                  <Text style={styles.fieldLabel}>Alignement</Text>
-                  <View style={styles.alignRow}>
-                    {(
-                      [
-                        { id: 'left', icon: 'align-left' },
-                        { id: 'center', icon: 'align-center' },
-                        { id: 'right', icon: 'align-right' },
-                      ] as const
-                    ).map((a) => {
-                      const active = (selectedBlock.style?.align ?? 'left') === a.id;
-                      return (
-                        <Pressable
-                          key={a.id}
-                          onPress={() => updateStyle(selectedBlock.id, { align: a.id })}
-                          style={[styles.alignChip, active && styles.alignChipActive]}
-                        >
-                          <Feather name={a.icon} size={15} color={active ? colors.primary : colors.textMuted} />
-                        </Pressable>
-                      );
-                    })}
+          <Modal visible={!!selectedBlock} animationType="slide" transparent onRequestClose={() => setSelectedId(null)}>
+            <View style={styles.modalOverlay}>
+              <Pressable style={styles.modalBackdrop} onPress={() => setSelectedId(null)} />
+              {selectedBlock ? (
+                <View style={styles.modalSheet}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
+                    <View style={styles.modalHeaderActions}>
+                      <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
+                        <Feather name="trash-2" size={19} color={colors.danger} />
+                      </Pressable>
+                      <Pressable hitSlop={8} onPress={() => setSelectedId(null)}>
+                        <Feather name="x" size={21} color={colors.textMuted} />
+                      </Pressable>
+                    </View>
                   </View>
-                </>
+                  <ScrollView contentContainerStyle={styles.modalBody}>
+                    <InspectorBody block={selectedBlock} onUpdateBlock={updateBlock} onUpdateStyle={updateStyle} />
+                  </ScrollView>
+                </View>
               ) : null}
+            </View>
+          </Modal>
+        </>
+      ) : (
+        <View style={styles.workspace}>
+          <ScrollView style={styles.paletteColumn} contentContainerStyle={styles.paletteColumnContent}>
+            <Text style={styles.columnTitle}>Blocs</Text>
+            {availableBindings.map((binding) => {
+              const meta = BINDING_META[binding];
+              const used = meta.maxOne && blocks.some((b) => b.binding === binding);
+              return (
+                <Pressable
+                  key={binding}
+                  disabled={!!used}
+                  onPress={() => addBlock(binding)}
+                  style={[styles.paletteItem, used && styles.paletteItemDisabled]}
+                >
+                  <View style={styles.paletteItemIcon}>
+                    <Feather name="plus" size={13} color={used ? colors.textMuted : colors.primary} />
+                  </View>
+                  <Text style={[styles.paletteItemText, used && styles.paletteItemTextDisabled]}>{meta.label}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
 
-              {BACKGROUND_CAPABLE.includes(selectedBlock.binding) ? (
-                <>
-                  <Text style={styles.fieldLabel}>Fond</Text>
-                  <ColorPickerRow
-                    value={selectedBlock.style?.background}
-                    allowNone
-                    onChange={(hex) => updateStyle(selectedBlock.id, { background: hex })}
-                  />
-                  <Text style={styles.fieldLabel}>Bordure</Text>
-                  <ColorPickerRow
-                    value={selectedBlock.style?.borderColor}
-                    allowNone
-                    onChange={(hex) => updateStyle(selectedBlock.id, { borderColor: hex })}
-                  />
-                </>
-              ) : null}
-            </>
-          )}
-        </ScrollView>
-      </View>
+          <ScrollView style={styles.canvasColumn} contentContainerStyle={styles.canvasColumnContent}>
+            {canvas}
+          </ScrollView>
+
+          <ScrollView style={styles.inspectorColumn} contentContainerStyle={styles.inspectorColumnContent}>
+            {!selectedBlock ? (
+              <View style={styles.inspectorPlaceholder}>
+                <Feather name="mouse-pointer" size={24} color={colors.textMuted} />
+                <Text style={styles.inspectorPlaceholderText}>
+                  Sélectionnez un bloc dans l'aperçu pour modifier son texte, sa taille, sa position et son style.
+                </Text>
+              </View>
+            ) : (
+              <>
+                <View style={styles.inspectorHeader}>
+                  <Text style={styles.columnTitle}>{BINDING_META[selectedBlock.binding].label}</Text>
+                  <Pressable hitSlop={8} onPress={() => deleteBlock(selectedBlock.id)}>
+                    <Feather name="trash-2" size={18} color={colors.danger} />
+                  </Pressable>
+                </View>
+                <InspectorBody block={selectedBlock} onUpdateBlock={updateBlock} onUpdateStyle={updateStyle} />
+              </>
+            )}
+          </ScrollView>
+        </View>
+      )}
+
+      <Animated.View style={[styles.toast, toastStyle]} pointerEvents="none">
+        <Feather name="check-circle" size={14} color="#fff" />
+        <Text style={styles.toastText}>Enregistré</Text>
+      </Animated.View>
     </Screen>
+  );
+}
+
+// Shared between the desktop inspector column and the tablet bottom-sheet
+// modal — same fields either way, just a different container around them.
+function InspectorBody({
+  block,
+  onUpdateBlock,
+  onUpdateStyle,
+}: {
+  block: PdfBlock;
+  onUpdateBlock: (id: string, patch: Partial<PdfBlock>) => void;
+  onUpdateStyle: (id: string, patch: Partial<PdfBlockStyle>) => void;
+}) {
+  return (
+    <>
+      {block.binding === 'static' ? (
+        <Field
+          label="Texte"
+          value={block.text ?? ''}
+          onChangeText={(t) => onUpdateBlock(block.id, { text: t })}
+          multiline
+          placeholder="Votre texte"
+        />
+      ) : null}
+
+      <View style={styles.numRow}>
+        <NumField label="X" value={block.x} onChange={(v) => onUpdateBlock(block.id, { x: v })} />
+        <NumField label="Y" value={block.y} onChange={(v) => onUpdateBlock(block.id, { y: v })} />
+      </View>
+      <View style={styles.numRow}>
+        <NumField label="Largeur" value={block.width} onChange={(v) => onUpdateBlock(block.id, { width: v })} />
+        <NumField label="Hauteur" value={block.height} onChange={(v) => onUpdateBlock(block.id, { height: v })} />
+      </View>
+
+      {COLOR_CAPABLE.includes(block.binding) ? (
+        <>
+          <Text style={styles.fieldLabel}>Couleur du texte</Text>
+          <ColorPickerRow value={block.style?.color} allowNone onChange={(hex) => onUpdateStyle(block.id, { color: hex ?? undefined })} />
+        </>
+      ) : null}
+
+      {ALIGN_CAPABLE.includes(block.binding) ? (
+        <>
+          <Text style={styles.fieldLabel}>Alignement</Text>
+          <View style={styles.alignRow}>
+            {(
+              [
+                { id: 'left', icon: 'align-left' },
+                { id: 'center', icon: 'align-center' },
+                { id: 'right', icon: 'align-right' },
+              ] as const
+            ).map((a) => {
+              const active = (block.style?.align ?? 'left') === a.id;
+              return (
+                <Pressable
+                  key={a.id}
+                  onPress={() => onUpdateStyle(block.id, { align: a.id })}
+                  style={[styles.alignChip, active && styles.alignChipActive]}
+                >
+                  <Feather name={a.icon} size={15} color={active ? colors.primary : colors.textMuted} />
+                </Pressable>
+              );
+            })}
+          </View>
+        </>
+      ) : null}
+
+      {BACKGROUND_CAPABLE.includes(block.binding) ? (
+        <>
+          <Text style={styles.fieldLabel}>Fond</Text>
+          <ColorPickerRow value={block.style?.background} allowNone onChange={(hex) => onUpdateStyle(block.id, { background: hex })} />
+          <Text style={styles.fieldLabel}>Bordure</Text>
+          <ColorPickerRow value={block.style?.borderColor} allowNone onChange={(hex) => onUpdateStyle(block.id, { borderColor: hex })} />
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -606,6 +679,41 @@ const styles = StyleSheet.create({
   paletteItemTextDisabled: {
     color: colors.textMuted,
   },
+  paletteRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  paletteChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bg,
+  },
+  paletteChipDisabled: {
+    opacity: 0.4,
+  },
+  paletteChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  paletteChipTextDisabled: {
+    color: colors.textMuted,
+  },
+  compactCanvasArea: {
+    padding: spacing.xl,
+    alignItems: 'center',
+  },
   canvasColumn: {
     flex: 1,
   },
@@ -624,6 +732,16 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     position: 'relative',
     overflow: 'hidden',
+    ...Platform.select({
+      web: { boxShadow: '0 18px 40px -18px rgba(18,33,31,0.35)' },
+      default: {
+        shadowColor: colors.primaryDark,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.18,
+        shadowRadius: 20,
+        elevation: 6,
+      },
+    }),
   },
   zoneLine: {
     position: 'absolute',
@@ -754,5 +872,60 @@ const styles = StyleSheet.create({
   alignChipActive: {
     borderColor: colors.primary,
     backgroundColor: colors.primarySoft,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFill,
+  },
+  modalSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '85%',
+    minHeight: '55%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  toast: {
+    position: 'absolute',
+    bottom: spacing.xl,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primaryDark,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+  },
+  toastText: {
+    color: '#fff',
+    fontSize: fontSize.xs,
+    fontWeight: '700',
   },
 });
