@@ -136,7 +136,7 @@ function UpsellCard() {
         Choisissez la mise en page, la couleur de marque et le placement du logo de vos devis et rapports PDF, et créez
         plusieurs modèles pour vos différents besoins.
       </Text>
-      <Text style={styles.upsellText}>Disponible à partir du plan Indépendant (dès CHF 29/mois).</Text>
+      <Text style={styles.upsellText}>Disponible à partir du plan Indépendant (dès CHF 9/mois).</Text>
       <Button title="Voir les plans" variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
     </Card>
   );

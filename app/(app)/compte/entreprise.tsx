@@ -218,7 +218,7 @@ export default function EntrepriseScreen() {
             <Card style={styles.upsell}>
               <Feather name="lock" size={20} color={colors.accent} />
               <Text style={styles.upsellTitle}>Couleur de marque, placement du logo, pied de page</Text>
-              <Text style={styles.hint}>Disponible à partir du plan Indépendant (dès CHF 29/mois).</Text>
+              <Text style={styles.hint}>Disponible à partir du plan Indépendant (dès CHF 9/mois).</Text>
               <Button
                 title="Voir les plans"
                 variant="secondary"

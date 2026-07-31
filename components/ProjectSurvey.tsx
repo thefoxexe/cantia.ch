@@ -205,7 +205,7 @@ export function ProjectSurvey({ projectId, organizationId }: { projectId: string
           Enregistrez des points de chantier positionnés sur le cadastre et l’orthophoto officiels de la Suisse,
           avec export DXF / CSV / XML / GPX et connexion à un récepteur RTK sur tablette (bientôt).
         </Text>
-        <Text style={styles.upsellText}>Disponible à partir du plan Indépendant (dès CHF 29/mois).</Text>
+        <Text style={styles.upsellText}>Disponible à partir du plan Indépendant (dès CHF 9/mois).</Text>
         <Button
           title="Voir les plans"
           variant="secondary"
