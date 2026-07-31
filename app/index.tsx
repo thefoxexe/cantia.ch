@@ -281,6 +281,7 @@ function LandingContent() {
           </Reveal>
 
           {/* ---- Trades ---- */}
+          <View style={styles.bandSurface}>
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
             <View style={styles.tradeRow}>
@@ -328,6 +329,7 @@ function LandingContent() {
               ))}
             </View>
           </Reveal>
+          </View>
 
           {/* ---- Swiss positioning ---- */}
           <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
@@ -635,16 +637,22 @@ const PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports: str
   de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa Dupont — Renovation', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
 };
 
+// A real phone frame (notch, rounded bezel, home indicator) instead of a
+// browser-window chrome — the product is a mobile app used on site, not a
+// desktop dashboard, and the hero should read that way at a glance.
 function AppPreview({ lang }: { lang: Lang }) {
   const copy = PREVIEW_COPY[lang];
   return (
-    <View style={styles.preview}>
-      <View style={styles.previewChrome}>
-        <View style={styles.previewDot} />
-        <View style={styles.previewDot} />
-        <View style={styles.previewDot} />
-      </View>
-      <View style={styles.previewBody}>
+    <View style={styles.phoneFrame}>
+      <View style={styles.phoneNotch} />
+      <View style={styles.phoneScreen}>
+        <View style={styles.phoneStatusBar}>
+          <Text style={styles.phoneClock}>9:41</Text>
+          <View style={styles.phoneStatusIcons}>
+            <Feather name="wifi" size={11} color={colors.text} />
+            <Feather name="battery" size={13} color={colors.text} />
+          </View>
+        </View>
         <Text style={styles.previewGreeting}>{copy.greeting}</Text>
         <Text style={styles.previewOrg}>Dupont Serrurerie Sàrl</Text>
         <View style={styles.previewStatsRow}>
@@ -674,6 +682,7 @@ function AppPreview({ lang }: { lang: Lang }) {
           <Text style={styles.previewListText}>{copy.photos}</Text>
         </View>
       </View>
+      <View style={styles.phoneHomeIndicator} />
     </View>
   );
 }
@@ -1038,19 +1047,59 @@ const styles = StyleSheet.create({
   ctaButton: {
     minWidth: 220,
   },
-  preview: {
-    flex: 1,
-    minWidth: 300,
-    maxWidth: 380,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
+  phoneFrame: {
+    width: 300,
+    alignSelf: 'center',
+    backgroundColor: colors.primaryDark,
+    borderRadius: 46,
+    padding: 14,
+    transform: [{ rotate: '-3deg' }],
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 32,
-    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.22,
+    shadowRadius: 44,
+    shadowOffset: { width: 0, height: 28 },
+  },
+  phoneNotch: {
+    position: 'absolute',
+    top: 14,
+    left: '50%',
+    marginLeft: -46,
+    width: 92,
+    height: 24,
+    borderRadius: 14,
+    backgroundColor: colors.primaryDark,
+    zIndex: 2,
+  },
+  phoneScreen: {
+    backgroundColor: colors.surface,
+    borderRadius: 34,
+    overflow: 'hidden',
+    paddingTop: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  phoneStatusBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  phoneClock: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  phoneStatusIcons: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  phoneHomeIndicator: {
+    alignSelf: 'center',
+    width: 120,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.35)',
+    marginTop: spacing.sm,
   },
   previewChrome: {
     flexDirection: 'row',
@@ -1066,9 +1115,6 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.border,
-  },
-  previewBody: {
-    padding: spacing.xl,
   },
   previewGreeting: {
     fontSize: fontSize.xs,
@@ -1306,6 +1352,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xxl,
+  },
+  // Full-bleed band behind trades+pricing — everything else on the page
+  // sits on the same flat background, which reads as one long scroll; a
+  // contrasting band breaks the page into visual chapters.
+  bandSurface: {
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.border,
   },
   sectionTitle: {
     fontSize: fontSize.xxl,
