@@ -115,7 +115,19 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
   if (logoImg) {
     const h = 42;
     const w = (logoImg.width / logoImg.height) * h;
-    page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 10, width: w, height: h });
+    // A logo placed 'left' or 'center' shares the same horizontal band as
+    // the company name/title below it — drawn at the same y without
+    // reserving room, it used to sit directly on top of that text. Only
+    // 'right' is naturally clear of the left-anchored text column, so only
+    // that placement keeps the side-by-side look; left/center get their own
+    // row above the text instead (same fix pattern as the minimal template,
+    // which never had this bug).
+    if (logoPlacement === 'right') {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 10, width: w, height: h });
+    } else {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
+      y -= h + 12;
+    }
   }
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
   y -= 14;
@@ -208,20 +220,30 @@ async function renderReportModerne(ctx: RenderCtx): Promise<Uint8Array> {
   let pageNum = 1;
 
   const BAND_H = 108;
-  page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H, width: PAGE_WIDTH, height: BAND_H, color: brand });
+  // 'left'/'center' logos share the band's left-anchored text column — the
+  // fixed-offset badge used to sit right on top of the title (visible bug:
+  // the logo box overlapping "RAPPORT DE CHANTIER"). Only 'right' is
+  // naturally clear of that text, so only 'right' keeps the compact
+  // side-by-side band; left/center get a taller band with the logo on its
+  // own row above the text instead.
+  const stackLogo = Boolean(logoImg) && logoPlacement !== 'right';
+  const shift = stackLogo ? 48 : 0;
+  page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H - shift, width: PAGE_WIDTH, height: BAND_H + shift, color: brand });
   if (logoImg) {
     const h = 36;
     const w = (logoImg.width / logoImg.height) * h;
     const lx = logoX(logoPlacement, PAGE_WIDTH, MARGIN, w);
-    page.drawRectangle({ x: lx - 6, y: PAGE_HEIGHT - BAND_H + 18, width: w + 12, height: h + 12, color: WHITE });
-    page.drawImage(logoImg, { x: lx, y: PAGE_HEIGHT - BAND_H + 24, width: w, height: h });
+    const badgeY = stackLogo ? PAGE_HEIGHT - h - 24 : PAGE_HEIGHT - BAND_H + 18;
+    const imgY = stackLogo ? PAGE_HEIGHT - h - 18 : PAGE_HEIGHT - BAND_H + 24;
+    page.drawRectangle({ x: lx - 6, y: badgeY, width: w + 12, height: h + 12, color: WHITE });
+    page.drawImage(logoImg, { x: lx, y: imgY, width: w, height: h });
   }
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - 38, fontBold, 14, textOnBrand);
+  drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - shift - 38, fontBold, 14, textOnBrand);
   const contactLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
-  if (contactLine) drawText(page, contactLine, MARGIN, PAGE_HEIGHT - 54, font, 8.5, textOnBrand === WHITE ? BAND_MUTED : MUTED);
-  drawText(page, 'RAPPORT DE CHANTIER', MARGIN, PAGE_HEIGHT - 84, fontBold, 15, textOnBrand);
+  if (contactLine) drawText(page, contactLine, MARGIN, PAGE_HEIGHT - shift - 54, font, 8.5, textOnBrand === WHITE ? BAND_MUTED : MUTED);
+  drawText(page, 'RAPPORT DE CHANTIER', MARGIN, PAGE_HEIGHT - shift - 84, fontBold, 15, textOnBrand);
 
-  let y = PAGE_HEIGHT - BAND_H - 32;
+  let y = PAGE_HEIGHT - BAND_H - shift - 32;
   const newPage = () => {
     drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
@@ -416,7 +438,12 @@ async function renderReportStructure(ctx: RenderCtx): Promise<Uint8Array> {
   if (logoImg) {
     const h = 40;
     const w = (logoImg.width / logoImg.height) * h;
-    page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 6, width: w, height: h });
+    if (logoPlacement === 'right') {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 6, width: w, height: h });
+    } else {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
+      y -= h + 10;
+    }
   }
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
   y -= 16;

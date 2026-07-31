@@ -78,7 +78,15 @@ function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   if (logoImg) {
     const h = 46;
     const w = (logoImg.width / logoImg.height) * h;
-    page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 10, width: w, height: h });
+    // 'left'/'center' logos share the text column below them — only
+    // 'right' is naturally clear of it, so only that placement keeps the
+    // side-by-side look; left/center get their own row above the text.
+    if (logoPlacement === 'right') {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 10, width: w, height: h });
+    } else {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
+      y -= h + 12;
+    }
   }
 
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 17, brand);
@@ -210,23 +218,32 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   let pageNum = 1;
 
   const BAND_H = 118;
-  page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H, width: PAGE_WIDTH, height: BAND_H, color: brand });
+  // Same fix as the classic template: a 'left'/'center' logo shares the
+  // band's left-anchored text column, so its fixed-offset badge used to sit
+  // on top of "DEVIS N°...". Only 'right' stays clear of that text; for
+  // left/center the band grows taller and the logo gets its own row above
+  // the text instead.
+  const stackLogo = Boolean(logoImg) && logoPlacement !== 'right';
+  const shift = stackLogo ? 44 : 0;
+  page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H - shift, width: PAGE_WIDTH, height: BAND_H + shift, color: brand });
 
   if (logoImg) {
     const h = 40;
     const w = (logoImg.width / logoImg.height) * h;
     const lx = logoX(logoPlacement, PAGE_WIDTH, MARGIN, w);
-    page.drawRectangle({ x: lx - 7, y: PAGE_HEIGHT - BAND_H + 20, width: w + 14, height: h + 14, color: WHITE });
-    page.drawImage(logoImg, { x: lx, y: PAGE_HEIGHT - BAND_H + 27, width: w, height: h });
+    const badgeY = stackLogo ? PAGE_HEIGHT - 66 : PAGE_HEIGHT - BAND_H + 20;
+    const imgY = stackLogo ? PAGE_HEIGHT - 59 : PAGE_HEIGHT - BAND_H + 27;
+    page.drawRectangle({ x: lx - 7, y: badgeY, width: w + 14, height: h + 14, color: WHITE });
+    page.drawImage(logoImg, { x: lx, y: imgY, width: w, height: h });
   }
 
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - 40, fontBold, 15, textOnBrand);
+  drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - shift - 40, fontBold, 15, textOnBrand);
   const orgLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
-  if (orgLine) drawText(page, orgLine, MARGIN, PAGE_HEIGHT - 56, font, 9, rgb(0.85, 0.89, 0.87));
-  drawText(page, `DEVIS ${devis.number ?? ''}`, MARGIN, PAGE_HEIGHT - 92, fontBold, 22, textOnBrand);
-  drawText(page, formatDate(devis.created_at), MARGIN, PAGE_HEIGHT - 108, font, 9.5, rgb(0.85, 0.89, 0.87));
+  if (orgLine) drawText(page, orgLine, MARGIN, PAGE_HEIGHT - shift - 56, font, 9, rgb(0.85, 0.89, 0.87));
+  drawText(page, `DEVIS ${devis.number ?? ''}`, MARGIN, PAGE_HEIGHT - shift - 92, fontBold, 22, textOnBrand);
+  drawText(page, formatDate(devis.created_at), MARGIN, PAGE_HEIGHT - shift - 108, font, 9.5, rgb(0.85, 0.89, 0.87));
 
-  let y = PAGE_HEIGHT - BAND_H - 34;
+  let y = PAGE_HEIGHT - BAND_H - shift - 34;
 
   const newPage = () => {
     drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
@@ -469,7 +486,12 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
   if (logoImg) {
     const h = 42;
     const w = (logoImg.width / logoImg.height) * h;
-    page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 6, width: w, height: h });
+    if (logoPlacement === 'right') {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 6, width: w, height: h });
+    } else {
+      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
+      y -= h + 10;
+    }
   }
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
   y -= 14;
