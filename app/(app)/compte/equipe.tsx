@@ -15,6 +15,7 @@ import {
 } from '../../../lib/api/invites';
 import { Button, Card, Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { isOnline } from '../../../lib/presence';
 import type { OrganizationInvite, OrgRole, OrganizationMember } from '../../../lib/types';
 
 export default function EquipeScreen() {
@@ -191,9 +192,13 @@ export default function EquipeScreen() {
           {members.map((m) => (
             <Card key={m.id} style={styles.memberRow}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
+                <View style={styles.memberNameRow}>
+                  <View style={[styles.presenceDot, isOnline(m.last_seen_at) && styles.presenceDotOnline]} />
+                  <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
+                </View>
                 <Text style={styles.memberRole}>
                   {m.role === 'owner' ? 'Propriétaire' : m.role === 'admin' ? 'Administrateur' : 'Membre'}
+                  {isOnline(m.last_seen_at) ? ' · En ligne' : ''}
                 </Text>
               </View>
               {isAdmin && m.role !== 'owner' ? (
@@ -301,6 +306,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.sm,
+  },
+  memberNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  presenceDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.border,
+  },
+  presenceDotOnline: {
+    backgroundColor: colors.success,
   },
   memberName: {
     fontSize: fontSize.md,

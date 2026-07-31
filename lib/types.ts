@@ -86,6 +86,7 @@ export interface OrganizationMember {
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;
+  last_seen_at: string;
 }
 
 export interface Project {

@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
@@ -88,6 +88,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => listener.subscription.unsubscribe();
   }, [loadOrganization]);
+
+  // "Online" presence for the équipe screen/dashboard: bumps last_seen_at
+  // every 60s while signed in and foregrounded. AppState.currentState works
+  // on web too (react-native-web maps it to document.visibilitychange), so
+  // this doesn't need a separate branch per platform.
+  useEffect(() => {
+    if (!session?.user) return;
+    const beat = () => {
+      supabase.rpc('touch_presence').then(() => {}, () => {});
+    };
+    beat();
+    const interval = setInterval(() => {
+      if (AppState.currentState === 'active') beat();
+    }, 60000);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') beat();
+    });
+    return () => {
+      clearInterval(interval);
+      sub.remove();
+    };
+  }, [session?.user?.id]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
