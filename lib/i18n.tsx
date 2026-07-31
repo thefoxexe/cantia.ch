@@ -23,6 +23,7 @@ interface Dict {
     subtitle: string;
     feedCaption: string;
     reportCaption: string;
+    devisNewCaption: string;
     devisCaption: string;
   };
   pain: { title: string; items: { title: string; text: string }[] };
@@ -72,6 +73,7 @@ const fr: Dict = {
     subtitle: 'Du fil de chantier au document fini, sans ressaisie.',
     feedCaption: 'Notes, photos et messages vocaux géolocalisés — toute l’équipe voit tout en temps réel.',
     reportCaption: 'L’IA transforme le fil de la journée en rapport prêt à envoyer, automatiquement.',
+    devisNewCaption: 'Décrivez vos postes, Cantia calcule les sous-totaux au fur et à mesure.',
     devisCaption: 'Un devis professionnel, TVA et conditions incluses, généré en quelques minutes.',
   },
   pain: {
@@ -221,6 +223,7 @@ const en: Dict = {
     subtitle: 'From the site feed to the finished document, without retyping anything.',
     feedCaption: 'Notes, photos and geolocated voice messages — the whole team sees everything in real time.',
     reportCaption: 'AI turns the day’s feed into a ready-to-send report, automatically.',
+    devisNewCaption: 'Describe your line items, Cantia calculates the subtotals as you go.',
     devisCaption: 'A professional quote, VAT and terms included, generated in a few minutes.',
   },
   pain: {
@@ -370,6 +373,7 @@ const de: Dict = {
     subtitle: 'Vom Baustellen-Feed bis zum fertigen Dokument, ohne alles neu abzutippen.',
     feedCaption: 'Notizen, Fotos und georeferenzierte Sprachnachrichten — das ganze Team sieht alles in Echtzeit.',
     reportCaption: 'Die KI macht aus dem Tages-Feed automatisch einen versandfertigen Rapport.',
+    devisNewCaption: 'Beschreiben Sie Ihre Posten, Cantia berechnet die Zwischensummen laufend.',
     devisCaption: 'Eine professionelle Offerte, MWST und Bedingungen inklusive, in wenigen Minuten erstellt.',
   },
   pain: {

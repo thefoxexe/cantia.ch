@@ -206,7 +206,7 @@ function LandingContent() {
                 </View>
               </View>
 
-              <AppPreview lang={lang} />
+              <AppPreview />
             </Animated.View>
           </View>
 
@@ -216,9 +216,10 @@ function LandingContent() {
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
             <ShowcaseSlider
               cards={[
-                { key: 'feed', caption: t.showcase.feedCaption, content: <FeedMockup /> },
-                { key: 'report', caption: t.showcase.reportCaption, content: <ReportMockup /> },
-                { key: 'devis', caption: t.showcase.devisCaption, content: <DevisMockup /> },
+                { key: 'feed', caption: t.showcase.feedCaption, source: SCREENS.feedSelect },
+                { key: 'report', caption: t.showcase.reportCaption, source: SCREENS.reportPdf },
+                { key: 'devisNew', caption: t.showcase.devisNewCaption, source: SCREENS.devisNew },
+                { key: 'devis', caption: t.showcase.devisCaption, source: SCREENS.devisTotal },
               ]}
             />
           </Reveal>
@@ -631,89 +632,73 @@ function StoreBadge({ kind, label, comingSoon }: { kind: 'apple' | 'google'; lab
   );
 }
 
-const PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports: string; devis: string; project: string; devisNumber: string; photos: string }> = {
-  fr: { greeting: 'Bonjour', sites: 'Chantiers', reports: 'Rapports', devis: 'Devis', project: 'Villa Dupont — rénovation', devisNumber: 'Devis DEV-2026-0032', photos: '18 photos géolocalisées' },
-  en: { greeting: 'Hello', sites: 'Sites', reports: 'Reports', devis: 'Quotes', project: 'Villa Dupont — renovation', devisNumber: 'Quote QT-2026-0032', photos: '18 geolocated photos' },
-  de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa Dupont — Renovation', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
+// Real screenshots from the app now (not stylized recreations) — see
+// assets/screens/. Every phone frame on the page shares the same true
+// phone aspect ratio (the screenshots' own 1080x2340), so the frame is
+// never guessing at a shape — it's sized directly from the image.
+const SCREENS = {
+  feedChat: require('../assets/screens/feed-chat.jpg'),
+  feedSelect: require('../assets/screens/feed-select.jpg'),
+  reportPdf: require('../assets/screens/report-pdf.jpg'),
+  devisNew: require('../assets/screens/devis-new.jpg'),
+  devisTotal: require('../assets/screens/devis-total.jpg'),
 };
+const SCREEN_ASPECT = 1080 / 2340;
 
-// A real phone frame (notch, rounded bezel, home indicator) instead of a
-// browser-window chrome — the product is a mobile app used on site, not a
-// desktop dashboard, and the hero should read that way at a glance.
-function AppPreview({ lang }: { lang: Lang }) {
-  const copy = PREVIEW_COPY[lang];
+// A real phone frame (notch, rounded bezel, home indicator) wrapping a real
+// screenshot, sized off SCREEN_ASPECT so it's never "not phone-shaped" —
+// used for both the hero (bigger) and the showcase slider (smaller).
+// No fake notch: the real screenshots already carry their own status bar
+// (clock, wifi, battery), so a separately-drawn notch would just double up
+// on — or clash with — what's already in the image. A thin bezel + rounded
+// corners + home indicator is enough to read as "this is a phone".
+function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: number; rotate?: number }) {
+  const bezel = Math.round(width * 0.035);
+  const screenWidth = width - bezel * 2;
+  const screenHeight = Math.round(screenWidth / SCREEN_ASPECT);
+  const outerRadius = Math.round(width * 0.14);
   return (
-    <View style={styles.phoneFrame}>
-      <View style={styles.phoneNotch} />
-      <View style={styles.phoneScreen}>
-        <View style={styles.phoneStatusBar}>
-          <Text style={styles.phoneClock}>9:41</Text>
-          <View style={styles.phoneStatusIcons}>
-            <Feather name="wifi" size={11} color={colors.text} />
-            <Feather name="battery" size={13} color={colors.text} />
-          </View>
-        </View>
-        <Text style={styles.previewGreeting}>{copy.greeting}</Text>
-        <Text style={styles.previewOrg}>Dupont Serrurerie Sàrl</Text>
-        <View style={styles.previewStatsRow}>
-          <View style={styles.previewStat}>
-            <Text style={styles.previewStatValue}>12</Text>
-            <Text style={styles.previewStatLabel}>{copy.sites}</Text>
-          </View>
-          <View style={styles.previewStat}>
-            <Text style={styles.previewStatValue}>34</Text>
-            <Text style={styles.previewStatLabel}>{copy.reports}</Text>
-          </View>
-          <View style={styles.previewStat}>
-            <Text style={styles.previewStatValue}>7</Text>
-            <Text style={styles.previewStatLabel}>{copy.devis}</Text>
-          </View>
-        </View>
-        <View style={styles.previewListRow}>
-          <Feather name="hard-drive" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>{copy.project}</Text>
-        </View>
-        <View style={styles.previewListRow}>
-          <Feather name="file-text" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>{copy.devisNumber}</Text>
-        </View>
-        <View style={styles.previewListRow}>
-          <Feather name="image" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>{copy.photos}</Text>
-        </View>
+    <View
+      style={[
+        styles.phoneFrame,
+        { width, padding: bezel, borderRadius: outerRadius, transform: [{ rotate: `${rotate}deg` }] },
+      ]}
+    >
+      <View style={{ width: screenWidth, height: screenHeight, borderRadius: outerRadius - bezel, overflow: 'hidden' }}>
+        <Image source={source} style={{ width: screenWidth, height: screenHeight }} resizeMode="cover" />
       </View>
       <View style={styles.phoneHomeIndicator} />
     </View>
   );
 }
 
-// ---- Showcase mockups ----
-// Stylized recreations of the real screens (not screenshots yet) — same
-// "browser chrome" framing as the hero's AppPreview, kept deliberately
-// schematic (placeholder blocks instead of real photos) so swapping in
-// actual screenshots later is a drop-in replacement, not a redesign.
-const SHOWCASE_CARD_WIDTH = 300;
+function AppPreview() {
+  return <PhoneFrame source={SCREENS.feedChat} width={260} rotate={-3} />;
+}
+
+const SHOWCASE_PHONE_WIDTH = 200;
 const SHOWCASE_GAP = spacing.lg;
 
-// A horizontal, snap-to-card slider instead of three stacked boxes — the
-// hero above already reads as one block, so three more full-width cards
-// straight after it felt like a wall of boxes. Swiping/dragging invites a
-// glance at each screen instead of a long scroll past all of them at once.
-function ShowcaseSlider({ cards }: { cards: { key: string; caption: string; content: React.ReactNode }[] }) {
+// A horizontal, snap-to-card slider instead of stacked boxes — the hero
+// above already reads as one block, so more full-width cards straight
+// after it felt like a wall of boxes. Swiping/dragging invites a glance at
+// each screen instead of a long scroll past all of them at once.
+function ShowcaseSlider({ cards }: { cards: { key: string; caption: string; source: number }[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const cardWidth = SHOWCASE_PHONE_WIDTH + spacing.xl * 2;
 
   const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / (SHOWCASE_CARD_WIDTH + SHOWCASE_GAP));
+    const idx = Math.round(x / (cardWidth + SHOWCASE_GAP));
     setActiveIndex(Math.max(0, Math.min(cards.length - 1, idx)));
-  }, [cards.length]);
+  }, [cards.length, cardWidth]);
 
   return (
     <View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={SHOWCASE_CARD_WIDTH + SHOWCASE_GAP}
+        snapToInterval={cardWidth + SHOWCASE_GAP}
         decelerationRate="fast"
         snapToAlignment="start"
         contentContainerStyle={styles.showcaseSliderContent}
@@ -721,8 +706,8 @@ function ShowcaseSlider({ cards }: { cards: { key: string; caption: string; cont
         scrollEventThrottle={32}
       >
         {cards.map((c) => (
-          <View key={c.key} style={styles.showcaseSlideWrap}>
-            <ShowcaseCard caption={c.caption}>{c.content}</ShowcaseCard>
+          <View key={c.key} style={[styles.showcaseSlideWrap, { width: cardWidth }]}>
+            <ShowcaseCard caption={c.caption} source={c.source} />
           </View>
         ))}
       </ScrollView>
@@ -735,89 +720,11 @@ function ShowcaseSlider({ cards }: { cards: { key: string; caption: string; cont
   );
 }
 
-function ShowcaseCard({ children, caption }: { children: React.ReactNode; caption: string }) {
+function ShowcaseCard({ source, caption }: { source: number; caption: string }) {
   return (
     <View style={styles.showcaseCard}>
-      <View style={styles.previewChrome}>
-        <View style={styles.previewDot} />
-        <View style={styles.previewDot} />
-        <View style={styles.previewDot} />
-      </View>
-      <View style={styles.showcaseBody}>{children}</View>
+      <PhoneFrame source={source} width={SHOWCASE_PHONE_WIDTH} />
       <Text style={styles.showcaseCaption}>{caption}</Text>
-    </View>
-  );
-}
-
-function FeedMockup() {
-  return (
-    <View style={{ gap: spacing.sm }}>
-      <View style={styles.mockBubble}>
-        <Text style={styles.mockBubbleAuthor}>Marc</Text>
-        <Text style={styles.mockBubbleText}>Fondations coulées, prêt pour le coffrage demain.</Text>
-      </View>
-      <View style={styles.mockBubble}>
-        <View style={styles.mockPhotoRow}>
-          <View style={styles.mockPhotoThumb}>
-            <Feather name="image" size={14} color={colors.primary} />
-          </View>
-          <Text style={styles.mockBubbleText}>Façade nord — avant enduit</Text>
-        </View>
-      </View>
-      <View style={[styles.mockBubble, styles.mockBubbleVoice]}>
-        <View style={styles.mockPlayButton}>
-          <Feather name="play" size={9} color="#fff" />
-        </View>
-        <View style={styles.mockWave} />
-        <Text style={styles.mockDuration}>0:42</Text>
-      </View>
-    </View>
-  );
-}
-
-function ReportMockup() {
-  return (
-    <View style={{ gap: spacing.sm }}>
-      <View style={styles.mockRowBetween}>
-        <Text style={styles.mockTitle}>Rapport — 30.07</Text>
-        <View style={styles.mockAiBadge}>
-          <Feather name="zap" size={9} color={colors.primary} />
-          <Text style={styles.mockAiBadgeText}>IA</Text>
-        </View>
-      </View>
-      <View style={styles.mockTextLine} />
-      <View style={[styles.mockTextLine, { width: '88%' }]} />
-      <View style={[styles.mockTextLine, { width: '65%' }]} />
-      <View style={styles.mockThumbRow}>
-        <View style={styles.mockThumbSquare} />
-        <View style={styles.mockThumbSquare} />
-        <View style={styles.mockThumbSquare} />
-      </View>
-    </View>
-  );
-}
-
-function DevisMockup() {
-  return (
-    <View style={{ gap: spacing.sm }}>
-      <View style={styles.mockRowBetween}>
-        <Text style={styles.mockTitle}>DEV-2026-0032</Text>
-        <View style={styles.mockStatusBadge}>
-          <Text style={styles.mockStatusBadgeText}>Envoyé</Text>
-        </View>
-      </View>
-      <View style={styles.mockLineRow}>
-        <Text style={styles.mockLineText}>Maçonnerie — fondations</Text>
-        <Text style={styles.mockLineAmount}>CHF 4’200</Text>
-      </View>
-      <View style={styles.mockLineRow}>
-        <Text style={styles.mockLineText}>Coffrage &amp; ferraillage</Text>
-        <Text style={styles.mockLineAmount}>CHF 2’850</Text>
-      </View>
-      <View style={styles.mockTotalRow}>
-        <Text style={styles.mockTotalLabel}>Total TTC</Text>
-        <Text style={styles.mockTotalAmount}>CHF 7’050</Text>
-      </View>
     </View>
   );
 }
@@ -1048,125 +955,26 @@ const styles = StyleSheet.create({
     minWidth: 220,
   },
   phoneFrame: {
-    width: 300,
     alignSelf: 'center',
     backgroundColor: colors.primaryDark,
-    borderRadius: 46,
-    padding: 14,
-    transform: [{ rotate: '-3deg' }],
     shadowColor: '#000',
     shadowOpacity: 0.22,
     shadowRadius: 44,
     shadowOffset: { width: 0, height: 28 },
   },
-  phoneNotch: {
-    position: 'absolute',
-    top: 14,
-    left: '50%',
-    marginLeft: -46,
-    width: 92,
-    height: 24,
-    borderRadius: 14,
-    backgroundColor: colors.primaryDark,
-    zIndex: 2,
-  },
-  phoneScreen: {
-    backgroundColor: colors.surface,
-    borderRadius: 34,
-    overflow: 'hidden',
-    paddingTop: spacing.xxl,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  phoneStatusBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  phoneClock: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  phoneStatusIcons: {
-    flexDirection: 'row',
-    gap: 5,
-  },
   phoneHomeIndicator: {
     alignSelf: 'center',
-    width: 120,
+    width: '32%',
     height: 4,
     borderRadius: 2,
     backgroundColor: 'rgba(255,255,255,0.35)',
     marginTop: spacing.sm,
-  },
-  previewChrome: {
-    flexDirection: 'row',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  previewDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.border,
-  },
-  previewGreeting: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  previewOrg: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  previewStatsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  previewStat: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-  },
-  previewStatValue: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.primary,
-  },
-  previewStatLabel: {
-    fontSize: 10,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  previewListRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  previewListText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    fontWeight: '500',
   },
   showcaseSliderContent: {
     paddingHorizontal: spacing.xl,
     alignSelf: 'center',
   },
   showcaseSlideWrap: {
-    width: SHOWCASE_CARD_WIDTH,
     marginRight: SHOWCASE_GAP,
   },
   sliderDots: {
@@ -1186,165 +994,15 @@ const styles = StyleSheet.create({
     width: 18,
   },
   showcaseCard: {
-    width: 300,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-  },
-  showcaseBody: {
-    padding: spacing.lg,
-    minHeight: 168,
+    alignItems: 'center',
   },
   showcaseCaption: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 17,
-    padding: spacing.lg,
-    paddingTop: 0,
-  },
-  mockBubble: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-  },
-  mockBubbleAuthor: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 2,
-  },
-  mockBubbleText: {
-    fontSize: 11,
-    color: colors.text,
-    lineHeight: 15,
-  },
-  mockPhotoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  mockPhotoThumb: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mockBubbleVoice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  mockPlayButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mockWave: {
-    flex: 1,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: colors.border,
-  },
-  mockDuration: {
-    fontSize: 10,
-    color: colors.textMuted,
-  },
-  mockRowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  mockTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  mockAiBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-  },
-  mockAiBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  mockTextLine: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.border,
-    width: '100%',
-  },
-  mockThumbRow: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginTop: spacing.xs,
-  },
-  mockThumbSquare: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  mockStatusBadge: {
-    backgroundColor: colors.accentSoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-  },
-  mockStatusBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.accent,
-  },
-  mockLineRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  mockLineText: {
-    fontSize: 11,
-    color: colors.text,
-    flexShrink: 1,
-  },
-  mockLineAmount: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  mockTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: spacing.xs,
-    marginTop: 2,
-  },
-  mockTotalLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  mockTotalAmount: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.primary,
+    textAlign: 'center',
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.sm,
   },
   section: {
     maxWidth: 1080,
