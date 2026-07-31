@@ -85,17 +85,25 @@ export function guessContentType(path: string): string {
   return 'application/octet-stream';
 }
 
-export async function embedImageSmart(pdfDoc: PDFDocument, bytes: Uint8Array, contentType: string) {
-  try {
-    if (contentType.includes('png')) return await pdfDoc.embedPng(bytes);
-    return await pdfDoc.embedJpg(bytes);
-  } catch {
+// Returns null instead of throwing when a file is neither a valid PNG nor a
+// valid JPEG (corrupt upload, HEIC that slipped past the picker's format
+// filter, etc.) — callers already treat a null logo/signature/photo as "skip
+// this image", so one bad file degrades gracefully instead of taking down
+// the whole PDF generation (which previously surfaced as a hard failure with
+// no indication of which image was the problem).
+export async function embedImageSmart(pdfDoc: PDFDocument, bytes: Uint8Array, contentType: string): Promise<PDFImage | null> {
+  const attempts = contentType.includes('png')
+    ? [() => pdfDoc.embedPng(bytes), () => pdfDoc.embedJpg(bytes)]
+    : [() => pdfDoc.embedJpg(bytes), () => pdfDoc.embedPng(bytes)];
+  for (const attempt of attempts) {
     try {
-      return await pdfDoc.embedPng(bytes);
+      return await attempt();
     } catch {
-      return await pdfDoc.embedJpg(bytes);
+      // try the next format
     }
   }
+  console.error(`embedImageSmart: could not embed image as PNG or JPEG (contentType: ${contentType}, ${bytes.length} bytes)`);
+  return null;
 }
 
 export function formatDate(iso: string): string {

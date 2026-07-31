@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 import { uploadToOrgBucket } from './storage';
-import { assetFileInfo } from '../imageAsset';
+import { assetFileInfo, normalizeImageOrientation } from '../imageAsset';
 import { generateReportPdf } from './pdf';
 import { polishReportNotes } from './ai';
 import type { FeedEntry } from '../types';
@@ -45,9 +45,10 @@ export async function addPhotoEntry(params: {
   longitude: number | null;
   takenAt: string;
 }): Promise<{ error: string | null; entry: FeedEntry | null }> {
-  const { ext, contentType } = assetFileInfo(params);
+  const raw = assetFileInfo(params);
+  const { uri, ext, contentType } = await normalizeImageOrientation(params.uri, raw.contentType);
   const subPath = `feed/${params.projectId}/${Date.now()}.${ext}`;
-  const { path, error: uploadError } = await uploadToOrgBucket(params.organizationId, subPath, params.uri, contentType);
+  const { path, error: uploadError } = await uploadToOrgBucket(params.organizationId, subPath, uri, contentType);
   if (!path) return { error: uploadError ?? "Échec de l'envoi de la photo", entry: null };
 
   const { data, error } = await supabase

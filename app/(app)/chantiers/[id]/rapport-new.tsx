@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../../lib/api/storage';
-import { assetFileInfo } from '../../../../lib/imageAsset';
+import { assetFileInfo, normalizeImageOrientation } from '../../../../lib/imageAsset';
 import { generateReportPdf } from '../../../../lib/api/pdf';
 import { polishReportNotes } from '../../../../lib/api/ai';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
@@ -134,9 +134,10 @@ export default function NewReportScreen() {
       for (let i = 0; i < photos.length; i++) {
         setStep(`Envoi photo ${i + 1}/${photos.length}…`);
         const p = photos[i];
-        const { ext, contentType } = assetFileInfo(p);
+        const raw = assetFileInfo(p);
+        const { uri, ext, contentType } = await normalizeImageOrientation(p.uri, raw.contentType);
         const subPath = `reports/${report.id}/photos/${Date.now()}-${i}.${ext}`;
-        const { path } = await uploadToOrgBucket(organization.id, subPath, p.uri, contentType);
+        const { path } = await uploadToOrgBucket(organization.id, subPath, uri, contentType);
         if (path) {
           await supabase.from('report_photos').insert({
             report_id: report.id,

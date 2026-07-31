@@ -584,11 +584,13 @@ async function drawPhotoGrid(params: {
     if (bytes) {
       const img = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
       const innerW = cellW - cardPad * 2;
-      const scale = Math.min(innerW / img.width, imgH / img.height);
-      const w = img.width * scale;
-      const h = img.height * scale;
       page.drawRectangle({ x: x + cardPad, y: imgTop - imgH, width: innerW, height: imgH, color: PAPER_ALT });
-      page.drawImage(img, { x: x + cardPad + (innerW - w) / 2, y: imgTop - imgH + (imgH - h) / 2, width: w, height: h });
+      if (img) {
+        const scale = Math.min(innerW / img.width, imgH / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        page.drawImage(img, { x: x + cardPad + (innerW - w) / 2, y: imgTop - imgH + (imgH - h) / 2, width: w, height: h });
+      }
     }
 
     let capY = imgTop - imgH - 14;

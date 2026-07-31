@@ -6,7 +6,8 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
-import { assetFileInfo } from '../../../lib/imageAsset';
+import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
+import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -85,16 +86,22 @@ export default function EntrepriseScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
     if (result.canceled || !result.assets?.length) return;
     const asset = result.assets[0];
-    const { ext, contentType } = assetFileInfo(asset);
+    const raw = assetFileInfo(asset);
+    const { uri, ext, contentType } = await normalizeImageOrientation(asset.uri, raw.contentType);
     const subPath = `branding/${kind}-${Date.now()}.${ext}`;
-    const { path } = await uploadToOrgBucket(organization.id, subPath, asset.uri, contentType);
+    const { path } = await uploadToOrgBucket(organization.id, subPath, uri, contentType);
     if (path) {
       const column = kind === 'logo' ? 'logo_url' : 'signature_url';
       await supabase.from('organizations').update({ [column]: path }).eq('id', organization.id);
       await refreshOrganization();
       const url = await getSignedUrl(path);
-      if (kind === 'logo') setLogoUrl(url);
-      else setSignatureUrl(url);
+      if (kind === 'logo') {
+        setLogoUrl(url);
+        const suggested = await suggestBrandColorFromImage(uri);
+        if (suggested) setBrandColor(suggested);
+      } else {
+        setSignatureUrl(url);
+      }
     }
   }
 
@@ -213,6 +220,9 @@ export default function EntrepriseScreen() {
           ) : (
             <>
               <Text style={styles.fieldLabel}>Couleur de marque</Text>
+              <Text style={styles.hint}>
+                Suggérée automatiquement à partir des couleurs de votre logo (depuis le site web) — modifiable ci-dessous.
+              </Text>
               <View style={styles.colorRow}>
                 {BRAND_COLOR_PRESETS.map((hex) => (
                   <Pressable

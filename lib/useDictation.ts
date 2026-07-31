@@ -18,6 +18,12 @@ function normalizeForDedup(text: string): string {
   return text.trim().toLowerCase().replace(/[.,!?;:]+$/, '');
 }
 
+// Errors the platform can't recover from on its own — anything else (no
+// speech detected, a network blip, the generic Android "client"/"unknown"
+// codes) is treated as transient and left to the 'end' handler below, which
+// restarts the session rather than surfacing it as a stop.
+const FATAL_ERRORS = new Set(['not-allowed', 'service-not-allowed', 'language-not-supported', 'audio-capture']);
+
 export function useDictation(onTranscriptChange: (sessionTranscript: string) => void) {
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
@@ -25,6 +31,14 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
   onTranscriptChangeRef.current = onTranscriptChange;
   const finalizedRef = useRef('');
   const lastFinalRef = useRef('');
+  const langRef = useRef('fr-FR');
+  // True from start() to stop() (or a fatal error) — distinguishes an 'end'
+  // the user asked for from one the OS triggered on its own (Android's
+  // continuous mode is itself an auto-restart loop, and even iOS 17- cuts a
+  // session after ~3s of silence), which is what "ça arrête d'enregistrer
+  // au bout d'un moment" was: the session ending mid-dictation with no
+  // action from the user.
+  const shouldListenRef = useRef(false);
 
   useEffect(() => {
     setSupported(ExpoSpeechRecognitionModule.isRecognitionAvailable());
@@ -43,20 +57,36 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
       onTranscriptChangeRef.current(live);
     }
   });
-  useSpeechRecognitionEvent('end', () => setListening(false));
-  useSpeechRecognitionEvent('error', () => setListening(false));
+  useSpeechRecognitionEvent('end', () => {
+    if (shouldListenRef.current) {
+      // Transcript accumulated so far (finalizedRef/lastFinalRef) is left
+      // untouched — this is a silent hand-off, not a new session.
+      ExpoSpeechRecognitionModule.start({ lang: langRef.current, interimResults: true, continuous: true });
+      return;
+    }
+    setListening(false);
+  });
+  useSpeechRecognitionEvent('error', (event) => {
+    if (FATAL_ERRORS.has(event.error)) {
+      shouldListenRef.current = false;
+      setListening(false);
+    }
+  });
 
   const start = useCallback(async (lang = 'fr-FR') => {
     const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
     if (!perm.granted) return false;
     finalizedRef.current = '';
     lastFinalRef.current = '';
+    langRef.current = lang;
+    shouldListenRef.current = true;
     setListening(true);
     ExpoSpeechRecognitionModule.start({ lang, interimResults: true, continuous: true });
     return true;
   }, []);
 
   const stop = useCallback(() => {
+    shouldListenRef.current = false;
     ExpoSpeechRecognitionModule.stop();
   }, []);
 

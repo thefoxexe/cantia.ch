@@ -1,3 +1,30 @@
+import * as ImageManipulator from 'expo-image-manipulator';
+
+// Bakes EXIF orientation into actual pixel data by round-tripping the image
+// through the native rendering pipeline with zero transformations. RN's
+// <Image> respects EXIF orientation tags, but pdf-lib's embedJpg/embedPng do
+// not — so a photo shot sideways with an EXIF "rotate" tag previewed
+// correctly in the app yet came out rotated in generated PDFs. Re-encoding
+// here means the stored file's pixels are already right-side-up by the time
+// pdf-lib touches it. PNGs stay PNG (logos are often transparent-background
+// PNGs; forcing JPEG would flatten that transparency onto a solid color).
+export async function normalizeImageOrientation(
+  uri: string,
+  contentType: string,
+): Promise<{ uri: string; ext: string; contentType: string }> {
+  const isPng = contentType.includes('png');
+  try {
+    const image = await ImageManipulator.ImageManipulator.manipulate(uri).renderAsync();
+    const result = await image.saveAsync({
+      compress: 0.85,
+      format: isPng ? ImageManipulator.SaveFormat.PNG : ImageManipulator.SaveFormat.JPEG,
+    });
+    return { uri: result.uri, ext: isPng ? 'png' : 'jpg', contentType: isPng ? 'image/png' : 'image/jpeg' };
+  } catch {
+    return { uri, ext: isPng ? 'png' : 'jpg', contentType };
+  }
+}
+
 // Derives a safe file extension + content type for an uploaded image.
 // expo-image-picker gives a reliable `mimeType` on both native and web —
 // the previous approach of slicing the last "." off the asset's `uri`
