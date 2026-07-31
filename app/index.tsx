@@ -49,6 +49,11 @@ function LandingContent() {
   const [scrolled, setScrolled] = useState(false);
   const { width, height: windowHeight } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
+  // Fixed at 260px, the hero phone read as oversized on a narrow phone
+  // screen instead of shrinking with everything else around it — scale it
+  // off the viewport instead, capped at the same 260px on wider screens.
+  const heroPhoneWidth = Math.max(150, Math.min(260, Math.round(width * 0.55)));
+  const showcasePhoneWidth = Math.max(140, Math.min(200, Math.round(width * 0.5)));
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
@@ -206,7 +211,7 @@ function LandingContent() {
                 </View>
               </View>
 
-              <AppPreview />
+              <AppPreview phoneWidth={heroPhoneWidth} />
             </Animated.View>
           </View>
 
@@ -214,8 +219,10 @@ function LandingContent() {
           <Reveal id="showcase" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.showcase.title}</Text>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
-            <ShowcaseSlider
-              cards={[
+            <PhoneCarousel
+              phoneWidth={showcasePhoneWidth}
+              showCaptions
+              items={[
                 { key: 'feed', caption: t.showcase.feedCaption, source: SCREENS.feedSelect },
                 { key: 'report', caption: t.showcase.reportCaption, source: SCREENS.reportPdf },
                 { key: 'devisNew', caption: t.showcase.devisNewCaption, source: SCREENS.devisNew },
@@ -672,59 +679,86 @@ function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: numb
   );
 }
 
-function AppPreview() {
-  return <PhoneFrame source={SCREENS.feedChat} width={260} rotate={-3} />;
-}
-
-const SHOWCASE_PHONE_WIDTH = 200;
 const SHOWCASE_GAP = spacing.lg;
 
-// A horizontal, snap-to-card slider instead of stacked boxes — the hero
-// above already reads as one block, so more full-width cards straight
-// after it felt like a wall of boxes. Swiping/dragging invites a glance at
-// each screen instead of a long scroll past all of them at once.
-function ShowcaseSlider({ cards }: { cards: { key: string; caption: string; source: number }[] }) {
+// One shared swipe/dot carousel for both the hero and the "Cantia,
+// concrètement" showcase — same interaction (drag left/right, dots track
+// position), just a different phone size and optional captions. phoneWidth
+// is passed in rather than hardcoded so the caller can size it off the
+// viewport — a hero phone fixed at 260px looked oversized on a narrow
+// phone screen instead of shrinking to fit.
+function PhoneCarousel({
+  items,
+  phoneWidth,
+  rotate = 0,
+  showCaptions = false,
+}: {
+  items: { key: string; source: number; caption?: string }[];
+  phoneWidth: number;
+  rotate?: number;
+  showCaptions?: boolean;
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const cardWidth = SHOWCASE_PHONE_WIDTH + spacing.xl * 2;
+  const slotWidth = phoneWidth + spacing.xl * 2;
 
   const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / (cardWidth + SHOWCASE_GAP));
-    setActiveIndex(Math.max(0, Math.min(cards.length - 1, idx)));
-  }, [cards.length, cardWidth]);
+    const idx = Math.round(x / (slotWidth + SHOWCASE_GAP));
+    setActiveIndex(Math.max(0, Math.min(items.length - 1, idx)));
+  }, [items.length, slotWidth]);
 
   return (
     <View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={cardWidth + SHOWCASE_GAP}
+        snapToInterval={slotWidth + SHOWCASE_GAP}
         decelerationRate="fast"
         snapToAlignment="start"
         contentContainerStyle={styles.showcaseSliderContent}
         onScroll={handleScroll}
         scrollEventThrottle={32}
       >
-        {cards.map((c) => (
-          <View key={c.key} style={[styles.showcaseSlideWrap, { width: cardWidth }]}>
-            <ShowcaseCard caption={c.caption} source={c.source} />
+        {items.map((it) => (
+          <View key={it.key} style={[styles.showcaseSlideWrap, { width: slotWidth }]}>
+            <View style={styles.showcaseCard}>
+              <PhoneFrame source={it.source} width={phoneWidth} rotate={rotate} />
+              {showCaptions && it.caption ? <Text style={styles.showcaseCaption}>{it.caption}</Text> : null}
+            </View>
           </View>
         ))}
       </ScrollView>
-      <View style={styles.sliderDots}>
-        {cards.map((c, i) => (
-          <View key={c.key} style={[styles.sliderDot, i === activeIndex && styles.sliderDotActive]} />
-        ))}
-      </View>
+      {items.length > 1 ? (
+        <View style={styles.sliderDots}>
+          {items.map((it, i) => (
+            <View key={it.key} style={[styles.sliderDot, i === activeIndex && styles.sliderDotActive]} />
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
 
-function ShowcaseCard({ source, caption }: { source: number; caption: string }) {
+function AppPreview({ phoneWidth }: { phoneWidth: number }) {
   return (
-    <View style={styles.showcaseCard}>
-      <PhoneFrame source={source} width={SHOWCASE_PHONE_WIDTH} />
-      <Text style={styles.showcaseCaption}>{caption}</Text>
+    // A bare PhoneCarousel has no width of its own — its horizontal
+    // ScrollView happily grows to fit all 5 phones in a row on a wide
+    // screen, instead of acting as a slider. Capping the wrapper to one
+    // phone-width (plus a little breathing room) is what keeps it a
+    // one-at-a-time slider sitting next to the hero copy, not a second
+    // full-width showcase strip.
+    <View style={{ width: '100%', maxWidth: phoneWidth + spacing.xxl * 2, alignSelf: 'center' }}>
+      <PhoneCarousel
+        phoneWidth={phoneWidth}
+        rotate={-3}
+        items={[
+          { key: 'feedChat', source: SCREENS.feedChat },
+          { key: 'feedSelect', source: SCREENS.feedSelect },
+          { key: 'reportPdf', source: SCREENS.reportPdf },
+          { key: 'devisNew', source: SCREENS.devisNew },
+          { key: 'devisTotal', source: SCREENS.devisTotal },
+        ]}
+      />
     </View>
   );
 }

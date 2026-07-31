@@ -4,8 +4,10 @@ import {
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
   Linking,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -664,7 +666,12 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   }
 
   return (
-    <View style={styles.container}>
+    // The composer sits at the bottom of a plain flex column (not absolutely
+    // positioned), so without this the keyboard just overlays it on Android
+    // instead of pushing it into view — "height" shrinks the column to make
+    // room; iOS uses "padding" (its own well-known KeyboardAvoidingView
+    // recipe, since "height" fights iOS's own keyboard handling).
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.toolbar}>
         <Pressable style={styles.toolbarButton} onPress={toggleSelecting}>
           <Feather name={selecting ? 'x' : 'file-text'} size={15} color={colors.primary} />
@@ -936,7 +943,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
           />
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
