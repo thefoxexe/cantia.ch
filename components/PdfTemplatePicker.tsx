@@ -17,6 +17,7 @@ interface PdfTemplateRow {
   brand_color_override: string | null;
   logo_placement_override: LogoPlacement | null;
   footer_text_override: string | null;
+  layout_mode: 'preset' | 'custom';
 }
 
 const BASE_LAYOUTS: PdfTemplateRow['base_layout'][] = ['classic', 'moderne', 'minimal', 'structure'];
@@ -54,7 +55,17 @@ export const LOGO_PLACEMENTS: { id: LogoPlacement; label: string; icon: 'align-l
   { id: 'right', label: 'Droite', icon: 'align-right' },
 ];
 
-export function TemplateSwatch({ kind }: { kind: string }) {
+export function TemplateSwatch({ kind, custom }: { kind: string; custom?: boolean }) {
+  if (custom) {
+    return (
+      <View style={swatch.base}>
+        <View style={[swatch.customBlock, { top: 8, left: 8, width: '42%', height: 10, backgroundColor: colors.primary }]} />
+        <View style={[swatch.customBlock, { top: 22, left: 8, width: '58%', height: 6, backgroundColor: colors.border }]} />
+        <View style={[swatch.customBlock, { top: 33, left: 8, width: '32%', height: 6, backgroundColor: colors.border }]} />
+        <View style={[swatch.customDashed, { bottom: 8, right: 8, width: '38%', height: 18 }]} />
+      </View>
+    );
+  }
   if (kind === 'moderne') {
     return (
       <View style={swatch.base}>
@@ -176,11 +187,12 @@ export function PdfTemplatePicker({
   const [creating, setCreating] = useState(false);
   const hasCustomization = useCustomizationAccess(organizationId);
   const controlled = !!onSelect;
+  const router = useRouter();
 
   const load = useCallback(async () => {
     const { data } = await supabase
       .from('pdf_templates')
-      .select('id, name, base_layout, is_default, brand_color_override, logo_placement_override, footer_text_override')
+      .select('id, name, base_layout, is_default, brand_color_override, logo_placement_override, footer_text_override, layout_mode')
       .eq('organization_id', organizationId)
       .eq('kind', kind)
       .order('name', { ascending: true });
@@ -246,7 +258,7 @@ export function PdfTemplatePicker({
             >
               <Card style={[styles.card, compact && styles.cardCompact, active && styles.cardActive]}>
                 <View style={styles.preview}>
-                  <TemplateSwatch kind={t.base_layout} />
+                  <TemplateSwatch kind={t.base_layout} custom={t.layout_mode === 'custom'} />
                   {active ? (
                     <View style={styles.check}>
                       <Feather name="check" size={12} color={colors.surface} />
@@ -260,6 +272,11 @@ export function PdfTemplatePicker({
                     <Pressable hitSlop={8} onPress={() => setEditing(t)}>
                       <Feather name="edit-2" size={15} color={colors.textMuted} />
                     </Pressable>
+                    {t.layout_mode === 'custom' ? (
+                      <Pressable hitSlop={8} onPress={() => router.push(`/(app)/compte/pdf-editor/${t.id}` as any)}>
+                        <Feather name="grid" size={15} color={colors.textMuted} />
+                      </Pressable>
+                    ) : null}
                     <Pressable hitSlop={8} onPress={() => duplicateTemplate(organizationId, t, load)}>
                       <Feather name="copy" size={15} color={colors.textMuted} />
                     </Pressable>
@@ -322,15 +339,26 @@ function CreateTemplateModal({
 }) {
   const [name, setName] = useState('');
   const [baseLayout, setBaseLayout] = useState<PdfTemplateRow['base_layout']>('classic');
+  const [layoutMode, setLayoutMode] = useState<'preset' | 'custom'>('preset');
   const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
   async function handleCreate() {
     if (!name.trim() || saving) return;
     setSaving(true);
-    await supabase.rpc('create_pdf_template', { p_org: organizationId, p_kind: kind, p_base_layout: baseLayout, p_name: name.trim() });
+    const { data } = await supabase.rpc('create_pdf_template', {
+      p_org: organizationId,
+      p_kind: kind,
+      p_base_layout: layoutMode === 'custom' ? 'classic' : baseLayout,
+      p_name: name.trim(),
+      p_layout_mode: layoutMode,
+    });
     setSaving(false);
     onCreated();
     onClose();
+    if (layoutMode === 'custom' && data?.id) {
+      router.push(`/(app)/compte/pdf-editor/${data.id}` as any);
+    }
   }
 
   return (
@@ -345,18 +373,47 @@ function CreateTemplateModal({
           </View>
           <ScrollView contentContainerStyle={styles.modalBody}>
             <Field label="Nom du modèle" value={name} onChangeText={setName} placeholder="Ex : Rapport visite client" />
-            <Text style={styles.fieldLabel}>Base</Text>
-            <View style={styles.grid}>
-              {BASE_LAYOUTS.map((layout) => (
-                <Pressable key={layout} onPress={() => setBaseLayout(layout)} style={styles.cardWrapCompact}>
-                  <Card style={[styles.card, styles.cardCompact, baseLayout === layout && styles.cardActive]}>
-                    <TemplateSwatch kind={layout} />
-                    <Text style={styles.name}>{LAYOUT_NAMES[layout]}</Text>
-                  </Card>
-                </Pressable>
-              ))}
+
+            <Text style={styles.fieldLabel}>Type de mise en page</Text>
+            <View style={styles.placementRow}>
+              <Pressable onPress={() => setLayoutMode('preset')} style={[styles.placementChip, layoutMode === 'preset' && styles.chipActive]}>
+                <Feather name="layout" size={14} color={layoutMode === 'preset' ? colors.primary : colors.textMuted} />
+                <Text style={[styles.chipText, layoutMode === 'preset' && styles.chipTextActive]}>Prédéfini</Text>
+              </Pressable>
+              <Pressable onPress={() => setLayoutMode('custom')} style={[styles.placementChip, layoutMode === 'custom' && styles.chipActive]}>
+                <Feather name="grid" size={14} color={layoutMode === 'custom' ? colors.primary : colors.textMuted} />
+                <Text style={[styles.chipText, layoutMode === 'custom' && styles.chipTextActive]}>Personnalisé</Text>
+              </Pressable>
             </View>
-            <Button title="Créer" icon="check" onPress={handleCreate} loading={saving} disabled={!name.trim()} style={{ marginTop: spacing.lg }} />
+
+            {layoutMode === 'preset' ? (
+              <>
+                <Text style={styles.fieldLabel}>Base</Text>
+                <View style={styles.grid}>
+                  {BASE_LAYOUTS.map((layout) => (
+                    <Pressable key={layout} onPress={() => setBaseLayout(layout)} style={styles.cardWrapCompact}>
+                      <Card style={[styles.card, styles.cardCompact, baseLayout === layout && styles.cardActive]}>
+                        <TemplateSwatch kind={layout} />
+                        <Text style={styles.name}>{LAYOUT_NAMES[layout]}</Text>
+                      </Card>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            ) : (
+              <Text style={styles.upsellText}>
+                Vous pourrez glisser-déposer les blocs (logo, titre, notes, tableau…) où vous voulez juste après la
+                création.
+              </Text>
+            )}
+            <Button
+              title={layoutMode === 'custom' ? 'Créer et ouvrir l’éditeur' : 'Créer'}
+              icon="check"
+              onPress={handleCreate}
+              loading={saving}
+              disabled={!name.trim()}
+              style={{ marginTop: spacing.lg }}
+            />
           </ScrollView>
         </View>
       </View>
@@ -491,6 +548,17 @@ const swatch = StyleSheet.create({
     height: 8,
     borderRadius: 1,
     marginTop: 3,
+  },
+  customBlock: {
+    position: 'absolute',
+    borderRadius: 2,
+  },
+  customDashed: {
+    position: 'absolute',
+    borderRadius: 3,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.textMuted,
   },
 });
 

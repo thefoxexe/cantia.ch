@@ -100,6 +100,47 @@ export interface Project {
   updated_at: string;
 }
 
+// Mirrors PdfBlockBinding/PdfBlockStyle/PdfBlock in
+// supabase/functions/_shared/pdf-helpers.ts — the two sides aren't imported
+// from a shared package (one is a Deno edge function, the other RN), so this
+// is kept in sync by hand. Small, fixed vocabulary, low churn.
+export type PdfBlockBinding =
+  | 'logo'
+  | 'signature'
+  | 'org.name'
+  | 'org.contact'
+  | 'document.title'
+  | 'document.meta'
+  | 'notes'
+  | 'photos' // report only
+  | 'items_table' // devis only
+  | 'totals' // devis only
+  | 'static'
+  | 'divider';
+
+export interface PdfBlockStyle {
+  fontSize?: number;
+  bold?: boolean;
+  align?: 'left' | 'center' | 'right';
+  color?: string;
+  background?: string | null;
+  borderColor?: string | null;
+  borderWidth?: number;
+  shapeKind?: 'line' | 'rect';
+}
+
+export interface PdfBlock {
+  id: string;
+  binding: PdfBlockBinding;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  z: number;
+  style?: PdfBlockStyle;
+  text?: string; // 'static' binding only
+}
+
 export interface ReportTemplate {
   id: string;
   organization_id: string;
