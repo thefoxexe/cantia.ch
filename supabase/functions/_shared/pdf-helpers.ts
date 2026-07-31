@@ -144,9 +144,23 @@ export interface PdfTemplateRow {
   id: string;
   base_layout: 'classic' | 'moderne' | 'minimal' | 'structure';
   sections: string[];
+  brand_color_override: string | null;
+  logo_placement_override: LogoPlacement | null;
+  footer_text_override: string | null;
 }
 
+const TEMPLATE_COLUMNS = 'id, base_layout, sections, brand_color_override, logo_placement_override, footer_text_override';
+
 const BASE_LAYOUTS = ['classic', 'moderne', 'minimal', 'structure'] as const;
+
+const EMPTY_TEMPLATE: PdfTemplateRow = {
+  id: '',
+  base_layout: 'classic',
+  sections: [],
+  brand_color_override: null,
+  logo_placement_override: null,
+  footer_text_override: null,
+};
 
 // Shared by both edge functions: resolve the pdf_templates row to render
 // with — the document's own template_id override when set, else the org's
@@ -162,7 +176,7 @@ export async function resolvePdfTemplate(
   if (templateId) {
     const { data } = await admin
       .from('pdf_templates')
-      .select('id, base_layout, sections')
+      .select(TEMPLATE_COLUMNS)
       .eq('id', templateId)
       .eq('organization_id', orgId)
       .eq('kind', kind)
@@ -171,13 +185,28 @@ export async function resolvePdfTemplate(
   }
   const { data } = await admin
     .from('pdf_templates')
-    .select('id, base_layout, sections')
+    .select(TEMPLATE_COLUMNS)
     .eq('organization_id', orgId)
     .eq('kind', kind)
     .eq('is_default', true)
     .maybeSingle();
   if (data) return data as PdfTemplateRow;
-  return { id: '', base_layout: 'classic', sections: kind === 'report' ? ['intro', 'photos', 'signature'] : [] };
+  return { ...EMPTY_TEMPLATE, sections: kind === 'report' ? ['intro', 'photos', 'signature'] : [] };
+}
+
+// A template's own override wins over the org's brand kit, which wins over
+// the hardcoded default — one place both edge functions call so "template
+// overrides org" isn't reimplemented per renderer.
+export function resolveBrand(template: PdfTemplateRow, org: any): RGB {
+  return hexToRgb(template.brand_color_override ?? org?.brand_color);
+}
+
+export function resolveLogoPlacement(template: PdfTemplateRow, org: any): LogoPlacement {
+  return template.logo_placement_override ?? (org?.logo_placement as LogoPlacement) ?? 'right';
+}
+
+export function resolveFooterText(template: PdfTemplateRow, org: any): string | null {
+  return template.footer_text_override?.trim() || org?.footer_text?.trim() || null;
 }
 
 export function normalizeBaseLayout(value: string | null | undefined): PdfTemplateRow['base_layout'] {

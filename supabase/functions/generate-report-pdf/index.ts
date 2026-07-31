@@ -17,9 +17,11 @@ import {
   embedImageSmart,
   fetchStorageBytes,
   formatDate,
-  hexToRgb,
   logoX,
   pickReadableTextColor,
+  resolveBrand,
+  resolveFooterText,
+  resolveLogoPlacement,
   resolvePdfTemplate,
   sanitizePdfText,
   wrapText,
@@ -667,7 +669,7 @@ Deno.serve(async (req: Request) => {
 
     const template = await resolvePdfTemplate(admin, report.organization_id, 'report', report.template_id);
     const render = RENDERERS[template.base_layout];
-    const brand = hexToRgb(org?.brand_color);
+    const brand = resolveBrand(template, org);
     const knownSections: SectionId[] = ['intro', 'photos', 'map', 'signature'];
     const sections = (Array.isArray(template.sections) ? template.sections : ['intro', 'photos', 'signature']).filter((s: string) =>
       knownSections.includes(s as SectionId),
@@ -684,8 +686,8 @@ Deno.serve(async (req: Request) => {
       signatureImg,
       brand,
       textOnBrand: pickReadableTextColor(brand),
-      logoPlacement: (org?.logo_placement as LogoPlacement) ?? 'right',
-      footerText: org?.footer_text?.trim() || null,
+      logoPlacement: resolveLogoPlacement(template, org),
+      footerText: resolveFooterText(template, org),
       sections,
       admin,
     });

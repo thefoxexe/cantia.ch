@@ -12,6 +12,7 @@ import { polishReportNotes } from '../../../../lib/api/ai';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
+import { PdfTemplatePicker } from '../../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface PendingPhoto {
@@ -30,6 +31,7 @@ export default function NewReportScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<string | null>(null);
@@ -121,6 +123,7 @@ export default function NewReportScreen() {
           project_id: projectId,
           title: title.trim(),
           notes: notes.trim() || null,
+          template_id: templateId,
           created_by: user?.id,
         })
         .select()
@@ -182,6 +185,18 @@ export default function NewReportScreen() {
         <PageHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}`} />
 
         <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
+
+        <Text style={styles.fieldLabel}>Modèle de rapport</Text>
+        {organization ? (
+          <PdfTemplatePicker
+            organizationId={organization.id}
+            kind="report"
+            hasLogo={!!organization?.logo_url}
+            compact
+            selectedId={templateId}
+            onSelect={setTemplateId}
+          />
+        ) : null}
 
         <View style={styles.notesLabelRow}>
           <Text style={styles.fieldLabel}>Notes</Text>

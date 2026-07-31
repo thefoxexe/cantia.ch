@@ -14,10 +14,11 @@ export default function RapportsSettingsScreen() {
         <Container>
           <PageHeader title="Rapports & modèle PDF" backTo="/(app)/compte" />
 
-          <Text style={styles.sectionTitle}>Modèle de rapport PDF</Text>
+          <Text style={styles.sectionTitle}>Modèles de rapport PDF</Text>
           <Text style={styles.hint}>
-            Choisissez la mise en page utilisée pour générer vos rapports de chantier. Elle s'applique automatiquement à
-            tous vos prochains rapports, avec la couleur et le logo définis dans Profil entreprise.
+            Créez plusieurs modèles et choisissez celui utilisé par défaut, avec la couleur et le logo définis dans
+            Profil entreprise (ou une couleur propre à chaque modèle). Vous pourrez toujours en choisir un autre au
+            moment de créer un rapport précis.
           </Text>
           {organization ? (
             <PdfTemplatePicker
@@ -25,6 +26,7 @@ export default function RapportsSettingsScreen() {
               kind="report"
               disabled={!isAdmin}
               hasLogo={!!organization?.logo_url}
+              manage={isAdmin}
             />
           ) : null}
         </Container>

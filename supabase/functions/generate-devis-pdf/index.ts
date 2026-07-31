@@ -16,9 +16,11 @@ import {
   embedImageSmart,
   fetchStorageBytes,
   formatDate,
-  hexToRgb,
   logoX,
   pickReadableTextColor,
+  resolveBrand,
+  resolveFooterText,
+  resolveLogoPlacement,
   resolvePdfTemplate,
   sanitizePdfText,
   wrapText,
@@ -659,7 +661,7 @@ Deno.serve(async (req: Request) => {
 
     const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
     const render = RENDERERS[template.base_layout];
-    const brand = hexToRgb(org?.brand_color);
+    const brand = resolveBrand(template, org);
 
     const pdfBytes = await render({
       pdfDoc,
@@ -672,8 +674,8 @@ Deno.serve(async (req: Request) => {
       signatureImg,
       brand,
       textOnBrand: pickReadableTextColor(brand),
-      logoPlacement: (org?.logo_placement as LogoPlacement) ?? 'right',
-      footerText: org?.footer_text?.trim() || null,
+      logoPlacement: resolveLogoPlacement(template, org),
+      footerText: resolveFooterText(template, org),
     });
 
     const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;

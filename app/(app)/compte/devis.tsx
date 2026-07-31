@@ -76,10 +76,10 @@ export default function DevisSettingsScreen() {
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}
 
-          <Text style={styles.sectionTitle}>Modèle de devis PDF</Text>
+          <Text style={styles.sectionTitle}>Modèles de devis PDF</Text>
           <Text style={styles.hint}>
-            Choisissez la mise en page utilisée pour générer vos devis. Elle s’applique automatiquement à tous vos
-            prochains devis.
+            Créez plusieurs modèles et choisissez celui utilisé par défaut. Vous pourrez toujours en choisir un autre
+            au moment de créer un devis précis.
           </Text>
           <View style={{ marginTop: spacing.md }}>
             {organization ? (
@@ -88,6 +88,7 @@ export default function DevisSettingsScreen() {
                 kind="devis"
                 disabled={!isAdmin}
                 hasLogo={!!organization?.logo_url}
+                manage={isAdmin}
               />
             ) : null}
           </View>

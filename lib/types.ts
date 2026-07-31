@@ -8,6 +8,7 @@ export interface Plan {
   max_members: number;
   price_chf_monthly: number;
   has_rtk: boolean;
+  has_customization: boolean;
   stripe_price_id: string | null;
 }
 

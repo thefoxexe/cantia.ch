@@ -1,36 +1,19 @@
 import { useCallback, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
-import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
 
-const BRAND_COLOR_PRESETS = [
-  '#1F3D3A', // vert sapin (défaut)
-  '#16324F', // bleu marine
-  '#7A2E2E', // rouge brique
-  '#2E4A2E', // vert forêt
-  '#33475B', // bleu ardoise
-  '#6B4226', // terre cuite
-  '#263238', // anthracite
-  '#8A5A00', // ambre
-];
-
-const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
-
-const LOGO_PLACEMENTS: { id: 'left' | 'center' | 'right'; label: string; icon: 'align-left' | 'align-center' | 'align-right' }[] = [
-  { id: 'left', label: 'Gauche', icon: 'align-left' },
-  { id: 'center', label: 'Centré', icon: 'align-center' },
-  { id: 'right', label: 'Droite', icon: 'align-right' },
-];
-
 export default function EntrepriseScreen() {
+  const router = useRouter();
   const { organization, role, refreshOrganization } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
   const [trade, setTrade] = useState(organization?.trade ?? null);
@@ -45,6 +28,7 @@ export default function EntrepriseScreen() {
   const [logoPlacement, setLogoPlacement] = useState<'left' | 'center' | 'right'>(organization?.logo_placement ?? 'right');
   const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
   const [saving, setSaving] = useState(false);
+  const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
@@ -61,6 +45,8 @@ export default function EntrepriseScreen() {
     setFooterText(organization.footer_text ?? '');
     if (organization.logo_url) setLogoUrl(await getSignedUrl(organization.logo_url));
     if (organization.signature_url) setSignatureUrl(await getSignedUrl(organization.signature_url));
+    const { data: plan } = await supabase.from('plans').select('has_customization').eq('id', organization.plan_id).maybeSingle();
+    setHasCustomization(plan?.has_customization ?? true);
   }, [organization]);
 
   useFocusEffect(
@@ -211,63 +197,80 @@ export default function EntrepriseScreen() {
           </View>
           <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
 
-          <Text style={styles.fieldLabel}>Couleur de marque</Text>
-          <View style={styles.colorRow}>
-            {BRAND_COLOR_PRESETS.map((hex) => (
-              <Pressable
-                key={hex}
-                onPress={() => isAdmin && setBrandColor(hex)}
-                disabled={!isAdmin}
-                style={[
-                  styles.colorSwatch,
-                  { backgroundColor: hex },
-                  brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive,
-                ]}
-              >
-                {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color={colors.surface} /> : null}
-              </Pressable>
-            ))}
-          </View>
-          <View style={styles.hexRow}>
-            <View style={[styles.hexPreview, { backgroundColor: HEX_COLOR_RE.test(brandColor) ? brandColor : colors.border }]} />
-            <View style={{ flex: 1 }}>
-              <Field
-                label="Couleur personnalisée (hex)"
-                value={brandColor}
-                onChangeText={setBrandColor}
-                editable={isAdmin}
-                autoCapitalize="none"
-                placeholder="#1F3D3A"
+          {hasCustomization === false ? (
+            <Card style={styles.upsell}>
+              <Feather name="lock" size={20} color={colors.accent} />
+              <Text style={styles.upsellTitle}>Couleur de marque, placement du logo, pied de page</Text>
+              <Text style={styles.hint}>Disponible à partir du plan Indépendant (dès CHF 29/mois).</Text>
+              <Button
+                title="Voir les plans"
+                variant="secondary"
+                icon="arrow-right"
+                onPress={() => router.push('/(app)/compte')}
+                style={{ marginTop: spacing.md }}
               />
-            </View>
-          </View>
-          {isAdmin && brandColor.trim() && !HEX_COLOR_RE.test(brandColor.trim()) ? (
-            <Text style={styles.errorHint}>Format attendu : #RRGGBB</Text>
-          ) : null}
+            </Card>
+          ) : (
+            <>
+              <Text style={styles.fieldLabel}>Couleur de marque</Text>
+              <View style={styles.colorRow}>
+                {BRAND_COLOR_PRESETS.map((hex) => (
+                  <Pressable
+                    key={hex}
+                    onPress={() => isAdmin && setBrandColor(hex)}
+                    disabled={!isAdmin}
+                    style={[
+                      styles.colorSwatch,
+                      { backgroundColor: hex },
+                      brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive,
+                    ]}
+                  >
+                    {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color={colors.surface} /> : null}
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.hexRow}>
+                <View style={[styles.hexPreview, { backgroundColor: HEX_COLOR_RE.test(brandColor) ? brandColor : colors.border }]} />
+                <View style={{ flex: 1 }}>
+                  <Field
+                    label="Couleur personnalisée (hex)"
+                    value={brandColor}
+                    onChangeText={setBrandColor}
+                    editable={isAdmin}
+                    autoCapitalize="none"
+                    placeholder="#1F3D3A"
+                  />
+                </View>
+              </View>
+              {isAdmin && brandColor.trim() && !HEX_COLOR_RE.test(brandColor.trim()) ? (
+                <Text style={styles.errorHint}>Format attendu : #RRGGBB</Text>
+              ) : null}
 
-          <Text style={styles.fieldLabel}>Placement du logo sur vos PDF</Text>
-          <View style={styles.placementRow}>
-            {LOGO_PLACEMENTS.map((p) => (
-              <Pressable
-                key={p.id}
-                onPress={() => isAdmin && setLogoPlacement(p.id)}
-                disabled={!isAdmin}
-                style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
-              >
-                <Feather name={p.icon} size={14} color={logoPlacement === p.id ? colors.primary : colors.textMuted} />
-                <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{p.label}</Text>
-              </Pressable>
-            ))}
-          </View>
+              <Text style={styles.fieldLabel}>Placement du logo sur vos PDF</Text>
+              <View style={styles.placementRow}>
+                {LOGO_PLACEMENTS.map((p) => (
+                  <Pressable
+                    key={p.id}
+                    onPress={() => isAdmin && setLogoPlacement(p.id)}
+                    disabled={!isAdmin}
+                    style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                  >
+                    <Feather name={p.icon} size={14} color={logoPlacement === p.id ? colors.primary : colors.textMuted} />
+                    <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{p.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
 
-          <Field
-            label="Pied de page personnalisé (PDF)"
-            value={footerText}
-            onChangeText={setFooterText}
-            editable={isAdmin}
-            placeholder="Ex : Rue Example 1, 1000 Lausanne — www.entreprise.ch"
-          />
-          <Text style={styles.hint}>Remplace le nom de l'entreprise en bas de page. Laissez vide pour garder le nom.</Text>
+              <Field
+                label="Pied de page personnalisé (PDF)"
+                value={footerText}
+                onChangeText={setFooterText}
+                editable={isAdmin}
+                placeholder="Ex : Rue Example 1, 1000 Lausanne — www.entreprise.ch"
+              />
+              <Text style={styles.hint}>Remplace le nom de l'entreprise en bas de page. Laissez vide pour garder le nom.</Text>
+            </>
+          )}
 
           {isAdmin ? (
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
@@ -394,6 +397,16 @@ const styles = StyleSheet.create({
     color: colors.danger,
     marginTop: -spacing.sm,
     marginBottom: spacing.sm,
+  },
+  upsell: {
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+  },
+  upsellTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: spacing.sm,
   },
   colorRow: {
     flexDirection: 'row',

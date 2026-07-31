@@ -27,6 +27,7 @@ export default function NewDevisScreen() {
   const [clientEmail, setClientEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -67,6 +68,7 @@ export default function NewDevisScreen() {
         client_email: clientEmail.trim() || null,
         notes: notes.trim() || null,
         vat_rate: organization.default_vat_rate,
+        template_id: templateId,
         created_by: user?.id,
       })
       .select()
@@ -110,7 +112,14 @@ export default function NewDevisScreen() {
 
           <Text style={styles.sectionTitle}>Modèle de devis</Text>
           {organization ? (
-            <PdfTemplatePicker organizationId={organization.id} kind="devis" hasLogo={!!organization?.logo_url} compact />
+            <PdfTemplatePicker
+              organizationId={organization.id}
+              kind="devis"
+              hasLogo={!!organization?.logo_url}
+              compact
+              selectedId={templateId}
+              onSelect={setTemplateId}
+            />
           ) : null}
 
           <Text style={styles.sectionTitle}>Client</Text>

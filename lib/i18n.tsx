@@ -134,6 +134,15 @@ const fr: Dict = {
         ],
       },
       {
+        title: 'Documents à votre image',
+        text: 'Choisissez la couleur de votre marque, le placement de votre logo, et créez plusieurs modèles pour vos devis et rapports PDF.',
+        detail: [
+          'Couleur de marque et placement du logo personnalisables',
+          'Plusieurs modèles par type de document, à choisir à la création',
+          'Réservé aux plans payants (dès Indépendant)',
+        ],
+      },
+      {
         title: 'Métré poste par poste',
         text: 'Détaillez vos quantités poste par poste, avec des totaux calculés automatiquement, puis transformez le tout en devis en un clic.',
         detail: [
@@ -284,6 +293,15 @@ const en: Dict = {
         ],
       },
       {
+        title: 'Documents that look like you',
+        text: 'Pick your brand color, your logo placement, and create several templates for your quote and report PDFs.',
+        detail: [
+          'Customizable brand color and logo placement',
+          'Several templates per document type, pick one at creation',
+          'Paid plans only (from Independent)',
+        ],
+      },
+      {
         title: 'Item-by-item quantities',
         text: 'Break your quantities down item by item, with totals calculated automatically, then turn it all into a quote in one tap.',
         detail: [
@@ -431,6 +449,15 @@ const de: Dict = {
           '4 PDF-Vorlagen: klassisch, modern, minimal, strukturiert',
           'MwSt. und Summen automatisch berechnet',
           'Statusverfolgung: Entwurf, versendet, angenommen, abgelehnt',
+        ],
+      },
+      {
+        title: 'Dokumente in Ihrem Look',
+        text: 'Wählen Sie Ihre Markenfarbe und Logoplatzierung und erstellen Sie mehrere Vorlagen für Ihre Offerten- und Rapport-PDFs.',
+        detail: [
+          'Anpassbare Markenfarbe und Logoplatzierung',
+          'Mehrere Vorlagen pro Dokumenttyp, wählbar bei der Erstellung',
+          'Nur für kostenpflichtige Pläne (ab Selbstständig)',
         ],
       },
       {

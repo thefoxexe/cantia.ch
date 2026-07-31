@@ -26,7 +26,7 @@ import type { Plan } from '../lib/types';
 type IconName = keyof typeof Feather.glyphMap;
 
 const PAIN_ICONS: IconName[] = ['edit-3', 'clock', 'folder'];
-const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'list', 'map-pin', 'users'];
+const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'layout', 'list', 'map-pin', 'users'];
 const NAV_HEIGHT = 68;
 
 // The compiled Android/iOS app has no marketing site to show — it goes
