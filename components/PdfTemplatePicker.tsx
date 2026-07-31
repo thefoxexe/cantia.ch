@@ -1,14 +1,25 @@
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card } from './ui';
+import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
-export const DEVIS_TEMPLATES: { id: string; name: string; description: string }[] = [
-  { id: 'classic', name: 'Classique', description: 'Sobre, en-tête discret, lignes fines.' },
-  { id: 'moderne', name: 'Moderne', description: 'Bandeau de couleur, titre marqué, total mis en avant.' },
-  { id: 'minimal', name: 'Minimal', description: 'Beaucoup de blanc, typographie épurée.' },
-  { id: 'structure', name: 'Structuré', description: 'Tableau quadrillé, lignes alternées, idéal si beaucoup de postes.' },
-];
+export type PdfTemplateKind = 'devis' | 'report';
+
+interface PdfTemplateRow {
+  id: string;
+  name: string;
+  base_layout: string;
+  is_default: boolean;
+}
+
+const LAYOUT_DESCRIPTIONS: Record<string, string> = {
+  classic: 'Sobre, en-tête discret, lignes fines.',
+  moderne: 'Bandeau de couleur, titre marqué, mise en avant du kit de marque.',
+  minimal: 'Beaucoup de blanc, typographie épurée.',
+  structure: 'Sections encadrées, bandeaux de couleur, idéal si beaucoup de contenu.',
+};
 
 export function TemplateSwatch({ kind }: { kind: string }) {
   if (kind === 'moderne') {
@@ -58,42 +69,77 @@ export function TemplateSwatch({ kind }: { kind: string }) {
   );
 }
 
-export function DevisTemplatePicker({
-  value,
-  onChange,
+// Loads the org's real pdf_templates rows for the given kind (devis or
+// report) instead of a hardcoded list — the same 4 base layouts exist for
+// both kinds since Phase 2's backfill seeds all orgs identically, but which
+// one is `is_default` can differ per kind and per org. Picking a card calls
+// the set_default_pdf_template() RPC (admin-gated server-side) rather than
+// writing directly to a column, since Phase 3 will add more than one row per
+// base_layout (duplicates/custom templates) and this same picker needs to
+// keep working once that's true.
+export function PdfTemplatePicker({
+  organizationId,
+  kind,
   disabled,
   hasLogo,
   compact,
 }: {
-  value: string;
-  onChange: (id: string) => void;
+  organizationId: string;
+  kind: PdfTemplateKind;
   disabled?: boolean;
   hasLogo?: boolean;
   compact?: boolean;
 }) {
+  const [templates, setTemplates] = useState<PdfTemplateRow[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    const { data } = await supabase
+      .from('pdf_templates')
+      .select('id, name, base_layout, is_default')
+      .eq('organization_id', organizationId)
+      .eq('kind', kind)
+      .order('name', { ascending: true });
+    setTemplates(data ?? []);
+  }, [organizationId, kind]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function selectTemplate(templateId: string) {
+    const current = templates.find((t) => t.is_default);
+    if (disabled || saving || current?.id === templateId) return;
+    setSaving(true);
+    setTemplates((prev) => prev.map((t) => ({ ...t, is_default: t.id === templateId })));
+    await supabase.rpc('set_default_pdf_template', { p_org: organizationId, p_template: templateId, p_kind: kind });
+    setSaving(false);
+  }
+
   return (
     <View>
       {hasLogo === false ? (
         <View style={styles.warning}>
           <Feather name="alert-triangle" size={14} color={colors.accent} />
           <Text style={styles.warningText}>
-            Aucun logo chargé — vos devis PDF partiront sans logo. Ajoutez-en un dans Compte → Identité visuelle.
+            Aucun logo chargé — vos {kind === 'devis' ? 'devis' : 'rapports'} PDF partiront sans logo. Ajoutez-en un dans
+            Compte → Profil entreprise.
           </Text>
         </View>
       ) : null}
       <View style={styles.grid}>
-        {DEVIS_TEMPLATES.map((t) => {
-          const active = value === t.id;
+        {templates.map((t) => {
+          const active = t.is_default;
           return (
             <Pressable
               key={t.id}
-              onPress={() => onChange(t.id)}
+              onPress={() => selectTemplate(t.id)}
               disabled={disabled}
               style={compact ? styles.cardWrapCompact : styles.cardWrap}
             >
               <Card style={[styles.card, compact && styles.cardCompact, active && styles.cardActive]}>
                 <View style={styles.preview}>
-                  <TemplateSwatch kind={t.id} />
+                  <TemplateSwatch kind={t.base_layout} />
                   {active ? (
                     <View style={styles.check}>
                       <Feather name="check" size={12} color={colors.surface} />
@@ -101,7 +147,7 @@ export function DevisTemplatePicker({
                   ) : null}
                 </View>
                 <Text style={styles.name}>{t.name}</Text>
-                {!compact ? <Text style={styles.desc}>{t.description}</Text> : null}
+                {!compact ? <Text style={styles.desc}>{LAYOUT_DESCRIPTIONS[t.base_layout] ?? ''}</Text> : null}
               </Card>
             </Pressable>
           );

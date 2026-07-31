@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { DevisTemplatePicker } from '../../../components/DevisTemplatePicker';
+import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function DevisSettingsScreen() {
@@ -12,9 +12,7 @@ export default function DevisSettingsScreen() {
   const [vatRate, setVatRate] = useState(String(organization?.default_vat_rate ?? 8.1));
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
-  const [devisTemplate, setDevisTemplate] = useState(organization?.devis_template ?? 'classic');
   const [saving, setSaving] = useState(false);
-  const [savingTemplate, setSavingTemplate] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(() => {
@@ -22,7 +20,6 @@ export default function DevisSettingsScreen() {
     setVatRate(String(organization.default_vat_rate ?? 8.1));
     setValidityDays(String(organization.devis_validity_days ?? 30));
     setDevisTerms(organization.devis_terms ?? '');
-    setDevisTemplate(organization.devis_template ?? 'classic');
   }, [organization]);
 
   useFocusEffect(
@@ -43,15 +40,6 @@ export default function DevisSettingsScreen() {
       })
       .eq('id', organization.id);
     setSaving(false);
-    refreshOrganization();
-  }
-
-  async function selectDevisTemplate(templateId: string) {
-    if (!organization || !isAdmin || templateId === devisTemplate) return;
-    setDevisTemplate(templateId);
-    setSavingTemplate(true);
-    await supabase.from('organizations').update({ devis_template: templateId }).eq('id', organization.id);
-    setSavingTemplate(false);
     refreshOrganization();
   }
 
@@ -94,14 +82,15 @@ export default function DevisSettingsScreen() {
             prochains devis.
           </Text>
           <View style={{ marginTop: spacing.md }}>
-            <DevisTemplatePicker
-              value={devisTemplate}
-              onChange={selectDevisTemplate}
-              disabled={!isAdmin}
-              hasLogo={!!organization?.logo_url}
-            />
+            {organization ? (
+              <PdfTemplatePicker
+                organizationId={organization.id}
+                kind="devis"
+                disabled={!isAdmin}
+                hasLogo={!!organization?.logo_url}
+              />
+            ) : null}
           </View>
-          {savingTemplate ? <Text style={styles.hint}>Enregistrement du modèle…</Text> : null}
         </Container>
       </ScrollView>
     </Screen>

@@ -68,6 +68,13 @@ export default function CompteMenuScreen() {
       route: '/(app)/compte/devis',
     },
     {
+      key: 'rapports',
+      icon: 'clipboard',
+      title: 'Rapports & modèle PDF',
+      subtitle: 'Mise en page des rapports de chantier',
+      route: '/(app)/compte/rapports',
+    },
+    {
       key: 'modules',
       icon: 'sliders',
       title: 'Outils & modules',

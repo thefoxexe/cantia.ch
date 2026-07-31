@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, Screen } from '../../../components/ui';
 import { FeatureHint } from '../../../components/FeatureHint';
-import { DevisTemplatePicker } from '../../../components/DevisTemplatePicker';
+import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 interface Line {
@@ -21,7 +21,7 @@ function emptyLine(): Line {
 }
 
 export default function NewDevisScreen() {
-  const { organization, user, refreshOrganization } = useAuth();
+  const { organization, user } = useAuth();
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
@@ -29,21 +29,6 @@ export default function NewDevisScreen() {
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [devisTemplate, setDevisTemplate] = useState(organization?.devis_template ?? 'classic');
-  const [savingTemplate, setSavingTemplate] = useState(false);
-
-  useEffect(() => {
-    if (organization?.devis_template) setDevisTemplate(organization.devis_template);
-  }, [organization?.devis_template]);
-
-  async function selectTemplate(templateId: string) {
-    if (!organization || templateId === devisTemplate) return;
-    setDevisTemplate(templateId);
-    setSavingTemplate(true);
-    await supabase.from('organizations').update({ devis_template: templateId }).eq('id', organization.id);
-    setSavingTemplate(false);
-    refreshOrganization();
-  }
 
   function updateLine(index: number, patch: Partial<Line>) {
     setLines((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
@@ -124,13 +109,9 @@ export default function NewDevisScreen() {
           />
 
           <Text style={styles.sectionTitle}>Modèle de devis</Text>
-          <DevisTemplatePicker
-            value={devisTemplate}
-            onChange={selectTemplate}
-            hasLogo={!!organization?.logo_url}
-            compact
-          />
-          {savingTemplate ? <Text style={styles.templateSaving}>Enregistrement…</Text> : null}
+          {organization ? (
+            <PdfTemplatePicker organizationId={organization.id} kind="devis" hasLogo={!!organization?.logo_url} compact />
+          ) : null}
 
           <Text style={styles.sectionTitle}>Client</Text>
           <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
@@ -258,11 +239,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
-  },
-  templateSaving: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: spacing.sm,
   },
   lineCard: {
     borderWidth: 1,

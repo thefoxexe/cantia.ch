@@ -11,6 +11,25 @@ import { Button, Container, Field, PageHeader, Screen } from '../../../component
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
 
+const BRAND_COLOR_PRESETS = [
+  '#1F3D3A', // vert sapin (défaut)
+  '#16324F', // bleu marine
+  '#7A2E2E', // rouge brique
+  '#2E4A2E', // vert forêt
+  '#33475B', // bleu ardoise
+  '#6B4226', // terre cuite
+  '#263238', // anthracite
+  '#8A5A00', // ambre
+];
+
+const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
+
+const LOGO_PLACEMENTS: { id: 'left' | 'center' | 'right'; label: string; icon: 'align-left' | 'align-center' | 'align-right' }[] = [
+  { id: 'left', label: 'Gauche', icon: 'align-left' },
+  { id: 'center', label: 'Centré', icon: 'align-center' },
+  { id: 'right', label: 'Droite', icon: 'align-right' },
+];
+
 export default function EntrepriseScreen() {
   const { organization, role, refreshOrganization } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
@@ -22,6 +41,9 @@ export default function EntrepriseScreen() {
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  const [brandColor, setBrandColor] = useState(organization?.brand_color ?? '#1F3D3A');
+  const [logoPlacement, setLogoPlacement] = useState<'left' | 'center' | 'right'>(organization?.logo_placement ?? 'right');
+  const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
@@ -34,6 +56,9 @@ export default function EntrepriseScreen() {
     setPhone(organization.phone ?? '');
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
+    setBrandColor(organization.brand_color ?? '#1F3D3A');
+    setLogoPlacement(organization.logo_placement ?? 'right');
+    setFooterText(organization.footer_text ?? '');
     if (organization.logo_url) setLogoUrl(await getSignedUrl(organization.logo_url));
     if (organization.signature_url) setSignatureUrl(await getSignedUrl(organization.signature_url));
   }, [organization]);
@@ -47,6 +72,7 @@ export default function EntrepriseScreen() {
   async function handleSave() {
     if (!organization) return;
     setSaving(true);
+    const validHex = HEX_COLOR_RE.test(brandColor.trim());
     await supabase
       .from('organizations')
       .update({
@@ -57,6 +83,9 @@ export default function EntrepriseScreen() {
         phone: phone.trim() || null,
         email: email.trim() || null,
         website: website.trim() || null,
+        brand_color: validHex ? brandColor.trim() : organization.brand_color,
+        logo_placement: logoPlacement,
+        footer_text: footerText.trim() || null,
       })
       .eq('id', organization.id);
     setSaving(false);
@@ -181,6 +210,68 @@ export default function EntrepriseScreen() {
             </View>
           </View>
           <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
+
+          <Text style={styles.fieldLabel}>Couleur de marque</Text>
+          <View style={styles.colorRow}>
+            {BRAND_COLOR_PRESETS.map((hex) => (
+              <Pressable
+                key={hex}
+                onPress={() => isAdmin && setBrandColor(hex)}
+                disabled={!isAdmin}
+                style={[
+                  styles.colorSwatch,
+                  { backgroundColor: hex },
+                  brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive,
+                ]}
+              >
+                {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color={colors.surface} /> : null}
+              </Pressable>
+            ))}
+          </View>
+          <View style={styles.hexRow}>
+            <View style={[styles.hexPreview, { backgroundColor: HEX_COLOR_RE.test(brandColor) ? brandColor : colors.border }]} />
+            <View style={{ flex: 1 }}>
+              <Field
+                label="Couleur personnalisée (hex)"
+                value={brandColor}
+                onChangeText={setBrandColor}
+                editable={isAdmin}
+                autoCapitalize="none"
+                placeholder="#1F3D3A"
+              />
+            </View>
+          </View>
+          {isAdmin && brandColor.trim() && !HEX_COLOR_RE.test(brandColor.trim()) ? (
+            <Text style={styles.errorHint}>Format attendu : #RRGGBB</Text>
+          ) : null}
+
+          <Text style={styles.fieldLabel}>Placement du logo sur vos PDF</Text>
+          <View style={styles.placementRow}>
+            {LOGO_PLACEMENTS.map((p) => (
+              <Pressable
+                key={p.id}
+                onPress={() => isAdmin && setLogoPlacement(p.id)}
+                disabled={!isAdmin}
+                style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
+              >
+                <Feather name={p.icon} size={14} color={logoPlacement === p.id ? colors.primary : colors.textMuted} />
+                <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{p.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <Field
+            label="Pied de page personnalisé (PDF)"
+            value={footerText}
+            onChangeText={setFooterText}
+            editable={isAdmin}
+            placeholder="Ex : Rue Example 1, 1000 Lausanne — www.entreprise.ch"
+          />
+          <Text style={styles.hint}>Remplace le nom de l'entreprise en bas de page. Laissez vide pour garder le nom.</Text>
+
+          {isAdmin ? (
+            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+          ) : null}
         </Container>
       </ScrollView>
     </Screen>
@@ -297,5 +388,59 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  errorHint: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  colorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  colorSwatch: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorSwatchActive: {
+    borderColor: colors.text,
+  },
+  hexRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+  },
+  hexPreview: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 6,
+  },
+  placementRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  placementChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
 });
