@@ -12,6 +12,7 @@ import {
   PAPER_ALT,
   WHITE,
   drawFooter,
+  drawPhotoGrid,
   drawText,
   drawTextRight,
   embedImageSmart,
@@ -23,10 +24,10 @@ import {
   resolveFooterText,
   resolveLogoPlacement,
   resolvePdfTemplate,
-  sanitizePdfText,
   wrapText,
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
+import { drawCustomLayout } from '../_shared/pdf-blocks.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -35,32 +36,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString('fr-CH', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-function formatCoords(lat: number | null, lng: number | null): string | null {
-  if (lat == null || lng == null) return null;
-  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-}
-
-function truncate(text: string, font: PDFFont, size: number, maxWidth: number): string {
-  const safe = sanitizePdfText(text);
-  if (font.widthOfTextAtSize(safe, size) <= maxWidth) return safe;
-  let result = safe;
-  while (result.length > 1 && font.widthOfTextAtSize(result + '...', size) > maxWidth) {
-    result = result.slice(0, -1);
-  }
-  return result + '...';
-}
 
 type TemplateId = 'classic' | 'moderne' | 'minimal' | 'structure';
 type SectionId = 'intro' | 'photos' | 'map' | 'signature';
@@ -181,6 +156,7 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
       const state = await drawPhotoGrid({
         pdfDoc,
         admin,
+        bucket: BUCKET,
         page,
         pageNum,
         y,
@@ -301,6 +277,7 @@ async function renderReportModerne(ctx: RenderCtx): Promise<Uint8Array> {
       const state = await drawPhotoGrid({
         pdfDoc,
         admin,
+        bucket: BUCKET,
         page,
         pageNum,
         y,
@@ -390,6 +367,7 @@ async function renderReportMinimal(ctx: RenderCtx): Promise<Uint8Array> {
       const state = await drawPhotoGrid({
         pdfDoc,
         admin,
+        bucket: BUCKET,
         page,
         pageNum,
         y,
@@ -511,6 +489,7 @@ async function renderReportStructure(ctx: RenderCtx): Promise<Uint8Array> {
       const state = await drawPhotoGrid({
         pdfDoc,
         admin,
+        bucket: BUCKET,
         page,
         pageNum,
         y,
@@ -547,99 +526,6 @@ const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => Promise<Uint8Array>> = {
   minimal: renderReportMinimal,
   structure: renderReportStructure,
 };
-
-// Shared 2-column photo grid, used by all 4 renderers (cardBorder/cardBg
-// null draws no card box at all — the minimal template's look). Pagination
-// is handled internally: onNewPage draws the outgoing page's footer before a
-// fresh page starts, mirroring each renderer's own newPage() closure.
-async function drawPhotoGrid(params: {
-  pdfDoc: PDFDocument;
-  admin: ReturnType<typeof createClient>;
-  page: PDFPage;
-  pageNum: number;
-  y: number;
-  photos: any[];
-  font: PDFFont;
-  fontBold: PDFFont;
-  labelColor: RGB;
-  cardBorder: RGB | null;
-  cardBg: RGB | null;
-  onNewPage: (page: PDFPage, pageNum: number) => void;
-}): Promise<{ page: PDFPage; pageNum: number; y: number }> {
-  let { page, pageNum, y } = params;
-  const { pdfDoc, admin, photos, font, fontBold, labelColor, cardBorder, cardBg } = params;
-
-  const cols = 2;
-  const gap = 16;
-  const cellW = (PAGE_WIDTH - 2 * MARGIN - gap * (cols - 1)) / cols;
-  const imgH = 155;
-  const captionH = 36;
-  const cardPad = 8;
-  const cellH = imgH + captionH + cardPad * 2 + 10;
-  let col = 0;
-
-  const newPage = () => {
-    params.onNewPage(page, pageNum);
-    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    pageNum += 1;
-    y = PAGE_HEIGHT - MARGIN;
-    drawText(page, 'PHOTOS (suite)', MARGIN, y, fontBold, 10, labelColor);
-    y -= 20;
-    col = 0;
-  };
-
-  for (const photo of photos) {
-    if (y - cellH < MARGIN + 30) newPage();
-    const x = MARGIN + col * (cellW + gap);
-    const cardTop = y;
-    const cardBottom = y - cellH + 10;
-
-    if (cardBg || cardBorder) {
-      page.drawRectangle({
-        x,
-        y: cardBottom,
-        width: cellW,
-        height: cardTop - cardBottom,
-        color: cardBg ?? WHITE,
-        borderColor: cardBorder ?? undefined,
-        borderWidth: cardBorder ? 1 : 0,
-      });
-    }
-
-    const bytes = await fetchStorageBytes(admin, BUCKET, photo.storage_path);
-    const imgTop = cardTop - cardPad;
-    if (bytes) {
-      const img = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
-      const innerW = cellW - cardPad * 2;
-      page.drawRectangle({ x: x + cardPad, y: imgTop - imgH, width: innerW, height: imgH, color: PAPER_ALT });
-      if (img) {
-        const scale = Math.min(innerW / img.width, imgH / img.height);
-        const w = img.width * scale;
-        const h = img.height * scale;
-        page.drawImage(img, { x: x + cardPad + (innerW - w) / 2, y: imgTop - imgH + (imgH - h) / 2, width: w, height: h });
-      }
-    }
-
-    let capY = imgTop - imgH - 14;
-    if (photo.caption) {
-      drawText(page, truncate(photo.caption, fontBold, 9.5, cellW - cardPad * 2), x + cardPad, capY, fontBold, 9.5, INK);
-      capY -= 12;
-    }
-    const coords = formatCoords(photo.latitude, photo.longitude);
-    const meta = [coords ? `GPS ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  ·  ');
-    drawText(page, truncate(meta, font, 8, cellW - cardPad * 2), x + cardPad, capY, font, 8, MUTED);
-
-    col += 1;
-    if (col === cols) {
-      col = 0;
-      y -= cellH;
-    }
-  }
-  if (col !== 0) y -= cellH;
-  y -= 6;
-
-  return { page, pageNum, y };
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -697,29 +583,45 @@ Deno.serve(async (req: Request) => {
     }
 
     const template = await resolvePdfTemplate(admin, report.organization_id, 'report', report.template_id);
-    const render = RENDERERS[template.base_layout];
     const brand = resolveBrand(template, org);
+    const footerText = resolveFooterText(template, org);
     const knownSections: SectionId[] = ['intro', 'photos', 'map', 'signature'];
     const sections = (Array.isArray(template.sections) ? template.sections : ['intro', 'photos', 'signature']).filter((s: string) =>
       knownSections.includes(s as SectionId),
     ) as SectionId[];
 
-    const pdfBytes = await render({
-      pdfDoc,
-      font,
-      fontBold,
-      org,
-      report,
-      photos: photos ?? [],
-      logoImg,
-      signatureImg,
-      brand,
-      textOnBrand: pickReadableTextColor(brand),
-      logoPlacement: resolveLogoPlacement(template, org),
-      footerText: resolveFooterText(template, org),
-      sections,
-      admin,
-    });
+    const pdfBytes =
+      template.layout_mode === 'custom'
+        ? await drawCustomLayout('report', template.blocks, {
+            pdfDoc,
+            admin,
+            bucket: BUCKET,
+            font,
+            fontBold,
+            org,
+            doc: report,
+            photos: photos ?? [],
+            logoImg,
+            signatureImg,
+            brand,
+            footerText,
+          })
+        : await RENDERERS[template.base_layout]({
+            pdfDoc,
+            font,
+            fontBold,
+            org,
+            report,
+            photos: photos ?? [],
+            logoImg,
+            signatureImg,
+            brand,
+            textOnBrand: pickReadableTextColor(brand),
+            logoPlacement: resolveLogoPlacement(template, org),
+            footerText,
+            sections,
+            admin,
+          });
 
     const path = `${report.organization_id}/reports/${report.id}/rapport-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
@@ -734,7 +636,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 
-    return json({ path, url: signed?.signedUrl ?? null, template: template.base_layout });
+    return json({ path, url: signed?.signedUrl ?? null, template: template.layout_mode === 'custom' ? 'custom' : template.base_layout });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

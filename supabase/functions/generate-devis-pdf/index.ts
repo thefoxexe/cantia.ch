@@ -15,6 +15,7 @@ import {
   drawTextRight,
   embedImageSmart,
   fetchStorageBytes,
+  formatChf,
   formatDate,
   logoX,
   pickReadableTextColor,
@@ -22,10 +23,10 @@ import {
   resolveFooterText,
   resolveLogoPlacement,
   resolvePdfTemplate,
-  sanitizePdfText,
   wrapText,
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
+import { drawCustomLayout } from '../_shared/pdf-blocks.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -35,12 +36,7 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-function chf(amount: number): string {
-  // Sanitized at the source: box-width measurements below call
-  // widthOfTextAtSize directly on this string (not through drawText), so
-  // relying on the drawText/drawTextRight choke point alone isn't enough.
-  return sanitizePdfText(new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount));
-}
+const chf = formatChf;
 
 interface RenderCtx {
   pdfDoc: PDFDocument;
@@ -682,23 +678,39 @@ Deno.serve(async (req: Request) => {
     }
 
     const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
-    const render = RENDERERS[template.base_layout];
     const brand = resolveBrand(template, org);
+    const footerText = resolveFooterText(template, org);
 
-    const pdfBytes = await render({
-      pdfDoc,
-      font,
-      fontBold,
-      org,
-      devis,
-      items: items ?? [],
-      logoImg,
-      signatureImg,
-      brand,
-      textOnBrand: pickReadableTextColor(brand),
-      logoPlacement: resolveLogoPlacement(template, org),
-      footerText: resolveFooterText(template, org),
-    });
+    const pdfBytes =
+      template.layout_mode === 'custom'
+        ? await drawCustomLayout('devis', template.blocks, {
+            pdfDoc,
+            admin,
+            bucket: BUCKET,
+            font,
+            fontBold,
+            org,
+            doc: devis,
+            items: items ?? [],
+            logoImg,
+            signatureImg,
+            brand,
+            footerText,
+          })
+        : await RENDERERS[template.base_layout]({
+            pdfDoc,
+            font,
+            fontBold,
+            org,
+            devis,
+            items: items ?? [],
+            logoImg,
+            signatureImg,
+            brand,
+            textOnBrand: pickReadableTextColor(brand),
+            logoPlacement: resolveLogoPlacement(template, org),
+            footerText,
+          });
 
     const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
@@ -711,7 +723,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 
-    return json({ path, url: signed?.signedUrl ?? null, template: template.base_layout });
+    return json({ path, url: signed?.signedUrl ?? null, template: template.layout_mode === 'custom' ? 'custom' : template.base_layout });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

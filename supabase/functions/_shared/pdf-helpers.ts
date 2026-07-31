@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { PDFDocument, PDFFont, PDFPage, RGB, rgb } from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, PDFFont, PDFImage, PDFPage, RGB, rgb } from 'npm:pdf-lib@1.17.1';
 
 export const PAGE_WIDTH = 595.28; // A4 pt
 export const PAGE_HEIGHT = 841.89;
@@ -106,6 +106,13 @@ export async function embedImageSmart(pdfDoc: PDFDocument, bytes: Uint8Array, co
   return null;
 }
 
+// Sanitized at the source, not just via the drawText/drawTextRight choke
+// point — box-width measurements in devis renderers call
+// widthOfTextAtSize directly on this string before it ever reaches drawText.
+export function formatChf(amount: number): string {
+  return sanitizePdfText(new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount));
+}
+
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -148,6 +155,52 @@ export function logoX(placement: LogoPlacement, pageWidth: number, margin: numbe
   return pageWidth - margin - logoWidth;
 }
 
+// Free-canvas block model (layout_mode = 'custom') — see pdf-blocks.ts for
+// the renderer. A fixed vocabulary of "bindings" rather than a templating
+// language: each binding maps to one specific piece of real document data,
+// which is what keeps the block model small enough for a mobile editor to
+// expose meaningfully (a palette of ~12 known block kinds, not a free text
+// field for arbitrary field paths).
+export type PdfBlockBinding =
+  | 'logo'
+  | 'signature'
+  | 'org.name'
+  | 'org.contact'
+  | 'document.title'
+  | 'document.meta'
+  | 'notes'
+  | 'photos' // report only
+  | 'items_table' // devis only
+  | 'totals' // devis only
+  | 'static'
+  | 'divider';
+
+export interface PdfBlockStyle {
+  fontSize?: number;
+  bold?: boolean;
+  align?: 'left' | 'center' | 'right';
+  color?: string; // hex, resolved against brand/ink/muted by the renderer when absent
+  background?: string | null;
+  borderColor?: string | null;
+  borderWidth?: number;
+  shapeKind?: 'line' | 'rect'; // divider only
+}
+
+export interface PdfBlock {
+  id: string;
+  binding: PdfBlockBinding;
+  // Points, top-left origin, y grows downward (matches how a mobile canvas
+  // editor naturally works) — converted to pdf-lib's bottom-left/y-up space
+  // in pdf-blocks.ts, not here.
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  z: number;
+  style?: PdfBlockStyle;
+  text?: string; // 'static' binding only
+}
+
 export interface PdfTemplateRow {
   id: string;
   base_layout: 'classic' | 'moderne' | 'minimal' | 'structure';
@@ -155,9 +208,12 @@ export interface PdfTemplateRow {
   brand_color_override: string | null;
   logo_placement_override: LogoPlacement | null;
   footer_text_override: string | null;
+  layout_mode: 'preset' | 'custom';
+  blocks: PdfBlock[];
 }
 
-const TEMPLATE_COLUMNS = 'id, base_layout, sections, brand_color_override, logo_placement_override, footer_text_override';
+const TEMPLATE_COLUMNS =
+  'id, base_layout, sections, brand_color_override, logo_placement_override, footer_text_override, layout_mode, blocks';
 
 const BASE_LAYOUTS = ['classic', 'moderne', 'minimal', 'structure'] as const;
 
@@ -168,6 +224,8 @@ const EMPTY_TEMPLATE: PdfTemplateRow = {
   brand_color_override: null,
   logo_placement_override: null,
   footer_text_override: null,
+  layout_mode: 'preset',
+  blocks: [],
 };
 
 // Shared by both edge functions: resolve the pdf_templates row to render
@@ -219,4 +277,132 @@ export function resolveFooterText(template: PdfTemplateRow, org: any): string | 
 
 export function normalizeBaseLayout(value: string | null | undefined): PdfTemplateRow['base_layout'] {
   return (BASE_LAYOUTS as readonly string[]).includes(value ?? '') ? (value as PdfTemplateRow['base_layout']) : 'classic';
+}
+
+export function truncate(text: string, font: PDFFont, size: number, maxWidth: number): string {
+  const safe = sanitizePdfText(text);
+  if (font.widthOfTextAtSize(safe, size) <= maxWidth) return safe;
+  let result = safe;
+  while (result.length > 1 && font.widthOfTextAtSize(result + '...', size) > maxWidth) {
+    result = result.slice(0, -1);
+  }
+  return result + '...';
+}
+
+export function formatCoords(lat: number | null, lng: number | null): string | null {
+  if (lat == null || lng == null) return null;
+  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+}
+
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString('fr-CH', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+// Shared 2-column photo grid — used by all 4 report renderers today, and by
+// the free-canvas 'photos' block. cardBorder/cardBg null draws no card box
+// at all (the minimal template's look). Pagination is handled internally:
+// onNewPage draws the outgoing page's footer before a fresh page starts,
+// mirroring each renderer's own newPage() closure.
+export async function drawPhotoGrid(params: {
+  pdfDoc: PDFDocument;
+  admin: ReturnType<typeof createClient>;
+  bucket: string;
+  page: PDFPage;
+  pageNum: number;
+  y: number;
+  photos: any[];
+  font: PDFFont;
+  fontBold: PDFFont;
+  labelColor: RGB;
+  cardBorder: RGB | null;
+  cardBg: RGB | null;
+  onNewPage: (page: PDFPage, pageNum: number) => void;
+  // Optional overrides so a free-canvas 'photos' block can confine the grid
+  // to its own x/width instead of the full page margin — every existing
+  // caller omits these and keeps the original MARGIN-based layout exactly.
+  x?: number;
+  width?: number;
+}): Promise<{ page: PDFPage; pageNum: number; y: number }> {
+  let { page, pageNum, y } = params;
+  const { pdfDoc, admin, bucket, photos, font, fontBold, labelColor, cardBorder, cardBg } = params;
+  const gridX = params.x ?? MARGIN;
+  const gridWidth = params.width ?? PAGE_WIDTH - 2 * MARGIN;
+
+  const cols = 2;
+  const gap = 16;
+  const cellW = (gridWidth - gap * (cols - 1)) / cols;
+  const imgH = 155;
+  const captionH = 36;
+  const cardPad = 8;
+  const cellH = imgH + captionH + cardPad * 2 + 10;
+  let col = 0;
+
+  const newPage = () => {
+    params.onNewPage(page, pageNum);
+    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    pageNum += 1;
+    y = PAGE_HEIGHT - MARGIN;
+    drawText(page, 'PHOTOS (suite)', gridX, y, fontBold, 10, labelColor);
+    y -= 20;
+    col = 0;
+  };
+
+  for (const photo of photos) {
+    if (y - cellH < MARGIN + 30) newPage();
+    const x = gridX + col * (cellW + gap);
+    const cardTop = y;
+    const cardBottom = y - cellH + 10;
+
+    if (cardBg || cardBorder) {
+      page.drawRectangle({
+        x,
+        y: cardBottom,
+        width: cellW,
+        height: cardTop - cardBottom,
+        color: cardBg ?? WHITE,
+        borderColor: cardBorder ?? undefined,
+        borderWidth: cardBorder ? 1 : 0,
+      });
+    }
+
+    const bytes = await fetchStorageBytes(admin, bucket, photo.storage_path);
+    const imgTop = cardTop - cardPad;
+    if (bytes) {
+      const img = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
+      const innerW = cellW - cardPad * 2;
+      page.drawRectangle({ x: x + cardPad, y: imgTop - imgH, width: innerW, height: imgH, color: PAPER_ALT });
+      if (img) {
+        const scale = Math.min(innerW / img.width, imgH / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        page.drawImage(img, { x: x + cardPad + (innerW - w) / 2, y: imgTop - imgH + (imgH - h) / 2, width: w, height: h });
+      }
+    }
+
+    let capY = imgTop - imgH - 14;
+    if (photo.caption) {
+      drawText(page, truncate(photo.caption, fontBold, 9.5, cellW - cardPad * 2), x + cardPad, capY, fontBold, 9.5, INK);
+      capY -= 12;
+    }
+    const coords = formatCoords(photo.latitude, photo.longitude);
+    const meta = [coords ? `GPS ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  ·  ');
+    drawText(page, truncate(meta, font, 8, cellW - cardPad * 2), x + cardPad, capY, font, 8, MUTED);
+
+    col += 1;
+    if (col === cols) {
+      col = 0;
+      y -= cellH;
+    }
+  }
+  if (col !== 0) y -= cellH;
+  y -= 6;
+
+  return { page, pageNum, y };
 }
