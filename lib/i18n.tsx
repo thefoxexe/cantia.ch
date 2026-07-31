@@ -513,6 +513,7 @@ const DICTS: Record<Lang, Dict> = { fr, en, de };
 const PLAN_NAMES: Record<string, Record<Lang, string>> = {
   free: { fr: 'Gratuit', en: 'Free', de: 'Gratis' },
   solo: { fr: 'Indépendant', en: 'Independent', de: 'Selbstständig' },
+  equipe: { fr: 'Équipe', en: 'Team', de: 'Team' },
   pro: { fr: 'Entreprise', en: 'Business', de: 'Unternehmen' },
 };
 
