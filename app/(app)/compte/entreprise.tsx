@@ -9,6 +9,7 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
+import { isValidSwissIban } from '../../../lib/iban';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -24,6 +25,7 @@ export default function EntrepriseScreen() {
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
+  const [iban, setIban] = useState(organization?.iban ?? '');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [brandColor, setBrandColor] = useState(organization?.brand_color ?? '#1F3D3A');
@@ -43,6 +45,7 @@ export default function EntrepriseScreen() {
     setPhone(organization.phone ?? '');
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
+    setIban(organization.iban ?? '');
     setBrandColor(organization.brand_color ?? '#1F3D3A');
     setLogoPlacement(organization.logo_placement ?? 'right');
     setFooterText(organization.footer_text ?? '');
@@ -62,6 +65,8 @@ export default function EntrepriseScreen() {
     if (!organization) return;
     setSaving(true);
     const validHex = HEX_COLOR_RE.test(brandColor.trim());
+    const ibanTrimmed = iban.trim();
+    const validIban = !ibanTrimmed || isValidSwissIban(ibanTrimmed);
     await supabase
       .from('organizations')
       .update({
@@ -72,6 +77,7 @@ export default function EntrepriseScreen() {
         phone: phone.trim() || null,
         email: email.trim() || null,
         website: website.trim() || null,
+        iban: validIban ? ibanTrimmed.replace(/\s+/g, '').toUpperCase() || null : organization.iban,
         brand_color: validHex ? brandColor.trim() : organization.brand_color,
         logo_placement: logoPlacement,
         footer_text: footerText.trim() || null,
@@ -175,6 +181,21 @@ export default function EntrepriseScreen() {
             autoCapitalize="none"
             placeholder="www.entreprise.ch"
           />
+          <Field
+            label="IBAN (pour la QR-facture)"
+            value={iban}
+            onChangeText={setIban}
+            editable={isAdmin}
+            autoCapitalize="characters"
+            placeholder="CH00 0000 0000 0000 0000 0"
+          />
+          {iban.trim() && !isValidSwissIban(iban.trim()) ? (
+            <Text style={styles.errorHint}>IBAN suisse ou liechtensteinois invalide (format CHxx.../LIxx...).</Text>
+          ) : (
+            <Text style={styles.hint}>
+              Renseigné, un bulletin de paiement QR suisse conforme est ajouté automatiquement à vos devis.
+            </Text>
+          )}
           {isAdmin ? (
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}

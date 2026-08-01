@@ -30,6 +30,7 @@ export interface Organization {
   brand_color: string;
   logo_placement: 'left' | 'center' | 'right';
   footer_text: string | null;
+  iban: string | null;
   plan_id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;

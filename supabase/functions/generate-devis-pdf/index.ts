@@ -27,6 +27,7 @@ import {
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
 import { drawCustomLayout } from '../_shared/pdf-blocks.ts';
+import { appendQrBillPage, isValidSwissIban } from '../_shared/qrbill.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -681,7 +682,7 @@ Deno.serve(async (req: Request) => {
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org);
 
-    const pdfBytes =
+    let pdfBytes =
       template.layout_mode === 'custom'
         ? await drawCustomLayout('devis', template.blocks, {
             pdfDoc,
@@ -711,6 +712,35 @@ Deno.serve(async (req: Request) => {
             logoPlacement: resolveLogoPlacement(template, org),
             footerText,
           });
+
+    // Swiss QR-bill: a dedicated final page appended to the already-rendered
+    // PDF (pdfDoc is mutated in place, so this applies identically whether
+    // the devis used a preset or a custom layout, without touching either
+    // rendering path). Opt-in — only when the org has a valid CH/LI IBAN.
+    if (isValidSwissIban(org?.iban)) {
+      try {
+        const itemsList = items ?? [];
+        const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+        const vat = subtotal * (Number(devis.vat_rate) / 100);
+        const total = subtotal + vat;
+        await appendQrBillPage(pdfDoc, font, fontBold, {
+          iban: org.iban,
+          creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },
+          amount: total,
+          currency: 'CHF',
+          debtor: devis.client_name
+            ? { name: devis.client_name, addressLine1: devis.client_address ?? null }
+            : null,
+          referenceId: devis.id,
+          unstructuredMessage: devis.number ? `Devis ${devis.number}` : undefined,
+        });
+        pdfBytes = await pdfDoc.save();
+      } catch (qrErr) {
+        // A QR-bill failure must never take down devis generation — the
+        // rest of the PDF is still valid and useful without it.
+        console.error('QR-bill generation failed:', qrErr);
+      }
+    }
 
     const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
