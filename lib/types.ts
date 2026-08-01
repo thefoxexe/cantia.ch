@@ -233,6 +233,39 @@ export interface DevisItem {
   sort_order: number;
 }
 
+export type FactureStatus = 'draft' | 'sent' | 'paid' | 'cancelled';
+
+export interface Facture {
+  id: string;
+  organization_id: string;
+  project_id: string | null;
+  devis_id: string | null;
+  template_id: string | null;
+  number: string | null;
+  client_name: string;
+  client_address: string | null;
+  client_email: string | null;
+  notes: string | null;
+  status: FactureStatus;
+  vat_rate: number;
+  due_date: string;
+  paid_at: string | null;
+  pdf_path: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FactureItem {
+  id: string;
+  facture_id: string;
+  description: string;
+  quantity: number;
+  unit: string | null;
+  unit_price: number;
+  sort_order: number;
+}
+
 export interface OpusFile {
   id: string;
   organization_id: string;

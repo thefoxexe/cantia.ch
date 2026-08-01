@@ -1,41 +1,36 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { supabase } from '../../../lib/supabase';
-import { getSignedUrl } from '../../../lib/api/storage';
-import { generateDevisPdf } from '../../../lib/api/pdf';
-import { downloadFile } from '../../../lib/downloadFile';
-import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
-import { colors, fontSize, spacing } from '../../../lib/theme';
-import type { Devis, DevisItem, DevisStatus } from '../../../lib/types';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { supabase } from '../../../../lib/supabase';
+import { getSignedUrl } from '../../../../lib/api/storage';
+import { generateFacturePdf } from '../../../../lib/api/pdf';
+import { downloadFile } from '../../../../lib/downloadFile';
+import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { colors, fontSize, spacing } from '../../../../lib/theme';
+import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
 
-const STATUS_FLOW: DevisStatus[] = ['draft', 'sent', 'accepted', 'refused'];
-const STATUS_LABELS: Record<DevisStatus, string> = {
+const STATUS_FLOW: FactureStatus[] = ['draft', 'sent', 'paid', 'cancelled'];
+const STATUS_LABELS: Record<FactureStatus, string> = {
   draft: 'Brouillon',
-  sent: 'Envoyé',
-  accepted: 'Accepté',
-  refused: 'Refusé',
+  sent: 'Envoyée',
+  paid: 'Payée',
+  cancelled: 'Annulée',
 };
 
-export default function DevisDetailScreen() {
+export default function FactureDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const [devis, setDevis] = useState<Devis | null>(null);
-  const [items, setItems] = useState<DevisItem[]>([]);
+  const [facture, setFacture] = useState<Facture | null>(null);
+  const [items, setItems] = useState<FactureItem[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [converting, setConverting] = useState(false);
-  const [factureId, setFactureId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [{ data: d }, { data: i }, { data: f }] = await Promise.all([
-      supabase.from('devis').select('*').eq('id', id).single(),
-      supabase.from('devis_items').select('*').eq('devis_id', id).order('sort_order', { ascending: true }),
-      supabase.from('factures').select('id').eq('devis_id', id).maybeSingle(),
+    const [{ data: f }, { data: i }] = await Promise.all([
+      supabase.from('factures').select('*').eq('id', id).single(),
+      supabase.from('facture_items').select('*').eq('facture_id', id).order('sort_order', { ascending: true }),
     ]);
-    setDevis(d ?? null);
+    setFacture(f ?? null);
     setItems(i ?? []);
-    setFactureId(f?.id ?? null);
   }, [id]);
 
   useFocusEffect(
@@ -44,15 +39,18 @@ export default function DevisDetailScreen() {
     }, [load]),
   );
 
-  async function changeStatus(status: DevisStatus) {
-    await supabase.from('devis').update({ status }).eq('id', id);
+  async function changeStatus(status: FactureStatus) {
+    const patch: { status: FactureStatus; paid_at?: string | null } = { status };
+    if (status === 'paid') patch.paid_at = new Date().toISOString();
+    else if (facture?.status === 'paid') patch.paid_at = null;
+    await supabase.from('factures').update(patch).eq('id', id);
     load();
   }
 
   async function handleGeneratePdf() {
     setGenerating(true);
     setError(null);
-    const { error } = await generateDevisPdf(id);
+    const { error } = await generateFacturePdf(id);
     setGenerating(false);
     if (error) {
       setError(error);
@@ -62,26 +60,14 @@ export default function DevisDetailScreen() {
   }
 
   async function openPdf() {
-    if (!devis?.pdf_path) return;
-    const url = await getSignedUrl(devis.pdf_path);
+    if (!facture?.pdf_path) return;
+    const url = await getSignedUrl(facture.pdf_path);
     if (!url) return;
-    const { error: dlError } = await downloadFile(url, `Devis ${devis.number || devis.client_name}.pdf`);
+    const { error: dlError } = await downloadFile(url, `Facture ${facture.number || facture.client_name}.pdf`);
     if (dlError) setError(dlError);
   }
 
-  async function handleConvertToFacture() {
-    setConverting(true);
-    setError(null);
-    const { data, error: rpcError } = await supabase.rpc('convert_devis_to_facture', { p_devis_id: id });
-    setConverting(false);
-    if (rpcError) {
-      setError(rpcError.message);
-      return;
-    }
-    router.push(`/(app)/devis/factures/${data}`);
-  }
-
-  if (!devis) {
+  if (!facture) {
     return (
       <Screen>
         <LoadingScreen />
@@ -90,8 +76,9 @@ export default function DevisDetailScreen() {
   }
 
   const subtotal = items.reduce((sum, it) => sum + Number(it.quantity) * Number(it.unit_price), 0);
-  const vat = subtotal * (Number(devis.vat_rate) / 100);
+  const vat = subtotal * (Number(facture.vat_rate) / 100);
   const total = subtotal + vat;
+  const overdue = facture.status === 'sent' && facture.due_date < new Date().toISOString().slice(0, 10);
 
   return (
     <Screen>
@@ -99,12 +86,15 @@ export default function DevisDetailScreen() {
       <Container>
         <Card>
           <View style={styles.headerRow}>
-            <Text style={styles.number}>{devis.number}</Text>
-            <StatusBadge status={devis.status} />
+            <Text style={styles.number}>{facture.number}</Text>
+            <StatusBadge status={facture.status} />
           </View>
-          <Text style={styles.client}>{devis.client_name}</Text>
-          {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
-          {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
+          <Text style={styles.client}>{facture.client_name}</Text>
+          {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
+          {facture.client_email ? <Text style={styles.meta}>{facture.client_email}</Text> : null}
+          <Text style={[styles.meta, overdue && styles.overdue]}>
+            {overdue ? 'En retard · ' : ''}Échéance {new Date(facture.due_date).toLocaleDateString('fr-CH')}
+          </Text>
         </Card>
 
         <Text style={styles.sectionTitle}>Statut</Text>
@@ -113,9 +103,9 @@ export default function DevisDetailScreen() {
             <Pressable
               key={s}
               onPress={() => changeStatus(s)}
-              style={[styles.statusChip, devis.status === s && styles.statusChipActive]}
+              style={[styles.statusChip, facture.status === s && styles.statusChipActive]}
             >
-              <Text style={[styles.statusChipText, devis.status === s && styles.statusChipTextActive]}>
+              <Text style={[styles.statusChipText, facture.status === s && styles.statusChipTextActive]}>
                 {STATUS_LABELS[s]}
               </Text>
             </Pressable>
@@ -141,7 +131,7 @@ export default function DevisDetailScreen() {
               <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>TVA ({devis.vat_rate}%)</Text>
+              <Text style={styles.meta}>TVA ({facture.vat_rate}%)</Text>
               <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
@@ -154,35 +144,17 @@ export default function DevisDetailScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Button
-          title={devis.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}
+          title={facture.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}
           onPress={handleGeneratePdf}
           loading={generating}
           style={{ marginTop: spacing.lg }}
         />
-        {devis.pdf_path ? (
+        {facture.pdf_path ? (
           <Button
             title="Ouvrir le PDF"
             icon="file-text"
             onPress={openPdf}
             variant="secondary"
-            style={{ marginTop: spacing.md }}
-          />
-        ) : null}
-
-        {factureId ? (
-          <Button
-            title="Voir la facture"
-            icon="dollar-sign"
-            onPress={() => router.push(`/(app)/devis/factures/${factureId}`)}
-            variant="secondary"
-            style={{ marginTop: spacing.md }}
-          />
-        ) : devis.status === 'accepted' ? (
-          <Button
-            title="Transformer en facture"
-            icon="dollar-sign"
-            onPress={handleConvertToFacture}
-            loading={converting}
             style={{ marginTop: spacing.md }}
           />
         ) : null}
@@ -218,6 +190,10 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  overdue: {
+    color: colors.danger,
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: fontSize.lg,

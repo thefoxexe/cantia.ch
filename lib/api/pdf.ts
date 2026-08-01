@@ -9,3 +9,8 @@ export async function generateDevisPdf(devisId: string): Promise<{ url: string |
   const { data, error } = await invokeFunction<{ url: string }>('generate-devis-pdf', { devis_id: devisId });
   return { url: data?.url ?? null, error };
 }
+
+export async function generateFacturePdf(factureId: string): Promise<{ url: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ url: string }>('generate-facture-pdf', { facture_id: factureId });
+  return { url: data?.url ?? null, error };
+}

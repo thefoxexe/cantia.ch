@@ -57,6 +57,7 @@ interface CustomLayoutCtx {
   signatureImg: PDFImage | null;
   brand: RGB;
   footerText: string | null;
+  docLabel?: string; // 'Devis' (default) or 'Facture' — only affects the 'document.title' binding text
 }
 
 function resolveText(binding: PdfBlockBinding, kind: 'devis' | 'report', block: PdfBlock, ctx: CustomLayoutCtx): string {
@@ -67,7 +68,7 @@ function resolveText(binding: PdfBlockBinding, kind: 'devis' | 'report', block: 
     case 'org.contact':
       return [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
     case 'document.title':
-      return kind === 'report' ? doc.title ?? '' : `Devis ${doc.number ?? ''}`;
+      return kind === 'report' ? doc.title ?? '' : `${ctx.docLabel ?? 'Devis'} ${doc.number ?? ''}`;
     case 'document.meta': {
       if (kind === 'report') {
         const project = doc.projects;

@@ -3,6 +3,7 @@ import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
   embedImageSmart,
   fetchStorageBytes,
+  formatDate,
   pickReadableTextColor,
   resolveBrand,
   resolveFooterText,
@@ -25,8 +26,8 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { devis_id } = await req.json();
-    if (!devis_id) return json({ error: 'devis_id requis' }, 400);
+    const { facture_id } = await req.json();
+    if (!facture_id) return json({ error: 'facture_id requis' }, 400);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -38,17 +39,17 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: devis, error: devisError } = await userClient
-      .from('devis')
+    const { data: facture, error: factureError } = await userClient
+      .from('factures')
       .select('*, projects(name)')
-      .eq('id', devis_id)
+      .eq('id', facture_id)
       .single();
 
-    if (devisError || !devis) return json({ error: 'Devis introuvable ou accès refusé' }, 404);
+    if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
 
     const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('*').eq('id', devis.organization_id).single(),
-      admin.from('devis_items').select('*').eq('devis_id', devis_id).order('sort_order', { ascending: true }),
+      admin.from('organizations').select('*').eq('id', facture.organization_id).single(),
+      admin.from('facture_items').select('*').eq('facture_id', facture_id).order('sort_order', { ascending: true }),
     ]);
 
     const pdfDoc = await PDFDocument.create();
@@ -66,9 +67,18 @@ Deno.serve(async (req: Request) => {
       if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
 
-    const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
+    // Factures share the org's devis templates (kind 'devis') rather than
+    // having their own — the layout needs (client block, items table,
+    // totals) are identical, only the label/meta line differ, which is
+    // handled via docLabel/metaLine below instead of a separate template kind.
+    const template = await resolvePdfTemplate(admin, facture.organization_id, 'devis', facture.template_id);
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org);
+
+    const metaLine =
+      facture.status === 'paid' && facture.paid_at
+        ? `Payée le ${formatDate(facture.paid_at)}`
+        : `Échéance : ${formatDate(facture.due_date)}`;
 
     let pdfBytes =
       template.layout_mode === 'custom'
@@ -79,19 +89,20 @@ Deno.serve(async (req: Request) => {
             font,
             fontBold,
             org,
-            doc: devis,
+            doc: facture,
             items: items ?? [],
             logoImg,
             signatureImg,
             brand,
             footerText,
+            docLabel: 'Facture',
           })
         : await RENDERERS[template.base_layout]({
             pdfDoc,
             font,
             fontBold,
             org,
-            devis,
+            devis: facture,
             items: items ?? [],
             logoImg,
             signatureImg,
@@ -99,47 +110,44 @@ Deno.serve(async (req: Request) => {
             textOnBrand: pickReadableTextColor(brand),
             logoPlacement: resolveLogoPlacement(template, org),
             footerText,
-            docLabel: 'Devis',
-            metaLine: null,
+            docLabel: 'Facture',
+            metaLine,
           });
 
-    // Swiss QR-bill: a dedicated final page appended to the already-rendered
-    // PDF (pdfDoc is mutated in place, so this applies identically whether
-    // the devis used a preset or a custom layout, without touching either
-    // rendering path). Opt-in — only when the org has a valid CH/LI IBAN.
-    if (isValidSwissIban(org?.iban)) {
+    // Swiss QR-bill — same appended-page mechanism as generate-devis-pdf.
+    // Skipped once the facture is marked paid: a settled invoice doesn't
+    // need a payment slip attached anymore.
+    if (facture.status !== 'paid' && isValidSwissIban(org?.iban)) {
       try {
         const itemsList = items ?? [];
         const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
-        const vat = subtotal * (Number(devis.vat_rate) / 100);
+        const vat = subtotal * (Number(facture.vat_rate) / 100);
         const total = subtotal + vat;
         await appendQrBillPage(pdfDoc, font, fontBold, {
           iban: org.iban,
           creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },
           amount: total,
           currency: 'CHF',
-          debtor: devis.client_name
-            ? { name: devis.client_name, addressLine1: devis.client_address ?? null }
+          debtor: facture.client_name
+            ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
             : null,
-          referenceId: devis.id,
-          unstructuredMessage: devis.number ? `Devis ${devis.number}` : undefined,
+          referenceId: facture.id,
+          unstructuredMessage: facture.number ? `Facture ${facture.number}` : undefined,
         });
         pdfBytes = await pdfDoc.save();
       } catch (qrErr) {
-        // A QR-bill failure must never take down devis generation — the
-        // rest of the PDF is still valid and useful without it.
         console.error('QR-bill generation failed:', qrErr);
       }
     }
 
-    const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;
+    const path = `${facture.organization_id}/factures/${facture.id}/facture-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
       .from(BUCKET)
       .upload(path, pdfBytes, { contentType: 'application/pdf', upsert: true });
 
     if (uploadError) return json({ error: `Échec de l'enregistrement du PDF: ${uploadError.message}` }, 500);
 
-    await admin.from('devis').update({ pdf_path: path }).eq('id', devis_id);
+    await admin.from('factures').update({ pdf_path: path }).eq('id', facture_id);
 
     const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 

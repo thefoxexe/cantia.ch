@@ -2,27 +2,31 @@ import { useCallback, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { useAuth } from '../../../lib/auth-context';
-import { supabase } from '../../../lib/supabase';
-import { Button, Card, EmptyState, Screen, StatusBadge } from '../../../components/ui';
-import { colors, fontSize, spacing } from '../../../lib/theme';
-import type { Devis } from '../../../lib/types';
+import { useAuth } from '../../../../lib/auth-context';
+import { supabase } from '../../../../lib/supabase';
+import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
+import { colors, fontSize, spacing } from '../../../../lib/theme';
+import type { Facture } from '../../../../lib/types';
 
-export default function DevisListScreen() {
+function isOverdue(facture: Facture): boolean {
+  return facture.status === 'sent' && facture.due_date < new Date().toISOString().slice(0, 10);
+}
+
+export default function FacturesListScreen() {
   const { organization } = useAuth();
   const router = useRouter();
-  const [devisList, setDevisList] = useState<Devis[]>([]);
+  const [factures, setFactures] = useState<Facture[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
     const { data } = await supabase
-      .from('devis')
+      .from('factures')
       .select('*')
       .eq('organization_id', organization.id)
       .order('created_at', { ascending: false });
-    setDevisList(data ?? []);
+    setFactures(data ?? []);
     setLoading(false);
   }, [organization]);
 
@@ -35,30 +39,22 @@ export default function DevisListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
-          <Button title="Nouveau devis" icon="plus" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
-          <Button
-            title="Factures"
-            icon="dollar-sign"
-            variant="secondary"
-            onPress={() => router.push('/(app)/devis/factures')}
-            style={{ flex: 1 }}
-          />
-        </View>
-
         <FlatList
-          data={devisList}
+          data={factures}
           keyExtractor={(item) => item.id}
           refreshing={loading}
           onRefresh={load}
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
           ListEmptyComponent={
             !loading ? (
-              <EmptyState title="Aucun devis" subtitle="Créez un devis à partir de vos notes de rendez-vous." />
+              <EmptyState
+                title="Aucune facture"
+                subtitle="Transformez un devis accepté en facture depuis sa fiche."
+              />
             ) : null
           }
           renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/(app)/devis/${item.id}`)}>
+            <Pressable onPress={() => router.push(`/(app)/devis/factures/${item.id}`)}>
               <Card style={styles.card}>
                 <View style={styles.cardBody}>
                   <View style={styles.row}>
@@ -66,7 +62,9 @@ export default function DevisListScreen() {
                     <StatusBadge status={item.status} />
                   </View>
                   <Text style={styles.client}>{item.client_name}</Text>
-                  <Text style={styles.meta}>{new Date(item.created_at).toLocaleDateString('fr-CH')}</Text>
+                  <Text style={[styles.meta, isOverdue(item) && styles.overdue]}>
+                    {isOverdue(item) ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
+                  </Text>
                 </View>
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Card>
@@ -112,5 +110,9 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  overdue: {
+    color: colors.danger,
+    fontWeight: '600',
   },
 });

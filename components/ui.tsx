@@ -175,6 +175,8 @@ const STATUS_STYLES: Record<string, { bg: string; fg: string; label: string }> =
   active: { bg: colors.primarySoft, fg: colors.primary, label: 'Actif' },
   completed: { bg: colors.successSoft, fg: colors.success, label: 'Terminé' },
   archived: { bg: colors.border, fg: colors.textMuted, label: 'Archivé' },
+  paid: { bg: colors.successSoft, fg: colors.success, label: 'Payée' },
+  cancelled: { bg: colors.border, fg: colors.textMuted, label: 'Annulée' },
 };
 
 export function StatusBadge({ status }: { status: string }) {
