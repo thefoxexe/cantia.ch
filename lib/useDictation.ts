@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from './speechRecognitionStub';
 
 // A pause between sentences starts a new "final" segment rather than
 // continuing the same one — the module's own docs warn that multiple final
