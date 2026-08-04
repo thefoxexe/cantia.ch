@@ -469,6 +469,12 @@ function LandingContent() {
             </View>
             <View style={styles.footerBottom}>
               <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
+              <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
+                <Pressable style={styles.footerSocialLink}>
+                  <Feather name="instagram" size={15} color={colors.textMuted} />
+                  <Text style={styles.footerCopy}>@cantia.ch</Text>
+                </Pressable>
+              </Link>
             </View>
           </View>
         </ScrollView>
@@ -2054,6 +2060,11 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   footerBottom: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: spacing.sm,
     paddingTop: spacing.lg,
     paddingBottom: spacing.xl,
     borderTopWidth: 1,
@@ -2062,5 +2073,10 @@ const styles = StyleSheet.create({
   footerCopy: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  footerSocialLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 });
