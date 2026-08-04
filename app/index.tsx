@@ -789,8 +789,14 @@ type QrBillCopy = { label: string; title: string; text: string; badge: string };
 // this is what the real in-app dictation produces, not a live recording.
 function VoiceDemo({ copy }: { copy: VoiceCopy }) {
   const [phase, setPhase] = useState<'listening' | 'result'>('listening');
+  // How many words of the transcript are currently shown — climbs one word
+  // at a time while listening, so the text grows on screen the way a
+  // teleprompter (or the real live-dictation transcript) does, instead of
+  // appearing all at once.
+  const [revealCount, setRevealCount] = useState(0);
+  const words = useRef(copy.transcript.split(' ')).current;
   const fade = useRef(new Animated.Value(1)).current;
-  const barAnims = useRef(Array.from({ length: 5 }, () => new Animated.Value(0.3))).current;
+  const barAnims = useRef(Array.from({ length: 14 }, () => new Animated.Value(0.3))).current;
   const micPulse = useRef(new Animated.Value(0)).current;
   // Drives a slow, continuous primary<->accent color sweep across the mic
   // and the waveform (each bar reads it with its own phase offset below) —
@@ -811,7 +817,7 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
             if (mounted) cycle();
           });
         });
-      }, 2400);
+      }, 2600);
     };
     cycle();
     return () => {
@@ -821,11 +827,24 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
   }, [fade]);
 
   useEffect(() => {
+    if (phase !== 'listening') return;
+    setRevealCount(0);
+    // Spread the reveal across the ~2.6s listening window (with a little
+    // headroom before the crossfade) so the last word lands just before the
+    // view switches to the result.
+    const stepMs = Math.max(90, 2200 / words.length);
+    const intervalId = setInterval(() => {
+      setRevealCount((n) => (n < words.length ? n + 1 : n));
+    }, stepMs);
+    return () => clearInterval(intervalId);
+  }, [phase, words]);
+
+  useEffect(() => {
     const loops = barAnims.map((v, i) =>
       Animated.loop(
         Animated.sequence([
-          Animated.timing(v, { toValue: 1, duration: 380 + i * 55, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(v, { toValue: 0.25, duration: 380 + i * 55, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(v, { toValue: 1, duration: 340 + i * 35, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(v, { toValue: 0.2, duration: 340 + i * 35, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
         ]),
       ),
     );
@@ -856,13 +875,15 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
     return () => loop.stop();
   }, [colorCycle]);
 
+  const revealedTranscript = words.slice(0, revealCount).join(' ');
+
   return (
     <View style={styles.demoCard}>
       <View style={styles.demoLabelRow}>
         <View style={styles.demoDot} />
         <Text style={styles.demoLabel}>{copy.label}</Text>
       </View>
-      <Animated.View style={{ opacity: fade, minHeight: 168 }}>
+      <Animated.View style={[styles.demoBody, { opacity: fade }]}>
         {phase === 'listening' ? (
           <View>
             <View style={styles.micWrap}>
@@ -883,7 +904,7 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
                   { backgroundColor: colorCycle.interpolate({ inputRange: [0, 1], outputRange: [colors.primary, colors.accent] }) },
                 ]}
               >
-                <Feather name="mic" size={18} color="#fff" />
+                <Feather name="mic" size={26} color="#fff" />
               </Animated.View>
               <Text style={styles.voiceListeningText}>{copy.listening}</Text>
             </View>
@@ -895,14 +916,15 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
                     styles.waveBar,
                     {
                       transform: [{ scaleY: v }],
-                      backgroundColor: v.interpolate({ inputRange: [0.25, 1], outputRange: [colors.primary, colors.accent] }),
+                      backgroundColor: v.interpolate({ inputRange: [0.2, 1], outputRange: [colors.primary, colors.accent] }),
                     },
                   ]}
                 />
               ))}
             </View>
-            <Text style={styles.voiceTranscript} numberOfLines={3}>
-              {copy.transcript}
+            <Text style={styles.voiceTranscript}>
+              {revealedTranscript}
+              <Text style={styles.voiceCursor}>▍</Text>
             </Text>
           </View>
         ) : (
@@ -981,14 +1003,14 @@ function QrBillDemo({ copy }: { copy: QrBillCopy }) {
         <View style={styles.demoDot} />
         <Text style={styles.demoLabel}>{copy.label}</Text>
       </View>
-      <View style={styles.qrDemoRow}>
+      <View style={[styles.demoBody, styles.qrDemoRow]}>
         <View style={styles.qrVisualClip}>
           <QrGrid />
           <Animated.View
             pointerEvents="none"
             style={[
               styles.qrSweep,
-              { transform: [{ translateY: sweep.interpolate({ inputRange: [0, 1], outputRange: [-58, 58] }) }] },
+              { transform: [{ translateY: sweep.interpolate({ inputRange: [0, 1], outputRange: [-72, 72] }) }] },
             ]}
           />
         </View>
@@ -1032,28 +1054,30 @@ function CatalogDemo({ copy }: { copy: CatalogCopy }) {
         <View style={styles.demoDot} />
         <Text style={styles.demoLabel}>{copy.label}</Text>
       </View>
-      <Text style={styles.catalogTitle}>{copy.title}</Text>
-      <View style={styles.catalogList}>
-        {copy.items.map((item) => (
-          <View key={item.name} style={styles.catalogRow}>
-            <View style={styles.catalogRowHeader}>
-              <Text style={styles.catalogItemName} numberOfLines={1}>
-                {item.name}
-              </Text>
-              <View style={styles.catalogMatchBadge}>
-                <Text style={styles.catalogMatchText}>{item.match}%</Text>
+      <View style={styles.demoBody}>
+        <Text style={styles.catalogTitle}>{copy.title}</Text>
+        <View style={styles.catalogList}>
+          {copy.items.map((item) => (
+            <View key={item.name} style={styles.catalogRow}>
+              <View style={styles.catalogRowHeader}>
+                <Text style={styles.catalogItemName} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <View style={styles.catalogMatchBadge}>
+                  <Text style={styles.catalogMatchText}>{item.match}%</Text>
+                </View>
+              </View>
+              <View style={styles.catalogBarTrack}>
+                <Animated.View
+                  style={[
+                    styles.catalogBarFill,
+                    { width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', `${item.match}%`] }) },
+                  ]}
+                />
               </View>
             </View>
-            <View style={styles.catalogBarTrack}>
-              <Animated.View
-                style={[
-                  styles.catalogBarFill,
-                  { width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', `${item.match}%`] }) },
-                ]}
-              />
-            </View>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
       <Text style={styles.demoCaption}>{copy.text}</Text>
     </View>
@@ -1383,7 +1407,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: spacing.lg,
   },
   demoCard: {
@@ -1399,6 +1423,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
+  },
+  // The part of each spotlight card below the label — flex:1 so it eats
+  // whatever extra height `spotlightGrid`'s stretch gives the card (the
+  // voice-dictation card is the tallest by design, see VoiceDemo), and
+  // centers its own content in that space so the shorter cards' content
+  // doesn't end up pinned awkwardly to the top.
+  demoBody: {
+    flex: 1,
+    justifyContent: 'center',
   },
   demoLabelRow: {
     flexDirection: 'row',
@@ -1428,50 +1461,55 @@ const styles = StyleSheet.create({
   micWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
+    gap: spacing.md,
+    marginBottom: spacing.lg,
   },
   micPulseRing: {
     position: 'absolute',
     left: 0,
     top: 0,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.primary,
   },
   micCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   voiceListeningText: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
   },
   waveform: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    height: 28,
-    marginBottom: spacing.md,
+    justifyContent: 'space-between',
+    gap: 3,
+    height: 56,
+    marginBottom: spacing.lg,
   },
   waveBar: {
-    width: 4,
-    height: 24,
-    borderRadius: 2,
+    flex: 1,
+    height: 48,
+    borderRadius: 3,
     backgroundColor: colors.primary,
     opacity: 0.85,
   },
   voiceTranscript: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    fontStyle: 'italic',
-    lineHeight: 19,
+    fontSize: fontSize.md,
+    color: colors.text,
+    lineHeight: 24,
+    minHeight: 96,
+  },
+  voiceCursor: {
+    color: colors.primary,
+    fontWeight: '700',
   },
   voiceResultHeader: {
     flexDirection: 'row',
@@ -1502,23 +1540,23 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   qrVisualClip: {
-    width: 78,
-    height: 78,
-    borderRadius: 8,
+    width: 91,
+    height: 91,
+    borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: colors.border,
   },
   qrGrid: {
-    width: 78,
-    height: 78,
+    width: 91,
+    height: 91,
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   qrCell: {
-    width: 6,
-    height: 6,
+    width: 7,
+    height: 7,
     backgroundColor: '#fff',
   },
   qrCellOn: {
@@ -1526,27 +1564,27 @@ const styles = StyleSheet.create({
   },
   qrCrossBox: {
     position: 'absolute',
-    left: 30,
-    top: 30,
-    width: 18,
-    height: 18,
-    borderRadius: 2,
+    left: 35,
+    top: 35,
+    width: 21,
+    height: 21,
+    borderRadius: 3,
     backgroundColor: '#fff',
   },
   qrCrossV: {
     position: 'absolute',
-    left: 7,
-    top: 2,
-    width: 4,
-    height: 14,
+    left: 8,
+    top: 3,
+    width: 5,
+    height: 16,
     backgroundColor: colors.text,
   },
   qrCrossH: {
     position: 'absolute',
-    left: 2,
-    top: 7,
-    width: 14,
-    height: 4,
+    left: 3,
+    top: 8,
+    width: 16,
+    height: 5,
     backgroundColor: colors.text,
   },
   qrSweep: {
