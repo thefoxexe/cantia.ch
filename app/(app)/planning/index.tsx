@@ -22,6 +22,27 @@ interface PickItem {
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
+// Deterministic color per project (not per assignment) — same chantier
+// always reads as the same color across the whole grid, so a glance at the
+// calendar shows who's on what without reading every label.
+const PROJECT_PALETTE = [colors.primary, colors.accent, colors.success, colors.warning, '#6B7FD7', '#B35FA3'];
+function colorForProject(projectId: string): string {
+  let hash = 0;
+  for (let i = 0; i < projectId.length; i++) hash = (hash * 31 + projectId.charCodeAt(i)) >>> 0;
+  return PROJECT_PALETTE[hash % PROJECT_PALETTE.length];
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+const DAY_COL_WIDTH = 108;
+const MEMBER_COL_WIDTH = 96;
+const ROW_HEIGHT = 60;
+
 function startOfWeek(d: Date): Date {
   const date = new Date(d);
   const day = (date.getDay() + 6) % 7; // Monday = 0
@@ -86,15 +107,15 @@ export default function PlanningScreen() {
     }, [load]),
   );
 
-  function assignmentsForDay(day: Date): PlanningAssignmentWithNames[] {
+  function assignmentsForCell(day: Date, memberId: string): PlanningAssignmentWithNames[] {
     const iso = toIso(day);
-    return assignments.filter((a) => a.starts_on <= iso && a.ends_on >= iso);
+    return assignments.filter((a) => a.member_user_id === memberId && a.starts_on <= iso && a.ends_on >= iso);
   }
 
-  function openCreateForm(day?: Date) {
+  function openCreateForm(day?: Date, memberId?: string) {
     setEditingId(null);
     setFormProjectId(projects[0]?.id ?? null);
-    setFormMemberId(user?.id ?? members[0]?.id ?? null);
+    setFormMemberId(memberId ?? user?.id ?? members[0]?.id ?? null);
     const iso = toIso(day ?? new Date());
     setFormStart(iso);
     setFormEnd(iso);
@@ -193,39 +214,94 @@ export default function PlanningScreen() {
             title="Aucun chantier"
             subtitle="Créez un chantier avant de planifier des affectations d'équipe."
           />
+        ) : members.length === 0 ? (
+          <EmptyState title="Aucun membre" subtitle="Invitez votre équipe pour commencer à planifier." />
         ) : (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
-            {days.map((day) => {
-              const dayAssignments = assignmentsForDay(day);
-              const isToday = toIso(day) === toIso(new Date());
-              return (
-                <View key={toIso(day)} style={styles.dayRow}>
-                  <View style={styles.dayHeader}>
-                    <Text style={[styles.dayLabel, isToday && styles.dayLabelToday]}>
-                      {DAY_LABELS[(day.getDay() + 6) % 7]} {formatShort(day)}
-                    </Text>
-                    <Pressable onPress={() => openCreateForm(day)} hitSlop={8}>
-                      <Feather name="plus-circle" size={16} color={colors.textMuted} />
-                    </Pressable>
-                  </View>
-                  {dayAssignments.length === 0 ? (
-                    <Text style={styles.emptyDay}>—</Text>
-                  ) : (
-                    <View style={{ gap: spacing.xs }}>
-                      {dayAssignments.map((a) => (
-                        <Pressable key={a.id} onPress={() => openEditForm(a)} style={styles.assignmentCard}>
-                          <View style={styles.assignmentDot} />
-                          <View style={{ flex: 1 }}>
-                            <Text style={styles.assignmentProject}>{a.project_name}</Text>
-                            <Text style={styles.assignmentMember}>{a.member_name}</Text>
-                          </View>
-                        </Pressable>
-                      ))}
+            <View style={styles.gridRow}>
+              {/* Member axis — stays put while the day grid scrolls horizontally. */}
+              <View style={{ width: MEMBER_COL_WIDTH }}>
+                <View style={styles.cornerCell} />
+                {members.map((m) => (
+                  <View key={m.id} style={styles.memberCell}>
+                    <View style={styles.memberAvatar}>
+                      <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
                     </View>
-                  )}
+                    <Text style={styles.memberName} numberOfLines={2}>
+                      {m.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View>
+                  <View style={styles.dayHeaderRow}>
+                    {days.map((day) => {
+                      const isToday = toIso(day) === toIso(new Date());
+                      return (
+                        <View key={toIso(day)} style={[styles.dayHeaderCell, isToday && styles.dayHeaderCellToday]}>
+                          <Text style={[styles.dayHeaderLabel, isToday && styles.dayHeaderLabelToday]}>
+                            {DAY_LABELS[(day.getDay() + 6) % 7]}
+                          </Text>
+                          <Text style={[styles.dayHeaderDate, isToday && styles.dayHeaderLabelToday]}>{formatShort(day)}</Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+
+                  {members.map((m) => (
+                    <View key={m.id} style={styles.gridDataRow}>
+                      {days.map((day) => {
+                        const cellAssignments = assignmentsForCell(day, m.id);
+                        const isToday = toIso(day) === toIso(new Date());
+                        const iso = toIso(day);
+                        return (
+                          <Pressable
+                            key={iso}
+                            onPress={() => (cellAssignments.length > 0 ? openEditForm(cellAssignments[0]) : openCreateForm(day, m.id))}
+                            style={[styles.dayCell, isToday && styles.dayCellToday]}
+                          >
+                            {cellAssignments.map((a) => {
+                              const isStart = a.starts_on === iso;
+                              const isEnd = a.ends_on === iso;
+                              const showLabel = isStart || day.getTime() === weekStart.getTime();
+                              return (
+                                <Pressable
+                                  key={a.id}
+                                  onPress={() => openEditForm(a)}
+                                  style={[
+                                    styles.assignmentBar,
+                                    { backgroundColor: colorForProject(a.project_id) },
+                                    isStart ? styles.assignmentBarStart : styles.assignmentBarNoStart,
+                                    isEnd ? styles.assignmentBarEnd : styles.assignmentBarNoEnd,
+                                  ]}
+                                >
+                                  {showLabel ? (
+                                    <Text style={styles.assignmentBarText} numberOfLines={1}>
+                                      {a.project_name}
+                                    </Text>
+                                  ) : null}
+                                </Pressable>
+                              );
+                            })}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ))}
                 </View>
-              );
-            })}
+              </ScrollView>
+            </View>
+
+            <View style={styles.legendRow}>
+              {projects.map((p) => (
+                <View key={p.id} style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: colorForProject(p.id) }]} />
+                  <Text style={styles.legendText}>{p.label}</Text>
+                </View>
+              ))}
+            </View>
           </ScrollView>
         )}
       </View>
@@ -352,51 +428,134 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
   },
-  dayRow: {
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+  gridRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
-  dayHeader: {
+  cornerCell: {
+    height: 52,
+  },
+  memberCell: {
+    height: ROW_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    gap: spacing.xs,
+    paddingRight: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  dayLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.textMuted,
+  memberAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  dayLabelToday: {
+  memberAvatarText: {
+    fontSize: 10,
+    fontWeight: '800',
     color: colors.primary,
   },
-  emptyDay: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
+  memberName: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
+    lineHeight: 14,
   },
-  assignmentCard: {
+  dayHeaderRow: {
     flexDirection: 'row',
+    height: 52,
+  },
+  dayHeaderCell: {
+    width: DAY_COL_WIDTH,
     alignItems: 'center',
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    backgroundColor: colors.surface,
+    justifyContent: 'center',
   },
-  assignmentDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
+  dayHeaderCellToday: {
+    backgroundColor: colors.primarySoft,
+    borderTopLeftRadius: radius.sm,
+    borderTopRightRadius: radius.sm,
   },
-  assignmentProject: {
+  dayHeaderLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+  },
+  dayHeaderDate: {
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
+    marginTop: 1,
   },
-  assignmentMember: {
+  dayHeaderLabelToday: {
+    color: colors.primary,
+  },
+  gridDataRow: {
+    flexDirection: 'row',
+  },
+  dayCell: {
+    width: DAY_COL_WIDTH,
+    height: ROW_HEIGHT,
+    padding: 3,
+    gap: 2,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: colors.border,
+  },
+  dayCellToday: {
+    backgroundColor: colors.primarySoft,
+  },
+  assignmentBar: {
+    height: 20,
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    marginHorizontal: -3,
+  },
+  assignmentBarStart: {
+    borderTopLeftRadius: radius.sm,
+    borderBottomLeftRadius: radius.sm,
+    marginLeft: 3,
+  },
+  assignmentBarNoStart: {
+    marginLeft: -1,
+  },
+  assignmentBarEnd: {
+    borderTopRightRadius: radius.sm,
+    borderBottomRightRadius: radius.sm,
+    marginRight: 3,
+  },
+  assignmentBarNoEnd: {
+    marginRight: -1,
+  },
+  assignmentBarText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  legendRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendText: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
   },
