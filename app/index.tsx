@@ -18,7 +18,7 @@ import { Link, Redirect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
 import { supabase } from '../lib/supabase';
-import { useLanguage, planLabel, LANGUAGES, type Lang } from '../lib/i18n';
+import { t, planName } from '../lib/i18n';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { authHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
@@ -41,7 +41,6 @@ export default function LandingScreen() {
 }
 
 function LandingContent() {
-  const { t, lang, setLang } = useLanguage();
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
@@ -64,7 +63,7 @@ function LandingContent() {
   const heroFloat = useRef(new Animated.Value(0)).current;
   const blobPulse = useRef(new Animated.Value(0)).current;
   const menuItemAnims = useRef(
-    Array.from({ length: 5 }, () => new Animated.Value(0)),
+    Array.from({ length: 4 }, () => new Animated.Value(0)),
   ).current;
 
   // Scroll-triggered section reveals: each section registers its own y
@@ -250,7 +249,7 @@ function LandingContent() {
               <Animated.View
                 style={{ transform: [{ translateY: heroFloat.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }] }}
               >
-                <AppPreview phoneWidth={heroPhoneWidth} lang={lang} />
+                <AppPreview phoneWidth={heroPhoneWidth} />
               </Animated.View>
             </Animated.View>
           </View>
@@ -367,10 +366,10 @@ function LandingContent() {
                       <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
                     </View>
                   ) : null}
-                  <Text style={styles.priceName}>{planLabel(p.id, p.name, lang)}</Text>
+                  <Text style={styles.priceName}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
                     <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${p.price_chf_monthly}`}</Text>
-                    <Text style={styles.pricePeriod}>/{lang === 'de' ? 'Monat' : lang === 'en' ? 'month' : 'mois'}</Text>
+                    <Text style={styles.pricePeriod}>/mois</Text>
                   </View>
                   <View style={styles.priceFeatures}>
                     <PriceFeature
@@ -395,9 +394,7 @@ function LandingContent() {
           {/* ---- Swiss positioning ---- */}
           <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
             <View style={styles.swissBand}>
-              <View style={styles.swissIconBadge}>
-                <Feather name="flag" size={22} color={colors.primary} />
-              </View>
+              <Text style={styles.swissFlag}>🇨🇭</Text>
               <Text style={styles.swissTitle}>{t.swiss.title}</Text>
               <Text style={styles.swissText}>{t.swiss.text}</Text>
             </View>
@@ -490,13 +487,6 @@ function LandingContent() {
               </Pressable>
             ) : (
               <View style={styles.navLinks}>
-                <View style={styles.langSwitcher}>
-                  {LANGUAGES.map((l) => (
-                    <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
-                      <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
-                    </Pressable>
-                  ))}
-                </View>
                 <Pressable onPress={scrollToServices}>
                   <Text style={styles.navLink}>{t.nav.services}</Text>
                 </Pressable>
@@ -570,26 +560,6 @@ function LandingContent() {
                   <Link href={authHref('signup')} asChild>
                     <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
                   </Link>
-                </Animated.View>
-
-                <Animated.View
-                  style={[
-                    styles.mobileMenuLangRow,
-                    {
-                      opacity: menuItemAnims[4],
-                      transform: [
-                        { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
-                      ],
-                    },
-                  ]}
-                >
-                  <View style={styles.langSwitcher}>
-                    {LANGUAGES.map((l) => (
-                      <Pressable key={l.code} onPress={() => setLang(l.code)} style={styles.langButton}>
-                        <Text style={[styles.langButtonText, lang === l.code && styles.langButtonTextActive]}>{l.label}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
                 </Animated.View>
               </ScrollView>
             </Animated.View>
@@ -747,10 +717,14 @@ function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: numb
   );
 }
 
-const HERO_PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports: string; devis: string; project: string; devisNumber: string; photos: string }> = {
-  fr: { greeting: 'Bonjour', sites: 'Chantiers', reports: 'Rapports', devis: 'Devis', project: 'Villa Dupont — rénovation', devisNumber: 'Devis DEV-2026-0032', photos: '18 photos géolocalisées' },
-  en: { greeting: 'Hello', sites: 'Sites', reports: 'Reports', devis: 'Quotes', project: 'Villa Dupont — renovation', devisNumber: 'Quote QT-2026-0032', photos: '18 geolocated photos' },
-  de: { greeting: 'Guten Tag', sites: 'Baustellen', reports: 'Rapporte', devis: 'Offerten', project: 'Villa Dupont — Renovation', devisNumber: 'Offerte AN-2026-0032', photos: '18 georeferenzierte Fotos' },
+const HERO_PREVIEW_COPY = {
+  greeting: 'Bonjour',
+  sites: 'Chantiers',
+  reports: 'Rapports',
+  devis: 'Devis',
+  project: 'Villa Dupont — rénovation',
+  devisNumber: 'Devis DEV-2026-0032',
+  photos: '18 photos géolocalisées',
 };
 
 // The hero goes back to a designed mockup (not a real screenshot) — a
@@ -758,8 +732,8 @@ const HERO_PREVIEW_COPY: Record<Lang, { greeting: string; sites: string; reports
 // screenshot's fixed aspect ratio either crops or letterboxes depending on
 // the frame size. Real screenshots stay where they add the most proof:
 // the showcase carousel further down the page.
-function DashboardMockup({ width, height, lang }: { width: number; height: number; lang: Lang }) {
-  const copy = HERO_PREVIEW_COPY[lang];
+function DashboardMockup({ width, height }: { width: number; height: number }) {
+  const copy = HERO_PREVIEW_COPY;
   return (
     <View style={{ width, height, backgroundColor: colors.surface, padding: spacing.lg, justifyContent: 'space-between' }}>
       <View>
@@ -810,10 +784,10 @@ function DashboardMockup({ width, height, lang }: { width: number; height: numbe
   );
 }
 
-function AppPreview({ phoneWidth, lang }: { phoneWidth: number; lang: Lang }) {
+function AppPreview({ phoneWidth }: { phoneWidth: number }) {
   return (
     <PhoneChrome width={phoneWidth} rotate={-3}>
-      {(w, h) => <DashboardMockup width={w} height={h} lang={lang} />}
+      {(w, h) => <DashboardMockup width={w} height={h} />}
     </PhoneChrome>
   );
 }
@@ -1238,25 +1212,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: spacing.md,
   },
-  langSwitcher: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    overflow: 'hidden',
-  },
-  langButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-  },
-  langButtonText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textMuted,
-  },
-  langButtonTextActive: {
-    color: colors.primary,
-  },
   navLink: {
     fontSize: fontSize.sm,
     fontWeight: '600',
@@ -1318,11 +1273,6 @@ const styles = StyleSheet.create({
   },
   mobileMenuCta: {
     marginTop: spacing.xl,
-  },
-  mobileMenuLangRow: {
-    paddingTop: spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   heroWrap: {
     position: 'relative',
@@ -2054,13 +2004,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: colors.primarySoft,
   },
-  swissIconBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
+  swissFlag: {
+    fontSize: 40,
   },
   swissTitle: {
     fontSize: fontSize.xl,

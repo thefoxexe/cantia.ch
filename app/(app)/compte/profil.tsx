@@ -4,19 +4,17 @@ import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { useLanguage, LANGUAGES } from '../../../lib/i18n';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { colors, fontSize, spacing } from '../../../lib/theme';
 
 // Personal, not company: name/photo/language belong to the person, not the
 // org — kept on organization_members (the per user+org row) like full_name
 // already was, rather than introducing a separate global profile table.
 export default function ProfilScreen() {
   const { user, organization, refreshOrganization } = useAuth();
-  const { lang, setLang } = useLanguage();
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
@@ -101,20 +99,6 @@ export default function ProfilScreen() {
 
           <Field label="Nom affiché" value={fullName} onChangeText={setFullName} placeholder="Votre nom" />
           <Button title="Enregistrer" icon="check" onPress={saveName} loading={saving} style={{ marginTop: spacing.sm }} />
-
-          <Text style={styles.sectionTitle}>Langue de l'interface</Text>
-          <View style={styles.langRow}>
-            {LANGUAGES.map((l) => (
-              <Pressable
-                key={l.code}
-                onPress={() => setLang(l.code)}
-                style={[styles.langChip, lang === l.code && styles.langChipActive]}
-              >
-                <Text style={[styles.langChipText, lang === l.code && styles.langChipTextActive]}>{l.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <Text style={styles.hint}>S'applique pour l'instant au site vitrine cantia.ch.</Text>
         </Container>
       </ScrollView>
     </Screen>
@@ -156,42 +140,6 @@ const styles = StyleSheet.create({
     borderColor: colors.surface,
   },
   avatarHint: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: spacing.xxl,
-    marginBottom: spacing.md,
-  },
-  langRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  langChip: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  langChipActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  langChipText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  langChipTextActive: {
-    color: colors.primary,
-  },
-  hint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
