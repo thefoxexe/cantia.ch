@@ -174,15 +174,25 @@ function buildSpcPayload(data: QrBillData): { payload: string; reference: string
 function drawQrCode(page: PDFPage, payload: string, x: number, y: number, sizePt: number) {
   const qr = QRCode.create(payload, { errorCorrectionLevel: 'M' });
   const modules = qr.modules;
-  const moduleSize = sizePt / modules.size;
+  // A camera scanner needs a blank "quiet zone" margin around the code to
+  // detect it at all — the spec's 46x46mm box is meant to hold the code
+  // *plus* that margin, not be filled edge-to-edge by modules. This was
+  // previously missing entirely (modules stretched to fill the whole box),
+  // which is the likely reason a generated bill failed to scan even with a
+  // valid IBAN: the scanner's decoder never found the code in the image in
+  // the first place. Standard minimum is 4 modules on each side.
+  const quietModules = 4;
+  const totalModules = modules.size + quietModules * 2;
+  const moduleSize = sizePt / totalModules;
+  const offset = quietModules * moduleSize;
 
   page.drawRectangle({ x, y, width: sizePt, height: sizePt, color: WHITE });
   for (let row = 0; row < modules.size; row++) {
     for (let col = 0; col < modules.size; col++) {
       if (!modules.get(row, col)) continue;
       page.drawRectangle({
-        x: x + col * moduleSize,
-        y: y + sizePt - (row + 1) * moduleSize,
+        x: x + offset + col * moduleSize,
+        y: y + sizePt - offset - (row + 1) * moduleSize,
         width: moduleSize,
         height: moduleSize,
         color: BLACK,
