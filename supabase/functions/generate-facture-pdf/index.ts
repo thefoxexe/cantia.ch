@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
+  drawFooter,
   embedImageSmart,
   fetchStorageBytes,
   formatDate,
@@ -80,64 +81,106 @@ Deno.serve(async (req: Request) => {
         ? `Payée le ${formatDate(facture.paid_at)}`
         : `Échéance : ${formatDate(facture.due_date)}`;
 
-    let pdfBytes =
-      template.layout_mode === 'custom'
-        ? await drawCustomLayout('devis', template.blocks, {
-            pdfDoc,
-            admin,
-            bucket: BUCKET,
-            font,
-            fontBold,
-            org,
-            doc: facture,
-            items: items ?? [],
-            logoImg,
-            signatureImg,
-            brand,
-            footerText,
-            docLabel: 'Facture',
-          })
-        : await RENDERERS[template.base_layout]({
-            pdfDoc,
-            font,
-            fontBold,
-            org,
-            devis: facture,
-            items: items ?? [],
-            logoImg,
-            signatureImg,
-            brand,
-            textOnBrand: pickReadableTextColor(brand),
-            logoPlacement: resolveLogoPlacement(template, org),
-            footerText,
-            docLabel: 'Facture',
-            metaLine,
-          });
+    let pdfBytes: Uint8Array;
 
-    // Swiss QR-bill — same appended-page mechanism as generate-devis-pdf.
-    // Skipped once the facture is marked paid: a settled invoice doesn't
-    // need a payment slip attached anymore.
-    if (facture.status !== 'paid' && isValidSwissIban(org?.iban)) {
-      try {
-        const itemsList = items ?? [];
-        const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
-        const vat = subtotal * (Number(facture.vat_rate) / 100);
-        const total = subtotal + vat;
-        await appendQrBillPage(pdfDoc, font, fontBold, {
-          iban: org.iban,
-          creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },
-          amount: total,
-          currency: 'CHF',
-          debtor: facture.client_name
-            ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
-            : null,
-          referenceId: facture.id,
-          unstructuredMessage: facture.number ? `Facture ${facture.number}` : undefined,
-        });
-        pdfBytes = await pdfDoc.save();
-      } catch (qrErr) {
-        console.error('QR-bill generation failed:', qrErr);
+    if (template.layout_mode === 'custom') {
+      pdfBytes = await drawCustomLayout('devis', template.blocks, {
+        pdfDoc,
+        admin,
+        bucket: BUCKET,
+        font,
+        fontBold,
+        org,
+        doc: facture,
+        items: items ?? [],
+        logoImg,
+        signatureImg,
+        brand,
+        footerText,
+        docLabel: 'Facture',
+      });
+
+      // Custom layouts don't track a single reliable "content ended here" y
+      // (blocks are free-positioned, not stacked), so the QR-bill always
+      // gets its own fresh page there — same as generate-devis-pdf.
+      if (facture.status !== 'paid' && isValidSwissIban(org?.iban)) {
+        try {
+          const itemsList = items ?? [];
+          const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+          const vat = subtotal * (Number(facture.vat_rate) / 100);
+          const total = subtotal + vat;
+          await appendQrBillPage(pdfDoc, font, fontBold, {
+            iban: org.iban,
+            creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },
+            amount: total,
+            currency: 'CHF',
+            debtor: facture.client_name
+              ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
+              : null,
+            referenceId: facture.id,
+            unstructuredMessage: facture.number ? `Facture ${facture.number}` : undefined,
+          });
+          pdfBytes = await pdfDoc.save();
+        } catch (qrErr) {
+          console.error('QR-bill generation failed:', qrErr);
+        }
       }
+    } else {
+      const rendered = RENDERERS[template.base_layout]({
+        pdfDoc,
+        font,
+        fontBold,
+        org,
+        devis: facture,
+        items: items ?? [],
+        logoImg,
+        signatureImg,
+        brand,
+        textOnBrand: pickReadableTextColor(brand),
+        logoPlacement: resolveLogoPlacement(template, org),
+        footerText,
+        docLabel: 'Facture',
+        metaLine,
+      });
+
+      // The QR-bill band goes on this same last page when there's enough
+      // clear space below the content (checked inside appendQrBillPage);
+      // in that case the band takes over the bottom of the page instead of
+      // the normal footer, so the footer is only drawn when the band ended
+      // up on a fresh page of its own (or wasn't generated at all).
+      let footerOwedOnContentPage = true;
+      if (facture.status !== 'paid' && isValidSwissIban(org?.iban)) {
+        try {
+          const itemsList = items ?? [];
+          const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+          const vat = subtotal * (Number(facture.vat_rate) / 100);
+          const total = subtotal + vat;
+          const reusedContentPage = await appendQrBillPage(
+            pdfDoc,
+            font,
+            fontBold,
+            {
+              iban: org.iban,
+              creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },
+              amount: total,
+              currency: 'CHF',
+              debtor: facture.client_name
+                ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
+                : null,
+              referenceId: facture.id,
+              unstructuredMessage: facture.number ? `Facture ${facture.number}` : undefined,
+            },
+            { page: rendered.page, y: rendered.y },
+          );
+          footerOwedOnContentPage = !reusedContentPage;
+        } catch (qrErr) {
+          console.error('QR-bill generation failed:', qrErr);
+        }
+      }
+      if (footerOwedOnContentPage) {
+        drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia');
+      }
+      pdfBytes = await pdfDoc.save();
     }
 
     const path = `${facture.organization_id}/factures/${facture.id}/facture-${Date.now()}.pdf`;

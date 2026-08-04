@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
+  drawFooter,
   embedImageSmart,
   fetchStorageBytes,
   pickReadableTextColor,
@@ -70,43 +71,51 @@ Deno.serve(async (req: Request) => {
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org);
 
-    let pdfBytes =
-      template.layout_mode === 'custom'
-        ? await drawCustomLayout('devis', template.blocks, {
-            pdfDoc,
-            admin,
-            bucket: BUCKET,
-            font,
-            fontBold,
-            org,
-            doc: devis,
-            items: items ?? [],
-            logoImg,
-            signatureImg,
-            brand,
-            footerText,
-          })
-        : await RENDERERS[template.base_layout]({
-            pdfDoc,
-            font,
-            fontBold,
-            org,
-            devis,
-            items: items ?? [],
-            logoImg,
-            signatureImg,
-            brand,
-            textOnBrand: pickReadableTextColor(brand),
-            logoPlacement: resolveLogoPlacement(template, org),
-            footerText,
-            docLabel: 'Devis',
-            metaLine: null,
-          });
+    let pdfBytes: Uint8Array;
+
+    if (template.layout_mode === 'custom') {
+      pdfBytes = await drawCustomLayout('devis', template.blocks, {
+        pdfDoc,
+        admin,
+        bucket: BUCKET,
+        font,
+        fontBold,
+        org,
+        doc: devis,
+        items: items ?? [],
+        logoImg,
+        signatureImg,
+        brand,
+        footerText,
+      });
+    } else {
+      const rendered = RENDERERS[template.base_layout]({
+        pdfDoc,
+        font,
+        fontBold,
+        org,
+        devis,
+        items: items ?? [],
+        logoImg,
+        signatureImg,
+        brand,
+        textOnBrand: pickReadableTextColor(brand),
+        logoPlacement: resolveLogoPlacement(template, org),
+        footerText,
+        docLabel: 'Devis',
+        metaLine: null,
+      });
+      drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia');
+      pdfBytes = await pdfDoc.save();
+    }
 
     // Swiss QR-bill: a dedicated final page appended to the already-rendered
     // PDF (pdfDoc is mutated in place, so this applies identically whether
     // the devis used a preset or a custom layout, without touching either
     // rendering path). Opt-in — only when the org has a valid CH/LI IBAN.
+    // Always a fresh page here (unlike generate-facture-pdf) — the footer
+    // above is already drawn on the content's last page, so there's no
+    // "reuse that page" path to wire up without redoing that footer call.
     if (isValidSwissIban(org?.iban)) {
       try {
         const itemsList = items ?? [];

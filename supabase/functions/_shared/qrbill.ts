@@ -208,17 +208,30 @@ function partyLines(party: QrBillParty): string[] {
   return [party.name, party.addressLine1, party.addressLine2].filter((l): l is string => !!l && l.trim().length > 0);
 }
 
-// Appends a dedicated final page holding the receipt + payment part
-// (105mm-tall band across the full page width, per spec) to an
-// already-rendered devis PDF. Called once, centrally, after either a preset
-// renderer or drawCustomLayout produced the base PDF — so it applies
-// identically regardless of layout_mode, without touching any of the 4
-// hand-coded renderers or the block-canvas dispatcher.
-export async function appendQrBillPage(pdfDoc: PDFDocument, font: PDFFont, fontBold: PDFFont, data: QrBillData): Promise<void> {
+// Draws the receipt + payment part (105mm-tall band across the full page
+// width, per spec) either at the bottom of the page the caller's content
+// just finished on (when there's enough clear space left below it) or on a
+// fresh page — so a short devis/facture gets its QR-bill glued to the same
+// page instead of always burning a whole extra page for it. `attachTo` is
+// the last content page + the y cursor where that content stopped; pass
+// null to always force a new page (used for custom-layout templates, whose
+// free-form blocks don't leave a reliable single "content ended here" y).
+// Returns whether it reused the caller's page — the caller needs this to
+// know whether it still owes that page a normal footer (the band replaces
+// it when reused) or not (a fresh QR-only page never gets one).
+export async function appendQrBillPage(
+  pdfDoc: PDFDocument,
+  font: PDFFont,
+  fontBold: PDFFont,
+  data: QrBillData,
+  attachTo: { page: PDFPage; y: number } | null = null,
+): Promise<boolean> {
   const { payload, reference, referenceType } = buildSpcPayload(data);
 
-  const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   const bandH = mm(105);
+  const GAP = 16; // breathing room between last content line and the band's perforation
+  const reuseExistingPage = attachTo != null && attachTo.y - GAP > bandH;
+  const page = reuseExistingPage ? attachTo!.page : pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   const receiptW = mm(62);
 
   // Perforation cue (dashed line across the full width, top of the band) —
@@ -325,6 +338,8 @@ export async function appendQrBillPage(pdfDoc: PDFDocument, font: PDFFont, fontB
       iy -= mm(3.5);
     }
   }
+
+  return reuseExistingPage;
 }
 
 function formatIbanDisplay(raw: string): string {

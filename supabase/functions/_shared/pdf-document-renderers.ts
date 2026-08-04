@@ -31,6 +31,18 @@ const chf = formatChf;
 
 export type TemplateId = 'classic' | 'moderne' | 'minimal' | 'structure';
 
+// The last page a renderer drew on, plus the y cursor where its content
+// ended — lets a caller (generate-devis-pdf / generate-facture-pdf) decide
+// whether there's still room to append something (the QR-bill band) to that
+// same page instead of always starting a fresh one. Renderers no longer draw
+// their own trailing footer or call pdfDoc.save() — the caller does both,
+// once it knows what (if anything) still needs to go on this last page.
+export interface RenderResult {
+  page: PDFPage;
+  y: number;
+  pageNum: number;
+}
+
 export interface RenderCtx {
   pdfDoc: PDFDocument;
   font: PDFFont;
@@ -51,7 +63,7 @@ export interface RenderCtx {
 // ---------------------------------------------------------------------------
 // Template: classic — sober header, thin rules, understated (default)
 // ---------------------------------------------------------------------------
-function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+function renderClassic(ctx: RenderCtx): RenderResult {
   const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg, brand, logoPlacement, footerText, docLabel, metaLine } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
@@ -187,14 +199,13 @@ function renderClassic(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, footerText ?? 'Généré via Cantia');
-  return pdfDoc.save();
+  return { page, y, pageNum };
 }
 
 // ---------------------------------------------------------------------------
 // Template: moderne — bold pine-green header band, big white title
 // ---------------------------------------------------------------------------
-function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+function renderModerne(ctx: RenderCtx): RenderResult {
   const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg, brand, textOnBrand, logoPlacement, footerText, docLabel, metaLine } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let pageNum = 1;
@@ -324,14 +335,13 @@ function renderModerne(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-  return pdfDoc.save();
+  return { page, y, pageNum };
 }
 
 // ---------------------------------------------------------------------------
 // Template: minimal — generous whitespace, thin rules only, no color blocks
 // ---------------------------------------------------------------------------
-function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+function renderMinimal(ctx: RenderCtx): RenderResult {
   const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg, logoPlacement, footerText, docLabel, metaLine } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN - 10;
@@ -435,14 +445,13 @@ function renderMinimal(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-  return pdfDoc.save();
+  return { page, y, pageNum };
 }
 
 // ---------------------------------------------------------------------------
 // Template: structure — bordered grid table with alternating rows (dense)
 // ---------------------------------------------------------------------------
-function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
+function renderStructure(ctx: RenderCtx): RenderResult {
   const { pdfDoc, font, fontBold, org, devis, items, logoImg, signatureImg, brand, textOnBrand, logoPlacement, footerText, docLabel, metaLine } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
@@ -597,11 +606,10 @@ function renderStructure(ctx: RenderCtx): Uint8Array | Promise<Uint8Array> {
     page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
   }
 
-  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-  return pdfDoc.save();
+  return { page, y, pageNum };
 }
 
-export const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => Uint8Array | Promise<Uint8Array>> = {
+export const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => RenderResult> = {
   classic: renderClassic,
   moderne: renderModerne,
   minimal: renderMinimal,
