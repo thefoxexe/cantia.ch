@@ -35,7 +35,7 @@ export default function AppTabsLayout() {
       <Tabs.Screen
         name="devis"
         options={{
-          title: 'Devis',
+          title: 'Facturation',
           tabBarIcon: ({ color }) => <TabIcon name="file-text" color={color} />,
           href: devisEnabled ? undefined : null,
         }}

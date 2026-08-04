@@ -35,8 +35,13 @@ export default function DevisListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
+        <Button
+          title="Nouveau devis"
+          icon="plus"
+          onPress={() => router.push('/(app)/devis/new')}
+          style={{ marginBottom: spacing.sm }}
+        />
         <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
-          <Button title="Nouveau devis" icon="plus" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
           <Button
             title="Factures"
             icon="dollar-sign"
@@ -44,7 +49,16 @@ export default function DevisListScreen() {
             onPress={() => router.push('/(app)/devis/factures')}
             style={{ flex: 1 }}
           />
+          <Button
+            title="Inventaire"
+            icon="database"
+            variant="secondary"
+            onPress={() => router.push('/(app)/devis/inventaire')}
+            style={{ flex: 1 }}
+          />
         </View>
+
+        <Text style={styles.sectionLabel}>Devis</Text>
 
         <FlatList
           data={devisList}
@@ -84,6 +98,14 @@ const styles = StyleSheet.create({
     maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
+  },
+  sectionLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: spacing.sm,
   },
   card: {
     flexDirection: 'row',
