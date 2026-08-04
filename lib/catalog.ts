@@ -78,6 +78,28 @@ export function buildCatalog(
   return Array.from(byKey.values());
 }
 
+// Keyword → unit heuristic, ordered from most to least specific so the
+// first match wins (e.g. "tuyau" before a generic fallback) — not a
+// exhaustive trade dictionary, just enough common Swiss construction
+// vocabulary that typing "PVC" or "fenêtre" auto-fills a sensible unit
+// instead of always defaulting to "pce".
+const UNIT_KEYWORDS: { unit: string; words: string[] }[] = [
+  { unit: 'ml', words: ['pvc', 'tuyau', 'tube', 'cable', 'canalisation', 'gouttiere', 'corniche', 'plinthe', 'chenau', 'rail', 'conduite', 'cornier'] },
+  { unit: 'm²', words: ['peinture', 'carrelage', 'facade', 'isolation', 'crepi', 'revetement', 'plafond', 'surface', 'dalle', 'chape', 'parquet', 'faience', 'etancheite'] },
+  { unit: 'm³', words: ['beton', 'terrassement', 'excavation', 'remblai', 'gravier', 'volume', 'decombres'] },
+  { unit: 'h', words: ['main d oeuvre', 'heure', 'depannage', 'intervention', 'forfait horaire', 'deplacement'] },
+  { unit: 'kg', words: ['acier', 'ferraillage', 'armature'] },
+];
+
+export function guessUnit(description: string): string | null {
+  const norm = normalize(description);
+  if (norm.length < 3) return null;
+  for (const { unit, words } of UNIT_KEYWORDS) {
+    if (words.some((w) => norm.includes(w))) return unit;
+  }
+  return null;
+}
+
 const MATCH_THRESHOLD = 0.4;
 
 export function findMatches(catalog: CatalogEntry[], query: string, limit = 3): CatalogMatch[] {

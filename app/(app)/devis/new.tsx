@@ -8,7 +8,7 @@ import { Button, Field, Screen } from '../../../components/ui';
 import { FeatureHint } from '../../../components/FeatureHint';
 import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { buildCatalog, findMatches, type CatalogEntry } from '../../../lib/catalog';
+import { buildCatalog, findMatches, guessUnit, type CatalogEntry } from '../../../lib/catalog';
 import { useDictation } from '../../../lib/useDictation';
 
 type DictationTarget = { type: 'notes' } | { type: 'line'; index: number };
@@ -18,10 +18,15 @@ interface Line {
   quantity: string;
   unit: string;
   unitPrice: string;
+  // True until the user (or a catalog match) explicitly sets the unit —
+  // while true, editing the description keeps re-guessing it from keywords
+  // ("PVC" → "ml"); a manual edit or an applied match turns this off so the
+  // guess never overwrites a deliberate choice.
+  unitAuto: boolean;
 }
 
 function emptyLine(): Line {
-  return { description: '', quantity: '1', unit: 'pce', unitPrice: '0' };
+  return { description: '', quantity: '1', unit: 'pce', unitPrice: '0', unitAuto: true };
 }
 
 export default function NewDevisScreen() {
@@ -60,8 +65,18 @@ export default function NewDevisScreen() {
     setLines((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
   }
 
+  function handleLineDescriptionChange(index: number, text: string) {
+    setLines((prev) =>
+      prev.map((l, i) => {
+        if (i !== index) return l;
+        const guessed = l.unitAuto ? guessUnit(text) : null;
+        return { ...l, description: text, unit: guessed ?? l.unit };
+      }),
+    );
+  }
+
   function applyMatch(index: number, match: CatalogEntry) {
-    updateLine(index, { description: match.description, unit: match.unit, unitPrice: String(match.unitPrice) });
+    updateLine(index, { description: match.description, unit: match.unit, unitPrice: String(match.unitPrice), unitAuto: false });
   }
 
   function addLine() {
@@ -224,6 +239,17 @@ export default function NewDevisScreen() {
           {lines.map((line, i) => {
             const lineTotal = (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0);
             const matches = findMatches(catalog, line.description);
+            // How closely the manually-entered price tracks what this org
+            // has historically charged for the closest known match — only
+            // meaningful once there's both a match and a real entered price,
+            // and only worth showing when it actually deviates (a
+            // near-identical price would just be visual noise on every line).
+            const bestMatch = matches[0] ?? null;
+            const enteredPrice = Number(line.unitPrice) || 0;
+            const priceCoherence =
+              bestMatch && bestMatch.unitPrice > 0 && enteredPrice > 0
+                ? Math.max(0, Math.round((1 - Math.abs(enteredPrice - bestMatch.unitPrice) / bestMatch.unitPrice) * 100))
+                : null;
             return (
               <View key={i} style={styles.lineCard}>
                 <View style={styles.lineCardHeader}>
@@ -262,7 +288,7 @@ export default function NewDevisScreen() {
                 <TextInput
                   style={styles.lineDesc}
                   value={line.description}
-                  onChangeText={(t) => updateLine(i, { description: t })}
+                  onChangeText={(t) => handleLineDescriptionChange(i, t)}
                   placeholder="Description de la prestation"
                   placeholderTextColor={colors.textMuted}
                   multiline
@@ -299,7 +325,7 @@ export default function NewDevisScreen() {
                     <TextInput
                       style={styles.lineInput}
                       value={line.unit}
-                      onChangeText={(t) => updateLine(i, { unit: t })}
+                      onChangeText={(t) => updateLine(i, { unit: t, unitAuto: false })}
                       placeholder="pce, h, m²…"
                       placeholderTextColor={colors.textMuted}
                     />
@@ -315,6 +341,20 @@ export default function NewDevisScreen() {
                     />
                   </View>
                 </View>
+                {priceCoherence !== null && priceCoherence < 97 && bestMatch ? (
+                  <Text
+                    style={[
+                      styles.priceCoherence,
+                      priceCoherence < 60
+                        ? styles.priceCoherenceLow
+                        : priceCoherence < 85
+                          ? styles.priceCoherenceMid
+                          : styles.priceCoherenceHigh,
+                    ]}
+                  >
+                    {priceCoherence}% cohérent avec l’historique (CHF {bestMatch.unitPrice.toFixed(2)} habituellement)
+                  </Text>
+                ) : null}
                 <Text style={styles.lineTotal}>Sous-total : CHF {lineTotal.toFixed(2)}</Text>
               </View>
             );
@@ -509,6 +549,21 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'right',
     marginTop: spacing.md,
+  },
+  priceCoherence: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    marginTop: spacing.sm,
+    textAlign: 'right',
+  },
+  priceCoherenceHigh: {
+    color: colors.success,
+  },
+  priceCoherenceMid: {
+    color: colors.accent,
+  },
+  priceCoherenceLow: {
+    color: colors.danger,
   },
   addLine: {
     flexDirection: 'row',
