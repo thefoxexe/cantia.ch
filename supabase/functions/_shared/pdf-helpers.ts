@@ -173,52 +173,6 @@ export function logoX(placement: LogoPlacement, pageWidth: number, margin: numbe
   return pageWidth - margin - logoWidth;
 }
 
-// Free-canvas block model (layout_mode = 'custom') — see pdf-blocks.ts for
-// the renderer. A fixed vocabulary of "bindings" rather than a templating
-// language: each binding maps to one specific piece of real document data,
-// which is what keeps the block model small enough for a mobile editor to
-// expose meaningfully (a palette of ~12 known block kinds, not a free text
-// field for arbitrary field paths).
-export type PdfBlockBinding =
-  | 'logo'
-  | 'signature'
-  | 'org.name'
-  | 'org.contact'
-  | 'document.title'
-  | 'document.meta'
-  | 'notes'
-  | 'photos' // report only
-  | 'items_table' // devis only
-  | 'totals' // devis only
-  | 'static'
-  | 'divider';
-
-export interface PdfBlockStyle {
-  fontSize?: number;
-  bold?: boolean;
-  align?: 'left' | 'center' | 'right';
-  color?: string; // hex, resolved against brand/ink/muted by the renderer when absent
-  background?: string | null;
-  borderColor?: string | null;
-  borderWidth?: number;
-  shapeKind?: 'line' | 'rect'; // divider only
-}
-
-export interface PdfBlock {
-  id: string;
-  binding: PdfBlockBinding;
-  // Points, top-left origin, y grows downward (matches how a mobile canvas
-  // editor naturally works) — converted to pdf-lib's bottom-left/y-up space
-  // in pdf-blocks.ts, not here.
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  z: number;
-  style?: PdfBlockStyle;
-  text?: string; // 'static' binding only
-}
-
 export interface PdfTemplateRow {
   id: string;
   base_layout: 'classic' | 'moderne' | 'minimal' | 'structure';
@@ -226,12 +180,10 @@ export interface PdfTemplateRow {
   brand_color_override: string | null;
   logo_placement_override: LogoPlacement | null;
   footer_text_override: string | null;
-  layout_mode: 'preset' | 'custom';
-  blocks: PdfBlock[];
 }
 
 const TEMPLATE_COLUMNS =
-  'id, base_layout, sections, brand_color_override, logo_placement_override, footer_text_override, layout_mode, blocks';
+  'id, base_layout, sections, brand_color_override, logo_placement_override, footer_text_override';
 
 const BASE_LAYOUTS = ['classic', 'moderne', 'minimal', 'structure'] as const;
 
@@ -242,8 +194,6 @@ const EMPTY_TEMPLATE: PdfTemplateRow = {
   brand_color_override: null,
   logo_placement_override: null,
   footer_text_override: null,
-  layout_mode: 'preset',
-  blocks: [],
 };
 
 // Shared by both edge functions: resolve the pdf_templates row to render

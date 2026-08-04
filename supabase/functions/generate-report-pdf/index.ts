@@ -27,7 +27,6 @@ import {
   wrapText,
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
-import { drawCustomLayout } from '../_shared/pdf-blocks.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -590,38 +589,22 @@ Deno.serve(async (req: Request) => {
       knownSections.includes(s as SectionId),
     ) as SectionId[];
 
-    const pdfBytes =
-      template.layout_mode === 'custom'
-        ? await drawCustomLayout('report', template.blocks, {
-            pdfDoc,
-            admin,
-            bucket: BUCKET,
-            font,
-            fontBold,
-            org,
-            doc: report,
-            photos: photos ?? [],
-            logoImg,
-            signatureImg,
-            brand,
-            footerText,
-          })
-        : await RENDERERS[template.base_layout]({
-            pdfDoc,
-            font,
-            fontBold,
-            org,
-            report,
-            photos: photos ?? [],
-            logoImg,
-            signatureImg,
-            brand,
-            textOnBrand: pickReadableTextColor(brand),
-            logoPlacement: resolveLogoPlacement(template, org),
-            footerText,
-            sections,
-            admin,
-          });
+    const pdfBytes = await RENDERERS[template.base_layout]({
+      pdfDoc,
+      font,
+      fontBold,
+      org,
+      report,
+      photos: photos ?? [],
+      logoImg,
+      signatureImg,
+      brand,
+      textOnBrand: pickReadableTextColor(brand),
+      logoPlacement: resolveLogoPlacement(template, org),
+      footerText,
+      sections,
+      admin,
+    });
 
     const path = `${report.organization_id}/reports/${report.id}/rapport-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
@@ -636,7 +619,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 
-    return json({ path, url: signed?.signedUrl ?? null, template: template.layout_mode === 'custom' ? 'custom' : template.base_layout });
+    return json({ path, url: signed?.signedUrl ?? null, template: template.base_layout });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

@@ -11,7 +11,6 @@ import {
   resolvePdfTemplate,
   swissRound,
 } from '../_shared/pdf-helpers.ts';
-import { drawCustomLayout } from '../_shared/pdf-blocks.ts';
 import { appendQrBillPage, isValidSwissIban } from '../_shared/qrbill.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
 
@@ -74,22 +73,7 @@ Deno.serve(async (req: Request) => {
 
     let pdfBytes: Uint8Array;
 
-    if (template.layout_mode === 'custom') {
-      pdfBytes = await drawCustomLayout('devis', template.blocks, {
-        pdfDoc,
-        admin,
-        bucket: BUCKET,
-        font,
-        fontBold,
-        org,
-        doc: devis,
-        items: items ?? [],
-        logoImg,
-        signatureImg,
-        brand,
-        footerText,
-      });
-    } else {
+    {
       const rendered = RENDERERS[template.base_layout]({
         pdfDoc,
         font,
@@ -153,7 +137,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 
-    return json({ path, url: signed?.signedUrl ?? null, template: template.layout_mode === 'custom' ? 'custom' : template.base_layout });
+    return json({ path, url: signed?.signedUrl ?? null, template: template.base_layout });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);
