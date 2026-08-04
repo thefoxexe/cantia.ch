@@ -57,6 +57,12 @@ function LandingContent() {
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
+  // Continuous, subtle motion so the hero doesn't read as a static screenshot:
+  // the phone mockup gently floats, and the two background blobs breathe out
+  // of phase with each other. Neither ties to scroll/reveal state — they run
+  // for as long as the hero is mounted.
+  const heroFloat = useRef(new Animated.Value(0)).current;
+  const blobPulse = useRef(new Animated.Value(0)).current;
   const menuItemAnims = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
@@ -127,6 +133,27 @@ function LandingContent() {
   }, [heroAnim]);
 
   useEffect(() => {
+    const floatLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(heroFloat, { toValue: 1, duration: 2400, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(heroFloat, { toValue: 0, duration: 2400, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    const blobLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(blobPulse, { toValue: 1, duration: 4200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(blobPulse, { toValue: 0, duration: 4200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    floatLoop.start();
+    blobLoop.start();
+    return () => {
+      floatLoop.stop();
+      blobLoop.stop();
+    };
+  }, [heroFloat, blobPulse]);
+
+  useEffect(() => {
     if (menuOpen) {
       Animated.parallel([
         Animated.timing(menuAnim, {
@@ -183,8 +210,14 @@ function LandingContent() {
 
           {/* ---- Hero ---- */}
           <View style={styles.heroWrap}>
-            <View pointerEvents="none" style={styles.heroBlobA} />
-            <View pointerEvents="none" style={styles.heroBlobB} />
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.heroBlobA, { transform: [{ scale: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }] }]}
+            />
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.heroBlobB, { transform: [{ scale: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }] }]}
+            />
             <Animated.View
               style={[
                 styles.hero,
@@ -214,7 +247,11 @@ function LandingContent() {
                 </View>
               </View>
 
-              <AppPreview phoneWidth={heroPhoneWidth} lang={lang} />
+              <Animated.View
+                style={{ transform: [{ translateY: heroFloat.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }] }}
+              >
+                <AppPreview phoneWidth={heroPhoneWidth} lang={lang} />
+              </Animated.View>
             </Animated.View>
           </View>
 
@@ -236,7 +273,7 @@ function LandingContent() {
               {t.pain.items.map((p, i) => (
                 <View key={p.title} style={styles.painCard}>
                   <View style={styles.painIconBadge}>
-                    <Feather name={PAIN_ICONS[i]} size={18} color={colors.accent} />
+                    <Feather name={PAIN_ICONS[i]} size={20} color={colors.accent} />
                   </View>
                   <Text style={styles.painTitle}>{p.title}</Text>
                   <Text style={styles.painText}>{p.text}</Text>
@@ -264,7 +301,7 @@ function LandingContent() {
                   >
                     <View style={styles.featureCardHeader}>
                       <View style={styles.featureIcon}>
-                        <Feather name={FEATURE_ICONS[i]} size={18} color={colors.primary} />
+                        <Feather name={FEATURE_ICONS[i]} size={20} color={colors.primary} />
                       </View>
                       <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                     </View>
@@ -870,6 +907,11 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
   const fade = useRef(new Animated.Value(1)).current;
   const barAnims = useRef(Array.from({ length: 5 }, () => new Animated.Value(0.3))).current;
   const micPulse = useRef(new Animated.Value(0)).current;
+  // Drives a slow, continuous primary<->accent color sweep across the mic
+  // and the waveform (each bar reads it with its own phase offset below) —
+  // the "moving color" cue that reads as a live audio signal rather than a
+  // static bar chart, independent of the height animation.
+  const colorCycle = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     let mounted = true;
@@ -918,6 +960,17 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
     return () => loop.stop();
   }, [micPulse]);
 
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(colorCycle, { toValue: 1, duration: 1300, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(colorCycle, { toValue: 0, duration: 1300, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [colorCycle]);
+
   return (
     <View style={styles.demoCard}>
       <View style={styles.demoLabelRow}>
@@ -935,17 +988,32 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
                   {
                     opacity: micPulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] }),
                     transform: [{ scale: micPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }],
+                    backgroundColor: colorCycle.interpolate({ inputRange: [0, 1], outputRange: [colors.primary, colors.accent] }),
                   },
                 ]}
               />
-              <View style={styles.micCircle}>
+              <Animated.View
+                style={[
+                  styles.micCircle,
+                  { backgroundColor: colorCycle.interpolate({ inputRange: [0, 1], outputRange: [colors.primary, colors.accent] }) },
+                ]}
+              >
                 <Feather name="mic" size={18} color="#fff" />
-              </View>
+              </Animated.View>
               <Text style={styles.voiceListeningText}>{copy.listening}</Text>
             </View>
             <View style={styles.waveform}>
               {barAnims.map((v, i) => (
-                <Animated.View key={i} style={[styles.waveBar, { transform: [{ scaleY: v }] }]} />
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.waveBar,
+                    {
+                      transform: [{ scaleY: v }],
+                      backgroundColor: v.interpolate({ inputRange: [0.25, 1], outputRange: [colors.primary, colors.accent] }),
+                    },
+                  ]}
+                />
               ))}
             </View>
             <Text style={styles.voiceTranscript} numberOfLines={3}>
@@ -1764,19 +1832,23 @@ const styles = StyleSheet.create({
   painCard: {
     width: 280,
     padding: spacing.lg,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
   },
   painIconBadge: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     borderRadius: radius.md,
     backgroundColor: colors.accentSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   painTitle: {
     fontSize: fontSize.md,
@@ -1798,17 +1870,21 @@ const styles = StyleSheet.create({
     width: 320,
     flexGrow: 1,
     padding: spacing.lg,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
   },
   featureCardHovered: {
     borderColor: colors.primary,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.13,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    transform: [{ translateY: -3 }],
   },
   featureCardActive: {
     borderColor: colors.primary,
@@ -1821,8 +1897,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   featureIcon: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: radius.md,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
