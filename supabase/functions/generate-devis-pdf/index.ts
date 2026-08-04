@@ -4,10 +4,8 @@ import {
   drawFooter,
   embedImageSmart,
   fetchStorageBytes,
-  pickReadableTextColor,
   resolveBrand,
   resolveFooterText,
-  resolveLogoPlacement,
   resolvePdfTemplate,
   swissRound,
 } from '../_shared/pdf-helpers.ts';
@@ -56,11 +54,6 @@ Deno.serve(async (req: Request) => {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    let logoImg: PDFImage | null = null;
-    if (org?.logo_url) {
-      const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
-      if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
-    }
     let signatureImg: PDFImage | null = null;
     if (org?.signature_url) {
       const bytes = await fetchStorageBytes(admin, BUCKET, org.signature_url);
@@ -81,11 +74,8 @@ Deno.serve(async (req: Request) => {
         org,
         devis,
         items: items ?? [],
-        logoImg,
         signatureImg,
         brand,
-        textOnBrand: pickReadableTextColor(brand),
-        logoPlacement: resolveLogoPlacement(template, org),
         footerText,
         docLabel: 'Devis',
         metaLine: null,

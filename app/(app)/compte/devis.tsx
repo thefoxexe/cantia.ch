@@ -78,8 +78,8 @@ export default function DevisSettingsScreen() {
 
           <Text style={styles.sectionTitle}>Modèles de devis PDF</Text>
           <Text style={styles.hint}>
-            Créez plusieurs modèles et choisissez celui utilisé par défaut. Vous pourrez toujours en choisir un autre
-            au moment de créer un devis précis.
+            Vos devis et factures partagent une mise en page unique, sans logo. Créez plusieurs modèles pour changer
+            uniquement la couleur (par exemple un devis par type de chantier) et choisissez celui utilisé par défaut.
           </Text>
           <View style={{ marginTop: spacing.md }}>
             {organization ? (
@@ -87,7 +87,6 @@ export default function DevisSettingsScreen() {
                 organizationId={organization.id}
                 kind="devis"
                 disabled={!isAdmin}
-                hasLogo={!!organization?.logo_url}
                 manage={isAdmin}
               />
             ) : null}

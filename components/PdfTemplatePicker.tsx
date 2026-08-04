@@ -54,7 +54,24 @@ export const LOGO_PLACEMENTS: { id: LogoPlacement; label: string; icon: 'align-l
   { id: 'right', label: 'Droite', icon: 'align-right' },
 ];
 
-export function TemplateSwatch({ kind }: { kind: string }) {
+// `unified` swatches represent the single devis/facture layout — the only
+// thing that varies between an org's devis templates now is brand color
+// (no logo, no layout choice), so the swatch is tinted by that color instead
+// of the base_layout-driven shapes below (which only report templates still
+// use, since reports kept their 4 selectable designs + logo).
+export function TemplateSwatch({ kind, unified, color }: { kind: string; unified?: boolean; color?: string }) {
+  if (unified) {
+    return (
+      <View style={swatch.base}>
+        <View style={swatch.bodyPad}>
+          <View style={[swatch.line, { width: '45%', height: 6, backgroundColor: color || colors.primary }]} />
+          <View style={{ height: 6 }} />
+          <View style={[swatch.line, { width: '70%' }]} />
+          <View style={[swatch.line, { width: '50%' }]} />
+        </View>
+      </View>
+    );
+  }
   if (kind === 'moderne') {
     return (
       <View style={swatch.base}>
@@ -225,12 +242,11 @@ export function PdfTemplatePicker({
 
   return (
     <View>
-      {hasLogo === false ? (
+      {hasLogo === false && kind === 'report' ? (
         <View style={styles.warning}>
           <Feather name="alert-triangle" size={14} color={colors.accent} />
           <Text style={styles.warningText}>
-            Aucun logo chargé — vos {kind === 'devis' ? 'devis' : 'rapports'} PDF partiront sans logo. Ajoutez-en un dans
-            Compte → Profil entreprise.
+            Aucun logo chargé — vos rapports PDF partiront sans logo. Ajoutez-en un dans Compte → Profil entreprise.
           </Text>
         </View>
       ) : null}
@@ -246,7 +262,7 @@ export function PdfTemplatePicker({
             >
               <Card style={[styles.card, compact && styles.cardCompact, active && styles.cardActive]}>
                 <View style={styles.preview}>
-                  <TemplateSwatch kind={t.base_layout} />
+                  <TemplateSwatch kind={t.base_layout} unified={kind === 'devis'} color={t.brand_color_override ?? undefined} />
                   {active ? (
                     <View style={styles.check}>
                       <Feather name="check" size={12} color={colors.surface} />
@@ -254,7 +270,11 @@ export function PdfTemplatePicker({
                   ) : null}
                 </View>
                 <Text style={styles.name}>{t.name}</Text>
-                {!compact ? <Text style={styles.desc}>{LAYOUT_DESCRIPTIONS[t.base_layout] ?? ''}</Text> : null}
+                {!compact ? (
+                  <Text style={styles.desc}>
+                    {kind === 'devis' ? 'Mise en page unique, personnalisez la couleur.' : LAYOUT_DESCRIPTIONS[t.base_layout] ?? ''}
+                  </Text>
+                ) : null}
                 {manage ? (
                   <View style={styles.cardActions}>
                     <Pressable hitSlop={8} onPress={() => setEditing(t)}>
@@ -293,7 +313,7 @@ export function PdfTemplatePicker({
         />
       ) : null}
       {manage && editing ? (
-        <EditTemplateModal template={editing} onClose={() => setEditing(null)} onSaved={load} />
+        <EditTemplateModal kind={kind} template={editing} onClose={() => setEditing(null)} onSaved={load} />
       ) : null}
     </View>
   );
@@ -349,19 +369,28 @@ function CreateTemplateModal({
             </Pressable>
           </View>
           <ScrollView contentContainerStyle={styles.modalBody}>
-            <Field label="Nom du modèle" value={name} onChangeText={setName} placeholder="Ex : Rapport visite client" />
+            <Field
+              label="Nom du modèle"
+              value={name}
+              onChangeText={setName}
+              placeholder={kind === 'devis' ? 'Ex : Devis rénovation' : 'Ex : Rapport visite client'}
+            />
 
-            <Text style={styles.fieldLabel}>Base</Text>
-            <View style={styles.grid}>
-              {BASE_LAYOUTS.map((layout) => (
-                <Pressable key={layout} onPress={() => setBaseLayout(layout)} style={styles.cardWrapCompact}>
-                  <Card style={[styles.card, styles.cardCompact, baseLayout === layout && styles.cardActive]}>
-                    <TemplateSwatch kind={layout} />
-                    <Text style={styles.name}>{LAYOUT_NAMES[layout]}</Text>
-                  </Card>
-                </Pressable>
-              ))}
-            </View>
+            {kind === 'report' ? (
+              <>
+                <Text style={styles.fieldLabel}>Base</Text>
+                <View style={styles.grid}>
+                  {BASE_LAYOUTS.map((layout) => (
+                    <Pressable key={layout} onPress={() => setBaseLayout(layout)} style={styles.cardWrapCompact}>
+                      <Card style={[styles.card, styles.cardCompact, baseLayout === layout && styles.cardActive]}>
+                        <TemplateSwatch kind={layout} />
+                        <Text style={styles.name}>{LAYOUT_NAMES[layout]}</Text>
+                      </Card>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            ) : null}
             <Button
               title="Créer"
               icon="check"
@@ -377,7 +406,17 @@ function CreateTemplateModal({
   );
 }
 
-function EditTemplateModal({ template, onClose, onSaved }: { template: PdfTemplateRow; onClose: () => void; onSaved: () => void }) {
+function EditTemplateModal({
+  kind,
+  template,
+  onClose,
+  onSaved,
+}: {
+  kind: PdfTemplateKind;
+  template: PdfTemplateRow;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const [name, setName] = useState(template.name);
   const [colorOverride, setColorOverride] = useState(template.brand_color_override ?? '');
   const [placementOverride, setPlacementOverride] = useState<LogoPlacement | null>(template.logo_placement_override);
@@ -434,26 +473,30 @@ function EditTemplateModal({ template, onClose, onSaved }: { template: PdfTempla
             </View>
             <Field label="Couleur personnalisée (hex)" value={colorOverride} onChangeText={setColorOverride} autoCapitalize="none" placeholder="Hérite du kit de marque" />
 
-            <View style={styles.overrideHeaderRow}>
-              <Text style={styles.fieldLabel}>Placement du logo</Text>
-              {placementOverride ? (
-                <Pressable onPress={() => setPlacementOverride(null)}>
-                  <Text style={styles.resetLink}>Utiliser le kit de marque</Text>
-                </Pressable>
-              ) : null}
-            </View>
-            <View style={styles.placementRow}>
-              {LOGO_PLACEMENTS.map((p) => (
-                <Pressable
-                  key={p.id}
-                  onPress={() => setPlacementOverride(p.id)}
-                  style={[styles.placementChip, placementOverride === p.id && styles.chipActive]}
-                >
-                  <Feather name={p.icon} size={14} color={placementOverride === p.id ? colors.primary : colors.textMuted} />
-                  <Text style={[styles.chipText, placementOverride === p.id && styles.chipTextActive]}>{p.label}</Text>
-                </Pressable>
-              ))}
-            </View>
+            {kind === 'report' ? (
+              <>
+                <View style={styles.overrideHeaderRow}>
+                  <Text style={styles.fieldLabel}>Placement du logo</Text>
+                  {placementOverride ? (
+                    <Pressable onPress={() => setPlacementOverride(null)}>
+                      <Text style={styles.resetLink}>Utiliser le kit de marque</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+                <View style={styles.placementRow}>
+                  {LOGO_PLACEMENTS.map((p) => (
+                    <Pressable
+                      key={p.id}
+                      onPress={() => setPlacementOverride(p.id)}
+                      style={[styles.placementChip, placementOverride === p.id && styles.chipActive]}
+                    >
+                      <Feather name={p.icon} size={14} color={placementOverride === p.id ? colors.primary : colors.textMuted} />
+                      <Text style={[styles.chipText, placementOverride === p.id && styles.chipTextActive]}>{p.label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            ) : null}
 
             <Field
               label="Pied de page (remplace le kit de marque)"

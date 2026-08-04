@@ -181,8 +181,8 @@ export default function NewDevisScreen() {
           <FeatureHint
             id="devis-new"
             icon="file-text"
-            title="Choisissez le style de votre PDF"
-            text="Sélectionnez le modèle utilisé pour vos devis ci-dessous. Vous pourrez toujours en changer depuis Compte."
+            title="Choisissez la couleur de votre PDF"
+            text="Vos devis et factures utilisent une mise en page unique ; sélectionnez la couleur ci-dessous. Vous pourrez toujours en changer depuis Compte."
           />
 
           <Text style={styles.sectionTitle}>Modèle de devis</Text>
@@ -190,7 +190,6 @@ export default function NewDevisScreen() {
             <PdfTemplatePicker
               organizationId={organization.id}
               kind="devis"
-              hasLogo={!!organization?.logo_url}
               compact
               selectedId={templateId}
               onSelect={setTemplateId}
