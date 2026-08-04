@@ -21,9 +21,13 @@ function redirectUrl(path: string): string {
   return Linking.createURL(path);
 }
 
-export async function startCheckout(planId: string): Promise<{ url: string | null; error: string | null }> {
+export async function startCheckout(
+  planId: string,
+  billingInterval: 'month' | 'year' = 'month',
+): Promise<{ url: string | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ url: string }>('stripe-checkout', {
     plan_id: planId,
+    billing_interval: billingInterval,
     success_url: redirectUrl('checkout-success'),
     cancel_url: redirectUrl('checkout-cancelled'),
   });

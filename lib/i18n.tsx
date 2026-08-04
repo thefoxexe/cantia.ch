@@ -19,6 +19,10 @@ interface Dict {
   trades: { title: string; note: string; list: string[] };
   pricing: {
     title: string;
+    monthly: string;
+    yearly: string;
+    yearlySavings: string;
+    billedYearly: string;
     storageSuffix: string;
     memberSingular: string;
     memberPlural: string;
@@ -187,6 +191,10 @@ const fr: Dict = {
   },
   pricing: {
     title: 'Un plan pour chaque taille d’équipe',
+    monthly: 'Mensuel',
+    yearly: 'Annuel',
+    yearlySavings: '-20%',
+    billedYearly: 'Facturé {amount}/an',
     storageSuffix: 'Go de stockage',
     memberSingular: 'membre',
     memberPlural: 'membres',

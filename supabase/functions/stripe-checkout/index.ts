@@ -17,9 +17,10 @@ Deno.serve(async (req: Request) => {
     }
     const stripe = new Stripe(stripeKey, { apiVersion: '2025-03-31.basil', httpClient: Stripe.createFetchHttpClient() });
 
-    const { plan_id, success_url, cancel_url } = await req.json();
+    const { plan_id, success_url, cancel_url, billing_interval } = await req.json();
     if (!plan_id) return json({ error: 'plan_id requis' }, 400);
     if (!success_url || !cancel_url) return json({ error: 'success_url et cancel_url requis' }, 400);
+    const yearly = billing_interval === 'year';
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -50,7 +51,8 @@ Deno.serve(async (req: Request) => {
 
     const { data: plan, error: planError } = await admin.from('plans').select('*').eq('id', plan_id).single();
     if (planError || !plan) return json({ error: 'Plan introuvable' }, 404);
-    if (!plan.stripe_price_id) {
+    const priceId = yearly ? plan.stripe_price_id_yearly : plan.stripe_price_id;
+    if (!priceId) {
       return json({ error: `Le plan "${plan.name}" n'est pas encore configuré pour le paiement en ligne.` }, 400);
     }
 
@@ -68,7 +70,7 @@ Deno.serve(async (req: Request) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
-      line_items: [{ price: plan.stripe_price_id, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       client_reference_id: org.id,
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: { metadata: { organization_id: org.id, plan_id: plan.id } },

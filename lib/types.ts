@@ -7,9 +7,11 @@ export interface Plan {
   storage_quota_mb: number;
   max_members: number;
   price_chf_monthly: number;
+  price_chf_yearly: number | null;
   has_rtk: boolean;
   has_customization: boolean;
   stripe_price_id: string | null;
+  stripe_price_id_yearly: string | null;
 }
 
 export interface Organization {

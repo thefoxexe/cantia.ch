@@ -12,6 +12,7 @@ import type { Plan } from '../../lib/types';
 export default function ChoosePlanScreen() {
   const { organization, refreshOrganization } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [stayingFree, setStayingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export default function ChoosePlanScreen() {
     // Fetch the Stripe URL before touching plan_selected: flipping that
     // flag first triggers the root layout's redirect away from this screen,
     // which raced the checkout request and left Stripe's tab never opened.
-    const { url, error: err } = await startCheckout(planId);
+    const { url, error: err } = await startCheckout(planId, billingInterval);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? 'Impossible de démarrer le paiement.');
@@ -82,11 +83,30 @@ export default function ChoosePlanScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
+        <View style={styles.billingToggle}>
+          <Pressable
+            onPress={() => setBillingInterval('month')}
+            style={[styles.billingToggleOption, billingInterval === 'month' && styles.billingToggleOptionActive]}
+          >
+            <Text style={[styles.billingToggleText, billingInterval === 'month' && styles.billingToggleTextActive]}>Mensuel</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setBillingInterval('year')}
+            style={[styles.billingToggleOption, billingInterval === 'year' && styles.billingToggleOptionActive]}
+          >
+            <Text style={[styles.billingToggleText, billingInterval === 'year' && styles.billingToggleTextActive]}>Annuel</Text>
+            <View style={styles.billingToggleSaveBadge}>
+              <Text style={styles.billingToggleSaveText}>-20%</Text>
+            </View>
+          </Pressable>
+        </View>
+
         <View style={styles.grid}>
           {plans.map((p, i) => (
             <PlanCard
               key={p.id}
               plan={p}
+              billingInterval={billingInterval}
               highlight={i === 0}
               loading={busyPlan === p.id}
               disabled={!!busyPlan}
@@ -109,17 +129,21 @@ export default function ChoosePlanScreen() {
 
 function PlanCard({
   plan,
+  billingInterval,
   highlight,
   loading,
   disabled,
   onChoose,
 }: {
   plan: Plan;
+  billingInterval: 'month' | 'year';
   highlight: boolean;
   loading: boolean;
   disabled: boolean;
   onChoose: () => void;
 }) {
+  const isYearly = billingInterval === 'year';
+  const displayMonthly = isYearly && plan.price_chf_yearly != null ? plan.price_chf_yearly / 12 : plan.price_chf_monthly;
   return (
     <Card style={[styles.card, highlight && styles.cardHighlight]}>
       {highlight ? (
@@ -129,9 +153,12 @@ function PlanCard({
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
       <View style={styles.priceRow}>
-        <Text style={styles.price}>CHF {plan.price_chf_monthly}</Text>
+        <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>/mois</Text>
       </View>
+      {isYearly && plan.price_chf_yearly != null ? (
+        <Text style={styles.yearlyNote}>Facturé CHF {plan.price_chf_yearly.toFixed(2)}/an</Text>
+      ) : null}
       <View style={styles.features}>
         <Feature text={`${(plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
         <Feature text={`${plan.max_members} membre${plan.max_members > 1 ? 's' : ''}`} />
@@ -192,6 +219,52 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     textAlign: 'center',
     marginBottom: spacing.lg,
+  },
+  billingToggle: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 4,
+    gap: 4,
+    marginBottom: spacing.lg,
+  },
+  billingToggleOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.pill,
+  },
+  billingToggleOptionActive: {
+    backgroundColor: colors.surface,
+  },
+  billingToggleText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  billingToggleTextActive: {
+    color: colors.text,
+  },
+  billingToggleSaveBadge: {
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+  },
+  billingToggleSaveText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.success,
+  },
+  yearlyNote: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.xs,
   },
   grid: {
     flexDirection: 'row',

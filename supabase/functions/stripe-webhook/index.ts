@@ -53,7 +53,11 @@ Deno.serve(async (req: Request) => {
           const priceId = subscription.items.data[0]?.price?.id;
           let planId = subscription.metadata?.plan_id;
           if (priceId) {
-            const { data: plan } = await admin.from('plans').select('id').eq('stripe_price_id', priceId).maybeSingle();
+            const { data: plan } = await admin
+              .from('plans')
+              .select('id')
+              .or(`stripe_price_id.eq.${priceId},stripe_price_id_yearly.eq.${priceId}`)
+              .maybeSingle();
             if (plan) planId = plan.id;
           }
           await admin

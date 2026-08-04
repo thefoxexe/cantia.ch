@@ -48,6 +48,7 @@ export default function LandingScreen() {
 function LandingContent() {
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
@@ -322,8 +323,32 @@ function LandingContent() {
           {/* ---- Pricing ---- */}
           <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
+            <View style={styles.billingToggle}>
+              <Pressable
+                onPress={() => setBillingInterval('month')}
+                style={[styles.billingToggleOption, billingInterval === 'month' && styles.billingToggleOptionActive]}
+              >
+                <Text style={[styles.billingToggleText, billingInterval === 'month' && styles.billingToggleTextActive]}>
+                  {t.pricing.monthly}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setBillingInterval('year')}
+                style={[styles.billingToggleOption, billingInterval === 'year' && styles.billingToggleOptionActive]}
+              >
+                <Text style={[styles.billingToggleText, billingInterval === 'year' && styles.billingToggleTextActive]}>
+                  {t.pricing.yearly}
+                </Text>
+                <View style={styles.billingToggleSaveBadge}>
+                  <Text style={styles.billingToggleSaveText}>{t.pricing.yearlySavings}</Text>
+                </View>
+              </Pressable>
+            </View>
             <View style={styles.pricingGrid}>
-              {plans.map((p) => (
+              {plans.map((p) => {
+                const isYearly = billingInterval === 'year';
+                const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
+                return (
                 <View key={p.id} style={[styles.priceCard, p.id === 'equipe' && styles.priceCardHighlight]}>
                   {p.id === 'equipe' ? (
                     <View style={styles.priceBadge}>
@@ -332,9 +357,14 @@ function LandingContent() {
                   ) : null}
                   <Text style={styles.priceName}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
-                    <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${p.price_chf_monthly}`}</Text>
+                    <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly)}`}</Text>
                     <Text style={styles.pricePeriod}>/mois</Text>
                   </View>
+                  {isYearly && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
+                    <Text style={styles.priceYearlyNote}>
+                      {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
+                    </Text>
+                  ) : null}
                   <View style={styles.priceFeatures}>
                     <PriceFeature
                       text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
@@ -351,7 +381,8 @@ function LandingContent() {
                     />
                   </Link>
                 </View>
-              ))}
+                );
+              })}
             </View>
           </Reveal>
 
@@ -621,6 +652,10 @@ function MenuItem({
       </Pressable>
     </Animated.View>
   );
+}
+
+function formatChf(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
 }
 
 function PriceFeature({ text, muted, included }: { text: string; muted?: boolean; included?: boolean }) {
@@ -1752,6 +1787,56 @@ const styles = StyleSheet.create({
     maxWidth: 560,
     alignSelf: 'center',
     lineHeight: 20,
+  },
+  billingToggle: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 4,
+    gap: 4,
+    marginBottom: spacing.xl,
+  },
+  billingToggleOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.pill,
+  },
+  billingToggleOptionActive: {
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  billingToggleText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  billingToggleTextActive: {
+    color: colors.text,
+  },
+  billingToggleSaveBadge: {
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+  },
+  billingToggleSaveText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.success,
+  },
+  priceYearlyNote: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.sm,
   },
   pricingGrid: {
     flexDirection: 'row',
