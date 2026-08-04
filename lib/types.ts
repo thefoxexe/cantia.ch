@@ -212,6 +212,7 @@ export interface Facture {
   due_date: string;
   paid_at: string | null;
   pdf_path: string | null;
+  last_reminded_at: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
