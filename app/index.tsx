@@ -343,8 +343,8 @@ function LandingContent() {
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
             <View style={styles.pricingGrid}>
               {plans.map((p) => (
-                <View key={p.id} style={[styles.priceCard, p.id === 'solo' && styles.priceCardHighlight]}>
-                  {p.id === 'solo' ? (
+                <View key={p.id} style={[styles.priceCard, p.id === 'equipe' && styles.priceCardHighlight]}>
+                  {p.id === 'equipe' ? (
                     <View style={styles.priceBadge}>
                       <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
                     </View>
@@ -366,7 +366,7 @@ function LandingContent() {
                     <Button
                       title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
                       onPress={() => {}}
-                      variant={p.id === 'solo' ? 'primary' : 'secondary'}
+                      variant={p.id === 'equipe' ? 'primary' : 'secondary'}
                     />
                   </Link>
                 </View>
@@ -1821,10 +1821,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+    alignItems: 'stretch',
     gap: spacing.lg,
   },
   priceCard: {
-    width: 250,
+    flex: 1,
+    minWidth: 250,
+    maxWidth: 280,
     padding: spacing.lg,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
@@ -1839,7 +1842,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
-    transform: [{ scale: 1.03 }],
   },
   priceBadge: {
     alignSelf: 'flex-start',
@@ -1874,6 +1876,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   priceFeatures: {
+    flex: 1,
     gap: spacing.xs,
   },
   priceFeatureRow: {
