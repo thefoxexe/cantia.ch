@@ -1,12 +1,14 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../lib/supabase';
 import { getSignedUrl } from '../../../../lib/api/storage';
 import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
 import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
-import { colors, fontSize, spacing } from '../../../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { formatReferenceForDisplay, generateQrrReference, isQrIban } from '../../../../lib/qrReference';
 import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
 
 const STATUS_FLOW: FactureStatus[] = ['draft', 'sent', 'paid', 'cancelled'];
@@ -21,6 +23,7 @@ export default function FactureDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [facture, setFacture] = useState<Facture | null>(null);
   const [items, setItems] = useState<FactureItem[]>([]);
+  const [orgIban, setOrgIban] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +34,10 @@ export default function FactureDetailScreen() {
     ]);
     setFacture(f ?? null);
     setItems(i ?? []);
+    if (f?.organization_id) {
+      const { data: org } = await supabase.from('organizations').select('iban').eq('id', f.organization_id).single();
+      setOrgIban(org?.iban ?? null);
+    }
   }, [id]);
 
   useFocusEffect(
@@ -96,6 +103,19 @@ export default function FactureDetailScreen() {
             {overdue ? 'En retard · ' : ''}Échéance {new Date(facture.due_date).toLocaleDateString('fr-CH')}
           </Text>
         </Card>
+
+        {isQrIban(orgIban) ? (
+          <View style={styles.refCard}>
+            <Feather name="hash" size={16} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.refLabel}>Référence QR de paiement</Text>
+              <Text selectable style={styles.refValue}>
+                {formatReferenceForDisplay(generateQrrReference(facture.id))}
+              </Text>
+              <Text style={styles.refHint}>Appui long pour copier</Text>
+            </View>
+          </View>
+        ) : null}
 
         <Text style={styles.sectionTitle}>Statut</Text>
         <View style={styles.statusRow}>
@@ -201,6 +221,34 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
+  },
+  refCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.md,
+  },
+  refLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  refValue: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: 2,
+    fontVariant: ['tabular-nums'],
+  },
+  refHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   statusRow: {
     flexDirection: 'row',
