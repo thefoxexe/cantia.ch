@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,6 +11,7 @@ import { generateReportPdf } from '../../../../lib/api/pdf';
 import { polishReportNotes } from '../../../../lib/api/ai';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
+import { buildCatalog, findMatches, type CatalogEntry, type CatalogMatch } from '../../../../lib/catalog';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
 import { PdfTemplatePicker } from '../../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -43,6 +44,39 @@ export default function NewReportScreen() {
     const base = notesBaseRef.current;
     setNotes(base + (base && sessionTranscript ? ' ' : '') + sessionTranscript);
   });
+
+  // Same price-memory catalog as the devis screen (the org's own past
+  // devis_items) — reused here so a phrase like "tuyau PVC" typed or
+  // dictated into a report's notes surfaces the price it's usually billed
+  // at, without the writer having to leave the report to look it up.
+  const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
+  useEffect(() => {
+    if (!organization) return;
+    supabase
+      .from('devis_items')
+      .select('description, unit, unit_price, created_at, devis!inner(organization_id)')
+      .eq('devis.organization_id', organization.id)
+      .order('created_at', { ascending: false })
+      .limit(400)
+      .then(({ data }) => {
+        if (data) setCatalog(buildCatalog(data as any));
+      });
+  }, [organization]);
+
+  // Notes are free-flowing prose, not one description per line like a devis
+  // — matching the whole text against the catalog would dilute the score
+  // past anything meaningful. Instead, match only the fragment since the
+  // last sentence/clause break, i.e. whatever the writer is currently in
+  // the middle of typing.
+  const notesFragmentStart = Math.max(notes.lastIndexOf('\n'), notes.lastIndexOf('.'), notes.lastIndexOf(','));
+  const notesFragment = notes.slice(notesFragmentStart + 1).trim();
+  const catalogMatches = useMemo(() => findMatches(catalog, notesFragment), [catalog, notesFragment]);
+
+  function applyCatalogMatch(match: CatalogMatch) {
+    const before = notes.slice(0, notesFragmentStart + 1);
+    const prefix = before && !/\s$/.test(before) ? `${before} ` : before;
+    setNotes(`${prefix}${match.description} (CHF ${match.unitPrice.toFixed(2)}/${match.unit})`);
+  }
 
   async function toggleDictation() {
     if (dictation.listening) {
@@ -222,6 +256,22 @@ export default function NewReportScreen() {
           multiline
           textAlignVertical="top"
         />
+        {catalogMatches.length > 0 ? (
+          <View style={styles.suggestionRow}>
+            <Feather name="zap" size={11} color={colors.primary} style={{ marginTop: 3 }} />
+            <View style={styles.suggestionChips}>
+              {catalogMatches.map((m) => (
+                <Pressable key={m.description} style={styles.suggestionChip} onPress={() => applyCatalogMatch(m)}>
+                  <Text style={styles.suggestionMatch}>{Math.round(m.score * 100)}%</Text>
+                  <Text style={styles.suggestionText} numberOfLines={1}>
+                    {m.description}
+                  </Text>
+                  <Text style={styles.suggestionPrice}>CHF {m.unitPrice.toFixed(2)}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
 
         <Text style={styles.fieldLabel}>Photos ({photos.length})</Text>
         <View style={styles.photoButtons}>
@@ -318,6 +368,51 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
     marginBottom: spacing.lg,
+  },
+  suggestionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    marginTop: -spacing.md,
+    marginBottom: spacing.md,
+  },
+  suggestionChips: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+  },
+  suggestionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: 260,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+  },
+  suggestionMatch: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    overflow: 'hidden',
+  },
+  suggestionText: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+    flexShrink: 1,
+  },
+  suggestionPrice: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
   },
   photoButtons: {
     flexDirection: 'row',

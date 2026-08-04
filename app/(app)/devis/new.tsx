@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -9,9 +9,10 @@ import { FeatureHint } from '../../../components/FeatureHint';
 import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { buildCatalog, findMatches, guessUnit, type CatalogEntry } from '../../../lib/catalog';
+import { generateDevisLines } from '../../../lib/api/ai';
 import { useDictation } from '../../../lib/useDictation';
 
-type DictationTarget = { type: 'notes' } | { type: 'line'; index: number };
+type DictationTarget = { type: 'notes' } | { type: 'line'; index: number } | { type: 'devisLines' };
 
 interface Line {
   description: string;
@@ -23,6 +24,11 @@ interface Line {
   // ("PVC" → "ml"); a manual edit or an applied match turns this off so the
   // guess never overwrites a deliberate choice.
   unitAuto: boolean;
+  // Set when a line comes out of "Dicter les positions du devis" without a
+  // catalog match — the AI isn't allowed to invent a price, so this flags
+  // the line for the user to fill one in themselves. Cleared the moment
+  // they edit the price.
+  needsPrice?: boolean;
 }
 
 function emptyLine(): Line {
@@ -92,19 +98,38 @@ export default function NewDevisScreen() {
   // appended after it rather than overwriting anything already typed.
   const [dictationTarget, setDictationTarget] = useState<DictationTarget | null>(null);
   const dictationBaseRef = useRef('');
+  // "Dicter les positions" doesn't feed any single field live — it holds
+  // the transcript until the session stops, then hands the whole thing to
+  // the AI. A ref (not just the mirrored state below) so the value read
+  // right after stop() is always current, unaffected by React's batching.
+  const devisLinesTranscriptRef = useRef('');
+  const [devisLinesTranscript, setDevisLinesTranscript] = useState('');
+  const [generatingLines, setGeneratingLines] = useState(false);
+  const [linesDictationError, setLinesDictationError] = useState<string | null>(null);
   const dictation = useDictation((sessionTranscript) => {
     const base = dictationBaseRef.current;
     const merged = base + (base && sessionTranscript ? ' ' : '') + sessionTranscript;
     if (dictationTarget?.type === 'notes') setNotes(merged);
     else if (dictationTarget?.type === 'line') updateLine(dictationTarget.index, { description: merged });
+    else if (dictationTarget?.type === 'devisLines') {
+      devisLinesTranscriptRef.current = merged;
+      setDevisLinesTranscript(merged);
+    }
   });
 
   async function toggleDictation(target: DictationTarget) {
     if (dictation.listening) {
+      const wasDevisLines = dictationTarget?.type === 'devisLines';
       dictation.stop();
+      if (wasDevisLines) await generateLinesFromDictation();
       return;
     }
-    dictationBaseRef.current = target.type === 'notes' ? notes : lines[target.index].description;
+    if (target.type === 'devisLines') {
+      devisLinesTranscriptRef.current = '';
+      setDevisLinesTranscript('');
+      setLinesDictationError(null);
+    }
+    dictationBaseRef.current = target.type === 'notes' ? notes : target.type === 'line' ? lines[target.index].description : '';
     setDictationTarget(target);
     const started = await dictation.start('fr-FR');
     if (!started) {
@@ -115,7 +140,40 @@ export default function NewDevisScreen() {
   function isDictating(target: DictationTarget) {
     if (!dictation.listening || !dictationTarget) return false;
     if (target.type === 'notes') return dictationTarget.type === 'notes';
-    return dictationTarget.type === 'line' && dictationTarget.index === target.index;
+    if (target.type === 'devisLines') return dictationTarget.type === 'devisLines';
+    return dictationTarget.type === 'line' && target.type === 'line' && dictationTarget.index === target.index;
+  }
+
+  // Turns the raw dictated transcript into structured devis lines via the
+  // AI edge function, cross-referencing this org's own catalog so anything
+  // it recognizes comes back priced — anything it doesn't comes back with
+  // needsPrice set instead of a guessed number.
+  async function generateLinesFromDictation() {
+    const transcript = devisLinesTranscriptRef.current.trim();
+    if (!transcript) return;
+    setGeneratingLines(true);
+    setLinesDictationError(null);
+    const catalogPayload = catalog.slice(0, 150).map((c) => ({ description: c.description, unit: c.unit, unitPrice: c.unitPrice }));
+    const { lines: aiLines, error: err } = await generateDevisLines(transcript, catalogPayload);
+    setGeneratingLines(false);
+    if (err || !aiLines || aiLines.length === 0) {
+      setLinesDictationError(err ?? "Aucune position n'a été comprise dans la dictée, réessayez.");
+      return;
+    }
+    const newLines: Line[] = aiLines.map((l) => ({
+      description: l.description,
+      quantity: String(l.quantity),
+      unit: l.unit,
+      unitPrice: l.unitPrice != null ? String(l.unitPrice) : '0',
+      unitAuto: false,
+      needsPrice: l.unitPrice == null,
+    }));
+    setLines((prev) => {
+      const isBlankStarter = prev.length === 1 && !prev[0].description.trim();
+      return isBlankStarter ? newLines : [...prev, ...newLines];
+    });
+    devisLinesTranscriptRef.current = '';
+    setDevisLinesTranscript('');
   }
 
   const total = lines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
@@ -235,6 +293,39 @@ export default function NewDevisScreen() {
           />
 
           <Text style={styles.sectionTitle}>Lignes du devis</Text>
+          {dictation.supported ? (
+            <View style={styles.dictateLinesCard}>
+              <Pressable
+                onPress={() => toggleDictation({ type: 'devisLines' })}
+                disabled={generatingLines}
+                style={[styles.dictateLinesButton, isDictating({ type: 'devisLines' }) && styles.dictateLinesButtonActive]}
+              >
+                {generatingLines ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <Feather name="mic" size={16} color={isDictating({ type: 'devisLines' }) ? '#fff' : colors.primary} />
+                )}
+                <Text
+                  style={[
+                    styles.dictateLinesButtonText,
+                    isDictating({ type: 'devisLines' }) && styles.dictateLinesButtonTextActive,
+                  ]}
+                >
+                  {generatingLines
+                    ? 'Analyse des positions…'
+                    : isDictating({ type: 'devisLines' })
+                      ? 'Écoute… (touchez pour arrêter)'
+                      : 'Dicter les positions du devis'}
+                </Text>
+              </Pressable>
+              {isDictating({ type: 'devisLines' }) && devisLinesTranscript ? (
+                <Text style={styles.dictateLinesPreview} numberOfLines={3}>
+                  {devisLinesTranscript}
+                </Text>
+              ) : null}
+              {linesDictationError ? <Text style={styles.dictateLinesError}>{linesDictationError}</Text> : null}
+            </View>
+          ) : null}
           {lines.map((line, i) => {
             const lineTotal = (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0);
             const matches = findMatches(catalog, line.description);
@@ -332,14 +423,20 @@ export default function NewDevisScreen() {
                   <View style={styles.lineFieldPrice}>
                     <Text style={styles.lineFieldLabel}>Prix unit. CHF</Text>
                     <TextInput
-                      style={styles.lineInput}
+                      style={[styles.lineInput, line.needsPrice && styles.lineInputNeedsPrice]}
                       value={line.unitPrice}
-                      onChangeText={(t) => updateLine(i, { unitPrice: t })}
+                      onChangeText={(t) => updateLine(i, { unitPrice: t, needsPrice: false })}
                       keyboardType="decimal-pad"
                       placeholderTextColor={colors.textMuted}
                     />
                   </View>
                 </View>
+                {line.needsPrice ? (
+                  <View style={styles.needsPriceBadge}>
+                    <Feather name="alert-triangle" size={11} color={colors.warning} />
+                    <Text style={styles.needsPriceText}>Pas de prix connu pour cet article — à compléter</Text>
+                  </View>
+                ) : null}
                 {priceCoherence !== null && priceCoherence < 97 && bestMatch ? (
                   <Text
                     style={[
@@ -465,6 +562,63 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     minHeight: 44,
   },
+  dictateLinesCard: {
+    borderWidth: 1,
+    borderColor: colors.primarySoft,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+  dictateLinesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
+  },
+  dictateLinesButtonActive: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
+  },
+  dictateLinesButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  dictateLinesButtonTextActive: {
+    color: '#fff',
+  },
+  dictateLinesPreview: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+  },
+  dictateLinesError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+  },
+  needsPriceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.warningSoft,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    marginBottom: spacing.sm,
+    alignSelf: 'flex-start',
+  },
+  needsPriceText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.warning,
+  },
   suggestionRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -541,6 +695,9 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
     backgroundColor: colors.bg,
+  },
+  lineInputNeedsPrice: {
+    borderColor: colors.warning,
   },
   lineTotal: {
     fontSize: fontSize.sm,

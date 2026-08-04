@@ -5,14 +5,14 @@ import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
 import { openCheckoutUrl } from '../../lib/openUrl';
-import { Button, Card, Screen } from '../../components/ui';
+import { Button, Card, Screen, Switch } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 
 export default function ChoosePlanScreen() {
   const { organization, refreshOrganization } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [stayingFree, setStayingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,23 +83,18 @@ export default function ChoosePlanScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <View style={styles.billingToggle}>
-          <Pressable
-            onPress={() => setBillingInterval('month')}
-            style={[styles.billingToggleOption, billingInterval === 'month' && styles.billingToggleOptionActive]}
-          >
-            <Text style={[styles.billingToggleText, billingInterval === 'month' && styles.billingToggleTextActive]}>Mensuel</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setBillingInterval('year')}
-            style={[styles.billingToggleOption, billingInterval === 'year' && styles.billingToggleOptionActive]}
-          >
-            <Text style={[styles.billingToggleText, billingInterval === 'year' && styles.billingToggleTextActive]}>Annuel</Text>
-            <View style={styles.billingToggleSaveBadge}>
-              <Text style={styles.billingToggleSaveText}>-20%</Text>
-            </View>
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
+          style={styles.billingToggle}
+        >
+          <Text style={styles.billingToggleLabel}>
+            {billingInterval === 'year' ? 'Facturation annuelle' : 'Facturation mensuelle'}
+          </Text>
+          <View style={styles.billingToggleSaveBadge}>
+            <Text style={styles.billingToggleSaveText}>-20%</Text>
+          </View>
+          <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
+        </Pressable>
 
         <View style={styles.grid}>
           {plans.map((p, i) => (
@@ -222,32 +217,20 @@ const styles = StyleSheet.create({
   },
   billingToggle: {
     flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'center',
+    gap: spacing.sm,
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 4,
-    gap: 4,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     marginBottom: spacing.lg,
   },
-  billingToggleOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
-  },
-  billingToggleOptionActive: {
-    backgroundColor: colors.surface,
-  },
-  billingToggleText: {
+  billingToggleLabel: {
     fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  billingToggleTextActive: {
+    fontWeight: '700',
     color: colors.text,
   },
   billingToggleSaveBadge: {

@@ -191,8 +191,8 @@ const fr: Dict = {
   },
   pricing: {
     title: 'Un plan pour chaque taille d’équipe',
-    monthly: 'Mensuel',
-    yearly: 'Annuel',
+    monthly: 'Facturation mensuelle',
+    yearly: 'Facturation annuelle',
     yearlySavings: '-20%',
     billedYearly: 'Facturé {amount}/an',
     storageSuffix: 'Go de stockage',

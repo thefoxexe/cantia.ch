@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { Link, Redirect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { Button, Screen } from '../components/ui';
+import { Button, Screen, Switch } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { t, planName } from '../lib/i18n';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
@@ -48,10 +48,9 @@ export default function LandingScreen() {
 function LandingContent() {
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { width, height: windowHeight } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
@@ -64,7 +63,7 @@ function LandingContent() {
   // for as long as the hero is mounted.
   const blobPulse = useRef(new Animated.Value(0)).current;
   const menuItemAnims = useRef(
-    Array.from({ length: 4 }, () => new Animated.Value(0)),
+    Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
 
   // Scroll-triggered section reveals: each section registers its own y
@@ -214,6 +213,7 @@ function LandingContent() {
             <Animated.View
               style={[
                 styles.hero,
+                isCompactNav && styles.heroCompact,
                 {
                   opacity: heroAnim,
                   transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) }],
@@ -225,17 +225,26 @@ function LandingContent() {
                   <Feather name="zap" size={12} color={colors.primary} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
                 </View>
-                <Text style={styles.headline}>
+                <Text style={[styles.headline, isCompactNav && styles.headlineCompact]}>
                   {t.hero.headlinePrefix}{' '}
                   <Text style={styles.headlineHighlight}>{t.hero.headlineHighlight}</Text>
                 </Text>
-                <Text style={styles.subheadline}>{t.hero.subheadline}</Text>
-                <View style={styles.ctaRow}>
+                <Text style={[styles.subheadline, isCompactNav && styles.subheadlineCompact]}>{t.hero.subheadline}</Text>
+                <View style={[styles.ctaRow, isCompactNav && styles.ctaRowCompact]}>
                   <Link href={authHref('signup')} asChild>
-                    <Button title={t.hero.cta1} onPress={() => {}} style={styles.ctaButton} />
+                    <Button
+                      title={t.hero.cta1}
+                      onPress={() => {}}
+                      style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
+                    />
                   </Link>
                   <Link href={authHref('login')} asChild>
-                    <Button title={t.hero.cta2} onPress={() => {}} variant="secondary" style={styles.ctaButton} />
+                    <Button
+                      title={t.hero.cta2}
+                      onPress={() => {}}
+                      variant="secondary"
+                      style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
+                    />
                   </Link>
                 </View>
               </View>
@@ -316,34 +325,25 @@ function LandingContent() {
           {/* ---- Trades ---- */}
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
-            <TradesMarquee trades={t.trades.list} />
+            <TradesMarquee trades={t.trades.list} compact={isCompactNav} />
             <Text style={styles.tradeNote}>{t.trades.note}</Text>
           </Reveal>
 
           {/* ---- Pricing ---- */}
           <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
-            <View style={styles.billingToggle}>
-              <Pressable
-                onPress={() => setBillingInterval('month')}
-                style={[styles.billingToggleOption, billingInterval === 'month' && styles.billingToggleOptionActive]}
-              >
-                <Text style={[styles.billingToggleText, billingInterval === 'month' && styles.billingToggleTextActive]}>
-                  {t.pricing.monthly}
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setBillingInterval('year')}
-                style={[styles.billingToggleOption, billingInterval === 'year' && styles.billingToggleOptionActive]}
-              >
-                <Text style={[styles.billingToggleText, billingInterval === 'year' && styles.billingToggleTextActive]}>
-                  {t.pricing.yearly}
-                </Text>
-                <View style={styles.billingToggleSaveBadge}>
-                  <Text style={styles.billingToggleSaveText}>{t.pricing.yearlySavings}</Text>
-                </View>
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
+              style={styles.billingToggle}
+            >
+              <Text style={styles.billingToggleLabel}>
+                {billingInterval === 'year' ? t.pricing.yearly : t.pricing.monthly}
+              </Text>
+              <View style={styles.billingToggleSaveBadge}>
+                <Text style={styles.billingToggleSaveText}>{t.pricing.yearlySavings}</Text>
+              </View>
+              <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
+            </Pressable>
             <View style={styles.pricingGrid}>
               {plans.map((p) => {
                 const isYearly = billingInterval === 'year';
@@ -403,6 +403,9 @@ function LandingContent() {
               <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
               <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
             </View>
+            <Link href="/telechargement" style={styles.mobileMoreLink}>
+              <Text style={styles.mobileMoreLinkText}>En savoir plus →</Text>
+            </Link>
           </Reveal>
 
           {/* ---- Final CTA ---- */}
@@ -488,22 +491,9 @@ function LandingContent() {
                 <Pressable onPress={scrollToPricing}>
                   <Text style={styles.navLink}>{t.nav.pricing}</Text>
                 </Pressable>
-                <Pressable
-                  onHoverIn={() => setDownloadMenuOpen(true)}
-                  onHoverOut={() => setDownloadMenuOpen(false)}
-                  style={styles.navDownloadWrap}
-                >
-                  <View style={styles.navLinkRow}>
-                    <Text style={styles.navLink}>{t.nav.download}</Text>
-                    <Feather name="chevron-down" size={14} color={colors.textMuted} />
-                  </View>
-                  {downloadMenuOpen ? (
-                    <View style={styles.navDownloadDropdown}>
-                      <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
-                      <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
-                    </View>
-                  ) : null}
-                </Pressable>
+                <Link href="/telechargement">
+                  <Text style={styles.navLink}>{t.nav.download}</Text>
+                </Link>
                 <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
                 </Link>
@@ -543,18 +533,14 @@ function LandingContent() {
               <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
                 <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} icon="grid" label={t.nav.services} />
                 <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} icon="tag" label={t.nav.pricing} />
-                <View style={styles.mobileMenuDownloadSection}>
-                  <Text style={styles.mobileMenuDownloadLabel}>{t.nav.download}</Text>
-                  <View style={styles.mobileMenuDownloadRow}>
-                    <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
-                    <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
-                  </View>
-                </View>
+                <Link href="/telechargement" asChild>
+                  <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} icon="download" label={t.nav.download} />
+                </Link>
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[2],
+                    opacity: menuItemAnims[3],
                     transform: [
-                      { translateY: menuItemAnims[2].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[3].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -569,9 +555,9 @@ function LandingContent() {
 
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[3],
+                    opacity: menuItemAnims[4],
                     transform: [
-                      { translateY: menuItemAnims[3].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -701,7 +687,7 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
   const [revealCount, setRevealCount] = useState(0);
   const words = useRef(copy.transcript.split(' ')).current;
   const fade = useRef(new Animated.Value(1)).current;
-  const barAnims = useRef(Array.from({ length: 14 }, () => new Animated.Value(0.3))).current;
+  const barAnims = useRef(Array.from({ length: 28 }, () => new Animated.Value(0.15))).current;
   const micPulse = useRef(new Animated.Value(0)).current;
   // Drives a slow, continuous primary<->accent color sweep across the mic
   // and the waveform (each bar reads it with its own phase offset below) —
@@ -744,17 +730,30 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
     return () => clearInterval(intervalId);
   }, [phase, words]);
 
+  // Each bar jitters to its own random height on its own random clock —
+  // deliberately not a synchronized loop (that read as one coordinated
+  // "wave" rolling across the bars) so it reads instead like a real
+  // audio-reactive meter, every bar twitching independently with the
+  // voice's intensity.
   useEffect(() => {
-    const loops = barAnims.map((v, i) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(v, { toValue: 1, duration: 340 + i * 35, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(v, { toValue: 0.2, duration: 340 + i * 35, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        ]),
-      ),
-    );
-    loops.forEach((l) => l.start());
-    return () => loops.forEach((l) => l.stop());
+    let mounted = true;
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    barAnims.forEach((v, i) => {
+      const tick = () => {
+        if (!mounted) return;
+        const target = 0.12 + Math.random() * 0.88;
+        const duration = 90 + Math.random() * 150;
+        Animated.timing(v, { toValue: target, duration, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(() => {
+          if (mounted) timeouts[i] = setTimeout(tick, 10 + Math.random() * 40);
+        });
+      };
+      // Stagger the first tick per bar so they don't all start in lockstep.
+      timeouts[i] = setTimeout(tick, i * 15);
+    });
+    return () => {
+      mounted = false;
+      timeouts.forEach((id) => clearTimeout(id));
+    };
   }, [barAnims]);
 
   useEffect(() => {
@@ -1022,7 +1021,7 @@ function ensureMarqueeKeyframes() {
   document.head.appendChild(style);
 }
 
-function TradesMarquee({ trades }: { trades: string[] }) {
+function TradesMarquee({ trades, compact }: { trades: string[]; compact: boolean }) {
   // Set directly on the DOM node rather than via RN's `style` prop —
   // `animationName`/`animationDuration` aren't in RN's recognized web
   // style-property list, so passing them through StyleSheet triggers a
@@ -1034,8 +1033,12 @@ function TradesMarquee({ trades }: { trades: string[] }) {
   useEffect(() => {
     ensureMarqueeKeyframes();
     const node = trackRef.current as unknown as HTMLElement | null;
-    if (node) node.style.animation = 'cantia-marquee 32s linear infinite';
-  }, []);
+    // Same pixel-width track on every screen size, but a narrow phone
+    // viewport shows far less of it at once — the loop read as crawling
+    // there even though desktop felt fine. Cutting the duration (not
+    // touching the desktop pace) makes it read as brisk on mobile too.
+    if (node) node.style.animation = `cantia-marquee ${compact ? 11 : 32}s linear infinite`;
+  }, [compact]);
 
   const items = [...trades, ...trades];
 
@@ -1120,32 +1123,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
-  navLinkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  navDownloadWrap: {
-    position: 'relative',
-  },
-  navDownloadDropdown: {
-    position: 'absolute',
-    top: '100%',
-    left: '50%',
-    transform: [{ translateX: -110 }],
-    marginTop: spacing.md,
-    width: 220,
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-  },
   navCta: {
     height: 38,
     paddingHorizontal: spacing.lg,
@@ -1203,24 +1180,6 @@ const styles = StyleSheet.create({
   mobileMenuCta: {
     marginTop: spacing.xl,
   },
-  mobileMenuDownloadSection: {
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: spacing.sm,
-  },
-  mobileMenuDownloadLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  mobileMenuDownloadRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
   heroWrap: {
     position: 'relative',
     overflow: 'hidden',
@@ -1271,6 +1230,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xxl * 1.6,
     paddingBottom: spacing.xxl * 1.6,
   },
+  heroCompact: {
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl,
+  },
   heroCopy: {
     alignItems: 'center',
   },
@@ -1299,6 +1262,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
+  headlineCompact: {
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: -0.2,
+    marginBottom: spacing.md,
+  },
   headlineHighlight: {
     color: colors.text,
     backgroundColor: colors.primarySoft,
@@ -1311,14 +1280,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.xl,
   },
+  subheadlineCompact: {
+    fontSize: fontSize.sm,
+    lineHeight: 20,
+    marginBottom: spacing.lg,
+  },
   ctaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: spacing.md,
   },
+  ctaRowCompact: {
+    flexDirection: 'column',
+    alignSelf: 'stretch',
+  },
   ctaButton: {
     minWidth: 220,
+  },
+  ctaButtonCompact: {
+    minWidth: 0,
+    width: '100%',
   },
   section: {
     maxWidth: 1080,
@@ -1450,15 +1432,15 @@ const styles = StyleSheet.create({
   waveform: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 3,
+    justifyContent: 'center',
+    gap: 2.5,
     height: 56,
     marginBottom: spacing.lg,
   },
   waveBar: {
-    flex: 1,
+    width: 3,
     height: 48,
-    borderRadius: 3,
+    borderRadius: 1.5,
     backgroundColor: colors.primary,
     opacity: 0.85,
   },
@@ -1790,36 +1772,20 @@ const styles = StyleSheet.create({
   },
   billingToggle: {
     flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'center',
+    gap: spacing.sm,
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 4,
-    gap: 4,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     marginBottom: spacing.xl,
   },
-  billingToggleOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
-  },
-  billingToggleOptionActive: {
-    backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  billingToggleText: {
+  billingToggleLabel: {
     fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  billingToggleTextActive: {
+    fontWeight: '700',
     color: colors.text,
   },
   billingToggleSaveBadge: {
@@ -1990,6 +1956,15 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '700',
     color: '#fff',
+  },
+  mobileMoreLink: {
+    alignSelf: 'center',
+    marginTop: spacing.md,
+  },
+  mobileMoreLinkText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.primary,
   },
   finalCtaOuter: {
     width: '100%',

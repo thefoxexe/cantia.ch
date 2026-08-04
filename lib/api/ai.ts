@@ -4,3 +4,22 @@ export async function polishReportNotes(reportId: string): Promise<{ notes: stri
   const { data, error } = await invokeFunction<{ notes: string }>('polish-report-notes', { report_id: reportId });
   return { notes: data?.notes ?? null, error };
 }
+
+export interface DictatedDevisLine {
+  description: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number | null;
+  matched: boolean;
+}
+
+export async function generateDevisLines(
+  transcript: string,
+  catalog: { description: string; unit: string; unitPrice: number }[],
+): Promise<{ lines: DictatedDevisLine[] | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ lines: DictatedDevisLine[] }>('generate-devis-lines', {
+    transcript,
+    catalog,
+  });
+  return { lines: data?.lines ?? null, error };
+}

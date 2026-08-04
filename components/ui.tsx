@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -156,6 +158,66 @@ export function EmptyState({ title, subtitle }: { title: string; subtitle?: stri
     </View>
   );
 }
+
+const SWITCH_WIDTH = 44;
+const SWITCH_HEIGHT = 26;
+const SWITCH_KNOB = 20;
+const SWITCH_PAD = 3;
+
+// A small animated pill toggle — RN's built-in Switch renders as the raw
+// platform control (grey on web, wildly inconsistent across iOS/Android),
+// which reads as an afterthought next to the rest of the design system.
+export function Switch({ value, onChange, disabled }: { value: boolean; onChange: (next: boolean) => void; disabled?: boolean }) {
+  const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: value ? 1 : 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [value, anim]);
+
+  const trackColor = anim.interpolate({ inputRange: [0, 1], outputRange: [colors.border, colors.primary] });
+  const knobTranslate = anim.interpolate({ inputRange: [0, 1], outputRange: [0, SWITCH_WIDTH - SWITCH_KNOB - SWITCH_PAD * 2] });
+
+  return (
+    <Pressable
+      onPress={() => !disabled && onChange(!value)}
+      disabled={disabled}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value, disabled }}
+      hitSlop={6}
+      style={{ opacity: disabled ? 0.5 : 1 }}
+    >
+      <Animated.View style={[switchStyles.track, { backgroundColor: trackColor }]}>
+        <Animated.View style={[switchStyles.knob, { transform: [{ translateX: knobTranslate }] }]} />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+const switchStyles = StyleSheet.create({
+  track: {
+    width: SWITCH_WIDTH,
+    height: SWITCH_HEIGHT,
+    borderRadius: SWITCH_HEIGHT / 2,
+    padding: SWITCH_PAD,
+    justifyContent: 'center',
+  },
+  knob: {
+    width: SWITCH_KNOB,
+    height: SWITCH_KNOB,
+    borderRadius: SWITCH_KNOB / 2,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+});
 
 export function LoadingScreen({ label = 'Chargement…' }: { label?: string }) {
   return (
