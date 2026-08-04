@@ -13,6 +13,7 @@ import {
   Text,
   View,
   useWindowDimensions,
+  type ViewStyle,
 } from 'react-native';
 import { Link, Redirect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
@@ -48,10 +49,6 @@ function LandingContent() {
   const [scrolled, setScrolled] = useState(false);
   const { width, height: windowHeight } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
-  // Fixed at 260px, the hero phone read as oversized on a narrow phone
-  // screen instead of shrinking with everything else around it — scale it
-  // off the viewport instead, capped at the same 260px on wider screens.
-  const heroPhoneWidth = Math.max(150, Math.min(260, Math.round(width * 0.55)));
   const showcasePhoneWidth = Math.max(140, Math.min(200, Math.round(width * 0.5)));
 
   const menuAnim = useRef(new Animated.Value(0)).current;
@@ -60,7 +57,6 @@ function LandingContent() {
   // the phone mockup gently floats, and the two background blobs breathe out
   // of phase with each other. Neither ties to scroll/reveal state — they run
   // for as long as the hero is mounted.
-  const heroFloat = useRef(new Animated.Value(0)).current;
   const blobPulse = useRef(new Animated.Value(0)).current;
   const menuItemAnims = useRef(
     Array.from({ length: 4 }, () => new Animated.Value(0)),
@@ -132,25 +128,17 @@ function LandingContent() {
   }, [heroAnim]);
 
   useEffect(() => {
-    const floatLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(heroFloat, { toValue: 1, duration: 2400, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(heroFloat, { toValue: 0, duration: 2400, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
     const blobLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(blobPulse, { toValue: 1, duration: 4200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
         Animated.timing(blobPulse, { toValue: 0, duration: 4200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
       ]),
     );
-    floatLoop.start();
     blobLoop.start();
     return () => {
-      floatLoop.stop();
       blobLoop.stop();
     };
-  }, [heroFloat, blobPulse]);
+  }, [blobPulse]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -207,8 +195,9 @@ function LandingContent() {
         >
           <View style={{ height: NAV_HEIGHT }} />
 
-          {/* ---- Hero ---- */}
+          {/* ---- Hero: pure text on a subtle grid backdrop, no device mockup ---- */}
           <View style={styles.heroWrap}>
+            <View pointerEvents="none" style={styles.heroGrid} />
             <Animated.View
               pointerEvents="none"
               style={[styles.heroBlobA, { transform: [{ scale: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }] }]}
@@ -245,12 +234,6 @@ function LandingContent() {
                   </Link>
                 </View>
               </View>
-
-              <Animated.View
-                style={{ transform: [{ translateY: heroFloat.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }] }}
-              >
-                <AppPreview phoneWidth={heroPhoneWidth} />
-              </Animated.View>
             </Animated.View>
           </View>
 
@@ -713,81 +696,6 @@ function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: numb
   return (
     <PhoneChrome width={width} rotate={rotate}>
       {(w, h) => <Image source={source} style={{ width: w, height: h }} resizeMode="cover" />}
-    </PhoneChrome>
-  );
-}
-
-const HERO_PREVIEW_COPY = {
-  greeting: 'Bonjour',
-  sites: 'Chantiers',
-  reports: 'Rapports',
-  devis: 'Devis',
-  project: 'Villa Dupont — rénovation',
-  devisNumber: 'Devis DEV-2026-0032',
-  photos: '18 photos géolocalisées',
-};
-
-// The hero goes back to a designed mockup (not a real screenshot) — a
-// hand-drawn dashboard scales cleanly to any phone frame, where a real
-// screenshot's fixed aspect ratio either crops or letterboxes depending on
-// the frame size. Real screenshots stay where they add the most proof:
-// the showcase carousel further down the page.
-function DashboardMockup({ width, height }: { width: number; height: number }) {
-  const copy = HERO_PREVIEW_COPY;
-  return (
-    <View style={{ width, height, backgroundColor: colors.surface, padding: spacing.lg, justifyContent: 'space-between' }}>
-      <View>
-        <View style={styles.phoneStatusBar}>
-          <Text style={styles.phoneClock}>9:41</Text>
-          <View style={styles.phoneStatusIcons}>
-            <Feather name="wifi" size={11} color={colors.text} />
-            <Feather name="battery" size={13} color={colors.text} />
-          </View>
-        </View>
-        <Text style={styles.previewGreeting}>{copy.greeting}</Text>
-        <Text style={styles.previewOrg}>Dupont Serrurerie Sàrl</Text>
-        <View style={styles.previewStatsRow}>
-          <View style={[styles.previewStat, { backgroundColor: colors.surfaceAlt }]}>
-            <Text style={[styles.previewStatValue, { color: colors.text }]}>12</Text>
-            <Text style={styles.previewStatLabel}>{copy.sites}</Text>
-          </View>
-          <View style={[styles.previewStat, { backgroundColor: colors.primarySoft }]}>
-            <Text style={[styles.previewStatValue, { color: colors.primary }]}>34</Text>
-            <Text style={styles.previewStatLabel}>{copy.reports}</Text>
-          </View>
-          <View style={[styles.previewStat, { backgroundColor: colors.surfaceAlt }]}>
-            <Text style={[styles.previewStatValue, { color: colors.text }]}>7</Text>
-            <Text style={styles.previewStatLabel}>{copy.devis}</Text>
-          </View>
-        </View>
-        <View style={styles.previewListRow}>
-          <Feather name="hard-drive" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>{copy.project}</Text>
-        </View>
-        <View style={styles.previewListRow}>
-          <Feather name="file-text" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>{copy.devisNumber}</Text>
-        </View>
-        <View style={styles.previewListRow}>
-          <Feather name="image" size={14} color={colors.primary} />
-          <Text style={styles.previewListText}>{copy.photos}</Text>
-        </View>
-      </View>
-      <View style={styles.previewTabBar}>
-        <Feather name="home" size={16} color={colors.primary} />
-        <Feather name="layers" size={16} color={colors.textMuted} />
-        <Feather name="file-text" size={16} color={colors.textMuted} />
-        <Feather name="calendar" size={16} color={colors.textMuted} />
-        <Feather name="settings" size={16} color={colors.textMuted} />
-      </View>
-    </View>
-  );
-}
-
-function AppPreview({ phoneWidth }: { phoneWidth: number }) {
-  return (
-    <PhoneChrome width={phoneWidth} rotate={-3}>
-      {(w, h) => <DashboardMockup width={w} height={h} />}
     </PhoneChrome>
   );
 }
@@ -1278,6 +1186,23 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
+  // A faint grid/graph-paper texture behind the hero text for a bit of
+  // depth without a device mockup — web-only CSS properties (this whole
+  // screen never mounts on native, see the Platform.OS guard above), so a
+  // plain object cast rather than going through StyleSheet.create's types.
+  heroGrid: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage:
+      `linear-gradient(${colors.border} 1px, transparent 1px), linear-gradient(90deg, ${colors.border} 1px, transparent 1px)`,
+    backgroundSize: '44px 44px',
+    opacity: 0.5,
+    maskImage: 'linear-gradient(to bottom, black, transparent)',
+    WebkitMaskImage: 'linear-gradient(to bottom, black, transparent)',
+  } as unknown as ViewStyle,
   heroBlobA: {
     position: 'absolute',
     top: -140,
@@ -1299,26 +1224,22 @@ const styles = StyleSheet.create({
     opacity: 0.25,
   },
   hero: {
-    maxWidth: 1080,
+    maxWidth: 760,
     width: '100%',
     alignSelf: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: spacing.xxl,
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xxl,
+    paddingTop: spacing.xxl * 1.6,
+    paddingBottom: spacing.xxl * 1.6,
   },
   heroCopy: {
-    flex: 1,
-    minWidth: 320,
+    alignItems: 'center',
   },
   kicker: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
@@ -1331,12 +1252,13 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   headline: {
-    fontSize: 44,
+    fontSize: 52,
     fontWeight: '800',
     color: colors.text,
-    lineHeight: 52,
+    lineHeight: 60,
     letterSpacing: -0.5,
-    marginBottom: spacing.md,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
   },
   headlineHighlight: {
     color: colors.text,
@@ -1346,12 +1268,14 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     color: colors.textMuted,
     lineHeight: 26,
-    maxWidth: 480,
+    maxWidth: 520,
+    textAlign: 'center',
     marginBottom: spacing.xl,
   },
   ctaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: spacing.md,
   },
   ctaButton: {
@@ -1376,78 +1300,6 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: 'rgba(255,255,255,0.35)',
     marginTop: spacing.sm,
-  },
-  phoneStatusBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  phoneClock: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  phoneStatusIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  previewGreeting: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  previewOrg: {
-    fontSize: fontSize.md,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  previewStatsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  previewStat: {
-    flex: 1,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.md,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-  },
-  previewStatValue: {
-    fontSize: fontSize.md,
-    fontWeight: '800',
-    color: colors.primary,
-  },
-  previewStatLabel: {
-    fontSize: 9,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  previewListRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  previewListText: {
-    fontSize: 10,
-    color: colors.text,
-    flexShrink: 1,
-  },
-  previewTabBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   carouselOuter: {
     alignItems: 'center',
