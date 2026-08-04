@@ -22,6 +22,9 @@ export interface Organization {
   logo_url: string | null;
   signature_url: string | null;
   address: string | null;
+  street: string | null;
+  postal_code: string | null;
+  locality: string | null;
   ide_number: string | null;
   phone: string | null;
   email: string | null;

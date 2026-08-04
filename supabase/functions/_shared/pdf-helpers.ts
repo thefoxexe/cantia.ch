@@ -21,25 +21,36 @@ export const BAND_MUTED = rgb(0.85, 0.89, 0.87);
 // string that reaches the page goes through wrapText, drawText, or
 // drawTextRight, so sanitizing here is a single choke point.
 //
-// The space-range replace below previously had its literal unicode space
-// characters silently flattened to plain ASCII spaces by an earlier editing
-// pass, which meant U+202F (the fr-CH thousands separator) fell through to
-// the catch-all below and rendered as a literal "?" in every amount >= CHF
-// 1000 (e.g. "22 185.23" became "22?185.23") — verified byte-for-byte after
-// this fix ( -      　 all present).
+// Iterates by code point and compares numeric ranges rather than using a
+// regex character class of literal unicode characters — an earlier version
+// used literal unicode space characters in a regex, which got silently
+// mangled by an editing/transport pass, so U+202F (the fr-CH thousands
+// separator) fell through to the catch-all below and rendered as a literal
+// "?" in every amount >= CHF 1000 (e.g. "22 185.23" became "22?185.23").
 export function sanitizePdfText(text: string): string {
-  return (text || '')
-    .replace(/[ -   　]/g, ' ')
-    .replace(/[‘’]/g, "'")
-    .replace(/[“”]/g, '"')
-    .replace(/[–—]/g, '-')
-    .replace(/•/g, '-')
-    .replace(/€/g, 'EUR')
-    .replace(/…/g, '...')
-    .replace(/œ/g, 'oe')
-    .replace(/Œ/g, 'OE')
-    .replace(/Ÿ/g, 'Y')
-    .replace(/[^\x00-\xFF]/g, '?');
+  const REPLACEMENTS: Record<number, string> = {
+    0x2018: "'", 0x2019: "'",
+    0x201c: '"', 0x201d: '"',
+    0x2013: '-', 0x2014: '-', 0x2022: '-',
+    0x20ac: 'EUR',
+    0x2026: '...',
+    0x0153: 'oe', 0x0152: 'OE', 0x0178: 'Y',
+  };
+  let result = '';
+  for (const ch of text || '') {
+    const code = ch.codePointAt(0) ?? 0;
+    const isSpaceVariant =
+      code === 0x00a0 ||
+      (code >= 0x2000 && code <= 0x200f) ||
+      (code >= 0x2028 && code <= 0x202f) ||
+      code === 0x205f ||
+      code === 0x3000;
+    if (isSpaceVariant) result += ' ';
+    else if (REPLACEMENTS[code] !== undefined) result += REPLACEMENTS[code];
+    else if (code > 0xff) result += '?';
+    else result += ch;
+  }
+  return result;
 }
 
 export function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
@@ -129,6 +140,17 @@ export function formatChf(amount: number): string {
 // which must match it) gets rounded.
 export function swissRound(amount: number): number {
   return Math.round(amount / 0.05) * 0.05;
+}
+
+// Composes a single display line from an org's address, preferring the
+// structured street/postal_code/locality fields (added once a QR-bill needs
+// a structured "S" creditor address) and falling back to the legacy
+// free-text `address` column for orgs that haven't re-entered it yet.
+export function formatOrgAddress(org: any): string | null {
+  const structured = [org?.street, [org?.postal_code, org?.locality].filter(Boolean).join(' ')]
+    .filter((part) => part && part.trim().length > 0)
+    .join(', ');
+  return structured || org?.address || null;
 }
 
 export function formatDate(iso: string): string {
@@ -360,7 +382,7 @@ export async function drawPhotoGrid(params: {
       capY -= 12;
     }
     const coords = formatCoords(photo.latitude, photo.longitude);
-    const meta = [coords ? `GPS ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  ·  ');
+    const meta = [coords ? `GPS ${coords}` : null, formatDateTime(photo.taken_at)].filter(Boolean).join('  \u00b7  ');
     drawText(page, truncate(meta, font, 8, cellW - cardPad * 2), x + cardPad, capY, font, 8, MUTED);
 
     col += 1;

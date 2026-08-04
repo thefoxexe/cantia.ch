@@ -99,7 +99,12 @@ Deno.serve(async (req: Request) => {
         const total = swissRound(subtotal + vat);
         await appendQrBillPage(pdfDoc, font, fontBold, {
           iban: org.iban,
-          creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },
+          creditor: {
+            name: org.name ?? 'Entreprise',
+            addressLine1: org.street ?? org.address ?? null,
+            postalCode: org.postal_code ?? null,
+            town: org.locality ?? null,
+          },
           amount: total,
           currency: 'CHF',
           debtor: devis.client_name

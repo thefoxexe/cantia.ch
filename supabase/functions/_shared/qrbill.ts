@@ -99,16 +99,34 @@ function sanitizeSpcField(text: string | null | undefined, maxLen: number): stri
     .slice(0, maxLen);
 }
 
-// Combined ("K") address type, not structured ("S") — Cantia stores
-// addresses as a single free-text field (org.address, devis.client_address),
-// not street/postal-code/town split out separately, and "K" is the SPC
-// address type built for exactly that: two free address lines instead of a
-// structured breakdown, with postal-code/town left blank.
+// A party uses the structured ("S") SPC address type when postalCode and
+// town are both known — the org's street/postal_code/locality columns,
+// once filled in, give us that. Otherwise it falls back to combined ("K"):
+// two free-text address lines with postal-code/town left blank. This is
+// still the only option for a debtor, since devis/facture client addresses
+// remain a single free-text field.
 interface QrBillParty {
   name: string;
   addressLine1?: string | null;
   addressLine2?: string | null;
+  postalCode?: string | null;
+  town?: string | null;
   country?: string; // ISO 3166-1 alpha-2, defaults to "CH"
+}
+
+interface PartyAddressFields {
+  type: 'S' | 'K';
+  line1: string | null;
+  line2: string | null;
+  postalCode: string | null;
+  town: string | null;
+}
+
+function partyAddressFields(party: QrBillParty): PartyAddressFields {
+  if (party.postalCode?.trim() && party.town?.trim()) {
+    return { type: 'S', line1: party.addressLine1 ?? null, line2: null, postalCode: party.postalCode, town: party.town };
+  }
+  return { type: 'K', line1: party.addressLine1 ?? null, line2: party.addressLine2 ?? null, postalCode: null, town: null };
 }
 
 export interface QrBillData {
@@ -129,18 +147,20 @@ function buildSpcPayload(data: QrBillData): { payload: string; reference: string
   const qrIban = isQrIban(iban);
   const referenceType: 'QRR' | 'NON' = qrIban ? 'QRR' : 'NON';
   const reference = qrIban ? generateQrrReference(data.referenceId) : '';
+  const creditorFields = partyAddressFields(data.creditor);
+  const debtorFields = data.debtor ? partyAddressFields(data.debtor) : null;
 
   const lines: string[] = [
     'SPC', // QRType
     '0200', // Version
     '1', // Coding type: UTF-8
     iban,
-    'K', // Creditor address type: combined (2 free-text lines)
+    creditorFields.type, // Creditor address type: structured ("S") or combined ("K")
     sanitizeSpcField(data.creditor.name, 70),
-    sanitizeSpcField(data.creditor.addressLine1, 70),
-    sanitizeSpcField(data.creditor.addressLine2, 70),
-    '', // Postal code — left blank for combined ("K") addresses
-    '', // Town — left blank for combined ("K") addresses
+    sanitizeSpcField(creditorFields.line1, 70),
+    sanitizeSpcField(creditorFields.line2, 70),
+    sanitizeSpcField(creditorFields.postalCode, 16),
+    sanitizeSpcField(creditorFields.town, 35),
     data.creditor.country ?? 'CH',
     // Ultimate creditor block — deprecated by the spec since 2020, must
     // always be left blank, but it mirrors the Creditor block's own
@@ -160,12 +180,12 @@ function buildSpcPayload(data: QrBillData): { payload: string; reference: string
     '',
     data.amount > 0 ? data.amount.toFixed(2) : '',
     data.currency,
-    data.debtor ? 'K' : '',
+    debtorFields ? debtorFields.type : '',
     data.debtor ? sanitizeSpcField(data.debtor.name, 70) : '',
-    data.debtor ? sanitizeSpcField(data.debtor.addressLine1, 70) : '',
-    data.debtor ? sanitizeSpcField(data.debtor.addressLine2, 70) : '',
-    '',
-    '',
+    debtorFields ? sanitizeSpcField(debtorFields.line1, 70) : '',
+    debtorFields ? sanitizeSpcField(debtorFields.line2, 70) : '',
+    debtorFields ? sanitizeSpcField(debtorFields.postalCode, 16) : '',
+    debtorFields ? sanitizeSpcField(debtorFields.town, 35) : '',
     data.debtor ? data.debtor.country ?? 'CH' : '',
     referenceType,
     reference,
@@ -223,7 +243,8 @@ function drawQrCode(page: PDFPage, payload: string, x: number, y: number, sizePt
 }
 
 function partyLines(party: QrBillParty): string[] {
-  return [party.name, party.addressLine1, party.addressLine2].filter((l): l is string => !!l && l.trim().length > 0);
+  const townLine = party.postalCode?.trim() && party.town?.trim() ? `${party.postalCode} ${party.town}` : null;
+  return [party.name, party.addressLine1, townLine ?? party.addressLine2].filter((l): l is string => !!l && l.trim().length > 0);
 }
 
 // Draws the receipt + payment part (105mm-tall band across the full page

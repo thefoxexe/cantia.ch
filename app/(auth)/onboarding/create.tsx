@@ -21,6 +21,9 @@ export default function CreateOrganizationScreen() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [website, setWebsite] = useState('');
+  const [street, setStreet] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [locality, setLocality] = useState('');
   const [trade, setTrade] = useState<string | null>(null);
   const [logoAsset, setLogoAsset] = useState<{ uri: string; mimeType?: string | null } | null>(null);
   const [brandColor, setBrandColor] = useState(DEFAULT_BRAND_COLOR);
@@ -78,6 +81,9 @@ export default function CreateOrganizationScreen() {
     if (orgId) {
       const updates: Record<string, string | null> = {};
       if (website.trim()) updates.website = website.trim();
+      if (street.trim()) updates.street = street.trim();
+      if (postalCode.trim()) updates.postal_code = postalCode.trim();
+      if (locality.trim()) updates.locality = locality.trim();
       if (HEX_COLOR_RE.test(brandColor) && brandColor.toLowerCase() !== DEFAULT_BRAND_COLOR.toLowerCase()) {
         updates.brand_color = brandColor;
       }
@@ -124,6 +130,22 @@ export default function CreateOrganizationScreen() {
           autoCapitalize="none"
           placeholder="www.entreprise.ch"
         />
+
+        <Field
+          label="Rue et numéro (optionnel)"
+          value={street}
+          onChangeText={setStreet}
+          placeholder="Rue de l'Exemple 1"
+        />
+        <View style={styles.row2}>
+          <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
+            <Field label="NPA" value={postalCode} onChangeText={setPostalCode} keyboardType="number-pad" placeholder="1000" />
+          </View>
+          <View style={styles.row2Item}>
+            <Field label="Localité" value={locality} onChangeText={setLocality} placeholder="Lausanne" />
+          </View>
+        </View>
+        <Text style={styles.hint}>Requis plus tard pour générer des QR-factures conformes — modifiable dans les paramètres.</Text>
 
         <Text style={styles.fieldLabel}>Logo (optionnel)</Text>
         <View style={styles.logoRow}>
@@ -218,6 +240,16 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.sm,
     fontWeight: '500',
+  },
+  row2: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  row2Item: {
+    flexGrow: 1,
+    flexBasis: 160,
   },
   logoRow: {
     flexDirection: 'row',

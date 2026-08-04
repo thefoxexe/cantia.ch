@@ -20,7 +20,9 @@ export default function EntrepriseScreen() {
   const { organization, role, refreshOrganization } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
   const [trade, setTrade] = useState(organization?.trade ?? null);
-  const [address, setAddress] = useState(organization?.address ?? '');
+  const [street, setStreet] = useState(organization?.street ?? '');
+  const [postalCode, setPostalCode] = useState(organization?.postal_code ?? '');
+  const [locality, setLocality] = useState(organization?.locality ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
@@ -40,7 +42,9 @@ export default function EntrepriseScreen() {
     if (!organization) return;
     setName(organization.name);
     setTrade(organization.trade ?? null);
-    setAddress(organization.address ?? '');
+    setStreet(organization.street ?? '');
+    setPostalCode(organization.postal_code ?? '');
+    setLocality(organization.locality ?? '');
     setIdeNumber(organization.ide_number ?? '');
     setPhone(organization.phone ?? '');
     setEmail(organization.email ?? '');
@@ -72,7 +76,9 @@ export default function EntrepriseScreen() {
       .update({
         name: name.trim(),
         trade,
-        address: address.trim() || null,
+        street: street.trim() || null,
+        postal_code: postalCode.trim() || null,
+        locality: locality.trim() || null,
         ide_number: ideNumber.trim() || null,
         phone: phone.trim() || null,
         email: email.trim() || null,
@@ -148,7 +154,34 @@ export default function EntrepriseScreen() {
             </Text>
           ) : null}
 
-          <Field label="Adresse" value={address} onChangeText={setAddress} editable={isAdmin} />
+          <Field
+            label="Rue et numéro"
+            value={street}
+            onChangeText={setStreet}
+            editable={isAdmin}
+            placeholder="Rue de l'Exemple 1"
+          />
+          <View style={styles.row2}>
+            <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
+              <Field label="NPA" value={postalCode} onChangeText={setPostalCode} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
+            </View>
+            <View style={styles.row2Item}>
+              <Field label="Localité" value={locality} onChangeText={setLocality} editable={isAdmin} placeholder="Lausanne" />
+            </View>
+          </View>
+          {organization?.address && !street.trim() ? (
+            <Text style={styles.hint}>
+              Ancienne adresse enregistrée : « {organization.address} ». Merci de la ressaisir ci-dessus au format structuré.
+            </Text>
+          ) : null}
+          {iban.trim() && (!postalCode.trim() || !locality.trim()) ? (
+            <View style={styles.warningBanner}>
+              <Feather name="alert-triangle" size={14} color={colors.accent} />
+              <Text style={styles.warningText}>
+                NPA et localité sont requis pour générer une QR-facture conforme à la norme suisse (adresse structurée).
+              </Text>
+            </View>
+          ) : null}
           <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
           <View style={styles.row2}>
             <View style={styles.row2Item}>
@@ -456,6 +489,21 @@ const styles = StyleSheet.create({
     color: colors.danger,
     marginTop: -spacing.sm,
     marginBottom: spacing.sm,
+  },
+  warningBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
   },
   upsell: {
     alignItems: 'flex-start',

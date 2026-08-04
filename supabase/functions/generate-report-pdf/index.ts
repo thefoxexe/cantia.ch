@@ -18,6 +18,7 @@ import {
   embedImageSmart,
   fetchStorageBytes,
   formatDate,
+  formatOrgAddress,
   logoX,
   pickReadableTextColor,
   resolveBrand,
@@ -105,7 +106,7 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
   }
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
   y -= 14;
-  const contactLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
+  const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
   if (contactLine) {
     drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
     y -= 12;
@@ -214,7 +215,7 @@ async function renderReportModerne(ctx: RenderCtx): Promise<Uint8Array> {
     page.drawImage(logoImg, { x: lx, y: imgY, width: w, height: h });
   }
   drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - shift - 38, fontBold, 14, textOnBrand);
-  const contactLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
+  const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
   if (contactLine) drawText(page, contactLine, MARGIN, PAGE_HEIGHT - shift - 54, font, 8.5, textOnBrand === WHITE ? BAND_MUTED : MUTED);
   drawText(page, 'RAPPORT DE CHANTIER', MARGIN, PAGE_HEIGHT - shift - 84, fontBold, 15, textOnBrand);
 
@@ -424,7 +425,7 @@ async function renderReportStructure(ctx: RenderCtx): Promise<Uint8Array> {
   }
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
   y -= 16;
-  const contactLine = [org?.address, org?.phone, org?.email].filter(Boolean).join(' · ');
+  const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
   if (contactLine) {
     drawText(page, contactLine, MARGIN, y, font, 8.5, MUTED);
     y -= 14;

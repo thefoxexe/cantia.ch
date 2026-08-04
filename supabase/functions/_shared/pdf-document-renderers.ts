@@ -24,6 +24,7 @@ import {
   drawTextRight,
   formatChf,
   formatDate,
+  formatOrgAddress,
   swissRound,
   wrapText,
 } from './pdf-helpers.ts';
@@ -73,7 +74,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
 
   drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 17, brand);
   y -= 16;
-  const orgLine = [org?.address, org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
+  const orgLine = [formatOrgAddress(org), org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
   if (orgLine) {
     drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
     y -= 12;
