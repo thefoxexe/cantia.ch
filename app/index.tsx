@@ -215,6 +215,16 @@ function LandingContent() {
             </Animated.View>
           </View>
 
+          {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
+          <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.spotlight.title}</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.spotlight.subtitle}</Text>
+            <View style={styles.spotlightGrid}>
+              <VoiceDemo copy={t.spotlight.voice} />
+              <QrBillDemo copy={t.spotlight.qrbill} />
+            </View>
+          </Reveal>
+
           {/* ---- Pain points ---- */}
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
@@ -843,6 +853,201 @@ function PhoneCarousel({
   );
 }
 
+type VoiceCopy = { label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
+type QrBillCopy = { label: string; title: string; text: string; badge: string };
+
+// A small looping demo, not a real transcription — it alternates between a
+// "listening" view (pulsing mic + animated waveform bars + the transcript
+// fading in) and a "result" view (the same text resolved into structured
+// devis lines), crossfading between the two every ~3s. Purely illustrative:
+// this is what the real in-app dictation produces, not a live recording.
+function VoiceDemo({ copy }: { copy: VoiceCopy }) {
+  const [phase, setPhase] = useState<'listening' | 'result'>('listening');
+  const fade = useRef(new Animated.Value(1)).current;
+  const barAnims = useRef(Array.from({ length: 5 }, () => new Animated.Value(0.3))).current;
+  const micPulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    let mounted = true;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const cycle = () => {
+      timeoutId = setTimeout(() => {
+        if (!mounted) return;
+        Animated.timing(fade, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => {
+          if (!mounted) return;
+          setPhase((p) => (p === 'listening' ? 'result' : 'listening'));
+          Animated.timing(fade, { toValue: 1, duration: 260, useNativeDriver: true }).start(() => {
+            if (mounted) cycle();
+          });
+        });
+      }, 2400);
+    };
+    cycle();
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [fade]);
+
+  useEffect(() => {
+    const loops = barAnims.map((v, i) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(v, { toValue: 1, duration: 380 + i * 55, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(v, { toValue: 0.25, duration: 380 + i * 55, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        ]),
+      ),
+    );
+    loops.forEach((l) => l.start());
+    return () => loops.forEach((l) => l.stop());
+  }, [barAnims]);
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(micPulse, { toValue: 1, duration: 1000, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(micPulse, { toValue: 0, duration: 0, useNativeDriver: true }),
+        Animated.delay(200),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [micPulse]);
+
+  return (
+    <View style={styles.demoCard}>
+      <View style={styles.demoLabelRow}>
+        <View style={styles.demoDot} />
+        <Text style={styles.demoLabel}>{copy.label}</Text>
+      </View>
+      <Animated.View style={{ opacity: fade, minHeight: 168 }}>
+        {phase === 'listening' ? (
+          <View>
+            <View style={styles.micWrap}>
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.micPulseRing,
+                  {
+                    opacity: micPulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] }),
+                    transform: [{ scale: micPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }],
+                  },
+                ]}
+              />
+              <View style={styles.micCircle}>
+                <Feather name="mic" size={18} color="#fff" />
+              </View>
+              <Text style={styles.voiceListeningText}>{copy.listening}</Text>
+            </View>
+            <View style={styles.waveform}>
+              {barAnims.map((v, i) => (
+                <Animated.View key={i} style={[styles.waveBar, { transform: [{ scaleY: v }] }]} />
+              ))}
+            </View>
+            <Text style={styles.voiceTranscript} numberOfLines={3}>
+              {copy.transcript}
+            </Text>
+          </View>
+        ) : (
+          <View>
+            <View style={styles.voiceResultHeader}>
+              <Feather name="check-circle" size={16} color={colors.success} />
+              <Text style={styles.voiceResultTitle}>{copy.resultTitle}</Text>
+            </View>
+            {copy.resultLines.map((line) => (
+              <View key={line} style={styles.voiceResultLine}>
+                <Feather name="check" size={12} color={colors.primary} />
+                <Text style={styles.voiceResultLineText}>{line}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </Animated.View>
+      <Text style={styles.demoCaption}>{copy.caption}</Text>
+    </View>
+  );
+}
+
+// Purely decorative fixed pattern — not a scannable code, just enough of a
+// QR "look" (finder squares + noise) to read instantly as a QR code, plus
+// the mandatory Swiss cross badge at its center like the real bulletin.
+const QR_PATTERN = [
+  1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1,
+  1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1,
+  1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1,
+  1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1,
+  1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1,
+  1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1,
+  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+  1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0,
+  0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1,
+  1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0,
+  1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1,
+  1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1,
+  1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0,
+];
+
+function QrGrid() {
+  return (
+    <View style={styles.qrGrid}>
+      {QR_PATTERN.map((on, i) => (
+        <View key={i} style={[styles.qrCell, on ? styles.qrCellOn : null]} />
+      ))}
+      <View style={styles.qrCrossBox}>
+        <View style={styles.qrCrossV} />
+        <View style={styles.qrCrossH} />
+      </View>
+    </View>
+  );
+}
+
+// A slow vertical sweep behind the QR grid, looping — the only motion this
+// card needs to read as "live"/scannable rather than a static screenshot.
+function QrBillDemo({ copy }: { copy: QrBillCopy }) {
+  const sweep = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(sweep, { toValue: 1, duration: 1900, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(sweep, { toValue: 0, duration: 0, useNativeDriver: true }),
+        Animated.delay(600),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [sweep]);
+
+  return (
+    <View style={styles.demoCard}>
+      <View style={styles.demoLabelRow}>
+        <View style={styles.demoDot} />
+        <Text style={styles.demoLabel}>{copy.label}</Text>
+      </View>
+      <View style={styles.qrDemoRow}>
+        <View style={styles.qrVisualClip}>
+          <QrGrid />
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.qrSweep,
+              { transform: [{ translateY: sweep.interpolate({ inputRange: [0, 1], outputRange: [-58, 58] }) }] },
+            ]}
+          />
+        </View>
+        <View style={styles.qrDemoCopy}>
+          <Text style={styles.qrDemoTitle}>{copy.title}</Text>
+          <Text style={styles.qrDemoText}>{copy.text}</Text>
+          <View style={styles.qrBadge}>
+            <Feather name="shield" size={12} color={colors.success} />
+            <Text style={styles.qrBadgeText}>{copy.badge}</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   stage: {
     flex: 1,
@@ -1233,6 +1438,214 @@ const styles = StyleSheet.create({
   centerText: {
     textAlign: 'center',
     alignSelf: 'center',
+  },
+  spotlightGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: spacing.lg,
+  },
+  demoCard: {
+    flex: 1,
+    minWidth: 320,
+    maxWidth: 480,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  demoLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: spacing.md,
+  },
+  demoDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  demoLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  demoCaption: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.md,
+    lineHeight: 17,
+  },
+  micWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  micPulseRing: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+  },
+  micCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceListeningText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  waveform: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    height: 28,
+    marginBottom: spacing.md,
+  },
+  waveBar: {
+    width: 4,
+    height: 24,
+    borderRadius: 2,
+    backgroundColor: colors.primary,
+    opacity: 0.85,
+  },
+  voiceTranscript: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    lineHeight: 19,
+  },
+  voiceResultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: spacing.sm,
+  },
+  voiceResultTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  voiceResultLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 4,
+  },
+  voiceResultLineText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  qrDemoRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  qrVisualClip: {
+    width: 78,
+    height: 78,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  qrGrid: {
+    width: 78,
+    height: 78,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  qrCell: {
+    width: 6,
+    height: 6,
+    backgroundColor: '#fff',
+  },
+  qrCellOn: {
+    backgroundColor: '#14231f',
+  },
+  qrCrossBox: {
+    position: 'absolute',
+    left: 30,
+    top: 30,
+    width: 18,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: '#fff',
+  },
+  qrCrossV: {
+    position: 'absolute',
+    left: 7,
+    top: 2,
+    width: 4,
+    height: 14,
+    backgroundColor: '#14231f',
+  },
+  qrCrossH: {
+    position: 'absolute',
+    left: 2,
+    top: 7,
+    width: 14,
+    height: 4,
+    backgroundColor: '#14231f',
+  },
+  qrSweep: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 24,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  qrDemoCopy: {
+    flex: 1,
+    minWidth: 160,
+  },
+  qrDemoTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  qrDemoText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 19,
+    marginBottom: spacing.sm,
+  },
+  qrBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  qrBadgeText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.success,
   },
   painGrid: {
     flexDirection: 'row',

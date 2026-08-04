@@ -18,6 +18,12 @@ interface FeatureItem {
 interface Dict {
   nav: { services: string; pricing: string; login: string; cta: string };
   hero: { kicker: string; headline: string; subheadline: string; cta1: string; cta2: string };
+  spotlight: {
+    title: string;
+    subtitle: string;
+    voice: { label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
+    qrbill: { label: string; title: string; text: string; badge: string };
+  };
   showcase: {
     title: string;
     subtitle: string;
@@ -67,6 +73,24 @@ const fr: Dict = {
       'Cantia regroupe vos rapports de chantier, vos devis et vos documents en un seul endroit. Vous saisissez une fois, sur le terrain, et tout est mis en forme automatiquement.',
     cta1: 'Créer mon compte gratuitement',
     cta2: 'Se connecter',
+  },
+  spotlight: {
+    title: 'La technologie qui change tout',
+    subtitle: 'Deux automatisations que personne d’autre ne propose en Suisse.',
+    voice: {
+      label: 'Dictée vocale',
+      listening: 'Écoute en cours…',
+      transcript: 'Façade nord, 12 mètres carrés de crépi à refaire, plus fourniture et pose de 3 fenêtres PVC…',
+      resultTitle: 'Devis généré automatiquement',
+      resultLines: ['Crépi façade nord — 12 m²', 'Fenêtre PVC (fourniture + pose) — 3 pce', 'Total calculé avec TVA'],
+      caption: 'Parlez, Cantia rédige. Votre devis est prêt avant même d’avoir quitté le chantier.',
+    },
+    qrbill: {
+      label: 'QR-facture suisse',
+      title: 'Payable en un scan',
+      text: 'Chaque facture inclut automatiquement le bulletin de versement QR suisse, prêt à être scanné depuis n’importe quelle appli bancaire.',
+      badge: 'Conforme norme SIX',
+    },
   },
   showcase: {
     title: 'Cantia, concrètement',
@@ -227,6 +251,24 @@ const en: Dict = {
     cta1: 'Create my free account',
     cta2: 'Log in',
   },
+  spotlight: {
+    title: 'Technology that changes everything',
+    subtitle: 'Two automations nobody else offers in Switzerland.',
+    voice: {
+      label: 'Voice dictation',
+      listening: 'Listening…',
+      transcript: 'North facade, 12 square metres of render to redo, plus supply and fit 3 PVC windows…',
+      resultTitle: 'Quote generated automatically',
+      resultLines: ['Render, north facade — 12 m²', 'PVC window (supply + fit) — 3 pcs', 'Total calculated with VAT'],
+      caption: 'Speak, Cantia writes it down. Your quote is ready before you’ve even left the site.',
+    },
+    qrbill: {
+      label: 'Swiss QR-bill',
+      title: 'Payable in one scan',
+      text: 'Every invoice automatically includes the Swiss QR payment slip, ready to scan from any banking app.',
+      badge: 'SIX-standard compliant',
+    },
+  },
   showcase: {
     title: 'Cantia, up close',
     subtitle: 'From the site feed to the finished document, without retyping anything.',
@@ -385,6 +427,24 @@ const de: Dict = {
       'Cantia bündelt Ihre Baustellenrapporte, Offerten und Dokumente an einem Ort. Sie erfassen alles einmal, direkt vor Ort, und es wird automatisch aufbereitet.',
     cta1: 'Kostenloses Konto erstellen',
     cta2: 'Anmelden',
+  },
+  spotlight: {
+    title: 'Technologie, die alles verändert',
+    subtitle: 'Zwei Automatisierungen, die sonst niemand in der Schweiz bietet.',
+    voice: {
+      label: 'Sprachdiktat',
+      listening: 'Höre zu…',
+      transcript: 'Nordfassade, 12 Quadratmeter Verputz erneuern, plus Lieferung und Montage von 3 PVC-Fenstern…',
+      resultTitle: 'Offerte automatisch erstellt',
+      resultLines: ['Verputz Nordfassade — 12 m²', 'PVC-Fenster (Lieferung + Montage) — 3 Stk.', 'Summe inkl. MWST berechnet'],
+      caption: 'Sprechen Sie, Cantia schreibt mit. Ihre Offerte ist fertig, bevor Sie die Baustelle verlassen.',
+    },
+    qrbill: {
+      label: 'Schweizer QR-Rechnung',
+      title: 'Zahlbar mit einem Scan',
+      text: 'Jede Rechnung enthält automatisch den Schweizer QR-Einzahlungsschein, bereit zum Scannen mit jeder Banking-App.',
+      badge: 'SIX-konform',
+    },
   },
   showcase: {
     title: 'Cantia im Detail',
