@@ -199,6 +199,7 @@ export default function NewDevisScreen() {
                     <View style={styles.suggestionChips}>
                       {matches.map((m) => (
                         <Pressable key={m.description} style={styles.suggestionChip} onPress={() => applyMatch(i, m)}>
+                          <Text style={styles.suggestionMatch}>{Math.round(m.score * 100)}%</Text>
                           <Text style={styles.suggestionText} numberOfLines={1}>
                             {m.description}
                           </Text>
@@ -341,6 +342,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 5,
+  },
+  suggestionMatch: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    overflow: 'hidden',
   },
   suggestionText: {
     fontSize: fontSize.xs,
