@@ -300,12 +300,15 @@ function LandingContent() {
                     onPress={() => setExpandedFeature(expanded ? null : i)}
                   >
                     <View style={styles.featureCardHeader}>
-                      <View style={styles.featureIcon}>
-                        <Feather name={FEATURE_ICONS[i]} size={20} color={colors.primary} />
-                      </View>
+                      <Text style={styles.featureIndex}>{String(i + 1).padStart(2, '0')}</Text>
                       <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                     </View>
-                    <Text style={styles.featureTitle}>{f.title}</Text>
+                    <View style={styles.featureIconRow}>
+                      <View style={styles.featureIcon}>
+                        <Feather name={FEATURE_ICONS[i]} size={18} color={i % 2 === 0 ? colors.primary : colors.accent} />
+                      </View>
+                      <Text style={styles.featureTitle}>{f.title}</Text>
+                    </View>
                     <Text style={styles.featureText}>{f.text}</Text>
                     {expanded ? (
                       <View style={styles.featureDetail}>
@@ -770,16 +773,16 @@ function DashboardMockup({ width, height, lang }: { width: number; height: numbe
         <Text style={styles.previewGreeting}>{copy.greeting}</Text>
         <Text style={styles.previewOrg}>Dupont Serrurerie Sàrl</Text>
         <View style={styles.previewStatsRow}>
-          <View style={styles.previewStat}>
-            <Text style={styles.previewStatValue}>12</Text>
+          <View style={[styles.previewStat, { backgroundColor: colors.surfaceAlt }]}>
+            <Text style={[styles.previewStatValue, { color: colors.text }]}>12</Text>
             <Text style={styles.previewStatLabel}>{copy.sites}</Text>
           </View>
-          <View style={styles.previewStat}>
-            <Text style={styles.previewStatValue}>34</Text>
+          <View style={[styles.previewStat, { backgroundColor: colors.primarySoft }]}>
+            <Text style={[styles.previewStatValue, { color: colors.primary }]}>34</Text>
             <Text style={styles.previewStatLabel}>{copy.reports}</Text>
           </View>
-          <View style={styles.previewStat}>
-            <Text style={styles.previewStatValue}>7</Text>
+          <View style={[styles.previewStat, { backgroundColor: colors.surfaceAlt }]}>
+            <Text style={[styles.previewStatValue, { color: colors.text }]}>7</Text>
             <Text style={styles.previewStatLabel}>{copy.devis}</Text>
           </View>
         </View>
@@ -1333,7 +1336,7 @@ const styles = StyleSheet.create({
     height: 420,
     borderRadius: 210,
     backgroundColor: colors.primarySoft,
-    opacity: 0.7,
+    opacity: 0.35,
   },
   heroBlobB: {
     position: 'absolute',
@@ -1343,7 +1346,7 @@ const styles = StyleSheet.create({
     height: 320,
     borderRadius: 160,
     backgroundColor: colors.accentSoft,
-    opacity: 0.5,
+    opacity: 0.25,
   },
   hero: {
     maxWidth: 1080,
@@ -1366,7 +1369,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
@@ -1406,7 +1409,11 @@ const styles = StyleSheet.create({
   },
   phoneFrame: {
     alignSelf: 'center',
-    backgroundColor: colors.primaryDark,
+    // A real device bezel reads as neutral/near-black, not brand-colored —
+    // keeping this on colors.text (dark ink) instead of primaryDark stops
+    // the hero from being wall-to-wall orange (chip + blobs + bezel + stat
+    // cards all competing for the same accent).
+    backgroundColor: colors.text,
     shadowColor: '#000',
     shadowOpacity: 0.22,
     shadowRadius: 44,
@@ -1713,7 +1720,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   qrCellOn: {
-    backgroundColor: '#14231f',
+    backgroundColor: colors.text,
   },
   qrCrossBox: {
     position: 'absolute',
@@ -1730,7 +1737,7 @@ const styles = StyleSheet.create({
     top: 2,
     width: 4,
     height: 14,
-    backgroundColor: '#14231f',
+    backgroundColor: colors.text,
   },
   qrCrossH: {
     position: 'absolute',
@@ -1738,7 +1745,7 @@ const styles = StyleSheet.create({
     top: 7,
     width: 14,
     height: 4,
-    backgroundColor: '#14231f',
+    backgroundColor: colors.text,
   },
   qrSweep: {
     position: 'absolute',
@@ -1861,33 +1868,31 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 20,
   },
+  // A bordered, numbered "spec sheet" grid instead of the generic
+  // rounded-card-with-shadow look every SaaS landing page uses — rows share
+  // rules instead of each floating in its own soft-shadow box, which reads
+  // as more deliberate/edited rather than a stock component library.
   featureGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.lg,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: colors.border,
   },
   featureCard: {
-    width: 320,
+    width: '50%',
+    minWidth: 300,
     flexGrow: 1,
-    padding: spacing.lg,
-    borderRadius: radius.xl,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
+    padding: spacing.xl,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
+    backgroundColor: colors.surface,
   },
   featureCardHovered: {
-    borderColor: colors.primary,
-    shadowOpacity: 0.13,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    transform: [{ translateY: -3 }],
+    backgroundColor: colors.surfaceAlt,
   },
   featureCardActive: {
-    borderColor: colors.primary,
     backgroundColor: colors.primarySoft,
   },
   featureCardHeader: {
@@ -1896,11 +1901,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
+  featureIndex: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.textMuted,
+    letterSpacing: 1.5,
+  },
+  featureIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
   featureIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1908,7 +1925,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.xs,
   },
   featureText: {
     fontSize: fontSize.sm,
