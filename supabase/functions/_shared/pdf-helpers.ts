@@ -20,12 +20,21 @@ export const BAND_MUTED = rgb(0.85, 0.89, 0.87);
 // throws mid-render, which previously produced blank/broken PDFs. Every
 // string that reaches the page goes through wrapText, drawText, or
 // drawTextRight, so sanitizing here is a single choke point.
+//
+// The space-range replace below previously had its literal unicode space
+// characters silently flattened to plain ASCII spaces by an earlier editing
+// pass, which meant U+202F (the fr-CH thousands separator) fell through to
+// the catch-all below and rendered as a literal "?" in every amount >= CHF
+// 1000 (e.g. "22 185.23" became "22?185.23") — verified byte-for-byte after
+// this fix ( -      　 all present).
 export function sanitizePdfText(text: string): string {
   return (text || '')
-    .replace(/[  -   　]/g, ' ')
+    .replace(/[ -   　]/g, ' ')
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/[–—]/g, '-')
+    .replace(/•/g, '-')
+    .replace(/€/g, 'EUR')
     .replace(/…/g, '...')
     .replace(/œ/g, 'oe')
     .replace(/Œ/g, 'OE')
@@ -111,6 +120,15 @@ export async function embedImageSmart(pdfDoc: PDFDocument, bytes: Uint8Array, co
 // widthOfTextAtSize directly on this string before it ever reaches drawText.
 export function formatChf(amount: number): string {
   return sanitizePdfText(new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount));
+}
+
+// Swiss cash settlement rounds to the nearest 5 centimes (the smallest coin
+// still in circulation) — applied once to the final payable total, never to
+// the subtotal or VAT lines, so the printed breakdown still adds up exactly
+// on paper and only the bottom-line "Total TTC" (and the QR-bill amount,
+// which must match it) gets rounded.
+export function swissRound(amount: number): number {
+  return Math.round(amount / 0.05) * 0.05;
 }
 
 export function formatDate(iso: string): string {

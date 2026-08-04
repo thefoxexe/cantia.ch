@@ -21,6 +21,7 @@ import {
   formatChf,
   formatDate,
   hexToRgb,
+  swissRound,
   wrapText,
   type PdfBlock,
   type PdfBlockBinding,
@@ -326,7 +327,7 @@ export async function drawCustomLayout(kind: 'devis' | 'report', blocks: PdfBloc
       }
 
       const vat = subtotal * (Number(doc.vat_rate) / 100);
-      const total = subtotal + vat;
+      const total = swissRound(subtotal + vat);
       const totalsX = totalsBlock?.x ?? colPrice - 60;
       const totalsRight = totalsBlock ? totalsBlock.x + totalsBlock.width : colTotal;
       const totalsLine = (label: string, value: string, bold = false, size = 10.5) => {

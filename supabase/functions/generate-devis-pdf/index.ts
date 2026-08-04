@@ -9,6 +9,7 @@ import {
   resolveFooterText,
   resolveLogoPlacement,
   resolvePdfTemplate,
+  swissRound,
 } from '../_shared/pdf-helpers.ts';
 import { drawCustomLayout } from '../_shared/pdf-blocks.ts';
 import { appendQrBillPage, isValidSwissIban } from '../_shared/qrbill.ts';
@@ -121,7 +122,7 @@ Deno.serve(async (req: Request) => {
         const itemsList = items ?? [];
         const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
         const vat = subtotal * (Number(devis.vat_rate) / 100);
-        const total = subtotal + vat;
+        const total = swissRound(subtotal + vat);
         await appendQrBillPage(pdfDoc, font, fontBold, {
           iban: org.iban,
           creditor: { name: org.name ?? 'Entreprise', addressLine1: org.address ?? null },

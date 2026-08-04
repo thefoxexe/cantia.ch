@@ -23,6 +23,7 @@ import {
   formatChf,
   formatDate,
   logoX,
+  swissRound,
   wrapText,
   type LogoPlacement,
 } from './pdf-helpers.ts';
@@ -180,7 +181,7 @@ function renderClassic(ctx: RenderCtx): RenderResult {
   if (y < MARGIN + 100) newPage();
 
   const vat = subtotal * (Number(devis.vat_rate) / 100);
-  const total = subtotal + vat;
+  const total = swissRound(subtotal + vat);
 
   drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
   y -= 15;
@@ -311,7 +312,7 @@ function renderModerne(ctx: RenderCtx): RenderResult {
   if (y < MARGIN + 120) newPage();
 
   const vat = subtotal * (Number(devis.vat_rate) / 100);
-  const total = subtotal + vat;
+  const total = swissRound(subtotal + vat);
 
   drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
   y -= 16;
@@ -425,7 +426,7 @@ function renderMinimal(ctx: RenderCtx): RenderResult {
   if (y < MARGIN + 100) newPage();
 
   const vat = subtotal * (Number(devis.vat_rate) / 100);
-  const total = subtotal + vat;
+  const total = swissRound(subtotal + vat);
 
   drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
   y -= 16;
@@ -582,7 +583,7 @@ function renderStructure(ctx: RenderCtx): RenderResult {
   if (y < MARGIN + 110) newPage();
 
   const vat = subtotal * (Number(devis.vat_rate) / 100);
-  const total = subtotal + vat;
+  const total = swissRound(subtotal + vat);
 
   drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
   y -= 15;
