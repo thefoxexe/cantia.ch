@@ -27,6 +27,7 @@ import { getSignedUrls } from '../lib/api/storage';
 import { addNoteEntry, addPhotoEntry, addVoiceEntry, generateReportFromFeed, listFeedEntries } from '../lib/api/feed';
 import { captureLocation, exifCoords, exifTakenAt } from '../lib/geo';
 import { useVoiceRecorder } from '../lib/useVoiceRecorder';
+import { useDictation } from '../lib/useDictation';
 import {
   enqueuePhoto,
   flushPhotoQueue,
@@ -254,6 +255,28 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   function cancelVoiceRecording() {
     voiceRecorder.cancel();
+  }
+
+  // Distinct from startVoiceRecording above: that one records and uploads a
+  // voice-note attachment, this one transcribes speech straight into the
+  // text composer (like the "Dicter" button in devis/rapport). Text present
+  // before dictation started is kept, the live transcript is appended.
+  const textDictationBaseRef = useRef('');
+  const textDictation = useDictation((sessionTranscript) => {
+    const base = textDictationBaseRef.current;
+    setText(base + (base && sessionTranscript ? ' ' : '') + sessionTranscript);
+  });
+
+  async function toggleTextDictation() {
+    if (textDictation.listening) {
+      textDictation.stop();
+      return;
+    }
+    textDictationBaseRef.current = text;
+    const started = await textDictation.start('fr-FR');
+    if (!started) {
+      Alert.alert('Permission requise', 'Autorisez l’accès au microphone pour dicter.');
+    }
   }
 
   async function stopAndSendVoice() {
@@ -797,6 +820,15 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                 <Pressable style={styles.composerIconButton} onPress={startVoiceRecording} disabled={sending}>
                   <Feather name="mic" size={18} color={colors.text} />
                 </Pressable>
+                {textDictation.supported ? (
+                  <Pressable
+                    style={[styles.composerIconButton, textDictation.listening && styles.composerIconButtonActive]}
+                    onPress={toggleTextDictation}
+                    disabled={sending}
+                  >
+                    <Feather name="type" size={18} color={textDictation.listening ? '#fff' : colors.text} />
+                  </Pressable>
+                ) : null}
                 <Pressable
                   style={[styles.composerSend, (!text.trim() || sending) && styles.composerSendDisabled]}
                   onPress={sendNote}
@@ -1225,6 +1257,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surfaceAlt,
+  },
+  composerIconButtonActive: {
+    backgroundColor: colors.danger,
   },
   composerSend: {
     width: 34,

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -9,6 +9,9 @@ import { FeatureHint } from '../../../components/FeatureHint';
 import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { buildCatalog, findMatches, type CatalogEntry } from '../../../lib/catalog';
+import { useDictation } from '../../../lib/useDictation';
+
+type DictationTarget = { type: 'notes' } | { type: 'line'; index: number };
 
 interface Line {
   description: string;
@@ -67,6 +70,37 @@ export default function NewDevisScreen() {
 
   function removeLine(index: number) {
     setLines((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  // Which field a dictation session is currently feeding, and that field's
+  // text as it stood before the session started — the live transcript is
+  // appended after it rather than overwriting anything already typed.
+  const [dictationTarget, setDictationTarget] = useState<DictationTarget | null>(null);
+  const dictationBaseRef = useRef('');
+  const dictation = useDictation((sessionTranscript) => {
+    const base = dictationBaseRef.current;
+    const merged = base + (base && sessionTranscript ? ' ' : '') + sessionTranscript;
+    if (dictationTarget?.type === 'notes') setNotes(merged);
+    else if (dictationTarget?.type === 'line') updateLine(dictationTarget.index, { description: merged });
+  });
+
+  async function toggleDictation(target: DictationTarget) {
+    if (dictation.listening) {
+      dictation.stop();
+      return;
+    }
+    dictationBaseRef.current = target.type === 'notes' ? notes : lines[target.index].description;
+    setDictationTarget(target);
+    const started = await dictation.start('fr-FR');
+    if (!started) {
+      Alert.alert('Permission requise', 'Autorisez l’accès au microphone pour dicter.');
+    }
+  }
+
+  function isDictating(target: DictationTarget) {
+    if (!dictation.listening || !dictationTarget) return false;
+    if (target.type === 'notes') return dictationTarget.type === 'notes';
+    return dictationTarget.type === 'line' && dictationTarget.index === target.index;
   }
 
   const total = lines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
@@ -160,7 +194,22 @@ export default function NewDevisScreen() {
             autoCapitalize="none"
           />
 
-          <Text style={styles.fieldLabel}>Notes de rendez-vous</Text>
+          <View style={styles.notesLabelRow}>
+            <Text style={styles.fieldLabel}>Notes de rendez-vous</Text>
+            {dictation.supported ? (
+              <Pressable
+                onPress={() => toggleDictation({ type: 'notes' })}
+                style={[styles.dictateButton, isDictating({ type: 'notes' }) && styles.dictateButtonActive]}
+              >
+                <Feather name="mic" size={13} color={isDictating({ type: 'notes' }) ? '#fff' : colors.primary} />
+                <Text
+                  style={[styles.dictateButtonText, isDictating({ type: 'notes' }) && styles.dictateButtonTextActive]}
+                >
+                  {isDictating({ type: 'notes' }) ? 'Écoute…' : 'Dicter'}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
           <TextInput
             style={styles.notes}
             value={notes}
@@ -179,11 +228,36 @@ export default function NewDevisScreen() {
               <View key={i} style={styles.lineCard}>
                 <View style={styles.lineCardHeader}>
                   <Text style={styles.lineIndex}>Ligne {i + 1}</Text>
-                  {lines.length > 1 ? (
-                    <Pressable onPress={() => removeLine(i)} hitSlop={8}>
-                      <Feather name="trash-2" size={16} color={colors.textMuted} />
-                    </Pressable>
-                  ) : null}
+                  <View style={styles.lineCardHeaderActions}>
+                    {dictation.supported ? (
+                      <Pressable
+                        onPress={() => toggleDictation({ type: 'line', index: i })}
+                        style={[
+                          styles.dictateButton,
+                          isDictating({ type: 'line', index: i }) && styles.dictateButtonActive,
+                        ]}
+                      >
+                        <Feather
+                          name="mic"
+                          size={13}
+                          color={isDictating({ type: 'line', index: i }) ? '#fff' : colors.primary}
+                        />
+                        <Text
+                          style={[
+                            styles.dictateButtonText,
+                            isDictating({ type: 'line', index: i }) && styles.dictateButtonTextActive,
+                          ]}
+                        >
+                          {isDictating({ type: 'line', index: i }) ? 'Écoute…' : 'Dicter'}
+                        </Text>
+                      </Pressable>
+                    ) : null}
+                    {lines.length > 1 ? (
+                      <Pressable onPress={() => removeLine(i)} hitSlop={8}>
+                        <Feather name="trash-2" size={16} color={colors.textMuted} />
+                      </Pressable>
+                    ) : null}
+                  </View>
                 </View>
                 <TextInput
                   style={styles.lineDesc}
@@ -274,6 +348,34 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
     fontWeight: '500',
   },
+  notesLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dictateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    marginBottom: spacing.xs,
+  },
+  dictateButtonActive: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
+  },
+  dictateButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  dictateButtonTextActive: {
+    color: '#fff',
+  },
   notes: {
     minHeight: 80,
     borderWidth: 1,
@@ -305,6 +407,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.xs,
+  },
+  lineCardHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   lineIndex: {
     fontSize: fontSize.xs,
