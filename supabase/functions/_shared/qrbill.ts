@@ -142,8 +142,16 @@ function buildSpcPayload(data: QrBillData): { payload: string; reference: string
     '', // Postal code — left blank for combined ("K") addresses
     '', // Town — left blank for combined ("K") addresses
     data.creditor.country ?? 'CH',
-    // Ultimate creditor block (6 fields) — deprecated by the spec since
-    // 2020, must always be left blank.
+    // Ultimate creditor block — deprecated by the spec since 2020, must
+    // always be left blank, but it mirrors the Creditor block's own
+    // structure exactly: 7 fields (address type, name, 2 address lines,
+    // postal code, town, country), not 6. This block previously had only 6
+    // blank fields, which silently shifted every field after it (amount,
+    // currency, debtor block, reference, message) out of position — the QR
+    // still scanned as *a* QR code, but a banking app's strict SPC parser
+    // would reject the misaligned payload outright, which is almost
+    // certainly why real banking apps couldn't read a generated bill.
+    '',
     '',
     '',
     '',
