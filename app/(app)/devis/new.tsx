@@ -464,6 +464,15 @@ export default function NewDevisScreen() {
           <Text style={styles.total}>Total HT estimé : CHF {total.toFixed(2)}</Text>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error?.includes('plan payant') ? (
+            <Button
+              title="Passer à un plan payant"
+              icon="arrow-up-circle"
+              variant="secondary"
+              onPress={() => router.push('/(app)/compte/facturation')}
+              style={{ marginTop: spacing.sm }}
+            />
+          ) : null}
 
           <Button title="Créer le devis" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>

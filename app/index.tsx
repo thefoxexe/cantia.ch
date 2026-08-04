@@ -370,7 +370,14 @@ function LandingContent() {
                       text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
                     />
                     <PriceFeature text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
-                    <PriceFeature text={t.pricing.unlimited} />
+                    <PriceFeature
+                      text={
+                        p.max_devis_factures_per_month
+                          ? `${p.max_devis_factures_per_month} devis/factures par mois`
+                          : t.pricing.unlimited
+                      }
+                      muted={!!p.max_devis_factures_per_month}
+                    />
                     <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
                   </View>
                   <Link href={authHref('signup')} asChild>

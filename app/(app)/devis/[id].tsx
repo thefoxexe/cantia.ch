@@ -152,6 +152,15 @@ export default function DevisDetailScreen() {
         </Card>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error?.includes('plan payant') ? (
+          <Button
+            title="Passer à un plan payant"
+            icon="arrow-up-circle"
+            variant="secondary"
+            onPress={() => router.push('/(app)/compte/facturation')}
+            style={{ marginTop: spacing.sm }}
+          />
+        ) : null}
 
         <Button
           title={devis.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}

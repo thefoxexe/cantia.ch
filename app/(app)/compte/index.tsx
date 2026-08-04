@@ -137,7 +137,7 @@ function StorageBar({ planName, usedBytes, quotaBytes }: { planName: string | nu
   const nearLimit = ratio >= 0.9;
 
   return (
-    <Pressable onPress={() => router.push('/(app)/compte/facturation')}>
+    <Pressable onPress={() => router.push('/(app)/compte/stockage')}>
       <Card style={styles.storageCard}>
         <View style={styles.storageHeader}>
           <Text style={styles.storageTitle}>Stockage{planName ? ` · Plan ${planName}` : ''}</Text>

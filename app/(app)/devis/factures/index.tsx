@@ -11,6 +11,11 @@ import type { Facture } from '../../../../lib/types';
 
 type FilterKey = 'all' | 'overdue' | 'pending' | 'paid' | 'draft';
 
+// The reminder edge function (send-facture-reminder) is fully wired, but
+// the Resend sending domain isn't finalized on the account yet — flipping
+// this back to true is the only change needed once it is.
+const REMINDERS_ENABLED = false;
+
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -221,6 +226,7 @@ export default function FacturesListScreen() {
           renderItem={({ item }) => {
             const overdue = isOverdue(item);
             const canRemind = isAdmin && item.status === 'sent' && !!item.client_email;
+            const showRemindRow = isAdmin && item.status === 'sent';
             const amount = totals[item.id] ?? 0;
             return (
               <Card style={styles.card}>
@@ -240,7 +246,7 @@ export default function FacturesListScreen() {
                   </View>
                   <Feather name="chevron-right" size={18} color={colors.textMuted} />
                 </Pressable>
-                {canRemind ? (
+                {REMINDERS_ENABLED && canRemind ? (
                   <View style={styles.remindRow}>
                     {item.last_reminded_at ? (
                       <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at)}</Text>
@@ -261,6 +267,14 @@ export default function FacturesListScreen() {
                         </>
                       )}
                     </Pressable>
+                  </View>
+                ) : !REMINDERS_ENABLED && showRemindRow ? (
+                  <View style={styles.remindRow}>
+                    <Text style={styles.remindHint}>Relance par e-mail</Text>
+                    <View style={styles.remindSoonBadge}>
+                      <Feather name="clock" size={11} color={colors.textMuted} />
+                      <Text style={styles.remindSoonText}>Bientôt disponible</Text>
+                    </View>
                   </View>
                 ) : null}
               </Card>
@@ -472,5 +486,19 @@ const styles = StyleSheet.create({
   },
   remindButtonTextUrgent: {
     color: '#fff',
+  },
+  remindSoonBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    backgroundColor: colors.border,
+  },
+  remindSoonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
   },
 });
