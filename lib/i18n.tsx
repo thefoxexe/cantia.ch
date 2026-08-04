@@ -17,12 +17,13 @@ interface FeatureItem {
 
 interface Dict {
   nav: { services: string; pricing: string; login: string; cta: string };
-  hero: { kicker: string; headline: string; subheadline: string; cta1: string; cta2: string };
+  hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string };
   spotlight: {
     title: string;
     subtitle: string;
     voice: { label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
     qrbill: { label: string; title: string; text: string; badge: string };
+    catalog: { label: string; title: string; text: string; items: { name: string; match: number }[] };
   };
   showcase: {
     title: string;
@@ -68,7 +69,8 @@ const fr: Dict = {
   nav: { services: 'Services', pricing: 'Tarifs', login: 'Se connecter', cta: 'Essayer gratuitement' },
   hero: {
     kicker: 'Pour les entreprises du bâtiment en Suisse',
-    headline: 'Moins de temps sur l’administratif, plus de temps sur le chantier',
+    headlinePrefix: 'Moins de temps sur l’administratif,',
+    headlineHighlight: 'plus de temps sur le chantier',
     subheadline:
       'Cantia regroupe vos rapports de chantier, vos devis et vos documents en un seul endroit. Vous saisissez une fois, sur le terrain, et tout est mis en forme automatiquement.',
     cta1: 'Créer mon compte gratuitement',
@@ -76,7 +78,7 @@ const fr: Dict = {
   },
   spotlight: {
     title: 'La technologie qui change tout',
-    subtitle: 'Deux automatisations que personne d’autre ne propose en Suisse.',
+    subtitle: 'Des automatisations que personne d’autre ne propose en Suisse.',
     voice: {
       label: 'Dictée vocale',
       listening: 'Écoute en cours…',
@@ -90,6 +92,16 @@ const fr: Dict = {
       title: 'Payable en un scan',
       text: 'Chaque facture inclut automatiquement le bulletin de versement QR suisse, prêt à être scanné depuis n’importe quelle appli bancaire.',
       badge: 'Conforme norme SIX',
+    },
+    catalog: {
+      label: 'Catalogue intelligent',
+      title: 'Vos prix, mémorisés',
+      text: 'Chaque devis enrichit votre catalogue. La prochaine fois, Cantia reconnaît vos prestations et propose déjà le bon prix.',
+      items: [
+        { name: 'Fenêtre PVC double vitrage', match: 96 },
+        { name: 'Pose et étanchéité périphérique', match: 91 },
+        { name: 'Volet roulant alu sur mesure', match: 88 },
+      ],
     },
   },
   showcase: {
@@ -245,7 +257,8 @@ const en: Dict = {
   nav: { services: 'Services', pricing: 'Pricing', login: 'Log in', cta: 'Try it free' },
   hero: {
     kicker: 'For Swiss construction businesses',
-    headline: 'Less time on paperwork, more time on site',
+    headlinePrefix: 'Less time on paperwork,',
+    headlineHighlight: 'more time on site',
     subheadline:
       'Cantia brings your site reports, quotes and documents together in one place. You capture everything once, on site, and it’s formatted automatically.',
     cta1: 'Create my free account',
@@ -253,7 +266,7 @@ const en: Dict = {
   },
   spotlight: {
     title: 'Technology that changes everything',
-    subtitle: 'Two automations nobody else offers in Switzerland.',
+    subtitle: 'Automations nobody else offers in Switzerland.',
     voice: {
       label: 'Voice dictation',
       listening: 'Listening…',
@@ -267,6 +280,16 @@ const en: Dict = {
       title: 'Payable in one scan',
       text: 'Every invoice automatically includes the Swiss QR payment slip, ready to scan from any banking app.',
       badge: 'SIX-standard compliant',
+    },
+    catalog: {
+      label: 'Smart catalog',
+      title: 'Your prices, remembered',
+      text: 'Every quote enriches your catalog. Next time, Cantia recognises your line items and already suggests the right price.',
+      items: [
+        { name: 'PVC double-glazed window', match: 96 },
+        { name: 'Fitting and weatherproofing', match: 91 },
+        { name: 'Custom aluminium roller shutter', match: 88 },
+      ],
     },
   },
   showcase: {
@@ -422,7 +445,8 @@ const de: Dict = {
   nav: { services: 'Leistungen', pricing: 'Preise', login: 'Anmelden', cta: 'Kostenlos testen' },
   hero: {
     kicker: 'Für Bauunternehmen in der Schweiz',
-    headline: 'Weniger Zeit für Administration, mehr Zeit auf der Baustelle',
+    headlinePrefix: 'Weniger Zeit für Administration,',
+    headlineHighlight: 'mehr Zeit auf der Baustelle',
     subheadline:
       'Cantia bündelt Ihre Baustellenrapporte, Offerten und Dokumente an einem Ort. Sie erfassen alles einmal, direkt vor Ort, und es wird automatisch aufbereitet.',
     cta1: 'Kostenloses Konto erstellen',
@@ -430,7 +454,7 @@ const de: Dict = {
   },
   spotlight: {
     title: 'Technologie, die alles verändert',
-    subtitle: 'Zwei Automatisierungen, die sonst niemand in der Schweiz bietet.',
+    subtitle: 'Automatisierungen, die sonst niemand in der Schweiz bietet.',
     voice: {
       label: 'Sprachdiktat',
       listening: 'Höre zu…',
@@ -444,6 +468,16 @@ const de: Dict = {
       title: 'Zahlbar mit einem Scan',
       text: 'Jede Rechnung enthält automatisch den Schweizer QR-Einzahlungsschein, bereit zum Scannen mit jeder Banking-App.',
       badge: 'SIX-konform',
+    },
+    catalog: {
+      label: 'Intelligenter Katalog',
+      title: 'Ihre Preise, gemerkt',
+      text: 'Jede Offerte bereichert Ihren Katalog. Beim nächsten Mal erkennt Cantia Ihre Leistungen und schlägt gleich den richtigen Preis vor.',
+      items: [
+        { name: 'PVC-Fenster, doppelt verglast', match: 96 },
+        { name: 'Montage und Abdichtung', match: 91 },
+        { name: 'Alu-Rollladen nach Mass', match: 88 },
+      ],
     },
   },
   showcase: {

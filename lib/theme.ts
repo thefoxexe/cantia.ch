@@ -1,15 +1,18 @@
+// Warm terracotta/cream palette — replaces the old dark-green identity
+// wholesale. Every screen reads these tokens rather than hardcoded hex, so
+// this file alone recolors the entire app; nothing else needed to change.
 export const colors = {
-  bg: '#F5F4F0',
+  bg: '#F7F1E6',
   surface: '#FFFFFF',
-  surfaceAlt: '#F0EEE7',
-  border: '#E1DED4',
-  text: '#181C1B',
-  textMuted: '#5C6560',
-  primary: '#1F3D3A',
-  primaryDark: '#12211F',
-  primarySoft: '#E3EAE8',
-  accent: '#B0692C',
-  accentSoft: '#F3E4D4',
+  surfaceAlt: '#F1E6D5',
+  border: '#E6D8C2',
+  text: '#231A12',
+  textMuted: '#6E6153',
+  primary: '#BC5A31',
+  primaryDark: '#7C3B21',
+  primarySoft: '#F5DECB',
+  accent: '#D97B41',
+  accentSoft: '#F6E4D2',
   danger: '#AB3327',
   dangerSoft: '#F5E1DE',
   success: '#2E6B4F',

@@ -199,7 +199,10 @@ function LandingContent() {
                   <Feather name="zap" size={12} color={colors.primary} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
                 </View>
-                <Text style={styles.headline}>{t.hero.headline}</Text>
+                <Text style={styles.headline}>
+                  {t.hero.headlinePrefix}{' '}
+                  <Text style={styles.headlineHighlight}>{t.hero.headlineHighlight}</Text>
+                </Text>
                 <Text style={styles.subheadline}>{t.hero.subheadline}</Text>
                 <View style={styles.ctaRow}>
                   <Link href={authHref('signup')} asChild>
@@ -222,6 +225,7 @@ function LandingContent() {
             <View style={styles.spotlightGrid}>
               <VoiceDemo copy={t.spotlight.voice} />
               <QrBillDemo copy={t.spotlight.qrbill} />
+              <CatalogDemo copy={t.spotlight.catalog} />
             </View>
           </Reveal>
 
@@ -1048,6 +1052,61 @@ function QrBillDemo({ copy }: { copy: QrBillCopy }) {
   );
 }
 
+type CatalogCopy = { label: string; title: string; text: string; items: { name: string; match: number }[] };
+
+// A looping progress-bar fill, illustrating the (not-yet-built) catalog
+// matching feature for the landing page — purely a marketing preview, same
+// treatment as the voice/QR-bill cards: real in-app behavior, mocked data.
+function CatalogDemo({ copy }: { copy: CatalogCopy }) {
+  const fill = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.timing(fill, { toValue: 1, duration: 900, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        Animated.delay(2400),
+        Animated.timing(fill, { toValue: 0, duration: 1, useNativeDriver: false }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [fill]);
+
+  return (
+    <View style={styles.demoCard}>
+      <View style={styles.demoLabelRow}>
+        <View style={styles.demoDot} />
+        <Text style={styles.demoLabel}>{copy.label}</Text>
+      </View>
+      <Text style={styles.catalogTitle}>{copy.title}</Text>
+      <View style={styles.catalogList}>
+        {copy.items.map((item) => (
+          <View key={item.name} style={styles.catalogRow}>
+            <View style={styles.catalogRowHeader}>
+              <Text style={styles.catalogItemName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <View style={styles.catalogMatchBadge}>
+                <Text style={styles.catalogMatchText}>{item.match}%</Text>
+              </View>
+            </View>
+            <View style={styles.catalogBarTrack}>
+              <Animated.View
+                style={[
+                  styles.catalogBarFill,
+                  { width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', `${item.match}%`] }) },
+                ]}
+              />
+            </View>
+          </View>
+        ))}
+      </View>
+      <Text style={styles.demoCaption}>{copy.text}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   stage: {
     flex: 1,
@@ -1257,6 +1316,10 @@ const styles = StyleSheet.create({
     lineHeight: 52,
     letterSpacing: -0.5,
     marginBottom: spacing.md,
+  },
+  headlineHighlight: {
+    color: colors.text,
+    backgroundColor: colors.primarySoft,
   },
   subheadline: {
     fontSize: fontSize.lg,
@@ -1646,6 +1709,51 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.success,
+  },
+  catalogTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  catalogList: {
+    gap: spacing.md,
+  },
+  catalogRow: {
+    gap: 6,
+  },
+  catalogRowHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  catalogItemName: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  catalogMatchBadge: {
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  catalogMatchText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  catalogBarTrack: {
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: colors.border,
+    overflow: 'hidden',
+  },
+  catalogBarFill: {
+    height: '100%',
+    borderRadius: 3,
+    backgroundColor: colors.primary,
   },
   painGrid: {
     flexDirection: 'row',
