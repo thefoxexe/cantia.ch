@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { RecordingPresets, requestRecordingPermissionsAsync, useAudioRecorder } from 'expo-audio';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from './speechRecognitionStub';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 
 export interface VoiceRecording {
   uri: string;
