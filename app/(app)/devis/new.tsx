@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { Button, Field, Screen } from '../../../components/ui';
 import { FeatureHint } from '../../../components/FeatureHint';
 import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { buildCatalog, findMatches, type CatalogEntry } from '../../../lib/catalog';
 
 interface Line {
   description: string;
@@ -31,8 +32,33 @@ export default function NewDevisScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // The org's own past devis lines double as its catalog — no separate
+  // table to maintain, every devis created immediately enriches the pool
+  // the next one can match against. Fetched once per visit; a session that
+  // creates several devis in a row won't see items from earlier in that
+  // same session suggested back, which is an acceptable trade-off for not
+  // re-querying on every keystroke.
+  const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
+
+  useEffect(() => {
+    if (!organization) return;
+    supabase
+      .from('devis_items')
+      .select('description, unit, unit_price, created_at, devis!inner(organization_id)')
+      .eq('devis.organization_id', organization.id)
+      .order('created_at', { ascending: false })
+      .limit(400)
+      .then(({ data }) => {
+        if (data) setCatalog(buildCatalog(data as any));
+      });
+  }, [organization]);
+
   function updateLine(index: number, patch: Partial<Line>) {
     setLines((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
+  }
+
+  function applyMatch(index: number, match: CatalogEntry) {
+    updateLine(index, { description: match.description, unit: match.unit, unitPrice: String(match.unitPrice) });
   }
 
   function addLine() {
@@ -148,6 +174,7 @@ export default function NewDevisScreen() {
           <Text style={styles.sectionTitle}>Lignes du devis</Text>
           {lines.map((line, i) => {
             const lineTotal = (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0);
+            const matches = findMatches(catalog, line.description);
             return (
               <View key={i} style={styles.lineCard}>
                 <View style={styles.lineCardHeader}>
@@ -166,6 +193,21 @@ export default function NewDevisScreen() {
                   placeholderTextColor={colors.textMuted}
                   multiline
                 />
+                {matches.length > 0 ? (
+                  <View style={styles.suggestionRow}>
+                    <Feather name="zap" size={11} color={colors.primary} style={{ marginTop: 3 }} />
+                    <View style={styles.suggestionChips}>
+                      {matches.map((m) => (
+                        <Pressable key={m.description} style={styles.suggestionChip} onPress={() => applyMatch(i, m)}>
+                          <Text style={styles.suggestionText} numberOfLines={1}>
+                            {m.description}
+                          </Text>
+                          <Text style={styles.suggestionPrice}>CHF {m.unitPrice.toFixed(2)}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                ) : null}
                 <View style={styles.lineFields}>
                   <View style={styles.lineFieldQty}>
                     <Text style={styles.lineFieldLabel}>Qté</Text>
@@ -275,6 +317,40 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.md,
     minHeight: 44,
+  },
+  suggestionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  suggestionChips: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+  },
+  suggestionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: 260,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+  },
+  suggestionText: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+    flexShrink: 1,
+  },
+  suggestionPrice: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
   },
   lineFields: {
     flexDirection: 'row',
