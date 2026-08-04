@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder } from '../../../../lib/api/factures';
+import { generateQrrReference } from '../../../../lib/qrReference';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
@@ -70,6 +71,7 @@ export default function FacturesListScreen() {
   const [totals, setTotals] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [search, setSearch] = useState('');
   const [remindingId, setRemindingId] = useState<string | null>(null);
   const [reminderError, setReminderError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
@@ -133,19 +135,43 @@ export default function FacturesListScreen() {
 
   const filtered = useMemo(() => {
     const sorted = sortFactures(factures);
-    switch (filter) {
-      case 'overdue':
-        return sorted.filter(isOverdue);
-      case 'pending':
-        return sorted.filter(isPending);
-      case 'paid':
-        return sorted.filter((f) => f.status === 'paid');
-      case 'draft':
-        return sorted.filter((f) => f.status === 'draft');
-      default:
-        return sorted;
-    }
-  }, [factures, filter]);
+    const byStatus = (() => {
+      switch (filter) {
+        case 'overdue':
+          return sorted.filter(isOverdue);
+        case 'pending':
+          return sorted.filter(isPending);
+        case 'paid':
+          return sorted.filter((f) => f.status === 'paid');
+        case 'draft':
+          return sorted.filter((f) => f.status === 'draft');
+        default:
+          return sorted;
+      }
+    })();
+
+    const query = search.trim();
+    if (!query) return byStatus;
+
+    // A pasted bank reference (with or without the grouping spaces printed
+    // on the QR-bill) is matched digit-for-digit against the QRR reference
+    // derived from each facture's id — this is the "rapprochement" use
+    // case: reconciling an incoming payment against the facture it pays.
+    const queryDigits = query.replace(/\D/g, '');
+    const lowerQuery = query.toLowerCase();
+    return byStatus.filter((f) => {
+      if (f.number?.toLowerCase().includes(lowerQuery)) return true;
+      if (f.client_name?.toLowerCase().includes(lowerQuery)) return true;
+      if (queryDigits.length >= 6 && generateQrrReference(f.id).includes(queryDigits)) return true;
+      return false;
+    });
+  }, [factures, filter, search]);
+
+  const referenceMatch = useMemo(() => {
+    const queryDigits = search.trim().replace(/\D/g, '');
+    if (queryDigits.length < 27) return null;
+    return factures.find((f) => generateQrrReference(f.id) === queryDigits) ?? null;
+  }, [factures, search]);
 
   async function handleRemind(facture: Facture) {
     if (remindingId) return;
@@ -197,6 +223,35 @@ export default function FacturesListScreen() {
                 <KpiTile label="Encaissé ce mois" amount={kpis.paidSum} tone="success" icon="check-circle" />
                 <KpiTile label="Brouillons" count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
               </View>
+
+              <View style={styles.searchRow}>
+                <Feather name="search" size={15} color={colors.textMuted} />
+                <TextInput
+                  value={search}
+                  onChangeText={setSearch}
+                  placeholder="N° de facture, client ou référence QR du paiement"
+                  placeholderTextColor={colors.textMuted}
+                  style={styles.searchInput}
+                  autoCapitalize="none"
+                />
+                {search ? (
+                  <Pressable onPress={() => setSearch('')} hitSlop={8}>
+                    <Feather name="x" size={15} color={colors.textMuted} />
+                  </Pressable>
+                ) : null}
+              </View>
+              {referenceMatch ? (
+                <Pressable
+                  style={styles.matchBanner}
+                  onPress={() => router.push(`/(app)/devis/factures/${referenceMatch.id}`)}
+                >
+                  <Feather name="check-circle" size={16} color={colors.success} />
+                  <Text style={styles.matchBannerText}>
+                    Paiement rapproché : facture {referenceMatch.number} · {referenceMatch.client_name}
+                  </Text>
+                  <Feather name="chevron-right" size={16} color={colors.success} />
+                </Pressable>
+              ) : null}
 
               <View style={styles.filterRow}>
                 {filters.map((f) => (
@@ -370,6 +425,38 @@ const styles = StyleSheet.create({
   kpiCount: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 8,
+    marginBottom: spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  matchBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  matchBannerText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
   },
   filterRow: {
     flexDirection: 'row',
