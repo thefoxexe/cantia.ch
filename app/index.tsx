@@ -28,6 +28,10 @@ type IconName = keyof typeof Feather.glyphMap;
 
 const PAIN_ICONS: IconName[] = ['edit-3', 'clock', 'folder'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'layout', 'list', 'map-pin', 'users'];
+// One small "artwork" icon per trade, in the same order as t.trades.list —
+// paired by index rather than by name so this stays a plain parallel array,
+// no separate per-trade copy needed.
+const TRADE_ICONS: IconName[] = ['layers', 'grid', 'lock', 'zap', 'droplet', 'tool', 'edit-3', 'square'];
 const NAV_HEIGHT = 68;
 
 // The compiled Android/iOS app has no marketing site to show — it goes
@@ -328,13 +332,7 @@ function LandingContent() {
           {/* ---- Trades ---- */}
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
-            <View style={styles.tradeRow}>
-              {t.trades.list.map((trade) => (
-                <View key={trade} style={styles.tradeChip}>
-                  <Text style={styles.tradeChipText}>{trade}</Text>
-                </View>
-              ))}
-            </View>
+            <TradesMarquee trades={t.trades.list} />
             <Text style={styles.tradeNote}>{t.trades.note}</Text>
           </Reveal>
 
@@ -1084,6 +1082,53 @@ function CatalogDemo({ copy }: { copy: CatalogCopy }) {
   );
 }
 
+// A slow, continuous horizontal belt of trade cards, looping seamlessly —
+// the list is rendered twice back-to-back and the track slides by exactly
+// one copy's width before snapping back to 0, which lands on pixel-identical
+// content so the reset is invisible.
+function TradesMarquee({ trades }: { trades: string[] }) {
+  const translateX = useRef(new Animated.Value(0)).current;
+  const [trackWidth, setTrackWidth] = useState(0);
+
+  useEffect(() => {
+    if (!trackWidth) return;
+    translateX.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(translateX, {
+        toValue: -trackWidth,
+        duration: trackWidth * 25,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [trackWidth, translateX]);
+
+  const items = [...trades, ...trades];
+
+  return (
+    <View style={styles.tradesMarqueeOuter}>
+      <Animated.View
+        style={[styles.tradesMarqueeTrack, { transform: [{ translateX }] }]}
+        onLayout={(e) => {
+          const full = e.nativeEvent.layout.width;
+          if (trackWidth === 0 && full > 0) setTrackWidth(full / 2);
+        }}
+      >
+        {items.map((trade, i) => (
+          <View key={`${trade}-${i}`} style={styles.tradeCard}>
+            <View style={styles.tradeIconBadge}>
+              <Feather name={TRADE_ICONS[i % TRADE_ICONS.length]} size={22} color={colors.primary} />
+            </View>
+            <Text style={styles.tradeCardText}>{trade}</Text>
+          </View>
+        ))}
+      </Animated.View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   stage: {
     flex: 1,
@@ -1789,25 +1834,36 @@ const styles = StyleSheet.create({
     color: colors.text,
     lineHeight: 19,
   },
-  tradeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.sm,
+  tradesMarqueeOuter: {
     marginBottom: spacing.lg,
+    overflow: 'hidden',
+    // A soft fade at both edges so the loop reads as a continuous belt
+    // rather than cards popping in/out at a hard boundary.
+    maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)',
+    WebkitMaskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)',
+  } as unknown as ViewStyle,
+  tradesMarqueeTrack: {
+    flexDirection: 'row',
   },
-  tradeChip: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+  tradeCard: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    width: 108,
+    marginRight: spacing.lg,
   },
-  tradeChipText: {
+  tradeIconBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tradeCardText: {
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
+    textAlign: 'center',
   },
   tradeNote: {
     fontSize: fontSize.sm,
