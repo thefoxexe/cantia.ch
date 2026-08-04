@@ -45,7 +45,7 @@
     "android": {
       "package": "ch.cantia.app",
       "adaptiveIcon": {
-        "backgroundColor": "#1F3D3A",
+        "backgroundColor": "#7C3B21",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
