@@ -50,10 +50,10 @@ function LandingContent() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { width, height: windowHeight } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
-  const showcasePhoneWidth = Math.max(140, Math.min(200, Math.round(width * 0.5)));
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
@@ -312,23 +312,6 @@ function LandingContent() {
             </View>
           </Reveal>
 
-          {/* ---- Showcase ---- */}
-          <Reveal id="showcase" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.showcase.title}</Text>
-            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.showcase.subtitle}</Text>
-            <PhoneCarousel
-              phoneWidth={showcasePhoneWidth}
-              showCaptions
-              autoAdvanceMs={30000}
-              items={[
-                { key: 'feed', caption: t.showcase.feedCaption, source: SCREENS.feedSelect },
-                { key: 'report', caption: t.showcase.reportCaption, source: SCREENS.reportPdf },
-                { key: 'devisNew', caption: t.showcase.devisNewCaption, source: SCREENS.devisNew },
-                { key: 'devis', caption: t.showcase.devisCaption, source: SCREENS.devisTotal },
-              ]}
-            />
-          </Reveal>
-
           {/* ---- Trades ---- */}
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
@@ -375,7 +358,7 @@ function LandingContent() {
           {/* ---- Swiss positioning ---- */}
           <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
             <View style={styles.swissBand}>
-              <Text style={styles.swissFlag}>🇨🇭</Text>
+              <SwissFlagBadge />
               <Text style={styles.swissTitle}>{t.swiss.title}</Text>
               <Text style={styles.swissText}>{t.swiss.text}</Text>
             </View>
@@ -474,6 +457,22 @@ function LandingContent() {
                 <Pressable onPress={scrollToPricing}>
                   <Text style={styles.navLink}>{t.nav.pricing}</Text>
                 </Pressable>
+                <Pressable
+                  onHoverIn={() => setDownloadMenuOpen(true)}
+                  onHoverOut={() => setDownloadMenuOpen(false)}
+                  style={styles.navDownloadWrap}
+                >
+                  <View style={styles.navLinkRow}>
+                    <Text style={styles.navLink}>{t.nav.download}</Text>
+                    <Feather name="chevron-down" size={14} color={colors.textMuted} />
+                  </View>
+                  {downloadMenuOpen ? (
+                    <View style={styles.navDownloadDropdown}>
+                      <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
+                      <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
+                    </View>
+                  ) : null}
+                </Pressable>
                 <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
                 </Link>
@@ -513,6 +512,13 @@ function LandingContent() {
               <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
                 <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} icon="grid" label={t.nav.services} />
                 <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} icon="tag" label={t.nav.pricing} />
+                <View style={styles.mobileMenuDownloadSection}>
+                  <Text style={styles.mobileMenuDownloadLabel}>{t.nav.download}</Text>
+                  <View style={styles.mobileMenuDownloadRow}>
+                    <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
+                    <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
+                  </View>
+                </View>
                 <Animated.View
                   style={{
                     opacity: menuItemAnims[2],
@@ -643,141 +649,7 @@ function StoreBadge({ kind, label, comingSoon }: { kind: 'apple' | 'google'; lab
   );
 }
 
-// Real screenshots from the app now (not stylized recreations) — see
-// assets/screens/. Every phone frame on the page shares the same true
-// phone aspect ratio (the screenshots' own 1080x2340), so the frame is
-// never guessing at a shape — it's sized directly from the image.
-const SCREENS = {
-  feedSelect: require('../assets/screens/feed-select.jpg'),
-  reportPdf: require('../assets/screens/report-pdf.jpg'),
-  devisNew: require('../assets/screens/devis-new.jpg'),
-  devisTotal: require('../assets/screens/devis-total.jpg'),
-};
-const SCREEN_ASPECT = 1080 / 2340;
-
-// The phone bezel/rounded-corners/home-indicator chrome, shared by the
-// hero's designed mockup and the showcase's real screenshots — screenWidth/
-// screenHeight (matching a real phone's 1080x2340 aspect) are handed to
-// `children` so both callers size their content off the same numbers
-// instead of guessing. No fake notch: real screenshots already carry their
-// own status bar, and the dashboard mockup draws its own — a separately
-// drawn notch would just double up on what's already there.
-function PhoneChrome({
-  width,
-  rotate = 0,
-  children,
-}: {
-  width: number;
-  rotate?: number;
-  children: (screenWidth: number, screenHeight: number) => React.ReactNode;
-}) {
-  const bezel = Math.round(width * 0.035);
-  const screenWidth = width - bezel * 2;
-  const screenHeight = Math.round(screenWidth / SCREEN_ASPECT);
-  const outerRadius = Math.round(width * 0.14);
-  return (
-    <View
-      style={[
-        styles.phoneFrame,
-        { width, padding: bezel, borderRadius: outerRadius, transform: [{ rotate: `${rotate}deg` }] },
-      ]}
-    >
-      <View style={{ width: screenWidth, height: screenHeight, borderRadius: outerRadius - bezel, overflow: 'hidden' }}>
-        {children(screenWidth, screenHeight)}
-      </View>
-      <View style={styles.phoneHomeIndicator} />
-    </View>
-  );
-}
-
-function PhoneFrame({ source, width, rotate = 0 }: { source: number; width: number; rotate?: number }) {
-  return (
-    <PhoneChrome width={width} rotate={rotate}>
-      {(w, h) => <Image source={source} style={{ width: w, height: h }} resizeMode="cover" />}
-    </PhoneChrome>
-  );
-}
-
-// A controlled, one-at-a-time carousel: paging (never rests half-cropped
-// between two slides the way free-scroll-with-peek did), explicit
-// prev/next arrows, and an optional auto-advance timer that resets on any
-// navigation (manual or automatic) so it always waits a fresh interval
-// after whatever the visitor — or the timer itself — last did.
-function PhoneCarousel({
-  items,
-  phoneWidth,
-  rotate = 0,
-  showCaptions = false,
-  autoAdvanceMs,
-}: {
-  items: { key: string; source: number; caption?: string }[];
-  phoneWidth: number;
-  rotate?: number;
-  showCaptions?: boolean;
-  autoAdvanceMs?: number;
-}) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
-  const slideWidth = phoneWidth + spacing.xl * 2;
-
-  const goTo = useCallback((idx: number) => {
-    const clamped = ((idx % items.length) + items.length) % items.length;
-    setActiveIndex(clamped);
-    scrollRef.current?.scrollTo({ x: clamped * slideWidth, animated: true });
-  }, [items.length, slideWidth]);
-
-  useEffect(() => {
-    if (!autoAdvanceMs) return;
-    const id = setTimeout(() => goTo(activeIndex + 1), autoAdvanceMs);
-    return () => clearTimeout(id);
-  }, [autoAdvanceMs, activeIndex, goTo]);
-
-  const handleMomentumEnd = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const idx = Math.round(e.nativeEvent.contentOffset.x / slideWidth);
-    setActiveIndex(Math.max(0, Math.min(items.length - 1, idx)));
-  }, [items.length, slideWidth]);
-
-  return (
-    <View style={styles.carouselOuter}>
-      <View style={styles.carouselRow}>
-        <Pressable onPress={() => goTo(activeIndex - 1)} style={styles.carouselArrow} hitSlop={8}>
-          <Feather name="chevron-left" size={18} color={colors.text} />
-        </Pressable>
-        <View style={{ width: slideWidth, overflow: 'hidden' }}>
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={handleMomentumEnd}
-            style={{ width: slideWidth }}
-          >
-            {items.map((it) => (
-              <View key={it.key} style={{ width: slideWidth, alignItems: 'center' }}>
-                <PhoneFrame source={it.source} width={phoneWidth} rotate={rotate} />
-                {showCaptions && it.caption ? <Text style={styles.showcaseCaption}>{it.caption}</Text> : null}
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-        <Pressable onPress={() => goTo(activeIndex + 1)} style={styles.carouselArrow} hitSlop={8}>
-          <Feather name="chevron-right" size={18} color={colors.text} />
-        </Pressable>
-      </View>
-      {items.length > 1 ? (
-        <View style={styles.sliderDots}>
-          {items.map((it, i) => (
-            <Pressable key={it.key} onPress={() => goTo(i)} hitSlop={6}>
-              <View style={[styles.sliderDot, i === activeIndex && styles.sliderDotActive]} />
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-type VoiceCopy = { label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
+type VoiceCopy ={ label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
 type QrBillCopy = { label: string; title: string; text: string; badge: string };
 
 // A small looping demo, not a real transcription — it alternates between a
@@ -888,22 +760,20 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
               <Animated.View
                 pointerEvents="none"
                 style={[
-                  styles.micPulseRing,
+                  styles.listeningPulseRing,
                   {
                     opacity: micPulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] }),
-                    transform: [{ scale: micPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }],
+                    transform: [{ scale: micPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 2.6] }) }],
                     backgroundColor: colorCycle.interpolate({ inputRange: [0, 1], outputRange: [colors.primary, colors.accent] }),
                   },
                 ]}
               />
               <Animated.View
                 style={[
-                  styles.micCircle,
+                  styles.listeningDot,
                   { backgroundColor: colorCycle.interpolate({ inputRange: [0, 1], outputRange: [colors.primary, colors.accent] }) },
                 ]}
-              >
-                <Feather name="mic" size={26} color="#fff" />
-              </Animated.View>
+              />
               <Text style={styles.voiceListeningText}>{copy.listening}</Text>
             </View>
             <View style={styles.waveform}>
@@ -941,6 +811,19 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
         )}
       </Animated.View>
       <Text style={styles.demoCaption}>{copy.caption}</Text>
+    </View>
+  );
+}
+
+// Drawn with plain Views instead of the 🇨🇭 emoji — the emoji glyph doesn't
+// render reliably on every desktop browser/OS font stack (shows as two
+// separate letter tiles or nothing at all on some Windows/Linux setups),
+// while a hand-drawn cross-in-a-circle always looks identical everywhere.
+function SwissFlagBadge() {
+  return (
+    <View style={styles.swissFlagBadge}>
+      <View style={styles.swissFlagCrossV} />
+      <View style={styles.swissFlagCrossH} />
     </View>
   );
 }
@@ -1083,39 +966,47 @@ function CatalogDemo({ copy }: { copy: CatalogCopy }) {
 }
 
 // A slow, continuous horizontal belt of trade cards, looping seamlessly —
-// the list is rendered twice back-to-back and the track slides by exactly
-// one copy's width before snapping back to 0, which lands on pixel-identical
+// the list is rendered twice back-to-back and a CSS keyframe animation
+// slides the track by exactly -50% (one copy's width, whatever it measures
+// out to be) before snapping back to 0%, which lands on pixel-identical
 // content so the reset is invisible.
+//
+// Deliberately plain CSS (@keyframes), not RN's Animated.loop: RN's loop
+// silently stops for good the moment any single iteration reports
+// `finished: false` instead of restarting — and a backgrounded browser tab
+// pausing mid-frame is exactly the kind of thing that triggers that, which
+// is what "ça tourne, puis ça s'arrête au bout d'un moment" was. A native
+// CSS animation has no such failure mode: the browser owns the loop
+// entirely and always resumes it once the tab is visible again.
+const MARQUEE_KEYFRAMES_ID = 'cantia-marquee-keyframes';
+function ensureMarqueeKeyframes() {
+  if (typeof document === 'undefined' || document.getElementById(MARQUEE_KEYFRAMES_ID)) return;
+  const style = document.createElement('style');
+  style.id = MARQUEE_KEYFRAMES_ID;
+  style.textContent = '@keyframes cantia-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }';
+  document.head.appendChild(style);
+}
+
 function TradesMarquee({ trades }: { trades: string[] }) {
-  const translateX = useRef(new Animated.Value(0)).current;
-  const [trackWidth, setTrackWidth] = useState(0);
+  // Set directly on the DOM node rather than via RN's `style` prop —
+  // `animationName`/`animationDuration` aren't in RN's recognized web
+  // style-property list, so passing them through StyleSheet triggers a
+  // console warning (harmless, but noisy) even though the browser applies
+  // them fine either way. Bypassing RN's style pipeline for just this one
+  // property avoids that.
+  const trackRef = useRef<View>(null);
 
   useEffect(() => {
-    if (!trackWidth) return;
-    translateX.setValue(0);
-    const loop = Animated.loop(
-      Animated.timing(translateX, {
-        toValue: -trackWidth,
-        duration: trackWidth * 25,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [trackWidth, translateX]);
+    ensureMarqueeKeyframes();
+    const node = trackRef.current as unknown as HTMLElement | null;
+    if (node) node.style.animation = 'cantia-marquee 32s linear infinite';
+  }, []);
 
   const items = [...trades, ...trades];
 
   return (
     <View style={styles.tradesMarqueeOuter}>
-      <Animated.View
-        style={[styles.tradesMarqueeTrack, { transform: [{ translateX }] }]}
-        onLayout={(e) => {
-          const full = e.nativeEvent.layout.width;
-          if (trackWidth === 0 && full > 0) setTrackWidth(full / 2);
-        }}
-      >
+      <View ref={trackRef} style={styles.tradesMarqueeTrack}>
         {items.map((trade, i) => (
           <View key={`${trade}-${i}`} style={styles.tradeCard}>
             <View style={styles.tradeIconBadge}>
@@ -1124,7 +1015,7 @@ function TradesMarquee({ trades }: { trades: string[] }) {
             <Text style={styles.tradeCardText}>{trade}</Text>
           </View>
         ))}
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -1194,6 +1085,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
+  navLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  navDownloadWrap: {
+    position: 'relative',
+  },
+  navDownloadDropdown: {
+    position: 'absolute',
+    top: '100%',
+    left: '50%',
+    transform: [{ translateX: -110 }],
+    marginTop: spacing.md,
+    width: 220,
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+  },
   navCta: {
     height: 38,
     paddingHorizontal: spacing.lg,
@@ -1250,6 +1167,24 @@ const styles = StyleSheet.create({
   },
   mobileMenuCta: {
     marginTop: spacing.xl,
+  },
+  mobileMenuDownloadSection: {
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    gap: spacing.sm,
+  },
+  mobileMenuDownloadLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  mobileMenuDownloadRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
   },
   heroWrap: {
     position: 'relative',
@@ -1350,69 +1285,6 @@ const styles = StyleSheet.create({
   ctaButton: {
     minWidth: 220,
   },
-  phoneFrame: {
-    alignSelf: 'center',
-    // A real device bezel reads as neutral/near-black, not brand-colored —
-    // keeping this on colors.text (dark ink) instead of primaryDark stops
-    // the hero from being wall-to-wall orange (chip + blobs + bezel + stat
-    // cards all competing for the same accent).
-    backgroundColor: colors.text,
-    shadowColor: '#000',
-    shadowOpacity: 0.22,
-    shadowRadius: 44,
-    shadowOffset: { width: 0, height: 28 },
-  },
-  phoneHomeIndicator: {
-    alignSelf: 'center',
-    width: '32%',
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.35)',
-    marginTop: spacing.sm,
-  },
-  carouselOuter: {
-    alignItems: 'center',
-  },
-  carouselRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  carouselArrow: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sliderDots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.lg,
-  },
-  sliderDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.border,
-  },
-  sliderDotActive: {
-    backgroundColor: colors.primary,
-    width: 18,
-  },
-  showcaseCaption: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    lineHeight: 17,
-    textAlign: 'center',
-    marginTop: spacing.lg,
-    paddingHorizontal: spacing.sm,
-  },
   section: {
     maxWidth: 1080,
     width: '100%',
@@ -1459,6 +1331,11 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 320,
     maxWidth: 480,
+    // Fixed floor so the voice-demo card's listening↔result crossfade never
+    // changes its own height — with `spotlightGrid`'s alignItems: 'stretch'
+    // that height is shared across the whole row, so without this the QR
+    // and catalog cards visibly resized in lockstep every ~2.6s too.
+    minHeight: 300,
     padding: spacing.lg,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
@@ -1506,25 +1383,29 @@ const styles = StyleSheet.create({
   micWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.lg,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
-  micPulseRing: {
+  // The listening indicator is a small pulsing dot, not a microphone icon —
+  // the waveform right below it is "le capteur de voix" the demo is meant to
+  // showcase; a big mic circle competed with it for attention and made this
+  // card taller than the other two spotlight cards, which visibly resized
+  // the whole row (they share a stretched height) every time the phase
+  // crossfaded between listening/result.
+  listeningPulseRing: {
     position: 'absolute',
-    left: 0,
-    top: 0,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    left: -3,
+    top: -3,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: colors.primary,
   },
-  micCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  listeningDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   voiceListeningText: {
     fontSize: fontSize.md,
@@ -1753,32 +1634,31 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 20,
   },
-  // A bordered, numbered "spec sheet" grid instead of the generic
-  // rounded-card-with-shadow look every SaaS landing page uses — rows share
-  // rules instead of each floating in its own soft-shadow box, which reads
-  // as more deliberate/edited rather than a stock component library.
   featureGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderColor: colors.border,
+    gap: spacing.lg,
   },
   featureCard: {
-    width: '50%',
+    width: '31%',
     minWidth: 300,
     flexGrow: 1,
     padding: spacing.xl,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
+    borderRadius: radius.xl,
+    borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
   },
   featureCardHovered: {
-    backgroundColor: colors.surfaceAlt,
+    borderColor: colors.primary,
   },
   featureCardActive: {
     backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
   },
   featureCardHeader: {
     flexDirection: 'row',
@@ -1953,8 +1833,31 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: colors.primarySoft,
   },
-  swissFlag: {
-    fontSize: 40,
+  swissFlagBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#DA291C',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  swissFlagCrossV: {
+    position: 'absolute',
+    width: 8,
+    height: 26,
+    borderRadius: 1,
+    backgroundColor: '#fff',
+  },
+  swissFlagCrossH: {
+    position: 'absolute',
+    width: 26,
+    height: 8,
+    borderRadius: 1,
+    backgroundColor: '#fff',
   },
   swissTitle: {
     fontSize: fontSize.xl,

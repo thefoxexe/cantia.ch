@@ -5,7 +5,7 @@ interface FeatureItem {
 }
 
 interface Dict {
-  nav: { services: string; pricing: string; login: string; cta: string };
+  nav: { services: string; pricing: string; download: string; login: string; cta: string };
   hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string };
   spotlight: {
     title: string;
@@ -13,14 +13,6 @@ interface Dict {
     voice: { label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
     qrbill: { label: string; title: string; text: string; badge: string };
     catalog: { label: string; title: string; text: string; items: { name: string; match: number }[] };
-  };
-  showcase: {
-    title: string;
-    subtitle: string;
-    feedCaption: string;
-    reportCaption: string;
-    devisNewCaption: string;
-    devisCaption: string;
   };
   pain: { title: string; items: { title: string; text: string }[] };
   services: { title: string; subtitle: string; items: FeatureItem[] };
@@ -55,13 +47,13 @@ interface Dict {
 }
 
 const fr: Dict = {
-  nav: { services: 'Services', pricing: 'Tarifs', login: 'Se connecter', cta: 'Essayer gratuitement' },
+  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', login: 'Se connecter', cta: 'Essayer gratuitement' },
   hero: {
-    kicker: 'Pour les entreprises du bâtiment en Suisse',
-    headlinePrefix: 'Moins de temps sur l’administratif,',
-    headlineHighlight: 'plus de temps sur le chantier',
+    kicker: 'L’application métier du bâtiment suisse',
+    headlinePrefix: 'L’application qui gère votre administratif,',
+    headlineHighlight: 'pendant que vous gérez le chantier',
     subheadline:
-      'Cantia regroupe vos rapports de chantier, vos devis et vos documents en un seul endroit. Vous saisissez une fois, sur le terrain, et tout est mis en forme automatiquement.',
+      'Cantia est l’application tout-en-un des entreprises du bâtiment : rapports, devis, factures et documents générés automatiquement depuis le terrain. Une seule saisie, zéro ressaisie au bureau.',
     cta1: 'Créer mon compte gratuitement',
     cta2: 'Se connecter',
   },
@@ -93,14 +85,6 @@ const fr: Dict = {
       ],
     },
   },
-  showcase: {
-    title: 'Cantia, concrètement',
-    subtitle: 'Du fil de chantier au document fini, sans ressaisie.',
-    feedCaption: 'Notes, photos et messages vocaux géolocalisés — toute l’équipe voit tout en temps réel.',
-    reportCaption: 'L’IA transforme le fil de la journée en rapport prêt à envoyer, automatiquement.',
-    devisNewCaption: 'Décrivez vos postes, Cantia calcule les sous-totaux au fur et à mesure.',
-    devisCaption: 'Un devis professionnel, TVA et conditions incluses, généré en quelques minutes.',
-  },
   pain: {
     title: 'Le bâtiment perd du temps sur l’administratif',
     items: [
@@ -120,7 +104,7 @@ const fr: Dict = {
   },
   services: {
     title: 'Tout ce qu’il faut, du chantier au bureau',
-    subtitle: 'Touchez un service pour voir en détail ce qu’il fait vraiment.',
+    subtitle: 'Cliquez sur un service pour voir précisément ce qu’il fait.',
     items: [
       {
         title: 'Rapports de chantier automatiques',
@@ -218,7 +202,7 @@ const fr: Dict = {
   },
   mobile: {
     title: 'Bientôt sur mobile',
-    text: 'L’application web fonctionne dès aujourd’hui sur ordinateur, tablette et téléphone. Les applications natives arrivent prochainement, avec la connexion à un récepteur RTK pour les levés de précision.',
+    text: 'L’application fonctionne dès aujourd’hui sur ordinateur, tablette et téléphone. Les applications natives App Store et Google Play arrivent prochainement.',
     comingSoon: 'Bientôt disponible',
     appStore: 'App Store',
     googlePlay: 'Google Play',
@@ -228,7 +212,7 @@ const fr: Dict = {
     button: 'Créer mon compte gratuitement',
   },
   footer: {
-    blurb: 'La plateforme de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, levés et métré, tous au même endroit.',
+    blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures, levés et métré, tous au même endroit.',
     product: 'Produit',
     account: 'Compte',
     legal: 'Légal',
