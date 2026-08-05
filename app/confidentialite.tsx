@@ -55,7 +55,7 @@ export default function ConfidentialiteScreen() {
             <Text style={styles.p}>
               Conformément à la loi suisse sur la protection des données (LPD) et, le cas échéant, au RGPD, vous
               disposez d'un droit d'accès, de rectification et de suppression de vos données. Vous pouvez exercer ce
-              droit à tout moment en nous écrivant à privacy@cantia.ch, ou en supprimant directement vos données
+              droit à tout moment en nous écrivant à info@cantia.ch, ou en supprimant directement vos données
               depuis l'application.
             </Text>
           </LegalSection>
@@ -76,7 +76,7 @@ export default function ConfidentialiteScreen() {
           </LegalSection>
 
           <LegalSection title="Contact">
-            <Text style={styles.p}>Pour toute question relative à vos données, écrivez-nous à privacy@cantia.ch.</Text>
+            <Text style={styles.p}>Pour toute question relative à vos données, écrivez-nous à info@cantia.ch.</Text>
           </LegalSection>
         </Container>
       </ScrollView>

@@ -64,7 +64,7 @@ export default function TelechargementScreen() {
           </View>
 
           <Text style={styles.note}>
-            Envie d'être prévenu·e à la sortie des applications ? Écrivez-nous à contact@cantia.ch.
+            Envie d'être prévenu·e à la sortie des applications ? Écrivez-nous à info@cantia.ch.
           </Text>
 
           <View style={styles.trustSection}>

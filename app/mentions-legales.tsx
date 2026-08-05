@@ -23,7 +23,7 @@ export default function MentionsLegalesScreen() {
             <Text style={styles.p}>
               Le site et l'application Cantia sont édités par Cantia, entreprise individuelle basée en Suisse.
               Pour toute question relative à l'identité légale de l'éditeur, contactez-nous à l'adresse
-              legal@cantia.ch.
+              info@cantia.ch.
             </Text>
           </LegalSection>
 
@@ -54,7 +54,7 @@ export default function MentionsLegalesScreen() {
           </LegalSection>
 
           <LegalSection title="Contact">
-            <Text style={styles.p}>Pour toute question, écrivez-nous à legal@cantia.ch.</Text>
+            <Text style={styles.p}>Pour toute question, écrivez-nous à info@cantia.ch.</Text>
           </LegalSection>
         </Container>
       </ScrollView>

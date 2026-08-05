@@ -33,7 +33,7 @@ const jsonLd = {
       name: 'Cantia',
       url: 'https://cantia.ch/',
       logo: 'https://cantia.ch/og-image.jpg',
-      email: 'legal@cantia.ch',
+      email: 'info@cantia.ch',
       areaServed: { '@type': 'Country', name: 'Switzerland' },
     },
     {

@@ -7,6 +7,13 @@ Cantia s'adresse aux entreprises de construction, artisans indépendants et corp
 ## Pages principales
 
 - [Accueil](https://cantia.ch/): présentation du produit, fonctionnalités, tarifs.
+- [Devis](https://cantia.ch/solutions/devis): dictée vocale, catalogue de prix, signature, suivi de statut.
+- [Facturation & QR-facture](https://cantia.ch/solutions/facturation): bulletin QR suisse conforme, référence structurée, suivi des paiements.
+- [Rapports de chantier](https://cantia.ch/solutions/rapports-chantier): notes vocales, photos géolocalisées, rédaction par IA.
+- [Dictée vocale](https://cantia.ch/solutions/dictee-vocale): transcription côté serveur utilisée dans devis, rapports et fil de chantier.
+- [Planning](https://cantia.ch/solutions/planning): calendrier d'équipe par membre et par jour.
+- [Levés & Métré](https://cantia.ch/solutions/leves-metre): points de levé sur cadastre et orthophoto suisses, chiffrage des quantités.
+- [Téléchargement](https://cantia.ch/telechargement): accès web et futures applications mobiles.
 - [Confidentialité](https://cantia.ch/confidentialite): politique de confidentialité et protection des données.
 - [Mentions légales](https://cantia.ch/mentions-legales): éditeur, hébergement, propriété intellectuelle.
 
