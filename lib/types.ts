@@ -217,6 +217,7 @@ export interface Facture {
   paid_at: string | null;
   pdf_path: string | null;
   last_reminded_at: string | null;
+  is_deposit: boolean;
   created_by: string | null;
   created_at: string;
   updated_at: string;

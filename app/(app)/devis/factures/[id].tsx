@@ -123,7 +123,14 @@ export default function FactureDetailScreen() {
       <Container>
         <Card>
           <View style={styles.headerRow}>
-            <Text style={styles.number}>{facture.number}</Text>
+            <View style={styles.headerLeft}>
+              <Text style={styles.number}>{facture.number}</Text>
+              {facture.is_deposit ? (
+                <View style={styles.depositBadge}>
+                  <Text style={styles.depositBadgeText}>Acompte</Text>
+                </View>
+              ) : null}
+            </View>
             <View style={styles.headerRight}>
               <StatusBadge status={facture.status} />
               <RowActionMenu
@@ -237,10 +244,26 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginBottom: spacing.xs,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
+  },
+  depositBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: colors.accentSoft,
+  },
+  depositBadgeText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.accent,
   },
   number: {
     fontSize: fontSize.lg,

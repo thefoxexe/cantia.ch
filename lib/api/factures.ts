@@ -1,14 +1,39 @@
 import { invokeFunction } from './functions';
 import { supabase } from '../supabase';
+import type { Facture } from '../types';
 
 export async function sendFactureReminder(factureId: string): Promise<{ sent: boolean; error: string | null }> {
   const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-reminder', { facture_id: factureId });
   return { sent: !!data?.sent, error };
 }
 
-// devis_id is deliberately not copied: a facture is unique per devis
-// (partial unique index on factures.devis_id), and a duplicate is a fresh
-// document, not another invoice for the same quote.
+// depositPercent omitted (or null) creates the normal final invoice, which
+// auto-deducts any deposits already billed on the same devis. Passing a
+// percent instead creates a deposit invoice for that share of the devis.
+export async function convertDevisToFacture(
+  devisId: string,
+  depositPercent?: number,
+): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('convert_devis_to_facture', {
+    p_devis_id: devisId,
+    p_deposit_percent: depositPercent ?? null,
+  });
+  return { id: data ?? null, error: error?.message ?? null };
+}
+
+export async function listFacturesForDevis(devisId: string): Promise<Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>[]> {
+  const { data } = await supabase
+    .from('factures')
+    .select('id, number, status, is_deposit')
+    .eq('devis_id', devisId)
+    .order('created_at', { ascending: true });
+  return data ?? [];
+}
+
+// devis_id is deliberately not copied: a duplicate is a fresh, unrelated
+// document — keeping the link would make it look like another deposit/final
+// invoice for the same quote, which the deduction logic in
+// convert_devis_to_facture would then pick up unintentionally.
 export async function duplicateFacture(factureId: string): Promise<{ id: string | null; error: string | null }> {
   const { data: original, error: loadError } = await supabase.from('factures').select('*').eq('id', factureId).single();
   if (loadError || !original) return { id: null, error: loadError?.message ?? 'Facture introuvable.' };

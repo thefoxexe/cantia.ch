@@ -315,7 +315,14 @@ export default function FacturesListScreen() {
                   <Pressable style={styles.cardTop} onPress={() => router.push(`/(app)/devis/factures/${item.id}`)}>
                     <View style={styles.cardBody}>
                       <View style={styles.row}>
-                        <Text style={styles.number}>{item.number}</Text>
+                        <View style={styles.numberGroup}>
+                          <Text style={styles.number}>{item.number}</Text>
+                          {item.is_deposit ? (
+                            <View style={styles.depositBadge}>
+                              <Text style={styles.depositBadgeText}>Acompte</Text>
+                            </View>
+                          ) : null}
+                        </View>
                         <StatusBadge status={item.status} />
                       </View>
                       <Text style={styles.client}>{item.client_name}</Text>
@@ -555,10 +562,26 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.xs,
   },
+  numberGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   number: {
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
+  },
+  depositBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: colors.accentSoft,
+  },
+  depositBadgeText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.accent,
   },
   client: {
     fontSize: fontSize.md,

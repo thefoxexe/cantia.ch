@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
         showSignatures: false,
         brand,
         footerText,
-        docLabel: 'Facture',
+        docLabel: facture.is_deposit ? "Facture d'acompte" : 'Facture',
         metaLine,
       });
 

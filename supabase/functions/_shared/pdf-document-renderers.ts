@@ -227,7 +227,7 @@ function drawTotalsLine(page: PDFPage, font: PDFFont, y: number, label: string, 
 function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docLabel: string): number {
   const validityDays = org?.devis_validity_days ?? 30;
   const baseText =
-    docLabel === 'Facture'
+    docLabel !== 'Devis'
       ? 'Merci de régler cette facture avant l\'échéance indiquée ci-dessus.'
       : `Devis valable ${validityDays} jours.`;
   const termsLines = wrapText(

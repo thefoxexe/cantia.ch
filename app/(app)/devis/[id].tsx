@@ -1,17 +1,23 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
 import { duplicateDevis } from '../../../lib/api/devis';
+import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
-import { colors, fontSize, spacing } from '../../../lib/theme';
-import type { Devis, DevisItem, DevisStatus } from '../../../lib/types';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import type { Devis, DevisItem, DevisStatus, Facture } from '../../../lib/types';
+
+type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
+
+const DEPOSIT_PRESETS = [20, 30, 50];
 
 const STATUS_FLOW: DevisStatus[] = ['draft', 'sent', 'accepted', 'refused'];
 const STATUS_LABELS: Record<DevisStatus, string> = {
@@ -30,18 +36,22 @@ export default function DevisDetailScreen() {
   const [items, setItems] = useState<DevisItem[]>([]);
   const [generating, setGenerating] = useState(false);
   const [converting, setConverting] = useState(false);
-  const [factureId, setFactureId] = useState<string | null>(null);
+  const [relatedFactures, setRelatedFactures] = useState<RelatedFacture[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [depositModalVisible, setDepositModalVisible] = useState(false);
+  const [depositPercent, setDepositPercent] = useState('30');
+  const [creatingDeposit, setCreatingDeposit] = useState(false);
+  const [depositError, setDepositError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [{ data: d }, { data: i }, { data: f }] = await Promise.all([
+    const [{ data: d }, { data: i }, f] = await Promise.all([
       supabase.from('devis').select('*').eq('id', id).single(),
       supabase.from('devis_items').select('*').eq('devis_id', id).order('sort_order', { ascending: true }),
-      supabase.from('factures').select('id').eq('devis_id', id).maybeSingle(),
+      listFacturesForDevis(id),
     ]);
     setDevis(d ?? null);
     setItems(i ?? []);
-    setFactureId(f?.id ?? null);
+    setRelatedFactures(f);
   }, [id]);
 
   useFocusEffect(
@@ -100,13 +110,31 @@ export default function DevisDetailScreen() {
   async function handleConvertToFacture() {
     setConverting(true);
     setError(null);
-    const { data, error: rpcError } = await supabase.rpc('convert_devis_to_facture', { p_devis_id: id });
+    const { id: newId, error: rpcError } = await convertDevisToFacture(id);
     setConverting(false);
     if (rpcError) {
-      setError(rpcError.message);
+      setError(rpcError);
       return;
     }
-    router.push(`/(app)/devis/factures/${data}`);
+    router.push(`/(app)/devis/factures/${newId}`);
+  }
+
+  async function handleCreateDeposit() {
+    const percent = Number(depositPercent.replace(',', '.'));
+    if (!percent || percent <= 0 || percent > 100) {
+      setDepositError('Entrez un pourcentage entre 1 et 100.');
+      return;
+    }
+    setCreatingDeposit(true);
+    setDepositError(null);
+    const { id: newId, error: rpcError } = await convertDevisToFacture(id, percent);
+    setCreatingDeposit(false);
+    if (rpcError) {
+      setDepositError(rpcError);
+      return;
+    }
+    setDepositModalVisible(false);
+    router.push(`/(app)/devis/factures/${newId}`);
   }
 
   if (!devis) {
@@ -216,25 +244,77 @@ export default function DevisDetailScreen() {
           />
         ) : null}
 
-        {factureId ? (
-          <Button
-            title="Voir la facture"
-            icon="dollar-sign"
-            onPress={() => router.push(`/(app)/devis/factures/${factureId}`)}
-            variant="secondary"
-            style={{ marginTop: spacing.md }}
-          />
-        ) : devis.status === 'accepted' ? (
-          <Button
-            title="Transformer en facture"
-            icon="dollar-sign"
-            onPress={handleConvertToFacture}
-            loading={converting}
-            style={{ marginTop: spacing.md }}
-          />
+        {relatedFactures.length ? (
+          <>
+            <Text style={styles.sectionTitle}>Factures liées</Text>
+            <Card style={{ padding: 0, overflow: 'hidden' }}>
+              {relatedFactures.map((f, idx) => (
+                <Pressable
+                  key={f.id}
+                  onPress={() => router.push(`/(app)/devis/factures/${f.id}`)}
+                  style={[styles.factureRow, idx > 0 && styles.itemRowBorder]}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemDesc}>{f.number}</Text>
+                    <Text style={styles.meta}>{f.is_deposit ? 'Acompte' : 'Facture finale'}</Text>
+                  </View>
+                  <StatusBadge status={f.status} />
+                  <Feather name="chevron-right" size={16} color={colors.textMuted} />
+                </Pressable>
+              ))}
+            </Card>
+          </>
+        ) : null}
+
+        {devis.status === 'accepted' && !relatedFactures.some((f) => !f.is_deposit) ? (
+          <>
+            <Button
+              title="Facturer un acompte"
+              icon="percent"
+              variant="secondary"
+              onPress={() => {
+                setDepositError(null);
+                setDepositModalVisible(true);
+              }}
+              style={{ marginTop: spacing.md }}
+            />
+            <Button
+              title="Transformer en facture finale"
+              icon="dollar-sign"
+              onPress={handleConvertToFacture}
+              loading={converting}
+              style={{ marginTop: spacing.md }}
+            />
+          </>
         ) : null}
       </Container>
       </ScrollView>
+
+      <Modal visible={depositModalVisible} transparent animationType="fade" onRequestClose={() => setDepositModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Facturer un acompte</Text>
+            <Text style={styles.meta}>Pourcentage du montant total du devis à facturer maintenant.</Text>
+            <View style={styles.percentPresets}>
+              {DEPOSIT_PRESETS.map((p) => (
+                <Pressable
+                  key={p}
+                  onPress={() => setDepositPercent(String(p))}
+                  style={[styles.percentChip, depositPercent === String(p) && styles.percentChipActive]}
+                >
+                  <Text style={[styles.percentChipText, depositPercent === String(p) && styles.percentChipTextActive]}>{p}%</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Field label="Pourcentage (%)" value={depositPercent} onChangeText={setDepositPercent} keyboardType="decimal-pad" />
+            {depositError ? <Text style={styles.error}>{depositError}</Text> : null}
+            <View style={styles.modalActions}>
+              <Button title="Annuler" variant="secondary" onPress={() => setDepositModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Créer la facture" onPress={handleCreateDeposit} loading={creatingDeposit} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -340,6 +420,64 @@ const styles = StyleSheet.create({
   error: {
     color: colors.danger,
     fontSize: fontSize.sm,
+    marginTop: spacing.md,
+  },
+  factureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  percentPresets: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  percentChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+  },
+  percentChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  percentChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  percentChipTextActive: {
+    color: colors.primary,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
     marginTop: spacing.md,
   },
 });
