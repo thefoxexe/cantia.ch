@@ -23,12 +23,16 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isUnsettled(facture: Facture): boolean {
+  return facture.status === 'sent' || facture.status === 'partial';
+}
+
 function isOverdue(facture: Facture): boolean {
-  return facture.status === 'sent' && facture.due_date < todayIso();
+  return isUnsettled(facture) && facture.due_date < todayIso();
 }
 
 function isPending(facture: Facture): boolean {
-  return facture.status === 'sent' && facture.due_date >= todayIso();
+  return isUnsettled(facture) && facture.due_date >= todayIso();
 }
 
 function isPaidThisMonth(facture: Facture): boolean {
@@ -306,8 +310,8 @@ export default function FacturesListScreen() {
           }
           renderItem={({ item }) => {
             const overdue = isOverdue(item);
-            const canRemind = isAdmin && item.status === 'sent' && !!item.client_email;
-            const showRemindRow = isAdmin && item.status === 'sent';
+            const canRemind = isAdmin && isUnsettled(item) && !!item.client_email;
+            const showRemindRow = isAdmin && isUnsettled(item);
             const amount = totals[item.id] ?? 0;
             return (
               <View style={styles.cardWrap}>

@@ -233,7 +233,7 @@ export interface DevisItem {
   sort_order: number;
 }
 
-export type FactureStatus = 'draft' | 'sent' | 'paid' | 'cancelled';
+export type FactureStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'cancelled';
 
 export interface Facture {
   id: string;

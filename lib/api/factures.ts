@@ -1,6 +1,6 @@
 import { invokeFunction } from './functions';
 import { supabase } from '../supabase';
-import type { Facture, FacturePayment } from '../types';
+import type { Facture, FacturePayment, FactureStatus } from '../types';
 
 export async function sendFactureReminder(factureId: string): Promise<{ sent: boolean; error: string | null }> {
   const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-reminder', { facture_id: factureId });
@@ -86,22 +86,24 @@ export async function listFacturePayments(factureId: string): Promise<FacturePay
   return data ?? [];
 }
 
-// Flips the facture to 'paid' once the ledger covers the total, or back to
-// 'sent' if a payment is later deleted and it no longer does — a small
-// rounding tolerance (1 centime) absorbs floating-point noise, not a real
-// underpayment.
+// Derives the facture's status purely from the ledger — 'paid' once it
+// covers the total (1-centime tolerance for floating-point noise), 'partial'
+// once some but not all of it is in, back to 'sent' if every payment is
+// later deleted. Only touches factures already in the sent/partial/paid
+// lifecycle — never overrides 'draft' or 'cancelled'.
 async function syncFactureStatus(factureId: string, total: number): Promise<void> {
   const payments = await listFacturePayments(factureId);
   const paidSum = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const { data: facture } = await supabase.from('factures').select('status').eq('id', factureId).single();
-  if (!facture) return;
+  if (!facture || (facture.status !== 'sent' && facture.status !== 'partial' && facture.status !== 'paid')) return;
   const isFullyPaid = paidSum >= total - 0.01;
-  if (isFullyPaid && facture.status !== 'paid') {
-    const lastPaidAt = payments.length ? payments[payments.length - 1].paid_at : new Date().toISOString();
-    await supabase.from('factures').update({ status: 'paid', paid_at: lastPaidAt }).eq('id', factureId);
-  } else if (!isFullyPaid && facture.status === 'paid') {
-    await supabase.from('factures').update({ status: 'sent', paid_at: null }).eq('id', factureId);
-  }
+  const nextStatus: FactureStatus = isFullyPaid ? 'paid' : paidSum > 0.01 ? 'partial' : 'sent';
+  if (nextStatus === facture.status) return;
+  const lastPaidAt = payments.length ? payments[payments.length - 1].paid_at : new Date().toISOString();
+  await supabase
+    .from('factures')
+    .update({ status: nextStatus, paid_at: nextStatus === 'paid' ? lastPaidAt : null })
+    .eq('id', factureId);
 }
 
 // `total` is the facture's own total TTC (subtotal + VAT), passed in by the

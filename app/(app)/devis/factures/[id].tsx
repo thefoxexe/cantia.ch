@@ -232,7 +232,8 @@ export default function FactureDetailScreen() {
   const total = subtotal + vat;
   const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const remaining = Math.max(0, total - totalPaid);
-  const overdue = facture.status === 'sent' && facture.due_date < new Date().toISOString().slice(0, 10);
+  const overdue =
+    (facture.status === 'sent' || facture.status === 'partial') && facture.due_date < new Date().toISOString().slice(0, 10);
   const paymentRef = generatePaymentReference(orgIban, facture.id);
 
   const canDeposit = !facture.is_deposit && !!facture.devis_id && !siblingFactures.some((f) => f.is_deposit);
@@ -387,7 +388,7 @@ export default function FactureDetailScreen() {
           </View>
         </Card>
 
-        {payments.length || facture.status === 'sent' ? (
+        {payments.length || facture.status === 'sent' || facture.status === 'partial' ? (
           <>
             <Text style={styles.sectionTitle}>Paiements</Text>
             <Card>
