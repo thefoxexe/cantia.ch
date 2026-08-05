@@ -226,7 +226,7 @@ export default function EntrepriseScreen() {
             <Text style={styles.errorHint}>IBAN suisse ou liechtensteinois invalide (format CHxx.../LIxx...).</Text>
           ) : (
             <Text style={styles.hint}>
-              Renseigné, un bulletin de paiement QR suisse conforme est ajouté automatiquement à vos devis.
+              Renseigné, un bulletin de paiement QR suisse conforme est ajouté automatiquement à vos factures.
             </Text>
           )}
           {isAdmin ? (

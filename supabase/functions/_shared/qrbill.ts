@@ -21,27 +21,32 @@ const BLACK = rgb(0, 0, 0);
 const WHITE = rgb(1, 1, 1);
 const GREY = rgb(0.4, 0.4, 0.4);
 
+// ISO 7064 MOD97-10 — the checksum shared by IBAN validation and the ISO
+// 11649 structured creditor reference (SCOR) below. Digit-by-digit so it
+// never needs a big-integer type for a 20+ digit number.
+function mod97(digits: string): number {
+  let remainder = 0;
+  for (const ch of digits) {
+    remainder = (remainder * 10 + Number(ch)) % 97;
+  }
+  return remainder;
+}
+
 export function isValidSwissIban(raw: string | null | undefined): boolean {
   if (!raw) return false;
   const iban = raw.replace(/\s+/g, '').toUpperCase();
   if (!/^(CH|LI)\d{19}$/.test(iban)) return false;
   const rearranged = iban.slice(4) + iban.slice(0, 4);
   const numeric = rearranged.replace(/[A-Z]/g, (ch) => String(ch.charCodeAt(0) - 55));
-  let remainder = 0;
-  for (const digit of numeric) {
-    remainder = (remainder * 10 + Number(digit)) % 97;
-  }
-  return remainder === 1;
+  return mod97(numeric) === 1;
 }
 
 // A QR-IBAN's bank clearing number (IID, IBAN chars 5-9) falls in the
 // 30000-31999 range reserved for QR-IBANs — those require the proprietary
-// 27-digit "QRR" reference below. Any other (regular) IBAN must use
-// reference type "NON" (no reference) for a first version of this feature —
-// the alternative, a "SCOR"/ISO 11649 creditor reference, is a real option
-// too but adds its own check-digit scheme; skipped for now since QR-IBAN
-// (the common case for a business that specifically wants a QR-bill) is
-// covered.
+// 27-digit "QRR" reference below. Any other (regular) IBAN falls back to a
+// "SCOR" (ISO 11649) structured creditor reference instead, which works
+// with any valid IBAN — so a facture always gets a real, bank-recognized
+// reference rather than silently having none.
 function isQrIban(iban: string): boolean {
   const iid = Number(iban.slice(4, 9));
   return iid >= 30000 && iid <= 31999;
@@ -85,7 +90,27 @@ function generateQrrReference(devisId: string): string {
   return digits + mod10CheckDigit(digits);
 }
 
-function formatReferenceForDisplay(ref: string): string {
+// ISO 11649 structured creditor reference ("SCOR") — used when the org's
+// IBAN is a regular IBAN rather than a QR-IBAN (the common case: a
+// QR-IBAN has to be specifically requested from the bank). Works with any
+// valid IBAN, unlike QRR.
+function generateScorReference(devisId: string): string {
+  const hex = devisId.replace(/-/g, '');
+  const body = hex
+    .split('')
+    .map((ch) => String(parseInt(ch, 16) % 10))
+    .join('')
+    .slice(0, 18);
+  // Check digit: append literal "RF00" (letters converted to digits per
+  // ISO 11649: R=27, F=15) to the body, then 98 minus the MOD97-10
+  // remainder of the whole thing — the same rearrange-and-mod97 pattern
+  // used for IBAN validation above, just run in the "generate" direction.
+  const checkDigits = String(98 - mod97(`${body}271500`)).padStart(2, '0');
+  return `RF${checkDigits}${body}`;
+}
+
+function formatReferenceForDisplay(ref: string, type: 'QRR' | 'SCOR'): string {
+  if (type === 'SCOR') return ref.replace(/(.{4})/g, '$1 ').trim();
   // Grouped in blocks of 5 from the left after a leading 2-digit block —
   // matches how Swiss banking apps print it, e.g. "00 00000 00000 00202 60186".
   return ref.replace(/(.{2})(.{5})(.{5})(.{5})(.{5})(.{5})/, '$1 $2 $3 $4 $5 $6');
@@ -135,18 +160,18 @@ export interface QrBillData {
   amount: number;
   currency: 'CHF' | 'EUR';
   debtor: QrBillParty | null;
-  referenceId: string; // stable id (e.g. devis.id) used to derive the QRR reference
+  referenceId: string; // stable id (facture.id) used to derive the QRR/SCOR reference
   unstructuredMessage?: string;
 }
 
 // Builds the "Swiss QR Code" payload (a.k.a. SPC — Swiss Payments Code): a
 // fixed-order, \r\n-separated text structure. Field order below must not
 // change — this is what a banking app parses, not a human-readable format.
-function buildSpcPayload(data: QrBillData): { payload: string; reference: string; referenceType: 'QRR' | 'NON' } {
+function buildSpcPayload(data: QrBillData): { payload: string; reference: string; referenceType: 'QRR' | 'SCOR' } {
   const iban = data.iban.replace(/\s+/g, '').toUpperCase();
   const qrIban = isQrIban(iban);
-  const referenceType: 'QRR' | 'NON' = qrIban ? 'QRR' : 'NON';
-  const reference = qrIban ? generateQrrReference(data.referenceId) : '';
+  const referenceType: 'QRR' | 'SCOR' = qrIban ? 'QRR' : 'SCOR';
+  const reference = qrIban ? generateQrrReference(data.referenceId) : generateScorReference(data.referenceId);
   const creditorFields = partyAddressFields(data.creditor);
   const debtorFields = data.debtor ? partyAddressFields(data.debtor) : null;
 
@@ -305,12 +330,10 @@ export async function appendQrBillPage(
     drawText(page, line, rx, ry, font, 8, INK);
     ry -= mm(3.5);
   }
-  if (referenceType === 'QRR') {
-    ry -= mm(2);
-    drawText(page, 'Référence', rx, ry, fontBold, 6, INK);
-    ry -= mm(3.5);
-    drawText(page, formatReferenceForDisplay(reference), rx, ry, font, 8, INK);
-  }
+  ry -= mm(2);
+  drawText(page, 'Référence', rx, ry, fontBold, 6, INK);
+  ry -= mm(3.5);
+  drawText(page, formatReferenceForDisplay(reference, referenceType), rx, ry, font, 8, INK);
   if (data.debtor) {
     ry -= mm(5);
     drawText(page, 'Payable par', rx, ry, fontBold, 6, INK);
@@ -351,12 +374,10 @@ export async function appendQrBillPage(
       iy -= mm(3.5);
     }
   }
-  if (referenceType === 'QRR') {
-    iy -= mm(2);
-    drawText(page, 'Référence', infoX, iy, fontBold, 6, INK);
-    iy -= mm(3.5);
-    drawText(page, formatReferenceForDisplay(reference), infoX, iy, font, 8, INK);
-  }
+  iy -= mm(2);
+  drawText(page, 'Référence', infoX, iy, fontBold, 6, INK);
+  iy -= mm(3.5);
+  drawText(page, formatReferenceForDisplay(reference, referenceType), infoX, iy, font, 8, INK);
   if (data.debtor) {
     iy -= mm(5);
     drawText(page, 'Payable par', infoX, iy, fontBold, 6, INK);

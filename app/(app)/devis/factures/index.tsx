@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder } from '../../../../lib/api/factures';
-import { generateQrrReference } from '../../../../lib/qrReference';
+import { generatePaymentReference } from '../../../../lib/qrReference';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
@@ -154,24 +154,26 @@ export default function FacturesListScreen() {
     if (!query) return byStatus;
 
     // A pasted bank reference (with or without the grouping spaces printed
-    // on the QR-bill) is matched digit-for-digit against the QRR reference
-    // derived from each facture's id — this is the "rapprochement" use
-    // case: reconciling an incoming payment against the facture it pays.
-    const queryDigits = query.replace(/\D/g, '');
+    // on the QR-bill, QRR digits or an "RF.." SCOR reference alike) is
+    // matched against the reference derived from each facture's id — this
+    // is the "rapprochement" use case: reconciling an incoming payment
+    // against the facture it pays.
+    const queryAlnum = query.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     const lowerQuery = query.toLowerCase();
     return byStatus.filter((f) => {
       if (f.number?.toLowerCase().includes(lowerQuery)) return true;
       if (f.client_name?.toLowerCase().includes(lowerQuery)) return true;
-      if (queryDigits.length >= 6 && generateQrrReference(f.id).includes(queryDigits)) return true;
+      const ref = generatePaymentReference(organization?.iban, f.id);
+      if (ref && queryAlnum.length >= 6 && ref.reference.includes(queryAlnum)) return true;
       return false;
     });
-  }, [factures, filter, search]);
+  }, [factures, filter, search, organization?.iban]);
 
   const referenceMatch = useMemo(() => {
-    const queryDigits = search.trim().replace(/\D/g, '');
-    if (queryDigits.length < 27) return null;
-    return factures.find((f) => generateQrrReference(f.id) === queryDigits) ?? null;
-  }, [factures, search]);
+    const queryAlnum = search.trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    if (queryAlnum.length < 18) return null;
+    return factures.find((f) => generatePaymentReference(organization?.iban, f.id)?.reference === queryAlnum) ?? null;
+  }, [factures, search, organization?.iban]);
 
   async function handleRemind(facture: Facture) {
     if (remindingId) return;

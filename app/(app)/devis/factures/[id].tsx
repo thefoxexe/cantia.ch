@@ -8,7 +8,7 @@ import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
 import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
-import { formatReferenceForDisplay, generateQrrReference, isQrIban } from '../../../../lib/qrReference';
+import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
 import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
 
 const STATUS_FLOW: FactureStatus[] = ['draft', 'sent', 'paid', 'cancelled'];
@@ -86,6 +86,7 @@ export default function FactureDetailScreen() {
   const vat = subtotal * (Number(facture.vat_rate) / 100);
   const total = subtotal + vat;
   const overdue = facture.status === 'sent' && facture.due_date < new Date().toISOString().slice(0, 10);
+  const paymentRef = generatePaymentReference(orgIban, facture.id);
 
   return (
     <Screen>
@@ -104,13 +105,13 @@ export default function FactureDetailScreen() {
           </Text>
         </Card>
 
-        {isQrIban(orgIban) ? (
+        {paymentRef ? (
           <View style={styles.refCard}>
             <Feather name="hash" size={16} color={colors.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.refLabel}>Référence QR de paiement</Text>
+              <Text style={styles.refLabel}>Référence de paiement</Text>
               <Text selectable style={styles.refValue}>
-                {formatReferenceForDisplay(generateQrrReference(facture.id))}
+                {formatReferenceForDisplay(paymentRef.reference, paymentRef.type)}
               </Text>
               <Text style={styles.refHint}>Appui long pour copier</Text>
             </View>

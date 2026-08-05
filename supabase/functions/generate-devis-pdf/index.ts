@@ -7,9 +7,7 @@ import {
   resolveBrand,
   resolveFooterText,
   resolvePdfTemplate,
-  swissRound,
 } from '../_shared/pdf-helpers.ts';
-import { appendQrBillPage, isValidSwissIban } from '../_shared/qrbill.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
 
 const BUCKET = 'opus-storage';
@@ -64,62 +62,24 @@ Deno.serve(async (req: Request) => {
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org);
 
-    let pdfBytes: Uint8Array;
-
-    {
-      const rendered = RENDERERS[template.base_layout]({
-        pdfDoc,
-        font,
-        fontBold,
-        org,
-        devis,
-        items: items ?? [],
-        signatureImg,
-        brand,
-        footerText,
-        docLabel: 'Devis',
-        metaLine: null,
-      });
-      drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia');
-      pdfBytes = await pdfDoc.save();
-    }
-
-    // Swiss QR-bill: a dedicated final page appended to the already-rendered
-    // PDF (pdfDoc is mutated in place, so this applies identically whether
-    // the devis used a preset or a custom layout, without touching either
-    // rendering path). Opt-in — only when the org has a valid CH/LI IBAN.
-    // Always a fresh page here (unlike generate-facture-pdf) — the footer
-    // above is already drawn on the content's last page, so there's no
-    // "reuse that page" path to wire up without redoing that footer call.
-    if (isValidSwissIban(org?.iban)) {
-      try {
-        const itemsList = items ?? [];
-        const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
-        const vat = subtotal * (Number(devis.vat_rate) / 100);
-        const total = swissRound(subtotal + vat);
-        await appendQrBillPage(pdfDoc, font, fontBold, {
-          iban: org.iban,
-          creditor: {
-            name: org.name ?? 'Entreprise',
-            addressLine1: org.street ?? org.address ?? null,
-            postalCode: org.postal_code ?? null,
-            town: org.locality ?? null,
-          },
-          amount: total,
-          currency: 'CHF',
-          debtor: devis.client_name
-            ? { name: devis.client_name, addressLine1: devis.client_address ?? null }
-            : null,
-          referenceId: devis.id,
-          unstructuredMessage: devis.number ? `Devis ${devis.number}` : undefined,
-        });
-        pdfBytes = await pdfDoc.save();
-      } catch (qrErr) {
-        // A QR-bill failure must never take down devis generation — the
-        // rest of the PDF is still valid and useful without it.
-        console.error('QR-bill generation failed:', qrErr);
-      }
-    }
+    // A devis is a quote, not a payment request — no QR-bill here (that's
+    // generate-facture-pdf's job, once the client has accepted and it's
+    // been converted to a facture).
+    const rendered = RENDERERS[template.base_layout]({
+      pdfDoc,
+      font,
+      fontBold,
+      org,
+      devis,
+      items: items ?? [],
+      signatureImg,
+      brand,
+      footerText,
+      docLabel: 'Devis',
+      metaLine: null,
+    });
+    drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia');
+    const pdfBytes = await pdfDoc.save();
 
     const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage
