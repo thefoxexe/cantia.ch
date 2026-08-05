@@ -38,3 +38,37 @@ export async function downloadFile(url: string, filename: string): Promise<{ err
     return { error: err instanceof Error ? err.message : String(err) };
   }
 }
+
+// Same "save this to the user's device" job as downloadFile, but for
+// content generated in-app (a CSV export) rather than something already
+// sitting behind a URL.
+export async function downloadTextFile(filename: string, content: string, mimeType = 'text/csv'): Promise<{ error: string | null }> {
+  if (Platform.OS === 'web') {
+    try {
+      const blob = new Blob([content], { type: mimeType });
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) };
+    }
+  }
+
+  try {
+    const destination = new File(Paths.cache, filename);
+    destination.create({ overwrite: true });
+    destination.write(content);
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(destination.uri);
+    }
+    return { error: null };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+}

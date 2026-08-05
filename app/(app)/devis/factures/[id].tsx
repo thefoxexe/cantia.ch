@@ -1,29 +1,48 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { getSignedUrl } from '../../../../lib/api/storage';
 import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
-import { duplicateFacture } from '../../../../lib/api/factures';
+import { duplicateFacture, convertDevisToFacture, listFacturesForDevis } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
-import { Button, Card, Container, LoadingScreen, Screen } from '../../../../components/ui';
-import { RowActionMenu } from '../../../../components/RowActionMenu';
-import { StatusDropdown } from '../../../../components/StatusDropdown';
+import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
 import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
 
-const STATUS_FLOW: FactureStatus[] = ['draft', 'sent', 'paid', 'cancelled'];
-const STATUS_LABELS: Record<FactureStatus, string> = {
-  draft: 'Brouillon',
-  sent: 'Envoyée',
-  paid: 'Payée',
-  cancelled: 'Annulée',
-};
+const DEPOSIT_PRESETS = [20, 30, 50];
 
+function todayDisplay(): string {
+  return new Date().toLocaleDateString('fr-CH');
+}
+
+// "JJ.MM.AAAA" -> ISO "AAAA-MM-JJ", or null if unparsable.
+function parseSwissDate(value: string): string | null {
+  const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(value.trim());
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  const iso = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  return Number.isNaN(new Date(iso).getTime()) ? null : iso;
+}
+
+interface ActionRow {
+  key: string;
+  icon: React.ComponentProps<typeof Feather>['name'];
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  soon?: boolean;
+  danger?: boolean;
+}
+
+// Chiffr-style: a single full-width "Actions" button right under the header
+// (status + reference), expanding into a panel whose contents depend on the
+// facture's status — instead of a small status-only dropdown up top, which
+// buried anything beyond "change status" at the very bottom of the page,
+// past however many line items the facture has.
 export default function FactureDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -32,8 +51,18 @@ export default function FactureDetailScreen() {
   const [facture, setFacture] = useState<Facture | null>(null);
   const [items, setItems] = useState<FactureItem[]>([]);
   const [orgIban, setOrgIban] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
+  const [siblingFactures, setSiblingFactures] = useState<{ id: string; is_deposit: boolean }[]>([]);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
+
+  const [depositModalVisible, setDepositModalVisible] = useState(false);
+  const [depositPercent, setDepositPercent] = useState('30');
+  const [depositError, setDepositError] = useState<string | null>(null);
+
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [paymentDate, setPaymentDate] = useState(todayDisplay());
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: f }, { data: i }] = await Promise.all([
@@ -46,6 +75,7 @@ export default function FactureDetailScreen() {
       const { data: org } = await supabase.from('organizations').select('iban').eq('id', f.organization_id).single();
       setOrgIban(org?.iban ?? null);
     }
+    setSiblingFactures(f?.devis_id ? await listFacturesForDevis(f.devis_id) : []);
   }, [id]);
 
   useFocusEffect(
@@ -54,16 +84,32 @@ export default function FactureDetailScreen() {
     }, [load]),
   );
 
-  async function changeStatus(status: FactureStatus) {
+  async function setStatus(status: FactureStatus, paidAt?: string | null) {
     const patch: { status: FactureStatus; paid_at?: string | null } = { status };
-    if (status === 'paid') patch.paid_at = new Date().toISOString();
-    else if (facture?.status === 'paid') patch.paid_at = null;
+    if (paidAt !== undefined) patch.paid_at = paidAt;
     await supabase.from('factures').update(patch).eq('id', id);
+    setActionsOpen(false);
+    load();
+  }
+
+  async function handleDownloadPdf() {
+    setBusy(true);
+    setError(null);
+    const { url, error: genError } = await generateFacturePdf(id);
+    setBusy(false);
+    if (genError || !url) {
+      setError(genError ?? 'Échec de la génération du PDF.');
+      return;
+    }
+    setActionsOpen(false);
+    const { error: dlError } = await downloadFile(url, `Facture ${facture?.number || facture?.client_name}.pdf`);
+    if (dlError) setError(dlError);
     load();
   }
 
   async function handleDuplicate() {
     setError(null);
+    setActionsOpen(false);
     const { id: newId, error: dupError } = await duplicateFacture(id);
     if (dupError) {
       setError(dupError);
@@ -72,36 +118,56 @@ export default function FactureDetailScreen() {
     if (newId) router.push(`/(app)/devis/factures/${newId}`);
   }
 
-  async function handleDelete() {
-    const ok = await confirm('Supprimer cette facture ?', `La facture ${facture?.number ?? ''} sera définitivement supprimée.`);
+  async function handleDeleteOrCancel() {
+    const isDraft = facture?.status === 'draft';
+    const ok = await confirm(
+      isDraft ? 'Supprimer cette facture ?' : 'Annuler cette facture ?',
+      isDraft
+        ? `La facture ${facture?.number ?? ''} sera définitivement supprimée.`
+        : `La facture ${facture?.number ?? ''} sera marquée comme annulée.`,
+    );
     if (!ok) return;
     setError(null);
-    const { error: delError } = await supabase.from('factures').delete().eq('id', id);
-    if (delError) {
-      setError(delError.message);
+    if (isDraft) {
+      const { error: delError } = await supabase.from('factures').delete().eq('id', id);
+      if (delError) {
+        setError(delError.message);
+        return;
+      }
+      router.replace('/(app)/devis/factures');
       return;
     }
-    router.replace('/(app)/devis/factures');
+    await setStatus('cancelled');
   }
 
-  async function handleGeneratePdf() {
-    setGenerating(true);
-    setError(null);
-    const { error } = await generateFacturePdf(id);
-    setGenerating(false);
-    if (error) {
-      setError(error);
+  async function handleRecordPayment() {
+    const iso = parseSwissDate(paymentDate);
+    if (!iso) {
+      setPaymentError('Date invalide (format JJ.MM.AAAA).');
       return;
     }
-    load();
+    setPaymentError(null);
+    setPaymentModalVisible(false);
+    await setStatus('paid', new Date(iso).toISOString());
   }
 
-  async function openPdf() {
-    if (!facture?.pdf_path) return;
-    const url = await getSignedUrl(facture.pdf_path);
-    if (!url) return;
-    const { error: dlError } = await downloadFile(url, `Facture ${facture.number || facture.client_name}.pdf`);
-    if (dlError) setError(dlError);
+  async function handleCreateDeposit() {
+    if (!facture?.devis_id) return;
+    const percent = Number(depositPercent.replace(',', '.'));
+    if (!percent || percent <= 0 || percent > 100) {
+      setDepositError('Entrez un pourcentage entre 1 et 100.');
+      return;
+    }
+    setBusy(true);
+    setDepositError(null);
+    const { id: newId, error: rpcError } = await convertDevisToFacture(facture.devis_id, percent);
+    setBusy(false);
+    if (rpcError) {
+      setDepositError(rpcError);
+      return;
+    }
+    setDepositModalVisible(false);
+    router.push(`/(app)/devis/factures/${newId}`);
   }
 
   if (!facture) {
@@ -118,6 +184,62 @@ export default function FactureDetailScreen() {
   const overdue = facture.status === 'sent' && facture.due_date < new Date().toISOString().slice(0, 10);
   const paymentRef = generatePaymentReference(orgIban, facture.id);
 
+  const canDeposit = !facture.is_deposit && !!facture.devis_id && !siblingFactures.some((f) => f.is_deposit);
+
+  const actionRows: ActionRow[] = [
+    { key: 'pdf', icon: 'download', label: 'Télécharger le PDF', onPress: handleDownloadPdf },
+    ...(facture.status === 'draft'
+      ? ([{ key: 'finalize', icon: 'check', label: 'Finaliser', onPress: () => setStatus('sent') }] as ActionRow[])
+      : []),
+    ...(facture.status !== 'draft' && facture.status !== 'cancelled'
+      ? ([
+          { key: 'email', icon: 'mail', label: 'Envoyer par email', onPress: () => {}, disabled: true, soon: true },
+          ...(facture.status !== 'paid'
+            ? ([
+                {
+                  key: 'record-payment',
+                  icon: 'plus-circle',
+                  label: 'Enregistrer un paiement',
+                  onPress: () => {
+                    setPaymentDate(todayDisplay());
+                    setPaymentError(null);
+                    setPaymentModalVisible(true);
+                    setActionsOpen(false);
+                  },
+                },
+                { key: 'mark-paid', icon: 'check-circle', label: 'Marquer payée', onPress: () => setStatus('paid', new Date().toISOString()) },
+              ] as ActionRow[])
+            : []),
+          {
+            key: 'deposit',
+            icon: 'percent',
+            label: 'Facturer un acompte',
+            disabled: !canDeposit,
+            onPress: () => {
+              setDepositError(null);
+              setDepositModalVisible(true);
+              setActionsOpen(false);
+            },
+          },
+        ] as ActionRow[])
+      : []),
+    { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+    ...(facture.devis_id
+      ? ([{ key: 'devis', icon: 'file-text', label: 'Voir le devis', onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }] as ActionRow[])
+      : []),
+    ...(isAdmin && facture.status !== 'cancelled'
+      ? ([
+          {
+            key: 'delete-or-cancel',
+            icon: facture.status === 'draft' ? 'trash-2' : 'slash',
+            label: facture.status === 'draft' ? 'Supprimer la facture' : 'Annuler la facture',
+            danger: true,
+            onPress: handleDeleteOrCancel,
+          },
+        ] as ActionRow[])
+      : []),
+  ];
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -132,20 +254,7 @@ export default function FactureDetailScreen() {
                 </View>
               ) : null}
             </View>
-            <View style={styles.headerRight}>
-              <StatusDropdown status={facture.status} options={STATUS_FLOW} labels={STATUS_LABELS} onChange={changeStatus} />
-              <RowActionMenu
-                actions={[
-                  { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
-                  ...(facture.devis_id
-                    ? [{ key: 'devis', icon: 'file-text' as const, label: 'Voir le devis', onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }]
-                    : []),
-                  ...(isAdmin
-                    ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: handleDelete }]
-                    : []),
-                ]}
-              />
-            </View>
+            <StatusBadge status={facture.status} />
           </View>
           <Text style={styles.client}>{facture.client_name}</Text>
           {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
@@ -167,6 +276,35 @@ export default function FactureDetailScreen() {
             </View>
           </View>
         ) : null}
+
+        <Button
+          title="Actions"
+          icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
+          onPress={() => setActionsOpen((v) => !v)}
+          loading={busy}
+          style={{ marginTop: spacing.md }}
+        />
+        {actionsOpen ? (
+          <Card style={styles.actionsPanel}>
+            {actionRows.map((action, i) => (
+              <Pressable
+                key={action.key}
+                disabled={action.disabled}
+                onPress={action.onPress}
+                style={[styles.actionRow, i > 0 && styles.actionRowBorder, action.disabled && styles.actionRowDisabled]}
+              >
+                <Feather name={action.icon} size={16} color={action.danger ? colors.danger : colors.text} />
+                <Text style={[styles.actionRowText, action.danger && styles.actionRowTextDanger]}>{action.label}</Text>
+                {action.soon ? (
+                  <View style={styles.soonBadge}>
+                    <Text style={styles.soonBadgeText}>Bientôt disponible</Text>
+                  </View>
+                ) : null}
+              </Pressable>
+            ))}
+          </Card>
+        ) : null}
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Text style={styles.sectionTitle}>Lignes</Text>
         <Card>
@@ -196,26 +334,49 @@ export default function FactureDetailScreen() {
             </View>
           </View>
         </Card>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <Button
-          title={facture.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}
-          onPress={handleGeneratePdf}
-          loading={generating}
-          style={{ marginTop: spacing.lg }}
-        />
-        {facture.pdf_path ? (
-          <Button
-            title="Ouvrir le PDF"
-            icon="file-text"
-            onPress={openPdf}
-            variant="secondary"
-            style={{ marginTop: spacing.md }}
-          />
-        ) : null}
       </Container>
       </ScrollView>
+
+      <Modal visible={paymentModalVisible} transparent animationType="fade" onRequestClose={() => setPaymentModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Enregistrer un paiement</Text>
+            <Text style={styles.meta}>Date à laquelle le paiement a été reçu.</Text>
+            <Field label="Date (JJ.MM.AAAA)" value={paymentDate} onChangeText={setPaymentDate} />
+            {paymentError ? <Text style={styles.error}>{paymentError}</Text> : null}
+            <View style={styles.modalActions}>
+              <Button title="Annuler" variant="secondary" onPress={() => setPaymentModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Confirmer" onPress={handleRecordPayment} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={depositModalVisible} transparent animationType="fade" onRequestClose={() => setDepositModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Facturer un acompte</Text>
+            <Text style={styles.meta}>Pourcentage du montant total du devis à facturer maintenant.</Text>
+            <View style={styles.percentPresets}>
+              {DEPOSIT_PRESETS.map((p) => (
+                <Pressable
+                  key={p}
+                  onPress={() => setDepositPercent(String(p))}
+                  style={[styles.percentChip, depositPercent === String(p) && styles.percentChipActive]}
+                >
+                  <Text style={[styles.percentChipText, depositPercent === String(p) && styles.percentChipTextActive]}>{p}%</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Field label="Pourcentage (%)" value={depositPercent} onChangeText={setDepositPercent} keyboardType="decimal-pad" />
+            {depositError ? <Text style={styles.error}>{depositError}</Text> : null}
+            <View style={styles.modalActions}>
+              <Button title="Annuler" variant="secondary" onPress={() => setDepositModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Créer la facture" onPress={handleCreateDeposit} loading={busy} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -234,11 +395,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
@@ -307,6 +463,45 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
   },
+  actionsPanel: {
+    padding: 0,
+    overflow: 'hidden',
+    marginTop: spacing.sm,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  actionRowBorder: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionRowDisabled: {
+    opacity: 0.45,
+  },
+  actionRowText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  actionRowTextDanger: {
+    color: colors.danger,
+  },
+  soonBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: colors.surfaceAlt,
+  },
+  soonBadgeText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -344,6 +539,57 @@ const styles = StyleSheet.create({
   error: {
     color: colors.danger,
     fontSize: fontSize.sm,
+    marginTop: spacing.md,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  percentPresets: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  percentChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+  },
+  percentChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  percentChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  percentChipTextActive: {
+    color: colors.primary,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
     marginTop: spacing.md,
   },
 });

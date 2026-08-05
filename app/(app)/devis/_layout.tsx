@@ -16,6 +16,10 @@ export default function DevisLayout() {
       <Stack.Screen name="[id]" options={{ title: 'Devis' }} />
       <Stack.Screen name="factures/index" options={{ title: 'Factures' }} />
       <Stack.Screen name="factures/[id]" options={{ title: 'Facture' }} />
+      {/* This screen renders its own PageHeader (back arrow + title) — the
+          Stack's auto header would otherwise stack a second "inventaire"
+          title above it. */}
+      <Stack.Screen name="inventaire" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -51,6 +51,54 @@ export async function updateCatalogItemPrice(catalogItemId: string, unitPrice: n
   return { error: error?.message ?? null };
 }
 
+export async function createCatalogItem(
+  organizationId: string,
+  description: string,
+  unit: string,
+  unitPrice: number,
+): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('create_catalog_item', {
+    p_organization_id: organizationId,
+    p_description: description,
+    p_unit: unit,
+    p_unit_price: unitPrice,
+  });
+  return { id: data ?? null, error: error?.message ?? null };
+}
+
+export async function updateCatalogItem(
+  catalogItemId: string,
+  description: string,
+  unit: string,
+  unitPrice: number,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('update_catalog_item', {
+    p_catalog_item_id: catalogItemId,
+    p_description: description,
+    p_unit: unit,
+    p_unit_price: unitPrice,
+  });
+  return { error: error?.message ?? null };
+}
+
+// Admins-only per the "admins can delete catalog items" RLS policy — a
+// plain delete (not an RPC) since that policy already covers it.
+export async function deleteCatalogItem(catalogItemId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('catalog_items').delete().eq('id', catalogItemId);
+  return { error: error?.message ?? null };
+}
+
+export async function importCatalogItems(
+  organizationId: string,
+  items: { description: string; unit: string; unitPrice: number }[],
+): Promise<{ count: number; error: string | null }> {
+  const { data, error } = await supabase.rpc('import_catalog_items', {
+    p_organization_id: organizationId,
+    p_items: items.map((it) => ({ description: it.description, unit: it.unit, unit_price: it.unitPrice })),
+  });
+  return { count: data ?? 0, error: error?.message ?? null };
+}
+
 // Strips accents, lowercases, drops punctuation — French trade vocabulary
 // ("Fenêtre", "étanchéité") needs accent-folding or two spellings of the
 // same word never match. Exported so callers can do an exact-key lookup
@@ -114,4 +162,131 @@ export function findMatches(catalog: CatalogEntry[], query: string, limit = 3): 
     .filter((m) => m.score >= MATCH_THRESHOLD)
     .sort((a, b) => b.score - a.score || b.count - a.count)
     .slice(0, limit);
+}
+
+export interface ParsedCsvItem {
+  description: string;
+  unit: string;
+  unitPrice: number;
+}
+
+export interface ParsedCsv {
+  items: ParsedCsvItem[];
+  skipped: number;
+  error: string | null;
+}
+
+// Splits one CSV line into fields, respecting double-quoted fields (with ""
+// as an escaped quote) — good enough for flat price-list exports (Excel,
+// Chiffr, Bexio, ...), not a full RFC4180 implementation.
+function parseCsvLine(line: string, delimiter: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') {
+        current += '"';
+        i += 1;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === delimiter) {
+      fields.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields.map((f) => f.trim());
+}
+
+// Swiss price cells show up as "60.00", "60,00", "CHF 1'200.50", "1 200,50"
+// — strips currency/thousand markers, then treats whichever of ',' or '.'
+// appears last as the decimal separator.
+function parsePrice(raw: string): number {
+  let s = raw.replace(/chf/gi, '').replace(/['’\s]/g, '').trim();
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  if (lastComma > lastDot) {
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else {
+    s = s.replace(/,/g, '');
+  }
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeHeader(h: string): string {
+  return normalizeDescription(h).replace(/\s+/g, '');
+}
+
+const TITLE_HEADERS = ['titre', 'designation', 'nom', 'article', 'prestation', 'libelle', 'intitule', 'description', 'poste'];
+const DETAIL_HEADERS = ['description', 'detail', 'details', 'descriptif', 'remarque', 'commentaire'];
+const UNIT_HEADERS = ['unite', 'unit', 'u', 'um'];
+const PRICE_HEADERS = ['prix', 'prixunitaire', 'prixunit', 'tarif', 'pu', 'montantunitaire', 'price', 'prixht', 'prixttc'];
+
+// "Smart" import: guesses which columns are the title/description, unit and
+// price from the header row's wording — French-first vocabulary, but plain
+// English headers ("description", "unit", "price") work too. If a sheet has
+// both a "titre" and a separate "description" column, the two are combined
+// ("Titre — description") rather than picking just one.
+export function parseCatalogCsv(text: string): ParsedCsv {
+  const lines = text.split(/\r\n|\r|\n/).filter((l) => l.trim().length > 0);
+  if (lines.length < 2) {
+    return { items: [], skipped: 0, error: 'Le fichier est vide ou ne contient aucune ligne de données.' };
+  }
+
+  const commaCount = (lines[0].match(/,/g) || []).length;
+  const semicolonCount = (lines[0].match(/;/g) || []).length;
+  const delimiter = semicolonCount > commaCount ? ';' : ',';
+
+  const headerCells = parseCsvLine(lines[0], delimiter).map(normalizeHeader);
+
+  let titleIdx = headerCells.findIndex((h) => TITLE_HEADERS.includes(h));
+  let detailIdx = headerCells.findIndex((h, i) => i !== titleIdx && DETAIL_HEADERS.includes(h));
+  if (titleIdx === -1) {
+    titleIdx = detailIdx;
+    detailIdx = -1;
+  }
+  if (titleIdx === -1) {
+    return { items: [], skipped: 0, error: "Impossible de détecter une colonne de titre ou de description dans ce fichier." };
+  }
+  const unitIdx = headerCells.findIndex((h) => UNIT_HEADERS.includes(h));
+  const priceIdx = headerCells.findIndex((h) => PRICE_HEADERS.includes(h));
+
+  const items: ParsedCsvItem[] = [];
+  let skipped = 0;
+  for (const line of lines.slice(1)) {
+    const cells = parseCsvLine(line, delimiter);
+    const title = (cells[titleIdx] ?? '').trim();
+    const detail = detailIdx >= 0 ? (cells[detailIdx] ?? '').trim() : '';
+    const description = detail && detail !== title ? `${title} — ${detail}` : title;
+    if (!description) {
+      skipped += 1;
+      continue;
+    }
+    const unit = unitIdx >= 0 ? (cells[unitIdx] ?? '').trim() || 'pce' : 'pce';
+    const unitPrice = priceIdx >= 0 ? parsePrice(cells[priceIdx] ?? '0') : 0;
+    items.push({ description, unit, unitPrice });
+  }
+
+  return { items, skipped, error: null };
+}
+
+// Semicolon-delimited — the separator fr-CH Excel expects for a CSV to
+// split into columns on open, without the user having to import it manually.
+export function buildCatalogCsv(entries: CatalogEntry[]): string {
+  const escape = (value: string) => (/[;"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
+  const rows = [
+    ['Description', 'Unité', 'Prix unitaire'].join(';'),
+    ...entries.map((e) => [escape(e.description), escape(e.unit), e.unitPrice.toFixed(2)].join(';')),
+  ];
+  return rows.join('\n');
 }
