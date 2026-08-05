@@ -38,6 +38,11 @@ export default function FacturationSolutionPage() {
           text: "Émettez une facture d'acompte pour un pourcentage du devis avant de commencer, puis la facture finale déduit automatiquement ce qui a déjà été encaissé.",
         },
         {
+          icon: 'layers',
+          title: 'Paiements partiels suivis automatiquement',
+          text: "Enregistrez chaque versement reçu : le solde restant dû se met à jour tout seul, la facture passe «partiellement payée» puis «payée» dès que le compte y est.",
+        },
+        {
           icon: 'shield',
           title: 'Hébergé en Suisse',
           text: "Vos factures et données clients restent sur des serveurs situés en Suisse, chiffrées.",
