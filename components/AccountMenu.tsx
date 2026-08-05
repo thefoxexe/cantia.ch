@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../lib/auth-context';
+import { canPromptInstall, promptInstall } from '../lib/pwaInstall';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -23,6 +24,20 @@ export function AccountMenu() {
   function go(path: string) {
     onClose();
     router.push(path as any);
+  }
+
+  // On Chrome/Edge (desktop + Android) once the browser has decided the page
+  // is installable, this shows the real native "Installer l'application"
+  // dialog. Everywhere else (iOS Safari, native app builds, or before the
+  // browser has fired that event) there's no such prompt to trigger, so it
+  // falls back to the manual instructions screen instead.
+  function handleInstall() {
+    onClose();
+    if (canPromptInstall()) {
+      promptInstall();
+      return;
+    }
+    router.push('/(app)/installer' as any);
   }
 
   return (
@@ -50,7 +65,7 @@ export function AccountMenu() {
               <Text style={styles.orgSubtitle}>Mon compte</Text>
             </View>
             <View style={styles.divider} />
-            <MenuRow icon="download" label="Installer l'app" onPress={() => go('/(app)/installer')} />
+            <MenuRow icon="download" label="Installer l'app" onPress={handleInstall} />
             <MenuRow icon="settings" label="Paramètres" onPress={() => go('/(app)/compte')} />
             <MenuRow
               icon="life-buoy"

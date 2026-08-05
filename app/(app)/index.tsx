@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -6,24 +6,12 @@ import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
-import { Card, EmptyState, Screen } from '../../components/ui';
+import { Button, Card, EmptyState, Screen, StatusBadge } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import type { OrganizationMember, Project } from '../../lib/types';
+import type { Devis, Facture, OrganizationMember, Project } from '../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
-
-interface Counts {
-  projects: number;
-  reports: number;
-  devisPending: number;
-}
-
-const TILES: { key: keyof Counts; label: string; icon: IconName }[] = [
-  { key: 'projects', label: 'Chantiers actifs', icon: 'layers' },
-  { key: 'reports', label: 'Rapports', icon: 'file-text' },
-  { key: 'devisPending', label: 'Devis en cours', icon: 'clipboard' },
-];
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'Actif',
@@ -31,45 +19,95 @@ const STATUS_LABELS: Record<string, string> = {
   archived: 'Archivé',
 };
 
+const TONE_COLORS: Record<string, { fg: string; bg: string }> = {
+  primary: { fg: colors.primary, bg: colors.primarySoft },
+  danger: { fg: colors.danger, bg: colors.dangerSoft },
+  success: { fg: colors.success, bg: colors.successSoft },
+  muted: { fg: colors.textMuted, bg: colors.surfaceAlt },
+};
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function DashboardScreen() {
   const { organization, user } = useAuth();
   const router = useRouter();
+  const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
   const firstName = fullName?.trim().split(' ')[0] || null;
-  const [counts, setCounts] = useState<Counts>({ projects: 0, reports: 0, devisPending: 0 });
+
+  const [activeProjects, setActiveProjects] = useState(0);
+  const [devisPending, setDevisPending] = useState(0);
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+  const [recentDevis, setRecentDevis] = useState<Devis[]>([]);
+  const [devisAmounts, setDevisAmounts] = useState<Record<string, number>>({});
+  const [recentFactures, setRecentFactures] = useState<Facture[]>([]);
+  const [factureAmounts, setFactureAmounts] = useState<Record<string, number>>({});
+  const [pendingAmount, setPendingAmount] = useState(0);
+  const [paidThisMonth, setPaidThisMonth] = useState(0);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization) return;
-    const [{ count: projects }, { count: reports }, { count: devisPending }, { data: recent }, { data: team }] = await Promise.all([
-      supabase
-        .from('projects')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', organization.id)
-        .eq('status', 'active'),
-      supabase
-        .from('reports')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', organization.id),
-      supabase
-        .from('devis')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', organization.id)
-        .in('status', ['draft', 'sent']),
-      supabase
-        .from('projects')
-        .select('*')
-        .eq('organization_id', organization.id)
-        .order('updated_at', { ascending: false })
-        .limit(4),
-      supabase.from('organization_members').select('*').eq('organization_id', organization.id),
-    ]);
-    setCounts({ projects: projects ?? 0, reports: reports ?? 0, devisPending: devisPending ?? 0 });
-    setRecentProjects(recent ?? []);
+
+    const [{ count: projects }, { count: pendingDevisCount }, { data: recentProj }, { data: team }, { data: devisList }] =
+      await Promise.all([
+        supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).eq('status', 'active'),
+        supabase.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).in('status', ['draft', 'sent']),
+        supabase.from('projects').select('*').eq('organization_id', organization.id).order('updated_at', { ascending: false }).limit(4),
+        supabase.from('organization_members').select('*').eq('organization_id', organization.id),
+        devisEnabled
+          ? supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }).limit(3)
+          : Promise.resolve({ data: [] as Devis[] }),
+      ]);
+
+    setActiveProjects(projects ?? 0);
+    setDevisPending(pendingDevisCount ?? 0);
+    setRecentProjects(recentProj ?? []);
     setMembers(team ?? []);
-  }, [organization]);
+    setRecentDevis(devisList ?? []);
+
+    if (devisList?.length) {
+      const { data: items } = await supabase.from('devis_items').select('devis_id, quantity, unit_price').in('devis_id', devisList.map((d) => d.id));
+      const totals: Record<string, number> = {};
+      for (const it of items ?? []) {
+        totals[it.devis_id] = (totals[it.devis_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
+      }
+      setDevisAmounts(totals);
+    }
+
+    if (!devisEnabled) return;
+
+    const { data: allFactures } = await supabase.from('factures').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false });
+    const list = allFactures ?? [];
+    setRecentFactures(list.slice(0, 3));
+
+    if (list.length) {
+      const { data: items } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', list.map((f) => f.id));
+      const subtotals: Record<string, number> = {};
+      for (const it of items ?? []) {
+        subtotals[it.facture_id] = (subtotals[it.facture_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
+      }
+      const withVat: Record<string, number> = {};
+      let pending = 0;
+      let paid = 0;
+      const now = new Date();
+      for (const f of list) {
+        const amount = (subtotals[f.id] ?? 0) * (1 + Number(f.vat_rate) / 100);
+        withVat[f.id] = amount;
+        if (f.status === 'sent') pending += amount;
+        if (f.status === 'paid' && f.paid_at) {
+          const paidAt = new Date(f.paid_at);
+          if (paidAt.getFullYear() === now.getFullYear() && paidAt.getMonth() === now.getMonth()) paid += amount;
+        }
+      }
+      setFactureAmounts(withVat);
+      setPendingAmount(pending);
+      setPaidThisMonth(paid);
+    }
+  }, [organization, devisEnabled]);
 
   useFocusEffect(
     useCallback(() => {
@@ -82,6 +120,20 @@ export default function DashboardScreen() {
     await load();
     setRefreshing(false);
   }
+
+  const tiles = useMemo(() => {
+    const list: { key: string; label: string; icon: IconName; tone: keyof typeof TONE_COLORS; value: string }[] = [
+      { key: 'projects', label: 'Chantiers actifs', icon: 'layers', tone: 'primary', value: String(activeProjects) },
+    ];
+    if (devisEnabled) {
+      list.push(
+        { key: 'devis', label: 'Devis en cours', icon: 'file-text', tone: 'muted', value: String(devisPending) },
+        { key: 'pending', label: 'À encaisser', icon: 'clock', tone: 'danger', value: `CHF ${pendingAmount.toFixed(0)}` },
+        { key: 'paid', label: 'Encaissé ce mois', icon: 'check-circle', tone: 'success', value: `CHF ${paidThisMonth.toFixed(0)}` },
+      );
+    }
+    return list;
+  }, [activeProjects, devisEnabled, devisPending, pendingAmount, paidThisMonth]);
 
   return (
     <Screen>
@@ -104,22 +156,24 @@ export default function DashboardScreen() {
         />
 
         <View style={styles.grid}>
-          {TILES.map((tile) => (
-            <Card key={tile.key} style={styles.tile}>
-              <View style={styles.tileIcon}>
-                <Feather name={tile.icon} size={16} color={colors.primary} />
-              </View>
-              <Text style={styles.tileValue}>{counts[tile.key]}</Text>
-              <Text style={styles.tileLabel}>{tile.label}</Text>
-            </Card>
-          ))}
+          {tiles.map((tile) => {
+            const t = TONE_COLORS[tile.tone];
+            return (
+              <Card key={tile.key} style={styles.tile}>
+                <View style={[styles.tileIcon, { backgroundColor: t.bg }]}>
+                  <Feather name={tile.icon} size={16} color={t.fg} />
+                </View>
+                <Text style={styles.tileValue}>{tile.value}</Text>
+                <Text style={styles.tileLabel}>{tile.label}</Text>
+              </Card>
+            );
+          })}
         </View>
 
-        <Text style={styles.sectionTitle}>Actions rapides</Text>
-        <View style={styles.actions}>
-          <QuickAction icon="plus-circle" label="Nouveau chantier" onPress={() => router.push('/(app)/chantiers/new')} />
-          {isModuleEnabled(organization?.enabled_modules, 'devis') ? (
-            <QuickAction icon="file-plus" label="Nouveau devis" onPress={() => router.push('/(app)/devis/new')} />
+        <View style={styles.quickRow}>
+          <Button title="Nouveau chantier" icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flex: 1 }} />
+          {devisEnabled ? (
+            <Button title="Nouveau devis" icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
           ) : null}
         </View>
 
@@ -156,6 +210,64 @@ export default function DashboardScreen() {
           </View>
         )}
 
+        {devisEnabled && recentDevis.length > 0 ? (
+          <>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Devis récents</Text>
+              <Pressable onPress={() => router.push('/(app)/devis')}>
+                <Text style={styles.sectionLink}>Tout voir</Text>
+              </Pressable>
+            </View>
+            <View style={styles.list}>
+              {recentDevis.map((d) => (
+                <Pressable key={d.id} onPress={() => router.push(`/(app)/devis/${d.id}` as any)}>
+                  <Card style={styles.docRow}>
+                    <View style={{ flex: 1 }}>
+                      <View style={styles.docTop}>
+                        <Text style={styles.docNumber}>{d.number}</Text>
+                        <StatusBadge status={d.status} />
+                      </View>
+                      <Text style={styles.recentMeta} numberOfLines={1}>
+                        {d.client_name}
+                      </Text>
+                    </View>
+                    <Text style={styles.docAmount}>CHF {(devisAmounts[d.id] ?? 0).toFixed(2)}</Text>
+                  </Card>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        ) : null}
+
+        {devisEnabled && recentFactures.length > 0 ? (
+          <>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Factures récentes</Text>
+              <Pressable onPress={() => router.push('/(app)/devis/factures')}>
+                <Text style={styles.sectionLink}>Tout voir</Text>
+              </Pressable>
+            </View>
+            <View style={styles.list}>
+              {recentFactures.map((f) => (
+                <Pressable key={f.id} onPress={() => router.push(`/(app)/devis/factures/${f.id}` as any)}>
+                  <Card style={styles.docRow}>
+                    <View style={{ flex: 1 }}>
+                      <View style={styles.docTop}>
+                        <Text style={styles.docNumber}>{f.number}</Text>
+                        <StatusBadge status={f.status} />
+                      </View>
+                      <Text style={styles.recentMeta} numberOfLines={1}>
+                        {f.client_name}
+                      </Text>
+                    </View>
+                    <Text style={styles.docAmount}>CHF {(factureAmounts[f.id] ?? 0).toFixed(2)}</Text>
+                  </Card>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        ) : null}
+
         {members.length > 1 ? (
           <>
             <View style={styles.sectionHeaderRow}>
@@ -186,20 +298,6 @@ export default function DashboardScreen() {
   );
 }
 
-function QuickAction({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress}>
-      <Card style={styles.action}>
-        <View style={styles.actionIcon}>
-          <Feather name={icon} size={18} color={colors.primary} />
-        </View>
-        <Text style={styles.actionText}>{label}</Text>
-        <Feather name="chevron-right" size={18} color={colors.textMuted} />
-      </Card>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
@@ -227,62 +325,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   tile: {
     flexGrow: 1,
-    flexBasis: 96,
-    alignItems: 'center',
+    flexBasis: 140,
     paddingVertical: spacing.lg,
   },
   tileIcon: {
     width: 32,
     height: 32,
     borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
   tileValue: {
-    fontSize: fontSize.xxl,
+    fontSize: fontSize.xl,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
   },
   tileLabel: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.xs,
-    textAlign: 'center',
+  },
+  quickRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,
     marginBottom: spacing.md,
-  },
-  actions: {
-    gap: spacing.md,
-  },
-  action: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  actionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  actionText: {
-    flex: 1,
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -325,6 +403,30 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  docRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  docTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: 2,
+  },
+  docNumber: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  docAmount: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
   },
   teamCard: {
     gap: spacing.md,

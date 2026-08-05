@@ -1,5 +1,21 @@
 export type OrgRole = 'owner' | 'admin' | 'member';
 export type DevisStatus = 'draft' | 'sent' | 'accepted' | 'refused';
+export type ClientType = 'particulier' | 'entreprise';
+
+export interface Client {
+  id: string;
+  organization_id: string;
+  type: ClientType;
+  name: string;
+  company_name: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface Plan {
   id: string;

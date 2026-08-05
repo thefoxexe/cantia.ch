@@ -18,9 +18,10 @@ function buildSections(devisEnabled: boolean, planningEnabled: boolean): NavSect
           {
             title: 'FACTURATION',
             links: [
+              { href: '/(app)/clients', label: 'Clients', icon: 'users' as const },
               { href: '/(app)/devis', label: 'Devis', icon: 'file-text' as const },
               { href: '/(app)/devis/factures', label: 'Factures', icon: 'dollar-sign' as const },
-              { href: '/(app)/devis/inventaire', label: 'Catalogue', icon: 'box' as const },
+              { href: '/(app)/devis/inventaire', label: 'Inventaire', icon: 'box' as const },
             ],
           },
         ]

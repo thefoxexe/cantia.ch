@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
+import '../lib/pwaInstall';
 
 function RootNavigation() {
   const { session, organization, loading } = useAuth();
