@@ -14,6 +14,7 @@ import {
   type PendingJoinRequest,
 } from '../../../lib/api/invites';
 import { Button, Card, Container, PageHeader, Screen } from '../../../components/ui';
+import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { isOnline } from '../../../lib/presence';
 import type { OrganizationInvite, OrgRole, OrganizationMember } from '../../../lib/types';
@@ -112,7 +113,8 @@ export default function EquipeScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Équipe" backTo="/(app)/compte" />
+          <PageHeader title="Équipe" backTo="/(app)" />
+          <SettingsTabs />
 
           {isAdmin && joinRequests.length > 0 ? (
             <View style={styles.inviteSection}>

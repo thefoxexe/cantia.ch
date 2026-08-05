@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function DevisSettingsScreen() {
@@ -46,7 +47,8 @@ export default function DevisSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Devis & modèle PDF" backTo="/(app)/compte" />
+          <PageHeader title="Facturation" backTo="/(app)" />
+          <SettingsTabs />
 
           <View style={styles.row2}>
             <View style={styles.row2Item}>
@@ -76,8 +78,8 @@ export default function DevisSettingsScreen() {
           ) : null}
 
           <Text style={styles.hint}>
-            Vos devis et factures partagent une mise en page unique, sans logo — seule la couleur se personnalise,
-            depuis Compte → Profil entreprise.
+            Vos devis et factures partagent une mise en page unique, sans logo — logo et couleur se personnalisent
+            depuis l'onglet Apparence.
           </Text>
         </Container>
       </ScrollView>

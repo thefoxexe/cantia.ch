@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
 import { openCheckoutUrl } from '../../../lib/openUrl';
 import { Button, Container, PageHeader, Screen } from '../../../components/ui';
+import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
@@ -88,7 +89,8 @@ export default function FacturationScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Facturation" backTo="/(app)/compte" />
+          <PageHeader title="Abonnement" backTo="/(app)" />
+          <SettingsTabs />
 
           <View style={styles.planRow}>
             <Text style={styles.planName}>{plan?.name ?? '—'}</Text>

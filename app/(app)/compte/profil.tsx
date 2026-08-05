@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // Personal, not company: name/photo/language belong to the person, not the
@@ -104,7 +105,8 @@ export default function ProfilScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Mon profil" backTo="/(app)/compte" />
+          <PageHeader title="Mon profil" backTo="/(app)" />
+          <SettingsTabs />
 
           <Card style={styles.avatarCard}>
             <Pressable onPress={pickAvatar} style={styles.avatarWrap}>
