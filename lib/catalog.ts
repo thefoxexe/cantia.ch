@@ -1,10 +1,15 @@
-// Price-memory "catalog": no dedicated table — an org's own history of past
-// devis_items IS the catalog. Reusing that table instead of introducing a
-// parallel one means there's nothing to keep in sync and nothing new to
-// migrate/deploy; every devis a team creates immediately enriches the
-// matching pool for the next one, which is exactly the promise on the
-// landing page's "Catalogue intelligent" card.
+// Price-memory "catalog": backed by the catalog_items table (see migration
+// catalog_items_table) rather than derived from devis_items history on every
+// screen load. devis_items rows still feed it — a Postgres trigger auto-adds
+// a catalog_items row the first time an org uses a given description — but
+// the catalog itself is now a real, independently-editable record: an
+// existing entry's price only ever changes through updateCatalogItemPrice
+// (an explicit user choice), never by silently averaging/overwriting from
+// whatever was typed most recently.
+import { supabase } from './supabase';
+
 export interface CatalogEntry {
+  id?: string; // catalog_items.id — present once loaded from the DB, needed to persist a price update
   description: string;
   unit: string;
   unitPrice: number;
@@ -16,10 +21,42 @@ export interface CatalogMatch extends CatalogEntry {
   score: number; // 0-1
 }
 
+export async function fetchCatalog(organizationId: string): Promise<CatalogEntry[]> {
+  const { data } = await supabase
+    .from('catalog_items')
+    .select('id, description, unit, unit_price, use_count, last_used_at')
+    .eq('organization_id', organizationId)
+    .order('last_used_at', { ascending: false })
+    .limit(2000);
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    description: row.description,
+    unit: row.unit,
+    unitPrice: Number(row.unit_price) || 0,
+    count: row.use_count,
+    lastUsedAt: row.last_used_at,
+  }));
+}
+
+// Persists an explicit "update the catalogue price" choice (the price-
+// mismatch confirmation in devis/new.tsx) — the only client-triggered write
+// to catalog_items; auto-adding new entries is handled entirely server-side
+// by the devis_items insert trigger.
+export async function updateCatalogItemPrice(catalogItemId: string, unitPrice: number, unit?: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('update_catalog_item_price', {
+    p_catalog_item_id: catalogItemId,
+    p_unit_price: unitPrice,
+    p_unit: unit ?? null,
+  });
+  return { error: error?.message ?? null };
+}
+
 // Strips accents, lowercases, drops punctuation — French trade vocabulary
 // ("Fenêtre", "étanchéité") needs accent-folding or two spellings of the
-// same word never match.
-function normalize(text: string): string {
+// same word never match. Exported so callers can do an exact-key lookup
+// (e.g. "does this line already exist in the catalog verbatim?") without
+// reimplementing the same normalization.
+export function normalizeDescription(text: string): string {
   return text
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
@@ -27,6 +64,7 @@ function normalize(text: string): string {
     .replace(/[^a-z0-9\s]/g, ' ')
     .trim();
 }
+const normalize = normalizeDescription;
 
 function tokens(text: string): Set<string> {
   return new Set(normalize(text).split(/\s+/).filter((w) => w.length > 1));
@@ -43,39 +81,6 @@ export function similarity(a: string, b: string): number {
   let shared = 0;
   for (const t of ta) if (tb.has(t)) shared += 1;
   return (2 * shared) / (ta.size + tb.size);
-}
-
-// Collapses raw devis_items rows into one entry per distinct description,
-// keeping the most recently used price/unit for that description (prices
-// drift over time — the latest one a team actually charged is more useful
-// than an average) and a usage count for ranking ties.
-export function buildCatalog(
-  rows: { description: string; unit: string | null; unit_price: number; created_at: string }[],
-): CatalogEntry[] {
-  const byKey = new Map<string, CatalogEntry>();
-  for (const row of rows) {
-    const key = normalize(row.description);
-    if (!key) continue;
-    const existing = byKey.get(key);
-    if (!existing) {
-      byKey.set(key, {
-        description: row.description,
-        unit: row.unit ?? 'pce',
-        unitPrice: Number(row.unit_price) || 0,
-        count: 1,
-        lastUsedAt: row.created_at,
-      });
-      continue;
-    }
-    existing.count += 1;
-    if (row.created_at > existing.lastUsedAt) {
-      existing.description = row.description;
-      existing.unit = row.unit ?? existing.unit;
-      existing.unitPrice = Number(row.unit_price) || existing.unitPrice;
-      existing.lastUsedAt = row.created_at;
-    }
-  }
-  return Array.from(byKey.values());
 }
 
 // Keyword → unit heuristic, ordered from most to least specific so the

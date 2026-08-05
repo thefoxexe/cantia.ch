@@ -11,7 +11,7 @@ import { generateReportPdf } from '../../../../lib/api/pdf';
 import { polishReportNotes } from '../../../../lib/api/ai';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
-import { buildCatalog, findMatches, type CatalogEntry, type CatalogMatch } from '../../../../lib/catalog';
+import { fetchCatalog, findMatches, type CatalogEntry, type CatalogMatch } from '../../../../lib/catalog';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
 import { PdfTemplatePicker } from '../../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -45,22 +45,14 @@ export default function NewReportScreen() {
     setNotes(base + (base && sessionTranscript ? ' ' : '') + sessionTranscript);
   });
 
-  // Same price-memory catalog as the devis screen (the org's own past
-  // devis_items) — reused here so a phrase like "tuyau PVC" typed or
-  // dictated into a report's notes surfaces the price it's usually billed
-  // at, without the writer having to leave the report to look it up.
+  // Same catalog as the devis screen — reused here so a phrase like "tuyau
+  // PVC" typed or dictated into a report's notes surfaces the price it's
+  // usually billed at, without the writer having to leave the report to
+  // look it up.
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   useEffect(() => {
     if (!organization) return;
-    supabase
-      .from('devis_items')
-      .select('description, unit, unit_price, created_at, devis!inner(organization_id)')
-      .eq('devis.organization_id', organization.id)
-      .order('created_at', { ascending: false })
-      .limit(400)
-      .then(({ data }) => {
-        if (data) setCatalog(buildCatalog(data as any));
-      });
+    fetchCatalog(organization.id).then(setCatalog);
   }, [organization]);
 
   // Notes are free-flowing prose, not one description per line like a devis

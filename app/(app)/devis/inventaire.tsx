@@ -3,15 +3,13 @@ import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { supabase } from '../../../lib/supabase';
 import { Card, EmptyState, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { buildCatalog, type CatalogEntry } from '../../../lib/catalog';
+import { fetchCatalog, type CatalogEntry } from '../../../lib/catalog';
 
-// The catalog itself has no dedicated table (see lib/catalog.ts) — this
-// screen is a read-only browser over the org's own devis_items history, the
-// same data devis/new.tsx already matches suggestions against. Nothing here
-// writes anything; entries can only change by creating/editing devis.
+// Read-only browser over the org's catalog_items table — writes only ever
+// happen server-side (auto-add trigger on devis_items, or the explicit
+// price-update RPC triggered from devis/new.tsx's mismatch prompt).
 export default function InventaireScreen() {
   const { organization } = useAuth();
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
@@ -21,13 +19,7 @@ export default function InventaireScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const { data } = await supabase
-      .from('devis_items')
-      .select('description, unit, unit_price, created_at, devis!inner(organization_id)')
-      .eq('devis.organization_id', organization.id)
-      .order('created_at', { ascending: false })
-      .limit(2000);
-    setCatalog(data ? buildCatalog(data as any) : []);
+    setCatalog(await fetchCatalog(organization.id));
     setLoading(false);
   }, [organization]);
 
@@ -64,7 +56,7 @@ export default function InventaireScreen() {
 
         <FlatList
           data={filtered}
-          keyExtractor={(item) => item.description}
+          keyExtractor={(item) => item.id ?? item.description}
           refreshing={loading}
           onRefresh={load}
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -8,9 +8,18 @@ import { Button, Field, Screen } from '../../../components/ui';
 import { FeatureHint } from '../../../components/FeatureHint';
 import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { buildCatalog, findMatches, guessUnit, type CatalogEntry } from '../../../lib/catalog';
+import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
 import { generateDevisLines } from '../../../lib/api/ai';
 import { useDictation } from '../../../lib/useDictation';
+
+interface PriceMismatch {
+  catalogItemId: string;
+  description: string;
+  unit: string;
+  catalogPrice: number;
+  enteredPrice: number;
+  updateCatalog: boolean;
+}
 
 type DictationTarget = { type: 'notes' } | { type: 'line'; index: number } | { type: 'devisLines' };
 
@@ -46,25 +55,16 @@ export default function NewDevisScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // The org's own past devis lines double as its catalog — no separate
-  // table to maintain, every devis created immediately enriches the pool
-  // the next one can match against. Fetched once per visit; a session that
-  // creates several devis in a row won't see items from earlier in that
-  // same session suggested back, which is an acceptable trade-off for not
-  // re-querying on every keystroke.
+  // The org's catalog (catalog_items table) — fetched once per visit; a
+  // session that creates several devis in a row won't see items added
+  // earlier in that same session suggested back, which is an acceptable
+  // trade-off for not re-querying on every keystroke.
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
+  const [priceMismatches, setPriceMismatches] = useState<PriceMismatch[] | null>(null);
 
   useEffect(() => {
     if (!organization) return;
-    supabase
-      .from('devis_items')
-      .select('description, unit, unit_price, created_at, devis!inner(organization_id)')
-      .eq('devis.organization_id', organization.id)
-      .order('created_at', { ascending: false })
-      .limit(400)
-      .then(({ data }) => {
-        if (data) setCatalog(buildCatalog(data as any));
-      });
+    fetchCatalog(organization.id).then(setCatalog);
   }, [organization]);
 
   function updateLine(index: number, patch: Partial<Line>) {
@@ -178,6 +178,30 @@ export default function NewDevisScreen() {
 
   const total = lines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
 
+  // Only flags an *exact* description match against the catalog (not a
+  // fuzzy suggestion-level match) with a real price difference — prompting
+  // for a barely-related 60% match would be noise, not a meaningful
+  // "you're about to charge something different than usual" warning.
+  function computeMismatches(validLines: Line[]): PriceMismatch[] {
+    const mismatches: PriceMismatch[] = [];
+    validLines.forEach((line) => {
+      const key = normalizeDescription(line.description);
+      const match = catalog.find((c) => c.id && normalizeDescription(c.description) === key);
+      if (!match || !match.id || match.unitPrice <= 0) return;
+      const entered = Number(line.unitPrice) || 0;
+      if (entered <= 0 || Math.round(entered * 100) === Math.round(match.unitPrice * 100)) return;
+      mismatches.push({
+        catalogItemId: match.id,
+        description: line.description,
+        unit: line.unit.trim() || match.unit,
+        catalogPrice: match.unitPrice,
+        enteredPrice: entered,
+        updateCatalog: false,
+      });
+    });
+    return mismatches;
+  }
+
   async function handleCreate() {
     if (!organization) return;
     if (!clientName.trim()) {
@@ -190,7 +214,22 @@ export default function NewDevisScreen() {
       return;
     }
     setError(null);
+
+    const mismatches = computeMismatches(validLines);
+    if (mismatches.length > 0) {
+      setPriceMismatches(mismatches);
+      return;
+    }
+    await submitDevis(validLines, []);
+  }
+
+  async function submitDevis(validLines: Line[], mismatches: PriceMismatch[]) {
+    if (!organization) return;
     setLoading(true);
+
+    await Promise.all(
+      mismatches.filter((m) => m.updateCatalog).map((m) => updateCatalogItemPrice(m.catalogItemId, m.enteredPrice, m.unit)),
+    );
 
     const { data: devis, error: devisError } = await supabase
       .from('devis')
@@ -230,6 +269,18 @@ export default function NewDevisScreen() {
     }
 
     router.replace(`/(app)/devis/${devis.id}`);
+  }
+
+  function toggleMismatchUpdate(catalogItemId: string) {
+    setPriceMismatches((prev) => (prev ? prev.map((m) => (m.catalogItemId === catalogItemId ? { ...m, updateCatalog: !m.updateCatalog } : m)) : prev));
+  }
+
+  async function confirmMismatchesAndSubmit() {
+    if (!priceMismatches) return;
+    const mismatches = priceMismatches;
+    const validLines = lines.filter((l) => l.description.trim());
+    setPriceMismatches(null);
+    await submitDevis(validLines, mismatches);
   }
 
   return (
@@ -477,6 +528,54 @@ export default function NewDevisScreen() {
           <Button title="Créer le devis" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>
       </ScrollView>
+
+      <Modal visible={priceMismatches != null} animationType="slide" transparent onRequestClose={() => setPriceMismatches(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Prix différent du catalogue</Text>
+              <Pressable hitSlop={8} onPress={() => setPriceMismatches(null)}>
+                <Feather name="x" size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={styles.modalBody}>
+              <Text style={styles.mismatchIntro}>
+                Le prix saisi diffère de celui déjà connu pour {priceMismatches?.length === 1 ? 'cette position' : 'ces positions'}. Choisissez, pour
+                chacune, si le nouveau prix doit être enregistré dans le catalogue ou rester une exception pour ce devis.
+              </Text>
+              {(priceMismatches ?? []).map((m) => (
+                <View key={m.catalogItemId} style={styles.mismatchCard}>
+                  <Text style={styles.mismatchDesc} numberOfLines={2}>
+                    {m.description}
+                  </Text>
+                  <View style={styles.mismatchPrices}>
+                    <Text style={styles.mismatchOldPrice}>Catalogue : CHF {m.catalogPrice.toFixed(2)}</Text>
+                    <Feather name="arrow-right" size={12} color={colors.textMuted} />
+                    <Text style={styles.mismatchNewPrice}>Saisi : CHF {m.enteredPrice.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.mismatchChoices}>
+                    <Pressable
+                      style={[styles.mismatchChoice, !m.updateCatalog && styles.mismatchChoiceActive]}
+                      onPress={() => m.updateCatalog && toggleMismatchUpdate(m.catalogItemId)}
+                    >
+                      <Text style={[styles.mismatchChoiceText, !m.updateCatalog && styles.mismatchChoiceTextActive]}>
+                        Garder l'écart pour ce devis
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.mismatchChoice, m.updateCatalog && styles.mismatchChoiceActive]}
+                      onPress={() => !m.updateCatalog && toggleMismatchUpdate(m.catalogItemId)}
+                    >
+                      <Text style={[styles.mismatchChoiceText, m.updateCatalog && styles.mismatchChoiceTextActive]}>Mettre à jour le catalogue</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ))}
+              <Button title="Confirmer et créer le devis" onPress={confirmMismatchesAndSubmit} loading={loading} style={{ marginTop: spacing.md }} />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -486,6 +585,94 @@ const styles = StyleSheet.create({
     maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '88%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  mismatchIntro: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
+  },
+  mismatchCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  mismatchDesc: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  mismatchPrices: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  mismatchOldPrice: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  mismatchNewPrice: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  mismatchChoices: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  mismatchChoice: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  mismatchChoiceActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  mismatchChoiceText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  mismatchChoiceTextActive: {
+    color: colors.primary,
   },
   fieldLabel: {
     fontSize: fontSize.sm,
