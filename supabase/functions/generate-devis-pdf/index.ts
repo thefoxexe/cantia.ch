@@ -4,6 +4,7 @@ import {
   drawFooter,
   embedImageSmart,
   fetchStorageBytes,
+  orgHasCustomization,
   resolveBrand,
   resolveFooterText,
   resolvePdfTemplate,
@@ -44,7 +45,7 @@ Deno.serve(async (req: Request) => {
     if (devisError || !devis) return json({ error: 'Devis introuvable ou accès refusé' }, 404);
 
     const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('*').eq('id', devis.organization_id).single(),
+      admin.from('organizations').select('*, plans(has_customization)').eq('id', devis.organization_id).single(),
       admin.from('devis_items').select('*').eq('devis_id', devis_id).order('sort_order', { ascending: true }),
     ]);
 
@@ -60,7 +61,7 @@ Deno.serve(async (req: Request) => {
 
     const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
     const brand = resolveBrand(template, org);
-    const footerText = resolveFooterText(template, org);
+    const footerText = resolveFooterText(template, org, orgHasCustomization(org));
 
     // A devis is a quote, not a payment request — no QR-bill here (that's
     // generate-facture-pdf's job, once the client has accepted and it's

@@ -21,7 +21,7 @@ interface PriceMismatch {
   updateCatalog: boolean;
 }
 
-type DictationTarget = { type: 'notes' } | { type: 'line'; index: number } | { type: 'devisLines' };
+type DictationTarget = { type: 'line'; index: number } | { type: 'devisLines' };
 
 interface Line {
   description: string;
@@ -49,7 +49,6 @@ export default function NewDevisScreen() {
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
-  const [notes, setNotes] = useState('');
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -109,8 +108,7 @@ export default function NewDevisScreen() {
   const dictation = useDictation((sessionTranscript) => {
     const base = dictationBaseRef.current;
     const merged = base + (base && sessionTranscript ? ' ' : '') + sessionTranscript;
-    if (dictationTarget?.type === 'notes') setNotes(merged);
-    else if (dictationTarget?.type === 'line') updateLine(dictationTarget.index, { description: merged });
+    if (dictationTarget?.type === 'line') updateLine(dictationTarget.index, { description: merged });
     else if (dictationTarget?.type === 'devisLines') {
       devisLinesTranscriptRef.current = merged;
       setDevisLinesTranscript(merged);
@@ -129,7 +127,7 @@ export default function NewDevisScreen() {
       setDevisLinesTranscript('');
       setLinesDictationError(null);
     }
-    dictationBaseRef.current = target.type === 'notes' ? notes : target.type === 'line' ? lines[target.index].description : '';
+    dictationBaseRef.current = target.type === 'line' ? lines[target.index].description : '';
     setDictationTarget(target);
     const started = await dictation.start('fr-FR');
     if (!started) {
@@ -139,7 +137,6 @@ export default function NewDevisScreen() {
 
   function isDictating(target: DictationTarget) {
     if ((!dictation.listening && !dictation.transcribing) || !dictationTarget) return false;
-    if (target.type === 'notes') return dictationTarget.type === 'notes';
     if (target.type === 'devisLines') return dictationTarget.type === 'devisLines';
     return dictationTarget.type === 'line' && target.type === 'line' && dictationTarget.index === target.index;
   }
@@ -248,7 +245,6 @@ export default function NewDevisScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
-        notes: notes.trim() || null,
         vat_rate: organization.default_vat_rate,
         template_id: templateId,
         created_by: user?.id,
@@ -325,32 +321,6 @@ export default function NewDevisScreen() {
             placeholder="client@exemple.ch"
             keyboardType="email-address"
             autoCapitalize="none"
-          />
-
-          <View style={styles.notesLabelRow}>
-            <Text style={styles.fieldLabel}>Notes de rendez-vous</Text>
-            {dictation.supported ? (
-              <Pressable
-                onPress={() => toggleDictation({ type: 'notes' })}
-                style={[styles.dictateButton, isDictating({ type: 'notes' }) && styles.dictateButtonActive]}
-              >
-                <Feather name="mic" size={13} color={isDictating({ type: 'notes' }) ? '#fff' : colors.primary} />
-                <Text
-                  style={[styles.dictateButtonText, isDictating({ type: 'notes' }) && styles.dictateButtonTextActive]}
-                >
-                  {dictationLabel({ type: 'notes' }, 'Dicter', 'Écoute…')}
-                </Text>
-              </Pressable>
-            ) : null}
-          </View>
-          <TextInput
-            style={styles.notes}
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Ce que le client souhaite…"
-            placeholderTextColor={colors.textMuted}
-            multiline
-            textAlignVertical="top"
           />
 
           <Text style={styles.sectionTitle}>Lignes du devis</Text>
@@ -688,11 +658,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
     fontWeight: '500',
   },
-  notesLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   dictateButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -715,17 +680,6 @@ const styles = StyleSheet.create({
   },
   dictateButtonTextActive: {
     color: '#fff',
-  },
-  notes: {
-    minHeight: 80,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    fontSize: fontSize.md,
-    color: colors.text,
-    backgroundColor: colors.surface,
-    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: fontSize.lg,

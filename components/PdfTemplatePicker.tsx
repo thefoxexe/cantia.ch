@@ -19,22 +19,6 @@ interface PdfTemplateRow {
   footer_text_override: string | null;
 }
 
-const BASE_LAYOUTS: PdfTemplateRow['base_layout'][] = ['classic', 'moderne', 'minimal', 'structure'];
-
-const LAYOUT_NAMES: Record<string, string> = {
-  classic: 'Classique',
-  moderne: 'Moderne',
-  minimal: 'Minimal',
-  structure: 'Structuré',
-};
-
-const LAYOUT_DESCRIPTIONS: Record<string, string> = {
-  classic: 'Sobre, en-tête discret, lignes fines.',
-  moderne: 'Bandeau de couleur, titre marqué, mise en avant du kit de marque.',
-  minimal: 'Beaucoup de blanc, typographie épurée.',
-  structure: 'Sections encadrées, bandeaux de couleur, idéal si beaucoup de contenu.',
-};
-
 export const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
 
 export const BRAND_COLOR_PRESETS = [
@@ -54,63 +38,14 @@ export const LOGO_PLACEMENTS: { id: LogoPlacement; label: string; icon: 'align-l
   { id: 'right', label: 'Droite', icon: 'align-right' },
 ];
 
-// `unified` swatches represent the single devis/facture layout — the only
-// thing that varies between an org's devis templates now is brand color
-// (no logo, no layout choice), so the swatch is tinted by that color instead
-// of the base_layout-driven shapes below (which only report templates still
-// use, since reports kept their 4 selectable designs + logo).
-export function TemplateSwatch({ kind, unified, color }: { kind: string; unified?: boolean; color?: string }) {
-  if (unified) {
-    return (
-      <View style={swatch.base}>
-        <View style={swatch.bodyPad}>
-          <View style={[swatch.line, { width: '45%', height: 6, backgroundColor: color || colors.primary }]} />
-          <View style={{ height: 6 }} />
-          <View style={[swatch.line, { width: '70%' }]} />
-          <View style={[swatch.line, { width: '50%' }]} />
-        </View>
-      </View>
-    );
-  }
-  if (kind === 'moderne') {
-    return (
-      <View style={swatch.base}>
-        <View style={[swatch.band, { backgroundColor: colors.primary }]} />
-        <View style={swatch.bodyPad}>
-          <View style={[swatch.line, { width: '60%' }]} />
-          <View style={[swatch.line, { width: '40%' }]} />
-        </View>
-      </View>
-    );
-  }
-  if (kind === 'minimal') {
-    return (
-      <View style={swatch.base}>
-        <View style={swatch.bodyPadLarge}>
-          <View style={[swatch.line, { width: '35%', height: 6, backgroundColor: colors.text }]} />
-          <View style={{ height: 8 }} />
-          <View style={[swatch.line, { width: '55%' }]} />
-          <View style={[swatch.line, { width: '30%' }]} />
-        </View>
-      </View>
-    );
-  }
-  if (kind === 'structure') {
-    return (
-      <View style={swatch.base}>
-        <View style={swatch.bodyPad}>
-          <View style={[swatch.gridHeader, { backgroundColor: colors.primary }]} />
-          <View style={[swatch.gridRow, { backgroundColor: colors.surfaceAlt }]} />
-          <View style={swatch.gridRow} />
-          <View style={[swatch.gridRow, { backgroundColor: colors.surfaceAlt }]} />
-        </View>
-      </View>
-    );
-  }
+// Devis and reports both use a single unified layout now — the only thing
+// that varies between an org's templates is brand color, so the swatch is
+// just tinted by that color rather than depicting a chosen base_layout.
+export function TemplateSwatch({ color }: { color?: string }) {
   return (
     <View style={swatch.base}>
       <View style={swatch.bodyPad}>
-        <View style={[swatch.line, { width: '45%' }]} />
+        <View style={[swatch.line, { width: '45%', height: 6, backgroundColor: color || colors.primary }]} />
         <View style={{ height: 6 }} />
         <View style={[swatch.line, { width: '70%' }]} />
         <View style={[swatch.line, { width: '50%' }]} />
@@ -262,7 +197,7 @@ export function PdfTemplatePicker({
             >
               <Card style={[styles.card, compact && styles.cardCompact, active && styles.cardActive]}>
                 <View style={styles.preview}>
-                  <TemplateSwatch kind={t.base_layout} unified={kind === 'devis'} color={t.brand_color_override ?? undefined} />
+                  <TemplateSwatch color={t.brand_color_override ?? undefined} />
                   {active ? (
                     <View style={styles.check}>
                       <Feather name="check" size={12} color={colors.surface} />
@@ -270,11 +205,7 @@ export function PdfTemplatePicker({
                   ) : null}
                 </View>
                 <Text style={styles.name}>{t.name}</Text>
-                {!compact ? (
-                  <Text style={styles.desc}>
-                    {kind === 'devis' ? 'Mise en page unique, personnalisez la couleur.' : LAYOUT_DESCRIPTIONS[t.base_layout] ?? ''}
-                  </Text>
-                ) : null}
+                {!compact ? <Text style={styles.desc}>Mise en page unique, personnalisez la couleur.</Text> : null}
                 {manage ? (
                   <View style={styles.cardActions}>
                     <Pressable hitSlop={8} onPress={() => setEditing(t)}>
@@ -341,7 +272,6 @@ function CreateTemplateModal({
   onCreated: () => void;
 }) {
   const [name, setName] = useState('');
-  const [baseLayout, setBaseLayout] = useState<PdfTemplateRow['base_layout']>('classic');
   const [saving, setSaving] = useState(false);
 
   async function handleCreate() {
@@ -350,7 +280,7 @@ function CreateTemplateModal({
     await supabase.rpc('create_pdf_template', {
       p_org: organizationId,
       p_kind: kind,
-      p_base_layout: baseLayout,
+      p_base_layout: 'classic',
       p_name: name.trim(),
     });
     setSaving(false);
@@ -375,22 +305,6 @@ function CreateTemplateModal({
               onChangeText={setName}
               placeholder={kind === 'devis' ? 'Ex : Devis rénovation' : 'Ex : Rapport visite client'}
             />
-
-            {kind === 'report' ? (
-              <>
-                <Text style={styles.fieldLabel}>Base</Text>
-                <View style={styles.grid}>
-                  {BASE_LAYOUTS.map((layout) => (
-                    <Pressable key={layout} onPress={() => setBaseLayout(layout)} style={styles.cardWrapCompact}>
-                      <Card style={[styles.card, styles.cardCompact, baseLayout === layout && styles.cardActive]}>
-                        <TemplateSwatch kind={layout} />
-                        <Text style={styles.name}>{LAYOUT_NAMES[layout]}</Text>
-                      </Card>
-                    </Pressable>
-                  ))}
-                </View>
-              </>
-            ) : null}
             <Button
               title="Créer"
               icon="check"

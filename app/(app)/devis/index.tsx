@@ -68,7 +68,7 @@ export default function DevisListScreen() {
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
           ListEmptyComponent={
             !loading ? (
-              <EmptyState title="Aucun devis" subtitle="Créez un devis à partir de vos notes de rendez-vous." />
+              <EmptyState title="Aucun devis" subtitle="Créez votre premier devis pour un client." />
             ) : null
           }
           renderItem={({ item }) => (

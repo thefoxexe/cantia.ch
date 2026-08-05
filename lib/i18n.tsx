@@ -139,9 +139,9 @@ const fr: Dict = {
       },
       {
         title: 'Devis en quelques minutes',
-        text: 'Transformez vos notes de rendez-vous en devis chiffré en quelques minutes, avec suivi du statut et plusieurs modèles de PDF au choix.',
+        text: 'Dictez vos lignes de devis à la voix et laissez l’IA les chiffrer avec votre catalogue, avec suivi du statut jusqu’à la facture.',
         detail: [
-          '4 modèles de PDF au choix : classique, moderne, minimal, structuré',
+          'PDF sobre et personnalisable à votre couleur de marque',
           'Calcul automatique de la TVA et des totaux',
           'Suivi de statut : brouillon, envoyé, accepté, refusé',
         ],

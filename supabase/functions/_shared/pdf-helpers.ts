@@ -261,8 +261,25 @@ export function resolveLogoPlacement(template: PdfTemplateRow, org: any): LogoPl
   return template.logo_placement_override ?? (org?.logo_placement as LogoPlacement) ?? 'right';
 }
 
-export function resolveFooterText(template: PdfTemplateRow, org: any): string | null {
+// Free-plan orgs can never actually have a footer_text_override or
+// org.footer_text set (both writes are gated by org_has_customization at
+// the DB level — see 20260807090000_pdf_customization_gating.sql), so this
+// would otherwise just fall through to null and let the caller's generic
+// "org name" fallback print instead. Forcing a Cantia mention here is the
+// free plan's one bit of built-in advertising, and it's the only path that
+// can reach it — a paying org's own footer_text/override always wins.
+export function resolveFooterText(template: PdfTemplateRow, org: any, hasCustomization: boolean): string | null {
+  if (!hasCustomization) return 'Document généré avec Cantia — cantia.ch';
   return template.footer_text_override?.trim() || org?.footer_text?.trim() || null;
+}
+
+// Same coalesce-to-true-on-missing-plan fallback as the DB's
+// org_has_customization() function, read off the `plans(has_customization)`
+// join every caller now includes in its organizations select.
+export function orgHasCustomization(org: any): boolean {
+  const plan = org?.plans;
+  const flag = Array.isArray(plan) ? plan[0]?.has_customization : plan?.has_customization;
+  return flag ?? true;
 }
 
 export function normalizeBaseLayout(value: string | null | undefined): PdfTemplateRow['base_layout'] {

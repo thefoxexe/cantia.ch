@@ -1,8 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFFont, PDFImage, PDFPage, RGB, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
-  ACCENT,
-  BAND_MUTED,
   INK,
   LINE,
   MARGIN,
@@ -20,6 +18,7 @@ import {
   formatDate,
   formatOrgAddress,
   logoX,
+  orgHasCustomization,
   pickReadableTextColor,
   resolveBrand,
   resolveFooterText,
@@ -59,9 +58,9 @@ interface RenderCtx {
 
 // Every renderer shares this shape: draw the fixed header/title/meta block,
 // then walk the template's `sections` in order, calling whichever of these
-// drawers matches — a section id the renderer doesn't know how to draw
-// (currently just 'map', reserved for a later phase) is silently skipped
-// rather than crashing, since `sections` is data an org could one day edit.
+// drawers matches — a section id the renderer doesn't know how to draw is
+// silently skipped rather than crashing, since `sections` is data an org
+// could one day edit.
 type SectionDrawers = Partial<Record<SectionId, () => void | Promise<void>>>;
 
 async function runSections(sections: SectionId[], drawers: SectionDrawers) {
@@ -71,17 +70,75 @@ async function runSections(sections: SectionId[], drawers: SectionDrawers) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Template: classic — sober header, thin rule, understated (default)
-// ---------------------------------------------------------------------------
-async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
+// Draws a self-contained (no network, can't fail) locator diagram plotting
+// each photo's GPS point relative to the others — not a real basemap (no
+// tile server call from the edge function), but a reliable "where were
+// these photos taken relative to each other" schematic: north up, dots
+// scaled to fit the bounding box of the coordinates, numbered to match
+// photo order. Only meaningful once photos are actually scattered across
+// more than one spot, so callers should skip this when every photo shares
+// (near enough) the same coordinates.
+function drawGpsMap(
+  page: PDFPage,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  points: { lat: number; lng: number }[],
+  font: PDFFont,
+  brand: RGB,
+) {
+  page.drawRectangle({ x, y: y - height, width, height, borderColor: LINE, borderWidth: 1, color: PAPER_ALT });
+
+  const lats = points.map((p) => p.lat);
+  const lngs = points.map((p) => p.lng);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  const latSpan = maxLat - minLat || 0.0001;
+  const lngSpan = maxLng - minLng || 0.0001;
+
+  const pad = 24;
+  const plotX = x + pad;
+  const plotY = y - height + pad;
+  const plotW = width - pad * 2;
+  const plotH = height - pad * 2;
+
+  points.forEach((pt, i) => {
+    const px = plotX + ((pt.lng - minLng) / lngSpan) * plotW;
+    const py = plotY + ((pt.lat - minLat) / latSpan) * plotH;
+    page.drawEllipse({ x: px, y: py, xScale: 4, yScale: 4, color: brand });
+    drawText(page, String(i + 1), px + 7, py - 3, font, 8, MUTED);
+  });
+
+  drawText(page, 'N', x + width / 2 - 3, y - 12, font, 8, MUTED);
+  drawText(
+    page,
+    'Localisation relative des photos (nord en haut, schéma non cartographique)',
+    x,
+    y - height - 12,
+    font,
+    7.5,
+    MUTED,
+  );
+}
+
+// Single unified report layout — sober header with logo, brand-colored
+// title, notes, optional GPS locator, photo grid, then signatures.
+// Previously offered 4 selectable designs (classic/moderne/minimal/
+// structure); collapsed to this one so brand color is the only
+// customization left, matching the devis/facture unification. RENDERERS/
+// TemplateId are kept (rather than removed) so every existing pdf_templates
+// row's base_layout value still resolves without a migration.
+async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, brand, logoPlacement, footerText, sections } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
   let pageNum = 1;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, footerText ?? 'Généré via Cantia');
+    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
@@ -92,11 +149,10 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
     const w = (logoImg.width / logoImg.height) * h;
     // A logo placed 'left' or 'center' shares the same horizontal band as
     // the company name/title below it — drawn at the same y without
-    // reserving room, it used to sit directly on top of that text. Only
+    // reserving room, it would sit directly on top of that text. Only
     // 'right' is naturally clear of the left-anchored text column, so only
     // that placement keeps the side-by-side look; left/center get their own
-    // row above the text instead (same fix pattern as the minimal template,
-    // which never had this bug).
+    // row above the text instead.
     if (logoPlacement === 'right') {
       page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 10, width: w, height: h });
     } else {
@@ -117,7 +173,7 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
 
   drawText(page, 'Rapport de chantier', MARGIN, y, font, 9.5, MUTED);
   y -= 18;
-  drawText(page, report.title, MARGIN, y, fontBold, 16, ACCENT);
+  drawText(page, report.title, MARGIN, y, fontBold, 16, brand);
   drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
   y -= 22;
 
@@ -148,6 +204,24 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
       page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
       y -= 20;
     },
+    map: () => {
+      const points = photos
+        .filter((p) => p.latitude != null && p.longitude != null)
+        .map((p) => ({ lat: Number(p.latitude), lng: Number(p.longitude) }));
+      if (points.length < 2) return;
+      // Only worth drawing once the photos are actually spread out — a
+      // handful of shots taken standing in the same spot would just plot as
+      // one dot, which isn't useful.
+      const spread = Math.max(...points.map((p) => p.lat)) - Math.min(...points.map((p) => p.lat));
+      const spreadLng = Math.max(...points.map((p) => p.lng)) - Math.min(...points.map((p) => p.lng));
+      if (spread < 0.0001 && spreadLng < 0.0001) return;
+      const MAP_H = 160;
+      if (y < MARGIN + MAP_H + 40) newPage();
+      drawText(page, 'LOCALISATION', MARGIN, y, fontBold, 10, MUTED);
+      y -= 16;
+      drawGpsMap(page, MARGIN, y, PAGE_WIDTH - 2 * MARGIN, MAP_H, points, font, brand);
+      y -= MAP_H + 20;
+    },
     photos: async () => {
       if (!photos.length) return;
       if (y < MARGIN + 240) newPage();
@@ -166,127 +240,6 @@ async function renderReportClassic(ctx: RenderCtx): Promise<Uint8Array> {
         labelColor: MUTED,
         cardBorder: LINE,
         cardBg: WHITE,
-        onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? 'Généré via Cantia'),
-      });
-      page = state.page;
-      pageNum = state.pageNum;
-      y = state.y;
-    },
-    signature: () => {
-      if (!signatureImg) return;
-      if (y < MARGIN + 90) newPage();
-      const h = 50;
-      const w = (signatureImg.width / signatureImg.height) * h;
-      drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y, font, 9, MUTED);
-      page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
-      y -= h + 20;
-    },
-  });
-
-  drawFooter(page, font, pageNum, footerText ?? 'Généré via Cantia');
-  return pdfDoc.save();
-}
-
-// ---------------------------------------------------------------------------
-// Template: moderne — bold brand header band, big white title
-// ---------------------------------------------------------------------------
-async function renderReportModerne(ctx: RenderCtx): Promise<Uint8Array> {
-  const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, brand, textOnBrand, logoPlacement, footerText, sections } = ctx;
-  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  let pageNum = 1;
-
-  const BAND_H = 108;
-  // 'left'/'center' logos share the band's left-anchored text column — the
-  // fixed-offset badge used to sit right on top of the title (visible bug:
-  // the logo box overlapping "RAPPORT DE CHANTIER"). Only 'right' is
-  // naturally clear of that text, so only 'right' keeps the compact
-  // side-by-side band; left/center get a taller band with the logo on its
-  // own row above the text instead.
-  const stackLogo = Boolean(logoImg) && logoPlacement !== 'right';
-  const shift = stackLogo ? 48 : 0;
-  page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BAND_H - shift, width: PAGE_WIDTH, height: BAND_H + shift, color: brand });
-  if (logoImg) {
-    const h = 36;
-    const w = (logoImg.width / logoImg.height) * h;
-    const lx = logoX(logoPlacement, PAGE_WIDTH, MARGIN, w);
-    const badgeY = stackLogo ? PAGE_HEIGHT - h - 24 : PAGE_HEIGHT - BAND_H + 18;
-    const imgY = stackLogo ? PAGE_HEIGHT - h - 18 : PAGE_HEIGHT - BAND_H + 24;
-    page.drawRectangle({ x: lx - 6, y: badgeY, width: w + 12, height: h + 12, color: WHITE });
-    page.drawImage(logoImg, { x: lx, y: imgY, width: w, height: h });
-  }
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, PAGE_HEIGHT - shift - 38, fontBold, 14, textOnBrand);
-  const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
-  if (contactLine) drawText(page, contactLine, MARGIN, PAGE_HEIGHT - shift - 54, font, 8.5, textOnBrand === WHITE ? BAND_MUTED : MUTED);
-  drawText(page, 'RAPPORT DE CHANTIER', MARGIN, PAGE_HEIGHT - shift - 84, fontBold, 15, textOnBrand);
-
-  let y = PAGE_HEIGHT - BAND_H - shift - 32;
-  const newPage = () => {
-    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    pageNum += 1;
-    y = PAGE_HEIGHT - MARGIN;
-  };
-
-  drawText(page, report.title, MARGIN, y, fontBold, 17, INK);
-  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
-  y -= 22;
-
-  const project = report.projects;
-  const metaLines = [
-    project?.name ? `Chantier : ${project.name}` : null,
-    project?.client_name ? `Client : ${project.client_name}` : null,
-    project?.address ? `Adresse : ${project.address}` : null,
-  ].filter(Boolean) as string[];
-  if (metaLines.length) {
-    const boxTop = y;
-    let my = y - 12;
-    for (const _line of metaLines) {
-      my -= 14;
-    }
-    const boxBottom = my + 2;
-    page.drawRectangle({ x: MARGIN, y: boxBottom, width: PAGE_WIDTH - 2 * MARGIN, height: boxTop - boxBottom + 4, color: PAPER_ALT });
-    page.drawRectangle({ x: MARGIN, y: boxBottom, width: 3, height: boxTop - boxBottom + 4, color: ACCENT });
-    my = y - 12;
-    for (const line of metaLines) {
-      drawText(page, line, MARGIN + 10, my, font, 10, INK);
-      my -= 14;
-    }
-    y = boxBottom - 20;
-  }
-
-  await runSections(sections, {
-    intro: () => {
-      if (!report.notes?.trim()) return;
-      drawText(page, 'NOTES', MARGIN, y, fontBold, 10, ACCENT);
-      y -= 16;
-      const lines = wrapText(report.notes, font, 10.5, PAGE_WIDTH - 2 * MARGIN);
-      for (const line of lines) {
-        if (y < MARGIN + 60) newPage();
-        drawText(page, line, MARGIN, y, font, 10.5, INK);
-        y -= 14;
-      }
-      y -= 10;
-      page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-      y -= 20;
-    },
-    photos: async () => {
-      if (!photos.length) return;
-      if (y < MARGIN + 240) newPage();
-      drawText(page, `PHOTOS (${photos.length})`, MARGIN, y, fontBold, 10, ACCENT);
-      y -= 20;
-      const state = await drawPhotoGrid({
-        pdfDoc,
-        admin,
-        bucket: BUCKET,
-        page,
-        pageNum,
-        y,
-        photos,
-        font,
-        fontBold,
-        labelColor: brand,
-        cardBorder: LINE,
-        cardBg: WHITE,
         onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? org?.name ?? 'Cantia'),
       });
       page = state.page;
@@ -294,225 +247,26 @@ async function renderReportModerne(ctx: RenderCtx): Promise<Uint8Array> {
       y = state.y;
     },
     signature: () => {
-      if (!signatureImg) return;
+      const h = 50;
+      const companyW = signatureImg ? (signatureImg.width / signatureImg.height) * h : 150;
+      const clientW = 150;
+      const gap = 30;
+      const totalW = companyW + gap + clientW;
       if (y < MARGIN + 100) newPage();
-      const h = 50;
-      const w = (signatureImg.width / signatureImg.height) * h;
-      drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y - 12, font, 9, MUTED);
-      page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 24, width: w, height: h });
-      y -= h + 34;
-    },
-  });
+      const startX = PAGE_WIDTH - MARGIN - totalW;
 
-  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-  return pdfDoc.save();
-}
-
-// ---------------------------------------------------------------------------
-// Template: minimal — generous whitespace, thin rules only, no color blocks
-// ---------------------------------------------------------------------------
-async function renderReportMinimal(ctx: RenderCtx): Promise<Uint8Array> {
-  const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, logoPlacement, footerText, sections } = ctx;
-  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  let y = PAGE_HEIGHT - MARGIN - 10;
-  let pageNum = 1;
-
-  const newPage = () => {
-    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    pageNum += 1;
-    y = PAGE_HEIGHT - MARGIN;
-  };
-
-  if (logoImg) {
-    const h = 30;
-    const w = (logoImg.width / logoImg.height) * h;
-    page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 8, width: w, height: h });
-    y -= h + 18;
-  }
-
-  drawText(page, (org?.name ?? 'Entreprise').toUpperCase(), MARGIN, y, font, 10, MUTED);
-  y -= 32;
-  drawText(page, report.title, MARGIN, y, fontBold, 22, INK);
-  y -= 20;
-  drawText(page, formatDate(report.created_at), MARGIN, y, font, 9.5, MUTED);
-  y -= 36;
-
-  const project = report.projects;
-  const metaLines = [
-    project?.name ? `Chantier : ${project.name}` : null,
-    project?.client_name ? `Client : ${project.client_name}` : null,
-    project?.address ? `Adresse : ${project.address}` : null,
-  ].filter(Boolean) as string[];
-  for (const line of metaLines) {
-    drawText(page, line, MARGIN, y, font, 10.5, INK);
-    y -= 14;
-  }
-  y -= 18;
-
-  await runSections(sections, {
-    intro: () => {
-      if (!report.notes?.trim()) return;
-      const lines = wrapText(report.notes, font, 10.5, PAGE_WIDTH - 2 * MARGIN);
-      for (const line of lines) {
-        if (y < MARGIN + 60) newPage();
-        drawText(page, line, MARGIN, y, font, 10.5, INK);
-        y -= 14;
+      drawText(page, 'Signature entreprise', startX, y, font, 9, MUTED);
+      if (signatureImg) {
+        page.drawImage(signatureImg, { x: startX, y: y - h - 10, width: companyW, height: h });
+      } else {
+        page.drawLine({ start: { x: startX, y: y - h - 10 }, end: { x: startX + companyW, y: y - h - 10 }, thickness: 1, color: LINE });
       }
-      y -= 20;
-    },
-    photos: async () => {
-      if (!photos.length) return;
-      if (y < MARGIN + 240) newPage();
-      const state = await drawPhotoGrid({
-        pdfDoc,
-        admin,
-        bucket: BUCKET,
-        page,
-        pageNum,
-        y,
-        photos,
-        font,
-        fontBold,
-        labelColor: MUTED,
-        cardBorder: null,
-        cardBg: null,
-        onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? org?.name ?? 'Cantia'),
-      });
-      page = state.page;
-      pageNum = state.pageNum;
-      y = state.y;
-    },
-    signature: () => {
-      if (!signatureImg) return;
-      if (y < MARGIN + 80) newPage();
-      const h = 44;
-      const w = (signatureImg.width / signatureImg.height) * h;
-      page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h, width: w, height: h });
-      y -= h + 14;
-    },
-  });
 
-  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-  return pdfDoc.save();
-}
+      const clientX = startX + companyW + gap;
+      drawText(page, 'Signature client', clientX, y, font, 9, MUTED);
+      page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
 
-// ---------------------------------------------------------------------------
-// Template: structure — bordered boxes, solid brand-colored section bars
-// ---------------------------------------------------------------------------
-async function renderReportStructure(ctx: RenderCtx): Promise<Uint8Array> {
-  const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, brand, textOnBrand, logoPlacement, footerText, sections } = ctx;
-  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  let y = PAGE_HEIGHT - MARGIN;
-  let pageNum = 1;
-
-  const newPage = () => {
-    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
-    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    pageNum += 1;
-    y = PAGE_HEIGHT - MARGIN;
-  };
-
-  if (logoImg) {
-    const h = 40;
-    const w = (logoImg.width / logoImg.height) * h;
-    if (logoPlacement === 'right') {
-      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 6, width: w, height: h });
-    } else {
-      page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
-      y -= h + 10;
-    }
-  }
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
-  y -= 16;
-  const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
-  if (contactLine) {
-    drawText(page, contactLine, MARGIN, y, font, 8.5, MUTED);
-    y -= 14;
-  }
-  y -= 10;
-
-  page.drawRectangle({ x: MARGIN, y: y - 26, width: PAGE_WIDTH - 2 * MARGIN, height: 26, color: PAPER_ALT });
-  drawText(page, `RAPPORT — ${report.title}`, MARGIN + 8, y - 18, fontBold, 11, INK);
-  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN - 8, y - 18, font, 9.5, MUTED);
-  y -= 40;
-
-  const project = report.projects;
-  const metaLines = [
-    project?.name ? `Chantier : ${project.name}` : null,
-    project?.client_name ? `Client : ${project.client_name}` : null,
-    project?.address ? `Adresse : ${project.address}` : null,
-  ].filter(Boolean) as string[];
-  if (metaLines.length) {
-    const boxTop = y;
-    let my = y - 14;
-    for (const _line of metaLines) my -= 13;
-    const boxBottom = my + 2;
-    page.drawRectangle({
-      x: MARGIN,
-      y: boxBottom,
-      width: PAGE_WIDTH - 2 * MARGIN,
-      height: boxTop - boxBottom,
-      borderColor: LINE,
-      borderWidth: 1,
-    });
-    my = y - 14;
-    for (const line of metaLines) {
-      drawText(page, line, MARGIN + 8, my, font, 10, INK);
-      my -= 13;
-    }
-    y = boxBottom - 20;
-  }
-
-  const sectionBar = (label: string) => {
-    page.drawRectangle({ x: MARGIN, y: y - 18, width: PAGE_WIDTH - 2 * MARGIN, height: 18, color: brand });
-    drawText(page, label, MARGIN + 8, y - 13, fontBold, 8.5, textOnBrand);
-    y -= 26;
-  };
-
-  await runSections(sections, {
-    intro: () => {
-      if (!report.notes?.trim()) return;
-      sectionBar('NOTES');
-      const lines = wrapText(report.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
-      for (const line of lines) {
-        if (y < MARGIN + 60) newPage();
-        drawText(page, line, MARGIN, y, font, 9.5, INK);
-        y -= 13;
-      }
-      y -= 14;
-    },
-    photos: async () => {
-      if (!photos.length) return;
-      if (y < MARGIN + 240) newPage();
-      sectionBar(`PHOTOS (${photos.length})`);
-      const state = await drawPhotoGrid({
-        pdfDoc,
-        admin,
-        bucket: BUCKET,
-        page,
-        pageNum,
-        y,
-        photos,
-        font,
-        fontBold,
-        labelColor: brand,
-        cardBorder: LINE,
-        cardBg: PAPER_ALT,
-        onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? org?.name ?? 'Cantia'),
-      });
-      page = state.page;
-      pageNum = state.pageNum;
-      y = state.y;
-    },
-    signature: () => {
-      if (!signatureImg) return;
-      if (y < MARGIN + 90) newPage();
-      const h = 46;
-      const w = (signatureImg.width / signatureImg.height) * h;
-      drawText(page, 'Signature', PAGE_WIDTH - MARGIN - w, y, font, 9, MUTED);
-      page.drawImage(signatureImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h - 10, width: w, height: h });
-      y -= h + 20;
+      y -= h + 24;
     },
   });
 
@@ -521,10 +275,10 @@ async function renderReportStructure(ctx: RenderCtx): Promise<Uint8Array> {
 }
 
 const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => Promise<Uint8Array>> = {
-  classic: renderReportClassic,
-  moderne: renderReportModerne,
-  minimal: renderReportMinimal,
-  structure: renderReportStructure,
+  classic: renderReportUnified,
+  moderne: renderReportUnified,
+  minimal: renderReportUnified,
+  structure: renderReportUnified,
 };
 
 Deno.serve(async (req: Request) => {
@@ -559,7 +313,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const [{ data: org }, { data: photos }] = await Promise.all([
-      admin.from('organizations').select('*').eq('id', report.organization_id).single(),
+      admin.from('organizations').select('*, plans(has_customization)').eq('id', report.organization_id).single(),
       admin
         .from('report_photos')
         .select('*')
@@ -584,7 +338,7 @@ Deno.serve(async (req: Request) => {
 
     const template = await resolvePdfTemplate(admin, report.organization_id, 'report', report.template_id);
     const brand = resolveBrand(template, org);
-    const footerText = resolveFooterText(template, org);
+    const footerText = resolveFooterText(template, org, orgHasCustomization(org));
     const knownSections: SectionId[] = ['intro', 'photos', 'map', 'signature'];
     const sections = (Array.isArray(template.sections) ? template.sections : ['intro', 'photos', 'signature']).filter((s: string) =>
       knownSections.includes(s as SectionId),

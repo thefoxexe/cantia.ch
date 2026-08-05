@@ -5,6 +5,7 @@ import {
   embedImageSmart,
   fetchStorageBytes,
   formatDate,
+  orgHasCustomization,
   resolveBrand,
   resolveFooterText,
   resolvePdfTemplate,
@@ -47,7 +48,7 @@ Deno.serve(async (req: Request) => {
     if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
 
     const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('*').eq('id', facture.organization_id).single(),
+      admin.from('organizations').select('*, plans(has_customization)').eq('id', facture.organization_id).single(),
       admin.from('facture_items').select('*').eq('facture_id', facture_id).order('sort_order', { ascending: true }),
     ]);
 
@@ -67,7 +68,7 @@ Deno.serve(async (req: Request) => {
     // handled via docLabel/metaLine below instead of a separate template kind.
     const template = await resolvePdfTemplate(admin, facture.organization_id, 'devis', facture.template_id);
     const brand = resolveBrand(template, org);
-    const footerText = resolveFooterText(template, org);
+    const footerText = resolveFooterText(template, org, orgHasCustomization(org));
 
     const metaLine =
       facture.status === 'paid' && facture.paid_at
