@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -217,7 +217,10 @@ export default function PlanningScreen() {
         ) : members.length === 0 ? (
           <EmptyState title="Aucun membre" subtitle="Invitez votre équipe pour commencer à planifier." />
         ) : (
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.primary} />}
+          >
             <View style={styles.gridRow}>
               {/* Member axis — stays put while the day grid scrolls horizontally. */}
               <View style={{ width: MEMBER_COL_WIDTH }}>

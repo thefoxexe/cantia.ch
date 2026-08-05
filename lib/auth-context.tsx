@@ -111,6 +111,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [session?.user?.id]);
 
+  // Refreshes organization/role on foreground — otherwise a change made by
+  // someone else (e.g. being promoted to admin, or removed from the org)
+  // only appears after a full sign-out/sign-in, since loadOrganization
+  // above only runs once at mount and on auth events, never in response to
+  // another user's write. Rate-limited so switching tabs/apps repeatedly
+  // doesn't refetch on every single foreground.
+  useEffect(() => {
+    if (!session?.user) return;
+    let lastRefresh = Date.now();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') return;
+      const now = Date.now();
+      if (now - lastRefresh < 30000) return;
+      lastRefresh = now;
+      loadOrganization(session.user.id);
+    });
+    return () => sub.remove();
+  }, [session?.user?.id, loadOrganization]);
+
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error?.message ?? null };

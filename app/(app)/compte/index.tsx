@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -19,12 +19,13 @@ interface MenuItem {
 }
 
 export default function CompteMenuScreen() {
-  const { organization, signOut } = useAuth();
+  const { organization, refreshOrganization, signOut } = useAuth();
   const router = useRouter();
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [planName, setPlanName] = useState<string | null>(null);
   const [quotaBytes, setQuotaBytes] = useState(0);
   const [usedBytes, setUsedBytes] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -44,6 +45,12 @@ export default function CompteMenuScreen() {
       load();
     }, [load]),
   );
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    await Promise.all([load(), refreshOrganization()]);
+    setRefreshing(false);
+  }
 
   const items: MenuItem[] = [
     {
@@ -99,7 +106,10 @@ export default function CompteMenuScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView
+        contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+      >
         <Container>
           <Text style={styles.pageTitle}>Paramètres</Text>
 
