@@ -66,24 +66,8 @@ export default function DevisListScreen() {
           title="Nouveau devis"
           icon="plus"
           onPress={() => router.push('/(app)/devis/new')}
-          style={{ marginBottom: spacing.sm }}
+          style={{ marginBottom: spacing.lg }}
         />
-        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
-          <Button
-            title="Factures"
-            icon="dollar-sign"
-            variant="secondary"
-            onPress={() => router.push('/(app)/devis/factures')}
-            style={{ flex: 1 }}
-          />
-          <Button
-            title="Inventaire"
-            icon="database"
-            variant="secondary"
-            onPress={() => router.push('/(app)/devis/inventaire')}
-            style={{ flex: 1 }}
-          />
-        </View>
 
         <Text style={styles.sectionLabel}>Devis</Text>
         {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}

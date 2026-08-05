@@ -29,7 +29,7 @@ function buildSections(devisEnabled: boolean, planningEnabled: boolean): NavSect
     ...(planningEnabled
       ? [{ title: 'ÉQUIPE', links: [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] }]
       : []),
-    { links: [{ href: '/(app)/compte', label: 'Compte', icon: 'settings' }] },
+    { links: [{ href: '/(app)/compte', label: 'Paramètres', icon: 'settings' }] },
   ];
 }
 
@@ -87,6 +87,8 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         </Pressable>
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
         <Text style={styles.mobileBrand}>Cantia</Text>
+        <View style={{ flex: 1 }} />
+        <AccountMenu />
       </View>
       <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
         <Slot />
@@ -134,9 +136,11 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
             </View>
           ))}
         </View>
-        <AccountMenu />
       </View>
       <View style={styles.desktopContent}>
+        <View style={[styles.desktopTopBar, { paddingTop: insets.top + spacing.sm }]}>
+          <AccountMenu />
+        </View>
         <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
           <Slot />
         </SafeAreaInsetsContext.Provider>
@@ -241,5 +245,15 @@ const styles = StyleSheet.create({
   },
   desktopContent: {
     flex: 1,
+  },
+  desktopTopBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.sm,
+    backgroundColor: colors.bg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
 });

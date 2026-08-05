@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { AccountMenu } from './AccountMenu';
 
 export type IconName = keyof typeof Feather.glyphMap;
 
@@ -63,7 +62,6 @@ export function NavDrawer({
               </View>
             ))}
           </ScrollView>
-          <AccountMenu />
         </View>
         <Pressable style={styles.dismiss} onPress={onClose} />
       </View>

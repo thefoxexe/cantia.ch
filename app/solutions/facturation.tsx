@@ -33,6 +33,11 @@ export default function FacturationSolutionPage() {
           text: "Un devis accepté devient une facture en un geste, avec les mêmes lignes et le même client.",
         },
         {
+          icon: 'percent',
+          title: 'Facturez un acompte',
+          text: "Émettez une facture d'acompte pour un pourcentage du devis avant de commencer, puis la facture finale déduit automatiquement ce qui a déjà été encaissé.",
+        },
+        {
           icon: 'shield',
           title: 'Hébergé en Suisse',
           text: "Vos factures et données clients restent sur des serveurs situés en Suisse, chiffrées.",

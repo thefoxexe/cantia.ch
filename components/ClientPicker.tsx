@@ -99,7 +99,7 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
     <>
       <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
         <Feather name="users" size={15} color={colors.primary} />
-        <Text style={styles.triggerText}>Choisir un contact existant</Text>
+        <Text style={styles.triggerText}>Sélectionner ou créer un contact</Text>
       </Pressable>
 
       <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>

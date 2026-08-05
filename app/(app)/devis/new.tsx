@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Field, Screen } from '../../../components/ui';
+import { Button, Card, Field, Screen } from '../../../components/ui';
 import { ClientPicker } from '../../../components/ClientPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
@@ -301,16 +301,13 @@ export default function NewDevisScreen() {
               }}
             />
           ) : null}
-          <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
-          <Field label="Adresse du client" value={clientAddress} onChangeText={setClientAddress} placeholder="Adresse" />
-          <Field
-            label="E-mail du client"
-            value={clientEmail}
-            onChangeText={setClientEmail}
-            placeholder="client@exemple.ch"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          {clientName ? (
+            <Card style={styles.selectedClientCard}>
+              <Text style={styles.selectedClientName}>{clientName}</Text>
+              {clientAddress ? <Text style={styles.selectedClientMeta}>{clientAddress}</Text> : null}
+              {clientEmail ? <Text style={styles.selectedClientMeta}>{clientEmail}</Text> : null}
+            </Card>
+          ) : null}
 
           <Text style={styles.sectionTitle}>Lignes du devis</Text>
           {dictation.supported ? (
@@ -676,6 +673,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
+  },
+  selectedClientCard: {
+    marginTop: spacing.xs,
+  },
+  selectedClientName: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  selectedClientMeta: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   lineCard: {
     borderWidth: 1,
