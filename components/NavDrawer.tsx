@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { AccountMenu } from './AccountMenu';
 
 export type IconName = keyof typeof Feather.glyphMap;
 
@@ -34,12 +35,12 @@ export function NavDrawer({
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <View style={[styles.panel, { paddingTop: insets.top + spacing.lg }]}>
+        <View style={[styles.panel, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
           <View style={styles.brand}>
             <Image source={require('../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
             <Text style={styles.brandText}>Cantia</Text>
           </View>
-          <ScrollView contentContainerStyle={styles.nav} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.navScroll} contentContainerStyle={styles.nav} showsVerticalScrollIndicator={false}>
             {sections.map((section, i) => (
               <View key={section.title ?? `s${i}`} style={styles.section}>
                 {section.title ? <Text style={styles.sectionTitle}>{section.title}</Text> : null}
@@ -62,6 +63,7 @@ export function NavDrawer({
               </View>
             ))}
           </ScrollView>
+          <AccountMenu />
         </View>
         <Pressable style={styles.dismiss} onPress={onClose} />
       </View>
@@ -81,6 +83,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: colors.border,
     paddingHorizontal: spacing.md,
+    flexDirection: 'column',
   },
   dismiss: {
     flex: 1,
@@ -101,6 +104,9 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     fontWeight: '800',
     color: colors.text,
+  },
+  navScroll: {
+    flex: 1,
   },
   nav: {
     paddingBottom: spacing.xxl,

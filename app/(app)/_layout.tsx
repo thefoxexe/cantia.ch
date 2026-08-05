@@ -76,7 +76,6 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
   const activeHref = activeHrefFor(pathname, sections);
 
   return (
@@ -87,8 +86,6 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         </Pressable>
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
         <Text style={styles.mobileBrand}>Cantia</Text>
-        <View style={{ flex: 1 }} />
-        <AccountMenu visible={accountOpen} onOpen={() => setAccountOpen(true)} onClose={() => setAccountOpen(false)} />
       </View>
       <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
         <Slot />
@@ -102,12 +99,11 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
   const router = useRouter();
-  const [accountOpen, setAccountOpen] = useState(false);
   const activeHref = activeHrefFor(pathname, sections);
 
   return (
     <View style={styles.desktopRoot}>
-      <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg }]}>
+      <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
         <View style={styles.sidebarBrand}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.sidebarLogo} resizeMode="contain" />
           <Text style={styles.sidebarBrandText}>Cantia</Text>
@@ -137,11 +133,9 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
             </View>
           ))}
         </View>
+        <AccountMenu />
       </View>
       <View style={styles.desktopContent}>
-        <View style={[styles.desktopTopBar, { paddingTop: insets.top + spacing.sm }]}>
-          <AccountMenu visible={accountOpen} onOpen={() => setAccountOpen(true)} onClose={() => setAccountOpen(false)} />
-        </View>
         <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
           <Slot />
         </SafeAreaInsetsContext.Provider>
@@ -192,6 +186,7 @@ const styles = StyleSheet.create({
     borderRightColor: colors.border,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
+    flexDirection: 'column',
   },
   sidebarBrand: {
     flexDirection: 'row',
@@ -210,6 +205,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   sidebarNav: {
+    flex: 1,
     gap: spacing.lg,
   },
   sidebarSection: {
@@ -244,13 +240,5 @@ const styles = StyleSheet.create({
   },
   desktopContent: {
     flex: 1,
-  },
-  desktopTopBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
 });

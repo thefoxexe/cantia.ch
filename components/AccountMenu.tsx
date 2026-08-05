@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -7,10 +8,17 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
 
-export function AccountMenu({ visible, onOpen, onClose }: { visible: boolean; onOpen: () => void; onClose: () => void }) {
+// Pinned to the bottom-left of whichever nav panel it's used in (desktop
+// sidebar, mobile drawer) — the dropdown opens upward from there instead of
+// downward, since there's no room below it.
+const CHIP_HEIGHT = 56;
+
+export function AccountMenu() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { organization, signOut } = useAuth();
+  const [visible, setVisible] = useState(false);
+  const onClose = () => setVisible(false);
 
   function go(path: string) {
     onClose();
@@ -19,13 +27,22 @@ export function AccountMenu({ visible, onOpen, onClose }: { visible: boolean; on
 
   return (
     <>
-      <Pressable onPress={onOpen} style={styles.trigger} hitSlop={8}>
-        <Feather name="user" size={17} color={colors.text} />
+      <Pressable onPress={() => setVisible(true)} style={styles.chip} hitSlop={4}>
+        <View style={styles.chipAvatar}>
+          <Feather name="user" size={16} color={colors.primary} />
+        </View>
+        <View style={styles.chipText}>
+          <Text style={styles.chipOrgName} numberOfLines={1}>
+            {organization?.name ?? 'Mon compte'}
+          </Text>
+          <Text style={styles.chipSubtitle}>Mon compte</Text>
+        </View>
+        <Feather name="more-vertical" size={16} color={colors.textMuted} />
       </Pressable>
 
       <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
         <Pressable style={styles.backdrop} onPress={onClose}>
-          <View style={[styles.card, { top: insets.top + 56 }]}>
+          <View style={[styles.card, { bottom: insets.bottom + spacing.md + CHIP_HEIGHT + spacing.sm }]}>
             <View style={styles.header}>
               <Text style={styles.orgName} numberOfLines={1}>
                 {organization?.name ?? 'Mon compte'}
@@ -74,21 +91,44 @@ function MenuRow({ icon, label, onPress, danger }: { icon: IconName; label: stri
 }
 
 const styles = StyleSheet.create({
-  trigger: {
-    width: 34,
-    height: 34,
+  chip: {
+    height: CHIP_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  chipAvatar: {
+    width: 32,
+    height: 32,
     borderRadius: radius.pill,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  chipText: {
+    flex: 1,
+  },
+  chipOrgName: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  chipSubtitle: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 1,
   },
   backdrop: {
     flex: 1,
   },
   card: {
     position: 'absolute',
-    right: spacing.lg,
-    width: 260,
+    left: spacing.md,
+    width: 232,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
@@ -97,7 +137,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.12,
     shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: -6 },
     elevation: 6,
   },
   header: {
