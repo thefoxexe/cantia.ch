@@ -64,7 +64,7 @@ export default function SignupScreen() {
               label="Nom complet"
               value={fullName}
               onChangeText={setFullName}
-              placeholder="Ex : Bastien Ryser"
+              placeholder="Ex : Jean Dupont"
               autoCapitalize="words"
             />
             <Field
