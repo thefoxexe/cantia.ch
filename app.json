@@ -26,7 +26,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Cantia utilise le microphone pour enregistrer vos messages vocaux de chantier.",
+          "microphonePermission": "Cantia utilise le microphone pour la dictée vocale et vos messages vocaux de chantier.",
           "enableBackgroundPlayback": false
         }
       ]

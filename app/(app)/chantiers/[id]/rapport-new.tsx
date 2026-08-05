@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -72,7 +72,7 @@ export default function NewReportScreen() {
 
   async function toggleDictation() {
     if (dictation.listening) {
-      dictation.stop();
+      await dictation.stop();
       return;
     }
     notesBaseRef.current = notes;
@@ -230,11 +230,18 @@ export default function NewReportScreen() {
           {dictation.supported ? (
             <Pressable
               onPress={toggleDictation}
-              style={[styles.dictateButton, dictation.listening && styles.dictateButtonActive]}
+              disabled={dictation.transcribing}
+              style={[styles.dictateButton, (dictation.listening || dictation.transcribing) && styles.dictateButtonActive]}
             >
-              <Feather name="mic" size={13} color={dictation.listening ? '#fff' : colors.primary} />
-              <Text style={[styles.dictateButtonText, dictation.listening && styles.dictateButtonTextActive]}>
-                {dictation.listening ? 'Écoute…' : 'Dicter'}
+              {dictation.transcribing ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Feather name="mic" size={13} color={dictation.listening ? '#fff' : colors.primary} />
+              )}
+              <Text
+                style={[styles.dictateButtonText, (dictation.listening || dictation.transcribing) && styles.dictateButtonTextActive]}
+              >
+                {dictation.transcribing ? 'Transcription…' : dictation.listening ? 'Écoute…' : 'Dicter'}
               </Text>
             </Pressable>
           ) : null}

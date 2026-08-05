@@ -1,110 +1,66 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from './speechRecognitionStub';
+import { useCallback, useRef, useState } from 'react';
+import { Platform } from 'react-native';
+import { RecordingPresets, requestRecordingPermissionsAsync, useAudioRecorder } from 'expo-audio';
+import { useAuth } from './auth-context';
+import { deleteFromOrgBucket, uploadToOrgBucket } from './api/storage';
+import { transcribeAudio } from './api/transcription';
 
-// A pause between sentences starts a new "final" segment rather than
-// continuing the same one — the module's own docs warn that multiple final
-// results will be returned during a single continuous session, so this
-// concatenates them itself instead of only keeping the latest one.
-//
-// On Android in particular, continuous mode is simulated by the native side
-// auto-restarting the recognizer after each pause, and that restart can
-// redeliver the exact same segment as a fresh "final" result — with nothing
-// guarding against it, a single short word could get appended over and over
-// ("chantier chantier chantier chantier..."). lastFinalRef only lets a
-// segment through if it differs from the immediately preceding one, which
-// collapses any run of exact repeats down to one without touching genuinely
-// new (even short) words spoken next.
-function normalizeForDedup(text: string): string {
-  return text.trim().toLowerCase().replace(/[.,!?;:]+$/, '');
-}
-
-// Errors the platform can't recover from on its own — anything else (no
-// speech detected, a network blip, the generic Android "client"/"unknown"
-// codes) is treated as transient and left to the 'end' handler below, which
-// restarts the session rather than surfacing it as a stop.
-const FATAL_ERRORS = new Set(['not-allowed', 'service-not-allowed', 'language-not-supported', 'audio-capture']);
-
+// Speech-to-text via a short recording + server-side transcription
+// (supabase/functions/transcribe-audio, backed by Whisper) rather than live
+// on-device recognition — expo-speech-recognition has no version compatible
+// with Expo SDK 57, and repeatedly caused a native crash on every app
+// launch. The trade-off is explicit and accepted: no more word-by-word
+// live transcript while speaking — start() records, stop() uploads the
+// clip to a scratch path, awaits the transcript, deletes the scratch file,
+// then calls onTranscriptChange exactly once with the full text. Every
+// existing caller already only reads the transcript after awaiting stop(),
+// so this is a drop-in swap of what happens *inside* start/stop, not a new
+// contract.
 export function useDictation(onTranscriptChange: (sessionTranscript: string) => void) {
-  const [supported, setSupported] = useState(false);
+  const { organization } = useAuth();
   const [listening, setListening] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const onTranscriptChangeRef = useRef(onTranscriptChange);
   onTranscriptChangeRef.current = onTranscriptChange;
-  const finalizedRef = useRef('');
-  const lastFinalRef = useRef('');
-  const lastFinalAtRef = useRef(0);
-  const langRef = useRef('fr-FR');
-  // True from start() to stop() (or a fatal error) — distinguishes an 'end'
-  // the user asked for from one the OS triggered on its own (Android's
-  // continuous mode is itself an auto-restart loop, and even iOS 17- cuts a
-  // session after ~3s of silence), which is what "ça arrête d'enregistrer
-  // au bout d'un moment" was: the session ending mid-dictation with no
-  // action from the user.
-  const shouldListenRef = useRef(false);
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
-  useEffect(() => {
-    setSupported(ExpoSpeechRecognitionModule.isRecognitionAvailable());
-  }, []);
-
-  useSpeechRecognitionEvent('result', (event) => {
-    const transcript = event.results[0]?.transcript ?? '';
-    if (event.isFinal) {
-      const clean = transcript.trim();
-      const now = Date.now();
-      const a = normalizeForDedup(clean);
-      const b = normalizeForDedup(lastFinalRef.current);
-      // The exact-match dedup above only ever caught a byte-identical
-      // redelivery. In practice Android's restart-on-pause loop can
-      // re-transcribe the same audio buffer slightly differently each pass
-      // ("bétonnage" / "le bétonnage" / "et bétonnage"), so a same-or-prefix
-      // segment arriving within ~1.5s of the last final is still treated as
-      // the same redelivered utterance rather than new speech — this is
-      // what showed up as a phrase getting typed two or three times in a
-      // row. The time window keeps this from ever swallowing a real short
-      // word (e.g. "porte" said again minutes later, unrelated to
-      // "porte-fenêtre" spoken earlier).
-      const isNearDuplicateRedelivery = !!a && !!b && now - lastFinalAtRef.current < 1500 && (a === b || a.includes(b) || b.includes(a));
-      if (!clean || isNearDuplicateRedelivery) return;
-      lastFinalRef.current = clean;
-      lastFinalAtRef.current = now;
-      finalizedRef.current = finalizedRef.current ? `${finalizedRef.current} ${clean}` : clean;
-      onTranscriptChangeRef.current(finalizedRef.current);
-    } else {
-      const live = finalizedRef.current ? `${finalizedRef.current} ${transcript}` : transcript;
-      onTranscriptChangeRef.current(live);
-    }
-  });
-  useSpeechRecognitionEvent('end', () => {
-    if (shouldListenRef.current) {
-      // Transcript accumulated so far (finalizedRef/lastFinalRef) is left
-      // untouched — this is a silent hand-off, not a new session.
-      ExpoSpeechRecognitionModule.start({ lang: langRef.current, interimResults: true, continuous: true });
-      return;
-    }
-    setListening(false);
-  });
-  useSpeechRecognitionEvent('error', (event) => {
-    if (FATAL_ERRORS.has(event.error)) {
-      shouldListenRef.current = false;
-      setListening(false);
-    }
-  });
-
-  const start = useCallback(async (lang = 'fr-FR') => {
-    const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+  const start = useCallback(async (_lang = 'fr-FR') => {
+    const perm = await requestRecordingPermissionsAsync();
     if (!perm.granted) return false;
-    finalizedRef.current = '';
-    lastFinalRef.current = '';
-    langRef.current = lang;
-    shouldListenRef.current = true;
+    await audioRecorder.prepareToRecordAsync();
+    audioRecorder.record();
     setListening(true);
-    ExpoSpeechRecognitionModule.start({ lang, interimResults: true, continuous: true });
     return true;
-  }, []);
+  }, [audioRecorder]);
 
-  const stop = useCallback(() => {
-    shouldListenRef.current = false;
-    ExpoSpeechRecognitionModule.stop();
-  }, []);
+  const stop = useCallback(async () => {
+    setListening(false);
+    if (!organization) return;
+    await audioRecorder.stop();
+    const uri = audioRecorder.uri;
+    if (!uri) return;
 
-  return { supported, listening, start, stop };
+    setTranscribing(true);
+    try {
+      const ext = Platform.OS === 'web' ? 'webm' : 'm4a';
+      const contentType = Platform.OS === 'web' ? 'audio/webm' : 'audio/m4a';
+      const scratchPath = `_dictation-tmp/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { path, error: uploadError } = await uploadToOrgBucket(organization.id, scratchPath, uri, contentType);
+      if (!path || uploadError) return;
+
+      const { transcript } = await transcribeAudio(path);
+      if (transcript) onTranscriptChangeRef.current(transcript);
+      deleteFromOrgBucket(path).catch(() => {});
+    } finally {
+      setTranscribing(false);
+    }
+  }, [audioRecorder, organization]);
+
+  return {
+    supported: true, // recording + server transcription needs no device-specific capability check
+    listening,
+    transcribing,
+    start,
+    stop,
+  };
 }

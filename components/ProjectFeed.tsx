@@ -269,7 +269,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   async function toggleTextDictation() {
     if (textDictation.listening) {
-      textDictation.stop();
+      await textDictation.stop();
       return;
     }
     textDictationBaseRef.current = text;
@@ -822,11 +822,18 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                 </Pressable>
                 {textDictation.supported ? (
                   <Pressable
-                    style={[styles.composerIconButton, textDictation.listening && styles.composerIconButtonActive]}
+                    style={[
+                      styles.composerIconButton,
+                      (textDictation.listening || textDictation.transcribing) && styles.composerIconButtonActive,
+                    ]}
                     onPress={toggleTextDictation}
-                    disabled={sending}
+                    disabled={sending || textDictation.transcribing}
                   >
-                    <Feather name="type" size={18} color={textDictation.listening ? '#fff' : colors.text} />
+                    {textDictation.transcribing ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Feather name="type" size={18} color={textDictation.listening ? '#fff' : colors.text} />
+                    )}
                   </Pressable>
                 ) : null}
                 <Pressable

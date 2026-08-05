@@ -120,7 +120,7 @@ export default function NewDevisScreen() {
   async function toggleDictation(target: DictationTarget) {
     if (dictation.listening) {
       const wasDevisLines = dictationTarget?.type === 'devisLines';
-      dictation.stop();
+      await dictation.stop();
       if (wasDevisLines) await generateLinesFromDictation();
       return;
     }
@@ -138,10 +138,20 @@ export default function NewDevisScreen() {
   }
 
   function isDictating(target: DictationTarget) {
-    if (!dictation.listening || !dictationTarget) return false;
+    if ((!dictation.listening && !dictation.transcribing) || !dictationTarget) return false;
     if (target.type === 'notes') return dictationTarget.type === 'notes';
     if (target.type === 'devisLines') return dictationTarget.type === 'devisLines';
     return dictationTarget.type === 'line' && target.type === 'line' && dictationTarget.index === target.index;
+  }
+
+  // "Écoute…" while recording, "Transcription…" for the few seconds after
+  // stop() while the clip uploads and Whisper responds — isDictating alone
+  // stays true through both phases (dictation.listening flips off the
+  // instant recording stops, well before the transcript is ready), so the
+  // button would otherwise look idle again during that gap.
+  function dictationLabel(target: DictationTarget, idleLabel: string, listeningLabel: string): string {
+    if (!isDictating(target)) return idleLabel;
+    return dictation.transcribing ? 'Transcription…' : listeningLabel;
   }
 
   // Turns the raw dictated transcript into structured devis lines via the
@@ -328,7 +338,7 @@ export default function NewDevisScreen() {
                 <Text
                   style={[styles.dictateButtonText, isDictating({ type: 'notes' }) && styles.dictateButtonTextActive]}
                 >
-                  {isDictating({ type: 'notes' }) ? 'Écoute…' : 'Dicter'}
+                  {dictationLabel({ type: 'notes' }, 'Dicter', 'Écoute…')}
                 </Text>
               </Pressable>
             ) : null}
@@ -364,9 +374,7 @@ export default function NewDevisScreen() {
                 >
                   {generatingLines
                     ? 'Analyse des positions…'
-                    : isDictating({ type: 'devisLines' })
-                      ? 'Écoute… (touchez pour arrêter)'
-                      : 'Dicter les positions du devis'}
+                    : dictationLabel({ type: 'devisLines' }, 'Dicter les positions du devis', 'Écoute… (touchez pour arrêter)')}
                 </Text>
               </Pressable>
               {isDictating({ type: 'devisLines' }) && devisLinesTranscript ? (
@@ -415,7 +423,7 @@ export default function NewDevisScreen() {
                             isDictating({ type: 'line', index: i }) && styles.dictateButtonTextActive,
                           ]}
                         >
-                          {isDictating({ type: 'line', index: i }) ? 'Écoute…' : 'Dicter'}
+                          {dictationLabel({ type: 'line', index: i }, 'Dicter', 'Écoute…')}
                         </Text>
                       </Pressable>
                     ) : null}
