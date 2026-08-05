@@ -44,20 +44,32 @@ Deno.serve(async (req: Request) => {
 
     if (devisError || !devis) return json({ error: 'Devis introuvable ou accès refusé' }, 404);
 
-    const [{ data: org }, { data: items }] = await Promise.all([
+    const [{ data: org }, { data: items }, { data: creator }] = await Promise.all([
       admin.from('organizations').select('*, plans(has_customization)').eq('id', devis.organization_id).single(),
       admin.from('devis_items').select('*').eq('devis_id', devis_id).order('sort_order', { ascending: true }),
+      devis.created_by
+        ? admin
+            .from('organization_members')
+            .select('full_name, signature_url')
+            .eq('organization_id', devis.organization_id)
+            .eq('user_id', devis.created_by)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
 
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
+    // A devis is signed by whoever drew it up, not by "the company" — the
+    // creator's own personal signature (organization_members.signature_url),
+    // not org.signature_url.
     let signatureImg: PDFImage | null = null;
-    if (org?.signature_url) {
-      const bytes = await fetchStorageBytes(admin, BUCKET, org.signature_url);
+    if (creator?.signature_url) {
+      const bytes = await fetchStorageBytes(admin, BUCKET, creator.signature_url);
       if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
+    const signatureLabel = creator?.full_name ? `Signature ${creator.full_name}` : 'Signature';
 
     const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
     const brand = resolveBrand(template, org);
@@ -74,6 +86,8 @@ Deno.serve(async (req: Request) => {
       devis,
       items: items ?? [],
       signatureImg,
+      signatureLabel,
+      showSignatures: true,
       brand,
       footerText,
       docLabel: 'Devis',

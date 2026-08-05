@@ -52,7 +52,14 @@ export interface RenderCtx {
   org: any;
   devis: any; // the devis or facture row — same field shape either way
   items: any[];
+  // The document creator's own personal signature (organization_members.
+  // signature_url), not a company-wide stamp — a devis is signed by
+  // whoever drew it up, not "the company". Only devis show this block at
+  // all (showSignatures); a facture is a payment request, not something
+  // anyone signs.
   signatureImg: PDFImage | null;
+  signatureLabel: string;
+  showSignatures: boolean;
   brand: RGB;
   footerText: string | null;
   docLabel: string; // 'Devis' or 'Facture'
@@ -60,7 +67,7 @@ export interface RenderCtx {
 }
 
 function renderUnified(ctx: RenderCtx): RenderResult {
-  const { pdfDoc, font, fontBold, org, devis, items, signatureImg, brand, footerText, docLabel, metaLine } = ctx;
+  const { pdfDoc, font, fontBold, org, devis, items, signatureImg, signatureLabel, showSignatures, brand, footerText, docLabel, metaLine } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
   let pageNum = 1;
@@ -176,23 +183,23 @@ function renderUnified(ctx: RenderCtx): RenderResult {
 
   y = drawTerms(page, font, org, y, docLabel);
 
-  {
+  if (showSignatures) {
     const h = 50;
-    const companyW = signatureImg ? (signatureImg.width / signatureImg.height) * h : 150;
+    const creatorW = signatureImg ? (signatureImg.width / signatureImg.height) * h : 150;
     const clientW = 150;
     const gap = 30;
-    const totalW = companyW + gap + clientW;
+    const totalW = creatorW + gap + clientW;
     if (y < MARGIN + 90) newPage();
     const startX = PAGE_WIDTH - MARGIN - totalW;
 
-    drawText(page, 'Signature entreprise', startX, y, font, 9, MUTED);
+    drawText(page, signatureLabel, startX, y, font, 9, MUTED);
     if (signatureImg) {
-      page.drawImage(signatureImg, { x: startX, y: y - h - 10, width: companyW, height: h });
+      page.drawImage(signatureImg, { x: startX, y: y - h - 10, width: creatorW, height: h });
     } else {
-      page.drawLine({ start: { x: startX, y: y - h - 10 }, end: { x: startX + companyW, y: y - h - 10 }, thickness: 1, color: LINE });
+      page.drawLine({ start: { x: startX, y: y - h - 10 }, end: { x: startX + creatorW, y: y - h - 10 }, thickness: 1, color: LINE });
     }
 
-    const clientX = startX + companyW + gap;
+    const clientX = startX + creatorW + gap;
     drawText(page, 'Signature client', clientX, y, font, 9, MUTED);
     page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
   }

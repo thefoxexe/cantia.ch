@@ -4,7 +4,6 @@ import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function DevisSettingsScreen() {
@@ -76,21 +75,10 @@ export default function DevisSettingsScreen() {
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}
 
-          <Text style={styles.sectionTitle}>Modèles de devis PDF</Text>
           <Text style={styles.hint}>
-            Vos devis et factures partagent une mise en page unique, sans logo. Créez plusieurs modèles pour changer
-            uniquement la couleur (par exemple un devis par type de chantier) et choisissez celui utilisé par défaut.
+            Vos devis et factures partagent une mise en page unique, sans logo — seule la couleur se personnalise,
+            depuis Compte → Profil entreprise.
           </Text>
-          <View style={{ marginTop: spacing.md }}>
-            {organization ? (
-              <PdfTemplatePicker
-                organizationId={organization.id}
-                kind="devis"
-                disabled={!isAdmin}
-                manage={isAdmin}
-              />
-            ) : null}
-          </View>
         </Container>
       </ScrollView>
     </Screen>
@@ -98,13 +86,6 @@ export default function DevisSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  sectionTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: spacing.xxl,
-    marginBottom: spacing.md,
-  },
   row2: {
     flexDirection: 'row',
     flexWrap: 'wrap',

@@ -13,7 +13,6 @@ import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
 import { fetchCatalog, findMatches, type CatalogEntry, type CatalogMatch } from '../../../../lib/catalog';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
-import { PdfTemplatePicker } from '../../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface PendingPhoto {
@@ -32,7 +31,6 @@ export default function NewReportScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
-  const [templateId, setTemplateId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<string | null>(null);
@@ -149,7 +147,6 @@ export default function NewReportScreen() {
           project_id: projectId,
           title: title.trim(),
           notes: notes.trim() || null,
-          template_id: templateId,
           created_by: user?.id,
         })
         .select()
@@ -213,16 +210,13 @@ export default function NewReportScreen() {
 
         <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
 
-        <Text style={styles.fieldLabel}>Modèle de rapport</Text>
-        {organization ? (
-          <PdfTemplatePicker
-            organizationId={organization.id}
-            kind="report"
-            hasLogo={!!organization?.logo_url}
-            compact
-            selectedId={templateId}
-            onSelect={setTemplateId}
-          />
+        {organization && !organization.logo_url ? (
+          <View style={styles.warning}>
+            <Feather name="alert-triangle" size={14} color={colors.accent} />
+            <Text style={styles.warningText}>
+              Aucun logo chargé — ce rapport PDF partira sans logo. Ajoutez-en un dans Compte → Profil entreprise.
+            </Text>
+          </View>
         ) : null}
 
         <View style={styles.notesLabelRow}>
@@ -323,6 +317,21 @@ export default function NewReportScreen() {
 }
 
 const styles = StyleSheet.create({
+  warning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
+  },
   fieldLabel: {
     fontSize: fontSize.sm,
     color: colors.textMuted,

@@ -48,6 +48,7 @@ interface RenderCtx {
   photos: any[];
   logoImg: PDFImage | null;
   signatureImg: PDFImage | null;
+  signatureLabel: string;
   brand: RGB;
   textOnBrand: RGB;
   logoPlacement: LogoPlacement;
@@ -132,7 +133,7 @@ function drawGpsMap(
 // TemplateId are kept (rather than removed) so every existing pdf_templates
 // row's base_layout value still resolves without a migration.
 async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
-  const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, brand, logoPlacement, footerText, sections } = ctx;
+  const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, signatureLabel, brand, logoPlacement, footerText, sections } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
   let pageNum = 1;
@@ -145,7 +146,15 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   };
 
   if (logoImg) {
-    const h = 42;
+    // Sized by width, not a fixed height — a wide/landscape logo drawn at a
+    // fixed 42pt height could stretch to an oversized, disproportionate
+    // banner (e.g. a wordmark logo). Capping the width to a sensible
+    // fraction of the page and deriving height from the image's own aspect
+    // ratio keeps every logo shape looking intentional next to the company
+    // name, instead of "correct" only for roughly-square logos.
+    const maxW = 130;
+    const naturalH = (logoImg.height / logoImg.width) * maxW;
+    const h = Math.min(46, naturalH);
     const w = (logoImg.width / logoImg.height) * h;
     // A logo placed 'left' or 'center' shares the same horizontal band as
     // the company name/title below it — drawn at the same y without
@@ -157,25 +166,25 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h + 10, width: w, height: h });
     } else {
       page.drawImage(logoImg, { x: logoX(logoPlacement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
-      y -= h + 12;
+      y -= h + 14;
     }
   }
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 15, brand);
-  y -= 14;
+  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 16, brand);
+  y -= 15;
   const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
   if (contactLine) {
     drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
-    y -= 12;
+    y -= 13;
   }
-  y -= 14;
-  page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-  y -= 24;
+  y -= 10;
+  page.drawRectangle({ x: MARGIN, y: y - 1, width: PAGE_WIDTH - 2 * MARGIN, height: 2, color: brand });
+  y -= 26;
 
-  drawText(page, 'Rapport de chantier', MARGIN, y, font, 9.5, MUTED);
-  y -= 18;
-  drawText(page, report.title, MARGIN, y, fontBold, 16, brand);
-  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
+  drawText(page, 'RAPPORT DE CHANTIER', MARGIN, y, fontBold, 8.5, MUTED);
   y -= 22;
+  drawText(page, report.title, MARGIN, y, fontBold, 19, INK);
+  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y - 3, font, 10, MUTED);
+  y -= 26;
 
   const project = report.projects;
   const metaLines = [
@@ -183,16 +192,30 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
     project?.client_name ? `Client : ${project.client_name}` : null,
     project?.address ? `Adresse : ${project.address}` : null,
   ].filter(Boolean) as string[];
-  for (const line of metaLines) {
-    drawText(page, line, MARGIN, y, font, 10.5, INK);
-    y -= 14;
+  if (metaLines.length) {
+    const boxTop = y;
+    let my = y - 10;
+    for (const _line of metaLines) my -= 13;
+    const boxBottom = my + 3;
+    page.drawRectangle({ x: MARGIN, y: boxBottom, width: PAGE_WIDTH - 2 * MARGIN, height: boxTop - boxBottom + 4, color: PAPER_ALT });
+    page.drawRectangle({ x: MARGIN, y: boxBottom, width: 3, height: boxTop - boxBottom + 4, color: brand });
+    my = y - 10;
+    for (const line of metaLines) {
+      drawText(page, line, MARGIN + 10, my, font, 10, INK);
+      my -= 13;
+    }
+    y = boxBottom - 22;
   }
-  y -= 12;
+
+  const sectionLabel = (label: string) => {
+    page.drawRectangle({ x: MARGIN, y: y - 8, width: 3, height: 10, color: brand });
+    drawText(page, label, MARGIN + 10, y, fontBold, 10, MUTED);
+  };
 
   await runSections(sections, {
     intro: () => {
       if (!report.notes?.trim()) return;
-      drawText(page, 'NOTES', MARGIN, y, fontBold, 10, MUTED);
+      sectionLabel('NOTES');
       y -= 16;
       const lines = wrapText(report.notes, font, 10, PAGE_WIDTH - 2 * MARGIN);
       for (const line of lines) {
@@ -217,7 +240,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       if (spread < 0.0001 && spreadLng < 0.0001) return;
       const MAP_H = 160;
       if (y < MARGIN + MAP_H + 40) newPage();
-      drawText(page, 'LOCALISATION', MARGIN, y, fontBold, 10, MUTED);
+      sectionLabel('LOCALISATION');
       y -= 16;
       drawGpsMap(page, MARGIN, y, PAGE_WIDTH - 2 * MARGIN, MAP_H, points, font, brand);
       y -= MAP_H + 20;
@@ -225,7 +248,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
     photos: async () => {
       if (!photos.length) return;
       if (y < MARGIN + 240) newPage();
-      drawText(page, `PHOTOS (${photos.length})`, MARGIN, y, fontBold, 10, MUTED);
+      sectionLabel(`PHOTOS (${photos.length})`);
       y -= 20;
       const state = await drawPhotoGrid({
         pdfDoc,
@@ -246,26 +269,18 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       pageNum = state.pageNum;
       y = state.y;
     },
+    // A rapport is signed by whoever wrote it, not "the company" — and
+    // unlike a devis, there's no client counter-signature to collect, so
+    // this simply doesn't draw anything when the author hasn't uploaded a
+    // personal signature (no forced blank slot).
     signature: () => {
+      if (!signatureImg) return;
       const h = 50;
-      const companyW = signatureImg ? (signatureImg.width / signatureImg.height) * h : 150;
-      const clientW = 150;
-      const gap = 30;
-      const totalW = companyW + gap + clientW;
-      if (y < MARGIN + 100) newPage();
-      const startX = PAGE_WIDTH - MARGIN - totalW;
-
-      drawText(page, 'Signature entreprise', startX, y, font, 9, MUTED);
-      if (signatureImg) {
-        page.drawImage(signatureImg, { x: startX, y: y - h - 10, width: companyW, height: h });
-      } else {
-        page.drawLine({ start: { x: startX, y: y - h - 10 }, end: { x: startX + companyW, y: y - h - 10 }, thickness: 1, color: LINE });
-      }
-
-      const clientX = startX + companyW + gap;
-      drawText(page, 'Signature client', clientX, y, font, 9, MUTED);
-      page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
-
+      const w = (signatureImg.width / signatureImg.height) * h;
+      if (y < MARGIN + 90) newPage();
+      const startX = PAGE_WIDTH - MARGIN - w;
+      drawText(page, signatureLabel, startX, y, font, 9, MUTED);
+      page.drawImage(signatureImg, { x: startX, y: y - h - 10, width: w, height: h });
       y -= h + 24;
     },
   });
@@ -312,13 +327,21 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'Rapport introuvable ou accès refusé' }, 404);
     }
 
-    const [{ data: org }, { data: photos }] = await Promise.all([
+    const [{ data: org }, { data: photos }, { data: creator }] = await Promise.all([
       admin.from('organizations').select('*, plans(has_customization)').eq('id', report.organization_id).single(),
       admin
         .from('report_photos')
         .select('*')
         .eq('report_id', report_id)
         .order('sort_order', { ascending: true }),
+      report.created_by
+        ? admin
+            .from('organization_members')
+            .select('full_name, signature_url')
+            .eq('organization_id', report.organization_id)
+            .eq('user_id', report.created_by)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
 
     const pdfDoc = await PDFDocument.create();
@@ -330,11 +353,14 @@ Deno.serve(async (req: Request) => {
       const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
       if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
+    // The report author's own personal signature, not org.signature_url —
+    // see the `signature` section drawer above.
     let signatureImg: PDFImage | null = null;
-    if (org?.signature_url) {
-      const bytes = await fetchStorageBytes(admin, BUCKET, org.signature_url);
+    if (creator?.signature_url) {
+      const bytes = await fetchStorageBytes(admin, BUCKET, creator.signature_url);
       if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
+    const signatureLabel = creator?.full_name ? `Signature ${creator.full_name}` : 'Signature';
 
     const template = await resolvePdfTemplate(admin, report.organization_id, 'report', report.template_id);
     const brand = resolveBrand(template, org);
@@ -353,6 +379,7 @@ Deno.serve(async (req: Request) => {
       photos: photos ?? [],
       logoImg,
       signatureImg,
+      signatureLabel,
       brand,
       textOnBrand: pickReadableTextColor(brand),
       logoPlacement: resolveLogoPlacement(template, org),

@@ -5,8 +5,6 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, Screen } from '../../../components/ui';
-import { FeatureHint } from '../../../components/FeatureHint';
-import { PdfTemplatePicker } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
 import { generateDevisLines } from '../../../lib/api/ai';
@@ -50,7 +48,6 @@ export default function NewDevisScreen() {
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
-  const [templateId, setTemplateId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -246,7 +243,6 @@ export default function NewDevisScreen() {
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
         vat_rate: organization.default_vat_rate,
-        template_id: templateId,
         created_by: user?.id,
       })
       .select()
@@ -293,24 +289,6 @@ export default function NewDevisScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
-          <FeatureHint
-            id="devis-new"
-            icon="file-text"
-            title="Choisissez la couleur de votre PDF"
-            text="Vos devis et factures utilisent une mise en page unique ; sélectionnez la couleur ci-dessous. Vous pourrez toujours en changer depuis Compte."
-          />
-
-          <Text style={styles.sectionTitle}>Modèle de devis</Text>
-          {organization ? (
-            <PdfTemplatePicker
-              organizationId={organization.id}
-              kind="devis"
-              compact
-              selectedId={templateId}
-              onSelect={setTemplateId}
-            />
-          ) : null}
-
           <Text style={styles.sectionTitle}>Client</Text>
           <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
           <Field label="Adresse du client" value={clientAddress} onChangeText={setClientAddress} placeholder="Adresse" />

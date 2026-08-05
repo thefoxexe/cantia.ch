@@ -70,16 +70,9 @@ export default function CompteMenuScreen() {
     {
       key: 'devis',
       icon: 'file-text',
-      title: 'Devis & modèle PDF',
-      subtitle: 'TVA, conditions, mise en page',
+      title: 'Devis & factures',
+      subtitle: 'TVA, conditions, validité',
       route: '/(app)/compte/devis',
-    },
-    {
-      key: 'rapports',
-      icon: 'clipboard',
-      title: 'Rapports & modèle PDF',
-      subtitle: 'Mise en page des rapports de chantier',
-      route: '/(app)/compte/rapports',
     },
     {
       key: 'modules',

@@ -29,7 +29,6 @@ export default function EntrepriseScreen() {
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [brandColor, setBrandColor] = useState(organization?.brand_color ?? '#1F3D3A');
   const [logoPlacement, setLogoPlacement] = useState<'left' | 'center' | 'right'>(organization?.logo_placement ?? 'right');
   const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
@@ -54,7 +53,6 @@ export default function EntrepriseScreen() {
     setLogoPlacement(organization.logo_placement ?? 'right');
     setFooterText(organization.footer_text ?? '');
     if (organization.logo_url) setLogoUrl(await getSignedUrl(organization.logo_url));
-    if (organization.signature_url) setSignatureUrl(await getSignedUrl(organization.signature_url));
     const { data: plan } = await supabase.from('plans').select('has_customization').eq('id', organization.plan_id).maybeSingle();
     setHasCustomization(plan?.has_customization ?? true);
   }, [organization]);
@@ -93,7 +91,7 @@ export default function EntrepriseScreen() {
     refreshOrganization();
   }
 
-  async function pickBranding(kind: 'logo' | 'signature') {
+  async function pickLogo() {
     if (!organization || !isAdmin) return;
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
@@ -102,20 +100,15 @@ export default function EntrepriseScreen() {
     const asset = result.assets[0];
     const raw = assetFileInfo(asset);
     const { uri, ext, contentType } = await normalizeImageOrientation(asset.uri, raw.contentType);
-    const subPath = `branding/${kind}-${Date.now()}.${ext}`;
+    const subPath = `branding/logo-${Date.now()}.${ext}`;
     const { path } = await uploadToOrgBucket(organization.id, subPath, uri, contentType);
     if (path) {
-      const column = kind === 'logo' ? 'logo_url' : 'signature_url';
-      await supabase.from('organizations').update({ [column]: path }).eq('id', organization.id);
+      await supabase.from('organizations').update({ logo_url: path }).eq('id', organization.id);
       await refreshOrganization();
       const url = await getSignedUrl(path);
-      if (kind === 'logo') {
-        setLogoUrl(url);
-        const suggested = await suggestBrandColorFromImage(uri);
-        if (suggested) setBrandColor(suggested);
-      } else {
-        setSignatureUrl(url);
-      }
+      setLogoUrl(url);
+      const suggested = await suggestBrandColorFromImage(uri);
+      if (suggested) setBrandColor(suggested);
     }
   }
 
@@ -245,28 +238,16 @@ export default function EntrepriseScreen() {
                 </View>
               )}
               {isAdmin ? (
-                <Pressable style={styles.brandingButton} onPress={() => pickBranding('logo')}>
+                <Pressable style={styles.brandingButton} onPress={pickLogo}>
                   <Text style={styles.brandingButtonText}>Choisir un logo</Text>
                 </Pressable>
               ) : null}
             </View>
-            <View style={styles.brandingItem}>
-              <Text style={styles.brandingLabel}>Signature</Text>
-              {signatureUrl ? (
-                <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} />
-              ) : (
-                <View style={[styles.signaturePreview, styles.brandPlaceholder]}>
-                  <Feather name="edit-3" size={20} color={colors.textMuted} />
-                </View>
-              )}
-              {isAdmin ? (
-                <Pressable style={styles.brandingButton} onPress={() => pickBranding('signature')}>
-                  <Text style={styles.brandingButtonText}>Choisir une signature</Text>
-                </Pressable>
-              ) : null}
-            </View>
           </View>
-          <Text style={styles.hint}>Utilisés automatiquement sur vos rapports et devis PDF.</Text>
+          <Text style={styles.hint}>
+            Utilisé automatiquement sur vos rapports PDF. La signature (sur les devis et rapports) est personnelle à
+            chaque membre — chacun ajoute la sienne dans Compte → Mon profil.
+          </Text>
 
           {hasCustomization === false ? (
             <Card style={styles.upsell}>
@@ -445,13 +426,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    marginBottom: spacing.sm,
-  },
-  signaturePreview: {
-    width: 120,
-    height: 60,
-    borderRadius: radius.sm,
     backgroundColor: colors.surfaceAlt,
     marginBottom: spacing.sm,
   },

@@ -1,9 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
   drawFooter,
-  embedImageSmart,
-  fetchStorageBytes,
   formatDate,
   orgHasCustomization,
   resolveBrand,
@@ -56,12 +54,6 @@ Deno.serve(async (req: Request) => {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    let signatureImg: PDFImage | null = null;
-    if (org?.signature_url) {
-      const bytes = await fetchStorageBytes(admin, BUCKET, org.signature_url);
-      if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
-    }
-
     // Factures share the org's devis templates (kind 'devis') rather than
     // having their own — the layout needs (client block, items table,
     // totals) are identical, only the label/meta line differ, which is
@@ -85,7 +77,9 @@ Deno.serve(async (req: Request) => {
         org,
         devis: facture,
         items: items ?? [],
-        signatureImg,
+        signatureImg: null,
+        signatureLabel: '',
+        showSignatures: false,
         brand,
         footerText,
         docLabel: 'Facture',

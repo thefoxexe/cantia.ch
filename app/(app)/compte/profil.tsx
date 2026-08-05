@@ -8,7 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { colors, fontSize, spacing } from '../../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // Personal, not company: name/photo/language belong to the person, not the
 // org — kept on organization_members (the per user+org row) like full_name
@@ -18,20 +18,23 @@ export default function ProfilScreen() {
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingSignature, setUploadingSignature] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
     const { data } = await supabase
       .from('organization_members')
-      .select('full_name, avatar_url')
+      .select('full_name, avatar_url, signature_url')
       .eq('organization_id', organization.id)
       .eq('user_id', user.id)
       .maybeSingle();
     setFullName(data?.full_name ?? '');
     setAvatarPath(data?.avatar_url ?? null);
     setAvatarUrl(data?.avatar_url ? await getSignedUrl(data.avatar_url) : null);
+    setSignatureUrl(data?.signature_url ? await getSignedUrl(data.signature_url) : null);
   }, [organization, user]);
 
   useFocusEffect(
@@ -75,6 +78,28 @@ export default function ProfilScreen() {
     setUploadingAvatar(false);
   }
 
+  async function pickSignature() {
+    if (!organization || !user) return;
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.9 });
+    if (result.canceled || !result.assets?.length) return;
+    const asset = result.assets[0];
+    setUploadingSignature(true);
+    const { ext, contentType } = assetFileInfo(asset);
+    const subPath = `signatures/${user.id}-${Date.now()}.${ext}`;
+    const { path } = await uploadToOrgBucket(organization.id, subPath, asset.uri, contentType);
+    if (path) {
+      await supabase
+        .from('organization_members')
+        .update({ signature_url: path })
+        .eq('organization_id', organization.id)
+        .eq('user_id', user.id);
+      setSignatureUrl(await getSignedUrl(path));
+    }
+    setUploadingSignature(false);
+  }
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
@@ -99,6 +124,27 @@ export default function ProfilScreen() {
 
           <Field label="Nom affiché" value={fullName} onChangeText={setFullName} placeholder="Votre nom" />
           <Button title="Enregistrer" icon="check" onPress={saveName} loading={saving} style={{ marginTop: spacing.sm }} />
+
+          <Text style={styles.sectionTitle}>Ma signature</Text>
+          <Text style={styles.sectionHint}>
+            Utilisée sur les devis que vous créez (à côté de l'emplacement pour la signature du client) et sur vos
+            rapports de chantier. Pour un rendu propre, prenez en photo ou scannez votre signature sur une feuille
+            blanche, bien cadrée, sans ombre.
+          </Text>
+          <Card style={styles.signatureCard}>
+            <Pressable onPress={pickSignature} style={styles.signatureWrap}>
+              {signatureUrl ? (
+                <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} resizeMode="contain" />
+              ) : (
+                <View style={[styles.signaturePreview, styles.avatarPlaceholder]}>
+                  <Feather name="edit-3" size={22} color={colors.textMuted} />
+                </View>
+              )}
+            </Pressable>
+            <Text style={styles.avatarHint}>
+              {uploadingSignature ? 'Envoi en cours…' : signatureUrl ? 'Touchez pour changer votre signature' : 'Touchez pour ajouter votre signature'}
+            </Text>
+          </Card>
         </Container>
       </ScrollView>
     </Screen>
@@ -106,6 +152,31 @@ export default function ProfilScreen() {
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: spacing.xxl,
+  },
+  sectionHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
+    lineHeight: 17,
+  },
+  signatureCard: {
+    alignItems: 'center',
+  },
+  signatureWrap: {
+    width: '100%',
+  },
+  signaturePreview: {
+    width: '100%',
+    height: 90,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+  },
   avatarCard: {
     alignItems: 'center',
     marginBottom: spacing.lg,
