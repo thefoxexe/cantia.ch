@@ -1,22 +1,56 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Container, Screen } from '../components/ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { authHref } from '../lib/appHost';
+import { t } from '../lib/i18n';
+
+const TRUST_ITEMS: { icon: 'lock' | 'flag' | 'shield'; title: string; text: string }[] = [
+  {
+    icon: 'lock',
+    title: 'Données chiffrées',
+    text: 'Toutes vos données transitent et sont stockées chiffrées, aussi bien en transit que sur nos serveurs.',
+  },
+  {
+    icon: 'flag',
+    title: 'Hébergées en Suisse',
+    text: 'Vos chantiers, photos, devis et factures restent sur des serveurs situés en Suisse, soumis au droit suisse.',
+  },
+  {
+    icon: 'shield',
+    title: 'Accès sécurisé',
+    text: 'Chaque membre de votre équipe a son propre accès ; vous décidez qui voit et modifie quoi.',
+  },
+];
 
 export default function TelechargementScreen() {
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Container style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.nav}>
           <Link href="/" asChild>
-            <Pressable style={styles.back} hitSlop={8}>
-              <Feather name="arrow-left" size={16} color={colors.text} />
-              <Text style={styles.backText}>Retour</Text>
+            <Pressable style={styles.navBrandRow}>
+              <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+              <Text style={styles.navBrand}>Cantia</Text>
             </Pressable>
           </Link>
+          <View style={styles.navLinks}>
+            <Link href="/" asChild>
+              <Pressable>
+                <Text style={styles.navLink}>Accueil</Text>
+              </Pressable>
+            </Link>
+            <Link href={authHref('login')}>
+              <Text style={styles.navLink}>{t.nav.login}</Text>
+            </Link>
+            <Link href={authHref('signup')} asChild>
+              <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+            </Link>
+          </View>
+        </View>
 
+        <Container style={styles.container}>
           <View style={styles.versionBadge}>
             <Text style={styles.versionBadgeText}>Version 1.0</Text>
           </View>
@@ -52,7 +86,74 @@ export default function TelechargementScreen() {
           <Text style={styles.note}>
             Envie d'être prévenu·e à la sortie des applications ? Écrivez-nous à contact@cantia.ch.
           </Text>
+
+          <View style={styles.trustSection}>
+            <Text style={styles.trustTitle}>Vos données, en sécurité</Text>
+            <Text style={styles.trustLead}>
+              Que vous utilisiez le web aujourd'hui ou les apps natives demain, la sécurité de vos données ne change
+              pas.
+            </Text>
+            <View style={styles.trustGrid}>
+              {TRUST_ITEMS.map((item) => (
+                <View key={item.title} style={styles.trustCard}>
+                  <View style={styles.trustIcon}>
+                    <Feather name={item.icon} size={18} color={colors.primary} />
+                  </View>
+                  <Text style={styles.trustCardTitle}>{item.title}</Text>
+                  <Text style={styles.trustCardText}>{item.text}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
         </Container>
+
+        <View style={styles.footer}>
+          <View style={styles.footerGrid}>
+            <View style={styles.footerBrandCol}>
+              <View style={styles.footerBrandRow}>
+                <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
+                <Text style={styles.footerBrand}>Cantia</Text>
+              </View>
+              <Text style={styles.footerText}>{t.footer.blurb}</Text>
+            </View>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerColTitle}>{t.footer.product}</Text>
+              <Link href="/">
+                <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
+              </Link>
+              <Link href="/">
+                <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
+              </Link>
+            </View>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerColTitle}>{t.footer.account}</Text>
+              <Link href={authHref('login')}>
+                <Text style={styles.footerLink}>{t.footer.login}</Text>
+              </Link>
+              <Link href={authHref('signup')}>
+                <Text style={styles.footerLink}>{t.footer.signup}</Text>
+              </Link>
+            </View>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerColTitle}>{t.footer.legal}</Text>
+              <Link href="/mentions-legales">
+                <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
+              </Link>
+              <Link href="/confidentialite">
+                <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
+              </Link>
+            </View>
+          </View>
+          <View style={styles.footerBottom}>
+            <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
+            <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
+              <Pressable style={styles.footerSocialLink}>
+                <Feather name="instagram" size={15} color={colors.textMuted} />
+                <Text style={styles.footerCopy}>@cantia.ch</Text>
+              </Pressable>
+            </Link>
+          </View>
+        </View>
       </ScrollView>
     </Screen>
   );
@@ -75,23 +176,51 @@ function StoreCard({ kind, name }: { kind: 'apple' | 'google'; name: string }) {
 const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
-    paddingVertical: spacing.xxl,
   },
-  container: {
-    maxWidth: 720,
-    paddingHorizontal: spacing.xl,
-  },
-  back: {
+  nav: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.xl,
-    alignSelf: 'flex-start',
+    justifyContent: 'space-between',
+    maxWidth: 1100,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
   },
-  backText: {
+  navBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  navLogo: {
+    width: 28,
+    height: 28,
+  },
+  navBrand: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  navLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xl,
+  },
+  navLink: {
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
+  },
+  navCta: {
+    paddingHorizontal: spacing.lg,
+  },
+  container: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxxl,
   },
   versionBadge: {
     alignSelf: 'flex-start',
@@ -200,5 +329,140 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.xl,
     textAlign: 'center',
+  },
+  trustSection: {
+    marginTop: spacing.xxxl,
+    paddingTop: spacing.xxl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  trustTitle: {
+    fontSize: fontSize.xl,
+    fontWeight: '800',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  trustLead: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+    maxWidth: 480,
+    alignSelf: 'center',
+  },
+  trustGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginTop: spacing.xl,
+  },
+  trustCard: {
+    flex: 1,
+    minWidth: 180,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.xs,
+  },
+  trustIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  trustCardTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  trustCardText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 17,
+  },
+  footer: {
+    marginTop: spacing.xxxl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+  },
+  footerGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xxl,
+    maxWidth: 1100,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  footerBrandCol: {
+    flex: 2,
+    minWidth: 220,
+    gap: spacing.sm,
+  },
+  footerBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  footerLogo: {
+    width: 24,
+    height: 24,
+  },
+  footerBrand: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  footerText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 18,
+    maxWidth: 280,
+  },
+  footerCol: {
+    minWidth: 140,
+    gap: spacing.sm,
+  },
+  footerColTitle: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: spacing.xs,
+  },
+  footerLink: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+  },
+  footerBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    maxWidth: 1100,
+    width: '100%',
+    alignSelf: 'center',
+    marginTop: spacing.xxl,
+    paddingTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  footerCopy: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  footerSocialLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
 });
