@@ -106,7 +106,7 @@ export function findMatches(catalog: CatalogEntry[], query: string, limit = 3): 
   if (!query.trim() || query.trim().length < 3) return [];
   return catalog
     .map((entry) => ({ ...entry, score: similarity(query, entry.description) }))
-    .filter((m) => m.score >= MATCH_THRESHOLD && normalize(m.description) !== normalize(query))
+    .filter((m) => m.score >= MATCH_THRESHOLD)
     .sort((a, b) => b.score - a.score || b.count - a.count)
     .slice(0, limit);
 }
