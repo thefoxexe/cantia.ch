@@ -1,118 +1,109 @@
-import { Feather } from '@expo/vector-icons';
+import { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Link, Slot, Tabs, usePathname } from 'expo-router';
+import { Slot, usePathname, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../lib/auth-context';
 import { isModuleEnabled } from '../../lib/modules';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
+import { AccountMenu } from '../../components/AccountMenu';
+import { NavDrawer, type NavSection } from '../../components/NavDrawer';
 
-type IconName = keyof typeof Feather.glyphMap;
-
-interface NavItem {
-  href: '/(app)' | '/(app)/chantiers' | '/(app)/devis' | '/(app)/planning' | '/(app)/compte';
-  label: string;
-  icon: IconName;
+function buildSections(devisEnabled: boolean, planningEnabled: boolean): NavSection[] {
+  return [
+    { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
+    { title: 'CHANTIERS', links: [{ href: '/(app)/chantiers', label: 'Chantiers', icon: 'layers' }] },
+    ...(devisEnabled
+      ? [
+          {
+            title: 'FACTURATION',
+            links: [
+              { href: '/(app)/devis', label: 'Devis', icon: 'file-text' as const },
+              { href: '/(app)/devis/factures', label: 'Factures', icon: 'dollar-sign' as const },
+              { href: '/(app)/devis/inventaire', label: 'Catalogue', icon: 'box' as const },
+            ],
+          },
+        ]
+      : []),
+    ...(planningEnabled
+      ? [{ title: 'ÉQUIPE', links: [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] }]
+      : []),
+    { links: [{ href: '/(app)/compte', label: 'Compte', icon: 'settings' }] },
+  ];
 }
 
-function TabIcon({ name, color }: { name: IconName; color: unknown }) {
-  return <Feather name={name} size={21} color={color as string} />;
+// The most specific matching link wins (e.g. '/devis/factures' over '/devis'),
+// so sub-sections highlight correctly instead of always lighting up the parent.
+function activeHrefFor(pathname: string, sections: NavSection[]): string | null {
+  let best: string | null = null;
+  for (const section of sections) {
+    for (const link of section.links) {
+      const compare = link.href.replace('/(app)', '') || '/';
+      const matches = compare === '/' ? pathname === '/' : pathname === compare || pathname.startsWith(`${compare}/`);
+      if (matches && (!best || link.href.length > best.length)) best = link.href;
+    }
+  }
+  return best;
 }
 
-// Two shells sharing the same underlying file-based routes (index,
-// chantiers, devis, planning, compte): a bottom tab bar on phones (native
-// mobile navigation convention), a persistent left sidebar from tablet width
-// up (back-office convention — more useful once there's room for it).
-// Switching the wrapper component doesn't affect routing itself: expo-router
-// resolves the active child route the same way whether it's rendered by
-// <Tabs.Screen> or by <Slot/>, so every existing screen file needs no changes.
+// Two shells sharing the same underlying file-based routes: a hamburger-driven
+// drawer on phones (grouped sections, same structure as the desktop sidebar —
+// just presented as an overlay since there's no room for a persistent one) and
+// a persistent left sidebar from tablet width up. Switching the wrapper
+// component doesn't affect routing itself: expo-router resolves the active
+// child route the same way whether it's rendered by <Slot/> in either shell.
 export default function AppLayout() {
   const { width } = useWindowDimensions();
   const { organization } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning');
-
-  const items: NavItem[] = [
-    { href: '/(app)', label: 'Accueil', icon: 'home' },
-    { href: '/(app)/chantiers', label: 'Chantiers', icon: 'layers' },
-    ...(devisEnabled ? [{ href: '/(app)/devis', label: 'Facturation', icon: 'file-text' } as NavItem] : []),
-    ...(planningEnabled ? [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' } as NavItem] : []),
-    { href: '/(app)/compte', label: 'Compte', icon: 'settings' },
-  ];
+  const sections = buildSections(devisEnabled, planningEnabled);
 
   if (width >= breakpoints.tablet) {
-    return <DesktopShell items={items} />;
+    return <DesktopShell sections={sections} />;
   }
-  return <MobileShell devisEnabled={devisEnabled} planningEnabled={planningEnabled} />;
+  return <MobileShell sections={sections} />;
 }
 
-// A top bar sitting above the tab bar consumes the top safe-area inset
-// itself, so screens rendered inside the tabs must not also reserve it (the
-// shared <Screen> wrapper used by every screen file adds `insets.top` on
-// its own, assuming it's flush against the physical top edge). Rather than
-// touch every screen file, the tab content is wrapped in a
-// SafeAreaInsetsContext override reporting top:0 — <Screen>'s own spacer
-// then collapses to just its small fixed margin, and nothing double-pads.
-function MobileShell({ devisEnabled, planningEnabled }: { devisEnabled: boolean; planningEnabled: boolean }) {
+// A top bar sitting above the content consumes the top safe-area inset
+// itself, so screens rendered inside must not also reserve it (the shared
+// <Screen> wrapper used by every screen file adds `insets.top` on its own,
+// assuming it's flush against the physical top edge). Rather than touch
+// every screen file, the content is wrapped in a SafeAreaInsetsContext
+// override reporting top:0 — <Screen>'s own spacer then collapses to just
+// its small fixed margin, and nothing double-pads.
+function MobileShell({ sections }: { sections: NavSection[] }) {
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const activeHref = activeHrefFor(pathname, sections);
 
   return (
     <View style={styles.mobileRoot}>
       <View style={[styles.mobileTopBar, { paddingTop: insets.top + spacing.sm }]}>
+        <Pressable onPress={() => setDrawerOpen(true)} hitSlop={8} style={styles.hamburger}>
+          <Feather name="menu" size={22} color={colors.text} />
+        </Pressable>
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
         <Text style={styles.mobileBrand}>Cantia</Text>
+        <View style={{ flex: 1 }} />
+        <AccountMenu visible={accountOpen} onOpen={() => setAccountOpen(true)} onClose={() => setAccountOpen(false)} />
       </View>
       <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
-        <Tabs
-          screenOptions={{
-            headerShown: false,
-            tabBarActiveTintColor: colors.primary,
-            tabBarInactiveTintColor: colors.textMuted,
-            tabBarStyle: { borderTopColor: colors.border },
-          }}
-        >
-          <Tabs.Screen
-            name="index"
-            options={{ title: 'Accueil', tabBarIcon: ({ color }) => <TabIcon name="home" color={color} /> }}
-          />
-          <Tabs.Screen
-            name="chantiers"
-            options={{ title: 'Chantiers', tabBarIcon: ({ color }) => <TabIcon name="layers" color={color} /> }}
-          />
-          <Tabs.Screen
-            name="devis"
-            options={{
-              title: 'Facturation',
-              tabBarIcon: ({ color }) => <TabIcon name="file-text" color={color} />,
-              href: devisEnabled ? undefined : null,
-            }}
-          />
-          <Tabs.Screen
-            name="planning"
-            options={{
-              title: 'Planning',
-              tabBarIcon: ({ color }) => <TabIcon name="calendar" color={color} />,
-              href: planningEnabled ? undefined : null,
-            }}
-          />
-          <Tabs.Screen
-            name="compte"
-            options={{ title: 'Compte', tabBarIcon: ({ color }) => <TabIcon name="settings" color={color} /> }}
-          />
-        </Tabs>
+        <Slot />
       </SafeAreaInsetsContext.Provider>
+      <NavDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} sections={sections} activeHref={activeHref} />
     </View>
   );
 }
 
-function DesktopShell({ items }: { items: NavItem[] }) {
+function DesktopShell({ sections }: { sections: NavSection[] }) {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
-
-  function isActive(href: NavItem['href']) {
-    const compare = href.replace('/(app)', '') || '/';
-    if (compare === '/') return pathname === '/';
-    return pathname === compare || pathname.startsWith(`${compare}/`);
-  }
+  const router = useRouter();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const activeHref = activeHrefFor(pathname, sections);
 
   return (
     <View style={styles.desktopRoot}>
@@ -122,23 +113,38 @@ function DesktopShell({ items }: { items: NavItem[] }) {
           <Text style={styles.sidebarBrandText}>Cantia</Text>
         </View>
         <View style={styles.sidebarNav}>
-          {items.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link key={item.href} href={item.href} asChild>
-                <Pressable style={StyleSheet.flatten([styles.sidebarItem, active && styles.sidebarItemActive])}>
-                  <Feather name={item.icon} size={18} color={active ? colors.primary : colors.textMuted} />
-                  <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
-                    {item.label}
-                  </Text>
-                </Pressable>
-              </Link>
-            );
-          })}
+          {sections.map((section, i) => (
+            <View key={section.title ?? `s${i}`} style={styles.sidebarSection}>
+              {section.title ? <Text style={styles.sidebarSectionTitle}>{section.title}</Text> : null}
+              {section.links.map((link) => {
+                const active = link.href === activeHref;
+                return (
+                  <Pressable
+                    key={link.href}
+                    style={StyleSheet.flatten([styles.sidebarItem, active && styles.sidebarItemActive])}
+                    // Plain Pressable + router.push instead of <Link asChild> — the
+                    // asChild/Slot combo can't take an array style on its child
+                    // without crashing (see git history), so this sidesteps it.
+                    onPress={() => router.push(link.href as any)}
+                  >
+                    <Feather name={link.icon} size={18} color={active ? colors.primary : colors.textMuted} />
+                    <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
+                      {link.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
         </View>
       </View>
       <View style={styles.desktopContent}>
-        <Slot />
+        <View style={[styles.desktopTopBar, { paddingTop: insets.top + spacing.sm }]}>
+          <AccountMenu visible={accountOpen} onOpen={() => setAccountOpen(true)} onClose={() => setAccountOpen(false)} />
+        </View>
+        <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
+          <Slot />
+        </SafeAreaInsetsContext.Provider>
       </View>
     </View>
   );
@@ -158,6 +164,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  hamburger: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.xs,
   },
   mobileLogo: {
     width: 24,
@@ -197,7 +210,18 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   sidebarNav: {
+    gap: spacing.lg,
+  },
+  sidebarSection: {
     gap: spacing.xs,
+  },
+  sidebarSectionTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.textMuted,
+    letterSpacing: 0.6,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
   },
   sidebarItem: {
     flexDirection: 'row',
@@ -220,5 +244,13 @@ const styles = StyleSheet.create({
   },
   desktopContent: {
     flex: 1,
+  },
+  desktopTopBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
 });
