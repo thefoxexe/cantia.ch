@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Card, Field, Screen } from '../../../components/ui';
 import { ClientPicker } from '../../../components/ClientPicker';
+import { TramePicker } from '../../../components/TramePicker';
+import { fetchTrame } from '../../../lib/api/trames';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
 import { generateDevisLines } from '../../../lib/api/ai';
 import { useDictation } from '../../../lib/useDictation';
+import type { DevisTrameItem } from '../../../lib/types';
 
 interface PriceMismatch {
   catalogItemId: string;
@@ -45,6 +48,7 @@ function emptyLine(): Line {
 
 export default function NewDevisScreen() {
   const { organization, user } = useAuth();
+  const { trameId } = useLocalSearchParams<{ trameId?: string }>();
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
@@ -89,6 +93,33 @@ export default function NewDevisScreen() {
   function removeLine(index: number) {
     setLines((prev) => prev.filter((_, i) => i !== index));
   }
+
+  // Same "replace the still-blank starter line, else append" merge used by
+  // the AI-dictation path below — a trame just supplies the description/
+  // unit/price up front, quantity always starts at 1 for the user to adjust.
+  function applyTrameItems(items: DevisTrameItem[]) {
+    const newLines: Line[] = items.map((it) => ({
+      description: it.description,
+      quantity: '1',
+      unit: it.unit || 'pce',
+      unitPrice: String(it.unit_price),
+      unitAuto: false,
+    }));
+    setLines((prev) => {
+      const isBlankStarter = prev.length === 1 && !prev[0].description.trim();
+      return isBlankStarter ? newLines : [...prev, ...newLines];
+    });
+  }
+
+  // Arriving here from a trame's "Utiliser pour un nouveau devis" button
+  // (?trameId=...) auto-applies it once instead of making the user reopen
+  // the picker they just came from.
+  const appliedTrameRef = useRef(false);
+  useEffect(() => {
+    if (!trameId || appliedTrameRef.current) return;
+    appliedTrameRef.current = true;
+    fetchTrame(trameId).then(({ items }) => applyTrameItems(items));
+  }, [trameId]);
 
   // Which field a dictation session is currently feeding, and that field's
   // text as it stood before the session started — the live transcript is
@@ -310,6 +341,7 @@ export default function NewDevisScreen() {
           ) : null}
 
           <Text style={styles.sectionTitle}>Lignes du devis</Text>
+          {organization ? <TramePicker organizationId={organization.id} onSelect={applyTrameItems} /> : null}
           {dictation.supported ? (
             <View style={styles.dictateLinesCard}>
               <Pressable

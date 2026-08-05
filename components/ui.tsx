@@ -230,6 +230,7 @@ export function LoadingScreen({ label = 'Chargement…' }: { label?: string }) {
 
 const STATUS_STYLES: Record<string, { bg: string; fg: string; label: string }> = {
   draft: { bg: colors.warningSoft, fg: colors.warning, label: 'Brouillon' },
+  ready: { bg: colors.accentSoft, fg: colors.accent, label: "Prêt à l'envoi" },
   sent: { bg: colors.primarySoft, fg: colors.primary, label: 'Envoyé' },
   accepted: { bg: colors.successSoft, fg: colors.success, label: 'Accepté' },
   refused: { bg: colors.dangerSoft, fg: colors.danger, label: 'Refusé' },

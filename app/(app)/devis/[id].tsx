@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -9,18 +9,20 @@ import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
 import { duplicateDevis } from '../../../lib/api/devis';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
+import { createTrameFromDevis } from '../../../lib/api/trames';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
-import { colors, fontSize, spacing } from '../../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis, DevisItem, DevisStatus, Facture } from '../../../lib/types';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
 
-const STATUS_FLOW: DevisStatus[] = ['draft', 'sent', 'accepted', 'refused'];
+const STATUS_FLOW: DevisStatus[] = ['draft', 'ready', 'sent', 'accepted', 'refused'];
 const STATUS_LABELS: Record<DevisStatus, string> = {
   draft: 'Brouillon',
+  ready: "Prêt à l'envoi",
   sent: 'Envoyé',
   accepted: 'Accepté',
   refused: 'Refusé',
@@ -29,7 +31,7 @@ const STATUS_LABELS: Record<DevisStatus, string> = {
 export default function DevisDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { role } = useAuth();
+  const { organization, role } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [devis, setDevis] = useState<Devis | null>(null);
   const [items, setItems] = useState<DevisItem[]>([]);
@@ -37,6 +39,10 @@ export default function DevisDetailScreen() {
   const [converting, setConverting] = useState(false);
   const [relatedFactures, setRelatedFactures] = useState<RelatedFacture[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [trameModalVisible, setTrameModalVisible] = useState(false);
+  const [trameName, setTrameName] = useState('');
+  const [savingTrame, setSavingTrame] = useState(false);
+  const [trameError, setTrameError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -121,6 +127,24 @@ export default function DevisDetailScreen() {
     router.replace('/(app)/devis');
   }
 
+  async function handleSaveTrame() {
+    if (!organization) return;
+    if (!trameName.trim()) {
+      setTrameError('Le nom de la trame est requis.');
+      return;
+    }
+    setSavingTrame(true);
+    setTrameError(null);
+    const { id: newId, error: createError } = await createTrameFromDevis(organization.id, trameName.trim(), id);
+    setSavingTrame(false);
+    if (createError || !newId) {
+      setTrameError(createError ?? 'Échec de la création.');
+      return;
+    }
+    setTrameModalVisible(false);
+    router.push(`/(app)/devis/trames/${newId}`);
+  }
+
   if (!devis) {
     return (
       <Screen>
@@ -145,6 +169,16 @@ export default function DevisDetailScreen() {
               <RowActionMenu
                 actions={[
                   { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+                  {
+                    key: 'save-trame',
+                    icon: 'layout',
+                    label: 'Enregistrer comme trame',
+                    onPress: () => {
+                      setTrameName('');
+                      setTrameError(null);
+                      setTrameModalVisible(true);
+                    },
+                  },
                   ...(isAdmin
                     ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: handleDelete }]
                     : []),
@@ -201,8 +235,12 @@ export default function DevisDetailScreen() {
           title={devis.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}
           onPress={handleGeneratePdf}
           loading={generating}
+          disabled={devis.status === 'draft'}
           style={{ marginTop: spacing.lg }}
         />
+        {devis.status === 'draft' ? (
+          <Text style={styles.pdfHint}>Passez le devis à "Prêt à l'envoi" pour générer le PDF.</Text>
+        ) : null}
         {devis.pdf_path ? (
           <Button
             title="Ouvrir le PDF"
@@ -237,6 +275,21 @@ export default function DevisDetailScreen() {
 
       </Container>
       </ScrollView>
+
+      <Modal visible={trameModalVisible} transparent animationType="fade" onRequestClose={() => setTrameModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Enregistrer comme trame</Text>
+            <Text style={styles.meta}>Les lignes de ce devis seront enregistrées sous ce nom, réutilisables pour un futur devis.</Text>
+            <Field label="Nom de la trame" value={trameName} onChangeText={setTrameName} placeholder="Ex. Pose carrelage" />
+            {trameError ? <Text style={styles.error}>{trameError}</Text> : null}
+            <View style={styles.modalActions}>
+              <Button title="Annuler" variant="secondary" onPress={() => setTrameModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Enregistrer" onPress={handleSaveTrame} loading={savingTrame} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -319,11 +372,41 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     marginTop: spacing.md,
   },
+  pdfHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+  },
   factureRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.md,
   },
 });

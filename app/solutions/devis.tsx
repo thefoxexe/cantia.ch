@@ -18,6 +18,11 @@ export default function DevisSolutionPage() {
           text: "Chaque description reconnue reprend le prix et l'unité que vous utilisez déjà — un tuyau PVC est proposé au mètre linéaire sans que vous ayez à le préciser.",
         },
         {
+          icon: 'layout',
+          title: 'Trames de devis réutilisables',
+          text: "Enregistrez vos positions types (pose de carrelage, isolation, etc.) une fois sous forme de trame, puis démarrez chaque nouveau devis avec toutes les lignes déjà là — il ne reste qu'à ajuster les quantités.",
+        },
+        {
           icon: 'alert-triangle',
           title: "Alerte en cas d'écart",
           text: "Si un prix saisi diffère de celui déjà en catalogue, Cantia vous le signale avant l'envoi — jamais de correction silencieuse.",
@@ -30,7 +35,7 @@ export default function DevisSolutionPage() {
         {
           icon: 'trending-up',
           title: 'Suivi de statut',
-          text: "Brouillon, envoyé, accepté ou refusé : sachez où en est chaque devis sans rouvrir vos e-mails.",
+          text: "Brouillon, prêt à l'envoi, envoyé, accepté ou refusé : sachez où en est chaque devis sans rouvrir vos e-mails.",
         },
         {
           icon: 'file-text',

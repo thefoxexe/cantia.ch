@@ -1,5 +1,5 @@
 export type OrgRole = 'owner' | 'admin' | 'member';
-export type DevisStatus = 'draft' | 'sent' | 'accepted' | 'refused';
+export type DevisStatus = 'draft' | 'ready' | 'sent' | 'accepted' | 'refused';
 export type ClientType = 'particulier' | 'entreprise';
 
 export interface Client {
@@ -15,6 +15,25 @@ export interface Client {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface DevisTrame {
+  id: string;
+  organization_id: string;
+  name: string;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DevisTrameItem {
+  id: string;
+  trame_id: string;
+  description: string;
+  unit: string | null;
+  unit_price: number;
+  sort_order: number;
+  created_at: string;
 }
 
 export interface Plan {

@@ -55,7 +55,7 @@ export default function DashboardScreen() {
     const [{ count: projects }, { count: pendingDevisCount }, { data: recentProj }, { data: team }, { data: devisList }] =
       await Promise.all([
         supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).eq('status', 'active'),
-        supabase.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).in('status', ['draft', 'sent']),
+        supabase.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).in('status', ['draft', 'ready', 'sent']),
         supabase.from('projects').select('*').eq('organization_id', organization.id).order('updated_at', { ascending: false }).limit(4),
         supabase.from('organization_members').select('*').eq('organization_id', organization.id),
         devisEnabled
