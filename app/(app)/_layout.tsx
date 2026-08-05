@@ -126,9 +126,11 @@ function DesktopShell({ items }: { items: NavItem[] }) {
             const active = isActive(item.href);
             return (
               <Link key={item.href} href={item.href} asChild>
-                <Pressable style={[styles.sidebarItem, active && styles.sidebarItemActive]}>
+                <Pressable style={StyleSheet.flatten([styles.sidebarItem, active && styles.sidebarItemActive])}>
                   <Feather name={item.icon} size={18} color={active ? colors.primary : colors.textMuted} />
-                  <Text style={[styles.sidebarItemText, active && styles.sidebarItemTextActive]}>{item.label}</Text>
+                  <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
+                    {item.label}
+                  </Text>
                 </Pressable>
               </Link>
             );
