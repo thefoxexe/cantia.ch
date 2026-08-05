@@ -6,12 +6,19 @@ import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
-import { duplicateFacture, convertDevisToFacture, listFacturesForDevis } from '../../../../lib/api/factures';
+import {
+  duplicateFacture,
+  convertDevisToFacture,
+  listFacturesForDevis,
+  listFacturePayments,
+  addFacturePayment,
+  deleteFacturePayment,
+} from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
-import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
+import type { Facture, FactureItem, FacturePayment, FactureStatus } from '../../../../lib/types';
 
 const DEPOSIT_PRESETS = [20, 30, 50];
 
@@ -50,6 +57,7 @@ export default function FactureDetailScreen() {
   const isAdmin = role === 'owner' || role === 'admin';
   const [facture, setFacture] = useState<Facture | null>(null);
   const [items, setItems] = useState<FactureItem[]>([]);
+  const [payments, setPayments] = useState<FacturePayment[]>([]);
   const [orgIban, setOrgIban] = useState<string | null>(null);
   const [siblingFactures, setSiblingFactures] = useState<{ id: string; is_deposit: boolean }[]>([]);
   const [busy, setBusy] = useState(false);
@@ -61,16 +69,19 @@ export default function FactureDetailScreen() {
   const [depositError, setDepositError] = useState<string | null>(null);
 
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('0');
   const [paymentDate, setPaymentDate] = useState(todayDisplay());
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [{ data: f }, { data: i }] = await Promise.all([
+    const [{ data: f }, { data: i }, p] = await Promise.all([
       supabase.from('factures').select('*').eq('id', id).single(),
       supabase.from('facture_items').select('*').eq('facture_id', id).order('sort_order', { ascending: true }),
+      listFacturePayments(id),
     ]);
     setFacture(f ?? null);
     setItems(i ?? []);
+    setPayments(p);
     if (f?.organization_id) {
       const { data: org } = await supabase.from('organizations').select('iban').eq('id', f.organization_id).single();
       setOrgIban(org?.iban ?? null);
@@ -146,9 +157,47 @@ export default function FactureDetailScreen() {
       setPaymentError('Date invalide (format JJ.MM.AAAA).');
       return;
     }
+    const amount = Number(paymentAmount.replace(',', '.'));
+    if (!amount || amount <= 0) {
+      setPaymentError('Entrez un montant supérieur à 0.');
+      return;
+    }
     setPaymentError(null);
+    setBusy(true);
+    const { error: payError } = await addFacturePayment(id, amount, new Date(iso).toISOString(), total);
+    setBusy(false);
+    if (payError) {
+      setPaymentError(payError);
+      return;
+    }
     setPaymentModalVisible(false);
-    await setStatus('paid', new Date(iso).toISOString());
+    load();
+  }
+
+  // One-tap "fully paid now" — records whatever's still owed as a single
+  // payment (dated today) so the ledger stays accurate, rather than just
+  // flipping the status flag without a matching entry.
+  async function handleMarkPaid() {
+    setBusy(true);
+    setActionsOpen(false);
+    if (remaining > 0.01) {
+      await addFacturePayment(id, remaining, new Date().toISOString(), total);
+    } else {
+      await setStatus('paid', new Date().toISOString());
+    }
+    setBusy(false);
+    load();
+  }
+
+  async function handleDeletePayment(payment: FacturePayment) {
+    const ok = await confirm('Supprimer ce paiement ?', `Le paiement de CHF ${Number(payment.amount).toFixed(2)} sera retiré.`);
+    if (!ok) return;
+    const { error: delError } = await deleteFacturePayment(payment.id, id, total);
+    if (delError) {
+      setError(delError);
+      return;
+    }
+    load();
   }
 
   async function handleCreateDeposit() {
@@ -181,6 +230,8 @@ export default function FactureDetailScreen() {
   const subtotal = items.reduce((sum, it) => sum + Number(it.quantity) * Number(it.unit_price), 0);
   const vat = subtotal * (Number(facture.vat_rate) / 100);
   const total = subtotal + vat;
+  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const remaining = Math.max(0, total - totalPaid);
   const overdue = facture.status === 'sent' && facture.due_date < new Date().toISOString().slice(0, 10);
   const paymentRef = generatePaymentReference(orgIban, facture.id);
 
@@ -202,12 +253,13 @@ export default function FactureDetailScreen() {
                   label: 'Enregistrer un paiement',
                   onPress: () => {
                     setPaymentDate(todayDisplay());
+                    setPaymentAmount(remaining.toFixed(2));
                     setPaymentError(null);
                     setPaymentModalVisible(true);
                     setActionsOpen(false);
                   },
                 },
-                { key: 'mark-paid', icon: 'check-circle', label: 'Marquer payée', onPress: () => setStatus('paid', new Date().toISOString()) },
+                { key: 'mark-paid', icon: 'check-circle', label: 'Marquer payée', onPress: handleMarkPaid },
               ] as ActionRow[])
             : []),
           {
@@ -334,6 +386,39 @@ export default function FactureDetailScreen() {
             </View>
           </View>
         </Card>
+
+        {payments.length || facture.status === 'sent' ? (
+          <>
+            <Text style={styles.sectionTitle}>Paiements</Text>
+            <Card>
+              <View style={styles.totalRow}>
+                <Text style={styles.meta}>Payé</Text>
+                <Text style={styles.meta}>CHF {totalPaid.toFixed(2)}</Text>
+              </View>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Reste dû</Text>
+                <Text style={styles.totalLabel}>CHF {remaining.toFixed(2)}</Text>
+              </View>
+              {payments.length ? (
+                <View style={styles.totalsBlock}>
+                  {payments.map((p) => (
+                    <View key={p.id} style={styles.paymentRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.itemDesc}>CHF {Number(p.amount).toFixed(2)}</Text>
+                        <Text style={styles.meta}>{new Date(p.paid_at).toLocaleDateString('fr-CH')}</Text>
+                      </View>
+                      {isAdmin ? (
+                        <Pressable onPress={() => handleDeletePayment(p)} hitSlop={8}>
+                          <Feather name="trash-2" size={16} color={colors.danger} />
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </Card>
+          </>
+        ) : null}
       </Container>
       </ScrollView>
 
@@ -341,12 +426,13 @@ export default function FactureDetailScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Enregistrer un paiement</Text>
-            <Text style={styles.meta}>Date à laquelle le paiement a été reçu.</Text>
+            <Text style={styles.meta}>Montant reçu et date de réception. Un paiement partiel réduit simplement le solde restant dû.</Text>
+            <Field label="Montant (CHF)" value={paymentAmount} onChangeText={setPaymentAmount} keyboardType="decimal-pad" />
             <Field label="Date (JJ.MM.AAAA)" value={paymentDate} onChangeText={setPaymentDate} />
             {paymentError ? <Text style={styles.error}>{paymentError}</Text> : null}
             <View style={styles.modalActions}>
               <Button title="Annuler" variant="secondary" onPress={() => setPaymentModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Confirmer" onPress={handleRecordPayment} style={{ flex: 1 }} />
+              <Button title="Confirmer" onPress={handleRecordPayment} loading={busy} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
@@ -530,6 +616,12 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   totalLabel: {
     fontSize: fontSize.md,

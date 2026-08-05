@@ -1,6 +1,6 @@
 import { invokeFunction } from './functions';
 import { supabase } from '../supabase';
-import type { Facture } from '../types';
+import type { Facture, FacturePayment } from '../types';
 
 export async function sendFactureReminder(factureId: string): Promise<{ sent: boolean; error: string | null }> {
   const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-reminder', { facture_id: factureId });
@@ -75,4 +75,53 @@ export async function duplicateFacture(factureId: string): Promise<{ id: string 
   }
 
   return { id: created.id, error: null };
+}
+
+export async function listFacturePayments(factureId: string): Promise<FacturePayment[]> {
+  const { data } = await supabase
+    .from('facture_payments')
+    .select('*')
+    .eq('facture_id', factureId)
+    .order('paid_at', { ascending: true });
+  return data ?? [];
+}
+
+// Flips the facture to 'paid' once the ledger covers the total, or back to
+// 'sent' if a payment is later deleted and it no longer does — a small
+// rounding tolerance (1 centime) absorbs floating-point noise, not a real
+// underpayment.
+async function syncFactureStatus(factureId: string, total: number): Promise<void> {
+  const payments = await listFacturePayments(factureId);
+  const paidSum = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const { data: facture } = await supabase.from('factures').select('status').eq('id', factureId).single();
+  if (!facture) return;
+  const isFullyPaid = paidSum >= total - 0.01;
+  if (isFullyPaid && facture.status !== 'paid') {
+    const lastPaidAt = payments.length ? payments[payments.length - 1].paid_at : new Date().toISOString();
+    await supabase.from('factures').update({ status: 'paid', paid_at: lastPaidAt }).eq('id', factureId);
+  } else if (!isFullyPaid && facture.status === 'paid') {
+    await supabase.from('factures').update({ status: 'sent', paid_at: null }).eq('id', factureId);
+  }
+}
+
+// `total` is the facture's own total TTC (subtotal + VAT), passed in by the
+// caller rather than recomputed here — the screen already has it from its
+// own line-items query.
+export async function addFacturePayment(
+  factureId: string,
+  amount: number,
+  paidAt: string,
+  total: number,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('facture_payments').insert({ facture_id: factureId, amount, paid_at: paidAt });
+  if (error) return { error: error.message };
+  await syncFactureStatus(factureId, total);
+  return { error: null };
+}
+
+export async function deleteFacturePayment(paymentId: string, factureId: string, total: number): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('facture_payments').delete().eq('id', paymentId);
+  if (error) return { error: error.message };
+  await syncFactureStatus(factureId, total);
+  return { error: null };
 }

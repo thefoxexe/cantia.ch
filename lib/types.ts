@@ -268,6 +268,15 @@ export interface FactureItem {
   sort_order: number;
 }
 
+export interface FacturePayment {
+  id: string;
+  facture_id: string;
+  amount: number;
+  paid_at: string;
+  created_by: string | null;
+  created_at: string;
+}
+
 export interface OpusFile {
   id: string;
   organization_id: string;
