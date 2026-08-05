@@ -449,6 +449,27 @@ function LandingContent() {
                 </Pressable>
               </View>
               <View style={styles.footerCol}>
+                <Text style={styles.footerColTitle}>Solutions</Text>
+                <Link href="/solutions/devis">
+                  <Text style={styles.footerLink}>Devis</Text>
+                </Link>
+                <Link href="/solutions/facturation">
+                  <Text style={styles.footerLink}>Facturation & QR-facture</Text>
+                </Link>
+                <Link href="/solutions/rapports-chantier">
+                  <Text style={styles.footerLink}>Rapports de chantier</Text>
+                </Link>
+                <Link href="/solutions/dictee-vocale">
+                  <Text style={styles.footerLink}>Dictée vocale</Text>
+                </Link>
+                <Link href="/solutions/planning">
+                  <Text style={styles.footerLink}>Planning</Text>
+                </Link>
+                <Link href="/solutions/leves-metre">
+                  <Text style={styles.footerLink}>Levés & Métré</Text>
+                </Link>
+              </View>
+              <View style={styles.footerCol}>
                 <Text style={styles.footerColTitle}>{t.footer.account}</Text>
                 <Link href={authHref('login')}>
                   <Text style={styles.footerLink}>{t.footer.login}</Text>
