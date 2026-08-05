@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -19,6 +19,14 @@ import {
   type CatalogEntry,
 } from '../../../lib/catalog';
 
+interface ActionRow {
+  key: string;
+  icon: React.ComponentProps<typeof Feather>['name'];
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+}
+
 export default function InventaireScreen() {
   const { organization, role } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
@@ -28,6 +36,8 @@ export default function InventaireScreen() {
   const [importing, setImporting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [importSummary, setImportSummary] = useState<string | null>(null);
+
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   const [editing, setEditing] = useState<CatalogEntry | null>(null);
   const [formDescription, setFormDescription] = useState('');
@@ -154,6 +164,12 @@ export default function InventaireScreen() {
     if (error) setActionError(error);
   }
 
+  const actionRows: ActionRow[] = [
+    { key: 'new', icon: 'plus', label: 'Nouvel article', onPress: () => { setActionsOpen(false); openCreate(); } },
+    { key: 'import', icon: 'upload', label: importing ? 'Import en cours…' : 'Importer CSV', disabled: importing, onPress: () => { setActionsOpen(false); handleImport(); } },
+    { key: 'export', icon: 'download', label: 'Exporter CSV', onPress: () => { setActionsOpen(false); handleExport(); } },
+  ];
+
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
@@ -162,11 +178,28 @@ export default function InventaireScreen() {
           Les prix et unités déjà utilisés dans vos devis — Cantia les reconnaît et les suggère automatiquement.
         </Text>
 
-        <View style={styles.toolbar}>
-          <Button title="Nouvel article" icon="plus" onPress={openCreate} style={{ flex: Platform.OS === 'web' ? undefined : 1 }} />
-          <Button title="Importer CSV" icon="upload" variant="secondary" onPress={handleImport} loading={importing} style={{ flex: Platform.OS === 'web' ? undefined : 1 }} />
-          <Button title="Exporter CSV" icon="download" variant="secondary" onPress={handleExport} style={{ flex: Platform.OS === 'web' ? undefined : 1 }} />
-        </View>
+        <Button
+          title="Actions"
+          icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
+          onPress={() => setActionsOpen((v) => !v)}
+          loading={importing}
+          style={{ marginBottom: spacing.sm }}
+        />
+        {actionsOpen ? (
+          <Card style={styles.actionsPanel}>
+            {actionRows.map((action, i) => (
+              <Pressable
+                key={action.key}
+                disabled={action.disabled}
+                onPress={action.onPress}
+                style={[styles.actionRow, i > 0 && styles.actionRowBorder, action.disabled && styles.actionRowDisabled]}
+              >
+                <Feather name={action.icon} size={16} color={colors.text} />
+                <Text style={styles.actionRowText}>{action.label}</Text>
+              </Pressable>
+            ))}
+          </Card>
+        ) : null}
         {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}
         {importSummary ? <Text style={styles.importSummary}>{importSummary}</Text> : null}
 
@@ -222,7 +255,7 @@ export default function InventaireScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>{editing ? 'Modifier la prestation' : 'Nouvel article'}</Text>
-            <Field label="Description" value={formDescription} onChangeText={setFormDescription} multiline />
+            <Field label="Description" value={formDescription} onChangeText={setFormDescription} multiline style={styles.descriptionInput} />
             <View style={styles.formRow}>
               <View style={{ flex: 1 }}>
                 <Field label="Unité" value={formUnit} onChangeText={setFormUnit} />
@@ -258,11 +291,30 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
-  toolbar: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
+  actionsPanel: {
+    padding: 0,
+    overflow: 'hidden',
     marginBottom: spacing.sm,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  actionRowBorder: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionRowDisabled: {
+    opacity: 0.45,
+  },
+  actionRowText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
   },
   actionError: {
     fontSize: fontSize.xs,
@@ -343,6 +395,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     fontWeight: '800',
     color: colors.text,
+  },
+  descriptionInput: {
+    minHeight: 70,
+    paddingTop: spacing.md,
+    textAlignVertical: 'top',
   },
   formRow: {
     flexDirection: 'row',
