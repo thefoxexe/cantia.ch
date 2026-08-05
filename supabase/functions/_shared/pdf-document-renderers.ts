@@ -200,7 +200,8 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     }
 
     const clientX = startX + creatorW + gap;
-    drawText(page, 'Signature client', clientX, y, font, 9, MUTED);
+    const clientSignatureLabel = devis.client_name ? `Signature ${devis.client_name}` : 'Signature client';
+    drawText(page, clientSignatureLabel, clientX, y, font, 9, MUTED);
     page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
   }
 

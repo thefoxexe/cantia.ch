@@ -12,6 +12,7 @@ import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/fa
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
+import { StatusDropdown } from '../../../components/StatusDropdown';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis, DevisItem, DevisStatus, Facture } from '../../../lib/types';
 
@@ -60,8 +61,27 @@ export default function DevisDetailScreen() {
     }, [load]),
   );
 
+  // Accepting a devis creates its final invoice on the spot — no separate
+  // "transformer en facture" step — and jumps straight to it, since that's
+  // the next thing the user needs after acceptance. Skipped if a non-deposit
+  // facture already exists for this devis (re-accepting shouldn't duplicate it).
   async function changeStatus(status: DevisStatus) {
     await supabase.from('devis').update({ status }).eq('id', id);
+    if (status === 'accepted' && !relatedFactures.some((f) => !f.is_deposit)) {
+      setConverting(true);
+      setError(null);
+      const { id: newId, error: rpcError } = await convertDevisToFacture(id);
+      setConverting(false);
+      if (rpcError) {
+        setError(rpcError);
+        load();
+        return;
+      }
+      if (newId) {
+        router.push(`/(app)/devis/factures/${newId}`);
+        return;
+      }
+    }
     load();
   }
 
@@ -107,18 +127,6 @@ export default function DevisDetailScreen() {
     router.replace('/(app)/devis');
   }
 
-  async function handleConvertToFacture() {
-    setConverting(true);
-    setError(null);
-    const { id: newId, error: rpcError } = await convertDevisToFacture(id);
-    setConverting(false);
-    if (rpcError) {
-      setError(rpcError);
-      return;
-    }
-    router.push(`/(app)/devis/factures/${newId}`);
-  }
-
   async function handleCreateDeposit() {
     const percent = Number(depositPercent.replace(',', '.'));
     if (!percent || percent <= 0 || percent > 100) {
@@ -157,7 +165,24 @@ export default function DevisDetailScreen() {
           <View style={styles.headerRow}>
             <Text style={styles.number}>{devis.number}</Text>
             <View style={styles.headerRight}>
-              <StatusBadge status={devis.status} />
+              <StatusDropdown
+                status={devis.status}
+                options={STATUS_FLOW}
+                labels={STATUS_LABELS}
+                onChange={changeStatus}
+                extraActions={[
+                  {
+                    key: 'deposit',
+                    icon: 'percent',
+                    label: 'Facturer un acompte',
+                    disabled: relatedFactures.length === 0,
+                    onPress: () => {
+                      setDepositError(null);
+                      setDepositModalVisible(true);
+                    },
+                  },
+                ]}
+              />
               <RowActionMenu
                 actions={[
                   { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
@@ -172,21 +197,6 @@ export default function DevisDetailScreen() {
           {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
           {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
         </Card>
-
-        <Text style={styles.sectionTitle}>Statut</Text>
-        <View style={styles.statusRow}>
-          {STATUS_FLOW.map((s) => (
-            <Pressable
-              key={s}
-              onPress={() => changeStatus(s)}
-              style={[styles.statusChip, devis.status === s && styles.statusChipActive]}
-            >
-              <Text style={[styles.statusChipText, devis.status === s && styles.statusChipTextActive]}>
-                {STATUS_LABELS[s]}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
 
         <Text style={styles.sectionTitle}>Lignes</Text>
         <Card>
@@ -266,27 +276,6 @@ export default function DevisDetailScreen() {
           </>
         ) : null}
 
-        {devis.status === 'accepted' && !relatedFactures.some((f) => !f.is_deposit) ? (
-          <>
-            <Button
-              title="Facturer un acompte"
-              icon="percent"
-              variant="secondary"
-              onPress={() => {
-                setDepositError(null);
-                setDepositModalVisible(true);
-              }}
-              style={{ marginTop: spacing.md }}
-            />
-            <Button
-              title="Transformer en facture finale"
-              icon="dollar-sign"
-              onPress={handleConvertToFacture}
-              loading={converting}
-              style={{ marginTop: spacing.md }}
-            />
-          </>
-        ) : null}
       </Container>
       </ScrollView>
 
@@ -357,31 +346,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  statusChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  statusChipActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  statusChipText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  statusChipTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
   },
   itemRow: {
     flexDirection: 'row',

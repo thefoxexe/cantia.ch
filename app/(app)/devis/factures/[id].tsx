@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
@@ -9,8 +9,9 @@ import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
 import { duplicateFacture } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
-import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { Button, Card, Container, LoadingScreen, Screen } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
+import { StatusDropdown } from '../../../../components/StatusDropdown';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
 import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
@@ -132,10 +133,13 @@ export default function FactureDetailScreen() {
               ) : null}
             </View>
             <View style={styles.headerRight}>
-              <StatusBadge status={facture.status} />
+              <StatusDropdown status={facture.status} options={STATUS_FLOW} labels={STATUS_LABELS} onChange={changeStatus} />
               <RowActionMenu
                 actions={[
                   { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+                  ...(facture.devis_id
+                    ? [{ key: 'devis', icon: 'file-text' as const, label: 'Voir le devis', onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }]
+                    : []),
                   ...(isAdmin
                     ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: handleDelete }]
                     : []),
@@ -163,21 +167,6 @@ export default function FactureDetailScreen() {
             </View>
           </View>
         ) : null}
-
-        <Text style={styles.sectionTitle}>Statut</Text>
-        <View style={styles.statusRow}>
-          {STATUS_FLOW.map((s) => (
-            <Pressable
-              key={s}
-              onPress={() => changeStatus(s)}
-              style={[styles.statusChip, facture.status === s && styles.statusChipActive]}
-            >
-              <Text style={[styles.statusChipText, facture.status === s && styles.statusChipTextActive]}>
-                {STATUS_LABELS[s]}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
 
         <Text style={styles.sectionTitle}>Lignes</Text>
         <Card>
@@ -317,31 +306,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  statusChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  statusChipActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  statusChipText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  statusChipTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
   },
   itemRow: {
     flexDirection: 'row',
