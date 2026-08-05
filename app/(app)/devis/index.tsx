@@ -4,15 +4,20 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
+import { duplicateDevis } from '../../../lib/api/devis';
+import { confirm } from '../../../lib/confirm';
 import { Button, Card, EmptyState, Screen, StatusBadge } from '../../../components/ui';
+import { RowActionMenu } from '../../../components/RowActionMenu';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
 
 export default function DevisListScreen() {
-  const { organization } = useAuth();
+  const { organization, role } = useAuth();
   const router = useRouter();
   const [devisList, setDevisList] = useState<Devis[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -31,6 +36,28 @@ export default function DevisListScreen() {
       load();
     }, [load]),
   );
+
+  async function handleDuplicate(id: string) {
+    setActionError(null);
+    const { id: newId, error } = await duplicateDevis(id);
+    if (error) {
+      setActionError(error);
+      return;
+    }
+    if (newId) router.push(`/(app)/devis/${newId}`);
+  }
+
+  async function handleDelete(item: Devis) {
+    const ok = await confirm('Supprimer ce devis ?', `Le devis ${item.number ?? ''} pour ${item.client_name} sera définitivement supprimé.`);
+    if (!ok) return;
+    setActionError(null);
+    const { error } = await supabase.from('devis').delete().eq('id', item.id);
+    if (error) {
+      setActionError(error.message);
+      return;
+    }
+    load();
+  }
 
   return (
     <Screen style={{ padding: spacing.xl }}>
@@ -59,6 +86,7 @@ export default function DevisListScreen() {
         </View>
 
         <Text style={styles.sectionLabel}>Devis</Text>
+        {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}
 
         <FlatList
           data={devisList}
@@ -72,19 +100,31 @@ export default function DevisListScreen() {
             ) : null
           }
           renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/(app)/devis/${item.id}`)}>
-              <Card style={styles.card}>
-                <View style={styles.cardBody}>
-                  <View style={styles.row}>
-                    <Text style={styles.number}>{item.number}</Text>
-                    <StatusBadge status={item.status} />
+            <View style={styles.cardWrap}>
+              <Pressable onPress={() => router.push(`/(app)/devis/${item.id}`)}>
+                <Card style={styles.card}>
+                  <View style={styles.cardBody}>
+                    <View style={styles.row}>
+                      <Text style={styles.number}>{item.number}</Text>
+                      <StatusBadge status={item.status} />
+                    </View>
+                    <Text style={styles.client}>{item.client_name}</Text>
+                    <Text style={styles.meta}>{new Date(item.created_at).toLocaleDateString('fr-CH')}</Text>
                   </View>
-                  <Text style={styles.client}>{item.client_name}</Text>
-                  <Text style={styles.meta}>{new Date(item.created_at).toLocaleDateString('fr-CH')}</Text>
-                </View>
-                <Feather name="chevron-right" size={18} color={colors.textMuted} />
-              </Card>
-            </Pressable>
+                  <Feather name="chevron-right" size={18} color={colors.textMuted} />
+                </Card>
+              </Pressable>
+              <View style={styles.cardMenu}>
+                <RowActionMenu
+                  actions={[
+                    { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
+                    ...(isAdmin
+                      ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
+                      : []),
+                  ]}
+                />
+              </View>
+            </View>
           )}
         />
       </View>
@@ -107,10 +147,24 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     marginBottom: spacing.sm,
   },
+  actionError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+    marginBottom: spacing.sm,
+  },
+  cardWrap: {
+    position: 'relative',
+  },
+  cardMenu: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+    paddingRight: spacing.xxl,
   },
   cardBody: {
     flex: 1,

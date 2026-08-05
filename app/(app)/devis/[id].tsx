@@ -1,11 +1,15 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
+import { duplicateDevis } from '../../../lib/api/devis';
+import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
+import { RowActionMenu } from '../../../components/RowActionMenu';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Devis, DevisItem, DevisStatus } from '../../../lib/types';
 
@@ -20,6 +24,8 @@ const STATUS_LABELS: Record<DevisStatus, string> = {
 export default function DevisDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { role } = useAuth();
+  const isAdmin = role === 'owner' || role === 'admin';
   const [devis, setDevis] = useState<Devis | null>(null);
   const [items, setItems] = useState<DevisItem[]>([]);
   const [generating, setGenerating] = useState(false);
@@ -69,6 +75,28 @@ export default function DevisDetailScreen() {
     if (dlError) setError(dlError);
   }
 
+  async function handleDuplicate() {
+    setError(null);
+    const { id: newId, error: dupError } = await duplicateDevis(id);
+    if (dupError) {
+      setError(dupError);
+      return;
+    }
+    if (newId) router.push(`/(app)/devis/${newId}`);
+  }
+
+  async function handleDelete() {
+    const ok = await confirm('Supprimer ce devis ?', `Le devis ${devis?.number ?? ''} sera définitivement supprimé.`);
+    if (!ok) return;
+    setError(null);
+    const { error: delError } = await supabase.from('devis').delete().eq('id', id);
+    if (delError) {
+      setError(delError.message);
+      return;
+    }
+    router.replace('/(app)/devis');
+  }
+
   async function handleConvertToFacture() {
     setConverting(true);
     setError(null);
@@ -100,7 +128,17 @@ export default function DevisDetailScreen() {
         <Card>
           <View style={styles.headerRow}>
             <Text style={styles.number}>{devis.number}</Text>
-            <StatusBadge status={devis.status} />
+            <View style={styles.headerRight}>
+              <StatusBadge status={devis.status} />
+              <RowActionMenu
+                actions={[
+                  { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+                  ...(isAdmin
+                    ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: handleDelete }]
+                    : []),
+                ]}
+              />
+            </View>
           </View>
           <Text style={styles.client}>{devis.client_name}</Text>
           {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
@@ -213,6 +251,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     marginBottom: spacing.xs,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   number: {
     fontSize: fontSize.lg,

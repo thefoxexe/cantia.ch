@@ -4,9 +4,11 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { sendFactureReminder } from '../../../../lib/api/factures';
+import { sendFactureReminder, duplicateFacture } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
+import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
+import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
 
@@ -188,6 +190,28 @@ export default function FacturesListScreen() {
     load();
   }
 
+  async function handleDuplicate(id: string) {
+    setReminderError(null);
+    const { id: newId, error } = await duplicateFacture(id);
+    if (error) {
+      setReminderError(error);
+      return;
+    }
+    if (newId) router.push(`/(app)/devis/factures/${newId}`);
+  }
+
+  async function handleDelete(item: Facture) {
+    const ok = await confirm('Supprimer cette facture ?', `La facture ${item.number ?? ''} pour ${item.client_name} sera définitivement supprimée.`);
+    if (!ok) return;
+    setReminderError(null);
+    const { error } = await supabase.from('factures').delete().eq('id', item.id);
+    if (error) {
+      setReminderError(error.message);
+      return;
+    }
+    load();
+  }
+
   const filters: { key: FilterKey; label: string; count: number }[] = [
     { key: 'all', label: 'Toutes', count: factures.length },
     { key: 'overdue', label: 'En retard', count: kpis.overdueCount },
@@ -286,55 +310,67 @@ export default function FacturesListScreen() {
             const showRemindRow = isAdmin && item.status === 'sent';
             const amount = totals[item.id] ?? 0;
             return (
-              <Card style={styles.card}>
-                <Pressable style={styles.cardTop} onPress={() => router.push(`/(app)/devis/factures/${item.id}`)}>
-                  <View style={styles.cardBody}>
-                    <View style={styles.row}>
-                      <Text style={styles.number}>{item.number}</Text>
-                      <StatusBadge status={item.status} />
+              <View style={styles.cardWrap}>
+                <Card style={styles.card}>
+                  <Pressable style={styles.cardTop} onPress={() => router.push(`/(app)/devis/factures/${item.id}`)}>
+                    <View style={styles.cardBody}>
+                      <View style={styles.row}>
+                        <Text style={styles.number}>{item.number}</Text>
+                        <StatusBadge status={item.status} />
+                      </View>
+                      <Text style={styles.client}>{item.client_name}</Text>
+                      <View style={styles.metaRow}>
+                        <Text style={[styles.meta, overdue && styles.overdue]}>
+                          {overdue ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
+                        </Text>
+                        <Text style={styles.amount}>CHF {amount.toFixed(2)}</Text>
+                      </View>
                     </View>
-                    <Text style={styles.client}>{item.client_name}</Text>
-                    <View style={styles.metaRow}>
-                      <Text style={[styles.meta, overdue && styles.overdue]}>
-                        {overdue ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
-                      </Text>
-                      <Text style={styles.amount}>CHF {amount.toFixed(2)}</Text>
-                    </View>
-                  </View>
-                  <Feather name="chevron-right" size={18} color={colors.textMuted} />
-                </Pressable>
-                {REMINDERS_ENABLED && canRemind ? (
-                  <View style={styles.remindRow}>
-                    {item.last_reminded_at ? (
-                      <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at)}</Text>
-                    ) : (
-                      <View />
-                    )}
-                    <Pressable
-                      onPress={() => handleRemind(item)}
-                      disabled={remindingId === item.id}
-                      style={[styles.remindButton, overdue && styles.remindButtonUrgent]}
-                    >
-                      {remindingId === item.id ? (
-                        <ActivityIndicator size="small" color={overdue ? '#fff' : colors.primary} />
+                    <Feather name="chevron-right" size={18} color={colors.textMuted} />
+                  </Pressable>
+                  {REMINDERS_ENABLED && canRemind ? (
+                    <View style={styles.remindRow}>
+                      {item.last_reminded_at ? (
+                        <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at)}</Text>
                       ) : (
-                        <>
-                          <Feather name="mail" size={12} color={overdue ? '#fff' : colors.primary} />
-                          <Text style={[styles.remindButtonText, overdue && styles.remindButtonTextUrgent]}>Relancer</Text>
-                        </>
+                        <View />
                       )}
-                    </Pressable>
-                  </View>
-                ) : !REMINDERS_ENABLED && showRemindRow ? (
-                  <View style={styles.remindRow}>
-                    <Text style={styles.remindHint}>Relance par e-mail</Text>
-                    <View style={styles.remindSoonBadge}>
-                      <Feather name="clock" size={11} color={colors.textMuted} />
-                      <Text style={styles.remindSoonText}>Bientôt disponible</Text>
+                      <Pressable
+                        onPress={() => handleRemind(item)}
+                        disabled={remindingId === item.id}
+                        style={[styles.remindButton, overdue && styles.remindButtonUrgent]}
+                      >
+                        {remindingId === item.id ? (
+                          <ActivityIndicator size="small" color={overdue ? '#fff' : colors.primary} />
+                        ) : (
+                          <>
+                            <Feather name="mail" size={12} color={overdue ? '#fff' : colors.primary} />
+                            <Text style={[styles.remindButtonText, overdue && styles.remindButtonTextUrgent]}>Relancer</Text>
+                          </>
+                        )}
+                      </Pressable>
                     </View>
-                  </View>
-                ) : null}
-              </Card>
+                  ) : !REMINDERS_ENABLED && showRemindRow ? (
+                    <View style={styles.remindRow}>
+                      <Text style={styles.remindHint}>Relance par e-mail</Text>
+                      <View style={styles.remindSoonBadge}>
+                        <Feather name="clock" size={11} color={colors.textMuted} />
+                        <Text style={styles.remindSoonText}>Bientôt disponible</Text>
+                      </View>
+                    </View>
+                  ) : null}
+                </Card>
+                <View style={styles.cardMenu}>
+                  <RowActionMenu
+                    actions={[
+                      { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
+                      ...(isAdmin
+                        ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
+                        : []),
+                    ]}
+                  />
+                </View>
+              </View>
             );
           }}
         />
@@ -490,6 +526,14 @@ const styles = StyleSheet.create({
     color: colors.danger,
     marginTop: spacing.sm,
   },
+  cardWrap: {
+    position: 'relative',
+  },
+  cardMenu: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+  },
   card: {
     padding: 0,
     overflow: 'hidden',
@@ -499,6 +543,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.md,
+    paddingRight: spacing.xxl,
   },
   cardBody: {
     flex: 1,

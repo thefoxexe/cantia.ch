@@ -1,24 +1,15 @@
 import { useCallback, useState } from 'react';
-import { Alert, Image, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../../lib/supabase';
 import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../../lib/api/pdf';
 import { downloadFile } from '../../../../../lib/downloadFile';
+import { confirm } from '../../../../../lib/confirm';
 import { Button, Card, Container, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
-
-function confirm(title: string, message: string): Promise<boolean> {
-  if (Platform.OS === 'web') return Promise.resolve(window.confirm(`${title}\n\n${message}`));
-  return new Promise((resolve) => {
-    Alert.alert(title, message, [
-      { text: 'Annuler', style: 'cancel', onPress: () => resolve(false) },
-      { text: 'Supprimer', style: 'destructive', onPress: () => resolve(true) },
-    ]);
-  });
-}
 
 export default function ReportDetailScreen() {
   const { id: projectId, reportId } = useLocalSearchParams<{ id: string; reportId: string }>();

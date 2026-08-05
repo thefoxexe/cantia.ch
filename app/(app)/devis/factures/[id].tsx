@@ -1,12 +1,16 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { getSignedUrl } from '../../../../lib/api/storage';
 import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
+import { duplicateFacture } from '../../../../lib/api/factures';
+import { confirm } from '../../../../lib/confirm';
 import { Button, Card, Container, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
 import type { Facture, FactureItem, FactureStatus } from '../../../../lib/types';
@@ -21,6 +25,9 @@ const STATUS_LABELS: Record<FactureStatus, string> = {
 
 export default function FactureDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { role } = useAuth();
+  const isAdmin = role === 'owner' || role === 'admin';
   const [facture, setFacture] = useState<Facture | null>(null);
   const [items, setItems] = useState<FactureItem[]>([]);
   const [orgIban, setOrgIban] = useState<string | null>(null);
@@ -52,6 +59,28 @@ export default function FactureDetailScreen() {
     else if (facture?.status === 'paid') patch.paid_at = null;
     await supabase.from('factures').update(patch).eq('id', id);
     load();
+  }
+
+  async function handleDuplicate() {
+    setError(null);
+    const { id: newId, error: dupError } = await duplicateFacture(id);
+    if (dupError) {
+      setError(dupError);
+      return;
+    }
+    if (newId) router.push(`/(app)/devis/factures/${newId}`);
+  }
+
+  async function handleDelete() {
+    const ok = await confirm('Supprimer cette facture ?', `La facture ${facture?.number ?? ''} sera définitivement supprimée.`);
+    if (!ok) return;
+    setError(null);
+    const { error: delError } = await supabase.from('factures').delete().eq('id', id);
+    if (delError) {
+      setError(delError.message);
+      return;
+    }
+    router.replace('/(app)/devis/factures');
   }
 
   async function handleGeneratePdf() {
@@ -95,7 +124,17 @@ export default function FactureDetailScreen() {
         <Card>
           <View style={styles.headerRow}>
             <Text style={styles.number}>{facture.number}</Text>
-            <StatusBadge status={facture.status} />
+            <View style={styles.headerRight}>
+              <StatusBadge status={facture.status} />
+              <RowActionMenu
+                actions={[
+                  { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+                  ...(isAdmin
+                    ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: handleDelete }]
+                    : []),
+                ]}
+              />
+            </View>
           </View>
           <Text style={styles.client}>{facture.client_name}</Text>
           {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
@@ -197,6 +236,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     marginBottom: spacing.xs,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   number: {
     fontSize: fontSize.lg,
