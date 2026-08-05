@@ -225,7 +225,19 @@ function buildSpcPayload(data: QrBillData): { payload: string; reference: string
 // robust against any raster/canvas dependency the qrcode package might
 // pull in) plus the mandatory Swiss cross in a white box at its center.
 function drawQrCode(page: PDFPage, payload: string, x: number, y: number, sizePt: number) {
-  const qr = QRCode.create(payload, { errorCorrectionLevel: 'M' });
+  // The SPC spec requires the QR payload to be encoded as Latin-1
+  // (ISO-8859-1), which is why sanitizeSpcField restricts every field to
+  // the \x00-\xFF range. But QRCode.create(payload, ...) with a raw JS
+  // string lets the qrcode package pick its own encoding for the Byte-mode
+  // segment, and it defaults to UTF-8 — so any accented character (é, è,
+  // à... all over Swiss names/addresses) gets encoded as 2 bytes instead of
+  // 1. That shifts every field after it out of alignment for any bank
+  // parser that (correctly, per spec) assumes Latin-1, producing a generic
+  // "invalid QR code" rejection while more lenient scanners still decode it
+  // fine. Building the byte-mode segment by hand from Latin-1 code points
+  // guarantees a byte-for-byte match with what the field lengths assume.
+  const latin1Bytes = Uint8Array.from(payload, (ch) => ch.charCodeAt(0));
+  const qr = QRCode.create([{ data: latin1Bytes, mode: 'byte' }], { errorCorrectionLevel: 'M' });
   const modules = qr.modules;
   // A camera scanner needs a blank "quiet zone" margin around the code to
   // detect it at all — the spec's 46x46mm box is meant to hold the code

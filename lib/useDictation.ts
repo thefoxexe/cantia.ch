@@ -31,6 +31,7 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
   onTranscriptChangeRef.current = onTranscriptChange;
   const finalizedRef = useRef('');
   const lastFinalRef = useRef('');
+  const lastFinalAtRef = useRef(0);
   const langRef = useRef('fr-FR');
   // True from start() to stop() (or a fatal error) — distinguishes an 'end'
   // the user asked for from one the OS triggered on its own (Android's
@@ -48,8 +49,23 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
     const transcript = event.results[0]?.transcript ?? '';
     if (event.isFinal) {
       const clean = transcript.trim();
-      if (!clean || normalizeForDedup(clean) === normalizeForDedup(lastFinalRef.current)) return;
+      const now = Date.now();
+      const a = normalizeForDedup(clean);
+      const b = normalizeForDedup(lastFinalRef.current);
+      // The exact-match dedup above only ever caught a byte-identical
+      // redelivery. In practice Android's restart-on-pause loop can
+      // re-transcribe the same audio buffer slightly differently each pass
+      // ("bétonnage" / "le bétonnage" / "et bétonnage"), so a same-or-prefix
+      // segment arriving within ~1.5s of the last final is still treated as
+      // the same redelivered utterance rather than new speech — this is
+      // what showed up as a phrase getting typed two or three times in a
+      // row. The time window keeps this from ever swallowing a real short
+      // word (e.g. "porte" said again minutes later, unrelated to
+      // "porte-fenêtre" spoken earlier).
+      const isNearDuplicateRedelivery = !!a && !!b && now - lastFinalAtRef.current < 1500 && (a === b || a.includes(b) || b.includes(a));
+      if (!clean || isNearDuplicateRedelivery) return;
       lastFinalRef.current = clean;
+      lastFinalAtRef.current = now;
       finalizedRef.current = finalizedRef.current ? `${finalizedRef.current} ${clean}` : clean;
       onTranscriptChangeRef.current(finalizedRef.current);
     } else {
