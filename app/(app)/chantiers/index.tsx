@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Card, EmptyState, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Project } from '../../../lib/types';
 
@@ -35,7 +35,8 @@ export default function ChantiersListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <Text style={styles.pageTitle}>Chantiers</Text>
+        <PageHeader title="Chantiers" backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>Tous vos chantiers en cours, avec leur avancement et leur équipe.</Text>
 
         <Button
           title="Nouveau chantier"
@@ -81,10 +82,9 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  pageTitle: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
-    color: colors.text,
+  pageSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
     marginBottom: spacing.lg,
   },
   card: {

@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listClients } from '../../../lib/api/clients';
-import { Button, Card, EmptyState, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Client, ClientType } from '../../../lib/types';
 
@@ -49,6 +49,9 @@ export default function ClientsListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
+        <PageHeader title="Clients" backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>Retrouvez vos clients et suivez leurs devis et chantiers.</Text>
+
         <Button
           title="Nouveau client"
           icon="plus"
@@ -116,6 +119,11 @@ const styles = StyleSheet.create({
     maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
+  },
+  pageSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
   },
   searchRow: {
     flexDirection: 'row',

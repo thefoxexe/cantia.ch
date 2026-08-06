@@ -7,7 +7,7 @@ import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder, duplicateFacture } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
-import { Card, EmptyState, Screen, StatusBadge } from '../../../../components/ui';
+import { Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
@@ -227,6 +227,9 @@ export default function FacturesListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
+        <PageHeader title="Factures" backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>Suivez les paiements, les échéances et les relances de vos factures.</Text>
+
         <FlatList
           data={filtered}
           keyExtractor={(item) => item.id}
@@ -435,6 +438,11 @@ const styles = StyleSheet.create({
     maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
+  },
+  pageSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
   },
   kpiGrid: {
     flexDirection: 'row',

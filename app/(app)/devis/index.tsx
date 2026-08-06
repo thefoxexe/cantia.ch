@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { duplicateDevis } from '../../../lib/api/devis';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, EmptyState, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
@@ -62,6 +62,9 @@ export default function DevisListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
+        <PageHeader title="Devis" backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>Créez, suivez et relancez tous vos devis clients.</Text>
+
         <Button
           title="Nouveau devis"
           icon="plus"
@@ -69,7 +72,6 @@ export default function DevisListScreen() {
           style={{ marginBottom: spacing.lg }}
         />
 
-        <Text style={styles.sectionLabel}>Devis</Text>
         {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}
 
         <FlatList
@@ -123,13 +125,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  sectionLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '800',
+  pageSubtitle: {
+    fontSize: fontSize.sm,
     color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.lg,
   },
   actionError: {
     fontSize: fontSize.xs,

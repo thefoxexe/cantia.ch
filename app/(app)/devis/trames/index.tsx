@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { listTrames } from '../../../../lib/api/trames';
-import { Button, Card, EmptyState, Screen } from '../../../../components/ui';
+import { Button, Card, EmptyState, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { DevisTrame } from '../../../../lib/types';
 
@@ -37,7 +37,7 @@ export default function TramesListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <Text style={styles.sectionLabel}>Trames</Text>
+        <PageHeader title="Trames" backTo="/(app)" />
         <Text style={styles.pageSubtitle}>
           Un jeu de positions réutilisable — enregistrez vos prestations types une fois, réutilisez-les dans un nouveau devis en changeant juste les
           quantités.
@@ -86,14 +86,6 @@ const styles = StyleSheet.create({
     maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
-  },
-  sectionLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: spacing.sm,
   },
   pageSubtitle: {
     fontSize: fontSize.sm,

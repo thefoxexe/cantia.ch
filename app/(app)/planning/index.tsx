@@ -11,7 +11,7 @@ import {
   updatePlanningAssignment,
   type PlanningAssignmentWithNames,
 } from '../../../lib/api/planning';
-import { Button, EmptyState, LoadingScreen, Screen } from '../../../components/ui';
+import { Button, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -190,10 +190,8 @@ export default function PlanningScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Planning</Text>
-          <Button title="Assigner" icon="plus" onPress={() => openCreateForm()} />
-        </View>
+        <PageHeader title="Planning" backTo="/(app)" right={<Button title="Assigner" icon="plus" onPress={() => openCreateForm()} />} />
+        <Text style={styles.pageSubtitle}>L'équipe de la semaine, chantier par chantier et jour par jour.</Text>
 
         <View style={styles.weekNav}>
           <Pressable onPress={() => setWeekStart((w) => addDays(w, -7))} hitSlop={8} style={styles.weekNavButton}>
@@ -400,16 +398,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+  pageSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
   },
   weekNav: {
     flexDirection: 'row',
