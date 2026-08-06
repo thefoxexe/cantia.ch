@@ -73,6 +73,9 @@ export default function FactureDetailScreen() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [defaultEmailMessage, setDefaultEmailMessage] = useState('');
+  const [emailModalVisible, setEmailModalVisible] = useState(false);
+  const [emailMessage, setEmailMessage] = useState('');
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -93,8 +96,13 @@ export default function FactureDetailScreen() {
     setItems(i ?? []);
     setPayments(p);
     if (f?.organization_id) {
-      const { data: org } = await supabase.from('organizations').select('iban, plan_id').eq('id', f.organization_id).single();
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('iban, plan_id, facture_email_message')
+        .eq('id', f.organization_id)
+        .single();
       setOrgIban(org?.iban ?? null);
+      setDefaultEmailMessage(org?.facture_email_message ?? '');
       if (org?.plan_id) {
         const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
         setPlan(planRow ?? null);
@@ -121,16 +129,22 @@ export default function FactureDetailScreen() {
     setTimeout(() => setLinkCopied(false), 2000);
   }
 
+  function handleOpenEmailModal() {
+    setEmailMessage(defaultEmailMessage);
+    setEmailModalVisible(true);
+  }
+
   async function handleSendEmail() {
     if (!facture) return;
     setSendingEmail(true);
     setError(null);
-    const { sent, error: sendError } = await sendFactureEmail(id);
+    const { sent, error: sendError } = await sendFactureEmail(id, emailMessage);
     setSendingEmail(false);
     if (sendError || !sent) {
       setError(sendError ?? "Échec de l'envoi de l'e-mail.");
       return;
     }
+    setEmailModalVisible(false);
     setEmailSent(true);
     setTimeout(() => setEmailSent(false), 2500);
     load();
@@ -396,9 +410,8 @@ export default function FactureDetailScreen() {
                 title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
                 variant="secondary"
                 icon={emailSent ? 'check' : 'mail'}
-                loading={sendingEmail}
                 disabled={plan?.has_email_sending === false}
-                onPress={handleSendEmail}
+                onPress={handleOpenEmailModal}
                 style={styles.clientLinkButton}
               />
             </View>
@@ -553,6 +566,32 @@ export default function FactureDetailScreen() {
             <View style={styles.modalActions}>
               <Button title="Annuler" variant="secondary" onPress={() => setDepositModalVisible(false)} style={{ flex: 1 }} />
               <Button title="Créer la facture" onPress={handleCreateDeposit} loading={busy} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={emailModalVisible} transparent animationType="fade" onRequestClose={() => setEmailModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Envoyer par e-mail</Text>
+            <Text style={styles.meta}>
+              Ce message accompagne le PDF et le lien de consultation en ligne. Modifiable pour cet envoi uniquement — le
+              message par défaut se règle dans Compte → Entreprise.
+            </Text>
+            <Field
+              label="Message"
+              value={emailMessage}
+              onChangeText={setEmailMessage}
+              multiline
+              numberOfLines={4}
+              style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
+              placeholder="Bonjour, veuillez trouver ci-joint notre facture..."
+            />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <View style={styles.modalActions}>
+              <Button title="Annuler" variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Envoyer" onPress={handleSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
             </View>
           </View>
         </View>

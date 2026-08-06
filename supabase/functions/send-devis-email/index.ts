@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, formatChfPlain, sendResendEmail, textToHtmlLines } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 
 const BUCKET = 'opus-storage';
@@ -14,7 +14,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { devis_id } = await req.json();
+    const { devis_id, custom_message } = await req.json();
     if (!devis_id) return json({ error: 'devis_id requis' }, 400);
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
@@ -40,7 +40,11 @@ Deno.serve(async (req: Request) => {
     if (devis.status === 'draft') return json({ error: "Finalisez d'abord le devis (passez-le à \"Prêt à l'envoi\") avant de l'envoyer." }, 400);
 
     const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('name, email, plan_id').eq('id', devis.organization_id).single(),
+      admin
+        .from('organizations')
+        .select('name, email, plan_id, devis_email_message, email_signature')
+        .eq('id', devis.organization_id)
+        .single(),
       admin.from('devis_items').select('quantity, unit_price').eq('devis_id', devis_id),
     ]);
 
@@ -69,10 +73,13 @@ Deno.serve(async (req: Request) => {
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/devis-client/${devis.public_token}`;
 
+    const bodyMessage = String(custom_message ?? org?.devis_email_message ?? '').trim();
+    const signature = String(org?.email_signature ?? '').trim();
+
     const subject = `Devis ${devis.number ?? ''} — ${orgName}`;
     const html = `
       <p>Bonjour${devis.client_name ? ` ${devis.client_name}` : ''},</p>
-      <p>Veuillez trouver ci-joint notre devis :</p>
+      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : 'Veuillez trouver ci-joint notre devis :'}</p>
       <ul>
         <li>Devis n° ${devis.number ?? '—'}</li>
         <li>Montant : CHF ${formatChfPlain(total)}</li>
@@ -81,7 +88,7 @@ Deno.serve(async (req: Request) => {
         <a href="${publicUrl}">Consulter et accepter ce devis en ligne</a> — vous pouvez le signer directement
         depuis cette page sécurisée, sans avoir besoin de créer de compte.
       </p>
-      <p>Cordialement,<br/>${orgName}</p>
+      <p>${signature ? textToHtmlLines(signature) : `Cordialement,<br/>${orgName}`}</p>
     `.trim();
 
     const { ok, error } = await sendResendEmail({

@@ -78,6 +78,9 @@ export interface Organization {
   footer_text: string | null;
   iban: string | null;
   hourly_cost: number;
+  devis_email_message: string | null;
+  facture_email_message: string | null;
+  email_signature: string | null;
   plan_id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;

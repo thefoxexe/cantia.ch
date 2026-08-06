@@ -51,6 +51,8 @@ export default function DevisDetailScreen() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [emailModalVisible, setEmailModalVisible] = useState(false);
+  const [emailMessage, setEmailMessage] = useState('');
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -167,16 +169,22 @@ export default function DevisDetailScreen() {
     setTimeout(() => setLinkCopied(false), 2000);
   }
 
-  async function handleSendEmail() {
+  function handleOpenEmailModal() {
+    setEmailMessage(organization?.devis_email_message ?? '');
+    setEmailModalVisible(true);
+  }
+
+  async function handleConfirmSendEmail() {
     if (!devis) return;
     setSendingEmail(true);
     setError(null);
-    const { sent, error: sendError } = await sendDevisEmail(id);
+    const { sent, error: sendError } = await sendDevisEmail(id, emailMessage);
     setSendingEmail(false);
     if (sendError || !sent) {
       setError(sendError ?? "Échec de l'envoi de l'e-mail.");
       return;
     }
+    setEmailModalVisible(false);
     setEmailSent(true);
     setTimeout(() => setEmailSent(false), 2500);
     load();
@@ -266,9 +274,8 @@ export default function DevisDetailScreen() {
                 title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
                 variant="secondary"
                 icon={emailSent ? 'check' : 'mail'}
-                loading={sendingEmail}
                 disabled={plan?.has_email_sending === false}
-                onPress={handleSendEmail}
+                onPress={handleOpenEmailModal}
                 style={styles.clientLinkButton}
               />
             </View>
@@ -375,6 +382,32 @@ export default function DevisDetailScreen() {
             <View style={styles.modalActions}>
               <Button title="Annuler" variant="secondary" onPress={() => setTrameModalVisible(false)} style={{ flex: 1 }} />
               <Button title="Enregistrer" onPress={handleSaveTrame} loading={savingTrame} style={{ flex: 1 }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={emailModalVisible} transparent animationType="fade" onRequestClose={() => setEmailModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Envoyer par e-mail</Text>
+            <Text style={styles.meta}>
+              Ce message accompagne le PDF et le lien de consultation en ligne. Modifiable pour cet envoi uniquement — le
+              message par défaut se règle dans Compte → Entreprise.
+            </Text>
+            <Field
+              label="Message"
+              value={emailMessage}
+              onChangeText={setEmailMessage}
+              multiline
+              numberOfLines={4}
+              style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
+              placeholder="Bonjour, veuillez trouver ci-joint notre devis..."
+            />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <View style={styles.modalActions}>
+              <Button title="Annuler" variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Envoyer" onPress={handleConfirmSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
             </View>
           </View>
         </View>

@@ -22,6 +22,9 @@ export default function EntrepriseScreen() {
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
+  const [devisEmailMessage, setDevisEmailMessage] = useState(organization?.devis_email_message ?? '');
+  const [factureEmailMessage, setFactureEmailMessage] = useState(organization?.facture_email_message ?? '');
+  const [emailSignature, setEmailSignature] = useState(organization?.email_signature ?? '');
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
@@ -37,6 +40,9 @@ export default function EntrepriseScreen() {
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
     setIban(organization.iban ?? '');
+    setDevisEmailMessage(organization.devis_email_message ?? '');
+    setFactureEmailMessage(organization.facture_email_message ?? '');
+    setEmailSignature(organization.email_signature ?? '');
   }, [organization]);
 
   useFocusEffect(
@@ -63,6 +69,9 @@ export default function EntrepriseScreen() {
         email: email.trim() || null,
         website: website.trim() || null,
         iban: validIban ? ibanTrimmed.replace(/\s+/g, '').toUpperCase() || null : organization.iban,
+        devis_email_message: devisEmailMessage.trim() || null,
+        facture_email_message: factureEmailMessage.trim() || null,
+        email_signature: emailSignature.trim() || null,
       })
       .eq('id', organization.id);
     setSaving(false);
@@ -172,6 +181,42 @@ export default function EntrepriseScreen() {
               Renseigné, un bulletin de paiement QR suisse conforme est ajouté automatiquement à vos factures.
             </Text>
           )}
+          <Text style={styles.sectionTitle}>Modèles d'e-mail</Text>
+          <Text style={styles.hint}>
+            Ce texte remplace le message générique dans les e-mails de devis/facture. Vous pourrez toujours l'ajuster au moment
+            d'envoyer un document précis.
+          </Text>
+          <Field
+            label="Message par défaut — Devis"
+            value={devisEmailMessage}
+            onChangeText={setDevisEmailMessage}
+            editable={isAdmin}
+            multiline
+            numberOfLines={4}
+            style={styles.textarea}
+            placeholder="Bonjour, veuillez trouver ci-joint notre devis..."
+          />
+          <Field
+            label="Message par défaut — Facture"
+            value={factureEmailMessage}
+            onChangeText={setFactureEmailMessage}
+            editable={isAdmin}
+            multiline
+            numberOfLines={4}
+            style={styles.textarea}
+            placeholder="Bonjour, veuillez trouver ci-joint notre facture..."
+          />
+          <Field
+            label="Signature"
+            value={emailSignature}
+            onChangeText={setEmailSignature}
+            editable={isAdmin}
+            multiline
+            numberOfLines={3}
+            style={styles.textarea}
+            placeholder={'Cordialement,\nJean Dupont\nDirecteur'}
+          />
+
           {isAdmin ? (
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}
@@ -182,6 +227,18 @@ export default function EntrepriseScreen() {
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
+  },
+  textarea: {
+    minHeight: 90,
+    textAlignVertical: 'top',
+    paddingTop: spacing.sm,
+  },
   fieldLabel: {
     fontSize: fontSize.sm,
     color: colors.textMuted,

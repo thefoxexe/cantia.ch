@@ -7,8 +7,11 @@ export async function sendFactureReminder(factureId: string): Promise<{ sent: bo
   return { sent: !!data?.sent, error };
 }
 
-export async function sendFactureEmail(factureId: string): Promise<{ sent: boolean; error: string | null }> {
-  const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-email', { facture_id: factureId });
+export async function sendFactureEmail(factureId: string, customMessage?: string): Promise<{ sent: boolean; error: string | null }> {
+  const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-email', {
+    facture_id: factureId,
+    custom_message: customMessage?.trim() || undefined,
+  });
   return { sent: !!data?.sent, error };
 }
 

@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, formatChfPlain, sendResendEmail, textToHtmlLines } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { isValidSwissIban } from '../_shared/qrbill.ts';
 
@@ -19,7 +19,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { facture_id } = await req.json();
+    const { facture_id, custom_message } = await req.json();
     if (!facture_id) return json({ error: 'facture_id requis' }, 400);
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
@@ -46,7 +46,11 @@ Deno.serve(async (req: Request) => {
     if (facture.status === 'draft') return json({ error: "Finalisez d'abord la facture avant de l'envoyer." }, 400);
 
     const [{ data: org }, { data: items }, { data: payments }] = await Promise.all([
-      admin.from('organizations').select('name, email, iban, plan_id').eq('id', facture.organization_id).single(),
+      admin
+        .from('organizations')
+        .select('name, email, iban, plan_id, facture_email_message, email_signature')
+        .eq('id', facture.organization_id)
+        .single(),
       admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
       admin.from('facture_payments').select('amount').eq('facture_id', facture_id),
     ]);
@@ -88,10 +92,13 @@ Deno.serve(async (req: Request) => {
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
     const kind = facture.is_deposit ? "Facture d'acompte" : 'Facture';
 
+    const bodyMessage = String(custom_message ?? org?.facture_email_message ?? '').trim();
+    const signature = String(org?.email_signature ?? '').trim();
+
     const subject = `${kind} ${facture.number ?? ''} — ${orgName}`;
     const html = `
       <p>Bonjour${facture.client_name ? ` ${facture.client_name}` : ''},</p>
-      <p>Veuillez trouver ci-joint notre facture :</p>
+      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : 'Veuillez trouver ci-joint notre facture :'}</p>
       <ul>
         <li>${kind} n° ${facture.number ?? '—'}</li>
         <li>Montant : CHF ${formatChfPlain(total)}</li>
@@ -101,7 +108,7 @@ Deno.serve(async (req: Request) => {
       <p>
         <a href="${publicUrl}">Consulter cette facture en ligne</a> pour retrouver le détail et le solde restant à tout moment.
       </p>
-      <p>Cordialement,<br/>${orgName}</p>
+      <p>${signature ? textToHtmlLines(signature) : `Cordialement,<br/>${orgName}`}</p>
     `.trim();
 
     const { ok, error } = await sendResendEmail({

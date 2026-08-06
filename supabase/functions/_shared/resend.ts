@@ -12,6 +12,23 @@ export function formatChfPlain(n: number): string {
   return `${n < 0 ? '-' : ''}${withSep}.${decPart}`;
 }
 
+// Org message/signature text is plain, user-authored input that ends up
+// inside an HTML email body — escaped rather than trusted as HTML, with
+// newlines converted to <br> afterwards so multi-line text still renders
+// as intended without opening a stored-HTML injection surface.
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+export function textToHtmlLines(text: string): string {
+  return escapeHtml(text).split('\n').join('<br/>');
+}
+
 export function base64FromBytes(bytes: Uint8Array): string {
   let binary = '';
   const chunkSize = 0x8000;
