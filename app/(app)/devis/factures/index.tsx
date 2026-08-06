@@ -13,6 +13,14 @@ import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
 
 type FilterKey = 'all' | 'overdue' | 'pending' | 'paid' | 'draft';
+type SortKey = 'priority' | 'issued' | 'due' | 'project';
+
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: 'priority', label: 'Priorité' },
+  { key: 'issued', label: "Date d'émission" },
+  { key: 'due', label: "Date d'échéance" },
+  { key: 'project', label: 'Chantier' },
+];
 
 // The reminder edge function (send-facture-reminder) is fully wired, but
 // the Resend sending domain isn't finalized on the account yet — flipping
@@ -75,8 +83,10 @@ export default function FacturesListScreen() {
   const router = useRouter();
   const [factures, setFactures] = useState<Facture[]>([]);
   const [totals, setTotals] = useState<Record<string, number>>({});
+  const [projects, setProjects] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [sort, setSort] = useState<SortKey>('priority');
   const [search, setSearch] = useState('');
   const [remindingId, setRemindingId] = useState<string | null>(null);
   const [reminderError, setReminderError] = useState<string | null>(null);
@@ -85,13 +95,13 @@ export default function FacturesListScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const { data: fData } = await supabase
-      .from('factures')
-      .select('*')
-      .eq('organization_id', organization.id)
-      .order('created_at', { ascending: false });
+    const [{ data: fData }, { data: projectsData }] = await Promise.all([
+      supabase.from('factures').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
+      supabase.from('projects').select('id, name').eq('organization_id', organization.id),
+    ]);
     const list = fData ?? [];
     setFactures(list);
+    setProjects(Object.fromEntries((projectsData ?? []).map((p) => [p.id, p.name])));
 
     const ids = list.map((f) => f.id);
     if (ids.length) {
@@ -140,7 +150,24 @@ export default function FacturesListScreen() {
   }, [factures, totals]);
 
   const filtered = useMemo(() => {
-    const sorted = sortFactures(factures);
+    const sorted = (() => {
+      switch (sort) {
+        case 'issued':
+          return [...factures].sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0));
+        case 'due':
+          return [...factures].sort((a, b) => (a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0));
+        case 'project':
+          return [...factures].sort((a, b) => {
+            const na = (a.project_id ? projects[a.project_id] : '') ?? '';
+            const nb = (b.project_id ? projects[b.project_id] : '') ?? '';
+            if (!na && nb) return 1;
+            if (na && !nb) return -1;
+            return na.localeCompare(nb, 'fr');
+          });
+        default:
+          return sortFactures(factures);
+      }
+    })();
     const byStatus = (() => {
       switch (filter) {
         case 'overdue':
@@ -169,11 +196,13 @@ export default function FacturesListScreen() {
     return byStatus.filter((f) => {
       if (f.number?.toLowerCase().includes(lowerQuery)) return true;
       if (f.client_name?.toLowerCase().includes(lowerQuery)) return true;
+      const projectName = f.project_id ? projects[f.project_id] : null;
+      if (projectName?.toLowerCase().includes(lowerQuery)) return true;
       const ref = generatePaymentReference(organization?.iban, f.id);
       if (ref && queryAlnum.length >= 6 && ref.reference.includes(queryAlnum)) return true;
       return false;
     });
-  }, [factures, filter, search, organization?.iban]);
+  }, [factures, filter, sort, search, organization?.iban, projects]);
 
   const referenceMatch = useMemo(() => {
     const queryAlnum = search.trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
@@ -262,7 +291,7 @@ export default function FacturesListScreen() {
                 <TextInput
                   value={search}
                   onChangeText={setSearch}
-                  placeholder="N° de facture, client ou référence QR du paiement"
+                  placeholder="N° de facture, client, chantier ou référence QR"
                   placeholderTextColor={colors.textMuted}
                   style={styles.searchInput}
                   autoCapitalize="none"
@@ -300,6 +329,19 @@ export default function FacturesListScreen() {
                 ))}
               </View>
 
+              <View style={styles.sortRow}>
+                <Text style={styles.sortLabel}>Trier par</Text>
+                {SORTS.map((s) => (
+                  <Pressable
+                    key={s.key}
+                    onPress={() => setSort(s.key)}
+                    style={[styles.sortChip, sort === s.key && styles.sortChipActive]}
+                  >
+                    <Text style={[styles.sortChipText, sort === s.key && styles.sortChipTextActive]}>{s.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
               {reminderError ? <Text style={styles.reminderError}>{reminderError}</Text> : null}
             </View>
           }
@@ -333,6 +375,12 @@ export default function FacturesListScreen() {
                         <StatusBadge status={item.status} />
                       </View>
                       <Text style={styles.client}>{item.client_name}</Text>
+                      {item.project_id && projects[item.project_id] ? (
+                        <View style={styles.projectRow}>
+                          <Feather name="layers" size={11} color={colors.textMuted} />
+                          <Text style={styles.projectText}>{projects[item.project_id]}</Text>
+                        </View>
+                      ) : null}
                       <View style={styles.metaRow}>
                         <Text style={[styles.meta, overdue && styles.overdue]}>
                           {overdue ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
@@ -539,6 +587,48 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: colors.primary,
+  },
+  sortRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  sortLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginRight: 2,
+  },
+  sortChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  sortChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  sortChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  sortChipTextActive: {
+    color: '#fff',
+  },
+  projectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  projectText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
   },
   reminderError: {
     fontSize: fontSize.xs,

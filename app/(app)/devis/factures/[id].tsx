@@ -16,9 +16,10 @@ import {
 } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
-import type { Facture, FactureItem, FacturePayment, FactureStatus } from '../../../../lib/types';
+import type { Facture, FactureItem, FacturePayment, FactureStatus, Project } from '../../../../lib/types';
 
 const DEPOSIT_PRESETS = [20, 30, 50];
 
@@ -60,6 +61,7 @@ export default function FactureDetailScreen() {
   const [payments, setPayments] = useState<FacturePayment[]>([]);
   const [orgIban, setOrgIban] = useState<string | null>(null);
   const [siblingFactures, setSiblingFactures] = useState<{ id: string; is_deposit: boolean }[]>([]);
+  const [linkedProject, setLinkedProject] = useState<Project | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -87,7 +89,18 @@ export default function FactureDetailScreen() {
       setOrgIban(org?.iban ?? null);
     }
     setSiblingFactures(f?.devis_id ? await listFacturesForDevis(f.devis_id) : []);
+    if (f?.project_id) {
+      const { data: p } = await supabase.from('projects').select('*').eq('id', f.project_id).single();
+      setLinkedProject(p ?? null);
+    } else {
+      setLinkedProject(null);
+    }
   }, [id]);
+
+  async function handleProjectChange(project: Project | null) {
+    setLinkedProject(project);
+    await supabase.from('factures').update({ project_id: project?.id ?? null }).eq('id', id);
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -315,6 +328,9 @@ export default function FactureDetailScreen() {
           <Text style={[styles.meta, overdue && styles.overdue]}>
             {overdue ? 'En retard · ' : ''}Échéance {new Date(facture.due_date).toLocaleDateString('fr-CH')}
           </Text>
+          <View style={styles.projectPickerRow}>
+            <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
+          </View>
         </Card>
 
         {paymentRef ? (
@@ -514,6 +530,9 @@ const styles = StyleSheet.create({
   overdue: {
     color: colors.danger,
     fontWeight: '600',
+  },
+  projectPickerRow: {
+    marginTop: spacing.sm,
   },
   sectionTitle: {
     fontSize: fontSize.lg,
