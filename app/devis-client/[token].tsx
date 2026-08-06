@@ -3,7 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { getPublicDevis, acceptPublicDevis, listClientDocuments } from '../../lib/api/publicPortal';
+import { getPublicDevis, getPublicDocumentPdfUrl, acceptPublicDevis, listClientDocuments } from '../../lib/api/publicPortal';
+import { downloadFile } from '../../lib/downloadFile';
 import { SignaturePad } from '../../components/SignaturePad';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { ClientHistoryModal } from '../../components/ClientHistoryModal';
@@ -37,6 +38,8 @@ export default function PublicDevisScreen() {
   const [accepting, setAccepting] = useState(false);
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const [accepted, setAccepted] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -100,6 +103,19 @@ export default function PublicDevisScreen() {
     setAccepted(true);
   }
 
+  async function handleDownloadPdf() {
+    if (!token) return;
+    setDownloadingPdf(true);
+    setDownloadError(null);
+    const { url, error } = await getPublicDocumentPdfUrl(token, 'devis', email.trim());
+    setDownloadingPdf(false);
+    if (error || !url) {
+      setDownloadError(error ?? 'Échec du téléchargement.');
+      return;
+    }
+    await downloadFile(url, `Devis-${payload?.devis.number ?? token}.pdf`);
+  }
+
   if (!payload) {
     return (
       <View style={styles.gate}>
@@ -150,6 +166,17 @@ export default function PublicDevisScreen() {
         <View style={[styles.statusPill, isAccepted && styles.statusPillAccepted, isRefused && styles.statusPillRefused]}>
           <Text style={styles.statusPillText}>{STATUS_LABELS[devis.status] ?? devis.status}</Text>
         </View>
+        {devis.has_pdf ? (
+          <Button
+            title="Télécharger le PDF"
+            variant="secondary"
+            icon="download"
+            loading={downloadingPdf}
+            onPress={handleDownloadPdf}
+            style={{ marginTop: spacing.sm, alignSelf: 'flex-start' }}
+          />
+        ) : null}
+        {downloadError ? <Text style={styles.error}>{downloadError}</Text> : null}
       </Card>
 
       <Card>

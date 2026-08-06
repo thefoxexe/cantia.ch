@@ -52,3 +52,17 @@ export async function listClientDocuments(
   const { data, error } = await supabase.rpc('list_client_documents', { p_token: token, p_kind: kind, p_email: email });
   return { data: (data as ClientDocumentsPayload) ?? null, error: error?.message ?? null };
 }
+
+// The edge function re-verifies token+email itself (same trust model as the
+// RPCs above) before signing a short-lived download URL — invoked with the
+// anon key since a client on their own portal has no Supabase session.
+export async function getPublicDocumentPdfUrl(
+  token: string,
+  kind: 'devis' | 'facture',
+  email: string,
+): Promise<{ url: string | null; error: string | null }> {
+  const { data, error } = await supabase.functions.invoke('public-document-pdf', { body: { token, kind, email } });
+  if (error) return { url: null, error: error.message };
+  if (data?.error) return { url: null, error: String(data.error) };
+  return { url: data?.url ?? null, error: null };
+}

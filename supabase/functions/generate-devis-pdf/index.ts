@@ -30,8 +30,15 @@ Deno.serve(async (req: Request) => {
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization') ?? '';
+    // The org-member browser client always sends its own apikey (the anon
+    // key) alongside its user JWT. Internal calls from send-devis-email
+    // instead forward the service-role key as BOTH apikey and Authorization
+    // — using the anon key here for those would pair an anon apikey with a
+    // service-role bearer token, which PostgREST rejects as an invalid JWT
+    // (401), even though the caller already re-verified org membership.
+    const apikeyHeader = req.headers.get('apikey') ?? anonKey;
 
-    const userClient = createClient(supabaseUrl, anonKey, {
+    const userClient = createClient(supabaseUrl, apikeyHeader, {
       global: { headers: { Authorization: authHeader } },
     });
     const admin = createClient(supabaseUrl, serviceKey);

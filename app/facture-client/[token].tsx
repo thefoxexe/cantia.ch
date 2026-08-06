@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { getPublicFacture, listClientDocuments } from '../../lib/api/publicPortal';
+import { getPublicFacture, getPublicDocumentPdfUrl, listClientDocuments } from '../../lib/api/publicPortal';
+import { downloadFile } from '../../lib/downloadFile';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { ClientHistoryModal } from '../../components/ClientHistoryModal';
 import { Button, Card, Field } from '../../components/ui';
@@ -27,6 +28,8 @@ export default function PublicFactureScreen() {
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
   const [payload, setPayload] = useState<PublicFacturePayload | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -84,6 +87,19 @@ export default function PublicFactureScreen() {
     );
   }
 
+  async function handleDownloadPdf() {
+    if (!token) return;
+    setDownloadingPdf(true);
+    setDownloadError(null);
+    const { url, error } = await getPublicDocumentPdfUrl(token, 'facture', email.trim());
+    setDownloadingPdf(false);
+    if (error || !url) {
+      setDownloadError(error ?? 'Échec du téléchargement.');
+      return;
+    }
+    await downloadFile(url, `Facture-${payload?.facture.number ?? token}.pdf`);
+  }
+
   const { facture, items, totals, paid, remaining, organization } = payload;
 
   return (
@@ -110,6 +126,17 @@ export default function PublicFactureScreen() {
         <View style={[styles.statusPill, facture.status === 'paid' && styles.statusPillAccepted]}>
           <Text style={styles.statusPillText}>{STATUS_LABELS[facture.status] ?? facture.status}</Text>
         </View>
+        {facture.has_pdf ? (
+          <Button
+            title="Télécharger le PDF"
+            variant="secondary"
+            icon="download"
+            loading={downloadingPdf}
+            onPress={handleDownloadPdf}
+            style={{ marginTop: spacing.sm, alignSelf: 'flex-start' }}
+          />
+        ) : null}
+        {downloadError ? <Text style={styles.error}>{downloadError}</Text> : null}
       </Card>
 
       <Card>

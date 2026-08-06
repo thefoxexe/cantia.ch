@@ -321,6 +321,7 @@ export interface PublicDevisPayload {
     created_at: string;
     client_signed_at: string | null;
     client_signer_name: string | null;
+    has_pdf: boolean;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -340,6 +341,7 @@ export interface PublicFacturePayload {
     due_date: string;
     paid_at: string | null;
     created_at: string;
+    has_pdf: boolean;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -355,6 +357,7 @@ export interface ClientDocumentSummary {
   is_deposit?: boolean;
   created_at: string;
   project_name: string | null;
+  has_pdf: boolean;
 }
 
 export interface ClientDocumentsPayload {

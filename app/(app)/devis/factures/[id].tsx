@@ -392,21 +392,20 @@ export default function FactureDetailScreen() {
                 onPress={handleCopyClientLink}
                 style={styles.clientLinkButton}
               />
-              {plan?.has_email_sending !== false ? (
-                <Button
-                  title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
-                  variant="secondary"
-                  icon={emailSent ? 'check' : 'mail'}
-                  loading={sendingEmail}
-                  onPress={handleSendEmail}
-                  style={styles.clientLinkButton}
-                />
-              ) : null}
+              <Button
+                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                variant="secondary"
+                icon={emailSent ? 'check' : 'mail'}
+                loading={sendingEmail}
+                disabled={plan?.has_email_sending === false}
+                onPress={handleSendEmail}
+                style={styles.clientLinkButton}
+              />
             </View>
           )}
           {plan?.has_email_sending === false ? (
             <Text style={styles.copyLinkHint}>
-              L'envoi par e-mail n'est pas disponible sur votre plan — copiez le lien client ci-dessus, ou passez à un plan supérieur.
+              L'envoi par e-mail est réservé à un plan supérieur — copiez le lien client ci-dessus, ou passez à un plan payant pour l'activer.
             </Text>
           ) : null}
         </Card>
