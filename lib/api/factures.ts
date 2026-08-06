@@ -21,6 +21,15 @@ export async function convertDevisToFacture(
   return { id: data ?? null, error: error?.message ?? null };
 }
 
+// Recomputes the "Acompte(s) déjà facturé(s) à déduire" line on every
+// non-cancelled final invoice for this devis, from scratch — called after
+// a deposit is cancelled or deleted, so a removed deposit's amount doesn't
+// stay stuck deducted from the final invoice's total.
+export async function recomputeFactureDepositDeduction(devisId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('recompute_facture_deposit_deduction', { p_devis_id: devisId });
+  return { error: error?.message ?? null };
+}
+
 export async function listFacturesForDevis(devisId: string): Promise<Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>[]> {
   const { data } = await supabase
     .from('factures')

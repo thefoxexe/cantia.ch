@@ -13,6 +13,7 @@ import {
   listFacturePayments,
   addFacturePayment,
   deleteFacturePayment,
+  recomputeFactureDepositDeduction,
 } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
@@ -158,10 +159,12 @@ export default function FactureDetailScreen() {
         setError(delError.message);
         return;
       }
+      if (facture?.is_deposit && facture.devis_id) await recomputeFactureDepositDeduction(facture.devis_id);
       router.replace('/(app)/devis/factures');
       return;
     }
     await setStatus('cancelled');
+    if (facture?.is_deposit && facture.devis_id) await recomputeFactureDepositDeduction(facture.devis_id);
   }
 
   async function handleRecordPayment() {

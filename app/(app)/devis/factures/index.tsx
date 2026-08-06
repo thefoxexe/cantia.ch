@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { sendFactureReminder, duplicateFacture } from '../../../../lib/api/factures';
+import { sendFactureReminder, duplicateFacture, recomputeFactureDepositDeduction } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
@@ -242,6 +242,7 @@ export default function FacturesListScreen() {
       setReminderError(error.message);
       return;
     }
+    if (item.is_deposit && item.devis_id) await recomputeFactureDepositDeduction(item.devis_id);
     load();
   }
 
