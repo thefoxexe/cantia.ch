@@ -6,13 +6,14 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Card, Field, Screen } from '../../../components/ui';
 import { ClientPicker } from '../../../components/ClientPicker';
+import { ProjectPicker } from '../../../components/ProjectPicker';
 import { TramePicker } from '../../../components/TramePicker';
 import { fetchTrame } from '../../../lib/api/trames';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
 import { generateDevisLines } from '../../../lib/api/ai';
 import { useDictation } from '../../../lib/useDictation';
-import type { DevisTrameItem } from '../../../lib/types';
+import type { DevisTrameItem, Project } from '../../../lib/types';
 
 interface PriceMismatch {
   catalogItemId: string;
@@ -52,6 +53,7 @@ export default function NewDevisScreen() {
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -274,6 +276,7 @@ export default function NewDevisScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
+        project_id: selectedProject?.id ?? null,
         vat_rate: organization.default_vat_rate,
         created_by: user?.id,
       })
@@ -338,6 +341,10 @@ export default function NewDevisScreen() {
               {clientAddress ? <Text style={styles.selectedClientMeta}>{clientAddress}</Text> : null}
               {clientEmail ? <Text style={styles.selectedClientMeta}>{clientEmail}</Text> : null}
             </Card>
+          ) : null}
+
+          {organization ? (
+            <ProjectPicker organizationId={organization.id} selectedProject={selectedProject} onSelect={setSelectedProject} />
           ) : null}
 
           <Text style={styles.sectionTitle}>Lignes du devis</Text>

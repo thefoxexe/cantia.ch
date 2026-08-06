@@ -14,8 +14,9 @@ import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
+import { ProjectPicker } from '../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Devis, DevisItem, DevisStatus, Facture } from '../../../lib/types';
+import type { Devis, DevisItem, DevisStatus, Facture, Project } from '../../../lib/types';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
 
@@ -35,6 +36,7 @@ export default function DevisDetailScreen() {
   const isAdmin = role === 'owner' || role === 'admin';
   const [devis, setDevis] = useState<Devis | null>(null);
   const [items, setItems] = useState<DevisItem[]>([]);
+  const [linkedProject, setLinkedProject] = useState<Project | null>(null);
   const [generating, setGenerating] = useState(false);
   const [converting, setConverting] = useState(false);
   const [relatedFactures, setRelatedFactures] = useState<RelatedFacture[]>([]);
@@ -53,7 +55,18 @@ export default function DevisDetailScreen() {
     setDevis(d ?? null);
     setItems(i ?? []);
     setRelatedFactures(f);
+    if (d?.project_id) {
+      const { data: p } = await supabase.from('projects').select('*').eq('id', d.project_id).single();
+      setLinkedProject(p ?? null);
+    } else {
+      setLinkedProject(null);
+    }
   }, [id]);
+
+  async function handleProjectChange(project: Project | null) {
+    setLinkedProject(project);
+    await supabase.from('devis').update({ project_id: project?.id ?? null }).eq('id', id);
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -189,6 +202,9 @@ export default function DevisDetailScreen() {
           <Text style={styles.client}>{devis.client_name}</Text>
           {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
           {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
+          <View style={styles.projectPickerRow}>
+            <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
+          </View>
         </Card>
 
         <Text style={styles.sectionTitle}>Lignes</Text>
@@ -325,6 +341,9 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  projectPickerRow: {
+    marginTop: spacing.sm,
   },
   sectionTitle: {
     fontSize: fontSize.lg,
