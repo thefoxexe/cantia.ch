@@ -1,4 +1,4 @@
-export type ModuleKey = 'documents' | 'photos' | 'devis' | 'survey' | 'metre' | 'planning';
+export type ModuleKey = 'documents' | 'photos' | 'devis' | 'survey' | 'metre' | 'planning' | 'profitability';
 
 export const TOGGLEABLE_MODULES: { key: ModuleKey; label: string; description: string }[] = [
   { key: 'documents', label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
@@ -7,6 +7,11 @@ export const TOGGLEABLE_MODULES: { key: ModuleKey; label: string; description: s
   { key: 'survey', label: 'Levés', description: 'Points de chantier, cadastre suisse, export (plans payants).' },
   { key: 'metre', label: 'Métré', description: 'Tableau de quantités poste par poste.' },
   { key: 'planning', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
+  {
+    key: 'profitability',
+    label: 'Rentabilité',
+    description: 'Compare le devis accepté au coût réel (matériel + main d’œuvre) pour savoir si un chantier est rentable.',
+  },
 ];
 
 export function isModuleEnabled(enabledModules: string[] | undefined, key: ModuleKey): boolean {

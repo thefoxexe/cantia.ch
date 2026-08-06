@@ -12,6 +12,7 @@ export default function DevisSettingsScreen() {
   const [vatRate, setVatRate] = useState(String(organization?.default_vat_rate ?? 8.1));
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
+  const [hourlyCost, setHourlyCost] = useState(String(organization?.hourly_cost ?? 0));
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
@@ -20,6 +21,7 @@ export default function DevisSettingsScreen() {
     setVatRate(String(organization.default_vat_rate ?? 8.1));
     setValidityDays(String(organization.devis_validity_days ?? 30));
     setDevisTerms(organization.devis_terms ?? '');
+    setHourlyCost(String(organization.hourly_cost ?? 0));
   }, [organization]);
 
   useFocusEffect(
@@ -37,6 +39,7 @@ export default function DevisSettingsScreen() {
         default_vat_rate: Number(vatRate) || 0,
         devis_validity_days: Number(validityDays) || 30,
         devis_terms: devisTerms.trim() || null,
+        hourly_cost: Number(hourlyCost) || 0,
       })
       .eq('id', organization.id);
     setSaving(false);
@@ -73,6 +76,17 @@ export default function DevisSettingsScreen() {
             multiline
             style={styles.terms}
           />
+          <Field
+            label="Coût horaire moyen (CHF/h)"
+            value={hourlyCost}
+            onChangeText={setHourlyCost}
+            editable={isAdmin}
+            keyboardType="decimal-pad"
+            placeholder="Ex : 85"
+          />
+          <Text style={styles.hint}>
+            Utilisé pour estimer le coût de main d'œuvre dans l'onglet Rentabilité de chaque chantier.
+          </Text>
           {isAdmin ? (
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}

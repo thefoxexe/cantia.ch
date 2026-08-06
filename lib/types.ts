@@ -72,6 +72,7 @@ export interface Organization {
   logo_placement: 'left' | 'center' | 'right';
   footer_text: string | null;
   iban: string | null;
+  hourly_cost: number;
   plan_id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -189,6 +190,17 @@ export interface FeedEntry {
   transcript: string | null;
   duration_seconds: number | null;
   report_id: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface ProjectExpense {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  label: string;
+  amount: number;
+  category: string | null;
   created_by: string | null;
   created_at: string;
 }

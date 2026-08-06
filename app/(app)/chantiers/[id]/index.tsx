@@ -12,11 +12,12 @@ import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
 import { ProjectMetre } from '../../../../components/ProjectMetre';
+import { ProjectProfitability } from '../../../../components/ProjectProfitability';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre';
+type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre' | 'profitability';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'feed', label: "Fil d'actualité", icon: 'message-circle' },
@@ -26,6 +27,7 @@ const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] =
   { key: 'map', label: 'Carte', icon: 'map' },
   { key: 'survey', label: 'Levés', icon: 'crosshair' },
   { key: 'metre', label: 'Métré', icon: 'list' },
+  { key: 'profitability', label: 'Rentabilité', icon: 'trending-up' },
 ];
 
 export default function ChantierDetailScreen() {
@@ -189,6 +191,17 @@ export default function ChantierDetailScreen() {
                 text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
               />
               <ProjectMetre projectId={id} organizationId={project.organization_id} />
+            </View>
+          ) : null}
+          {activeTab === 'profitability' ? (
+            <View>
+              <FeatureHint
+                id="chantier-profitability"
+                icon="trending-up"
+                title="Rentabilité de ce chantier"
+                text="Compare le devis accepté au coût réel (matériel saisi + main d'œuvre calculée depuis le Planning) pour savoir si ce chantier est rentable."
+              />
+              <ProjectProfitability projectId={id} organizationId={project.organization_id} />
             </View>
           ) : null}
         </ScrollView>
