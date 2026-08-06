@@ -145,6 +145,14 @@ export default function FactureDetailScreen() {
     load();
   }
 
+  // Generates the PDF right away so it's ready the moment the org wants to
+  // copy the client link or send it by e-mail — both of those also
+  // regenerate on their own, this is just convenience.
+  async function handleFinalize() {
+    await setStatus('sent');
+    generateFacturePdf(id);
+  }
+
   async function handleDownloadPdf() {
     setBusy(true);
     setError(null);
@@ -285,11 +293,10 @@ export default function FactureDetailScreen() {
   const actionRows: ActionRow[] = [
     { key: 'pdf', icon: 'download', label: 'Télécharger le PDF', onPress: handleDownloadPdf },
     ...(facture.status === 'draft'
-      ? ([{ key: 'finalize', icon: 'check', label: 'Finaliser', onPress: () => setStatus('sent') }] as ActionRow[])
+      ? ([{ key: 'finalize', icon: 'check', label: 'Finaliser', onPress: handleFinalize }] as ActionRow[])
       : []),
     ...(facture.status !== 'draft' && facture.status !== 'cancelled'
       ? ([
-          { key: 'email', icon: 'mail', label: 'Envoyer par email', onPress: () => {}, disabled: true, soon: true },
           ...(facture.status !== 'paid'
             ? ([
                 {
@@ -362,7 +369,13 @@ export default function FactureDetailScreen() {
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
-          {facture.client_email ? (
+          {!facture.client_email ? (
+            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation sécurisé.</Text>
+          ) : facture.status === 'draft' ? (
+            <Text style={styles.copyLinkHint}>
+              Cliquez sur "Actions" ci-dessous puis "Finaliser" pour pouvoir copier le lien client ou l'envoyer par e-mail.
+            </Text>
+          ) : (
             <View style={styles.clientLinkRow}>
               <Button
                 title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
@@ -380,8 +393,6 @@ export default function FactureDetailScreen() {
                 style={styles.clientLinkButton}
               />
             </View>
-          ) : (
-            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation sécurisé.</Text>
           )}
         </Card>
 

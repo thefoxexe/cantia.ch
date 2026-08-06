@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { sendResendEmail } from '../_shared/resend.ts';
+import { formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -8,10 +8,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-function formatChf(n: number): string {
-  return n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 function formatDateFr(iso: string): string {
   const d = new Date(iso);
@@ -83,7 +79,7 @@ Deno.serve(async (req: Request) => {
       </p>
       <ul>
         <li>Facture n° ${facture.number ?? '—'}</li>
-        <li>Montant : CHF ${formatChf(total)}</li>
+        <li>Montant : CHF ${formatChfPlain(total)}</li>
         <li>Échéance : ${formatDateFr(facture.due_date)}</li>
       </ul>
       ${pdfLine}

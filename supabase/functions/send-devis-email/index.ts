@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 
 const BUCKET = 'opus-storage';
@@ -9,10 +9,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-function formatChf(n: number): string {
-  return n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -41,14 +37,26 @@ Deno.serve(async (req: Request) => {
     const { data: devis, error: devisError } = await userClient.from('devis').select('*').eq('id', devis_id).single();
     if (devisError || !devis) return json({ error: 'Devis introuvable ou accès refusé' }, 404);
     if (!devis.client_email) return json({ error: "Ce devis n'a pas d'adresse e-mail client." }, 400);
-    if (!devis.pdf_path) return json({ error: "Générez d'abord le PDF du devis avant de l'envoyer." }, 400);
+    if (devis.status === 'draft') return json({ error: "Finalisez d'abord le devis (passez-le à \"Prêt à l'envoi\") avant de l'envoyer." }, 400);
 
     const [{ data: org }, { data: items }] = await Promise.all([
       admin.from('organizations').select('name, email').eq('id', devis.organization_id).single(),
       admin.from('devis_items').select('quantity, unit_price').eq('devis_id', devis_id),
     ]);
 
-    const pdfFile = await fetchStorageBytes(admin, BUCKET, devis.pdf_path);
+    // Always regenerate right before sending — a resent devis must reflect
+    // any edits made since the last generation, not a stale PDF.
+    const genRes = await fetch(`${supabaseUrl}/functions/v1/generate-devis-pdf`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ devis_id }),
+    });
+    const genData = await genRes.json().catch(() => null);
+    if (!genRes.ok || !genData?.path) {
+      return json({ error: genData?.error ?? 'Échec de la génération du PDF du devis.' }, 500);
+    }
+
+    const pdfFile = await fetchStorageBytes(admin, BUCKET, genData.path);
     if (!pdfFile) return json({ error: 'Le PDF du devis est introuvable dans le stockage.' }, 500);
 
     const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
@@ -62,7 +70,7 @@ Deno.serve(async (req: Request) => {
       <p>Veuillez trouver ci-joint notre devis :</p>
       <ul>
         <li>Devis n° ${devis.number ?? '—'}</li>
-        <li>Montant : CHF ${formatChf(total)}</li>
+        <li>Montant : CHF ${formatChfPlain(total)}</li>
       </ul>
       <p>
         <a href="${publicUrl}">Consulter et accepter ce devis en ligne</a> — vous pouvez le signer directement
@@ -82,7 +90,7 @@ Deno.serve(async (req: Request) => {
     });
     if (!ok) return json({ error }, 502);
 
-    if (devis.status === 'draft' || devis.status === 'ready') {
+    if (devis.status === 'ready') {
       await admin.from('devis').update({ status: 'sent' }).eq('id', devis_id);
     }
 

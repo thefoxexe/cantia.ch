@@ -2,6 +2,16 @@
 // send-facture-reminder) — one place for the Resend call + attachment
 // base64 encoding instead of duplicating it three times.
 
+// Deno's built-in ICU data for 'fr-CH' isn't reliable for grouping
+// separators (toLocaleString silently drops the apostrophe in some edge
+// runtime builds) — inserted manually instead of trusting Intl here.
+export function formatChfPlain(n: number): string {
+  const fixed = Math.abs(n).toFixed(2);
+  const [intPart, decPart] = fixed.split('.');
+  const withSep = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+  return `${n < 0 ? '-' : ''}${withSep}.${decPart}`;
+}
+
 export function base64FromBytes(bytes: Uint8Array): string {
   let binary = '';
   const chunkSize = 0x8000;

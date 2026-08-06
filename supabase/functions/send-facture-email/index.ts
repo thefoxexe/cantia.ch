@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
+import { isValidSwissIban } from '../_shared/qrbill.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -9,10 +10,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-function formatChf(n: number): string {
-  return n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 function formatDateFr(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-CH');
@@ -46,15 +43,36 @@ Deno.serve(async (req: Request) => {
     if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
     if (!facture.client_email) return json({ error: "Cette facture n'a pas d'adresse e-mail client." }, 400);
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
-    if (!facture.pdf_path) return json({ error: "Générez d'abord le PDF de la facture avant de l'envoyer." }, 400);
+    if (facture.status === 'draft') return json({ error: "Finalisez d'abord la facture avant de l'envoyer." }, 400);
 
     const [{ data: org }, { data: items }, { data: payments }] = await Promise.all([
-      admin.from('organizations').select('name, email').eq('id', facture.organization_id).single(),
+      admin.from('organizations').select('name, email, iban').eq('id', facture.organization_id).single(),
       admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
       admin.from('facture_payments').select('amount').eq('facture_id', facture_id),
     ]);
 
-    const pdfFile = await fetchStorageBytes(admin, BUCKET, facture.pdf_path);
+    if (!isValidSwissIban(org?.iban)) {
+      return json(
+        { error: "Ajoutez un IBAN valide dans Compte → Entreprise avant d'envoyer une facture — sans lui, le code QR de paiement ne peut pas être généré correctement." },
+        400,
+      );
+    }
+
+    // Always regenerate right before sending — a facture's PDF can go stale
+    // (a payment recorded since the last generation, an edited line) and the
+    // client must always receive the current state, not whatever was
+    // attached last time.
+    const genRes = await fetch(`${supabaseUrl}/functions/v1/generate-facture-pdf`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ facture_id }),
+    });
+    const genData = await genRes.json().catch(() => null);
+    if (!genRes.ok || !genData?.path) {
+      return json({ error: genData?.error ?? 'Échec de la génération du PDF de la facture.' }, 500);
+    }
+
+    const pdfFile = await fetchStorageBytes(admin, BUCKET, genData.path);
     if (!pdfFile) return json({ error: 'Le PDF de la facture est introuvable dans le stockage.' }, 500);
 
     const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
@@ -71,8 +89,8 @@ Deno.serve(async (req: Request) => {
       <p>Veuillez trouver ci-joint notre facture :</p>
       <ul>
         <li>${kind} n° ${facture.number ?? '—'}</li>
-        <li>Montant : CHF ${formatChf(total)}</li>
-        <li>Solde restant dû : CHF ${formatChf(remaining)}</li>
+        <li>Montant : CHF ${formatChfPlain(total)}</li>
+        <li>Solde restant dû : CHF ${formatChfPlain(remaining)}</li>
         <li>Échéance : ${formatDateFr(facture.due_date)}</li>
       </ul>
       <p>
@@ -92,9 +110,8 @@ Deno.serve(async (req: Request) => {
     });
     if (!ok) return json({ error }, 502);
 
-    if (facture.status === 'draft') {
-      await admin.from('factures').update({ status: 'sent' }).eq('id', facture_id);
-    }
+    // Status is already sent/partial/paid by this point (draft is rejected
+    // above) — never downgrade a partial/paid facture back to "sent".
 
     return json({ sent: true });
   } catch (err) {

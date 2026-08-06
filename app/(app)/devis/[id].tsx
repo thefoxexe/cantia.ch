@@ -84,7 +84,14 @@ export default function DevisDetailScreen() {
   // the next thing the user needs after acceptance. Skipped if a non-deposit
   // facture already exists for this devis (re-accepting shouldn't duplicate it).
   async function changeStatus(status: DevisStatus) {
+    const wasDraft = devis?.status === 'draft';
     await supabase.from('devis').update({ status }).eq('id', id);
+    // Finalizing (leaving draft) generates the PDF right away so it's ready
+    // the moment the org wants to copy the client link or send it by e-mail
+    // — both of those also regenerate on their own, this is just convenience.
+    if (wasDraft && status !== 'draft') {
+      generateDevisPdf(id);
+    }
     if (status === 'accepted' && !relatedFactures.some((f) => !f.is_deposit)) {
       setConverting(true);
       setError(null);
@@ -235,7 +242,13 @@ export default function DevisDetailScreen() {
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
-          {devis.client_email ? (
+          {!devis.client_email ? (
+            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation/signature sécurisé.</Text>
+          ) : devis.status === 'draft' ? (
+            <Text style={styles.copyLinkHint}>
+              Passez le devis à "Prêt à l'envoi" (menu ci-dessus) pour pouvoir copier le lien client ou l'envoyer par e-mail.
+            </Text>
+          ) : (
             <View style={styles.clientLinkRow}>
               <Button
                 title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
@@ -253,8 +266,6 @@ export default function DevisDetailScreen() {
                 style={styles.clientLinkButton}
               />
             </View>
-          ) : (
-            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation/signature sécurisé.</Text>
           )}
         </Card>
 
