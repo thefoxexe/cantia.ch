@@ -160,6 +160,9 @@ export function MarketingFooter() {
           <Link href="/solutions/leves-metre">
             <Text style={styles.footerLink}>Levés & Métré</Text>
           </Link>
+          <Link href="/solutions/rentabilite">
+            <Text style={styles.footerLink}>Rentabilité</Text>
+          </Link>
         </View>
         <View style={styles.footerCol}>
           <Text style={styles.footerColTitle}>{t.footer.account}</Text>

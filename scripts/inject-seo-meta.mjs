@@ -84,6 +84,12 @@ const ROUTES = [
       "Placez vos points sur le cadastre et l'orthophoto officiels suisses, puis passez au métré pour chiffrer les quantités.",
   },
   {
+    path: 'solutions/rentabilite',
+    title: 'Rentabilité par chantier | Cantia',
+    description:
+      "Comparez le devis accepté au coût réel — matériel et main d'œuvre — pour savoir si chaque chantier est rentable, en marge serrée ou en perte.",
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:
