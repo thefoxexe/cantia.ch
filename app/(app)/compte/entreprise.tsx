@@ -9,7 +9,7 @@ import { Button, Container, Field, PageHeader, Screen } from '../../../component
 import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
-import { DEFAULT_DEVIS_EMAIL_MESSAGE, DEFAULT_FACTURE_EMAIL_MESSAGE } from '../../../lib/emailDefaults';
+import { DEFAULT_DEVIS_EMAIL_MESSAGE, DEFAULT_FACTURE_EMAIL_MESSAGE, defaultEmailSignature } from '../../../lib/emailDefaults';
 
 export default function EntrepriseScreen() {
   const { organization, role, refreshOrganization } = useAuth();
@@ -25,7 +25,9 @@ export default function EntrepriseScreen() {
   const [iban, setIban] = useState(organization?.iban ?? '');
   const [devisEmailMessage, setDevisEmailMessage] = useState(organization?.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
   const [factureEmailMessage, setFactureEmailMessage] = useState(organization?.facture_email_message ?? DEFAULT_FACTURE_EMAIL_MESSAGE);
-  const [emailSignature, setEmailSignature] = useState(organization?.email_signature ?? '');
+  const [emailSignature, setEmailSignature] = useState(
+    organization?.email_signature ?? defaultEmailSignature(organization?.name ?? ''),
+  );
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
@@ -43,7 +45,7 @@ export default function EntrepriseScreen() {
     setIban(organization.iban ?? '');
     setDevisEmailMessage(organization.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
     setFactureEmailMessage(organization.facture_email_message ?? DEFAULT_FACTURE_EMAIL_MESSAGE);
-    setEmailSignature(organization.email_signature ?? '');
+    setEmailSignature(organization.email_signature ?? defaultEmailSignature(organization.name));
   }, [organization]);
 
   useFocusEffect(

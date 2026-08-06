@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
@@ -288,6 +288,31 @@ export default function DevisDetailScreen() {
           ) : null}
         </Card>
 
+        {devis.client_signed_at ? (
+          <Card style={styles.signatureCard}>
+            <View style={styles.signatureHeader}>
+              <Feather name="check-circle" size={16} color={colors.success} />
+              <Text style={styles.signatureTitle}>Signé électroniquement</Text>
+            </View>
+            <Text style={styles.meta}>
+              {devis.client_signer_name ? `Par ${devis.client_signer_name} · ` : ''}
+              {new Date(devis.client_signed_at).toLocaleString('fr-CH', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
+            {devis.client_signature_data ? (
+              <Image source={{ uri: devis.client_signature_data }} style={styles.signatureImage} resizeMode="contain" />
+            ) : null}
+            <Text style={styles.signatureFootnote}>
+              Cette preuve (signature, nom, date et heure) est conservée définitivement et intégrée au PDF du devis.
+            </Text>
+          </Card>
+        ) : null}
+
         <Text style={styles.sectionTitle}>Lignes</Text>
         <Card>
           {items.map((it, idx) => (
@@ -467,6 +492,32 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.md,
+  },
+  signatureCard: {
+    marginTop: spacing.md,
+  },
+  signatureHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  signatureTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: colors.success,
+  },
+  signatureImage: {
+    width: '100%',
+    height: 90,
+    marginTop: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+  },
+  signatureFootnote: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
   },
   sectionTitle: {
     fontSize: fontSize.lg,

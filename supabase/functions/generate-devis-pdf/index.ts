@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
+  decodeDataUrl,
   drawFooter,
   embedImageSmart,
   fetchStorageBytes,
@@ -78,6 +79,16 @@ Deno.serve(async (req: Request) => {
     }
     const signatureLabel = creator?.full_name ? `Signature ${creator.full_name}` : 'Signature';
 
+    // Proof of the client's own e-signature (captured once via
+    // accept_public_devis, stored inline as a data: URL rather than a
+    // storage path) — baked into the PDF whenever present so the document
+    // itself carries the evidence, not just a database row.
+    let clientSignatureImg: PDFImage | null = null;
+    if (devis.client_signature_data) {
+      const decoded = decodeDataUrl(devis.client_signature_data);
+      if (decoded) clientSignatureImg = await embedImageSmart(pdfDoc, decoded.bytes, decoded.contentType);
+    }
+
     const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org, orgHasCustomization(org));
@@ -95,6 +106,9 @@ Deno.serve(async (req: Request) => {
       signatureImg,
       signatureLabel,
       showSignatures: true,
+      clientSignatureImg,
+      clientSignedAt: devis.client_signed_at,
+      clientSignerName: devis.client_signer_name,
       brand,
       footerText,
       docLabel: 'Devis',

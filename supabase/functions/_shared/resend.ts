@@ -29,6 +29,49 @@ export function textToHtmlLines(text: string): string {
   return escapeHtml(text).split('\n').join('<br/>');
 }
 
+// Shared visual template for every devis/facture e-mail — one place for the
+// spacing/typography so "send-devis-email" and "send-facture-email" don't
+// each hand-roll slightly different HTML. Structure is fixed and only the
+// middle body paragraph is org-editable: greeting -> body -> optional
+// chantier line -> details card -> locked "consult online" link -> signature.
+export function buildDocumentEmailHtml(params: {
+  clientName: string | null;
+  bodyMessage: string;
+  projectName?: string | null;
+  detailsTitle: string;
+  detailsLines: string[];
+  linkUrl: string;
+  linkLabel: string;
+  linkHint: string;
+  signature: string;
+}): string {
+  const { clientName, bodyMessage, projectName, detailsTitle, detailsLines, linkUrl, linkLabel, linkHint, signature } = params;
+  const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+
+  return `
+    <div style="font-family: ${font}; font-size: 15px; line-height: 1.6; color: #1a1f1c; max-width: 560px;">
+      <p style="margin: 0 0 16px;">Bonjour${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>
+      <p style="margin: 0 0 20px;">${textToHtmlLines(bodyMessage)}</p>
+      ${
+        projectName
+          ? `<p style="margin: 0 0 20px; color: #555f58;">Chantier : <strong style="color: #1a1f1c;">${escapeHtml(projectName)}</strong></p>`
+          : ''
+      }
+      <div style="margin: 0 0 24px; padding: 16px 20px; background: #f5f4f0; border-radius: 10px;">
+        <p style="margin: 0 0 10px; font-weight: 700;">${escapeHtml(detailsTitle)}</p>
+        ${detailsLines
+          .map((line) => `<p style="margin: 0 0 4px; color: #3f4842;">${escapeHtml(line)}</p>`)
+          .join('')}
+      </div>
+      <p style="margin: 0 0 24px;">
+        <a href="${linkUrl}" style="color: #1f3d3a; font-weight: 700; text-decoration: underline;">${escapeHtml(linkLabel)}</a>
+        ${linkHint ? ` — ${escapeHtml(linkHint)}` : ''}
+      </p>
+      <p style="margin: 0; padding-top: 16px; border-top: 1px solid #e5e2da; color: #1a1f1c;">${textToHtmlLines(signature)}</p>
+    </div>
+  `.trim();
+}
+
 export function base64FromBytes(bytes: Uint8Array): string {
   let binary = '';
   const chunkSize = 0x8000;

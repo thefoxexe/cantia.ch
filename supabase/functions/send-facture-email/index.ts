@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, formatChfPlain, sendResendEmail, textToHtmlLines } from '../_shared/resend.ts';
+import { base64FromBytes, buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { isValidSwissIban } from '../_shared/qrbill.ts';
 
@@ -39,7 +39,11 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: facture, error: factureError } = await userClient.from('factures').select('*').eq('id', facture_id).single();
+    const { data: facture, error: factureError } = await userClient
+      .from('factures')
+      .select('*, projects(name)')
+      .eq('id', facture_id)
+      .single();
     if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
     if (!facture.client_email) return json({ error: "Cette facture n'a pas d'adresse e-mail client." }, 400);
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
@@ -92,24 +96,27 @@ Deno.serve(async (req: Request) => {
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
     const kind = facture.is_deposit ? "Facture d'acompte" : 'Facture';
 
-    const bodyMessage = String(custom_message ?? org?.facture_email_message ?? '').trim();
-    const signature = String(org?.email_signature ?? '').trim();
+    const bodyMessage =
+      String(custom_message ?? org?.facture_email_message ?? '').trim() ||
+      "Vous trouverez ci-joint notre facture. Nous vous remercions de bien vouloir procéder au règlement avant l'échéance indiquée.";
+    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const subject = `${kind} ${facture.number ?? ''} — ${orgName}`;
-    const html = `
-      <p>Bonjour${facture.client_name ? ` ${facture.client_name}` : ''},</p>
-      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : 'Veuillez trouver ci-joint notre facture. Merci de bien vouloir procéder au règlement dans les délais indiqués.'}</p>
-      <ul>
-        <li>${kind} n° ${facture.number ?? '—'}</li>
-        <li>Montant : CHF ${formatChfPlain(total)}</li>
-        <li>Solde restant dû : CHF ${formatChfPlain(remaining)}</li>
-        <li>Échéance : ${formatDateFr(facture.due_date)}</li>
-      </ul>
-      <p>
-        <a href="${publicUrl}">Consulter cette facture en ligne</a> pour retrouver le détail et le solde restant à tout moment.
-      </p>
-      <p>${signature ? textToHtmlLines(signature) : `Cordialement,<br/>${orgName}`}</p>
-    `.trim();
+    const html = buildDocumentEmailHtml({
+      clientName: facture.client_name,
+      bodyMessage,
+      projectName: facture.projects?.name ?? null,
+      detailsTitle: `${kind} n° ${facture.number ?? '—'}`,
+      detailsLines: [
+        `Montant : CHF ${formatChfPlain(total)}`,
+        `Solde restant dû : CHF ${formatChfPlain(remaining)}`,
+        `Échéance : ${formatDateFr(facture.due_date)}`,
+      ],
+      linkUrl: publicUrl,
+      linkLabel: 'Consulter cette facture en ligne',
+      linkHint: 'retrouvez le détail et le solde restant à tout moment',
+      signature,
+    });
 
     const { ok, error } = await sendResendEmail({
       apiKey,

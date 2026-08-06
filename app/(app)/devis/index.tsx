@@ -1,33 +1,39 @@
-import { useCallback, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { ScrollView, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { duplicateDevis } from '../../../lib/api/devis';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
-import { colors, fontSize, spacing } from '../../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
 
+// A tree, not a flat list: devis without a chantier float loose at the top
+// level, chantiers that do have devis appear as folders you tap into. This
+// mirrors how the org actually thinks about its documents (by chantier)
+// instead of one long undifferentiated feed.
 export default function DevisListScreen() {
   const { organization, role } = useAuth();
   const router = useRouter();
   const [devisList, setDevisList] = useState<Devis[]>([]);
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [openProjectId, setOpenProjectId] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const { data } = await supabase
-      .from('devis')
-      .select('*')
-      .eq('organization_id', organization.id)
-      .order('created_at', { ascending: false });
-    setDevisList(data ?? []);
+    const [{ data: d }, { data: p }] = await Promise.all([
+      supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
+      supabase.from('projects').select('id, name').eq('organization_id', organization.id),
+    ]);
+    setDevisList(d ?? []);
+    setProjects(p ?? []);
     setLoading(false);
   }, [organization]);
 
@@ -35,6 +41,25 @@ export default function DevisListScreen() {
     useCallback(() => {
       load();
     }, [load]),
+  );
+
+  const unassigned = useMemo(() => devisList.filter((d) => !d.project_id), [devisList]);
+  const folders = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const d of devisList) {
+      if (!d.project_id) continue;
+      counts.set(d.project_id, (counts.get(d.project_id) ?? 0) + 1);
+    }
+    return projects
+      .filter((p) => counts.has(p.id))
+      .map((p) => ({ id: p.id, name: p.name, count: counts.get(p.id) ?? 0 }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [devisList, projects]);
+
+  const openProject = openProjectId ? projects.find((p) => p.id === openProjectId) ?? null : null;
+  const openProjectDevis = useMemo(
+    () => (openProjectId ? devisList.filter((d) => d.project_id === openProjectId) : []),
+    [devisList, openProjectId],
   );
 
   async function handleDuplicate(id: string) {
@@ -59,11 +84,51 @@ export default function DevisListScreen() {
     load();
   }
 
+  function DevisRow({ item }: { item: Devis }) {
+    return (
+      <View style={styles.cardWrap}>
+        <Pressable onPress={() => router.push(`/(app)/devis/${item.id}`)}>
+          <Card style={styles.card}>
+            <View style={styles.cardBody}>
+              <View style={styles.row}>
+                <Text style={styles.number}>{item.number}</Text>
+                <StatusBadge status={item.status} />
+              </View>
+              <Text style={styles.client}>{item.client_name}</Text>
+              <Text style={styles.meta}>{new Date(item.created_at).toLocaleDateString('fr-CH')}</Text>
+            </View>
+            <Feather name="chevron-right" size={18} color={colors.textMuted} />
+          </Card>
+        </Pressable>
+        <View style={styles.cardMenu}>
+          <RowActionMenu
+            actions={[
+              { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
+              ...(isAdmin
+                ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
+                : []),
+            ]}
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Devis" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>Créez, suivez et relancez tous vos devis clients.</Text>
+        {openProject ? (
+          <>
+            <Pressable onPress={() => setOpenProjectId(null)} style={styles.backRow} hitSlop={8}>
+              <Feather name="arrow-left" size={16} color={colors.textMuted} />
+              <Text style={styles.backText}>Tous les devis</Text>
+            </Pressable>
+            <PageHeader title={openProject.name} />
+          </>
+        ) : (
+          <PageHeader title="Devis" backTo="/(app)" />
+        )}
+        {!openProject ? <Text style={styles.pageSubtitle}>Créez, suivez et relancez tous vos devis clients.</Text> : null}
 
         <Button
           title="Nouveau devis"
@@ -74,45 +139,53 @@ export default function DevisListScreen() {
 
         {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}
 
-        <FlatList
-          data={devisList}
-          keyExtractor={(item) => item.id}
-          refreshing={loading}
-          onRefresh={load}
-          contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
-          ListEmptyComponent={
-            !loading ? (
+        {loading ? (
+          <LoadingScreen />
+        ) : (
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
+            {openProject ? (
+              openProjectDevis.length === 0 ? (
+                <EmptyState title="Aucun devis" subtitle="Aucun devis lié à ce chantier pour le moment." />
+              ) : (
+                openProjectDevis.map((item) => <DevisRow key={item.id} item={item} />)
+              )
+            ) : devisList.length === 0 ? (
               <EmptyState title="Aucun devis" subtitle="Créez votre premier devis pour un client." />
-            ) : null
-          }
-          renderItem={({ item }) => (
-            <View style={styles.cardWrap}>
-              <Pressable onPress={() => router.push(`/(app)/devis/${item.id}`)}>
-                <Card style={styles.card}>
-                  <View style={styles.cardBody}>
-                    <View style={styles.row}>
-                      <Text style={styles.number}>{item.number}</Text>
-                      <StatusBadge status={item.status} />
-                    </View>
-                    <Text style={styles.client}>{item.client_name}</Text>
-                    <Text style={styles.meta}>{new Date(item.created_at).toLocaleDateString('fr-CH')}</Text>
+            ) : (
+              <>
+                {unassigned.length > 0 ? (
+                  <View style={{ gap: spacing.md }}>
+                    <Text style={styles.sectionTitle}>Sans chantier</Text>
+                    {unassigned.map((item) => (
+                      <DevisRow key={item.id} item={item} />
+                    ))}
                   </View>
-                  <Feather name="chevron-right" size={18} color={colors.textMuted} />
-                </Card>
-              </Pressable>
-              <View style={styles.cardMenu}>
-                <RowActionMenu
-                  actions={[
-                    { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
-                    ...(isAdmin
-                      ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
-                      : []),
-                  ]}
-                />
-              </View>
-            </View>
-          )}
-        />
+                ) : null}
+                {folders.length > 0 ? (
+                  <View style={{ gap: spacing.sm }}>
+                    <Text style={styles.sectionTitle}>Chantiers</Text>
+                    {folders.map((f) => (
+                      <Pressable key={f.id} onPress={() => setOpenProjectId(f.id)}>
+                        <Card style={styles.folderCard}>
+                          <View style={styles.folderIcon}>
+                            <Feather name="folder" size={18} color={colors.primary} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.folderName}>{f.name}</Text>
+                            <Text style={styles.folderCount}>
+                              {f.count} devis{f.count > 1 ? '' : ''}
+                            </Text>
+                          </View>
+                          <Feather name="chevron-right" size={18} color={colors.textMuted} />
+                        </Card>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : null}
+              </>
+            )}
+          </ScrollView>
+        )}
       </View>
     </Screen>
   );
@@ -130,10 +203,28 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  backText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
   actionError: {
     fontSize: fontSize.xs,
     color: colors.danger,
     marginBottom: spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   cardWrap: {
     position: 'relative',
@@ -171,5 +262,28 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  folderCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  folderIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  folderName: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  folderCount: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
 });

@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, formatChfPlain, sendResendEmail, textToHtmlLines } from '../_shared/resend.ts';
+import { base64FromBytes, buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 
 const BUCKET = 'opus-storage';
@@ -34,7 +34,7 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: devis, error: devisError } = await userClient.from('devis').select('*').eq('id', devis_id).single();
+    const { data: devis, error: devisError } = await userClient.from('devis').select('*, projects(name)').eq('id', devis_id).single();
     if (devisError || !devis) return json({ error: 'Devis introuvable ou accès refusé' }, 404);
     if (!devis.client_email) return json({ error: "Ce devis n'a pas d'adresse e-mail client." }, 400);
     if (devis.status === 'draft') return json({ error: "Finalisez d'abord le devis (passez-le à \"Prêt à l'envoi\") avant de l'envoyer." }, 400);
@@ -73,23 +73,23 @@ Deno.serve(async (req: Request) => {
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/devis-client/${devis.public_token}`;
 
-    const bodyMessage = String(custom_message ?? org?.devis_email_message ?? '').trim();
-    const signature = String(org?.email_signature ?? '').trim();
+    const bodyMessage =
+      String(custom_message ?? org?.devis_email_message ?? '').trim() ||
+      "Vous trouverez ci-joint notre devis détaillé. N'hésitez pas à nous contacter pour toute question ou précision.";
+    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const subject = `Devis ${devis.number ?? ''} — ${orgName}`;
-    const html = `
-      <p>Bonjour${devis.client_name ? ` ${devis.client_name}` : ''},</p>
-      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : "Veuillez trouver ci-joint notre devis. N'hésitez pas à nous contacter pour toute question."}</p>
-      <ul>
-        <li>Devis n° ${devis.number ?? '—'}</li>
-        <li>Montant : CHF ${formatChfPlain(total)}</li>
-      </ul>
-      <p>
-        <a href="${publicUrl}">Consulter et accepter ce devis en ligne</a> — vous pouvez le signer directement
-        depuis cette page sécurisée, sans avoir besoin de créer de compte.
-      </p>
-      <p>${signature ? textToHtmlLines(signature) : `Cordialement,<br/>${orgName}`}</p>
-    `.trim();
+    const html = buildDocumentEmailHtml({
+      clientName: devis.client_name,
+      bodyMessage,
+      projectName: devis.projects?.name ?? null,
+      detailsTitle: `Devis n° ${devis.number ?? '—'}`,
+      detailsLines: [`Montant : CHF ${formatChfPlain(total)}`],
+      linkUrl: publicUrl,
+      linkLabel: 'Consulter et accepter ce devis en ligne',
+      linkHint: 'vous pouvez le signer directement depuis cette page sécurisée, sans créer de compte',
+      signature,
+    });
 
     const { ok, error } = await sendResendEmail({
       apiKey,

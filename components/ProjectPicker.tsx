@@ -51,15 +51,34 @@ export function ProjectPicker({
 
   return (
     <>
-      <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
-        <Feather name="layers" size={15} color={colors.primary} />
-        <Text style={styles.triggerText}>{selectedProject ? selectedProject.name : 'Lier à un chantier (optionnel)'}</Text>
-        {selectedProject ? (
-          <Pressable onPress={() => pick(null)} hitSlop={8} style={styles.clearIcon}>
-            <Feather name="x" size={13} color={colors.textMuted} />
+      {selectedProject ? (
+        <Pressable onPress={() => setVisible(true)} style={styles.selectedCard}>
+          <View style={styles.selectedIcon}>
+            <Feather name="layers" size={18} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.selectedLabel}>Chantier lié</Text>
+            <Text style={styles.selectedName}>{selectedProject.name}</Text>
+            {selectedProject.client_name ? <Text style={styles.selectedMeta}>{selectedProject.client_name}</Text> : null}
+          </View>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation?.();
+              pick(null);
+            }}
+            hitSlop={8}
+            style={styles.selectedClear}
+          >
+            <Feather name="x" size={16} color={colors.textMuted} />
           </Pressable>
-        ) : null}
-      </Pressable>
+        </Pressable>
+      ) : (
+        <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
+          <Feather name="layers" size={16} color={colors.primary} />
+          <Text style={styles.triggerText}>Lier à un chantier (optionnel)</Text>
+          <Feather name="chevron-right" size={16} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
+        </Pressable>
+      )}
 
       <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
         <View style={styles.backdrop}>
@@ -115,17 +134,64 @@ const styles = StyleSheet.create({
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    marginBottom: spacing.sm,
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.md,
   },
   triggerText: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.primary,
   },
-  clearIcon: {
-    marginLeft: 2,
+  selectedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  selectedIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  selectedName: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: 2,
+  },
+  selectedMeta: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  selectedClear: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backdrop: {
     flex: 1,

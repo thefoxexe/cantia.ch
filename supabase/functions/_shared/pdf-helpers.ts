@@ -98,6 +98,24 @@ export async function fetchStorageBytes(
   return { bytes: buf, contentType };
 }
 
+// Decodes a data: URL (what SignaturePad.web.tsx captures — a base64 PNG
+// drawn in-browser) into raw bytes ready for embedImageSmart. Distinct from
+// fetchStorageBytes: a client's e-signature is stored inline on the row
+// (devis.client_signature_data) rather than as a storage object, since it's
+// small and only ever needs to travel alongside the row that owns it.
+export function decodeDataUrl(dataUrl: string): { bytes: Uint8Array; contentType: string } | null {
+  const match = /^data:(image\/\w+);base64,(.+)$/.exec(dataUrl.trim());
+  if (!match) return null;
+  try {
+    const binary = atob(match[2]);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return { bytes, contentType: match[1] };
+  } catch {
+    return null;
+  }
+}
+
 export function guessContentType(path: string): string {
   const lower = path.toLowerCase();
   if (lower.endsWith('.png')) return 'image/png';

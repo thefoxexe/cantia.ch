@@ -343,6 +343,8 @@ export default function NewDevisScreen() {
             </Card>
           ) : null}
 
+          <Text style={styles.sectionTitle}>Chantier</Text>
+          <Text style={styles.sectionHint}>Optionnel — permet de retrouver ce devis depuis la fiche du chantier et de suivre sa rentabilité.</Text>
           {organization ? (
             <ProjectPicker organizationId={organization.id} selectedProject={selectedProject} onSelect={setSelectedProject} />
           ) : null}
@@ -712,6 +714,12 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
+  },
+  sectionHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.sm,
   },
   selectedClientCard: {
     marginTop: spacing.xs,

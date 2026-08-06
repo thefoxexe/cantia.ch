@@ -24,6 +24,7 @@ import {
   drawTextRight,
   formatChf,
   formatDate,
+  formatDateTime,
   formatOrgAddress,
   swissRound,
   wrapText,
@@ -60,6 +61,15 @@ export interface RenderCtx {
   signatureImg: PDFImage | null;
   signatureLabel: string;
   showSignatures: boolean;
+  // The client's own e-signature, captured once via accept_public_devis
+  // (SignaturePad.web.tsx -> devis.client_signature_data) and never
+  // overwritten afterwards — this is the durable proof of acceptance, drawn
+  // in place of the blank "Signature client" line once it exists. Optional
+  // so generate-facture-pdf's ctx (showSignatures always false there) can
+  // omit them entirely.
+  clientSignatureImg?: PDFImage | null;
+  clientSignedAt?: string | null;
+  clientSignerName?: string | null;
   brand: RGB;
   footerText: string | null;
   docLabel: string; // 'Devis' or 'Facture'
@@ -67,7 +77,24 @@ export interface RenderCtx {
 }
 
 function renderUnified(ctx: RenderCtx): RenderResult {
-  const { pdfDoc, font, fontBold, org, devis, items, signatureImg, signatureLabel, showSignatures, brand, footerText, docLabel, metaLine } = ctx;
+  const {
+    pdfDoc,
+    font,
+    fontBold,
+    org,
+    devis,
+    items,
+    signatureImg,
+    signatureLabel,
+    showSignatures,
+    clientSignatureImg,
+    clientSignedAt,
+    clientSignerName,
+    brand,
+    footerText,
+    docLabel,
+    metaLine,
+  } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
   let pageNum = 1;
@@ -186,10 +213,10 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   if (showSignatures) {
     const h = 50;
     const creatorW = signatureImg ? (signatureImg.width / signatureImg.height) * h : 150;
-    const clientW = 150;
+    const clientW = clientSignatureImg ? (clientSignatureImg.width / clientSignatureImg.height) * h : 150;
     const gap = 30;
     const totalW = creatorW + gap + clientW;
-    if (y < MARGIN + 90) newPage();
+    if (y < MARGIN + 100) newPage();
     const startX = PAGE_WIDTH - MARGIN - totalW;
 
     drawText(page, signatureLabel, startX, y, font, 9, MUTED);
@@ -200,9 +227,20 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     }
 
     const clientX = startX + creatorW + gap;
-    const clientSignatureLabel = devis.client_name ? `Signature ${devis.client_name}` : 'Signature client';
-    drawText(page, clientSignatureLabel, clientX, y, font, 9, MUTED);
-    page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
+    if (clientSignatureImg && clientSignedAt) {
+      // Real proof of an online acceptance: the client's own drawn
+      // signature plus the exact moment it was captured, both baked
+      // directly into the document instead of a blank line waiting to be
+      // signed by hand.
+      const clientLabel = clientSignerName ? `Signé par ${clientSignerName}` : 'Signature client';
+      drawText(page, clientLabel, clientX, y, font, 9, MUTED);
+      page.drawImage(clientSignatureImg, { x: clientX, y: y - h - 10, width: clientW, height: h });
+      drawText(page, `le ${formatDateTime(clientSignedAt)}`, clientX, y - h - 22, font, 7.5, MUTED);
+    } else {
+      const clientSignatureLabel = devis.client_name ? `Signature ${devis.client_name}` : 'Signature client';
+      drawText(page, clientSignatureLabel, clientX, y, font, 9, MUTED);
+      page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
+    }
   }
 
   return { page, y, pageNum };

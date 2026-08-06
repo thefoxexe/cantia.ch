@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
@@ -7,19 +7,18 @@ import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder, duplicateFacture, recomputeFactureDepositDeduction } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
-import { Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
+import { Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
 
 type FilterKey = 'all' | 'overdue' | 'pending' | 'paid' | 'draft';
-type SortKey = 'priority' | 'issued' | 'due' | 'project';
+type SortKey = 'priority' | 'issued' | 'due';
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'priority', label: 'Priorité' },
   { key: 'issued', label: "Date d'émission" },
   { key: 'due', label: "Date d'échéance" },
-  { key: 'project', label: 'Chantier' },
 ];
 
 const REMINDERS_ENABLED = true;
@@ -68,6 +67,32 @@ function sortFactures(list: Facture[]): Facture[] {
   });
 }
 
+function applySort(list: Facture[], sort: SortKey): Facture[] {
+  switch (sort) {
+    case 'issued':
+      return [...list].sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0));
+    case 'due':
+      return [...list].sort((a, b) => (a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0));
+    default:
+      return sortFactures(list);
+  }
+}
+
+function matchesFilter(f: Facture, filter: FilterKey): boolean {
+  switch (filter) {
+    case 'overdue':
+      return isOverdue(f);
+    case 'pending':
+      return isPending(f);
+    case 'paid':
+      return f.status === 'paid';
+    case 'draft':
+      return f.status === 'draft';
+    default:
+      return true;
+  }
+}
+
 function relativeReminder(iso: string): string {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   if (days <= 0) return "relancée aujourd'hui";
@@ -80,11 +105,12 @@ export default function FacturesListScreen() {
   const router = useRouter();
   const [factures, setFactures] = useState<Facture[]>([]);
   const [totals, setTotals] = useState<Record<string, number>>({});
-  const [projects, setProjects] = useState<Record<string, string>>({});
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [sort, setSort] = useState<SortKey>('priority');
   const [search, setSearch] = useState('');
+  const [openProjectId, setOpenProjectId] = useState<string | null>(null);
   const [remindingId, setRemindingId] = useState<string | null>(null);
   const [reminderError, setReminderError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
@@ -98,7 +124,7 @@ export default function FacturesListScreen() {
     ]);
     const list = fData ?? [];
     setFactures(list);
-    setProjects(Object.fromEntries((projectsData ?? []).map((p) => [p.id, p.name])));
+    setProjects(projectsData ?? []);
 
     const ids = list.map((f) => f.id);
     if (ids.length) {
@@ -124,6 +150,8 @@ export default function FacturesListScreen() {
     }, [load]),
   );
 
+  const projectNames = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects]);
+
   const kpis = useMemo(() => {
     let overdueSum = 0;
     let overdueCount = 0;
@@ -146,66 +174,57 @@ export default function FacturesListScreen() {
     return { overdueSum, overdueCount, pendingSum, pendingCount, paidSum, draftCount };
   }, [factures, totals]);
 
-  const filtered = useMemo(() => {
-    const sorted = (() => {
-      switch (sort) {
-        case 'issued':
-          return [...factures].sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0));
-        case 'due':
-          return [...factures].sort((a, b) => (a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0));
-        case 'project':
-          return [...factures].sort((a, b) => {
-            const na = (a.project_id ? projects[a.project_id] : '') ?? '';
-            const nb = (b.project_id ? projects[b.project_id] : '') ?? '';
-            if (!na && nb) return 1;
-            if (na && !nb) return -1;
-            return na.localeCompare(nb, 'fr');
-          });
-        default:
-          return sortFactures(factures);
-      }
-    })();
-    const byStatus = (() => {
-      switch (filter) {
-        case 'overdue':
-          return sorted.filter(isOverdue);
-        case 'pending':
-          return sorted.filter(isPending);
-        case 'paid':
-          return sorted.filter((f) => f.status === 'paid');
-        case 'draft':
-          return sorted.filter((f) => f.status === 'draft');
-        default:
-          return sorted;
-      }
-    })();
+  const searchActive = search.trim().length > 0;
 
+  const searchResults = useMemo(() => {
+    if (!searchActive) return [];
+    const byStatus = factures.filter((f) => matchesFilter(f, filter));
+    const sorted = applySort(byStatus, sort);
     const query = search.trim();
-    if (!query) return byStatus;
-
-    // A pasted bank reference (with or without the grouping spaces printed
-    // on the QR-bill, QRR digits or an "RF.." SCOR reference alike) is
-    // matched against the reference derived from each facture's id — this
-    // is the "rapprochement" use case: reconciling an incoming payment
-    // against the facture it pays.
     const queryAlnum = query.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     const lowerQuery = query.toLowerCase();
-    return byStatus.filter((f) => {
+    return sorted.filter((f) => {
       if (f.number?.toLowerCase().includes(lowerQuery)) return true;
       if (f.client_name?.toLowerCase().includes(lowerQuery)) return true;
-      const projectName = f.project_id ? projects[f.project_id] : null;
+      const projectName = f.project_id ? projectNames[f.project_id] : null;
       if (projectName?.toLowerCase().includes(lowerQuery)) return true;
       const ref = generatePaymentReference(organization?.iban, f.id);
       if (ref && queryAlnum.length >= 6 && ref.reference.includes(queryAlnum)) return true;
       return false;
     });
-  }, [factures, filter, sort, search, organization?.iban, projects]);
+  }, [searchActive, factures, filter, sort, search, organization?.iban, projectNames]);
 
   const referenceMatch = useMemo(() => {
     const queryAlnum = search.trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     if (queryAlnum.length < 18) return null;
     return factures.find((f) => generatePaymentReference(organization?.iban, f.id)?.reference === queryAlnum) ?? null;
   }, [factures, search, organization?.iban]);
+
+  // Tree view: factures without a chantier float loose at the root, every
+  // chantier that has at least one facture becomes a folder you tap into —
+  // same idea as the devis list, so both read the same way.
+  const filteredByChip = useMemo(() => factures.filter((f) => matchesFilter(f, filter)), [factures, filter]);
+  const unassigned = useMemo(
+    () => applySort(filteredByChip.filter((f) => !f.project_id), sort),
+    [filteredByChip, sort],
+  );
+  const folders = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const f of filteredByChip) {
+      if (!f.project_id) continue;
+      counts.set(f.project_id, (counts.get(f.project_id) ?? 0) + 1);
+    }
+    return projects
+      .filter((p) => counts.has(p.id))
+      .map((p) => ({ id: p.id, name: p.name, count: counts.get(p.id) ?? 0 }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [filteredByChip, projects]);
+
+  const openProject = openProjectId ? projects.find((p) => p.id === openProjectId) ?? null : null;
+  const openProjectFactures = useMemo(
+    () => (openProjectId ? applySort(filteredByChip.filter((f) => f.project_id === openProjectId), sort) : []),
+    [filteredByChip, openProjectId, sort],
+  );
 
   async function handleRemind(facture: Facture) {
     if (remindingId) return;
@@ -251,189 +270,222 @@ export default function FacturesListScreen() {
     { key: 'draft', label: 'Brouillons', count: kpis.draftCount },
   ];
 
+  function FactureRow({ item }: { item: Facture }) {
+    const overdue = isOverdue(item);
+    const canRemind = isAdmin && isUnsettled(item) && !!item.client_email;
+    const showRemindRow = isAdmin && isUnsettled(item);
+    const amount = totals[item.id] ?? 0;
+    return (
+      <View style={styles.cardWrap}>
+        <Card style={styles.card}>
+          <Pressable style={styles.cardTop} onPress={() => router.push(`/(app)/devis/factures/${item.id}`)}>
+            <View style={styles.cardBody}>
+              <View style={styles.row}>
+                <View style={styles.numberGroup}>
+                  <Text style={styles.number}>{item.number}</Text>
+                  {item.is_deposit ? (
+                    <View style={styles.depositBadge}>
+                      <Text style={styles.depositBadgeText}>Acompte</Text>
+                    </View>
+                  ) : null}
+                </View>
+                <StatusBadge status={item.status} />
+              </View>
+              <Text style={styles.client}>{item.client_name}</Text>
+              {!openProject && item.project_id && projectNames[item.project_id] ? (
+                <View style={styles.projectRow}>
+                  <Feather name="layers" size={11} color={colors.textMuted} />
+                  <Text style={styles.projectText}>{projectNames[item.project_id]}</Text>
+                </View>
+              ) : null}
+              <View style={styles.metaRow}>
+                <Text style={[styles.meta, overdue && styles.overdue]}>
+                  {overdue ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
+                </Text>
+                <Text style={styles.amount}>CHF {amount.toFixed(2)}</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={18} color={colors.textMuted} />
+          </Pressable>
+          {REMINDERS_ENABLED && canRemind ? (
+            <View style={styles.remindRow}>
+              {item.last_reminded_at ? (
+                <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at)}</Text>
+              ) : (
+                <View />
+              )}
+              <Pressable
+                onPress={() => handleRemind(item)}
+                disabled={remindingId === item.id}
+                style={[styles.remindButton, overdue && styles.remindButtonUrgent]}
+              >
+                {remindingId === item.id ? (
+                  <ActivityIndicator size="small" color={overdue ? '#fff' : colors.primary} />
+                ) : (
+                  <>
+                    <Feather name="mail" size={12} color={overdue ? '#fff' : colors.primary} />
+                    <Text style={[styles.remindButtonText, overdue && styles.remindButtonTextUrgent]}>Relancer</Text>
+                  </>
+                )}
+              </Pressable>
+            </View>
+          ) : !REMINDERS_ENABLED && showRemindRow ? (
+            <View style={styles.remindRow}>
+              <Text style={styles.remindHint}>Relance par e-mail</Text>
+              <View style={styles.remindSoonBadge}>
+                <Feather name="clock" size={11} color={colors.textMuted} />
+                <Text style={styles.remindSoonText}>Bientôt disponible</Text>
+              </View>
+            </View>
+          ) : null}
+        </Card>
+        <View style={styles.cardMenu}>
+          <RowActionMenu
+            actions={[
+              { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
+              ...(isAdmin
+                ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
+                : []),
+            ]}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  const listToShow = openProject ? openProjectFactures : searchActive ? searchResults : null;
+
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Factures" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>Suivez les paiements, les échéances et les relances de vos factures.</Text>
+        {openProject ? (
+          <>
+            <Pressable onPress={() => setOpenProjectId(null)} style={styles.backRow} hitSlop={8}>
+              <Feather name="arrow-left" size={16} color={colors.textMuted} />
+              <Text style={styles.backText}>Toutes les factures</Text>
+            </Pressable>
+            <PageHeader title={openProject.name} />
+          </>
+        ) : (
+          <>
+            <PageHeader title="Factures" backTo="/(app)" />
+            <Text style={styles.pageSubtitle}>Suivez les paiements, les échéances et les relances de vos factures.</Text>
+          </>
+        )}
 
-        <FlatList
-          data={filtered}
-          keyExtractor={(item) => item.id}
-          refreshing={loading}
-          onRefresh={load}
-          contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
-          ListHeaderComponent={
-            <View style={{ marginBottom: spacing.lg }}>
-              <View style={styles.kpiGrid}>
-                <KpiTile
-                  label="En retard"
-                  amount={kpis.overdueSum}
-                  count={kpis.overdueCount}
-                  tone="danger"
-                  icon="alert-triangle"
-                />
-                <KpiTile
-                  label="À encaisser"
-                  amount={kpis.pendingSum}
-                  count={kpis.pendingCount}
-                  tone="primary"
-                  icon="clock"
-                />
-                <KpiTile label="Encaissé ce mois" amount={kpis.paidSum} tone="success" icon="check-circle" />
-                <KpiTile label="Brouillons" count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
-              </View>
+        {loading ? (
+          <LoadingScreen />
+        ) : (
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
+            {!openProject ? (
+              <View style={{ gap: spacing.md }}>
+                <View style={styles.kpiGrid}>
+                  <KpiTile label="En retard" amount={kpis.overdueSum} count={kpis.overdueCount} tone="danger" icon="alert-triangle" />
+                  <KpiTile label="À encaisser" amount={kpis.pendingSum} count={kpis.pendingCount} tone="primary" icon="clock" />
+                  <KpiTile label="Encaissé ce mois" amount={kpis.paidSum} tone="success" icon="check-circle" />
+                  <KpiTile label="Brouillons" count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
+                </View>
 
-              <View style={styles.searchRow}>
-                <Feather name="search" size={15} color={colors.textMuted} />
-                <TextInput
-                  value={search}
-                  onChangeText={setSearch}
-                  placeholder="N° de facture, client, chantier ou référence QR"
-                  placeholderTextColor={colors.textMuted}
-                  style={styles.searchInput}
-                  autoCapitalize="none"
-                />
-                {search ? (
-                  <Pressable onPress={() => setSearch('')} hitSlop={8}>
-                    <Feather name="x" size={15} color={colors.textMuted} />
+                <View style={styles.searchRow}>
+                  <Feather name="search" size={15} color={colors.textMuted} />
+                  <TextInput
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="N° de facture, client, chantier ou référence QR"
+                    placeholderTextColor={colors.textMuted}
+                    style={styles.searchInput}
+                    autoCapitalize="none"
+                  />
+                  {search ? (
+                    <Pressable onPress={() => setSearch('')} hitSlop={8}>
+                      <Feather name="x" size={15} color={colors.textMuted} />
+                    </Pressable>
+                  ) : null}
+                </View>
+                {referenceMatch ? (
+                  <Pressable style={styles.matchBanner} onPress={() => router.push(`/(app)/devis/factures/${referenceMatch.id}`)}>
+                    <Feather name="check-circle" size={16} color={colors.success} />
+                    <Text style={styles.matchBannerText}>
+                      Paiement rapproché : facture {referenceMatch.number} · {referenceMatch.client_name}
+                    </Text>
+                    <Feather name="chevron-right" size={16} color={colors.success} />
                   </Pressable>
                 ) : null}
               </View>
-              {referenceMatch ? (
-                <Pressable
-                  style={styles.matchBanner}
-                  onPress={() => router.push(`/(app)/devis/factures/${referenceMatch.id}`)}
-                >
-                  <Feather name="check-circle" size={16} color={colors.success} />
-                  <Text style={styles.matchBannerText}>
-                    Paiement rapproché : facture {referenceMatch.number} · {referenceMatch.client_name}
+            ) : null}
+
+            <View style={styles.filterRow}>
+              {filters.map((f) => (
+                <Pressable key={f.key} onPress={() => setFilter(f.key)} style={[styles.filterChip, filter === f.key && styles.filterChipActive]}>
+                  <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>
+                    {f.label} · {f.count}
                   </Text>
-                  <Feather name="chevron-right" size={16} color={colors.success} />
                 </Pressable>
-              ) : null}
-
-              <View style={styles.filterRow}>
-                {filters.map((f) => (
-                  <Pressable
-                    key={f.key}
-                    onPress={() => setFilter(f.key)}
-                    style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
-                  >
-                    <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>
-                      {f.label} · {f.count}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              <View style={styles.sortRow}>
-                <Text style={styles.sortLabel}>Trier par</Text>
-                {SORTS.map((s) => (
-                  <Pressable
-                    key={s.key}
-                    onPress={() => setSort(s.key)}
-                    style={[styles.sortChip, sort === s.key && styles.sortChipActive]}
-                  >
-                    <Text style={[styles.sortChipText, sort === s.key && styles.sortChipTextActive]}>{s.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {reminderError ? <Text style={styles.reminderError}>{reminderError}</Text> : null}
+              ))}
             </View>
-          }
-          ListEmptyComponent={
-            !loading ? (
-              <EmptyState
-                title="Aucune facture"
-                subtitle={filter === 'all' ? 'Transformez un devis accepté en facture depuis sa fiche.' : 'Rien dans ce filtre pour le moment.'}
-              />
-            ) : null
-          }
-          renderItem={({ item }) => {
-            const overdue = isOverdue(item);
-            const canRemind = isAdmin && isUnsettled(item) && !!item.client_email;
-            const showRemindRow = isAdmin && isUnsettled(item);
-            const amount = totals[item.id] ?? 0;
-            return (
-              <View style={styles.cardWrap}>
-                <Card style={styles.card}>
-                  <Pressable style={styles.cardTop} onPress={() => router.push(`/(app)/devis/factures/${item.id}`)}>
-                    <View style={styles.cardBody}>
-                      <View style={styles.row}>
-                        <View style={styles.numberGroup}>
-                          <Text style={styles.number}>{item.number}</Text>
-                          {item.is_deposit ? (
-                            <View style={styles.depositBadge}>
-                              <Text style={styles.depositBadgeText}>Acompte</Text>
-                            </View>
-                          ) : null}
-                        </View>
-                        <StatusBadge status={item.status} />
-                      </View>
-                      <Text style={styles.client}>{item.client_name}</Text>
-                      {item.project_id && projects[item.project_id] ? (
-                        <View style={styles.projectRow}>
-                          <Feather name="layers" size={11} color={colors.textMuted} />
-                          <Text style={styles.projectText}>{projects[item.project_id]}</Text>
-                        </View>
-                      ) : null}
-                      <View style={styles.metaRow}>
-                        <Text style={[styles.meta, overdue && styles.overdue]}>
-                          {overdue ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
-                        </Text>
-                        <Text style={styles.amount}>CHF {amount.toFixed(2)}</Text>
-                      </View>
-                    </View>
-                    <Feather name="chevron-right" size={18} color={colors.textMuted} />
-                  </Pressable>
-                  {REMINDERS_ENABLED && canRemind ? (
-                    <View style={styles.remindRow}>
-                      {item.last_reminded_at ? (
-                        <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at)}</Text>
-                      ) : (
-                        <View />
-                      )}
-                      <Pressable
-                        onPress={() => handleRemind(item)}
-                        disabled={remindingId === item.id}
-                        style={[styles.remindButton, overdue && styles.remindButtonUrgent]}
-                      >
-                        {remindingId === item.id ? (
-                          <ActivityIndicator size="small" color={overdue ? '#fff' : colors.primary} />
-                        ) : (
-                          <>
-                            <Feather name="mail" size={12} color={overdue ? '#fff' : colors.primary} />
-                            <Text style={[styles.remindButtonText, overdue && styles.remindButtonTextUrgent]}>Relancer</Text>
-                          </>
-                        )}
-                      </Pressable>
-                    </View>
-                  ) : !REMINDERS_ENABLED && showRemindRow ? (
-                    <View style={styles.remindRow}>
-                      <Text style={styles.remindHint}>Relance par e-mail</Text>
-                      <View style={styles.remindSoonBadge}>
-                        <Feather name="clock" size={11} color={colors.textMuted} />
-                        <Text style={styles.remindSoonText}>Bientôt disponible</Text>
-                      </View>
-                    </View>
-                  ) : null}
-                </Card>
-                <View style={styles.cardMenu}>
-                  <RowActionMenu
-                    actions={[
-                      { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
-                      ...(isAdmin
-                        ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
-                        : []),
-                    ]}
-                  />
+
+            <View style={styles.sortRow}>
+              <Text style={styles.sortLabel}>Trier par</Text>
+              {SORTS.map((s) => (
+                <Pressable key={s.key} onPress={() => setSort(s.key)} style={[styles.sortChip, sort === s.key && styles.sortChipActive]}>
+                  <Text style={[styles.sortChipText, sort === s.key && styles.sortChipTextActive]}>{s.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {reminderError ? <Text style={styles.reminderError}>{reminderError}</Text> : null}
+
+            {listToShow ? (
+              listToShow.length === 0 ? (
+                <EmptyState
+                  title="Aucune facture"
+                  subtitle={openProject ? 'Rien dans ce filtre pour ce chantier.' : 'Rien ne correspond à cette recherche.'}
+                />
+              ) : (
+                <View style={{ gap: spacing.md }}>
+                  {listToShow.map((item) => (
+                    <FactureRow key={item.id} item={item} />
+                  ))}
                 </View>
-              </View>
-            );
-          }}
-        />
+              )
+            ) : factures.length === 0 ? (
+              <EmptyState title="Aucune facture" subtitle="Transformez un devis accepté en facture depuis sa fiche." />
+            ) : (
+              <>
+                {unassigned.length > 0 ? (
+                  <View style={{ gap: spacing.md }}>
+                    <Text style={styles.sectionTitle}>Sans chantier</Text>
+                    {unassigned.map((item) => (
+                      <FactureRow key={item.id} item={item} />
+                    ))}
+                  </View>
+                ) : null}
+                {folders.length > 0 ? (
+                  <View style={{ gap: spacing.sm }}>
+                    <Text style={styles.sectionTitle}>Chantiers</Text>
+                    {folders.map((f) => (
+                      <Pressable key={f.id} onPress={() => setOpenProjectId(f.id)}>
+                        <Card style={styles.folderCard}>
+                          <View style={styles.folderIcon}>
+                            <Feather name="folder" size={18} color={colors.primary} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.folderName}>{f.name}</Text>
+                            <Text style={styles.folderCount}>{f.count} facture{f.count > 1 ? 's' : ''}</Text>
+                          </View>
+                          <Feather name="chevron-right" size={18} color={colors.textMuted} />
+                        </Card>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : null}
+                {unassigned.length === 0 && folders.length === 0 ? (
+                  <EmptyState title="Aucune facture" subtitle="Rien dans ce filtre pour le moment." />
+                ) : null}
+              </>
+            )}
+          </ScrollView>
+        )}
       </View>
     </Screen>
   );
@@ -490,11 +542,21 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  backText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
   kpiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    marginBottom: spacing.md,
   },
   kpiTile: {
     flexBasis: '47%',
@@ -539,7 +601,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.sm,
     paddingVertical: 8,
-    marginBottom: spacing.sm,
   },
   searchInput: {
     flex: 1,
@@ -553,13 +614,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.successSoft,
     borderRadius: radius.md,
     padding: spacing.sm,
-    marginBottom: spacing.sm,
   },
   matchBannerText: {
     flex: 1,
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.text,
+  },
+  sectionTitle: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   filterRow: {
     flexDirection: 'row',
@@ -591,7 +658,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: spacing.xs,
-    marginTop: spacing.sm,
   },
   sortLabel: {
     fontSize: fontSize.xs,
@@ -631,7 +697,29 @@ const styles = StyleSheet.create({
   reminderError: {
     fontSize: fontSize.xs,
     color: colors.danger,
-    marginTop: spacing.sm,
+  },
+  folderCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  folderIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  folderName: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  folderCount: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   cardWrap: {
     position: 'relative',

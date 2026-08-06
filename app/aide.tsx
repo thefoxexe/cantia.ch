@@ -107,8 +107,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   container: {
-    paddingTop: spacing.xl,
     maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
   },
   title: {
     fontSize: fontSize.xxl,
