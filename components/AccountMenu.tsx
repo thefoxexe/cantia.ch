@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, Image, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
@@ -18,6 +18,7 @@ export function AccountMenu() {
   const router = useRouter();
   const { user, organization, signOut } = useAuth();
   const [visible, setVisible] = useState(false);
+  const [supportVisible, setSupportVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const triggerRef = useRef<View>(null);
@@ -107,11 +108,7 @@ export function AccountMenu() {
                 label="Contacter le support"
                 onPress={() => {
                   onClose();
-                  if (Platform.OS === 'web') {
-                    Linking.openURL('mailto:info@cantia.ch');
-                  } else {
-                    Linking.openURL('mailto:info@cantia.ch').catch(() => {});
-                  }
+                  setSupportVisible(true);
                 }}
               />
               <View style={styles.divider} />
@@ -126,6 +123,41 @@ export function AccountMenu() {
               />
             </View>
           ) : null}
+        </Pressable>
+      </Modal>
+
+      <Modal visible={supportVisible} animationType="fade" transparent onRequestClose={() => setSupportVisible(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setSupportVisible(false)}>
+          <View style={styles.supportCard}>
+            <Text style={styles.supportTitle}>Contacter le support</Text>
+            <Text style={styles.supportSubtitle}>Comment pouvons-nous vous aider ?</Text>
+            <Pressable
+              style={styles.supportOption}
+              onPress={() => {
+                setSupportVisible(false);
+                Linking.openURL('mailto:info@cantia.ch').catch(() => {});
+              }}
+            >
+              <Feather name="mail" size={16} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.supportOptionTitle}>Envoyer un e-mail</Text>
+                <Text style={styles.supportOptionText}>info@cantia.ch — on vous répond directement.</Text>
+              </View>
+            </Pressable>
+            <Pressable
+              style={styles.supportOption}
+              onPress={() => {
+                setSupportVisible(false);
+                router.push('/(app)/compte/aide' as any);
+              }}
+            >
+              <Feather name="book-open" size={16} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.supportOptionTitle}>Voir la documentation</Text>
+                <Text style={styles.supportOptionText}>Les réponses aux questions les plus fréquentes.</Text>
+              </View>
+            </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </>
@@ -205,5 +237,53 @@ const styles = StyleSheet.create({
   },
   rowLabelDanger: {
     color: colors.danger,
+  },
+  supportCard: {
+    position: 'absolute',
+    top: '35%',
+    left: spacing.lg,
+    right: spacing.lg,
+    maxWidth: 380,
+    alignSelf: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    gap: spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  supportTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  supportSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.xs,
+  },
+  supportOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  supportOptionTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  supportOptionText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
 });

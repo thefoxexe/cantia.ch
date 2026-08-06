@@ -5,7 +5,7 @@ interface FeatureItem {
 }
 
 interface Dict {
-  nav: { services: string; pricing: string; download: string; login: string; cta: string };
+  nav: { services: string; pricing: string; download: string; help: string; login: string; cta: string };
   hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string };
   spotlight: {
     title: string;
@@ -51,7 +51,7 @@ interface Dict {
 }
 
 const fr: Dict = {
-  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', login: 'Se connecter', cta: 'Essayer gratuitement' },
+  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Aide', login: 'Se connecter', cta: 'Essayer gratuitement' },
   hero: {
     kicker: 'L’application métier du bâtiment suisse',
     headlinePrefix: 'L’application qui gère votre administratif,',

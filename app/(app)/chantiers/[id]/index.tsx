@@ -9,6 +9,7 @@ import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadg
 import { ProjectFeed } from '../../../../components/ProjectFeed';
 import { ProjectFeedMap } from '../../../../components/ProjectFeedMap';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
+import { ProjectBilling } from '../../../../components/ProjectBilling';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
 import { ProjectMetre } from '../../../../components/ProjectMetre';
@@ -17,11 +18,12 @@ import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre' | 'profitability';
+type Tab = 'feed' | 'reports' | 'billing' | 'documents' | 'photos' | 'map' | 'survey' | 'metre' | 'profitability';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'feed', label: "Fil d'actualité", icon: 'message-circle' },
   { key: 'reports', label: 'Rapports', icon: 'file-text' },
+  { key: 'billing', label: 'Devis & Factures', icon: 'credit-card' },
   { key: 'documents', label: 'Documents', icon: 'folder' },
   { key: 'photos', label: 'Photos', icon: 'image' },
   { key: 'map', label: 'Carte', icon: 'map' },
@@ -39,6 +41,9 @@ export default function ChantierDetailScreen() {
     // The map is just another view of the same geolocated photos, so it
     // rides on the "photos" module toggle instead of needing its own.
     if (t.key === 'map') return isModuleEnabled(organization?.enabled_modules, 'photos');
+    // Factures don't have their own module toggle — they only exist once
+    // devis does, so this tab rides on the same flag.
+    if (t.key === 'billing') return isModuleEnabled(organization?.enabled_modules, 'devis');
     return isModuleEnabled(organization?.enabled_modules, t.key as any);
   });
   const [project, setProject] = useState<Project | null>(null);
@@ -138,6 +143,17 @@ export default function ChantierDetailScreen() {
             </View>
           ) : null}
 
+          {activeTab === 'billing' ? (
+            <View>
+              <FeatureHint
+                id="chantier-billing"
+                icon="credit-card"
+                title="Devis et factures de ce chantier"
+                text="Retrouvez ici tout l'historique — devis et factures séparés, toujours téléchargeables en un tap, avec le montant à jour même après un paiement."
+              />
+              <ProjectBilling projectId={id} />
+            </View>
+          ) : null}
           {activeTab === 'documents' ? (
             <View>
               <FeatureHint

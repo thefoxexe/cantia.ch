@@ -51,6 +51,9 @@ export function MarketingNav() {
           <Link href="/telechargement">
             <Text style={styles.navLink}>{t.nav.download}</Text>
           </Link>
+          <Link href="/aide">
+            <Text style={styles.navLink}>{t.nav.help}</Text>
+          </Link>
           <Link href={authHref('login')}>
             <Text style={styles.navLink}>{t.nav.login}</Text>
           </Link>
@@ -99,6 +102,13 @@ export function MarketingNav() {
                 <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="download" size={18} color={colors.primary} />
                   <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
+                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                </Pressable>
+              </Link>
+              <Link href="/aide" asChild>
+                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                  <Feather name="life-buoy" size={18} color={colors.primary} />
+                  <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
                   <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                 </Pressable>
               </Link>
@@ -171,6 +181,9 @@ export function MarketingFooter() {
           </Link>
           <Link href={authHref('signup')}>
             <Text style={styles.footerLink}>{t.footer.signup}</Text>
+          </Link>
+          <Link href="/aide">
+            <Text style={styles.footerLink}>{t.nav.help}</Text>
           </Link>
         </View>
         <View style={styles.footerCol}>
