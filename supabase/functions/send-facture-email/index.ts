@@ -64,7 +64,7 @@ Deno.serve(async (req: Request) => {
     // attached last time.
     const genRes = await fetch(`${supabaseUrl}/functions/v1/generate-facture-pdf`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ facture_id }),
     });
     const genData = await genRes.json().catch(() => null);

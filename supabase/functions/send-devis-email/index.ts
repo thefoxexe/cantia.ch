@@ -48,7 +48,7 @@ Deno.serve(async (req: Request) => {
     // any edits made since the last generation, not a stale PDF.
     const genRes = await fetch(`${supabaseUrl}/functions/v1/generate-devis-pdf`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ devis_id }),
     });
     const genData = await genRes.json().catch(() => null);

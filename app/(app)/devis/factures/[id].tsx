@@ -223,6 +223,7 @@ export default function FactureDetailScreen() {
       return;
     }
     setPaymentModalVisible(false);
+    generateFacturePdf(id);
     load();
   }
 
@@ -238,6 +239,7 @@ export default function FactureDetailScreen() {
       await setStatus('paid', new Date().toISOString());
     }
     setBusy(false);
+    generateFacturePdf(id);
     load();
   }
 
@@ -249,6 +251,7 @@ export default function FactureDetailScreen() {
       setError(delError);
       return;
     }
+    generateFacturePdf(id);
     load();
   }
 
