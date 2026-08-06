@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { getPublicFacture, getPublicDocumentPdfUrl, listClientDocuments } from '../../lib/api/publicPortal';
+import { getPublicFacture, getPublicDocumentPdfUrl } from '../../lib/api/publicPortal';
 import { downloadFile } from '../../lib/downloadFile';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
-import { ClientHistoryModal } from '../../components/ClientHistoryModal';
 import { Button, Card, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import type { ClientDocumentsPayload, PublicFacturePayload } from '../../lib/types';
+import type { PublicFacturePayload } from '../../lib/types';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Brouillon',
@@ -24,6 +23,7 @@ function chf(n: number): string {
 
 export default function PublicFactureScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
@@ -31,23 +31,9 @@ export default function PublicFactureScreen() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
-  const [historyVisible, setHistoryVisible] = useState(false);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [historyError, setHistoryError] = useState<string | null>(null);
-  const [historyPayload, setHistoryPayload] = useState<ClientDocumentsPayload | null>(null);
-
-  async function handleOpenHistory() {
-    setHistoryVisible(true);
+  function handleOpenHistory() {
     if (!token || !email.trim()) return;
-    setHistoryLoading(true);
-    setHistoryError(null);
-    const { data, error } = await listClientDocuments(token, 'facture', email.trim());
-    setHistoryLoading(false);
-    if (error || !data) {
-      setHistoryError('Impossible de charger vos documents.');
-      return;
-    }
-    setHistoryPayload(data);
+    router.push(`/client-documents/${token}?kind=facture&email=${encodeURIComponent(email.trim())}` as any);
   }
 
   async function handleVerify() {
@@ -105,14 +91,6 @@ export default function PublicFactureScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <ClientPortalHeader onMenuPress={handleOpenHistory} />
-      <ClientHistoryModal
-        visible={historyVisible}
-        onClose={() => setHistoryVisible(false)}
-        organizationName={organization.name}
-        payload={historyPayload}
-        loading={historyLoading}
-        error={historyError}
-      />
       <View style={styles.secureBadge}>
         <Feather name="shield" size={14} color={colors.success} />
         <Text style={styles.secureBadgeText}>Connexion sécurisée — vos informations ne sortent pas de cette page</Text>

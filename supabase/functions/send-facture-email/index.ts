@@ -98,7 +98,7 @@ Deno.serve(async (req: Request) => {
     const subject = `${kind} ${facture.number ?? ''} — ${orgName}`;
     const html = `
       <p>Bonjour${facture.client_name ? ` ${facture.client_name}` : ''},</p>
-      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : 'Veuillez trouver ci-joint notre facture :'}</p>
+      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : 'Veuillez trouver ci-joint notre facture. Merci de bien vouloir procéder au règlement dans les délais indiqués.'}</p>
       <ul>
         <li>${kind} n° ${facture.number ?? '—'}</li>
         <li>Montant : CHF ${formatChfPlain(total)}</li>

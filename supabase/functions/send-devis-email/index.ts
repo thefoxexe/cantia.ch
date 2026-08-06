@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
     const subject = `Devis ${devis.number ?? ''} — ${orgName}`;
     const html = `
       <p>Bonjour${devis.client_name ? ` ${devis.client_name}` : ''},</p>
-      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : 'Veuillez trouver ci-joint notre devis :'}</p>
+      <p>${bodyMessage ? textToHtmlLines(bodyMessage) : "Veuillez trouver ci-joint notre devis. N'hésitez pas à nous contacter pour toute question."}</p>
       <ul>
         <li>Devis n° ${devis.number ?? '—'}</li>
         <li>Montant : CHF ${formatChfPlain(total)}</li>

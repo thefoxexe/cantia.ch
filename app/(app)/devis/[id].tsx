@@ -18,6 +18,7 @@ import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { DEFAULT_DEVIS_EMAIL_MESSAGE } from '../../../lib/emailDefaults';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
@@ -170,7 +171,7 @@ export default function DevisDetailScreen() {
   }
 
   function handleOpenEmailModal() {
-    setEmailMessage(organization?.devis_email_message ?? '');
+    setEmailMessage(organization?.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
     setEmailModalVisible(true);
   }
 
@@ -392,8 +393,7 @@ export default function DevisDetailScreen() {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Envoyer par e-mail</Text>
             <Text style={styles.meta}>
-              Ce message accompagne le PDF et le lien de consultation en ligne. Modifiable pour cet envoi uniquement — le
-              message par défaut se règle dans Compte → Entreprise.
+              Modifiable pour cet envoi uniquement — le message par défaut se règle dans Compte → Entreprise.
             </Text>
             <Field
               label="Message"
@@ -402,8 +402,11 @@ export default function DevisDetailScreen() {
               multiline
               numberOfLines={4}
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
-              placeholder="Bonjour, veuillez trouver ci-joint notre devis..."
             />
+            <Text style={styles.lockedNoticeText}>
+              Le PDF joint et le lien sécurisé « Consulter et accepter ce devis en ligne » sont toujours ajoutés
+              automatiquement à la suite — non modifiables.
+            </Text>
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.modalActions}>
               <Button title="Annuler" variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
@@ -510,6 +513,11 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: fontSize.sm,
     marginTop: spacing.md,
+  },
+  lockedNoticeText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 16,
   },
   pdfHint: {
     fontSize: fontSize.xs,

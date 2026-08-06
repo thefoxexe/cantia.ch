@@ -9,6 +9,7 @@ import { Button, Container, Field, PageHeader, Screen } from '../../../component
 import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
+import { DEFAULT_DEVIS_EMAIL_MESSAGE, DEFAULT_FACTURE_EMAIL_MESSAGE } from '../../../lib/emailDefaults';
 
 export default function EntrepriseScreen() {
   const { organization, role, refreshOrganization } = useAuth();
@@ -22,8 +23,8 @@ export default function EntrepriseScreen() {
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
-  const [devisEmailMessage, setDevisEmailMessage] = useState(organization?.devis_email_message ?? '');
-  const [factureEmailMessage, setFactureEmailMessage] = useState(organization?.facture_email_message ?? '');
+  const [devisEmailMessage, setDevisEmailMessage] = useState(organization?.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
+  const [factureEmailMessage, setFactureEmailMessage] = useState(organization?.facture_email_message ?? DEFAULT_FACTURE_EMAIL_MESSAGE);
   const [emailSignature, setEmailSignature] = useState(organization?.email_signature ?? '');
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
@@ -40,8 +41,8 @@ export default function EntrepriseScreen() {
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
     setIban(organization.iban ?? '');
-    setDevisEmailMessage(organization.devis_email_message ?? '');
-    setFactureEmailMessage(organization.facture_email_message ?? '');
+    setDevisEmailMessage(organization.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
+    setFactureEmailMessage(organization.facture_email_message ?? DEFAULT_FACTURE_EMAIL_MESSAGE);
     setEmailSignature(organization.email_signature ?? '');
   }, [organization]);
 
@@ -183,8 +184,8 @@ export default function EntrepriseScreen() {
           )}
           <Text style={styles.sectionTitle}>Modèles d'e-mail</Text>
           <Text style={styles.hint}>
-            Ce texte remplace le message générique dans les e-mails de devis/facture. Vous pourrez toujours l'ajuster au moment
-            d'envoyer un document précis.
+            Préréglé avec un texte de base modifiable — ce message remplace le paragraphe générique dans les e-mails de
+            devis/facture. Vous pourrez aussi l'ajuster au moment d'envoyer un document précis.
           </Text>
           <Field
             label="Message par défaut — Devis"
@@ -194,7 +195,6 @@ export default function EntrepriseScreen() {
             multiline
             numberOfLines={4}
             style={styles.textarea}
-            placeholder="Bonjour, veuillez trouver ci-joint notre devis..."
           />
           <Field
             label="Message par défaut — Facture"
@@ -204,7 +204,6 @@ export default function EntrepriseScreen() {
             multiline
             numberOfLines={4}
             style={styles.textarea}
-            placeholder="Bonjour, veuillez trouver ci-joint notre facture..."
           />
           <Field
             label="Signature"
@@ -216,6 +215,13 @@ export default function EntrepriseScreen() {
             style={styles.textarea}
             placeholder={'Cordialement,\nJean Dupont\nDirecteur'}
           />
+          <View style={styles.lockedNotice}>
+            <Feather name="lock" size={14} color={colors.textMuted} />
+            <Text style={styles.lockedNoticeText}>
+              Le lien sécurisé de consultation en ligne (« Consulter ce devis/cette facture en ligne ») est toujours ajouté
+              automatiquement à la fin de l'e-mail, avec la pièce jointe PDF. Cette partie n'est pas modifiable.
+            </Text>
+          </View>
 
           {isAdmin ? (
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
@@ -238,6 +244,21 @@ const styles = StyleSheet.create({
     minHeight: 90,
     textAlignVertical: 'top',
     paddingTop: spacing.sm,
+  },
+  lockedNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  lockedNoticeText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 16,
   },
   fieldLabel: {
     fontSize: fontSize.sm,
