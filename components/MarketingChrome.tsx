@@ -140,6 +140,12 @@ export function MarketingFooter() {
             <Text style={styles.footerBrand}>Cantia</Text>
           </View>
           <Text style={styles.footerText}>{t.footer.blurb}</Text>
+          <Link href="/aide" asChild>
+            <Pressable style={styles.footerHelpPill}>
+              <Feather name="life-buoy" size={14} color={colors.primaryDark} />
+              <Text style={styles.footerHelpPillText}>Centre d'aide & documentation</Text>
+            </Pressable>
+          </Link>
         </View>
         <View style={styles.footerCol}>
           <Text style={styles.footerColTitle}>{t.footer.product}</Text>
@@ -330,6 +336,22 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 18,
     maxWidth: 280,
+  },
+  footerHelpPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primarySoft,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 999,
+    marginTop: spacing.xs,
+  },
+  footerHelpPillText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primaryDark,
   },
   footerCol: {
     minWidth: 140,

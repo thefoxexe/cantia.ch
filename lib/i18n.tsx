@@ -147,6 +147,15 @@ const fr: Dict = {
         ],
       },
       {
+        title: 'Un espace client sécurisé',
+        text: 'Chaque devis et chaque facture est accessible via un lien unique et privé : votre client consulte, signe et suit le paiement sans jamais créer de compte.',
+        detail: [
+          'Signature électronique horodatée, conservée en preuve',
+          'Statut de paiement visible en direct, avant même votre relance',
+          'Historique complet des devis et factures, classé par chantier',
+        ],
+      },
+      {
         title: 'Documents à votre image',
         text: 'Choisissez la couleur de votre marque, le placement de votre logo, et créez plusieurs modèles pour vos devis et rapports PDF.',
         detail: [
