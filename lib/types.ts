@@ -230,6 +230,10 @@ export interface Devis {
   status: DevisStatus;
   vat_rate: number;
   pdf_path: string | null;
+  public_token: string;
+  client_signed_at: string | null;
+  client_signer_name: string | null;
+  client_signature_data: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -263,11 +267,80 @@ export interface Facture {
   due_date: string;
   paid_at: string | null;
   pdf_path: string | null;
+  public_token: string;
   last_reminded_at: string | null;
   is_deposit: boolean;
   created_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// Shapes returned by the anonymous public-portal RPCs (get_public_devis,
+// accept_public_devis, get_public_facture) — deliberately separate from
+// Devis/Facture/Organization since the SQL whitelists a narrow subset of
+// columns rather than returning full rows to an unauthenticated caller.
+export interface PublicPortalItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unit: string | null;
+  unit_price: number;
+  sort_order: number;
+}
+
+export interface PublicPortalOrganization {
+  name: string;
+  phone: string | null;
+  street: string | null;
+  postal_code: string | null;
+  locality: string | null;
+  address: string | null;
+  ide_number: string | null;
+}
+
+export interface PublicPortalTotals {
+  subtotal: number;
+  vat: number;
+  total: number;
+}
+
+export interface PublicDevisPayload {
+  devis: {
+    id: string;
+    number: string | null;
+    status: DevisStatus;
+    client_name: string;
+    client_address: string | null;
+    notes: string | null;
+    vat_rate: number;
+    created_at: string;
+    client_signed_at: string | null;
+    client_signer_name: string | null;
+  };
+  items: PublicPortalItem[];
+  totals: PublicPortalTotals;
+  organization: PublicPortalOrganization;
+}
+
+export interface PublicFacturePayload {
+  facture: {
+    id: string;
+    number: string | null;
+    status: FactureStatus;
+    is_deposit: boolean;
+    client_name: string;
+    client_address: string | null;
+    notes: string | null;
+    vat_rate: number;
+    due_date: string;
+    paid_at: string | null;
+    created_at: string;
+  };
+  items: PublicPortalItem[];
+  totals: PublicPortalTotals;
+  paid: number;
+  remaining: number;
+  organization: PublicPortalOrganization;
 }
 
 export interface FactureItem {

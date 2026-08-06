@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react';
-import { Dimensions, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Dimensions, Image, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
+import { supabase } from '../lib/supabase';
+import { getSignedUrl } from '../lib/api/storage';
 import { canPromptInstall, promptInstall } from '../lib/pwaInstall';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
@@ -14,10 +16,35 @@ type IconName = keyof typeof Feather.glyphMap;
 // position, since the trigger's on-screen spot differs between the two.
 export function AccountMenu() {
   const router = useRouter();
-  const { organization, signOut } = useAuth();
+  const { user, organization, signOut } = useAuth();
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const triggerRef = useRef<View>(null);
+
+  // Personal avatar lives on organization_members (per user+org row), not a
+  // global profile table — see app/(app)/compte/profil.tsx.
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      if (!organization || !user) {
+        setAvatarUrl(null);
+        return;
+      }
+      const { data } = await supabase
+        .from('organization_members')
+        .select('avatar_url')
+        .eq('organization_id', organization.id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setAvatarUrl(data?.avatar_url ? await getSignedUrl(data.avatar_url) : null);
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [organization, user]);
 
   function open() {
     triggerRef.current?.measureInWindow((x, y, width, height) => {
@@ -54,7 +81,11 @@ export function AccountMenu() {
     <>
       <View ref={triggerRef} collapsable={false}>
         <Pressable onPress={open} style={styles.avatar} hitSlop={6}>
-          <Feather name="user" size={16} color={colors.primary} />
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+          ) : (
+            <Feather name="user" size={16} color={colors.primary} />
+          )}
         </Pressable>
       </View>
 
@@ -118,6 +149,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 34,
+    height: 34,
   },
   backdrop: {
     flex: 1,

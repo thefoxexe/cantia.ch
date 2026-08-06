@@ -2,10 +2,12 @@ import { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
+import { publicFactureUrl } from '../../../../lib/api/publicPortal';
 import {
   duplicateFacture,
   convertDevisToFacture,
@@ -66,6 +68,7 @@ export default function FactureDetailScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -101,6 +104,13 @@ export default function FactureDetailScreen() {
   async function handleProjectChange(project: Project | null) {
     setLinkedProject(project);
     await supabase.from('factures').update({ project_id: project?.id ?? null }).eq('id', id);
+  }
+
+  async function handleCopyClientLink() {
+    if (!facture) return;
+    await Clipboard.setStringAsync(publicFactureUrl(facture.public_token));
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   }
 
   useFocusEffect(
@@ -334,6 +344,17 @@ export default function FactureDetailScreen() {
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
+          {facture.client_email ? (
+            <Button
+              title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+              variant="secondary"
+              icon={linkCopied ? 'check' : 'link'}
+              onPress={handleCopyClientLink}
+              style={styles.copyLinkButton}
+            />
+          ) : (
+            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation sécurisé.</Text>
+          )}
         </Card>
 
         {paymentRef ? (
@@ -536,6 +557,14 @@ const styles = StyleSheet.create({
   },
   projectPickerRow: {
     marginTop: spacing.sm,
+  },
+  copyLinkButton: {
+    marginTop: spacing.md,
+  },
+  copyLinkHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.md,
   },
   sectionTitle: {
     fontSize: fontSize.lg,

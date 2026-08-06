@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
@@ -9,6 +10,7 @@ import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
 import { duplicateDevis } from '../../../lib/api/devis';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
+import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
@@ -45,6 +47,7 @@ export default function DevisDetailScreen() {
   const [trameName, setTrameName] = useState('');
   const [savingTrame, setSavingTrame] = useState(false);
   const [trameError, setTrameError] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -140,6 +143,16 @@ export default function DevisDetailScreen() {
     router.replace('/(app)/devis');
   }
 
+  // The public link is only ever checkable client-side by the client's own
+  // email matching devis.client_email (see accept_public_devis RPC) — so
+  // without an email on file, the link would never verify.
+  async function handleCopyClientLink() {
+    if (!devis) return;
+    await Clipboard.setStringAsync(publicDevisUrl(devis.public_token));
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  }
+
   async function handleSaveTrame() {
     if (!organization) return;
     if (!trameName.trim()) {
@@ -205,6 +218,17 @@ export default function DevisDetailScreen() {
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
+          {devis.client_email ? (
+            <Button
+              title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+              variant="secondary"
+              icon={linkCopied ? 'check' : 'link'}
+              onPress={handleCopyClientLink}
+              style={styles.copyLinkButton}
+            />
+          ) : (
+            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation/signature sécurisé.</Text>
+          )}
         </Card>
 
         <Text style={styles.sectionTitle}>Lignes</Text>
@@ -344,6 +368,14 @@ const styles = StyleSheet.create({
   },
   projectPickerRow: {
     marginTop: spacing.sm,
+  },
+  copyLinkButton: {
+    marginTop: spacing.md,
+  },
+  copyLinkHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.md,
   },
   sectionTitle: {
     fontSize: fontSize.lg,
