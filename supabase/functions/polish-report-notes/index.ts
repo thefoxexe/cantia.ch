@@ -49,6 +49,12 @@ Deno.serve(async (req: Request) => {
     if (reportError || !report) return json({ error: 'Rapport introuvable ou accès refusé' }, 404);
     if (!report.notes?.trim()) return json({ error: 'Ce rapport ne contient aucune note à rédiger' }, 400);
 
+    const { data: allowed, error: quotaError } = await userClient.rpc('check_and_log_ai_usage', {
+      p_organization_id: report.organization_id,
+    });
+    if (quotaError) return json({ error: 'Accès refusé' }, 403);
+    if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
+
     const { data: photos } = await admin
       .from('report_photos')
       .select('caption')

@@ -16,10 +16,12 @@ export interface DictatedDevisLine {
 export async function generateDevisLines(
   transcript: string,
   catalog: { description: string; unit: string; unitPrice: number }[],
+  organizationId: string,
 ): Promise<{ lines: DictatedDevisLine[] | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ lines: DictatedDevisLine[] }>('generate-devis-lines', {
     transcript,
     catalog,
+    organization_id: organizationId,
   });
   return { lines: data?.lines ?? null, error };
 }

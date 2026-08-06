@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
@@ -11,9 +11,10 @@ import {
   updatePlanningAssignment,
   type PlanningAssignmentWithNames,
 } from '../../../lib/api/planning';
-import { Button, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import type { Plan } from '../../../lib/types';
 
 interface PickItem {
   id: string;
@@ -67,11 +68,13 @@ function formatShort(d: Date): string {
 
 export default function PlanningScreen() {
   const { organization, user } = useAuth();
+  const router = useRouter();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [assignments, setAssignments] = useState<PlanningAssignmentWithNames[]>([]);
   const [projects, setProjects] = useState<PickItem[]>([]);
   const [members, setMembers] = useState<PickItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState<Plan | null>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -90,14 +93,16 @@ export default function PlanningScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [list, { data: projectRows }, { data: memberRows }] = await Promise.all([
+    const [list, { data: projectRows }, { data: memberRows }, { data: planRow }] = await Promise.all([
       listPlanningAssignments(organization.id, toIso(weekStart), toIso(weekEnd)),
       supabase.from('projects').select('id, name').eq('organization_id', organization.id).order('name'),
       supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
+      supabase.from('plans').select('*').eq('id', organization.plan_id).single(),
     ]);
     setAssignments(list);
     setProjects((projectRows ?? []).map((p) => ({ id: p.id, label: p.name })));
     setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || 'Membre' })));
+    setPlan(planRow ?? null);
     setLoading(false);
   }, [organization, weekStart, weekEnd]);
 
@@ -183,6 +188,23 @@ export default function PlanningScreen() {
     return (
       <Screen>
         <LoadingScreen />
+      </Screen>
+    );
+  }
+
+  if (plan && !plan.has_planning) {
+    return (
+      <Screen style={{ padding: spacing.xl }}>
+        <PageHeader title="Planning" backTo="/(app)" />
+        <Card style={styles.upsell}>
+          <Feather name="calendar" size={22} color={colors.accent} />
+          <Text style={styles.upsellTitle}>Planning d'équipe</Text>
+          <Text style={styles.upsellText}>
+            Organisez qui va sur quel chantier, et quand, avec une vue calendrier par semaine partagée avec toute l'équipe.
+          </Text>
+          <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
+          <Button title="Voir les plans" variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
+        </Card>
       </Screen>
     );
   }
@@ -397,6 +419,22 @@ const styles = StyleSheet.create({
     maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
+  },
+  upsell: {
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+  },
+  upsellTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: spacing.sm,
+  },
+  upsellText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 20,
   },
   pageSubtitle: {
     fontSize: fontSize.sm,

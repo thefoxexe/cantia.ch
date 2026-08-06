@@ -379,6 +379,14 @@ function LandingContent() {
                       muted={!!p.max_devis_factures_per_month}
                     />
                     <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
+                    <PriceFeature text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
+                    <PriceFeature text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
+                    <PriceFeature text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
+                    <PriceFeature
+                      text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
+                      muted={p.max_trames === 0}
+                      included={p.max_trames !== 0}
+                    />
                   </View>
                   <Link href={authHref('signup')} asChild>
                     <Button

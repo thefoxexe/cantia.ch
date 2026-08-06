@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { listProjectExpenses, createProjectExpense, deleteProjectExpense } from '../lib/api/expenses';
 import { Button, Card, EmptyState, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import type { ProjectExpense } from '../lib/types';
+import type { Plan, ProjectExpense } from '../lib/types';
 
 const HOURS_PER_DAY = 8;
 
@@ -32,10 +32,12 @@ function businessDays(startIso: string, endIso: string): number {
 
 export function ProjectProfitability({ projectId, organizationId }: { projectId: string; organizationId: string }) {
   const { user, organization } = useAuth();
+  const router = useRouter();
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [devisedTotal, setDevisedTotal] = useState(0);
   const [laborDays, setLaborDays] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [label, setLabel] = useState('');
   const [amount, setAmount] = useState('');
@@ -43,12 +45,14 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [expensesList, { data: devisList }, { data: assignments }] = await Promise.all([
+    const [expensesList, { data: devisList }, { data: assignments }, { data: planRow }] = await Promise.all([
       listProjectExpenses(projectId),
       supabase.from('devis').select('id').eq('project_id', projectId).eq('status', 'accepted'),
       supabase.from('planning_assignments').select('starts_on, ends_on').eq('project_id', projectId),
+      organization ? supabase.from('plans').select('*').eq('id', organization.plan_id).single() : Promise.resolve({ data: null }),
     ]);
     setExpenses(expensesList);
+    setPlan(planRow ?? null);
 
     const devisIds = (devisList ?? []).map((d) => d.id);
     if (devisIds.length) {
@@ -60,7 +64,7 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
     setLaborDays((assignments ?? []).reduce((sum, a) => sum + businessDays(a.starts_on, a.ends_on), 0));
     setLoading(false);
-  }, [projectId]);
+  }, [projectId, organization]);
 
   useFocusEffect(
     useCallback(() => {
@@ -103,6 +107,26 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
   }
 
   if (loading) return null;
+
+  if (plan && !plan.has_profitability) {
+    return (
+      <Card style={styles.upsell}>
+        <Feather name="trending-up" size={22} color={colors.accent} />
+        <Text style={styles.upsellTitle}>Rentabilité par chantier</Text>
+        <Text style={styles.upsellText}>
+          Comparez le devis accepté au coût réel (matériel + main d’œuvre) pour savoir si un chantier est rentable.
+        </Text>
+        <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
+        <Button
+          title="Voir les plans"
+          variant="secondary"
+          icon="arrow-right"
+          onPress={() => router.push('/(app)/compte')}
+          style={{ marginTop: spacing.md }}
+        />
+      </Card>
+    );
+  }
 
   return (
     <View style={{ gap: spacing.lg }}>
@@ -183,6 +207,21 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 }
 
 const styles = StyleSheet.create({
+  upsell: {
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+  },
+  upsellTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: spacing.sm,
+  },
+  upsellText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 20,
+  },
   noticeCard: {
     flexDirection: 'row',
     alignItems: 'center',

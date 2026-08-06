@@ -50,9 +50,14 @@ Deno.serve(async (req: Request) => {
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
 
     const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('name, email').eq('id', facture.organization_id).single(),
+      admin.from('organizations').select('name, email, plan_id').eq('id', facture.organization_id).single(),
       admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
     ]);
+
+    const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
+    if (plan && plan.has_email_sending === false) {
+      return json({ error: "L'envoi de relances par e-mail n'est pas disponible sur votre plan. Passez à un plan supérieur pour l'activer." }, 403);
+    }
 
     const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
     const total = subtotal * (1 + Number(facture.vat_rate) / 100);

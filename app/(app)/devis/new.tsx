@@ -188,11 +188,11 @@ export default function NewDevisScreen() {
   // needsPrice set instead of a guessed number.
   async function generateLinesFromDictation() {
     const transcript = devisLinesTranscriptRef.current.trim();
-    if (!transcript) return;
+    if (!transcript || !organization) return;
     setGeneratingLines(true);
     setLinesDictationError(null);
     const catalogPayload = catalog.slice(0, 150).map((c) => ({ description: c.description, unit: c.unit, unitPrice: c.unitPrice }));
-    const { lines: aiLines, error: err } = await generateDevisLines(transcript, catalogPayload);
+    const { lines: aiLines, error: err } = await generateDevisLines(transcript, catalogPayload, organization.id);
     setGeneratingLines(false);
     if (err || !aiLines || aiLines.length === 0) {
       setLinesDictationError(err ?? "Aucune position n'a été comprise dans la dictée, réessayez.");

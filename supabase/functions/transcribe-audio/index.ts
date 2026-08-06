@@ -36,6 +36,15 @@ Deno.serve(async (req: Request) => {
     const { data: file, error: downloadError } = await userClient.storage.from(BUCKET).download(storage_path);
     if (downloadError || !file) return json({ error: 'Enregistrement introuvable ou accès refusé' }, 404);
 
+    // Storage paths are always `${organizationId}/...` (see uploadToOrgBucket) —
+    // reused here rather than trusting a separate client-supplied field.
+    const organizationId = String(storage_path).split('/')[0];
+    const { data: allowed, error: quotaError } = await userClient.rpc('check_and_log_ai_usage', {
+      p_organization_id: organizationId,
+    });
+    if (quotaError) return json({ error: 'Accès refusé' }, 403);
+    if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
+
     const ext = file.type.includes('webm') ? 'webm' : file.type.includes('wav') ? 'wav' : 'm4a';
     const form = new FormData();
     form.append('file', file, `audio.${ext}`);

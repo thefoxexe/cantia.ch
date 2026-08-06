@@ -46,6 +46,11 @@ export interface Plan {
   max_devis_factures_per_month: number | null;
   has_rtk: boolean;
   has_customization: boolean;
+  has_email_sending: boolean;
+  has_planning: boolean;
+  has_profitability: boolean;
+  max_trames: number | null;
+  max_ai_uses_per_month: number | null;
   stripe_price_id: string | null;
   stripe_price_id_yearly: string | null;
 }

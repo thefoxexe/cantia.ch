@@ -46,10 +46,15 @@ Deno.serve(async (req: Request) => {
     if (facture.status === 'draft') return json({ error: "Finalisez d'abord la facture avant de l'envoyer." }, 400);
 
     const [{ data: org }, { data: items }, { data: payments }] = await Promise.all([
-      admin.from('organizations').select('name, email, iban').eq('id', facture.organization_id).single(),
+      admin.from('organizations').select('name, email, iban, plan_id').eq('id', facture.organization_id).single(),
       admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
       admin.from('facture_payments').select('amount').eq('facture_id', facture_id),
     ]);
+
+    const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
+    if (plan && plan.has_email_sending === false) {
+      return json({ error: "L'envoi de factures par e-mail n'est pas disponible sur votre plan. Passez à un plan supérieur pour l'activer." }, 403);
+    }
 
     if (!isValidSwissIban(org?.iban)) {
       return json(

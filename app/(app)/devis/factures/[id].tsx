@@ -23,7 +23,7 @@ import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } fr
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
-import type { Facture, FactureItem, FacturePayment, FactureStatus, Project } from '../../../../lib/types';
+import type { Facture, FactureItem, FacturePayment, FactureStatus, Plan, Project } from '../../../../lib/types';
 
 const DEPOSIT_PRESETS = [20, 30, 50];
 
@@ -72,6 +72,7 @@ export default function FactureDetailScreen() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [plan, setPlan] = useState<Plan | null>(null);
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -92,8 +93,12 @@ export default function FactureDetailScreen() {
     setItems(i ?? []);
     setPayments(p);
     if (f?.organization_id) {
-      const { data: org } = await supabase.from('organizations').select('iban').eq('id', f.organization_id).single();
+      const { data: org } = await supabase.from('organizations').select('iban, plan_id').eq('id', f.organization_id).single();
       setOrgIban(org?.iban ?? null);
+      if (org?.plan_id) {
+        const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
+        setPlan(planRow ?? null);
+      }
     }
     setSiblingFactures(f?.devis_id ? await listFacturesForDevis(f.devis_id) : []);
     if (f?.project_id) {
@@ -387,16 +392,23 @@ export default function FactureDetailScreen() {
                 onPress={handleCopyClientLink}
                 style={styles.clientLinkButton}
               />
-              <Button
-                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
-                variant="secondary"
-                icon={emailSent ? 'check' : 'mail'}
-                loading={sendingEmail}
-                onPress={handleSendEmail}
-                style={styles.clientLinkButton}
-              />
+              {plan?.has_email_sending !== false ? (
+                <Button
+                  title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                  variant="secondary"
+                  icon={emailSent ? 'check' : 'mail'}
+                  loading={sendingEmail}
+                  onPress={handleSendEmail}
+                  style={styles.clientLinkButton}
+                />
+              ) : null}
             </View>
           )}
+          {plan?.has_email_sending === false ? (
+            <Text style={styles.copyLinkHint}>
+              L'envoi par e-mail n'est pas disponible sur votre plan — copiez le lien client ci-dessus, ou passez à un plan supérieur.
+            </Text>
+          ) : null}
         </Card>
 
         {paymentRef ? (

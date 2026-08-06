@@ -18,7 +18,7 @@ import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Devis, DevisItem, DevisStatus, Facture, Project } from '../../../lib/types';
+import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
 
@@ -50,6 +50,7 @@ export default function DevisDetailScreen() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [plan, setPlan] = useState<Plan | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -60,13 +61,17 @@ export default function DevisDetailScreen() {
     setDevis(d ?? null);
     setItems(i ?? []);
     setRelatedFactures(f);
+    if (organization) {
+      const { data: planRow } = await supabase.from('plans').select('*').eq('id', organization.plan_id).single();
+      setPlan(planRow ?? null);
+    }
     if (d?.project_id) {
       const { data: p } = await supabase.from('projects').select('*').eq('id', d.project_id).single();
       setLinkedProject(p ?? null);
     } else {
       setLinkedProject(null);
     }
-  }, [id]);
+  }, [id, organization]);
 
   async function handleProjectChange(project: Project | null) {
     setLinkedProject(project);
@@ -257,16 +262,23 @@ export default function DevisDetailScreen() {
                 onPress={handleCopyClientLink}
                 style={styles.clientLinkButton}
               />
-              <Button
-                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
-                variant="secondary"
-                icon={emailSent ? 'check' : 'mail'}
-                loading={sendingEmail}
-                onPress={handleSendEmail}
-                style={styles.clientLinkButton}
-              />
+              {plan?.has_email_sending !== false ? (
+                <Button
+                  title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                  variant="secondary"
+                  icon={emailSent ? 'check' : 'mail'}
+                  loading={sendingEmail}
+                  onPress={handleSendEmail}
+                  style={styles.clientLinkButton}
+                />
+              ) : null}
             </View>
           )}
+          {plan?.has_email_sending === false ? (
+            <Text style={styles.copyLinkHint}>
+              L'envoi par e-mail n'est pas disponible sur votre plan — copiez le lien client ci-dessus, ou passez à un plan supérieur.
+            </Text>
+          ) : null}
         </Card>
 
         <Text style={styles.sectionTitle}>Lignes</Text>

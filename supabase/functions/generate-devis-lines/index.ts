@@ -39,10 +39,11 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { transcript, catalog } = await req.json();
+    const { transcript, catalog, organization_id } = await req.json();
     if (!transcript || typeof transcript !== 'string' || !transcript.trim()) {
       return json({ error: 'transcript requis' }, 400);
     }
+    if (!organization_id) return json({ error: 'organization_id requis' }, 400);
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!apiKey) return json({ error: 'Génération IA non configurée (clé Anthropic manquante)' }, 500);
@@ -62,6 +63,12 @@ Deno.serve(async (req: Request) => {
       data: { user },
     } = await userClient.auth.getUser();
     if (!user) return json({ error: 'Non authentifié' }, 401);
+
+    const { data: allowed, error: quotaError } = await userClient.rpc('check_and_log_ai_usage', {
+      p_organization_id: organization_id,
+    });
+    if (quotaError) return json({ error: 'Accès refusé' }, 403);
+    if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
 
     const catalogItems: CatalogInput[] = Array.isArray(catalog) ? catalog.slice(0, MAX_CATALOG_ITEMS) : [];
     const catalogText = catalogItems.length
