@@ -40,12 +40,19 @@ export function buildDocumentEmailHtml(params: {
   projectName?: string | null;
   detailsTitle: string;
   detailsLines: string[];
+  // Secondary download link (e.g. a time-limited signed URL for a reminder
+  // email, which doesn't re-attach the PDF) — rendered between the details
+  // card and the main "consult online" link. Omitted entirely when unset,
+  // used by send-devis-email/send-facture-email since those already attach
+  // the PDF directly.
+  pdfUrl?: string | null;
+  pdfLabel?: string;
   linkUrl: string;
   linkLabel: string;
   linkHint: string;
   signature: string;
 }): string {
-  const { clientName, bodyMessage, projectName, detailsTitle, detailsLines, linkUrl, linkLabel, linkHint, signature } = params;
+  const { clientName, bodyMessage, projectName, detailsTitle, detailsLines, pdfUrl, pdfLabel, linkUrl, linkLabel, linkHint, signature } = params;
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
   return `
@@ -63,6 +70,11 @@ export function buildDocumentEmailHtml(params: {
           .map((line) => `<p style="margin: 0 0 4px; color: #3f4842;">${escapeHtml(line)}</p>`)
           .join('')}
       </div>
+      ${
+        pdfUrl
+          ? `<p style="margin: 0 0 12px;"><a href="${pdfUrl}" style="color: #1f3d3a; font-weight: 600; text-decoration: underline;">${escapeHtml(pdfLabel ?? 'Télécharger le PDF')}</a></p>`
+          : ''
+      }
       <p style="margin: 0 0 24px;">
         <a href="${linkUrl}" style="color: #1f3d3a; font-weight: 700; text-decoration: underline;">${escapeHtml(linkLabel)}</a>
         ${linkHint ? ` — ${escapeHtml(linkHint)}` : ''}

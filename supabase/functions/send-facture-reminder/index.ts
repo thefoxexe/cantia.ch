@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -40,7 +40,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: facture, error: factureError } = await userClient
       .from('factures')
-      .select('*')
+      .select('*, projects(name)')
       .eq('id', facture_id)
       .single();
 
@@ -50,7 +50,7 @@ Deno.serve(async (req: Request) => {
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
 
     const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('name, email, plan_id').eq('id', facture.organization_id).single(),
+      admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', facture.organization_id).single(),
       admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
     ]);
 
@@ -64,12 +64,10 @@ Deno.serve(async (req: Request) => {
     const overdue = facture.due_date < new Date().toISOString().slice(0, 10);
     const orgName = org?.name ?? 'Notre entreprise';
 
-    let pdfLine = '';
+    let pdfUrl: string | null = null;
     if (facture.pdf_path) {
       const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(facture.pdf_path, 60 * 60 * 24 * 7);
-      if (signed?.signedUrl) {
-        pdfLine = `<p><a href="${signed.signedUrl}">Télécharger la facture ${facture.number ?? ''}</a> (lien valable 7 jours).</p>`;
-      }
+      pdfUrl = signed?.signedUrl ?? null;
     }
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
 
@@ -77,21 +75,26 @@ Deno.serve(async (req: Request) => {
       ? `Rappel — facture ${facture.number ?? ''} en retard de paiement`
       : `Rappel — facture ${facture.number ?? ''} à régler prochainement`;
 
-    const html = `
-      <p>Bonjour${facture.client_name ? ` ${facture.client_name}` : ''},</p>
-      <p>
-        ${overdue ? 'Sauf erreur de notre part, la facture suivante est toujours impayée' : "Nous vous rappelons que la facture suivante arrive bientôt à échéance"} :
-      </p>
-      <ul>
-        <li>Facture n° ${facture.number ?? '—'}</li>
-        <li>Montant : CHF ${formatChfPlain(total)}</li>
-        <li>Échéance : ${formatDateFr(facture.due_date)}</li>
-      </ul>
-      ${pdfLine}
-      <p><a href="${publicUrl}">Consulter cette facture en ligne</a> pour retrouver le détail et le solde restant à tout moment.</p>
-      <p>Merci de bien vouloir procéder au règlement, ou de nous contacter si le paiement a déjà été effectué.</p>
-      <p>Cordialement,<br/>${orgName}</p>
-    `.trim();
+    const bodyMessage = `${
+      overdue
+        ? 'Sauf erreur de notre part, la facture suivante est toujours impayée.'
+        : 'Nous vous rappelons que la facture suivante arrive bientôt à échéance.'
+    } Merci de bien vouloir procéder au règlement, ou de nous contacter si le paiement a déjà été effectué.`;
+    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+
+    const html = buildDocumentEmailHtml({
+      clientName: facture.client_name,
+      bodyMessage,
+      projectName: facture.projects?.name ?? null,
+      detailsTitle: `Facture n° ${facture.number ?? '—'}`,
+      detailsLines: [`Montant : CHF ${formatChfPlain(total)}`, `Échéance : ${formatDateFr(facture.due_date)}`],
+      pdfUrl,
+      pdfLabel: `Télécharger la facture ${facture.number ?? ''} (lien valable 7 jours)`,
+      linkUrl: publicUrl,
+      linkLabel: 'Consulter cette facture en ligne',
+      linkHint: 'retrouvez le détail et le solde restant à tout moment',
+      signature,
+    });
 
     const { ok, error } = await sendResendEmail({
       apiKey,
