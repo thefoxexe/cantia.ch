@@ -17,6 +17,7 @@ const TABS: SettingsTab[] = [
   { key: 'stockage', label: 'Stockage', href: '/(app)/compte/stockage' },
   { key: 'abonnement', label: 'Abonnement', href: '/(app)/compte/facturation' },
   { key: 'profil', label: 'Mon profil', href: '/(app)/compte/profil' },
+  { key: 'aide', label: 'Aide', href: '/(app)/compte/aide' },
 ];
 
 export function SettingsTabs() {
