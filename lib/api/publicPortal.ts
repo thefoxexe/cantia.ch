@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { PublicDevisPayload, PublicFacturePayload } from '../types';
+import type { ClientDocumentsPayload, PublicDevisPayload, PublicFacturePayload } from '../types';
 
 export function publicDevisUrl(token: string): string {
   if (typeof window !== 'undefined' && window.location) {
@@ -42,4 +42,13 @@ export async function acceptPublicDevis(
 export async function getPublicFacture(token: string, email: string): Promise<{ data: PublicFacturePayload | null; error: string | null }> {
   const { data, error } = await supabase.rpc('get_public_facture', { p_token: token, p_email: email });
   return { data: (data as PublicFacturePayload) ?? null, error: error?.message ?? null };
+}
+
+export async function listClientDocuments(
+  token: string,
+  kind: 'devis' | 'facture',
+  email: string,
+): Promise<{ data: ClientDocumentsPayload | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('list_client_documents', { p_token: token, p_kind: kind, p_email: email });
+  return { data: (data as ClientDocumentsPayload) ?? null, error: error?.message ?? null };
 }

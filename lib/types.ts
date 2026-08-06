@@ -343,6 +343,21 @@ export interface PublicFacturePayload {
   organization: PublicPortalOrganization;
 }
 
+export interface ClientDocumentSummary {
+  token: string;
+  number: string | null;
+  status: string;
+  is_deposit?: boolean;
+  created_at: string;
+  project_name: string | null;
+}
+
+export interface ClientDocumentsPayload {
+  organization_name: string;
+  devis: ClientDocumentSummary[];
+  factures: ClientDocumentSummary[];
+}
+
 export interface FactureItem {
   id: string;
   facture_id: string;

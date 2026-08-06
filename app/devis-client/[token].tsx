@@ -3,11 +3,13 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { getPublicDevis, acceptPublicDevis } from '../../lib/api/publicPortal';
+import { getPublicDevis, acceptPublicDevis, listClientDocuments } from '../../lib/api/publicPortal';
 import { SignaturePad } from '../../components/SignaturePad';
+import { ClientPortalHeader } from '../../components/ClientPortalHeader';
+import { ClientHistoryModal } from '../../components/ClientHistoryModal';
 import { Button, Card, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import type { PublicDevisPayload } from '../../lib/types';
+import type { ClientDocumentsPayload, PublicDevisPayload } from '../../lib/types';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Brouillon',
@@ -35,6 +37,25 @@ export default function PublicDevisScreen() {
   const [accepting, setAccepting] = useState(false);
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const [accepted, setAccepted] = useState(false);
+
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historyPayload, setHistoryPayload] = useState<ClientDocumentsPayload | null>(null);
+
+  async function handleOpenHistory() {
+    setHistoryVisible(true);
+    if (!token || !email.trim()) return;
+    setHistoryLoading(true);
+    setHistoryError(null);
+    const { data, error } = await listClientDocuments(token, 'devis', email.trim());
+    setHistoryLoading(false);
+    if (error || !data) {
+      setHistoryError('Impossible de charger vos documents.');
+      return;
+    }
+    setHistoryPayload(data);
+  }
 
   async function handleVerify() {
     if (!token || !email.trim()) return;
@@ -82,6 +103,9 @@ export default function PublicDevisScreen() {
   if (!payload) {
     return (
       <View style={styles.gate}>
+        <View style={styles.gateHeader}>
+          <ClientPortalHeader />
+        </View>
         <Card style={styles.gateCard}>
           <View style={styles.secureBadge}>
             <Feather name="shield" size={14} color={colors.success} />
@@ -106,6 +130,15 @@ export default function PublicDevisScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <ClientPortalHeader onMenuPress={handleOpenHistory} />
+      <ClientHistoryModal
+        visible={historyVisible}
+        onClose={() => setHistoryVisible(false)}
+        organizationName={organization.name}
+        payload={historyPayload}
+        loading={historyLoading}
+        error={historyError}
+      />
       <View style={styles.secureBadge}>
         <Feather name="shield" size={14} color={colors.success} />
         <Text style={styles.secureBadgeText}>Connexion sécurisée — vos informations ne sortent pas de cette page</Text>
@@ -222,6 +255,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.lg,
+  },
+  gateHeader: {
+    width: '100%',
+    maxWidth: 420,
   },
   gateCard: {
     width: '100%',
