@@ -1,4 +1,10 @@
 import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
+
+export async function sendDevisEmail(devisId: string): Promise<{ sent: boolean; error: string | null }> {
+  const { data, error } = await invokeFunction<{ sent: boolean }>('send-devis-email', { devis_id: devisId });
+  return { sent: !!data?.sent, error };
+}
 
 export async function duplicateDevis(devisId: string): Promise<{ id: string | null; error: string | null }> {
   const { data: original, error: loadError } = await supabase.from('devis').select('*').eq('id', devisId).single();

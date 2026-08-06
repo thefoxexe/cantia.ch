@@ -22,10 +22,7 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'project', label: 'Chantier' },
 ];
 
-// The reminder edge function (send-facture-reminder) is fully wired, but
-// the Resend sending domain isn't finalized on the account yet — flipping
-// this back to true is the only change needed once it is.
-const REMINDERS_ENABLED = false;
+const REMINDERS_ENABLED = true;
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);

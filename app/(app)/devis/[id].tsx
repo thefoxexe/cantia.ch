@@ -8,7 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
-import { duplicateDevis } from '../../../lib/api/devis';
+import { duplicateDevis, sendDevisEmail } from '../../../lib/api/devis';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
@@ -48,6 +48,8 @@ export default function DevisDetailScreen() {
   const [savingTrame, setSavingTrame] = useState(false);
   const [trameError, setTrameError] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -153,6 +155,21 @@ export default function DevisDetailScreen() {
     setTimeout(() => setLinkCopied(false), 2000);
   }
 
+  async function handleSendEmail() {
+    if (!devis) return;
+    setSendingEmail(true);
+    setError(null);
+    const { sent, error: sendError } = await sendDevisEmail(id);
+    setSendingEmail(false);
+    if (sendError || !sent) {
+      setError(sendError ?? "Échec de l'envoi de l'e-mail.");
+      return;
+    }
+    setEmailSent(true);
+    setTimeout(() => setEmailSent(false), 2500);
+    load();
+  }
+
   async function handleSaveTrame() {
     if (!organization) return;
     if (!trameName.trim()) {
@@ -219,13 +236,23 @@ export default function DevisDetailScreen() {
             <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
           {devis.client_email ? (
-            <Button
-              title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
-              variant="secondary"
-              icon={linkCopied ? 'check' : 'link'}
-              onPress={handleCopyClientLink}
-              style={styles.copyLinkButton}
-            />
+            <View style={styles.clientLinkRow}>
+              <Button
+                title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+                variant="secondary"
+                icon={linkCopied ? 'check' : 'link'}
+                onPress={handleCopyClientLink}
+                style={styles.clientLinkButton}
+              />
+              <Button
+                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                variant="secondary"
+                icon={emailSent ? 'check' : 'mail'}
+                loading={sendingEmail}
+                onPress={handleSendEmail}
+                style={styles.clientLinkButton}
+              />
+            </View>
           ) : (
             <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation/signature sécurisé.</Text>
           )}
@@ -369,8 +396,14 @@ const styles = StyleSheet.create({
   projectPickerRow: {
     marginTop: spacing.sm,
   },
-  copyLinkButton: {
+  clientLinkRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  clientLinkButton: {
+    flexGrow: 1,
   },
   copyLinkHint: {
     fontSize: fontSize.xs,

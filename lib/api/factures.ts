@@ -7,6 +7,11 @@ export async function sendFactureReminder(factureId: string): Promise<{ sent: bo
   return { sent: !!data?.sent, error };
 }
 
+export async function sendFactureEmail(factureId: string): Promise<{ sent: boolean; error: string | null }> {
+  const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-email', { facture_id: factureId });
+  return { sent: !!data?.sent, error };
+}
+
 // depositPercent omitted (or null) creates the normal final invoice, which
 // auto-deducts any deposits already billed on the same devis. Passing a
 // percent instead creates a deposit invoice for that share of the devis.

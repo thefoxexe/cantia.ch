@@ -16,6 +16,7 @@ import {
   addFacturePayment,
   deleteFacturePayment,
   recomputeFactureDepositDeduction,
+  sendFactureEmail,
 } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
@@ -69,6 +70,8 @@ export default function FactureDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -111,6 +114,21 @@ export default function FactureDetailScreen() {
     await Clipboard.setStringAsync(publicFactureUrl(facture.public_token));
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
+  }
+
+  async function handleSendEmail() {
+    if (!facture) return;
+    setSendingEmail(true);
+    setError(null);
+    const { sent, error: sendError } = await sendFactureEmail(id);
+    setSendingEmail(false);
+    if (sendError || !sent) {
+      setError(sendError ?? "Échec de l'envoi de l'e-mail.");
+      return;
+    }
+    setEmailSent(true);
+    setTimeout(() => setEmailSent(false), 2500);
+    load();
   }
 
   useFocusEffect(
@@ -345,13 +363,23 @@ export default function FactureDetailScreen() {
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
           {facture.client_email ? (
-            <Button
-              title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
-              variant="secondary"
-              icon={linkCopied ? 'check' : 'link'}
-              onPress={handleCopyClientLink}
-              style={styles.copyLinkButton}
-            />
+            <View style={styles.clientLinkRow}>
+              <Button
+                title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+                variant="secondary"
+                icon={linkCopied ? 'check' : 'link'}
+                onPress={handleCopyClientLink}
+                style={styles.clientLinkButton}
+              />
+              <Button
+                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                variant="secondary"
+                icon={emailSent ? 'check' : 'mail'}
+                loading={sendingEmail}
+                onPress={handleSendEmail}
+                style={styles.clientLinkButton}
+              />
+            </View>
           ) : (
             <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation sécurisé.</Text>
           )}
@@ -558,8 +586,14 @@ const styles = StyleSheet.create({
   projectPickerRow: {
     marginTop: spacing.sm,
   },
-  copyLinkButton: {
+  clientLinkRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  clientLinkButton: {
+    flexGrow: 1,
   },
   copyLinkHint: {
     fontSize: fontSize.xs,

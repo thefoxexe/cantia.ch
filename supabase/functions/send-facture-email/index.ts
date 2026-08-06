@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, sendResendEmail } from '../_shared/resend.ts';
+import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -14,8 +15,7 @@ function formatChf(n: number): string {
 }
 
 function formatDateFr(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('fr-CH');
+  return new Date(iso).toLocaleDateString('fr-CH');
 }
 
 Deno.serve(async (req: Request) => {
@@ -42,53 +42,42 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: facture, error: factureError } = await userClient
-      .from('factures')
-      .select('*')
-      .eq('id', facture_id)
-      .single();
-
+    const { data: facture, error: factureError } = await userClient.from('factures').select('*').eq('id', facture_id).single();
     if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
     if (!facture.client_email) return json({ error: "Cette facture n'a pas d'adresse e-mail client." }, 400);
-    if (facture.status === 'paid') return json({ error: 'Cette facture est déjà payée.' }, 400);
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
+    if (!facture.pdf_path) return json({ error: "Générez d'abord le PDF de la facture avant de l'envoyer." }, 400);
 
-    const [{ data: org }, { data: items }] = await Promise.all([
+    const [{ data: org }, { data: items }, { data: payments }] = await Promise.all([
       admin.from('organizations').select('name, email').eq('id', facture.organization_id).single(),
       admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
+      admin.from('facture_payments').select('amount').eq('facture_id', facture_id),
     ]);
+
+    const pdfFile = await fetchStorageBytes(admin, BUCKET, facture.pdf_path);
+    if (!pdfFile) return json({ error: 'Le PDF de la facture est introuvable dans le stockage.' }, 500);
 
     const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
     const total = subtotal * (1 + Number(facture.vat_rate) / 100);
-    const overdue = facture.due_date < new Date().toISOString().slice(0, 10);
+    const paid = (payments ?? []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+    const remaining = Math.max(total - paid, 0);
     const orgName = org?.name ?? 'Notre entreprise';
-
-    let pdfLine = '';
-    if (facture.pdf_path) {
-      const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(facture.pdf_path, 60 * 60 * 24 * 7);
-      if (signed?.signedUrl) {
-        pdfLine = `<p><a href="${signed.signedUrl}">Télécharger la facture ${facture.number ?? ''}</a> (lien valable 7 jours).</p>`;
-      }
-    }
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
+    const kind = facture.is_deposit ? "Facture d'acompte" : 'Facture';
 
-    const subject = overdue
-      ? `Rappel — facture ${facture.number ?? ''} en retard de paiement`
-      : `Rappel — facture ${facture.number ?? ''} à régler prochainement`;
-
+    const subject = `${kind} ${facture.number ?? ''} — ${orgName}`;
     const html = `
       <p>Bonjour${facture.client_name ? ` ${facture.client_name}` : ''},</p>
-      <p>
-        ${overdue ? 'Sauf erreur de notre part, la facture suivante est toujours impayée' : "Nous vous rappelons que la facture suivante arrive bientôt à échéance"} :
-      </p>
+      <p>Veuillez trouver ci-joint notre facture :</p>
       <ul>
-        <li>Facture n° ${facture.number ?? '—'}</li>
+        <li>${kind} n° ${facture.number ?? '—'}</li>
         <li>Montant : CHF ${formatChf(total)}</li>
+        <li>Solde restant dû : CHF ${formatChf(remaining)}</li>
         <li>Échéance : ${formatDateFr(facture.due_date)}</li>
       </ul>
-      ${pdfLine}
-      <p><a href="${publicUrl}">Consulter cette facture en ligne</a> pour retrouver le détail et le solde restant à tout moment.</p>
-      <p>Merci de bien vouloir procéder au règlement, ou de nous contacter si le paiement a déjà été effectué.</p>
+      <p>
+        <a href="${publicUrl}">Consulter cette facture en ligne</a> pour retrouver le détail et le solde restant à tout moment.
+      </p>
       <p>Cordialement,<br/>${orgName}</p>
     `.trim();
 
@@ -99,10 +88,13 @@ Deno.serve(async (req: Request) => {
       replyTo: org?.email,
       subject,
       html,
+      attachments: [{ filename: `${kind}-${facture.number ?? facture_id}.pdf`, content: base64FromBytes(pdfFile.bytes) }],
     });
     if (!ok) return json({ error }, 502);
 
-    await admin.from('factures').update({ last_reminded_at: new Date().toISOString() }).eq('id', facture_id);
+    if (facture.status === 'draft') {
+      await admin.from('factures').update({ status: 'sent' }).eq('id', facture_id);
+    }
 
     return json({ sent: true });
   } catch (err) {
