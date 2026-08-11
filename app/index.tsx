@@ -63,10 +63,13 @@ function LandingContent() {
     organizations_count: number;
     cash_collected_chf: number;
   } | null>(null);
-  const usersDisplay = useCountUp(landingStats?.users_count);
-  const orgsDisplay = useCountUp(landingStats?.organizations_count);
-  const cashCoins = useCountUpCoins(landingStats?.cash_collected_chf);
-  const launchDaysDisplay = useCountUp(daysSinceLaunch());
+  const usersBurst = useCountUpBurst(landingStats?.users_count);
+  const orgsBurst = useCountUpBurst(landingStats?.organizations_count);
+  const cashBurst = useCountUpBurst(landingStats?.cash_collected_chf);
+  // Fixed at load, not part of the "live" ticker — it doesn't grow while
+  // you watch, it's just today's number, so it lives as its own quiet line
+  // above the hero rather than mixed in with the counters that do grow.
+  const launchDays = daysSinceLaunch();
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -85,6 +88,12 @@ function LandingContent() {
   const menuItemAnims = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
+  // The problem→solution connector's little "trailing" lag as you scroll:
+  // each scroll tick nudges it away from rest by a fraction of that tick's
+  // delta, then it springs back to 0 — so it visibly lags a beat behind the
+  // page before catching back up, instead of just being static.
+  const connectorPull = useRef(new Animated.Value(0)).current;
+  const lastScrollYRef = useRef(0);
 
   // Scroll-triggered section reveals: each section registers its own y
   // offset on layout, and the shared scroll handler below fades + lifts it
@@ -133,8 +142,14 @@ function LandingContent() {
       scrollYRef.current = y;
       setScrolled((prev) => (prev !== y > 4 ? y > 4 : prev));
       checkReveals(y, e.nativeEvent.layoutMeasurement.height);
+
+      const delta = y - lastScrollYRef.current;
+      lastScrollYRef.current = y;
+      connectorPull.stopAnimation();
+      connectorPull.setValue(Math.max(-16, Math.min(16, delta * 0.8)));
+      Animated.spring(connectorPull, { toValue: 0, friction: 5, tension: 40, useNativeDriver: true }).start();
     },
-    [checkReveals],
+    [checkReveals, connectorPull],
   );
 
   useEffect(() => {
@@ -296,6 +311,9 @@ function LandingContent() {
               ]}
             >
               <View style={[styles.heroCopy, isCompactNav && styles.heroCopyCompact]}>
+                <Text style={[styles.heroLaunchNote, isCompactNav && styles.centerText]}>
+                  Lancé il y a {launchDays} jour{launchDays > 1 ? 's' : ''} — merci pour la confiance
+                </Text>
                 <View style={[styles.kicker, isCompactNav && styles.kickerCompact]}>
                   <View style={styles.kickerDot} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
@@ -377,63 +395,137 @@ function LandingContent() {
 
           {/* ---- Live stats: a full-bleed ticker bar, not a rounded pill —
               see the landing_stats table + triggers in the Supabase
-              migration. The cash figure spawns little CHF particles as it
-              counts up, like coins dropping into a piggy bank. ---- */}
+              migration. Every figure spawns a little floating glyph and
+              pulses as it counts up, not just the cash one. Mobile gets its
+              own stacked layout instead of the desktop row wrapping
+              mid-label. ---- */}
           <View style={styles.statsTickerOuter}>
-            <View style={styles.statsTickerInner}>
-              <View style={styles.statsTickerLive}>
-                <View style={styles.statsLiveDotWrap}>
-                  <Animated.View
-                    style={[
-                      styles.statsLiveDotGlow,
-                      {
-                        opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
-                        transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
-                      },
-                    ]}
-                  />
-                  <View style={styles.statsLiveDotCore} />
+            {isCompactNav ? (
+              <View style={styles.statsTickerCompact}>
+                <View style={styles.statsTickerLiveCompact}>
+                  <View style={styles.statsLiveDotWrap}>
+                    <Animated.View
+                      style={[
+                        styles.statsLiveDotGlow,
+                        {
+                          opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
+                          transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
+                        },
+                      ]}
+                    />
+                    <View style={styles.statsLiveDotCore} />
+                  </View>
+                  <Text style={styles.statsTickerLiveText}>En direct</Text>
                 </View>
-                <Text style={styles.statsTickerLiveText}>En direct</Text>
-              </View>
-              <View style={styles.statsTickerDivider} />
-              <View style={styles.statsTickerStat}>
-                <Text style={styles.statsTickerValue}>
-                  {landingStats ? formatStatCount(Math.round(orgsDisplay)) : '—'}
-                </Text>
-                <Text style={styles.statsTickerLabel}>entreprises nous ont déjà rejoint</Text>
-              </View>
-              <View style={styles.statsTickerDivider} />
-              <View style={styles.statsTickerStat}>
-                <Text style={styles.statsTickerValue}>
-                  {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
-                </Text>
-                <Text style={styles.statsTickerLabel}>utilisateurs actifs</Text>
-              </View>
-              <View style={styles.statsTickerDivider} />
-              <View style={styles.statsTickerStat}>
-                <View style={styles.statsTickerCoinAnchor}>
-                  <Animated.Text
-                    style={[
-                      styles.statsTickerValue,
-                      styles.statsTickerValueAccent,
-                      { transform: [{ scale: cashCoins.pulse }] },
-                    ]}
-                  >
-                    {landingStats ? `CHF ${formatStatChf(cashCoins.display)}` : '—'}
-                  </Animated.Text>
-                  {cashCoins.coins.map((c) => (
-                    <CoinParticle key={c.id} x={c.x} onDone={() => cashCoins.removeCoin(c.id)} />
-                  ))}
+                <View style={styles.statsTickerRowCompact}>
+                  <View style={styles.statsTickerCoinAnchor}>
+                    <Animated.Text
+                      style={[styles.statsTickerValueCompact, { transform: [{ scale: orgsBurst.pulse }] }]}
+                    >
+                      {landingStats ? formatStatCount(Math.round(orgsBurst.display)) : '—'}
+                    </Animated.Text>
+                    {orgsBurst.particles.map((p) => (
+                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => orgsBurst.removeParticle(p.id)} />
+                    ))}
+                  </View>
+                  <Text style={styles.statsTickerLabelCompact}>entreprises inscrites</Text>
                 </View>
-                <Text style={styles.statsTickerLabel}>encaissés via Cantia</Text>
+                <View style={styles.statsTickerRowCompact}>
+                  <View style={styles.statsTickerCoinAnchor}>
+                    <Animated.Text
+                      style={[styles.statsTickerValueCompact, { transform: [{ scale: usersBurst.pulse }] }]}
+                    >
+                      {landingStats ? formatStatCount(Math.round(usersBurst.display)) : '—'}
+                    </Animated.Text>
+                    {usersBurst.particles.map((p) => (
+                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => usersBurst.removeParticle(p.id)} />
+                    ))}
+                  </View>
+                  <Text style={styles.statsTickerLabelCompact}>utilisateurs actifs</Text>
+                </View>
+                <View style={[styles.statsTickerRowCompact, styles.statsTickerRowCompactLast]}>
+                  <View style={styles.statsTickerCoinAnchor}>
+                    <Animated.Text
+                      style={[
+                        styles.statsTickerValueCompact,
+                        styles.statsTickerValueAccent,
+                        { transform: [{ scale: cashBurst.pulse }] },
+                      ]}
+                    >
+                      {landingStats ? `CHF ${formatStatChf(cashBurst.display)}` : '—'}
+                    </Animated.Text>
+                    {cashBurst.particles.map((p) => (
+                      <BurstParticle key={p.id} x={p.x} glyph="CHF" onDone={() => cashBurst.removeParticle(p.id)} />
+                    ))}
+                  </View>
+                  <Text style={styles.statsTickerLabelCompact}>encaissés via Cantia</Text>
+                </View>
               </View>
-              <View style={styles.statsTickerDivider} />
-              <View style={styles.statsTickerStat}>
-                <Text style={styles.statsTickerValue}>{Math.round(launchDaysDisplay)}</Text>
-                <Text style={styles.statsTickerLabel}>jours en ligne</Text>
+            ) : (
+              <View style={styles.statsTickerInner}>
+                <View style={styles.statsTickerLive}>
+                  <View style={styles.statsLiveDotWrap}>
+                    <Animated.View
+                      style={[
+                        styles.statsLiveDotGlow,
+                        {
+                          opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
+                          transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
+                        },
+                      ]}
+                    />
+                    <View style={styles.statsLiveDotCore} />
+                  </View>
+                  <Text style={styles.statsTickerLiveText}>En direct</Text>
+                </View>
+                <View style={styles.statsTickerDivider} />
+                <View style={styles.statsTickerStat}>
+                  <View style={styles.statsTickerCoinAnchor}>
+                    <Animated.Text
+                      style={[styles.statsTickerValue, { transform: [{ scale: orgsBurst.pulse }] }]}
+                    >
+                      {landingStats ? formatStatCount(Math.round(orgsBurst.display)) : '—'}
+                    </Animated.Text>
+                    {orgsBurst.particles.map((p) => (
+                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => orgsBurst.removeParticle(p.id)} />
+                    ))}
+                  </View>
+                  <Text style={styles.statsTickerLabel}>entreprises nous ont déjà rejoint</Text>
+                </View>
+                <View style={styles.statsTickerDivider} />
+                <View style={styles.statsTickerStat}>
+                  <View style={styles.statsTickerCoinAnchor}>
+                    <Animated.Text
+                      style={[styles.statsTickerValue, { transform: [{ scale: usersBurst.pulse }] }]}
+                    >
+                      {landingStats ? formatStatCount(Math.round(usersBurst.display)) : '—'}
+                    </Animated.Text>
+                    {usersBurst.particles.map((p) => (
+                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => usersBurst.removeParticle(p.id)} />
+                    ))}
+                  </View>
+                  <Text style={styles.statsTickerLabel}>utilisateurs actifs</Text>
+                </View>
+                <View style={styles.statsTickerDivider} />
+                <View style={styles.statsTickerStat}>
+                  <View style={styles.statsTickerCoinAnchor}>
+                    <Animated.Text
+                      style={[
+                        styles.statsTickerValue,
+                        styles.statsTickerValueAccent,
+                        { transform: [{ scale: cashBurst.pulse }] },
+                      ]}
+                    >
+                      {landingStats ? `CHF ${formatStatChf(cashBurst.display)}` : '—'}
+                    </Animated.Text>
+                    {cashBurst.particles.map((p) => (
+                      <BurstParticle key={p.id} x={p.x} glyph="CHF" onDone={() => cashBurst.removeParticle(p.id)} />
+                    ))}
+                  </View>
+                  <Text style={styles.statsTickerLabel}>encaissés via Cantia</Text>
+                </View>
               </View>
-            </View>
+            )}
           </View>
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
@@ -472,13 +564,18 @@ function LandingContent() {
           </Reveal>
 
           {/* ---- Connector: makes the pain → solution relationship visible
-              instead of leaving two sections to imply it on their own ---- */}
-          <View style={styles.narrativeConnector} pointerEvents="none">
+              instead of leaving two sections to imply it on their own —
+              lags a beat behind the scroll (connectorPull) instead of
+              sitting static, like it's on a short elastic tether. ---- */}
+          <Animated.View
+            style={[styles.narrativeConnector, { transform: [{ translateY: connectorPull }] }]}
+            pointerEvents="none"
+          >
             <View style={styles.narrativeLine} />
             <View style={styles.narrativeArrowBadge}>
               <Feather name="arrow-down" size={14} color="#fff" />
             </View>
-          </View>
+          </Animated.View>
 
           {/* ---- Services ("after") ---- */}
           <Reveal id="services" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
@@ -654,10 +751,10 @@ function LandingContent() {
           </Reveal>
 
           {/* ---- Swiss positioning ---- */}
-          <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
-            <View style={[styles.swissBand, isCompactNav && styles.swissBandCompact]}>
+          <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.swissOuter} from={18}>
+            <View style={[styles.swissInner, isCompactNav && styles.swissInnerCompact]}>
+              <SwissStamp />
               <View style={[styles.swissBandCopy, isCompactNav && styles.swissBandCopyCompact]}>
-                <SwissFlagBadge />
                 <Text style={styles.swissTitle}>{t.swiss.title}</Text>
                 <Text style={[styles.swissText, isCompactNav && styles.swissTextCompact]}>{t.swiss.text}</Text>
               </View>
@@ -1005,18 +1102,18 @@ function useCountUp(target: number | undefined, duration = 1300): number {
   return display;
 }
 
-// Same count-up tween as useCountUp, but for the cash figure specifically:
-// every ~140ms of forward progress it also spawns a little "CHF" particle
-// (rendered by CoinParticle below) and gives the number itself a quick
-// scale pulse — the piggy-bank-filling effect the number growing alone
-// doesn't sell on its own.
-function useCountUpCoins(target: number | undefined, duration = 1300) {
+// Same count-up tween as useCountUp, but every ~140ms of forward progress
+// it also spawns a little floating glyph (rendered by BurstParticle below,
+// "CHF" for money, "+1" for headcounts) and gives the number itself a
+// quick scale pulse — every ticker figure gets this "filling up" motion,
+// not just the cash one.
+function useCountUpBurst(target: number | undefined, duration = 1300) {
   const anim = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(1)).current;
   const prevTarget = useRef(0);
   const [display, setDisplay] = useState(0);
-  const [coins, setCoins] = useState<{ id: number; x: number }[]>([]);
-  const nextCoinId = useRef(0);
+  const [particles, setParticles] = useState<{ id: number; x: number }[]>([]);
+  const nextParticleId = useRef(0);
   const lastSpawnAt = useRef(0);
 
   useEffect(() => {
@@ -1029,8 +1126,8 @@ function useCountUpCoins(target: number | undefined, duration = 1300) {
       const now = Date.now();
       if (target > from && value < 1 && now - lastSpawnAt.current > 140) {
         lastSpawnAt.current = now;
-        const id = nextCoinId.current++;
-        setCoins((prev) => [...prev.slice(-5), { id, x: Math.round((Math.random() - 0.5) * 56) }]);
+        const id = nextParticleId.current++;
+        setParticles((prev) => [...prev.slice(-5), { id, x: Math.round((Math.random() - 0.5) * 56) }]);
         Animated.sequence([
           Animated.timing(pulse, { toValue: 1.1, duration: 110, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
           Animated.spring(pulse, { toValue: 1, friction: 4, useNativeDriver: true }),
@@ -1050,16 +1147,16 @@ function useCountUpCoins(target: number | undefined, duration = 1300) {
     };
   }, [target, duration, anim, pulse]);
 
-  const removeCoin = useCallback((id: number) => {
-    setCoins((prev) => prev.filter((c) => c.id !== id));
+  const removeParticle = useCallback((id: number) => {
+    setParticles((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
-  return { display, pulse, coins, removeCoin };
+  return { display, pulse, particles, removeParticle };
 }
 
-// A single "CHF" glyph that rises and fades once, then removes itself —
-// the little coins popping out of the ticker as the cash figure climbs.
-function CoinParticle({ x, onDone }: { x: number; onDone: () => void }) {
+// A single glyph that rises and fades once, then removes itself — the
+// little "+1" / "CHF" popping out of a ticker figure as it climbs.
+function BurstParticle({ x, glyph, onDone }: { x: number; glyph: string; onDone: () => void }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -1086,7 +1183,7 @@ function CoinParticle({ x, onDone }: { x: number; onDone: () => void }) {
         },
       ]}
     >
-      CHF
+      {glyph}
     </Animated.Text>
   );
 }
@@ -1319,11 +1416,17 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
 // render reliably on every desktop browser/OS font stack (shows as two
 // separate letter tiles or nothing at all on some Windows/Linux setups),
 // while a hand-drawn cross-in-a-circle always looks identical everywhere.
-function SwissFlagBadge() {
+// A dashed circular seal, like an ink stamp, instead of a flat rounded
+// gradient card — "certified Swiss" reads as an actual mark of quality
+// this way rather than a decorative colored box.
+function SwissStamp() {
   return (
-    <View style={styles.swissFlagBadge}>
-      <View style={styles.swissFlagCrossV} />
-      <View style={styles.swissFlagCrossH} />
+    <View style={styles.swissStamp}>
+      <View style={styles.swissStampCross}>
+        <View style={styles.swissStampCrossV} />
+        <View style={styles.swissStampCrossH} />
+      </View>
+      <Text style={styles.swissStampText}>Conçu{'\n'}en Suisse</Text>
     </View>
   );
 }
@@ -1715,6 +1818,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     maxWidth: '100%',
   },
+  // Modest, not a stat — sits above the kicker in a quieter register than
+  // everything below it: young product, real results already, said plainly
+  // rather than dressed up as another counter.
+  heroLaunchNote: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    marginBottom: spacing.sm,
+  },
   kicker: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1972,6 +2084,50 @@ const styles = StyleSheet.create({
   statsTickerLabel: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  // Mobile gets its own stacked list instead of the desktop row's inline
+  // wrapping — a long label like "entreprises nous ont déjà rejoint" next
+  // to a number has nowhere good to break on a narrow screen, so each stat
+  // gets a full-width row instead of fighting for space.
+  statsTickerCompact: {
+    width: '100%',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  statsTickerLiveCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingBottom: spacing.sm,
+    marginBottom: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  statsTickerRowCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  statsTickerRowCompactLast: {
+    borderBottomWidth: 0,
+  },
+  statsTickerValueCompact: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text,
+    letterSpacing: -0.5,
+    fontVariant: ['tabular-nums'],
+  },
+  statsTickerLabelCompact: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: 'right',
+    flexShrink: 1,
   },
   coinParticle: {
     position: 'absolute',
@@ -2692,16 +2848,28 @@ const styles = StyleSheet.create({
   priceFeatureTextMutedOnDark: {
     color: 'rgba(255,255,255,0.35)',
   },
-  swissBand: {
+  // Full-bleed, hairline-bordered band — same "info bar" family as the
+  // stats ticker — instead of a padded rounded gradient card floating in
+  // the page.
+  swissOuter: {
+    width: '100%',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+  },
+  swissInner: {
+    maxWidth: 1080,
+    width: '100%',
+    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.xxl,
-    padding: spacing.xxl,
-    borderRadius: radius.xl,
-    backgroundImage: `linear-gradient(135deg, ${colors.primarySoft}, ${colors.accentSoft})`,
-  } as unknown as ViewStyle,
-  swissBandCompact: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xxxl,
+  },
+  swissInnerCompact: {
     flexDirection: 'column',
     alignItems: 'center',
   },
@@ -2737,37 +2905,54 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
-  swissFlagBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  swissStamp: {
+    width: 116,
+    height: 116,
+    borderRadius: 58,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    flexShrink: 0,
+    transform: [{ rotate: '-7deg' }],
+  },
+  swissStampCross: {
+    width: 26,
+    height: 26,
+    borderRadius: 4,
     backgroundColor: '#DA291C',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
   },
-  swissFlagCrossV: {
+  swissStampCrossV: {
     position: 'absolute',
-    width: 8,
-    height: 26,
+    width: 4,
+    height: 14,
     borderRadius: 1,
     backgroundColor: '#fff',
   },
-  swissFlagCrossH: {
+  swissStampCrossH: {
     position: 'absolute',
-    width: 26,
-    height: 8,
+    width: 14,
+    height: 4,
     borderRadius: 1,
     backgroundColor: '#fff',
+  },
+  swissStampText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: colors.primary,
+    textAlign: 'center',
+    lineHeight: 13,
   },
   swissTitle: {
     fontSize: fontSize.xl,
     fontWeight: '800',
     color: colors.text,
-    marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
   swissText: {
