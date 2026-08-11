@@ -90,19 +90,23 @@ const fr: Dict = {
     },
   },
   pain: {
-    title: 'Le bâtiment perd du temps sur l’administratif',
+    title: 'L’administratif ne vous coûte pas que du temps. Il vous coûte de l’argent.',
     items: [
       {
-        title: 'Notes papier qui se perdent',
-        text: 'Les informations notées sur le chantier se perdent ou arrivent incomplètes au bureau.',
+        title: 'La marge s’évapore, personne ne le voit',
+        text: 'Le devis est signé, le chantier avance, mais rien ne compare au coût réel avant la facture finale — et la découverte.',
       },
       {
-        title: 'Rapports faits le soir, en retard',
-        text: 'Reconstituer un rapport propre à partir de photos éparpillées prend un temps fou.',
+        title: 'Le devis le plus rapide gagne le chantier',
+        text: 'Le temps de le rédiger le soir sur un coin de table, le client a déjà signé ailleurs.',
       },
       {
-        title: 'Documents introuvables',
-        text: 'Vos plans, soumissions et photos sont éparpillés entre le classeur, les e-mails et le téléphone.',
+        title: 'Des factures parties, jamais relancées',
+        text: 'Personne ne sait qui doit quoi ni depuis quand. L’argent dort chez vos clients, pas dans votre trésorerie.',
+      },
+      {
+        title: 'Le chantier n’arrive jamais intact au bureau',
+        text: 'Notes sur un carnet, photos sur trois téléphones — le rapport du soir recolle les morceaux, avec des trous.',
       },
     ],
   },
