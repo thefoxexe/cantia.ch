@@ -48,6 +48,10 @@ export default function LandingScreen() {
 function LandingContent() {
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [landingStats, setLandingStats] = useState<{
+    users_count: number;
+    cash_collected_chf: number;
+  } | null>(null);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -123,6 +127,44 @@ function LandingContent() {
       .select('*')
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => setPlans(data ?? []));
+  }, []);
+
+  // Real, live stats: fetched once on load, then kept current via a Realtime
+  // subscription on the single public.landing_stats row (refreshed
+  // server-side by triggers whenever a signup, an org, a devis or a
+  // facture_payments write happens — see the landing_stats migration).
+  useEffect(() => {
+    supabase
+      .from('landing_stats')
+      .select('users_count, cash_collected_chf')
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setLandingStats({
+            users_count: data.users_count,
+            cash_collected_chf: Number(data.cash_collected_chf),
+          });
+        }
+      });
+
+    const channel = supabase
+      .channel('landing-stats-live')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'landing_stats' },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          setLandingStats({
+            users_count: Number(row.users_count),
+            cash_collected_chf: Number(row.cash_collected_chf),
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -259,6 +301,29 @@ function LandingContent() {
               <VoiceDemo copy={t.spotlight.voice} />
               <QrBillDemo copy={t.spotlight.qrbill} />
               <CatalogDemo copy={t.spotlight.catalog} />
+            </View>
+          </Reveal>
+
+          {/* ---- Live stats: real counters, not placeholders — see the
+              landing_stats table + triggers in the Supabase migration. */}
+          <Reveal id="stats" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <View style={styles.statsLiveBadge}>
+              <View style={styles.statsLiveDot} />
+              <Text style={styles.statsLiveText}>Chiffres réels, mis à jour en direct</Text>
+            </View>
+            <Text style={[styles.sectionTitle, styles.centerText]}>Cantia, en chiffres</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>
+              Aucune statistique gonflée : ce sont les vrais compteurs de la plateforme, à l'instant où vous lisez
+              cette page.
+            </Text>
+            <View style={styles.statsGrid}>
+              <StatTile icon="users" value={formatStatCount(landingStats?.users_count)} label="Utilisateurs actifs" />
+              <StatTile
+                icon="trending-up"
+                value={landingStats ? `CHF ${formatStatChf(landingStats.cash_collected_chf)}` : '—'}
+                label="Encaissé via Cantia"
+                highlight
+              />
             </View>
           </Reveal>
 
@@ -687,6 +752,40 @@ function MenuItem({
 
 function formatChf(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+// Swiss thousands grouping (apostrophe) for the live stats section — these
+// numbers can grow past 4 digits where formatChf's plain string would stop
+// being readable.
+function formatStatCount(n: number | undefined): string {
+  if (n === undefined) return '—';
+  return n.toLocaleString('de-CH');
+}
+
+function formatStatChf(n: number): string {
+  return Math.round(n).toLocaleString('de-CH');
+}
+
+function StatTile({
+  icon,
+  value,
+  label,
+  highlight,
+}: {
+  icon: IconName;
+  value: string;
+  label: string;
+  highlight?: boolean;
+}) {
+  return (
+    <View style={[styles.statTile, highlight && styles.statTileHighlight]}>
+      <View style={[styles.statTileIcon, highlight && styles.statTileIconHighlight]}>
+        <Feather name={icon} size={17} color={highlight ? colors.bg : colors.primary} />
+      </View>
+      <Text style={[styles.statTileValue, highlight && styles.statTileValueHighlight]}>{value}</Text>
+      <Text style={[styles.statTileLabel, highlight && styles.statTileLabelHighlight]}>{label}</Text>
+    </View>
+  );
 }
 
 function PriceFeature({ text, muted, included }: { text: string; muted?: boolean; included?: boolean }) {
@@ -1657,6 +1756,80 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 3,
     backgroundColor: colors.primary,
+  },
+  statsLiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'center',
+    backgroundColor: colors.successSoft,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.pill,
+    marginBottom: spacing.md,
+  },
+  statsLiveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 999,
+    backgroundColor: colors.success,
+  },
+  statsLiveText: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.success,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.md,
+    marginTop: spacing.xl,
+  },
+  statTile: {
+    width: 240,
+    padding: spacing.lg,
+    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+  },
+  statTileHighlight: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  statTileIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  statTileIconHighlight: {
+    backgroundColor: 'rgba(255,255,255,0.22)',
+  },
+  statTileValue: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  statTileValueHighlight: {
+    color: colors.bg,
+  },
+  statTileLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  statTileLabelHighlight: {
+    color: 'rgba(255,255,255,0.85)',
   },
   painGrid: {
     flexDirection: 'row',
