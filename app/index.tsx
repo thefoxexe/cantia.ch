@@ -76,6 +76,12 @@ function LandingContent() {
   const [scrolled, setScrolled] = useState(false);
   const { width, height: windowHeight } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
+  // The hero's two-column row (copy + devis card) needs more room than the
+  // nav bar does to not look cramped — nav links fit fine down to ~640px,
+  // but the hero was switching to that same row layout at 640px too and
+  // wrapping its CTA buttons awkwardly well before the row actually had
+  // space for both columns. Give the hero its own, wider breakpoint.
+  const isCompactHero = width < breakpoints.desktop;
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
@@ -230,7 +236,7 @@ function LandingContent() {
   // "leans toward the pointer" effect layered on top of the ambient
   // blobPulse float rather than replacing it.
   useEffect(() => {
-    if (Platform.OS !== 'web' || isCompactNav) return;
+    if (Platform.OS !== 'web' || isCompactHero) return;
     const handleMove = (e: MouseEvent) => {
       const el = heroVisualRef.current as unknown as HTMLElement | null;
       if (!el || typeof el.getBoundingClientRect !== 'function') return;
@@ -242,7 +248,7 @@ function LandingContent() {
     };
     window.addEventListener('mousemove', handleMove);
     return () => window.removeEventListener('mousemove', handleMove);
-  }, [isCompactNav, heroTiltX, heroTiltY]);
+  }, [isCompactHero, heroTiltX, heroTiltY]);
 
   useEffect(() => {
     const blobLoop = Animated.loop(
@@ -338,12 +344,12 @@ function LandingContent() {
               pointerEvents="none"
               style={[styles.heroBlobB, { transform: [{ scale: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }] }]}
             />
-            <View style={[styles.hero, isCompactNav && styles.heroCompact]}>
-              <View style={[styles.heroCopy, isCompactNav && styles.heroCopyCompact]}>
+            <View style={[styles.hero, isCompactHero && styles.heroCompact]}>
+              <View style={[styles.heroCopy, isCompactHero && styles.heroCopyCompact]}>
                 <Animated.View
                   style={[
                     styles.kicker,
-                    isCompactNav && styles.kickerCompact,
+                    isCompactHero && styles.kickerCompact,
                     {
                       opacity: heroKickerAnim,
                       transform: [{ translateY: heroKickerAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
@@ -356,7 +362,7 @@ function LandingContent() {
                 <Animated.Text
                   style={[
                     styles.headline,
-                    isCompactNav && styles.headlineCompact,
+                    isCompactHero && styles.headlineCompact,
                     {
                       opacity: heroHeadlineAnim,
                       transform: [{ translateY: heroHeadlineAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
@@ -369,7 +375,7 @@ function LandingContent() {
                 <Animated.Text
                   style={[
                     styles.subheadline,
-                    isCompactNav && styles.subheadlineCompact,
+                    isCompactHero && styles.subheadlineCompact,
                     {
                       opacity: heroSubAnim,
                       transform: [{ translateY: heroSubAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
@@ -381,29 +387,29 @@ function LandingContent() {
                 <Animated.View
                   style={[
                     styles.ctaRow,
-                    isCompactNav && styles.ctaRowCompact,
+                    isCompactHero && styles.ctaRowCompact,
                     {
                       opacity: heroCtaAnim,
                       transform: [{ translateY: heroCtaAnim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }],
                     },
                   ]}
                 >
-                  <HoverLift>
+                  <HoverLift style={isCompactHero && styles.ctaButtonCompact}>
                     <Link href={authHref('signup')} asChild>
                       <Button
                         title={t.hero.cta1}
                         onPress={() => {}}
-                        style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
+                        style={StyleSheet.flatten([styles.ctaButton, isCompactHero && styles.ctaButtonCompact])}
                       />
                     </Link>
                   </HoverLift>
-                  <HoverLift>
+                  <HoverLift style={isCompactHero && styles.ctaButtonCompact}>
                     <Link href={authHref('login')} asChild>
                       <Button
                         title={t.hero.cta2}
                         onPress={() => {}}
                         variant="secondary"
-                        style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
+                        style={StyleSheet.flatten([styles.ctaButton, isCompactHero && styles.ctaButtonCompact])}
                       />
                     </Link>
                   </HoverLift>
@@ -417,7 +423,7 @@ function LandingContent() {
                 ref={heroVisualRef}
                 style={[
                   styles.heroVisual,
-                  isCompactNav && styles.heroVisualCompact,
+                  isCompactHero && styles.heroVisualCompact,
                   {
                     opacity: heroAnim,
                     transform: [
