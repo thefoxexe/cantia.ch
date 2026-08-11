@@ -121,9 +121,15 @@ function LandingContent() {
   // per-section Animated.Value / offset / "already played" bookkeeping so
   // that a scroll re-render never has to walk through setState.
   const sectionOffsets = useRef<Record<string, number>>({}).current;
+  const sectionHeights = useRef<Record<string, number>>({}).current;
   const sectionAnims = useRef<Record<string, Animated.Value>>({}).current;
   const sectionTriggered = useRef<Record<string, boolean>>({}).current;
   const scrollYRef = useRef(0);
+  // Scrubbed 1:1 with scroll position (not animated/eased) while the pain
+  // section is on screen — 0 as it enters, 1 by the time it's scrolled
+  // past. Drives the floating "problem" chips flying apart below, so the
+  // dispersal tracks the scroll gesture exactly rather than playing once.
+  const chaosProgress = useRef(new Animated.Value(0)).current;
 
   const getSectionAnim = useCallback((key: string): Animated.Value => {
     if (!sectionAnims[key]) sectionAnims[key] = new Animated.Value(0);
@@ -149,11 +155,12 @@ function LandingContent() {
   );
 
   const registerSection = useCallback(
-    (key: string, y: number) => {
+    (key: string, y: number, height?: number) => {
       sectionOffsets[key] = y;
+      if (height != null) sectionHeights[key] = height;
       checkReveals(scrollYRef.current, windowHeight);
     },
-    [checkReveals, sectionOffsets, windowHeight],
+    [checkReveals, sectionOffsets, sectionHeights, windowHeight],
   );
 
   const handleScroll = useCallback(
@@ -168,8 +175,21 @@ function LandingContent() {
       connectorPull.stopAnimation();
       connectorPull.setValue(Math.max(-16, Math.min(16, delta * 0.8)));
       Animated.spring(connectorPull, { toValue: 0, friction: 5, tension: 40, useNativeDriver: true }).start();
+
+      // Scrub the pain-section "chaos" chips directly off the scroll offset
+      // (no easing/timing curve) — starts drifting a little before the
+      // section reaches the top of the viewport, fully dispersed by the
+      // time it's three-quarters scrolled past.
+      const painTop = sectionOffsets.pain;
+      if (painTop != null) {
+        const painHeight = sectionHeights.pain ?? 520;
+        const start = painTop - windowHeight * 0.55;
+        const end = painTop + painHeight * 0.8;
+        const progress = Math.max(0, Math.min(1, (y - start) / Math.max(1, end - start)));
+        chaosProgress.setValue(progress);
+      }
     },
-    [checkReveals, connectorPull],
+    [checkReveals, connectorPull, sectionOffsets, sectionHeights, windowHeight, chaosProgress],
   );
 
   useEffect(() => {
@@ -628,37 +648,94 @@ function LandingContent() {
             </View>
           </Reveal>
 
-          {/* ---- Pain points ("before") ---- */}
+          {/* ---- Pain points ("before") — on wide screens, small mockup
+              chips of the actual mess (a stale devis, a late invoice, an
+              untracked crew, unsorted photos) sit either side of the list.
+              As you scroll through the section they scatter outward, spin
+              and fade — scrubbed 1:1 with scroll position, not a one-shot
+              animation — so the "before" state visibly falls apart on its
+              way to the single-place answer that follows. ---- */}
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionEyebrow, styles.centerText]}>Le problème</Text>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
-            {/* A rule-separated diagnostic list, not boxed cards — reads as
-                a short, scannable list of symptoms rather than three
-                identical tiles, and stays visually distinct from the
-                "solution" cards it leads into below. */}
-            <View style={styles.painList}>
-              {t.pain.items.map((p, i) => (
-                <Pressable
-                  key={p.title}
-                  style={({ hovered }: any) => [
-                    styles.painRow,
-                    i === t.pain.items.length - 1 && styles.painRowLast,
-                    hovered && styles.painRowHovered,
-                  ]}
-                >
-                  {({ hovered }: any) => (
-                    <>
-                      <View style={[styles.painIconBadge, hovered && styles.painIconBadgeHovered]}>
-                        <Feather name={PAIN_ICONS[i]} size={19} color={hovered ? '#fff' : colors.textMuted} />
-                      </View>
-                      <View style={styles.painRowText}>
-                        <Text style={styles.painTitle}>{p.title}</Text>
-                        <Text style={styles.painText}>{p.text}</Text>
-                      </View>
-                    </>
-                  )}
-                </Pressable>
-              ))}
+            <View style={styles.chaosLayer}>
+              {width >= 1200 ? (
+                <>
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="send"
+                    label="Devis #118"
+                    sub="Brouillon depuis 6 jours"
+                    posStyle={{ top: -4, left: 4 }}
+                    driftX={-90}
+                    driftY={-70}
+                    rotateFrom={-7}
+                    rotateTo={-32}
+                  />
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="users"
+                    label="Léo Martin"
+                    sub="Position inconnue"
+                    posStyle={{ top: 56, right: 0 }}
+                    driftX={100}
+                    driftY={-40}
+                    rotateFrom={8}
+                    rotateTo={28}
+                  />
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="credit-card"
+                    label="Facture #204"
+                    sub="62 jours de retard"
+                    posStyle={{ top: 300, left: -8 }}
+                    driftX={-110}
+                    driftY={60}
+                    rotateFrom={6}
+                    rotateTo={30}
+                  />
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="camera"
+                    label="14 photos"
+                    sub="Non triées"
+                    posStyle={{ top: 350, right: -4 }}
+                    driftX={95}
+                    driftY={80}
+                    rotateFrom={-9}
+                    rotateTo={-34}
+                  />
+                </>
+              ) : null}
+
+              <Text style={[styles.sectionEyebrow, styles.centerText]}>Le problème</Text>
+              <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
+              {/* A rule-separated diagnostic list, not boxed cards — reads as
+                  a short, scannable list of symptoms rather than three
+                  identical tiles, and stays visually distinct from the
+                  "solution" cards it leads into below. */}
+              <View style={styles.painList}>
+                {t.pain.items.map((p, i) => (
+                  <Pressable
+                    key={p.title}
+                    style={({ hovered }: any) => [
+                      styles.painRow,
+                      i === t.pain.items.length - 1 && styles.painRowLast,
+                      hovered && styles.painRowHovered,
+                    ]}
+                  >
+                    {({ hovered }: any) => (
+                      <>
+                        <View style={[styles.painIconBadge, hovered && styles.painIconBadgeHovered]}>
+                          <Feather name={PAIN_ICONS[i]} size={19} color={hovered ? '#fff' : colors.textMuted} />
+                        </View>
+                        <View style={styles.painRowText}>
+                          <Text style={styles.painTitle}>{p.title}</Text>
+                          <Text style={styles.painText}>{p.text}</Text>
+                        </View>
+                      </>
+                    )}
+                  </Pressable>
+                ))}
+              </View>
             </View>
           </Reveal>
 
@@ -1091,6 +1168,69 @@ function HoverLift({ children, style }: { children: React.ReactNode; style?: any
   );
 }
 
+// A little mockup of a real problem (a stale devis, a late invoice…) that
+// scatters, spins and fades as `progress` (0→1, scrubbed straight off
+// scroll position — see chaosProgress in LandingContent) advances, rather
+// than playing once. `posStyle` is its resting position; `driftX/driftY`
+// is how far it travels by progress=1.
+function ChaosChip({
+  progress,
+  icon,
+  label,
+  sub,
+  posStyle,
+  driftX,
+  driftY,
+  rotateFrom,
+  rotateTo,
+}: {
+  progress: Animated.Value;
+  icon: IconName;
+  label: string;
+  sub: string;
+  posStyle: { top: number; left?: number; right?: number };
+  driftX: number;
+  driftY: number;
+  rotateFrom: number;
+  rotateTo: number;
+}) {
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.chaosChip,
+        posStyle,
+        {
+          opacity: progress.interpolate({ inputRange: [0, 0.55, 1], outputRange: [1, 1, 0] }),
+          transform: [
+            { translateX: progress.interpolate({ inputRange: [0, 1], outputRange: [0, driftX] }) },
+            { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, driftY] }) },
+            {
+              rotate: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [`${rotateFrom}deg`, `${rotateTo}deg`],
+              }),
+            },
+            { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.72] }) },
+          ],
+        },
+      ]}
+    >
+      <View style={styles.chaosChipIconWrap}>
+        <Feather name={icon} size={13} color={colors.danger} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.chaosChipLabel} numberOfLines={1}>
+          {label}
+        </Text>
+        <Text style={styles.chaosChipSub} numberOfLines={1}>
+          {sub}
+        </Text>
+      </View>
+    </Animated.View>
+  );
+}
+
 function Reveal({
   id,
   getAnim,
@@ -1101,7 +1241,7 @@ function Reveal({
 }: {
   id: string;
   getAnim: (id: string) => Animated.Value;
-  onRegister: (id: string, y: number) => void;
+  onRegister: (id: string, y: number, height?: number) => void;
   children: React.ReactNode;
   style?: any;
   from?: number;
@@ -1109,7 +1249,7 @@ function Reveal({
   const anim = getAnim(id);
   return (
     <Animated.View
-      onLayout={(e) => onRegister(id, e.nativeEvent.layout.y)}
+      onLayout={(e) => onRegister(id, e.nativeEvent.layout.y, e.nativeEvent.layout.height)}
       style={[
         style,
         {
@@ -2688,6 +2828,49 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 3,
+  },
+  // Positioning context for the ChaosChip mockups either side of painList —
+  // spans the section's full (already-padded) content width so the chips'
+  // absolute top/left/right sit in the margin outside the 680px column
+  // instead of overlapping the readable text.
+  chaosLayer: {
+    position: 'relative',
+    width: '100%',
+  },
+  chaosChip: {
+    position: 'absolute',
+    width: 152,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.dangerSoft,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  chaosChipIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: colors.dangerSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  chaosChipLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  chaosChipSub: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.danger,
   },
   // A narrow, rule-separated list instead of a row of boxed cards — reads
   // as a short diagnostic (three symptoms) rather than three interchangeable
