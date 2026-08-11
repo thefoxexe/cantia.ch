@@ -79,12 +79,26 @@ function LandingContent() {
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
+  // The hero copy no longer fades in as one block — kicker, headline,
+  // subheadline and the CTA row each get their own value so they cascade in
+  // one after another (see the Animated.stagger below) instead of the whole
+  // block popping in at once.
+  const heroKickerAnim = useRef(new Animated.Value(0)).current;
+  const heroHeadlineAnim = useRef(new Animated.Value(0)).current;
+  const heroSubAnim = useRef(new Animated.Value(0)).current;
+  const heroCtaAnim = useRef(new Animated.Value(0)).current;
   const livePulse = useRef(new Animated.Value(0)).current;
   // Continuous, subtle motion so the hero doesn't read as a static screenshot:
   // the phone mockup gently floats, and the two background blobs breathe out
   // of phase with each other. Neither ties to scroll/reveal state — they run
   // for as long as the hero is mounted.
   const blobPulse = useRef(new Animated.Value(0)).current;
+  // Cursor-tracked tilt on the hero devis card (desktop web only) — a
+  // subtle "leans toward the pointer" 3D effect, composed on top of (not
+  // replacing) the ambient blobPulse float below.
+  const heroTiltX = useRef(new Animated.Value(0)).current;
+  const heroTiltY = useRef(new Animated.Value(0)).current;
+  const heroVisualRef = useRef<View>(null);
   const menuItemAnims = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
@@ -201,10 +215,34 @@ function LandingContent() {
   }, []);
 
   useEffect(() => {
-    Animated.stagger(90, [
-      Animated.timing(heroAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+    Animated.stagger(110, [
+      Animated.timing(heroKickerAnim, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(heroHeadlineAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(heroSubAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.parallel([
+        Animated.timing(heroCtaAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(heroAnim, { toValue: 1, duration: 640, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      ]),
     ]).start();
-  }, [heroAnim]);
+  }, [heroAnim, heroKickerAnim, heroHeadlineAnim, heroSubAnim, heroCtaAnim]);
+
+  // Cursor-tracked tilt on the hero devis card — desktop web only, a subtle
+  // "leans toward the pointer" effect layered on top of the ambient
+  // blobPulse float rather than replacing it.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || isCompactNav) return;
+    const handleMove = (e: MouseEvent) => {
+      const el = heroVisualRef.current as unknown as HTMLElement | null;
+      if (!el || typeof el.getBoundingClientRect !== 'function') return;
+      const rect = el.getBoundingClientRect();
+      const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+      const dy = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+      heroTiltX.setValue(Math.max(-1, Math.min(1, dx)));
+      heroTiltY.setValue(Math.max(-1, Math.min(1, dy)));
+    };
+    window.addEventListener('mousemove', handleMove);
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, [isCompactNav, heroTiltX, heroTiltY]);
 
   useEffect(() => {
     const blobLoop = Animated.loop(
@@ -300,55 +338,95 @@ function LandingContent() {
               pointerEvents="none"
               style={[styles.heroBlobB, { transform: [{ scale: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }] }]}
             />
-            <Animated.View
-              style={[
-                styles.hero,
-                isCompactNav && styles.heroCompact,
-                {
-                  opacity: heroAnim,
-                  transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) }],
-                },
-              ]}
-            >
+            <View style={[styles.hero, isCompactNav && styles.heroCompact]}>
               <View style={[styles.heroCopy, isCompactNav && styles.heroCopyCompact]}>
-                <View style={[styles.kicker, isCompactNav && styles.kickerCompact]}>
+                <Animated.View
+                  style={[
+                    styles.kicker,
+                    isCompactNav && styles.kickerCompact,
+                    {
+                      opacity: heroKickerAnim,
+                      transform: [{ translateY: heroKickerAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
+                    },
+                  ]}
+                >
                   <View style={styles.kickerDot} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
-                </View>
-                <Text style={[styles.headline, isCompactNav && styles.headlineCompact]}>
+                </Animated.View>
+                <Animated.Text
+                  style={[
+                    styles.headline,
+                    isCompactNav && styles.headlineCompact,
+                    {
+                      opacity: heroHeadlineAnim,
+                      transform: [{ translateY: heroHeadlineAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+                    },
+                  ]}
+                >
                   {t.hero.headlinePrefix}{' '}
                   <Text style={styles.headlineHighlight}>{t.hero.headlineHighlight}</Text>
-                </Text>
-                <Text style={[styles.subheadline, isCompactNav && styles.subheadlineCompact]}>{t.hero.subheadline}</Text>
-                <View style={[styles.ctaRow, isCompactNav && styles.ctaRowCompact]}>
-                  <Link href={authHref('signup')} asChild>
-                    <Button
-                      title={t.hero.cta1}
-                      onPress={() => {}}
-                      style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
-                    />
-                  </Link>
-                  <Link href={authHref('login')} asChild>
-                    <Button
-                      title={t.hero.cta2}
-                      onPress={() => {}}
-                      variant="secondary"
-                      style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
-                    />
-                  </Link>
-                </View>
+                </Animated.Text>
+                <Animated.Text
+                  style={[
+                    styles.subheadline,
+                    isCompactNav && styles.subheadlineCompact,
+                    {
+                      opacity: heroSubAnim,
+                      transform: [{ translateY: heroSubAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
+                    },
+                  ]}
+                >
+                  {t.hero.subheadline}
+                </Animated.Text>
+                <Animated.View
+                  style={[
+                    styles.ctaRow,
+                    isCompactNav && styles.ctaRowCompact,
+                    {
+                      opacity: heroCtaAnim,
+                      transform: [{ translateY: heroCtaAnim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }],
+                    },
+                  ]}
+                >
+                  <HoverLift>
+                    <Link href={authHref('signup')} asChild>
+                      <Button
+                        title={t.hero.cta1}
+                        onPress={() => {}}
+                        style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
+                      />
+                    </Link>
+                  </HoverLift>
+                  <HoverLift>
+                    <Link href={authHref('login')} asChild>
+                      <Button
+                        title={t.hero.cta2}
+                        onPress={() => {}}
+                        variant="secondary"
+                        style={StyleSheet.flatten([styles.ctaButton, isCompactNav && styles.ctaButtonCompact])}
+                      />
+                    </Link>
+                  </HoverLift>
+                </Animated.View>
               </View>
 
               {/* ---- The claim made concrete: a live-looking devis card,
-                  gently floating, instead of an abstract illustration. ---- */}
+                  gently floating, and gently tilting toward the cursor on
+                  desktop, instead of an abstract illustration. ---- */}
               <Animated.View
+                ref={heroVisualRef}
                 style={[
                   styles.heroVisual,
                   isCompactNav && styles.heroVisualCompact,
                   {
+                    opacity: heroAnim,
                     transform: [
+                      { perspective: 800 },
+                      { translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) },
                       { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['-4deg', '-2deg'] }) },
                       { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, -10] }) },
+                      { rotateY: heroTiltX.interpolate({ inputRange: [-1, 1], outputRange: ['7deg', '-7deg'] }) },
+                      { rotateX: heroTiltY.interpolate({ inputRange: [-1, 1], outputRange: ['-7deg', '7deg'] }) },
                     ],
                   },
                 ]}
@@ -388,7 +466,7 @@ function LandingContent() {
                   <Text style={styles.heroCardBadgeText}>Signé électroniquement</Text>
                 </View>
               </Animated.View>
-            </Animated.View>
+            </View>
           </View>
 
           {/* ---- Live stats: a full-bleed ticker bar, not a rounded pill —
@@ -554,15 +632,26 @@ function LandingContent() {
                 "solution" cards it leads into below. */}
             <View style={styles.painList}>
               {t.pain.items.map((p, i) => (
-                <View key={p.title} style={[styles.painRow, i === t.pain.items.length - 1 && styles.painRowLast]}>
-                  <View style={styles.painIconBadge}>
-                    <Feather name={PAIN_ICONS[i]} size={19} color={colors.textMuted} />
-                  </View>
-                  <View style={styles.painRowText}>
-                    <Text style={styles.painTitle}>{p.title}</Text>
-                    <Text style={styles.painText}>{p.text}</Text>
-                  </View>
-                </View>
+                <Pressable
+                  key={p.title}
+                  style={({ hovered }: any) => [
+                    styles.painRow,
+                    i === t.pain.items.length - 1 && styles.painRowLast,
+                    hovered && styles.painRowHovered,
+                  ]}
+                >
+                  {({ hovered }: any) => (
+                    <>
+                      <View style={[styles.painIconBadge, hovered && styles.painIconBadgeHovered]}>
+                        <Feather name={PAIN_ICONS[i]} size={19} color={hovered ? '#fff' : colors.textMuted} />
+                      </View>
+                      <View style={styles.painRowText}>
+                        <Text style={styles.painTitle}>{p.title}</Text>
+                        <Text style={styles.painText}>{p.text}</Text>
+                      </View>
+                    </>
+                  )}
+                </Pressable>
               ))}
             </View>
           </Reveal>
@@ -697,7 +786,14 @@ function LandingContent() {
                 const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
                 const dark = p.id === 'equipe';
                 return (
-                <View key={p.id} style={[styles.priceCard, dark && styles.priceCardHighlight]}>
+                <Pressable
+                  key={p.id}
+                  style={({ hovered }: any) => [
+                    styles.priceCard,
+                    dark && styles.priceCardHighlight,
+                    hovered && (dark ? styles.priceCardHighlightHovered : styles.priceCardHovered),
+                  ]}
+                >
                   {dark ? (
                     <View style={styles.priceBadge}>
                       <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
@@ -748,7 +844,7 @@ function LandingContent() {
                       variant={dark ? 'primary' : 'secondary'}
                     />
                   </Link>
-                </View>
+                </Pressable>
                 );
               })}
             </View>
@@ -792,14 +888,16 @@ function LandingContent() {
           <Reveal id="finalCta" getAnim={getSectionAnim} onRegister={registerSection} style={styles.finalCtaOuter} from={18}>
             <View style={styles.finalCta}>
               <Text style={styles.finalCtaTitle}>{t.finalCta.title}</Text>
-              <Link href={authHref('signup')} asChild>
-                <Button
-                  title={t.finalCta.button}
-                  onPress={() => {}}
-                  variant="secondary"
-                  style={styles.finalCtaButton}
-                />
-              </Link>
+              <HoverLift>
+                <Link href={authHref('signup')} asChild>
+                  <Button
+                    title={t.finalCta.button}
+                    onPress={() => {}}
+                    variant="secondary"
+                    style={styles.finalCtaButton}
+                  />
+                </Link>
+              </HoverLift>
             </View>
           </Reveal>
 
@@ -907,9 +1005,11 @@ function LandingContent() {
                 <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
                 </Link>
-                <Link href={authHref('signup')} asChild>
-                  <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
-                </Link>
+                <HoverLift>
+                  <Link href={authHref('signup')} asChild>
+                    <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+                  </Link>
+                </HoverLift>
               </View>
             )}
           </View>
@@ -995,6 +1095,18 @@ function LandingContent() {
 // reveal reads as a generic fade-up; this decelerates harder at the tail so
 // the content feels like it's settling into place rather than just sliding.
 const PREMIUM_EASE = Easing.bezier(0.16, 1, 0.3, 1);
+
+// A hover-only "grow toward the cursor" wrapper for buttons/CTAs — pure
+// CSS transition driven by react-native-web's Pressable `hovered` render
+// prop, no Animated.Value needed. Never claims onPress, so it's safe to
+// nest around a Link/Button without stealing their tap/click.
+function HoverLift({ children, style }: { children: React.ReactNode; style?: any }) {
+  return (
+    <Pressable style={({ hovered }: any) => [styles.hoverLift, hovered && styles.hoverLifted, style]}>
+      {children}
+    </Pressable>
+  );
+}
 
 function Reveal({
   id,
@@ -1349,7 +1461,7 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
   const revealedTranscript = words.slice(0, revealCount).join(' ');
 
   return (
-    <View style={styles.demoCard}>
+    <Pressable style={({ hovered }: any) => [styles.demoCard, hovered && styles.demoCardHovered]}>
       <View style={styles.demoLabelRow}>
         <View style={styles.demoDot} />
         <Text style={styles.demoLabel}>{copy.label}</Text>
@@ -1412,7 +1524,7 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
         )}
       </Animated.View>
       <Text style={styles.demoCaption}>{copy.caption}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -1537,7 +1649,7 @@ function QrBillDemo({ copy }: { copy: QrBillCopy }) {
   }, [sweep]);
 
   return (
-    <View style={styles.demoCard}>
+    <Pressable style={({ hovered }: any) => [styles.demoCard, hovered && styles.demoCardHovered]}>
       <View style={styles.demoLabelRow}>
         <View style={styles.demoDot} />
         <Text style={styles.demoLabel}>{copy.label}</Text>
@@ -1562,7 +1674,7 @@ function QrBillDemo({ copy }: { copy: QrBillCopy }) {
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -1588,7 +1700,7 @@ function CatalogDemo({ copy }: { copy: CatalogCopy }) {
   }, [fill]);
 
   return (
-    <View style={styles.demoCard}>
+    <Pressable style={({ hovered }: any) => [styles.demoCard, hovered && styles.demoCardHovered]}>
       <View style={styles.demoLabelRow}>
         <View style={styles.demoDot} />
         <Text style={styles.demoLabel}>{copy.label}</Text>
@@ -1619,7 +1731,7 @@ function CatalogDemo({ copy }: { copy: CatalogCopy }) {
         </View>
       </View>
       <Text style={styles.demoCaption}>{copy.text}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -1956,6 +2068,16 @@ const styles = StyleSheet.create({
     minWidth: 0,
     width: '100%',
   },
+  // Pure-CSS hover transition (web only) for HoverLift — no Animated.Value,
+  // just a transform swap the browser tweens on its own.
+  hoverLift: {
+    transitionProperty: 'transform',
+    transitionDuration: '0.22s',
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  } as unknown as ViewStyle,
+  hoverLifted: {
+    transform: [{ translateY: -3 }, { scale: 1.035 }],
+  },
   // The claim made concrete: a tilted, gently floating devis-card mockup
   // standing in for a device screenshot (none of the app's real screens
   // are photogenic enough at this scale) — built from the same primitives
@@ -2290,6 +2412,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
+    transitionProperty: 'transform, box-shadow, border-color',
+    transitionDuration: '0.25s',
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  } as unknown as ViewStyle,
+  demoCardHovered: {
+    borderColor: colors.primary,
+    shadowOpacity: 0.1,
+    shadowRadius: 26,
+    transform: [{ translateY: -4 }],
   },
   // The part of each spotlight card below the label — flex:1 so it eats
   // whatever extra height `spotlightGrid`'s stretch gives the card (the
@@ -2581,8 +2712,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: spacing.lg,
     paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    transitionProperty: 'background-color, transform',
+    transitionDuration: '0.2s',
+    transitionTimingFunction: 'ease',
+  } as unknown as ViewStyle,
+  painRowHovered: {
+    backgroundColor: colors.surfaceAlt,
+    transform: [{ translateX: 4 }],
   },
   painRowLast: {
     borderBottomWidth: 0,
@@ -2593,7 +2733,8 @@ const styles = StyleSheet.create({
   },
   // Deliberately desaturated — "the problem" reads muted/grey, "the
   // solution" (featureIcon, below) gets the brand gradient, so the color
-  // shift itself carries the before/after story.
+  // shift itself carries the before/after story. On hover the badge
+  // previews that same shift — a little "this is what gets fixed" tell.
   painIconBadge: {
     width: 44,
     height: 44,
@@ -2604,6 +2745,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+    transitionProperty: 'background-color, border-color, transform',
+    transitionDuration: '0.2s',
+    transitionTimingFunction: 'ease',
+  } as unknown as ViewStyle,
+  painIconBadgeHovered: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    transform: [{ scale: 1.08 }],
   },
   painTitle: {
     fontSize: fontSize.md,
@@ -2632,6 +2781,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
+    transitionProperty: 'transform, box-shadow, border-color',
+    transitionDuration: '0.25s',
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
   } as unknown as ViewStyle,
   featureHeroCardCompact: {
     flexDirection: 'column',
@@ -2674,7 +2826,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
-  },
+    transitionProperty: 'transform, box-shadow, border-color',
+    transitionDuration: '0.25s',
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  } as unknown as ViewStyle,
   featureCardHovered: {
     borderColor: colors.primary,
     shadowOpacity: 0.09,
@@ -2820,6 +2975,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     gap: spacing.md,
+    transitionProperty: 'transform, box-shadow, border-color',
+    transitionDuration: '0.25s',
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  } as unknown as ViewStyle,
+  priceCardHovered: {
+    borderColor: colors.primary,
+    transform: [{ translateY: -6 }],
   },
   // Inverted (dark) instead of white-with-a-border — breaks the
   // otherwise all-white-card monotony of the grid and reads as "this one
@@ -2834,6 +2996,13 @@ const styles = StyleSheet.create({
     // Physically lifted above the other plans — the "recommended" card
     // isn't just outlined, it visibly floats a step closer to the reader.
     transform: [{ translateY: -10 }],
+  } as unknown as ViewStyle,
+  // Same lift as priceCardHighlight's base transform, just pushed a
+  // little further on hover (-14 total) so the recommended card still
+  // reads as "further forward" than the others' -6.
+  priceCardHighlightHovered: {
+    shadowOpacity: 0.45,
+    transform: [{ translateY: -14 }],
   } as unknown as ViewStyle,
   priceBadge: {
     alignSelf: 'flex-start',
