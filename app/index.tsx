@@ -85,6 +85,11 @@ function LandingContent() {
   // of phase with each other. Neither ties to scroll/reveal state — they run
   // for as long as the hero is mounted.
   const blobPulse = useRef(new Animated.Value(0)).current;
+  // Drives the little abstract signature doodle next to "Signé
+  // électroniquement": three strokes draw in one after another (a loose
+  // scribble, then an underline), hold for a beat, then reset and loop —
+  // an abstract stand-in for a hand signing the devis.
+  const signatureAnim = useRef(new Animated.Value(0)).current;
   const menuItemAnims = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
@@ -231,6 +236,22 @@ function LandingContent() {
       liveLoop.stop();
     };
   }, [livePulse]);
+
+  useEffect(() => {
+    const signatureLoop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(500),
+        Animated.timing(signatureAnim, { toValue: 1, duration: 1100, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        Animated.delay(1100),
+        Animated.timing(signatureAnim, { toValue: 0, duration: 250, easing: Easing.in(Easing.cubic), useNativeDriver: false }),
+        Animated.delay(500),
+      ]),
+    );
+    signatureLoop.start();
+    return () => {
+      signatureLoop.stop();
+    };
+  }, [signatureAnim]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -385,6 +406,29 @@ function LandingContent() {
                 <View style={styles.heroCardBadge}>
                   <Feather name="check" size={12} color="#fff" />
                   <Text style={styles.heroCardBadgeText}>Signé électroniquement</Text>
+                  <View style={styles.heroSignatureDoodle}>
+                    <Animated.View
+                      style={[
+                        styles.heroSignatureStroke,
+                        styles.heroSignatureStrokeA,
+                        { width: signatureAnim.interpolate({ inputRange: [0, 0.35], outputRange: [0, 11], extrapolate: 'clamp' }) },
+                      ]}
+                    />
+                    <Animated.View
+                      style={[
+                        styles.heroSignatureStroke,
+                        styles.heroSignatureStrokeB,
+                        { width: signatureAnim.interpolate({ inputRange: [0.25, 0.6], outputRange: [0, 13], extrapolate: 'clamp' }) },
+                      ]}
+                    />
+                    <Animated.View
+                      style={[
+                        styles.heroSignatureStroke,
+                        styles.heroSignatureStrokeC,
+                        { width: signatureAnim.interpolate({ inputRange: [0.5, 0.9], outputRange: [0, 27], extrapolate: 'clamp' }) },
+                      ]}
+                    />
+                  </View>
                 </View>
               </Animated.View>
             </Animated.View>
@@ -1419,18 +1463,69 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
 // render reliably on every desktop browser/OS font stack (shows as two
 // separate letter tiles or nothing at all on some Windows/Linux setups),
 // while a hand-drawn cross-in-a-circle always looks identical everywhere.
-// A dashed circular seal, like an ink stamp, instead of a flat rounded
-// gradient card — "certified Swiss" reads as an actual mark of quality
-// this way rather than a decorative colored box.
+// An actual seal — double ring + text curved along the top arc, like a
+// certification stamp — instead of a flat rounded gradient card or a
+// dashed circle with horizontal text sitting inside it.
 function SwissStamp() {
   return (
     <View style={styles.swissStamp}>
+      <View style={styles.swissStampRingOuter} />
+      <View style={styles.swissStampRingInner} />
+      <ArcText text="CANTIA   ·   SUISSE   ·" radius={49} startAngle={-100} endAngle={100} style={styles.swissStampArcText} />
       <View style={styles.swissStampCross}>
         <View style={styles.swissStampCrossV} />
         <View style={styles.swissStampCrossH} />
       </View>
-      <Text style={styles.swissStampText}>Conçu{'\n'}en Suisse</Text>
+      <Text style={styles.swissStampCenterText}>Depuis 2026</Text>
     </View>
+  );
+}
+
+// Positions each character of `text` along a circular arc, angle-by-angle
+// (0° = top, clockwise) — the pure-RN-styles way to get curved seal text
+// without an SVG dependency.
+function ArcText({
+  text,
+  radius,
+  startAngle,
+  endAngle,
+  style,
+}: {
+  text: string;
+  radius: number;
+  startAngle: number;
+  endAngle: number;
+  style: TextStyle;
+}) {
+  const chars = text.split('');
+  const n = chars.length;
+  return (
+    <>
+      {chars.map((ch, i) => {
+        const angle = n === 1 ? (startAngle + endAngle) / 2 : startAngle + ((endAngle - startAngle) * i) / (n - 1);
+        const rad = (angle * Math.PI) / 180;
+        const x = radius * Math.sin(rad);
+        const y = -radius * Math.cos(rad);
+        return (
+          <Text
+            key={i}
+            style={[
+              style,
+              {
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                marginLeft: -7,
+                marginTop: -7,
+                transform: [{ translateX: x }, { translateY: y }, { rotate: `${angle}deg` }],
+              },
+            ]}
+          >
+            {ch === ' ' ? '' : ch}
+          </Text>
+        );
+      })}
+    </>
   );
 }
 
@@ -2018,6 +2113,35 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#fff',
+  },
+  // An abstract pen-stroke doodle next to the badge text — a loose
+  // scribble followed by an underline flourish, standing in for an actual
+  // signature without drawing a literal (and inevitably naff-looking) one.
+  heroSignatureDoodle: {
+    width: 30,
+    height: 15,
+    position: 'relative',
+  },
+  heroSignatureStroke: {
+    position: 'absolute',
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+  },
+  heroSignatureStrokeA: {
+    top: 1,
+    left: 0,
+    transform: [{ rotate: '-24deg' }],
+  },
+  heroSignatureStrokeB: {
+    top: 1,
+    left: 7,
+    transform: [{ rotate: '26deg' }],
+  },
+  heroSignatureStrokeC: {
+    top: 12,
+    left: 0,
+    transform: [{ rotate: '0deg' }],
   },
   // Full-bleed ticker bar: edge to edge, not a rounded pill — a hairline
   // "info bar" that reads as live data rather than a decorative chip.
@@ -2907,17 +3031,42 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   swissStamp: {
-    width: 116,
-    height: 116,
-    borderRadius: 58,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: colors.primary,
+    width: 132,
+    height: 132,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
     flexShrink: 0,
     transform: [{ rotate: '-7deg' }],
+  },
+  // Double ring — solid outer + dashed inner — the classic certification
+  // seal silhouette, instead of one thin dashed circle.
+  swissStampRingOuter: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 66,
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
+  swissStampRingInner: {
+    position: 'absolute',
+    top: 7,
+    left: 7,
+    right: 7,
+    bottom: 7,
+    borderRadius: 59,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.primary,
+  },
+  swissStampArcText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.primary,
+    width: 14,
+    textAlign: 'center',
   },
   swissStampCross: {
     width: 26,
@@ -2941,14 +3090,13 @@ const styles = StyleSheet.create({
     borderRadius: 1,
     backgroundColor: '#fff',
   },
-  swissStampText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1,
+  swissStampCenterText: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
     color: colors.primary,
-    textAlign: 'center',
-    lineHeight: 13,
+    marginTop: 7,
   },
   swissTitle: {
     fontSize: fontSize.xl,
