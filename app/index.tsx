@@ -34,6 +34,14 @@ const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shiel
 // paired by index rather than by name so this stays a plain parallel array,
 // no separate per-trade copy needed.
 const TRADE_ICONS: IconName[] = ['layers', 'grid', 'lock', 'zap', 'droplet', 'tool', 'edit-3', 'square'];
+// Cantia went live on this date — the "days since launch" ticker figure is
+// computed from it on every load rather than hand-updated, so it keeps
+// climbing on its own instead of going stale the day after someone forgets
+// to bump a hardcoded number.
+const LAUNCH_DATE = Date.UTC(2026, 7, 3);
+function daysSinceLaunch(): number {
+  return Math.max(1, Math.floor((Date.now() - LAUNCH_DATE) / 86400000));
+}
 const NAV_HEIGHT = 68;
 
 // The compiled Android/iOS app has no marketing site to show — it goes
@@ -52,10 +60,13 @@ function LandingContent() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [landingStats, setLandingStats] = useState<{
     users_count: number;
+    organizations_count: number;
     cash_collected_chf: number;
   } | null>(null);
   const usersDisplay = useCountUp(landingStats?.users_count);
+  const orgsDisplay = useCountUp(landingStats?.organizations_count);
   const cashCoins = useCountUpCoins(landingStats?.cash_collected_chf);
+  const launchDaysDisplay = useCountUp(daysSinceLaunch());
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -141,12 +152,13 @@ function LandingContent() {
   useEffect(() => {
     supabase
       .from('landing_stats')
-      .select('users_count, cash_collected_chf')
+      .select('users_count, organizations_count, cash_collected_chf')
       .single()
       .then(({ data }) => {
         if (data) {
           setLandingStats({
             users_count: data.users_count,
+            organizations_count: data.organizations_count,
             cash_collected_chf: Number(data.cash_collected_chf),
           });
         }
@@ -161,6 +173,7 @@ function LandingContent() {
           const row = payload.new as Record<string, unknown>;
           setLandingStats({
             users_count: Number(row.users_count),
+            organizations_count: Number(row.organizations_count),
             cash_collected_chf: Number(row.cash_collected_chf),
           });
         },
@@ -386,6 +399,13 @@ function LandingContent() {
               <View style={styles.statsTickerDivider} />
               <View style={styles.statsTickerStat}>
                 <Text style={styles.statsTickerValue}>
+                  {landingStats ? formatStatCount(Math.round(orgsDisplay)) : '—'}
+                </Text>
+                <Text style={styles.statsTickerLabel}>entreprises nous ont déjà rejoint</Text>
+              </View>
+              <View style={styles.statsTickerDivider} />
+              <View style={styles.statsTickerStat}>
+                <Text style={styles.statsTickerValue}>
                   {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
                 </Text>
                 <Text style={styles.statsTickerLabel}>utilisateurs actifs</Text>
@@ -407,6 +427,11 @@ function LandingContent() {
                   ))}
                 </View>
                 <Text style={styles.statsTickerLabel}>encaissés via Cantia</Text>
+              </View>
+              <View style={styles.statsTickerDivider} />
+              <View style={styles.statsTickerStat}>
+                <Text style={styles.statsTickerValue}>{Math.round(launchDaysDisplay)}</Text>
+                <Text style={styles.statsTickerLabel}>jours en ligne</Text>
               </View>
             </View>
           </View>
