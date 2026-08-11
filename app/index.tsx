@@ -676,89 +676,66 @@ function LandingContent() {
             </View>
           </Animated.View>
 
-          {/* ---- Services ("after") ---- */}
+          {/* ---- Services ("after") — presented as a connected journey from
+              chantier to bureau instead of a grid of cards, echoing the
+              section's own title. A single line runs behind the icon nodes
+              (hidden under each opaque badge, visible in the gaps), framed
+              by "Chantier" and "Bureau" endpoint labels. Same click-to-expand
+              behavior as before, just a completely different container. ---- */}
           <Reveal id="services" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={styles.sectionEyebrow}>Ce qu'on apporte</Text>
             <Text style={styles.sectionTitle}>{t.services.title}</Text>
             <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
 
-            {/* Bento layout: the first capability gets a full-width banner
-                row instead of being just another tile in the grid — a
-                deliberate hierarchy (this one matters most) rather than
-                nine identical boxes. */}
-            {(() => {
-              const f = t.services.items[0];
-              const expanded = expandedFeature === 0;
-              return (
-                <Pressable
-                  style={({ pressed, hovered }: any) => [
-                    styles.featureHeroCard,
-                    isCompactNav && styles.featureHeroCardCompact,
-                    (pressed || hovered) && styles.featureCardHovered,
-                  ]}
-                  onPress={() => setExpandedFeature(expanded ? null : 0)}
-                >
-                  <View style={styles.featureHeroIcon}>
-                    <Feather name={FEATURE_ICONS[0]} size={24} color="#fff" />
-                  </View>
-                  <View style={styles.featureHeroBody}>
-                    <View style={styles.featureCardHeader}>
-                      <Text style={styles.featureHeroTitle}>{f.title}</Text>
-                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
-                    </View>
-                    <Text style={styles.featureText}>{f.text}</Text>
-                    {expanded ? (
-                      <View style={styles.featureDetail}>
-                        {f.detail.map((line) => (
-                          <View key={line} style={styles.featureDetailRow}>
-                            <Feather name="check" size={13} color={colors.success} />
-                            <Text style={styles.featureDetailText}>{line}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    ) : null}
-                  </View>
-                </Pressable>
-              );
-            })()}
+            <View style={styles.journeyOuter}>
+              <View style={styles.journeyEndpoint}>
+                <View style={styles.journeyEndpointIcon}>
+                  <Feather name="tool" size={14} color={colors.textMuted} />
+                </View>
+                <Text style={styles.journeyEndpointText}>Chantier</Text>
+              </View>
 
-            <View style={styles.featureGrid}>
-              {t.services.items.slice(1).map((f, idx) => {
-                const i = idx + 1;
-                const expanded = expandedFeature === i;
-                return (
-                  <Pressable
-                    key={f.title}
-                    style={({ pressed, hovered }: any) => [
-                      styles.featureCard,
-                      expanded && styles.featureCardActive,
-                      (pressed || hovered) && styles.featureCardHovered,
-                    ]}
-                    onPress={() => setExpandedFeature(expanded ? null : i)}
-                  >
-                    <View style={styles.featureCardHeader}>
-                      <View style={styles.featureIcon}>
-                        <Feather name={FEATURE_ICONS[i]} size={17} color="#fff" />
+              <View style={styles.journeyList}>
+                <View pointerEvents="none" style={styles.journeyLine} />
+                {t.services.items.map((f, i) => {
+                  const expanded = expandedFeature === i;
+                  return (
+                    <Pressable
+                      key={f.title}
+                      style={({ hovered }: any) => [styles.journeyRow, hovered && styles.journeyRowHovered]}
+                      onPress={() => setExpandedFeature(expanded ? null : i)}
+                    >
+                      <View style={styles.journeyIconBadge}>
+                        <Feather name={FEATURE_ICONS[i]} size={19} color="#fff" />
                       </View>
-                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
-                    </View>
-                    <View style={styles.featureIconRow}>
-                      <Text style={styles.featureTitle}>{f.title}</Text>
-                    </View>
-                    <Text style={styles.featureText}>{f.text}</Text>
-                    {expanded ? (
-                      <View style={styles.featureDetail}>
-                        {f.detail.map((line) => (
-                          <View key={line} style={styles.featureDetailRow}>
-                            <Feather name="check" size={13} color={colors.success} />
-                            <Text style={styles.featureDetailText}>{line}</Text>
+                      <View style={styles.journeyBody}>
+                        <View style={styles.featureCardHeader}>
+                          <Text style={styles.featureTitle}>{f.title}</Text>
+                          <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                        </View>
+                        <Text style={styles.featureText}>{f.text}</Text>
+                        {expanded ? (
+                          <View style={styles.featureDetail}>
+                            {f.detail.map((line) => (
+                              <View key={line} style={styles.featureDetailRow}>
+                                <Feather name="check" size={13} color={colors.success} />
+                                <Text style={styles.featureDetailText}>{line}</Text>
+                              </View>
+                            ))}
                           </View>
-                        ))}
+                        ) : null}
                       </View>
-                    ) : null}
-                  </Pressable>
-                );
-              })}
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <View style={[styles.journeyEndpoint, styles.journeyEndpointBottom]}>
+                <View style={styles.journeyEndpointIcon}>
+                  <Feather name="briefcase" size={14} color={colors.textMuted} />
+                </View>
+                <Text style={styles.journeyEndpointText}>Bureau</Text>
+              </View>
             </View>
           </Reveal>
 
@@ -1779,7 +1756,12 @@ function TradesMarquee({ trades, compact }: { trades: string[]; compact: boolean
     // viewport shows far less of it at once — the loop read as crawling
     // there even though desktop felt fine. Cutting the duration (not
     // touching the desktop pace) makes it read as brisk on mobile too.
-    if (node) node.style.animation = `cantia-marquee ${compact ? 11 : 32}s linear infinite`;
+    // The track is two exact copies of the same list (see `items` below)
+    // and the keyframes animate a plain translateX(0) -> translateX(-50%)
+    // loop, so the restart always lands on pixel-identical content —
+    // faster duration doesn't introduce any visible jump, it's still the
+    // same seamless loop, just quicker.
+    if (node) node.style.animation = `cantia-marquee ${compact ? 6 : 32}s linear infinite`;
   }, [compact]);
 
   const items = [...trades, ...trades];
@@ -2062,17 +2044,19 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     gap: spacing.md,
   },
+  // Centered pill buttons, not edge-to-edge blocks — matches the centered
+  // headline/subheadline above instead of breaking from it with a full-width
+  // rectangle.
   ctaRowCompact: {
     flexDirection: 'column',
-    alignSelf: 'stretch',
-    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
   },
   ctaButton: {
     minWidth: 220,
   },
   ctaButtonCompact: {
-    minWidth: 0,
-    width: '100%',
+    minWidth: 260,
   },
   // Pure-CSS hover transition (web only) for HoverLift — no Animated.Value,
   // just a transform swap the browser tweens on its own.
@@ -2771,80 +2755,85 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 20,
   },
-  // The bento "hero" tile: one full-width banner ahead of the grid, so the
-  // first capability reads as a deliberate lead rather than tile #1 of 9.
-  featureHeroCard: {
+  // ---- Services journey: a connected vertical line running behind the
+  // icon nodes (hidden under each opaque badge, visible in the gaps),
+  // framed by "Chantier"/"Bureau" endpoint labels — replaces the old
+  // bento-banner + card-grid presentation entirely.
+  journeyOuter: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  journeyEndpoint: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.lg,
-    padding: spacing.xl,
-    borderRadius: radius.xl,
-    backgroundImage: `linear-gradient(120deg, ${colors.primarySoft}, ${colors.surface} 65%)`,
+    alignSelf: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  journeyEndpointBottom: {
+    marginTop: spacing.md,
+    marginBottom: 0,
+  },
+  journeyEndpointIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
     borderColor: colors.border,
-    marginBottom: spacing.lg,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    transitionProperty: 'transform, box-shadow, border-color',
-    transitionDuration: '0.25s',
-    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  } as unknown as ViewStyle,
-  featureHeroCardCompact: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  featureHeroIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  journeyEndpointText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  journeyList: {
+    position: 'relative',
+  },
+  // Anchored to the vertical center of the icon badges (paddingVertical lg
+  // + half the 48px badge = 40px from the list's top/bottom edge at rest),
+  // sitting behind the badges (rendered first, no zIndex needed since the
+  // badges are opaque) so it reads as one continuous line threading
+  // through every stop rather than a decoration floating beside them.
+  journeyLine: {
+    position: 'absolute',
+    top: 40,
+    bottom: 40,
+    left: 31,
+    width: 2,
+    backgroundColor: colors.border,
+  },
+  journeyRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.lg,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    transitionProperty: 'background-color',
+    transitionDuration: '0.2s',
+    transitionTimingFunction: 'ease',
+  } as unknown as ViewStyle,
+  journeyRowHovered: {
+    backgroundColor: colors.surfaceAlt,
+  },
+  journeyIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   } as unknown as ViewStyle,
-  featureHeroBody: {
+  journeyBody: {
     flex: 1,
-    width: '100%',
-  },
-  featureHeroTitle: {
-    flex: 1,
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  featureGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.lg,
-  },
-  featureCard: {
-    width: '31%',
-    minWidth: 300,
-    flexGrow: 1,
-    padding: spacing.xl,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    transitionProperty: 'transform, box-shadow, border-color',
-    transitionDuration: '0.25s',
-    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  } as unknown as ViewStyle,
-  featureCardHovered: {
-    borderColor: colors.primary,
-    shadowOpacity: 0.09,
-    shadowRadius: 24,
-    transform: [{ translateY: -3 }],
-  },
-  featureCardActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
+    paddingTop: 2,
   },
   featureCardHeader: {
     flexDirection: 'row',
@@ -2852,17 +2841,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  featureIconRow: {
-    marginBottom: spacing.xs,
-  },
-  featureIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as unknown as ViewStyle,
   featureTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
