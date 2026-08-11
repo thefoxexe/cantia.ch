@@ -26,6 +26,7 @@ import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
+const NEON_GREEN = '#39FF6A';
 const PAIN_ICONS: IconName[] = ['edit-3', 'clock', 'folder'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shield', 'layout', 'list', 'map-pin', 'users'];
 // One small "artwork" icon per trade, in the same order as t.trades.list —
@@ -61,6 +62,7 @@ function LandingContent() {
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
+  const livePulse = useRef(new Animated.Value(0)).current;
   // Continuous, subtle motion so the hero doesn't read as a static screenshot:
   // the phone mockup gently floats, and the two background blobs breathe out
   // of phase with each other. Neither ties to scroll/reveal state — they run
@@ -187,6 +189,19 @@ function LandingContent() {
   }, [blobPulse]);
 
   useEffect(() => {
+    const liveLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(livePulse, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(livePulse, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    liveLoop.start();
+    return () => {
+      liveLoop.stop();
+    };
+  }, [livePulse]);
+
+  useEffect(() => {
     if (menuOpen) {
       Animated.parallel([
         Animated.timing(menuAnim, {
@@ -308,7 +323,18 @@ function LandingContent() {
               landing_stats table + triggers in the Supabase migration. */}
           <Reveal id="stats" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <View style={styles.statsLiveBadge}>
-              <View style={styles.statsLiveDot} />
+              <View style={styles.statsLiveDotWrap}>
+                <Animated.View
+                  style={[
+                    styles.statsLiveDotGlow,
+                    {
+                      opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
+                      transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }],
+                    },
+                  ]}
+                />
+                <View style={styles.statsLiveDotCore} />
+              </View>
               <Text style={styles.statsLiveText}>Chiffres réels, mis à jour en direct</Text>
             </View>
             <Text style={[styles.sectionTitle, styles.centerText]}>Cantia, en chiffres</Text>
@@ -1768,11 +1794,32 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     marginBottom: spacing.md,
   },
-  statsLiveDot: {
+  statsLiveDotWrap: {
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsLiveDotGlow: {
+    position: 'absolute',
+    width: 16,
+    height: 16,
+    borderRadius: 999,
+    backgroundColor: NEON_GREEN,
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+  },
+  statsLiveDotCore: {
     width: 7,
     height: 7,
     borderRadius: 999,
-    backgroundColor: colors.success,
+    backgroundColor: NEON_GREEN,
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 4,
   },
   statsLiveText: {
     fontSize: fontSize.xs,
