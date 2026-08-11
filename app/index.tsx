@@ -44,6 +44,23 @@ function daysSinceLaunch(): number {
 }
 const NAV_HEIGHT = 68;
 
+// A stylised signature scrawl, expressed as short rotated bars instead of
+// an SVG path (no SVG dependency in this project) — a zigzag of short
+// strokes reading as cursive handwriting, then one long sweeping stroke as
+// the flourish tail. `range` is the [start, end] slice of the shared
+// 0→1 draw progress each stroke animates across, so they draw in sequence
+// rather than all at once.
+const SIGNATURE_STROKES: { top: number; left: number; rotate: number; length: number; range: [number, number] }[] = [
+  { top: 15, left: 0, rotate: -42, length: 9, range: [0, 0.1] },
+  { top: 6, left: 6, rotate: 38, length: 12, range: [0.08, 0.2] },
+  { top: 15, left: 15, rotate: -40, length: 9, range: [0.18, 0.28] },
+  { top: 5, left: 22, rotate: 34, length: 13, range: [0.26, 0.38] },
+  { top: 16, left: 32, rotate: -32, length: 10, range: [0.36, 0.47] },
+  { top: 6, left: 40, rotate: 30, length: 15, range: [0.45, 0.58] },
+  { top: 2, left: 52, rotate: -55, length: 16, range: [0.56, 0.68] },
+  { top: 19, left: 46, rotate: -4, length: 56, range: [0.66, 0.96] },
+];
+
 // The compiled Android/iOS app has no marketing site to show — it goes
 // straight to the auth flow (app/_layout.tsx then takes over once the
 // session is known, sending a logged-in user to the dashboard instead).
@@ -85,11 +102,12 @@ function LandingContent() {
   // of phase with each other. Neither ties to scroll/reveal state — they run
   // for as long as the hero is mounted.
   const blobPulse = useRef(new Animated.Value(0)).current;
-  // Drives the little abstract signature doodle next to "Signé
-  // électroniquement": three strokes draw in one after another (a loose
-  // scribble, then an underline), hold for a beat, then reset and loop —
-  // an abstract stand-in for a hand signing the devis.
-  const signatureAnim = useRef(new Animated.Value(0)).current;
+  // Drives the black signature scrawl at the top of the devis card: each
+  // stroke's width tweens in over its own slice of [0,1] (signatureDraw),
+  // so they draw one after another rather than all at once; signatureOpacity
+  // handles the clean fade-out between loops so the reset never flashes.
+  const signatureDraw = useRef(new Animated.Value(0)).current;
+  const signatureOpacity = useRef(new Animated.Value(1)).current;
   const menuItemAnims = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
@@ -240,10 +258,12 @@ function LandingContent() {
   useEffect(() => {
     const signatureLoop = Animated.loop(
       Animated.sequence([
-        Animated.delay(500),
-        Animated.timing(signatureAnim, { toValue: 1, duration: 1100, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-        Animated.delay(1100),
-        Animated.timing(signatureAnim, { toValue: 0, duration: 250, easing: Easing.in(Easing.cubic), useNativeDriver: false }),
+        Animated.delay(600),
+        Animated.timing(signatureDraw, { toValue: 1, duration: 1500, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.delay(1000),
+        Animated.timing(signatureOpacity, { toValue: 0, duration: 300, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(signatureDraw, { toValue: 0, duration: 0, useNativeDriver: true }),
+        Animated.timing(signatureOpacity, { toValue: 1, duration: 0, useNativeDriver: true }),
         Animated.delay(500),
       ]),
     );
@@ -251,7 +271,7 @@ function LandingContent() {
     return () => {
       signatureLoop.stop();
     };
-  }, [signatureAnim]);
+  }, [signatureDraw, signatureOpacity]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -381,6 +401,39 @@ function LandingContent() {
                     <Text style={styles.heroCardStatusText}>Envoyé</Text>
                   </View>
                 </View>
+
+                {/* ---- A real (abstract) signature drawing itself in black
+                    ink at the top of the devis, stroke by stroke, on a loop
+                    — not tucked into the small badge anymore. ---- */}
+                <Animated.View style={[styles.heroSignatureBox, { opacity: signatureOpacity }]}>
+                  {SIGNATURE_STROKES.map((s, i) => (
+                    <Animated.View
+                      key={i}
+                      style={
+                        [
+                          styles.heroSignatureStroke,
+                          {
+                            top: s.top,
+                            left: s.left,
+                            width: s.length,
+                            transformOrigin: 'left center',
+                            transform: [
+                              { rotate: `${s.rotate}deg` },
+                              {
+                                scaleX: signatureDraw.interpolate({
+                                  inputRange: s.range,
+                                  outputRange: [0, 1],
+                                  extrapolate: 'clamp',
+                                }),
+                              },
+                            ],
+                          },
+                        ] as unknown as ViewStyle
+                      }
+                    />
+                  ))}
+                </Animated.View>
+
                 <View style={styles.heroCardLines}>
                   <View style={styles.heroCardLine}>
                     <Feather name="edit-3" size={13} color={colors.textMuted} />
@@ -406,29 +459,6 @@ function LandingContent() {
                 <View style={styles.heroCardBadge}>
                   <Feather name="check" size={12} color="#fff" />
                   <Text style={styles.heroCardBadgeText}>Signé électroniquement</Text>
-                  <View style={styles.heroSignatureDoodle}>
-                    <Animated.View
-                      style={[
-                        styles.heroSignatureStroke,
-                        styles.heroSignatureStrokeA,
-                        { width: signatureAnim.interpolate({ inputRange: [0, 0.35], outputRange: [0, 11], extrapolate: 'clamp' }) },
-                      ]}
-                    />
-                    <Animated.View
-                      style={[
-                        styles.heroSignatureStroke,
-                        styles.heroSignatureStrokeB,
-                        { width: signatureAnim.interpolate({ inputRange: [0.25, 0.6], outputRange: [0, 13], extrapolate: 'clamp' }) },
-                      ]}
-                    />
-                    <Animated.View
-                      style={[
-                        styles.heroSignatureStroke,
-                        styles.heroSignatureStrokeC,
-                        { width: signatureAnim.interpolate({ inputRange: [0.5, 0.9], outputRange: [0, 27], extrapolate: 'clamp' }) },
-                      ]}
-                    />
-                  </View>
                 </View>
               </Animated.View>
             </Animated.View>
@@ -2114,34 +2144,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
-  // An abstract pen-stroke doodle next to the badge text — a loose
-  // scribble followed by an underline flourish, standing in for an actual
-  // signature without drawing a literal (and inevitably naff-looking) one.
-  heroSignatureDoodle: {
-    width: 30,
-    height: 15,
+  // The black signature scrawl at the top of the devis card — real ink
+  // black (not a brand color), a proper size to read as handwriting
+  // instead of a tiny decoration squeezed into a badge.
+  heroSignatureBox: {
+    width: 108,
+    height: 26,
     position: 'relative',
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
   heroSignatureStroke: {
     position: 'absolute',
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-  },
-  heroSignatureStrokeA: {
-    top: 1,
-    left: 0,
-    transform: [{ rotate: '-24deg' }],
-  },
-  heroSignatureStrokeB: {
-    top: 1,
-    left: 7,
-    transform: [{ rotate: '26deg' }],
-  },
-  heroSignatureStrokeC: {
-    top: 12,
-    left: 0,
-    transform: [{ rotate: '0deg' }],
+    height: 2.5,
+    borderRadius: 1.5,
+    backgroundColor: '#141210',
   },
   // Full-bleed ticker bar: edge to edge, not a rounded pill — a hairline
   // "info bar" that reads as live data rather than a decorative chip.
