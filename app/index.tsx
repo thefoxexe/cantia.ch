@@ -44,22 +44,42 @@ function daysSinceLaunch(): number {
 }
 const NAV_HEIGHT = 68;
 
-// A stylised signature scrawl, expressed as short rotated bars instead of
-// an SVG path (no SVG dependency in this project) — a zigzag of short
-// strokes reading as cursive handwriting, then one long sweeping stroke as
-// the flourish tail. `range` is the [start, end] slice of the shared
-// 0→1 draw progress each stroke animates across, so they draw in sequence
-// rather than all at once.
-const SIGNATURE_STROKES: { top: number; left: number; rotate: number; length: number; range: [number, number] }[] = [
-  { top: 15, left: 0, rotate: -42, length: 9, range: [0, 0.1] },
-  { top: 6, left: 6, rotate: 38, length: 12, range: [0.08, 0.2] },
-  { top: 15, left: 15, rotate: -40, length: 9, range: [0.18, 0.28] },
-  { top: 5, left: 22, rotate: 34, length: 13, range: [0.26, 0.38] },
-  { top: 16, left: 32, rotate: -32, length: 10, range: [0.36, 0.47] },
-  { top: 6, left: 40, rotate: 30, length: 15, range: [0.45, 0.58] },
-  { top: 2, left: 52, rotate: -55, length: 16, range: [0.56, 0.68] },
-  { top: 19, left: 46, rotate: -4, length: 56, range: [0.66, 0.96] },
+// A single continuous abstract line, not disconnected strokes — a chain
+// of waypoints (two sharp peaks, like a pen flicking up-down-up-down,
+// settling into a gentler trailing wave) connected end-to-end by short
+// rotated bars, since there's no SVG dependency in this project to draw
+// a real bezier path with. Each bar's start point is exactly the previous
+// bar's end point, so it reads as one unbroken stroke rather than a
+// cursive-letters zigzag.
+const SIGNATURE_POINTS: { x: number; y: number }[] = [
+  { x: 0, y: 24 },
+  { x: 9, y: 3 },
+  { x: 20, y: 44 },
+  { x: 31, y: 6 },
+  { x: 43, y: 40 },
+  { x: 56, y: 32 },
+  { x: 70, y: 17 },
+  { x: 85, y: 26 },
+  { x: 98, y: 19 },
+  { x: 112, y: 23 },
+  { x: 128, y: 21 },
 ];
+// `range` is the [start, end] slice of the shared 0→1 draw progress each
+// segment animates across, so the line traces from start to end in order.
+const SIGNATURE_STROKES: { top: number; left: number; rotate: number; length: number; range: [number, number] }[] =
+  SIGNATURE_POINTS.slice(0, -1).map((p, i) => {
+    const q = SIGNATURE_POINTS[i + 1];
+    const dx = q.x - p.x;
+    const dy = q.y - p.y;
+    const n = SIGNATURE_POINTS.length - 1;
+    return {
+      top: p.y,
+      left: p.x,
+      rotate: (Math.atan2(dy, dx) * 180) / Math.PI,
+      length: Math.sqrt(dx * dx + dy * dy),
+      range: [i / n, (i + 1) / n],
+    };
+  });
 
 // The compiled Android/iOS app has no marketing site to show — it goes
 // straight to the auth flow (app/_layout.tsx then takes over once the
@@ -2148,15 +2168,15 @@ const styles = StyleSheet.create({
   // black (not a brand color), a proper size to read as handwriting
   // instead of a tiny decoration squeezed into a badge.
   heroSignatureBox: {
-    width: 108,
-    height: 26,
+    width: 132,
+    height: 48,
     position: 'relative',
     marginTop: spacing.xs,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   heroSignatureStroke: {
     position: 'absolute',
-    height: 2.5,
+    height: 3,
     borderRadius: 1.5,
     backgroundColor: '#141210',
   },
