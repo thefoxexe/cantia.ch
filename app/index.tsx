@@ -497,6 +497,32 @@ function LandingContent() {
                   <Feather name="check" size={12} color="#fff" />
                   <Text style={styles.heroCardBadgeText}>Signé électroniquement</Text>
                 </View>
+
+                {/* A second, shallower layer of depth — bobs opposite the
+                    card itself so the two never move in lockstep, reading
+                    as a live notification arriving rather than a sticker
+                    glued to the mockup. */}
+                {!isCompactHero ? (
+                  <Animated.View
+                    style={[
+                      styles.heroCardToast,
+                      {
+                        transform: [
+                          { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }) },
+                          { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['3deg', '1deg'] }) },
+                        ],
+                      },
+                    ]}
+                  >
+                    <View style={styles.heroCardToastIcon}>
+                      <Feather name="bell" size={11} color={colors.primary} />
+                    </View>
+                    <View>
+                      <Text style={styles.heroCardToastTitle}>Facture #204 payée</Text>
+                      <Text style={styles.heroCardToastText}>Il y a 2 minutes</Text>
+                    </View>
+                  </Animated.View>
+                ) : null}
               </Animated.View>
             </View>
           </View>
@@ -981,10 +1007,19 @@ function LandingContent() {
             </Link>
           </Reveal>
 
-          {/* ---- Final CTA ---- */}
+          {/* ---- Final CTA — the hero's closing mirror: same grid/glow
+              treatment (inverted onto the brand gradient), same scale of
+              type, so the page opens and closes on the same visual beat
+              instead of trailing off into a plain color band. ---- */}
           <Reveal id="finalCta" getAnim={getSectionAnim} onRegister={registerSection} style={styles.finalCtaOuter} from={18}>
+            <View pointerEvents="none" style={styles.finalCtaGrid} />
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.finalCtaGlow, { opacity: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0.85] }) }]}
+            />
             <View style={styles.finalCta}>
               <Text style={styles.finalCtaTitle}>{t.finalCta.title}</Text>
+              <Text style={styles.finalCtaSubtitle}>{t.finalCta.subtitle}</Text>
               <HoverLift>
                 <Link href={authHref('signup')} asChild>
                   <Button
@@ -995,6 +1030,14 @@ function LandingContent() {
                   />
                 </Link>
               </HoverLift>
+              <View style={styles.finalCtaTrustRow}>
+                {t.finalCta.trust.map((item) => (
+                  <View key={item} style={styles.finalCtaTrustItem}>
+                    <Feather name="check" size={13} color="rgba(255,255,255,0.85)" />
+                    <Text style={styles.finalCtaTrustText}>{item}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
           </Reveal>
 
@@ -2384,6 +2427,44 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
+  heroCardToast: {
+    position: 'absolute',
+    top: -22,
+    right: -30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 7,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  heroCardToastIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  heroCardToastTitle: {
+    fontFamily: marketingFonts.body,
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  heroCardToastText: {
+    fontFamily: marketingFonts.body,
+    fontSize: 10,
+    color: colors.textMuted,
+  },
   // Full-bleed ticker bar: edge to edge, not a rounded pill — a hairline
   // "info bar" that reads as live data rather than a decorative chip.
   statsTickerOuter: {
@@ -3485,9 +3566,37 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   finalCtaOuter: {
+    position: 'relative',
     width: '100%',
+    overflow: 'hidden',
     backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
     marginTop: spacing.xxl,
+  } as unknown as ViewStyle,
+  // Same grid texture as the hero, inverted to a faint white so it reads on
+  // the dark gradient instead of disappearing — the closing section echoes
+  // the opening one rather than landing as a flat, unrelated color band.
+  finalCtaGrid: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage:
+      'linear-gradient(rgba(255,255,255,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px)',
+    backgroundSize: '44px 44px',
+    maskImage: 'radial-gradient(ellipse 70% 90% at 50% 40%, black, transparent)',
+    WebkitMaskImage: 'radial-gradient(ellipse 70% 90% at 50% 40%, black, transparent)',
+  } as unknown as ViewStyle,
+  finalCtaGlow: {
+    position: 'absolute',
+    top: -180,
+    left: '50%',
+    marginLeft: -280,
+    width: 560,
+    height: 420,
+    borderRadius: 280,
+    backgroundColor: colors.accent,
+    filter: 'blur(90px)',
   } as unknown as ViewStyle,
   finalCta: {
     maxWidth: 1080,
@@ -3498,18 +3607,46 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxxl,
   },
   finalCtaTitle: {
-    fontSize: 38,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: 44,
+    fontWeight: '600',
     letterSpacing: -0.8,
-    lineHeight: 44,
+    lineHeight: 48,
     color: '#fff',
     textAlign: 'center',
-    marginBottom: spacing.xl,
-    maxWidth: 560,
+    marginBottom: spacing.md,
+    maxWidth: 600,
     textWrap: 'balance',
   } as unknown as TextStyle,
+  finalCtaSubtitle: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    lineHeight: 23,
+    marginBottom: spacing.xl,
+    maxWidth: 440,
+  },
   finalCtaButton: {
     minWidth: 260,
+  },
+  finalCtaTrustRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.lg,
+    marginTop: spacing.xl,
+  },
+  finalCtaTrustItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  finalCtaTrustText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.85)',
   },
   footer: {
     maxWidth: 1080,

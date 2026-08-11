@@ -34,7 +34,7 @@ interface Dict {
   };
   swiss: { title: string; text: string };
   mobile: { title: string; text: string; comingSoon: string; appStore: string; googlePlay: string };
-  finalCta: { title: string; button: string };
+  finalCta: { title: string; subtitle: string; button: string; trust: string[] };
   footer: {
     blurb: string;
     product: string;
@@ -230,7 +230,9 @@ const fr: Dict = {
   },
   finalCta: {
     title: 'Essayez Cantia sur votre prochain chantier',
+    subtitle: 'Créez votre compte en deux minutes. Le premier devis sera prêt avant d’avoir quitté le chantier.',
     button: 'Créer mon compte gratuitement',
+    trust: ['Gratuit pour démarrer', 'Sans carte bancaire', 'Hébergé en Suisse'],
   },
   footer: {
     blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures, levés et métré, tous au même endroit.',
