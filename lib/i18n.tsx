@@ -62,8 +62,8 @@ const fr: Dict = {
     cta2: 'Se connecter',
   },
   spotlight: {
-    title: 'La technologie qui change tout',
-    subtitle: 'Des automatisations que personne d’autre ne propose en Suisse.',
+    title: 'Ça, aucun autre éditeur suisse ne le fait',
+    subtitle: 'Trois automatisations qui vous font gagner du temps dès le premier devis.',
     voice: {
       label: 'Dictée vocale',
       listening: 'Écoute en cours…',
@@ -75,7 +75,7 @@ const fr: Dict = {
     qrbill: {
       label: 'QR-facture suisse',
       title: 'Payable en un scan',
-      text: 'Chaque facture inclut automatiquement le bulletin de versement QR suisse, prêt à être scanné depuis n’importe quelle appli bancaire.',
+      text: 'Chaque facture inclut le bulletin de versement QR suisse, scannable depuis n’importe quelle appli bancaire.',
       badge: 'Conforme norme SIX',
     },
     catalog: {
@@ -93,12 +93,12 @@ const fr: Dict = {
     title: 'L’administratif ne vous coûte pas que du temps. Il vous coûte de l’argent.',
     items: [
       {
-        title: 'La marge s’évapore, personne ne le voit',
-        text: 'Le devis est signé, le chantier avance, mais rien ne compare au coût réel avant la facture finale — et la découverte.',
-      },
-      {
         title: 'Le devis le plus rapide gagne le chantier',
         text: 'Le temps de le rédiger le soir sur un coin de table, le client a déjà signé ailleurs.',
+      },
+      {
+        title: 'Personne ne sait qui est où, ni sur quoi',
+        text: 'Le planning vit dans la tête du patron ou sur un tableau blanc — deux équipes se croisent, un chantier attend.',
       },
       {
         title: 'Des factures parties, jamais relancées',
@@ -112,7 +112,7 @@ const fr: Dict = {
   },
   services: {
     title: 'Tout ce qu’il faut, du chantier au bureau',
-    subtitle: 'Cliquez sur un service pour voir précisément ce qu’il fait.',
+    subtitle: 'Neuf outils, une seule application — cliquez sur un service pour voir précisément ce qu’il fait.',
     items: [
       {
         title: 'Rapports de chantier automatiques',
@@ -218,8 +218,8 @@ const fr: Dict = {
     paidCta: 'Choisir ce plan',
   },
   swiss: {
-    title: 'Conçu pour le marché suisse',
-    text: 'Les montants sont en francs suisses, la TVA suisse est intégrée par défaut, et vous avez accès au cadastre et à l’orthophoto officiels. Cantia a été pensé dès le départ pour les PME et les artisans indépendants du pays.',
+    title: 'Pensé en Suisse, pas juste traduit pour la Suisse',
+    text: 'Pas une application américaine retouchée à la dernière minute. Cantia a été construit ici, pour les PME et les indépendants du bâtiment suisse — depuis le premier jour.',
   },
   mobile: {
     title: 'Bientôt sur mobile',

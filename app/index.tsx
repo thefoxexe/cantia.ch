@@ -28,7 +28,7 @@ import type { Plan } from '../lib/types';
 type IconName = keyof typeof Feather.glyphMap;
 
 const NEON_GREEN = '#39FF6A';
-const PAIN_ICONS: IconName[] = ['trending-down', 'send', 'credit-card', 'camera'];
+const PAIN_ICONS: IconName[] = ['send', 'users', 'credit-card', 'camera'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shield', 'layout', 'list', 'map-pin', 'users'];
 // One small "artwork" icon per trade, in the same order as t.trades.list —
 // paired by index rather than by name so this stays a plain parallel array,
