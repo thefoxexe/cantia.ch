@@ -311,9 +311,6 @@ function LandingContent() {
               ]}
             >
               <View style={[styles.heroCopy, isCompactNav && styles.heroCopyCompact]}>
-                <Text style={[styles.heroLaunchNote, isCompactNav && styles.centerText]}>
-                  Lancé il y a {launchDays} jour{launchDays > 1 ? 's' : ''} — merci pour la confiance
-                </Text>
                 <View style={[styles.kicker, isCompactNav && styles.kickerCompact]}>
                   <View style={styles.kickerDot} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
@@ -416,6 +413,9 @@ function LandingContent() {
                     <View style={styles.statsLiveDotCore} />
                   </View>
                   <Text style={styles.statsTickerLiveText}>En direct</Text>
+                  <Text style={styles.statsTickerLaunchNote}>
+                    · Lancé il y a {launchDays} jour{launchDays > 1 ? 's' : ''}
+                  </Text>
                 </View>
                 <View style={styles.statsTickerRowCompact}>
                   <View style={styles.statsTickerCoinAnchor}>
@@ -477,6 +477,9 @@ function LandingContent() {
                     <View style={styles.statsLiveDotCore} />
                   </View>
                   <Text style={styles.statsTickerLiveText}>En direct</Text>
+                  <Text style={styles.statsTickerLaunchNote}>
+                    · Lancé il y a {launchDays} jour{launchDays > 1 ? 's' : ''}
+                  </Text>
                 </View>
                 <View style={styles.statsTickerDivider} />
                 <View style={styles.statsTickerStat}>
@@ -1818,15 +1821,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     maxWidth: '100%',
   },
-  // Modest, not a stat — sits above the kicker in a quieter register than
-  // everything below it: young product, real results already, said plainly
-  // rather than dressed up as another counter.
-  heroLaunchNote: {
-    fontSize: 12,
-    color: colors.textMuted,
-    fontStyle: 'italic',
-    marginBottom: spacing.sm,
-  },
   kicker: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2057,6 +2051,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
+  },
+  // Sits right on the live badge, not off in the hero — fixed, not part of
+  // the count-up figures, so a quieter untracked style than the numbers.
+  statsTickerLaunchNote: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontStyle: 'italic',
   },
   statsTickerDivider: {
     width: 1,
