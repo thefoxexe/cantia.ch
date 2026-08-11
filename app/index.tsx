@@ -13,6 +13,7 @@ import {
   Text,
   View,
   useWindowDimensions,
+  type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import { Link, Redirect } from 'expo-router';
@@ -281,7 +282,7 @@ function LandingContent() {
             >
               <View style={styles.heroCopy}>
                 <View style={styles.kicker}>
-                  <Feather name="zap" size={12} color={colors.primary} />
+                  <View style={styles.kickerDot} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
                 </View>
                 <Text style={[styles.headline, isCompactNav && styles.headlineCompact]}>
@@ -306,12 +307,44 @@ function LandingContent() {
                     />
                   </Link>
                 </View>
+
+                {/* ---- Compact live-stats pill: real counters, folded into the
+                    hero instead of owning a whole section — see the
+                    landing_stats table + triggers in the Supabase migration. */}
+                <View style={styles.heroStatsStrip}>
+                  <View style={styles.statsLiveDotWrap}>
+                    <Animated.View
+                      style={[
+                        styles.statsLiveDotGlow,
+                        {
+                          opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
+                          transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
+                        },
+                      ]}
+                    />
+                    <View style={styles.statsLiveDotCore} />
+                  </View>
+                  <Text style={styles.heroStatsText}>
+                    <Text style={styles.heroStatsStrong}>
+                      {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
+                    </Text>{' '}
+                    utilisateurs actifs
+                  </Text>
+                  <View style={styles.heroStatsDivider} />
+                  <Text style={styles.heroStatsText}>
+                    <Text style={[styles.heroStatsStrong, styles.heroStatsAccent]}>
+                      {landingStats ? `CHF ${formatStatChf(cashDisplay)}` : '—'}
+                    </Text>{' '}
+                    encaissés via Cantia
+                  </Text>
+                </View>
               </View>
             </Animated.View>
           </View>
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
           <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>Automatisations</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.spotlight.title}</Text>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.spotlight.subtitle}</Text>
             <View style={styles.spotlightGrid}>
@@ -321,58 +354,15 @@ function LandingContent() {
             </View>
           </Reveal>
 
-          {/* ---- Live stats: real counters, not placeholders — see the
-              landing_stats table + triggers in the Supabase migration. */}
-          <Reveal id="stats" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <View style={styles.statsLiveBadge}>
-              <View style={styles.statsLiveDotWrap}>
-                <Animated.View
-                  style={[
-                    styles.statsLiveDotGlow,
-                    {
-                      opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
-                      transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }],
-                    },
-                  ]}
-                />
-                <View style={styles.statsLiveDotCore} />
-              </View>
-              <Text style={styles.statsLiveText}>Chiffres réels, mis à jour en direct</Text>
-            </View>
-            <Text style={[styles.sectionTitle, styles.centerText]}>Cantia, en chiffres</Text>
-            <Text style={[styles.sectionSubtitle, styles.centerText]}>
-              Aucune statistique gonflée : ce sont les vrais compteurs de la plateforme, à l'instant où vous lisez
-              cette page.
-            </Text>
-            <View style={styles.statsPanelWrap}>
-              <View pointerEvents="none" style={styles.statsGlowA} />
-              <View pointerEvents="none" style={styles.statsGlowB} />
-              <View style={[styles.statsPanel, isCompactNav && styles.statsPanelCompact]}>
-                <View style={styles.statBlock}>
-                  <Text style={[styles.statValue, isCompactNav && styles.statValueCompact]}>
-                    {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>Utilisateurs actifs</Text>
-                </View>
-                <View style={isCompactNav ? styles.statDividerCompact : styles.statDivider} />
-                <View style={styles.statBlock}>
-                  <Text style={[styles.statValue, styles.statValueAccent, isCompactNav && styles.statValueCompact]}>
-                    {landingStats ? `CHF ${formatStatChf(cashDisplay)}` : '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>Encaissé via Cantia</Text>
-                </View>
-              </View>
-            </View>
-          </Reveal>
-
-          {/* ---- Pain points ---- */}
+          {/* ---- Pain points ("before") ---- */}
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>Le problème</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
             <View style={styles.painGrid}>
               {t.pain.items.map((p, i) => (
                 <View key={p.title} style={styles.painCard}>
                   <View style={styles.painIconBadge}>
-                    <Feather name={PAIN_ICONS[i]} size={20} color={colors.accent} />
+                    <Feather name={PAIN_ICONS[i]} size={20} color={colors.textMuted} />
                   </View>
                   <Text style={styles.painTitle}>{p.title}</Text>
                   <Text style={styles.painText}>{p.text}</Text>
@@ -381,8 +371,18 @@ function LandingContent() {
             </View>
           </Reveal>
 
-          {/* ---- Services ---- */}
+          {/* ---- Connector: makes the pain → solution relationship visible
+              instead of leaving two sections to imply it on their own ---- */}
+          <View style={styles.narrativeConnector} pointerEvents="none">
+            <View style={styles.narrativeLine} />
+            <View style={styles.narrativeArrowBadge}>
+              <Feather name="arrow-down" size={14} color="#fff" />
+            </View>
+          </View>
+
+          {/* ---- Services ("after") ---- */}
           <Reveal id="services" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={styles.sectionEyebrow}>Ce qu'on apporte</Text>
             <Text style={styles.sectionTitle}>{t.services.title}</Text>
             <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
             <View style={styles.featureGrid}>
@@ -400,7 +400,7 @@ function LandingContent() {
                   >
                     <View style={styles.featureCardHeader}>
                       <View style={styles.featureIcon}>
-                        <Feather name={FEATURE_ICONS[i]} size={18} color={i % 2 === 0 ? colors.primary : colors.accent} />
+                        <Feather name={FEATURE_ICONS[i]} size={17} color="#fff" />
                       </View>
                       <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                     </View>
@@ -426,6 +426,7 @@ function LandingContent() {
 
           {/* ---- Trades ---- */}
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>Métiers couverts</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
             <TradesMarquee trades={t.trades.list} compact={isCompactNav} />
             <Text style={styles.tradeNote}>{t.trades.note}</Text>
@@ -433,6 +434,7 @@ function LandingContent() {
 
           {/* ---- Pricing ---- */}
           <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>Tarifs</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
             <Pressable
               onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
@@ -459,7 +461,9 @@ function LandingContent() {
                   ) : null}
                   <Text style={styles.priceName}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
-                    <Text style={styles.priceAmount}>{p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly)}`}</Text>
+                    <Text style={[styles.priceAmount, p.id === 'equipe' && styles.priceAmountGradient]}>
+                      {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly)}`}
+                    </Text>
                     <Text style={styles.pricePeriod}>/mois</Text>
                   </View>
                   {isYearly && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
@@ -1271,10 +1275,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: NAV_HEIGHT,
-    backgroundColor: 'rgba(245, 244, 240, 0.92)',
+    backgroundColor: 'rgba(247, 241, 230, 0.7)',
+    backdropFilter: 'saturate(180%) blur(20px)',
+    WebkitBackdropFilter: 'saturate(180%) blur(20px)',
     borderBottomWidth: 1,
     borderBottomColor: 'transparent',
-  },
+  } as unknown as ViewStyle,
   navFixedScrolled: {
     borderBottomColor: colors.border,
     shadowColor: '#000',
@@ -1439,43 +1445,55 @@ const styles = StyleSheet.create({
   kicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     alignSelf: 'center',
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  kickerDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
   },
   kickerText: {
     fontSize: fontSize.xs,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
   },
   headline: {
-    fontSize: 52,
+    fontSize: 68,
     fontWeight: '800',
     color: colors.text,
-    lineHeight: 60,
-    letterSpacing: -0.5,
+    lineHeight: 72,
+    letterSpacing: -2,
     textAlign: 'center',
     marginBottom: spacing.lg,
-  },
+    textWrap: 'balance',
+  } as unknown as TextStyle,
   headlineCompact: {
-    fontSize: 30,
-    lineHeight: 36,
-    letterSpacing: -0.2,
+    fontSize: 34,
+    lineHeight: 38,
+    letterSpacing: -0.6,
     marginBottom: spacing.md,
   },
+  // Gradient-filled text (Apple's "hello again" trick) instead of a flat
+  // highlighter chip behind the text — WebkitTextFillColor: transparent
+  // only takes effect where backgroundClip: 'text' is supported, which is
+  // universal in the evergreen browsers this web-only screen ships to.
   headlineHighlight: {
-    color: colors.text,
-    backgroundColor: colors.primarySoft,
-  },
+    color: colors.primary,
+    backgroundImage: `linear-gradient(100deg, ${colors.primaryDark} 0%, ${colors.primary} 45%, ${colors.accent} 100%)`,
+    backgroundClip: 'text',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  } as unknown as TextStyle,
   subheadline: {
     fontSize: fontSize.lg,
     color: colors.textMuted,
-    lineHeight: 26,
-    maxWidth: 520,
+    lineHeight: 27,
+    maxWidth: 540,
     textAlign: 'center',
     marginBottom: spacing.xl,
   },
@@ -1501,6 +1519,40 @@ const styles = StyleSheet.create({
     minWidth: 0,
     width: '100%',
   },
+  // Compact live-stats pill folded into the hero — the numbers get a
+  // heartbeat and a bit of proof-of-scale without owning a whole section.
+  heroStatsStrip: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xxl,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  heroStatsText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontVariant: ['tabular-nums'],
+  },
+  heroStatsStrong: {
+    fontWeight: '800',
+    color: colors.text,
+  },
+  heroStatsAccent: {
+    color: colors.primary,
+  },
+  heroStatsDivider: {
+    width: 1,
+    height: 12,
+    backgroundColor: colors.border,
+  },
   section: {
     maxWidth: 1080,
     width: '100%',
@@ -1519,13 +1571,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  // A small tracked label above each section title — encodes the section's
+  // role in the page (problem vs. solution, tarifs, métiers…) rather than
+  // decorating it, and gives the page the same "eyebrow → headline" rhythm
+  // throughout instead of titles just appearing cold.
+  sectionEyebrow: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+    marginBottom: spacing.sm,
+  },
   sectionTitle: {
-    fontSize: fontSize.xxl,
+    fontSize: 34,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.8,
+    lineHeight: 40,
     marginBottom: spacing.xl,
     maxWidth: 640,
-  },
+    textWrap: 'balance',
+  } as unknown as TextStyle,
   sectionSubtitle: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
@@ -1535,6 +1602,31 @@ const styles = StyleSheet.create({
   centerText: {
     textAlign: 'center',
     alignSelf: 'center',
+  },
+  // Visual thread linking "le problème" to "ce qu'on apporte" — a short
+  // gradient stem ending in an arrow badge, standing in for the connective
+  // copy a two-panel problem→solution layout would otherwise need.
+  narrativeConnector: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+  },
+  narrativeLine: {
+    width: 2,
+    height: 40,
+    backgroundImage: `linear-gradient(180deg, ${colors.border}, ${colors.primary})`,
+  } as unknown as ViewStyle,
+  narrativeArrowBadge: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginTop: -2,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.primary,
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
   },
   spotlightGrid: {
     flexDirection: 'row',
@@ -1812,137 +1904,32 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: colors.primary,
   },
-  statsLiveBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'center',
-    backgroundColor: colors.successSoft,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.pill,
-    marginBottom: spacing.md,
-  },
   statsLiveDotWrap: {
-    width: 16,
-    height: 16,
+    width: 10,
+    height: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   statsLiveDotGlow: {
     position: 'absolute',
-    width: 16,
-    height: 16,
+    width: 10,
+    height: 10,
     borderRadius: 999,
     backgroundColor: NEON_GREEN,
     shadowColor: NEON_GREEN,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
-    shadowRadius: 8,
+    shadowRadius: 5,
   },
   statsLiveDotCore: {
-    width: 7,
-    height: 7,
+    width: 5,
+    height: 5,
     borderRadius: 999,
     backgroundColor: NEON_GREEN,
     shadowColor: NEON_GREEN,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
-    shadowRadius: 4,
-  },
-  statsLiveText: {
-    fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.success,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  // A single billboard panel instead of two small dashboard-style tiles —
-  // the count-up in useCountUp is the feature; everything else here just
-  // gives the numbers room to be the biggest thing on the page for a beat.
-  statsPanelWrap: {
-    position: 'relative',
-    width: '100%',
-    maxWidth: 820,
-    alignSelf: 'center',
-    marginTop: spacing.xxl,
-  },
-  statsGlowA: {
-    position: 'absolute',
-    top: -90,
-    left: -70,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: colors.primarySoft,
-    opacity: 0.55,
-  },
-  statsGlowB: {
-    position: 'absolute',
-    bottom: -90,
-    right: -70,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: colors.accentSoft,
-    opacity: 0.45,
-  },
-  statsPanel: {
-    borderRadius: radius.xl * 1.4,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.xxxl,
-    paddingHorizontal: spacing.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.text,
-    shadowOpacity: 0.07,
-    shadowRadius: 44,
-    shadowOffset: { width: 0, height: 22 },
-  },
-  statsPanelCompact: {
-    flexDirection: 'column',
-  },
-  statBlock: {
-    flex: 1,
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.lg,
-  },
-  statDivider: {
-    width: 1,
-    height: 68,
-    backgroundColor: colors.border,
-  },
-  statDividerCompact: {
-    width: '55%',
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: spacing.xl,
-  },
-  statValue: {
-    fontSize: 68,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: -1.5,
-    fontVariant: ['tabular-nums'],
-  },
-  statValueCompact: {
-    fontSize: 46,
-    letterSpacing: -1,
-  },
-  statValueAccent: {
-    color: colors.primary,
-  },
-  statLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginTop: spacing.xs,
+    shadowRadius: 3,
   },
   painGrid: {
     flexDirection: 'row',
@@ -1962,11 +1949,16 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
   },
+  // Deliberately desaturated — "the problem" reads muted/grey, "the
+  // solution" (featureIcon, below) gets the brand gradient, so the color
+  // shift itself carries the before/after story.
   painIconBadge: {
     width: 44,
     height: 44,
     borderRadius: radius.md,
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
@@ -2003,6 +1995,9 @@ const styles = StyleSheet.create({
   },
   featureCardHovered: {
     borderColor: colors.primary,
+    shadowOpacity: 0.09,
+    shadowRadius: 24,
+    transform: [{ translateY: -3 }],
   },
   featureCardActive: {
     backgroundColor: colors.primarySoft,
@@ -2021,10 +2016,10 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: colors.surfaceAlt,
+    backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+  } as unknown as ViewStyle,
   featureTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
@@ -2074,10 +2069,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.primarySoft,
+    backgroundImage: `linear-gradient(135deg, ${colors.primarySoft}, ${colors.accentSoft})`,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+  } as unknown as ViewStyle,
   tradeCardText: {
     fontSize: fontSize.sm,
     fontWeight: '600',
@@ -2148,9 +2143,12 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     borderWidth: 2,
     shadowColor: colors.primary,
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.22,
+    shadowRadius: 32,
+    shadowOffset: { width: 0, height: 16 },
+    // Physically lifted above the other plans — the "recommended" card
+    // isn't just outlined, it visibly floats a step closer to the reader.
+    transform: [{ translateY: -10 }],
   },
   priceBadge: {
     alignSelf: 'flex-start',
@@ -2179,6 +2177,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
+  priceAmountGradient: {
+    color: colors.primary,
+    backgroundImage: `linear-gradient(100deg, ${colors.primaryDark}, ${colors.primary}, ${colors.accent})`,
+    backgroundClip: 'text',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  } as unknown as TextStyle,
   pricePeriod: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
@@ -2204,8 +2209,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.xxl,
     borderRadius: radius.xl,
-    backgroundColor: colors.primarySoft,
-  },
+    backgroundImage: `linear-gradient(135deg, ${colors.primarySoft}, ${colors.accentSoft})`,
+  } as unknown as ViewStyle,
   swissFlagBadge: {
     width: 64,
     height: 64,
@@ -2290,9 +2295,9 @@ const styles = StyleSheet.create({
   },
   finalCtaOuter: {
     width: '100%',
-    backgroundColor: colors.primary,
+    backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
     marginTop: spacing.xxl,
-  },
+  } as unknown as ViewStyle,
   finalCta: {
     maxWidth: 1080,
     width: '100%',
@@ -2302,13 +2307,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxxl,
   },
   finalCtaTitle: {
-    fontSize: fontSize.xxl,
+    fontSize: 38,
     fontWeight: '800',
+    letterSpacing: -0.8,
+    lineHeight: 44,
     color: '#fff',
     textAlign: 'center',
     marginBottom: spacing.xl,
-    maxWidth: 520,
-  },
+    maxWidth: 560,
+    textWrap: 'balance',
+  } as unknown as TextStyle,
   finalCtaButton: {
     minWidth: 260,
   },
