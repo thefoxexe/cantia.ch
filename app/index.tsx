@@ -55,7 +55,7 @@ function LandingContent() {
     cash_collected_chf: number;
   } | null>(null);
   const usersDisplay = useCountUp(landingStats?.users_count);
-  const cashDisplay = useCountUp(landingStats?.cash_collected_chf);
+  const cashCoins = useCountUpCoins(landingStats?.cash_collected_chf);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -259,7 +259,9 @@ function LandingContent() {
         >
           <View style={{ height: NAV_HEIGHT }} />
 
-          {/* ---- Hero: pure text on a subtle grid backdrop, no device mockup ---- */}
+          {/* ---- Hero: left-aligned copy + a floating devis-card visual on
+              the right — concrete product proof instead of text floating
+              alone on a grid backdrop. ---- */}
           <View style={styles.heroWrap}>
             <View pointerEvents="none" style={styles.heroGrid} />
             <Animated.View
@@ -280,8 +282,8 @@ function LandingContent() {
                 },
               ]}
             >
-              <View style={styles.heroCopy}>
-                <View style={styles.kicker}>
+              <View style={[styles.heroCopy, isCompactNav && styles.heroCopyCompact]}>
+                <View style={[styles.kicker, isCompactNav && styles.kickerCompact]}>
                   <View style={styles.kickerDot} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
                 </View>
@@ -307,39 +309,106 @@ function LandingContent() {
                     />
                   </Link>
                 </View>
-
-                {/* ---- Compact live-stats pill: real counters, folded into the
-                    hero instead of owning a whole section — see the
-                    landing_stats table + triggers in the Supabase migration. */}
-                <View style={styles.heroStatsStrip}>
-                  <View style={styles.statsLiveDotWrap}>
-                    <Animated.View
-                      style={[
-                        styles.statsLiveDotGlow,
-                        {
-                          opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
-                          transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
-                        },
-                      ]}
-                    />
-                    <View style={styles.statsLiveDotCore} />
-                  </View>
-                  <Text style={styles.heroStatsText}>
-                    <Text style={styles.heroStatsStrong}>
-                      {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
-                    </Text>{' '}
-                    utilisateurs actifs
-                  </Text>
-                  <View style={styles.heroStatsDivider} />
-                  <Text style={styles.heroStatsText}>
-                    <Text style={[styles.heroStatsStrong, styles.heroStatsAccent]}>
-                      {landingStats ? `CHF ${formatStatChf(cashDisplay)}` : '—'}
-                    </Text>{' '}
-                    encaissés via Cantia
-                  </Text>
-                </View>
               </View>
+
+              {/* ---- The claim made concrete: a live-looking devis card,
+                  gently floating, instead of an abstract illustration. ---- */}
+              <Animated.View
+                style={[
+                  styles.heroVisual,
+                  isCompactNav && styles.heroVisualCompact,
+                  {
+                    transform: [
+                      { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['-4deg', '-2deg'] }) },
+                      { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, -10] }) },
+                    ],
+                  },
+                ]}
+              >
+                <View style={styles.heroCardHeader}>
+                  <View style={styles.heroCardDot} />
+                  <Text style={styles.heroCardTitle}>Devis #2024-118</Text>
+                  <View style={styles.heroCardStatusPill}>
+                    <Text style={styles.heroCardStatusText}>Envoyé</Text>
+                  </View>
+                </View>
+                <View style={styles.heroCardLines}>
+                  <View style={styles.heroCardLine}>
+                    <Feather name="edit-3" size={13} color={colors.textMuted} />
+                    <Text style={styles.heroCardLineText}>Crépi façade nord</Text>
+                    <Text style={styles.heroCardLinePrice}>CHF 1 240.–</Text>
+                  </View>
+                  <View style={styles.heroCardLine}>
+                    <Feather name="square" size={13} color={colors.textMuted} />
+                    <Text style={styles.heroCardLineText}>Fenêtres PVC (x3)</Text>
+                    <Text style={styles.heroCardLinePrice}>CHF 2 850.–</Text>
+                  </View>
+                  <View style={styles.heroCardLine}>
+                    <Feather name="tool" size={13} color={colors.textMuted} />
+                    <Text style={styles.heroCardLineText}>Pose et main d'œuvre</Text>
+                    <Text style={styles.heroCardLinePrice}>CHF 980.–</Text>
+                  </View>
+                </View>
+                <View style={styles.heroCardDivider} />
+                <View style={styles.heroCardTotalRow}>
+                  <Text style={styles.heroCardTotalLabel}>Total TTC</Text>
+                  <Text style={styles.heroCardTotalValue}>CHF 5 070.–</Text>
+                </View>
+                <View style={styles.heroCardBadge}>
+                  <Feather name="check" size={12} color="#fff" />
+                  <Text style={styles.heroCardBadgeText}>Signé électroniquement</Text>
+                </View>
+              </Animated.View>
             </Animated.View>
+          </View>
+
+          {/* ---- Live stats: a full-bleed ticker bar, not a rounded pill —
+              see the landing_stats table + triggers in the Supabase
+              migration. The cash figure spawns little CHF particles as it
+              counts up, like coins dropping into a piggy bank. ---- */}
+          <View style={styles.statsTickerOuter}>
+            <View style={styles.statsTickerInner}>
+              <View style={styles.statsTickerLive}>
+                <View style={styles.statsLiveDotWrap}>
+                  <Animated.View
+                    style={[
+                      styles.statsLiveDotGlow,
+                      {
+                        opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
+                        transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
+                      },
+                    ]}
+                  />
+                  <View style={styles.statsLiveDotCore} />
+                </View>
+                <Text style={styles.statsTickerLiveText}>En direct</Text>
+              </View>
+              <View style={styles.statsTickerDivider} />
+              <View style={styles.statsTickerStat}>
+                <Text style={styles.statsTickerValue}>
+                  {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
+                </Text>
+                <Text style={styles.statsTickerLabel}>utilisateurs actifs</Text>
+              </View>
+              <View style={styles.statsTickerDivider} />
+              <View style={styles.statsTickerStat}>
+                <View style={styles.statsTickerCoinAnchor}>
+                  <Animated.Text
+                    style={[
+                      styles.statsTickerValue,
+                      styles.statsTickerValueAccent,
+                      { transform: [{ scale: cashCoins.pulse }] },
+                    ]}
+                  >
+                    {landingStats ? `CHF ${formatStatChf(cashCoins.display)}` : '—'}
+                  </Animated.Text>
+                  {cashCoins.coins.map((c) => (
+                    <CoinParticle key={c.id} x={c.x} onDone={() => cashCoins.removeCoin(c.id)} />
+                  ))}
+                </View>
+                <Text style={styles.statsTickerLabel}>encaissés via Cantia</Text>
+              </View>
+            </View>
           </View>
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
@@ -358,14 +427,20 @@ function LandingContent() {
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>Le problème</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
-            <View style={styles.painGrid}>
+            {/* A rule-separated diagnostic list, not boxed cards — reads as
+                a short, scannable list of symptoms rather than three
+                identical tiles, and stays visually distinct from the
+                "solution" cards it leads into below. */}
+            <View style={styles.painList}>
               {t.pain.items.map((p, i) => (
-                <View key={p.title} style={styles.painCard}>
+                <View key={p.title} style={[styles.painRow, i === t.pain.items.length - 1 && styles.painRowLast]}>
                   <View style={styles.painIconBadge}>
-                    <Feather name={PAIN_ICONS[i]} size={20} color={colors.textMuted} />
+                    <Feather name={PAIN_ICONS[i]} size={19} color={colors.textMuted} />
                   </View>
-                  <Text style={styles.painTitle}>{p.title}</Text>
-                  <Text style={styles.painText}>{p.text}</Text>
+                  <View style={styles.painRowText}>
+                    <Text style={styles.painTitle}>{p.title}</Text>
+                    <Text style={styles.painText}>{p.text}</Text>
+                  </View>
                 </View>
               ))}
             </View>
@@ -385,8 +460,50 @@ function LandingContent() {
             <Text style={styles.sectionEyebrow}>Ce qu'on apporte</Text>
             <Text style={styles.sectionTitle}>{t.services.title}</Text>
             <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
+
+            {/* Bento layout: the first capability gets a full-width banner
+                row instead of being just another tile in the grid — a
+                deliberate hierarchy (this one matters most) rather than
+                nine identical boxes. */}
+            {(() => {
+              const f = t.services.items[0];
+              const expanded = expandedFeature === 0;
+              return (
+                <Pressable
+                  style={({ pressed, hovered }: any) => [
+                    styles.featureHeroCard,
+                    isCompactNav && styles.featureHeroCardCompact,
+                    (pressed || hovered) && styles.featureCardHovered,
+                  ]}
+                  onPress={() => setExpandedFeature(expanded ? null : 0)}
+                >
+                  <View style={styles.featureHeroIcon}>
+                    <Feather name={FEATURE_ICONS[0]} size={24} color="#fff" />
+                  </View>
+                  <View style={styles.featureHeroBody}>
+                    <View style={styles.featureCardHeader}>
+                      <Text style={styles.featureHeroTitle}>{f.title}</Text>
+                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    </View>
+                    <Text style={styles.featureText}>{f.text}</Text>
+                    {expanded ? (
+                      <View style={styles.featureDetail}>
+                        {f.detail.map((line) => (
+                          <View key={line} style={styles.featureDetailRow}>
+                            <Feather name="check" size={13} color={colors.success} />
+                            <Text style={styles.featureDetailText}>{line}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
+                  </View>
+                </Pressable>
+              );
+            })()}
+
             <View style={styles.featureGrid}>
-              {t.services.items.map((f, i) => {
+              {t.services.items.slice(1).map((f, idx) => {
+                const i = idx + 1;
                 const expanded = expandedFeature === i;
                 return (
                   <Pressable
@@ -452,31 +569,34 @@ function LandingContent() {
               {plans.map((p) => {
                 const isYearly = billingInterval === 'year';
                 const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
+                const dark = p.id === 'equipe';
                 return (
-                <View key={p.id} style={[styles.priceCard, p.id === 'equipe' && styles.priceCardHighlight]}>
-                  {p.id === 'equipe' ? (
+                <View key={p.id} style={[styles.priceCard, dark && styles.priceCardHighlight]}>
+                  {dark ? (
                     <View style={styles.priceBadge}>
                       <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
                     </View>
                   ) : null}
-                  <Text style={styles.priceName}>{planName(p.id, p.name)}</Text>
+                  <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
-                    <Text style={[styles.priceAmount, p.id === 'equipe' && styles.priceAmountGradient]}>
+                    <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
                       {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly)}`}
                     </Text>
-                    <Text style={styles.pricePeriod}>/mois</Text>
+                    <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>
                   </View>
                   {isYearly && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
-                    <Text style={styles.priceYearlyNote}>
+                    <Text style={[styles.priceYearlyNote, dark && styles.priceYearlyNoteOnDark]}>
                       {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
                     </Text>
                   ) : null}
                   <View style={styles.priceFeatures}>
                     <PriceFeature
+                      dark={dark}
                       text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
                     />
-                    <PriceFeature text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
+                    <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
                     <PriceFeature
+                      dark={dark}
                       text={
                         p.max_devis_factures_per_month
                           ? `${p.max_devis_factures_per_month} devis/factures par mois`
@@ -484,11 +604,12 @@ function LandingContent() {
                       }
                       muted={!!p.max_devis_factures_per_month}
                     />
-                    <PriceFeature text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
-                    <PriceFeature text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
-                    <PriceFeature text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
-                    <PriceFeature text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
+                    <PriceFeature dark={dark} text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
+                    <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
+                    <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
+                    <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
                     <PriceFeature
+                      dark={dark}
                       text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
                       muted={p.max_trames === 0}
                       included={p.max_trames !== 0}
@@ -498,7 +619,7 @@ function LandingContent() {
                     <Button
                       title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
                       onPress={() => {}}
-                      variant={p.id === 'equipe' ? 'primary' : 'secondary'}
+                      variant={dark ? 'primary' : 'secondary'}
                     />
                   </Link>
                 </View>
@@ -509,10 +630,22 @@ function LandingContent() {
 
           {/* ---- Swiss positioning ---- */}
           <Reveal id="swiss" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
-            <View style={styles.swissBand}>
-              <SwissFlagBadge />
-              <Text style={styles.swissTitle}>{t.swiss.title}</Text>
-              <Text style={styles.swissText}>{t.swiss.text}</Text>
+            <View style={[styles.swissBand, isCompactNav && styles.swissBandCompact]}>
+              <View style={[styles.swissBandCopy, isCompactNav && styles.swissBandCopyCompact]}>
+                <SwissFlagBadge />
+                <Text style={styles.swissTitle}>{t.swiss.title}</Text>
+                <Text style={[styles.swissText, isCompactNav && styles.swissTextCompact]}>{t.swiss.text}</Text>
+              </View>
+              <View style={styles.swissFacts}>
+                {['Montants en CHF, TVA suisse intégrée', 'Cadastre & orthophoto officiels', 'Pensé pour les PME suisses'].map((fact) => (
+                  <View key={fact} style={styles.swissFactRow}>
+                    <View style={styles.swissFactCheck}>
+                      <Feather name="check" size={11} color="#fff" />
+                    </View>
+                    <Text style={styles.swissFactText}>{fact}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
           </Reveal>
 
@@ -847,15 +980,120 @@ function useCountUp(target: number | undefined, duration = 1300): number {
   return display;
 }
 
-function PriceFeature({ text, muted, included }: { text: string; muted?: boolean; included?: boolean }) {
+// Same count-up tween as useCountUp, but for the cash figure specifically:
+// every ~140ms of forward progress it also spawns a little "CHF" particle
+// (rendered by CoinParticle below) and gives the number itself a quick
+// scale pulse — the piggy-bank-filling effect the number growing alone
+// doesn't sell on its own.
+function useCountUpCoins(target: number | undefined, duration = 1300) {
+  const anim = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(1)).current;
+  const prevTarget = useRef(0);
+  const [display, setDisplay] = useState(0);
+  const [coins, setCoins] = useState<{ id: number; x: number }[]>([]);
+  const nextCoinId = useRef(0);
+  const lastSpawnAt = useRef(0);
+
+  useEffect(() => {
+    if (target === undefined) return;
+    const from = prevTarget.current;
+    anim.setValue(0);
+    lastSpawnAt.current = 0;
+    const listenerId = anim.addListener(({ value }) => {
+      setDisplay(from + (target - from) * value);
+      const now = Date.now();
+      if (target > from && value < 1 && now - lastSpawnAt.current > 140) {
+        lastSpawnAt.current = now;
+        const id = nextCoinId.current++;
+        setCoins((prev) => [...prev.slice(-5), { id, x: Math.round((Math.random() - 0.5) * 56) }]);
+        Animated.sequence([
+          Animated.timing(pulse, { toValue: 1.1, duration: 110, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+          Animated.spring(pulse, { toValue: 1, friction: 4, useNativeDriver: true }),
+        ]).start();
+      }
+    });
+    Animated.timing(anim, {
+      toValue: 1,
+      duration,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start(() => {
+      prevTarget.current = target;
+    });
+    return () => {
+      anim.removeListener(listenerId);
+    };
+  }, [target, duration, anim, pulse]);
+
+  const removeCoin = useCallback((id: number) => {
+    setCoins((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  return { display, pulse, coins, removeCoin };
+}
+
+// A single "CHF" glyph that rises and fades once, then removes itself —
+// the little coins popping out of the ticker as the cash figure climbs.
+function CoinParticle({ x, onDone }: { x: number; onDone: () => void }) {
+  const anim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 850,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start(onDone);
+  }, [anim, onDone]);
+
+  return (
+    <Animated.Text
+      pointerEvents="none"
+      style={[
+        styles.coinParticle,
+        {
+          marginLeft: x,
+          opacity: anim.interpolate({ inputRange: [0, 0.75, 1], outputRange: [1, 0.9, 0] }),
+          transform: [
+            { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [0, -36] }) },
+            { scale: anim.interpolate({ inputRange: [0, 0.25, 1], outputRange: [0.5, 1, 0.8] }) },
+          ],
+        },
+      ]}
+    >
+      CHF
+    </Animated.Text>
+  );
+}
+
+function PriceFeature({
+  text,
+  muted,
+  included,
+  dark,
+}: {
+  text: string;
+  muted?: boolean;
+  included?: boolean;
+  dark?: boolean;
+}) {
+  const mutedColor = dark ? 'rgba(255,255,255,0.35)' : colors.textMuted;
   return (
     <View style={styles.priceFeatureRow}>
       <Feather
         name={muted ? 'x' : 'check'}
         size={14}
-        color={muted ? colors.textMuted : included === false ? colors.textMuted : colors.success}
+        color={muted ? mutedColor : included === false ? mutedColor : dark ? NEON_GREEN : colors.success}
       />
-      <Text style={[styles.priceFeatureText, muted && styles.priceFeatureTextMuted]}>{text}</Text>
+      <Text
+        style={[
+          styles.priceFeatureText,
+          dark && styles.priceFeatureTextOnDark,
+          muted && (dark ? styles.priceFeatureTextMutedOnDark : styles.priceFeatureTextMuted),
+        ]}
+      >
+        {text}
+      </Text>
     </View>
   );
 }
@@ -1427,27 +1665,40 @@ const styles = StyleSheet.create({
     opacity: 0.25,
   },
   hero: {
-    maxWidth: 760,
+    maxWidth: 1160,
     width: '100%',
     alignSelf: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.xxl,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl * 1.6,
     paddingBottom: spacing.xxl * 1.6,
   },
   heroCompact: {
+    flexDirection: 'column',
     paddingTop: spacing.xxl,
     paddingBottom: spacing.xxl,
   },
   heroCopy: {
+    alignItems: 'flex-start',
+    flex: 1,
+    maxWidth: 560,
+  },
+  heroCopyCompact: {
     alignItems: 'center',
+    maxWidth: '100%',
   },
   kicker: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
     marginBottom: spacing.xl,
+  },
+  kickerCompact: {
+    alignSelf: 'center',
   },
   kickerDot: {
     width: 6,
@@ -1463,12 +1714,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1.4,
   },
   headline: {
-    fontSize: 68,
+    fontSize: 64,
     fontWeight: '800',
     color: colors.text,
-    lineHeight: 72,
+    lineHeight: 68,
     letterSpacing: -2,
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: spacing.lg,
     textWrap: 'balance',
   } as unknown as TextStyle,
@@ -1477,6 +1728,7 @@ const styles = StyleSheet.create({
     lineHeight: 38,
     letterSpacing: -0.6,
     marginBottom: spacing.md,
+    textAlign: 'center',
   },
   // Gradient-filled text (Apple's "hello again" trick) instead of a flat
   // highlighter chip behind the text — WebkitTextFillColor: transparent
@@ -1493,24 +1745,26 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     color: colors.textMuted,
     lineHeight: 27,
-    maxWidth: 540,
-    textAlign: 'center',
+    maxWidth: 480,
+    textAlign: 'left',
     marginBottom: spacing.xl,
   },
   subheadlineCompact: {
     fontSize: fontSize.sm,
     lineHeight: 20,
     marginBottom: spacing.lg,
+    textAlign: 'center',
   },
   ctaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     gap: spacing.md,
   },
   ctaRowCompact: {
     flexDirection: 'column',
     alignSelf: 'stretch',
+    justifyContent: 'center',
   },
   ctaButton: {
     minWidth: 220,
@@ -1519,39 +1773,188 @@ const styles = StyleSheet.create({
     minWidth: 0,
     width: '100%',
   },
-  // Compact live-stats pill folded into the hero — the numbers get a
-  // heartbeat and a bit of proof-of-scale without owning a whole section.
-  heroStatsStrip: {
+  // The claim made concrete: a tilted, gently floating devis-card mockup
+  // standing in for a device screenshot (none of the app's real screens
+  // are photogenic enough at this scale) — built from the same primitives
+  // as the rest of the page rather than an imported illustration.
+  heroVisual: {
+    width: 330,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    shadowColor: colors.text,
+    shadowOpacity: 0.16,
+    shadowRadius: 48,
+    shadowOffset: { width: 0, height: 28 },
+  },
+  heroVisualCompact: {
+    width: '100%',
+    maxWidth: 360,
+    alignSelf: 'center',
+    marginTop: spacing.xxxl,
+    transform: [{ rotate: '0deg' }],
+  },
+  heroCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  heroCardDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  heroCardTitle: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  heroCardStatusPill: {
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  heroCardStatusText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.success,
+  },
+  heroCardLines: {
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  heroCardLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  heroCardLineText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  heroCardLinePrice: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  heroCardDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginBottom: spacing.md,
+  },
+  heroCardTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  heroCardTotalLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  heroCardTotalValue: {
+    fontSize: fontSize.xl,
+    fontWeight: '800',
+    color: colors.primary,
+    letterSpacing: -0.5,
+    fontVariant: ['tabular-nums'],
+  },
+  heroCardBadge: {
+    position: 'absolute',
+    left: -14,
+    bottom: -14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.success,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 7,
+    shadowColor: colors.success,
+    shadowOpacity: 0.32,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  heroCardBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  // Full-bleed ticker bar: edge to edge, not a rounded pill — a hairline
+  // "info bar" that reads as live data rather than a decorative chip.
+  statsTickerOuter: {
+    width: '100%',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  } as unknown as ViewStyle,
+  statsTickerInner: {
+    maxWidth: 1080,
+    width: '100%',
+    alignSelf: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xxl,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    borderWidth: 1,
-    borderColor: colors.border,
+    gap: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
   },
-  heroStatsText: {
+  statsTickerLive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  statsTickerLiveText: {
     fontSize: fontSize.xs,
+    fontWeight: '800',
     color: colors.textMuted,
-    fontVariant: ['tabular-nums'],
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
-  heroStatsStrong: {
+  statsTickerDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: colors.border,
+  },
+  statsTickerStat: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
+  statsTickerCoinAnchor: {
+    position: 'relative',
+  },
+  statsTickerValue: {
+    fontSize: 23,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.5,
+    fontVariant: ['tabular-nums'],
   },
-  heroStatsAccent: {
+  statsTickerValueAccent: {
     color: colors.primary,
   },
-  heroStatsDivider: {
-    width: 1,
-    height: 12,
-    backgroundColor: colors.border,
+  statsTickerLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  coinParticle: {
+    position: 'absolute',
+    top: 0,
+    left: '50%',
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.primary,
   },
   section: {
     maxWidth: 1080,
@@ -1931,23 +2334,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.9,
     shadowRadius: 3,
   },
-  painGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.lg,
+  // A narrow, rule-separated list instead of a row of boxed cards — reads
+  // as a short diagnostic (three symptoms) rather than three interchangeable
+  // tiles, and stays visually distinct from the "solution" cards below.
+  painList: {
+    maxWidth: 680,
+    width: '100%',
+    alignSelf: 'center',
   },
-  painCard: {
-    width: 280,
-    padding: spacing.lg,
-    borderRadius: radius.xl,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
+  painRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.lg,
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  painRowLast: {
+    borderBottomWidth: 0,
+  },
+  painRowText: {
+    flex: 1,
+    paddingTop: 2,
   },
   // Deliberately desaturated — "the problem" reads muted/grey, "the
   // solution" (featureIcon, below) gets the brand gradient, so the color
@@ -1961,7 +2369,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    flexShrink: 0,
   },
   painTitle: {
     fontSize: fontSize.md,
@@ -1973,6 +2381,46 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 20,
+  },
+  // The bento "hero" tile: one full-width banner ahead of the grid, so the
+  // first capability reads as a deliberate lead rather than tile #1 of 9.
+  featureHeroCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    padding: spacing.xl,
+    borderRadius: radius.xl,
+    backgroundImage: `linear-gradient(120deg, ${colors.primarySoft}, ${colors.surface} 65%)`,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.lg,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  } as unknown as ViewStyle,
+  featureHeroCardCompact: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  featureHeroIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  } as unknown as ViewStyle,
+  featureHeroBody: {
+    flex: 1,
+    width: '100%',
+  },
+  featureHeroTitle: {
+    flex: 1,
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
   },
   featureGrid: {
     flexDirection: 'row',
@@ -2139,17 +2587,20 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     gap: spacing.md,
   },
+  // Inverted (dark) instead of white-with-a-border — breaks the
+  // otherwise all-white-card monotony of the grid and reads as "this one
+  // is different" without needing a bigger badge or a louder border.
   priceCardHighlight: {
-    borderColor: colors.primary,
-    borderWidth: 2,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.22,
-    shadowRadius: 32,
-    shadowOffset: { width: 0, height: 16 },
+    backgroundImage: `linear-gradient(160deg, ${colors.text}, #150f0a)`,
+    borderWidth: 0,
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 36,
+    shadowOffset: { width: 0, height: 20 },
     // Physically lifted above the other plans — the "recommended" card
     // isn't just outlined, it visibly floats a step closer to the reader.
     transform: [{ translateY: -10 }],
-  },
+  } as unknown as ViewStyle,
   priceBadge: {
     alignSelf: 'flex-start',
     backgroundColor: colors.primary,
@@ -2167,6 +2618,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
   },
+  priceNameOnDark: {
+    color: 'rgba(255,255,255,0.72)',
+  },
   priceAmountRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -2177,17 +2631,19 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
-  priceAmountGradient: {
-    color: colors.primary,
-    backgroundImage: `linear-gradient(100deg, ${colors.primaryDark}, ${colors.primary}, ${colors.accent})`,
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  } as unknown as TextStyle,
+  priceAmountOnDark: {
+    color: '#fff',
+  },
   pricePeriod: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginBottom: 4,
+  },
+  pricePeriodOnDark: {
+    color: 'rgba(255,255,255,0.5)',
+  },
+  priceYearlyNoteOnDark: {
+    color: 'rgba(255,255,255,0.5)',
   },
   priceFeatures: {
     flex: 1,
@@ -2202,15 +2658,60 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
   },
+  priceFeatureTextOnDark: {
+    color: 'rgba(255,255,255,0.85)',
+  },
   priceFeatureTextMuted: {
     color: colors.textMuted,
   },
+  priceFeatureTextMutedOnDark: {
+    color: 'rgba(255,255,255,0.35)',
+  },
   swissBand: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.xxl,
     padding: spacing.xxl,
     borderRadius: radius.xl,
     backgroundImage: `linear-gradient(135deg, ${colors.primarySoft}, ${colors.accentSoft})`,
   } as unknown as ViewStyle,
+  swissBandCompact: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  swissBandCopy: {
+    flex: 1,
+  },
+  swissBandCopyCompact: {
+    alignItems: 'center',
+  },
+  // Restated as a scannable checklist instead of leaving the same three
+  // facts buried in one paragraph — the paragraph stays too, for anyone
+  // who wants the fuller sentence.
+  swissFacts: {
+    gap: spacing.md,
+    flexShrink: 0,
+  },
+  swissFactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  swissFactCheck: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  swissFactText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
   swissFlagBadge: {
     width: 64,
     height: 64,
@@ -2247,9 +2748,12 @@ const styles = StyleSheet.create({
   swissText: {
     fontSize: fontSize.md,
     color: colors.textMuted,
-    textAlign: 'center',
-    maxWidth: 560,
+    maxWidth: 460,
     lineHeight: 22,
+  },
+  swissTextCompact: {
+    textAlign: 'center',
+    maxWidth: 480,
   },
   mobileText: {
     fontSize: fontSize.md,
