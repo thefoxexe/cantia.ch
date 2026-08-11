@@ -53,6 +53,8 @@ function LandingContent() {
     users_count: number;
     cash_collected_chf: number;
   } | null>(null);
+  const usersDisplay = useCountUp(landingStats?.users_count);
+  const cashDisplay = useCountUp(landingStats?.cash_collected_chf);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -95,8 +97,8 @@ function LandingContent() {
           sectionTriggered[key] = true;
           Animated.timing(getSectionAnim(key), {
             toValue: 1,
-            duration: 640,
-            easing: Easing.out(Easing.cubic),
+            duration: 820,
+            easing: PREMIUM_EASE,
             useNativeDriver: true,
           }).start();
         }
@@ -342,14 +344,24 @@ function LandingContent() {
               Aucune statistique gonflée : ce sont les vrais compteurs de la plateforme, à l'instant où vous lisez
               cette page.
             </Text>
-            <View style={styles.statsGrid}>
-              <StatTile icon="users" value={formatStatCount(landingStats?.users_count)} label="Utilisateurs actifs" />
-              <StatTile
-                icon="trending-up"
-                value={landingStats ? `CHF ${formatStatChf(landingStats.cash_collected_chf)}` : '—'}
-                label="Encaissé via Cantia"
-                highlight
-              />
+            <View style={styles.statsPanelWrap}>
+              <View pointerEvents="none" style={styles.statsGlowA} />
+              <View pointerEvents="none" style={styles.statsGlowB} />
+              <View style={[styles.statsPanel, isCompactNav && styles.statsPanelCompact]}>
+                <View style={styles.statBlock}>
+                  <Text style={[styles.statValue, isCompactNav && styles.statValueCompact]}>
+                    {landingStats ? formatStatCount(Math.round(usersDisplay)) : '—'}
+                  </Text>
+                  <Text style={styles.statLabel}>Utilisateurs actifs</Text>
+                </View>
+                <View style={isCompactNav ? styles.statDividerCompact : styles.statDivider} />
+                <View style={styles.statBlock}>
+                  <Text style={[styles.statValue, styles.statValueAccent, isCompactNav && styles.statValueCompact]}>
+                    {landingStats ? `CHF ${formatStatChf(cashDisplay)}` : '—'}
+                  </Text>
+                  <Text style={styles.statLabel}>Encaissé via Cantia</Text>
+                </View>
+              </View>
             </View>
           </Reveal>
 
@@ -387,13 +399,12 @@ function LandingContent() {
                     onPress={() => setExpandedFeature(expanded ? null : i)}
                   >
                     <View style={styles.featureCardHeader}>
-                      <Text style={styles.featureIndex}>{String(i + 1).padStart(2, '0')}</Text>
-                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
-                    </View>
-                    <View style={styles.featureIconRow}>
                       <View style={styles.featureIcon}>
                         <Feather name={FEATURE_ICONS[i]} size={18} color={i % 2 === 0 ? colors.primary : colors.accent} />
                       </View>
+                      <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    </View>
+                    <View style={styles.featureIconRow}>
                       <Text style={styles.featureTitle}>{f.title}</Text>
                     </View>
                     <Text style={styles.featureText}>{f.text}</Text>
@@ -717,6 +728,11 @@ function LandingContent() {
 // landed right as an Animated.timing had just started, the fresh
 // Animated.View mounted at the value's current (still ~0) progress and
 // nothing resumed it, permanently freezing that section at opacity 0.
+// Apple/Linear-style settle curve (easeOutExpo-ish) — a plain Easing.cubic
+// reveal reads as a generic fade-up; this decelerates harder at the tail so
+// the content feels like it's settling into place rather than just sliding.
+const PREMIUM_EASE = Easing.bezier(0.16, 1, 0.3, 1);
+
 function Reveal({
   id,
   getAnim,
@@ -740,7 +756,10 @@ function Reveal({
         style,
         {
           opacity: anim,
-          transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [from, 0] }) }],
+          transform: [
+            { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [from, 0] }) },
+            { scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) },
+          ],
         },
       ]}
     >
@@ -792,26 +811,36 @@ function formatStatChf(n: number): string {
   return Math.round(n).toLocaleString('de-CH');
 }
 
-function StatTile({
-  icon,
-  value,
-  label,
-  highlight,
-}: {
-  icon: IconName;
-  value: string;
-  label: string;
-  highlight?: boolean;
-}) {
-  return (
-    <View style={[styles.statTile, highlight && styles.statTileHighlight]}>
-      <View style={[styles.statTileIcon, highlight && styles.statTileIconHighlight]}>
-        <Feather name={icon} size={17} color={highlight ? colors.bg : colors.primary} />
-      </View>
-      <Text style={[styles.statTileValue, highlight && styles.statTileValueHighlight]}>{value}</Text>
-      <Text style={[styles.statTileLabel, highlight && styles.statTileLabelHighlight]}>{label}</Text>
-    </View>
-  );
+// Smoothly tweens from the previous value to `target` whenever it changes
+// (initial load counts up from 0; a live update counts from the old figure
+// to the new one) instead of the number just snapping — this is the one
+// piece of motion that actually sells "these are live", not a screenshot.
+function useCountUp(target: number | undefined, duration = 1300): number {
+  const anim = useRef(new Animated.Value(0)).current;
+  const prevTarget = useRef(0);
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (target === undefined) return;
+    const from = prevTarget.current;
+    anim.setValue(0);
+    const listenerId = anim.addListener(({ value }) => {
+      setDisplay(from + (target - from) * value);
+    });
+    Animated.timing(anim, {
+      toValue: 1,
+      duration,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start(() => {
+      prevTarget.current = target;
+    });
+    return () => {
+      anim.removeListener(listenerId);
+    };
+  }, [target, duration, anim]);
+
+  return display;
 }
 
 function PriceFeature({ text, muted, included }: { text: string; muted?: boolean; included?: boolean }) {
@@ -1477,7 +1506,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxl,
+    paddingVertical: spacing.xxxl * 1.5,
   },
   // Trades/pricing as their own rounded cards, not a full-bleed band: a
   // band needs an extra wrapping View, and that View's own layout box broke
@@ -1828,55 +1857,92 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.md,
-    marginTop: spacing.xl,
+  // A single billboard panel instead of two small dashboard-style tiles —
+  // the count-up in useCountUp is the feature; everything else here just
+  // gives the numbers room to be the biggest thing on the page for a beat.
+  statsPanelWrap: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: 820,
+    alignSelf: 'center',
+    marginTop: spacing.xxl,
   },
-  statTile: {
-    width: 240,
-    padding: spacing.lg,
-    borderRadius: radius.xl,
+  statsGlowA: {
+    position: 'absolute',
+    top: -90,
+    left: -70,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: colors.primarySoft,
+    opacity: 0.55,
+  },
+  statsGlowB: {
+    position: 'absolute',
+    bottom: -90,
+    right: -70,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: colors.accentSoft,
+    opacity: 0.45,
+  },
+  statsPanel: {
+    borderRadius: radius.xl * 1.4,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    alignItems: 'flex-start',
-    gap: spacing.xs,
-  },
-  statTileHighlight: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  statTileIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
+    paddingVertical: spacing.xxxl,
+    paddingHorizontal: spacing.xl,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.xs,
+    shadowColor: colors.text,
+    shadowOpacity: 0.07,
+    shadowRadius: 44,
+    shadowOffset: { width: 0, height: 22 },
   },
-  statTileIconHighlight: {
-    backgroundColor: 'rgba(255,255,255,0.22)',
+  statsPanelCompact: {
+    flexDirection: 'column',
   },
-  statTileValue: {
-    fontSize: 28,
+  statBlock: {
+    flex: 1,
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.lg,
+  },
+  statDivider: {
+    width: 1,
+    height: 68,
+    backgroundColor: colors.border,
+  },
+  statDividerCompact: {
+    width: '55%',
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: spacing.xl,
+  },
+  statValue: {
+    fontSize: 68,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -1.5,
     fontVariant: ['tabular-nums'],
   },
-  statTileValueHighlight: {
-    color: colors.bg,
+  statValueCompact: {
+    fontSize: 46,
+    letterSpacing: -1,
   },
-  statTileLabel: {
+  statValueAccent: {
+    color: colors.primary,
+  },
+  statLabel: {
     fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.textMuted,
-  },
-  statTileLabelHighlight: {
-    color: 'rgba(255,255,255,0.85)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginTop: spacing.xs,
   },
   painGrid: {
     flexDirection: 'row',
@@ -1948,16 +2014,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  featureIndex: {
-    fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.textMuted,
-    letterSpacing: 1.5,
-  },
   featureIconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
     marginBottom: spacing.xs,
   },
   featureIcon: {
