@@ -22,6 +22,7 @@ import { Button, Screen, Switch } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { t, planName } from '../lib/i18n';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
+import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
@@ -2187,6 +2188,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   kickerText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.textMuted,
@@ -2194,11 +2196,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1.4,
   },
   headline: {
-    fontSize: 64,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: 66,
+    fontWeight: '600',
     color: colors.text,
     lineHeight: 68,
-    letterSpacing: -2,
+    letterSpacing: -1.2,
     textAlign: 'left',
     marginBottom: spacing.lg,
     textWrap: 'balance',
@@ -2222,6 +2225,7 @@ const styles = StyleSheet.create({
     WebkitTextFillColor: 'transparent',
   } as unknown as TextStyle,
   subheadline: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.lg,
     color: colors.textMuted,
     lineHeight: 27,
@@ -2522,6 +2526,7 @@ const styles = StyleSheet.create({
   // decorating it, and gives the page the same "eyebrow → headline" rhythm
   // throughout instead of titles just appearing cold.
   sectionEyebrow: {
+    fontFamily: marketingFonts.body,
     fontSize: 12,
     fontWeight: '800',
     color: colors.primary,
@@ -2530,16 +2535,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   sectionTitle: {
-    fontSize: 34,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: 36,
+    fontWeight: '600',
     color: colors.text,
-    letterSpacing: -0.8,
-    lineHeight: 40,
+    letterSpacing: -0.4,
+    lineHeight: 42,
     marginBottom: spacing.xl,
     maxWidth: 640,
     textWrap: 'balance',
   } as unknown as TextStyle,
   sectionSubtitle: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginTop: -spacing.lg,

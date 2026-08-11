@@ -4,6 +4,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 
 const TRUST_ITEMS: { icon: 'lock' | 'flag' | 'shield'; title: string; text: string }[] = [
@@ -128,16 +129,20 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   versionBadgeText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.primary,
   },
   title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: 38,
+    fontWeight: '600',
     color: colors.text,
+    letterSpacing: -0.4,
   },
   lead: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.md,
     color: colors.textMuted,
     marginTop: spacing.sm,
@@ -170,6 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   storeCardName: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
@@ -181,6 +187,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   storeCardSoonText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.textMuted,
@@ -208,11 +215,13 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   webCardTitle: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
   },
   webCardText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 20,
@@ -222,6 +231,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   note: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.xl,
@@ -234,12 +244,15 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   trustTitle: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: 28,
+    fontWeight: '600',
     color: colors.text,
+    letterSpacing: -0.3,
     textAlign: 'center',
   },
   trustLead: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     textAlign: 'center',
@@ -273,11 +286,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   trustCardTitle: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
   },
   trustCardText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 17,

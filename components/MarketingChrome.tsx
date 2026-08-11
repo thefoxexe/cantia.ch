@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
+import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { t } from '../lib/i18n';
 
@@ -236,8 +237,9 @@ const styles = StyleSheet.create({
     height: 28,
   },
   navBrand: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: fontSize.xl,
+    fontWeight: '700',
     color: colors.text,
   },
   navLinks: {
@@ -246,6 +248,7 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
   },
   navLink: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
@@ -285,6 +288,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   mobileMenuText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
@@ -327,11 +331,13 @@ const styles = StyleSheet.create({
     height: 24,
   },
   footerBrand: {
-    fontSize: fontSize.md,
-    fontWeight: '800',
+    fontFamily: marketingFonts.display,
+    fontSize: fontSize.lg,
+    fontWeight: '700',
     color: colors.text,
   },
   footerText: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 18,
@@ -358,6 +364,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   footerColTitle: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.text,
@@ -366,6 +373,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   footerLink: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
   },
@@ -384,6 +392,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   footerCopy: {
+    fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     color: colors.textMuted,
   },
