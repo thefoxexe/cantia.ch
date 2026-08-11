@@ -44,43 +44,6 @@ function daysSinceLaunch(): number {
 }
 const NAV_HEIGHT = 68;
 
-// A single continuous abstract line, not disconnected strokes — a chain
-// of waypoints (two sharp peaks, like a pen flicking up-down-up-down,
-// settling into a gentler trailing wave) connected end-to-end by short
-// rotated bars, since there's no SVG dependency in this project to draw
-// a real bezier path with. Each bar's start point is exactly the previous
-// bar's end point, so it reads as one unbroken stroke rather than a
-// cursive-letters zigzag.
-const SIGNATURE_POINTS: { x: number; y: number }[] = [
-  { x: 0, y: 24 },
-  { x: 9, y: 3 },
-  { x: 20, y: 44 },
-  { x: 31, y: 6 },
-  { x: 43, y: 40 },
-  { x: 56, y: 32 },
-  { x: 70, y: 17 },
-  { x: 85, y: 26 },
-  { x: 98, y: 19 },
-  { x: 112, y: 23 },
-  { x: 128, y: 21 },
-];
-// `range` is the [start, end] slice of the shared 0→1 draw progress each
-// segment animates across, so the line traces from start to end in order.
-const SIGNATURE_STROKES: { top: number; left: number; rotate: number; length: number; range: [number, number] }[] =
-  SIGNATURE_POINTS.slice(0, -1).map((p, i) => {
-    const q = SIGNATURE_POINTS[i + 1];
-    const dx = q.x - p.x;
-    const dy = q.y - p.y;
-    const n = SIGNATURE_POINTS.length - 1;
-    return {
-      top: p.y,
-      left: p.x,
-      rotate: (Math.atan2(dy, dx) * 180) / Math.PI,
-      length: Math.sqrt(dx * dx + dy * dy),
-      range: [i / n, (i + 1) / n],
-    };
-  });
-
 // The compiled Android/iOS app has no marketing site to show — it goes
 // straight to the auth flow (app/_layout.tsx then takes over once the
 // session is known, sending a logged-in user to the dashboard instead).
@@ -122,12 +85,6 @@ function LandingContent() {
   // of phase with each other. Neither ties to scroll/reveal state — they run
   // for as long as the hero is mounted.
   const blobPulse = useRef(new Animated.Value(0)).current;
-  // Drives the black signature scrawl at the top of the devis card: each
-  // stroke's width tweens in over its own slice of [0,1] (signatureDraw),
-  // so they draw one after another rather than all at once; signatureOpacity
-  // handles the clean fade-out between loops so the reset never flashes.
-  const signatureDraw = useRef(new Animated.Value(0)).current;
-  const signatureOpacity = useRef(new Animated.Value(1)).current;
   const menuItemAnims = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
@@ -276,24 +233,6 @@ function LandingContent() {
   }, [livePulse]);
 
   useEffect(() => {
-    const signatureLoop = Animated.loop(
-      Animated.sequence([
-        Animated.delay(600),
-        Animated.timing(signatureDraw, { toValue: 1, duration: 1500, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.delay(1000),
-        Animated.timing(signatureOpacity, { toValue: 0, duration: 300, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(signatureDraw, { toValue: 0, duration: 0, useNativeDriver: true }),
-        Animated.timing(signatureOpacity, { toValue: 1, duration: 0, useNativeDriver: true }),
-        Animated.delay(500),
-      ]),
-    );
-    signatureLoop.start();
-    return () => {
-      signatureLoop.stop();
-    };
-  }, [signatureDraw, signatureOpacity]);
-
-  useEffect(() => {
     if (menuOpen) {
       Animated.parallel([
         Animated.timing(menuAnim, {
@@ -421,38 +360,6 @@ function LandingContent() {
                     <Text style={styles.heroCardStatusText}>Envoyé</Text>
                   </View>
                 </View>
-
-                {/* ---- A real (abstract) signature drawing itself in black
-                    ink at the top of the devis, stroke by stroke, on a loop
-                    — not tucked into the small badge anymore. ---- */}
-                <Animated.View style={[styles.heroSignatureBox, { opacity: signatureOpacity }]}>
-                  {SIGNATURE_STROKES.map((s, i) => (
-                    <Animated.View
-                      key={i}
-                      style={
-                        [
-                          styles.heroSignatureStroke,
-                          {
-                            top: s.top,
-                            left: s.left,
-                            width: s.length,
-                            transformOrigin: 'left center',
-                            transform: [
-                              { rotate: `${s.rotate}deg` },
-                              {
-                                scaleX: signatureDraw.interpolate({
-                                  inputRange: s.range,
-                                  outputRange: [0, 1],
-                                  extrapolate: 'clamp',
-                                }),
-                              },
-                            ],
-                          },
-                        ] as unknown as ViewStyle
-                      }
-                    />
-                  ))}
-                </Animated.View>
 
                 <View style={styles.heroCardLines}>
                   <View style={styles.heroCardLine}>
@@ -2163,22 +2070,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#fff',
-  },
-  // The black signature scrawl at the top of the devis card — real ink
-  // black (not a brand color), a proper size to read as handwriting
-  // instead of a tiny decoration squeezed into a badge.
-  heroSignatureBox: {
-    width: 132,
-    height: 48,
-    position: 'relative',
-    marginTop: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  heroSignatureStroke: {
-    position: 'absolute',
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#141210',
   },
   // Full-bleed ticker bar: edge to edge, not a rounded pill — a hairline
   // "info bar" that reads as live data rather than a decorative chip.
