@@ -96,7 +96,7 @@ function LandingContent() {
   // actually open the site on, rather than falling back to static text.
   const showChaosChipsCompact = width < breakpoints.tablet;
   const chaosChipCompactWidth = 172;
-  const chaosChipCompactLeft = Math.round((width - spacing.xl * 2 - chaosChipCompactWidth) / 2);
+  const chaosChipCompactCenter = Math.round((width - spacing.xl * 2 - chaosChipCompactWidth) / 2);
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
@@ -705,22 +705,27 @@ function LandingContent() {
                 style={
                   showChaosChips || showChaosChipsCompact
                     ? {
+                        // Starts fading in only once the chips above are
+                        // essentially gone (see ChaosChip's opacity schedule,
+                        // which reaches 0 by progress 0.55) — previously both
+                        // reached full opacity together and the chips sat
+                        // fully solid over already-readable text.
                         opacity: chaosProgress.interpolate({
-                          inputRange: [0, 0.15, 0.65],
+                          inputRange: [0, 0.45, 0.7],
                           outputRange: [0, 0, 1],
                           extrapolate: 'clamp',
                         }),
                         transform: [
                           {
                             translateY: chaosProgress.interpolate({
-                              inputRange: [0, 0.65],
+                              inputRange: [0, 0.7],
                               outputRange: [14, 0],
                               extrapolate: 'clamp',
                             }),
                           },
                           {
                             scale: chaosProgress.interpolate({
-                              inputRange: [0, 0.65],
+                              inputRange: [0, 0.7],
                               outputRange: [0.97, 1],
                               extrapolate: 'clamp',
                             }),
@@ -818,11 +823,23 @@ function LandingContent() {
                     icon="send"
                     label="Devis #118"
                     sub="Brouillon depuis 6 jours"
-                    posStyle={{ top: -18, left: chaosChipCompactLeft }}
-                    driftX={0}
-                    driftY={80}
-                    rotateFrom={-6}
+                    posStyle={{ top: -66, left: chaosChipCompactCenter - 16 }}
+                    driftX={-14}
+                    driftY={150}
+                    rotateFrom={-7}
                     rotateTo={-3}
+                    compact
+                  />
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="file-text"
+                    label="Rapport de chantier"
+                    sub="Toujours pas envoyé"
+                    posStyle={{ top: -18, left: chaosChipCompactCenter + 14 }}
+                    driftX={16}
+                    driftY={64}
+                    rotateFrom={5}
+                    rotateTo={2}
                     compact
                   />
                   <ChaosChip
@@ -830,10 +847,22 @@ function LandingContent() {
                     icon="credit-card"
                     label="Facture #204"
                     sub="62 jours de retard"
-                    posStyle={{ top: 78, left: chaosChipCompactLeft }}
-                    driftX={0}
-                    driftY={-80}
-                    rotateFrom={6}
+                    posStyle={{ top: 30, left: chaosChipCompactCenter + 14 }}
+                    driftX={16}
+                    driftY={-64}
+                    rotateFrom={-5}
+                    rotateTo={-2}
+                    compact
+                  />
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="camera"
+                    label="14 photos"
+                    sub="Non triées"
+                    posStyle={{ top: 78, left: chaosChipCompactCenter - 16 }}
+                    driftX={-14}
+                    driftY={-150}
+                    rotateFrom={7}
                     rotateTo={3}
                     compact
                   />
@@ -1323,9 +1352,10 @@ function HoverLift({ children, style }: { children: React.ReactNode; style?: any
 // finally faded out once fully parted so it doesn't linger over the pain
 // list further down the section. `posStyle` is where it lands mid-parting;
 // `driftX/driftY` is how far *back toward center* it sits at progress=0,
-// easing to 0 (i.e. exactly posStyle) by 0.8, then drifting a little further
-// out while fading to 0 opacity by 1 — the gap it leaves behind is what lets
-// the section's headline show through.
+// easing to 0 (i.e. exactly posStyle) by 0.3, then drifting a little further
+// out while fading to 0 opacity by 0.55 — well before the section's headline
+// (see its own opacity schedule below, starting at 0.45) reaches full
+// opacity, so the two never overlap at full strength.
 function ChaosChip({
   progress,
   icon,
@@ -1359,31 +1389,44 @@ function ChaosChip({
         compact && styles.chaosChipCompact,
         posStyle,
         {
+          // Parts to its posStyle quickly (by 0.3, was 0.8 — "s'écarte plus
+          // vite") then fully fades out by 0.55, well before the section
+          // title above starts fading in at 0.45 — so the chips are gone,
+          // not overlapping fully-opaque text.
           opacity: progress.interpolate({
-            inputRange: [0, 0.1, 0.8, 1],
+            inputRange: [0, 0.08, 0.3, 0.55],
             outputRange: [0.92, 1, 1, 0],
             extrapolate: 'clamp',
           }),
           transform: [
             {
               translateX: progress.interpolate({
-                inputRange: [0, 0.8, 1],
+                inputRange: [0, 0.3, 0.55],
                 outputRange: [driftX, 0, exitX],
+                extrapolate: 'clamp',
               }),
             },
             {
               translateY: progress.interpolate({
-                inputRange: [0, 0.8, 1],
+                inputRange: [0, 0.3, 0.55],
                 outputRange: [driftY, 0, exitY],
+                extrapolate: 'clamp',
               }),
             },
             {
               rotate: progress.interpolate({
-                inputRange: [0, 1],
+                inputRange: [0, 0.55],
                 outputRange: [`${rotateFrom}deg`, `${rotateTo}deg`],
+                extrapolate: 'clamp',
               }),
             },
-            { scale: progress.interpolate({ inputRange: [0, 0.8, 1], outputRange: [0.82, 1, 1.04] }) },
+            {
+              scale: progress.interpolate({
+                inputRange: [0, 0.3, 0.55],
+                outputRange: [0.82, 1, 1.04],
+                extrapolate: 'clamp',
+              }),
+            },
           ],
         },
       ]}
