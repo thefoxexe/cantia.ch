@@ -31,9 +31,13 @@ function todayIso(): string {
 }
 
 export default function DashboardScreen() {
-  const { organization, user } = useAuth();
+  const { organization, user, canViewFinances } = useAuth();
   const router = useRouter();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
+  // A member without finance permission (see équipe screen) gets none of
+  // the devis/facture widgets below — same tiles/list logic as before,
+  // just gated on this too everywhere devisEnabled was checked alone.
+  const financeVisible = devisEnabled && canViewFinances;
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
   const firstName = fullName?.trim().split(' ')[0] || null;
 
@@ -55,10 +59,12 @@ export default function DashboardScreen() {
     const [{ count: projects }, { count: pendingDevisCount }, { data: recentProj }, { data: team }, { data: devisList }] =
       await Promise.all([
         supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).eq('status', 'active'),
-        supabase.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).in('status', ['draft', 'ready', 'sent']),
+        financeVisible
+          ? supabase.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).in('status', ['draft', 'ready', 'sent'])
+          : Promise.resolve({ count: 0 }),
         supabase.from('projects').select('*').eq('organization_id', organization.id).order('updated_at', { ascending: false }).limit(4),
         supabase.from('organization_members').select('*').eq('organization_id', organization.id),
-        devisEnabled
+        financeVisible
           ? supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }).limit(3)
           : Promise.resolve({ data: [] as Devis[] }),
       ]);
@@ -78,7 +84,7 @@ export default function DashboardScreen() {
       setDevisAmounts(totals);
     }
 
-    if (!devisEnabled) return;
+    if (!financeVisible) return;
 
     const { data: allFactures } = await supabase.from('factures').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false });
     const list = allFactures ?? [];
@@ -107,7 +113,7 @@ export default function DashboardScreen() {
       setPendingAmount(pending);
       setPaidThisMonth(paid);
     }
-  }, [organization, devisEnabled]);
+  }, [organization, financeVisible]);
 
   useFocusEffect(
     useCallback(() => {
@@ -125,7 +131,7 @@ export default function DashboardScreen() {
     const list: { key: string; label: string; icon: IconName; tone: keyof typeof TONE_COLORS; value: string }[] = [
       { key: 'projects', label: 'Chantiers actifs', icon: 'layers', tone: 'primary', value: String(activeProjects) },
     ];
-    if (devisEnabled) {
+    if (financeVisible) {
       list.push(
         { key: 'devis', label: 'Devis en cours', icon: 'file-text', tone: 'muted', value: String(devisPending) },
         { key: 'pending', label: 'À encaisser', icon: 'clock', tone: 'danger', value: `CHF ${pendingAmount.toFixed(0)}` },
@@ -133,7 +139,7 @@ export default function DashboardScreen() {
       );
     }
     return list;
-  }, [activeProjects, devisEnabled, devisPending, pendingAmount, paidThisMonth]);
+  }, [activeProjects, financeVisible, devisPending, pendingAmount, paidThisMonth]);
 
   return (
     <Screen>
@@ -172,7 +178,7 @@ export default function DashboardScreen() {
 
         <View style={styles.quickRow}>
           <Button title="Nouveau chantier" icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flex: 1 }} />
-          {devisEnabled ? (
+          {financeVisible ? (
             <Button title="Nouveau devis" icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
           ) : null}
         </View>
@@ -210,7 +216,7 @@ export default function DashboardScreen() {
           </View>
         )}
 
-        {devisEnabled && recentDevis.length > 0 ? (
+        {financeVisible && recentDevis.length > 0 ? (
           <>
             <View style={styles.sectionHeaderRow}>
               <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Devis récents</Text>
@@ -239,7 +245,7 @@ export default function DashboardScreen() {
           </>
         ) : null}
 
-        {devisEnabled && recentFactures.length > 0 ? (
+        {financeVisible && recentFactures.length > 0 ? (
           <>
             <View style={styles.sectionHeaderRow}>
               <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Factures récentes</Text>

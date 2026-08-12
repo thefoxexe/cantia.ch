@@ -9,11 +9,11 @@ import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme'
 import { AccountMenu } from '../../components/AccountMenu';
 import { NavDrawer, type NavSection } from '../../components/NavDrawer';
 
-function buildSections(devisEnabled: boolean, planningEnabled: boolean): NavSection[] {
+function buildSections(financeVisible: boolean, planningEnabled: boolean): NavSection[] {
   return [
     { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
     { title: 'CHANTIERS', links: [{ href: '/(app)/chantiers', label: 'Chantiers', icon: 'layers' }] },
-    ...(devisEnabled
+    ...(financeVisible
       ? [
           {
             title: 'FACTURATION',
@@ -56,10 +56,17 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 // child route the same way whether it's rendered by <Slot/> in either shell.
 export default function AppLayout() {
   const { width } = useWindowDimensions();
-  const { organization } = useAuth();
+  const { organization, canViewFinances } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning');
-  const sections = buildSections(devisEnabled, planningEnabled);
+  // A standard member without the "voir devis & factures" permission (see
+  // équipe screen) doesn't get the FACTURATION section at all — Trames and
+  // Inventaire live under the same /devis route subtree and only make sense
+  // alongside Devis/Factures, so they're hidden together rather than left
+  // as orphaned entries. Clients stays a separate top-level route and isn't
+  // affected.
+  const financeVisible = devisEnabled && canViewFinances;
+  const sections = buildSections(financeVisible, planningEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

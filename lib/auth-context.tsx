@@ -17,6 +17,11 @@ interface AuthContextValue {
   user: User | null;
   organization: Organization | null;
   role: OrgRole | null;
+  // Whether the signed-in member can see devis/factures — always true for
+  // owner/admin, opt-in per member otherwise (see équipe screen). Derived
+  // from the role itself, not just the raw DB flag, so a stale/missing
+  // can_view_finances value on an admin/owner row can never lock them out.
+  canViewFinances: boolean;
   loading: boolean;
   refreshOrganization: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -32,13 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
+  const [canViewFinances, setCanViewFinances] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadOrganization = useCallback(async (userId: string) => {
     try {
       const { data: membership } = await supabase
         .from('organization_members')
-        .select('role, organization_id, organizations(*)')
+        .select('role, can_view_finances, organization_id, organizations(*)')
         .eq('user_id', userId)
         .limit(1)
         .maybeSingle();
@@ -46,14 +52,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (membership?.organizations) {
         setOrganization(membership.organizations as unknown as Organization);
         setRole(membership.role as OrgRole);
+        setCanViewFinances(membership.role !== 'member' || !!membership.can_view_finances);
       } else {
         setOrganization(null);
         setRole(null);
+        setCanViewFinances(false);
       }
     } catch (err) {
       console.error('Failed to load organization', err);
       setOrganization(null);
       setRole(null);
+      setCanViewFinances(false);
     }
   }, []);
 
@@ -82,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setOrganization(null);
         setRole(null);
+        setCanViewFinances(false);
       }
       setLoading(false);
     });
@@ -196,6 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user: session?.user ?? null,
       organization,
       role,
+      canViewFinances,
       loading,
       refreshOrganization,
       signIn,
@@ -208,6 +219,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       organization,
       role,
+      canViewFinances,
       loading,
       refreshOrganization,
       signIn,

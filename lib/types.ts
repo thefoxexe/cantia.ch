@@ -134,6 +134,7 @@ export interface OrganizationMember {
   organization_id: string;
   user_id: string;
   role: OrgRole;
+  can_view_finances: boolean;
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;

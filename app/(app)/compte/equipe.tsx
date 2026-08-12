@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Share, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -56,6 +56,15 @@ export default function EquipeScreen() {
     if (!isAdmin || member.role === 'owner') return;
     const nextRole: OrgRole = member.role === 'admin' ? 'member' : 'admin';
     await supabase.from('organization_members').update({ role: nextRole }).eq('id', member.id);
+    load();
+  }
+
+  // Owner/admin always see devis & factures regardless of this flag (see
+  // can_view_org_finances in the DB) — it only matters for plain members,
+  // so the toggle below is only shown for them.
+  async function toggleMemberFinances(member: OrganizationMember) {
+    if (!isAdmin || member.role !== 'member') return;
+    await supabase.from('organization_members').update({ can_view_finances: !member.can_view_finances }).eq('id', member.id);
     load();
   }
 
@@ -203,6 +212,18 @@ export default function EquipeScreen() {
                   {isOnline(m.last_seen_at) ? ' · En ligne' : ''}
                 </Text>
               </View>
+              {isAdmin && m.role === 'member' ? (
+                <View style={styles.financeToggle}>
+                  <Feather name="file-text" size={13} color={colors.textMuted} />
+                  <Text style={styles.financeToggleText}>Devis & factures</Text>
+                  <Switch
+                    value={m.can_view_finances}
+                    onValueChange={() => toggleMemberFinances(m)}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor="#fff"
+                  />
+                </View>
+              ) : null}
               {isAdmin && m.role !== 'owner' ? (
                 <View style={styles.memberActions}>
                   <Pressable style={styles.memberActionButton} onPress={() => toggleMemberRole(m)}>
@@ -332,6 +353,16 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  financeToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  financeToggleText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
   },
   memberActions: {
     flexDirection: 'row',

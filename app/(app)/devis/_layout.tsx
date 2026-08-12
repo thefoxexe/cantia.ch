@@ -1,7 +1,38 @@
-import { Stack } from 'expo-router';
-import { colors } from '../../../lib/theme';
+import { StyleSheet, Text, View } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../../lib/auth-context';
+import { Button, Screen } from '../../../components/ui';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+
+// A member without the finance permission (see équipe screen) is already
+// kept out of RLS-protected data on every route below, and out of the nav
+// entirely (app/(app)/_layout.tsx) — this catches the remaining case of a
+// stale bookmark/deep link or the back button landing here directly, with
+// an explicit message instead of a confusing "empty list" or a blank
+// insert-failed error.
+function AccessDenied() {
+  const router = useRouter();
+  return (
+    <Screen>
+      <View style={styles.deniedWrap}>
+        <View style={styles.deniedIcon}>
+          <Feather name="lock" size={22} color={colors.textMuted} />
+        </View>
+        <Text style={styles.deniedTitle}>Accès non autorisé</Text>
+        <Text style={styles.deniedText}>
+          Vous n'avez pas accès aux devis et factures de cette entreprise. Demandez à un administrateur de vous
+          donner accès depuis Équipe.
+        </Text>
+        <Button title="Retour à l'accueil" onPress={() => router.replace('/(app)')} />
+      </View>
+    </Screen>
+  );
+}
 
 export default function DevisLayout() {
+  const { canViewFinances } = useAuth();
+  if (!canViewFinances) return <AccessDenied />;
   return (
     <Stack
       screenOptions={{
@@ -26,3 +57,34 @@ export default function DevisLayout() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  deniedWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+    gap: spacing.md,
+  },
+  deniedIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  deniedTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  deniedText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: spacing.sm,
+  },
+});
