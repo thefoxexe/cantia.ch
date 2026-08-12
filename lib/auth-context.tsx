@@ -12,16 +12,32 @@ import type { Organization, OrgRole } from './types';
 // redirect lands back on our own page.
 WebBrowser.maybeCompleteAuthSession();
 
+// Everything besides Finance defaults to granted for a member with no
+// custom role assigned — assigning one and only touching, say, the Finance
+// checkbox shouldn't silently strip access to Levés/Métré/Planning/
+// Documents the member already had. Finance is the one opt-in-only
+// permission (see équipe screen and 20260812130000's rationale).
+interface RolePermissions {
+  survey: boolean;
+  metre: boolean;
+  planning: boolean;
+  documents: boolean;
+}
+
+const FULL_ACCESS: RolePermissions = { survey: true, metre: true, planning: true, documents: true };
+
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
   organization: Organization | null;
   role: OrgRole | null;
-  // Whether the signed-in member can see devis/factures — always true for
-  // owner/admin, opt-in per member otherwise (see équipe screen). Derived
-  // from the role itself, not just the raw DB flag, so a stale/missing
-  // can_view_finances value on an admin/owner row can never lock them out.
+  // Whether the signed-in member can see devis/factures/rentabilité —
+  // always true for owner/admin, opt-in per member otherwise (see équipe
+  // screen). Derived from the role itself, not just the raw DB flag, so a
+  // stale/missing can_view_finances value on an admin/owner row can never
+  // lock them out.
   canViewFinances: boolean;
+  permissions: RolePermissions;
   loading: boolean;
   refreshOrganization: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -38,13 +54,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
   const [canViewFinances, setCanViewFinances] = useState(false);
+  const [permissions, setPermissions] = useState<RolePermissions>(FULL_ACCESS);
   const [loading, setLoading] = useState(true);
 
   const loadOrganization = useCallback(async (userId: string) => {
     try {
       const { data: membership } = await supabase
         .from('organization_members')
-        .select('role, organization_id, organizations(*), organization_roles(can_view_finances)')
+        .select(
+          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_survey, can_view_metre, can_view_planning, can_view_documents)',
+        )
         .eq('user_id', userId)
         .limit(1)
         .maybeSingle();
@@ -52,18 +71,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (membership?.organizations) {
         setOrganization(membership.organizations as unknown as Organization);
         setRole(membership.role as OrgRole);
-        const assignedRole = membership.organization_roles as unknown as { can_view_finances: boolean } | null;
-        setCanViewFinances(membership.role !== 'member' || !!assignedRole?.can_view_finances);
+        const assignedRole = membership.organization_roles as unknown as {
+          can_view_finances: boolean;
+          can_view_survey: boolean;
+          can_view_metre: boolean;
+          can_view_planning: boolean;
+          can_view_documents: boolean;
+        } | null;
+        const isStructuralAdmin = membership.role !== 'member';
+        const hasNoCustomRole = !membership.role_id;
+        setCanViewFinances(isStructuralAdmin || !!assignedRole?.can_view_finances);
+        setPermissions(
+          isStructuralAdmin || hasNoCustomRole
+            ? FULL_ACCESS
+            : {
+                survey: !!assignedRole?.can_view_survey,
+                metre: !!assignedRole?.can_view_metre,
+                planning: !!assignedRole?.can_view_planning,
+                documents: !!assignedRole?.can_view_documents,
+              },
+        );
       } else {
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
+        setPermissions(FULL_ACCESS);
       }
     } catch (err) {
       console.error('Failed to load organization', err);
       setOrganization(null);
       setRole(null);
       setCanViewFinances(false);
+      setPermissions(FULL_ACCESS);
     }
   }, []);
 
@@ -93,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
+        setPermissions(FULL_ACCESS);
       }
       setLoading(false);
     });
@@ -208,6 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization,
       role,
       canViewFinances,
+      permissions,
       loading,
       refreshOrganization,
       signIn,
@@ -221,6 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization,
       role,
       canViewFinances,
+      permissions,
       loading,
       refreshOrganization,
       signIn,

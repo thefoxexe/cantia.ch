@@ -67,7 +67,7 @@ function formatShort(d: Date): string {
 }
 
 export default function PlanningScreen() {
-  const { organization, user } = useAuth();
+  const { organization, user, permissions } = useAuth();
   const router = useRouter();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [assignments, setAssignments] = useState<PlanningAssignmentWithNames[]>([]);
@@ -188,6 +188,22 @@ export default function PlanningScreen() {
     return (
       <Screen>
         <LoadingScreen />
+      </Screen>
+    );
+  }
+
+  if (!permissions.planning) {
+    return (
+      <Screen style={{ padding: spacing.xl }}>
+        <PageHeader title="Planning" backTo="/(app)" />
+        <Card style={styles.upsell}>
+          <Feather name="lock" size={22} color={colors.textMuted} />
+          <Text style={styles.upsellTitle}>Accès non autorisé</Text>
+          <Text style={styles.upsellText}>
+            Vous n'avez pas accès au planning de cette entreprise. Demandez à un administrateur de vous donner accès
+            depuis Équipe.
+          </Text>
+        </Card>
       </Screen>
     );
   }

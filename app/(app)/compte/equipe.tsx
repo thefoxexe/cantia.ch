@@ -13,7 +13,14 @@ import {
   revokeInvite,
   type PendingJoinRequest,
 } from '../../../lib/api/invites';
-import { assignMemberRole, createOrgRole, deleteOrgRole, listOrgRoles, updateOrgRole } from '../../../lib/api/roles';
+import {
+  assignMemberRole,
+  createOrgRole,
+  deleteOrgRole,
+  listOrgRoles,
+  updateOrgRole,
+  type RolePermissions,
+} from '../../../lib/api/roles';
 import { Button, Card, Container, Field, PageHeader, Screen, Switch } from '../../../components/ui';
 import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -35,14 +42,35 @@ const NO_ROLE_PILL = { bg: colors.surfaceAlt, fg: colors.textMuted };
 // them reading as louder than the product's own accent color.
 const ROLE_COLORS = ['#BC5A31', '#2E6B4F', '#3F5D7D', '#9C6510', '#7C3B21', '#6B4E8E', '#5C7A5C', '#AB3327'];
 
+type IconName = keyof typeof Feather.glyphMap;
+
+// One checkbox per real, cleanly-isolated feature area — see
+// 20260812160000_role_permission_catalog.sql for why "Photos" isn't in
+// this list (same underlying data as the always-open Rapports tab).
+// Finance is opt-in-only for a member with no role (default false); the
+// other four default true so creating a role only needs to uncheck what
+// should be restricted, not re-grant everything else.
+const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName; label: string; description: string }[] = [
+  { key: 'canViewFinances', icon: 'file-text', label: 'Finance', description: 'Devis, factures et rentabilité par chantier.' },
+  { key: 'canViewSurvey', icon: 'crosshair', label: 'Levés', description: 'Points de chantier et cadastre suisse.' },
+  { key: 'canViewMetre', icon: 'list', label: 'Métré', description: 'Tableau de quantités poste par poste.' },
+  { key: 'canViewPlanning', icon: 'calendar', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
+  { key: 'canViewDocuments', icon: 'folder', label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
+];
+
 interface RoleDraft {
   id: string | null;
   name: string;
   color: string;
-  canViewFinances: boolean;
+  permissions: RolePermissions;
 }
 
-const EMPTY_DRAFT: RoleDraft = { id: null, name: '', color: ROLE_COLORS[0], canViewFinances: false };
+const EMPTY_DRAFT: RoleDraft = {
+  id: null,
+  name: '',
+  color: ROLE_COLORS[0],
+  permissions: { canViewFinances: false, canViewSurvey: true, canViewMetre: true, canViewPlanning: true, canViewDocuments: true },
+};
 
 export default function EquipeScreen() {
   const { organization, role, user } = useAuth();
@@ -168,8 +196,8 @@ export default function EquipeScreen() {
     setSavingRole(true);
     setRoleDraftError(null);
     const { error } = roleDraft.id
-      ? await updateOrgRole(roleDraft.id, name, roleDraft.color, roleDraft.canViewFinances)
-      : await createOrgRole(organization.id, name, roleDraft.color, roleDraft.canViewFinances);
+      ? await updateOrgRole(roleDraft.id, name, roleDraft.color, roleDraft.permissions)
+      : await createOrgRole(organization.id, name, roleDraft.color, roleDraft.permissions);
     setSavingRole(false);
     if (error) {
       setRoleDraftError(error.includes('duplicate') ? 'Un rôle porte déjà ce nom.' : error);
@@ -297,7 +325,18 @@ export default function EquipeScreen() {
                     key={r.id}
                     style={[styles.roleChip, { backgroundColor: `${r.color}22`, borderColor: `${r.color}55` }]}
                     onPress={() =>
-                      setRoleDraft({ id: r.id, name: r.name, color: r.color, canViewFinances: r.can_view_finances })
+                      setRoleDraft({
+                        id: r.id,
+                        name: r.name,
+                        color: r.color,
+                        permissions: {
+                          canViewFinances: r.can_view_finances,
+                          canViewSurvey: r.can_view_survey,
+                          canViewMetre: r.can_view_metre,
+                          canViewPlanning: r.can_view_planning,
+                          canViewDocuments: r.can_view_documents,
+                        },
+                      })
                     }
                   >
                     <View style={[styles.roleChipDot, { backgroundColor: r.color }]} />
@@ -422,16 +461,22 @@ export default function EquipeScreen() {
             </View>
 
             <Text style={styles.fieldLabel}>Accès</Text>
-            <View style={styles.permissionRow}>
-              <Feather name="file-text" size={15} color={colors.textMuted} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.permissionTitle}>Devis & factures</Text>
-                <Text style={styles.permissionSubtitle}>Voir, créer et modifier les devis et factures de l'entreprise.</Text>
-              </View>
-              <Switch
-                value={roleDraft?.canViewFinances ?? false}
-                onChange={(v) => setRoleDraft((d) => (d ? { ...d, canViewFinances: v } : d))}
-              />
+            <View style={{ gap: spacing.sm }}>
+              {PERMISSION_CATALOG.map((p) => (
+                <View key={p.key} style={styles.permissionRow}>
+                  <Feather name={p.icon} size={15} color={colors.textMuted} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.permissionTitle}>{p.label}</Text>
+                    <Text style={styles.permissionSubtitle}>{p.description}</Text>
+                  </View>
+                  <Switch
+                    value={roleDraft?.permissions[p.key] ?? false}
+                    onChange={(v) =>
+                      setRoleDraft((d) => (d ? { ...d, permissions: { ...d.permissions, [p.key]: v } } : d))
+                    }
+                  />
+                </View>
+              ))}
             </View>
 
             {roleDraftError ? <Text style={styles.error}>{roleDraftError}</Text> : null}

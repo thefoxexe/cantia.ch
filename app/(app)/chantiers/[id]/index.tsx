@@ -33,12 +33,19 @@ const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] =
 export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { organization } = useAuth();
+  const { organization, canViewFinances, permissions } = useAuth();
   const visibleTabs = TABS.filter((t) => {
     if (t.key === 'feed' || t.key === 'reports') return true;
     // The map is just another view of the same geolocated photos, so it
-    // rides on the "photos" module toggle instead of needing its own.
+    // rides on the "photos" module toggle instead of needing its own —
+    // photos aren't gated by a per-role permission (see équipe screen's
+    // permission catalog: Photos shares the same underlying data as the
+    // always-open Rapports tab, so it can't be restricted independently).
     if (t.key === 'map') return isModuleEnabled(organization?.enabled_modules, 'photos');
+    if (t.key === 'survey') return isModuleEnabled(organization?.enabled_modules, 'survey') && permissions.survey;
+    if (t.key === 'metre') return isModuleEnabled(organization?.enabled_modules, 'metre') && permissions.metre;
+    if (t.key === 'documents') return isModuleEnabled(organization?.enabled_modules, 'documents') && permissions.documents;
+    if (t.key === 'profitability') return isModuleEnabled(organization?.enabled_modules, 'profitability') && canViewFinances;
     return isModuleEnabled(organization?.enabled_modules, t.key as any);
   });
   const [project, setProject] = useState<Project | null>(null);
