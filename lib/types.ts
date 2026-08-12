@@ -129,12 +129,21 @@ export interface ProjectMember {
   created_at: string;
 }
 
+export interface OrganizationRole {
+  id: string;
+  organization_id: string;
+  name: string;
+  color: string;
+  can_view_finances: boolean;
+  created_at: string;
+}
+
 export interface OrganizationMember {
   id: string;
   organization_id: string;
   user_id: string;
   role: OrgRole;
-  can_view_finances: boolean;
+  role_id: string | null;
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;

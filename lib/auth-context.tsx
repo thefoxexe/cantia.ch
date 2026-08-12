@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: membership } = await supabase
         .from('organization_members')
-        .select('role, can_view_finances, organization_id, organizations(*)')
+        .select('role, organization_id, organizations(*), organization_roles(can_view_finances)')
         .eq('user_id', userId)
         .limit(1)
         .maybeSingle();
@@ -52,7 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (membership?.organizations) {
         setOrganization(membership.organizations as unknown as Organization);
         setRole(membership.role as OrgRole);
-        setCanViewFinances(membership.role !== 'member' || !!membership.can_view_finances);
+        const assignedRole = membership.organization_roles as unknown as { can_view_finances: boolean } | null;
+        setCanViewFinances(membership.role !== 'member' || !!assignedRole?.can_view_finances);
       } else {
         setOrganization(null);
         setRole(null);
