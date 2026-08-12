@@ -35,6 +35,16 @@ const distIndex = path.join(distDir, 'index.html');
 const SITE = 'https://cantia.ch';
 const OG_IMAGE = `${SITE}/og-image.jpg`;
 
+// Same `web.output: "single"` problem as the SEO tags above: app/+html.tsx's
+// <link> tags for the marketing typefaces (Fraunces/Instrument Sans, see
+// lib/marketingTheme.ts) never reach the exported HTML either — only visible
+// via `expo start --web`, never on the actual cantia.ch build. Injected here
+// for the same reason the meta tags are.
+const FONT_LINKS = `
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />`;
+
 const HOME = {
   path: '',
   title: 'Cantia — Gestion de chantier pour artisans et entreprises du bâtiment (Suisse)',
@@ -159,6 +169,7 @@ function patch(baseHtml, { path: routePath, title, description }) {
     <script type="application/ld+json">${JSON.stringify(jsonLdFor(canonicalUrl, description))}</script>`;
 
   let html = baseHtml.replace('<html lang="en">', '<html lang="fr">');
+  html = html.replace('<head>', `<head>${FONT_LINKS}`);
   html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>${metaTags}`);
   return html;
 }
