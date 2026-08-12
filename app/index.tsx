@@ -87,6 +87,13 @@ function LandingContent() {
   // room either side of the centered text column — only worth it once the
   // section is comfortably wider than that column plus two full chips.
   const showChaosChips = width >= 1200;
+  // Below that, a two-chip phone variant (parting up/down instead of to the
+  // four corners, since there's no horizontal margin to send them into)
+  // keeps the same scroll-driven reveal on the devices most visitors
+  // actually open the site on, rather than falling back to static text.
+  const showChaosChipsCompact = width < breakpoints.tablet;
+  const chaosChipCompactWidth = 172;
+  const chaosChipCompactLeft = Math.round((width - spacing.xl * 2 - chaosChipCompactWidth) / 2);
 
   const menuAnim = useRef(new Animated.Value(0)).current;
   const heroAnim = useRef(new Animated.Value(0)).current;
@@ -501,28 +508,29 @@ function LandingContent() {
                 {/* A second, shallower layer of depth — bobs opposite the
                     card itself so the two never move in lockstep, reading
                     as a live notification arriving rather than a sticker
-                    glued to the mockup. */}
-                {!isCompactHero ? (
-                  <Animated.View
-                    style={[
-                      styles.heroCardToast,
-                      {
-                        transform: [
-                          { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }) },
-                          { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['3deg', '1deg'] }) },
-                        ],
-                      },
-                    ]}
-                  >
-                    <View style={styles.heroCardToastIcon}>
-                      <Feather name="bell" size={11} color={colors.primary} />
-                    </View>
-                    <View>
-                      <Text style={styles.heroCardToastTitle}>Facture #204 payée</Text>
-                      <Text style={styles.heroCardToastText}>Il y a 2 minutes</Text>
-                    </View>
-                  </Animated.View>
-                ) : null}
+                    glued to the mockup. Visible at every width — tucked in
+                    closer to the card's edge on phones so it can't clip off
+                    the viewport the way the desktop offset would. */}
+                <Animated.View
+                  style={[
+                    styles.heroCardToast,
+                    isCompactHero && styles.heroCardToastCompact,
+                    {
+                      transform: [
+                        { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }) },
+                        { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['3deg', '1deg'] }) },
+                      ],
+                    },
+                  ]}
+                >
+                  <View style={styles.heroCardToastIcon}>
+                    <Feather name="bell" size={11} color={colors.primary} />
+                  </View>
+                  <View>
+                    <Text style={styles.heroCardToastTitle}>Facture #204 payée</Text>
+                    <Text style={styles.heroCardToastText}>Il y a 2 minutes</Text>
+                  </View>
+                </Animated.View>
               </Animated.View>
             </View>
           </View>
@@ -692,7 +700,7 @@ function LandingContent() {
             <View style={styles.chaosLayer}>
               <Animated.View
                 style={
-                  showChaosChips
+                  showChaosChips || showChaosChipsCompact
                     ? {
                         opacity: chaosProgress.interpolate({
                           inputRange: [0, 0.15, 0.65],
@@ -796,6 +804,35 @@ function LandingContent() {
                     driftY={-130}
                     rotateFrom={-6}
                     rotateTo={-3}
+                  />
+                </>
+              ) : null}
+
+              {showChaosChipsCompact ? (
+                <>
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="send"
+                    label="Devis #118"
+                    sub="Brouillon depuis 6 jours"
+                    posStyle={{ top: -18, left: chaosChipCompactLeft }}
+                    driftX={0}
+                    driftY={80}
+                    rotateFrom={-6}
+                    rotateTo={-3}
+                    compact
+                  />
+                  <ChaosChip
+                    progress={chaosProgress}
+                    icon="credit-card"
+                    label="Facture #204"
+                    sub="62 jours de retard"
+                    posStyle={{ top: 78, left: chaosChipCompactLeft }}
+                    driftX={0}
+                    driftY={-80}
+                    rotateFrom={6}
+                    rotateTo={3}
+                    compact
                   />
                 </>
               ) : null}
@@ -1268,6 +1305,7 @@ function ChaosChip({
   driftY,
   rotateFrom,
   rotateTo,
+  compact,
 }: {
   progress: Animated.Value;
   icon: IconName;
@@ -1278,6 +1316,7 @@ function ChaosChip({
   driftY: number;
   rotateFrom: number;
   rotateTo: number;
+  compact?: boolean;
 }) {
   const exitX = driftX >= 0 ? -driftX * 0.12 : driftX * 0.12;
   const exitY = driftY >= 0 ? -driftY * 0.12 : driftY * 0.12;
@@ -1286,6 +1325,7 @@ function ChaosChip({
       pointerEvents="none"
       style={[
         styles.chaosChip,
+        compact && styles.chaosChipCompact,
         posStyle,
         {
           opacity: progress.interpolate({
@@ -1317,14 +1357,14 @@ function ChaosChip({
         },
       ]}
     >
-      <View style={styles.chaosChipIconWrap}>
-        <Feather name={icon} size={17} color={colors.danger} />
+      <View style={[styles.chaosChipIconWrap, compact && styles.chaosChipIconWrapCompact]}>
+        <Feather name={icon} size={compact ? 14 : 17} color={colors.danger} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.chaosChipLabel} numberOfLines={1}>
+        <Text style={[styles.chaosChipLabel, compact && styles.chaosChipLabelCompact]} numberOfLines={1}>
           {label}
         </Text>
-        <Text style={styles.chaosChipSub} numberOfLines={1}>
+        <Text style={[styles.chaosChipSub, compact && styles.chaosChipSubCompact]} numberOfLines={1}>
           {sub}
         </Text>
       </View>
@@ -2445,6 +2485,12 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
   },
+  // On phones heroVisualCompact is centered with limited side margin — the
+  // desktop offset would push this past the viewport edge and get clipped.
+  heroCardToastCompact: {
+    top: -14,
+    right: -6,
+  },
   heroCardToastIcon: {
     width: 22,
     height: 22,
@@ -3016,6 +3062,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: colors.danger,
+  },
+  // Phone variant — same choreography, sized to fit a narrow viewport where
+  // the desktop four-corner layout has no room to breathe.
+  chaosChipCompact: {
+    width: 172,
+    padding: spacing.sm,
+    gap: spacing.sm,
+  },
+  chaosChipIconWrapCompact: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  chaosChipLabelCompact: {
+    fontSize: 12,
+  },
+  chaosChipSubCompact: {
+    fontSize: 10,
   },
   // A narrow, rule-separated list instead of a row of boxed cards — reads
   // as a short diagnostic (three symptoms) rather than three interchangeable
