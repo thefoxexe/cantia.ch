@@ -188,11 +188,11 @@ const fr: Dict = {
       },
       {
         title: 'Pensé pour l’équipe',
-        text: 'Cantia s’adapte à votre taille, de l’artisan indépendant à l’entreprise avec plusieurs collaborateurs et des rôles différents.',
+        text: 'Créez des rôles sur mesure et décidez précisément qui voit quoi — devis, factures, planning, levés — sans tout donner à tout le monde.',
         detail: [
-          'Rôles propriétaire, administrateur et membre',
+          'Rôles personnalisables avec accès à cocher par domaine',
+          'Finance, Levés, Métré, Planning et Documents gérés séparément',
           'Ajout de collaborateurs selon votre plan',
-          'Paramètres d’entreprise centralisés : TVA, logo, mentions',
         ],
       },
     ],
