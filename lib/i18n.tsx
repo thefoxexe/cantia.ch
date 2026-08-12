@@ -57,7 +57,7 @@ const fr: Dict = {
     headlinePrefix: 'L’application qui gère votre administratif,',
     headlineHighlight: 'pendant que vous gérez le chantier',
     subheadline:
-      'Cantia est l’application tout-en-un des entreprises du bâtiment : rapports, devis, factures et documents générés automatiquement depuis le terrain. Une seule saisie, zéro ressaisie au bureau.',
+      'Vous rédigez encore vos devis le soir, sur un coin de table ? Racontez le chantier à voix haute : Cantia génère devis, rapports et factures pendant que vous êtes encore sur place.',
     cta1: 'Créer mon compte gratuitement',
     cta2: 'Se connecter',
   },

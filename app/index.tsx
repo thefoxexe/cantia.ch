@@ -72,7 +72,10 @@ function LandingContent() {
   // above the hero rather than mixed in with the counters that do grow.
   const launchDays = daysSinceLaunch();
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
-  const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
+  // Starts on the first item (not null) so the accordion's payoff — the
+  // checklist detail — is visible on arrival instead of requiring a click
+  // to discover the section does anything beyond a static icon list.
+  const [expandedFeature, setExpandedFeature] = useState<number | null>(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { width, height: windowHeight } = useWindowDimensions();
@@ -876,33 +879,61 @@ function LandingContent() {
                 <View pointerEvents="none" style={styles.journeyLine} />
                 {t.services.items.map((f, i) => {
                   const expanded = expandedFeature === i;
+                  const sectionAnim = getSectionAnim('services');
+                  // Cascades in behind the section's own reveal instead of a
+                  // second Animated.Value per row — row i's fade/rise starts
+                  // slightly after row i-1's, off the same 0→1 driver.
+                  const stagger = Math.min(0.06 * i, 0.5);
                   return (
-                    <Pressable
+                    <Animated.View
                       key={f.title}
-                      style={({ hovered }: any) => [styles.journeyRow, hovered && styles.journeyRowHovered]}
-                      onPress={() => setExpandedFeature(expanded ? null : i)}
+                      style={{
+                        opacity: sectionAnim.interpolate({
+                          inputRange: [0, stagger, Math.min(stagger + 0.35, 1)],
+                          outputRange: [0, 0, 1],
+                          extrapolate: 'clamp',
+                        }),
+                        transform: [
+                          {
+                            translateY: sectionAnim.interpolate({
+                              inputRange: [0, stagger, Math.min(stagger + 0.35, 1)],
+                              outputRange: [16, 16, 0],
+                              extrapolate: 'clamp',
+                            }),
+                          },
+                        ],
+                      }}
                     >
-                      <View style={styles.journeyIconBadge}>
-                        <Feather name={FEATURE_ICONS[i]} size={19} color="#fff" />
-                      </View>
-                      <View style={styles.journeyBody}>
-                        <View style={styles.featureCardHeader}>
-                          <Text style={styles.featureTitle}>{f.title}</Text>
-                          <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                      <Pressable
+                        style={({ hovered }: any) => [
+                          styles.journeyRow,
+                          hovered && styles.journeyRowHovered,
+                          expanded && styles.journeyRowExpanded,
+                        ]}
+                        onPress={() => setExpandedFeature(expanded ? null : i)}
+                      >
+                        <View style={[styles.journeyIconBadge, expanded && styles.journeyIconBadgeExpanded]}>
+                          <Feather name={FEATURE_ICONS[i]} size={19} color="#fff" />
                         </View>
-                        <Text style={styles.featureText}>{f.text}</Text>
-                        {expanded ? (
-                          <View style={styles.featureDetail}>
-                            {f.detail.map((line) => (
-                              <View key={line} style={styles.featureDetailRow}>
-                                <Feather name="check" size={13} color={colors.success} />
-                                <Text style={styles.featureDetailText}>{line}</Text>
-                              </View>
-                            ))}
+                        <View style={styles.journeyBody}>
+                          <View style={styles.featureCardHeader}>
+                            <Text style={styles.featureTitle}>{f.title}</Text>
+                            <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                           </View>
-                        ) : null}
-                      </View>
-                    </Pressable>
+                          <Text style={styles.featureText}>{f.text}</Text>
+                          {expanded ? (
+                            <View style={styles.featureDetail}>
+                              {f.detail.map((line) => (
+                                <View key={line} style={styles.featureDetailRow}>
+                                  <Feather name="check" size={13} color={colors.success} />
+                                  <Text style={styles.featureDetailText}>{line}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          ) : null}
+                        </View>
+                      </Pressable>
+                    </Animated.View>
                   );
                 })}
               </View>
@@ -3214,6 +3245,9 @@ const styles = StyleSheet.create({
   journeyRowHovered: {
     backgroundColor: colors.surfaceAlt,
   },
+  journeyRowExpanded: {
+    backgroundColor: colors.surfaceAlt,
+  },
   journeyIconBadge: {
     width: 48,
     height: 48,
@@ -3222,7 +3256,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+    transitionProperty: 'transform, box-shadow',
+    transitionDuration: '0.25s',
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
   } as unknown as ViewStyle,
+  journeyIconBadgeExpanded: {
+    transform: [{ scale: 1.1 }],
+    shadowColor: colors.primary,
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+  },
   journeyBody: {
     flex: 1,
     paddingTop: 2,
