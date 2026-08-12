@@ -29,10 +29,34 @@ export default function LevesMetreSolutionPage() {
         },
         {
           icon: 'download',
-          title: 'Export de vos données',
-          text: "Exportez vos points de levé pour les réutiliser dans vos propres outils ou les partager avec un bureau d'ingénieurs.",
+          title: 'Export DXF, LandXML, CSV ou GPX',
+          text: "Exportez vos points de levé dans le format attendu par vos outils ou par un bureau d'ingénieurs, sans ressaisie.",
+        },
+        {
+          icon: 'zap',
+          title: 'Métré → devis en un clic',
+          text: "Chaque poste de métré chiffré se transforme directement en ligne de devis, sans retaper les quantités.",
         },
       ]}
+      faq={[
+        {
+          question: 'Peut-on faire des levés directement sur le cadastre suisse ?',
+          answer: "Oui, Cantia affiche le cadastre et l'orthophoto officiels suisses, et vous placez vos points directement dessus.",
+        },
+        {
+          question: 'Comment exporter les données de levés ?',
+          answer: "Au format DXF, LandXML, CSV ou GPX, pour les réutiliser dans d'autres logiciels ou les partager avec un bureau d'ingénieurs.",
+        },
+        {
+          question: 'Le métré est-il relié directement au devis ?',
+          answer: "Oui, chaque poste de métré peut être transformé en ligne de devis chiffrée en un clic.",
+        },
+        {
+          question: 'Faut-il un récepteur GPS professionnel pour les levés ?',
+          answer: "Non, un smartphone suffit pour la plupart des usages de terrain.",
+        },
+      ]}
+      related={[{ href: '/solutions/devis', label: 'Devis en ligne' }]}
       closingTitle="Du relevé de terrain au chiffrage, dans la même application"
       closingText="Les modules Levés et Métré s'activent selon les besoins de votre organisation."
     />

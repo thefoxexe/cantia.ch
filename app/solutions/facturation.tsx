@@ -53,6 +53,31 @@ export default function FacturationSolutionPage() {
         { title: 'Convertissez ou créez une facture', text: 'Depuis un devis accepté, ou directement.' },
         { title: 'Envoyez le PDF', text: 'Le QR-bill est déjà intégré — votre client scanne et paie depuis son app bancaire.' },
       ]}
+      faq={[
+        {
+          question: 'Comment créer une facture avec QR-facture suisse ?',
+          answer:
+            "Renseignez votre IBAN une fois dans les paramètres : chaque facture génère ensuite automatiquement le bulletin QR conforme à la norme SIX, IBAN et référence structurée déjà encodés.",
+        },
+        {
+          question: 'Peut-on facturer un acompte avant la fin du chantier ?',
+          answer:
+            "Oui, Cantia permet d'émettre une facture d'acompte pour un pourcentage du devis, puis déduit automatiquement ce montant de la facture finale.",
+        },
+        {
+          question: 'Comment savoir si une facture a été payée ?',
+          answer:
+            "Recherchez et rapprochez un paiement directement par son numéro de référence QR — le statut passe à «payée» sans devoir vérifier votre compte bancaire manuellement.",
+        },
+        {
+          question: 'Combien coûte la facturation avec QR-code via Cantia ?',
+          answer: "La facturation avec QR-bill suisse est incluse dans tous les plans, y compris le plan gratuit.",
+        },
+      ]}
+      related={[
+        { href: '/solutions/devis', label: 'Devis en ligne' },
+        { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
+      ]}
       closingTitle="La facturation suisse, sans jongler entre deux outils"
       closingText="Disponible dès le plan gratuit, avec un quota mensuel de factures — sans engagement."
     />

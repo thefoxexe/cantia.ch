@@ -43,6 +43,30 @@ export default function RapportsChantierSolutionPage() {
         { title: "L'IA rédige", text: 'Notes brutes, légendes de photos et localisation sont assemblées en un texte clair.' },
         { title: 'Relisez et générez le PDF', text: 'Ajustez si nécessaire, puis exportez un rapport prêt à envoyer au client.' },
       ]}
+      faq={[
+        {
+          question: 'Comment rédiger un rapport de chantier rapidement ?',
+          answer:
+            "Prenez vos photos et dictez vos notes sur le moment — Cantia assemble tout en un rapport PDF structuré et prêt à envoyer, sans devoir tout retaper le soir.",
+        },
+        {
+          question: 'Les photos sont-elles géolocalisées automatiquement ?',
+          answer: "Oui, chaque photo est horodatée et géolocalisée sans action supplémentaire de votre part.",
+        },
+        {
+          question: 'Peut-on personnaliser le rapport avec son logo et sa signature ?',
+          answer: "Oui, chaque rapport PDF reprend votre logo, votre couleur de marque et la signature de son rédacteur.",
+        },
+        {
+          question: 'Le rapport de chantier remplace-t-il un carnet de chantier papier ?',
+          answer:
+            "Oui — notes, photos et suivi sont centralisés dans un document numérique consultable à tout moment, par chantier.",
+        },
+      ]}
+      related={[
+        { href: '/solutions/dictee-vocale', label: 'Dictée vocale' },
+        { href: '/solutions/planning', label: "Planning d'équipe" },
+      ]}
       closingTitle="Un rapport professionnel, sans y passer la soirée"
       closingText="Inclus dans tous les plans, y compris le plan gratuit."
     />

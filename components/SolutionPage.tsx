@@ -21,6 +21,16 @@ export interface SolutionStep {
   text: string;
 }
 
+export interface SolutionFaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface SolutionRelatedLink {
+  href: string;
+  label: string;
+}
+
 // One shared template for every /solutions/* SEO page — same chrome
 // (MarketingNav/Footer), same section order (hero → features → steps →
 // closing CTA), only the copy changes per page. Keeping this as one
@@ -32,6 +42,8 @@ export function SolutionPage({
   subtitle,
   features,
   steps,
+  faq,
+  related,
   closingTitle,
   closingText,
 }: {
@@ -40,6 +52,8 @@ export function SolutionPage({
   subtitle: string;
   features: SolutionFeature[];
   steps?: SolutionStep[];
+  faq?: SolutionFaqItem[];
+  related?: SolutionRelatedLink[];
   closingTitle: string;
   closingText: string;
 }) {
@@ -117,6 +131,36 @@ export function SolutionPage({
                     <Text style={styles.stepText}>{s.text}</Text>
                   </View>
                 </View>
+              ))}
+            </View>
+          </Container>
+        ) : null}
+
+        {faq?.length ? (
+          <Container style={styles.section}>
+            <Text style={styles.stepsEyebrow}>Questions fréquentes</Text>
+            <View style={styles.faqList}>
+              {faq.map((f, i) => (
+                <View key={f.question} style={[styles.faqRow, i === faq.length - 1 && styles.faqRowLast]}>
+                  <Text style={styles.faqQuestion}>{f.question}</Text>
+                  <Text style={styles.faqAnswer}>{f.answer}</Text>
+                </View>
+              ))}
+            </View>
+          </Container>
+        ) : null}
+
+        {related?.length ? (
+          <Container style={styles.section}>
+            <Text style={styles.stepsEyebrow}>Voir aussi</Text>
+            <View style={styles.relatedRow}>
+              {related.map((r) => (
+                <Link key={r.href} href={r.href as any} asChild>
+                  <Pressable style={({ hovered }: any) => [styles.relatedChip, hovered && styles.relatedChipHovered]}>
+                    <Text style={styles.relatedChipText}>{r.label}</Text>
+                    <Feather name="arrow-right" size={13} color={colors.primary} />
+                  </Pressable>
+                </Link>
               ))}
             </View>
           </Container>
@@ -319,6 +363,59 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 20,
     marginTop: 2,
+  },
+  faqList: {
+    maxWidth: 760,
+  },
+  faqRow: {
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    gap: 6,
+  },
+  faqRowLast: {
+    borderBottomWidth: 0,
+  },
+  faqQuestion: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  faqAnswer: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 21,
+    maxWidth: 640,
+  },
+  relatedRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  relatedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surface,
+    transitionProperty: 'border-color, transform',
+    transitionDuration: '0.15s',
+  } as unknown as ViewStyle,
+  relatedChipHovered: {
+    borderColor: colors.primary,
+    transform: [{ translateY: -1 }],
+  },
+  relatedChipText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
   },
   closingOuter: {
     maxWidth: 1040,

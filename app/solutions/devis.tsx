@@ -48,6 +48,31 @@ export default function DevisSolutionPage() {
         { title: "L'IA structure les positions", text: 'Quantités, unités et prix catalogue sont proposés automatiquement.' },
         { title: 'Vérifiez et envoyez', text: 'Ajustez si besoin, puis générez le PDF — mise en page sobre, à votre couleur de marque.' },
       ]}
+      faq={[
+        {
+          question: 'Comment faire un devis rapidement en tant qu’artisan ?',
+          answer:
+            "Dictez vos lignes à voix haute sur le chantier ou en voiture. Cantia les transforme en positions chiffrées avec vos prix habituels, et le PDF est prêt avant même d'avoir quitté le client.",
+        },
+        {
+          question: 'Le devis est-il conforme aux usages suisses (TVA, mise en page) ?',
+          answer:
+            "Oui : chaque devis reprend votre taux de TVA, vos coordonnées d'entreprise et peut être personnalisé à votre couleur de marque et votre logo.",
+        },
+        {
+          question: 'Peut-on transformer un devis accepté en facture automatiquement ?',
+          answer: "Oui, un devis accepté se convertit en facture — avec QR-bill suisse — en un clic, sans ressaisir les lignes.",
+        },
+        {
+          question: 'Cantia est-il gratuit pour faire des devis ?',
+          answer: "Oui, un quota de devis mensuel est disponible gratuitement, sans carte bancaire ni engagement.",
+        },
+      ]}
+      related={[
+        { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
+        { href: '/solutions/dictee-vocale', label: 'Dictée vocale' },
+        { href: '/solutions/leves-metre', label: 'Levés & métré' },
+      ]}
       closingTitle="Passez moins de temps sur vos devis, pas moins de temps sur le chantier"
       closingText="Cantia est gratuit pour démarrer, avec un quota de devis mensuel — sans engagement."
     />
