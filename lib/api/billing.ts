@@ -24,12 +24,14 @@ function redirectUrl(path: string): string {
 export async function startCheckout(
   planId: string,
   billingInterval: 'month' | 'year' = 'month',
+  promoCode?: string,
 ): Promise<{ url: string | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ url: string }>('stripe-checkout', {
     plan_id: planId,
     billing_interval: billingInterval,
     success_url: redirectUrl('checkout-success'),
     cancel_url: redirectUrl('checkout-cancelled'),
+    promo_code: promoCode?.trim() || undefined,
   });
   return { url: data?.url ?? null, error };
 }

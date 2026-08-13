@@ -17,10 +17,24 @@ Deno.serve(async (req: Request) => {
     }
     const stripe = new Stripe(stripeKey, { apiVersion: '2025-03-31.basil', httpClient: Stripe.createFetchHttpClient() });
 
-    const { plan_id, success_url, cancel_url, billing_interval } = await req.json();
+    const { plan_id, success_url, cancel_url, billing_interval, promo_code } = await req.json();
     if (!plan_id) return json({ error: 'plan_id requis' }, 400);
     if (!success_url || !cancel_url) return json({ error: 'success_url et cancel_url requis' }, 400);
     const yearly = billing_interval === 'year';
+
+    // A promo code here grants a free trial (via subscription_data.trial_period_days)
+    // rather than a Stripe discount — a percent-off coupon would waive an entire
+    // annual invoice instead of just 30 days, so trial days are the only mechanism
+    // that behaves the same regardless of billing interval. The code still lives as
+    // a real, toggleable Stripe Promotion Code (see admin-create-promo), we just
+    // read its trial_days metadata instead of letting Stripe apply its discount.
+    let trialDays: number | undefined;
+    if (typeof promo_code === 'string' && promo_code.trim()) {
+      const found = await stripe.promotionCodes.list({ code: promo_code.trim().toUpperCase(), active: true, limit: 1 });
+      const promo = found.data[0];
+      const days = Number(promo?.coupon?.metadata?.trial_days ?? promo?.metadata?.trial_days);
+      if (promo && Number.isFinite(days) && days > 0) trialDays = days;
+    }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -73,7 +87,10 @@ Deno.serve(async (req: Request) => {
       line_items: [{ price: priceId, quantity: 1 }],
       client_reference_id: org.id,
       metadata: { organization_id: org.id, plan_id: plan.id },
-      subscription_data: { metadata: { organization_id: org.id, plan_id: plan.id } },
+      subscription_data: {
+        metadata: { organization_id: org.id, plan_id: plan.id },
+        ...(trialDays ? { trial_period_days: trialDays } : {}),
+      },
       success_url,
       cancel_url,
       allow_promotion_codes: true,

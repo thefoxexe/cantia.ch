@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
@@ -16,6 +16,9 @@ export default function ChoosePlanScreen() {
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [stayingFree, setStayingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Pre-applied so the trial is the default, not something a prospect has to
+  // dig for — they can still clear/edit the field before choosing a plan.
+  const [promoCode, setPromoCode] = useState('ESSAI30');
 
   useEffect(() => {
     supabase
@@ -34,7 +37,7 @@ export default function ChoosePlanScreen() {
     // Fetch the Stripe URL before touching plan_selected: flipping that
     // flag first triggers the root layout's redirect away from this screen,
     // which raced the checkout request and left Stripe's tab never opened.
-    const { url, error: err } = await startCheckout(planId, billingInterval);
+    const { url, error: err } = await startCheckout(planId, billingInterval, promoCode);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? 'Impossible de démarrer le paiement.');
@@ -82,6 +85,25 @@ export default function ChoosePlanScreen() {
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <View style={styles.promoBanner}>
+          <Feather name="gift" size={16} color={colors.primary} />
+          <Text style={styles.promoBannerText}>
+            30 jours d'essai gratuit sur n'importe quel plan, résiliable à tout moment.
+          </Text>
+        </View>
+        <View style={styles.promoRow}>
+          <Text style={styles.promoLabel}>Code promo</Text>
+          <TextInput
+            value={promoCode}
+            onChangeText={setPromoCode}
+            placeholder="Code promo (facultatif)"
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            style={styles.promoInput}
+          />
+        </View>
 
         <Pressable
           onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
@@ -214,6 +236,46 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     textAlign: 'center',
     marginBottom: spacing.lg,
+  },
+  promoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    alignSelf: 'center',
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  promoBannerText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
+  promoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    alignSelf: 'center',
+    marginBottom: spacing.lg,
+  },
+  promoLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+  },
+  promoInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    backgroundColor: colors.surface,
+    minWidth: 140,
+    textAlign: 'center',
   },
   billingToggle: {
     flexDirection: 'row',
