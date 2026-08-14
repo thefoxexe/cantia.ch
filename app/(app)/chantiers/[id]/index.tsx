@@ -1,8 +1,10 @@
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { useProject } from '../../../../lib/useProject';
+import { supabase } from '../../../../lib/supabase';
 import { isModuleEnabled } from '../../../../lib/modules';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -15,13 +17,47 @@ interface HubItem {
   icon: IconName;
   route: string;
   visible: boolean;
+  countTable?: string;
 }
+
+// Cheap head-count queries for the modules where it's a single table keyed
+// by project_id — gives an at-a-glance sense of activity on the row
+// instead of a bare icon (feed/map/profitability aren't simple counts, so
+// they're left without one).
+const COUNTABLE: Record<string, { table: string; unit: string; unitPlural: string }> = {
+  reports: { table: 'reports', unit: 'rapport', unitPlural: 'rapports' },
+  documents: { table: 'files', unit: 'fichier', unitPlural: 'fichiers' },
+  survey: { table: 'survey_points', unit: 'point', unitPlural: 'points' },
+  metre: { table: 'metre_items', unit: 'ligne', unitPlural: 'lignes' },
+  subcontractors: { table: 'project_subcontractors', unit: 'sous-traitant', unitPlural: 'sous-traitants' },
+};
 
 export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { canViewFinances, permissions } = useAuth();
-  const { project, loading } = useProject(id);
+  const { project } = useProject(id);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  const loadCounts = useCallback(async () => {
+    const entries = Object.entries(COUNTABLE);
+    const results = await Promise.all(
+      entries.map(([, def]) =>
+        supabase.from(def.table).select('id', { count: 'exact', head: true }).eq('project_id', id),
+      ),
+    );
+    const next: Record<string, number> = {};
+    entries.forEach(([key], i) => {
+      next[key] = results[i].count ?? 0;
+    });
+    setCounts(next);
+  }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCounts();
+    }, [loadCounts]),
+  );
 
   if (!project) {
     return (
@@ -86,6 +122,14 @@ export default function ChantierDetailScreen() {
     },
   ];
 
+  function subtitleFor(key: string): string | null {
+    const def = COUNTABLE[key];
+    if (!def) return null;
+    const n = counts[key];
+    if (n === undefined) return null;
+    return `${n} ${n === 1 ? def.unit : def.unitPlural}`;
+  }
+
   return (
     <Screen>
       <PageHeader
@@ -99,22 +143,24 @@ export default function ChantierDetailScreen() {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.gridScroll}>
-        <View style={styles.grid}>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.list}>
           {items
             .filter((it) => it.visible)
             .map((it) => (
               <Pressable
                 key={it.key}
                 onPress={() => router.push(it.route as any)}
-                style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}
+                style={({ hovered }: any) => [styles.row, hovered && styles.rowHovered]}
               >
-                <View style={styles.cardIcon}>
-                  <Feather name={it.icon} size={17} color={colors.primary} />
+                <View style={styles.rowIcon}>
+                  <Feather name={it.icon} size={18} color={colors.primary} />
                 </View>
-                <Text style={styles.cardLabel} numberOfLines={2}>
-                  {it.label}
-                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.rowLabel}>{it.label}</Text>
+                  {subtitleFor(it.key) ? <Text style={styles.rowSubtitle}>{subtitleFor(it.key)}</Text> : null}
+                </View>
+                <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Pressable>
             ))}
         </View>
@@ -139,47 +185,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  gridScroll: {
+  scroll: {
     flexGrow: 1,
     paddingBottom: spacing.xxl,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  list: {
     gap: spacing.sm,
     padding: spacing.lg,
-    maxWidth: 880,
+    maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
   },
-  // Fixed width (no flexGrow) so a half-empty last row never stretches its
-  // cards larger than the rows above — every tile is exactly the same size.
-  card: {
-    width: 84,
+  row: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: spacing.md,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xs,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
   },
-  cardHovered: {
+  rowHovered: {
     borderColor: colors.primary,
   },
-  cardIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.sm,
+  rowIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardLabel: {
-    fontSize: fontSize.xs,
+  rowLabel: {
+    fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
-    textAlign: 'center',
+  },
+  rowSubtitle: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
 });
