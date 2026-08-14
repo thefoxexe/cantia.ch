@@ -9,10 +9,18 @@ import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme'
 import { AccountMenu } from '../../components/AccountMenu';
 import { NavDrawer, type NavSection } from '../../components/NavDrawer';
 
-function buildSections(financeVisible: boolean, planningEnabled: boolean): NavSection[] {
+function buildSections(financeVisible: boolean, planningEnabled: boolean, subcontractorsVisible: boolean): NavSection[] {
   return [
     { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
-    { title: 'CHANTIERS', links: [{ href: '/(app)/chantiers', label: 'Chantiers', icon: 'layers' }] },
+    {
+      title: 'CHANTIERS',
+      links: [
+        { href: '/(app)/chantiers', label: 'Chantiers', icon: 'layers' as const },
+        ...(subcontractorsVisible
+          ? [{ href: '/(app)/sous-traitants', label: 'Sous-traitants', icon: 'briefcase' as const }]
+          : []),
+      ],
+    },
     ...(financeVisible
       ? [
           {
@@ -66,7 +74,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(financeVisible, planningEnabled);
+  const sections = buildSections(financeVisible, planningEnabled, permissions.subcontractors);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

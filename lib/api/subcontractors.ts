@@ -135,15 +135,6 @@ export async function removeAssignment(id: string): Promise<{ error: string | nu
   return { error: error?.message ?? null };
 }
 
-export async function listSubcontractorInvoices(assignmentId: string): Promise<SubcontractorInvoice[]> {
-  const { data } = await supabase
-    .from('subcontractor_invoices')
-    .select('*')
-    .eq('project_subcontractor_id', assignmentId)
-    .order('invoice_date', { ascending: false, nullsFirst: false });
-  return data ?? [];
-}
-
 export async function addSubcontractorInvoice(
   assignment: ProjectSubcontractor,
   userId: string,
@@ -182,4 +173,50 @@ export async function deleteSubcontractorInvoice(invoice: SubcontractorInvoice):
   await deleteFromOrgBucket(invoice.file_path);
   const { error } = await supabase.from('subcontractor_invoices').delete().eq('id', invoice.id);
   return { error: error?.message ?? null };
+}
+
+export async function getSubcontractor(id: string): Promise<Subcontractor | null> {
+  const { data } = await supabase.from('subcontractors').select('*').eq('id', id).maybeSingle();
+  return data ?? null;
+}
+
+export interface SubcontractorAssignmentWithProject extends ProjectSubcontractor {
+  projects?: { id: string; name: string };
+}
+
+// Every chantier this company has ever been assigned to, across the whole
+// organization — the whole point of the dedicated company page: one place
+// to see where things stand instead of digging through each chantier.
+export async function listAssignmentsForSubcontractor(subcontractorId: string): Promise<SubcontractorAssignmentWithProject[]> {
+  const { data } = await supabase
+    .from('project_subcontractors')
+    .select('*, projects(id, name)')
+    .eq('subcontractor_id', subcontractorId)
+    .order('created_at', { ascending: false });
+  return (data as SubcontractorAssignmentWithProject[] | null) ?? [];
+}
+
+export interface SubcontractorInvoiceWithProject extends SubcontractorInvoice {
+  project_subcontractors?: { project_id: string; projects?: { name: string } };
+}
+
+export async function listInvoicesForSubcontractorCompany(subcontractorId: string): Promise<SubcontractorInvoiceWithProject[]> {
+  const { data } = await supabase
+    .from('subcontractor_invoices')
+    .select('*, project_subcontractors!inner(project_id, projects(name))')
+    .eq('project_subcontractors.subcontractor_id', subcontractorId)
+    .order('invoice_date', { ascending: false, nullsFirst: false });
+  return (data as SubcontractorInvoiceWithProject[] | null) ?? [];
+}
+
+// Chantiers this company isn't already assigned to, for the "assigner à un
+// chantier" picker on its page — filtered client-side against the
+// already-loaded assignment list rather than a NOT IN query.
+export async function listAssignableProjects(
+  organizationId: string,
+  excludeProjectIds: string[],
+): Promise<{ id: string; name: string }[]> {
+  const { data } = await supabase.from('projects').select('id, name').eq('organization_id', organizationId).order('name');
+  const excluded = new Set(excludeProjectIds);
+  return (data ?? []).filter((p) => !excluded.has(p.id));
 }
