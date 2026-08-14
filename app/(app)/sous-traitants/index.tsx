@@ -3,7 +3,7 @@ import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { listSubcontractors } from '../../../lib/api/subcontractors';
+import { listActiveAssignmentsForOrg, listSubcontractors } from '../../../lib/api/subcontractors';
 import { Button, Card, EmptyState, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Subcontractor } from '../../../lib/types';
@@ -12,13 +12,26 @@ export default function SubcontractorsListScreen() {
   const { organization } = useAuth();
   const router = useRouter();
   const [subcontractors, setSubcontractors] = useState<Subcontractor[]>([]);
+  const [activeChantiers, setActiveChantiers] = useState<Map<string, string[]>>(new Map());
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    setSubcontractors(await listSubcontractors(organization.id));
+    const [subs, assignments] = await Promise.all([
+      listSubcontractors(organization.id),
+      listActiveAssignmentsForOrg(organization.id),
+    ]);
+    setSubcontractors(subs);
+    const byCompany = new Map<string, string[]>();
+    for (const a of assignments) {
+      if (!a.projects?.name) continue;
+      const list = byCompany.get(a.subcontractor_id) ?? [];
+      list.push(a.projects.name);
+      byCompany.set(a.subcontractor_id, list);
+    }
+    setActiveChantiers(byCompany);
     setLoading(false);
   }, [organization]);
 
@@ -78,18 +91,29 @@ export default function SubcontractorsListScreen() {
               <EmptyState title="Aucun sous-traitant" subtitle="Ajoutez la première entreprise sous-traitée." />
             ) : null
           }
-          renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/(app)/sous-traitants/${item.id}`)}>
-              <Card style={styles.card}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.name}>{item.company_name}</Text>
-                  {item.trade ? <Text style={styles.meta}>{item.trade}</Text> : null}
-                  {item.contact_name ? <Text style={styles.meta}>{item.contact_name}</Text> : null}
-                </View>
-                <Feather name="chevron-right" size={18} color={colors.textMuted} />
-              </Card>
-            </Pressable>
-          )}
+          renderItem={({ item }) => {
+            const chantiers = activeChantiers.get(item.id) ?? [];
+            return (
+              <Pressable onPress={() => router.push(`/(app)/sous-traitants/${item.id}`)}>
+                <Card style={styles.card}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.name}>{item.company_name}</Text>
+                    {item.trade ? <Text style={styles.meta}>{item.trade}</Text> : null}
+                    {item.contact_name ? <Text style={styles.meta}>{item.contact_name}</Text> : null}
+                    {chantiers.length ? (
+                      <View style={styles.activeBadge}>
+                        <Feather name="layers" size={11} color={colors.primary} />
+                        <Text style={styles.activeBadgeText} numberOfLines={1}>
+                          {chantiers.join(', ')}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <Feather name="chevron-right" size={18} color={colors.textMuted} />
+                </Card>
+              </Pressable>
+            );
+          }}
         />
       </View>
     </Screen>
@@ -139,5 +163,17 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  activeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: spacing.xs,
+  },
+  activeBadgeText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
+    flexShrink: 1,
   },
 });

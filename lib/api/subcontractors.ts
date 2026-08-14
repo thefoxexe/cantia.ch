@@ -196,6 +196,18 @@ export async function listAssignmentsForSubcontractor(subcontractorId: string): 
   return (data as SubcontractorAssignmentWithProject[] | null) ?? [];
 }
 
+// All active assignments org-wide in one query, for the directory list —
+// grouped client-side by subcontractor_id so each row can show "currently
+// on: X, Y" without an N+1 query per company.
+export async function listActiveAssignmentsForOrg(organizationId: string): Promise<SubcontractorAssignmentWithProject[]> {
+  const { data } = await supabase
+    .from('project_subcontractors')
+    .select('*, projects(id, name)')
+    .eq('organization_id', organizationId)
+    .in('status', ['planifie', 'en_cours']);
+  return (data as SubcontractorAssignmentWithProject[] | null) ?? [];
+}
+
 export interface SubcontractorInvoiceWithProject extends SubcontractorInvoice {
   project_subcontractors?: { project_id: string; projects?: { name: string } };
 }

@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
@@ -99,22 +99,26 @@ export default function ChantierDetailScreen() {
         }
       />
 
-      <View style={styles.grid}>
-        {items
-          .filter((it) => it.visible)
-          .map((it) => (
-            <Pressable
-              key={it.key}
-              onPress={() => router.push(it.route as any)}
-              style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}
-            >
-              <View style={styles.cardIcon}>
-                <Feather name={it.icon} size={22} color={colors.primary} />
-              </View>
-              <Text style={styles.cardLabel}>{it.label}</Text>
-            </Pressable>
-          ))}
-      </View>
+      <ScrollView contentContainerStyle={styles.gridScroll}>
+        <View style={styles.grid}>
+          {items
+            .filter((it) => it.visible)
+            .map((it) => (
+              <Pressable
+                key={it.key}
+                onPress={() => router.push(it.route as any)}
+                style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}
+              >
+                <View style={styles.cardIcon}>
+                  <Feather name={it.icon} size={17} color={colors.primary} />
+                </View>
+                <Text style={styles.cardLabel} numberOfLines={2}>
+                  {it.label}
+                </Text>
+              </Pressable>
+            ))}
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
@@ -135,41 +139,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  gridScroll: {
+    flexGrow: 1,
+    paddingBottom: spacing.xxl,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    gap: spacing.sm,
     padding: spacing.lg,
     maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },
+  // Fixed width (no flexGrow) so a half-empty last row never stretches its
+  // cards larger than the rows above — every tile is exactly the same size.
   card: {
-    flexGrow: 1,
-    flexBasis: 150,
-    maxWidth: 220,
+    width: 84,
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 6,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.xl,
-    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xs,
   },
   cardHovered: {
     borderColor: colors.primary,
   },
   cardIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.lg,
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardLabel: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.text,
     textAlign: 'center',
