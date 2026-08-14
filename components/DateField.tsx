@@ -1,67 +1,140 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { Button } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 interface DateFieldProps {
   label: string;
-  value: string; // ISO yyyy-mm-dd, or ''
-  onChange: (iso: string) => void;
+  value: string | null; // ISO "AAAA-MM-JJ", or '' / null for empty
+  onChange: (iso: string | null) => void;
+  placeholder?: string;
 }
 
-function isoToSwiss(iso: string): string {
-  const [y, m, d] = iso.split('-');
-  if (!y || !m || !d) return '';
-  return `${d}.${m}.${y}`;
+function isoToDate(iso: string | null): Date {
+  if (!iso) return new Date();
+  const d = new Date(`${iso}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? new Date() : d;
 }
 
-function swissToIso(swiss: string): string | null {
-  const match = swiss.trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if (!match) return null;
-  const [, d, m, y] = match;
-  return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+function toIso(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// No date-picker package is installed, so on native this stays a plain
-// text field in the JJ.MM.AAAA format used everywhere else in the app
-// (fr-CH locale formatting) — the web variant uses the browser's native
-// <input type="date"> instead, since that's zero-dependency there.
-export function DateField({ label, value, onChange }: DateFieldProps) {
-  const [text, setText] = useState(isoToSwiss(value));
+function displayDate(iso: string | null): string {
+  return iso ? isoToDate(iso).toLocaleDateString('fr-CH') : '';
+}
 
-  useEffect(() => {
-    setText(isoToSwiss(value));
-  }, [value]);
+// Native (iOS/Android) date picker. The web build resolves DateField.web.tsx
+// instead (Metro's platform-specific file resolution), which uses the
+// browser's own <input type="date">.
+export function DateField({ label, value, onChange, placeholder = 'Choisir une date' }: DateFieldProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [draft, setDraft] = useState<Date>(() => isoToDate(value));
+
+  function openPicker() {
+    setDraft(isoToDate(value));
+    setPickerOpen(true);
+  }
+
+  // Android's "default" display is a self-dismissing native dialog: a
+  // single onChange fires with the final choice (or a cancel), so it needs
+  // no surrounding sheet. iOS's inline spinner instead fires onChange
+  // continuously while scrolling, so it's wrapped in a sheet with an
+  // explicit "Valider" to commit the draft.
+  function handleAndroidChange(event: DateTimePickerEvent, selected?: Date) {
+    setPickerOpen(false);
+    if (event.type === 'set' && selected) onChange(toIso(selected));
+  }
 
   return (
-    <View style={styles.wrap}>
+    <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={styles.input}
-        value={text}
-        onChangeText={(t) => {
-          setText(t);
-          const iso = swissToIso(t);
-          if (iso) onChange(iso);
-        }}
-        placeholder="JJ.MM.AAAA"
-        placeholderTextColor={colors.textMuted}
-        keyboardType="numbers-and-punctuation"
-      />
+      <Pressable style={styles.input} onPress={openPicker}>
+        <Text style={value ? styles.value : styles.placeholder}>{value ? displayDate(value) : placeholder}</Text>
+        <Feather name="calendar" size={16} color={colors.textMuted} />
+      </Pressable>
+
+      {pickerOpen && Platform.OS === 'android' ? (
+        <DateTimePicker value={draft} mode="date" display="default" onChange={handleAndroidChange} />
+      ) : null}
+
+      {Platform.OS === 'ios' ? (
+        <Modal visible={pickerOpen} animationType="slide" transparent onRequestClose={() => setPickerOpen(false)}>
+          <View style={styles.sheetOverlay}>
+            <View style={styles.sheet}>
+              <DateTimePicker
+                value={draft}
+                mode="date"
+                display="spinner"
+                onChange={(_event, selected) => selected && setDraft(selected)}
+              />
+              <View style={styles.sheetActions}>
+                <Button title="Annuler" variant="secondary" onPress={() => setPickerOpen(false)} style={{ flex: 1 }} />
+                <Button
+                  title="Valider"
+                  onPress={() => {
+                    onChange(toIso(draft));
+                    setPickerOpen(false);
+                  }}
+                  style={{ flex: 1 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginBottom: spacing.md },
-  label: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.xs, fontWeight: '500' },
+  field: {
+    marginBottom: spacing.lg,
+  },
+  label: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+    fontWeight: '500',
+  },
   input: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  value: {
     fontSize: fontSize.md,
     color: colors.text,
+  },
+  placeholder: {
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+  },
+  sheetOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  sheet: {
     backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    alignItems: 'center',
+  },
+  sheetActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    width: '100%',
   },
 });

@@ -3,21 +3,21 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 interface DateFieldProps {
   label: string;
-  value: string; // ISO yyyy-mm-dd, or ''
-  onChange: (iso: string) => void;
+  value: string | null; // ISO "AAAA-MM-JJ", or '' / null for empty
+  onChange: (iso: string | null) => void;
 }
 
 // Browser-native date input — zero-dependency and gives a proper date
-// picker UI on web, where no cross-platform date-picker package is
-// installed for the native side.
+// picker UI on web; DateField.tsx (resolved on iOS/Android instead) opens
+// @react-native-community/datetimepicker for the same job there.
 export function DateField({ label, value, onChange }: DateFieldProps) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <input
         type="date"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value || null)}
         style={{
           border: `1px solid ${colors.border}`,
           borderRadius: radius.md,

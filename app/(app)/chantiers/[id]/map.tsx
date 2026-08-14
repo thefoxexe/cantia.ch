@@ -1,0 +1,41 @@
+import { ScrollView, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { useProject } from '../../../../lib/useProject';
+import { ProjectFeedMap } from '../../../../components/ProjectFeedMap';
+import { FeatureHint } from '../../../../components/FeatureHint';
+import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { spacing } from '../../../../lib/theme';
+
+export default function ChantierMapScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { project } = useProject(id);
+
+  if (!project) {
+    return (
+      <Screen>
+        <LoadingScreen />
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen>
+      <PageHeader
+        title="Carte"
+        backTo={`/(app)/chantiers/${id}`}
+        style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
+      />
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.xl, maxWidth: 880, width: '100%', alignSelf: 'center', paddingBottom: spacing.xxl * 2 }}>
+        <View>
+          <FeatureHint
+            id="chantier-map"
+            icon="map"
+            title="Toutes les photos, sur une carte"
+            text="Les photos géolocalisées du fil d'actualité apparaissent ici sur le cadastre et l'orthophoto suisses."
+          />
+          <ProjectFeedMap projectId={id} />
+        </View>
+      </ScrollView>
+    </Screen>
+  );
+}

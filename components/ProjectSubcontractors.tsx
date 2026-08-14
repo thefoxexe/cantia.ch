@@ -6,9 +6,12 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { getSignedUrl } from '../lib/api/storage';
 import {
+  addSubcontractorInvoice,
   assignSubcontractorToProject,
   createSubcontractor,
+  deleteSubcontractorInvoice,
   listProjectSubcontractors,
+  listSubcontractorInvoices,
   listSubcontractors,
   removeAssignment,
   updateAssignment,
@@ -19,20 +22,11 @@ import {
 import { downloadFile } from '../lib/downloadFile';
 import { confirm } from '../lib/confirm';
 import { Button, Card, EmptyState, Field, StatusBadge } from './ui';
+import { DateField } from './DateField';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus } from '../lib/types';
+import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus, SubcontractorInvoice } from '../lib/types';
 
 const STATUS_CYCLE: SubcontractorAssignmentStatus[] = ['planifie', 'en_cours', 'termine', 'annule'];
-
-// "JJ.MM.AAAA" <-> ISO, same convention as the rest of the app (see
-// devis/factures/[id].tsx) rather than a native date picker.
-function parseSwissDate(value: string): string | null {
-  const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(value.trim());
-  if (!m) return null;
-  const [, d, mo, y] = m;
-  const iso = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
-  return Number.isNaN(new Date(iso).getTime()) ? null : iso;
-}
 
 function displayDate(iso: string | null | undefined): string {
   if (!iso) return '';
@@ -60,14 +54,20 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
 
   const [editing, setEditing] = useState<ProjectSubcontractor | null>(null);
   const [editTask, setEditTask] = useState('');
-  const [editStart, setEditStart] = useState('');
-  const [editEnd, setEditEnd] = useState('');
+  const [editStart, setEditStart] = useState<string | null>(null);
+  const [editEnd, setEditEnd] = useState<string | null>(null);
   const [editNotes, setEditNotes] = useState('');
   const [editContact, setEditContact] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
-  const [editExpiry, setEditExpiry] = useState('');
+  const [editExpiry, setEditExpiry] = useState<string | null>(null);
   const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  const [invoices, setInvoices] = useState<SubcontractorInvoice[]>([]);
+  const [newInvoiceAmount, setNewInvoiceAmount] = useState('');
+  const [newInvoiceDate, setNewInvoiceDate] = useState<string | null>(null);
+  const [uploadingInvoice, setUploadingInvoice] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -75,6 +75,7 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
     setAssignments(a);
     setDirectory(d);
     setLoading(false);
+    return a;
   }, [projectId, organizationId]);
 
   useFocusEffect(
@@ -149,15 +150,19 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
 
   function openEdit(a: ProjectSubcontractor) {
     setError(null);
+    setUploadSuccess(false);
     setEditing(a);
     setEditTask(a.task ?? '');
-    setEditStart(displayDate(a.start_date));
-    setEditEnd(displayDate(a.end_date));
+    setEditStart(a.start_date);
+    setEditEnd(a.end_date);
     setEditNotes(a.notes ?? '');
     setEditContact(a.subcontractors?.contact_name ?? '');
     setEditPhone(a.subcontractors?.phone ?? '');
     setEditEmail(a.subcontractors?.email ?? '');
-    setEditExpiry(displayDate(a.subcontractors?.insurance_expires_on));
+    setEditExpiry(a.subcontractors?.insurance_expires_on ?? null);
+    setNewInvoiceAmount('');
+    setNewInvoiceDate(null);
+    listSubcontractorInvoices(a.id).then(setInvoices);
   }
 
   async function saveEdit() {
@@ -165,8 +170,8 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
     setSaving(true);
     await updateAssignment(editing.id, {
       task: editTask,
-      startDate: editStart.trim() ? parseSwissDate(editStart) : null,
-      endDate: editEnd.trim() ? parseSwissDate(editEnd) : null,
+      startDate: editStart,
+      endDate: editEnd,
       notes: editNotes,
     });
     if (editing.subcontractors) {
@@ -202,15 +207,26 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
     const asset = result.assets[0];
     const extension = (asset.name.split('.').pop() || 'pdf').toLowerCase();
     setUploadingDoc(true);
-    await uploadInsuranceDoc(
+    setUploadSuccess(false);
+    const { error: uploadErr } = await uploadInsuranceDoc(
       editing.subcontractors,
       asset.uri,
       asset.mimeType ?? 'application/octet-stream',
       extension,
-      editExpiry.trim() ? parseSwissDate(editExpiry) : null,
+      editExpiry,
     );
     setUploadingDoc(false);
-    load();
+    const fresh = await load();
+    if (uploadErr) {
+      setError(uploadErr);
+    } else {
+      setUploadSuccess(true);
+      setEditing((prev) => {
+        if (!prev) return prev;
+        const match = fresh.find((x) => x.id === prev.id);
+        return match ?? prev;
+      });
+    }
   }
 
   async function viewInsuranceDoc() {
@@ -218,6 +234,42 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
     if (!path) return;
     const url = await getSignedUrl(path);
     if (url) await downloadFile(url, 'attestation-assurance');
+  }
+
+  async function pickInvoice() {
+    if (!editing || !user) return;
+    const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+    if (result.canceled || !result.assets?.length) return;
+    const asset = result.assets[0];
+    setUploadingInvoice(true);
+    const { invoice, error: uploadErr } = await addSubcontractorInvoice(
+      editing,
+      user.id,
+      asset.uri,
+      asset.mimeType ?? 'application/octet-stream',
+      asset.name,
+      { amount: newInvoiceAmount.trim() ? Number(newInvoiceAmount.replace(',', '.')) : null, invoiceDate: newInvoiceDate },
+    );
+    setUploadingInvoice(false);
+    if (uploadErr) {
+      setError(uploadErr);
+      return;
+    }
+    if (invoice) setInvoices((prev) => [invoice, ...prev]);
+    setNewInvoiceAmount('');
+    setNewInvoiceDate(null);
+  }
+
+  async function openInvoiceFile(inv: SubcontractorInvoice) {
+    const url = await getSignedUrl(inv.file_path);
+    if (url) await downloadFile(url, inv.file_name);
+  }
+
+  async function handleRemoveInvoice(inv: SubcontractorInvoice) {
+    const ok = await confirm('Supprimer cette facture ?', inv.file_name);
+    if (!ok) return;
+    await deleteSubcontractorInvoice(inv);
+    setInvoices((prev) => prev.filter((x) => x.id !== inv.id));
   }
 
   return (
@@ -340,10 +392,10 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
               <Field label="Intervention" value={editTask} onChangeText={setEditTask} placeholder="Ce que fait ce sous-traitant sur ce chantier" />
               <View style={styles.row2}>
                 <View style={styles.row2Item}>
-                  <Field label="Début" value={editStart} onChangeText={setEditStart} placeholder="JJ.MM.AAAA" />
+                  <DateField label="Début" value={editStart} onChange={setEditStart} />
                 </View>
                 <View style={styles.row2Item}>
-                  <Field label="Fin" value={editEnd} onChangeText={setEditEnd} placeholder="JJ.MM.AAAA" />
+                  <DateField label="Fin" value={editEnd} onChange={setEditEnd} />
                 </View>
               </View>
               <Field
@@ -368,7 +420,7 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
                   </Pressable>
                 </View>
               ) : null}
-              <Field label="Date d'expiration" value={editExpiry} onChangeText={setEditExpiry} placeholder="JJ.MM.AAAA" />
+              <DateField label="Date d'expiration" value={editExpiry} onChange={setEditExpiry} />
               <Button
                 title={editing?.subcontractors?.insurance_doc_path ? 'Remplacer le document' : 'Téléverser le document'}
                 variant="secondary"
@@ -376,6 +428,50 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
                 onPress={pickInsuranceDoc}
                 loading={uploadingDoc}
                 style={{ marginTop: spacing.sm }}
+              />
+              {uploadSuccess ? (
+                <View style={styles.uploadSuccessRow}>
+                  <Feather name="check-circle" size={14} color={colors.success} />
+                  <Text style={styles.uploadSuccessText}>Attestation téléversée avec succès.</Text>
+                </View>
+              ) : null}
+
+              <Text style={styles.sectionLabel}>Factures reçues</Text>
+              {invoices.length === 0 ? (
+                <Text style={styles.emptyHint}>Aucune facture reçue pour l'instant.</Text>
+              ) : (
+                <View style={{ gap: spacing.xs, marginBottom: spacing.sm }}>
+                  {invoices.map((inv) => (
+                    <View key={inv.id} style={styles.invoiceRow}>
+                      <Pressable style={{ flex: 1 }} onPress={() => openInvoiceFile(inv)}>
+                        <Text style={styles.invoiceName} numberOfLines={1}>{inv.file_name}</Text>
+                        <Text style={styles.meta}>
+                          {[inv.amount != null ? `CHF ${inv.amount.toLocaleString('fr-CH', { minimumFractionDigits: 2 })}` : null, displayDate(inv.invoice_date)]
+                            .filter(Boolean)
+                            .join(' · ') || 'Sans détails'}
+                        </Text>
+                      </Pressable>
+                      <Pressable hitSlop={8} onPress={() => handleRemoveInvoice(inv)}>
+                        <Feather name="trash-2" size={15} color={colors.danger} />
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+              )}
+              <View style={styles.row2}>
+                <View style={styles.row2Item}>
+                  <Field label="Montant (CHF)" value={newInvoiceAmount} onChangeText={setNewInvoiceAmount} keyboardType="decimal-pad" placeholder="0.00" />
+                </View>
+                <View style={styles.row2Item}>
+                  <DateField label="Date de la facture" value={newInvoiceDate} onChange={setNewInvoiceDate} />
+                </View>
+              </View>
+              <Button
+                title="Ajouter une facture"
+                variant="secondary"
+                icon="upload"
+                onPress={pickInvoice}
+                loading={uploadingInvoice}
               />
             </ScrollView>
 
@@ -494,6 +590,21 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     textAlign: 'center',
   },
+  invoiceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  invoiceName: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
   sectionLabel: {
     fontSize: fontSize.sm,
     fontWeight: '800',
@@ -529,5 +640,16 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: fontSize.sm,
     marginTop: spacing.sm,
+  },
+  uploadSuccessRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: spacing.sm,
+  },
+  uploadSuccessText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.success,
   },
 });

@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
 import { HELP_ARTICLES } from '../../../lib/helpArticles';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
@@ -38,7 +37,6 @@ export default function AideScreen() {
       <PageHeader title="Aide" backTo="/(app)/compte" />
       <ScrollView contentContainerStyle={styles.scroll}>
         <Container>
-          <SettingsTabs />
           <Field
             label="Rechercher dans l'aide"
             value={query}

@@ -96,7 +96,7 @@ export default function ReportDetailScreen() {
     if (report.pdf_path) await deleteFromOrgBucket(report.pdf_path);
     await supabase.from('reports').delete().eq('id', report.id);
     setDeleting(false);
-    router.replace(`/(app)/chantiers/${projectId}`);
+    router.replace(`/(app)/chantiers/${projectId}/reports`);
   }
 
   if (loading || !report) {
@@ -113,7 +113,7 @@ export default function ReportDetailScreen() {
         <Container>
           <PageHeader
             title={report.title}
-            backTo={`/(app)/chantiers/${projectId}`}
+            backTo={`/(app)/chantiers/${projectId}/reports`}
             right={!editing ? <StatusBadge status={report.status} /> : undefined}
           />
 

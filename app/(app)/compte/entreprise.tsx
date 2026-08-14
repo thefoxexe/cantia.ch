@@ -6,7 +6,6 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { isValidSwissIban } from '../../../lib/iban';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
 import { DEFAULT_DEVIS_EMAIL_MESSAGE, DEFAULT_FACTURE_EMAIL_MESSAGE, defaultEmailSignature } from '../../../lib/emailDefaults';
@@ -85,8 +84,7 @@ export default function EntrepriseScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Entreprise" backTo="/(app)" />
-          <SettingsTabs />
+          <PageHeader title="Entreprise" backTo="/(app)/compte" />
 
           <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
 

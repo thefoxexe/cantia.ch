@@ -4,8 +4,9 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { Button, Card, Container, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
-import type { OrganizationMember } from '../../../../lib/types';
+import type { OrganizationMember, Plan } from '../../../../lib/types';
 
 const STATUSES: { key: string; label: string }[] = [
   { key: 'active', label: 'Actif' },
@@ -24,6 +25,8 @@ export default function ChantierSettingsScreen() {
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [accessUserIds, setAccessUserIds] = useState<Set<string>>(new Set());
   const [restricted, setRestricted] = useState(false);
+  const [enabledModules, setEnabledModules] = useState<string[]>([]);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -34,13 +37,19 @@ export default function ChantierSettingsScreen() {
       setClientName(project.client_name ?? '');
       setAddress(project.address ?? '');
       setStatus(project.status);
-      const [{ data: memberRows }, { data: accessRows }] = await Promise.all([
+      setEnabledModules(project.enabled_modules ?? []);
+      const [{ data: memberRows }, { data: accessRows }, { data: org }] = await Promise.all([
         supabase.from('organization_members').select('*').eq('organization_id', project.organization_id).order('created_at'),
         supabase.from('project_members').select('user_id').eq('project_id', id),
+        supabase.from('organizations').select('plan_id').eq('id', project.organization_id).single(),
       ]);
       setMembers(memberRows ?? []);
       setRestricted((accessRows ?? []).length > 0);
       setAccessUserIds(new Set((accessRows ?? []).map((r) => r.user_id)));
+      if (org) {
+        const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
+        setPlan(planRow ?? null);
+      }
     }
     setLoaded(true);
   }, [id]);
@@ -64,6 +73,21 @@ export default function ChantierSettingsScreen() {
       })
       .eq('id', id);
     setSaving(false);
+  }
+
+  function isPlanGated(key: ModuleKey): boolean {
+    const field = PROJECT_MODULE_PLAN_GATED[key];
+    if (!field || !plan) return false;
+    return !plan[field];
+  }
+
+  async function toggleModule(key: ModuleKey) {
+    if (!isAdmin || isPlanGated(key)) return;
+    const next = isModuleEnabled(enabledModules, key)
+      ? enabledModules.filter((m) => m !== key)
+      : [...enabledModules, key];
+    setEnabledModules(next);
+    await supabase.from('projects').update({ enabled_modules: next }).eq('id', id);
   }
 
   function hasAccess(userId: string): boolean {
@@ -124,6 +148,30 @@ export default function ChantierSettingsScreen() {
           </View>
 
           <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+
+          <Text style={[styles.sectionTitle, { marginTop: spacing.xxl, marginBottom: spacing.sm }]}>Outils</Text>
+          <Text style={styles.accessHint}>Choisissez les outils utiles à ce chantier. Fil d'actualité et Rapports restent toujours actifs.</Text>
+          <Card style={{ padding: 0, overflow: 'hidden' }}>
+            {PROJECT_MODULES.map((m, i) => {
+              const gated = isPlanGated(m.key);
+              return (
+                <View key={m.key} style={[styles.memberRow, i < PROJECT_MODULES.length - 1 && styles.memberRowBorder]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.memberName}>{m.label}</Text>
+                    <Text style={styles.memberRole}>{m.description}</Text>
+                    {gated ? <Text style={styles.openLink}>Disponible à partir du plan Équipe</Text> : null}
+                  </View>
+                  <Switch
+                    value={!gated && isModuleEnabled(enabledModules, m.key)}
+                    onValueChange={() => toggleModule(m.key)}
+                    disabled={!isAdmin || gated}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor="#fff"
+                  />
+                </View>
+              );
+            })}
+          </Card>
 
           <View style={styles.accessHeader}>
             <Text style={styles.sectionTitle}>Accès</Text>

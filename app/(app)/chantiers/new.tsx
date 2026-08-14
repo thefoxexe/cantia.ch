@@ -4,53 +4,48 @@ import { router } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, PageHeader, Screen } from '../../../components/ui';
-import { TOGGLEABLE_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
+import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import type { Plan } from '../../../lib/types';
+
+const DEFAULT_MODULES = ['documents', 'photos', 'survey', 'metre'];
 
 export default function NewChantierScreen() {
-  const { organization, user, refreshOrganization } = useAuth();
+  const { organization, user } = useAuth();
   const [name, setName] = useState('');
   const [clientName, setClientName] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [showModulesPrompt, setShowModulesPrompt] = useState(false);
-  const [enabledModules, setEnabledModules] = useState<string[]>(organization?.enabled_modules ?? []);
+  const [plan, setPlan] = useState<Plan | null>(null);
+  const [createdId, setCreatedId] = useState<string | null>(null);
+  const [enabledModules, setEnabledModules] = useState<string[]>(DEFAULT_MODULES);
   const [savingModules, setSavingModules] = useState(false);
 
   useEffect(() => {
     if (!organization) return;
-    supabase
-      .from('projects')
-      .select('id', { count: 'exact', head: true })
-      .eq('organization_id', organization.id)
-      .then(({ count }) => {
-        if (count === 0) {
-          setEnabledModules(organization.enabled_modules ?? []);
-          setShowModulesPrompt(true);
-        }
-      });
-    // Only relevant right when this screen is first reached — re-checking on
-    // every organization refresh would keep re-opening the prompt after the
-    // first project has already been created.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [organization?.id]);
+    supabase.from('plans').select('*').eq('id', organization.plan_id).single().then(({ data }) => setPlan(data ?? null));
+  }, [organization?.plan_id]);
+
+  function isPlanGated(key: ModuleKey): boolean {
+    const field = PROJECT_MODULE_PLAN_GATED[key];
+    if (!field || !plan) return false;
+    return !plan[field];
+  }
 
   function toggleModule(key: ModuleKey) {
+    if (isPlanGated(key)) return;
     setEnabledModules((prev) => (isModuleEnabled(prev, key) ? prev.filter((m) => m !== key) : [...prev, key]));
   }
 
   async function confirmModules() {
-    if (!organization) {
-      setShowModulesPrompt(false);
-      return;
+    if (createdId) {
+      setSavingModules(true);
+      await supabase.from('projects').update({ enabled_modules: enabledModules }).eq('id', createdId);
+      setSavingModules(false);
+      router.replace(`/(app)/chantiers/${createdId}`);
     }
-    setSavingModules(true);
-    await supabase.from('organizations').update({ enabled_modules: enabledModules }).eq('id', organization.id);
-    await refreshOrganization();
-    setSavingModules(false);
-    setShowModulesPrompt(false);
   }
 
   async function handleCreate() {
@@ -77,7 +72,10 @@ export default function NewChantierScreen() {
       setError(error.message);
       return;
     }
-    router.replace(`/(app)/chantiers/${data.id}`);
+    // The row already has the DB default enabled_modules — this step just
+    // lets the user customize it for this specific chantier before entering it.
+    setEnabledModules(DEFAULT_MODULES);
+    setCreatedId(data.id);
   }
 
   return (
@@ -92,29 +90,34 @@ export default function NewChantierScreen() {
         <Button title="Créer le chantier" onPress={handleCreate} loading={loading} />
       </ScrollView>
 
-      <Modal visible={showModulesPrompt} animationType="fade" transparent onRequestClose={confirmModules}>
+      <Modal visible={!!createdId} animationType="fade" transparent onRequestClose={confirmModules}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
-            <Text style={styles.sheetTitle}>Bienvenue sur Cantia</Text>
+            <Text style={styles.sheetTitle}>Quels outils pour ce chantier ?</Text>
             <Text style={styles.sheetSubtitle}>
-              Avant votre premier chantier, choisissez les outils que vous voulez utiliser. Vous pourrez changer ça à
-              tout moment depuis Compte → Outils & modules.
+              Choisissez les outils utiles à ce chantier précis. Vous pourrez changer ça à tout moment depuis ses
+              paramètres.
             </Text>
             <ScrollView contentContainerStyle={styles.sheetList}>
-              {TOGGLEABLE_MODULES.map((m) => (
-                <View key={m.key} style={styles.row}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.rowLabel}>{m.label}</Text>
-                    <Text style={styles.rowDesc}>{m.description}</Text>
+              {PROJECT_MODULES.map((m) => {
+                const gated = isPlanGated(m.key);
+                return (
+                  <View key={m.key} style={styles.row}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.rowLabel}>{m.label}</Text>
+                      <Text style={styles.rowDesc}>{m.description}</Text>
+                      {gated ? <Text style={styles.upgradeHint}>Disponible à partir du plan Équipe</Text> : null}
+                    </View>
+                    <Switch
+                      value={!gated && isModuleEnabled(enabledModules, m.key)}
+                      onValueChange={() => toggleModule(m.key)}
+                      disabled={gated}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                      thumbColor="#fff"
+                    />
                   </View>
-                  <Switch
-                    value={isModuleEnabled(enabledModules, m.key)}
-                    onValueChange={() => toggleModule(m.key)}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor="#fff"
-                  />
-                </View>
-              ))}
+                );
+              })}
             </ScrollView>
             <Button title="Continuer" icon="check" onPress={confirmModules} loading={savingModules} style={{ marginTop: spacing.lg }} />
           </View>
@@ -170,5 +173,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  upgradeHint: {
+    fontSize: fontSize.xs,
+    color: colors.primary,
+    fontWeight: '700',
+    marginTop: spacing.xs,
   },
 });

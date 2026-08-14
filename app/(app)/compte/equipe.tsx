@@ -22,7 +22,6 @@ import {
   type RolePermissions,
 } from '../../../lib/api/roles';
 import { Button, Card, Container, Field, PageHeader, Screen, Switch } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { confirm } from '../../../lib/confirm';
 import { isOnline } from '../../../lib/presence';
@@ -243,8 +242,7 @@ export default function EquipeScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Équipe" backTo="/(app)" />
-          <SettingsTabs />
+          <PageHeader title="Équipe" backTo="/(app)/compte" />
 
           {isAdmin && joinRequests.length > 0 ? (
             <View style={styles.section}>

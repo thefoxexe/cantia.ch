@@ -6,7 +6,6 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { formatBytes } from '../../../lib/api/storage';
 import { Button, Card, Container, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -75,8 +74,7 @@ export default function StockageScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Stockage" backTo="/(app)" />
-          <SettingsTabs />
+          <PageHeader title="Stockage" backTo="/(app)/compte" />
 
           <Card style={styles.summaryCard}>
             <View style={styles.summaryHeader}>

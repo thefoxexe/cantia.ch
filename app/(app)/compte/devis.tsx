@@ -4,7 +4,6 @@ import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function DevisSettingsScreen() {
@@ -50,8 +49,7 @@ export default function DevisSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Facturation" backTo="/(app)" />
-          <SettingsTabs />
+          <PageHeader title="Facturation" backTo="/(app)/compte" />
 
           <View style={styles.row2}>
             <View style={styles.row2Item}>

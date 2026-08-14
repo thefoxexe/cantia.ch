@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 import { deleteFromOrgBucket, uploadToOrgBucket } from './storage';
-import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus } from '../types';
+import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus, SubcontractorInvoice } from '../types';
 
 export async function listSubcontractors(organizationId: string): Promise<Subcontractor[]> {
   const { data } = await supabase
@@ -132,5 +132,54 @@ export async function updateAssignment(
 
 export async function removeAssignment(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from('project_subcontractors').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function listSubcontractorInvoices(assignmentId: string): Promise<SubcontractorInvoice[]> {
+  const { data } = await supabase
+    .from('subcontractor_invoices')
+    .select('*')
+    .eq('project_subcontractor_id', assignmentId)
+    .order('invoice_date', { ascending: false, nullsFirst: false });
+  return data ?? [];
+}
+
+export async function addSubcontractorInvoice(
+  assignment: ProjectSubcontractor,
+  userId: string,
+  fileUri: string,
+  contentType: string,
+  fileName: string,
+  fields: { amount: number | null; invoiceDate: string | null; notes?: string },
+): Promise<{ invoice: SubcontractorInvoice | null; error: string | null }> {
+  const extension = (fileName.split('.').pop() || 'pdf').toLowerCase();
+  const { path, error: uploadError } = await uploadToOrgBucket(
+    assignment.organization_id,
+    `sous-traitants/${assignment.subcontractor_id}/factures/${Date.now()}.${extension}`,
+    fileUri,
+    contentType,
+  );
+  if (uploadError || !path) return { invoice: null, error: uploadError ?? 'Échec du téléversement' };
+
+  const { data, error } = await supabase
+    .from('subcontractor_invoices')
+    .insert({
+      organization_id: assignment.organization_id,
+      project_subcontractor_id: assignment.id,
+      file_path: path,
+      file_name: fileName,
+      amount: fields.amount,
+      invoice_date: fields.invoiceDate,
+      notes: fields.notes?.trim() || null,
+      created_by: userId,
+    })
+    .select('*')
+    .single();
+  return { invoice: data ?? null, error: error?.message ?? null };
+}
+
+export async function deleteSubcontractorInvoice(invoice: SubcontractorInvoice): Promise<{ error: string | null }> {
+  await deleteFromOrgBucket(invoice.file_path);
+  const { error } = await supabase.from('subcontractor_invoices').delete().eq('id', invoice.id);
   return { error: error?.message ?? null };
 }

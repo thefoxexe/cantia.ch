@@ -162,6 +162,7 @@ export interface Project {
   client_name: string | null;
   address: string | null;
   status: string;
+  enabled_modules: string[];
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -488,4 +489,17 @@ export interface ProjectSubcontractor {
   created_by: string | null;
   created_at: string;
   subcontractors?: Subcontractor;
+}
+
+export interface SubcontractorInvoice {
+  id: string;
+  organization_id: string;
+  project_subcontractor_id: string;
+  file_path: string;
+  file_name: string;
+  amount: number | null;
+  invoice_date: string | null;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
 }

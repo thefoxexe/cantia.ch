@@ -10,7 +10,6 @@ import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsse
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -95,8 +94,7 @@ export default function ApparenceScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Apparence" backTo="/(app)/compte/entreprise" />
-          <SettingsTabs />
+          <PageHeader title="Apparence" backTo="/(app)/compte" />
 
           <Text style={styles.hint}>
             Le logo et la couleur de marque habillent automatiquement vos devis et rapports PDF.

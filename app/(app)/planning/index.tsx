@@ -379,10 +379,10 @@ export default function PlanningScreen() {
 
               <View style={styles.row2}>
                 <View style={styles.row2Item}>
-                  <DateField label="Début" value={formStart} onChange={setFormStart} />
+                  <DateField label="Début" value={formStart} onChange={(v) => setFormStart(v ?? '')} />
                 </View>
                 <View style={styles.row2Item}>
-                  <DateField label="Fin" value={formEnd} onChange={setFormEnd} />
+                  <DateField label="Fin" value={formEnd} onChange={(v) => setFormEnd(v ?? '')} />
                 </View>
               </View>
 

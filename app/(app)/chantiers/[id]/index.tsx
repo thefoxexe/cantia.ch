@@ -1,78 +1,27 @@
-import { useCallback, useState } from 'react';
-import { Platform, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
+import { useProject } from '../../../../lib/useProject';
 import { isModuleEnabled } from '../../../../lib/modules';
-import { supabase } from '../../../../lib/supabase';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
-import { ProjectFeed } from '../../../../components/ProjectFeed';
-import { ProjectFeedMap } from '../../../../components/ProjectFeedMap';
-import { ProjectDocuments } from '../../../../components/ProjectDocuments';
-import { ProjectPhotos } from '../../../../components/ProjectPhotos';
-import { ProjectSurvey } from '../../../../components/ProjectSurvey';
-import { ProjectMetre } from '../../../../components/ProjectMetre';
-import { ProjectProfitability } from '../../../../components/ProjectProfitability';
-import { ProjectSubcontractors } from '../../../../components/ProjectSubcontractors';
-import { FeatureHint } from '../../../../components/FeatureHint';
-import { colors, fontSize, spacing } from '../../../../lib/theme';
-import type { Project, Report } from '../../../../lib/types';
+import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
-type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre' | 'profitability' | 'subcontractors';
+type IconName = keyof typeof Feather.glyphMap;
 
-const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
-  { key: 'feed', label: "Fil d'actualité", icon: 'message-circle' },
-  { key: 'reports', label: 'Rapports', icon: 'file-text' },
-  { key: 'documents', label: 'Documents', icon: 'folder' },
-  { key: 'photos', label: 'Photos', icon: 'image' },
-  { key: 'map', label: 'Carte', icon: 'map' },
-  { key: 'survey', label: 'Levés', icon: 'crosshair' },
-  { key: 'metre', label: 'Métré', icon: 'list' },
-  { key: 'subcontractors', label: 'Sous-traitants', icon: 'users' },
-  { key: 'profitability', label: 'Rentabilité', icon: 'trending-up' },
-];
+interface HubItem {
+  key: string;
+  label: string;
+  icon: IconName;
+  route: string;
+  visible: boolean;
+}
 
 export default function ChantierDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { organization, canViewFinances, permissions } = useAuth();
-  const visibleTabs = TABS.filter((t) => {
-    if (t.key === 'feed' || t.key === 'reports') return true;
-    // The map is just another view of the same geolocated photos, so it
-    // rides on the "photos" module toggle instead of needing its own —
-    // photos aren't gated by a per-role permission (see équipe screen's
-    // permission catalog: Photos shares the same underlying data as the
-    // always-open Rapports tab, so it can't be restricted independently).
-    if (t.key === 'map') return isModuleEnabled(organization?.enabled_modules, 'photos');
-    if (t.key === 'survey') return isModuleEnabled(organization?.enabled_modules, 'survey') && permissions.survey;
-    if (t.key === 'metre') return isModuleEnabled(organization?.enabled_modules, 'metre') && permissions.metre;
-    if (t.key === 'documents') return isModuleEnabled(organization?.enabled_modules, 'documents') && permissions.documents;
-    if (t.key === 'subcontractors') return isModuleEnabled(organization?.enabled_modules, 'subcontractors') && permissions.subcontractors;
-    if (t.key === 'profitability') return isModuleEnabled(organization?.enabled_modules, 'profitability') && canViewFinances;
-    return isModuleEnabled(organization?.enabled_modules, t.key as any);
-  });
-  const [project, setProject] = useState<Project | null>(null);
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>('feed');
-  const activeTab = visibleTabs.some((t) => t.key === tab) ? tab : 'feed';
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const [{ data: p }, { data: r }] = await Promise.all([
-      supabase.from('projects').select('*').eq('id', id).single(),
-      supabase.from('reports').select('*').eq('project_id', id).order('created_at', { ascending: false }),
-    ]);
-    setProject(p ?? null);
-    setReports(r ?? []);
-    setLoading(false);
-  }, [id]);
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
-  );
+  const { canViewFinances, permissions } = useAuth();
+  const { project, loading } = useProject(id);
 
   if (!project) {
     return (
@@ -81,6 +30,61 @@ export default function ChantierDetailScreen() {
       </Screen>
     );
   }
+
+  const enabled = project.enabled_modules;
+  const items: HubItem[] = [
+    { key: 'feed', label: "Fil d'actualité", icon: 'message-circle', route: `/(app)/chantiers/${id}/feed`, visible: true },
+    { key: 'reports', label: 'Rapports', icon: 'file-text', route: `/(app)/chantiers/${id}/reports`, visible: true },
+    {
+      key: 'documents',
+      label: 'Documents',
+      icon: 'folder',
+      route: `/(app)/chantiers/${id}/documents`,
+      visible: isModuleEnabled(enabled, 'documents') && permissions.documents,
+    },
+    {
+      key: 'photos',
+      label: 'Photos',
+      icon: 'image',
+      route: `/(app)/chantiers/${id}/photos`,
+      visible: isModuleEnabled(enabled, 'photos'),
+    },
+    {
+      key: 'map',
+      label: 'Carte',
+      icon: 'map',
+      route: `/(app)/chantiers/${id}/map`,
+      visible: isModuleEnabled(enabled, 'photos'),
+    },
+    {
+      key: 'survey',
+      label: 'Levés',
+      icon: 'crosshair',
+      route: `/(app)/chantiers/${id}/survey`,
+      visible: isModuleEnabled(enabled, 'survey') && permissions.survey,
+    },
+    {
+      key: 'metre',
+      label: 'Métré',
+      icon: 'list',
+      route: `/(app)/chantiers/${id}/metre`,
+      visible: isModuleEnabled(enabled, 'metre') && permissions.metre,
+    },
+    {
+      key: 'subcontractors',
+      label: 'Sous-traitants',
+      icon: 'users',
+      route: `/(app)/chantiers/${id}/subcontractors`,
+      visible: isModuleEnabled(enabled, 'subcontractors') && permissions.subcontractors,
+    },
+    {
+      key: 'profitability',
+      label: 'Rentabilité',
+      icon: 'trending-up',
+      route: `/(app)/chantiers/${id}/profitability`,
+      visible: isModuleEnabled(enabled, 'profitability') && canViewFinances,
+    },
+  ];
 
   return (
     <Screen>
@@ -95,151 +99,27 @@ export default function ChantierDetailScreen() {
         }
       />
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar} contentContainerStyle={styles.tabBarContent}>
-        {visibleTabs.map((t) => (
-          <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabItem}>
-            <Feather name={t.icon} size={16} color={activeTab === t.key ? colors.primary : colors.textMuted} />
-            <Text style={[styles.tabLabel, activeTab === t.key && styles.tabLabelActive]}>{t.label}</Text>
-            {activeTab === t.key ? <View style={styles.tabIndicator} /> : null}
-          </Pressable>
-        ))}
-      </ScrollView>
-
-      {activeTab === 'feed' ? (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-          <ProjectFeed projectId={id} />
-        </KeyboardAvoidingView>
-      ) : (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
-          {activeTab === 'reports' ? (
-            <View>
-              <Button
-                title="Nouveau rapport de chantier"
-                icon="plus"
-                onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}
-                style={{ marginBottom: spacing.lg }}
-              />
-
-              {reports.length === 0 && !loading ? (
-                <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
-              ) : (
-                <View style={{ gap: spacing.md }}>
-                  {reports.map((r) => (
-                    <Pressable key={r.id} onPress={() => router.push(`/(app)/chantiers/${id}/rapports/${r.id}`)}>
-                      <Card>
-                        <View style={styles.headerRow}>
-                          <Text style={styles.reportTitle}>{r.title}</Text>
-                          <StatusBadge status={r.status} />
-                        </View>
-                        <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
-                        <View style={styles.pdfLink}>
-                          <Feather
-                            name={r.pdf_path ? 'file-text' : 'alert-triangle'}
-                            size={14}
-                            color={r.pdf_path ? colors.primary : colors.accent}
-                          />
-                          <Text style={styles.pdfLinkText}>{r.pdf_path ? 'Voir le rapport' : 'PDF non généré — voir le rapport'}</Text>
-                        </View>
-                      </Card>
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-            </View>
-          ) : null}
-
-          {activeTab === 'documents' ? (
-            <View>
-              <FeatureHint
-                id="chantier-documents"
-                icon="folder"
-                title="Un classeur numérique par chantier"
-                text="Organisez vos plans et documents en dossiers et sous-dossiers, comme dans un classeur physique."
-              />
-              <ProjectDocuments projectId={id} />
-            </View>
-          ) : null}
-          {activeTab === 'photos' ? (
-            <View>
-              <FeatureHint
-                id="chantier-photos"
-                icon="image"
-                title="Toutes vos photos, filtrables"
-                text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
-              />
-              <ProjectPhotos projectId={id} />
-            </View>
-          ) : null}
-          {activeTab === 'map' ? (
-            <View>
-              <FeatureHint
-                id="chantier-map"
-                icon="map"
-                title="Toutes les photos, sur une carte"
-                text="Les photos géolocalisées du fil d'actualité apparaissent ici sur le cadastre et l'orthophoto suisses."
-              />
-              <ProjectFeedMap projectId={id} />
-            </View>
-          ) : null}
-          {activeTab === 'survey' ? (
-            <View>
-              <FeatureHint
-                id="chantier-survey"
-                icon="crosshair"
-                title="Levés de précision"
-                text="Ajoutez des points de chantier, visualisez-les sur le cadastre et l’orthophoto officiels, puis exportez-les en DXF, CSV, XML ou GPX."
-              />
-              <ProjectSurvey projectId={id} organizationId={project.organization_id} />
-            </View>
-          ) : null}
-          {activeTab === 'metre' ? (
-            <View>
-              <FeatureHint
-                id="chantier-metre"
-                icon="list"
-                title="Métré poste par poste"
-                text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
-              />
-              <ProjectMetre projectId={id} organizationId={project.organization_id} />
-            </View>
-          ) : null}
-          {activeTab === 'subcontractors' ? (
-            <View>
-              <FeatureHint
-                id="chantier-subcontractors"
-                icon="users"
-                title="Coordonnez vos sous-traitants"
-                text="Ajoutez les entreprises sous-traitées sur ce chantier, suivez leurs interventions et leurs attestations d'assurance."
-              />
-              <ProjectSubcontractors projectId={id} organizationId={project.organization_id} />
-            </View>
-          ) : null}
-          {activeTab === 'profitability' ? (
-            <View>
-              <FeatureHint
-                id="chantier-profitability"
-                icon="trending-up"
-                title="Rentabilité de ce chantier"
-                text="Compare le devis accepté au coût réel (matériel saisi + main d'œuvre calculée depuis le Planning) pour savoir si ce chantier est rentable."
-              />
-              <ProjectProfitability projectId={id} organizationId={project.organization_id} />
-            </View>
-          ) : null}
-        </ScrollView>
-      )}
+      <View style={styles.grid}>
+        {items
+          .filter((it) => it.visible)
+          .map((it) => (
+            <Pressable
+              key={it.key}
+              onPress={() => router.push(it.route as any)}
+              style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}
+            >
+              <View style={styles.cardIcon}>
+                <Feather name={it.icon} size={22} color={colors.primary} />
+              </View>
+              <Text style={styles.cardLabel}>{it.label}</Text>
+            </Pressable>
+          ))}
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: spacing.xl,
-    gap: spacing.lg,
-    paddingBottom: spacing.xxl * 2,
-    maxWidth: 880,
-    width: '100%',
-    alignSelf: 'center',
-  },
   topBar: {
     maxWidth: 880,
     width: '100%',
@@ -255,69 +135,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerRow: {
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  reportTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-    flexShrink: 1,
-  },
-  meta: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-  },
-  tabBar: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    flexGrow: 0,
+    gap: spacing.md,
+    padding: spacing.lg,
     maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },
-  tabBarContent: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-  },
-  tabItem: {
-    flexDirection: 'row',
+  card: {
+    flexGrow: 1,
+    flexBasis: 150,
+    maxWidth: 220,
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.md,
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.xl,
     paddingHorizontal: spacing.md,
-    position: 'relative',
   },
-  tabLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    fontWeight: '600',
+  cardHovered: {
+    borderColor: colors.primary,
   },
-  tabLabelActive: {
-    color: colors.primary,
-  },
-  tabIndicator: {
-    position: 'absolute',
-    bottom: -1,
-    left: spacing.md,
-    right: spacing.md,
-    height: 2,
-    backgroundColor: colors.primary,
-  },
-  pdfLink: {
-    flexDirection: 'row',
+  cardIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.xs,
+    justifyContent: 'center',
   },
-  pdfLinkText: {
-    color: colors.primary,
-    fontWeight: '600',
+  cardLabel: {
     fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'center',
   },
 });

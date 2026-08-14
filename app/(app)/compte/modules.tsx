@@ -4,17 +4,14 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Container, PageHeader, Screen } from '../../../components/ui';
-import { SettingsTabs } from '../../../components/SettingsTabs';
-import { TOGGLEABLE_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
+import { ORG_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
 // Modules whose availability also depends on the org's plan, beyond the
-// admin's own on/off toggle — kept small and explicit rather than a generic
-// mapping since only two modules currently have a plan requirement.
+// admin's own on/off toggle.
 const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   planning: 'has_planning',
-  profitability: 'has_profitability',
 };
 
 export default function ModulesScreen() {
@@ -60,13 +57,14 @@ export default function ModulesScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Outils & modules" backTo="/(app)" />
-          <SettingsTabs />
+          <PageHeader title="Outils & modules" backTo="/(app)/compte" />
           <Text style={styles.hint}>
-            Désactivez ce que vous n’utilisez pas pour garder une application simple. Rapports reste toujours actif.
+            Sections principales de l'application, pour toute l'équipe. Les outils propres à un chantier (documents,
+            photos, levés, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de
+            chaque chantier.
           </Text>
           <View style={{ marginTop: spacing.lg, gap: spacing.lg }}>
-            {TOGGLEABLE_MODULES.map((m) => {
+            {ORG_MODULES.map((m) => {
               const gated = isPlanGated(m.key);
               return (
                 <View key={m.key} style={styles.row}>

@@ -195,7 +195,7 @@ export default function NewReportScreen() {
         return;
       }
 
-      router.replace(`/(app)/chantiers/${projectId}`);
+      router.replace(`/(app)/chantiers/${projectId}/reports`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setLoading(false);
@@ -206,7 +206,7 @@ export default function NewReportScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <PageHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}`} />
+        <PageHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}/reports`} />
 
         <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
 
