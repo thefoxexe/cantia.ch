@@ -139,6 +139,7 @@ export interface OrganizationRole {
   can_view_metre: boolean;
   can_view_planning: boolean;
   can_view_documents: boolean;
+  can_view_subcontractors: boolean;
   created_at: string;
 }
 
@@ -455,4 +456,36 @@ export interface MetreItem {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type SubcontractorAssignmentStatus = 'planifie' | 'en_cours' | 'termine' | 'annule';
+
+export interface Subcontractor {
+  id: string;
+  organization_id: string;
+  company_name: string;
+  trade: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+  insurance_doc_path: string | null;
+  insurance_expires_on: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface ProjectSubcontractor {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  subcontractor_id: string;
+  task: string | null;
+  status: SubcontractorAssignmentStatus;
+  start_date: string | null;
+  end_date: string | null;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  subcontractors?: Subcontractor;
 }

@@ -56,6 +56,7 @@ const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName; label: s
   { key: 'canViewMetre', icon: 'list', label: 'Métré', description: 'Tableau de quantités poste par poste.' },
   { key: 'canViewPlanning', icon: 'calendar', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
   { key: 'canViewDocuments', icon: 'folder', label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
+  { key: 'canViewSubcontractors', icon: 'users', label: 'Sous-traitants', description: 'Entreprises sous-traitées par chantier et leurs attestations.' },
 ];
 
 interface RoleDraft {
@@ -69,7 +70,14 @@ const EMPTY_DRAFT: RoleDraft = {
   id: null,
   name: '',
   color: ROLE_COLORS[0],
-  permissions: { canViewFinances: false, canViewSurvey: true, canViewMetre: true, canViewPlanning: true, canViewDocuments: true },
+  permissions: {
+    canViewFinances: false,
+    canViewSurvey: true,
+    canViewMetre: true,
+    canViewPlanning: true,
+    canViewDocuments: true,
+    canViewSubcontractors: true,
+  },
 };
 
 export default function EquipeScreen() {
@@ -335,6 +343,7 @@ export default function EquipeScreen() {
                           canViewMetre: r.can_view_metre,
                           canViewPlanning: r.can_view_planning,
                           canViewDocuments: r.can_view_documents,
+                          canViewSubcontractors: r.can_view_subcontractors,
                         },
                       })
                     }

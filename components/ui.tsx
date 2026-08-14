@@ -241,6 +241,10 @@ const STATUS_STYLES: Record<string, { bg: string; fg: string; label: string }> =
   archived: { bg: colors.border, fg: colors.textMuted, label: 'Archivé' },
   paid: { bg: colors.successSoft, fg: colors.success, label: 'Payée' },
   cancelled: { bg: colors.border, fg: colors.textMuted, label: 'Annulée' },
+  planifie: { bg: colors.accentSoft, fg: colors.accent, label: 'Planifié' },
+  en_cours: { bg: colors.primarySoft, fg: colors.primary, label: 'En cours' },
+  termine: { bg: colors.successSoft, fg: colors.success, label: 'Terminé' },
+  annule: { bg: colors.border, fg: colors.textMuted, label: 'Annulé' },
 };
 
 export function StatusBadge({ status }: { status: string }) {

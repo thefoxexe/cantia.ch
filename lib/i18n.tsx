@@ -112,7 +112,7 @@ const fr: Dict = {
   },
   services: {
     title: 'Tout ce qu’il faut, du chantier au bureau',
-    subtitle: 'Neuf outils, une seule application — cliquez sur un service pour voir précisément ce qu’il fait.',
+    subtitle: 'Dix outils, une seule application — cliquez sur un service pour voir précisément ce qu’il fait.',
     items: [
       {
         title: 'Rapports de chantier automatiques',
@@ -193,6 +193,15 @@ const fr: Dict = {
           'Rôles personnalisables avec accès à cocher par domaine',
           'Finance, Levés, Métré, Planning et Documents gérés séparément',
           'Ajout de collaborateurs selon votre plan',
+        ],
+      },
+      {
+        title: 'Coordination des sous-traitants',
+        text: 'Ajoutez les entreprises sous-traitées sur chaque chantier, suivez leurs interventions et gardez leurs attestations d’assurance à portée de main.',
+        detail: [
+          'Répertoire de sous-traitants réutilisable d’un chantier à l’autre',
+          'Statut d’intervention et dates de passage par chantier',
+          'Attestation d’assurance RC stockée et datée, plus d’oubli',
         ],
       },
     ],

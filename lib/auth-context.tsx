@@ -22,9 +22,10 @@ interface RolePermissions {
   metre: boolean;
   planning: boolean;
   documents: boolean;
+  subcontractors: boolean;
 }
 
-const FULL_ACCESS: RolePermissions = { survey: true, metre: true, planning: true, documents: true };
+const FULL_ACCESS: RolePermissions = { survey: true, metre: true, planning: true, documents: true, subcontractors: true };
 
 interface AuthContextValue {
   session: Session | null;
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: membership } = await supabase
         .from('organization_members')
         .select(
-          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_survey, can_view_metre, can_view_planning, can_view_documents)',
+          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_survey, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors)',
         )
         .eq('user_id', userId)
         .limit(1)
@@ -77,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           can_view_metre: boolean;
           can_view_planning: boolean;
           can_view_documents: boolean;
+          can_view_subcontractors: boolean;
         } | null;
         const isStructuralAdmin = membership.role !== 'member';
         const hasNoCustomRole = !membership.role_id;
@@ -89,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 metre: !!assignedRole?.can_view_metre,
                 planning: !!assignedRole?.can_view_planning,
                 documents: !!assignedRole?.can_view_documents,
+                subcontractors: !!assignedRole?.can_view_subcontractors,
               },
         );
       } else {

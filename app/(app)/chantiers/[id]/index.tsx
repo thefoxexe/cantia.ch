@@ -13,11 +13,12 @@ import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { ProjectSurvey } from '../../../../components/ProjectSurvey';
 import { ProjectMetre } from '../../../../components/ProjectMetre';
 import { ProjectProfitability } from '../../../../components/ProjectProfitability';
+import { ProjectSubcontractors } from '../../../../components/ProjectSubcontractors';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Project, Report } from '../../../../lib/types';
 
-type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre' | 'profitability';
+type Tab = 'feed' | 'reports' | 'documents' | 'photos' | 'map' | 'survey' | 'metre' | 'profitability' | 'subcontractors';
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'feed', label: "Fil d'actualité", icon: 'message-circle' },
@@ -27,6 +28,7 @@ const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] =
   { key: 'map', label: 'Carte', icon: 'map' },
   { key: 'survey', label: 'Levés', icon: 'crosshair' },
   { key: 'metre', label: 'Métré', icon: 'list' },
+  { key: 'subcontractors', label: 'Sous-traitants', icon: 'users' },
   { key: 'profitability', label: 'Rentabilité', icon: 'trending-up' },
 ];
 
@@ -45,6 +47,7 @@ export default function ChantierDetailScreen() {
     if (t.key === 'survey') return isModuleEnabled(organization?.enabled_modules, 'survey') && permissions.survey;
     if (t.key === 'metre') return isModuleEnabled(organization?.enabled_modules, 'metre') && permissions.metre;
     if (t.key === 'documents') return isModuleEnabled(organization?.enabled_modules, 'documents') && permissions.documents;
+    if (t.key === 'subcontractors') return isModuleEnabled(organization?.enabled_modules, 'subcontractors') && permissions.subcontractors;
     if (t.key === 'profitability') return isModuleEnabled(organization?.enabled_modules, 'profitability') && canViewFinances;
     return isModuleEnabled(organization?.enabled_modules, t.key as any);
   });
@@ -198,6 +201,17 @@ export default function ChantierDetailScreen() {
                 text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
               />
               <ProjectMetre projectId={id} organizationId={project.organization_id} />
+            </View>
+          ) : null}
+          {activeTab === 'subcontractors' ? (
+            <View>
+              <FeatureHint
+                id="chantier-subcontractors"
+                icon="users"
+                title="Coordonnez vos sous-traitants"
+                text="Ajoutez les entreprises sous-traitées sur ce chantier, suivez leurs interventions et leurs attestations d'assurance."
+              />
+              <ProjectSubcontractors projectId={id} organizationId={project.organization_id} />
             </View>
           ) : null}
           {activeTab === 'profitability' ? (

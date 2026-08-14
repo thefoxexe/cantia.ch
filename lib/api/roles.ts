@@ -7,6 +7,7 @@ export interface RolePermissions {
   canViewMetre: boolean;
   canViewPlanning: boolean;
   canViewDocuments: boolean;
+  canViewSubcontractors: boolean;
 }
 
 function toRow(permissions: RolePermissions) {
@@ -16,6 +17,7 @@ function toRow(permissions: RolePermissions) {
     can_view_metre: permissions.canViewMetre,
     can_view_planning: permissions.canViewPlanning,
     can_view_documents: permissions.canViewDocuments,
+    can_view_subcontractors: permissions.canViewSubcontractors,
   };
 }
 
