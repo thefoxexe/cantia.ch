@@ -55,6 +55,9 @@ Deno.serve(async (req: Request) => {
     if (quotaError) return json({ error: 'Accès refusé' }, 403);
     if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
 
+    const { data: org } = await admin.from('organizations').select('trade').eq('id', report.organization_id).maybeSingle();
+    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique et les tournures usuelles de ce métier en Suisse romande dans le texte rédigé.` : SYSTEM_PROMPT;
+
     const { data: photos } = await admin
       .from('report_photos')
       .select('caption')
@@ -91,7 +94,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
         max_tokens: 1500,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       }),
     });
