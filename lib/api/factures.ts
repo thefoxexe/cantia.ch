@@ -94,6 +94,49 @@ export async function duplicateFacture(factureId: string): Promise<{ id: string 
   return { id: created.id, error: null };
 }
 
+// Standalone facture creation, not converted from a devis — used by the RH
+// module's "Facturer ce chantier" flow (see PayrollInvoiceModal). One line
+// per work type, quantity always 1 and unit null: the position's price is
+// already the final computed amount (rate × hours, or a flat amount typed
+// directly), not a per-unit price meant to be multiplied again downstream.
+export async function createFactureFromLines(params: {
+  organizationId: string;
+  projectId: string | null;
+  clientName: string;
+  vatRate: number;
+  notes: string | null;
+  lines: { description: string; amountChf: number }[];
+}): Promise<{ id: string | null; error: string | null }> {
+  const { data: created, error: insertError } = await supabase
+    .from('factures')
+    .insert({
+      organization_id: params.organizationId,
+      project_id: params.projectId,
+      client_name: params.clientName,
+      notes: params.notes,
+      vat_rate: params.vatRate,
+    })
+    .select('id')
+    .single();
+  if (insertError || !created) return { id: null, error: insertError?.message ?? 'Échec de la création de la facture.' };
+
+  if (params.lines.length) {
+    const { error: itemsError } = await supabase.from('facture_items').insert(
+      params.lines.map((line, i) => ({
+        facture_id: created.id,
+        description: line.description,
+        quantity: 1,
+        unit: null,
+        unit_price: line.amountChf,
+        sort_order: i,
+      })),
+    );
+    if (itemsError) return { id: created.id, error: itemsError.message };
+  }
+
+  return { id: created.id, error: null };
+}
+
 export async function listFacturePayments(factureId: string): Promise<FacturePayment[]> {
   const { data } = await supabase
     .from('facture_payments')

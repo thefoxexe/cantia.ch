@@ -1,0 +1,358 @@
+import { useEffect, useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { createFactureFromLines } from '../lib/api/factures';
+import { Button, Switch } from './ui';
+import { colors, fontSize, radius, spacing } from '../lib/theme';
+
+export interface InvoiceCandidateLine {
+  workTypeId: string | null;
+  label: string;
+  hours: number;
+  suggestedRate: number | null;
+}
+
+interface LineDraft {
+  included: boolean;
+  description: string;
+  mode: 'rate' | 'fixed';
+  rate: string;
+  fixedAmount: string;
+}
+
+function amountFor(draft: LineDraft, hours: number): number {
+  if (draft.mode === 'fixed') return Number(draft.fixedAmount.replace(',', '.')) || 0;
+  const rate = Number(draft.rate.replace(',', '.')) || 0;
+  return Math.round(rate * hours * 100) / 100;
+}
+
+// "Facturer ce chantier" — turns the RH summary's per-work-type hour
+// totals into a real facture, one line ("position") per type of work. The
+// invoice line itself never shows the hour count: just a label and a final
+// CHF amount, computed either from an hourly rate × the logged hours, or
+// typed directly as a flat amount — the choice is per line.
+export function PayrollInvoiceModal({
+  visible,
+  onClose,
+  organizationId,
+  defaultVatRate,
+  project,
+  candidateLines,
+  onCreated,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  organizationId: string;
+  defaultVatRate: number;
+  project: { id: string; name: string; client_name: string | null } | null;
+  candidateLines: InvoiceCandidateLine[];
+  onCreated: (factureId: string) => void;
+}) {
+  const [drafts, setDrafts] = useState<Record<string, LineDraft>>({});
+  const [clientName, setClientName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    setClientName(project?.client_name ?? '');
+    const next: Record<string, LineDraft> = {};
+    for (const line of candidateLines) {
+      const key = line.workTypeId ?? line.label;
+      next[key] = {
+        included: line.hours > 0,
+        description: '',
+        mode: line.suggestedRate != null ? 'rate' : 'fixed',
+        rate: line.suggestedRate != null ? String(line.suggestedRate) : '',
+        fixedAmount: '',
+      };
+    }
+    setDrafts(next);
+    setError(null);
+  }, [visible, project, candidateLines]);
+
+  function updateDraft(key: string, patch: Partial<LineDraft>) {
+    setDrafts((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
+  }
+
+  const total = candidateLines.reduce((sum, line) => {
+    const key = line.workTypeId ?? line.label;
+    const draft = drafts[key];
+    if (!draft?.included) return sum;
+    return sum + amountFor(draft, line.hours);
+  }, 0);
+
+  async function handleCreate() {
+    if (!project) return;
+    if (!clientName.trim()) {
+      setError('Le nom du client est requis.');
+      return;
+    }
+    const lines = candidateLines
+      .filter((line) => drafts[line.workTypeId ?? line.label]?.included)
+      .map((line) => {
+        const key = line.workTypeId ?? line.label;
+        const draft = drafts[key];
+        const description = draft.description.trim() ? `${line.label} — ${draft.description.trim()}` : line.label;
+        return { description, amountChf: amountFor(draft, line.hours) };
+      });
+    if (lines.length === 0) {
+      setError('Sélectionnez au moins une position.');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    const { id, error: err } = await createFactureFromLines({
+      organizationId,
+      projectId: project.id,
+      clientName: clientName.trim(),
+      vatRate: defaultVatRate,
+      notes: null,
+      lines,
+    });
+    setSaving(false);
+    if (err || !id) {
+      setError(err ?? 'Échec de la création de la facture.');
+      return;
+    }
+    onCreated(id);
+  }
+
+  return (
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+      <View style={styles.backdrop}>
+        <View style={styles.sheet}>
+          <ScrollView>
+            <Text style={styles.sheetTitle}>Facturer {project?.name ?? 'ce chantier'}</Text>
+
+            <Text style={styles.fieldLabel}>Client</Text>
+            <TextInput
+              style={styles.input}
+              value={clientName}
+              onChangeText={setClientName}
+              placeholder="Nom du client"
+              placeholderTextColor={colors.textMuted}
+            />
+
+            <Text style={styles.fieldLabel}>Positions</Text>
+            <View style={{ gap: spacing.md }}>
+              {candidateLines.map((line) => {
+                const key = line.workTypeId ?? line.label;
+                const draft = drafts[key];
+                if (!draft) return null;
+                return (
+                  <View key={key} style={styles.lineCard}>
+                    <View style={styles.lineHeader}>
+                      <Switch value={draft.included} onChange={(v) => updateDraft(key, { included: v })} />
+                      <Text style={styles.lineLabel}>{line.label}</Text>
+                      <Text style={styles.lineHours}>{line.hours} h</Text>
+                    </View>
+
+                    {draft.included ? (
+                      <>
+                        <TextInput
+                          style={styles.descInput}
+                          value={draft.description}
+                          onChangeText={(v) => updateDraft(key, { description: v })}
+                          placeholder="Description (optionnel)"
+                          placeholderTextColor={colors.textMuted}
+                        />
+                        <View style={styles.modeRow}>
+                          <Pressable onPress={() => updateDraft(key, { mode: 'rate' })} style={[styles.modeChip, draft.mode === 'rate' && styles.modeChipActive]}>
+                            <Text style={[styles.modeChipText, draft.mode === 'rate' && styles.modeChipTextActive]}>Prix à l'heure</Text>
+                          </Pressable>
+                          <Pressable onPress={() => updateDraft(key, { mode: 'fixed' })} style={[styles.modeChip, draft.mode === 'fixed' && styles.modeChipActive]}>
+                            <Text style={[styles.modeChipText, draft.mode === 'fixed' && styles.modeChipTextActive]}>Montant fixe</Text>
+                          </Pressable>
+                        </View>
+                        {draft.mode === 'rate' ? (
+                          <View style={styles.amountRow}>
+                            <TextInput
+                              style={styles.amountInput}
+                              value={draft.rate}
+                              onChangeText={(v) => updateDraft(key, { rate: v })}
+                              keyboardType="decimal-pad"
+                              placeholder="CHF/h"
+                              placeholderTextColor={colors.textMuted}
+                            />
+                            <Text style={styles.amountResult}>= CHF {amountFor(draft, line.hours).toFixed(2)}</Text>
+                          </View>
+                        ) : (
+                          <TextInput
+                            style={styles.amountInput}
+                            value={draft.fixedAmount}
+                            onChangeText={(v) => updateDraft(key, { fixedAmount: v })}
+                            keyboardType="decimal-pad"
+                            placeholder="Montant CHF"
+                            placeholderTextColor={colors.textMuted}
+                          />
+                        )}
+                      </>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
+
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Total HT</Text>
+              <Text style={styles.totalValue}>CHF {total.toFixed(2)}</Text>
+            </View>
+            <Text style={styles.hint}>La facture est créée en brouillon — vous pourrez ajuster le client, la TVA et l'échéance avant de l'envoyer.</Text>
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <Button title="Créer la facture" icon="check" onPress={handleCreate} loading={saving} style={{ marginTop: spacing.md }} />
+            <Button title="Annuler" variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 20, 18, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  sheet: {
+    width: '100%',
+    maxWidth: 480,
+    maxHeight: '90%',
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+  },
+  sheetTitle: {
+    fontSize: fontSize.xl,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.lg,
+  },
+  fieldLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+    fontWeight: '700',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.md,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.lg,
+  },
+  lineCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  lineHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  lineLabel: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  lineHours: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  descInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
+  },
+  modeRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  modeChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  modeChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  modeChipText: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+  },
+  modeChipTextActive: {
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  amountInput: {
+    width: 110,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
+  },
+  amountResult: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  totalLabel: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  totalValue: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  hint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    lineHeight: 16,
+  },
+  error: {
+    color: colors.danger,
+    fontSize: fontSize.sm,
+    marginTop: spacing.sm,
+  },
+});

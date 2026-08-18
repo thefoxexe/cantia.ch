@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase';
 import { listWorkTypes } from '../../../lib/api/payroll';
 import { PayrollEntryPanel, defaultMonthRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
+import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
 import { Button, Card, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import type { Plan, PayrollWorkType } from '../../../lib/types';
@@ -14,6 +15,12 @@ import type { Plan, PayrollWorkType } from '../../../lib/types';
 interface MemberItem {
   id: string;
   label: string;
+}
+
+interface ProjectItem {
+  id: string;
+  name: string;
+  client_name: string | null;
 }
 
 function initials(name: string): string {
@@ -26,13 +33,14 @@ function initials(name: string): string {
 interface SummaryLine {
   projectId: string | null;
   projectName: string;
+  workTypeId: string | null;
   workTypeLabel: string;
   hours: number;
   rate: number | null;
 }
 
 export default function PayrollScreen() {
-  const { organization, user, canManagePayroll } = useAuth();
+  const { organization, user, canManagePayroll, canViewFinances } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.tablet;
@@ -46,6 +54,10 @@ export default function PayrollScreen() {
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [summaryLines, setSummaryLines] = useState<SummaryLine[]>([]);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [invoiceProjectId, setInvoiceProjectId] = useState<string | null>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [hasWorkTypes, setHasWorkTypes] = useState(true);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -54,11 +66,12 @@ export default function PayrollScreen() {
     setPlan(planRow ?? null);
 
     if (canManagePayroll) {
-      const { data: memberRows } = await supabase
-        .from('organization_members')
-        .select('user_id, full_name')
-        .eq('organization_id', organization.id);
+      const [{ data: memberRows }, workTypes] = await Promise.all([
+        supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
+        listWorkTypes(organization.id),
+      ]);
       setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || 'Membre' })));
+      setHasWorkTypes(workTypes.length > 0);
     }
     setSelectedUserId((prev) => prev ?? user.id);
     setLoading(false);
@@ -74,7 +87,7 @@ export default function PayrollScreen() {
     if (!organization) return;
     setSummaryLoading(true);
     const [{ data: projectRows }, workTypes, { data: entryRows }] = await Promise.all([
-      supabase.from('projects').select('id, name').eq('organization_id', organization.id),
+      supabase.from('projects').select('id, name, client_name').eq('organization_id', organization.id),
       listWorkTypes(organization.id),
       supabase
         .from('payroll_time_entries')
@@ -83,6 +96,7 @@ export default function PayrollScreen() {
         .gte('entry_date', range.start)
         .lte('entry_date', range.end),
     ]);
+    setProjects(projectRows ?? []);
     const projectNames = new Map((projectRows ?? []).map((p) => [p.id, p.name]));
     const workTypeById = new Map<string, PayrollWorkType>(workTypes.map((w) => [w.id, w]));
     const totals = new Map<string, SummaryLine>();
@@ -97,6 +111,7 @@ export default function PayrollScreen() {
         totals.set(key, {
           projectId: row.project_id,
           projectName,
+          workTypeId: row.work_type_id,
           workTypeLabel: wt?.label ?? 'Non précisé',
           hours: Math.round(Number(row.hours) * 100) / 100,
           rate: wt?.hourly_rate_chf ?? null,
@@ -112,6 +127,11 @@ export default function PayrollScreen() {
     setSummaryOpen(next);
     if (next) loadSummary();
   }
+
+  const invoiceProject = projects.find((p) => p.id === invoiceProjectId) ?? null;
+  const invoiceCandidateLines: InvoiceCandidateLine[] = summaryLines
+    .filter((l) => l.projectId === invoiceProjectId)
+    .map((l) => ({ workTypeId: l.workTypeId, label: l.workTypeLabel, hours: l.hours, suggestedRate: l.rate }));
 
   if (loading || !organization || !user) {
     return (
@@ -194,6 +214,19 @@ export default function PayrollScreen() {
         <PageHeader title="RH & Salaires" backTo="/(app)" />
         <Text style={styles.pageSubtitle}>Heures, frais et salaires de toute l'équipe.</Text>
 
+        {!hasWorkTypes ? (
+          <Pressable onPress={() => router.push('/(app)/compte/rh')} style={styles.setupBanner}>
+            <Feather name="settings" size={16} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.setupBannerTitle}>Première visite ? Configurez d'abord vos types de travail</Text>
+              <Text style={styles.setupBannerText}>
+                Ex : élaboration de projets, dessin. C'est ce que chaque employé choisira en saisissant ses heures.
+              </Text>
+            </View>
+            <Feather name="chevron-right" size={16} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+
         {isDesktop ? (
           <View style={styles.desktopLayout}>
             <View style={styles.calendarCol}>
@@ -218,6 +251,11 @@ export default function PayrollScreen() {
                 lines={summaryLines}
                 totalHours={summaryTotalHours}
                 totalChf={summaryTotalChf}
+                canInvoice={canViewFinances}
+                onInvoiceProject={(id) => {
+                  setInvoiceProjectId(id);
+                  setShowInvoiceModal(true);
+                }}
               />
             </ScrollView>
           </View>
@@ -242,10 +280,28 @@ export default function PayrollScreen() {
               lines={summaryLines}
               totalHours={summaryTotalHours}
               totalChf={summaryTotalChf}
+              canInvoice={canViewFinances}
+              onInvoiceProject={(id) => {
+                setInvoiceProjectId(id);
+                setShowInvoiceModal(true);
+              }}
             />
           </ScrollView>
         )}
       </View>
+
+      <PayrollInvoiceModal
+        visible={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        organizationId={organization.id}
+        defaultVatRate={organization.default_vat_rate}
+        project={invoiceProject}
+        candidateLines={invoiceCandidateLines}
+        onCreated={(factureId) => {
+          setShowInvoiceModal(false);
+          router.push(`/(app)/devis/factures/${factureId}`);
+        }}
+      />
     </Screen>
   );
 }
@@ -257,6 +313,8 @@ function SummaryCard({
   lines,
   totalHours,
   totalChf,
+  canInvoice,
+  onInvoiceProject,
 }: {
   open: boolean;
   onToggle: () => void;
@@ -264,7 +322,17 @@ function SummaryCard({
   lines: SummaryLine[];
   totalHours: number;
   totalChf: number;
+  canInvoice: boolean;
+  onInvoiceProject: (projectId: string) => void;
 }) {
+  const byProject = new Map<string, { projectId: string | null; projectName: string; lines: SummaryLine[] }>();
+  for (const l of lines) {
+    const key = l.projectId ?? 'none';
+    const existing = byProject.get(key);
+    if (existing) existing.lines.push(l);
+    else byProject.set(key, { projectId: l.projectId, projectName: l.projectName, lines: [l] });
+  }
+
   return (
     <Card>
       <Pressable onPress={onToggle} style={styles.summaryHeader}>
@@ -277,15 +345,25 @@ function SummaryCard({
         ) : lines.length === 0 ? (
           <Text style={styles.hint}>Aucune heure enregistrée sur cette période.</Text>
         ) : (
-          <View style={{ marginTop: spacing.md }}>
-            {lines.map((l, i) => (
-              <View key={i} style={styles.summaryRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.summaryProject}>{l.projectName}</Text>
-                  <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
+          <View style={{ marginTop: spacing.md, gap: spacing.lg }}>
+            {Array.from(byProject.values()).map((group) => (
+              <View key={group.projectId ?? 'none'}>
+                <View style={styles.summaryGroupHeader}>
+                  <Text style={styles.summaryProject}>{group.projectName}</Text>
+                  {group.projectId && canInvoice ? (
+                    <Pressable onPress={() => onInvoiceProject(group.projectId!)} style={styles.invoiceButton}>
+                      <Feather name="file-plus" size={13} color={colors.primary} />
+                      <Text style={styles.invoiceButtonText}>Facturer ce chantier</Text>
+                    </Pressable>
+                  ) : null}
                 </View>
-                <Text style={styles.summaryHours}>{l.hours} h</Text>
-                <Text style={styles.summaryChf}>{l.rate ? `CHF ${(l.rate * l.hours).toFixed(2)}` : '—'}</Text>
+                {group.lines.map((l, i) => (
+                  <View key={i} style={styles.summaryRow}>
+                    <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
+                    <Text style={styles.summaryHours}>{l.hours} h</Text>
+                    <Text style={styles.summaryChf}>{l.rate ? `CHF ${(l.rate * l.hours).toFixed(2)}` : '—'}</Text>
+                  </View>
+                ))}
               </View>
             ))}
             <View style={styles.summaryTotalRow}>
@@ -293,9 +371,6 @@ function SummaryCard({
               <Text style={styles.summaryHours}>{totalHours} h</Text>
               <Text style={styles.summaryChf}>CHF {totalChf.toFixed(2)}</Text>
             </View>
-            <Text style={styles.hint}>
-              Utilisez ces totaux pour établir une facture depuis le chantier concerné (Chantiers → Devis/Factures).
-            </Text>
           </View>
         )
       ) : null}
@@ -334,6 +409,25 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginBottom: spacing.lg,
+  },
+  setupBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  setupBannerTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  setupBannerText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   desktopLayout: {
     flex: 1,
@@ -417,6 +511,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  summaryGroupHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  invoiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  invoiceButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
   summaryRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -431,6 +543,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   summaryType: {
+    flex: 1,
     fontSize: fontSize.xs,
     color: colors.textMuted,
   },
