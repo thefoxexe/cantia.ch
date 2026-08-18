@@ -45,5 +45,16 @@ Any other build (`npm run web`, EAS builds, the plain `expo export`
 used for app.cantia.ch) leaves `MARKETING_BUILD` unset and gets
 exactly the same `app/`-rooted, `"single"`-output build as always.
 
-Output goes to `dist-marketing/` (gitignored), deployed as a separate
-Netlify site — see `netlify-marketing.toml`.
+Output goes to `dist-marketing/` (gitignored), deployed as a **separate
+Netlify site** pointed at this same repo, configured directly in that
+site's UI (Netlify only ever reads a file literally named
+`netlify.toml`, so a same-repo second config file under a different
+name isn't picked up — no toml file is used for this site):
+- Base directory: leave empty (must stay the repo root — that's where
+  `package.json` and the rest of the app live).
+- Build command: `npm run build:marketing`
+- Publish directory: `dist-marketing`
+
+The existing `netlify.toml` at the repo root is untouched and keeps
+driving the original site (app.cantia.ch, and cantia.ch until its
+domain is moved to this new site).
