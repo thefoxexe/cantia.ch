@@ -137,6 +137,65 @@ export async function createFactureFromLines(params: {
   return { id: created.id, error: null };
 }
 
+export interface ProjectFactureSummary {
+  id: string;
+  number: string | null;
+  status: FactureStatus;
+  total: number;
+  paid: number;
+  remaining: number;
+}
+
+// One round trip for every chantier's already-invoiced/already-paid state
+// at once — used by the RH cockpit's per-chantier summary so an admin sees
+// at a glance whether a chantier has already been billed before hitting
+// "Facturer ce chantier" again, without having to open Facturation or dig
+// through bank statements to check what's already been paid.
+export async function listFacturesForProjects(projectIds: string[]): Promise<Record<string, ProjectFactureSummary[]>> {
+  if (projectIds.length === 0) return {};
+
+  const { data: factures } = await supabase
+    .from('factures')
+    .select('id, project_id, number, status, vat_rate')
+    .in('project_id', projectIds)
+    .neq('status', 'cancelled')
+    .order('created_at', { ascending: false });
+  if (!factures?.length) return {};
+
+  const factureIds = factures.map((f) => f.id);
+  const [{ data: items }, { data: payments }] = await Promise.all([
+    supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', factureIds),
+    supabase.from('facture_payments').select('facture_id, amount').in('facture_id', factureIds),
+  ]);
+
+  const subtotalByFacture = new Map<string, number>();
+  for (const it of items ?? []) {
+    subtotalByFacture.set(it.facture_id, (subtotalByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
+  }
+  const paidByFacture = new Map<string, number>();
+  for (const p of payments ?? []) {
+    paidByFacture.set(p.facture_id, (paidByFacture.get(p.facture_id) ?? 0) + Number(p.amount));
+  }
+
+  const byProject: Record<string, ProjectFactureSummary[]> = {};
+  for (const f of factures) {
+    if (!f.project_id) continue;
+    const subtotal = subtotalByFacture.get(f.id) ?? 0;
+    const total = subtotal * (1 + Number(f.vat_rate) / 100);
+    const paid = paidByFacture.get(f.id) ?? 0;
+    const summary: ProjectFactureSummary = {
+      id: f.id,
+      number: f.number,
+      status: f.status,
+      total: Math.round(total * 100) / 100,
+      paid: Math.round(paid * 100) / 100,
+      remaining: Math.round(Math.max(0, total - paid) * 100) / 100,
+    };
+    (byProject[f.project_id] ??= []).push(summary);
+  }
+  return byProject;
+}
+
 export async function listFacturePayments(factureId: string): Promise<FacturePayment[]> {
   const { data } = await supabase
     .from('facture_payments')

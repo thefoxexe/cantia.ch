@@ -5,10 +5,11 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { listWorkTypes } from '../../../lib/api/payroll';
+import { listFacturesForProjects, type ProjectFactureSummary } from '../../../lib/api/factures';
 import { PayrollEntryPanel, defaultMonthRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
 import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
-import { Button, Card, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import type { Plan, PayrollWorkType } from '../../../lib/types';
 
@@ -58,6 +59,7 @@ export default function PayrollScreen() {
   const [invoiceProjectId, setInvoiceProjectId] = useState<string | null>(null);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [hasWorkTypes, setHasWorkTypes] = useState(true);
+  const [projectFactures, setProjectFactures] = useState<Record<string, ProjectFactureSummary[]>>({});
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -119,8 +121,22 @@ export default function PayrollScreen() {
       }
     }
     setSummaryLines(Array.from(totals.values()).sort((a, b) => a.projectName.localeCompare(b.projectName)));
+
+    const distinctProjectIds = Array.from(new Set((entryRows ?? []).map((r) => r.project_id).filter((id): id is string => !!id)));
+    setProjectFactures(await listFacturesForProjects(distinctProjectIds));
     setSummaryLoading(false);
   }, [organization, range.start, range.end]);
+
+  // Refreshes the summary (and its "already invoiced/paid" tracker) when
+  // coming back from creating a facture — the admin lands back here after
+  // finishing on the facture screen, and should see the up-to-date status
+  // without having to manually re-open the summary.
+  useFocusEffect(
+    useCallback(() => {
+      if (summaryOpen) loadSummary();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loadSummary]),
+  );
 
   function toggleSummary() {
     const next = !summaryOpen;
@@ -252,6 +268,7 @@ export default function PayrollScreen() {
                 totalHours={summaryTotalHours}
                 totalChf={summaryTotalChf}
                 canInvoice={canViewFinances}
+                projectFactures={projectFactures}
                 onInvoiceProject={(id) => {
                   setInvoiceProjectId(id);
                   setShowInvoiceModal(true);
@@ -281,6 +298,7 @@ export default function PayrollScreen() {
               totalHours={summaryTotalHours}
               totalChf={summaryTotalChf}
               canInvoice={canViewFinances}
+              projectFactures={projectFactures}
               onInvoiceProject={(id) => {
                 setInvoiceProjectId(id);
                 setShowInvoiceModal(true);
@@ -314,6 +332,7 @@ function SummaryCard({
   totalHours,
   totalChf,
   canInvoice,
+  projectFactures,
   onInvoiceProject,
 }: {
   open: boolean;
@@ -323,8 +342,10 @@ function SummaryCard({
   totalHours: number;
   totalChf: number;
   canInvoice: boolean;
+  projectFactures: Record<string, ProjectFactureSummary[]>;
   onInvoiceProject: (projectId: string) => void;
 }) {
+  const router = useRouter();
   const byProject = new Map<string, { projectId: string | null; projectName: string; lines: SummaryLine[] }>();
   for (const l of lines) {
     const key = l.projectId ?? 'none';
@@ -346,26 +367,46 @@ function SummaryCard({
           <Text style={styles.hint}>Aucune heure enregistrée sur cette période.</Text>
         ) : (
           <View style={{ marginTop: spacing.md, gap: spacing.lg }}>
-            {Array.from(byProject.values()).map((group) => (
-              <View key={group.projectId ?? 'none'}>
-                <View style={styles.summaryGroupHeader}>
-                  <Text style={styles.summaryProject}>{group.projectName}</Text>
-                  {group.projectId && canInvoice ? (
-                    <Pressable onPress={() => onInvoiceProject(group.projectId!)} style={styles.invoiceButton}>
-                      <Feather name="file-plus" size={13} color={colors.primary} />
-                      <Text style={styles.invoiceButtonText}>Facturer ce chantier</Text>
-                    </Pressable>
+            {Array.from(byProject.values()).map((group) => {
+              const factures = (group.projectId && projectFactures[group.projectId]) || [];
+              return (
+                <View key={group.projectId ?? 'none'}>
+                  <View style={styles.summaryGroupHeader}>
+                    <Text style={styles.summaryProject}>{group.projectName}</Text>
+                    {group.projectId && canInvoice ? (
+                      <Pressable onPress={() => onInvoiceProject(group.projectId!)} style={styles.invoiceButton}>
+                        <Feather name="file-plus" size={13} color={colors.primary} />
+                        <Text style={styles.invoiceButtonText}>Facturer ce chantier</Text>
+                      </Pressable>
+                    ) : null}
+                  </View>
+                  {group.lines.map((l, i) => (
+                    <View key={i} style={styles.summaryRow}>
+                      <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
+                      <Text style={styles.summaryHours}>{l.hours} h</Text>
+                      <Text style={styles.summaryChf}>{l.rate ? `CHF ${(l.rate * l.hours).toFixed(2)}` : '—'}</Text>
+                    </View>
+                  ))}
+                  {factures.length > 0 ? (
+                    <View style={styles.trackerBox}>
+                      <Text style={styles.trackerTitle}>Déjà facturé sur ce chantier</Text>
+                      {factures.map((f) => (
+                        <Pressable key={f.id} onPress={() => router.push(`/(app)/devis/factures/${f.id}`)} style={styles.trackerRow}>
+                          <Text style={styles.trackerNumber} numberOfLines={1}>{f.number ?? 'Brouillon'}</Text>
+                          <StatusBadge status={f.status} />
+                          <Text style={styles.trackerAmount}>CHF {f.total.toFixed(2)}</Text>
+                          <Text style={[styles.trackerRemaining, f.remaining > 0 && styles.trackerRemainingDue]}>
+                            {f.remaining > 0 ? `Reste CHF ${f.remaining.toFixed(2)}` : 'Soldée'}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : group.projectId ? (
+                    <Text style={styles.trackerEmpty}>Aucune facture émise sur ce chantier pour l'instant.</Text>
                   ) : null}
                 </View>
-                {group.lines.map((l, i) => (
-                  <View key={i} style={styles.summaryRow}>
-                    <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
-                    <Text style={styles.summaryHours}>{l.hours} h</Text>
-                    <Text style={styles.summaryChf}>{l.rate ? `CHF ${(l.rate * l.hours).toFixed(2)}` : '—'}</Text>
-                  </View>
-                ))}
-              </View>
-            ))}
+              );
+            })}
             <View style={styles.summaryTotalRow}>
               <Text style={styles.summaryTotalLabel}>Total</Text>
               <Text style={styles.summaryHours}>{totalHours} h</Text>
@@ -580,5 +621,53 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.sm,
     lineHeight: 16,
+  },
+  trackerBox: {
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+    gap: 4,
+  },
+  trackerTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 2,
+  },
+  trackerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 4,
+  },
+  trackerNumber: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  trackerAmount: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  trackerRemaining: {
+    fontSize: fontSize.xs,
+    color: colors.success,
+    width: 100,
+    textAlign: 'right',
+  },
+  trackerRemainingDue: {
+    color: colors.warning,
+    fontWeight: '700',
+  },
+  trackerEmpty: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    fontStyle: 'italic',
   },
 });
