@@ -12,6 +12,7 @@ import type { Plan } from '../../../lib/types';
 // admin's own on/off toggle.
 const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   planning: 'has_planning',
+  payroll: 'has_payroll',
 };
 
 export default function ModulesScreen() {

@@ -1,6 +1,6 @@
 import type { Plan } from './types';
 
-export type ModuleKey = 'documents' | 'photos' | 'devis' | 'survey' | 'metre' | 'planning' | 'profitability' | 'subcontractors';
+export type ModuleKey = 'documents' | 'photos' | 'devis' | 'survey' | 'metre' | 'planning' | 'profitability' | 'subcontractors' | 'payroll';
 
 interface ModuleDef {
   key: ModuleKey;
@@ -13,6 +13,7 @@ interface ModuleDef {
 export const ORG_MODULES: ModuleDef[] = [
   { key: 'devis', label: 'Devis', description: 'Création de devis et suivi de statut.' },
   { key: 'planning', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
+  { key: 'payroll', label: 'RH & Salaires', description: 'Heures, frais professionnels et fiches de salaire par employé.' },
 ];
 
 // Per-chantier: shown as a hub inside each chantier, toggled independently

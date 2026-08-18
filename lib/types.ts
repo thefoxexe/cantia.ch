@@ -50,6 +50,7 @@ export interface Plan {
   has_email_sending: boolean;
   has_planning: boolean;
   has_profitability: boolean;
+  has_payroll: boolean;
   max_trames: number | null;
   max_ai_uses_per_month: number | null;
   stripe_price_id: string | null;
@@ -79,6 +80,7 @@ export interface Organization {
   footer_text: string | null;
   iban: string | null;
   hourly_cost: number;
+  payroll_km_rate_chf: number;
   devis_email_message: string | null;
   facture_email_message: string | null;
   email_signature: string | null;
@@ -505,4 +507,52 @@ export interface SubcontractorInvoice {
   notes: string | null;
   created_by: string | null;
   created_at: string;
+}
+
+export interface PayrollTimeEntry {
+  id: string;
+  organization_id: string;
+  project_id: string | null;
+  user_id: string;
+  entry_date: string;
+  hours: number;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PayrollExpenseCategory = 'km' | 'autre';
+
+export interface PayrollExpense {
+  id: string;
+  organization_id: string;
+  project_id: string | null;
+  user_id: string;
+  expense_date: string;
+  category: PayrollExpenseCategory;
+  km: number | null;
+  amount_chf: number;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export type SalaryType = 'hourly' | 'monthly';
+
+export interface PayrollProfile {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  salary_type: SalaryType;
+  hourly_rate_chf: number | null;
+  monthly_salary_chf: number | null;
+  avs_rate_percent: number;
+  ac_rate_percent: number;
+  lpp_amount_chf: number;
+  laa_rate_percent: number;
+  source_tax_rate_percent: number;
+  notes: string | null;
+  updated_by: string | null;
+  updated_at: string;
 }

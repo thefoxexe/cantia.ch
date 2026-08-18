@@ -1050,6 +1050,7 @@ function LandingContent() {
                     <PriceFeature dark={dark} text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
                     <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
                     <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
+                    <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
                     <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
                     <PriceFeature
                       dark={dark}
@@ -1183,6 +1184,9 @@ function LandingContent() {
                 </Link>
                 <Link href="/solutions/planning">
                   <Text style={styles.footerLink}>Planning</Text>
+                </Link>
+                <Link href="/solutions/rh-salaires">
+                  <Text style={styles.footerLink}>RH & Salaires</Text>
                 </Link>
                 <Link href="/solutions/leves-metre">
                   <Text style={styles.footerLink}>Levés & Métré</Text>

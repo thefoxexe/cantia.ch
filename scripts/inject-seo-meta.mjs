@@ -226,6 +226,30 @@ const ROUTES = [
     ],
   },
   {
+    path: 'solutions/rh-salaires',
+    title: 'RH, heures & salaires pour le bâtiment | Cantia',
+    description:
+      "Chaque employé pointe ses heures par chantier et ses frais professionnels ; la secrétaire ou l'administrateur gère la fiche de salaire de toute l'équipe, du brut au net.",
+    faq: [
+      {
+        q: 'Qui peut voir les salaires dans Cantia ?',
+        a: "Uniquement la secrétaire RH et les administrateurs, selon les permissions accordées depuis Équipe. Un employé standard ne voit que ses propres heures et frais.",
+      },
+      {
+        q: 'Cantia calcule-t-il automatiquement les cotisations sociales suisses ?',
+        a: "Cantia calcule le salaire net à partir de taux AVS/AC/LPP/LAA et d'un taux d'impôt à la source configurables par employé — les taux par défaut sont indicatifs, à ajuster selon votre caisse de compensation, votre caisse LPP et le canton.",
+      },
+      {
+        q: "Comment un employé exporte-t-il sa feuille d'heures ?",
+        a: 'Depuis le module RH & Salaires, en choisissant la granularité — journalière, hebdomadaire ou mensuelle — puis en téléchargeant un fichier CSV.',
+      },
+      {
+        q: 'Le module RH & Salaires est-il inclus dans le plan gratuit ?',
+        a: 'Il est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
+      },
+    ],
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:

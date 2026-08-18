@@ -9,7 +9,16 @@ import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme'
 import { AccountMenu } from '../../components/AccountMenu';
 import { NavDrawer, type NavSection } from '../../components/NavDrawer';
 
-function buildSections(financeVisible: boolean, planningEnabled: boolean, subcontractorsVisible: boolean): NavSection[] {
+function buildSections(
+  financeVisible: boolean,
+  planningEnabled: boolean,
+  subcontractorsVisible: boolean,
+  payrollEnabled: boolean,
+): NavSection[] {
+  const teamLinks = [
+    ...(planningEnabled ? [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] : []),
+    ...(payrollEnabled ? [{ href: '/(app)/rh', label: 'RH & Salaires', icon: 'dollar-sign' as const }] : []),
+  ];
   return [
     { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
     {
@@ -35,9 +44,7 @@ function buildSections(financeVisible: boolean, planningEnabled: boolean, subcon
           },
         ]
       : []),
-    ...(planningEnabled
-      ? [{ title: 'ÉQUIPE', links: [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] }]
-      : []),
+    ...(teamLinks.length > 0 ? [{ title: 'ÉQUIPE', links: teamLinks }] : []),
     { links: [{ href: '/(app)/compte', label: 'Paramètres', icon: 'settings' }] },
   ];
 }
@@ -67,6 +74,10 @@ export default function AppLayout() {
   const { organization, canViewFinances, permissions } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
+  // Unlike Planning, RH & Salaires has no view permission gate: every member
+  // needs the module to log their own hours, regardless of canManagePayroll
+  // (that only controls what they see once inside it).
+  const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
   // A standard member without the "voir devis & factures" permission (see
   // équipe screen) doesn't get the FACTURATION section at all — Trames and
   // Inventaire live under the same /devis route subtree and only make sense
@@ -74,7 +85,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(financeVisible, planningEnabled, permissions.subcontractors);
+  const sections = buildSections(financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;
