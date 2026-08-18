@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { isModuleEnabled } from '../../../lib/modules';
+import { helpHref } from '../../../lib/appHost';
 import { Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -14,7 +15,7 @@ type IconName = keyof typeof Feather.glyphMap;
 // RH & Salaires — used constantly by anyone managing payroll, so it sits
 // above the more occasional config screens rather than trailing behind
 // personal items like Mon profil/Aide.
-const ITEMS: { href: string; icon: IconName; label: string; description: string }[] = [
+const ITEMS: { href: string; icon: IconName; label: string; description: string; external?: boolean }[] = [
   { href: '/(app)/compte/entreprise', icon: 'briefcase', label: 'Entreprise', description: "Coordonnées, TVA, IBAN et informations légales." },
   { href: '/(app)/compte/facturation', icon: 'credit-card', label: 'Abonnement', description: 'Votre plan et vos moyens de paiement.' },
   { href: '/(app)/compte/equipe', icon: 'users', label: 'Équipe', description: 'Membres, invitations et rôles personnalisés.' },
@@ -23,10 +24,12 @@ const ITEMS: { href: string; icon: IconName; label: string; description: string 
   { href: '/(app)/compte/apparence', icon: 'droplet', label: 'Apparence', description: 'Logo, couleur de marque et mise en page des PDF.' },
   { href: '/(app)/compte/stockage', icon: 'hard-drive', label: 'Stockage', description: 'Espace utilisé par vos chantiers.' },
   { href: '/(app)/compte/profil', icon: 'user', label: 'Mon profil', description: 'Nom, photo et mot de passe.' },
-  { href: '/(app)/compte/aide', icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.' },
+  // Opens the real cantia.ch/aide instead of a second, in-app copy of the
+  // same content — see lib/appHost.ts's helpHref().
+  { href: helpHref(), icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.', external: true },
 ];
 
-const RH_ITEM = {
+const RH_ITEM: { href: string; icon: IconName; label: string; description: string; external?: boolean } = {
   href: '/(app)/compte/rh',
   icon: 'dollar-sign' as IconName,
   label: 'RH & Salaires',
@@ -80,7 +83,7 @@ export default function CompteIndexScreen() {
               {items.map((item) => (
                 <Pressable
                   key={item.href}
-                  onPress={() => router.push(item.href as any)}
+                  onPress={() => (item.external ? Linking.openURL(item.href) : router.push(item.href as any))}
                   style={({ hovered }: any) => [styles.row, hovered && styles.rowHovered]}
                 >
                   <View style={styles.iconBadge}>

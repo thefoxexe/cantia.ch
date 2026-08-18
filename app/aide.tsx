@@ -11,10 +11,10 @@ function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
 }
 
-// Public counterpart to Compte → Aide (app/(app)/compte/aide.tsx), same
-// content — reachable from the marketing nav without needing an account, so
-// a prospect (or a client who just wants to know how something works) isn't
-// forced through login just to read an FAQ article.
+// The one Centre d'aide, reachable from the marketing nav without needing an
+// account (so a prospect, or a client who just wants to know how something
+// works, isn't forced through login), and linked to directly from inside the
+// app too (Compte, profile menu) — no separate in-app copy of this page.
 export default function PublicAideScreen() {
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);

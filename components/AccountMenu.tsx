@@ -6,6 +6,7 @@ import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { getSignedUrl } from '../lib/api/storage';
 import { canPromptInstall, promptInstall } from '../lib/pwaInstall';
+import { helpHref } from '../lib/appHost';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -148,7 +149,7 @@ export function AccountMenu() {
               style={styles.supportOption}
               onPress={() => {
                 setSupportVisible(false);
-                router.push('/(app)/compte/aide' as any);
+                Linking.openURL(helpHref()).catch(() => {});
               }}
             >
               <Feather name="book-open" size={16} color={colors.primary} />

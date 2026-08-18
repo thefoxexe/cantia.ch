@@ -47,3 +47,15 @@ export function authHref(kind: 'login' | 'signup'): string {
   if (isMarketingHost()) return `https://${APP_HOST}/${kind}`;
   return `/(auth)/${kind}`;
 }
+
+// The in-app "Aide" screen used to duplicate the marketing site's Centre
+// d'aide with its own (worse) UI — two pages with the same content drifting
+// apart. There's only one now: everywhere inside the app (profile menu,
+// Compte), "Aide" opens the real cantia.ch/aide, same as the marketing nav.
+// Already being on the marketing site itself is the one case that stays
+// same-origin, so clicking Aide there doesn't pointlessly open a new tab to
+// itself.
+export function helpHref(): string {
+  if (isMarketingHost()) return '/aide';
+  return 'https://cantia.ch/aide';
+}
