@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 import { Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { HELP_ARTICLES } from '../lib/helpArticles';
@@ -45,6 +46,17 @@ export default function PublicAideScreen() {
         <Container style={styles.container}>
           <Text style={styles.title}>Centre d'aide</Text>
           <Text style={styles.lead}>Les réponses aux questions les plus fréquentes sur Cantia.</Text>
+
+          <Link href="/aide/videos" asChild>
+            <Pressable style={styles.videosCard}>
+              <Feather name="film" size={18} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.videosCardTitle}>Tutoriels & démos en vidéo</Text>
+                <Text style={styles.videosCardText}>Voir chaque module en action, module par module.</Text>
+              </View>
+              <Feather name="chevron-right" size={16} color={colors.textMuted} />
+            </Pressable>
+          </Link>
 
           <View style={styles.searchRow}>
             <Feather name="search" size={16} color={colors.textMuted} />
@@ -124,6 +136,27 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.xs,
     marginBottom: spacing.lg,
+  },
+  videosCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  videosCardTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  videosCardText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 1,
   },
   searchRow: {
     flexDirection: 'row',

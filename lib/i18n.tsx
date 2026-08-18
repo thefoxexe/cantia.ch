@@ -50,7 +50,7 @@ interface Dict {
 }
 
 const fr: Dict = {
-  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Aide', login: 'Se connecter', cta: 'Essayer gratuitement' },
+  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Documentation', login: 'Se connecter', cta: 'Essayer gratuitement' },
   hero: {
     kicker: 'L’application métier du bâtiment suisse',
     headlinePrefix: 'L’application qui gère votre administratif,',

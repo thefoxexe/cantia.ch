@@ -1,0 +1,166 @@
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { Container, Screen } from '../../components/ui';
+import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
+import { TUTORIAL_VIDEOS } from '../../lib/tutorialVideos';
+import { colors, fontSize, radius, spacing } from '../../lib/theme';
+
+// Public tutorial/demo library, one card per module — reachable from the
+// Centre d'aide. Videos are recorded and uploaded separately (YouTube);
+// until a card's youtubeId is filled in (see lib/tutorialVideos.ts) it shows
+// as "Bientôt disponible" instead of a broken or empty player, so this page
+// can ship before a single video exists.
+export default function TutorialVideosScreen() {
+  return (
+    <Screen>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <MarketingNav />
+
+        <Container style={styles.container}>
+          <Link href="/aide" style={styles.backLink}>
+            <Feather name="arrow-left" size={14} color={colors.textMuted} />
+            <Text style={styles.backLinkText}>Centre d'aide</Text>
+          </Link>
+          <Text style={styles.title}>Tutoriels & démos</Text>
+          <Text style={styles.lead}>
+            De courtes vidéos pour voir chaque module en action — prise en main, formation d'une nouvelle recrue,
+            ou juste un aperçu avant de s'inscrire.
+          </Text>
+
+          <View style={styles.grid}>
+            {TUTORIAL_VIDEOS.map((video) => (
+              <VideoCard key={video.id} video={video} />
+            ))}
+          </View>
+        </Container>
+
+        <MarketingFooter />
+      </ScrollView>
+    </Screen>
+  );
+}
+
+function VideoCard({ video }: { video: (typeof TUTORIAL_VIDEOS)[number] }) {
+  const available = !!video.youtubeId;
+  const thumbnail = video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : null;
+
+  return (
+    <Pressable
+      disabled={!available}
+      onPress={() => video.youtubeId && Linking.openURL(`https://www.youtube.com/watch?v=${video.youtubeId}`)}
+      style={styles.card}
+    >
+      <View style={styles.thumb}>
+        {thumbnail ? (
+          <Image source={{ uri: thumbnail }} style={styles.thumbImage} resizeMode="cover" />
+        ) : (
+          <Feather name="film" size={22} color={colors.textMuted} />
+        )}
+        <View style={[styles.playBadge, !available && styles.playBadgeDisabled]}>
+          <Feather name={available ? 'play' : 'clock'} size={14} color="#fff" />
+        </View>
+      </View>
+      <Text style={styles.cardTitle}>{video.title}</Text>
+      <Text style={styles.cardText}>{video.description}</Text>
+      {!available ? <Text style={styles.soonBadge}>Bientôt disponible</Text> : null}
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  scroll: {
+    paddingBottom: spacing.xxl,
+  },
+  container: {
+    maxWidth: 960,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
+  },
+  backLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: spacing.lg,
+  },
+  backLinkText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  title: {
+    fontSize: fontSize.xxl,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  lead: {
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xl,
+    maxWidth: 560,
+    lineHeight: 22,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.lg,
+  },
+  card: {
+    width: 280,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  thumb: {
+    height: 140,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginBottom: spacing.sm,
+  },
+  thumbImage: {
+    width: '100%',
+    height: '100%',
+  },
+  playBadge: {
+    position: 'absolute',
+    bottom: spacing.sm,
+    right: spacing.sm,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playBadgeDisabled: {
+    backgroundColor: colors.textMuted,
+  },
+  cardTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  cardText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 19,
+  },
+  soonBadge: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 2,
+  },
+});

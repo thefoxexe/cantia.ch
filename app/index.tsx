@@ -122,7 +122,7 @@ function LandingContent() {
   const heroTiltY = useRef(new Animated.Value(0)).current;
   const heroVisualRef = useRef<View>(null);
   const menuItemAnims = useRef(
-    Array.from({ length: 5 }, () => new Animated.Value(0)),
+    Array.from({ length: 6 }, () => new Animated.Value(0)),
   ).current;
   // The problem→solution connector's little "trailing" lag as you scroll:
   // each scroll tick nudges it away from rest by a fraction of that tick's
@@ -1163,6 +1163,12 @@ function LandingContent() {
                   <Text style={styles.footerBrand}>Cantia</Text>
                 </View>
                 <Text style={styles.footerText}>{t.footer.blurb}</Text>
+                <Link href="/aide" asChild>
+                  <Pressable style={styles.footerHelpPill}>
+                    <Feather name="life-buoy" size={14} color={colors.primaryDark} />
+                    <Text style={styles.footerHelpPillText}>Centre d'aide & documentation</Text>
+                  </Pressable>
+                </Link>
               </View>
               <View style={styles.footerCol}>
                 {/* Merged with the old standalone "Solutions" column — as two
@@ -1205,6 +1211,9 @@ function LandingContent() {
                 </Link>
                 <Link href={authHref('signup')}>
                   <Text style={styles.footerLink}>{t.footer.signup}</Text>
+                </Link>
+                <Link href="/aide">
+                  <Text style={styles.footerLink}>{t.nav.help}</Text>
                 </Link>
                 <Link href="/mentions-legales">
                   <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
@@ -1254,6 +1263,9 @@ function LandingContent() {
                 <Link href="/telechargement">
                   <Text style={styles.navLink}>{t.nav.download}</Text>
                 </Link>
+                <Link href="/aide">
+                  <Text style={styles.navLink}>{t.nav.help}</Text>
+                </Link>
                 <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
                 </Link>
@@ -1298,11 +1310,14 @@ function LandingContent() {
                 <Link href="/telechargement" asChild>
                   <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} icon="download" label={t.nav.download} />
                 </Link>
+                <Link href="/aide" asChild>
+                  <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} icon="life-buoy" label={t.nav.help} />
+                </Link>
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[3],
+                    opacity: menuItemAnims[4],
                     transform: [
-                      { translateY: menuItemAnims[3].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -1317,9 +1332,9 @@ function LandingContent() {
 
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[4],
+                    opacity: menuItemAnims[5],
                     transform: [
-                      { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -3869,6 +3884,22 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 18,
+  },
+  footerHelpPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primarySoft,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 999,
+    marginTop: spacing.xs,
+  },
+  footerHelpPillText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primaryDark,
   },
   footerBottom: {
     flexDirection: 'row',
