@@ -17,7 +17,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     keywords: ['démarrage', 'organisation', 'équipe', 'entreprise', 'compte', 'onboarding'],
     body: [
       "Tout tourne autour d'une organisation (votre entreprise) : vous l'avez créée à l'inscription, et toutes les personnes qui la rejoignent partagent les mêmes chantiers, devis, factures et documents.",
-      "Les modules (Rentabilité, Planning, Levés, Métré, Inventaire, Trames…) sont activables un par un dans Compte → Modules — un nouveau module n'apparaît jamais tout seul dans la barre du bas, il faut l'activer une fois.",
+      "Les modules (Rentabilité, Planning, Métré, Inventaire, Trames…) sont activables un par un dans Compte → Modules — un nouveau module n'apparaît jamais tout seul dans la barre du bas, il faut l'activer une fois.",
       "La barre de navigation en bas (ou la barre latérale sur tablette/desktop) défile horizontalement s'il y a plus d'onglets que de place — glissez pour voir les modules activés.",
       "En haut à droite, le menu compte donne accès aux paramètres, à l'installation de l'application et à la déconnexion.",
     ],
@@ -103,14 +103,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   {
-    id: 'leves-metre',
-    category: 'Levés & Métré',
-    title: 'Levés de terrain et métré',
-    keywords: ['levé', 'point', 'gps', 'cadastre', 'métré', 'export'],
+    id: 'metre',
+    category: 'Métré',
+    title: 'Le métré',
+    keywords: ['métré', 'quantité', 'mesure'],
     body: [
-      "Le module Levés permet de relever des points GPS sur le terrain (position en direct sur la carte), avec numérotation automatique et classes personnalisables, sur fond de carte cadastrale ou orthophoto suisse.",
-      "Les points relevés s'exportent dans les formats courants pour être réutilisés dans un autre logiciel.",
       "Le module Métré donne un tableau de mesures adapté au mobile, pour calculer des surfaces et quantités directement depuis le chantier.",
+      "Chaque poste de métré peut être transformé en ligne de devis chiffrée en un clic.",
     ],
   },
   {
@@ -130,7 +129,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     keywords: ['équipe', 'invitation', 'rôle', 'module', 'admin'],
     body: [
       "Depuis Compte → Équipe, un lien d'invitation permet à un collègue de rejoindre l'organisation ; les demandes d'adhésion en attente sont validées par un administrateur.",
-      "Compte → Modules active ou désactive les fonctionnalités optionnelles (Planning, Rentabilité, Levés, Métré, Inventaire, Trames…) organisation par organisation — un module éteint disparaît simplement de la barre de navigation, aucune donnée n'est perdue si vous le rallumez plus tard.",
+      "Compte → Modules active ou désactive les fonctionnalités optionnelles (Planning, Rentabilité, Métré, Inventaire, Trames…) organisation par organisation — un module éteint disparaît simplement de la barre de navigation, aucune donnée n'est perdue si vous le rallumez plus tard.",
     ],
   },
   {

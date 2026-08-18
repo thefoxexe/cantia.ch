@@ -1052,7 +1052,6 @@ function LandingContent() {
                         }
                         muted={!!p.max_devis_factures_per_month}
                       />
-                      <PriceFeature dark={dark} text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
                       <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
                       <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
                       <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
@@ -1097,7 +1096,7 @@ function LandingContent() {
                 <Text style={[styles.swissText, isCompactNav && styles.swissTextCompact]}>{t.swiss.text}</Text>
               </View>
               <View style={styles.swissFacts}>
-                {['Montants en CHF, TVA suisse intégrée', 'Cadastre & orthophoto officiels', 'Pensé pour les PME suisses'].map((fact) => (
+                {['Montants en CHF, TVA suisse intégrée', 'Données hébergées en Suisse', 'Pensé pour les PME suisses'].map((fact) => (
                   <View key={fact} style={styles.swissFactRow}>
                     <View style={styles.swissFactCheck}>
                       <Feather name="check" size={11} color="#fff" />
@@ -1166,6 +1165,10 @@ function LandingContent() {
                 <Text style={styles.footerText}>{t.footer.blurb}</Text>
               </View>
               <View style={styles.footerCol}>
+                {/* Merged with the old standalone "Solutions" column — as two
+                    separate columns, Produit looked nearly empty next to
+                    Solutions' long list. Grouped under one "Produit" heading
+                    instead, so no column reads as an afterthought. */}
                 <Text style={styles.footerColTitle}>{t.footer.product}</Text>
                 <Pressable onPress={scrollToServices}>
                   <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
@@ -1173,9 +1176,6 @@ function LandingContent() {
                 <Pressable onPress={scrollToPricing}>
                   <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
                 </Pressable>
-              </View>
-              <View style={styles.footerCol}>
-                <Text style={styles.footerColTitle}>Solutions</Text>
                 <Link href="/solutions/devis">
                   <Text style={styles.footerLink}>Devis</Text>
                 </Link>
@@ -1194,9 +1194,6 @@ function LandingContent() {
                 <Link href="/solutions/rh-salaires">
                   <Text style={styles.footerLink}>RH & Salaires</Text>
                 </Link>
-                <Link href="/solutions/leves-metre">
-                  <Text style={styles.footerLink}>Levés & Métré</Text>
-                </Link>
                 <Link href="/solutions/rentabilite">
                   <Text style={styles.footerLink}>Rentabilité</Text>
                 </Link>
@@ -1209,9 +1206,6 @@ function LandingContent() {
                 <Link href={authHref('signup')}>
                   <Text style={styles.footerLink}>{t.footer.signup}</Text>
                 </Link>
-              </View>
-              <View style={styles.footerCol}>
-                <Text style={styles.footerColTitle}>{t.footer.legal}</Text>
                 <Link href="/mentions-legales">
                   <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
                 </Link>
@@ -1224,7 +1218,7 @@ function LandingContent() {
               <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
               <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
                 <Pressable style={styles.footerSocialLink}>
-                  <Feather name="instagram" size={15} color={colors.textMuted} />
+                  <Ionicons name="logo-instagram" size={16} color="#E1306C" />
                   <Text style={styles.footerCopy}>@cantia.ch</Text>
                 </Pressable>
               </Link>

@@ -61,7 +61,7 @@ export default function ModulesScreen() {
           <PageHeader title="Outils & modules" backTo="/(app)/compte" />
           <Text style={styles.hint}>
             Sections principales de l'application, pour toute l'équipe. Les outils propres à un chantier (documents,
-            photos, levés, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de
+            photos, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de
             chaque chantier.
           </Text>
           <View style={{ marginTop: spacing.lg, gap: spacing.lg }}>

@@ -14,18 +14,17 @@ WebBrowser.maybeCompleteAuthSession();
 
 // Everything besides Finance defaults to granted for a member with no
 // custom role assigned — assigning one and only touching, say, the Finance
-// checkbox shouldn't silently strip access to Levés/Métré/Planning/
-// Documents the member already had. Finance is the one opt-in-only
-// permission (see équipe screen and 20260812130000's rationale).
+// checkbox shouldn't silently strip access to Métré/Planning/Documents the
+// member already had. Finance is the one opt-in-only permission (see équipe
+// screen and 20260812130000's rationale).
 interface RolePermissions {
-  survey: boolean;
   metre: boolean;
   planning: boolean;
   documents: boolean;
   subcontractors: boolean;
 }
 
-const FULL_ACCESS: RolePermissions = { survey: true, metre: true, planning: true, documents: true, subcontractors: true };
+const FULL_ACCESS: RolePermissions = { metre: true, planning: true, documents: true, subcontractors: true };
 
 interface AuthContextValue {
   session: Session | null;
@@ -69,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: membership } = await supabase
         .from('organization_members')
         .select(
-          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_survey, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
+          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
         )
         .eq('user_id', userId)
         .limit(1)
@@ -80,7 +79,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRole(membership.role as OrgRole);
         const assignedRole = membership.organization_roles as unknown as {
           can_view_finances: boolean;
-          can_view_survey: boolean;
           can_view_metre: boolean;
           can_view_planning: boolean;
           can_view_documents: boolean;
@@ -97,7 +95,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isStructuralAdmin || hasNoCustomRole
             ? FULL_ACCESS
             : {
-                survey: !!assignedRole?.can_view_survey,
                 metre: !!assignedRole?.can_view_metre,
                 planning: !!assignedRole?.can_view_planning,
                 documents: !!assignedRole?.can_view_documents,

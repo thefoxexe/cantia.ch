@@ -141,30 +141,6 @@ export const ROUTES = [
     ],
   },
   {
-    path: 'solutions/leves-metre',
-    title: 'Levés & métré sur cadastre suisse | Cantia',
-    description:
-      "Placez vos points sur le cadastre et l'orthophoto officiels suisses, puis passez au métré pour chiffrer les quantités.",
-    faq: [
-      {
-        q: 'Peut-on faire des levés directement sur le cadastre suisse ?',
-        a: "Oui, Cantia affiche le cadastre et l'orthophoto officiels suisses, et vous placez vos points directement dessus.",
-      },
-      {
-        q: 'Comment exporter les données de levés ?',
-        a: "Au format DXF, LandXML, CSV ou GPX, pour les réutiliser dans d'autres logiciels ou les partager avec un bureau d'ingénieurs.",
-      },
-      {
-        q: 'Le métré est-il relié directement au devis ?',
-        a: 'Oui, chaque poste de métré peut être transformé en ligne de devis chiffrée en un clic.',
-      },
-      {
-        q: 'Faut-il un récepteur GPS professionnel pour les levés ?',
-        a: 'Non, un smartphone suffit pour la plupart des usages de terrain.',
-      },
-    ],
-  },
-  {
     path: 'solutions/rentabilite',
     title: 'Rentabilité par chantier | Cantia',
     description:

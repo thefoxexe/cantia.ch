@@ -8,7 +8,7 @@ import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type Modul
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
-const DEFAULT_MODULES = ['documents', 'photos', 'survey', 'metre'];
+const DEFAULT_MODULES = ['documents', 'photos', 'metre'];
 
 export default function NewChantierScreen() {
   const { organization, user } = useAuth();

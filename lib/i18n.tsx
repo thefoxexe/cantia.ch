@@ -27,7 +27,6 @@ interface Dict {
     memberSingular: string;
     memberPlural: string;
     unlimited: string;
-    surveyFeature: string;
     badge: string;
     freeCta: string;
     paidCta: string;
@@ -178,20 +177,11 @@ const fr: Dict = {
         ],
       },
       {
-        title: 'Levés & cadastre suisse',
-        text: 'Positionnez vos points de chantier directement sur le cadastre et l’orthophoto officiels de la Suisse, puis exportez-les en DXF, CSV, XML ou GPX.',
-        detail: [
-          'Carte interactive avec cadastre et orthophoto officiels suisses',
-          'Ajout de points par position GPS ou directement sur la carte',
-          'Export DXF, LandXML, CSV ou GPX — réservé aux plans payants',
-        ],
-      },
-      {
         title: 'Pensé pour l’équipe',
-        text: 'Créez des rôles sur mesure et décidez précisément qui voit quoi — devis, factures, planning, levés — sans tout donner à tout le monde.',
+        text: 'Créez des rôles sur mesure et décidez précisément qui voit quoi — devis, factures, planning — sans tout donner à tout le monde.',
         detail: [
           'Rôles personnalisables avec accès à cocher par domaine',
-          'Finance, Levés, Métré, Planning et Documents gérés séparément',
+          'Finance, Métré, Planning et Documents gérés séparément',
           'Ajout de collaborateurs selon votre plan',
         ],
       },
@@ -221,7 +211,6 @@ const fr: Dict = {
     memberSingular: 'membre',
     memberPlural: 'membres',
     unlimited: 'Rapports & devis illimités',
-    surveyFeature: 'Levés & cadastre suisse',
     badge: 'Le plus choisi',
     freeCta: 'Commencer gratuitement',
     paidCta: 'Choisir ce plan',
@@ -244,7 +233,7 @@ const fr: Dict = {
     trust: ['Gratuit pour démarrer', 'Sans carte bancaire', 'Hébergé en Suisse'],
   },
   footer: {
-    blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures, levés et métré, tous au même endroit.',
+    blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures et métré, tous au même endroit.',
     product: 'Produit',
     account: 'Compte',
     legal: 'Légal',

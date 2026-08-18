@@ -27,7 +27,6 @@ interface HubItem {
 const COUNTABLE: Record<string, { table: string; unit: string; unitPlural: string }> = {
   reports: { table: 'reports', unit: 'rapport', unitPlural: 'rapports' },
   documents: { table: 'files', unit: 'fichier', unitPlural: 'fichiers' },
-  survey: { table: 'survey_points', unit: 'point', unitPlural: 'points' },
   metre: { table: 'metre_items', unit: 'ligne', unitPlural: 'lignes' },
   subcontractors: { table: 'project_subcontractors', unit: 'sous-traitant', unitPlural: 'sous-traitants' },
 };
@@ -91,13 +90,6 @@ export default function ChantierDetailScreen() {
       icon: 'map',
       route: `/(app)/chantiers/${id}/map`,
       visible: isModuleEnabled(enabled, 'photos'),
-    },
-    {
-      key: 'survey',
-      label: 'Levés',
-      icon: 'crosshair',
-      route: `/(app)/chantiers/${id}/survey`,
-      visible: isModuleEnabled(enabled, 'survey') && permissions.survey,
     },
     {
       key: 'metre',

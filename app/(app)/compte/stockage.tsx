@@ -15,7 +15,7 @@ const CATEGORY_META: Record<string, { label: string; icon: IconName }> = {
   rapports: { label: 'Rapports (PDF)', icon: 'clipboard' },
   devis_factures: { label: 'Devis & factures (PDF)', icon: 'file-text' },
   documents: { label: 'Documents de chantier', icon: 'folder' },
-  exports: { label: 'Exports (levés)', icon: 'map-pin' },
+  exports: { label: 'Exports', icon: 'map-pin' },
   marque: { label: 'Marque & profils', icon: 'briefcase' },
   autre: { label: 'Autre', icon: 'more-horizontal' },
 };

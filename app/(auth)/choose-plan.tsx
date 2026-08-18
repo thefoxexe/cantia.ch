@@ -183,7 +183,6 @@ function PlanCard({
         <Feature text={`${(plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
         <Feature text={`${plan.max_members} membre${plan.max_members > 1 ? 's' : ''}`} />
         <Feature text="Rapports & devis illimités" />
-        <Feature text="Levés & cadastre suisse" muted={!plan.has_rtk} />
       </View>
       <Button
         title={`Choisir ${plan.name}`}

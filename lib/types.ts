@@ -45,7 +45,6 @@ export interface Plan {
   price_chf_yearly: number | null;
   is_contact_only: boolean;
   max_devis_factures_per_month: number | null;
-  has_rtk: boolean;
   has_customization: boolean;
   has_email_sending: boolean;
   has_planning: boolean;
@@ -138,7 +137,6 @@ export interface OrganizationRole {
   name: string;
   color: string;
   can_view_finances: boolean;
-  can_view_survey: boolean;
   can_view_metre: boolean;
   can_view_planning: boolean;
   can_view_documents: boolean;
@@ -428,24 +426,6 @@ export interface Folder {
   project_id: string;
   parent_id: string | null;
   name: string;
-  created_by: string | null;
-  created_at: string;
-}
-
-export interface SurveyPoint {
-  id: string;
-  organization_id: string;
-  project_id: string;
-  code: string;
-  description: string | null;
-  class: string | null;
-  latitude: number;
-  longitude: number;
-  elevation: number | null;
-  lv95_e: number | null;
-  lv95_n: number | null;
-  source: string;
-  sort_order: number;
   created_by: string | null;
   created_at: string;
 }

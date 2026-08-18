@@ -52,7 +52,6 @@ type IconName = keyof typeof Feather.glyphMap;
 // sans devoir tout re-accorder ailleurs.
 const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName; label: string; description: string }[] = [
   { key: 'canViewFinances', icon: 'file-text', label: 'Finance', description: 'Devis, factures et rentabilité par chantier.' },
-  { key: 'canViewSurvey', icon: 'crosshair', label: 'Levés', description: 'Points de chantier et cadastre suisse.' },
   { key: 'canViewMetre', icon: 'list', label: 'Métré', description: 'Tableau de quantités poste par poste.' },
   { key: 'canViewPlanning', icon: 'calendar', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
   { key: 'canViewDocuments', icon: 'folder', label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
@@ -74,7 +73,6 @@ const EMPTY_DRAFT: RoleDraft = {
   color: ROLE_COLORS[0],
   permissions: {
     canViewFinances: false,
-    canViewSurvey: true,
     canViewMetre: true,
     canViewPlanning: true,
     canViewDocuments: true,
@@ -342,7 +340,6 @@ export default function EquipeScreen() {
                         color: r.color,
                         permissions: {
                           canViewFinances: r.can_view_finances,
-                          canViewSurvey: r.can_view_survey,
                           canViewMetre: r.can_view_metre,
                           canViewPlanning: r.can_view_planning,
                           canViewDocuments: r.can_view_documents,

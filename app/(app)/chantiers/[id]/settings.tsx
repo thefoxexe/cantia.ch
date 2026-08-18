@@ -183,7 +183,7 @@ export default function ChantierSettingsScreen() {
           </View>
           <Text style={styles.accessHint}>
             {restricted
-              ? 'Ce chantier est restreint : seules les personnes activées ci-dessous y ont accès (fil, rapports, documents, photos, levés).'
+              ? 'Ce chantier est restreint : seules les personnes activées ci-dessous y ont accès (fil, rapports, documents, photos).'
               : "Par défaut, tous les membres de l'équipe ont accès à ce chantier. Désactivez une personne pour restreindre l'accès."}
           </Text>
           <Card style={{ padding: 0, overflow: 'hidden' }}>

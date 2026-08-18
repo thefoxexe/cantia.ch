@@ -3,7 +3,6 @@ import type { OrganizationRole } from '../types';
 
 export interface RolePermissions {
   canViewFinances: boolean;
-  canViewSurvey: boolean;
   canViewMetre: boolean;
   canViewPlanning: boolean;
   canViewDocuments: boolean;
@@ -15,7 +14,6 @@ export interface RolePermissions {
 function toRow(permissions: RolePermissions) {
   return {
     can_view_finances: permissions.canViewFinances,
-    can_view_survey: permissions.canViewSurvey,
     can_view_metre: permissions.canViewMetre,
     can_view_planning: permissions.canViewPlanning,
     can_view_documents: permissions.canViewDocuments,

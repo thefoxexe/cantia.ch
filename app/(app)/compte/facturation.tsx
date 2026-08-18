@@ -125,7 +125,7 @@ export default function FacturationScreen() {
             </View>
           ) : (
             <Text style={styles.hint}>
-              Passez à un plan payant pour débloquer les levés RTK, le cadastre suisse et davantage de stockage.
+              Passez à un plan payant pour débloquer davantage de stockage et de fonctionnalités.
             </Text>
           )}
 
