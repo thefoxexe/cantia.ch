@@ -38,6 +38,10 @@ interface AuthContextValue {
   // stale/missing can_view_finances value on an admin/owner row can never
   // lock them out.
   canViewFinances: boolean;
+  // Same opt-in-only semantics as canViewFinances: always true for
+  // owner/admin, granted per member via a custom role otherwise.
+  canCreateProjects: boolean;
+  canManagePayroll: boolean;
   permissions: RolePermissions;
   loading: boolean;
   refreshOrganization: () => Promise<void>;
@@ -55,6 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
   const [canViewFinances, setCanViewFinances] = useState(false);
+  const [canCreateProjects, setCanCreateProjects] = useState(false);
+  const [canManagePayroll, setCanManagePayroll] = useState(false);
   const [permissions, setPermissions] = useState<RolePermissions>(FULL_ACCESS);
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: membership } = await supabase
         .from('organization_members')
         .select(
-          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_survey, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors)',
+          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_survey, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
         )
         .eq('user_id', userId)
         .limit(1)
@@ -79,10 +85,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           can_view_planning: boolean;
           can_view_documents: boolean;
           can_view_subcontractors: boolean;
+          can_create_projects: boolean;
+          can_manage_payroll: boolean;
         } | null;
         const isStructuralAdmin = membership.role !== 'member';
         const hasNoCustomRole = !membership.role_id;
         setCanViewFinances(isStructuralAdmin || !!assignedRole?.can_view_finances);
+        setCanCreateProjects(isStructuralAdmin || !!assignedRole?.can_create_projects);
+        setCanManagePayroll(isStructuralAdmin || !!assignedRole?.can_manage_payroll);
         setPermissions(
           isStructuralAdmin || hasNoCustomRole
             ? FULL_ACCESS
@@ -98,6 +108,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
+        setCanCreateProjects(false);
+        setCanManagePayroll(false);
         setPermissions(FULL_ACCESS);
       }
     } catch (err) {
@@ -105,6 +117,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(null);
       setRole(null);
       setCanViewFinances(false);
+      setCanCreateProjects(false);
+      setCanManagePayroll(false);
       setPermissions(FULL_ACCESS);
     }
   }, []);
@@ -251,6 +265,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization,
       role,
       canViewFinances,
+      canCreateProjects,
+      canManagePayroll,
       permissions,
       loading,
       refreshOrganization,
@@ -265,6 +281,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization,
       role,
       canViewFinances,
+      canCreateProjects,
+      canManagePayroll,
       permissions,
       loading,
       refreshOrganization,

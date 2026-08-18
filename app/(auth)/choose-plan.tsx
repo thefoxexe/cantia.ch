@@ -25,6 +25,7 @@ export default function ChoosePlanScreen() {
       .from('plans')
       .select('*')
       .neq('id', 'free')
+      .eq('is_contact_only', false)
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => setPlans(data ?? []));
   }, []);
@@ -160,7 +161,9 @@ function PlanCard({
   onChoose: () => void;
 }) {
   const isYearly = billingInterval === 'year';
-  const displayMonthly = isYearly && plan.price_chf_yearly != null ? plan.price_chf_yearly / 12 : plan.price_chf_monthly;
+  // is_contact_only plans are filtered out of the query this screen loads
+  // from (self-serve checkout only), so price_chf_monthly is always set here.
+  const displayMonthly = (isYearly && plan.price_chf_yearly != null ? plan.price_chf_yearly / 12 : plan.price_chf_monthly) ?? 0;
   return (
     <Card style={[styles.card, highlight && styles.cardHighlight]}>
       {highlight ? (

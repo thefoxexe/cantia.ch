@@ -41,8 +41,9 @@ export interface Plan {
   name: string;
   storage_quota_mb: number;
   max_members: number;
-  price_chf_monthly: number;
+  price_chf_monthly: number | null;
   price_chf_yearly: number | null;
+  is_contact_only: boolean;
   max_devis_factures_per_month: number | null;
   has_rtk: boolean;
   has_customization: boolean;
@@ -140,6 +141,8 @@ export interface OrganizationRole {
   can_view_planning: boolean;
   can_view_documents: boolean;
   can_view_subcontractors: boolean;
+  can_create_projects: boolean;
+  can_manage_payroll: boolean;
   created_at: string;
 }
 

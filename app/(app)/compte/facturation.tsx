@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -37,10 +37,18 @@ export default function FacturationScreen() {
     }, [load]),
   );
 
-  const paidPlans = useMemo(() => plans.filter((p) => p.id !== 'free'), [plans]);
+  // "Sur devis" plan is never self-serve: no Stripe checkout for it, contact
+  // Cantia by e-mail instead. Kept out of paidPlans so it never enters the
+  // checkout/upgrade progression below.
+  const paidPlans = useMemo(() => plans.filter((p) => p.id !== 'free' && !p.is_contact_only), [plans]);
+  const contactPlan = useMemo(() => plans.find((p) => p.is_contact_only), [plans]);
   const currentIndex = paidPlans.findIndex((p) => p.id === organization?.plan_id);
   const nextPlan = hasActiveSubscription && currentIndex >= 0 ? paidPlans[currentIndex + 1] : undefined;
   const isMaxPlan = hasActiveSubscription && currentIndex >= 0 && currentIndex === paidPlans.length - 1;
+
+  function contactForCustomPlan() {
+    Linking.openURL('mailto:info@cantia.ch?subject=Plan sur mesure Cantia').catch(() => {});
+  }
 
   async function goToCheckout(planId: string) {
     if (!organization || busy) return;
@@ -92,7 +100,9 @@ export default function FacturationScreen() {
 
           <View style={styles.planRow}>
             <Text style={styles.planName}>{plan?.name ?? '—'}</Text>
-            <Text style={styles.planPrice}>{plan ? `CHF ${plan.price_chf_monthly}/mois` : ''}</Text>
+            <Text style={styles.planPrice}>
+              {plan ? (plan.is_contact_only ? 'Sur devis' : `CHF ${plan.price_chf_monthly}/mois`) : ''}
+            </Text>
           </View>
           {plan ? (
             <Text style={styles.meta}>
@@ -107,7 +117,9 @@ export default function FacturationScreen() {
               <Text style={styles.bannerText}>
                 Abonnement {organization?.subscription_status === 'active' ? 'actif' : organization?.subscription_status}.
                 {isMaxPlan
-                  ? ' Vous êtes sur le plan le plus élevé.'
+                  ? contactPlan
+                    ? ' Vous êtes sur le plan le plus élevé en libre-service. Besoin de plus ? Contactez-nous.'
+                    : ' Vous êtes sur le plan le plus élevé.'
                   : ' Le moyen de paiement, le downgrade et la résiliation se gèrent depuis "Gérer mon abonnement".'}
               </Text>
             </View>
@@ -136,6 +148,9 @@ export default function FacturationScreen() {
                   onPress={() => goToCheckout(nextPlan.id)}
                   loading={busy}
                 />
+              ) : null}
+              {isMaxPlan && contactPlan ? (
+                <Button title="Nous contacter (plan sur mesure)" icon="mail" variant="secondary" onPress={contactForCustomPlan} />
               ) : null}
               {hasActiveSubscription ? (
                 <Button
@@ -175,6 +190,22 @@ export default function FacturationScreen() {
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Pressable>
             ))}
+            {contactPlan ? (
+              <Pressable
+                style={styles.planOption}
+                onPress={() => {
+                  setShowChoice(false);
+                  contactForCustomPlan();
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.planOptionName}>{contactPlan.name}</Text>
+                  <Text style={styles.planOptionMeta}>Plus de 10 personnes, besoins spécifiques — sur devis</Text>
+                </View>
+                <Text style={styles.planOptionPrice}>Nous contacter</Text>
+                <Feather name="mail" size={18} color={colors.textMuted} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
       </Modal>

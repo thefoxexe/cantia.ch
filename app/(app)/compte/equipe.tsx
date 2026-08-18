@@ -46,9 +46,10 @@ type IconName = keyof typeof Feather.glyphMap;
 // One checkbox per real, cleanly-isolated feature area — see
 // 20260812160000_role_permission_catalog.sql for why "Photos" isn't in
 // this list (same underlying data as the always-open Rapports tab).
-// Finance is opt-in-only for a member with no role (default false); the
-// other four default true so creating a role only needs to uncheck what
-// should be restricted, not re-grant everything else.
+// Finance, création de chantier et gestion RH sont opt-in-only pour un
+// membre sans rôle (default false) ; les autres défaultent à true pour
+// qu'un rôle n'ait besoin de décocher que ce qui doit être restreint,
+// sans devoir tout re-accorder ailleurs.
 const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName; label: string; description: string }[] = [
   { key: 'canViewFinances', icon: 'file-text', label: 'Finance', description: 'Devis, factures et rentabilité par chantier.' },
   { key: 'canViewSurvey', icon: 'crosshair', label: 'Levés', description: 'Points de chantier et cadastre suisse.' },
@@ -56,6 +57,8 @@ const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName; label: s
   { key: 'canViewPlanning', icon: 'calendar', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
   { key: 'canViewDocuments', icon: 'folder', label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
   { key: 'canViewSubcontractors', icon: 'users', label: 'Sous-traitants', description: 'Entreprises sous-traitées par chantier et leurs attestations.' },
+  { key: 'canCreateProjects', icon: 'plus-circle', label: 'Création de chantier', description: 'Créer de nouveaux chantiers.' },
+  { key: 'canManagePayroll', icon: 'dollar-sign', label: 'RH & salaires', description: "Fiches, heures et salaires de toute l'équipe." },
 ];
 
 interface RoleDraft {
@@ -76,6 +79,8 @@ const EMPTY_DRAFT: RoleDraft = {
     canViewPlanning: true,
     canViewDocuments: true,
     canViewSubcontractors: true,
+    canCreateProjects: false,
+    canManagePayroll: false,
   },
 };
 
@@ -342,6 +347,8 @@ export default function EquipeScreen() {
                           canViewPlanning: r.can_view_planning,
                           canViewDocuments: r.can_view_documents,
                           canViewSubcontractors: r.can_view_subcontractors,
+                          canCreateProjects: r.can_create_projects,
+                          canManagePayroll: r.can_manage_payroll,
                         },
                       })
                     }

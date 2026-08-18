@@ -3,6 +3,7 @@ import {
   Animated,
   Easing,
   Image,
+  Linking,
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -1022,11 +1023,11 @@ function LandingContent() {
                   <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
                     <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
-                      {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly)}`}
+                      {p.is_contact_only ? 'Sur mesure' : p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
                     </Text>
-                    <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>
+                    {p.is_contact_only ? null : <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>}
                   </View>
-                  {isYearly && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
+                  {!p.is_contact_only && isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
                     <Text style={[styles.priceYearlyNote, dark && styles.priceYearlyNoteOnDark]}>
                       {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
                     </Text>
@@ -1036,7 +1037,7 @@ function LandingContent() {
                       dark={dark}
                       text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
                     />
-                    <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
+                    <PriceFeature dark={dark} text={p.is_contact_only ? 'Plus de 10 membres' : `${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
                     <PriceFeature
                       dark={dark}
                       text={
@@ -1057,13 +1058,23 @@ function LandingContent() {
                       included={p.max_trames !== 0}
                     />
                   </View>
-                  <Link href={authHref('signup')} asChild>
+                  {p.is_contact_only ? (
                     <Button
-                      title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
-                      onPress={() => {}}
+                      title="Nous contacter"
+                      onPress={() => {
+                        Linking.openURL('mailto:info@cantia.ch?subject=Plan sur mesure Cantia').catch(() => {});
+                      }}
                       variant={dark ? 'primary' : 'secondary'}
                     />
-                  </Link>
+                  ) : (
+                    <Link href={authHref('signup')} asChild>
+                      <Button
+                        title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
+                        onPress={() => {}}
+                        variant={dark ? 'primary' : 'secondary'}
+                      />
+                    </Link>
+                  )}
                 </Pressable>
                 );
               })}

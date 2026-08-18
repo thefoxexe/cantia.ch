@@ -8,6 +8,8 @@ export interface RolePermissions {
   canViewPlanning: boolean;
   canViewDocuments: boolean;
   canViewSubcontractors: boolean;
+  canCreateProjects: boolean;
+  canManagePayroll: boolean;
 }
 
 function toRow(permissions: RolePermissions) {
@@ -18,6 +20,8 @@ function toRow(permissions: RolePermissions) {
     can_view_planning: permissions.canViewPlanning,
     can_view_documents: permissions.canViewDocuments,
     can_view_subcontractors: permissions.canViewSubcontractors,
+    can_create_projects: permissions.canCreateProjects,
+    can_manage_payroll: permissions.canManagePayroll,
   };
 }
 
