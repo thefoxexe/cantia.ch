@@ -593,6 +593,9 @@ export interface PayrollProfile {
   salary_type: SalaryType;
   hourly_rate_chf: number | null;
   monthly_salary_chf: number | null;
+  street: string | null;
+  postal_code: string | null;
+  locality: string | null;
   notes: string | null;
   updated_by: string | null;
   updated_at: string;

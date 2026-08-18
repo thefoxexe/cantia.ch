@@ -311,7 +311,9 @@ export async function getPayrollProfile(organizationId: string, userId: string):
 export async function upsertPayrollProfile(
   organizationId: string,
   userId: string,
-  updates: Partial<Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'notes'>>,
+  updates: Partial<
+    Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'street' | 'postal_code' | 'locality' | 'notes'>
+  >,
   updatedBy: string | undefined,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase

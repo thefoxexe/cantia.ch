@@ -13,6 +13,8 @@ import {
   upsertPayrollProfile,
   upsertProfileDeduction,
 } from '../../../lib/api/payroll';
+import { generatePayslipPdf } from '../../../lib/api/pdf';
+import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, SalaryType } from '../../../lib/types';
@@ -22,6 +24,9 @@ function startOfMonth(d: Date): Date {
 }
 function endOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+function addMonths(d: Date, n: number): Date {
+  return new Date(d.getFullYear(), d.getMonth() + n, 1);
 }
 function toIso(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -35,7 +40,7 @@ export default function PayrollProfileScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const { organization, user, canManagePayroll } = useAuth();
   const router = useRouter();
-  const [monthAnchor] = useState(() => startOfMonth(new Date()));
+  const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(new Date()));
   const [memberName, setMemberName] = useState('Membre');
   const [profile, setProfile] = useState<PayrollProfile | null>(null);
   const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
@@ -43,11 +48,15 @@ export default function PayrollProfileScreen() {
   const [totalHours, setTotalHours] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [salaryType, setSalaryType] = useState<SalaryType>('hourly');
   const [hourlyRate, setHourlyRate] = useState('');
   const [monthlySalary, setMonthlySalary] = useState('');
+  const [street, setStreet] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [locality, setLocality] = useState('');
   const [notes, setNotes] = useState('');
 
   // Draft overrides keyed by deduction type id — lets the admin type a rate
@@ -79,6 +88,9 @@ export default function PayrollProfileScreen() {
       setSalaryType(profileRow.salary_type);
       setHourlyRate(profileRow.hourly_rate_chf != null ? String(profileRow.hourly_rate_chf) : '');
       setMonthlySalary(profileRow.monthly_salary_chf != null ? String(profileRow.monthly_salary_chf) : '');
+      setStreet(profileRow.street ?? '');
+      setPostalCode(profileRow.postal_code ?? '');
+      setLocality(profileRow.locality ?? '');
       setNotes(profileRow.notes ?? '');
     }
     const rates: Record<string, string> = {};
@@ -129,6 +141,9 @@ export default function PayrollProfileScreen() {
         salary_type: salaryType,
         hourly_rate_chf: salaryType === 'hourly' ? num(hourlyRate) : null,
         monthly_salary_chf: salaryType === 'monthly' ? num(monthlySalary) : null,
+        street: street.trim() || null,
+        postal_code: postalCode.trim() || null,
+        locality: locality.trim() || null,
         notes: notes.trim() || null,
       },
       user.id,
@@ -150,6 +165,19 @@ export default function PayrollProfileScreen() {
     }
     setSaving(false);
     load();
+  }
+
+  async function exportPayslip() {
+    setExporting(true);
+    setError(null);
+    const { url, error: genError } = await generatePayslipPdf(String(userId), rangeStart);
+    setExporting(false);
+    if (genError || !url) {
+      setError(genError ?? 'Échec de la génération du PDF.');
+      return;
+    }
+    const { error: dlError } = await downloadFile(url, `Salaire ${memberName} - ${monthLabel(monthAnchor)}.pdf`);
+    if (dlError) setError(dlError);
   }
 
   if (loading) {
@@ -185,7 +213,15 @@ export default function PayrollProfileScreen() {
             </Pressable>
           }
         />
-        <Text style={styles.pageSubtitle}>{monthLabel(monthAnchor)} — fiche de salaire.</Text>
+        <View style={styles.monthNav}>
+          <Pressable onPress={() => setMonthAnchor((m) => addMonths(m, -1))} hitSlop={8} style={styles.monthNavBtn}>
+            <Feather name="chevron-left" size={18} color={colors.textMuted} />
+          </Pressable>
+          <Text style={styles.pageSubtitle}>{monthLabel(monthAnchor)} — fiche de salaire.</Text>
+          <Pressable onPress={() => setMonthAnchor((m) => addMonths(m, 1))} hitSlop={8} style={styles.monthNavBtn}>
+            <Feather name="chevron-right" size={18} color={colors.textMuted} />
+          </Pressable>
+        </View>
 
         <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
           <Card style={styles.statsRow}>
@@ -214,6 +250,13 @@ export default function PayrollProfileScreen() {
 
             <Text style={styles.fieldLabel}>Notes (optionnel)</Text>
             <TextInput style={styles.noteInput} value={notes} onChangeText={setNotes} placeholder="Ex : caisse de pension, particularités du contrat…" placeholderTextColor={colors.textMuted} multiline />
+
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>Adresse postale (pour la fiche de salaire imprimable)</Text>
+            <TextInput style={styles.addressInput} value={street} onChangeText={setStreet} placeholder="Rue et numéro" placeholderTextColor={colors.textMuted} />
+            <View style={styles.addressRow}>
+              <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={setPostalCode} placeholder="NPA" placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
+              <TextInput style={[styles.addressInput, { flex: 1 }]} value={locality} onChangeText={setLocality} placeholder="Localité" placeholderTextColor={colors.textMuted} />
+            </View>
           </Card>
 
           <Card>
@@ -266,6 +309,14 @@ export default function PayrollProfileScreen() {
               <View style={styles.breakdownDivider} />
               <BreakdownRow label="Salaire net" value={breakdown.net} bold accent />
             </View>
+            <Button
+              title="Exporter en PDF"
+              icon="download"
+              variant="secondary"
+              onPress={exportPayslip}
+              loading={exporting}
+              style={{ marginTop: spacing.md }}
+            />
           </Card>
         </ScrollView>
       </View>
@@ -320,7 +371,15 @@ const styles = StyleSheet.create({
   pageSubtitle: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  monthNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     marginBottom: spacing.lg,
+  },
+  monthNavBtn: {
+    padding: spacing.xs,
   },
   statsRow: {
     flexDirection: 'row',
@@ -421,6 +480,24 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
     textAlignVertical: 'top',
+  },
+  addressInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.sm,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  addressInputSmall: {
+    width: 90,
   },
   deductionRow: {
     flexDirection: 'row',
