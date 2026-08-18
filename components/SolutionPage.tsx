@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -40,6 +40,7 @@ export function SolutionPage({
   kicker,
   title,
   subtitle,
+  visual,
   features,
   steps,
   faq,
@@ -50,6 +51,7 @@ export function SolutionPage({
   kicker: string;
   title: string;
   subtitle: string;
+  visual?: ReactNode;
   features: SolutionFeature[];
   steps?: SolutionStep[];
   faq?: SolutionFaqItem[];
@@ -70,27 +72,45 @@ export function SolutionPage({
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
-        <Container style={styles.hero}>
-          <Animated.View
-            style={{
-              opacity: heroAnim,
-              transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
-            }}
-          >
-            <View style={styles.kickerPill}>
-              <Text style={styles.kickerText}>{kicker}</Text>
-            </View>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
-            <View style={styles.ctaRow}>
-              <Link href={authHref('signup')} asChild>
-                <Button title="Essayer gratuitement" onPress={() => {}} />
-              </Link>
-              <Link href="/" asChild>
-                <Button title="Voir les tarifs" variant="secondary" onPress={() => {}} />
-              </Link>
-            </View>
-          </Animated.View>
+        <Container style={styles.heroOuter}>
+          <View style={styles.heroRow}>
+            <Animated.View
+              style={[
+                styles.heroText,
+                {
+                  opacity: heroAnim,
+                  transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
+                },
+              ]}
+            >
+              <View style={styles.kickerPill}>
+                <Text style={styles.kickerText}>{kicker}</Text>
+              </View>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.subtitle}>{subtitle}</Text>
+              <View style={styles.ctaRow}>
+                <Link href={authHref('signup')} asChild>
+                  <Button title="Essayer gratuitement" onPress={() => {}} />
+                </Link>
+                <Link href="/" asChild>
+                  <Button title="Voir les tarifs" variant="secondary" onPress={() => {}} />
+                </Link>
+              </View>
+            </Animated.View>
+            {visual ? (
+              <Animated.View
+                style={[
+                  styles.heroVisual,
+                  {
+                    opacity: heroAnim,
+                    transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
+                  },
+                ]}
+              >
+                {visual}
+              </Animated.View>
+            ) : null}
+          </View>
         </Container>
 
         <Container style={styles.section}>
@@ -186,13 +206,28 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
-  hero: {
-    maxWidth: 760,
+  heroOuter: {
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl,
     paddingBottom: spacing.xl,
+  },
+  heroRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.xxl,
+  },
+  heroText: {
+    flex: 1,
+    minWidth: 320,
+  },
+  heroVisual: {
+    flex: 1,
+    minWidth: 300,
+    alignItems: 'center',
   },
   kickerPill: {
     alignSelf: 'flex-start',

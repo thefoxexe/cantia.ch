@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function PlanningSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function PlanningSolutionPage() {
       kicker="Planning"
       title="Qui est où, cette semaine, en un coup d'œil"
       subtitle="Un vrai calendrier d'équipe : chaque membre, chaque chantier, chaque jour. Fini les plannings sur papier ou dans un groupe WhatsApp qu'il faut faire défiler pour retrouver la bonne info."
+      visual={<ModuleMockup kind="planning" />}
       features={[
         {
           icon: 'calendar',

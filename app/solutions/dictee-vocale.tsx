@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function DicteeVocaleSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function DicteeVocaleSolutionPage() {
       kicker="Dictée vocale"
       title="Parlez, Cantia écrit"
       subtitle="Devis, rapports, messages d'équipe : partout dans l'application, un bouton dicter remplace la saisie au clavier. Pratique avec des gants, en voiture entre deux chantiers, ou simplement plus rapide qu'écrire."
+      visual={<ModuleMockup kind="dictee-vocale" />}
       features={[
         {
           icon: 'mic',

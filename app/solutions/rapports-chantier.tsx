@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function RapportsChantierSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function RapportsChantierSolutionPage() {
       kicker="Rapports de chantier"
       title="Le rapport se rédige pendant que vous êtes encore sur le chantier"
       subtitle="Notes vocales, photos géolocalisées et messages du fil d'actualité : Cantia rassemble tout et en tire un rapport rédigé, structuré et prêt à envoyer — vous n'avez plus qu'à relire."
+      visual={<ModuleMockup kind="rapports-chantier" />}
       features={[
         {
           icon: 'mic',

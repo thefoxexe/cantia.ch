@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function FacturationSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function FacturationSolutionPage() {
       kicker="Facturation"
       title="Des factures avec vrai bulletin QR suisse, sans logiciel à part"
       subtitle="Chaque facture Cantia intègre automatiquement le QR-bill suisse conforme à la norme — IBAN, référence structurée et montant déjà encodés, prêt à scanner depuis n'importe quelle app bancaire."
+      visual={<ModuleMockup kind="facturation" />}
       features={[
         {
           icon: 'file-text',

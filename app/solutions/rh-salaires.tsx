@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function RhSalairesSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function RhSalairesSolutionPage() {
       kicker="RH & Salaires"
       title="Les heures, les frais et les salaires de toute l'équipe, au même endroit"
       subtitle="Chaque employé pointe ses heures chantier par chantier et ses frais professionnels. La secrétaire ou l'administrateur gère la fiche de salaire de chacun — taux, cotisations et salaire net — sans tableur séparé."
+      visual={<ModuleMockup kind="rh-salaires" />}
       features={[
         {
           icon: 'clock',

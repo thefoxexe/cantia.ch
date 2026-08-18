@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function DevisSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function DevisSolutionPage() {
       kicker="Devis"
       title="Des devis chiffrés en quelques minutes, pas en fin de soirée"
       subtitle="Dictez vos lignes de devis à voix haute sur le chantier ou en voiture. Cantia les transforme en positions chiffrées, reprend vos prix habituels depuis votre catalogue, et prépare un PDF prêt à envoyer."
+      visual={<ModuleMockup kind="devis" />}
       features={[
         {
           icon: 'mic',

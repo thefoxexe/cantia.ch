@@ -1,4 +1,5 @@
 import { SolutionPage } from '../../components/SolutionPage';
+import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 
 export default function RentabiliteSolutionPage() {
   return (
@@ -6,6 +7,7 @@ export default function RentabiliteSolutionPage() {
       kicker="Rentabilité"
       title="Enfin savoir si un chantier vous a fait gagner de l'argent"
       subtitle="Beaucoup d'entreprises du bâtiment devisent, exécutent et facturent un chantier sans jamais comparer ce qui a été devisé à ce qu'il a réellement coûté. Cantia le fait pour vous, chantier par chantier."
+      visual={<ModuleMockup kind="rentabilite" />}
       features={[
         {
           icon: 'trending-up',
