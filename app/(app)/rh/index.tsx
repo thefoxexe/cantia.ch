@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -145,9 +145,17 @@ export default function PayrollScreen() {
   }
 
   const invoiceProject = projects.find((p) => p.id === invoiceProjectId) ?? null;
-  const invoiceCandidateLines: InvoiceCandidateLine[] = summaryLines
-    .filter((l) => l.projectId === invoiceProjectId)
-    .map((l) => ({ workTypeId: l.workTypeId, label: l.workTypeLabel, hours: l.hours, suggestedRate: l.rate }));
+  // Memoized so the modal only sees a new array when the underlying hours
+  // actually change — otherwise every unrelated re-render of this screen
+  // (e.g. useFocusEffect refreshes) would hand the modal a brand-new array
+  // reference and reset every draft the admin had already filled in.
+  const invoiceCandidateLines: InvoiceCandidateLine[] = useMemo(
+    () =>
+      summaryLines
+        .filter((l) => l.projectId === invoiceProjectId)
+        .map((l) => ({ workTypeId: l.workTypeId, label: l.workTypeLabel, hours: l.hours, suggestedRate: l.rate })),
+    [summaryLines, invoiceProjectId],
+  );
 
   if (loading || !organization || !user) {
     return (

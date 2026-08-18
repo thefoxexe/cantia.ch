@@ -45,10 +45,15 @@ const distIndex = path.join(distDir, 'index.html');
 // lib/marketingTheme.ts) never reach the exported HTML either — only visible
 // via `expo start --web`, never on the actual cantia.ch build. Injected here
 // for the same reason the meta tags are.
+// Also carries a body background matching lib/theme.ts colors.bg (#F7F1E6)
+// — without it, the raw white html/body shows through for an instant
+// during the mobile overscroll bounce at the top of the page, which reads
+// as a stray gap under the (deliberately transparent) marketing navbar.
 const FONT_LINKS = `
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />`;
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />
+    <style>html, body { background-color: #F7F1E6; overscroll-behavior-y: none; }</style>`;
 
 function patch(baseHtml, { path: routePath, title, description, faq }) {
   const canonicalUrl = routePath ? `${SITE}/${routePath}` : `${SITE}/`;

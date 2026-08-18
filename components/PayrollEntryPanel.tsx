@@ -47,6 +47,10 @@ function endOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }
 
+function isValidTime(s: string): boolean {
+  return /^\d{1,2}:\d{2}$/.test(s);
+}
+
 function defaultMonthRange(): DateRange {
   const now = new Date();
   return { start: toIso(startOfMonth(now)), end: toIso(endOfMonth(now)) };
@@ -89,7 +93,6 @@ export function PayrollEntryPanel({
   const [hoursProjectId, setHoursProjectId] = useState<string | null>(null);
   const [hoursWorkTypeId, setHoursWorkTypeId] = useState<string | null>(null);
   const [hoursDate, setHoursDate] = useState('');
-  const [hoursMode, setHoursMode] = useState<'total' | 'range'>('total');
   const [hoursTotal, setHoursTotal] = useState('');
   const [hoursStart, setHoursStart] = useState('');
   const [hoursEnd, setHoursEnd] = useState('');
@@ -140,7 +143,6 @@ export function PayrollEntryPanel({
     setHoursProjectId(null);
     setHoursWorkTypeId(null);
     setHoursDate(range.start);
-    setHoursMode('total');
     setHoursTotal('');
     setHoursStart('');
     setHoursEnd('');
@@ -156,19 +158,31 @@ export function PayrollEntryPanel({
     setHoursWorkTypeId(e.work_type_id);
     setHoursDate(e.entry_date);
     if (e.start_time && e.end_time) {
-      setHoursMode('range');
       setHoursStart(e.start_time.slice(0, 5));
       setHoursEnd(e.end_time.slice(0, 5));
-      setHoursTotal('');
     } else {
-      setHoursMode('total');
-      setHoursTotal(String(e.hours));
       setHoursStart('');
       setHoursEnd('');
     }
+    setHoursTotal(String(e.hours));
     setHoursNote(e.note ?? '');
     setHoursError(null);
     setShowHoursForm(true);
+  }
+
+  // Excel-style: Début/Fin and Heures are just three cells on the same
+  // row — filling in a valid start+end recomputes Heures automatically
+  // (like a formula cell), but typing straight into Heures works too, no
+  // mode to pick first. Whichever pair actually has a valid start+end at
+  // submit time wins and gets stored as a real range; otherwise the typed
+  // total is used as-is and no range is stored.
+  function setHoursStartAndCompute(v: string) {
+    setHoursStart(v);
+    if (isValidTime(v) && isValidTime(hoursEnd)) setHoursTotal(String(hoursFromRange(v, hoursEnd)));
+  }
+  function setHoursEndAndCompute(v: string) {
+    setHoursEnd(v);
+    if (isValidTime(hoursStart) && isValidTime(v)) setHoursTotal(String(hoursFromRange(hoursStart, v)));
   }
 
   async function submitHours() {
@@ -176,24 +190,14 @@ export function PayrollEntryPanel({
       setHoursError('La date est requise.');
       return;
     }
-    let hours: number;
-    let startTime: string | null = null;
-    let endTime: string | null = null;
-    if (hoursMode === 'range') {
-      if (!/^\d{1,2}:\d{2}$/.test(hoursStart) || !/^\d{1,2}:\d{2}$/.test(hoursEnd)) {
-        setHoursError('Indiquez un horaire valide, ex : 08:00.');
-        return;
-      }
-      hours = hoursFromRange(hoursStart, hoursEnd);
-      startTime = hoursStart;
-      endTime = hoursEnd;
-    } else {
-      hours = Number(hoursTotal.replace(',', '.'));
-      if (!hours || hours <= 0 || hours > 24) {
-        setHoursError('Indiquez un nombre d’heures valide (entre 0 et 24).');
-        return;
-      }
+    const hasRange = isValidTime(hoursStart) && isValidTime(hoursEnd);
+    const hours = hasRange ? hoursFromRange(hoursStart, hoursEnd) : Number(hoursTotal.replace(',', '.'));
+    if (!hours || hours <= 0 || hours > 24) {
+      setHoursError('Indiquez un nombre d’heures valide (entre 0 et 24), ou un horaire de début/fin.');
+      return;
     }
+    const startTime = hasRange ? hoursStart : null;
+    const endTime = hasRange ? hoursEnd : null;
     setSavingHours(true);
     setHoursError(null);
     const { error } = editingEntryId
@@ -429,37 +433,32 @@ export function PayrollEntryPanel({
                   <Text style={styles.fieldLabel}>3. Date et heures</Text>
                   <DateField label="Date" value={hoursDate} onChange={(v) => setHoursDate(v ?? '')} />
 
-                  <View style={styles.chips}>
-                    <Pressable onPress={() => setHoursMode('total')} style={[styles.chip, hoursMode === 'total' && styles.chipActive]}>
-                      <Text style={[styles.chipText, hoursMode === 'total' && styles.chipTextActive]}>Nombre d'heures</Text>
-                    </Pressable>
-                    <Pressable onPress={() => setHoursMode('range')} style={[styles.chip, hoursMode === 'range' && styles.chipActive]}>
-                      <Text style={[styles.chipText, hoursMode === 'range' && styles.chipTextActive]}>Horaire (de - à)</Text>
-                    </Pressable>
-                  </View>
-
-                  {hoursMode === 'total' ? (
-                    <TextInput
-                      style={styles.numberInput}
-                      value={hoursTotal}
-                      onChangeText={setHoursTotal}
-                      placeholder="Ex : 8"
-                      placeholderTextColor={colors.textMuted}
-                      keyboardType="decimal-pad"
-                    />
-                  ) : (
-                    <View style={styles.row2}>
-                      <View style={styles.row2Item}>
-                        <TextInput style={styles.numberInput} value={hoursStart} onChangeText={setHoursStart} placeholder="08:00" placeholderTextColor={colors.textMuted} />
-                      </View>
-                      <View style={styles.row2Item}>
-                        <TextInput style={styles.numberInput} value={hoursEnd} onChangeText={setHoursEnd} placeholder="12:00" placeholderTextColor={colors.textMuted} />
-                      </View>
+                  <View style={styles.row3}>
+                    <View style={styles.row3Item}>
+                      <Text style={styles.miniLabel}>Début</Text>
+                      <TextInput style={styles.numberInput} value={hoursStart} onChangeText={setHoursStartAndCompute} placeholder="08:00" placeholderTextColor={colors.textMuted} />
                     </View>
-                  )}
-                  {hoursMode === 'range' && /^\d{1,2}:\d{2}$/.test(hoursStart) && /^\d{1,2}:\d{2}$/.test(hoursEnd) ? (
-                    <Text style={styles.hint}>= {hoursFromRange(hoursStart, hoursEnd)} h</Text>
-                  ) : null}
+                    <View style={styles.row3Item}>
+                      <Text style={styles.miniLabel}>Fin</Text>
+                      <TextInput style={styles.numberInput} value={hoursEnd} onChangeText={setHoursEndAndCompute} placeholder="12:00" placeholderTextColor={colors.textMuted} />
+                    </View>
+                    <View style={styles.row3Item}>
+                      <Text style={styles.miniLabel}>Heures</Text>
+                      <TextInput
+                        style={styles.numberInput}
+                        value={hoursTotal}
+                        onChangeText={(v) => {
+                          setHoursTotal(v);
+                          setHoursStart('');
+                          setHoursEnd('');
+                        }}
+                        placeholder="Ex : 8"
+                        placeholderTextColor={colors.textMuted}
+                        keyboardType="decimal-pad"
+                      />
+                    </View>
+                  </View>
+                  <Text style={styles.hint}>Remplissez Début/Fin (calcul auto) ou directement Heures.</Text>
 
                   <Text style={styles.fieldLabel}>Note (optionnel)</Text>
                   <TextInput style={styles.noteInput} value={hoursNote} onChangeText={setHoursNote} placeholder="Ex : pose de carrelage" placeholderTextColor={colors.textMuted} multiline />
@@ -745,6 +744,20 @@ const styles = StyleSheet.create({
   },
   row2Item: {
     flex: 1,
+  },
+  row3: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  row3Item: {
+    flex: 1,
+  },
+  miniLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    marginBottom: 4,
   },
   numberInput: {
     borderWidth: 1,

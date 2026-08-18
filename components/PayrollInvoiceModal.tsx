@@ -52,6 +52,14 @@ export function PayrollInvoiceModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Deliberately keyed on `visible`/`project?.id` alone, not on
+  // `candidateLines` — a caller that recomputes that array inline on every
+  // render (a new array/object identity each time, even with unchanged
+  // content) would otherwise wipe out every draft the admin had already
+  // filled in on each unrelated re-render while the modal stays open (e.g.
+  // toggling "Prix à l'heure" appeared to silently revert to "Montant
+  // fixe"). Re-initializing only on the open transition (or switching to a
+  // different project) is what "reset the form" should actually mean.
   useEffect(() => {
     if (!visible) return;
     setClientName(project?.client_name ?? '');
@@ -68,7 +76,8 @@ export function PayrollInvoiceModal({
     }
     setDrafts(next);
     setError(null);
-  }, [visible, project, candidateLines]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, project?.id]);
 
   function updateDraft(key: string, patch: Partial<LineDraft>) {
     setDrafts((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));

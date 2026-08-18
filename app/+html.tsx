@@ -22,6 +22,13 @@ export default function Root({ children }: PropsWithChildren) {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
         />
+        {/* Matches lib/theme.ts colors.bg — without this, the raw white
+            html/body shows through for an instant during the mobile
+            overscroll bounce at the top of the page, which reads as a
+            stray gap under the (deliberately transparent) marketing navbar.
+            overscroll-behavior-y also mutes that bounce on browsers that
+            support it (mainly Chrome/Android; Safari/iOS still bounces). */}
+        <style>{'html, body { background-color: #F7F1E6; overscroll-behavior-y: none; }'}</style>
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>

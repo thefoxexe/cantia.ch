@@ -163,12 +163,14 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
       >
         <View style={[styles.sidebarBrand, collapsed && styles.sidebarBrandCollapsed]}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.sidebarLogo} resizeMode="contain" />
-          {collapsed ? null : <Text style={styles.sidebarBrandText}>Cantia</Text>}
-          <View style={{ flex: 1 }} />
           {collapsed ? null : (
-            <Pressable onPress={toggleCollapsed} hitSlop={8} style={styles.sidebarToggle}>
-              <Feather name="chevrons-left" size={16} color={colors.textMuted} />
-            </Pressable>
+            <>
+              <Text style={styles.sidebarBrandText}>Cantia</Text>
+              <View style={{ flex: 1 }} />
+              <Pressable onPress={toggleCollapsed} hitSlop={8} style={styles.sidebarToggle}>
+                <Feather name="chevrons-left" size={16} color={colors.textMuted} />
+              </Pressable>
+            </>
           )}
         </View>
         {collapsed ? (
