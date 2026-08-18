@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -27,7 +27,9 @@ const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 // always reads as the same color across the whole grid, so a glance at the
 // calendar shows who's on what without reading every label.
 const PROJECT_PALETTE = [colors.primary, colors.accent, colors.success, colors.warning, '#6B7FD7', '#B35FA3'];
-function colorForProject(projectId: string): string {
+const NO_PROJECT_COLOR = colors.textMuted;
+function colorForProject(projectId: string | null): string {
+  if (!projectId) return NO_PROJECT_COLOR;
   let hash = 0;
   for (let i = 0; i < projectId.length; i++) hash = (hash * 31 + projectId.charCodeAt(i)) >>> 0;
   return PROJECT_PALETTE[hash % PROJECT_PALETTE.length];
@@ -141,8 +143,8 @@ export default function PlanningScreen() {
   }
 
   async function handleSubmit() {
-    if (!organization || !formProjectId || !formMemberId || !formStart || !formEnd) {
-      setFormError('Chantier, membre et dates sont requis.');
+    if (!organization || !formMemberId || !formStart || !formEnd) {
+      setFormError('Membre et dates sont requis.');
       return;
     }
     if (formEnd < formStart) {
@@ -245,12 +247,7 @@ export default function PlanningScreen() {
           </Pressable>
         </View>
 
-        {projects.length === 0 ? (
-          <EmptyState
-            title="Aucun chantier"
-            subtitle="Créez un chantier avant de planifier des affectations d'équipe."
-          />
-        ) : members.length === 0 ? (
+        {members.length === 0 ? (
           <EmptyState title="Aucun membre" subtitle="Invitez votre équipe pour commencer à planifier." />
         ) : (
           <ScrollView
@@ -340,6 +337,12 @@ export default function PlanningScreen() {
                   <Text style={styles.legendText}>{p.label}</Text>
                 </View>
               ))}
+              {assignments.some((a) => !a.project_id) ? (
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: NO_PROJECT_COLOR }]} />
+                  <Text style={styles.legendText}>Sans chantier</Text>
+                </View>
+              ) : null}
             </View>
           </ScrollView>
         )}
@@ -351,8 +354,14 @@ export default function PlanningScreen() {
             <ScrollView>
               <Text style={styles.sheetTitle}>{editingId ? "Modifier l'affectation" : 'Nouvelle affectation'}</Text>
 
-              <Text style={styles.fieldLabel}>Chantier</Text>
+              <Text style={styles.fieldLabel}>Chantier (optionnel)</Text>
               <View style={styles.chips}>
+                <Pressable
+                  onPress={() => setFormProjectId(null)}
+                  style={[styles.chip, formProjectId === null && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, formProjectId === null && styles.chipTextActive]}>Sans chantier</Text>
+                </Pressable>
                 {projects.map((p) => (
                   <Pressable
                     key={p.id}
@@ -513,6 +522,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
     lineHeight: 14,
+    // Member names fall back to the raw email when no display name is set,
+    // and an email has no spaces to wrap at — without this, RN-web's default
+    // CSS lets it run straight past the fixed-width member column.
+    ...(Platform.OS === 'web' ? ({ overflowWrap: 'anywhere', wordBreak: 'break-word' } as any) : {}),
   },
   dayHeaderRow: {
     flexDirection: 'row',

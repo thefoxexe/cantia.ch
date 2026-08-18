@@ -47,8 +47,47 @@ function endOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }
 
-function isValidTime(s: string): boolean {
-  return /^\d{1,2}:\d{2}$/.test(s);
+// Tolerant time parsing for the Début/Fin cells — typing should never
+// require the exact "HH:MM" shape. Rules: "8" alone means 8h pile ("08:00");
+// with a "." or "," separator the digits on the right are the minutes
+// *literally* (not a decimal fraction) — "8.5"/"8,5" ("huit virgule cinq")
+// means 08:05, "8.25" means 08:25; with no separator, 3 or 4 digits are read
+// as H:MM / HH:MM ("830" → 08:30, "1430" → 14:30). Returns null while the
+// text isn't (yet) a resolvable time, e.g. mid-typing.
+function parseFlexibleTime(raw: string): string | null {
+  const s = raw.trim();
+  if (!s) return null;
+  if (/^\d{1,2}:\d{2}$/.test(s)) {
+    const [h, m] = s.split(':').map(Number);
+    if (h > 23 || m > 59) return null;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
+  const sepMatch = s.match(/^(\d{1,2})[.,](\d{1,2})$/);
+  if (sepMatch) {
+    const h = Number(sepMatch[1]);
+    const minutes = sepMatch[2].padStart(2, '0');
+    const m = Number(minutes);
+    if (h > 23 || m > 59) return null;
+    return `${String(h).padStart(2, '0')}:${minutes}`;
+  }
+  if (/^\d{1,2}$/.test(s)) {
+    const h = Number(s);
+    if (h > 23) return null;
+    return `${String(h).padStart(2, '0')}:00`;
+  }
+  if (/^\d{3}$/.test(s)) {
+    const h = Number(s.slice(0, 1));
+    const m = Number(s.slice(1));
+    if (m > 59) return null;
+    return `${String(h).padStart(2, '0')}:${s.slice(1)}`;
+  }
+  if (/^\d{4}$/.test(s)) {
+    const h = Number(s.slice(0, 2));
+    const m = Number(s.slice(2));
+    if (h > 23 || m > 59) return null;
+    return `${s.slice(0, 2)}:${s.slice(2)}`;
+  }
+  return null;
 }
 
 function defaultMonthRange(): DateRange {
@@ -142,7 +181,7 @@ export function PayrollEntryPanel({
     setHoursProjectPicked(false);
     setHoursProjectId(null);
     setHoursWorkTypeId(null);
-    setHoursDate(range.start);
+    setHoursDate(toIso(new Date()));
     setHoursTotal('');
     setHoursStart('');
     setHoursEnd('');
@@ -178,11 +217,25 @@ export function PayrollEntryPanel({
   // total is used as-is and no range is stored.
   function setHoursStartAndCompute(v: string) {
     setHoursStart(v);
-    if (isValidTime(v) && isValidTime(hoursEnd)) setHoursTotal(String(hoursFromRange(v, hoursEnd)));
+    const start = parseFlexibleTime(v);
+    const end = parseFlexibleTime(hoursEnd);
+    if (start && end) setHoursTotal(String(hoursFromRange(start, end)));
   }
   function setHoursEndAndCompute(v: string) {
     setHoursEnd(v);
-    if (isValidTime(hoursStart) && isValidTime(v)) setHoursTotal(String(hoursFromRange(hoursStart, v)));
+    const start = parseFlexibleTime(hoursStart);
+    const end = parseFlexibleTime(v);
+    if (start && end) setHoursTotal(String(hoursFromRange(start, end)));
+  }
+  // Snaps the visible text to a canonical "HH:MM" once the user leaves the
+  // field, so "8.5" becomes "08:05" on screen — not while they're still typing.
+  function normalizeHoursStart() {
+    const parsed = parseFlexibleTime(hoursStart);
+    if (parsed) setHoursStart(parsed);
+  }
+  function normalizeHoursEnd() {
+    const parsed = parseFlexibleTime(hoursEnd);
+    if (parsed) setHoursEnd(parsed);
   }
 
   async function submitHours() {
@@ -190,14 +243,16 @@ export function PayrollEntryPanel({
       setHoursError('La date est requise.');
       return;
     }
-    const hasRange = isValidTime(hoursStart) && isValidTime(hoursEnd);
-    const hours = hasRange ? hoursFromRange(hoursStart, hoursEnd) : Number(hoursTotal.replace(',', '.'));
+    const startParsed = parseFlexibleTime(hoursStart);
+    const endParsed = parseFlexibleTime(hoursEnd);
+    const hasRange = !!startParsed && !!endParsed;
+    const hours = hasRange ? hoursFromRange(startParsed, endParsed) : Number(hoursTotal.replace(',', '.'));
     if (!hours || hours <= 0 || hours > 24) {
       setHoursError('Indiquez un nombre d’heures valide (entre 0 et 24), ou un horaire de début/fin.');
       return;
     }
-    const startTime = hasRange ? hoursStart : null;
-    const endTime = hasRange ? hoursEnd : null;
+    const startTime = hasRange ? startParsed : null;
+    const endTime = hasRange ? endParsed : null;
     setSavingHours(true);
     setHoursError(null);
     const { error } = editingEntryId
@@ -436,11 +491,11 @@ export function PayrollEntryPanel({
                   <View style={styles.row3}>
                     <View style={styles.row3Item}>
                       <Text style={styles.miniLabel}>Début</Text>
-                      <TextInput style={styles.numberInput} value={hoursStart} onChangeText={setHoursStartAndCompute} placeholder="08:00" placeholderTextColor={colors.textMuted} />
+                      <TextInput style={styles.numberInput} value={hoursStart} onChangeText={setHoursStartAndCompute} onBlur={normalizeHoursStart} placeholder="08:00" placeholderTextColor={colors.textMuted} />
                     </View>
                     <View style={styles.row3Item}>
                       <Text style={styles.miniLabel}>Fin</Text>
-                      <TextInput style={styles.numberInput} value={hoursEnd} onChangeText={setHoursEndAndCompute} placeholder="12:00" placeholderTextColor={colors.textMuted} />
+                      <TextInput style={styles.numberInput} value={hoursEnd} onChangeText={setHoursEndAndCompute} onBlur={normalizeHoursEnd} placeholder="12:00" placeholderTextColor={colors.textMuted} />
                     </View>
                     <View style={styles.row3Item}>
                       <Text style={styles.miniLabel}>Heures</Text>
@@ -458,7 +513,10 @@ export function PayrollEntryPanel({
                       />
                     </View>
                   </View>
-                  <Text style={styles.hint}>Remplissez Début/Fin (calcul auto) ou directement Heures.</Text>
+                  <Text style={styles.hint}>
+                    Début/Fin acceptent "8" (8h00), "8.5" ou "8,5" (8h05), "830" (8h30) — calcul automatique. Ou
+                    remplissez directement Heures.
+                  </Text>
 
                   <Text style={styles.fieldLabel}>Note (optionnel)</Text>
                   <TextInput style={styles.noteInput} value={hoursNote} onChangeText={setHoursNote} placeholder="Ex : pose de carrelage" placeholderTextColor={colors.textMuted} multiline />

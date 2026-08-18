@@ -235,7 +235,7 @@ export interface ProjectExpense {
 export interface PlanningAssignment {
   id: string;
   organization_id: string;
-  project_id: string;
+  project_id: string | null;
   member_user_id: string;
   starts_on: string;
   ends_on: string;

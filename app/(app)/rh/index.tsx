@@ -223,11 +223,14 @@ export default function PayrollScreen() {
           </Text>
         </Pressable>
       ))}
-      {selectedUserId && selectedUserId !== user.id ? (
-        <Pressable onPress={() => router.push(`/(app)/rh/${selectedUserId}`)} style={styles.ficheLink}>
-          <Feather name="file-text" size={14} color={colors.primary} />
-          <Text style={styles.ficheLinkText}>Fiche de salaire</Text>
-        </Pressable>
+      {selectedUserId ? (
+        <Button
+          title="Voir la fiche de salaire"
+          icon="file-text"
+          variant="secondary"
+          onPress={() => router.push(`/(app)/rh/${selectedUserId}`)}
+          style={styles.ficheButton}
+        />
       ) : null}
     </View>
   );
@@ -260,38 +263,40 @@ export default function PayrollScreen() {
         ) : null}
 
         {isDesktop ? (
-          <View style={styles.desktopLayout}>
-            <View style={styles.calendarCol}>
-              <PayrollDateFilter range={range} onChange={setRange} />
-            </View>
-            <View style={styles.employeeCol}>{employeeList}</View>
-            <ScrollView style={styles.panelCol} contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.lg }}>
-              {selectedUserId ? (
-                <PayrollEntryPanel
-                  organizationId={organization.id}
-                  targetUserId={selectedUserId}
-                  currentUserId={user.id}
-                  range={range}
-                  onRangeChange={setRange}
-                  showCalendar={false}
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+            <View style={styles.desktopLayout}>
+              <View style={styles.calendarCol}>
+                <PayrollDateFilter range={range} onChange={setRange} />
+              </View>
+              <View style={styles.employeeCol}>{employeeList}</View>
+              <View style={[styles.panelCol, { gap: spacing.lg }]}>
+                {selectedUserId ? (
+                  <PayrollEntryPanel
+                    organizationId={organization.id}
+                    targetUserId={selectedUserId}
+                    currentUserId={user.id}
+                    range={range}
+                    onRangeChange={setRange}
+                    showCalendar={false}
+                  />
+                ) : null}
+                <SummaryCard
+                  open={summaryOpen}
+                  onToggle={toggleSummary}
+                  loading={summaryLoading}
+                  lines={summaryLines}
+                  totalHours={summaryTotalHours}
+                  totalChf={summaryTotalChf}
+                  canInvoice={canViewFinances}
+                  projectFactures={projectFactures}
+                  onInvoiceProject={(id) => {
+                    setInvoiceProjectId(id);
+                    setShowInvoiceModal(true);
+                  }}
                 />
-              ) : null}
-              <SummaryCard
-                open={summaryOpen}
-                onToggle={toggleSummary}
-                loading={summaryLoading}
-                lines={summaryLines}
-                totalHours={summaryTotalHours}
-                totalChf={summaryTotalChf}
-                canInvoice={canViewFinances}
-                projectFactures={projectFactures}
-                onInvoiceProject={(id) => {
-                  setInvoiceProjectId(id);
-                  setShowInvoiceModal(true);
-                }}
-              />
-            </ScrollView>
-          </View>
+              </View>
+            </View>
+          </ScrollView>
         ) : (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.lg }}>
             <PayrollDateFilter range={range} onChange={setRange} />
@@ -546,17 +551,8 @@ const styles = StyleSheet.create({
   memberNameActive: {
     color: colors.primary,
   },
-  ficheLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  ficheButton: {
     marginTop: spacing.md,
-    paddingHorizontal: spacing.sm,
-  },
-  ficheLinkText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primary,
   },
   sectionTitle: {
     fontSize: fontSize.md,

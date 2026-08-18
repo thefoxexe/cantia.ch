@@ -31,14 +31,14 @@ export async function listPlanningAssignments(
 
   return rows.map((r: any) => ({
     ...r,
-    project_name: r.projects?.name ?? 'Chantier',
+    project_name: r.projects?.name ?? (r.project_id ? 'Chantier' : 'Sans chantier'),
     member_name: names[r.member_user_id] ?? 'Membre',
   }));
 }
 
 export async function createPlanningAssignment(params: {
   organizationId: string;
-  projectId: string;
+  projectId: string | null;
   memberUserId: string;
   startsOn: string;
   endsOn: string;
