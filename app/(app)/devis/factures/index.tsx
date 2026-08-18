@@ -368,7 +368,17 @@ export default function FacturesListScreen() {
           </>
         ) : (
           <>
-            <PageHeader title="Factures" backTo="/(app)" />
+            <PageHeader
+              title="Factures"
+              backTo="/(app)"
+              right={
+                isAdmin ? (
+                  <Pressable onPress={() => router.push('/(app)/compte/devis')} hitSlop={8}>
+                    <Feather name="settings" size={18} color={colors.textMuted} />
+                  </Pressable>
+                ) : undefined
+              }
+            />
             <Text style={styles.pageSubtitle}>Suivez les paiements, les échéances et les relances de vos factures.</Text>
           </>
         )}

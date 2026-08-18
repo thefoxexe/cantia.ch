@@ -126,7 +126,17 @@ export default function DevisListScreen() {
             <PageHeader title={openProject.name} />
           </>
         ) : (
-          <PageHeader title="Devis" backTo="/(app)" />
+          <PageHeader
+            title="Devis"
+            backTo="/(app)"
+            right={
+              isAdmin ? (
+                <Pressable onPress={() => router.push('/(app)/compte/devis')} hitSlop={8}>
+                  <Feather name="settings" size={18} color={colors.textMuted} />
+                </Pressable>
+              ) : undefined
+            }
+          />
         )}
         {!openProject ? <Text style={styles.pageSubtitle}>Créez, suivez et relancez tous vos devis clients.</Text> : null}
 

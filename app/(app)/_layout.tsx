@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../lib/auth-context';
 import { isModuleEnabled } from '../../lib/modules';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
@@ -125,38 +126,81 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
   );
 }
 
+const SIDEBAR_COLLAPSED_KEY = 'cantia:sidebarCollapsed';
+
 function DesktopShell({ sections }: { sections: NavSection[] }) {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
   const router = useRouter();
   const activeHref = activeHrefFor(pathname, sections);
+  // Persisted so the choice sticks across reloads — mainly useful on iPad,
+  // where the fixed 232px sidebar eats a noticeable chunk of a narrower
+  // screen. Starts expanded (matches prior behavior) until storage resolves.
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(SIDEBAR_COLLAPSED_KEY).then((v) => {
+      if (v === '1') setCollapsed(true);
+    });
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      AsyncStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? '1' : '0');
+      return next;
+    });
+  }
 
   return (
     <View style={styles.desktopRoot}>
-      <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
-        <View style={styles.sidebarBrand}>
+      <View
+        style={[
+          styles.sidebar,
+          collapsed && styles.sidebarCollapsed,
+          { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom },
+        ]}
+      >
+        <View style={[styles.sidebarBrand, collapsed && styles.sidebarBrandCollapsed]}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.sidebarLogo} resizeMode="contain" />
-          <Text style={styles.sidebarBrandText}>Cantia</Text>
+          {collapsed ? null : <Text style={styles.sidebarBrandText}>Cantia</Text>}
+          <View style={{ flex: 1 }} />
+          {collapsed ? null : (
+            <Pressable onPress={toggleCollapsed} hitSlop={8} style={styles.sidebarToggle}>
+              <Feather name="chevrons-left" size={16} color={colors.textMuted} />
+            </Pressable>
+          )}
         </View>
+        {collapsed ? (
+          <Pressable onPress={toggleCollapsed} hitSlop={8} style={styles.sidebarToggleCollapsed}>
+            <Feather name="chevrons-right" size={16} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
         <View style={styles.sidebarNav}>
           {sections.map((section, i) => (
             <View key={section.title ?? `s${i}`} style={styles.sidebarSection}>
-              {section.title ? <Text style={styles.sidebarSectionTitle}>{section.title}</Text> : null}
+              {section.title && !collapsed ? <Text style={styles.sidebarSectionTitle}>{section.title}</Text> : null}
               {section.links.map((link) => {
                 const active = link.href === activeHref;
                 return (
                   <Pressable
                     key={link.href}
-                    style={StyleSheet.flatten([styles.sidebarItem, active && styles.sidebarItemActive])}
+                    style={StyleSheet.flatten([
+                      styles.sidebarItem,
+                      collapsed && styles.sidebarItemCollapsed,
+                      active && styles.sidebarItemActive,
+                    ])}
                     // Plain Pressable + router.push instead of <Link asChild> — the
                     // asChild/Slot combo can't take an array style on its child
                     // without crashing (see git history), so this sidesteps it.
                     onPress={() => router.push(link.href as any)}
                   >
                     <Feather name={link.icon} size={18} color={active ? colors.primary : colors.textMuted} />
-                    <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
-                      {link.label}
-                    </Text>
+                    {collapsed ? null : (
+                      <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
+                        {link.label}
+                      </Text>
+                    )}
                   </Pressable>
                 );
               })}
@@ -220,11 +264,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     flexDirection: 'column',
   },
+  sidebarCollapsed: {
+    width: 68,
+    paddingHorizontal: spacing.sm,
+  },
   sidebarBrand: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  sidebarBrandCollapsed: {
+    justifyContent: 'center',
+    paddingHorizontal: 0,
+  },
+  sidebarToggle: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.sm,
+  },
+  sidebarToggleCollapsed: {
+    alignSelf: 'center',
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
     marginBottom: spacing.xl,
   },
   sidebarLogo: {
@@ -258,6 +328,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.md,
     borderRadius: radius.md,
+  },
+  sidebarItemCollapsed: {
+    justifyContent: 'center',
+    paddingHorizontal: 0,
   },
   sidebarItemActive: {
     backgroundColor: colors.primarySoft,

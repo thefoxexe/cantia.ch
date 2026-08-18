@@ -227,7 +227,15 @@ export default function PayrollScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.adminContainer}>
-        <PageHeader title="RH & Salaires" backTo="/(app)" />
+        <PageHeader
+          title="RH & Salaires"
+          backTo="/(app)"
+          right={
+            <Pressable onPress={() => router.push('/(app)/compte/rh')} hitSlop={8}>
+              <Feather name="settings" size={18} color={colors.textMuted} />
+            </Pressable>
+          }
+        />
         <Text style={styles.pageSubtitle}>Heures, frais et salaires de toute l'équipe.</Text>
 
         {!hasWorkTypes ? (
