@@ -90,12 +90,27 @@ function parseFlexibleTime(raw: string): string | null {
   return null;
 }
 
+// Half-open interval overlap ("13:00–13:15" and "12:45–15:00" share
+// 13:00–13:15) — the same person can't physically be on two things at once.
+function timesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
+  return aStart < bEnd && bStart < aEnd;
+}
+
 function defaultMonthRange(): DateRange {
   const now = new Date();
   return { start: toIso(startOfMonth(now)), end: toIso(endOfMonth(now)) };
 }
 
-export { defaultMonthRange };
+// What the RH screen opens on — a single day (today), not the whole month:
+// arriving on the page shouldn't dump a month of entries on screen, and
+// "Aujourd'hui" is one tap away from any other range via PayrollDateFilter's
+// quick chips.
+function defaultTodayRange(): DateRange {
+  const iso = toIso(new Date());
+  return { start: iso, end: iso };
+}
+
+export { defaultMonthRange, defaultTodayRange };
 
 // The grid-style hours/frais editor — used both for "my own hours" (self
 // service, targetUserId = the signed-in user) and, unchanged, for an admin
@@ -253,6 +268,24 @@ export function PayrollEntryPanel({
     }
     const startTime = hasRange ? startParsed : null;
     const endTime = hasRange ? endParsed : null;
+
+    // Same person can't be logged on two overlapping ranges the same day —
+    // re-fetches that one day fresh rather than trusting the panel's own
+    // `entries` (scoped to whatever period is currently displayed, which
+    // might not even include the date being edited).
+    if (hasRange) {
+      const dayEntries = await listTimeEntries(organizationId, targetUserId, hoursDate, hoursDate);
+      const conflict = dayEntries.find(
+        (e) => e.id !== editingEntryId && e.start_time && e.end_time && timesOverlap(startTime!, endTime!, e.start_time.slice(0, 5), e.end_time.slice(0, 5)),
+      );
+      if (conflict) {
+        setHoursError(
+          `Conflit : ${conflict.start_time!.slice(0, 5)}–${conflict.end_time!.slice(0, 5)} est déjà enregistré ce jour-là pour cette personne.`,
+        );
+        return;
+      }
+    }
+
     setSavingHours(true);
     setHoursError(null);
     const { error } = editingEntryId

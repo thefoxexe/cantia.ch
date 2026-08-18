@@ -115,11 +115,12 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'inventaire',
     category: 'Inventaire',
-    title: 'Gérer le stock/inventaire',
-    keywords: ['inventaire', 'stock', 'csv', 'import', 'export'],
+    title: 'À quoi sert l’Inventaire ?',
+    keywords: ['inventaire', 'catalogue', 'prix', 'positions', 'csv', 'import', 'export'],
     body: [
-      "L'inventaire centralise votre matériel et fournitures : création, édition et suppression d'articles, avec une description détaillée par article.",
-      "Un import CSV intelligent reconnaît les colonnes automatiquement lors de l'ajout en masse, et un export CSV permet de ressortir l'inventaire à tout moment.",
+      "Malgré son nom, ce n'est pas un suivi de stock ou de matériel physique : c'est une bibliothèque de vos positions (description, unité, prix) qui se remplit automatiquement à chaque devis — dès qu'une description est utilisée une première fois, elle y est enregistrée.",
+      "Elle sert ensuite à aller plus vite sur les devis suivants : en tapant une description déjà connue, Cantia vous propose la ligne complète avec son unité et son dernier prix, prêts à réutiliser ou ajuster.",
+      "Vous pouvez aussi créer, modifier ou supprimer des positions directement depuis l'Inventaire, importer une liste existante par CSV (colonnes reconnues automatiquement) et exporter le tout à tout moment.",
     ],
   },
   {

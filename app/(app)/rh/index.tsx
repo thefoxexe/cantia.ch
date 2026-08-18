@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { listWorkTypes } from '../../../lib/api/payroll';
 import { listFacturesForProjects, type ProjectFactureSummary } from '../../../lib/api/factures';
-import { PayrollEntryPanel, defaultMonthRange } from '../../../components/PayrollEntryPanel';
+import { PayrollEntryPanel, defaultTodayRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
 import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
 import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
@@ -51,7 +51,7 @@ export default function PayrollScreen() {
   const [mode, setMode] = useState<'hours' | 'salaries'>('hours');
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [range, setRange] = useState<DateRange>(defaultMonthRange);
+  const [range, setRange] = useState<DateRange>(defaultTodayRange);
   const [loading, setLoading] = useState(true);
 
   const [summaryOpen, setSummaryOpen] = useState(false);
