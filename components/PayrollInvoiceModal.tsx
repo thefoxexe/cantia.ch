@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { createFactureFromLines } from '../lib/api/factures';
-import { Button, Switch } from './ui';
+import { createFactureFromLines, markTimeEntriesInvoiced } from '../lib/api/factures';
+import { Button, Card, Switch } from './ui';
+import { ClientPicker } from './ClientPicker';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 export interface InvoiceCandidateLine {
@@ -9,6 +10,7 @@ export interface InvoiceCandidateLine {
   label: string;
   hours: number;
   suggestedRate: number | null;
+  entryIds: string[];
 }
 
 interface LineDraft {
@@ -49,6 +51,8 @@ export function PayrollInvoiceModal({
 }) {
   const [drafts, setDrafts] = useState<Record<string, LineDraft>>({});
   const [clientName, setClientName] = useState('');
+  const [clientAddress, setClientAddress] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +67,8 @@ export function PayrollInvoiceModal({
   useEffect(() => {
     if (!visible) return;
     setClientName(project?.client_name ?? '');
+    setClientAddress('');
+    setClientEmail('');
     const next: Record<string, LineDraft> = {};
     for (const line of candidateLines) {
       const key = line.workTypeId ?? line.label;
@@ -96,14 +102,13 @@ export function PayrollInvoiceModal({
       setError('Le nom du client est requis.');
       return;
     }
-    const lines = candidateLines
-      .filter((line) => drafts[line.workTypeId ?? line.label]?.included)
-      .map((line) => {
-        const key = line.workTypeId ?? line.label;
-        const draft = drafts[key];
-        const description = draft.description.trim() ? `${line.label} — ${draft.description.trim()}` : line.label;
-        return { description, amountChf: amountFor(draft, line.hours) };
-      });
+    const includedLines = candidateLines.filter((line) => drafts[line.workTypeId ?? line.label]?.included);
+    const lines = includedLines.map((line) => {
+      const key = line.workTypeId ?? line.label;
+      const draft = drafts[key];
+      const description = draft.description.trim() ? `${line.label} — ${draft.description.trim()}` : line.label;
+      return { description, amountChf: amountFor(draft, line.hours) };
+    });
     if (lines.length === 0) {
       setError('Sélectionnez au moins une position.');
       return;
@@ -114,15 +119,21 @@ export function PayrollInvoiceModal({
       organizationId,
       projectId: project.id,
       clientName: clientName.trim(),
+      clientAddress: clientAddress.trim() || null,
+      clientEmail: clientEmail.trim() || null,
       vatRate: defaultVatRate,
       notes: null,
       lines,
     });
-    setSaving(false);
     if (err || !id) {
+      setSaving(false);
       setError(err ?? 'Échec de la création de la facture.');
       return;
     }
+    // So "Facturer ce chantier" doesn't offer these same hours again.
+    const entryIds = includedLines.flatMap((line) => line.entryIds);
+    await markTimeEntriesInvoiced(entryIds, id);
+    setSaving(false);
     onCreated(id);
   }
 
@@ -134,11 +145,26 @@ export function PayrollInvoiceModal({
             <Text style={styles.sheetTitle}>Facturer {project?.name ?? 'ce chantier'}</Text>
 
             <Text style={styles.fieldLabel}>Client</Text>
+            <ClientPicker
+              organizationId={organizationId}
+              onSelect={(client) => {
+                setClientName(client.name);
+                setClientAddress(client.address ?? '');
+                setClientEmail(client.email ?? '');
+              }}
+            />
+            {clientName ? (
+              <Card style={styles.selectedClientCard}>
+                <Text style={styles.selectedClientName}>{clientName}</Text>
+                {clientAddress ? <Text style={styles.selectedClientMeta}>{clientAddress}</Text> : null}
+                {clientEmail ? <Text style={styles.selectedClientMeta}>{clientEmail}</Text> : null}
+              </Card>
+            ) : null}
             <TextInput
               style={styles.input}
               value={clientName}
               onChangeText={setClientName}
-              placeholder="Nom du client"
+              placeholder="Ou tapez un nom de client directement"
               placeholderTextColor={colors.textMuted}
             />
 
@@ -257,6 +283,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
     marginBottom: spacing.lg,
+  },
+  selectedClientCard: {
+    marginBottom: spacing.sm,
+  },
+  selectedClientName: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  selectedClientMeta: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   lineCard: {
     borderWidth: 1,

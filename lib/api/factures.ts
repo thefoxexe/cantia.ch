@@ -103,6 +103,8 @@ export async function createFactureFromLines(params: {
   organizationId: string;
   projectId: string | null;
   clientName: string;
+  clientAddress?: string | null;
+  clientEmail?: string | null;
   vatRate: number;
   notes: string | null;
   lines: { description: string; amountChf: number }[];
@@ -113,6 +115,8 @@ export async function createFactureFromLines(params: {
       organization_id: params.organizationId,
       project_id: params.projectId,
       client_name: params.clientName,
+      client_address: params.clientAddress || null,
+      client_email: params.clientEmail || null,
       notes: params.notes,
       vat_rate: params.vatRate,
     })
@@ -135,6 +139,15 @@ export async function createFactureFromLines(params: {
   }
 
   return { id: created.id, error: null };
+}
+
+// Flags the raw time entries that fed a facture's line as billed, so the RH
+// cockpit's "Facturer ce chantier" summary stops offering them again — see
+// payroll_time_entries.invoiced_facture_id.
+export async function markTimeEntriesInvoiced(entryIds: string[], factureId: string): Promise<{ error: string | null }> {
+  if (entryIds.length === 0) return { error: null };
+  const { error } = await supabase.from('payroll_time_entries').update({ invoiced_facture_id: factureId }).in('id', entryIds);
+  return { error: error?.message ?? null };
 }
 
 export interface ProjectFactureSummary {

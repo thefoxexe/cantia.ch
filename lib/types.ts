@@ -545,6 +545,7 @@ export interface PayrollTimeEntry {
   start_time: string | null;
   end_time: string | null;
   note: string | null;
+  invoiced_facture_id: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

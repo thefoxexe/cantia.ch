@@ -38,6 +38,7 @@ interface SummaryLine {
   workTypeLabel: string;
   hours: number;
   rate: number | null;
+  entryIds: string[];
 }
 
 export default function PayrollScreen() {
@@ -47,6 +48,7 @@ export default function PayrollScreen() {
   const isDesktop = width >= breakpoints.tablet;
 
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [mode, setMode] = useState<'hours' | 'salaries'>('hours');
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [range, setRange] = useState<DateRange>(defaultMonthRange);
@@ -93,10 +95,14 @@ export default function PayrollScreen() {
       listWorkTypes(organization.id),
       supabase
         .from('payroll_time_entries')
-        .select('project_id, work_type_id, hours')
+        .select('id, project_id, work_type_id, hours')
         .eq('organization_id', organization.id)
         .gte('entry_date', range.start)
-        .lte('entry_date', range.end),
+        .lte('entry_date', range.end)
+        // Hours already folded into a facture (see "Facturer ce chantier")
+        // drop out of the billable summary so the same hours can't be
+        // invoiced a second time.
+        .is('invoiced_facture_id', null),
     ]);
     setProjects(projectRows ?? []);
     const projectNames = new Map((projectRows ?? []).map((p) => [p.id, p.name]));
@@ -109,6 +115,7 @@ export default function PayrollScreen() {
       const existing = totals.get(key);
       if (existing) {
         existing.hours = Math.round((existing.hours + Number(row.hours)) * 100) / 100;
+        existing.entryIds.push(row.id);
       } else {
         totals.set(key, {
           projectId: row.project_id,
@@ -117,6 +124,7 @@ export default function PayrollScreen() {
           workTypeLabel: wt?.label ?? 'Non précisé',
           hours: Math.round(Number(row.hours) * 100) / 100,
           rate: wt?.hourly_rate_chf ?? null,
+          entryIds: [row.id],
         });
       }
     }
@@ -153,7 +161,7 @@ export default function PayrollScreen() {
     () =>
       summaryLines
         .filter((l) => l.projectId === invoiceProjectId)
-        .map((l) => ({ workTypeId: l.workTypeId, label: l.workTypeLabel, hours: l.hours, suggestedRate: l.rate })),
+        .map((l) => ({ workTypeId: l.workTypeId, label: l.workTypeLabel, hours: l.hours, suggestedRate: l.rate, entryIds: l.entryIds })),
     [summaryLines, invoiceProjectId],
   );
 
@@ -212,26 +220,18 @@ export default function PayrollScreen() {
       {members.map((m) => (
         <Pressable
           key={m.id}
-          onPress={() => setSelectedUserId(m.id)}
-          style={[styles.memberRow, selectedUserId === m.id && styles.memberRowActive]}
+          onPress={() => (mode === 'salaries' ? router.push(`/(app)/rh/${m.id}`) : setSelectedUserId(m.id))}
+          style={[styles.memberRow, mode === 'hours' && selectedUserId === m.id && styles.memberRowActive]}
         >
           <View style={styles.memberAvatar}>
             <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
           </View>
-          <Text style={[styles.memberName, selectedUserId === m.id && styles.memberNameActive]} numberOfLines={1}>
+          <Text style={[styles.memberName, mode === 'hours' && selectedUserId === m.id && styles.memberNameActive]} numberOfLines={1}>
             {m.id === user.id ? `${m.label} (moi)` : m.label}
           </Text>
+          {mode === 'salaries' ? <Feather name="chevron-right" size={16} color={colors.textMuted} /> : null}
         </Pressable>
       ))}
-      {selectedUserId ? (
-        <Button
-          title="Voir la fiche de salaire"
-          icon="file-text"
-          variant="secondary"
-          onPress={() => router.push(`/(app)/rh/${selectedUserId}`)}
-          style={styles.ficheButton}
-        />
-      ) : null}
     </View>
   );
 
@@ -249,7 +249,18 @@ export default function PayrollScreen() {
         />
         <Text style={styles.pageSubtitle}>Heures, frais et salaires de toute l'équipe.</Text>
 
-        {!hasWorkTypes ? (
+        <View style={styles.modeSwitch}>
+          <Pressable onPress={() => setMode('hours')} style={[styles.modeTab, mode === 'hours' && styles.modeTabActive]}>
+            <Feather name="clock" size={14} color={mode === 'hours' ? colors.primary : colors.textMuted} />
+            <Text style={[styles.modeTabText, mode === 'hours' && styles.modeTabTextActive]}>Heures & frais</Text>
+          </Pressable>
+          <Pressable onPress={() => setMode('salaries')} style={[styles.modeTab, mode === 'salaries' && styles.modeTabActive]}>
+            <Feather name="dollar-sign" size={14} color={mode === 'salaries' ? colors.primary : colors.textMuted} />
+            <Text style={[styles.modeTabText, mode === 'salaries' && styles.modeTabTextActive]}>Salaires</Text>
+          </Pressable>
+        </View>
+
+        {mode === 'hours' && !hasWorkTypes ? (
           <Pressable onPress={() => router.push('/(app)/compte/rh')} style={styles.setupBanner}>
             <Feather name="settings" size={16} color={colors.primary} />
             <View style={{ flex: 1 }}>
@@ -262,7 +273,22 @@ export default function PayrollScreen() {
           </Pressable>
         ) : null}
 
-        {isDesktop ? (
+        {mode === 'salaries' ? (
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+            <View style={isDesktop ? styles.salariesLayout : undefined}>
+              <View style={isDesktop ? styles.salariesCol : undefined}>{employeeList}</View>
+              {isDesktop ? (
+                <View style={styles.salariesHint}>
+                  <Feather name="dollar-sign" size={22} color={colors.textMuted} />
+                  <Text style={styles.salariesHintText}>
+                    Cliquez sur un membre de l'équipe pour voir et éditer sa fiche de salaire — taux, cotisations et
+                    fiche de paie imprimable.
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+          </ScrollView>
+        ) : isDesktop ? (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
             <View style={styles.desktopLayout}>
               <View style={styles.calendarCol}>
@@ -472,6 +498,61 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
+  modeSwitch: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: 3,
+    alignSelf: 'flex-start',
+    marginBottom: spacing.lg,
+  },
+  modeTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
+    borderRadius: radius.sm,
+  },
+  modeTabActive: {
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  modeTabText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  modeTabTextActive: {
+    color: colors.primary,
+  },
+  salariesLayout: {
+    flexDirection: 'row',
+    gap: spacing.xl,
+    alignItems: 'flex-start',
+  },
+  salariesCol: {
+    width: 280,
+  },
+  salariesHint: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+  },
+  salariesHintText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    maxWidth: 360,
+    lineHeight: 20,
+  },
   setupBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -550,9 +631,6 @@ const styles = StyleSheet.create({
   },
   memberNameActive: {
     color: colors.primary,
-  },
-  ficheButton: {
-    marginTop: spacing.md,
   },
   sectionTitle: {
     fontSize: fontSize.md,

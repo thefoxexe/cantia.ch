@@ -18,7 +18,10 @@ function buildSections(
 ): NavSection[] {
   const teamLinks = [
     ...(planningEnabled ? [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] : []),
-    ...(payrollEnabled ? [{ href: '/(app)/rh', label: 'RH & Salaires', icon: 'dollar-sign' as const }] : []),
+    // "clock", not "dollar-sign" — Factures already owns the money icon in
+    // the FACTURATION section just above; sharing it here made the two
+    // entries visually indistinguishable in the sidebar.
+    ...(payrollEnabled ? [{ href: '/(app)/rh', label: 'RH & Salaires', icon: 'clock' as const }] : []),
   ];
   return [
     { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
