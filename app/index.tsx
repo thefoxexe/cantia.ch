@@ -701,33 +701,37 @@ function LandingContent() {
               and the headline/diagnostic list fades in through the gap
               they leave behind. ---- */}
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <View style={styles.chaosLayer}>
+            <View style={[styles.chaosLayer, showChaosChipsCompact && styles.chaosLayerCompact]}>
               <Animated.View
                 style={
                   showChaosChips || showChaosChipsCompact
                     ? {
-                        // Starts fading in only once the chips above are
-                        // essentially gone (see ChaosChip's opacity schedule,
-                        // which reaches 0 by progress 0.55) — previously both
-                        // reached full opacity together and the chips sat
-                        // fully solid over already-readable text.
+                        // Crossfades with the chips over the exact same
+                        // window they fade out in (see ChaosChip below) —
+                        // deliberately overlapping, not sequential. A fully
+                        // sequential "chips gone, then text appears" left a
+                        // dead stretch of scroll where neither was visible:
+                        // the chips had already scattered and started
+                        // fading while the text was still at opacity 0, so
+                        // for a real span of scrolling the section showed
+                        // nothing but empty background.
                         opacity: chaosProgress.interpolate({
-                          inputRange: [0, 0.45, 0.7],
+                          inputRange: [0, 0.22, 0.48],
                           outputRange: [0, 0, 1],
                           extrapolate: 'clamp',
                         }),
                         transform: [
                           {
                             translateY: chaosProgress.interpolate({
-                              inputRange: [0, 0.7],
-                              outputRange: [14, 0],
+                              inputRange: [0, 0.48],
+                              outputRange: [10, 0],
                               extrapolate: 'clamp',
                             }),
                           },
                           {
                             scale: chaosProgress.interpolate({
-                              inputRange: [0, 0.7],
-                              outputRange: [0.97, 1],
+                              inputRange: [0, 0.48],
+                              outputRange: [0.98, 1],
                               extrapolate: 'clamp',
                             }),
                           },
@@ -824,7 +828,7 @@ function LandingContent() {
                     icon="send"
                     label="Devis #118"
                     sub="Brouillon depuis 6 jours"
-                    posStyle={{ top: -66, left: chaosChipCompactCenter - 16 }}
+                    posStyle={{ top: 34, left: chaosChipCompactCenter - 16 }}
                     driftX={-14}
                     driftY={150}
                     rotateFrom={-7}
@@ -836,7 +840,7 @@ function LandingContent() {
                     icon="file-text"
                     label="Rapport de chantier"
                     sub="Toujours pas envoyé"
-                    posStyle={{ top: -18, left: chaosChipCompactCenter + 14 }}
+                    posStyle={{ top: 82, left: chaosChipCompactCenter + 14 }}
                     driftX={16}
                     driftY={64}
                     rotateFrom={5}
@@ -848,7 +852,7 @@ function LandingContent() {
                     icon="credit-card"
                     label="Facture #204"
                     sub="62 jours de retard"
-                    posStyle={{ top: 30, left: chaosChipCompactCenter + 14 }}
+                    posStyle={{ top: 130, left: chaosChipCompactCenter + 14 }}
                     driftX={16}
                     driftY={-64}
                     rotateFrom={-5}
@@ -860,7 +864,7 @@ function LandingContent() {
                     icon="camera"
                     label="14 photos"
                     sub="Non triées"
-                    posStyle={{ top: 78, left: chaosChipCompactCenter - 16 }}
+                    posStyle={{ top: 178, left: chaosChipCompactCenter - 16 }}
                     driftX={-14}
                     driftY={-150}
                     rotateFrom={7}
@@ -1419,40 +1423,41 @@ function ChaosChip({
         compact && styles.chaosChipCompact,
         posStyle,
         {
-          // Parts to its posStyle quickly (by 0.3, was 0.8 — "s'écarte plus
-          // vite") then fully fades out by 0.55, well before the section
-          // title above starts fading in at 0.45 — so the chips are gone,
-          // not overlapping fully-opaque text.
+          // Parts to its posStyle quickly (by 0.22) then fades out by 0.48,
+          // crossfading with the section title/list (see the Animated.View
+          // wrapping them above) instead of finishing well before that text
+          // starts appearing — a fully sequential handoff left a dead
+          // stretch of scroll with neither the chips nor the text visible.
           opacity: progress.interpolate({
-            inputRange: [0, 0.08, 0.3, 0.55],
+            inputRange: [0, 0.08, 0.22, 0.48],
             outputRange: [0.92, 1, 1, 0],
             extrapolate: 'clamp',
           }),
           transform: [
             {
               translateX: progress.interpolate({
-                inputRange: [0, 0.3, 0.55],
+                inputRange: [0, 0.22, 0.48],
                 outputRange: [driftX, 0, exitX],
                 extrapolate: 'clamp',
               }),
             },
             {
               translateY: progress.interpolate({
-                inputRange: [0, 0.3, 0.55],
+                inputRange: [0, 0.22, 0.48],
                 outputRange: [driftY, 0, exitY],
                 extrapolate: 'clamp',
               }),
             },
             {
               rotate: progress.interpolate({
-                inputRange: [0, 0.55],
+                inputRange: [0, 0.48],
                 outputRange: [`${rotateFrom}deg`, `${rotateTo}deg`],
                 extrapolate: 'clamp',
               }),
             },
             {
               scale: progress.interpolate({
-                inputRange: [0, 0.3, 0.55],
+                inputRange: [0, 0.22, 0.48],
                 outputRange: [0.82, 1, 1.04],
                 extrapolate: 'clamp',
               }),
@@ -3131,6 +3136,17 @@ const styles = StyleSheet.create({
   chaosLayer: {
     position: 'relative',
     width: '100%',
+  },
+  // On phones there's no side margin for the chips to park in like on
+  // desktop (driftX there sends them 480px out into open space beside the
+  // text column) — without this, the compact chips' posStyle top values sat
+  // inside the headline's own vertical span, so their card edges crossed
+  // directly through the title letters instead of sitting cleanly apart
+  // from it. Reserving a fixed band above the headline for them to occupy
+  // (see the compact ChaosChip posStyle values below, shifted to live
+  // inside this band) keeps the two from ever overlapping.
+  chaosLayerCompact: {
+    paddingTop: 236,
   },
   chaosChip: {
     position: 'absolute',
