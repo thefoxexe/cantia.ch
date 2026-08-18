@@ -870,7 +870,7 @@ function LandingContent() {
           </Reveal>
 
           {/* ---- Trades ---- */}
-          <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
+          <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>Métiers couverts</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
             <TradesMarquee trades={t.trades.list} compact={isCompactNav} />
@@ -878,7 +878,7 @@ function LandingContent() {
           </Reveal>
 
           {/* ---- Pricing ---- */}
-          <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={[styles.section, styles.sectionCard]}>
+          <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>Tarifs</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
             <Pressable
@@ -2574,17 +2574,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xxxl * 1.5,
   },
-  // Trades/pricing as their own rounded cards, not a full-bleed band: a
-  // band needs an extra wrapping View, and that View's own layout box broke
-  // the nav's "Tarifs" scroll-to (onLayout y is relative to the *immediate*
-  // parent, so nesting pricing's Reveal one level deeper silently made its
-  // registered offset relative to the band instead of the scroll content).
-  sectionCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
   // A small tracked label above each section title — encodes the section's
   // role in the page (problem vs. solution, tarifs, métiers…) rather than
   // decorating it, and gives the page the same "eyebrow → headline" rhythm
@@ -3228,6 +3217,16 @@ const styles = StyleSheet.create({
   tradesMarqueeOuter: {
     marginBottom: spacing.lg,
     overflow: 'hidden',
+    // Breaks out of the section's own maxWidth:1080 column to run the full
+    // width of the viewport — the classic "full-bleed" trick (a vw-sized
+    // box centered with negative margins) works regardless of how deep it's
+    // nested, since vw is relative to the viewport, not the parent. A
+    // horizontally-scrolling belt of trades reads as a dynamic, edge-to-edge
+    // banner; boxed into the same narrow reading column as the surrounding
+    // text, it just looked cramped on wide screens.
+    width: '100vw',
+    marginLeft: 'calc(50% - 50vw)',
+    marginRight: 'calc(50% - 50vw)',
     // A soft fade at both edges so the loop reads as a continuous belt
     // rather than cards popping in/out at a hard boundary.
     maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)',
