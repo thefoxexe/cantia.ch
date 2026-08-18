@@ -7,11 +7,13 @@ import { TUTORIAL_VIDEOS } from '../../lib/tutorialVideos';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 // Public tutorial/demo library, one card per module — reachable from the
-// Centre d'aide. Videos are recorded and uploaded separately (YouTube);
-// until a card's youtubeId is filled in (see lib/tutorialVideos.ts) it shows
-// as "Bientôt disponible" instead of a broken or empty player, so this page
-// can ship before a single video exists.
+// Centre d'aide. Only videos with a youtubeId filled in (see
+// lib/tutorialVideos.ts) ever render as a card; until at least one exists,
+// the page shows a single "in production" notice instead of a grid of
+// individually-pending placeholders.
 export default function TutorialVideosScreen() {
+  const available = TUTORIAL_VIDEOS.filter((v) => v.youtubeId);
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -28,11 +30,24 @@ export default function TutorialVideosScreen() {
             ou juste un aperçu avant de s'inscrire.
           </Text>
 
-          <View style={styles.grid}>
-            {TUTORIAL_VIDEOS.map((video) => (
-              <VideoCard key={video.id} video={video} />
-            ))}
-          </View>
+          {available.length === 0 ? (
+            <View style={styles.notice}>
+              <Feather name="film" size={22} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.noticeTitle}>Vidéos en préparation</Text>
+                <Text style={styles.noticeText}>
+                  Une vidéo de présentation par module est en cours de tournage. Elles seront disponibles ici
+                  courant septembre.
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.grid}>
+              {available.map((video) => (
+                <VideoCard key={video.id} video={video} />
+              ))}
+            </View>
+          )}
         </Container>
 
         <MarketingFooter />
@@ -42,28 +57,18 @@ export default function TutorialVideosScreen() {
 }
 
 function VideoCard({ video }: { video: (typeof TUTORIAL_VIDEOS)[number] }) {
-  const available = !!video.youtubeId;
-  const thumbnail = video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : null;
+  const thumbnail = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
 
   return (
-    <Pressable
-      disabled={!available}
-      onPress={() => video.youtubeId && Linking.openURL(`https://www.youtube.com/watch?v=${video.youtubeId}`)}
-      style={styles.card}
-    >
+    <Pressable onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${video.youtubeId}`)} style={styles.card}>
       <View style={styles.thumb}>
-        {thumbnail ? (
-          <Image source={{ uri: thumbnail }} style={styles.thumbImage} resizeMode="cover" />
-        ) : (
-          <Feather name="film" size={22} color={colors.textMuted} />
-        )}
-        <View style={[styles.playBadge, !available && styles.playBadgeDisabled]}>
-          <Feather name={available ? 'play' : 'clock'} size={14} color="#fff" />
+        <Image source={{ uri: thumbnail }} style={styles.thumbImage} resizeMode="cover" />
+        <View style={styles.playBadge}>
+          <Feather name="play" size={14} color="#fff" />
         </View>
       </View>
       <Text style={styles.cardTitle}>{video.title}</Text>
       <Text style={styles.cardText}>{video.description}</Text>
-      {!available ? <Text style={styles.soonBadge}>Bientôt disponible</Text> : null}
     </Pressable>
   );
 }
@@ -104,6 +109,26 @@ const styles = StyleSheet.create({
     maxWidth: 560,
     lineHeight: 22,
   },
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    maxWidth: 560,
+  },
+  noticeTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  noticeText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: 2,
+    lineHeight: 19,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -142,9 +167,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  playBadgeDisabled: {
-    backgroundColor: colors.textMuted,
-  },
   cardTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
@@ -154,13 +176,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 19,
-  },
-  soonBadge: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginTop: 2,
   },
 });
