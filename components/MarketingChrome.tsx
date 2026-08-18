@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -149,6 +149,10 @@ export function MarketingFooter() {
           </Link>
         </View>
         <View style={styles.footerCol}>
+          {/* Merged with the old standalone "Produit" column (just Services +
+              Tarifs) — as two separate columns, Produit looked nearly empty
+              next to Solutions' long list. Grouped under one "Produit"
+              heading instead, so no column reads as an afterthought. */}
           <Text style={styles.footerColTitle}>{t.footer.product}</Text>
           <Link href="/">
             <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
@@ -156,9 +160,6 @@ export function MarketingFooter() {
           <Link href="/">
             <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
           </Link>
-        </View>
-        <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>Solutions</Text>
           <Link href="/solutions/devis">
             <Text style={styles.footerLink}>Devis</Text>
           </Link>
@@ -180,6 +181,9 @@ export function MarketingFooter() {
           <Link href="/solutions/rentabilite">
             <Text style={styles.footerLink}>Rentabilité</Text>
           </Link>
+          <Link href="/solutions/rh-salaires">
+            <Text style={styles.footerLink}>RH & Salaires</Text>
+          </Link>
         </View>
         <View style={styles.footerCol}>
           <Text style={styles.footerColTitle}>{t.footer.account}</Text>
@@ -192,9 +196,6 @@ export function MarketingFooter() {
           <Link href="/aide">
             <Text style={styles.footerLink}>{t.nav.help}</Text>
           </Link>
-        </View>
-        <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>{t.footer.legal}</Text>
           <Link href="/mentions-legales">
             <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
           </Link>
@@ -207,7 +208,7 @@ export function MarketingFooter() {
         <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
         <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
           <Pressable style={styles.footerSocialLink}>
-            <Feather name="instagram" size={15} color={colors.textMuted} />
+            <Ionicons name="logo-instagram" size={16} color="#E1306C" />
             <Text style={styles.footerCopy}>@cantia.ch</Text>
           </Pressable>
         </Link>
