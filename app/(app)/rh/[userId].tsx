@@ -7,15 +7,15 @@ import { supabase } from '../../../lib/supabase';
 import {
   computeSalaryBreakdown,
   getPayrollProfile,
-  listExpenses,
+  listDeductionTypes,
+  listProfileDeductions,
   listTimeEntries,
   upsertPayrollProfile,
-  type PayrollExpenseWithProject,
-  type PayrollTimeEntryWithProject,
+  upsertProfileDeduction,
 } from '../../../lib/api/payroll';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { PayrollProfile, SalaryType } from '../../../lib/types';
+import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, SalaryType } from '../../../lib/types';
 
 function startOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -31,28 +31,6 @@ function monthLabel(d: Date): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-// Numeric text field with an editable-string draft so the user can clear
-// the box and type freely, instead of the value snapping back to "0" on
-// every keystroke while it's empty or mid-edit (e.g. typing "5.").
-function RateField({ label, value, onChange, suffix }: { label: string; value: string; onChange: (v: string) => void; suffix?: string }) {
-  return (
-    <View style={styles.rateField}>
-      <Text style={styles.rateLabel}>{label}</Text>
-      <View style={styles.rateInputRow}>
-        <TextInput
-          style={styles.rateInput}
-          value={value}
-          onChangeText={onChange}
-          keyboardType="decimal-pad"
-          placeholder="0"
-          placeholderTextColor={colors.textMuted}
-        />
-        {suffix ? <Text style={styles.rateSuffix}>{suffix}</Text> : null}
-      </View>
-    </View>
-  );
-}
-
 export default function PayrollProfileScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const { organization, user, canManagePayroll } = useAuth();
@@ -60,8 +38,9 @@ export default function PayrollProfileScreen() {
   const [monthAnchor] = useState(() => startOfMonth(new Date()));
   const [memberName, setMemberName] = useState('Membre');
   const [profile, setProfile] = useState<PayrollProfile | null>(null);
-  const [entries, setEntries] = useState<PayrollTimeEntryWithProject[]>([]);
-  const [expenses, setExpenses] = useState<PayrollExpenseWithProject[]>([]);
+  const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
+  const [overrides, setOverrides] = useState<PayrollProfileDeduction[]>([]);
+  const [totalHours, setTotalHours] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,12 +48,13 @@ export default function PayrollProfileScreen() {
   const [salaryType, setSalaryType] = useState<SalaryType>('hourly');
   const [hourlyRate, setHourlyRate] = useState('');
   const [monthlySalary, setMonthlySalary] = useState('');
-  const [avsRate, setAvsRate] = useState('5.3');
-  const [acRate, setAcRate] = useState('1.1');
-  const [lppAmount, setLppAmount] = useState('0');
-  const [laaRate, setLaaRate] = useState('0.5');
-  const [sourceTaxRate, setSourceTaxRate] = useState('0');
   const [notes, setNotes] = useState('');
+
+  // Draft overrides keyed by deduction type id — lets the admin type a rate
+  // freely before it's saved, same debounce-free pattern as the salary
+  // fields above (everything commits together on "Enregistrer").
+  const [draftRates, setDraftRates] = useState<Record<string, string>>({});
+  const [draftEnabled, setDraftEnabled] = useState<Record<string, boolean>>({});
 
   const rangeStart = useMemo(() => toIso(monthAnchor), [monthAnchor]);
   const rangeEnd = useMemo(() => toIso(endOfMonth(monthAnchor)), [monthAnchor]);
@@ -82,32 +62,34 @@ export default function PayrollProfileScreen() {
   const load = useCallback(async () => {
     if (!organization || !userId) return;
     setLoading(true);
-    const [{ data: memberRow }, profileRow, entryRows, expenseRows] = await Promise.all([
-      supabase
-        .from('organization_members')
-        .select('full_name')
-        .eq('organization_id', organization.id)
-        .eq('user_id', userId)
-        .maybeSingle(),
+    const [{ data: memberRow }, profileRow, types, overrideRows, entryRows] = await Promise.all([
+      supabase.from('organization_members').select('full_name').eq('organization_id', organization.id).eq('user_id', userId).maybeSingle(),
       getPayrollProfile(organization.id, userId),
+      listDeductionTypes(organization.id),
+      listProfileDeductions(organization.id, userId),
       listTimeEntries(organization.id, userId, rangeStart, rangeEnd),
-      listExpenses(organization.id, userId, rangeStart, rangeEnd),
     ]);
     setMemberName(memberRow?.full_name || 'Membre');
     setProfile(profileRow);
-    setEntries(entryRows);
-    setExpenses(expenseRows);
+    setDeductionTypes(types.filter((t) => t.active));
+    setOverrides(overrideRows);
+    setTotalHours(Math.round(entryRows.reduce((sum, e) => sum + Number(e.hours), 0) * 100) / 100);
+
     if (profileRow) {
       setSalaryType(profileRow.salary_type);
       setHourlyRate(profileRow.hourly_rate_chf != null ? String(profileRow.hourly_rate_chf) : '');
       setMonthlySalary(profileRow.monthly_salary_chf != null ? String(profileRow.monthly_salary_chf) : '');
-      setAvsRate(String(profileRow.avs_rate_percent));
-      setAcRate(String(profileRow.ac_rate_percent));
-      setLppAmount(String(profileRow.lpp_amount_chf));
-      setLaaRate(String(profileRow.laa_rate_percent));
-      setSourceTaxRate(String(profileRow.source_tax_rate_percent));
       setNotes(profileRow.notes ?? '');
     }
+    const rates: Record<string, string> = {};
+    const enabled: Record<string, boolean> = {};
+    for (const t of types) {
+      const ov = overrideRows.find((o) => o.deduction_type_id === t.id);
+      rates[t.id] = ov?.rate_percent != null ? String(ov.rate_percent) : ov?.fixed_amount_chf != null ? String(ov.fixed_amount_chf) : t.default_rate_percent != null ? String(t.default_rate_percent) : '';
+      enabled[t.id] = ov?.enabled ?? true;
+    }
+    setDraftRates(rates);
+    setDraftEnabled(enabled);
     setLoading(false);
   }, [organization, userId, rangeStart, rangeEnd]);
 
@@ -117,19 +99,24 @@ export default function PayrollProfileScreen() {
     }, [load]),
   );
 
-  const totalHours = Math.round(entries.reduce((sum, e) => sum + Number(e.hours), 0) * 100) / 100;
-  const totalExpenses = Math.round(expenses.reduce((sum, e) => sum + Number(e.amount_chf), 0) * 100) / 100;
-
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
   const gross = salaryType === 'hourly' ? Math.round(num(hourlyRate) * totalHours * 100) / 100 : num(monthlySalary);
-  const breakdown = computeSalaryBreakdown(gross, {
-    ...(profile ?? ({} as PayrollProfile)),
-    avs_rate_percent: num(avsRate),
-    ac_rate_percent: num(acRate),
-    lpp_amount_chf: num(lppAmount),
-    laa_rate_percent: num(laaRate),
-    source_tax_rate_percent: num(sourceTaxRate),
-  });
+
+  // Effective overrides for the live preview reflect the drafts on screen,
+  // not what's saved in the DB yet — so toggling a checkbox or typing a
+  // rate updates the net total immediately, before hitting "Enregistrer".
+  const previewOverrides: PayrollProfileDeduction[] = deductionTypes.map((t) => ({
+    id: t.id,
+    organization_id: organization?.id ?? '',
+    user_id: String(userId),
+    deduction_type_id: t.id,
+    rate_percent: draftRates[t.id]?.trim() ? num(draftRates[t.id]) : null,
+    fixed_amount_chf: null,
+    enabled: draftEnabled[t.id] ?? true,
+    updated_by: null,
+    updated_at: '',
+  }));
+  const breakdown = computeSalaryBreakdown(gross, deductionTypes, previewOverrides);
 
   async function handleSave() {
     if (!organization || !userId || !user) return;
@@ -142,24 +129,30 @@ export default function PayrollProfileScreen() {
         salary_type: salaryType,
         hourly_rate_chf: salaryType === 'hourly' ? num(hourlyRate) : null,
         monthly_salary_chf: salaryType === 'monthly' ? num(monthlySalary) : null,
-        avs_rate_percent: num(avsRate),
-        ac_rate_percent: num(acRate),
-        lpp_amount_chf: num(lppAmount),
-        laa_rate_percent: num(laaRate),
-        source_tax_rate_percent: num(sourceTaxRate),
         notes: notes.trim() || null,
       },
       user.id,
     );
-    setSaving(false);
     if (err) {
+      setSaving(false);
       setError(err);
       return;
     }
+    for (const t of deductionTypes) {
+      const raw = draftRates[t.id]?.trim();
+      await upsertProfileDeduction(
+        organization.id,
+        userId,
+        t.id,
+        { ratePercent: raw ? num(draftRates[t.id]) : null, fixedAmountChf: null, enabled: draftEnabled[t.id] ?? true },
+        user.id,
+      );
+    }
+    setSaving(false);
     load();
   }
 
-  if (loading && !profile && entries.length === 0) {
+  if (loading) {
     return (
       <Screen>
         <LoadingScreen />
@@ -183,8 +176,16 @@ export default function PayrollProfileScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={memberName} backTo="/(app)/rh" />
-        <Text style={styles.pageSubtitle}>{monthLabel(monthAnchor)} — fiche de salaire et suivi des heures.</Text>
+        <PageHeader
+          title={memberName}
+          backTo="/(app)/rh"
+          right={
+            <Pressable onPress={() => router.push('/(app)/rh')} hitSlop={8}>
+              <Feather name="clock" size={18} color={colors.textMuted} />
+            </Pressable>
+          }
+        />
+        <Text style={styles.pageSubtitle}>{monthLabel(monthAnchor)} — fiche de salaire.</Text>
 
         <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
           <Card style={styles.statsRow}>
@@ -192,15 +193,10 @@ export default function PayrollProfileScreen() {
               <Text style={styles.statValue}>{totalHours} h</Text>
               <Text style={styles.statLabel}>Heures ce mois</Text>
             </View>
-            <View style={styles.stat}>
-              <Text style={styles.statValue}>CHF {totalExpenses.toFixed(2)}</Text>
-              <Text style={styles.statLabel}>Frais ce mois</Text>
-            </View>
           </Card>
 
           <Card>
             <Text style={styles.sectionTitle}>Salaire</Text>
-
             <View style={styles.chips}>
               <Pressable onPress={() => setSalaryType('hourly')} style={[styles.chip, salaryType === 'hourly' && styles.chipActive]}>
                 <Text style={[styles.chipText, salaryType === 'hourly' && styles.chipTextActive]}>À l'heure</Text>
@@ -216,28 +212,42 @@ export default function PayrollProfileScreen() {
               <RateField label="Salaire mensuel brut" value={monthlySalary} onChange={setMonthlySalary} suffix="CHF" />
             )}
 
-            <Text style={[styles.sectionTitle, { marginTop: spacing.lg }]}>Cotisations & taxes</Text>
-            <Text style={styles.hint}>
-              Taux par défaut à titre indicatif (AVS/AC 2026, part employé) — à ajuster selon votre caisse de
-              compensation, votre caisse LPP et le canton pour l'impôt à la source.
-            </Text>
-            <View style={styles.rateGrid}>
-              <RateField label="AVS/AI/APG" value={avsRate} onChange={setAvsRate} suffix="%" />
-              <RateField label="AC" value={acRate} onChange={setAcRate} suffix="%" />
-              <RateField label="LPP (2ᵉ pilier)" value={lppAmount} onChange={setLppAmount} suffix="CHF" />
-              <RateField label="LAA (accidents)" value={laaRate} onChange={setLaaRate} suffix="%" />
-              <RateField label="Impôt à la source" value={sourceTaxRate} onChange={setSourceTaxRate} suffix="%" />
-            </View>
-
             <Text style={styles.fieldLabel}>Notes (optionnel)</Text>
-            <TextInput
-              style={styles.noteInput}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Ex : caisse de pension, particularités du contrat…"
-              placeholderTextColor={colors.textMuted}
-              multiline
-            />
+            <TextInput style={styles.noteInput} value={notes} onChangeText={setNotes} placeholder="Ex : caisse de pension, particularités du contrat…" placeholderTextColor={colors.textMuted} multiline />
+          </Card>
+
+          <Card>
+            <Text style={styles.sectionTitle}>Cotisations & taxes</Text>
+            <Text style={styles.hint}>
+              Taux repris de Compte → RH & Salaires, éditables ici pour cet employé uniquement. Décochez une ligne
+              qui ne s'applique pas à cette personne.
+            </Text>
+            {deductionTypes.length === 0 ? (
+              <Text style={styles.hint}>
+                Aucun type de cotisation configuré — ajoutez-en depuis Compte → RH & Salaires.
+              </Text>
+            ) : (
+              <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
+                {deductionTypes.map((t) => (
+                  <View key={t.id} style={styles.deductionRow}>
+                    <Switch value={draftEnabled[t.id] ?? true} onChange={(v) => setDraftEnabled((prev) => ({ ...prev, [t.id]: v }))} />
+                    <Text style={[styles.deductionLabel, !(draftEnabled[t.id] ?? true) && styles.deductionLabelDisabled]} numberOfLines={1}>
+                      {t.label}
+                    </Text>
+                    <TextInput
+                      style={styles.deductionInput}
+                      value={draftRates[t.id] ?? ''}
+                      onChangeText={(v) => setDraftRates((prev) => ({ ...prev, [t.id]: v }))}
+                      keyboardType="decimal-pad"
+                      editable={draftEnabled[t.id] ?? true}
+                      placeholder="0"
+                      placeholderTextColor={colors.textMuted}
+                    />
+                    <Text style={styles.deductionSuffix}>%</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
@@ -247,36 +257,15 @@ export default function PayrollProfileScreen() {
             <Text style={styles.sectionTitle}>
               {salaryType === 'hourly' ? `Brut estimé — ${monthLabel(monthAnchor)}` : `Brut fixe — ${monthLabel(monthAnchor)}`}
             </Text>
-            {salaryType === 'hourly' ? (
-              <Text style={styles.hint}>{totalHours} h × CHF {num(hourlyRate).toFixed(2)}/h</Text>
-            ) : null}
+            {salaryType === 'hourly' ? <Text style={styles.hint}>{totalHours} h × CHF {num(hourlyRate).toFixed(2)}/h</Text> : null}
             <View style={styles.breakdownRows}>
               <BreakdownRow label="Salaire brut" value={breakdown.gross} bold />
-              <BreakdownRow label="− AVS/AI/APG" value={-breakdown.avs} />
-              <BreakdownRow label="− AC" value={-breakdown.ac} />
-              <BreakdownRow label="− LPP" value={-breakdown.lpp} />
-              <BreakdownRow label="− LAA" value={-breakdown.laa} />
-              {breakdown.sourceTax > 0 ? <BreakdownRow label="− Impôt à la source" value={-breakdown.sourceTax} /> : null}
+              {breakdown.lines.map((l, i) => (
+                <BreakdownRow key={i} label={`− ${l.label}`} value={-l.amount} />
+              ))}
               <View style={styles.breakdownDivider} />
               <BreakdownRow label="Salaire net" value={breakdown.net} bold accent />
             </View>
-          </Card>
-
-          <Card>
-            <Text style={styles.sectionTitle}>Détail des heures</Text>
-            {entries.length === 0 ? (
-              <EmptyState title="Aucune heure ce mois" />
-            ) : (
-              <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
-                {entries.map((e) => (
-                  <View key={e.id} style={styles.entryRow}>
-                    <Text style={styles.entryDate}>{new Date(`${e.entry_date}T00:00:00`).toLocaleDateString('fr-CH')}</Text>
-                    <Text style={styles.entryMeta}>{e.project_name ?? 'Sans chantier'}</Text>
-                    <Text style={styles.entryHours}>{Number(e.hours)} h</Text>
-                  </View>
-                ))}
-              </View>
-            )}
           </Card>
         </ScrollView>
       </View>
@@ -284,13 +273,23 @@ export default function PayrollProfileScreen() {
   );
 }
 
+function RateField({ label, value, onChange, suffix }: { label: string; value: string; onChange: (v: string) => void; suffix?: string }) {
+  return (
+    <View style={styles.rateField}>
+      <Text style={styles.rateLabel}>{label}</Text>
+      <View style={styles.rateInputRow}>
+        <TextInput style={styles.rateInput} value={value} onChangeText={onChange} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={colors.textMuted} />
+        {suffix ? <Text style={styles.rateSuffix}>{suffix}</Text> : null}
+      </View>
+    </View>
+  );
+}
+
 function BreakdownRow({ label, value, bold, accent }: { label: string; value: number; bold?: boolean; accent?: boolean }) {
   return (
     <View style={styles.breakdownRow}>
       <Text style={[styles.breakdownLabel, bold && styles.breakdownLabelBold]}>{label}</Text>
-      <Text style={[styles.breakdownValue, bold && styles.breakdownLabelBold, accent && styles.breakdownValueAccent]}>
-        CHF {value.toFixed(2)}
-      </Text>
+      <Text style={[styles.breakdownValue, bold && styles.breakdownLabelBold, accent && styles.breakdownValueAccent]}>CHF {value.toFixed(2)}</Text>
     </View>
   );
 }
@@ -377,14 +376,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
   },
-  rateGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
   rateField: {
-    flexGrow: 1,
-    flexBasis: 140,
     marginBottom: spacing.md,
   },
   rateLabel: {
@@ -430,6 +422,36 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     textAlignVertical: 'top',
   },
+  deductionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  deductionLabel: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  deductionLabelDisabled: {
+    color: colors.textMuted,
+    textDecorationLine: 'line-through',
+  },
+  deductionInput: {
+    width: 64,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    textAlign: 'right',
+  },
+  deductionSuffix: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    width: 12,
+  },
   error: {
     color: colors.danger,
     fontSize: fontSize.sm,
@@ -463,29 +485,5 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: spacing.sm,
-  },
-  entryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  entryDate: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    width: 90,
-  },
-  entryMeta: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  entryHours: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
   },
 });

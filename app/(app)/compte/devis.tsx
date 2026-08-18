@@ -12,7 +12,6 @@ export default function DevisSettingsScreen() {
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
   const [hourlyCost, setHourlyCost] = useState(String(organization?.hourly_cost ?? 0));
-  const [kmRate, setKmRate] = useState(String(organization?.payroll_km_rate_chf ?? 0.7));
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
@@ -22,7 +21,6 @@ export default function DevisSettingsScreen() {
     setValidityDays(String(organization.devis_validity_days ?? 30));
     setDevisTerms(organization.devis_terms ?? '');
     setHourlyCost(String(organization.hourly_cost ?? 0));
-    setKmRate(String(organization.payroll_km_rate_chf ?? 0.7));
   }, [organization]);
 
   useFocusEffect(
@@ -41,7 +39,6 @@ export default function DevisSettingsScreen() {
         devis_validity_days: Number(validityDays) || 30,
         devis_terms: devisTerms.trim() || null,
         hourly_cost: Number(hourlyCost) || 0,
-        payroll_km_rate_chf: Number(kmRate) || 0,
       })
       .eq('id', organization.id);
     setSaving(false);
@@ -87,17 +84,6 @@ export default function DevisSettingsScreen() {
           />
           <Text style={styles.hint}>
             Utilisé pour estimer le coût de main d'œuvre dans l'onglet Rentabilité de chaque chantier.
-          </Text>
-          <Field
-            label="Indemnité kilométrique (CHF/km)"
-            value={kmRate}
-            onChangeText={setKmRate}
-            editable={isAdmin}
-            keyboardType="decimal-pad"
-            placeholder="Ex : 0.70"
-          />
-          <Text style={styles.hint}>
-            Utilisée pour convertir les kilomètres saisis en frais professionnels dans le module RH & Salaires.
           </Text>
           {isAdmin ? (
             <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />

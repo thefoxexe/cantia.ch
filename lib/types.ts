@@ -509,6 +509,51 @@ export interface SubcontractorInvoice {
   created_at: string;
 }
 
+export interface PayrollWorkType {
+  id: string;
+  organization_id: string;
+  label: string;
+  hourly_rate_chf: number | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+}
+
+export type PayrollExpenseUnit = 'km' | 'forfait';
+
+export interface PayrollExpenseType {
+  id: string;
+  organization_id: string;
+  label: string;
+  unit: PayrollExpenseUnit;
+  rate_chf: number | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+}
+
+export interface PayrollDeductionType {
+  id: string;
+  organization_id: string;
+  label: string;
+  default_rate_percent: number | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+}
+
+export interface PayrollProfileDeduction {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  deduction_type_id: string;
+  rate_percent: number | null;
+  fixed_amount_chf: number | null;
+  enabled: boolean;
+  updated_by: string | null;
+  updated_at: string;
+}
+
 export interface PayrollTimeEntry {
   id: string;
   organization_id: string;
@@ -516,13 +561,14 @@ export interface PayrollTimeEntry {
   user_id: string;
   entry_date: string;
   hours: number;
+  work_type_id: string | null;
+  start_time: string | null;
+  end_time: string | null;
   note: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
 }
-
-export type PayrollExpenseCategory = 'km' | 'autre';
 
 export interface PayrollExpense {
   id: string;
@@ -530,8 +576,8 @@ export interface PayrollExpense {
   project_id: string | null;
   user_id: string;
   expense_date: string;
-  category: PayrollExpenseCategory;
-  km: number | null;
+  expense_type_id: string | null;
+  quantity: number | null;
   amount_chf: number;
   note: string | null;
   created_by: string | null;
@@ -547,11 +593,6 @@ export interface PayrollProfile {
   salary_type: SalaryType;
   hourly_rate_chf: number | null;
   monthly_salary_chf: number | null;
-  avs_rate_percent: number;
-  ac_rate_percent: number;
-  lpp_amount_chf: number;
-  laa_rate_percent: number;
-  source_tax_rate_percent: number;
   notes: string | null;
   updated_by: string | null;
   updated_at: string;

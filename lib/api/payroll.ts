@@ -1,8 +1,143 @@
 import { supabase } from '../supabase';
-import type { PayrollExpense, PayrollProfile, PayrollTimeEntry } from '../types';
+import type {
+  PayrollDeductionType,
+  PayrollExpense,
+  PayrollExpenseType,
+  PayrollProfile,
+  PayrollProfileDeduction,
+  PayrollTimeEntry,
+  PayrollWorkType,
+} from '../types';
 
-export interface PayrollTimeEntryWithProject extends PayrollTimeEntry {
+// ==========================================================================
+// Company catalogs — "types de travail", "types de frais", "types de
+// cotisation". Every org member can read the first two (they pick from
+// them when logging their own hours/expenses); deduction types are
+// manager-only, enforced by RLS, not just hidden client-side.
+// ==========================================================================
+
+export async function listWorkTypes(organizationId: string): Promise<PayrollWorkType[]> {
+  const { data } = await supabase
+    .from('payroll_work_types')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .order('sort_order', { ascending: true });
+  return data ?? [];
+}
+
+export async function createWorkType(
+  organizationId: string,
+  label: string,
+  hourlyRateChf: number | null,
+  sortOrder: number,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_work_types')
+    .insert({ organization_id: organizationId, label: label.trim(), hourly_rate_chf: hourlyRateChf, sort_order: sortOrder });
+  return { error: error?.message ?? null };
+}
+
+export async function updateWorkType(
+  id: string,
+  updates: { label: string; hourlyRateChf: number | null; active: boolean },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_work_types')
+    .update({ label: updates.label.trim(), hourly_rate_chf: updates.hourlyRateChf, active: updates.active })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteWorkType(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_work_types').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function listExpenseTypes(organizationId: string): Promise<PayrollExpenseType[]> {
+  const { data } = await supabase
+    .from('payroll_expense_types')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .order('sort_order', { ascending: true });
+  return data ?? [];
+}
+
+export async function createExpenseType(
+  organizationId: string,
+  label: string,
+  unit: 'km' | 'forfait',
+  rateChf: number | null,
+  sortOrder: number,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_expense_types')
+    .insert({ organization_id: organizationId, label: label.trim(), unit, rate_chf: rateChf, sort_order: sortOrder });
+  return { error: error?.message ?? null };
+}
+
+export async function updateExpenseType(
+  id: string,
+  updates: { label: string; unit: 'km' | 'forfait'; rateChf: number | null; active: boolean },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_expense_types')
+    .update({ label: updates.label.trim(), unit: updates.unit, rate_chf: updates.rateChf, active: updates.active })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteExpenseType(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_expense_types').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function listDeductionTypes(organizationId: string): Promise<PayrollDeductionType[]> {
+  const { data } = await supabase
+    .from('payroll_deduction_types')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .order('sort_order', { ascending: true });
+  return data ?? [];
+}
+
+export async function createDeductionType(
+  organizationId: string,
+  label: string,
+  defaultRatePercent: number | null,
+  sortOrder: number,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_deduction_types')
+    .insert({ organization_id: organizationId, label: label.trim(), default_rate_percent: defaultRatePercent, sort_order: sortOrder });
+  return { error: error?.message ?? null };
+}
+
+export async function updateDeductionType(
+  id: string,
+  updates: { label: string; defaultRatePercent: number | null; active: boolean },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_deduction_types')
+    .update({ label: updates.label.trim(), default_rate_percent: updates.defaultRatePercent, active: updates.active })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteDeductionType(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_deduction_types').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+// ==========================================================================
+// Time entries — chantier + type de travail + either a plain hours figure
+// or a start/end range (the caller computes `hours` from the range before
+// calling create/update, so every reader downstream only ever deals with a
+// single numeric hours value).
+// ==========================================================================
+
+export interface PayrollTimeEntryWithNames extends PayrollTimeEntry {
   project_name: string | null;
+  work_type_label: string | null;
 }
 
 export async function listTimeEntries(
@@ -10,33 +145,43 @@ export async function listTimeEntries(
   userId: string,
   rangeStart: string,
   rangeEnd: string,
-): Promise<PayrollTimeEntryWithProject[]> {
+): Promise<PayrollTimeEntryWithNames[]> {
   const { data } = await supabase
     .from('payroll_time_entries')
-    .select('*, projects(name)')
+    .select('*, projects(name), payroll_work_types(label)')
     .eq('organization_id', organizationId)
     .eq('user_id', userId)
     .gte('entry_date', rangeStart)
     .lte('entry_date', rangeEnd)
     .order('entry_date', { ascending: false });
-  return (data ?? []).map((r: any) => ({ ...r, project_name: r.projects?.name ?? null }));
+  return (data ?? []).map((r: any) => ({
+    ...r,
+    project_name: r.projects?.name ?? null,
+    work_type_label: r.payroll_work_types?.label ?? null,
+  }));
 }
 
 export async function createTimeEntry(params: {
   organizationId: string;
   projectId: string | null;
+  workTypeId: string | null;
   userId: string;
   entryDate: string;
   hours: number;
+  startTime: string | null;
+  endTime: string | null;
   note: string;
   createdBy: string | undefined;
 }): Promise<{ error: string | null }> {
   const { error } = await supabase.from('payroll_time_entries').insert({
     organization_id: params.organizationId,
     project_id: params.projectId,
+    work_type_id: params.workTypeId,
     user_id: params.userId,
     entry_date: params.entryDate,
     hours: params.hours,
+    start_time: params.startTime,
+    end_time: params.endTime,
     note: params.note.trim() || null,
     created_by: params.createdBy,
   });
@@ -45,14 +190,25 @@ export async function createTimeEntry(params: {
 
 export async function updateTimeEntry(
   id: string,
-  updates: { projectId: string | null; entryDate: string; hours: number; note: string },
+  updates: {
+    projectId: string | null;
+    workTypeId: string | null;
+    entryDate: string;
+    hours: number;
+    startTime: string | null;
+    endTime: string | null;
+    note: string;
+  },
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('payroll_time_entries')
     .update({
       project_id: updates.projectId,
+      work_type_id: updates.workTypeId,
       entry_date: updates.entryDate,
       hours: updates.hours,
+      start_time: updates.startTime,
+      end_time: updates.endTime,
       note: updates.note.trim() || null,
     })
     .eq('id', id);
@@ -64,8 +220,25 @@ export async function deleteTimeEntry(id: string): Promise<{ error: string | nul
   return { error: error?.message ?? null };
 }
 
-export interface PayrollExpenseWithProject extends PayrollExpense {
+// Hours worked from a "de X à Y" range, handling an overnight shift
+// (end earlier than start) by rolling over to the next day.
+export function hoursFromRange(startTime: string, endTime: string): number {
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  let minutes = eh * 60 + em - (sh * 60 + sm);
+  if (minutes <= 0) minutes += 24 * 60;
+  return Math.round((minutes / 60) * 100) / 100;
+}
+
+// ==========================================================================
+// Expenses — chantier + type de frais (km-rated or forfait), same
+// visibility rule as time entries.
+// ==========================================================================
+
+export interface PayrollExpenseWithNames extends PayrollExpense {
   project_name: string | null;
+  expense_type_label: string | null;
+  expense_type_unit: 'km' | 'forfait' | null;
 }
 
 export async function listExpenses(
@@ -73,25 +246,30 @@ export async function listExpenses(
   userId: string,
   rangeStart: string,
   rangeEnd: string,
-): Promise<PayrollExpenseWithProject[]> {
+): Promise<PayrollExpenseWithNames[]> {
   const { data } = await supabase
     .from('payroll_expenses')
-    .select('*, projects(name)')
+    .select('*, projects(name), payroll_expense_types(label, unit)')
     .eq('organization_id', organizationId)
     .eq('user_id', userId)
     .gte('expense_date', rangeStart)
     .lte('expense_date', rangeEnd)
     .order('expense_date', { ascending: false });
-  return (data ?? []).map((r: any) => ({ ...r, project_name: r.projects?.name ?? null }));
+  return (data ?? []).map((r: any) => ({
+    ...r,
+    project_name: r.projects?.name ?? null,
+    expense_type_label: r.payroll_expense_types?.label ?? null,
+    expense_type_unit: r.payroll_expense_types?.unit ?? null,
+  }));
 }
 
 export async function createExpense(params: {
   organizationId: string;
   projectId: string | null;
+  expenseTypeId: string | null;
   userId: string;
   expenseDate: string;
-  category: 'km' | 'autre';
-  km: number | null;
+  quantity: number | null;
   amountChf: number;
   note: string;
   createdBy: string | undefined;
@@ -99,10 +277,10 @@ export async function createExpense(params: {
   const { error } = await supabase.from('payroll_expenses').insert({
     organization_id: params.organizationId,
     project_id: params.projectId,
+    expense_type_id: params.expenseTypeId,
     user_id: params.userId,
     expense_date: params.expenseDate,
-    category: params.category,
-    km: params.km,
+    quantity: params.quantity,
     amount_chf: params.amountChf,
     note: params.note.trim() || null,
     created_by: params.createdBy,
@@ -115,6 +293,11 @@ export async function deleteExpense(id: string): Promise<{ error: string | null 
   return { error: error?.message ?? null };
 }
 
+// ==========================================================================
+// Salary profile + per-employee deduction overrides — manager-only,
+// enforced by RLS.
+// ==========================================================================
+
 export async function getPayrollProfile(organizationId: string, userId: string): Promise<PayrollProfile | null> {
   const { data } = await supabase
     .from('payroll_profiles')
@@ -125,26 +308,10 @@ export async function getPayrollProfile(organizationId: string, userId: string):
   return data ?? null;
 }
 
-// Secretary/admin only (RLS-enforced) — creates the profile on first edit,
-// updates it after. One row per (organization, user), upsert keeps the
-// "fiche" screen from needing to know whether it exists yet.
 export async function upsertPayrollProfile(
   organizationId: string,
   userId: string,
-  updates: Partial<
-    Pick<
-      PayrollProfile,
-      | 'salary_type'
-      | 'hourly_rate_chf'
-      | 'monthly_salary_chf'
-      | 'avs_rate_percent'
-      | 'ac_rate_percent'
-      | 'lpp_amount_chf'
-      | 'laa_rate_percent'
-      | 'source_tax_rate_percent'
-      | 'notes'
-    >
-  >,
+  updates: Partial<Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'notes'>>,
   updatedBy: string | undefined,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
@@ -156,36 +323,79 @@ export async function upsertPayrollProfile(
   return { error: error?.message ?? null };
 }
 
-// Brut → net breakdown for a given gross amount, using the profile's
-// (editable, org-specific) deduction rates. AVS/AC use the standard 2026
-// employee-share percentages by default; LPP and source tax default to 0
-// since they depend on the pension fund and the employee's personal
-// situation — left to the admin to fill in correctly per employee.
+export async function listProfileDeductions(organizationId: string, userId: string): Promise<PayrollProfileDeduction[]> {
+  const { data } = await supabase
+    .from('payroll_profile_deductions')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .eq('user_id', userId);
+  return data ?? [];
+}
+
+// One row per deduction type touched for this employee — enabled=false
+// records an explicit opt-out (a deduction that doesn't apply to them,
+// e.g. no LAAC), a custom rate/amount records an override. Deduction
+// types never touched for this employee simply use their org default.
+export async function upsertProfileDeduction(
+  organizationId: string,
+  userId: string,
+  deductionTypeId: string,
+  updates: { ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean },
+  updatedBy: string | undefined,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_profile_deductions').upsert(
+    {
+      organization_id: organizationId,
+      user_id: userId,
+      deduction_type_id: deductionTypeId,
+      rate_percent: updates.ratePercent,
+      fixed_amount_chf: updates.fixedAmountChf,
+      enabled: updates.enabled,
+      updated_by: updatedBy,
+    },
+    { onConflict: 'organization_id,user_id,deduction_type_id' },
+  );
+  return { error: error?.message ?? null };
+}
+
+export interface DeductionLine {
+  label: string;
+  amount: number;
+}
+
 export interface SalaryBreakdown {
   gross: number;
-  avs: number;
-  ac: number;
-  lpp: number;
-  laa: number;
-  sourceTax: number;
+  lines: DeductionLine[];
   totalDeductions: number;
   net: number;
 }
 
-export function computeSalaryBreakdown(gross: number, profile: PayrollProfile | null): SalaryBreakdown {
-  const avsRate = profile?.avs_rate_percent ?? 5.3;
-  const acRate = profile?.ac_rate_percent ?? 1.1;
-  const lpp = profile?.lpp_amount_chf ?? 0;
-  const laaRate = profile?.laa_rate_percent ?? 0.5;
-  const sourceTaxRate = profile?.source_tax_rate_percent ?? 0;
+// Combines the org's deduction catalog with this employee's overrides —
+// a deduction type never touched for them applies at its org default rate,
+// enabled by default; disabling or overriding it is per-employee.
+export function computeSalaryBreakdown(
+  gross: number,
+  deductionTypes: PayrollDeductionType[],
+  overrides: PayrollProfileDeduction[],
+): SalaryBreakdown {
+  const overrideByType = new Map(overrides.map((o) => [o.deduction_type_id, o]));
+  const lines: DeductionLine[] = [];
 
-  const avs = round2((gross * avsRate) / 100);
-  const ac = round2((gross * acRate) / 100);
-  const laa = round2((gross * laaRate) / 100);
-  const sourceTax = round2((gross * sourceTaxRate) / 100);
-  const totalDeductions = round2(avs + ac + lpp + laa + sourceTax);
+  for (const dt of deductionTypes) {
+    if (!dt.active) continue;
+    const override = overrideByType.get(dt.id);
+    if (override && !override.enabled) continue;
 
-  return { gross: round2(gross), avs, ac, lpp: round2(lpp), laa, sourceTax, totalDeductions, net: round2(gross - totalDeductions) };
+    const ratePercent = override?.rate_percent ?? dt.default_rate_percent;
+    const fixedAmount = override?.fixed_amount_chf;
+    const amount =
+      fixedAmount != null ? fixedAmount : ratePercent != null ? round2((gross * ratePercent) / 100) : 0;
+    if (amount === 0 && ratePercent == null && fixedAmount == null) continue;
+    lines.push({ label: dt.label, amount });
+  }
+
+  const totalDeductions = round2(lines.reduce((sum, l) => sum + l.amount, 0));
+  return { gross: round2(gross), lines, totalDeductions, net: round2(gross - totalDeductions) };
 }
 
 function round2(n: number): number {
@@ -197,11 +407,10 @@ export type ExportGranularity = 'day' | 'week' | 'month';
 interface ExportRow {
   period: string;
   projectName: string;
+  workTypeLabel: string;
   hours: number;
 }
 
-// ISO week start (Monday) — same convention as the Planning screen, so
-// "hebdomadaire" groups match what the rest of the app already calls a week.
 function startOfWeek(d: Date): Date {
   const date = new Date(d);
   const day = (date.getDay() + 6) % 7;
@@ -222,22 +431,21 @@ function periodLabel(dateStr: string, granularity: ExportGranularity): string {
   return `Semaine du ${fmt(start)} au ${fmt(end)}`;
 }
 
-// Groups entries by (period, chantier) and sums hours — the shared logic
-// behind the CSV export, whatever granularity the employee picked.
 export function groupHoursForExport(
-  entries: PayrollTimeEntryWithProject[],
+  entries: PayrollTimeEntryWithNames[],
   granularity: ExportGranularity,
 ): ExportRow[] {
   const totals = new Map<string, ExportRow>();
   for (const entry of entries) {
     const period = periodLabel(entry.entry_date, granularity);
     const projectName = entry.project_name ?? 'Sans chantier';
-    const key = `${period}__${projectName}`;
+    const workTypeLabel = entry.work_type_label ?? 'Non précisé';
+    const key = `${period}__${projectName}__${workTypeLabel}`;
     const existing = totals.get(key);
     if (existing) {
       existing.hours = round2(existing.hours + Number(entry.hours));
     } else {
-      totals.set(key, { period, projectName, hours: round2(Number(entry.hours)) });
+      totals.set(key, { period, projectName, workTypeLabel, hours: round2(Number(entry.hours)) });
     }
   }
   return Array.from(totals.values());
@@ -245,7 +453,7 @@ export function groupHoursForExport(
 
 export function hoursToCsv(rows: ExportRow[], granularity: ExportGranularity): string {
   const periodHeader = granularity === 'day' ? 'Date' : granularity === 'week' ? 'Semaine' : 'Mois';
-  const header = `${periodHeader};Chantier;Heures`;
-  const lines = rows.map((r) => `${r.period};${r.projectName};${r.hours.toFixed(2).replace('.', ',')}`);
+  const header = `${periodHeader};Chantier;Type de travail;Heures`;
+  const lines = rows.map((r) => `${r.period};${r.projectName};${r.workTypeLabel};${r.hours.toFixed(2).replace('.', ',')}`);
   return [header, ...lines].join('\n');
 }

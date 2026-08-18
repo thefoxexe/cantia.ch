@@ -1,6 +1,8 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../../lib/auth-context';
+import { isModuleEnabled } from '../../../lib/modules';
 import { Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -18,8 +20,20 @@ const ITEMS: { href: string; icon: IconName; label: string; description: string 
   { href: '/(app)/compte/aide', icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.' },
 ];
 
+const RH_ITEM = {
+  href: '/(app)/compte/rh',
+  icon: 'dollar-sign' as IconName,
+  label: 'RH & Salaires',
+  description: 'Types de travail, frais et cotisations utilisés par le module RH.',
+};
+
 export default function CompteIndexScreen() {
   const router = useRouter();
+  const { organization, canManagePayroll } = useAuth();
+  // Only shown to whoever can actually use it — a plain employee has
+  // nothing to configure here (they just pick from the lists an admin has
+  // already set up), and the module might not even be enabled/on-plan.
+  const items = canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll') ? [...ITEMS, RH_ITEM] : ITEMS;
 
   return (
     <Screen>
@@ -27,7 +41,7 @@ export default function CompteIndexScreen() {
         <Container>
           <PageHeader title="Compte" backTo="/(app)" />
           <View style={styles.list}>
-            {ITEMS.map((item) => (
+            {items.map((item) => (
               <Pressable
                 key={item.href}
                 onPress={() => router.push(item.href as any)}

@@ -1032,33 +1032,39 @@ function LandingContent() {
                       {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
                     </Text>
                   ) : null}
-                  <View style={styles.priceFeatures}>
-                    <PriceFeature
-                      dark={dark}
-                      text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
-                    />
-                    <PriceFeature dark={dark} text={p.is_contact_only ? 'Plus de 10 membres' : `${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
-                    <PriceFeature
-                      dark={dark}
-                      text={
-                        p.max_devis_factures_per_month
-                          ? `${p.max_devis_factures_per_month} devis/factures par mois`
-                          : t.pricing.unlimited
-                      }
-                      muted={!!p.max_devis_factures_per_month}
-                    />
-                    <PriceFeature dark={dark} text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
-                    <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
-                    <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
-                    <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
-                    <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
-                    <PriceFeature
-                      dark={dark}
-                      text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
-                      muted={p.max_trames === 0}
-                      included={p.max_trames !== 0}
-                    />
-                  </View>
+                  {p.is_contact_only ? (
+                    <View style={styles.priceFeatures}>
+                      <PriceFeature dark={dark} text="Sur mesure, selon les besoins de votre entreprise" included />
+                    </View>
+                  ) : (
+                    <View style={styles.priceFeatures}>
+                      <PriceFeature
+                        dark={dark}
+                        text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
+                      />
+                      <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
+                      <PriceFeature
+                        dark={dark}
+                        text={
+                          p.max_devis_factures_per_month
+                            ? `${p.max_devis_factures_per_month} devis/factures par mois`
+                            : t.pricing.unlimited
+                        }
+                        muted={!!p.max_devis_factures_per_month}
+                      />
+                      <PriceFeature dark={dark} text={t.pricing.surveyFeature} muted={!p.has_rtk} included={p.has_rtk} />
+                      <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
+                      <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
+                      <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
+                      <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
+                      <PriceFeature
+                        dark={dark}
+                        text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
+                        muted={p.max_trames === 0}
+                        included={p.max_trames !== 0}
+                      />
+                    </View>
+                  )}
                   {p.is_contact_only ? (
                     <Button
                       title="Nous contacter"
