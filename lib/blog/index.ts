@@ -26,6 +26,18 @@ import { post as p24 } from './posts/calculer-13e-salaire-prorata-employe';
 import { post as p25 } from './posts/chantier-complet-peut-etre-en-perte-taux-horaire';
 import { post as p26 } from './posts/gerer-plusieurs-chantiers-en-parallele-methode';
 import { post as p27 } from './posts/whatsapp-gestion-equipe-chantier-limites';
+import { post as p28 } from './posts/devis-oral-valeur-legale-suisse';
+import { post as p29 } from './posts/signature-electronique-devis-suisse-valeur-legale';
+import { post as p30 } from './posts/client-refuse-payer-solde-final-que-faire';
+import { post as p31 } from './posts/avenant-chantier-plus-value-moins-value';
+import { post as p32 } from './posts/travail-au-noir-batiment-suisse-risques-controles';
+import { post as p33 } from './posts/assurance-perte-de-gain-maladie-independant-batiment';
+import { post as p34 } from './posts/photos-chantier-preuve-juridique-litige';
+import { post as p35 } from './posts/difference-devis-offre-facture-pro-forma';
+import { post as p36 } from './posts/logiciel-gestion-chantier-independant-seul';
+import { post as p37 } from './posts/contrat-ecrit-petits-travaux-quand-necessaire';
+import { post as p38 } from './posts/appel-offres-marches-publics-batiment-suisse';
+import { post as p39 } from './posts/estimer-chantier-a-distance-devis-photo';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -35,6 +47,7 @@ import { post as p27 } from './posts/whatsapp-gestion-equipe-chantier-limites';
 // entry, following the same pattern as /solutions/*.
 export const BLOG_POSTS: BlogPost[] = [
   p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27,
+  p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

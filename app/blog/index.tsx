@@ -5,8 +5,19 @@ import { Link } from 'expo-router';
 import { Container, Screen } from '../../components/ui';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { BLOG_CATEGORIES, BLOG_POSTS } from '../../lib/blog';
+import { BlogCategory } from '../../lib/blog/types';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { marketingFonts } from '../../lib/marketingTheme';
+
+// A distinct accent per category so a card reads as its own object at a
+// glance — not just a paragraph of text — even before the title is read.
+const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap; color: string; soft: string }> = {
+  'Devis & facturation': { icon: 'file-text', color: colors.primary, soft: colors.primarySoft },
+  'Juridique & normes': { icon: 'shield', color: colors.danger, soft: colors.dangerSoft },
+  'RH & salaires': { icon: 'users', color: colors.warning, soft: colors.warningSoft },
+  'Chantier & rentabilité': { icon: 'trending-up', color: colors.success, soft: colors.successSoft },
+  'Comparatifs & outils': { icon: 'layers', color: colors.accent, soft: colors.accentSoft },
+};
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
@@ -74,6 +85,7 @@ export default function BlogIndexScreen() {
             </Pressable>
             {BLOG_CATEGORIES.map((c) => (
               <Pressable key={c} onPress={() => setCategory(category === c ? null : c)} style={[styles.chip, category === c && styles.chipActive]}>
+                <View style={[styles.chipDot, { backgroundColor: category === c ? '#fff' : CATEGORY_STYLE[c].color }]} />
                 <Text style={[styles.chipText, category === c && styles.chipTextActive]}>{c}</Text>
               </Pressable>
             ))}
@@ -88,10 +100,15 @@ export default function BlogIndexScreen() {
               {featured ? (
                 <Link href={`/blog/${featured.slug}` as any} asChild>
                   <Pressable style={({ hovered }: any) => [styles.featuredCard, hovered && styles.featuredCardHovered]}>
-                    <View style={styles.featuredBadge}>
-                      <Text style={styles.featuredBadgeText}>Dernier article</Text>
+                    <View style={styles.featuredTop}>
+                      <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[featured.category].soft }]}>
+                        <Feather name={CATEGORY_STYLE[featured.category].icon} size={13} color={CATEGORY_STYLE[featured.category].color} />
+                        <Text style={[styles.categoryBadgeText, { color: CATEGORY_STYLE[featured.category].color }]}>{featured.category}</Text>
+                      </View>
+                      <View style={styles.featuredBadge}>
+                        <Text style={styles.featuredBadgeText}>Dernier article</Text>
+                      </View>
                     </View>
-                    <Text style={styles.featuredCategory}>{featured.category}</Text>
                     <Text style={styles.featuredTitle}>{featured.title}</Text>
                     <Text style={styles.featuredExcerpt}>{featured.excerpt}</Text>
                     <View style={styles.cardMetaRow}>
@@ -112,15 +129,23 @@ export default function BlogIndexScreen() {
                 {rest.map((p) => (
                   <Link key={p.slug} href={`/blog/${p.slug}` as any} asChild>
                     <Pressable style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}>
-                      <Text style={styles.cardCategory}>{p.category}</Text>
-                      <Text style={styles.cardTitle}>{p.title}</Text>
-                      <Text style={styles.cardExcerpt} numberOfLines={3}>
-                        {p.excerpt}
-                      </Text>
-                      <View style={styles.cardMetaRow}>
-                        <Text style={styles.cardMetaText}>{formatDate(p.publishedAt)}</Text>
-                        <View style={styles.cardMetaDot} />
-                        <Text style={styles.cardMetaText}>{p.readMinutes} min</Text>
+                      <View style={[styles.cardAccent, { backgroundColor: CATEGORY_STYLE[p.category].color }]} />
+                      <View style={styles.cardBody}>
+                        <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[p.category].soft }]}>
+                          <Feather name={CATEGORY_STYLE[p.category].icon} size={12} color={CATEGORY_STYLE[p.category].color} />
+                          <Text style={[styles.categoryBadgeText, { color: CATEGORY_STYLE[p.category].color }]}>{p.category}</Text>
+                        </View>
+                        <Text style={styles.cardTitle}>{p.title}</Text>
+                        <Text style={styles.cardExcerpt} numberOfLines={2}>
+                          {p.excerpt}
+                        </Text>
+                        <View style={styles.cardMetaRow}>
+                          <Text style={styles.cardMetaText}>{formatDate(p.publishedAt)}</Text>
+                          <View style={styles.cardMetaDot} />
+                          <Text style={styles.cardMetaText}>{p.readMinutes} min</Text>
+                          <View style={{ flex: 1 }} />
+                          <Feather name="arrow-right" size={14} color={colors.textMuted} />
+                        </View>
                       </View>
                     </Pressable>
                   </Link>
@@ -207,6 +232,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.pill,
@@ -217,6 +245,11 @@ const styles = StyleSheet.create({
   chipActive: {
     backgroundColor: colors.primaryDark,
     borderColor: colors.primaryDark,
+  },
+  chipDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   chipText: {
     fontFamily: marketingFonts.body,
@@ -247,16 +280,26 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     marginBottom: spacing.xl,
     gap: spacing.xs,
+    shadowColor: '#231A12',
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 2,
     transitionProperty: 'transform, border-color, box-shadow',
     transitionDuration: '0.2s',
   } as unknown as ViewStyle,
   featuredCardHovered: {
     borderColor: colors.primary,
     transform: [{ translateY: -3 }],
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+  },
+  featuredTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
   },
   featuredBadge: {
     alignSelf: 'flex-start',
@@ -264,7 +307,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
-    marginBottom: spacing.sm,
   },
   featuredBadgeText: {
     fontFamily: marketingFonts.body,
@@ -274,11 +316,19 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
-  featuredCategory: {
+  categoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  categoryBadgeText: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primary,
+    fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
@@ -299,29 +349,39 @@ const styles = StyleSheet.create({
     maxWidth: 620,
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.md,
   },
   card: {
-    flex: 1,
-    minWidth: 280,
-    padding: spacing.lg,
+    flexDirection: 'row',
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: spacing.xs,
+    overflow: 'hidden',
+    shadowColor: '#231A12',
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 1,
     transitionProperty: 'transform, border-color, box-shadow',
     transitionDuration: '0.2s',
   } as unknown as ViewStyle,
   cardHovered: {
     borderColor: colors.primary,
-    transform: [{ translateY: -3 }],
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
+    transform: [{ translateY: -2 }],
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  cardAccent: {
+    width: 5,
+    alignSelf: 'stretch',
+  },
+  cardBody: {
+    flex: 1,
+    minWidth: 0,
+    padding: spacing.lg,
+    gap: spacing.xs,
   },
   cardCategory: {
     fontFamily: marketingFonts.body,

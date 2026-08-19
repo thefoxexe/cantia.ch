@@ -15,7 +15,7 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'Juridique & normes': 'shield',
   'RH & salaires': 'users',
   'Chantier & rentabilité': 'trending-up',
-  'Comparatifs & outils': 'git-compare' as any,
+  'Comparatifs & outils': 'layers',
 };
 
 function formatDate(iso: string): string {

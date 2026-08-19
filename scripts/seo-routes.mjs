@@ -492,6 +492,138 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/devis-oral-valeur-legale-suisse',
+    title: 'Devis accepté à l’oral : ça engage, mais ça ne se prouve pas | Cantia',
+    description:
+      "En droit suisse, un accord oral vaut contrat — le Code des obligations n’exige aucune forme écrite par défaut. Le problème n’est jamais la validité, c’est la preuve.",
+    faq: [
+      { q: 'Un accord oral pour des travaux est-il valable en droit suisse ?', a: 'Oui — l’art. 11 CO n’exige aucune forme particulière par défaut pour un contrat d’entreprise.' },
+      { q: 'Quel est le principal risque d’un devis accepté uniquement à l’oral ?', a: 'La preuve, pas la validité : en cas de désaccord, il devient difficile de démontrer ce qui a été dit.' },
+      { q: 'Un simple message écrit suffit-il à sécuriser un accord oral ?', a: 'Dans la majorité des cas pratiques, oui.' },
+    ],
+  },
+  {
+    path: 'blog/signature-electronique-devis-suisse-valeur-legale',
+    title: 'Signer un devis en ligne : ce que ça vaut devant la loi | Cantia',
+    description:
+      "La signature électronique simple vaut acceptation contractuelle pour la quasi-totalité des devis du bâtiment. La signature qualifiée n’est nécessaire que dans des cas précis.",
+    faq: [
+      { q: 'Une signature électronique simple suffit-elle pour un devis de travaux ?', a: 'Oui, dans la quasi-totalité des cas.' },
+      { q: 'Quand faut-il une signature électronique qualifiée plutôt que simple ?', a: 'Uniquement pour les actes exigeant légalement une forme écrite qualifiée, rare pour un devis du bâtiment.' },
+      { q: 'Un devis signé électroniquement vaut-il plus qu’un PDF imprimé et signé à la main ?', a: 'Les deux ont une valeur de preuve comparable pour un contrat sans forme requise.' },
+    ],
+  },
+  {
+    path: 'blog/client-refuse-payer-solde-final-que-faire',
+    title: 'Un client refuse de payer le solde final : la méthode | Cantia',
+    description:
+      "Un refus de paiement sur le solde final n’est presque jamais définitif — c’est souvent un désaccord sur un point précis. Distinguer les deux change toute la stratégie.",
+    faq: [
+      { q: 'Un client peut-il retenir tout le solde pour un défaut mineur ?', a: 'Une retenue doit rester proportionnée au défaut réel.' },
+      { q: 'Quelle est la première étape face à un refus de paiement du solde final ?', a: 'Demander par écrit la raison précise du refus.' },
+      { q: 'À quel moment envisager une procédure de poursuite ?', a: 'En dernier recours, après une mise en demeure formelle restée sans réponse.' },
+    ],
+  },
+  {
+    path: 'blog/avenant-chantier-plus-value-moins-value',
+    title: 'Facturer un avenant en cours de chantier sans se faire piéger | Cantia',
+    description:
+      "Un client qui demande un changement en cours de chantier ne signe presque jamais d’avenant écrit sur le moment — ce qui transforme un service rendu en travail gratuit.",
+    faq: [
+      { q: 'Faut-il facturer une petite plus-value demandée en cours de chantier ?', a: 'Oui, systématiquement, pour maintenir une référence claire.' },
+      { q: 'Quand faut-il faire valider le prix d’un avenant ?', a: 'Avant de démarrer le travail supplémentaire, pas après.' },
+      { q: 'Une moins-value doit-elle aussi être documentée par écrit ?', a: 'Oui, pour éviter toute contestation ultérieure sur le montant final.' },
+    ],
+  },
+  {
+    path: 'blog/travail-au-noir-batiment-suisse-risques-controles',
+    title: 'Travail au noir dans le bâtiment : ce que risque une entreprise | Cantia',
+    description:
+      "Le secteur de la construction fait partie des branches les plus contrôlées par la LTN. Plus de 14’000 contrôles d’entreprises ont eu lieu en 2025.",
+    faq: [
+      { q: 'La construction est-elle particulièrement contrôlée en Suisse ?', a: 'Oui, c’est l’une des branches prioritaires des contrôles LTN.' },
+      { q: 'Quelle est la sanction la plus lourde en cas de travail au noir constaté ?', a: 'L’exclusion des marchés publics et la suppression d’aides financières.' },
+      { q: 'Une entreprise risque-t-elle quelque chose si son sous-traitant est en infraction ?', a: 'Elle peut se retrouver associée au problème sur son propre chantier.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-perte-de-gain-maladie-independant-batiment',
+    title: 'Arrêt maladie indépendant : ce qui n’est PAS couvert | Cantia',
+    description:
+      "La LAMal paie les soins, jamais le revenu perdu. Sans assurance perte de gain maladie souscrite volontairement, un indépendant en arrêt n’a droit à aucun revenu de remplacement.",
+    faq: [
+      { q: 'La LAMal couvre-t-elle la perte de revenu en cas de maladie pour un indépendant ?', a: 'Non, elle ne couvre que les soins médicaux.' },
+      { q: 'Un indépendant est-il obligé de souscrire une assurance perte de gain maladie ?', a: 'Non, cette assurance reste facultative.' },
+      { q: 'Que se passe-t-il pour un indépendant sans couverture en cas d’arrêt prolongé ?', a: 'Il ne perçoit aucun revenu de remplacement.' },
+    ],
+  },
+  {
+    path: 'blog/photos-chantier-preuve-juridique-litige',
+    title: 'Photos de chantier : la preuve la plus solide, si bien prise | Cantia',
+    description:
+      "Une photo de chantier vaut comme preuve devant un tribunal civil suisse — à condition d’être datée, contextualisée et conservée correctement.",
+    faq: [
+      { q: 'Une photo de chantier a-t-elle une vraie valeur de preuve devant un tribunal ?', a: 'Oui, si elle est datée de façon fiable et contextualisée.' },
+      { q: 'À quels moments du chantier est-il le plus utile de prendre des photos ?', a: 'Avant travaux, avant fermeture d’éléments, et à la réception finale.' },
+      { q: 'Pourquoi des photos sur des téléphones personnels sont-elles peu utilisables ?', a: 'Par manque de centralisation et d’horodatage fiable.' },
+    ],
+  },
+  {
+    path: 'blog/difference-devis-offre-facture-pro-forma',
+    title: 'Devis, offre, facture pro forma : trois usages différents | Cantia',
+    description:
+      "Les trois termes s’utilisent souvent l’un pour l’autre dans le bâtiment suisse alors qu’ils n’engagent pas de la même façon.",
+    faq: [
+      { q: 'Un devis et une offre sont-ils la même chose dans le bâtiment ?', a: 'Oui dans la pratique.' },
+      { q: 'Une facture pro forma engage-t-elle le client à payer ?', a: 'Non, c’est un document purement informatif.' },
+      { q: 'Quelle est la différence entre un devis accepté et une vraie facture ?', a: 'Le devis accepté forme le contrat ; la facture crée une créance exigible.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-gestion-chantier-independant-seul',
+    title: 'Logiciel de gestion de chantier en solo : utile ou pas ? | Cantia',
+    description:
+      "La plupart des outils de gestion de chantier ciblent des équipes. Un indépendant seul a des besoins différents mais tout aussi réels.",
+    faq: [
+      { q: 'Un logiciel de gestion de chantier est-il utile pour un indépendant sans équipe ?', a: 'Oui, surtout pour le temps administratif récupéré.' },
+      { q: 'À partir de combien de devis par mois l’outil devient-il rentable ?', a: 'Dès quelques devis mensuels.' },
+      { q: 'Quelles fonctionnalités restent inutiles pour un indépendant seul ?', a: 'Un planning d’équipe multi-personnes ou un système de permissions par rôle.' },
+    ],
+  },
+  {
+    path: 'blog/contrat-ecrit-petits-travaux-quand-necessaire',
+    title: 'Petits travaux : quand un écrit devient nécessaire | Cantia',
+    description:
+      "Aucun seuil légal n’impose l’écrit pour un contrat d’entreprise en Suisse. Mais un seuil pratique existe bel et bien.",
+    faq: [
+      { q: 'Existe-t-il un montant à partir duquel un contrat écrit devient obligatoire ?', a: 'Non, aucun seuil légal n’existe en droit suisse.' },
+      { q: 'Pourquoi formaliser par écrit même de petits travaux ?', a: 'Parce que le coût d’un désaccord de mémoire dépasse vite l’effort de rédaction.' },
+      { q: 'Un simple SMS de confirmation suffit-il ?', a: 'Dans la plupart des cas pratiques, oui.' },
+    ],
+  },
+  {
+    path: 'blog/appel-offres-marches-publics-batiment-suisse',
+    title: 'Marchés publics du bâtiment : ce qu’il faut savoir | Cantia',
+    description:
+      "Dès CHF 2 millions pour des travaux de construction, un marché public doit être publié sur SIMAP selon les seuils AIMP.",
+    faq: [
+      { q: 'À partir de quel montant un marché de construction doit-il être publié sur SIMAP ?', a: 'Autour de CHF 2 millions selon les seuils AIMP.' },
+      { q: 'Les petits chantiers publics sont-ils accessibles aux petites entreprises ?', a: 'Oui, via des procédures de gré à gré sous le seuil de publication.' },
+      { q: 'Le prix est-il le seul critère d’adjudication ?', a: 'Non, les critères sont généralement pondérés.' },
+    ],
+  },
+  {
+    path: 'blog/estimer-chantier-a-distance-devis-photo',
+    title: 'Estimer un chantier à distance : jusqu’où c’est raisonnable | Cantia',
+    description:
+      "Un déplacement pour chaque demande de prix coûte du temps. Certaines estimations à distance sont fiables ; d’autres sont un pari risqué.",
+    faq: [
+      { q: 'Peut-on établir un devis ferme uniquement sur la base de photos ?', a: 'C’est risqué pour tout ce qui touche à l’état structurel existant.' },
+      { q: 'Quels travaux se prêtent le mieux à une estimation à distance ?', a: 'Les remplacements à l’identique avec dimensions mesurables.' },
+      { q: 'Comment limiter le risque d’une estimation à distance fausse ?', a: 'En la présentant comme indicative, non contractuelle.' },
+    ],
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:
