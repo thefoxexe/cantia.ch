@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { Button, Screen } from '../../../components/ui';
+import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // A member without the finance permission (see équipe screen) is already
@@ -31,7 +31,12 @@ function AccessDenied() {
 }
 
 export default function DevisLayout() {
-  const { canViewFinances } = useAuth();
+  const { canViewFinances, loading } = useAuth();
+  // The membership/role fetch that determines canViewFinances is async and
+  // starts out false — without this guard, landing here directly (deep
+  // link, bookmark, hard refresh) flashes "Accès non autorisé" for every
+  // user, owners included, until it resolves a moment later.
+  if (loading) return <LoadingScreen />;
   if (!canViewFinances) return <AccessDenied />;
   return (
     <Stack
