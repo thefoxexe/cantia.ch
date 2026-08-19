@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Bexio est une comptabilité généraliste suisse. Cantia est pensée spécifiquement pour le chantier : devis dicté à la voix, rentabilité par projet, rapports photo, QR-facture native.',
   excerpt:
-    'Bexio couvre très bien la comptabilité générale d’une PME suisse. Sur le terrain, dans le bâtiment, les besoins sont différents — voici où les deux outils divergent.',
+    'Bexio n’a jamais été pensé pour un chantier. C’est un excellent outil de comptabilité pour une PME suisse quelconque — pas un outil de terrain pour le bâtiment.',
   category: 'Comparatifs & outils',
   keywords: ['bexio', 'alternative bexio', 'logiciel bâtiment', 'devis facturation', 'comparatif'],
   publishedAt: '2026-02-02',
@@ -15,30 +15,30 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Bexio s’est imposé comme l’un des logiciels de comptabilité et facturation les plus utilisés par les PME suisses, tous secteurs confondus. La question qui revient chez les artisans qui l’utilisent déjà : est-il vraiment adapté à un métier de chantier, ou juste "suffisant" faute de mieux ?',
+      text: 'Bexio s’est imposé comme l’un des logiciels de comptabilité et facturation les plus utilisés par les PME suisses, tous secteurs confondus. La vraie question, une fois qu’on l’utilise depuis un an dans le bâtiment, n’est pas « est-il bon ? » — c’est « a-t-il été pensé pour ce que je fais vraiment, ou juste pour ce que fait n’importe quelle PME » ?',
     },
     { type: 'h2', text: 'Ce que Bexio fait bien' },
     {
       type: 'p',
-      text: 'Bexio est un outil de comptabilité et de facturation généraliste solide : comptabilité en partie double, déclarations TVA, gestion des stocks pour du commerce, connecteurs bancaires. Pour une entreprise dont l’activité principale n’est pas le chantier lui-même (vente, services de bureau), c’est un choix cohérent et éprouvé.',
+      text: 'Comptabilité en partie double, déclarations TVA, connecteurs bancaires, gestion de stock pensée pour du commerce. Pour une entreprise dont l’activité principale n’est pas le chantier lui-même, c’est un choix solide, éprouvé, et largement suffisant.',
     },
     { type: 'h2', text: 'Ce qui manque quand le vrai métier est le chantier' },
     {
       type: 'list',
       items: [
-        'Pas de rentabilité par chantier : Bexio suit la comptabilité globale de l’entreprise, pas ce qu’un chantier précis a réellement coûté face à ce qu’il a rapporté',
-        'Pas de rapport de chantier avec photos géolocalisées — un besoin quotidien pour documenter l’avancement, les malfaçons ou les réserves',
-        'Pas de dictée vocale pour créer un devis directement depuis le van, entre deux rendez-vous, sans ressaisir au bureau le soir',
+        'Pas de rentabilité par chantier : Bexio voit la comptabilité globale de l’entreprise, jamais ce qu’un chantier précis a réellement coûté face à ce qu’il a rapporté',
+        'Pas de rapport de chantier avec photos géolocalisées — un besoin quotidien pour documenter l’avancement, une malfaçon ou une réserve',
+        'Pas de dictée vocale pour créer un devis depuis le van, entre deux rendez-vous, sans tout retaper le soir au bureau',
         'Pas de planning d’équipe intégré aux chantiers et aux devis',
-        'Pas de portail client pour que le client consulte et signe son devis en ligne sans échange de PDF par email',
+        'Pas de portail client pour qu’un devis se consulte et se signe en ligne sans échange de PDF par email',
       ],
     },
     {
       type: 'callout',
-      title: 'La vraie différence n’est pas la qualité, c’est le métier visé',
-      text: 'Bexio a été conçu pour la comptabilité d’une PME au sens large. Cantia a été conçu spécifiquement pour le déroulement d’un chantier suisse — du premier rendez-vous client jusqu’au paiement final, en passant par les rapports et le suivi de rentabilité.',
+      title: 'Ce n’est pas une question de qualité, c’est une question de métier visé',
+      text: 'Bexio a été conçu pour la comptabilité d’une PME au sens large — un salon de coiffure, un cabinet d’avocat, une entreprise du bâtiment s’y retrouvent tous logés à la même enseigne. Cantia a été pensé uniquement pour le déroulement d’un chantier suisse, du premier rendez-vous client jusqu’au paiement final.',
     },
-    { type: 'h2', text: 'Tableau comparatif' },
+    { type: 'h2', text: 'Le tableau qui tranche' },
     {
       type: 'table',
       headers: ['Besoin', 'Bexio', 'Cantia'],
@@ -54,7 +54,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'Dans la pratique, beaucoup d’entreprises du bâtiment utilisent les deux : un outil métier comme Cantia pour tout ce qui touche au chantier (devis, suivi, rentabilité, équipe), et transmettent les écritures à leur fiduciaire ou à un outil de comptabilité pour la clôture annuelle.',
+      text: 'Dans la pratique, beaucoup d’entreprises utilisent les deux en parallèle : un outil métier comme Cantia pour tout ce qui touche au chantier, et une transmission des écritures à une fiduciaire ou à un outil de comptabilité pour la clôture annuelle. Aucun des deux n’a besoin de remplacer l’autre pour être le bon choix.',
     },
     {
       type: 'cta',

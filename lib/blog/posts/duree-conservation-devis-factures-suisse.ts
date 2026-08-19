@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Le Code des obligations (art. 958f) impose une conservation de 10 ans pour les pièces comptables, factures incluses — délai qui court depuis la fin de l’exercice, pas la date du document.',
   excerpt:
-    'Une facture émise en mars 2026 doit rester accessible jusqu’à fin 2036, pas jusqu’à mars 2036 — un détail de calcul du délai souvent mal compris.',
+    'Une facture de mars 2026 doit rester accessible jusqu’à fin 2036, pas jusqu’à mars 2036. Un détail de calcul du délai que la plupart des entreprises ratent.',
   category: 'Juridique & normes',
   keywords: ['conservation documents', 'archivage factures', 'délai légal', 'code des obligations', 'comptabilité'],
   publishedAt: '2026-02-16',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Peut-on jeter les devis et factures d’un chantier terminé depuis cinq ans ? La réponse suisse est simple sur le principe, mais le calcul exact du délai surprend souvent : ce n’est pas la date du document qui compte, c’est la fin de l’exercice comptable dans lequel il s’inscrit.',
+      text: 'Peut-on jeter les devis et factures d’un chantier terminé depuis cinq ans ? Le principe suisse est simple, mais le calcul exact du délai surprend presque tout le monde : ce n’est jamais la date du document qui compte, c’est la fin de l’exercice comptable dans lequel il s’inscrit.',
     },
     { type: 'h2', text: 'La règle : 10 ans, depuis la fin de l’exercice' },
     {
@@ -24,8 +24,8 @@ export const post: BlogPost = {
     },
     {
       type: 'callout',
-      title: 'Exemple concret',
-      text: 'Une facture datée du 15 mars 2026, pour une entreprise dont l’exercice comptable se termine le 31 décembre, doit rester accessible jusqu’au 31 décembre 2036 — pas jusqu’au 15 mars 2036.',
+      title: 'L’exemple qui rend le calcul évident',
+      text: 'Une facture datée du 15 mars 2026, pour une entreprise dont l’exercice se termine le 31 décembre, doit rester accessible jusqu’au 31 décembre 2036 — pas jusqu’au 15 mars 2036. Neuf mois de plus que ce que la plupart des gens calculent instinctivement.',
     },
     { type: 'h2', text: 'Quels documents sont concernés' },
     {
@@ -37,15 +37,15 @@ export const post: BlogPost = {
         'Rapports de gestion et rapports de révision, le cas échéant',
       ],
     },
-    { type: 'h2', text: 'Sous quelle forme conserver' },
+    { type: 'h2', text: 'Papier ou numérique : ce que la loi accepte réellement' },
     {
       type: 'p',
-      text: 'La loi autorise la conservation sur papier, sous forme électronique, ou toute forme équivalente — à condition que le lien avec les opérations concernées reste garanti et que l’accessibilité soit assurée pendant toute la durée légale. En pratique, une conservation numérique (PDF horodatés, sauvegardés de façon fiable) est largement acceptée et bien plus simple à retrouver qu’une pile de classeurs papier lors d’un contrôle fiscal ou d’un litige des années plus tard.',
+      text: 'Papier, forme électronique, ou toute forme équivalente — la loi n’impose pas de support précis, à condition que le lien avec les opérations concernées reste garanti et que l’accessibilité soit assurée pendant toute la durée légale. En pratique, une conservation numérique bien sauvegardée est largement acceptée, et infiniment plus rapide à retrouver qu’une pile de classeurs papier fouillée un après-midi de contrôle fiscal.',
     },
-    { type: 'h2', text: 'Pourquoi ça compte, au-delà de l’obligation légale' },
+    { type: 'h2', text: 'Pourquoi ça compte, au-delà de l’obligation' },
     {
       type: 'p',
-      text: 'Au-delà de la conformité, retrouver rapidement un devis ou une facture d’un chantier vieux de plusieurs années est utile en cas de litige de garantie, de contrôle fiscal, ou simplement pour répondre à un client qui redemande une copie d’un document ancien. Un classement par chantier, cherchable, évite d’avoir à fouiller un disque dur ou une boîte mail des années plus tard.',
+      text: 'Retrouver rapidement un devis ou une facture d’un chantier vieux de plusieurs années sert bien au-delà de la conformité légale : un litige de garantie qui ressurgit, un contrôle fiscal, ou simplement un client qui redemande une copie d’un document ancien. Un classement par chantier, cherchable, évite de fouiller un disque dur ou une boîte mail des années plus tard, souvent au pire moment pour le faire.',
     },
     {
       type: 'cta',

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un ouvrier qui a travaillé de 8h à 12h45 a fait 4h45 — pas 4,45 heures décimales (qui vaudrait 4h27). Voici pourquoi cette confusion coûte cher sur une fiche de salaire.',
   excerpt:
-    '4h45 de travail, ce n’est pas 4,45 heures. La confusion entre minutes et centièmes d’heure est l’erreur de saisie RH la plus fréquente dans le bâtiment — et la plus coûteuse.',
+    '4h45 de travail n’est pas 4,45 heures. C’est l’erreur de saisie RH la plus fréquente du bâtiment — et probablement celle qui fausse le plus de fiches de paie sans que personne s’en aperçoive.',
   category: 'RH & salaires',
   keywords: ['heures de travail', 'décompte heures', 'salaire horaire', 'rh bâtiment', 'fiche de paie'],
   publishedAt: '2026-02-09',
@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un ouvrier commence à 8h00 et termine à 12h45. Combien d’heures a-t-il travaillé ? La réponse instinctive — "4h45" — est la bonne. Mais dès qu’il faut la transcrire dans un tableur ou un logiciel de paie, une confusion classique s’installe : 4h45 n’est pas 4,45 en écriture décimale.',
+      text: 'Un ouvrier commence à 8h00, termine à 12h45. Combien d’heures a-t-il travaillé ? « 4h45 » est la bonne réponse instinctive. Le problème arrive dès qu’il faut la taper dans un tableur ou un logiciel de paie : 4h45 n’est pas 4,45 en écriture décimale, et cette confusion produit des fiches de salaire fausses sans qu’aucun signal d’alarme ne se déclenche.',
     },
     { type: 'h2', text: 'Le piège du séparateur' },
     {
       type: 'p',
-      text: '45 minutes représentent 45/60 d’heure, soit 0,75 heure décimal — donc 4h45 de travail équivaut à 4,75 heures décimales, pas 4,45. L’erreur vient du fait que la plupart des gens écrivent naturellement "4.45" ou "4,45" en pensant aux minutes affichées sur une montre, sans faire mentalement la conversion en centièmes d’heure.',
+      text: '45 minutes valent 45/60 d’heure, soit 0,75 heure décimal — donc 4h45 de travail équivaut à 4,75 heures décimales, pas 4,45. L’erreur vient d’une confusion très naturelle : on écrit « 4.45 » en pensant aux minutes affichées sur une montre, sans convertir mentalement en centièmes d’heure.',
     },
     {
       type: 'table',
@@ -34,27 +34,27 @@ export const post: BlogPost = {
     },
     {
       type: 'callout',
-      title: 'Pourquoi ça coûte cher',
-      text: 'Sur une fiche de salaire mensuelle cumulant des dizaines d’entrées d’heures, une conversion minutes/décimal ratée sur chaque ligne peut faire dériver le total de plusieurs heures sans qu’aucune erreur individuelle ne saute aux yeux — le salaire versé est alors faux, dans un sens ou dans l’autre.',
+      title: 'Pourquoi ça coûte réellement de l’argent',
+      text: 'Sur une fiche de salaire mensuelle cumulant des dizaines d’entrées, une conversion ratée sur chaque ligne fait dériver le total de plusieurs heures sans qu’aucune erreur individuelle ne saute aux yeux. Le salaire versé finit faux — trop haut ou trop bas — et personne ne sait pourquoi les chiffres ne collent plus.',
     },
-    { type: 'h2', text: 'Deux façons fiables de noter des heures' },
+    { type: 'h2', text: 'Deux façons fiables de noter une durée' },
     {
       type: 'list',
       items: [
-        'Toujours noter en heures et minutes explicites : "4h45", jamais un nombre ambigu seul',
-        'Si un champ décimal est vraiment nécessaire, convertir systématiquement les minutes en soixantièmes avant de taper le nombre (45 min = 0,75, pas 0,45)',
-        'Le plus fiable reste de saisir directement l’heure de début et l’heure de fin ("8h00" à "12h45") et de laisser le calcul du total se faire automatiquement — la source d’erreur humaine disparaît complètement',
+        'Toujours noter en heures et minutes explicites : « 4h45 », jamais un nombre ambigu seul',
+        'Si un champ décimal est vraiment nécessaire, convertir systématiquement les minutes en soixantièmes avant de taper le nombre (45 min = 0,75, jamais 0,45)',
+        'Le plus fiable reste de saisir l’heure de début et l’heure de fin (« 8h00 » à « 12h45 ») et de laisser le total se calculer automatiquement — l’erreur humaine disparaît complètement',
       ],
     },
-    { type: 'h2', text: 'Ce que ça veut dire pour un logiciel RH bâtiment' },
+    { type: 'h2', text: 'Ce que ça implique pour un outil RH bâtiment' },
     {
       type: 'p',
-      text: 'Un bon outil de suivi d’heures doit accepter la façon dont les gens écrivent naturellement une durée — "4.45" pour dire 4h45 — plutôt que d’imposer une saisie en décimal pur qui ne correspond à aucune habitude réelle sur un chantier. C’est un détail d’ergonomie qui évite des dizaines de petites erreurs de paie chaque mois.',
+      text: 'Un bon outil de suivi d’heures doit accepter la façon dont les gens écrivent naturellement une durée — « 4.45 » pour dire 4h45 — plutôt que d’imposer une saisie en décimal pur qui ne correspond à aucune habitude réelle sur un chantier. C’est un détail d’ergonomie minuscule qui évite des dizaines de petites erreurs de paie chaque mois, mois après mois.',
     },
     {
       type: 'cta',
       title: 'Les heures se saisissent comme on les pense',
-      text: 'Dans le module RH & Salaires de Cantia, "4.45" saisi dans le champ Heures est automatiquement compris comme 4h45 — jamais comme une fraction décimale d’heure — exactement comme les champs de début et de fin de journée.',
+      text: 'Dans le module RH & Salaires de Cantia, « 4.45 » saisi dans le champ Heures est compris comme 4h45 — jamais comme une fraction décimale — exactement comme les champs de début et de fin de journée.',
       buttonLabel: 'Découvrir RH & Salaires',
     },
   ],

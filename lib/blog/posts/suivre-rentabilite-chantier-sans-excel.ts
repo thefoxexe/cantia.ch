@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un tableau Excel de suivi de chantier casse dès qu’une formule change ou qu’un collaborateur oublie une ligne. Voici une méthode plus fiable pour savoir si un chantier est rentable en temps réel.',
   excerpt:
-    'Le tableau Excel de suivi chantier tient rarement plus de quelques mois : une formule cassée, une ligne oubliée, et la rentabilité affichée ne veut plus rien dire.',
+    'Le fichier Excel de suivi chantier tient rarement plus de quelques mois. Le problème n’est pas la discipline de l’équipe — c’est le format lui-même.',
   category: 'Chantier & rentabilité',
   keywords: ['rentabilité chantier', 'excel', 'devisé vs réel', 'suivi de coûts', 'marge chantier'],
   publishedAt: '2026-02-05',
@@ -15,46 +15,46 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Presque toutes les entreprises du bâtiment ont, à un moment, tenu un fichier Excel de suivi de chantier. Et presque toutes ont fini par l’abandonner — pas par manque de discipline, mais parce que le format lui-même a des limites structurelles pour ce besoin précis.',
+      text: 'Presque toutes les entreprises du bâtiment ont, à un moment, tenu un fichier Excel de suivi de chantier. Et presque toutes ont fini par l’abandonner — pas par manque de rigueur, mais parce que le tableur casse pour des raisons structurelles que la discipline ne résout jamais.',
     },
-    { type: 'h2', text: 'Pourquoi le tableur casse en pratique' },
+    { type: 'h2', text: 'Pourquoi ça casse, dans les faits' },
     {
       type: 'list',
       items: [
         'Une formule modifiée par erreur sur une ligne se propage silencieusement — personne ne le remarque avant que le total final soit visiblement faux',
-        'Le fichier vit sur un seul poste ou un drive partagé : deux personnes qui modifient en même temps écrasent le travail l’une de l’autre',
-        'La saisie des heures, des factures fournisseurs et du matériel se fait a posteriori, souvent en fin de chantier — trop tard pour réagir à un dépassement',
-        'Aucun lien automatique entre le devis initial et les coûts réels : tout se resaisit manuellement, avec le risque d’erreur que ça implique',
+        'Le fichier vit sur un poste ou un drive partagé : deux personnes qui modifient en même temps écrasent le travail l’une de l’autre',
+        'Les heures, les factures fournisseurs et le matériel se saisissent a posteriori, souvent en fin de chantier — trop tard pour réagir à un dépassement',
+        'Aucun lien automatique entre le devis initial et les coûts réels : tout se resaisit à la main, avec le risque d’erreur que ça implique',
       ],
     },
-    { type: 'h2', text: 'Ce que "rentabilité par chantier" veut vraiment dire' },
+    { type: 'h2', text: 'Ce que « rentabilité » veut vraiment dire' },
     {
       type: 'p',
-      text: 'La rentabilité d’un chantier, ce n’est pas seulement "combien j’ai facturé" — c’est la comparaison entre ce qui a été devisé (montant vendu au client) et ce que le chantier a réellement coûté : heures de la main-d’œuvre au coût horaire réel, matériel effectivement acheté, sous-traitance facturée. Sans ce rapprochement précis, un chantier peut sembler rentable sur le papier alors qu’il a englouti trois fois plus d’heures que prévu.',
+      text: 'Ce n’est pas seulement « combien j’ai facturé » — c’est la comparaison entre ce qui a été devisé et ce que le chantier a réellement coûté : heures de main-d’œuvre au coût horaire réel, matériel effectivement acheté, sous-traitance facturée. Sans ce rapprochement précis, un chantier peut sembler rentable sur le papier alors qu’il a englouti trois fois plus d’heures que prévu — et personne ne le découvre avant la clôture.',
     },
     {
       type: 'callout',
-      title: 'Le signal d’alerte le plus utile : en cours de chantier, pas après',
-      text: 'Une rentabilité calculée seulement à la clôture du chantier arrive trop tard pour corriger le tir. L’intérêt réel est de voir, à mi-chantier, que les heures dépassent déjà le budget prévu — pour ajuster avant que la marge ne disparaisse complètement.',
+      title: 'Le signal utile arrive à mi-chantier, pas à la fin',
+      text: 'Une rentabilité calculée seulement à la clôture arrive trop tard pour corriger quoi que ce soit. L’intérêt réel, c’est de voir à mi-chantier que les heures dépassent déjà le budget — pour ajuster avant que la marge n’ait complètement disparu.',
     },
-    { type: 'h2', text: 'Une méthode qui tient dans le temps' },
+    { type: 'h2', text: 'Une méthode qui tient dans la durée' },
     {
       type: 'list',
       items: [
-        'Chaque devis accepté devient la référence "budget" du chantier (heures et matériel prévus, prix de vente)',
-        'Chaque heure travaillée par l’équipe et chaque achat matériel sont enregistrés directement sur le chantier, au fil de l’eau — pas reconstitués en fin de mois',
-        'Les factures de sous-traitants liées au chantier viennent s’additionner automatiquement au coût réel',
-        'Le solde (vendu moins coût réel) est visible en continu, pas seulement à la clôture',
+        'Chaque devis accepté devient la référence « budget » du chantier (heures et matériel prévus, prix de vente)',
+        'Chaque heure travaillée et chaque achat matériel s’enregistrent directement sur le chantier, au fil de l’eau — pas reconstitués en fin de mois',
+        'Les factures de sous-traitants liées au chantier s’additionnent automatiquement au coût réel',
+        'Le solde (vendu moins coût réel) reste visible en continu, pas seulement à la clôture',
       ],
     },
     {
       type: 'p',
-      text: 'C’est exactement le genre de calcul qui devient fiable seulement quand il n’exige plus de ressaisie manuelle — chaque saisie (heure, facture, devis) alimente automatiquement le même chantier, sans étape de synchronisation entre plusieurs fichiers.',
+      text: 'Ce calcul devient fiable exactement le jour où il n’exige plus de ressaisie manuelle — chaque saisie alimente le même chantier, sans étape de synchronisation entre plusieurs fichiers qui finissent toujours par se désynchroniser.',
     },
     {
       type: 'cta',
       title: 'La rentabilité, mise à jour toute seule',
-      text: 'Le module Rentabilité de Cantia compare automatiquement le devisé et le réel, chantier par chantier, à partir des heures et des dépenses déjà enregistrées ailleurs dans l’app — sans ressaisie.',
+      text: 'Le module Rentabilité de Cantia compare automatiquement le devisé et le réel, chantier par chantier, à partir des heures et dépenses déjà enregistrées ailleurs dans l’app.',
       buttonLabel: 'Découvrir la rentabilité par chantier',
     },
   ],
