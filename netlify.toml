@@ -52,6 +52,20 @@
   status = 200
 
 [[redirects]]
+  from = "/blog"
+  to = "/blog/index.html"
+  status = 200
+
+# Blog articles are one dynamic route ([slug].tsx, see app/blog/[slug].tsx)
+# rather than one file per article like /solutions/*, so a splat rule covers
+# all of them instead of needing a new [[redirects]] entry per new post —
+# adding an article only means a new file under lib/blog/posts/.
+[[redirects]]
+  from = "/blog/*"
+  to = "/blog/:splat/index.html"
+  status = 200
+
+[[redirects]]
   from = "/telechargement"
   to = "/telechargement/index.html"
   status = 200

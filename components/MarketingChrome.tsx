@@ -181,6 +181,9 @@ export function MarketingFooter() {
           <Link href="/solutions/rh-salaires">
             <Text style={styles.footerLink}>RH & Salaires</Text>
           </Link>
+          <Link href="/blog">
+            <Text style={styles.footerLink}>Blog</Text>
+          </Link>
         </View>
         <View style={styles.footerCol}>
           <Text style={styles.footerColTitle}>{t.footer.account}</Text>
