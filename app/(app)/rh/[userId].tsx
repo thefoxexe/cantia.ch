@@ -15,6 +15,7 @@ import {
 } from '../../../lib/api/payroll';
 import { generatePayslipPdf } from '../../../lib/api/pdf';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
+import { SwissAddressField } from '../../../components/SwissAddressField';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -259,10 +260,20 @@ export default function PayrollProfileScreen() {
             <TextInput style={styles.noteInput} value={notes} onChangeText={setNotes} placeholder="Ex : caisse de pension, particularités du contrat…" placeholderTextColor={colors.textMuted} multiline />
 
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>Adresse postale (pour la fiche de salaire imprimable)</Text>
-            <TextInput style={styles.addressInput} value={street} onChangeText={setStreet} placeholder="Rue et numéro" placeholderTextColor={colors.textMuted} />
+            <SwissAddressField
+              value={street}
+              onChangeText={setStreet}
+              onSelectAddress={(addr) => {
+                setStreet(addr.street);
+                setPostalCode(addr.postalCode);
+                setLocality(addr.locality);
+              }}
+              placeholder="Rue et numéro"
+              inputStyle={styles.addressInput}
+            />
             <View style={styles.addressRow}>
               <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={handlePostalCodeChange} placeholder="NPA" placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
-              <TextInput style={[styles.addressInput, { flex: 1 }]} value={locality} onChangeText={setLocality} placeholder="Localité" placeholderTextColor={colors.textMuted} />
+              <TextInput style={[styles.addressInput, { flex: 1, minWidth: 0 }]} value={locality} onChangeText={setLocality} placeholder="Localité" placeholderTextColor={colors.textMuted} />
             </View>
           </Card>
 

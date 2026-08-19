@@ -9,6 +9,7 @@ import { Button, Container, Field, PageHeader, Screen } from '../../../component
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
+import { SwissAddressField } from '../../../components/SwissAddressField';
 import { DEFAULT_DEVIS_EMAIL_MESSAGE, DEFAULT_FACTURE_EMAIL_MESSAGE, defaultEmailSignature } from '../../../lib/emailDefaults';
 
 export default function EntrepriseScreen() {
@@ -116,10 +117,15 @@ export default function EntrepriseScreen() {
             </Text>
           ) : null}
 
-          <Field
+          <SwissAddressField
             label="Rue et numéro"
             value={street}
             onChangeText={setStreet}
+            onSelectAddress={(addr) => {
+              setStreet(addr.street);
+              setPostalCode(addr.postalCode);
+              setLocality(addr.locality);
+            }}
             editable={isAdmin}
             placeholder="Rue de l'Exemple 1"
           />

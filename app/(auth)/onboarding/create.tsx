@@ -14,6 +14,7 @@ import { BRAND_COLOR_PRESETS, HEX_COLOR_RE } from '../../../components/PdfTempla
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
+import { SwissAddressField } from '../../../components/SwissAddressField';
 
 const DEFAULT_BRAND_COLOR = '#1F3D3A';
 
@@ -138,10 +139,15 @@ export default function CreateOrganizationScreen() {
           placeholder="www.entreprise.ch"
         />
 
-        <Field
+        <SwissAddressField
           label="Rue et numéro (optionnel)"
           value={street}
           onChangeText={setStreet}
+          onSelectAddress={(addr) => {
+            setStreet(addr.street);
+            setPostalCode(addr.postalCode);
+            setLocality(addr.locality);
+          }}
           placeholder="Rue de l'Exemple 1"
         />
         <View style={styles.row2}>
