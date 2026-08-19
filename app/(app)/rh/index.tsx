@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { listWorkTypes } from '../../../lib/api/payroll';
-import { listFacturesForProjects, type ProjectFactureSummary } from '../../../lib/api/factures';
+import { listFacturesForProjects, markTimeEntriesInvoiced, type ProjectFactureSummary } from '../../../lib/api/factures';
 import { PayrollEntryPanel, defaultTodayRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
 import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
@@ -156,6 +156,18 @@ export default function PayrollScreen() {
     const next = !summaryOpen;
     setSummaryOpen(next);
     if (next) loadSummary();
+  }
+
+  // Covers the gap "Facturer ce chantier" can't close on its own: a facture
+  // created the normal way (not through this hours summary) already covers
+  // some logged hours, but nothing ever told those entries they'd been
+  // billed — so they kept showing up as fully facturable. This lets the
+  // admin retroactively point a line's hours at whichever existing facture
+  // already covers them.
+  async function linkLineToFacture(line: SummaryLine, factureId: string) {
+    if (line.entryIds.length === 0) return;
+    await markTimeEntriesInvoiced(line.entryIds, factureId);
+    loadSummary();
   }
 
   const invoiceProject = projects.find((p) => p.id === invoiceProjectId) ?? null;
@@ -332,6 +344,7 @@ export default function PayrollScreen() {
                     setInvoiceProjectId(id);
                     setShowInvoiceModal(true);
                   }}
+                  onLinkExisting={linkLineToFacture}
                 />
               </View>
             </View>
@@ -365,6 +378,7 @@ export default function PayrollScreen() {
                 setInvoiceProjectId(id);
                 setShowInvoiceModal(true);
               }}
+              onLinkExisting={linkLineToFacture}
             />
           </ScrollView>
         )}
@@ -398,6 +412,7 @@ function SummaryCard({
   canInvoice,
   projectFactures,
   onInvoiceProject,
+  onLinkExisting,
 }: {
   open: boolean;
   onToggle: () => void;
@@ -410,6 +425,7 @@ function SummaryCard({
   canInvoice: boolean;
   projectFactures: Record<string, ProjectFactureSummary[]>;
   onInvoiceProject: (projectId: string) => void;
+  onLinkExisting: (line: SummaryLine, factureId: string) => Promise<void>;
 }) {
   const router = useRouter();
   const byProject = new Map<string, { projectId: string | null; projectName: string; lines: SummaryLine[] }>();
@@ -447,20 +463,7 @@ function SummaryCard({
                     ) : null}
                   </View>
                   {group.lines.map((l, i) => (
-                    <View key={i} style={styles.summaryRow}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
-                        {l.invoicedHours > 0 ? (
-                          <Text style={styles.summarySubline}>
-                            {l.hours > 0
-                              ? `${l.totalHours} h au total · ${l.invoicedHours} h déjà facturées`
-                              : `${l.totalHours} h — entièrement facturées`}
-                          </Text>
-                        ) : null}
-                      </View>
-                      <Text style={styles.summaryHours}>{l.hours} h</Text>
-                      <Text style={styles.summaryChf}>{l.rate ? `CHF ${(l.rate * l.hours).toFixed(2)}` : '—'}</Text>
-                    </View>
+                    <SummaryLineRow key={i} line={l} factures={factures} canInvoice={canInvoice} onLinkExisting={onLinkExisting} />
                   ))}
                   {factures.length > 0 ? (
                     <View style={styles.trackerBox}>
@@ -496,6 +499,74 @@ function SummaryCard({
         )
       ) : null}
     </Card>
+  );
+}
+
+// A facture created the regular way (not through "Facturer ce chantier")
+// has no way of telling the app which hours it already covers — so those
+// hours kept showing up as fully facturable even once billed. The link
+// icon lets an admin retroactively point a line's remaining hours at
+// whichever existing facture on this chantier already covers them.
+function SummaryLineRow({
+  line,
+  factures,
+  canInvoice,
+  onLinkExisting,
+}: {
+  line: SummaryLine;
+  factures: ProjectFactureSummary[];
+  canInvoice: boolean;
+  onLinkExisting: (line: SummaryLine, factureId: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [linkingId, setLinkingId] = useState<string | null>(null);
+  const canLink = canInvoice && line.hours > 0 && factures.length > 0;
+
+  return (
+    <View>
+      <View style={styles.summaryRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.summaryType}>{line.workTypeLabel}</Text>
+          {line.invoicedHours > 0 ? (
+            <Text style={styles.summarySubline}>
+              {line.hours > 0
+                ? `${line.totalHours} h au total · ${line.invoicedHours} h déjà facturées`
+                : `${line.totalHours} h — entièrement facturées`}
+            </Text>
+          ) : null}
+        </View>
+        <Text style={styles.summaryHours}>{line.hours} h</Text>
+        <Text style={styles.summaryChf}>{line.rate ? `CHF ${(line.rate * line.hours).toFixed(2)}` : '—'}</Text>
+        {canLink ? (
+          <Pressable onPress={() => setOpen((o) => !o)} hitSlop={8} style={styles.linkToggle}>
+            <Feather name={open ? 'x' : 'link'} size={13} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+      </View>
+      {open ? (
+        <View style={styles.linkPanel}>
+          <Text style={styles.linkPanelHint}>Ces heures sont déjà couvertes par une de ces factures ?</Text>
+          {factures.map((f) => (
+            <Pressable
+              key={f.id}
+              disabled={linkingId !== null}
+              onPress={async () => {
+                setLinkingId(f.id);
+                await onLinkExisting(line, f.id);
+                setLinkingId(null);
+                setOpen(false);
+              }}
+              style={styles.linkFactureRow}
+            >
+              <Text style={styles.linkFactureNumber} numberOfLines={1}>
+                {f.number ?? 'Brouillon'}
+              </Text>
+              <Text style={styles.linkFactureAmount}>{linkingId === f.id ? 'Association…' : `CHF ${f.total.toFixed(2)}`}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -720,6 +791,44 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  linkToggle: {
+    marginLeft: spacing.sm,
+    padding: 4,
+  },
+  linkPanel: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    marginTop: -4,
+    marginBottom: spacing.xs,
+    gap: 4,
+  },
+  linkPanelHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginBottom: 2,
+  },
+  linkFactureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  linkFactureNumber: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  linkFactureAmount: {
+    fontSize: fontSize.xs,
+    color: colors.primary,
+    fontWeight: '600',
   },
   summaryHours: {
     width: 56,
