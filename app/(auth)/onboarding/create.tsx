@@ -13,6 +13,7 @@ import { Button, Field, Screen } from '../../../components/ui';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
+import { localityForNpa } from '../../../lib/swissPostalCodes';
 
 const DEFAULT_BRAND_COLOR = '#1F3D3A';
 
@@ -31,6 +32,12 @@ export default function CreateOrganizationScreen() {
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function handlePostalCodeChange(value: string) {
+    setPostalCode(value);
+    const match = localityForNpa(value);
+    if (match && !locality.trim()) setLocality(match);
+  }
 
   function addSuggestions(hexList: string[]) {
     if (!hexList.length) return;
@@ -139,7 +146,7 @@ export default function CreateOrganizationScreen() {
         />
         <View style={styles.row2}>
           <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
-            <Field label="NPA" value={postalCode} onChangeText={setPostalCode} keyboardType="number-pad" placeholder="1000" />
+            <Field label="NPA" value={postalCode} onChangeText={handlePostalCodeChange} keyboardType="number-pad" placeholder="1000" />
           </View>
           <View style={styles.row2Item}>
             <Field label="Localité" value={locality} onChangeText={setLocality} placeholder="Lausanne" />

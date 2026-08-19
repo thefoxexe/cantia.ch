@@ -8,6 +8,7 @@ import { isValidSwissIban } from '../../../lib/iban';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
+import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { DEFAULT_DEVIS_EMAIL_MESSAGE, DEFAULT_FACTURE_EMAIL_MESSAGE, defaultEmailSignature } from '../../../lib/emailDefaults';
 
 export default function EntrepriseScreen() {
@@ -29,6 +30,14 @@ export default function EntrepriseScreen() {
   );
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
+
+  // Best-effort autofill: only kicks in while the locality field is still
+  // empty, so it never overwrites something the user already typed.
+  function handlePostalCodeChange(value: string) {
+    setPostalCode(value);
+    const match = localityForNpa(value);
+    if (match && !locality.trim()) setLocality(match);
+  }
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -116,7 +125,7 @@ export default function EntrepriseScreen() {
           />
           <View style={styles.row2}>
             <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
-              <Field label="NPA" value={postalCode} onChangeText={setPostalCode} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
+              <Field label="NPA" value={postalCode} onChangeText={handlePostalCodeChange} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
             </View>
             <View style={styles.row2Item}>
               <Field label="Localité" value={locality} onChangeText={setLocality} editable={isAdmin} placeholder="Lausanne" />

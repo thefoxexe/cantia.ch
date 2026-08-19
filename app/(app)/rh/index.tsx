@@ -36,9 +36,11 @@ interface SummaryLine {
   projectName: string;
   workTypeId: string | null;
   workTypeLabel: string;
-  hours: number;
+  hours: number; // remaining (not yet invoiced) — this is what "Facturer" bills
+  totalHours: number; // remaining + already invoiced
+  invoicedHours: number;
   rate: number | null;
-  entryIds: string[];
+  entryIds: string[]; // only the not-yet-invoiced entries
 }
 
 export default function PayrollScreen() {
@@ -95,14 +97,10 @@ export default function PayrollScreen() {
       listWorkTypes(organization.id),
       supabase
         .from('payroll_time_entries')
-        .select('id, project_id, work_type_id, hours')
+        .select('id, project_id, work_type_id, hours, invoiced_facture_id')
         .eq('organization_id', organization.id)
         .gte('entry_date', range.start)
-        .lte('entry_date', range.end)
-        // Hours already folded into a facture (see "Facturer ce chantier")
-        // drop out of the billable summary so the same hours can't be
-        // invoiced a second time.
-        .is('invoiced_facture_id', null),
+        .lte('entry_date', range.end),
     ]);
     setProjects(projectRows ?? []);
     const projectNames = new Map((projectRows ?? []).map((p) => [p.id, p.name]));
@@ -112,20 +110,28 @@ export default function PayrollScreen() {
       const projectName = row.project_id ? projectNames.get(row.project_id) ?? 'Chantier' : 'Sans chantier';
       const wt = row.work_type_id ? workTypeById.get(row.work_type_id) : null;
       const key = `${row.project_id ?? 'none'}__${row.work_type_id ?? 'none'}`;
-      const existing = totals.get(key);
-      if (existing) {
-        existing.hours = Math.round((existing.hours + Number(row.hours)) * 100) / 100;
-        existing.entryIds.push(row.id);
-      } else {
+      const invoiced = !!row.invoiced_facture_id;
+      const h = Number(row.hours);
+      if (!totals.has(key)) {
         totals.set(key, {
           projectId: row.project_id,
           projectName,
           workTypeId: row.work_type_id,
           workTypeLabel: wt?.label ?? 'Non précisé',
-          hours: Math.round(Number(row.hours) * 100) / 100,
+          hours: 0,
+          totalHours: 0,
+          invoicedHours: 0,
           rate: wt?.hourly_rate_chf ?? null,
-          entryIds: [row.id],
+          entryIds: [],
         });
+      }
+      const line = totals.get(key)!;
+      line.totalHours = Math.round((line.totalHours + h) * 100) / 100;
+      if (invoiced) {
+        line.invoicedHours = Math.round((line.invoicedHours + h) * 100) / 100;
+      } else {
+        line.hours = Math.round((line.hours + h) * 100) / 100;
+        line.entryIds.push(row.id);
       }
     }
     setSummaryLines(Array.from(totals.values()).sort((a, b) => a.projectName.localeCompare(b.projectName)));
@@ -160,7 +166,10 @@ export default function PayrollScreen() {
   const invoiceCandidateLines: InvoiceCandidateLine[] = useMemo(
     () =>
       summaryLines
-        .filter((l) => l.projectId === invoiceProjectId)
+        // Only lines with something left to bill — a work type that's
+        // already fully invoiced still shows in the summary (for the
+        // facturé/restant comparison) but has nothing to offer here.
+        .filter((l) => l.projectId === invoiceProjectId && l.hours > 0)
         .map((l) => ({ workTypeId: l.workTypeId, label: l.workTypeLabel, hours: l.hours, suggestedRate: l.rate, entryIds: l.entryIds })),
     [summaryLines, invoiceProjectId],
   );
@@ -213,6 +222,8 @@ export default function PayrollScreen() {
 
   const summaryTotalHours = Math.round(summaryLines.reduce((s, l) => s + l.hours, 0) * 100) / 100;
   const summaryTotalChf = Math.round(summaryLines.reduce((s, l) => s + (l.rate ? l.rate * l.hours : 0), 0) * 100) / 100;
+  const summaryInvoicedHours = Math.round(summaryLines.reduce((s, l) => s + l.invoicedHours, 0) * 100) / 100;
+  const summaryGrandTotalHours = Math.round(summaryLines.reduce((s, l) => s + l.totalHours, 0) * 100) / 100;
 
   const employeeList = (
     <View style={styles.employeeList}>
@@ -313,6 +324,8 @@ export default function PayrollScreen() {
                   lines={summaryLines}
                   totalHours={summaryTotalHours}
                   totalChf={summaryTotalChf}
+                  invoicedHours={summaryInvoicedHours}
+                  grandTotalHours={summaryGrandTotalHours}
                   canInvoice={canViewFinances}
                   projectFactures={projectFactures}
                   onInvoiceProject={(id) => {
@@ -344,6 +357,8 @@ export default function PayrollScreen() {
               lines={summaryLines}
               totalHours={summaryTotalHours}
               totalChf={summaryTotalChf}
+              invoicedHours={summaryInvoicedHours}
+              grandTotalHours={summaryGrandTotalHours}
               canInvoice={canViewFinances}
               projectFactures={projectFactures}
               onInvoiceProject={(id) => {
@@ -378,6 +393,8 @@ function SummaryCard({
   lines,
   totalHours,
   totalChf,
+  invoicedHours,
+  grandTotalHours,
   canInvoice,
   projectFactures,
   onInvoiceProject,
@@ -388,6 +405,8 @@ function SummaryCard({
   lines: SummaryLine[];
   totalHours: number;
   totalChf: number;
+  invoicedHours: number;
+  grandTotalHours: number;
   canInvoice: boolean;
   projectFactures: Record<string, ProjectFactureSummary[]>;
   onInvoiceProject: (projectId: string) => void;
@@ -429,7 +448,16 @@ function SummaryCard({
                   </View>
                   {group.lines.map((l, i) => (
                     <View key={i} style={styles.summaryRow}>
-                      <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.summaryType}>{l.workTypeLabel}</Text>
+                        {l.invoicedHours > 0 ? (
+                          <Text style={styles.summarySubline}>
+                            {l.hours > 0
+                              ? `${l.totalHours} h au total · ${l.invoicedHours} h déjà facturées`
+                              : `${l.totalHours} h — entièrement facturées`}
+                          </Text>
+                        ) : null}
+                      </View>
                       <Text style={styles.summaryHours}>{l.hours} h</Text>
                       <Text style={styles.summaryChf}>{l.rate ? `CHF ${(l.rate * l.hours).toFixed(2)}` : '—'}</Text>
                     </View>
@@ -454,8 +482,13 @@ function SummaryCard({
                 </View>
               );
             })}
+            {invoicedHours > 0 ? (
+              <Text style={styles.grandTotalHint}>
+                {grandTotalHours} h au total sur la période · {invoicedHours} h déjà facturées · {totalHours} h restant à facturer
+              </Text>
+            ) : null}
             <View style={styles.summaryTotalRow}>
-              <Text style={styles.summaryTotalLabel}>Total</Text>
+              <Text style={styles.summaryTotalLabel}>Reste à facturer</Text>
               <Text style={styles.summaryHours}>{totalHours} h</Text>
               <Text style={styles.summaryChf}>CHF {totalChf.toFixed(2)}</Text>
             </View>
@@ -674,9 +707,19 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   summaryType: {
-    flex: 1,
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  summarySubline: {
+    fontSize: 10,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    marginTop: 1,
+  },
+  grandTotalHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
   },
   summaryHours: {
     width: 56,

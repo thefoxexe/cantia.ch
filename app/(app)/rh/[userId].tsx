@@ -14,6 +14,7 @@ import {
   upsertProfileDeduction,
 } from '../../../lib/api/payroll';
 import { generatePayslipPdf } from '../../../lib/api/pdf';
+import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -58,6 +59,12 @@ export default function PayrollProfileScreen() {
   const [postalCode, setPostalCode] = useState('');
   const [locality, setLocality] = useState('');
   const [notes, setNotes] = useState('');
+
+  function handlePostalCodeChange(value: string) {
+    setPostalCode(value);
+    const match = localityForNpa(value);
+    if (match && !locality.trim()) setLocality(match);
+  }
 
   // Draft overrides keyed by deduction type id — lets the admin type a rate
   // freely before it's saved, same debounce-free pattern as the salary
@@ -254,7 +261,7 @@ export default function PayrollProfileScreen() {
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>Adresse postale (pour la fiche de salaire imprimable)</Text>
             <TextInput style={styles.addressInput} value={street} onChangeText={setStreet} placeholder="Rue et numéro" placeholderTextColor={colors.textMuted} />
             <View style={styles.addressRow}>
-              <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={setPostalCode} placeholder="NPA" placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
+              <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={handlePostalCodeChange} placeholder="NPA" placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
               <TextInput style={[styles.addressInput, { flex: 1 }]} value={locality} onChangeText={setLocality} placeholder="Localité" placeholderTextColor={colors.textMuted} />
             </View>
           </Card>
