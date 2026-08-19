@@ -90,6 +90,37 @@ function parseFlexibleTime(raw: string): string | null {
   return null;
 }
 
+// Same "H.MM read as literal minutes" convention as parseFlexibleTime,
+// applied to the standalone Heures field: "4" -> 4h, "4.45"/"4,45" -> 4h45
+// (i.e. 4.75) — never a decimal fraction of an hour, since nobody mentally
+// converts 45 minutes to ".75" while typing a timesheet.
+function parseFlexibleHours(raw: string): number | null {
+  const s = raw.trim();
+  if (!s) return null;
+  if (/^\d{1,2}$/.test(s)) {
+    return Number(s);
+  }
+  const sepMatch = s.match(/^(\d{1,2})[.,](\d{1,2})$/);
+  if (sepMatch) {
+    const h = Number(sepMatch[1]);
+    const m = Number(sepMatch[2].padStart(2, '0'));
+    if (m > 59) return null;
+    return Math.round((h + m / 60) * 100) / 100;
+  }
+  return null;
+}
+
+// Inverse of parseFlexibleHours — redisplays a stored decimal-hours value
+// (e.g. from an existing entry, or from a computed start/end range) in the
+// same "H.MM read as minutes" shape the field expects on input, so editing
+// an entry round-trips instead of showing a raw decimal like "4.75".
+function formatHoursForInput(hours: number): string {
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  if (m === 0) return String(h);
+  return `${h}.${String(m).padStart(2, '0')}`;
+}
+
 // Half-open interval overlap ("13:00–13:15" and "12:45–15:00" share
 // 13:00–13:15) — the same person can't physically be on two things at once.
 function timesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
@@ -218,7 +249,7 @@ export function PayrollEntryPanel({
       setHoursStart('');
       setHoursEnd('');
     }
-    setHoursTotal(String(e.hours));
+    setHoursTotal(formatHoursForInput(Number(e.hours)));
     setHoursNote(e.note ?? '');
     setHoursError(null);
     setShowHoursForm(true);
@@ -234,13 +265,13 @@ export function PayrollEntryPanel({
     setHoursStart(v);
     const start = parseFlexibleTime(v);
     const end = parseFlexibleTime(hoursEnd);
-    if (start && end) setHoursTotal(String(hoursFromRange(start, end)));
+    if (start && end) setHoursTotal(formatHoursForInput(hoursFromRange(start, end)));
   }
   function setHoursEndAndCompute(v: string) {
     setHoursEnd(v);
     const start = parseFlexibleTime(hoursStart);
     const end = parseFlexibleTime(v);
-    if (start && end) setHoursTotal(String(hoursFromRange(start, end)));
+    if (start && end) setHoursTotal(formatHoursForInput(hoursFromRange(start, end)));
   }
   // Snaps the visible text to a canonical "HH:MM" once the user leaves the
   // field, so "8.5" becomes "08:05" on screen — not while they're still typing.
@@ -261,7 +292,7 @@ export function PayrollEntryPanel({
     const startParsed = parseFlexibleTime(hoursStart);
     const endParsed = parseFlexibleTime(hoursEnd);
     const hasRange = !!startParsed && !!endParsed;
-    const hours = hasRange ? hoursFromRange(startParsed, endParsed) : Number(hoursTotal.replace(',', '.'));
+    const hours = hasRange ? hoursFromRange(startParsed, endParsed) : parseFlexibleHours(hoursTotal);
     if (!hours || hours <= 0 || hours > 24) {
       setHoursError('Indiquez un nombre d’heures valide (entre 0 et 24), ou un horaire de début/fin.');
       return;
