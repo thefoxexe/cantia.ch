@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -50,7 +50,7 @@ export default function PayrollScreen() {
   const isDesktop = width >= breakpoints.tablet;
 
   const [plan, setPlan] = useState<Plan | null>(null);
-  const [mode, setMode] = useState<'hours' | 'salaries'>('hours');
+  const [mode, setMode] = useState<'hours' | 'invoicing' | 'salaries'>('hours');
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [range, setRange] = useState<DateRange>(defaultTodayRange);
@@ -157,6 +157,18 @@ export default function PayrollScreen() {
     setSummaryOpen(next);
     if (next) loadSummary();
   }
+
+  // The invoicing tab's whole point is browsing chantier totals for a
+  // period, so — unlike the collapsed summary embedded elsewhere — it
+  // reloads as soon as the date range changes instead of waiting for the
+  // next screen focus.
+  useEffect(() => {
+    if (mode === 'invoicing') {
+      setSummaryOpen(true);
+      loadSummary();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, range.start, range.end]);
 
   // Covers the gap "Facturer ce chantier" can't close on its own: a facture
   // created the normal way (not through this hours summary) already covers
@@ -277,6 +289,12 @@ export default function PayrollScreen() {
             <Feather name="clock" size={14} color={mode === 'hours' ? colors.primary : colors.textMuted} />
             <Text style={[styles.modeTabText, mode === 'hours' && styles.modeTabTextActive]}>Heures & frais</Text>
           </Pressable>
+          {canViewFinances ? (
+            <Pressable onPress={() => setMode('invoicing')} style={[styles.modeTab, mode === 'invoicing' && styles.modeTabActive]}>
+              <Feather name="file-plus" size={14} color={mode === 'invoicing' ? colors.primary : colors.textMuted} />
+              <Text style={[styles.modeTabText, mode === 'invoicing' && styles.modeTabTextActive]}>Facturation</Text>
+            </Pressable>
+          ) : null}
           <Pressable onPress={() => setMode('salaries')} style={[styles.modeTab, mode === 'salaries' && styles.modeTabActive]}>
             <Feather name="dollar-sign" size={14} color={mode === 'salaries' ? colors.primary : colors.textMuted} />
             <Text style={[styles.modeTabText, mode === 'salaries' && styles.modeTabTextActive]}>Salaires</Text>
@@ -311,6 +329,28 @@ export default function PayrollScreen() {
               ) : null}
             </View>
           </ScrollView>
+        ) : mode === 'invoicing' ? (
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.lg }}>
+            <PayrollDateFilter range={range} onChange={setRange} />
+            <SummaryCard
+              open={summaryOpen}
+              onToggle={toggleSummary}
+              loading={summaryLoading}
+              lines={summaryLines}
+              totalHours={summaryTotalHours}
+              totalChf={summaryTotalChf}
+              invoicedHours={summaryInvoicedHours}
+              grandTotalHours={summaryGrandTotalHours}
+              canInvoice={canViewFinances}
+              projectFactures={projectFactures}
+              onInvoiceProject={(id) => {
+                setInvoiceProjectId(id);
+                setShowInvoiceModal(true);
+              }}
+              onLinkExisting={linkLineToFacture}
+              collapsible={false}
+            />
+          </ScrollView>
         ) : isDesktop ? (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
             <View style={styles.desktopLayout}>
@@ -329,23 +369,6 @@ export default function PayrollScreen() {
                     showCalendar={false}
                   />
                 ) : null}
-                <SummaryCard
-                  open={summaryOpen}
-                  onToggle={toggleSummary}
-                  loading={summaryLoading}
-                  lines={summaryLines}
-                  totalHours={summaryTotalHours}
-                  totalChf={summaryTotalChf}
-                  invoicedHours={summaryInvoicedHours}
-                  grandTotalHours={summaryGrandTotalHours}
-                  canInvoice={canViewFinances}
-                  projectFactures={projectFactures}
-                  onInvoiceProject={(id) => {
-                    setInvoiceProjectId(id);
-                    setShowInvoiceModal(true);
-                  }}
-                  onLinkExisting={linkLineToFacture}
-                />
               </View>
             </View>
           </ScrollView>
@@ -363,23 +386,6 @@ export default function PayrollScreen() {
                 showCalendar={false}
               />
             ) : null}
-            <SummaryCard
-              open={summaryOpen}
-              onToggle={toggleSummary}
-              loading={summaryLoading}
-              lines={summaryLines}
-              totalHours={summaryTotalHours}
-              totalChf={summaryTotalChf}
-              invoicedHours={summaryInvoicedHours}
-              grandTotalHours={summaryGrandTotalHours}
-              canInvoice={canViewFinances}
-              projectFactures={projectFactures}
-              onInvoiceProject={(id) => {
-                setInvoiceProjectId(id);
-                setShowInvoiceModal(true);
-              }}
-              onLinkExisting={linkLineToFacture}
-            />
           </ScrollView>
         )}
       </View>
@@ -413,6 +419,7 @@ function SummaryCard({
   projectFactures,
   onInvoiceProject,
   onLinkExisting,
+  collapsible = true,
 }: {
   open: boolean;
   onToggle: () => void;
@@ -426,6 +433,7 @@ function SummaryCard({
   projectFactures: Record<string, ProjectFactureSummary[]>;
   onInvoiceProject: (projectId: string) => void;
   onLinkExisting: (line: SummaryLine, factureId: string) => Promise<void>;
+  collapsible?: boolean;
 }) {
   const router = useRouter();
   const byProject = new Map<string, { projectId: string | null; projectName: string; lines: SummaryLine[] }>();
@@ -438,10 +446,14 @@ function SummaryCard({
 
   return (
     <Card>
-      <Pressable onPress={onToggle} style={styles.summaryHeader}>
-        <Text style={styles.sectionTitle}>Sommaire par chantier</Text>
-        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
-      </Pressable>
+      {collapsible ? (
+        <Pressable onPress={onToggle} style={styles.summaryHeader}>
+          <Text style={styles.sectionTitle}>Sommaire par chantier</Text>
+          <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+        </Pressable>
+      ) : (
+        <Text style={styles.sectionTitle}>Facturation par chantier</Text>
+      )}
       {open ? (
         loading ? (
           <Text style={styles.hint}>Chargement…</Text>
@@ -604,6 +616,7 @@ const styles = StyleSheet.create({
   },
   modeSwitch: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.xs,
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.md,

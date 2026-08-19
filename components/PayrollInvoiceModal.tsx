@@ -160,13 +160,6 @@ export function PayrollInvoiceModal({
                 {clientEmail ? <Text style={styles.selectedClientMeta}>{clientEmail}</Text> : null}
               </Card>
             ) : null}
-            <TextInput
-              style={styles.input}
-              value={clientName}
-              onChangeText={setClientName}
-              placeholder="Ou tapez un nom de client directement"
-              placeholderTextColor={colors.textMuted}
-            />
 
             <Text style={styles.fieldLabel}>Positions</Text>
             <View style={{ gap: spacing.md }}>
