@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
@@ -13,16 +13,21 @@ import {
 } from '../lib/api/notifications';
 import { NOTIFICATION_ICON, NOTIFICATION_TONE } from './notificationMeta';
 import { EmptyState } from './ui';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import type { Notification } from '../lib/types';
 
 const PREVIEW_LIMIT = 8;
 
-// Same anchored-dropdown pattern as AccountMenu (measureInWindow + absolute
-// Modal card) — kept as its own component rather than folded into
-// AccountMenu since it needs its own realtime subscription and badge state.
+// On phone widths there's no good place to anchor a popover without it
+// either overflowing the screen or getting cramped — so the bell just
+// opens the full notifications screen directly there, the same way most
+// mobile apps handle this. The anchored dropdown preview (measureInWindow
+// + absolute card, same technique as AccountMenu) only applies from
+// tablet width up, where there's room for it next to the trigger.
 export function NotificationBell() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= breakpoints.tablet;
   const { user, organization } = useAuth();
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
@@ -49,9 +54,13 @@ export function NotificationBell() {
   }, [user, load]);
 
   function open() {
-    triggerRef.current?.measureInWindow((x, y, width, height) => {
+    if (!isDesktop) {
+      router.push('/(app)/notifications');
+      return;
+    }
+    triggerRef.current?.measureInWindow((x, y, triggerWidth, triggerHeight) => {
       const windowWidth = Dimensions.get('window').width;
-      setPos({ top: y + height + spacing.xs, right: Math.max(spacing.md, windowWidth - (x + width)) });
+      setPos({ top: y + triggerHeight + spacing.xs, right: Math.max(spacing.md, windowWidth - (x + triggerWidth)) });
       setVisible(true);
     });
   }
@@ -77,6 +86,11 @@ export function NotificationBell() {
     await markAllRead(organization.id);
   }
 
+  function handleSeeAll() {
+    onClose();
+    router.push('/(app)/notifications');
+  }
+
   return (
     <>
       <View ref={triggerRef} collapsable={false}>
@@ -91,9 +105,15 @@ export function NotificationBell() {
       </View>
 
       <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-        <Pressable style={styles.backdrop} onPress={onClose}>
+        <View style={styles.backdropContainer}>
+          {/* A same-size Pressable sibling behind the card, not a parent
+              wrapping it — a card nested inside a pressable backdrop can end
+              up double-firing on some platforms (the tap reaches both the
+              row and the backdrop), which is exactly what made "Tout voir"
+              silently do nothing before. */}
+          <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
           {pos ? (
-            <View style={[styles.card, { top: pos.top, right: pos.right }]}>
+            <View style={[styles.card, { top: pos.top, right: pos.right, width: Math.min(340, width - spacing.lg * 2) }]}>
               <View style={styles.header}>
                 <Text style={styles.headerTitle}>Notifications</Text>
                 {unread > 0 ? (
@@ -131,18 +151,12 @@ export function NotificationBell() {
               )}
 
               <View style={styles.divider} />
-              <Pressable
-                onPress={() => {
-                  onClose();
-                  router.push('/(app)/notifications');
-                }}
-                style={styles.footer}
-              >
+              <Pressable onPress={handleSeeAll} style={styles.footer}>
                 <Text style={styles.footerText}>Tout voir</Text>
               </Pressable>
             </View>
           ) : null}
-        </Pressable>
+        </View>
       </Modal>
     </>
   );
@@ -176,13 +190,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
   },
-  backdrop: {
+  backdropContainer: {
     flex: 1,
   },
   card: {
     position: 'absolute',
-    width: 340,
-    maxWidth: '92%',
     maxHeight: 440,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
