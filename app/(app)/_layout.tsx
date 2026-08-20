@@ -8,6 +8,7 @@ import { useAuth } from '../../lib/auth-context';
 import { isModuleEnabled } from '../../lib/modules';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 import { AccountMenu } from '../../components/AccountMenu';
+import { NotificationBell } from '../../components/NotificationBell';
 import { NavDrawer, type NavSection } from '../../components/NavDrawer';
 
 function buildSections(
@@ -122,6 +123,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
         <Text style={styles.mobileBrand}>Cantia</Text>
         <View style={{ flex: 1 }} />
+        <NotificationBell />
         <AccountMenu />
       </View>
       <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
@@ -218,6 +220,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
       </View>
       <View style={styles.desktopContent}>
         <View style={[styles.desktopTopBar, { paddingTop: insets.top + spacing.sm }]}>
+          <NotificationBell />
           <AccountMenu />
         </View>
         <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
@@ -359,6 +362,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: spacing.sm,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.sm,
     backgroundColor: colors.bg,

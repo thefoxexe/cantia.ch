@@ -690,3 +690,48 @@ export interface TreasuryForecast {
   timeline: { date: string; balance: number }[];
   items: TreasuryForecastItem[];
 }
+
+// Centre de notifications — une ligne par (destinataire, événement).
+// Générées côté DB (triggers + generate_scheduled_notifications() via
+// pg_cron, voir la migration notifications.sql) : jamais insérées
+// directement par le client, seulement lues/marquées lues/supprimées.
+export type NotificationType =
+  | 'devis_stale_draft'
+  | 'devis_expiring_soon'
+  | 'facture_overdue'
+  | 'recurring_expense_due'
+  | 'extra_work_accepted'
+  | 'feed_message';
+
+export interface Notification {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  link: string | null;
+  source_table: string;
+  source_id: string;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface NotificationPreference {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  type: NotificationType;
+  in_app_enabled: boolean;
+  email_enabled: boolean;
+  push_enabled: boolean;
+}
+
+export interface PushToken {
+  id: string;
+  user_id: string;
+  token: string;
+  platform: 'ios' | 'android';
+  created_at: string;
+  last_seen_at: string;
+}

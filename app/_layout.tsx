@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
+import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
 import '../lib/pwaInstall';
 
 function RootNavigation() {
@@ -22,6 +24,25 @@ function RootNavigation() {
   useEffect(() => {
     excludeAppHostFromIndexing();
   }, []);
+
+  // Ask for push permission once signed in — the standard place to prompt
+  // is right after auth resolves, not at cold start before there's even a
+  // user to attach the token to.
+  useEffect(() => {
+    if (session?.user) {
+      registerForPushNotificationsAsync(session.user.id);
+    }
+  }, [session?.user]);
+
+  // Tapping a push notification (app backgrounded/closed) navigates straight
+  // to whatever it was about.
+  useEffect(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const link = response.notification.request.content.data?.link as string | undefined;
+      if (link) router.push(link as any);
+    });
+    return () => sub.remove();
+  }, [router]);
 
   // The landing page and auth screens render immediately regardless of
   // `loading` — only the redirect decision waits for auth to resolve, so a

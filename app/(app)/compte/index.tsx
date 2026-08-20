@@ -24,6 +24,7 @@ const ITEMS: { href: string; icon: IconName; label: string; description: string;
   { href: '/(app)/compte/apparence', icon: 'droplet', label: 'Apparence', description: 'Logo, couleur de marque et mise en page des PDF.' },
   { href: '/(app)/compte/stockage', icon: 'hard-drive', label: 'Stockage', description: 'Espace utilisé par vos chantiers.' },
   { href: '/(app)/compte/profil', icon: 'user', label: 'Mon profil', description: 'Nom, photo et mot de passe.' },
+  { href: '/(app)/compte/notifications', icon: 'bell', label: 'Notifications', description: 'Choisissez ce qui vous alerte, et par quel canal.' },
   // Opens the real cantia.ch/aide instead of a second, in-app copy of the
   // same content — see lib/appHost.ts's helpHref().
   { href: helpHref(), icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.', external: true },

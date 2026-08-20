@@ -29,6 +29,12 @@
           "microphonePermission": "Cantia utilise le microphone pour la dictée vocale et vos messages vocaux de chantier.",
           "enableBackgroundPlayback": false
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#BC5A31"
+        }
       ]
     ],
     "ios": {

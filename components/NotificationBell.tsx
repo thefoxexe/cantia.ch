@@ -1,0 +1,269 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../lib/auth-context';
+import {
+  listNotifications,
+  markAllRead,
+  markRead,
+  subscribeToNotifications,
+  unreadCount as fetchUnreadCount,
+  formatRelativeTime,
+} from '../lib/api/notifications';
+import { NOTIFICATION_ICON, NOTIFICATION_TONE } from './notificationMeta';
+import { EmptyState } from './ui';
+import { colors, fontSize, radius, spacing } from '../lib/theme';
+import type { Notification } from '../lib/types';
+
+const PREVIEW_LIMIT = 8;
+
+// Same anchored-dropdown pattern as AccountMenu (measureInWindow + absolute
+// Modal card) — kept as its own component rather than folded into
+// AccountMenu since it needs its own realtime subscription and badge state.
+export function NotificationBell() {
+  const router = useRouter();
+  const { user, organization } = useAuth();
+  const [visible, setVisible] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const [items, setItems] = useState<Notification[]>([]);
+  const [unread, setUnread] = useState(0);
+  const triggerRef = useRef<View>(null);
+
+  const load = useCallback(async () => {
+    if (!organization) return;
+    const [list, count] = await Promise.all([listNotifications(organization.id, PREVIEW_LIMIT), fetchUnreadCount(organization.id)]);
+    setItems(list);
+    setUnread(count);
+  }, [organization]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    return subscribeToNotifications(user.id, load);
+  }, [user, load]);
+
+  function open() {
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      const windowWidth = Dimensions.get('window').width;
+      setPos({ top: y + height + spacing.xs, right: Math.max(spacing.md, windowWidth - (x + width)) });
+      setVisible(true);
+    });
+  }
+
+  function onClose() {
+    setVisible(false);
+  }
+
+  async function handlePress(n: Notification) {
+    onClose();
+    if (!n.read_at) {
+      setItems((prev) => prev.map((it) => (it.id === n.id ? { ...it, read_at: new Date().toISOString() } : it)));
+      setUnread((c) => Math.max(0, c - 1));
+      await markRead(n.id);
+    }
+    if (n.link) router.push(n.link as any);
+  }
+
+  async function handleMarkAllRead() {
+    if (!organization) return;
+    setItems((prev) => prev.map((it) => ({ ...it, read_at: it.read_at ?? new Date().toISOString() })));
+    setUnread(0);
+    await markAllRead(organization.id);
+  }
+
+  return (
+    <>
+      <View ref={triggerRef} collapsable={false}>
+        <Pressable onPress={open} style={styles.trigger} hitSlop={6}>
+          <Feather name="bell" size={17} color={colors.text} />
+          {unread > 0 ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+            </View>
+          ) : null}
+        </Pressable>
+      </View>
+
+      <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+        <Pressable style={styles.backdrop} onPress={onClose}>
+          {pos ? (
+            <View style={[styles.card, { top: pos.top, right: pos.right }]}>
+              <View style={styles.header}>
+                <Text style={styles.headerTitle}>Notifications</Text>
+                {unread > 0 ? (
+                  <Pressable onPress={handleMarkAllRead} hitSlop={6}>
+                    <Text style={styles.headerAction}>Tout marquer comme lu</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              <View style={styles.divider} />
+
+              {items.length === 0 ? (
+                <View style={styles.empty}>
+                  <EmptyState title="Aucune notification" subtitle="Vous êtes à jour." />
+                </View>
+              ) : (
+                <ScrollView style={styles.list}>
+                  {items.map((n) => {
+                    const tone = NOTIFICATION_TONE[n.type];
+                    return (
+                      <Pressable key={n.id} onPress={() => handlePress(n)} style={styles.row}>
+                        {!n.read_at ? <View style={styles.unreadDot} /> : <View style={styles.unreadDotSpacer} />}
+                        <View style={[styles.rowIcon, { backgroundColor: tone.bg }]}>
+                          <Feather name={NOTIFICATION_ICON[n.type]} size={14} color={tone.fg} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.rowTitle} numberOfLines={2}>
+                            {n.title}
+                          </Text>
+                          <Text style={styles.rowTime}>{formatRelativeTime(n.created_at)}</Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
+
+              <View style={styles.divider} />
+              <Pressable
+                onPress={() => {
+                  onClose();
+                  router.push('/(app)/notifications');
+                }}
+                style={styles.footer}
+              >
+                <Text style={styles.footerText}>Tout voir</Text>
+              </Pressable>
+            </View>
+          ) : null}
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  trigger: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: -3,
+    right: -3,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 3,
+    borderRadius: 8,
+    backgroundColor: colors.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.bg,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  backdrop: {
+    flex: 1,
+  },
+  card: {
+    position: 'absolute',
+    width: 340,
+    maxWidth: '92%',
+    maxHeight: 440,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    overflow: 'hidden',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  headerTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  headerAction: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  list: {
+    maxHeight: 340,
+  },
+  empty: {
+    paddingVertical: spacing.lg,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  unreadDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
+    marginTop: 6,
+  },
+  unreadDotSpacer: {
+    width: 6,
+  },
+  rowIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+    lineHeight: 18,
+  },
+  rowTime: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  footer: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+});
