@@ -13,6 +13,7 @@ import type { Plan } from '../../../lib/types';
 const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   planning: 'has_planning',
   payroll: 'has_payroll',
+  treasury: 'has_treasury',
 };
 
 export default function ModulesScreen() {

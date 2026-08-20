@@ -35,6 +35,7 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
   const router = useRouter();
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [devisedTotal, setDevisedTotal] = useState(0);
+  const [extraWorksTotal, setExtraWorksTotal] = useState(0);
   const [laborDays, setLaborDays] = useState(0);
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -45,9 +46,10 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [expensesList, { data: devisList }, { data: assignments }, { data: planRow }] = await Promise.all([
+    const [expensesList, { data: devisList }, { data: extraWorksList }, { data: assignments }, { data: planRow }] = await Promise.all([
       listProjectExpenses(projectId),
       supabase.from('devis').select('id').eq('project_id', projectId).eq('status', 'accepted'),
+      supabase.from('extra_works').select('id').eq('project_id', projectId).eq('status', 'accepted'),
       supabase.from('planning_assignments').select('starts_on, ends_on').eq('project_id', projectId),
       organization ? supabase.from('plans').select('*').eq('id', organization.plan_id).single() : Promise.resolve({ data: null }),
     ]);
@@ -60,6 +62,14 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
       setDevisedTotal((items ?? []).reduce((sum, it) => sum + Number(it.quantity) * Number(it.unit_price), 0));
     } else {
       setDevisedTotal(0);
+    }
+
+    const extraWorkIds = (extraWorksList ?? []).map((w) => w.id);
+    if (extraWorkIds.length) {
+      const { data: items } = await supabase.from('extra_work_items').select('extra_work_id, quantity, unit_price').in('extra_work_id', extraWorkIds);
+      setExtraWorksTotal((items ?? []).reduce((sum, it) => sum + Number(it.quantity) * Number(it.unit_price), 0));
+    } else {
+      setExtraWorksTotal(0);
     }
 
     setLaborDays((assignments ?? []).reduce((sum, a) => sum + businessDays(a.starts_on, a.ends_on), 0));
@@ -76,8 +86,9 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
   const materialCost = useMemo(() => expenses.reduce((sum, e) => sum + Number(e.amount), 0), [expenses]);
   const laborCost = laborDays * HOURS_PER_DAY * hourlyCost;
   const totalCost = materialCost + laborCost;
-  const margin = devisedTotal - totalCost;
-  const marginPct = devisedTotal > 0 ? (margin / devisedTotal) * 100 : null;
+  const totalRevenue = devisedTotal + extraWorksTotal;
+  const margin = totalRevenue - totalCost;
+  const marginPct = totalRevenue > 0 ? (margin / totalRevenue) * 100 : null;
 
   const tone =
     marginPct === null
@@ -148,6 +159,12 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
           <Text style={styles.summaryLabel}>Devisé (accepté)</Text>
           <Text style={styles.summaryValue}>{chf(devisedTotal)}</Text>
         </View>
+        {extraWorksTotal > 0 ? (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Travaux supplémentaires (acceptés)</Text>
+            <Text style={styles.summaryValue}>{chf(extraWorksTotal)}</Text>
+          </View>
+        ) : null}
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Coût matériel</Text>
           <Text style={styles.summaryValueMuted}>− {chf(materialCost)}</Text>

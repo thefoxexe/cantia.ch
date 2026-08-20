@@ -29,6 +29,7 @@ const COUNTABLE: Record<string, { table: string; unit: string; unitPlural: strin
   documents: { table: 'files', unit: 'fichier', unitPlural: 'fichiers' },
   metre: { table: 'metre_items', unit: 'ligne', unitPlural: 'lignes' },
   subcontractors: { table: 'project_subcontractors', unit: 'sous-traitant', unitPlural: 'sous-traitants' },
+  extraWorks: { table: 'extra_works', unit: 'travaux supplémentaire', unitPlural: 'travaux supplémentaires' },
 };
 
 export default function ChantierDetailScreen() {
@@ -111,6 +112,13 @@ export default function ChantierDetailScreen() {
       icon: 'trending-up',
       route: `/(app)/chantiers/${id}/profitability`,
       visible: isModuleEnabled(enabled, 'profitability') && canViewFinances,
+    },
+    {
+      key: 'extraWorks',
+      label: 'Travaux supplémentaires',
+      icon: 'plus-circle',
+      route: `/(app)/chantiers/${id}/travaux-supplementaires`,
+      visible: canViewFinances,
     },
   ];
 

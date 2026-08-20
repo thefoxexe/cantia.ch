@@ -948,6 +948,7 @@ function LandingContent() {
                       <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
                       <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
                       <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
+                      <PriceFeature dark={dark} text="Trésorerie prévisionnelle" muted={!p.has_treasury} included={p.has_treasury} />
                       <PriceFeature
                         dark={dark}
                         text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}

@@ -181,6 +181,12 @@ export function MarketingFooter() {
           <Link href="/solutions/rh-salaires">
             <Text style={styles.footerLink}>RH & Salaires</Text>
           </Link>
+          <Link href="/solutions/travaux-supplementaires">
+            <Text style={styles.footerLink}>Travaux supplémentaires</Text>
+          </Link>
+          <Link href="/solutions/tresorerie">
+            <Text style={styles.footerLink}>Trésorerie</Text>
+          </Link>
           <Link href="/blog">
             <Text style={styles.footerLink}>Blog</Text>
           </Link>

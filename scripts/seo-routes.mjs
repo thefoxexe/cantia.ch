@@ -189,6 +189,54 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'solutions/travaux-supplementaires',
+    title: 'Travaux supplémentaires (TS) pour artisans suisses | Cantia',
+    description:
+      "Chaque extra demandé en cours de chantier devient un document daté, signé en ligne par le client et transformé automatiquement en facture — fini les extras oubliés ou contestés.",
+    faq: [
+      {
+        q: 'Qu’est-ce qu’un Travaux supplémentaires (TS) dans Cantia ?',
+        a: "C'est un document dédié pour tout ce qui est demandé en cours de chantier en plus du devis initial — un mur à déplacer, une prise à ajouter. Il se crée, s'envoie et se signe comme un devis, puis se transforme automatiquement en facture une fois accepté.",
+      },
+      {
+        q: 'Un TS doit-il être rattaché à un devis existant ?',
+        a: "Non, c'est optionnel. Vous pouvez le lier au devis d'origine pour garder le contexte, ou le créer seul si le chantier n'a pas de devis initial dans Cantia.",
+      },
+      {
+        q: 'Comment le client valide-t-il un Travaux supplémentaires ?',
+        a: "Il reçoit un lien vers un portail sécurisé, consulte le détail chiffré et signe en ligne — l'acceptation est horodatée et déclenche automatiquement la facture correspondante.",
+      },
+      {
+        q: 'Les travaux supplémentaires comptent-ils dans la Rentabilité par chantier ?',
+        a: "Oui : dès qu'un TS est accepté, son montant s'ajoute automatiquement au total devisé du chantier dans le module Rentabilité.",
+      },
+    ],
+  },
+  {
+    path: 'solutions/tresorerie',
+    title: 'Trésorerie prévisionnelle pour le bâtiment | Cantia',
+    description:
+      "Factures à encaisser, salaires, sous-traitants et charges récurrentes réunis en une projection à 90 jours — sans connexion bancaire.",
+    faq: [
+      {
+        q: 'Cantia se connecte-t-il à mon compte bancaire ?',
+        a: 'Non. Vous saisissez votre solde manuellement quand vous le souhaitez — aucun accès bancaire n’est demandé ni nécessaire.',
+      },
+      {
+        q: 'D’où viennent les montants de la projection ?',
+        a: "Des factures clients non soldées, d'une estimation de la masse salariale (profils RH + heures saisies), des factures sous-traitants impayées et des dépenses récurrentes que vous enregistrez — tout ce que Cantia sait déjà sur votre activité.",
+      },
+      {
+        q: 'Comment fonctionnent les rappels de dépenses récurrentes ?',
+        a: 'Un bandeau sur l’accueil et la page Trésorerie vous signale les dépenses récurrentes actives qui tombent dans les 7 prochains jours, avant qu’elles ne soient prélevées.',
+      },
+      {
+        q: 'La Trésorerie prévisionnelle est-elle incluse dans le plan gratuit ?',
+        a: 'Elle est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
+      },
+    ],
+  },
+  {
     path: 'blog',
     title: 'Blog | Cantia — Réponses concrètes pour le bâtiment suisse',
     description:

@@ -50,6 +50,7 @@ export interface Plan {
   has_planning: boolean;
   has_profitability: boolean;
   has_payroll: boolean;
+  has_treasury: boolean;
   max_trames: number | null;
   max_ai_uses_per_month: number | null;
   stripe_price_id: string | null;
@@ -80,6 +81,7 @@ export interface Organization {
   iban: string | null;
   hourly_cost: number;
   payroll_km_rate_chf: number;
+  payroll_payday: number;
   devis_email_message: string | null;
   facture_email_message: string | null;
   email_signature: string | null;
@@ -274,6 +276,62 @@ export interface DevisItem {
   unit: string | null;
   unit_price: number;
   sort_order: number;
+}
+
+export type ExtraWorkStatus = 'draft' | 'sent' | 'accepted' | 'refused';
+
+// Travaux supplémentaires : les extras demandés en cours de chantier
+// ("tant que vous y êtes...") — mêmes primitives que Devis/DevisItem
+// (lignes, numérotation TS-YYYY-NNNN, portail public + signature), pour
+// qu'ils ne se perdent plus jamais entre le devis initial et la facture.
+export interface ExtraWork {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  devis_id: string | null;
+  number: string | null;
+  title: string;
+  client_name: string;
+  client_email: string | null;
+  notes: string | null;
+  status: ExtraWorkStatus;
+  vat_rate: number;
+  public_token: string;
+  client_signed_at: string | null;
+  client_signer_name: string | null;
+  client_signature_data: string | null;
+  facture_id: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExtraWorkItem {
+  id: string;
+  extra_work_id: string;
+  description: string;
+  quantity: number;
+  unit: string | null;
+  unit_price: number;
+  sort_order: number;
+}
+
+export interface PublicExtraWorkPayload {
+  extra_work: {
+    id: string;
+    number: string | null;
+    title: string;
+    status: ExtraWorkStatus;
+    client_name: string;
+    notes: string | null;
+    vat_rate: number;
+    created_at: string;
+    client_signed_at: string | null;
+    client_signer_name: string | null;
+  };
+  items: PublicPortalItem[];
+  totals: PublicPortalTotals;
+  organization: PublicPortalOrganization;
 }
 
 export type FactureStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'cancelled';
@@ -484,6 +542,9 @@ export interface SubcontractorInvoice {
   file_name: string;
   amount: number | null;
   invoice_date: string | null;
+  due_date: string | null;
+  paid: boolean;
+  paid_at: string | null;
   notes: string | null;
   created_by: string | null;
   created_at: string;
@@ -580,4 +641,52 @@ export interface PayrollProfile {
   notes: string | null;
   updated_by: string | null;
   updated_at: string;
+}
+
+// Trésorerie prévisionnelle — un solde de référence saisi à la main (pas de
+// connexion bancaire réelle) et des dépenses récurrentes (abonnements,
+// assurances...) qui, combinés aux factures/salaires/factures sous-traitants
+// déjà en base, donnent une projection de trésorerie sur 90 jours.
+export interface CashSnapshot {
+  id: string;
+  organization_id: string;
+  balance_chf: number;
+  recorded_at: string;
+  created_by: string | null;
+}
+
+export type RecurringExpenseFrequency = 'monthly' | 'yearly';
+
+export interface RecurringExpense {
+  id: string;
+  organization_id: string;
+  label: string;
+  category: string | null;
+  amount_chf: number;
+  frequency: RecurringExpenseFrequency;
+  next_due_date: string;
+  reminder_days_before: number;
+  active: boolean;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TreasuryItemKind = 'facture' | 'salaire' | 'sous-traitant' | 'recurrente';
+
+export interface TreasuryForecastItem {
+  kind: TreasuryItemKind;
+  label: string;
+  amount: number; // positif = entrée, négatif = sortie
+  date: string | null; // null = sans échéance connue
+  overdue: boolean;
+  sourceId: string;
+}
+
+export interface TreasuryForecast {
+  startingBalance: number;
+  startingBalanceRecordedAt: string | null;
+  timeline: { date: string; balance: number }[];
+  items: TreasuryForecastItem[];
 }

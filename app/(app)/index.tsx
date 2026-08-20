@@ -6,6 +6,7 @@ import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
+import { buildForecast, upcomingRecurringCount, listRecurringExpenses } from '../../lib/api/treasury';
 import { Button, Card, EmptyState, Screen, StatusBadge } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -38,6 +39,7 @@ export default function DashboardScreen() {
   // the devis/facture widgets below — same tiles/list logic as before,
   // just gated on this too everywhere devisEnabled was checked alone.
   const financeVisible = devisEnabled && canViewFinances;
+  const treasuryEnabled = isModuleEnabled(organization?.enabled_modules, 'treasury') && canViewFinances;
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
   const firstName = fullName?.trim().split(' ')[0] || null;
 
@@ -52,6 +54,8 @@ export default function DashboardScreen() {
   const [paidThisMonth, setPaidThisMonth] = useState(0);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [projected30Balance, setProjected30Balance] = useState<number | null>(null);
+  const [upcomingExpenses, setUpcomingExpenses] = useState(0);
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -113,7 +117,14 @@ export default function DashboardScreen() {
       setPendingAmount(pending);
       setPaidThisMonth(paid);
     }
-  }, [organization, financeVisible]);
+
+    if (treasuryEnabled) {
+      const [forecast, recurring] = await Promise.all([buildForecast(organization, 30), listRecurringExpenses(organization.id)]);
+      const last = forecast.timeline[forecast.timeline.length - 1];
+      setProjected30Balance(last ? last.balance : forecast.startingBalance);
+      setUpcomingExpenses(upcomingRecurringCount(recurring));
+    }
+  }, [organization, financeVisible, treasuryEnabled]);
 
   useFocusEffect(
     useCallback(() => {
@@ -138,8 +149,17 @@ export default function DashboardScreen() {
         { key: 'paid', label: 'Encaissé ce mois', icon: 'check-circle', tone: 'success', value: `CHF ${paidThisMonth.toFixed(0)}` },
       );
     }
+    if (treasuryEnabled && projected30Balance != null) {
+      list.push({
+        key: 'treasury',
+        label: 'Solde projeté (30 j)',
+        icon: 'trending-up',
+        tone: projected30Balance < 0 ? 'danger' : 'primary',
+        value: `CHF ${projected30Balance.toFixed(0)}`,
+      });
+    }
     return list;
-  }, [activeProjects, financeVisible, devisPending, pendingAmount, paidThisMonth]);
+  }, [activeProjects, financeVisible, devisPending, pendingAmount, paidThisMonth, treasuryEnabled, projected30Balance]);
 
   return (
     <Screen>
@@ -160,6 +180,16 @@ export default function DashboardScreen() {
           title="Bienvenue sur Cantia"
           text="Créez un chantier, ajoutez des rapports et des documents sur le terrain, puis générez vos devis en quelques minutes."
         />
+
+        {treasuryEnabled && upcomingExpenses > 0 ? (
+          <Pressable onPress={() => router.push('/(app)/tresorerie')} style={styles.treasuryBanner}>
+            <Feather name="bell" size={16} color={colors.warning} />
+            <Text style={styles.treasuryBannerText}>
+              {upcomingExpenses} dépense{upcomingExpenses > 1 ? 's' : ''} récurrente{upcomingExpenses > 1 ? 's' : ''} arrive{upcomingExpenses > 1 ? 'nt' : ''} dans les 7 prochains jours
+            </Text>
+            <Feather name="chevron-right" size={16} color={colors.warning} />
+          </Pressable>
+        ) : null}
 
         <View style={styles.grid}>
           {tiles.map((tile) => {
@@ -326,6 +356,21 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
+  },
+  treasuryBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.warningSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  treasuryBannerText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.warning,
   },
   grid: {
     flexDirection: 'row',

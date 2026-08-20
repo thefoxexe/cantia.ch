@@ -52,6 +52,21 @@
   status = 200
 
 [[redirects]]
+  from = "/solutions/rh-salaires"
+  to = "/solutions/rh-salaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/solutions/travaux-supplementaires"
+  to = "/solutions/travaux-supplementaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/solutions/tresorerie"
+  to = "/solutions/tresorerie/index.html"
+  status = 200
+
+[[redirects]]
   from = "/blog"
   to = "/blog/index.html"
   status = 200

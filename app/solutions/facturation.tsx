@@ -79,6 +79,7 @@ export default function FacturationSolutionPage() {
       related={[
         { href: '/solutions/devis', label: 'Devis en ligne' },
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
+        { href: '/solutions/tresorerie', label: 'Trésorerie prévisionnelle' },
       ]}
       closingTitle="La facturation suisse, sans jongler entre deux outils"
       closingText="Disponible dès le plan gratuit, avec un quota mensuel de factures — sans engagement."

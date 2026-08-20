@@ -59,6 +59,7 @@ export default function RentabiliteSolutionPage() {
         { href: '/solutions/devis', label: 'Devis en ligne' },
         { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
         { href: '/solutions/planning', label: "Planning d'équipe" },
+        { href: '/solutions/travaux-supplementaires', label: 'Travaux supplémentaires' },
       ]}
       closingTitle="Ne découvrez plus vos marges en fin d'année"
       closingText="Le module Rentabilité s'active ou se désactive selon vos besoins, depuis les paramètres de votre organisation."

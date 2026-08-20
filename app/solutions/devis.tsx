@@ -74,6 +74,7 @@ export default function DevisSolutionPage() {
         { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
         { href: '/solutions/dictee-vocale', label: 'Dictée vocale' },
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
+        { href: '/solutions/travaux-supplementaires', label: 'Travaux supplémentaires' },
       ]}
       closingTitle="Passez moins de temps sur vos devis, pas moins de temps sur le chantier"
       closingText="Cantia est gratuit pour démarrer, avec un quota de devis mensuel — sans engagement."

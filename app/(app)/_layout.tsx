@@ -15,6 +15,7 @@ function buildSections(
   planningEnabled: boolean,
   subcontractorsVisible: boolean,
   payrollEnabled: boolean,
+  treasuryEnabled: boolean,
 ): NavSection[] {
   const teamLinks = [
     ...(planningEnabled ? [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] : []),
@@ -22,6 +23,7 @@ function buildSections(
     // the FACTURATION section just above; sharing it here made the two
     // entries visually indistinguishable in the sidebar.
     ...(payrollEnabled ? [{ href: '/(app)/rh', label: 'RH & Salaires', icon: 'clock' as const }] : []),
+    ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: 'Trésorerie', icon: 'activity' as const }] : []),
   ];
   return [
     { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
@@ -82,6 +84,7 @@ export default function AppLayout() {
   // needs the module to log their own hours, regardless of canManagePayroll
   // (that only controls what they see once inside it).
   const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
+  const treasuryEnabled = isModuleEnabled(organization?.enabled_modules, 'treasury') && canViewFinances;
   // A standard member without the "voir devis & factures" permission (see
   // équipe screen) doesn't get the FACTURATION section at all — Trames and
   // Inventaire live under the same /devis route subtree and only make sense
@@ -89,7 +92,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled);
+  const sections = buildSections(financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, treasuryEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

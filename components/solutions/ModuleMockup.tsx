@@ -12,7 +12,9 @@ export type ModuleMockupKind =
   | 'dictee-vocale'
   | 'planning'
   | 'rentabilite'
-  | 'rh-salaires';
+  | 'rh-salaires'
+  | 'travaux-supplementaires'
+  | 'tresorerie';
 
 // Illustrated (not photographic) mockup of the module in question, built
 // entirely from Views/Text/Feather — same visual language already
@@ -58,6 +60,10 @@ function MockupContent({ kind }: { kind: ModuleMockupKind }) {
       return <RentabiliteContent />;
     case 'rh-salaires':
       return <RhContent />;
+    case 'travaux-supplementaires':
+      return <TravauxSupContent />;
+    case 'tresorerie':
+      return <TresorerieContent />;
   }
 }
 
@@ -257,6 +263,64 @@ function RhContent() {
   );
 }
 
+function TravauxSupContent() {
+  return (
+    <View style={styles.stack}>
+      <ScreenHeader icon="plus-circle" title="Travaux supplémentaires" />
+      <View style={styles.card}>
+        <View style={styles.lineRow}>
+          <Text style={styles.lineLabel} numberOfLines={1}>Devis initial</Text>
+          <Text style={styles.linePrice}>{"11'410.—"}</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.lineRow}>
+          <Text style={styles.extraLabel} numberOfLines={1}>+ Isolation combles (extra)</Text>
+          <Text style={styles.extraPrice}>{"1'240.—"}</Text>
+        </View>
+      </View>
+      <View style={styles.pillRow}>
+        <View style={[styles.pill, { backgroundColor: colors.primarySoft }]}>
+          <Text style={[styles.pillText, { color: colors.primaryDark }]}>TS-2026-004</Text>
+        </View>
+        <View style={[styles.pill, { backgroundColor: colors.successSoft }]}>
+          <Feather name="check-circle" size={10} color={colors.success} />
+          <Text style={[styles.pillText, { color: colors.success }]}>Signé par le client</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function TresorerieContent() {
+  const rows: { label: string; date: string; amount: string; color: string }[] = [
+    { label: 'Facture Dupont', date: '12 fév.', amount: "+ 8'200.—", color: colors.success },
+    { label: 'Salaires', date: '25 fév.', amount: "− 14'600.—", color: colors.danger },
+    { label: 'Assurance RC · rappel', date: '3 mars', amount: "− 890.—", color: colors.danger },
+  ];
+  return (
+    <View style={styles.stack}>
+      <ScreenHeader icon="trending-up" title="Trésorerie — 90 jours" />
+      <View style={styles.card}>
+        <View style={styles.lineRow}>
+          <Text style={styles.totalLabel}>Solde actuel</Text>
+          <Text style={styles.totalPrice}>{"24'300.—"}</Text>
+        </View>
+      </View>
+      <View style={{ gap: 6 }}>
+        {rows.map((r) => (
+          <View key={r.label} style={styles.invoiceRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.lineLabel} numberOfLines={1}>{r.label}</Text>
+              <Text style={styles.invoiceAmount}>{r.date}</Text>
+            </View>
+            <Text style={[styles.linePrice, { color: r.color, fontWeight: '700' }]}>{r.amount}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   frame: {
     width: '100%',
@@ -369,6 +433,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     color: colors.primaryDark,
+    fontVariant: ['tabular-nums'],
+  },
+  extraLabel: {
+    flex: 1,
+    fontFamily: marketingFonts.body,
+    fontSize: 11,
+    color: colors.primaryDark,
+    fontWeight: '700',
+  },
+  extraPrice: {
+    fontFamily: marketingFonts.body,
+    fontSize: 12,
+    color: colors.primaryDark,
+    fontWeight: '800',
     fontVariant: ['tabular-nums'],
   },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },

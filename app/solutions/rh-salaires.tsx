@@ -65,6 +65,7 @@ export default function RhSalairesSolutionPage() {
         { href: '/solutions/planning', label: "Planning d'équipe" },
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
         { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
+        { href: '/solutions/tresorerie', label: 'Trésorerie prévisionnelle' },
       ]}
       closingTitle="Fini les feuilles d'heures éparpillées"
       closingText="Le module RH & Salaires s'active depuis les paramètres de votre organisation, à partir du plan Équipe."
