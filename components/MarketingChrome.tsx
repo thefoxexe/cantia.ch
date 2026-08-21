@@ -131,7 +131,17 @@ export function MarketingNav() {
   );
 }
 
-export function MarketingFooter() {
+// scrollToServices/scrollToPricing are only meaningful on the homepage
+// itself (smooth-scroll to the in-page section instead of a full
+// navigation) — the homepage passes them in; every other page leaves them
+// unset and gets a plain link back to "/" instead.
+export function MarketingFooter({
+  onServicesPress,
+  onPricingPress,
+}: {
+  onServicesPress?: () => void;
+  onPricingPress?: () => void;
+}) {
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -154,12 +164,24 @@ export function MarketingFooter() {
               next to Solutions' long list. Grouped under one "Produit"
               heading instead, so no column reads as an afterthought. */}
           <Text style={styles.footerColTitle}>{t.footer.product}</Text>
-          <Link href="/">
-            <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
-          </Link>
-          <Link href="/">
-            <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
-          </Link>
+          {onServicesPress ? (
+            <Pressable onPress={onServicesPress}>
+              <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
+            </Pressable>
+          ) : (
+            <Link href="/">
+              <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
+            </Link>
+          )}
+          {onPricingPress ? (
+            <Pressable onPress={onPricingPress}>
+              <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
+            </Pressable>
+          ) : (
+            <Link href="/">
+              <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
+            </Link>
+          )}
           <Link href="/solutions/devis">
             <Text style={styles.footerLink}>Devis</Text>
           </Link>

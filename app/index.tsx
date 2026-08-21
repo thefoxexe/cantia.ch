@@ -20,6 +20,7 @@ import {
 import { Link, Redirect } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Screen, Switch } from '../components/ui';
+import { MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
 import { t, planName } from '../lib/i18n';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
@@ -1048,84 +1049,7 @@ function LandingContent() {
             </View>
           </Reveal>
 
-          <View style={styles.footer}>
-            <View style={styles.footerGrid}>
-              <View style={styles.footerBrandCol}>
-                <View style={styles.footerBrandRow}>
-                  <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
-                  <Text style={styles.footerBrand}>Cantia</Text>
-                </View>
-                <Text style={styles.footerText}>{t.footer.blurb}</Text>
-                <Link href="/aide" asChild>
-                  <Pressable style={styles.footerHelpPill}>
-                    <Feather name="life-buoy" size={14} color={colors.primaryDark} />
-                    <Text style={styles.footerHelpPillText}>Centre d'aide & documentation</Text>
-                  </Pressable>
-                </Link>
-              </View>
-              <View style={styles.footerCol}>
-                {/* Merged with the old standalone "Solutions" column — as two
-                    separate columns, Produit looked nearly empty next to
-                    Solutions' long list. Grouped under one "Produit" heading
-                    instead, so no column reads as an afterthought. */}
-                <Text style={styles.footerColTitle}>{t.footer.product}</Text>
-                <Pressable onPress={scrollToServices}>
-                  <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
-                </Pressable>
-                <Pressable onPress={scrollToPricing}>
-                  <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
-                </Pressable>
-                <Link href="/solutions/devis">
-                  <Text style={styles.footerLink}>Devis</Text>
-                </Link>
-                <Link href="/solutions/facturation">
-                  <Text style={styles.footerLink}>Facturation & QR-facture</Text>
-                </Link>
-                <Link href="/solutions/rapports-chantier">
-                  <Text style={styles.footerLink}>Rapports de chantier</Text>
-                </Link>
-                <Link href="/solutions/dictee-vocale">
-                  <Text style={styles.footerLink}>Dictée vocale</Text>
-                </Link>
-                <Link href="/solutions/planning">
-                  <Text style={styles.footerLink}>Planning</Text>
-                </Link>
-                <Link href="/solutions/rh-salaires">
-                  <Text style={styles.footerLink}>RH & Salaires</Text>
-                </Link>
-                <Link href="/solutions/rentabilite">
-                  <Text style={styles.footerLink}>Rentabilité</Text>
-                </Link>
-              </View>
-              <View style={styles.footerCol}>
-                <Text style={styles.footerColTitle}>{t.footer.account}</Text>
-                <Link href={authHref('login')}>
-                  <Text style={styles.footerLink}>{t.footer.login}</Text>
-                </Link>
-                <Link href={authHref('signup')}>
-                  <Text style={styles.footerLink}>{t.footer.signup}</Text>
-                </Link>
-                <Link href="/aide">
-                  <Text style={styles.footerLink}>{t.nav.help}</Text>
-                </Link>
-                <Link href="/mentions-legales">
-                  <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
-                </Link>
-                <Link href="/confidentialite">
-                  <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
-                </Link>
-              </View>
-            </View>
-            <View style={styles.footerBottom}>
-              <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
-              <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
-                <Pressable style={styles.footerSocialLink}>
-                  <Ionicons name="logo-instagram" size={16} color="#E1306C" />
-                  <Text style={styles.footerCopy}>@cantia.ch</Text>
-                </Pressable>
-              </Link>
-            </View>
-          </View>
+          <MarketingFooter onServicesPress={scrollToServices} onPricingPress={scrollToPricing} />
         </ScrollView>
 
         {/* ---- Fixed nav ---- */}
@@ -3675,97 +3599,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: 'rgba(255,255,255,0.85)',
-  },
-  footer: {
-    maxWidth: 1080,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-  },
-  footerGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xxl,
-    marginBottom: spacing.xl,
-  },
-  footerBrandCol: {
-    flexGrow: 2,
-    flexBasis: 240,
-    maxWidth: 340,
-  },
-  footerCol: {
-    flexGrow: 1,
-    flexBasis: 140,
-    gap: spacing.sm,
-  },
-  footerColTitle: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.text,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: spacing.xs,
-  },
-  footerLink: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-  },
-  footerBrandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  footerLogo: {
-    width: 20,
-    height: 20,
-  },
-  footerBrand: {
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: 0.3,
-  },
-  footerText: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    lineHeight: 18,
-  },
-  footerHelpPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 999,
-    marginTop: spacing.xs,
-  },
-  footerHelpPillText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primaryDark,
-  },
-  footerBottom: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  footerCopy: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  footerSocialLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
   },
 });
