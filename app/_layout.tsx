@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
 import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import '../lib/pwaInstall';
 
 function RootNavigation() {
@@ -76,7 +77,11 @@ function RootNavigation() {
     }
   }, [session, organization, loading, pendingInvite, segments, router]);
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <ErrorBoundary>
+      <Stack screenOptions={{ headerShown: false }} />
+    </ErrorBoundary>
+  );
 }
 
 export default function RootLayout() {

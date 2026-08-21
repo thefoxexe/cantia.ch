@@ -698,6 +698,7 @@ export interface TreasuryForecast {
 export type NotificationType =
   | 'devis_stale_draft'
   | 'devis_expiring_soon'
+  | 'devis_accepted'
   | 'facture_overdue'
   | 'recurring_expense_due'
   | 'extra_work_accepted'

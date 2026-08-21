@@ -9,7 +9,21 @@ import { isModuleEnabled } from '../../lib/modules';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 import { AccountMenu } from '../../components/AccountMenu';
 import { NotificationBell } from '../../components/NotificationBell';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { NavDrawer, type NavSection } from '../../components/NavDrawer';
+
+// The bell renders in the top bar of every authenticated screen — a crash
+// in it (bad data, a realtime hiccup) must not take the whole app down with
+// it. Falling back to nothing rather than a message: the trigger is a small
+// icon in a header, not worth a visible error card, but it must not wipe
+// out navigation and everything else on the page.
+function SafeNotificationBell() {
+  return (
+    <ErrorBoundary fallback={null}>
+      <NotificationBell />
+    </ErrorBoundary>
+  );
+}
 
 function buildSections(
   financeVisible: boolean,
@@ -123,7 +137,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
         <Text style={styles.mobileBrand}>Cantia</Text>
         <View style={{ flex: 1 }} />
-        <NotificationBell />
+        <SafeNotificationBell />
         <AccountMenu />
       </View>
       <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
@@ -220,7 +234,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
       </View>
       <View style={styles.desktopContent}>
         <View style={[styles.desktopTopBar, { paddingTop: insets.top + spacing.sm }]}>
-          <NotificationBell />
+          <SafeNotificationBell />
           <AccountMenu />
         </View>
         <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
