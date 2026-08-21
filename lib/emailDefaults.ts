@@ -30,9 +30,12 @@ export interface EmailVariable {
 }
 
 // Common to every template — resolved from the client/document itself.
+// "Mon entreprise", pas juste "Entreprise" — un devis peut être adressé à un
+// client qui est lui-même un contact au sein d'une entreprise, donc le label
+// nu prêtait à confusion sur qui la variable désigne.
 const COMMON_EMAIL_VARIABLES: EmailVariable[] = [
   { key: 'client', label: 'Client' },
-  { key: 'entreprise', label: 'Entreprise' },
+  { key: 'entreprise', label: 'Mon entreprise' },
   { key: 'chantier', label: 'Chantier' },
   { key: 'numero', label: 'Numéro' },
 ];

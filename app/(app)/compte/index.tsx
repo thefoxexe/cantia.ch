@@ -10,22 +10,23 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
 
-// Ordered by how global/frequent a setting is, not alphabetically: core
-// business settings first (entreprise/abonnement/équipe/facturation), then
-// RH & Salaires — used constantly by anyone managing payroll, so it sits
-// above the more occasional config screens rather than trailing behind
-// personal items like Mon profil/Aide.
+// Du plus important au moins important pour faire tourner l'affaire, pas
+// alphabétique : l'identité de l'entreprise (tout en dépend, y compris la
+// QR-facture) d'abord, puis ce qui touche directement le chiffre d'affaires
+// (devis/factures, e-mails aux clients), puis l'équipe, puis le reste
+// (abonnement, modules, notifications) et enfin les réglages les plus
+// personnels/occasionnels (apparence, stockage, profil, aide) en dernier.
 const ITEMS: { href: string; icon: IconName; label: string; description: string; external?: boolean }[] = [
   { href: '/(app)/compte/entreprise', icon: 'briefcase', label: 'Entreprise', description: "Coordonnées, TVA, IBAN et informations légales." },
-  { href: '/(app)/compte/facturation', icon: 'credit-card', label: 'Abonnement', description: 'Votre plan et vos moyens de paiement.' },
-  { href: '/(app)/compte/equipe', icon: 'users', label: 'Équipe', description: 'Membres, invitations et rôles personnalisés.' },
   { href: '/(app)/compte/devis', icon: 'file-text', label: 'Facturation', description: 'Réglages des devis et factures.' },
   { href: '/(app)/compte/emails', icon: 'mail', label: 'E-mails', description: 'Textes des e-mails envoyés à vos clients (devis, factures, relances).' },
+  { href: '/(app)/compte/equipe', icon: 'users', label: 'Équipe', description: 'Membres, invitations et rôles personnalisés.' },
+  { href: '/(app)/compte/facturation', icon: 'credit-card', label: 'Abonnement', description: 'Votre plan et vos moyens de paiement.' },
   { href: '/(app)/compte/modules', icon: 'grid', label: 'Outils & modules', description: "Sections de l'application activées pour votre équipe." },
+  { href: '/(app)/compte/notifications', icon: 'bell', label: 'Notifications', description: 'Choisissez ce qui vous alerte, et par quel canal.' },
   { href: '/(app)/compte/apparence', icon: 'droplet', label: 'Apparence', description: 'Logo, couleur de marque et mise en page des PDF.' },
   { href: '/(app)/compte/stockage', icon: 'hard-drive', label: 'Stockage', description: 'Espace utilisé par vos chantiers.' },
   { href: '/(app)/compte/profil', icon: 'user', label: 'Mon profil', description: 'Nom, photo et mot de passe.' },
-  { href: '/(app)/compte/notifications', icon: 'bell', label: 'Notifications', description: 'Choisissez ce qui vous alerte, et par quel canal.' },
   // Opens the real cantia.ch/aide instead of a second, in-app copy of the
   // same content — see lib/appHost.ts's helpHref().
   { href: helpHref(), icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.', external: true },
@@ -45,12 +46,14 @@ export default function CompteIndexScreen() {
   // Only shown to whoever can actually use it — a plain employee has
   // nothing to configure here (they just pick from the lists an admin has
   // already set up), and the module might not even be enabled/on-plan.
-  // Spliced in right after "Facturation" rather than appended — see the
-  // ordering note on ITEMS above.
-  const allItems =
-    canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll')
-      ? [...ITEMS.slice(0, 4), RH_ITEM, ...ITEMS.slice(4)]
-      : ITEMS;
+  // Spliced in right after "Facturation" rather than appended — found by
+  // href instead of a hardcoded index so it stays correctly placed if
+  // ITEMS above ever gets reordered again.
+  const allItems = useMemo(() => {
+    if (!canManagePayroll || !isModuleEnabled(organization?.enabled_modules, 'payroll')) return ITEMS;
+    const insertAt = ITEMS.findIndex((item) => item.href === '/(app)/compte/devis') + 1;
+    return [...ITEMS.slice(0, insertAt), RH_ITEM, ...ITEMS.slice(insertAt)];
+  }, [canManagePayroll, organization?.enabled_modules]);
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();

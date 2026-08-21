@@ -8,6 +8,7 @@ import { Button, Card, Field, Screen } from '../../../components/ui';
 import { ClientPicker } from '../../../components/ClientPicker';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { TramePicker } from '../../../components/TramePicker';
+import { SignaturePromptModal } from '../../../components/SignaturePromptModal';
 import { fetchTrame } from '../../../lib/api/trames';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
@@ -64,11 +65,30 @@ export default function NewDevisScreen() {
   // trade-off for not re-querying on every keystroke.
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [priceMismatches, setPriceMismatches] = useState<PriceMismatch[] | null>(null);
+  const [showSignaturePrompt, setShowSignaturePrompt] = useState(false);
 
   useEffect(() => {
     if (!organization) return;
     fetchCatalog(organization.id).then(setCatalog);
   }, [organization]);
+
+  // Nudges whoever creates a devis without a personal signature saved yet —
+  // devis PDFs draw organization_members.signature_url alongside the
+  // client's, so a devis only comes out auto-signed once this exists.
+  // "Plus tard" just skips this visit: the check reruns (and the prompt
+  // reappears) on the next devis created until a signature is actually set.
+  useEffect(() => {
+    if (!organization || !user) return;
+    supabase
+      .from('organization_members')
+      .select('signature_url')
+      .eq('organization_id', organization.id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data?.signature_url) setShowSignaturePrompt(true);
+      });
+  }, [organization, user]);
 
   function updateLine(index: number, patch: Partial<Line>) {
     setLines((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
@@ -581,6 +601,8 @@ export default function NewDevisScreen() {
           </View>
         </View>
       </Modal>
+
+      <SignaturePromptModal visible={showSignaturePrompt} onDone={() => setShowSignaturePrompt(false)} />
     </Screen>
   );
 }

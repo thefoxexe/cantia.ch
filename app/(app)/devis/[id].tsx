@@ -418,7 +418,7 @@ export default function DevisDetailScreen() {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Envoyer par e-mail</Text>
             <Text style={styles.meta}>
-              Modifiable pour cet envoi uniquement — le message par défaut se règle dans Compte → Entreprise.
+              Modifiable pour cet envoi uniquement — le message par défaut se règle dans Compte → E-mails.
             </Text>
             <Field
               label="Message"
