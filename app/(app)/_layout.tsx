@@ -38,7 +38,7 @@ function buildSections(
     // the FACTURATION section just above; sharing it here made the two
     // entries visually indistinguishable in the sidebar.
     ...(payrollEnabled ? [{ href: '/(app)/rh', label: 'RH & Salaires', icon: 'clock' as const }] : []),
-    ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: 'Trésorerie', icon: 'activity' as const }] : []),
+    ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: 'Trésorerie', icon: 'archive' as const }] : []),
   ];
   return [
     { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
