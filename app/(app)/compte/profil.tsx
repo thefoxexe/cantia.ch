@@ -7,6 +7,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
+import { SignaturePad } from '../../../components/SignaturePad';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -19,6 +20,8 @@ export default function ProfilScreen() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  const [signatureMode, setSignatureMode] = useState<'draw' | 'photo'>('draw');
+  const [drawnSignature, setDrawnSignature] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingSignature, setUploadingSignature] = useState(false);
@@ -100,6 +103,26 @@ export default function ProfilScreen() {
     setUploadingSignature(false);
   }
 
+  async function saveDrawnSignature() {
+    if (!organization || !user || !drawnSignature) return;
+    setUploadingSignature(true);
+    const subPath = `signatures/${user.id}-${Date.now()}.png`;
+    // The canvas already hands back a `data:image/png;base64,...` URL —
+    // fetch() resolves data URLs directly, same as it does the file:// URIs
+    // the photo picker produces, so uploadToOrgBucket needs no changes.
+    const { path } = await uploadToOrgBucket(organization.id, subPath, drawnSignature, 'image/png');
+    if (path) {
+      await supabase
+        .from('organization_members')
+        .update({ signature_url: path })
+        .eq('organization_id', organization.id)
+        .eq('user_id', user.id);
+      setSignatureUrl(await getSignedUrl(path));
+      setDrawnSignature(null);
+    }
+    setUploadingSignature(false);
+  }
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
@@ -128,23 +151,56 @@ export default function ProfilScreen() {
           <Text style={styles.sectionTitle}>Ma signature</Text>
           <Text style={styles.sectionHint}>
             Utilisée sur les devis que vous créez (à côté de l'emplacement pour la signature du client) et sur vos
-            rapports de chantier. Pour un rendu propre, prenez en photo ou scannez votre signature sur une feuille
-            blanche, bien cadrée, sans ombre.
+            rapports de chantier.
           </Text>
-          <Card style={styles.signatureCard}>
-            <Pressable onPress={pickSignature} style={styles.signatureWrap}>
-              {signatureUrl ? (
-                <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} resizeMode="contain" />
-              ) : (
-                <View style={[styles.signaturePreview, styles.avatarPlaceholder]}>
-                  <Feather name="edit-3" size={22} color={colors.textMuted} />
-                </View>
-              )}
-            </Pressable>
-            <Text style={styles.avatarHint}>
-              {uploadingSignature ? 'Envoi en cours…' : signatureUrl ? 'Touchez pour changer votre signature' : 'Touchez pour ajouter votre signature'}
+
+          <View style={styles.toggleRow}>
+            <Text onPress={() => setSignatureMode('draw')} style={[styles.toggleOption, signatureMode === 'draw' && styles.toggleOptionActive]}>
+              Dessiner
             </Text>
-          </Card>
+            <Text onPress={() => setSignatureMode('photo')} style={[styles.toggleOption, signatureMode === 'photo' && styles.toggleOptionActive]}>
+              Importer une photo
+            </Text>
+          </View>
+
+          {signatureMode === 'draw' ? (
+            <Card>
+              <SignaturePad onChange={setDrawnSignature} />
+              <Button
+                title={uploadingSignature ? 'Enregistrement…' : 'Enregistrer cette signature'}
+                icon="check"
+                onPress={saveDrawnSignature}
+                loading={uploadingSignature}
+                disabled={!drawnSignature}
+                style={{ marginTop: spacing.md }}
+              />
+              {signatureUrl ? (
+                <View style={{ marginTop: spacing.lg }}>
+                  <Text style={styles.avatarHint}>Signature actuelle :</Text>
+                  <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} resizeMode="contain" />
+                </View>
+              ) : null}
+            </Card>
+          ) : (
+            <Card style={styles.signatureCard}>
+              <Text style={styles.sectionHint}>
+                Pour un rendu propre, prenez en photo ou scannez votre signature sur une feuille blanche, bien
+                cadrée, sans ombre.
+              </Text>
+              <Pressable onPress={pickSignature} style={styles.signatureWrap}>
+                {signatureUrl ? (
+                  <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} resizeMode="contain" />
+                ) : (
+                  <View style={[styles.signaturePreview, styles.avatarPlaceholder]}>
+                    <Feather name="edit-3" size={22} color={colors.textMuted} />
+                  </View>
+                )}
+              </Pressable>
+              <Text style={styles.avatarHint}>
+                {uploadingSignature ? 'Envoi en cours…' : signatureUrl ? 'Touchez pour changer votre signature' : 'Touchez pour ajouter votre signature'}
+              </Text>
+            </Card>
+          )}
         </Container>
       </ScrollView>
     </Screen>
@@ -167,6 +223,27 @@ const styles = StyleSheet.create({
   },
   signatureCard: {
     alignItems: 'center',
+    gap: spacing.sm,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  toggleOption: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.textMuted,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  toggleOptionActive: {
+    color: colors.primary,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
   signatureWrap: {
     width: '100%',
