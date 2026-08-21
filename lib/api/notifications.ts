@@ -49,9 +49,20 @@ export async function deleteNotification(id: string): Promise<void> {
 // Live badge/list updates — filtered server-side to the current user's own
 // rows (RLS would enforce this anyway, the filter just avoids irrelevant
 // payloads reaching the client).
+//
+// The bell (mounted globally in the app layout) and the full notification
+// screen both call this for the same user at the same time. Supabase's
+// realtime client reuses any existing channel with the same topic instead
+// of creating a new one — so a shared, userId-only topic name meant the
+// second caller's `.on()` landed on a channel the first caller had already
+// `.subscribe()`d, which throws ("cannot add `postgres_changes` callbacks
+// ... after `subscribe()`") and took down the whole screen. Suffixing with
+// a per-call counter gives every caller its own channel so they never
+// collide, regardless of how many places subscribe at once.
+let channelSeq = 0;
 export function subscribeToNotifications(userId: string, onChange: () => void): () => void {
   const channel = supabase
-    .channel(`notifications-${userId}`)
+    .channel(`notifications-${userId}-${++channelSeq}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, onChange)
     .subscribe();
   return () => {
