@@ -31,15 +31,21 @@ export function textToHtmlLines(text: string): string {
 
 // Shared visual template for every devis/facture e-mail — one place for the
 // spacing/typography so "send-devis-email" and "send-facture-email" don't
-// each hand-roll slightly different HTML. Structure is fixed and only the
-// middle body paragraph is org-editable: greeting -> body -> optional
-// chantier line -> details card -> locked "consult online" link -> signature.
+// each hand-roll slightly different HTML. Structure: greeting -> org's own
+// message (fully editable) -> optional chantier line / details card (unused
+// by the devis/facture/relance/TS sends, kept for callers like
+// dispatch-notification) -> the one thing that's never editable, the
+// "consult online" portal link -> signature (also editable).
 export function buildDocumentEmailHtml(params: {
   clientName: string | null;
   bodyMessage: string;
   projectName?: string | null;
-  detailsTitle: string;
-  detailsLines: string[];
+  // Optional: the boxed "Montant / Échéance" recap. Omitted by the
+  // devis/facture/relance/TS sends — the org's own message plus the
+  // mandatory portal link is the whole body; the amounts live on the PDF
+  // and the portal, not spelled out again in plain email text.
+  detailsTitle?: string;
+  detailsLines?: string[];
   // Secondary download link (e.g. a time-limited signed URL for a reminder
   // email, which doesn't re-attach the PDF) — rendered between the details
   // card and the main "consult online" link. Omitted entirely when unset,
@@ -64,12 +70,14 @@ export function buildDocumentEmailHtml(params: {
           ? `<p style="margin: 0 0 20px; color: #555f58;">Chantier : <strong style="color: #1a1f1c;">${escapeHtml(projectName)}</strong></p>`
           : ''
       }
-      <div style="margin: 0 0 24px; padding: 16px 20px; background: #f5f4f0; border-radius: 10px;">
+      ${
+        detailsTitle && detailsLines && detailsLines.length > 0
+          ? `<div style="margin: 0 0 24px; padding: 16px 20px; background: #f5f4f0; border-radius: 10px;">
         <p style="margin: 0 0 10px; font-weight: 700;">${escapeHtml(detailsTitle)}</p>
-        ${detailsLines
-          .map((line) => `<p style="margin: 0 0 4px; color: #3f4842;">${escapeHtml(line)}</p>`)
-          .join('')}
-      </div>
+        ${detailsLines.map((line) => `<p style="margin: 0 0 4px; color: #3f4842;">${escapeHtml(line)}</p>`).join('')}
+      </div>`
+          : ''
+      }
       ${
         pdfUrl
           ? `<p style="margin: 0 0 12px;"><a href="${pdfUrl}" style="color: #1f3d3a; font-weight: 600; text-decoration: underline;">${escapeHtml(pdfLabel ?? 'Télécharger le PDF')}</a></p>`

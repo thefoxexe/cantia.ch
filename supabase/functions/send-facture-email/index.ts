@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { isValidSwissIban } from '../_shared/qrbill.ts';
 
@@ -10,10 +10,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-function formatDateFr(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-CH');
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -39,25 +35,17 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: facture, error: factureError } = await userClient
-      .from('factures')
-      .select('*, projects(name)')
-      .eq('id', facture_id)
-      .single();
+    const { data: facture, error: factureError } = await userClient.from('factures').select('*').eq('id', facture_id).single();
     if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
     if (!facture.client_email) return json({ error: "Cette facture n'a pas d'adresse e-mail client." }, 400);
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
     if (facture.status === 'draft') return json({ error: "Finalisez d'abord la facture avant de l'envoyer." }, 400);
 
-    const [{ data: org }, { data: items }, { data: payments }] = await Promise.all([
-      admin
-        .from('organizations')
-        .select('name, email, iban, plan_id, facture_email_message, email_signature')
-        .eq('id', facture.organization_id)
-        .single(),
-      admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
-      admin.from('facture_payments').select('amount').eq('facture_id', facture_id),
-    ]);
+    const { data: org } = await admin
+      .from('organizations')
+      .select('name, email, iban, plan_id, facture_email_message, email_signature')
+      .eq('id', facture.organization_id)
+      .single();
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -88,10 +76,6 @@ Deno.serve(async (req: Request) => {
     const pdfFile = await fetchStorageBytes(admin, BUCKET, genData.path);
     if (!pdfFile) return json({ error: 'Le PDF de la facture est introuvable dans le stockage.' }, 500);
 
-    const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
-    const total = subtotal * (1 + Number(facture.vat_rate) / 100);
-    const paid = (payments ?? []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
-    const remaining = Math.max(total - paid, 0);
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
     const kind = facture.is_deposit ? "Facture d'acompte" : 'Facture';
@@ -105,13 +89,6 @@ Deno.serve(async (req: Request) => {
     const html = buildDocumentEmailHtml({
       clientName: facture.client_name,
       bodyMessage,
-      projectName: facture.projects?.name ?? null,
-      detailsTitle: `${kind} n° ${facture.number ?? '—'}`,
-      detailsLines: [
-        `Montant : CHF ${formatChfPlain(total)}`,
-        `Solde restant dû : CHF ${formatChfPlain(remaining)}`,
-        `Échéance : ${formatDateFr(facture.due_date)}`,
-      ],
       linkUrl: publicUrl,
       linkLabel: 'Consulter cette facture en ligne',
       linkHint: 'retrouvez le détail et le solde restant à tout moment',

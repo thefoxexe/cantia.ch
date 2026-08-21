@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -8,11 +8,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-function formatDateFr(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('fr-CH');
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -38,29 +33,20 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: facture, error: factureError } = await userClient
-      .from('factures')
-      .select('*, projects(name)')
-      .eq('id', facture_id)
-      .single();
+    const { data: facture, error: factureError } = await userClient.from('factures').select('*').eq('id', facture_id).single();
 
     if (factureError || !facture) return json({ error: 'Facture introuvable ou accès refusé' }, 404);
     if (!facture.client_email) return json({ error: "Cette facture n'a pas d'adresse e-mail client." }, 400);
     if (facture.status === 'paid') return json({ error: 'Cette facture est déjà payée.' }, 400);
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
 
-    const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', facture.organization_id).single(),
-      admin.from('facture_items').select('quantity, unit_price').eq('facture_id', facture_id),
-    ]);
+    const { data: org } = await admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', facture.organization_id).single();
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
       return json({ error: "L'envoi de relances par e-mail n'est pas disponible sur votre plan. Passez à un plan supérieur pour l'activer." }, 403);
     }
 
-    const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
-    const total = subtotal * (1 + Number(facture.vat_rate) / 100);
     const overdue = facture.due_date < new Date().toISOString().slice(0, 10);
     const orgName = org?.name ?? 'Notre entreprise';
 
@@ -85,9 +71,6 @@ Deno.serve(async (req: Request) => {
     const html = buildDocumentEmailHtml({
       clientName: facture.client_name,
       bodyMessage,
-      projectName: facture.projects?.name ?? null,
-      detailsTitle: `Facture n° ${facture.number ?? '—'}`,
-      detailsLines: [`Montant : CHF ${formatChfPlain(total)}`, `Échéance : ${formatDateFr(facture.due_date)}`],
       pdfUrl,
       pdfLabel: `Télécharger la facture ${facture.number ?? ''} (lien valable 7 jours)`,
       linkUrl: publicUrl,

@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 
 const BUCKET = 'opus-storage';
@@ -34,19 +34,16 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: devis, error: devisError } = await userClient.from('devis').select('*, projects(name)').eq('id', devis_id).single();
+    const { data: devis, error: devisError } = await userClient.from('devis').select('*').eq('id', devis_id).single();
     if (devisError || !devis) return json({ error: 'Devis introuvable ou accès refusé' }, 404);
     if (!devis.client_email) return json({ error: "Ce devis n'a pas d'adresse e-mail client." }, 400);
     if (devis.status === 'draft') return json({ error: "Finalisez d'abord le devis (passez-le à \"Prêt à l'envoi\") avant de l'envoyer." }, 400);
 
-    const [{ data: org }, { data: items }] = await Promise.all([
-      admin
-        .from('organizations')
-        .select('name, email, plan_id, devis_email_message, email_signature')
-        .eq('id', devis.organization_id)
-        .single(),
-      admin.from('devis_items').select('quantity, unit_price').eq('devis_id', devis_id),
-    ]);
+    const { data: org } = await admin
+      .from('organizations')
+      .select('name, email, plan_id, devis_email_message, email_signature')
+      .eq('id', devis.organization_id)
+      .single();
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -68,8 +65,6 @@ Deno.serve(async (req: Request) => {
     const pdfFile = await fetchStorageBytes(admin, BUCKET, genData.path);
     if (!pdfFile) return json({ error: 'Le PDF du devis est introuvable dans le stockage.' }, 500);
 
-    const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
-    const total = subtotal * (1 + Number(devis.vat_rate) / 100);
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/devis-client/${devis.public_token}`;
 
@@ -82,9 +77,6 @@ Deno.serve(async (req: Request) => {
     const html = buildDocumentEmailHtml({
       clientName: devis.client_name,
       bodyMessage,
-      projectName: devis.projects?.name ?? null,
-      detailsTitle: `Devis n° ${devis.number ?? '—'}`,
-      detailsLines: [`Montant : CHF ${formatChfPlain(total)}`],
       linkUrl: publicUrl,
       linkLabel: 'Consulter et accepter ce devis en ligne',
       linkHint: 'vous pouvez le signer directement depuis cette page sécurisée, sans créer de compte',

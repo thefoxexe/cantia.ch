@@ -74,8 +74,6 @@ Deno.serve(async (req: Request) => {
         const html = buildDocumentEmailHtml({
           clientName: null,
           bodyMessage: notif.body ?? notif.title,
-          detailsTitle: notif.title,
-          detailsLines: [],
           linkUrl: `https://app.cantia.ch${appPath}`,
           linkLabel: 'Ouvrir dans Cantia',
           linkHint: '',

@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { buildDocumentEmailHtml, formatChfPlain, sendResendEmail } from '../_shared/resend.ts';
+import { buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -33,22 +33,17 @@ Deno.serve(async (req: Request) => {
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: work, error: workError } = await userClient.from('extra_works').select('*, projects(name)').eq('id', extra_work_id).single();
+    const { data: work, error: workError } = await userClient.from('extra_works').select('*').eq('id', extra_work_id).single();
     if (workError || !work) return json({ error: 'Travaux supplémentaires introuvables ou accès refusé' }, 404);
     if (!work.client_email) return json({ error: "Ces travaux supplémentaires n'ont pas d'adresse e-mail client." }, 400);
 
-    const [{ data: org }, { data: items }] = await Promise.all([
-      admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', work.organization_id).single(),
-      admin.from('extra_work_items').select('quantity, unit_price').eq('extra_work_id', extra_work_id),
-    ]);
+    const { data: org } = await admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', work.organization_id).single();
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
       return json({ error: "L'envoi par e-mail n'est pas disponible sur votre plan. Passez à un plan supérieur pour l'activer." }, 403);
     }
 
-    const subtotal = (items ?? []).reduce((sum: number, it: any) => sum + Number(it.quantity) * Number(it.unit_price), 0);
-    const total = subtotal * (1 + Number(work.vat_rate) / 100);
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/travaux-supplementaires-client/${work.public_token}`;
 
@@ -61,9 +56,6 @@ Deno.serve(async (req: Request) => {
     const html = buildDocumentEmailHtml({
       clientName: work.client_name,
       bodyMessage,
-      projectName: work.projects?.name ?? null,
-      detailsTitle: `Travaux supplémentaires n° ${work.number ?? '—'} — ${work.title}`,
-      detailsLines: [`Montant : CHF ${formatChfPlain(total)}`],
       linkUrl: publicUrl,
       linkLabel: 'Consulter et valider en ligne',
       linkHint: 'vous pouvez les accepter et les signer directement depuis cette page sécurisée, sans créer de compte',
