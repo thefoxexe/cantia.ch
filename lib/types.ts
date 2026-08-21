@@ -84,6 +84,9 @@ export interface Organization {
   payroll_payday: number;
   devis_email_message: string | null;
   facture_email_message: string | null;
+  extra_work_email_message: string | null;
+  facture_reminder_message_upcoming: string | null;
+  facture_reminder_message_overdue: string | null;
   email_signature: string | null;
   plan_id: string;
   stripe_customer_id: string | null;

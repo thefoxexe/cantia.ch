@@ -13,7 +13,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { facture_id } = await req.json();
+    const { facture_id, custom_message } = await req.json();
     if (!facture_id) return json({ error: 'facture_id requis' }, 400);
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
@@ -40,7 +40,11 @@ Deno.serve(async (req: Request) => {
     if (facture.status === 'paid') return json({ error: 'Cette facture est déjà payée.' }, 400);
     if (facture.status === 'cancelled') return json({ error: 'Cette facture est annulée.' }, 400);
 
-    const { data: org } = await admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', facture.organization_id).single();
+    const { data: org } = await admin
+      .from('organizations')
+      .select('name, email, plan_id, facture_reminder_message_upcoming, facture_reminder_message_overdue, email_signature')
+      .eq('id', facture.organization_id)
+      .single();
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -61,9 +65,12 @@ Deno.serve(async (req: Request) => {
       ? `Rappel — facture ${facture.number ?? ''} en retard de paiement`
       : `Rappel — facture ${facture.number ?? ''} à régler prochainement`;
 
-    const bodyMessage = overdue
-      ? 'Sauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c\'est déjà fait.'
-      : 'Petit rappel : cette facture arrive bientôt à échéance.';
+    const bodyMessage =
+      String(custom_message ?? '').trim() ||
+      String((overdue ? org?.facture_reminder_message_overdue : org?.facture_reminder_message_upcoming) ?? '').trim() ||
+      (overdue
+        ? "Sauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait."
+        : 'Petit rappel : cette facture arrive bientôt à échéance.');
     const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const html = buildDocumentEmailHtml({

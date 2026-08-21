@@ -37,7 +37,11 @@ Deno.serve(async (req: Request) => {
     if (workError || !work) return json({ error: 'Travaux supplémentaires introuvables ou accès refusé' }, 404);
     if (!work.client_email) return json({ error: "Ces travaux supplémentaires n'ont pas d'adresse e-mail client." }, 400);
 
-    const { data: org } = await admin.from('organizations').select('name, email, plan_id, email_signature').eq('id', work.organization_id).single();
+    const { data: org } = await admin
+      .from('organizations')
+      .select('name, email, plan_id, extra_work_email_message, email_signature')
+      .eq('id', work.organization_id)
+      .single();
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -48,7 +52,7 @@ Deno.serve(async (req: Request) => {
     const publicUrl = `https://cantia.ch/travaux-supplementaires-client/${work.public_token}`;
 
     const bodyMessage =
-      String(custom_message ?? '').trim() ||
+      String(custom_message ?? org?.extra_work_email_message ?? '').trim() ||
       'Des travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.';
     const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 

@@ -20,6 +20,7 @@ const ITEMS: { href: string; icon: IconName; label: string; description: string;
   { href: '/(app)/compte/facturation', icon: 'credit-card', label: 'Abonnement', description: 'Votre plan et vos moyens de paiement.' },
   { href: '/(app)/compte/equipe', icon: 'users', label: 'Équipe', description: 'Membres, invitations et rôles personnalisés.' },
   { href: '/(app)/compte/devis', icon: 'file-text', label: 'Facturation', description: 'Réglages des devis et factures.' },
+  { href: '/(app)/compte/emails', icon: 'mail', label: 'E-mails', description: 'Textes des e-mails envoyés à vos clients (devis, factures, relances).' },
   { href: '/(app)/compte/modules', icon: 'grid', label: 'Outils & modules', description: "Sections de l'application activées pour votre équipe." },
   { href: '/(app)/compte/apparence', icon: 'droplet', label: 'Apparence', description: 'Logo, couleur de marque et mise en page des PDF.' },
   { href: '/(app)/compte/stockage', icon: 'hard-drive', label: 'Stockage', description: 'Espace utilisé par vos chantiers.' },

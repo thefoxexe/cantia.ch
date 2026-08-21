@@ -2,8 +2,11 @@ import { invokeFunction } from './functions';
 import { supabase } from '../supabase';
 import type { Facture, FacturePayment, FactureStatus } from '../types';
 
-export async function sendFactureReminder(factureId: string): Promise<{ sent: boolean; error: string | null }> {
-  const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-reminder', { facture_id: factureId });
+export async function sendFactureReminder(factureId: string, customMessage?: string): Promise<{ sent: boolean; error: string | null }> {
+  const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-reminder', {
+    facture_id: factureId,
+    custom_message: customMessage?.trim() || undefined,
+  });
   return { sent: !!data?.sent, error };
 }
 
