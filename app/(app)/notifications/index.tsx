@@ -11,7 +11,7 @@ import {
   markRead,
   subscribeToNotifications,
 } from '../../../lib/api/notifications';
-import { NOTIFICATION_ICON, NOTIFICATION_TONE } from '../../../components/notificationMeta';
+import { DEFAULT_NOTIFICATION_ICON, DEFAULT_NOTIFICATION_TONE, NOTIFICATION_ICON, NOTIFICATION_TONE } from '../../../components/notificationMeta';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Notification } from '../../../lib/types';
@@ -112,12 +112,12 @@ export default function NotificationsScreen() {
                 <Text style={styles.groupLabel}>{label}</Text>
                 <View style={{ gap: spacing.sm }}>
                   {group.map((n) => {
-                    const tone = NOTIFICATION_TONE[n.type];
+                    const tone = NOTIFICATION_TONE[n.type] ?? DEFAULT_NOTIFICATION_TONE;
                     return (
                       <Pressable key={n.id} onPress={() => handlePress(n)}>
                         <Card style={[styles.row, !n.read_at && styles.rowUnread]}>
                           <View style={[styles.icon, { backgroundColor: tone.bg }]}>
-                            <Feather name={NOTIFICATION_ICON[n.type]} size={16} color={tone.fg} />
+                            <Feather name={NOTIFICATION_ICON[n.type] ?? DEFAULT_NOTIFICATION_ICON} size={16} color={tone.fg} />
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={styles.title} numberOfLines={2}>

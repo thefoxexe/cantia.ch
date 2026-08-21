@@ -11,7 +11,7 @@ import {
   unreadCount as fetchUnreadCount,
   formatRelativeTime,
 } from '../lib/api/notifications';
-import { NOTIFICATION_ICON, NOTIFICATION_TONE } from './notificationMeta';
+import { DEFAULT_NOTIFICATION_ICON, DEFAULT_NOTIFICATION_TONE, NOTIFICATION_ICON, NOTIFICATION_TONE } from './notificationMeta';
 import { EmptyState } from './ui';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import type { Notification } from '../lib/types';
@@ -131,12 +131,12 @@ export function NotificationBell() {
               ) : (
                 <ScrollView style={styles.list}>
                   {items.map((n) => {
-                    const tone = NOTIFICATION_TONE[n.type];
+                    const tone = NOTIFICATION_TONE[n.type] ?? DEFAULT_NOTIFICATION_TONE;
                     return (
                       <Pressable key={n.id} onPress={() => handlePress(n)} style={styles.row}>
                         {!n.read_at ? <View style={styles.unreadDot} /> : <View style={styles.unreadDotSpacer} />}
                         <View style={[styles.rowIcon, { backgroundColor: tone.bg }]}>
-                          <Feather name={NOTIFICATION_ICON[n.type]} size={14} color={tone.fg} />
+                          <Feather name={NOTIFICATION_ICON[n.type] ?? DEFAULT_NOTIFICATION_ICON} size={14} color={tone.fg} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={styles.rowTitle} numberOfLines={2}>

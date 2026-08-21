@@ -1,5 +1,5 @@
 import { Component, type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button } from './ui';
 import { colors, fontSize, spacing } from '../lib/theme';
@@ -35,6 +35,18 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('Unhandled render error', error, info.componentStack);
   }
 
+  // A React state reset alone re-renders the same tree with whatever
+  // stale/bad state caused the crash still in memory — on web a real
+  // reload actually clears it; on native, falling back to a state reset
+  // is the closest equivalent (there's no page to reload).
+  reload = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.reload();
+    } else {
+      this.setState({ error: null });
+    }
+  };
+
   render() {
     if (this.state.error) {
       if (this.props.fallback !== undefined) return this.props.fallback;
@@ -45,7 +57,8 @@ export class ErrorBoundary extends Component<Props, State> {
           <Text style={styles.text}>
             Cette page n'a pas pu s'afficher correctement. Réessayez, et si ça persiste, prévenez-nous.
           </Text>
-          <Button title="Recharger" onPress={() => this.setState({ error: null })} style={{ marginTop: spacing.md }} />
+          {this.state.error.message ? <Text style={styles.errorDetail}>{this.state.error.message}</Text> : null}
+          <Button title="Recharger" onPress={this.reload} style={{ marginTop: spacing.md }} />
         </View>
       );
     }
@@ -74,5 +87,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 320,
+  },
+  errorDetail: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'web' ? 'monospace' : undefined,
+    maxWidth: 340,
+    marginTop: spacing.xs,
+    opacity: 0.7,
   },
 });

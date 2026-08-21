@@ -14,6 +14,14 @@ export const NOTIFICATION_ICON: Record<NotificationType, IconName> = {
   feed_message: 'message-circle',
 };
 
+// Fallback for a `type` that doesn't match any known key — e.g. a client
+// bundle briefly out of sync with a DB migration that just added a new
+// type. Without this, indexing NOTIFICATION_ICON/NOTIFICATION_TONE with an
+// unrecognized type returns undefined and crashes the whole notifications
+// screen the instant it tries to read `.bg`/`.fg` off it.
+export const DEFAULT_NOTIFICATION_ICON: IconName = 'bell';
+export const DEFAULT_NOTIFICATION_TONE = { fg: colors.textMuted, bg: colors.surfaceAlt };
+
 export const NOTIFICATION_TONE: Record<NotificationType, { fg: string; bg: string }> = {
   devis_stale_draft: { fg: colors.textMuted, bg: colors.surfaceAlt },
   devis_expiring_soon: { fg: colors.warning, bg: colors.warningSoft },
