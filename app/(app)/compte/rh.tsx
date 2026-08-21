@@ -18,6 +18,7 @@ import {
   updateWorkType,
 } from '../../../lib/api/payroll';
 import { Button, Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollExpenseType, PayrollWorkType } from '../../../lib/types';
 
@@ -129,6 +130,7 @@ export default function PayrollSettingsScreen() {
     }
     setEditKind(null);
     load();
+    showSavedCheckmark();
   }
 
   async function handleDelete() {

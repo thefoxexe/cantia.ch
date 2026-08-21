@@ -49,7 +49,7 @@ Deno.serve(async (req: Request) => {
 
     const bodyMessage =
       String(custom_message ?? '').trim() ||
-      "Des travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial. Vous trouverez le détail et pourrez les valider directement en ligne.";
+      'Des travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.';
     const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const subject = `Travaux supplémentaires ${work.number ?? ''} — ${orgName}`;
@@ -57,8 +57,8 @@ Deno.serve(async (req: Request) => {
       clientName: work.client_name,
       bodyMessage,
       linkUrl: publicUrl,
-      linkLabel: 'Consulter et valider en ligne',
-      linkHint: 'vous pouvez les accepter et les signer directement depuis cette page sécurisée, sans créer de compte',
+      linkLabel: 'Voir et valider',
+      linkHint: 'sans créer de compte',
       signature,
     });
 

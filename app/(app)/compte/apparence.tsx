@@ -10,6 +10,7 @@ import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsse
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -57,6 +58,7 @@ export default function ApparenceScreen() {
       .eq('id', organization.id);
     setSaving(false);
     refreshOrganization();
+    showSavedCheckmark();
   }
 
   async function pickLogo() {
@@ -77,6 +79,7 @@ export default function ApparenceScreen() {
       setLogoUrl(url);
       const suggested = await suggestBrandColorFromImage(uri);
       if (suggested) setBrandColor(suggested);
+      showSavedCheckmark();
     }
   }
 

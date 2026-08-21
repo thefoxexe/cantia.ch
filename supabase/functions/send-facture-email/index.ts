@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
 
     const bodyMessage =
       String(custom_message ?? org?.facture_email_message ?? '').trim() ||
-      "Vous trouverez ci-joint notre facture. Nous vous remercions de bien vouloir procéder au règlement avant l'échéance indiquée.";
+      'Voici notre facture, en pièce jointe.';
     const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const subject = `${kind} ${facture.number ?? ''} — ${orgName}`;
@@ -90,8 +90,8 @@ Deno.serve(async (req: Request) => {
       clientName: facture.client_name,
       bodyMessage,
       linkUrl: publicUrl,
-      linkLabel: 'Consulter cette facture en ligne',
-      linkHint: 'retrouvez le détail et le solde restant à tout moment',
+      linkLabel: 'Voir la facture',
+      linkHint: 'détail et solde à jour',
       signature,
     });
 

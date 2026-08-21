@@ -22,6 +22,7 @@ import {
   type RolePermissions,
 } from '../../../lib/api/roles';
 import { Button, Card, Container, Field, PageHeader, Screen, Switch } from '../../../components/ui';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { confirm } from '../../../lib/confirm';
 import { isOnline } from '../../../lib/presence';
@@ -215,6 +216,7 @@ export default function EquipeScreen() {
     }
     setRoleDraft(null);
     load();
+    showSavedCheckmark();
   }
 
   async function handleDeleteRole() {

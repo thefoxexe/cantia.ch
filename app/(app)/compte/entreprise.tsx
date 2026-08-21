@@ -6,6 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { isValidSwissIban } from '../../../lib/iban';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
@@ -88,6 +89,7 @@ export default function EntrepriseScreen() {
       .eq('id', organization.id);
     setSaving(false);
     refreshOrganization();
+    showSavedCheckmark();
   }
 
   return (

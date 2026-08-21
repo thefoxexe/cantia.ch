@@ -61,21 +61,19 @@ Deno.serve(async (req: Request) => {
       ? `Rappel — facture ${facture.number ?? ''} en retard de paiement`
       : `Rappel — facture ${facture.number ?? ''} à régler prochainement`;
 
-    const bodyMessage = `${
-      overdue
-        ? 'Sauf erreur de notre part, la facture suivante est toujours impayée.'
-        : 'Nous vous rappelons que la facture suivante arrive bientôt à échéance.'
-    } Merci de bien vouloir procéder au règlement, ou de nous contacter si le paiement a déjà été effectué.`;
+    const bodyMessage = overdue
+      ? 'Sauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c\'est déjà fait.'
+      : 'Petit rappel : cette facture arrive bientôt à échéance.';
     const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const html = buildDocumentEmailHtml({
       clientName: facture.client_name,
       bodyMessage,
       pdfUrl,
-      pdfLabel: `Télécharger la facture ${facture.number ?? ''} (lien valable 7 jours)`,
+      pdfLabel: 'Télécharger le PDF (valable 7 jours)',
       linkUrl: publicUrl,
-      linkLabel: 'Consulter cette facture en ligne',
-      linkHint: 'retrouvez le détail et le solde restant à tout moment',
+      linkLabel: 'Voir la facture',
+      linkHint: 'détail et solde à jour',
       signature,
     });
 

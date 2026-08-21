@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
 
     const bodyMessage =
       String(custom_message ?? org?.devis_email_message ?? '').trim() ||
-      "Vous trouverez ci-joint notre devis détaillé. N'hésitez pas à nous contacter pour toute question ou précision.";
+      'Voici notre devis, en pièce jointe.';
     const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
 
     const subject = `Devis ${devis.number ?? ''} — ${orgName}`;
@@ -78,8 +78,8 @@ Deno.serve(async (req: Request) => {
       clientName: devis.client_name,
       bodyMessage,
       linkUrl: publicUrl,
-      linkLabel: 'Consulter et accepter ce devis en ligne',
-      linkHint: 'vous pouvez le signer directement depuis cette page sécurisée, sans créer de compte',
+      linkLabel: 'Voir et signer le devis',
+      linkHint: 'sans créer de compte',
       signature,
     });
 

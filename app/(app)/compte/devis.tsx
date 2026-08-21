@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function DevisSettingsScreen() {
@@ -43,6 +44,7 @@ export default function DevisSettingsScreen() {
       .eq('id', organization.id);
     setSaving(false);
     refreshOrganization();
+    showSavedCheckmark();
   }
 
   return (

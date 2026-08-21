@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
 import { SignaturePad } from '../../../components/SignaturePad';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -56,6 +57,7 @@ export default function ProfilScreen() {
       .eq('user_id', user.id);
     setSaving(false);
     refreshOrganization();
+    showSavedCheckmark();
   }
 
   async function pickAvatar() {
@@ -77,6 +79,7 @@ export default function ProfilScreen() {
         .eq('user_id', user.id);
       setAvatarPath(path);
       setAvatarUrl(await getSignedUrl(path));
+      showSavedCheckmark();
     }
     setUploadingAvatar(false);
   }
@@ -99,6 +102,7 @@ export default function ProfilScreen() {
         .eq('organization_id', organization.id)
         .eq('user_id', user.id);
       setSignatureUrl(await getSignedUrl(path));
+      showSavedCheckmark();
     }
     setUploadingSignature(false);
   }
@@ -119,6 +123,7 @@ export default function ProfilScreen() {
         .eq('user_id', user.id);
       setSignatureUrl(await getSignedUrl(path));
       setDrawnSignature(null);
+      showSavedCheckmark();
     }
     setUploadingSignature(false);
   }
