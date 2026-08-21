@@ -39,8 +39,13 @@ export default function FacturationScreen() {
 
   // "Sur devis" plan is never self-serve: no Stripe checkout for it, contact
   // Cantia by e-mail instead. Kept out of paidPlans so it never enters the
-  // checkout/upgrade progression below.
-  const paidPlans = useMemo(() => plans.filter((p) => p.id !== 'free' && !p.is_contact_only), [plans]);
+  // checkout/upgrade progression below. "decouverte" is the auto-assigned
+  // trial, never a checkout target either.
+  const paidPlans = useMemo(() => plans.filter((p) => p.id !== 'free' && p.id !== 'decouverte' && !p.is_contact_only), [plans]);
+  const isTrialing = organization?.plan_id === 'decouverte';
+  const trialDaysLeft = organization?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(organization.trial_ends_at).getTime() - Date.now()) / 86400000))
+    : null;
   const contactPlan = useMemo(() => plans.find((p) => p.is_contact_only), [plans]);
   const currentIndex = paidPlans.findIndex((p) => p.id === organization?.plan_id);
   const nextPlan = hasActiveSubscription && currentIndex >= 0 ? paidPlans[currentIndex + 1] : undefined;
@@ -111,7 +116,16 @@ export default function FacturationScreen() {
             </Text>
           ) : null}
 
-          {hasActiveSubscription ? (
+          {isTrialing ? (
+            <View style={styles.trialBanner}>
+              <Feather name="clock" size={16} color={colors.accent} />
+              <Text style={styles.trialBannerText}>
+                Essai Découverte — {trialDaysLeft ?? 0} jour{(trialDaysLeft ?? 0) > 1 ? 's' : ''} restant
+                {(trialDaysLeft ?? 0) > 1 ? 's' : ''}. Tout est débloqué pour l'essayer en vrai ; passé ce délai, retour
+                automatique au plan Gratuit sauf si vous choisissez un plan payant avant.
+              </Text>
+            </View>
+          ) : hasActiveSubscription ? (
             <View style={styles.banner}>
               <Feather name="check-circle" size={16} color={colors.success} />
               <Text style={styles.bannerText}>
@@ -276,6 +290,21 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   bannerText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
+    lineHeight: 17,
+  },
+  trialBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.lg,
+  },
+  trialBannerText: {
     flex: 1,
     fontSize: fontSize.xs,
     color: colors.text,

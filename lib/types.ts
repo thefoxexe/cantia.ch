@@ -89,6 +89,9 @@ export interface Organization {
   facture_reminder_message_overdue: string | null;
   email_signature: string | null;
   plan_id: string;
+  // Only set while plan_id = 'decouverte' (the 14-day trial) — a scheduled
+  // job drops the org back to 'free' and clears this once it passes.
+  trial_ends_at: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   subscription_status: string | null;

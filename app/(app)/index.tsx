@@ -31,8 +31,12 @@ function todayIso(): string {
 }
 
 export default function DashboardScreen() {
-  const { organization, user, canViewFinances } = useAuth();
+  const { organization, user, canViewFinances, role } = useAuth();
   const router = useRouter();
+  const isAdmin = role === 'owner' || role === 'admin';
+  const trialDaysLeft = organization?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(organization.trial_ends_at).getTime() - Date.now()) / 86400000))
+    : null;
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   // A member without finance permission (see équipe screen) gets none of
   // the devis/facture widgets below — same tiles/list logic as before,
@@ -153,6 +157,21 @@ export default function DashboardScreen() {
             <Text style={styles.org}>{organization?.name}</Text>
           </View>
         </View>
+
+        {organization?.plan_id === 'decouverte' ? (
+          <Pressable
+            onPress={() => isAdmin && router.push('/(app)/compte/facturation')}
+            style={styles.trialBanner}
+          >
+            <Feather name="clock" size={16} color={colors.accent} />
+            <Text style={styles.trialBannerText}>
+              Essai Découverte — {trialDaysLeft ?? 0} jour{(trialDaysLeft ?? 0) > 1 ? 's' : ''} restant
+              {(trialDaysLeft ?? 0) > 1 ? 's' : ''}, tout est débloqué.
+              {isAdmin ? ' Choisissez un plan avant la fin pour tout garder.' : ''}
+            </Text>
+            {isAdmin ? <Feather name="chevron-right" size={16} color={colors.accent} /> : null}
+          </Pressable>
+        ) : null}
 
         <FeatureHint
           id="dashboard-welcome"
@@ -317,6 +336,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.xl,
+  },
+  trialBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  trialBannerText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
   },
   hello: {
     fontSize: fontSize.md,

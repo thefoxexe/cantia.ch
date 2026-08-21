@@ -195,6 +195,9 @@ function LandingContent() {
     supabase
       .from('plans')
       .select('*')
+      // "decouverte" is the auto-assigned 14-day trial, not something to pick
+      // or pay for — never shown as a plan option.
+      .neq('id', 'decouverte')
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => setPlans(data ?? []));
   }, []);

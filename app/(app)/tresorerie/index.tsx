@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
+import { supabase } from '../../../lib/supabase';
 import {
   addCashSnapshot,
   buildForecast,
@@ -17,7 +18,7 @@ import {
 import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
+import type { Plan, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -68,10 +69,12 @@ function projectedBalanceAt(forecast: TreasuryForecast, horizonIso: string): num
 
 export default function TreasuryScreen() {
   const { organization, user } = useAuth();
+  const router = useRouter();
   const [mode, setMode] = useState<'forecast' | 'recurring'>('forecast');
   const [loading, setLoading] = useState(true);
   const [forecast, setForecast] = useState<TreasuryForecast | null>(null);
   const [expenses, setExpenses] = useState<RecurringExpense[]>([]);
+  const [plan, setPlan] = useState<Plan | null>(null);
 
   const [editingBalance, setEditingBalance] = useState(false);
   const [balanceInput, setBalanceInput] = useState('');
@@ -80,12 +83,21 @@ export default function TreasuryScreen() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<RecurringExpense | null>(null);
 
+  // enabled_modules alone isn't a reliable gate here — an org that had
+  // 'treasury' toggled on while on a plan that included it keeps that entry
+  // if it later downgrades, and nothing else in this screen checked the
+  // plan itself. Mirrors the same check on planning/index.tsx and rh/index.tsx.
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [fc, exp] = await Promise.all([buildForecast(organization), listRecurringExpenses(organization.id)]);
+    const [fc, exp, { data: planRow }] = await Promise.all([
+      buildForecast(organization),
+      listRecurringExpenses(organization.id),
+      supabase.from('plans').select('*').eq('id', organization.plan_id).single(),
+    ]);
     setForecast(fc);
     setExpenses(exp);
+    setPlan(planRow ?? null);
     setLoading(false);
   }, [organization]);
 
@@ -124,6 +136,24 @@ export default function TreasuryScreen() {
   const undatedItems = useMemo(() => (forecast?.items ?? []).filter((it) => !it.date), [forecast]);
 
   if (!organization || loading) return <LoadingScreen />;
+
+  if (plan && !plan.has_treasury) {
+    return (
+      <Screen style={{ padding: spacing.xl }}>
+        <PageHeader title="Trésorerie" backTo="/(app)" />
+        <Card style={styles.upsell}>
+          <Feather name="archive" size={22} color={colors.accent} />
+          <Text style={styles.upsellTitle}>Trésorerie prévisionnelle</Text>
+          <Text style={styles.upsellText}>
+            Projetez votre solde à 30 et 90 jours à partir des factures, salaires, sous-traitants et dépenses
+            récurrentes.
+          </Text>
+          <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
+          <Button title="Voir les plans" variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
+        </Card>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -468,6 +498,22 @@ function RecurringExpenseModal({
 }
 
 const styles = StyleSheet.create({
+  upsell: {
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+  },
+  upsellTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: spacing.sm,
+  },
+  upsellText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 20,
+  },
   pageSubtitle: {
     fontSize: fontSize.sm,
     color: colors.textMuted,

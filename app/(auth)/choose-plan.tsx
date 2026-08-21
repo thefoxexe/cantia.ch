@@ -25,6 +25,7 @@ export default function ChoosePlanScreen() {
       .from('plans')
       .select('*')
       .neq('id', 'free')
+      .neq('id', 'decouverte')
       .eq('is_contact_only', false)
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => setPlans(data ?? []));
