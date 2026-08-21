@@ -43,6 +43,16 @@ interface SummaryLine {
   entryIds: string[]; // only the not-yet-invoiced entries
 }
 
+interface SummaryEntryDetail {
+  id: string;
+  projectId: string | null;
+  userName: string;
+  workTypeLabel: string;
+  date: string;
+  hours: number;
+  invoiced: boolean;
+}
+
 export default function PayrollScreen() {
   const { organization, user, canManagePayroll, canViewFinances } = useAuth();
   const router = useRouter();
@@ -64,6 +74,7 @@ export default function PayrollScreen() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [hasWorkTypes, setHasWorkTypes] = useState(true);
   const [projectFactures, setProjectFactures] = useState<Record<string, ProjectFactureSummary[]>>({});
+  const [summaryEntries, setSummaryEntries] = useState<SummaryEntryDetail[]>([]);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -92,20 +103,23 @@ export default function PayrollScreen() {
   const loadSummary = useCallback(async () => {
     if (!organization) return;
     setSummaryLoading(true);
-    const [{ data: projectRows }, workTypes, { data: entryRows }] = await Promise.all([
+    const [{ data: projectRows }, workTypes, { data: entryRows }, { data: memberRows }] = await Promise.all([
       supabase.from('projects').select('id, name, client_name').eq('organization_id', organization.id),
       listWorkTypes(organization.id),
       supabase
         .from('payroll_time_entries')
-        .select('id, project_id, work_type_id, hours, invoiced_facture_id')
+        .select('id, project_id, work_type_id, user_id, entry_date, hours, invoiced_facture_id')
         .eq('organization_id', organization.id)
         .gte('entry_date', range.start)
         .lte('entry_date', range.end),
+      supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
     ]);
     setProjects(projectRows ?? []);
     const projectNames = new Map((projectRows ?? []).map((p) => [p.id, p.name]));
     const workTypeById = new Map<string, PayrollWorkType>(workTypes.map((w) => [w.id, w]));
+    const memberNames = new Map((memberRows ?? []).map((m) => [m.user_id, m.full_name || 'Membre']));
     const totals = new Map<string, SummaryLine>();
+    const entries: SummaryEntryDetail[] = [];
     for (const row of entryRows ?? []) {
       const projectName = row.project_id ? projectNames.get(row.project_id) ?? 'Chantier' : 'Sans chantier';
       const wt = row.work_type_id ? workTypeById.get(row.work_type_id) : null;
@@ -133,8 +147,18 @@ export default function PayrollScreen() {
         line.hours = Math.round((line.hours + h) * 100) / 100;
         line.entryIds.push(row.id);
       }
+      entries.push({
+        id: row.id,
+        projectId: row.project_id,
+        userName: row.user_id ? memberNames.get(row.user_id) ?? 'Membre' : 'Membre',
+        workTypeLabel: wt?.label ?? 'Non précisé',
+        date: row.entry_date,
+        hours: h,
+        invoiced,
+      });
     }
     setSummaryLines(Array.from(totals.values()).sort((a, b) => a.projectName.localeCompare(b.projectName)));
+    setSummaryEntries(entries.sort((a, b) => b.date.localeCompare(a.date)));
 
     const distinctProjectIds = Array.from(new Set((entryRows ?? []).map((r) => r.project_id).filter((id): id is string => !!id)));
     setProjectFactures(await listFacturesForProjects(distinctProjectIds));
@@ -337,6 +361,7 @@ export default function PayrollScreen() {
               onToggle={toggleSummary}
               loading={summaryLoading}
               lines={summaryLines}
+              entries={summaryEntries}
               totalHours={summaryTotalHours}
               totalChf={summaryTotalChf}
               invoicedHours={summaryInvoicedHours}
@@ -411,6 +436,7 @@ function SummaryCard({
   onToggle,
   loading,
   lines,
+  entries,
   totalHours,
   totalChf,
   invoicedHours,
@@ -425,6 +451,7 @@ function SummaryCard({
   onToggle: () => void;
   loading: boolean;
   lines: SummaryLine[];
+  entries: SummaryEntryDetail[];
   totalHours: number;
   totalChf: number;
   invoicedHours: number;
@@ -442,6 +469,13 @@ function SummaryCard({
     const existing = byProject.get(key);
     if (existing) existing.lines.push(l);
     else byProject.set(key, { projectId: l.projectId, projectName: l.projectName, lines: [l] });
+  }
+  const entriesByProject = new Map<string, SummaryEntryDetail[]>();
+  for (const e of entries) {
+    const key = e.projectId ?? 'none';
+    const list = entriesByProject.get(key);
+    if (list) list.push(e);
+    else entriesByProject.set(key, [e]);
   }
 
   return (
@@ -463,6 +497,9 @@ function SummaryCard({
           <View style={{ marginTop: spacing.md, gap: spacing.lg }}>
             {Array.from(byProject.values()).map((group) => {
               const factures = (group.projectId && projectFactures[group.projectId]) || [];
+              const groupTotalHours = Math.round(group.lines.reduce((s, l) => s + l.totalHours, 0) * 100) / 100;
+              const groupChf = Math.round(group.lines.reduce((s, l) => s + (l.rate ? l.rate * l.hours : 0), 0) * 100) / 100;
+              const groupEntries = entriesByProject.get(group.projectId ?? 'none') ?? [];
               return (
                 <View key={group.projectId ?? 'none'}>
                   <View style={styles.summaryGroupHeader}>
@@ -474,9 +511,15 @@ function SummaryCard({
                       </Pressable>
                     ) : null}
                   </View>
+                  <View style={styles.groupTotalRow}>
+                    <Text style={styles.groupTotalLabel}>Total chantier</Text>
+                    <Text style={styles.groupTotalHours}>{groupTotalHours} h</Text>
+                    <Text style={styles.groupTotalChf}>CHF {groupChf.toFixed(2)}</Text>
+                  </View>
                   {group.lines.map((l, i) => (
                     <SummaryLineRow key={i} line={l} factures={factures} canInvoice={canInvoice} onLinkExisting={onLinkExisting} />
                   ))}
+                  <ProjectDetailToggle entries={groupEntries} />
                   {factures.length > 0 ? (
                     <View style={styles.trackerBox}>
                       <Text style={styles.trackerTitle}>Déjà facturé sur ce chantier</Text>
@@ -575,6 +618,37 @@ function SummaryLineRow({
               </Text>
               <Text style={styles.linkFactureAmount}>{linkingId === f.id ? 'Association…' : `CHF ${f.total.toFixed(2)}`}</Text>
             </Pressable>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+// Per-chantier drill-down: who logged what, on which day, for how many
+// hours. `SummaryLineRow` above already aggregates by work type, so this
+// unfolds that same period's raw entries instead of re-querying anything.
+function ProjectDetailToggle({ entries }: { entries: SummaryEntryDetail[] }) {
+  const [open, setOpen] = useState(false);
+  if (entries.length === 0) return null;
+
+  return (
+    <View>
+      <Pressable onPress={() => setOpen((o) => !o)} style={styles.detailToggle}>
+        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={13} color={colors.textMuted} />
+        <Text style={styles.detailToggleText}>{open ? 'Masquer le détail' : `Voir le détail (${entries.length})`}</Text>
+      </Pressable>
+      {open ? (
+        <View style={styles.detailPanel}>
+          {entries.map((e) => (
+            <View key={e.id} style={styles.detailRow}>
+              <Text style={styles.detailDate}>
+                {new Date(e.date).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' })}
+              </Text>
+              <Text style={styles.detailName} numberOfLines={1}>{e.userName}</Text>
+              <Text style={styles.detailType} numberOfLines={1}>{e.workTypeLabel}</Text>
+              <Text style={styles.detailHours}>{e.hours} h{e.invoiced ? ' ✓' : ''}</Text>
+            </View>
           ))}
         </View>
       ) : null}
@@ -776,6 +850,82 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.primary,
+  },
+  groupTotalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  groupTotalLabel: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  groupTotalHours: {
+    width: 56,
+    textAlign: 'right',
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  groupTotalChf: {
+    width: 90,
+    textAlign: 'right',
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  detailToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: spacing.xs,
+  },
+  detailToggleText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  detailPanel: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    marginBottom: spacing.xs,
+    gap: 6,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  detailDate: {
+    width: 52,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  detailName: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  detailType: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  detailHours: {
+    width: 56,
+    textAlign: 'right',
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
   },
   summaryRow: {
     flexDirection: 'row',
