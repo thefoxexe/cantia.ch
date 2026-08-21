@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+import { applyEmailVariables, base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 
 const BUCKET = 'opus-storage';
@@ -68,15 +68,25 @@ Deno.serve(async (req: Request) => {
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/devis-client/${devis.public_token}`;
 
-    const bodyMessage =
+    let projectName: string | null = null;
+    if (devis.project_id) {
+      const { data: project } = await admin.from('projects').select('name').eq('id', devis.project_id).single();
+      projectName = project?.name ?? null;
+    }
+    const vars = { client: devis.client_name ?? '', entreprise: orgName, numero: devis.number ?? '', chantier: projectName ?? '' };
+
+    const rawMessage =
       String(custom_message ?? org?.devis_email_message ?? '').trim() ||
-      'Voici notre devis, en pièce jointe.';
-    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      'Bonjour {{client}},\n\nVoici notre devis, en pièce jointe.';
+    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+    const bodyMessage = applyEmailVariables(rawMessage, vars);
+    const signature = applyEmailVariables(rawSignature, vars);
 
     const subject = `Devis ${devis.number ?? ''} — ${orgName}`;
     const html = buildDocumentEmailHtml({
       clientName: devis.client_name,
       bodyMessage,
+      includeGreeting: false,
       linkUrl: publicUrl,
       linkLabel: 'Voir et signer le devis',
       linkHint: 'sans créer de compte',

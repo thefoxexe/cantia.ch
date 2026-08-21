@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+import { applyEmailVariables, base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { isValidSwissIban } from '../_shared/qrbill.ts';
 
@@ -80,15 +80,31 @@ Deno.serve(async (req: Request) => {
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
     const kind = facture.is_deposit ? "Facture d'acompte" : 'Facture';
 
-    const bodyMessage =
+    let projectName: string | null = null;
+    if (facture.project_id) {
+      const { data: project } = await admin.from('projects').select('name').eq('id', facture.project_id).single();
+      projectName = project?.name ?? null;
+    }
+    const vars = {
+      client: facture.client_name ?? '',
+      entreprise: orgName,
+      numero: facture.number ?? '',
+      chantier: projectName ?? '',
+      echeance: formatDateFr(facture.due_date),
+    };
+
+    const rawMessage =
       String(custom_message ?? org?.facture_email_message ?? '').trim() ||
-      'Voici notre facture, en pièce jointe.';
-    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      'Bonjour {{client}},\n\nVoici notre facture, en pièce jointe.';
+    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+    const bodyMessage = applyEmailVariables(rawMessage, vars);
+    const signature = applyEmailVariables(rawSignature, vars);
 
     const subject = `${kind} ${facture.number ?? ''} — ${orgName}`;
     const html = buildDocumentEmailHtml({
       clientName: facture.client_name,
       bodyMessage,
+      includeGreeting: false,
       linkUrl: publicUrl,
       linkLabel: 'Voir la facture',
       linkHint: 'détail et solde à jour',
@@ -121,4 +137,9 @@ function json(body: unknown, status = 200): Response {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
+}
+
+function formatDateFr(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-');
+  return `${day}.${month}.${year}`;
 }

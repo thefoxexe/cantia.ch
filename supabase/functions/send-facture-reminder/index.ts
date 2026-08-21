@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+import { applyEmailVariables, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -61,21 +61,37 @@ Deno.serve(async (req: Request) => {
     }
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
 
+    let projectName: string | null = null;
+    if (facture.project_id) {
+      const { data: project } = await admin.from('projects').select('name').eq('id', facture.project_id).single();
+      projectName = project?.name ?? null;
+    }
+    const vars = {
+      client: facture.client_name ?? '',
+      entreprise: orgName,
+      numero: facture.number ?? '',
+      chantier: projectName ?? '',
+      echeance: formatDateFr(facture.due_date),
+    };
+
     const subject = overdue
       ? `Rappel — facture ${facture.number ?? ''} en retard de paiement`
       : `Rappel — facture ${facture.number ?? ''} à régler prochainement`;
 
-    const bodyMessage =
+    const rawMessage =
       String(custom_message ?? '').trim() ||
       String((overdue ? org?.facture_reminder_message_overdue : org?.facture_reminder_message_upcoming) ?? '').trim() ||
       (overdue
-        ? "Sauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait."
-        : 'Petit rappel : cette facture arrive bientôt à échéance.');
-    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+        ? "Bonjour {{client}},\n\nSauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait."
+        : 'Bonjour {{client}},\n\nPetit rappel : cette facture arrive bientôt à échéance.');
+    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+    const bodyMessage = applyEmailVariables(rawMessage, vars);
+    const signature = applyEmailVariables(rawSignature, vars);
 
     const html = buildDocumentEmailHtml({
       clientName: facture.client_name,
       bodyMessage,
+      includeGreeting: false,
       pdfUrl,
       pdfLabel: 'Télécharger le PDF (valable 7 jours)',
       linkUrl: publicUrl,
@@ -108,4 +124,9 @@ function json(body: unknown, status = 200): Response {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
+}
+
+function formatDateFr(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-');
+  return `${day}.${month}.${year}`;
 }

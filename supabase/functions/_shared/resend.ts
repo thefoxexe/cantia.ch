@@ -29,16 +29,30 @@ export function textToHtmlLines(text: string): string {
   return escapeHtml(text).split('\n').join('<br/>');
 }
 
+// Replaces {{key}} tokens (whitespace inside the braces tolerated) with the
+// matching value from `vars`. An unknown token is left as-is rather than
+// silently dropped — a typo'd variable stays visible instead of vanishing.
+export function applyEmailVariables(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, key: string) => vars[key] ?? match);
+}
+
 // Shared visual template for every devis/facture e-mail — one place for the
 // spacing/typography so "send-devis-email" and "send-facture-email" don't
-// each hand-roll slightly different HTML. Structure: greeting -> org's own
-// message (fully editable) -> optional chantier line / details card (unused
+// each hand-roll slightly different HTML. Structure: optional auto greeting
+// -> org's own message (fully editable, including its own greeting when
+// includeGreeting is false) -> optional chantier line / details card (unused
 // by the devis/facture/relance/TS sends, kept for callers like
 // dispatch-notification) -> the one thing that's never editable, the
 // "consult online" portal link -> signature (also editable).
 export function buildDocumentEmailHtml(params: {
   clientName: string | null;
   bodyMessage: string;
+  // false for the 4 client-facing sends (devis/facture/relance/TS): their
+  // org-authored bodyMessage now opens with its own "Bonjour {{client}},"
+  // (see lib/emailDefaults.ts), so the fixed greeting paragraph below would
+  // just duplicate it. Left true (default) for dispatch-notification, whose
+  // bodyMessage is internal notification text with no greeting of its own.
+  includeGreeting?: boolean;
   projectName?: string | null;
   // Optional: the boxed "Montant / Échéance" recap. Omitted by the
   // devis/facture/relance/TS sends — the org's own message plus the
@@ -58,12 +72,12 @@ export function buildDocumentEmailHtml(params: {
   linkHint: string;
   signature: string;
 }): string {
-  const { clientName, bodyMessage, projectName, detailsTitle, detailsLines, pdfUrl, pdfLabel, linkUrl, linkLabel, linkHint, signature } = params;
+  const { clientName, bodyMessage, includeGreeting = true, projectName, detailsTitle, detailsLines, pdfUrl, pdfLabel, linkUrl, linkLabel, linkHint, signature } = params;
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
   return `
     <div style="font-family: ${font}; font-size: 15px; line-height: 1.6; color: #1a1f1c; max-width: 560px;">
-      <p style="margin: 0 0 16px;">Bonjour${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>
+      ${includeGreeting ? `<p style="margin: 0 0 16px;">Bonjour${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>` : ''}
       <p style="margin: 0 0 20px;">${textToHtmlLines(bodyMessage)}</p>
       ${
         projectName

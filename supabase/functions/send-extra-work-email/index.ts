@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+import { applyEmailVariables, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,15 +51,25 @@ Deno.serve(async (req: Request) => {
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/travaux-supplementaires-client/${work.public_token}`;
 
-    const bodyMessage =
+    let projectName: string | null = null;
+    if (work.project_id) {
+      const { data: project } = await admin.from('projects').select('name').eq('id', work.project_id).single();
+      projectName = project?.name ?? null;
+    }
+    const vars = { client: work.client_name ?? '', entreprise: orgName, numero: work.number ?? '', chantier: projectName ?? '' };
+
+    const rawMessage =
       String(custom_message ?? org?.extra_work_email_message ?? '').trim() ||
-      'Des travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.';
-    const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      'Bonjour {{client}},\n\nDes travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.';
+    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+    const bodyMessage = applyEmailVariables(rawMessage, vars);
+    const signature = applyEmailVariables(rawSignature, vars);
 
     const subject = `Travaux supplémentaires ${work.number ?? ''} — ${orgName}`;
     const html = buildDocumentEmailHtml({
       clientName: work.client_name,
       bodyMessage,
+      includeGreeting: false,
       linkUrl: publicUrl,
       linkLabel: 'Voir et valider',
       linkHint: 'sans créer de compte',
