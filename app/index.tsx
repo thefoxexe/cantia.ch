@@ -254,36 +254,12 @@ function LandingContent() {
     ]).start();
   }, [heroAnim, heroKickerAnim, heroHeadlineAnim, heroSubAnim, heroCtaAnim]);
 
-  // Cursor-tracked tilt on the hero devis card — desktop web only, a subtle
-  // "leans toward the pointer" effect layered on top of the ambient
-  // blobPulse float rather than replacing it.
-  useEffect(() => {
-    if (Platform.OS !== 'web' || isCompactHero) return;
-    const handleMove = (e: MouseEvent) => {
-      const el = heroVisualRef.current as unknown as HTMLElement | null;
-      if (!el || typeof el.getBoundingClientRect !== 'function') return;
-      const rect = el.getBoundingClientRect();
-      const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
-      const dy = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-      heroTiltX.setValue(Math.max(-1, Math.min(1, dx)));
-      heroTiltY.setValue(Math.max(-1, Math.min(1, dy)));
-    };
-    window.addEventListener('mousemove', handleMove);
-    return () => window.removeEventListener('mousemove', handleMove);
-  }, [isCompactHero, heroTiltX, heroTiltY]);
-
-  useEffect(() => {
-    const blobLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(blobPulse, { toValue: 1, duration: 4200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(blobPulse, { toValue: 0, duration: 4200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
-    blobLoop.start();
-    return () => {
-      blobLoop.stop();
-    };
-  }, [blobPulse]);
+  // Deliberately no cursor-tracked tilt and no ambient breathing loop on the
+  // hero visual anymore — a static, still composition reads as a considered
+  // product shot rather than a toy that follows the pointer. heroTiltX/Y and
+  // blobPulse stay declared (still wired into the transforms below) but are
+  // never driven, so every interpolation simply resolves to its resting
+  // value: a fixed slight lean on the cards, no pulsing glow.
 
   useEffect(() => {
     const liveLoop = Animated.loop(
@@ -722,10 +698,10 @@ function LandingContent() {
 
               {showChaosChips ? (
                 <>
-                  <ChaosChip icon="send" label="Devis #118" sub="Brouillon depuis 6 jours" posStyle={{ top: -14, left: 0 }} rotate={-4} />
-                  <ChaosChip icon="file-text" label="Rapport de chantier" sub="Toujours pas envoyé" posStyle={{ top: -14, right: 0 }} rotate={3} />
-                  <ChaosChip icon="credit-card" label="Facture #204" sub="62 jours de retard" posStyle={{ top: 100, left: 0 }} rotate={4} />
-                  <ChaosChip icon="camera" label="14 photos" sub="Non triées" posStyle={{ top: 100, right: 0 }} rotate={-3} />
+                  <ChaosChip icon="send" label="Devis #118" sub="Brouillon depuis 6 jours" posStyle={{ top: -14, left: 0 }} rotate={-1.5} />
+                  <ChaosChip icon="file-text" label="Rapport de chantier" sub="Toujours pas envoyé" posStyle={{ top: -14, right: 0 }} rotate={1} />
+                  <ChaosChip icon="credit-card" label="Facture #204" sub="62 jours de retard" posStyle={{ top: 100, left: 0 }} rotate={1.5} />
+                  <ChaosChip icon="camera" label="14 photos" sub="Non triées" posStyle={{ top: 100, right: 0 }} rotate={-1} />
                 </>
               ) : null}
 
@@ -2137,10 +2113,10 @@ const styles = StyleSheet.create({
   headline: {
     fontFamily: marketingFonts.display,
     fontSize: 66,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
     lineHeight: 68,
-    letterSpacing: -1.2,
+    letterSpacing: -1.4,
     textAlign: 'left',
     marginBottom: spacing.lg,
     textWrap: 'balance',
