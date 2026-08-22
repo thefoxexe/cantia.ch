@@ -157,6 +157,12 @@ export function MarketingFooter({
               <Text style={styles.footerHelpPillText}>Centre d'aide & documentation</Text>
             </Pressable>
           </Link>
+          <Link href="mailto:info@cantia.ch" target="_blank" asChild>
+            <Pressable style={styles.footerContact}>
+              <Feather name="mail" size={13} color={colors.textMuted} />
+              <Text style={styles.footerContactText}>info@cantia.ch · Suisse</Text>
+            </Pressable>
+          </Link>
         </View>
         <View style={styles.footerCol}>
           {/* Merged with the old standalone "Produit" column (just Services +
@@ -387,6 +393,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.primaryDark,
+  },
+  footerContact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+  },
+  footerContactText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
   },
   footerCol: {
     minWidth: 140,

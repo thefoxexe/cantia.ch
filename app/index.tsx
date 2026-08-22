@@ -18,7 +18,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Link, Redirect } from 'expo-router';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Screen, Switch } from '../components/ui';
 import { MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
@@ -29,22 +29,20 @@ import { authHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
+type TradeIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 const NEON_GREEN = '#39FF6A';
 const PAIN_ICONS: IconName[] = ['send', 'users', 'credit-card', 'camera'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shield', 'layout', 'list', 'map-pin', 'users', 'briefcase'];
 // One small "artwork" icon per trade, in the same order as t.trades.list —
 // paired by index rather than by name so this stays a plain parallel array,
-// no separate per-trade copy needed.
-const TRADE_ICONS: IconName[] = ['layers', 'grid', 'lock', 'zap', 'droplet', 'tool', 'edit-3', 'square'];
-// Cantia went live on this date — the "days since launch" ticker figure is
-// computed from it on every load rather than hand-updated, so it keeps
-// climbing on its own instead of going stale the day after someone forgets
-// to bump a hardcoded number.
-const LAUNCH_DATE = Date.UTC(2026, 7, 3);
-function daysSinceLaunch(): number {
-  return Math.max(1, Math.floor((Date.now() - LAUNCH_DATE) / 86400000));
-}
+// no separate per-trade copy needed. MaterialCommunityIcons rather than
+// Feather here specifically because Feather has no trade-specific glyphs —
+// its closest matches (a generic wrench, a droplet) read as "tool" and
+// "water", not "plumber" and "electrician". These are still generic vector
+// icons, not custom illustration, but each one is at least recognizably
+// tied to its own trade rather than interchangeable with its neighbors.
+const TRADE_ICONS: TradeIconName[] = ['crane', 'wall', 'lock', 'flash', 'pipe-wrench', 'saw-blade', 'format-paint', 'texture-box'];
 const NAV_HEIGHT = 68;
 
 // The compiled Android/iOS app has no marketing site to show — it goes
@@ -61,6 +59,11 @@ export default function LandingScreen() {
 function LandingContent() {
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
+  // Starts true so the pricing grid renders skeleton cards instead of a bare
+  // gap on first paint — the fetch below is usually fast, but on a slow
+  // chantier connection that gap could sit empty for a second or two, right
+  // on the section carrying the site's main commercial argument.
+  const [plansLoading, setPlansLoading] = useState(true);
   const [landingStats, setLandingStats] = useState<{
     users_count: number;
     organizations_count: number;
@@ -69,10 +72,6 @@ function LandingContent() {
   const usersBurst = useCountUpBurst(landingStats?.users_count);
   const orgsBurst = useCountUpBurst(landingStats?.organizations_count);
   const cashBurst = useCountUpBurst(landingStats?.cash_collected_chf);
-  // Fixed at load, not part of the "live" ticker — it doesn't grow while
-  // you watch, it's just today's number, so it lives as its own quiet line
-  // above the hero rather than mixed in with the counters that do grow.
-  const launchDays = daysSinceLaunch();
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   // Starts on the first item (not null) so the accordion's payoff — the
   // checklist detail — is visible on arrival instead of requiring a click
@@ -111,6 +110,7 @@ function LandingContent() {
   const heroSubAnim = useRef(new Animated.Value(0)).current;
   const heroCtaAnim = useRef(new Animated.Value(0)).current;
   const livePulse = useRef(new Animated.Value(0)).current;
+  const skeletonPulse = useRef(new Animated.Value(0.5)).current;
   // Continuous, subtle motion so the hero doesn't read as a static screenshot:
   // the phone mockup gently floats, and the two background blobs breathe out
   // of phase with each other. Neither ties to scroll/reveal state — they run
@@ -199,7 +199,10 @@ function LandingContent() {
       // or pay for — never shown as a plan option.
       .neq('id', 'decouverte')
       .order('price_chf_monthly', { ascending: true })
-      .then(({ data }) => setPlans(data ?? []));
+      .then(({ data }) => {
+        setPlans(data ?? []);
+        setPlansLoading(false);
+      });
   }, []);
 
   // Real, live stats: fetched once on load, then kept current via a Realtime
@@ -273,6 +276,20 @@ function LandingContent() {
       liveLoop.stop();
     };
   }, [livePulse]);
+
+  useEffect(() => {
+    if (!plansLoading) return;
+    const skeletonLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(skeletonPulse, { toValue: 1, duration: 700, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(skeletonPulse, { toValue: 0.5, duration: 700, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    skeletonLoop.start();
+    return () => {
+      skeletonLoop.stop();
+    };
+  }, [plansLoading, skeletonPulse]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -523,9 +540,6 @@ function LandingContent() {
                     <View style={styles.statsLiveDotCore} />
                   </View>
                   <Text style={styles.statsTickerLiveText}>En direct</Text>
-                  <Text style={styles.statsTickerLaunchNote}>
-                    · Lancé il y a {launchDays} jour{launchDays > 1 ? 's' : ''}
-                  </Text>
                 </View>
                 <View style={styles.statsTickerRowCompact}>
                   <View style={styles.statsTickerCoinAnchor}>
@@ -587,9 +601,6 @@ function LandingContent() {
                     <View style={styles.statsLiveDotCore} />
                   </View>
                   <Text style={styles.statsTickerLiveText}>En direct</Text>
-                  <Text style={styles.statsTickerLaunchNote}>
-                    · Lancé il y a {launchDays} jour{launchDays > 1 ? 's' : ''}
-                  </Text>
                 </View>
                 <View style={styles.statsTickerDivider} />
                 <View style={styles.statsTickerStat}>
@@ -875,7 +886,9 @@ function LandingContent() {
               <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
             </Pressable>
             <View style={styles.pricingGrid}>
-              {plans.filter((p) => !p.is_contact_only).map((p) => {
+              {plansLoading
+                ? [0, 1, 2, 3].map((i) => <PriceCardSkeleton key={i} pulse={skeletonPulse} highlight={i === 1} />)
+                : plans.filter((p) => !p.is_contact_only).map((p) => {
                 const isYearly = billingInterval === 'year';
                 const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
                 const dark = p.id === 'equipe';
@@ -1400,6 +1413,27 @@ function BurstParticle({ x, glyph, onDone }: { x: number; glyph: string; onDone:
   );
 }
 
+// Placeholder shown in the pricing grid while `plans` is still loading — same
+// footprint as a real priceCard (same style, same 7 feature rows + CTA bar)
+// so the section never collapses to a bare gap between the toggle and the
+// "sur mesure" note below it, which is exactly what a real visitor sees on a
+// slow connection until the fix here.
+function PriceCardSkeleton({ pulse, highlight }: { pulse: Animated.Value; highlight?: boolean }) {
+  const opacity = pulse;
+  return (
+    <View style={[styles.priceCard, highlight && styles.priceCardHighlight]}>
+      <Animated.View style={[styles.skeletonBar, styles.skeletonName, { opacity }]} />
+      <Animated.View style={[styles.skeletonBar, styles.skeletonAmount, { opacity }]} />
+      <View style={styles.priceFeatures}>
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+          <Animated.View key={i} style={[styles.skeletonBar, styles.skeletonFeature, { opacity, width: `${72 - i * 4}%` }]} />
+        ))}
+      </View>
+      <Animated.View style={[styles.skeletonBar, styles.skeletonButton, { opacity }]} />
+    </View>
+  );
+}
+
 function PriceFeature({
   text,
   muted,
@@ -1885,7 +1919,7 @@ function TradesMarquee({ trades, compact }: { trades: string[]; compact: boolean
         {items.map((trade, i) => (
           <View key={`${trade}-${i}`} style={styles.tradeCard}>
             <View style={styles.tradeIconBadge}>
-              <Feather name={TRADE_ICONS[i % TRADE_ICONS.length]} size={22} color={colors.primary} />
+              <MaterialCommunityIcons name={TRADE_ICONS[i % TRADE_ICONS.length]} size={22} color={colors.primary} />
             </View>
             <Text style={styles.tradeCardText}>{trade}</Text>
           </View>
@@ -2378,11 +2412,6 @@ const styles = StyleSheet.create({
   },
   // Sits right on the live badge, not off in the hero — fixed, not part of
   // the count-up figures, so a quieter untracked style than the numbers.
-  statsTickerLaunchNote: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    fontStyle: 'italic',
-  },
   statsTickerDivider: {
     width: 1,
     height: 28,
@@ -3305,6 +3334,27 @@ const styles = StyleSheet.create({
   priceFeatures: {
     flex: 1,
     gap: spacing.xs,
+  },
+  skeletonBar: {
+    backgroundColor: colors.border,
+    borderRadius: radius.sm,
+  },
+  skeletonName: {
+    width: '55%',
+    height: 15,
+  },
+  skeletonAmount: {
+    width: '70%',
+    height: 30,
+    marginTop: spacing.xs,
+  },
+  skeletonFeature: {
+    height: 12,
+  },
+  skeletonButton: {
+    height: 40,
+    borderRadius: radius.md,
+    marginTop: spacing.xs,
   },
   priceFeatureRow: {
     flexDirection: 'row',
