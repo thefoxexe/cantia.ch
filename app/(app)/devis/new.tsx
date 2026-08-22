@@ -54,6 +54,7 @@ export default function NewDevisScreen() {
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
+  const [clientId, setClientId] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
@@ -296,6 +297,7 @@ export default function NewDevisScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
+        client_id: clientId,
         project_id: selectedProject?.id ?? null,
         vat_rate: organization.default_vat_rate,
         created_by: user?.id,
@@ -352,6 +354,7 @@ export default function NewDevisScreen() {
                 setClientName(client.name);
                 setClientAddress(client.address ?? '');
                 setClientEmail(client.email ?? '');
+                setClientId(client.id);
               }}
             />
           ) : null}

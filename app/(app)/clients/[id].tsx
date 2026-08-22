@@ -1,19 +1,24 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { updateClient } from '../../../lib/api/clients';
+import { addClientNote, deleteClientNote, getClientHistory, listClientNotes, updateClient, type ClientHistory } from '../../../lib/api/clients';
 import { confirm } from '../../../lib/confirm';
-import { Button, Container, Field, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, Container, EmptyState, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Client, ClientType } from '../../../lib/types';
+import type { Client, ClientNote, ClientType } from '../../../lib/types';
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+}
 
 export default function ClientDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [client, setClient] = useState<Client | null>(null);
   const [type, setType] = useState<ClientType>('particulier');
@@ -22,9 +27,13 @@ export default function ClientDetailScreen() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [history, setHistory] = useState<ClientHistory | null>(null);
+  const [notes, setNotes] = useState<ClientNote[]>([]);
+  const [newNote, setNewNote] = useState('');
+  const [addingNote, setAddingNote] = useState(false);
 
   const load = useCallback(async () => {
     const { data } = await supabase.from('clients').select('*').eq('id', id).single();
@@ -36,7 +45,9 @@ export default function ClientDetailScreen() {
     setEmail(data.email ?? '');
     setPhone(data.phone ?? '');
     setAddress(data.address ?? '');
-    setNotes(data.notes ?? '');
+    const [h, n] = await Promise.all([getClientHistory(id), listClientNotes(id)]);
+    setHistory(h);
+    setNotes(n);
   }, [id]);
 
   useFocusEffect(
@@ -59,7 +70,7 @@ export default function ClientDetailScreen() {
       email: email.trim() || null,
       phone: phone.trim() || null,
       address: address.trim() || null,
-      notes: notes.trim() || null,
+      notes: client?.notes ?? null,
     });
     setSaving(false);
     if (updateError) {
@@ -80,6 +91,27 @@ export default function ClientDetailScreen() {
     router.replace('/(app)/clients');
   }
 
+  async function handleAddNote() {
+    if (!newNote.trim() || !client) return;
+    setAddingNote(true);
+    const { error: noteError } = await addClientNote(client.organization_id, id, newNote.trim(), user?.id);
+    setAddingNote(false);
+    if (noteError) {
+      setError(noteError);
+      return;
+    }
+    setNewNote('');
+    const n = await listClientNotes(id);
+    setNotes(n);
+  }
+
+  async function handleDeleteNote(noteId: string) {
+    const ok = await confirm('Supprimer cette note ?', 'Cette note sera définitivement supprimée.');
+    if (!ok) return;
+    await deleteClientNote(noteId);
+    setNotes(await listClientNotes(id));
+  }
+
   if (!client) {
     return (
       <Screen>
@@ -87,6 +119,14 @@ export default function ClientDetailScreen() {
       </Screen>
     );
   }
+
+  const historyRows = history
+    ? [
+        ...history.devis.map((d) => ({ kind: 'Devis', label: d.number ?? 'Devis', status: d.status, date: d.created_at, href: `/(app)/devis/${d.id}` as const })),
+        ...history.factures.map((f) => ({ kind: 'Facture', label: f.number ?? 'Facture', status: f.status, date: f.created_at, href: `/(app)/devis/factures/${f.id}` as const })),
+        ...history.extraWorks.map((e) => ({ kind: 'Travaux suppl.', label: e.number ?? e.title, status: e.status, date: e.created_at, href: `/(app)/chantiers/${e.project_id}/travaux-supplementaires/${e.id}` as const })),
+      ].sort((a, b) => b.date.localeCompare(a.date))
+    : [];
 
   return (
     <Screen>
@@ -122,10 +162,59 @@ export default function ClientDetailScreen() {
           <Field label="E-mail" value={email} onChangeText={setEmail} placeholder="client@exemple.ch" keyboardType="email-address" autoCapitalize="none" />
           <Field label="Téléphone" value={phone} onChangeText={setPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
           <Field label="Adresse" value={address} onChangeText={setAddress} placeholder="Adresse" />
-          <Field label="Notes" value={notes} onChangeText={setNotes} placeholder="Notes internes" multiline style={styles.notes} />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+
+          <Text style={styles.sectionTitle}>Historique</Text>
+          {historyRows.length === 0 ? (
+            <Card style={{ marginBottom: spacing.lg }}>
+              <EmptyState title="Aucun document lié" subtitle="Les devis, factures et travaux supplémentaires créés pour ce client apparaîtront ici." />
+            </Card>
+          ) : (
+            <Card style={{ marginBottom: spacing.lg, gap: spacing.sm }}>
+              {historyRows.map((row, i) => (
+                <Pressable key={`${row.kind}-${i}`} onPress={() => router.push(row.href as any)} style={styles.historyRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.historyKind}>{row.kind}</Text>
+                    <Text style={styles.historyLabel}>{row.label}</Text>
+                  </View>
+                  <StatusBadge status={row.status} />
+                  <Text style={styles.historyDate}>{formatDate(row.date)}</Text>
+                </Pressable>
+              ))}
+            </Card>
+          )}
+
+          <Text style={styles.sectionTitle}>Notes</Text>
+          <Card style={{ marginBottom: spacing.md }}>
+            <Field
+              label="Nouvelle note"
+              value={newNote}
+              onChangeText={setNewNote}
+              placeholder="Ajouter une note (visite, préférence, remarque...)"
+              multiline
+              style={styles.notes}
+            />
+            <Button title="Ajouter la note" icon="plus" variant="secondary" onPress={handleAddNote} loading={addingNote} disabled={!newNote.trim()} style={{ marginTop: spacing.sm }} />
+          </Card>
+          {notes.length === 0 ? (
+            <EmptyState title="Aucune note" subtitle="Chaque note ajoutée reste horodatée, sans écraser les précédentes." />
+          ) : (
+            <View style={{ gap: spacing.sm }}>
+              {notes.map((n) => (
+                <Card key={n.id} style={styles.noteCard}>
+                  <Text style={styles.noteBody}>{n.body}</Text>
+                  <View style={styles.noteFooter}>
+                    <Text style={styles.noteDate}>{formatDate(n.created_at)}</Text>
+                    <Pressable onPress={() => handleDeleteNote(n.id)} hitSlop={8}>
+                      <Feather name="trash-2" size={14} color={colors.textMuted} />
+                    </Pressable>
+                  </View>
+                </Card>
+              ))}
+            </View>
+          )}
         </Container>
       </ScrollView>
     </Screen>
@@ -173,5 +262,49 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.danger,
     marginTop: spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: spacing.xxl,
+    marginBottom: spacing.md,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  historyKind: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  historyLabel: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    fontWeight: '600',
+  },
+  historyDate: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  noteCard: {
+    gap: spacing.xs,
+  },
+  noteBody: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    lineHeight: 20,
+  },
+  noteFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.xs,
+  },
+  noteDate: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
   },
 });

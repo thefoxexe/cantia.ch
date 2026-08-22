@@ -74,7 +74,7 @@ export const TUTORIAL_VIDEOS: TutorialVideo[] = [
   },
   {
     id: 'inventaire',
-    title: 'Inventaire & catalogue',
+    title: 'Catalogue',
     description: 'Constituer son catalogue de prix et l’utiliser pour préremplir les devis automatiquement.',
     youtubeId: null,
   },

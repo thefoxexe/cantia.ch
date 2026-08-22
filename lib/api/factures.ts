@@ -69,6 +69,7 @@ export async function duplicateFacture(factureId: string): Promise<{ id: string 
     .insert({
       organization_id: original.organization_id,
       project_id: original.project_id,
+      client_id: original.client_id,
       template_id: original.template_id,
       client_name: original.client_name,
       client_address: original.client_address,
@@ -108,6 +109,7 @@ export async function createFactureFromLines(params: {
   clientName: string;
   clientAddress?: string | null;
   clientEmail?: string | null;
+  clientId?: string | null;
   vatRate: number;
   notes: string | null;
   lines: { description: string; amountChf: number }[];
@@ -120,6 +122,7 @@ export async function createFactureFromLines(params: {
       client_name: params.clientName,
       client_address: params.clientAddress || null,
       client_email: params.clientEmail || null,
+      client_id: params.clientId || null,
       notes: params.notes,
       vat_rate: params.vatRate,
     })
@@ -151,6 +154,82 @@ export async function markTimeEntriesInvoiced(entryIds: string[], factureId: str
   if (entryIds.length === 0) return { error: null };
   const { error } = await supabase.from('payroll_time_entries').update({ invoiced_facture_id: factureId }).in('id', entryIds);
   return { error: error?.message ?? null };
+}
+
+export type VatReportBasis = 'invoiced' | 'collected';
+
+export interface VatReportRow {
+  vatRate: number;
+  turnoverExclVat: number;
+  vatAmount: number;
+}
+
+export interface VatReport {
+  basis: VatReportBasis;
+  rows: VatReportRow[];
+  totalExclVat: number;
+  totalVat: number;
+  totalInclVat: number;
+}
+
+function emptyVatReport(basis: VatReportBasis): VatReport {
+  return { basis, rows: [], totalExclVat: 0, totalVat: 0, totalInclVat: 0 };
+}
+
+function summarizeVatRows(byRate: Map<number, number>): VatReport['rows'] {
+  return Array.from(byRate.entries())
+    .map(([vatRate, turnoverExclVat]) => ({
+      vatRate,
+      turnoverExclVat: Math.round(turnoverExclVat * 100) / 100,
+      vatAmount: Math.round(turnoverExclVat * (vatRate / 100) * 100) / 100,
+    }))
+    .sort((a, b) => b.vatRate - a.vatRate);
+}
+
+// Décompte TVA par taux, sur une période — deux méthodes possibles côté AFC :
+// "convenues" (par défaut, sur les factures émises dans la période, peu
+// importe si elles sont payées) ou "reçues" (sur option, sur les montants
+// effectivement encaissés). periodEnd est exclusif.
+export async function getVatReport(organizationId: string, periodStart: string, periodEnd: string, basis: VatReportBasis): Promise<VatReport> {
+  const byRate = new Map<number, number>();
+
+  if (basis === 'invoiced') {
+    const { data: factures } = await supabase
+      .from('factures')
+      .select('id, vat_rate')
+      .eq('organization_id', organizationId)
+      .not('status', 'in', '(draft,cancelled)')
+      .gte('created_at', periodStart)
+      .lt('created_at', periodEnd);
+    if (!factures?.length) return emptyVatReport(basis);
+
+    const vatRateByFacture = new Map(factures.map((f) => [f.id, Number(f.vat_rate)]));
+    const { data: items } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', factures.map((f) => f.id));
+    for (const it of items ?? []) {
+      const rate = vatRateByFacture.get(it.facture_id) ?? 0;
+      byRate.set(rate, (byRate.get(rate) ?? 0) + Number(it.quantity) * Number(it.unit_price));
+    }
+  } else {
+    const { data: payments } = await supabase
+      .from('facture_payments')
+      .select('amount, paid_at, factures!inner(vat_rate, organization_id)')
+      .eq('factures.organization_id', organizationId)
+      .gte('paid_at', periodStart)
+      .lt('paid_at', periodEnd);
+    if (!payments?.length) return emptyVatReport(basis);
+
+    for (const p of payments) {
+      const rate = Number((p as any).factures?.vat_rate ?? 0);
+      // Les paiements sont TTC — on retire la TVA pour retrouver le CA HT.
+      const exclVat = Number(p.amount) / (1 + rate / 100);
+      byRate.set(rate, (byRate.get(rate) ?? 0) + exclVat);
+    }
+  }
+
+  const rows = summarizeVatRows(byRate);
+  const totalExclVat = Math.round(rows.reduce((s, r) => s + r.turnoverExclVat, 0) * 100) / 100;
+  const totalVat = Math.round(rows.reduce((s, r) => s + r.vatAmount, 0) * 100) / 100;
+  return { basis, rows, totalExclVat, totalVat, totalInclVat: Math.round((totalExclVat + totalVat) * 100) / 100 };
 }
 
 export interface ProjectFactureSummary {
@@ -210,6 +289,49 @@ export async function listFacturesForProjects(projectIds: string[]): Promise<Rec
     (byProject[f.project_id] ??= []).push(summary);
   }
   return byProject;
+}
+
+export interface ReconciliationCandidate {
+  id: string;
+  number: string | null;
+  clientName: string;
+  status: FactureStatus;
+  total: number;
+  paid: number;
+  remaining: number;
+}
+
+// Factures still owed money — the pool a bank-statement import matches
+// incoming payments against (see app/(app)/devis/factures/import-releve.tsx).
+export async function listReconciliationCandidates(organizationId: string): Promise<ReconciliationCandidate[]> {
+  const { data: factures } = await supabase
+    .from('factures')
+    .select('id, number, client_name, status, vat_rate')
+    .eq('organization_id', organizationId)
+    .in('status', ['sent', 'partial']);
+  if (!factures?.length) return [];
+
+  const ids = factures.map((f) => f.id);
+  const [{ data: items }, { data: payments }] = await Promise.all([
+    supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', ids),
+    supabase.from('facture_payments').select('facture_id, amount').in('facture_id', ids),
+  ]);
+
+  const subtotalByFacture = new Map<string, number>();
+  for (const it of items ?? []) {
+    subtotalByFacture.set(it.facture_id, (subtotalByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
+  }
+  const paidByFacture = new Map<string, number>();
+  for (const p of payments ?? []) {
+    paidByFacture.set(p.facture_id, (paidByFacture.get(p.facture_id) ?? 0) + Number(p.amount));
+  }
+
+  return factures.map((f) => {
+    const subtotal = subtotalByFacture.get(f.id) ?? 0;
+    const total = Math.round(subtotal * (1 + Number(f.vat_rate) / 100) * 100) / 100;
+    const paid = Math.round((paidByFacture.get(f.id) ?? 0) * 100) / 100;
+    return { id: f.id, number: f.number, clientName: f.client_name, status: f.status, total, paid, remaining: Math.round((total - paid) * 100) / 100 };
+  });
 }
 
 export async function listFacturePayments(factureId: string): Promise<FacturePayment[]> {

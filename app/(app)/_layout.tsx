@@ -60,7 +60,7 @@ function buildSections(
               { href: '/(app)/devis', label: 'Devis', icon: 'file-text' as const },
               { href: '/(app)/devis/trames', label: 'Trames', icon: 'layout' as const },
               { href: '/(app)/devis/factures', label: 'Factures', icon: 'dollar-sign' as const },
-              { href: '/(app)/devis/inventaire', label: 'Inventaire', icon: 'box' as const },
+              { href: '/(app)/devis/inventaire', label: 'Catalogue', icon: 'box' as const },
             ],
           },
         ]

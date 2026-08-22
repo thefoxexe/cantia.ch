@@ -257,6 +257,7 @@ export interface Devis {
   id: string;
   organization_id: string;
   project_id: string | null;
+  client_id: string | null;
   number: string | null;
   client_name: string;
   client_address: string | null;
@@ -294,6 +295,7 @@ export interface ExtraWork {
   id: string;
   organization_id: string;
   project_id: string;
+  client_id: string | null;
   devis_id: string | null;
   number: string | null;
   title: string;
@@ -347,6 +349,7 @@ export interface Facture {
   organization_id: string;
   project_id: string | null;
   devis_id: string | null;
+  client_id: string | null;
   template_id: string | null;
   number: string | null;
   client_name: string;
@@ -695,6 +698,33 @@ export interface TreasuryForecast {
   startingBalanceRecordedAt: string | null;
   timeline: { date: string; balance: number }[];
   items: TreasuryForecastItem[];
+}
+
+// Dépense ponctuelle hors chantier (fournitures, outillage, frais divers) —
+// distincte de RecurringExpense (abonnements qui reviennent) et
+// ProjectExpense (rattachée à un chantier pour la rentabilité).
+export interface Expense {
+  id: string;
+  organization_id: string;
+  label: string;
+  category: string | null;
+  amount_chf: number;
+  expense_date: string;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Une entrée du journal de notes d'un client — remplace l'ancien champ
+// clients.notes unique (qui perdait l'historique à chaque écrasement).
+export interface ClientNote {
+  id: string;
+  organization_id: string;
+  client_id: string;
+  body: string;
+  created_by: string | null;
+  created_at: string;
 }
 
 // Centre de notifications — une ligne par (destinataire, événement).

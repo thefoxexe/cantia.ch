@@ -53,6 +53,7 @@ export function PayrollInvoiceModal({
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
+  const [clientId, setClientId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +70,7 @@ export function PayrollInvoiceModal({
     setClientName(project?.client_name ?? '');
     setClientAddress('');
     setClientEmail('');
+    setClientId(null);
     const next: Record<string, LineDraft> = {};
     for (const line of candidateLines) {
       const key = line.workTypeId ?? line.label;
@@ -121,6 +123,7 @@ export function PayrollInvoiceModal({
       clientName: clientName.trim(),
       clientAddress: clientAddress.trim() || null,
       clientEmail: clientEmail.trim() || null,
+      clientId,
       vatRate: defaultVatRate,
       notes: null,
       lines,
@@ -151,6 +154,7 @@ export function PayrollInvoiceModal({
                 setClientName(client.name);
                 setClientAddress(client.address ?? '');
                 setClientEmail(client.email ?? '');
+                setClientId(client.id);
               }}
             />
             {clientName ? (

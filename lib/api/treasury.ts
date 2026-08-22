@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { CashSnapshot, Organization, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem } from '../types';
+import type { CashSnapshot, Expense, Organization, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem } from '../types';
 
 export async function getLatestCashSnapshot(organizationId: string): Promise<CashSnapshot | null> {
   const { data } = await supabase
@@ -258,6 +258,67 @@ export async function buildForecast(organization: Organization, days = 90): Prom
     timeline,
     items,
   };
+}
+
+// Dépenses ponctuelles hors chantier (fournitures, outillage, frais
+// divers...) — distinctes des dépenses récurrentes ci-dessus (abonnements
+// qui reviennent) et des dépenses de chantier (lib/api/expenses.ts,
+// rattachées à un projet pour la rentabilité).
+export async function listExpenses(organizationId: string): Promise<Expense[]> {
+  const { data } = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .order('expense_date', { ascending: false });
+  return data ?? [];
+}
+
+export interface ExpenseInput {
+  label: string;
+  category: string | null;
+  amountChf: number;
+  expenseDate: string;
+  notes: string | null;
+}
+
+export async function createExpense(
+  organizationId: string,
+  userId: string | undefined,
+  input: ExpenseInput,
+): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert({
+      organization_id: organizationId,
+      label: input.label,
+      category: input.category,
+      amount_chf: input.amountChf,
+      expense_date: input.expenseDate,
+      notes: input.notes,
+      created_by: userId,
+    })
+    .select('id')
+    .single();
+  return { id: data?.id ?? null, error: error?.message ?? null };
+}
+
+export async function updateExpense(id: string, input: ExpenseInput): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('expenses')
+    .update({
+      label: input.label,
+      category: input.category,
+      amount_chf: input.amountChf,
+      expense_date: input.expenseDate,
+      notes: input.notes,
+    })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteExpense(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('expenses').delete().eq('id', id);
+  return { error: error?.message ?? null };
 }
 
 export function upcomingRecurringCount(expenses: RecurringExpense[], withinDays = 7): number {

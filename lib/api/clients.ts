@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { Client, ClientType } from '../types';
+import type { Client, ClientNote, ClientType, Devis, ExtraWork, Facture } from '../types';
 
 export interface ClientInput {
   type: ClientType;
@@ -35,4 +35,60 @@ export async function createClient(
 export async function updateClient(id: string, input: ClientInput): Promise<{ error: string | null }> {
   const { error } = await supabase.from('clients').update(input).eq('id', id);
   return { error: error?.message ?? null };
+}
+
+export async function getClient(id: string): Promise<Client | null> {
+  const { data } = await supabase.from('clients').select('*').eq('id', id).maybeSingle();
+  return data ?? null;
+}
+
+// Journal de notes horodaté — remplace le champ clients.notes unique, qui
+// perdait l'historique à chaque écrasement.
+export async function listClientNotes(clientId: string): Promise<ClientNote[]> {
+  const { data } = await supabase
+    .from('client_notes')
+    .select('*')
+    .eq('client_id', clientId)
+    .order('created_at', { ascending: false });
+  return data ?? [];
+}
+
+export async function addClientNote(
+  organizationId: string,
+  clientId: string,
+  body: string,
+  userId: string | undefined,
+): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from('client_notes')
+    .insert({ organization_id: organizationId, client_id: clientId, body, created_by: userId })
+    .select('id')
+    .single();
+  return { id: data?.id ?? null, error: error?.message ?? null };
+}
+
+export async function deleteClientNote(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('client_notes').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+// Historique documents liés à un client — devis/factures/travaux
+// supplémentaires reliés via client_id (cf. migration client_id_notes_expenses).
+export interface ClientHistory {
+  devis: Pick<Devis, 'id' | 'number' | 'status' | 'created_at'>[];
+  factures: Pick<Facture, 'id' | 'number' | 'status' | 'due_date' | 'created_at'>[];
+  extraWorks: (Pick<ExtraWork, 'id' | 'number' | 'title' | 'status' | 'created_at'> & { project_id: string })[];
+}
+
+export async function getClientHistory(clientId: string): Promise<ClientHistory> {
+  const [devisRes, facturesRes, ewRes] = await Promise.all([
+    supabase.from('devis').select('id, number, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }),
+    supabase.from('factures').select('id, number, status, due_date, created_at').eq('client_id', clientId).order('created_at', { ascending: false }),
+    supabase.from('extra_works').select('id, number, title, status, created_at, project_id').eq('client_id', clientId).order('created_at', { ascending: false }),
+  ]);
+  return {
+    devis: devisRes.data ?? [],
+    factures: facturesRes.data ?? [],
+    extraWorks: ewRes.data ?? [],
+  };
 }

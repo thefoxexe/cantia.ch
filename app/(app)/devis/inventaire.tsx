@@ -173,7 +173,7 @@ export default function InventaireScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Inventaire" />
+        <PageHeader title="Catalogue" />
         <Text style={styles.pageSubtitle}>
           Les prix et unités déjà utilisés dans vos devis — Cantia les reconnaît et les suggère automatiquement.
         </Text>
