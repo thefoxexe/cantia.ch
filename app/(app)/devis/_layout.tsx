@@ -55,10 +55,12 @@ export default function DevisLayout() {
       <Stack.Screen name="[id]" options={{ title: 'Devis' }} />
       <Stack.Screen name="factures/index" options={{ headerShown: false }} />
       <Stack.Screen name="factures/[id]" options={{ title: 'Facture' }} />
+      <Stack.Screen name="factures/import-releve" options={{ headerShown: false }} />
       <Stack.Screen name="trames/index" options={{ headerShown: false }} />
       <Stack.Screen name="trames/new" options={{ title: 'Nouvelle trame', presentation: 'modal' }} />
       <Stack.Screen name="trames/[id]" options={{ title: 'Trame' }} />
       <Stack.Screen name="inventaire" options={{ headerShown: false }} />
+      <Stack.Screen name="tva" options={{ headerShown: false }} />
     </Stack>
   );
 }
