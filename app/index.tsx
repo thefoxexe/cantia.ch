@@ -885,6 +885,7 @@ function LandingContent() {
           <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>Tarifs</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.pricing.subtitle}</Text>
             <Pressable
               onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
               style={styles.billingToggle}
@@ -898,7 +899,7 @@ function LandingContent() {
               <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
             </Pressable>
             <View style={styles.pricingGrid}>
-              {plans.map((p) => {
+              {plans.filter((p) => !p.is_contact_only).map((p) => {
                 const isYearly = billingInterval === 'year';
                 const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
                 const dark = p.id === 'equipe';
@@ -919,68 +920,58 @@ function LandingContent() {
                   <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
                     <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
-                      {p.is_contact_only ? 'Sur mesure' : p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
+                      {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
                     </Text>
-                    {p.is_contact_only ? null : <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>}
+                    <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>
                   </View>
-                  {!p.is_contact_only && isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
+                  {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
                     <Text style={[styles.priceYearlyNote, dark && styles.priceYearlyNoteOnDark]}>
                       {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
                     </Text>
                   ) : null}
-                  {p.is_contact_only ? (
-                    <View style={styles.priceFeatures}>
-                      <PriceFeature dark={dark} text="Sur mesure, selon les besoins de votre entreprise" included />
-                    </View>
-                  ) : (
-                    <View style={styles.priceFeatures}>
-                      <PriceFeature
-                        dark={dark}
-                        text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
-                      />
-                      <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
-                      <PriceFeature
-                        dark={dark}
-                        text={
-                          p.max_devis_factures_per_month
-                            ? `${p.max_devis_factures_per_month} devis/factures par mois`
-                            : t.pricing.unlimited
-                        }
-                        muted={!!p.max_devis_factures_per_month}
-                      />
-                      <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
-                      <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
-                      <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
-                      <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
-                      <PriceFeature dark={dark} text="Trésorerie prévisionnelle" muted={!p.has_treasury} included={p.has_treasury} />
-                      <PriceFeature
-                        dark={dark}
-                        text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
-                        muted={p.max_trames === 0}
-                        included={p.max_trames !== 0}
-                      />
-                    </View>
-                  )}
-                  {p.is_contact_only ? (
+                  <View style={styles.priceFeatures}>
+                    <PriceFeature
+                      dark={dark}
+                      text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
+                    />
+                    <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
+                    <PriceFeature
+                      dark={dark}
+                      text={
+                        p.max_devis_factures_per_month
+                          ? `${p.max_devis_factures_per_month} devis/factures par mois`
+                          : t.pricing.unlimited
+                      }
+                      muted={!!p.max_devis_factures_per_month}
+                    />
+                    <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
+                    <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
+                    <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
+                    <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
+                    <PriceFeature dark={dark} text="Trésorerie prévisionnelle" muted={!p.has_treasury} included={p.has_treasury} />
+                    <PriceFeature
+                      dark={dark}
+                      text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
+                      muted={p.max_trames === 0}
+                      included={p.max_trames !== 0}
+                    />
+                  </View>
+                  <Link href={authHref('signup')} asChild>
                     <Button
-                      title="Nous contacter"
-                      onPress={() => {
-                        Linking.openURL('mailto:info@cantia.ch?subject=Plan sur mesure Cantia').catch(() => {});
-                      }}
+                      title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
+                      onPress={() => {}}
                       variant={dark ? 'primary' : 'secondary'}
                     />
-                  ) : (
-                    <Link href={authHref('signup')} asChild>
-                      <Button
-                        title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
-                        onPress={() => {}}
-                        variant={dark ? 'primary' : 'secondary'}
-                      />
-                    </Link>
-                  )}
+                  </Link>
                 </Pressable>
                 );
               })}
+            </View>
+            <View style={styles.pricingCustomNote}>
+              <Text style={styles.pricingCustomNoteText}>{t.pricing.customNote}</Text>
+              <Pressable onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Plan sur mesure Cantia').catch(() => {})}>
+                <Text style={styles.pricingCustomNoteLink}>{t.pricing.customCta}</Text>
+              </Pressable>
             </View>
           </Reveal>
 
@@ -3231,6 +3222,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
     gap: spacing.lg,
+  },
+  pricingCustomNote: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'baseline',
+    gap: spacing.xs,
+    marginTop: spacing.xxl,
+  },
+  pricingCustomNoteText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+  },
+  pricingCustomNoteLink: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+    textDecorationLine: 'underline',
   },
   priceCard: {
     flex: 1,

@@ -19,6 +19,9 @@ interface Dict {
   trades: { title: string; note: string; list: string[] };
   pricing: {
     title: string;
+    subtitle: string;
+    customNote: string;
+    customCta: string;
     monthly: string;
     yearly: string;
     yearlySavings: string;
@@ -203,6 +206,9 @@ const fr: Dict = {
   },
   pricing: {
     title: 'Un plan pour chaque taille d’équipe',
+    subtitle: '14 jours d’essai gratuit sur toutes les fonctionnalités, sans carte bancaire.',
+    customNote: 'Besoin de quelque chose de particulier ? Le sur-mesure est possible.',
+    customCta: 'Nous contacter',
     monthly: 'Facturation mensuelle',
     yearly: 'Facturation annuelle',
     yearlySavings: '-20%',
@@ -230,7 +236,7 @@ const fr: Dict = {
     title: 'Essayez Cantia sur votre prochain chantier',
     subtitle: 'Créez votre compte en deux minutes. Le premier devis sera prêt avant d’avoir quitté le chantier.',
     button: 'Créer mon compte gratuitement',
-    trust: ['Gratuit pour démarrer', 'Sans carte bancaire', 'Hébergé en Suisse'],
+    trust: ['14 jours d’essai gratuit', 'Sans carte bancaire', 'Hébergé en Suisse'],
   },
   footer: {
     blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures et métré, tous au même endroit.',
