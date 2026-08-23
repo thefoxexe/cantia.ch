@@ -908,6 +908,11 @@ function LandingContent() {
                   ) : null}
                   <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
+                    {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
+                      <Text style={[styles.priceAmountStrike, dark && styles.priceAmountStrikeOnDark]}>
+                        CHF {formatChf(p.price_chf_monthly)}
+                      </Text>
+                    ) : null}
                     <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
                       {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
                     </Text>
@@ -3319,6 +3324,16 @@ const styles = StyleSheet.create({
   },
   priceAmountOnDark: {
     color: '#fff',
+  },
+  priceAmountStrike: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.textMuted,
+    textDecorationLine: 'line-through',
+    marginBottom: 3,
+  },
+  priceAmountStrikeOnDark: {
+    color: 'rgba(255,255,255,0.45)',
   },
   pricePeriod: {
     fontSize: fontSize.sm,
