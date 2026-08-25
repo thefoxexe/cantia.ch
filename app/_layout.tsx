@@ -13,7 +13,7 @@ import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
 import '../lib/pwaInstall';
 
 function RootNavigation() {
-  const { session, organization, loading } = useAuth();
+  const { session, organization, loading, isPlatformAdmin } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   // undefined = not read from storage yet, null = no pending invite.
@@ -65,6 +65,15 @@ function RootNavigation() {
     // their own isn't forced into onboarding/choose-plan just to reach it.
     if (inAdminGroup) return;
 
+    // A platform admin's session is for running Cantia, not a Cantia
+    // customer's workspace — every login lands straight on the admin panel,
+    // skipping onboarding/choose-plan/dashboard entirely, regardless of
+    // whether the account also happens to own a real organization.
+    if (session && isPlatformAdmin) {
+      router.replace('/(admin)');
+      return;
+    }
+
     if (session && organization && !organization.plan_selected) {
       if (subroute !== 'choose-plan') router.replace('/(auth)/choose-plan');
     } else if (session && organization) {
@@ -84,7 +93,7 @@ function RootNavigation() {
       // visitor there lands straight on the login screen instead.
       router.replace('/(auth)/login');
     }
-  }, [session, organization, loading, pendingInvite, segments, router]);
+  }, [session, organization, loading, isPlatformAdmin, pendingInvite, segments, router]);
 
   return (
     <>

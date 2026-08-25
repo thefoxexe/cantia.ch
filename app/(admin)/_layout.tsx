@@ -33,7 +33,7 @@ function activeHrefFor(pathname: string): string | null {
 // so a request that somehow reaches this screen without it still fails at
 // the DB regardless of what this component renders.
 export default function AdminLayout() {
-  const { session, isPlatformAdmin, loading } = useAuth();
+  const { session, isPlatformAdmin, loading, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { width } = useWindowDimensions();
@@ -79,9 +79,9 @@ export default function AdminLayout() {
               );
             })}
           </View>
-          <Pressable style={styles.exitLink} onPress={() => router.replace('/(app)')}>
-            <Feather name="arrow-left" size={15} color={colors.textMuted} />
-            <Text style={styles.exitLinkText}>Retour à Cantia</Text>
+          <Pressable style={styles.exitLink} onPress={signOut}>
+            <Feather name="log-out" size={15} color={colors.textMuted} />
+            <Text style={styles.exitLinkText}>Déconnexion</Text>
           </Pressable>
         </View>
         <View style={styles.content}>
