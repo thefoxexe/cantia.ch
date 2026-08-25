@@ -98,6 +98,10 @@ export default function AdminLayout() {
         <View style={styles.badge}>
           <Text style={styles.badgeText}>SUPER ADMIN</Text>
         </View>
+        <View style={{ flex: 1 }} />
+        <Pressable style={styles.mobileExitButton} onPress={signOut} hitSlop={8}>
+          <Feather name="log-out" size={18} color={colors.textMuted} />
+        </Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mobileNav} contentContainerStyle={styles.mobileNavContent}>
         {NAV_ITEMS.map((item) => {
@@ -204,6 +208,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  mobileExitButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bg,
   },
   mobileNav: {
     height: 52,

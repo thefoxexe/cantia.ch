@@ -162,8 +162,14 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     if (p.stripe_price_id_yearly) priceToPlan.set(p.stripe_price_id_yearly, { id: p.id, name: p.name });
   }
 
+  const monthStart = new Date();
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const monthStartTs = Math.floor(monthStart.getTime() / 1000);
+
   let mrrActiveChf = 0;
   let mrrTrialingChf = 0;
+  let newMrrThisMonthChf = 0;
   let activeCount = 0;
   let trialingCount = 0;
   const byPlan = new Map<string, { plan_id: string; plan_name: string; active_count: number; trialing_count: number; mrr_chf: number }>();
@@ -201,6 +207,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
         activeCount += 1;
         bucket.active_count += 1;
         bucket.mrr_chf += realMonthly;
+        if (sub.start_date && sub.start_date >= monthStartTs) newMrrThisMonthChf += realMonthly;
       } else {
         mrrTrialingChf += realMonthly;
         trialingCount += 1;
@@ -213,17 +220,37 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   // customers only — cross-referenced against our own org records rather than
   // trusting Stripe's customer list wholesale (which may include stray test
   // customers created before an org row existed, or ones from removed orgs).
-  const knownCustomerIds = new Set((orgs ?? []).map((o: { stripe_customer_id: string | null }) => o.stripe_customer_id).filter(Boolean));
+  // Also the base list for churn below: cancellation clears
+  // stripe_subscription_id (see stripe-webhook customer.subscription.deleted),
+  // so a churned org is invisible to the `orgs` query above but still has its
+  // stripe_customer_id — that's the only way to find what was lost this month.
   const { data: allRealOrgs } = await admin.from('organizations').select('stripe_customer_id').eq('is_internal', false).not('stripe_customer_id', 'is', null);
+  const knownCustomerIds = new Set((orgs ?? []).map((o: { stripe_customer_id: string | null }) => o.stripe_customer_id).filter(Boolean));
   for (const o of allRealOrgs ?? []) knownCustomerIds.add(o.stripe_customer_id);
+
+  let churnedMrrThisMonthChf = 0;
+  let churnedCountThisMonth = 0;
+  await Promise.all(
+    (allRealOrgs ?? []).map(async (o: { stripe_customer_id: string }) => {
+      let canceled: Stripe.ApiList<Stripe.Subscription>;
+      try {
+        canceled = await stripe.subscriptions.list({ customer: o.stripe_customer_id, status: 'canceled', limit: 3, expand: ['data.items.data.price'] });
+      } catch {
+        return;
+      }
+      for (const sub of canceled.data) {
+        if (!sub.canceled_at || sub.canceled_at < monthStartTs) continue;
+        const price = sub.items.data[0]?.price as Stripe.Price | undefined;
+        if (!price) continue;
+        const unitAmount = (price.unit_amount ?? 0) / 100;
+        churnedMrrThisMonthChf += price.recurring?.interval === 'year' ? unitAmount / 12 : unitAmount;
+        churnedCountThisMonth += 1;
+      }
+    }),
+  );
 
   let caTotalChf = 0;
   let caThisMonthChf = 0;
-  const monthStart = new Date();
-  monthStart.setUTCDate(1);
-  monthStart.setUTCHours(0, 0, 0, 0);
-  const monthStartTs = Math.floor(monthStart.getTime() / 1000);
-
   let startingAfter: string | undefined;
   for (let page = 0; page < 5; page++) {
     const invoices: Stripe.ApiList<Stripe.Invoice> = await stripe.invoices.list({ status: 'paid', limit: 100, starting_after: startingAfter });
@@ -253,6 +280,11 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   return {
     mrr_active_chf: round2(mrrActiveChf),
     mrr_trialing_chf: round2(mrrTrialingChf),
+    arr_chf: round2(mrrActiveChf * 12),
+    new_mrr_this_month_chf: round2(newMrrThisMonthChf),
+    churned_mrr_this_month_chf: round2(churnedMrrThisMonthChf),
+    churned_count_this_month: churnedCountThisMonth,
+    net_mrr_this_month_chf: round2(newMrrThisMonthChf - churnedMrrThisMonthChf),
     ca_total_chf: round2(caTotalChf),
     ca_this_month_chf: round2(caThisMonthChf),
     active_count: activeCount,

@@ -848,6 +848,11 @@ export interface AdminRevenuePromoCode {
 export interface AdminRevenueOverview {
   mrr_active_chf: number;
   mrr_trialing_chf: number;
+  arr_chf: number;
+  new_mrr_this_month_chf: number;
+  churned_mrr_this_month_chf: number;
+  churned_count_this_month: number;
+  net_mrr_this_month_chf: number;
   ca_total_chf: number;
   ca_this_month_chf: number;
   active_count: number;

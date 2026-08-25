@@ -21,14 +21,27 @@ function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 }).format(amount);
 }
 
-function RevenueTile({ label, value, icon }: { label: string; value: string; icon: keyof typeof Feather.glyphMap }) {
+function RevenueTile({
+  label,
+  value,
+  icon,
+  accent,
+  meta,
+}: {
+  label: string;
+  value: string;
+  icon: keyof typeof Feather.glyphMap;
+  accent?: string;
+  meta?: string;
+}) {
   return (
     <View style={styles.tile}>
-      <View style={styles.tileIcon}>
-        <Feather name={icon} size={16} color={colors.primary} />
+      <View style={[styles.tileIcon, accent ? { backgroundColor: `${accent}22` } : null]}>
+        <Feather name={icon} size={16} color={accent ?? colors.primary} />
       </View>
-      <Text style={styles.tileValue}>{value}</Text>
+      <Text style={[styles.tileValue, accent ? { color: accent } : null]}>{value}</Text>
       <Text style={styles.tileLabel}>{label}</Text>
+      {meta ? <Text style={styles.tileMeta}>{meta}</Text> : null}
     </View>
   );
 }
@@ -46,9 +59,28 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
     <>
       <View style={styles.grid}>
         <RevenueTile label="MRR actif" value={formatChf(overview.mrr_active_chf)} icon="trending-up" />
+        <RevenueTile label="ARR (MRR × 12)" value={formatChf(overview.arr_chf)} icon="bar-chart-2" />
         <RevenueTile label="MRR en attente (essais)" value={formatChf(overview.mrr_trialing_chf)} icon="clock" />
         <RevenueTile label="CA ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" />
         <RevenueTile label="CA total encaissé" value={formatChf(overview.ca_total_chf)} icon="dollar-sign" />
+      </View>
+
+      <Text style={styles.sectionTitle}>Mouvement ce mois-ci</Text>
+      <View style={styles.grid}>
+        <RevenueTile label="Nouveau MRR" value={`+${formatChf(overview.new_mrr_this_month_chf)}`} icon="arrow-up-right" accent={colors.success} />
+        <RevenueTile
+          label="MRR perdu (résiliations)"
+          value={overview.churned_mrr_this_month_chf > 0 ? `−${formatChf(overview.churned_mrr_this_month_chf)}` : formatChf(0)}
+          icon="arrow-down-right"
+          accent={overview.churned_mrr_this_month_chf > 0 ? colors.danger : undefined}
+          meta={overview.churned_count_this_month > 0 ? `${overview.churned_count_this_month} résiliation${overview.churned_count_this_month > 1 ? 's' : ''}` : undefined}
+        />
+        <RevenueTile
+          label="MRR net"
+          value={`${overview.net_mrr_this_month_chf >= 0 ? '+' : '−'}${formatChf(Math.abs(overview.net_mrr_this_month_chf))}`}
+          icon={overview.net_mrr_this_month_chf >= 0 ? 'trending-up' : 'trending-down'}
+          accent={overview.net_mrr_this_month_chf >= 0 ? colors.success : colors.danger}
+        />
       </View>
 
       {overview.by_plan.length > 0 ? (
@@ -220,6 +252,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     fontWeight: '500',
+  },
+  tileMeta: {
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: fontSize.lg,
