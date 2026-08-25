@@ -47,16 +47,46 @@ export function isModuleEnabled(enabledModules: string[] | undefined, key: Modul
 // constants that ship with every build. Never gate on organization.name or
 // any other client-known identity; the grant lives only in
 // organization_modules, checked fresh against the current org.
+//
+// Two-tier: `enabled` is the platform admin making the module AVAILABLE to
+// this org; `activated` is the org's own admin actually turning it on for
+// their team (see compte/modules.tsx). A module only gates real behavior
+// once both are true — being granted access doesn't switch it on by itself.
 export async function hasModule(organizationId: string | undefined, moduleKey: string): Promise<boolean> {
   if (!organizationId) return false;
   const { data } = await supabase
     .from('organization_modules')
-    .select('enabled, modules!inner(key)')
+    .select('enabled, activated, modules!inner(key)')
     .eq('organization_id', organizationId)
     .eq('modules.key', moduleKey)
     .eq('enabled', true)
+    .eq('activated', true)
     .maybeSingle();
   return !!data;
+}
+
+export interface PrivateModuleGrant {
+  key: string;
+  name: string;
+  description: string | null;
+  visibility: string;
+  activated: boolean;
+}
+
+// Every private module currently made available to the caller's org (by a
+// platform admin), for the org's own admin to switch on/off themselves.
+export async function listMyPrivateModules(): Promise<PrivateModuleGrant[]> {
+  const { data, error } = await supabase.rpc('list_my_private_modules');
+  if (error) {
+    console.error('[modules] list_my_private_modules failed:', error.message);
+    return [];
+  }
+  return (data ?? []) as PrivateModuleGrant[];
+}
+
+export async function toggleModuleActivation(moduleKey: string, activated: boolean): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('toggle_organization_module_activation', { module_key: moduleKey, activated });
+  return { error: error?.message ?? null };
 }
 
 export function useModule(moduleKey: string): boolean {

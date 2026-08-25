@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, useWindowDimensions, ScrollView } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -103,19 +103,21 @@ export default function AdminLayout() {
           <Feather name="log-out" size={18} color={colors.textMuted} />
         </Pressable>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mobileNav} contentContainerStyle={styles.mobileNavContent}>
+      <View style={styles.mobileContent}>
+        <Slot />
+      </View>
+      <View style={[styles.mobileTabBar, { paddingBottom: insets.bottom || spacing.sm }]}>
         {NAV_ITEMS.map((item) => {
           const active = item.href === activeHref;
           return (
-            <Pressable key={item.href} style={[styles.mobilePill, active && styles.mobilePillActive]} onPress={() => router.push(item.href as any)}>
-              <Feather name={item.icon} size={14} color={active ? '#fff' : colors.textMuted} />
-              <Text style={[styles.mobilePillText, active && styles.mobilePillTextActive]}>{item.label}</Text>
+            <Pressable key={item.href} style={styles.mobileTab} onPress={() => router.push(item.href as any)}>
+              <Feather name={item.icon} size={20} color={active ? colors.primary : colors.textMuted} />
+              <Text style={[styles.mobileTabLabel, active && styles.mobileTabLabelActive]} numberOfLines={1}>
+                {item.label}
+              </Text>
             </Pressable>
           );
         })}
-      </ScrollView>
-      <View style={styles.mobileContent}>
-        <Slot />
       </View>
     </View>
   );
@@ -217,41 +219,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.bg,
   },
-  mobileNav: {
-    height: 52,
-    flexGrow: 0,
-    flexShrink: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
+  mobileContent: {
+    flex: 1,
   },
-  mobileNavContent: {
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
-  },
-  mobilePill: {
+  mobileTabBar: {
     flexDirection: 'row',
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingTop: spacing.xs,
+  },
+  mobileTab: {
+    flex: 1,
     alignItems: 'center',
-    alignSelf: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
+    gap: 2,
     paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.bg,
   },
-  mobilePillActive: {
-    backgroundColor: colors.primary,
-  },
-  mobilePillText: {
-    fontSize: fontSize.sm,
+  mobileTabLabel: {
+    fontSize: 10,
     fontWeight: '600',
     color: colors.textMuted,
   },
-  mobilePillTextActive: {
-    color: '#fff',
-  },
-  mobileContent: {
-    flex: 1,
+  mobileTabLabelActive: {
+    color: colors.primary,
+    fontWeight: '700',
   },
 });

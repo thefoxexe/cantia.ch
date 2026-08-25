@@ -845,6 +845,19 @@ export interface AdminRevenuePromoCode {
   trialing_count: number;
 }
 
+export interface AdminComplimentaryAccount {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export interface AdminRevenueTimeseriesPoint {
+  date: string;
+  signups: number;
+  revenue_chf: number;
+  paying_cumulative: number;
+}
+
 export interface AdminRevenueOverview {
   mrr_active_chf: number;
   mrr_trialing_chf: number;
@@ -857,8 +870,11 @@ export interface AdminRevenueOverview {
   ca_this_month_chf: number;
   active_count: number;
   trialing_count: number;
+  complimentary_count: number;
+  complimentary_accounts: AdminComplimentaryAccount[];
   by_plan: AdminRevenuePlanBreakdown[];
   promo_codes: AdminRevenuePromoCode[];
+  timeseries: AdminRevenueTimeseriesPoint[];
 }
 
 export interface AdminOrganizationMember {

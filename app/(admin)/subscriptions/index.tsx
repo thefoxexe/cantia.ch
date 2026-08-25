@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import { Container, EmptyState, Field, LoadingScreen } from '../../../components
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
+import { GrowthChart } from '../../../components/GrowthChart';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getOrgBillingStatuses, getRevenueOverview, listOrganizations } from '../../../lib/api/admin';
 import type { AdminOrgBillingStatus, AdminOrganizationSummary, AdminRevenueOverview } from '../../../lib/types';
@@ -46,10 +47,22 @@ function RevenueTile({
   );
 }
 
+function SectionHeading({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <View style={{ marginTop: spacing.xxl, marginBottom: spacing.md }}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {subtitle ? <Text style={styles.sectionSubtitle}>{subtitle}</Text> : null}
+    </View>
+  );
+}
+
 // Aggregate numbers come straight from Stripe (via admin-billing-overview),
-// not guessed from local plan prices — a trialing sub, an active discount,
-// or an org that never converted all show up correctly rather than as full
-// list-price revenue that was never actually collected.
+// not guessed from local plan prices — a trialing sub, a complimentary
+// lifetime-free grant, or an org that never converted all show up correctly
+// rather than as full list-price revenue that was never actually collected.
+// Laid out in three honest tiers: money already in the bank, real recurring
+// revenue from paying customers, and money that either isn't confirmed yet
+// (trials) or will never come (complimentary accounts) — never blended.
 function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueOverview | null; loading: boolean; error: string | null }) {
   if (loading) return <Text style={styles.emptyText}>Calcul du CA et du MRR auprès de Stripe…</Text>;
   if (error) return <AdminErrorBanner message={error} />;
@@ -57,17 +70,19 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
 
   return (
     <>
+      <SectionHeading title="Argent réellement encaissé" subtitle="Factures Stripe effectivement payées — pas une projection." />
+      <View style={styles.grid}>
+        <RevenueTile label="Encaissé ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" accent={colors.success} />
+        <RevenueTile label="Encaissé au total" value={formatChf(overview.ca_total_chf)} icon="dollar-sign" accent={colors.success} />
+      </View>
+
+      <SectionHeading title="Revenu récurrent réel" subtitle={`${overview.active_count} client${overview.active_count > 1 ? 's' : ''} payant${overview.active_count > 1 ? 's' : ''} — comptes gratuits exclus.`} />
       <View style={styles.grid}>
         <RevenueTile label="MRR actif" value={formatChf(overview.mrr_active_chf)} icon="trending-up" />
         <RevenueTile label="ARR (MRR × 12)" value={formatChf(overview.arr_chf)} icon="bar-chart-2" />
-        <RevenueTile label="MRR en attente (essais)" value={formatChf(overview.mrr_trialing_chf)} icon="clock" />
-        <RevenueTile label="CA ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" />
-        <RevenueTile label="CA total encaissé" value={formatChf(overview.ca_total_chf)} icon="dollar-sign" />
       </View>
-
-      <Text style={styles.sectionTitle}>Mouvement ce mois-ci</Text>
       <View style={styles.grid}>
-        <RevenueTile label="Nouveau MRR" value={`+${formatChf(overview.new_mrr_this_month_chf)}`} icon="arrow-up-right" accent={colors.success} />
+        <RevenueTile label="Nouveau MRR ce mois" value={`+${formatChf(overview.new_mrr_this_month_chf)}`} icon="arrow-up-right" accent={colors.success} />
         <RevenueTile
           label="MRR perdu (résiliations)"
           value={overview.churned_mrr_this_month_chf > 0 ? `−${formatChf(overview.churned_mrr_this_month_chf)}` : formatChf(0)}
@@ -76,16 +91,35 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
           meta={overview.churned_count_this_month > 0 ? `${overview.churned_count_this_month} résiliation${overview.churned_count_this_month > 1 ? 's' : ''}` : undefined}
         />
         <RevenueTile
-          label="MRR net"
+          label="MRR net ce mois"
           value={`${overview.net_mrr_this_month_chf >= 0 ? '+' : '−'}${formatChf(Math.abs(overview.net_mrr_this_month_chf))}`}
           icon={overview.net_mrr_this_month_chf >= 0 ? 'trending-up' : 'trending-down'}
           accent={overview.net_mrr_this_month_chf >= 0 ? colors.success : colors.danger}
         />
       </View>
 
+      <SectionHeading title="Pas encore de l'argent" subtitle="Essais en cours et comptes gratuits à vie — pour savoir ce qui pourrait rentrer, et ce qui ne rentrera jamais." />
+      <View style={styles.grid}>
+        <RevenueTile label="MRR en attente (essais)" value={formatChf(overview.mrr_trialing_chf)} icon="clock" accent={colors.warning} meta={`${overview.trialing_count} en essai`} />
+        <RevenueTile label="Gratuit à vie (code promo)" value={String(overview.complimentary_count)} icon="gift" accent={colors.textMuted} meta="Jamais compté dans le MRR" />
+      </View>
+      {overview.complimentary_accounts.length > 0 ? (
+        <View style={styles.list}>
+          {overview.complimentary_accounts.map((acc) => (
+            <View key={acc.id} style={[styles.breakdownRow, styles.complimentaryRow]}>
+              <Text style={styles.breakdownName}>{acc.name}</Text>
+              <Text style={styles.breakdownMeta}>Code « {acc.code} » — 100% offert</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés — filtrable par période." />
+      <GrowthChart points={overview.timeseries} />
+
       {overview.by_plan.length > 0 ? (
         <>
-          <Text style={styles.sectionTitle}>MRR par plan</Text>
+          <SectionHeading title="MRR par plan" />
           <View style={styles.list}>
             {overview.by_plan.map((p) => (
               <View key={p.plan_id} style={styles.breakdownRow}>
@@ -101,7 +135,7 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
         </>
       ) : null}
 
-      <Text style={styles.sectionTitle}>Codes promo</Text>
+      <SectionHeading title="Codes promo" subtitle="Qui les a utilisés, converti ou non — indépendamment du calcul de MRR ci-dessus." />
       <View style={styles.list}>
         {overview.promo_codes.length === 0 ? (
           <Text style={styles.emptyText}>Aucun code promo utilisé à ce jour.</Text>
@@ -127,6 +161,7 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
 export default function AdminSubscriptionsList() {
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [planFilter, setPlanFilter] = useState<string | null>(null);
   const [rows, setRows] = useState<AdminOrganizationSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -160,6 +195,9 @@ export default function AdminSubscriptionsList() {
     });
   }, []);
 
+  const plans = useMemo(() => Array.from(new Map(rows.map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
+  const filteredRows = useMemo(() => (planFilter ? rows.filter((o) => o.plan_id === planFilter) : rows), [rows, planFilter]);
+
   return (
     <ScrollView>
       <Container style={styles.container}>
@@ -167,16 +205,28 @@ export default function AdminSubscriptionsList() {
 
         <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} />
 
-        <Text style={styles.sectionTitle}>Entreprises</Text>
+        <SectionHeading title="Entreprises" />
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
+        {plans.length > 1 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.planFilterRow}>
+            <Pressable style={[styles.planChip, !planFilter && styles.planChipActive]} onPress={() => setPlanFilter(null)}>
+              <Text style={[styles.planChipText, !planFilter && styles.planChipTextActive]}>Tous les plans</Text>
+            </Pressable>
+            {plans.map(([id, name]) => (
+              <Pressable key={id} style={[styles.planChip, planFilter === id && styles.planChipActive]} onPress={() => setPlanFilter(id)}>
+                <Text style={[styles.planChipText, planFilter === id && styles.planChipTextActive]}>{name}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        ) : null}
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
           <LoadingScreen label="Chargement…" />
-        ) : rows.length === 0 ? (
+        ) : filteredRows.length === 0 ? (
           <EmptyState title="Aucune entreprise trouvée" />
         ) : (
           <View style={styles.list}>
-            {rows.map((org) => {
+            {filteredRows.map((org) => {
               const isTrial = !!org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now();
               return (
                 <Pressable
@@ -221,7 +271,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.md,
   },
   tile: {
     minWidth: 160,
@@ -262,8 +312,12 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.md,
-    marginTop: spacing.md,
+  },
+  sectionSubtitle: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+    maxWidth: 560,
   },
   breakdownRow: {
     flexDirection: 'row',
@@ -275,6 +329,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  complimentaryRow: {
+    opacity: 0.7,
   },
   breakdownName: {
     fontSize: fontSize.sm,
@@ -296,6 +353,31 @@ const styles = StyleSheet.create({
   list: {
     gap: spacing.sm,
     marginBottom: spacing.xl,
+  },
+  planFilterRow: {
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  planChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  planChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  planChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  planChipTextActive: {
+    color: '#fff',
   },
   row: {
     flexDirection: 'row',

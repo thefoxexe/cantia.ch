@@ -1,69 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { listModules, upsertModule } from '../../../lib/api/admin';
+import { listModules } from '../../../lib/api/admin';
 import type { AdminModuleSummary } from '../../../lib/types';
 
 const VISIBILITY_LABEL: Record<string, string> = { standard: 'Standard', private: 'Privé', experimental: 'Beta' };
 const STATUS_LABEL: Record<string, string> = { active: 'Actif', beta: 'Beta', disabled: 'Désactivé' };
 
-function CreateModuleModal({ visible, onClose, onCreated }: { visible: boolean; onClose: () => void; onCreated: () => void }) {
-  const [key, setKey] = useState('');
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function save() {
-    if (!key.trim() || !name.trim()) {
-      setError('Clé et nom sont requis.');
-      return;
-    }
-    setSaving(true);
-    const { error: err } = await upsertModule({
-      key: key.trim(),
-      name: name.trim(),
-      description: description.trim() || null,
-      visibility: 'private',
-      status: 'active',
-    });
-    setSaving(false);
-    if (err) {
-      setError(err);
-      return;
-    }
-    setKey('');
-    setName('');
-    setDescription('');
-    onCreated();
-    onClose();
-  }
-
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.modalBackdrop} onPress={onClose}>
-        <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.modalTitle}>Nouveau module privé</Text>
-          <Field label="Clé (ex: field_service_workflow)" value={key} onChangeText={setKey} autoCapitalize="none" />
-          <Field label="Nom affiché" value={name} onChangeText={setName} />
-          <Field label="Description" value={description} onChangeText={setDescription} multiline />
-          {error ? <Text style={styles.modalError}>{error}</Text> : null}
-          <View style={styles.modalActions}>
-            <Button title="Annuler" variant="secondary" onPress={onClose} />
-            <Button title="Créer" onPress={save} loading={saving} />
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
-  );
-}
-
+// A module row with no matching feature code does nothing — so there is no
+// self-service "create" button here. A private module is built by Claude
+// during a real dev session (the code + the admin_upsert_module registry
+// entry together, in the same commit); this screen only lists what already
+// exists and lets you grant it to a company (from its detail page). Once
+// granted, the company's own admin switches it on themselves in their
+// Compte → Outils & modules.
 export default function AdminModulesList() {
   const [modules, setModules] = useState<AdminModuleSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -80,17 +35,18 @@ export default function AdminModulesList() {
   return (
     <ScrollView>
       <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Modules</Text>
-          <Button title="Nouveau module" icon="plus" onPress={() => setModalVisible(true)} />
-        </View>
+        <Text style={styles.title}>Modules</Text>
+        <Text style={styles.hint}>
+          Le registre des modules sur mesure développés pour des entreprises précises. Pour en créer un, demande-le
+          directement dans la conversation — le module et son entrée ici sont livrés ensemble.
+        </Text>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
         {loading ? (
           <LoadingScreen label="Chargement…" />
         ) : modules.length === 0 ? (
-          <EmptyState title="Aucun module enregistré" subtitle="Créez le premier module privé avec le bouton ci-dessus." />
+          <EmptyState title="Aucun module sur mesure pour l'instant" subtitle="Demande-en un dans la conversation quand une entreprise en a besoin." />
         ) : (
           <View style={styles.list}>
             {modules.map((mod) => (
@@ -116,7 +72,6 @@ export default function AdminModulesList() {
           </View>
         )}
       </Container>
-      <CreateModuleModal visible={modalVisible} onClose={() => setModalVisible(false)} onCreated={load} />
     </ScrollView>
   );
 }
@@ -126,16 +81,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xl,
-  },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  hint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginBottom: spacing.xl,
+    maxWidth: 560,
   },
   list: {
     gap: spacing.sm,
@@ -190,36 +146,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: colors.primary,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 420,
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-  },
-  modalTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  modalError: {
-    color: colors.danger,
-    fontSize: fontSize.sm,
-    marginBottom: spacing.md,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
   },
 });
