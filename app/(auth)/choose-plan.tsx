@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
@@ -10,7 +11,8 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 
 export default function ChoosePlanScreen() {
-  const { organization, refreshOrganization } = useAuth();
+  const { organization, refreshOrganization, isPlatformAdmin } = useAuth();
+  const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
@@ -87,6 +89,13 @@ export default function ChoosePlanScreen() {
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        {isPlatformAdmin ? (
+          <Pressable style={styles.adminShortcut} onPress={() => router.replace('/(admin)')}>
+            <Feather name="shield" size={16} color={colors.primary} />
+            <Text style={styles.adminShortcutText}>Accéder à l'administration Cantia</Text>
+          </Pressable>
+        ) : null}
 
         <View style={styles.promoBanner}>
           <Feather name="gift" size={16} color={colors.primary} />
@@ -240,6 +249,24 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     textAlign: 'center',
     marginBottom: spacing.lg,
+  },
+  adminShortcut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    alignSelf: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  adminShortcutText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
   },
   promoBanner: {
     flexDirection: 'row',

@@ -17,7 +17,7 @@ type IconName = keyof typeof Feather.glyphMap;
 // position, since the trigger's on-screen spot differs between the two.
 export function AccountMenu() {
   const router = useRouter();
-  const { user, organization, signOut } = useAuth();
+  const { user, organization, signOut, isPlatformAdmin } = useAuth();
   const [visible, setVisible] = useState(false);
   const [supportVisible, setSupportVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
@@ -102,6 +102,12 @@ export function AccountMenu() {
                 <Text style={styles.orgSubtitle}>Mon compte</Text>
               </View>
               <View style={styles.divider} />
+              {isPlatformAdmin ? (
+                <>
+                  <MenuRow icon="shield" label="Administration" onPress={() => go('/(admin)')} />
+                  <View style={styles.divider} />
+                </>
+              ) : null}
               <MenuRow icon="download" label="Installer l'app" onPress={handleInstall} />
               <MenuRow icon="settings" label="Paramètres" onPress={() => go('/(app)/compte')} />
               <MenuRow
