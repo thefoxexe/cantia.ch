@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { supabase } from './supabase';
+import { useAuth } from './auth-context';
 import type { Plan } from './types';
 
 export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury';
@@ -36,4 +39,44 @@ export const PROJECT_MODULE_PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> =
 
 export function isModuleEnabled(enabledModules: string[] | undefined, key: ModuleKey): boolean {
   return (enabledModules ?? []).includes(key);
+}
+
+// Separate mechanism from isModuleEnabled() above: these are Super
+// Admin-granted modules (private or plan-override), keyed by an arbitrary
+// string registered in the `modules` table — not one of the ModuleKey
+// constants that ship with every build. Never gate on organization.name or
+// any other client-known identity; the grant lives only in
+// organization_modules, checked fresh against the current org.
+export async function hasModule(organizationId: string | undefined, moduleKey: string): Promise<boolean> {
+  if (!organizationId) return false;
+  const { data } = await supabase
+    .from('organization_modules')
+    .select('enabled, modules!inner(key)')
+    .eq('organization_id', organizationId)
+    .eq('modules.key', moduleKey)
+    .eq('enabled', true)
+    .maybeSingle();
+  return !!data;
+}
+
+export function useModule(moduleKey: string): boolean {
+  const { organization } = useAuth();
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const orgId = organization?.id;
+    if (!orgId) {
+      setEnabled(false);
+      return;
+    }
+    hasModule(orgId, moduleKey).then((result) => {
+      if (!cancelled) setEnabled(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [organization?.id, moduleKey]);
+
+  return enabled;
 }

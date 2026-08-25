@@ -20,8 +20,6 @@ interface Dict {
   pricing: {
     title: string;
     subtitle: string;
-    customNote: string;
-    customCta: string;
     monthly: string;
     yearly: string;
     yearlySavings: string;
@@ -34,6 +32,7 @@ interface Dict {
     freeCta: string;
     paidCta: string;
   };
+  customModules: { title: string; text: string; bullets: string[]; cta: string };
   swiss: { title: string; text: string };
   devices: { title: string; text: string; benefits: { title: string; text: string }[] };
   mobile: { title: string; text: string; comingSoon: string; appStore: string; googlePlay: string };
@@ -208,8 +207,6 @@ const fr: Dict = {
   pricing: {
     title: 'Un plan pour chaque taille d’équipe',
     subtitle: '14 jours d’essai gratuit sur toutes les fonctionnalités, sans carte bancaire.',
-    customNote: 'Besoin de quelque chose de particulier ? Le sur-mesure est possible.',
-    customCta: 'Nous contacter',
     monthly: 'Facturation mensuelle',
     yearly: 'Facturation annuelle',
     yearlySavings: '-20%',
@@ -221,6 +218,18 @@ const fr: Dict = {
     badge: 'Le plus choisi',
     freeCta: 'Commencer gratuitement',
     paidCta: 'Choisir ce plan',
+  },
+  customModules: {
+    title: 'Besoin d’un fonctionnement spécifique ?',
+    text: 'Chaque entreprise travaille différemment. Cantia peut être complété par des intégrations et des modules développés spécialement pour votre organisation. Workflow métier, automatisation, tableau de bord spécifique, connexion à un outil externe ou fonctionnalité entièrement personnalisée : nous pouvons adapter Cantia à vos besoins sans modifier l’expérience des autres utilisateurs.',
+    bullets: [
+      'Modules 100% personnalisés',
+      'Intégrations avec vos outils existants',
+      'Workflows adaptés à votre fonctionnement',
+      'Fonctionnalités privées pour votre entreprise',
+      'Développement directement intégré à Cantia',
+    ],
+    cta: 'Discuter de votre besoin',
   },
   swiss: {
     title: 'Pensé en Suisse, pas juste traduit pour la Suisse',

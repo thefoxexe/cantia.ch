@@ -764,6 +764,115 @@ export interface NotificationPreference {
   push_enabled: boolean;
 }
 
+export type ModuleVisibility = 'standard' | 'private' | 'experimental';
+export type ModuleStatus = 'active' | 'beta' | 'disabled';
+
+export interface PlatformModule {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  visibility: ModuleVisibility;
+  status: ModuleStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationModule {
+  id: string;
+  organization_id: string;
+  module_id: string;
+  enabled: boolean;
+  config: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  admin_email: string | null;
+  action: string;
+  organization_name: string | null;
+  module_name: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface AdminOrganizationSummary {
+  id: string;
+  name: string;
+  plan_id: string;
+  plan_name: string;
+  subscription_status: string | null;
+  trial_ends_at: string | null;
+  plan_selected: boolean;
+  created_at: string;
+  member_count: number;
+  owner_email: string | null;
+  private_modules_count: number;
+  total_count: number;
+}
+
+export interface AdminOrganizationMember {
+  user_id: string;
+  full_name: string | null;
+  email: string;
+  role: OrgRole;
+  last_sign_in_at: string | null;
+  created_at: string;
+}
+
+export interface AdminOrganizationPrivateModule {
+  module_id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  visibility: ModuleVisibility;
+  status: ModuleStatus;
+  enabled: boolean;
+}
+
+export interface AdminOrganizationDetail {
+  organization: Organization & { plan_name: string };
+  members: AdminOrganizationMember[];
+  standard_modules: string[];
+  private_modules: AdminOrganizationPrivateModule[];
+}
+
+export interface AdminModuleSummary {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  visibility: ModuleVisibility;
+  status: ModuleStatus;
+  organizations_count: number;
+  created_at: string;
+}
+
+export interface AdminUserSummary {
+  user_id: string;
+  email: string;
+  full_name: string | null;
+  organization_id: string;
+  organization_name: string;
+  role: OrgRole;
+  created_at: string;
+  last_sign_in_at: string | null;
+  total_count: number;
+}
+
+export interface AdminDashboardStats {
+  organizations_count: number;
+  users_count: number;
+  active_trials_count: number;
+  paid_subscriptions_count: number;
+  signups_today_count: number;
+  organizations_created_today_count: number;
+}
+
 export interface PushToken {
   id: string;
   user_id: string;

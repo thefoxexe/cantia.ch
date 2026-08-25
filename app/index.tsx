@@ -278,6 +278,8 @@ function LandingContent() {
     scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: true });
   }, [sectionOffsets]);
 
+  const contactPlan = plans.find((p) => p.is_contact_only) ?? null;
+
   return (
     <Screen>
       <View style={styles.stage}>
@@ -781,12 +783,53 @@ function LandingContent() {
                 </Pressable>
                 );
               })}
+              {!plansLoading && contactPlan ? (
+                <View style={styles.priceCard}>
+                  <Text style={styles.priceName}>{planName(contactPlan.id, contactPlan.name)}</Text>
+                  <View style={styles.priceAmountRow}>
+                    <Text style={styles.priceAmount}>Sur devis</Text>
+                  </View>
+                  <Text style={styles.priceYearlyNote}>Chaque projet est chiffré séparément, selon sa complexité.</Text>
+                  <View style={styles.priceFeatures}>
+                    <PriceFeature text="Toutes les fonctionnalités des plans ci-dessus" included />
+                    <PriceFeature text="Accompagnement personnalisé" included />
+                    <PriceFeature text="Intégrations spécifiques" included />
+                    <PriceFeature text="Modules métier sur mesure" included />
+                    <PriceFeature text="Workflows personnalisés" included />
+                    <PriceFeature text="Support prioritaire" included />
+                  </View>
+                  <Button
+                    title="Nous contacter"
+                    variant="secondary"
+                    onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Plan Entreprise Cantia').catch(() => {})}
+                  />
+                </View>
+              ) : null}
             </View>
-            <View style={styles.pricingCustomNote}>
-              <Text style={styles.pricingCustomNoteText}>{t.pricing.customNote}</Text>
-              <Pressable onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Plan sur mesure Cantia').catch(() => {})}>
-                <Text style={styles.pricingCustomNoteLink}>{t.pricing.customCta}</Text>
-              </Pressable>
+          </Reveal>
+
+          {/* ---- Custom modules / integrations — the "Cantia s'adapte à
+              votre entreprise" pitch. Same environment Cantia for everyone;
+              private modules/integrations are opt-in per organization via
+              the Super Admin panel, never a forked copy of the app. ---- */}
+          <Reveal id="customModules" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <View style={styles.customModulesCard}>
+              <Text style={styles.sectionEyebrow}>Sur mesure</Text>
+              <Text style={styles.customModulesTitle}>{t.customModules.title}</Text>
+              <Text style={styles.customModulesText}>{t.customModules.text}</Text>
+              <View style={styles.customModulesBullets}>
+                {t.customModules.bullets.map((b) => (
+                  <View key={b} style={styles.customModulesBulletRow}>
+                    <Feather name="check-circle" size={16} color={colors.primary} />
+                    <Text style={styles.customModulesBulletText}>{b}</Text>
+                  </View>
+                ))}
+              </View>
+              <Button
+                title={t.customModules.cta}
+                onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Intégration sur mesure Cantia').catch(() => {})}
+                style={styles.customModulesButton}
+              />
             </View>
           </Reveal>
 
@@ -2199,6 +2242,49 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
+  customModulesCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing.xxl,
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  customModulesTitle: {
+    fontFamily: marketingFonts.display,
+    fontSize: 28,
+    fontWeight: '600',
+    color: colors.text,
+    letterSpacing: -0.3,
+    marginBottom: spacing.md,
+  } as unknown as TextStyle,
+  customModulesText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    lineHeight: 24,
+    marginBottom: spacing.xl,
+  },
+  customModulesBullets: {
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  customModulesBulletRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  customModulesBulletText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  customModulesButton: {
+    alignSelf: 'flex-start',
+  },
   // Visual thread linking "le problème" to "ce qu'on apporte" — a short
   // gradient stem ending in an arrow badge, standing in for the connective
   // copy a two-panel problem→solution layout would otherwise need.
@@ -2866,26 +2952,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
     gap: spacing.lg,
-  },
-  pricingCustomNote: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'baseline',
-    gap: spacing.xs,
-    marginTop: spacing.xxl,
-  },
-  pricingCustomNoteText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-  },
-  pricingCustomNoteLink: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primary,
-    textDecorationLine: 'underline',
   },
   priceCard: {
     flex: 1,

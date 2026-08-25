@@ -54,8 +54,16 @@ function RootNavigation() {
     const segmentList = segments as string[];
     const inAuthGroup = segmentList[0] === '(auth)';
     const inAppGroup = segmentList[0] === '(app)';
+    const inAdminGroup = segmentList[0] === '(admin)';
     const isLanding = segmentList.length === 0;
     const subroute = segmentList[1];
+
+    // The Super Admin panel has its own access gate (app/(admin)/_layout.tsx,
+    // checking isPlatformAdmin — a platform role, unrelated to whether the
+    // signed-in user has an organization or has picked a plan). Letting it
+    // through here means a platform admin without a Cantia organization of
+    // their own isn't forced into onboarding/choose-plan just to reach it.
+    if (inAdminGroup) return;
 
     if (session && organization && !organization.plan_selected) {
       if (subroute !== 'choose-plan') router.replace('/(auth)/choose-plan');

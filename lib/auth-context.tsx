@@ -5,6 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -42,6 +43,10 @@ interface AuthContextValue {
   canCreateProjects: boolean;
   canManagePayroll: boolean;
   permissions: RolePermissions;
+  // Cantia's own platform role (super-admin panel), entirely separate from
+  // org-level owner/admin — resolved server-side via is_platform_admin(),
+  // never derived from anything in the organization/role payload above.
+  isPlatformAdmin: boolean;
   loading: boolean;
   refreshOrganization: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -61,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [canCreateProjects, setCanCreateProjects] = useState(false);
   const [canManagePayroll, setCanManagePayroll] = useState(false);
   const [permissions, setPermissions] = useState<RolePermissions>(FULL_ACCESS);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadOrganization = useCallback(async (userId: string) => {
@@ -129,7 +135,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .getSession()
       .then(async ({ data }) => {
         setSession(data.session);
-        if (data.session?.user) await loadOrganization(data.session.user.id);
+        if (data.session?.user) {
+          await Promise.all([loadOrganization(data.session.user.id), checkIsPlatformAdmin().then(setIsPlatformAdmin)]);
+        }
       })
       .catch((err) => {
         console.error('Failed to get session', err);
@@ -141,12 +149,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       setSession(newSession);
       if (newSession?.user) {
-        await loadOrganization(newSession.user.id);
+        await Promise.all([loadOrganization(newSession.user.id), checkIsPlatformAdmin().then(setIsPlatformAdmin)]);
       } else {
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
         setPermissions(FULL_ACCESS);
+        setIsPlatformAdmin(false);
       }
       setLoading(false);
     });
@@ -265,6 +274,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canCreateProjects,
       canManagePayroll,
       permissions,
+      isPlatformAdmin,
       loading,
       refreshOrganization,
       signIn,
@@ -281,6 +291,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canCreateProjects,
       canManagePayroll,
       permissions,
+      isPlatformAdmin,
       loading,
       refreshOrganization,
       signIn,
