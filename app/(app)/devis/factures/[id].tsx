@@ -19,6 +19,7 @@ import {
   sendFactureEmail,
 } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
+import { getFactureBexioMapping, getIntegration, pushFactureToBexio } from '../../../../lib/api/integrations';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -75,6 +76,10 @@ export default function FactureDetailScreen() {
   const [emailSent, setEmailSent] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [defaultEmailMessage, setDefaultEmailMessage] = useState('');
+  const [bexioConnected, setBexioConnected] = useState(false);
+  const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
+  const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
+  const [pushingBexio, setPushingBexio] = useState(false);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
 
@@ -107,6 +112,19 @@ export default function FactureDetailScreen() {
       if (org?.plan_id) {
         const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
         setPlan(planRow ?? null);
+        if (planRow?.has_bexio_integration) {
+          const [{ data: integration }, mapping] = await Promise.all([
+            getIntegration(f.organization_id, 'bexio'),
+            getFactureBexioMapping(f.organization_id, id),
+          ]);
+          setBexioConnected(integration?.status === 'connected');
+          setBexioExternalId(mapping.externalId);
+          setBexioLastSyncedAt(mapping.lastSyncedAt);
+        } else {
+          setBexioConnected(false);
+          setBexioExternalId(null);
+          setBexioLastSyncedAt(null);
+        }
       }
     }
     setSiblingFactures(f?.devis_id ? await listFacturesForDevis(f.devis_id) : []);
@@ -197,6 +215,20 @@ export default function FactureDetailScreen() {
       return;
     }
     if (newId) router.push(`/(app)/devis/factures/${newId}`);
+  }
+
+  async function handlePushToBexio() {
+    if (!facture || pushingBexio) return;
+    setPushingBexio(true);
+    setError(null);
+    setActionsOpen(false);
+    const { error: pushError } = await pushFactureToBexio(facture.organization_id, facture.id);
+    setPushingBexio(false);
+    if (pushError) {
+      setError(pushError);
+      return;
+    }
+    load();
   }
 
   async function handleDeleteOrCancel() {
@@ -350,6 +382,16 @@ export default function FactureDetailScreen() {
           },
         ] as ActionRow[])
       : []),
+    ...(plan?.has_bexio_integration && bexioConnected && facture.status !== 'draft' && facture.status !== 'cancelled' && facture.client_id
+      ? ([
+          {
+            key: 'bexio',
+            icon: 'refresh-cw',
+            label: bexioExternalId ? 'Resynchroniser avec Bexio' : 'Envoyer vers Bexio',
+            onPress: handlePushToBexio,
+          },
+        ] as ActionRow[])
+      : []),
     { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
     ...(facture.devis_id
       ? ([{ key: 'devis', icon: 'file-text', label: 'Voir le devis', onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }] as ActionRow[])
@@ -389,6 +431,14 @@ export default function FactureDetailScreen() {
           <Text style={[styles.meta, overdue && styles.overdue]}>
             {overdue ? 'En retard · ' : ''}Échéance {new Date(facture.due_date).toLocaleDateString('fr-CH')}
           </Text>
+          {bexioExternalId ? (
+            <View style={styles.bexioBadge}>
+              <Feather name="check-circle" size={12} color={colors.success} />
+              <Text style={styles.bexioBadgeText}>
+                Synchronisée avec Bexio{bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString('fr-CH')}` : ''}
+              </Text>
+            </View>
+          ) : null}
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
@@ -652,6 +702,17 @@ const styles = StyleSheet.create({
   },
   projectPickerRow: {
     marginTop: spacing.sm,
+  },
+  bexioBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: spacing.xs,
+  },
+  bexioBadgeText: {
+    fontSize: fontSize.xs,
+    color: colors.success,
+    fontWeight: '600',
   },
   clientLinkRow: {
     flexDirection: 'row',

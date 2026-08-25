@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { connectBexio, disconnectBexio, getIntegration } from '../../../lib/api/integrations';
+import { connectBexio, disconnectBexio, getIntegration, setBexioAutoSync, syncBexio } from '../../../lib/api/integrations';
 import { Button, Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Integration } from '../../../lib/types';
@@ -85,6 +85,31 @@ export default function IntegrationsScreen() {
     setBusy(false);
   }
 
+  async function handleSyncNow() {
+    if (!organization || busy) return;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    const { error: err } = await syncBexio(organization.id, 'all');
+    if (err) {
+      setError(err);
+    } else {
+      setNotice('Synchronisation terminée.');
+      await load();
+    }
+    setBusy(false);
+  }
+
+  async function handleToggleAutoSync(value: boolean) {
+    if (!organization || busy) return;
+    setBusy(true);
+    setError(null);
+    const { error: err } = await setBexioAutoSync(organization.id, value);
+    if (err) setError(err);
+    await load();
+    setBusy(false);
+  }
+
   const isConnected = integration?.status === 'connected';
   const locked = !loading && !entitled;
 
@@ -145,10 +170,29 @@ export default function IntegrationsScreen() {
                 <Text style={styles.detailValue}>{formatDateTime(integration?.last_sync_at ?? null)}</Text>
               </View>
               {!isAdmin ? null : (
-                <Pressable style={styles.disconnectButton} onPress={handleDisconnect} disabled={busy}>
-                  <Feather name="x-circle" size={14} color={colors.danger} />
-                  <Text style={styles.disconnectText}>Déconnecter</Text>
-                </Pressable>
+                <>
+                  <View style={styles.autoSyncRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.detailLabel}>Synchronisation automatique</Text>
+                      <Text style={styles.autoSyncHint}>Statut des factures relevé chaque heure</Text>
+                    </View>
+                    <Switch
+                      value={!!integration?.auto_sync_enabled}
+                      onValueChange={handleToggleAutoSync}
+                      disabled={busy}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                      thumbColor="#fff"
+                    />
+                  </View>
+                  <Pressable style={styles.syncButton} onPress={handleSyncNow} disabled={busy}>
+                    <Feather name="refresh-cw" size={14} color={colors.primary} />
+                    <Text style={styles.syncText}>Synchroniser maintenant</Text>
+                  </Pressable>
+                  <Pressable style={styles.disconnectButton} onPress={handleDisconnect} disabled={busy}>
+                    <Feather name="x-circle" size={14} color={colors.danger} />
+                    <Text style={styles.disconnectText}>Déconnecter</Text>
+                  </Pressable>
+                </>
               )}
             </View>
           ) : isAdmin ? (
@@ -161,7 +205,7 @@ export default function IntegrationsScreen() {
         <Text style={styles.footnote}>
           {locked
             ? "L'intégration Bexio permet de synchroniser vos clients, produits et factures. Elle est incluse à partir du plan Entreprise."
-            : "La synchronisation des contacts, produits et factures avec Bexio est en cours de construction — pour l'instant, seule la connexion de votre compte Bexio est disponible."}
+            : "Vos clients Bexio sont importés automatiquement à la connexion et à chaque synchronisation. Pour vos factures : ouvrez une facture et utilisez \"Envoyer vers Bexio\" — son statut de paiement sera ensuite tenu à jour ici."}
         </Text>
       </Container>
     </Screen>
@@ -283,6 +327,29 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
+  },
+  autoSyncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.xs,
+  },
+  autoSyncHint: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  syncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+  },
+  syncText: {
+    color: colors.primary,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
   },
   disconnectButton: {
     flexDirection: 'row',

@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { addClientNote, deleteClientNote, getClientHistory, listClientNotes, updateClient, type ClientHistory } from '../../../lib/api/clients';
+import { getClientBexioMapping } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, EmptyState, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
@@ -34,6 +35,7 @@ export default function ClientDetailScreen() {
   const [notes, setNotes] = useState<ClientNote[]>([]);
   const [newNote, setNewNote] = useState('');
   const [addingNote, setAddingNote] = useState(false);
+  const [bexioLinked, setBexioLinked] = useState(false);
 
   const load = useCallback(async () => {
     const { data } = await supabase.from('clients').select('*').eq('id', id).single();
@@ -45,9 +47,10 @@ export default function ClientDetailScreen() {
     setEmail(data.email ?? '');
     setPhone(data.phone ?? '');
     setAddress(data.address ?? '');
-    const [h, n] = await Promise.all([getClientHistory(id), listClientNotes(id)]);
+    const [h, n, linked] = await Promise.all([getClientHistory(id), listClientNotes(id), getClientBexioMapping(data.organization_id, id)]);
     setHistory(h);
     setNotes(n);
+    setBexioLinked(linked);
   }, [id]);
 
   useFocusEffect(
@@ -144,6 +147,13 @@ export default function ClientDetailScreen() {
             }
           />
 
+          {bexioLinked ? (
+            <View style={styles.bexioBadge}>
+              <Feather name="check-circle" size={12} color={colors.success} />
+              <Text style={styles.bexioBadgeText}>Lié à Bexio</Text>
+            </View>
+          ) : null}
+
           <Text style={styles.fieldLabel}>Type</Text>
           <View style={styles.typeRow}>
             {(['particulier', 'entreprise'] as ClientType[]).map((t) => (
@@ -227,6 +237,18 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.sm,
     fontWeight: '500',
+  },
+  bexioBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+    marginBottom: spacing.md,
+  },
+  bexioBadgeText: {
+    fontSize: fontSize.xs,
+    color: colors.success,
+    fontWeight: '600',
   },
   typeRow: {
     flexDirection: 'row',

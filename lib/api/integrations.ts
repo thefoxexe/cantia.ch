@@ -46,3 +46,49 @@ export async function disconnectBexio(organizationId: string): Promise<{ error: 
   const { error } = await invokeFunction('bexio-disconnect', { organization_id: organizationId });
   return { error };
 }
+
+export type BexioSyncAction = 'contacts' | 'settings' | 'invoice_status' | 'all';
+
+export async function syncBexio(organizationId: string, action: BexioSyncAction): Promise<{ error: string | null }> {
+  const { error } = await invokeFunction('bexio-sync', { organization_id: organizationId, action });
+  return { error };
+}
+
+export async function pushFactureToBexio(organizationId: string, factureId: string): Promise<{ externalId: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ external_id: string }>('bexio-push-invoice', {
+    organization_id: organizationId,
+    facture_id: factureId,
+  });
+  return { externalId: data?.external_id ?? null, error };
+}
+
+export async function setBexioAutoSync(organizationId: string, enabled: boolean): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('set_bexio_auto_sync', { org_id: organizationId, enabled });
+  return { error: error?.message ?? null };
+}
+
+export async function getFactureBexioMapping(organizationId: string, factureId: string): Promise<{ externalId: string | null; lastSyncedAt: string | null }> {
+  const { data: integration } = await supabase.from('integrations').select('id').eq('organization_id', organizationId).eq('provider', 'bexio').maybeSingle();
+  if (!integration) return { externalId: null, lastSyncedAt: null };
+  const { data } = await supabase
+    .from('integration_mappings')
+    .select('external_id, last_synced_at')
+    .eq('integration_id', integration.id)
+    .eq('entity_type', 'facture')
+    .eq('local_id', factureId)
+    .maybeSingle();
+  return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null };
+}
+
+export async function getClientBexioMapping(organizationId: string, clientId: string): Promise<boolean> {
+  const { data: integration } = await supabase.from('integrations').select('id').eq('organization_id', organizationId).eq('provider', 'bexio').maybeSingle();
+  if (!integration) return false;
+  const { data } = await supabase
+    .from('integration_mappings')
+    .select('id')
+    .eq('integration_id', integration.id)
+    .eq('entity_type', 'client')
+    .eq('local_id', clientId)
+    .maybeSingle();
+  return !!data;
+}
