@@ -130,7 +130,11 @@ export default function AdminOrganizationDetailScreen() {
                   <Feather name="credit-card" size={16} color={billing?.has_payment_method ? colors.success : colors.danger} />
                   <Text style={styles.billingText}>
                     {billing?.has_payment_method
-                      ? `${CARD_BRAND_LABEL[billing.card_brand ?? ''] ?? billing.card_brand} •••• ${billing.card_last4} — exp. ${billing.card_exp_month}/${billing.card_exp_year}`
+                      ? billing.card_brand && billing.card_last4
+                        ? `${CARD_BRAND_LABEL[billing.card_brand] ?? billing.card_brand} •••• ${billing.card_last4} — exp. ${billing.card_exp_month}/${billing.card_exp_year}`
+                        : billing.payment_method_type === 'link'
+                          ? 'Moyen de paiement enregistré via Stripe Link (carte liée à un numéro de téléphone, détails non exposés par Stripe)'
+                          : `Moyen de paiement enregistré (${billing.payment_method_type ?? 'type inconnu'})`
                       : 'Aucune carte enregistrée'}
                   </Text>
                 </View>

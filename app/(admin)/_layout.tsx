@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import { useAuth } from '../../lib/auth-context';
 import { LoadingScreen } from '../../components/ui';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 
 const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyphMap }[] = [
@@ -71,7 +72,7 @@ export default function AdminLayout() {
                 <Pressable
                   key={item.href}
                   style={[styles.navItem, active && styles.navItemActive]}
-                  onPress={() => router.push(item.href as any)}
+                  onPress={() => router.replace(item.href as any)}
                 >
                   <Feather name={item.icon} size={17} color={active ? colors.primary : colors.textMuted} />
                   <Text style={[styles.navItemText, active && styles.navItemTextActive]}>{item.label}</Text>
@@ -85,7 +86,9 @@ export default function AdminLayout() {
           </Pressable>
         </View>
         <View style={styles.content}>
-          <Slot />
+          <ErrorBoundary key={pathname}>
+            <Slot />
+          </ErrorBoundary>
         </View>
       </View>
     );
@@ -104,13 +107,15 @@ export default function AdminLayout() {
         </Pressable>
       </View>
       <View style={styles.mobileContent}>
-        <Slot />
+        <ErrorBoundary key={pathname}>
+          <Slot />
+        </ErrorBoundary>
       </View>
       <View style={[styles.mobileTabBar, { paddingBottom: insets.bottom || spacing.sm }]}>
         {NAV_ITEMS.map((item) => {
           const active = item.href === activeHref;
           return (
-            <Pressable key={item.href} style={styles.mobileTab} onPress={() => router.push(item.href as any)}>
+            <Pressable key={item.href} style={styles.mobileTab} onPress={() => router.replace(item.href as any)}>
               <Feather name={item.icon} size={20} color={active ? colors.primary : colors.textMuted} />
               <Text style={[styles.mobileTabLabel, active && styles.mobileTabLabelActive]} numberOfLines={1}>
                 {item.label}

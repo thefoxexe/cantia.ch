@@ -819,6 +819,7 @@ export interface AdminOrganizationSummary {
 
 export interface AdminOrgBillingStatus {
   has_payment_method: boolean;
+  payment_method_type: string | null;
   card_brand: string | null;
   card_last4: string | null;
   card_exp_month: number | null;

@@ -71,6 +71,7 @@ Deno.serve(async (req: Request) => {
 async function getOrgBilling(stripe: Stripe, customerId: string | null, subscriptionId: string | null) {
   const empty = {
     has_payment_method: false,
+    payment_method_type: null as string | null,
     card_brand: null as string | null,
     card_last4: null as string | null,
     card_exp_month: null as number | null,
@@ -83,37 +84,51 @@ async function getOrgBilling(stripe: Stripe, customerId: string | null, subscrip
   };
   if (!customerId) return empty;
 
-  let card: Stripe.PaymentMethod.Card | null = null;
+  // A saved payment method isn't always a plain "card" object — Stripe Link
+  // can attach a payment method of type "link" (no card object exposed at
+  // all) rather than type "card". Filtering paymentMethods.list to
+  // type:'card' alone silently missed those, reporting "no card on file"
+  // for a customer who genuinely has a valid, chargeable method saved.
+  let pm: Stripe.PaymentMethod | null = null;
   let subscription: Stripe.Subscription | null = null;
 
   if (subscriptionId) {
     try {
       subscription = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['default_payment_method'] });
-      const pm = subscription.default_payment_method;
-      if (pm && typeof pm !== 'string') card = pm.card ?? null;
+      const spm = subscription.default_payment_method;
+      if (spm && typeof spm !== 'string') pm = spm;
     } catch {
       subscription = null;
     }
   }
 
-  if (!card) {
+  if (!pm) {
     try {
       const customer = await stripe.customers.retrieve(customerId, { expand: ['invoice_settings.default_payment_method'] });
       if (!('deleted' in customer) || !customer.deleted) {
-        const pm = (customer as Stripe.Customer).invoice_settings?.default_payment_method;
-        if (pm && typeof pm !== 'string') card = pm.card ?? null;
+        const cpm = (customer as Stripe.Customer).invoice_settings?.default_payment_method;
+        if (cpm && typeof cpm !== 'string') pm = cpm;
       }
     } catch {
-      // customer lookup failed — leave card null, fields below stay empty
+      // customer lookup failed — leave pm null, fields below stay empty
     }
   }
 
-  if (!card) {
-    try {
-      const methods = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 });
-      card = methods.data[0]?.card ?? null;
-    } catch {
-      // no card on file
+  if (!pm) {
+    // Neither the subscription nor the customer has a default set — check
+    // what payment methods actually exist, across every type Stripe could
+    // have attached (card, and Link's own type), not just 'card'.
+    for (const type of ['card', 'link']) {
+      try {
+        // deno-lint-ignore no-explicit-any
+        const methods = await stripe.paymentMethods.list({ customer: customerId, type: type as any, limit: 1 });
+        if (methods.data[0]) {
+          pm = methods.data[0];
+          break;
+        }
+      } catch {
+        // this type isn't listable for this customer — try the next
+      }
     }
   }
 
@@ -131,17 +146,18 @@ async function getOrgBilling(stripe: Stripe, customerId: string | null, subscrip
   }
 
   return {
-    has_payment_method: !!card,
-    card_brand: card?.brand ?? null,
-    card_last4: card?.last4 ?? null,
-    card_exp_month: card?.exp_month ?? null,
-    card_exp_year: card?.exp_year ?? null,
+    has_payment_method: !!pm,
+    payment_method_type: pm?.type ?? null,
+    card_brand: pm?.card?.brand ?? null,
+    card_last4: pm?.card?.last4 ?? null,
+    card_exp_month: pm?.card?.exp_month ?? null,
+    card_exp_year: pm?.card?.exp_year ?? null,
     subscription_status: subscription?.status ?? null,
     cancel_at_period_end: subscription?.cancel_at_period_end ?? false,
     next_invoice_amount_chf: nextInvoiceAmountChf,
     next_invoice_date: nextInvoiceDate,
     will_be_charged:
-      !!card && !!subscription && ['active', 'trialing', 'past_due'].includes(subscription.status) && !subscription.cancel_at_period_end,
+      !!pm && !!subscription && ['active', 'trialing', 'past_due'].includes(subscription.status) && !subscription.cancel_at_period_end,
   };
 }
 
