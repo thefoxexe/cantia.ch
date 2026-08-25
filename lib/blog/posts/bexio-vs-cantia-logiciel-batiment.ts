@@ -57,6 +57,11 @@ export const post: BlogPost = {
       text: 'Dans la pratique, beaucoup d’entreprises utilisent les deux en parallèle : un outil métier comme Cantia pour tout ce qui touche au chantier, et une transmission des écritures à une fiduciaire ou à un outil de comptabilité pour la clôture annuelle. Aucun des deux n’a besoin de remplacer l’autre pour être le bon choix.',
     },
     {
+      type: 'callout',
+      title: 'Les deux, sans double saisie',
+      text: 'Cantia se connecte désormais nativement à Bexio (dès le plan Entreprise) : clients importés automatiquement, factures envoyées vers Bexio en un clic, statuts de paiement synchronisés chaque heure. Le détail complet dans notre article dédié à l’intégration.',
+    },
+    {
       type: 'cta',
       title: 'Pensé pour le chantier, pas pour la comptabilité générale',
       text: 'Cantia couvre tout le parcours d’un chantier suisse : devis, facturation QR, rapports, planning, rentabilité et RH — depuis le van comme depuis le bureau.',
@@ -77,12 +82,12 @@ export const post: BlogPost = {
     {
       question: 'Peut-on utiliser Cantia et Bexio en parallèle ?',
       answer:
-        'Oui, c’est une combinaison fréquente : Cantia pour le pilotage quotidien des chantiers et devis, Bexio ou une fiduciaire pour la comptabilité générale et les déclarations fiscales.',
+        'Oui, c’est une combinaison fréquente — et depuis peu, ce n’est plus une double saisie : Cantia se connecte nativement à Bexio pour synchroniser clients, factures et statuts de paiement automatiquement.',
     },
   ],
   relatedSlugs: [
+    'integration-bexio-cantia-synchronisation-automatique',
     'suivre-rentabilite-chantier-sans-excel',
     'calculer-prix-devis-renovation-suisse',
-    'rediger-devis-qui-inspire-confiance-client',
   ],
 };

@@ -38,6 +38,7 @@ import { post as p36 } from './posts/logiciel-gestion-chantier-independant-seul'
 import { post as p37 } from './posts/contrat-ecrit-petits-travaux-quand-necessaire';
 import { post as p38 } from './posts/appel-offres-marches-publics-batiment-suisse';
 import { post as p39 } from './posts/estimer-chantier-a-distance-devis-photo';
+import { post as p40 } from './posts/integration-bexio-cantia-synchronisation-automatique';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -47,7 +48,7 @@ import { post as p39 } from './posts/estimer-chantier-a-distance-devis-photo';
 // entry, following the same pattern as /solutions/*.
 export const BLOG_POSTS: BlogPost[] = [
   p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27,
-  p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39,
+  p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

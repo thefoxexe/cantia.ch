@@ -796,6 +796,7 @@ function LandingContent() {
                         <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
                         <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
                         <PriceFeature dark={dark} text="Trésorerie prévisionnelle" muted={!p.has_treasury} included={p.has_treasury} />
+                        <PriceFeature dark={dark} text="Intégration Bexio" muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
                         <PriceFeature
                           dark={dark}
                           text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
@@ -837,6 +838,33 @@ function LandingContent() {
                   />
                 </View>
               ) : null}
+            </View>
+          </Reveal>
+
+          {/* ---- Bexio integration — real, native OAuth connection to the
+              Bexio API (contacts pull, invoice push, payment status sync),
+              not a private per-org module: included automatically from the
+              Entreprise plan up. ---- */}
+          <Reveal id="bexioIntegration" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <View style={[styles.bexioCard, isCompactNav && styles.bexioCardCompact]}>
+              <View style={styles.bexioLogoBadge}>
+                <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioLogoImage} resizeMode="contain" />
+              </View>
+              <View style={styles.bexioCopy}>
+                <Text style={styles.sectionEyebrow}>Intégration</Text>
+                <Text style={styles.bexioTitle}>Compatible avec Bexio</Text>
+                <Text style={styles.bexioText}>
+                  Cantia se connecte directement à votre compte Bexio : vos clients sont importés automatiquement, vos
+                  factures s'envoient en un clic, et leur statut de paiement reste à jour tout seul. Fini la double
+                  saisie entre le chantier et la comptabilité.
+                </Text>
+                <Link href={'/blog/integration-bexio-cantia-synchronisation-automatique' as any} asChild>
+                  <Pressable style={styles.bexioLink}>
+                    <Text style={styles.bexioLinkText}>Comment ça marche</Text>
+                    <Feather name="arrow-right" size={14} color={colors.primary} />
+                  </Pressable>
+                </Link>
+              </View>
             </View>
           </Reveal>
 
@@ -2273,6 +2301,69 @@ const styles = StyleSheet.create({
   centerText: {
     textAlign: 'center',
     alignSelf: 'center',
+  },
+  bexioCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xl,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing.xxl,
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  bexioCardCompact: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    padding: spacing.xl,
+  },
+  bexioLogoBadge: {
+    width: 72,
+    height: 72,
+    borderRadius: radius.lg,
+    backgroundColor: '#0A3A47',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+  bexioLogoImage: {
+    width: 72,
+    height: 72,
+  },
+  bexioCopy: {
+    flex: 1,
+    minWidth: 200,
+  },
+  bexioTitle: {
+    fontFamily: marketingFonts.display,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.text,
+    letterSpacing: -0.3,
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
+  } as unknown as TextStyle,
+  bexioText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    lineHeight: 22,
+  },
+  bexioLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.md,
+  },
+  bexioLinkText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
   },
   customModulesCard: {
     backgroundColor: colors.surface,

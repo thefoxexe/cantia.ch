@@ -320,6 +320,17 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/integration-bexio-cantia-synchronisation-automatique',
+    title: 'Cantia x Bexio : la connexion native qui supprime la double saisie | Cantia',
+    description:
+      "Cantia se connecte directement à Bexio via son API officielle : clients importés, factures envoyées en un clic, statuts de paiement tenus à jour automatiquement.",
+    faq: [
+      { q: 'L’intégration Bexio est-elle payante en plus de mon abonnement ?', a: 'Non — elle est incluse automatiquement à partir du plan Entreprise, sans coût ni module supplémentaire à activer.' },
+      { q: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?', a: 'Non. Chaque facture est envoyée vers Bexio en brouillon uniquement — la finalisation reste toujours manuelle côté Bexio.' },
+      { q: 'Que se passe-t-il si je déconnecte l’intégration ?', a: 'Les jetons d’accès Bexio sont immédiatement révoqués et aucune donnée n’est plus échangée entre les deux outils.' },
+    ],
+  },
+  {
     path: 'blog/suivre-rentabilite-chantier-sans-excel',
     title: 'Suivre la rentabilité d’un chantier sans tableur Excel | Cantia',
     description:
