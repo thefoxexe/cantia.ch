@@ -715,6 +715,13 @@ function LandingContent() {
                 const isYearly = billingInterval === 'year';
                 const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
                 const dark = p.id === 'equipe';
+                // "Sur mesure" is priced from a starting point, not a flat
+                // rate — and since it's negotiated per project, annual
+                // billing carries no -20% (price_chf_yearly is just 12x the
+                // monthly amount, no discount baked in), so the strike-
+                // through only makes sense when there's a real reduction.
+                const isFromPrice = p.id === 'illimite';
+                const hasRealYearlyDiscount = p.price_chf_monthly != null && p.price_chf_yearly != null && p.price_chf_yearly < p.price_chf_monthly * 12;
                 return (
                 <Pressable
                   key={p.id}
@@ -731,10 +738,13 @@ function LandingContent() {
                   ) : null}
                   <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{planName(p.id, p.name)}</Text>
                   <View style={styles.priceAmountRow}>
-                    {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
+                    {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && hasRealYearlyDiscount ? (
                       <Text style={[styles.priceAmountStrike, dark && styles.priceAmountStrikeOnDark]}>
                         CHF {formatChf(p.price_chf_monthly)}
                       </Text>
+                    ) : null}
+                    {isFromPrice ? (
+                      <Text style={[styles.priceFromLabel, dark && styles.priceFromLabelOnDark]}>dès</Text>
                     ) : null}
                     <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
                       {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
@@ -3024,6 +3034,15 @@ const styles = StyleSheet.create({
   },
   priceAmountOnDark: {
     color: '#fff',
+  },
+  priceFromLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+    marginBottom: 5,
+  },
+  priceFromLabelOnDark: {
+    color: 'rgba(255,255,255,0.6)',
   },
   priceAmountStrike: {
     fontSize: fontSize.md,

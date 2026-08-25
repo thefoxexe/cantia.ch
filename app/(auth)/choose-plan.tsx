@@ -174,6 +174,7 @@ function PlanCard({
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
       <View style={styles.priceRow}>
+        {plan.id === 'illimite' ? <Text style={styles.fromLabel}>dès</Text> : null}
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>/mois</Text>
       </View>
@@ -361,6 +362,12 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginBottom: 4,
+  },
+  fromLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+    marginBottom: 6,
   },
   features: {
     gap: spacing.xs,
