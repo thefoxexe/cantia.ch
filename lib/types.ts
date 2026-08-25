@@ -947,10 +947,10 @@ export interface PushToken {
 }
 
 // Provider-agnostic accounting-software integration model (Bexio is the
-// first provider). No OAuth/sync logic exists yet — see
-// 20260826070000_integrations_phase0.sql — these types just describe the
-// generic schema so the settings UI can read connection state once the
-// actual Bexio connection is built.
+// first provider) — see 20260826070000_integrations_phase0.sql,
+// 20260826080000_integrations_bexio_oauth.sql. OAuth connect/disconnect is
+// implemented (bexio-oauth-start/-callback/-disconnect edge functions);
+// contacts/articles/invoice sync is not built yet.
 export type IntegrationProvider = 'bexio';
 export type IntegrationStatus = 'disconnected' | 'connecting' | 'connected' | 'error' | 'revoked';
 
@@ -959,12 +959,13 @@ export interface Integration {
   organization_id: string;
   provider: IntegrationProvider;
   status: IntegrationStatus;
-  external_account_id: string | null;
-  external_account_name: string | null;
-  scopes: string[];
-  token_expires_at: string | null;
-  last_synced_at: string | null;
+  external_company_id: string | null;
+  external_company_name: string | null;
+  last_sync_at: string | null;
+  last_successful_sync_at: string | null;
+  auto_sync_enabled: boolean;
   last_error: string | null;
+  connected_by: string | null;
   created_at: string;
   updated_at: string;
 }

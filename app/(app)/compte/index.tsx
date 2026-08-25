@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { isModuleEnabled } from '../../../lib/modules';
+import { hasModule, isModuleEnabled } from '../../../lib/modules';
 import { helpHref } from '../../../lib/appHost';
 import { Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -39,10 +39,32 @@ const RH_ITEM: { href: string; icon: IconName; label: string; description: strin
   description: 'Types de travail, frais et cotisations utilisés par le module RH.',
 };
 
+const INTEGRATIONS_ITEM: { href: string; icon: IconName; label: string; description: string; external?: boolean } = {
+  href: '/(app)/compte/integrations',
+  icon: 'link' as IconName,
+  label: 'Intégrations',
+  description: 'Connectez Bexio pour synchroniser clients, produits et factures.',
+};
+
 export default function CompteIndexScreen() {
   const router = useRouter();
   const { organization, canManagePayroll } = useAuth();
   const [query, setQuery] = useState('');
+  const [bexioGranted, setBexioGranted] = useState(false);
+
+  // Private module, admin-granted then org-activated (see lib/modules.ts) —
+  // only queried once per organization change, not worth the async round
+  // trip on every keystroke of the search box below.
+  useEffect(() => {
+    let cancelled = false;
+    hasModule(organization?.id, 'bexio_integration').then((granted) => {
+      if (!cancelled) setBexioGranted(granted);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [organization?.id]);
+
   // Only shown to whoever can actually use it — a plain employee has
   // nothing to configure here (they just pick from the lists an admin has
   // already set up), and the module might not even be enabled/on-plan.
@@ -50,10 +72,17 @@ export default function CompteIndexScreen() {
   // href instead of a hardcoded index so it stays correctly placed if
   // ITEMS above ever gets reordered again.
   const allItems = useMemo(() => {
-    if (!canManagePayroll || !isModuleEnabled(organization?.enabled_modules, 'payroll')) return ITEMS;
-    const insertAt = ITEMS.findIndex((item) => item.href === '/(app)/compte/devis') + 1;
-    return [...ITEMS.slice(0, insertAt), RH_ITEM, ...ITEMS.slice(insertAt)];
-  }, [canManagePayroll, organization?.enabled_modules]);
+    let items = ITEMS;
+    if (canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll')) {
+      const insertAt = items.findIndex((item) => item.href === '/(app)/compte/devis') + 1;
+      items = [...items.slice(0, insertAt), RH_ITEM, ...items.slice(insertAt)];
+    }
+    if (bexioGranted) {
+      const insertAt = items.findIndex((item) => item.href === '/(app)/compte/facturation') + 1;
+      items = [...items.slice(0, insertAt), INTEGRATIONS_ITEM, ...items.slice(insertAt)];
+    }
+    return items;
+  }, [canManagePayroll, organization?.enabled_modules, bexioGranted]);
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
