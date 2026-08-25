@@ -945,3 +945,54 @@ export interface PushToken {
   created_at: string;
   last_seen_at: string;
 }
+
+// Provider-agnostic accounting-software integration model (Bexio is the
+// first provider). No OAuth/sync logic exists yet — see
+// 20260826070000_integrations_phase0.sql — these types just describe the
+// generic schema so the settings UI can read connection state once the
+// actual Bexio connection is built.
+export type IntegrationProvider = 'bexio';
+export type IntegrationStatus = 'disconnected' | 'connecting' | 'connected' | 'error' | 'revoked';
+
+export interface Integration {
+  id: string;
+  organization_id: string;
+  provider: IntegrationProvider;
+  status: IntegrationStatus;
+  external_account_id: string | null;
+  external_account_name: string | null;
+  scopes: string[];
+  token_expires_at: string | null;
+  last_synced_at: string | null;
+  last_error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntegrationSettings {
+  id: string;
+  integration_id: string;
+  organization_id: string;
+  auto_sync_enabled: boolean;
+  sync_frequency_minutes: number | null;
+  entity_settings: Record<string, unknown>;
+  field_mappings: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntegrationSyncLog {
+  id: string;
+  integration_id: string;
+  organization_id: string;
+  entity_type: string | null;
+  local_id: string | null;
+  external_id: string | null;
+  direction: 'push' | 'pull' | null;
+  action: 'create' | 'update' | 'delete' | 'skip' | 'error' | null;
+  status: 'success' | 'error' | 'retrying';
+  error_message: string | null;
+  request_id: string | null;
+  payload_summary: Record<string, unknown>;
+  created_at: string;
+}
