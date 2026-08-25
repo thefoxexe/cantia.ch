@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
+import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listAuditLogs } from '../../../lib/api/admin';
 import type { AdminAuditLog } from '../../../lib/types';
@@ -18,10 +19,12 @@ function formatDateTime(iso: string): string {
 export default function AdminLogsList() {
   const [rows, setRows] = useState<AdminAuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { rows: r } = await listAuditLogs(100, 0);
+    const { rows: r, error: err } = await listAuditLogs(100, 0);
     setRows(r);
+    setError(err);
     setLoading(false);
   }, []);
 
@@ -33,6 +36,7 @@ export default function AdminLogsList() {
     <ScrollView>
       <Container style={styles.container}>
         <Text style={styles.title}>Logs</Text>
+        {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
           <LoadingScreen label="Chargement…" />
         ) : rows.length === 0 ? (

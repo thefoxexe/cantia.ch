@@ -11,39 +11,49 @@ import type {
 
 // All admin_* RPCs re-check is_platform_admin() server-side and raise if the
 // caller isn't one — this client layer never has to guess who's allowed to
-// call it, it just surfaces whatever the DB decides.
+// call it, it just surfaces whatever the DB decides. Every call here also
+// logs failures to the console and returns the message alongside the
+// (empty) result, so a real failure never renders identically to "no data".
+
+function logRpcError(name: string, error: { message: string } | null): string | null {
+  if (!error) return null;
+  console.error(`[admin] ${name} failed:`, error.message);
+  return error.message;
+}
 
 export async function isPlatformAdmin(): Promise<boolean> {
   const { data, error } = await supabase.rpc('is_platform_admin');
-  if (error) return false;
+  if (error) {
+    console.error('[admin] is_platform_admin failed:', error.message);
+    return false;
+  }
   return !!data;
 }
 
-export async function getDashboardStats(): Promise<AdminDashboardStats | null> {
+export async function getDashboardStats(): Promise<{ stats: AdminDashboardStats | null; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_dashboard_stats');
-  if (error) return null;
-  return data as AdminDashboardStats;
+  return { stats: error ? null : (data as AdminDashboardStats), error: logRpcError('admin_dashboard_stats', error) };
 }
 
 export async function listOrganizations(
   search: string,
   limit = 50,
   offset = 0,
-): Promise<{ rows: AdminOrganizationSummary[]; total: number }> {
+): Promise<{ rows: AdminOrganizationSummary[]; total: number; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_list_organizations', {
     search: search || null,
     limit_n: limit,
     offset_n: offset,
   });
-  if (error || !data) return { rows: [], total: 0 };
+  const err = logRpcError('admin_list_organizations', error);
+  if (err || !data) return { rows: [], total: 0, error: err };
   const rows = data as AdminOrganizationSummary[];
-  return { rows, total: rows[0]?.total_count ?? 0 };
+  return { rows, total: rows[0]?.total_count ?? 0, error: null };
 }
 
-export async function getOrganizationDetail(orgId: string): Promise<AdminOrganizationDetail | null> {
+export async function getOrganizationDetail(orgId: string): Promise<{ detail: AdminOrganizationDetail | null; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_get_organization_detail', { org_id: orgId });
-  if (error) return null;
-  return data as AdminOrganizationDetail;
+  return { detail: error ? null : (data as AdminOrganizationDetail), error: logRpcError('admin_get_organization_detail', error) };
 }
 
 export async function setOrganizationModule(orgId: string, moduleKey: string, enabled: boolean): Promise<{ error: string | null }> {
@@ -52,13 +62,13 @@ export async function setOrganizationModule(orgId: string, moduleKey: string, en
     module_key: moduleKey,
     enabled,
   });
-  return { error: error?.message ?? null };
+  return { error: logRpcError('admin_set_organization_module', error) };
 }
 
-export async function listModules(): Promise<AdminModuleSummary[]> {
+export async function listModules(): Promise<{ rows: AdminModuleSummary[]; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_list_modules');
-  if (error || !data) return [];
-  return data as AdminModuleSummary[];
+  const err = logRpcError('admin_list_modules', error);
+  return { rows: err || !data ? [] : (data as AdminModuleSummary[]), error: err };
 }
 
 export async function upsertModule(input: {
@@ -77,25 +87,31 @@ export async function upsertModule(input: {
     module_visibility: input.visibility ?? 'private',
     module_status: input.status ?? 'active',
   });
-  return { module: (data as PlatformModule) ?? null, error: error?.message ?? null };
+  return { module: (data as PlatformModule) ?? null, error: logRpcError('admin_upsert_module', error) };
 }
 
-export async function listUsers(search: string, limit = 50, offset = 0): Promise<{ rows: AdminUserSummary[]; total: number }> {
+export async function listUsers(
+  search: string,
+  limit = 50,
+  offset = 0,
+): Promise<{ rows: AdminUserSummary[]; total: number; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_list_users', {
     search: search || null,
     limit_n: limit,
     offset_n: offset,
   });
-  if (error || !data) return { rows: [], total: 0 };
+  const err = logRpcError('admin_list_users', error);
+  if (err || !data) return { rows: [], total: 0, error: err };
   const rows = data as AdminUserSummary[];
-  return { rows, total: rows[0]?.total_count ?? 0 };
+  return { rows, total: rows[0]?.total_count ?? 0, error: null };
 }
 
-export async function listAuditLogs(limit = 50, offset = 0): Promise<{ rows: AdminAuditLog[]; total: number }> {
+export async function listAuditLogs(limit = 50, offset = 0): Promise<{ rows: AdminAuditLog[]; total: number; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_list_audit_logs', { limit_n: limit, offset_n: offset });
-  if (error || !data) return { rows: [], total: 0 };
+  const err = logRpcError('admin_list_audit_logs', error);
+  if (err || !data) return { rows: [], total: 0, error: err };
   const rows = data as (AdminAuditLog & { total_count: number })[];
-  return { rows, total: rows[0]?.total_count ?? 0 };
+  return { rows, total: rows[0]?.total_count ?? 0, error: null };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the

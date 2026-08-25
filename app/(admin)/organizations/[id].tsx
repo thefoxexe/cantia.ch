@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
+import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getOrganizationDetail, listModules, setOrganizationModule } from '../../../lib/api/admin';
 import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
@@ -21,12 +22,14 @@ export default function AdminOrganizationDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [pendingKeys, setPendingKeys] = useState<Set<string>>(new Set());
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
     const [d, mods] = await Promise.all([getOrganizationDetail(id), listModules()]);
-    setDetail(d);
-    setAllModules(mods);
+    setDetail(d.detail);
+    setAllModules(mods.rows);
+    setError(d.error ?? mods.error);
     setLoading(false);
   }, [id]);
 
@@ -69,6 +72,8 @@ export default function AdminOrganizationDetailScreen() {
     <ScrollView>
       <Container style={styles.container}>
         <PageHeader title={org.name} backTo="/(admin)/organizations" />
+
+        {error ? <AdminErrorBanner message={error} /> : null}
 
         {feedback ? (
           <View style={styles.feedback}>

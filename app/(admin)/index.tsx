@@ -46,11 +46,13 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [newSignal, setNewSignal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [s, orgs] = await Promise.all([getDashboardStats(), listOrganizations('', 8, 0)]);
-    setStats(s);
+    setStats(s.stats);
     setRecent(orgs.rows);
+    setError(s.error ?? orgs.error);
     setNewSignal(false);
   }, []);
 
@@ -84,6 +86,13 @@ export default function AdminDashboard() {
             <Text style={styles.refreshButtonText}>Actualiser</Text>
           </Pressable>
         </View>
+
+        {error ? (
+          <View style={styles.errorBanner}>
+            <Feather name="alert-triangle" size={14} color={colors.danger} />
+            <Text style={styles.errorBannerText}>{error}</Text>
+          </View>
+        ) : null}
 
         <View style={styles.grid}>
           <StatTile label="Entreprises" value={stats?.organizations_count ?? 0} icon="briefcase" />
@@ -226,5 +235,21 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  errorBannerText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.danger,
   },
 });

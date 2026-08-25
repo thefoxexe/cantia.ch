@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
+import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listUsers } from '../../../lib/api/admin';
 import type { AdminUserSummary } from '../../../lib/types';
@@ -19,12 +20,14 @@ export default function AdminUsersList() {
   const [rows, setRows] = useState<AdminUserSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (query: string) => {
     setLoading(true);
-    const { rows: r, total: t } = await listUsers(query, PAGE_SIZE, 0);
+    const { rows: r, total: t, error: err } = await listUsers(query, PAGE_SIZE, 0);
     setRows(r);
     setTotal(t);
+    setError(err);
     setLoading(false);
   }, []);
 
@@ -38,6 +41,7 @@ export default function AdminUsersList() {
       <Container style={styles.container}>
         <Text style={styles.title}>Utilisateurs {total > 0 ? `(${total})` : ''}</Text>
         <Field label="Rechercher" placeholder="Nom ou e-mail…" value={search} onChangeText={setSearch} />
+        {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
           <LoadingScreen label="Chargement…" />
         ) : rows.length === 0 ? (

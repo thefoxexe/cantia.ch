@@ -3,6 +3,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
+import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listOrganizations } from '../../../lib/api/admin';
 import type { AdminOrganizationSummary } from '../../../lib/types';
@@ -36,12 +37,14 @@ export default function AdminOrganizationsList() {
   const [rows, setRows] = useState<AdminOrganizationSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (query: string) => {
     setLoading(true);
-    const { rows: r, total: t } = await listOrganizations(query, PAGE_SIZE, 0);
+    const { rows: r, total: t, error: err } = await listOrganizations(query, PAGE_SIZE, 0);
     setRows(r);
     setTotal(t);
+    setError(err);
     setLoading(false);
   }, []);
 
@@ -54,6 +57,7 @@ export default function AdminOrganizationsList() {
     <Container style={styles.container}>
       <Text style={styles.title}>Entreprises {total > 0 ? `(${total})` : ''}</Text>
       <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
+      {error ? <AdminErrorBanner message={error} /> : null}
       {loading ? (
         <LoadingScreen label="Chargement…" />
       ) : rows.length === 0 ? (

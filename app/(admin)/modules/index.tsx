@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
+import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listModules, upsertModule } from '../../../lib/api/admin';
 import type { AdminModuleSummary } from '../../../lib/types';
@@ -63,9 +64,12 @@ export default function AdminModulesList() {
   const [modules, setModules] = useState<AdminModuleSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setModules(await listModules());
+    const { rows, error: err } = await listModules();
+    setModules(rows);
+    setError(err);
     setLoading(false);
   }, []);
 
@@ -80,6 +84,8 @@ export default function AdminModulesList() {
           <Text style={styles.title}>Modules</Text>
           <Button title="Nouveau module" icon="plus" onPress={() => setModalVisible(true)} />
         </View>
+
+        {error ? <AdminErrorBanner message={error} /> : null}
 
         {loading ? (
           <LoadingScreen label="Chargement…" />
