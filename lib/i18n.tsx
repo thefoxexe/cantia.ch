@@ -35,6 +35,7 @@ interface Dict {
     paidCta: string;
   };
   swiss: { title: string; text: string };
+  devices: { title: string; text: string; benefits: { title: string; text: string }[] };
   mobile: { title: string; text: string; comingSoon: string; appStore: string; googlePlay: string };
   finalCta: { title: string; subtitle: string; button: string; trust: string[] };
   footer: {
@@ -56,12 +57,12 @@ const fr: Dict = {
   nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Documentation', login: 'Se connecter', cta: 'Essayer gratuitement' },
   hero: {
     kicker: 'L’application métier du bâtiment suisse',
-    headlinePrefix: 'L’application qui gère votre administratif,',
-    headlineHighlight: 'pendant que vous gérez le chantier',
+    headlinePrefix: 'Le logiciel de gestion de chantier',
+    headlineHighlight: 'pensé pour les entreprises du bâtiment en Suisse',
     subheadline:
-      'Vous rédigez encore vos devis le soir, sur un coin de table ? Racontez le chantier à voix haute : Cantia génère devis, rapports et factures pendant que vous êtes encore sur place.',
-    cta1: 'Créer mon compte gratuitement',
-    cta2: 'Se connecter',
+      'Devis, factures, planning, rapports, heures et rentabilité réunis dans une seule application accessible partout.',
+    cta1: 'Essayer gratuitement',
+    cta2: 'Découvrir Cantia',
   },
   spotlight: {
     title: 'Ça, aucun autre éditeur suisse ne le fait',
@@ -225,9 +226,18 @@ const fr: Dict = {
     title: 'Pensé en Suisse, pas juste traduit pour la Suisse',
     text: 'Pas une application américaine retouchée à la dernière minute. Cantia a été construit ici, pour les PME et les indépendants du bâtiment suisse — depuis le premier jour.',
   },
+  devices: {
+    title: 'Gérez vos chantiers, où que vous soyez',
+    text: 'Au bureau, sur le chantier ou en déplacement, retrouvez Cantia sur ordinateur, tablette et smartphone.',
+    benefits: [
+      { title: 'Au bureau', text: 'Préparez devis, factures et analyses.' },
+      { title: 'Sur le chantier', text: 'Ajoutez rapports, photos et heures.' },
+      { title: 'En déplacement', text: 'Accédez à vos informations depuis votre téléphone.' },
+    ],
+  },
   mobile: {
     title: 'Bientôt sur mobile',
-    text: 'L’application fonctionne dès aujourd’hui sur ordinateur, tablette et téléphone. Les applications natives App Store et Google Play arrivent prochainement.',
+    text: 'Les applications natives App Store et Google Play arrivent prochainement, pour une expérience encore plus rapide sur téléphone.',
     comingSoon: 'Bientôt disponible',
     appStore: 'App Store',
     googlePlay: 'Google Play',
@@ -235,7 +245,7 @@ const fr: Dict = {
   finalCta: {
     title: 'Essayez Cantia sur votre prochain chantier',
     subtitle: 'Créez votre compte en deux minutes. Le premier devis sera prêt avant d’avoir quitté le chantier.',
-    button: 'Créer mon compte gratuitement',
+    button: 'Essayer gratuitement',
     trust: ['14 jours d’essai gratuit', 'Sans carte bancaire', 'Hébergé en Suisse'],
   },
   footer: {

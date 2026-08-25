@@ -32,6 +32,11 @@ type IconName = keyof typeof Feather.glyphMap;
 type TradeIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 const NEON_GREEN = '#39FF6A';
+// Manually maintained, not fetched — checked against the real (non-demo)
+// organizations count as of 25.08.2026 (12) and rounded down so the claim
+// stays true as accounts churn. Bump by hand; never wire this back up to a
+// live query or invent a bigger number.
+const TRUST_COMPANY_COUNT = 10;
 const PAIN_ICONS: IconName[] = ['send', 'users', 'credit-card', 'camera'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shield', 'layout', 'list', 'map-pin', 'users', 'briefcase'];
 // One small "artwork" icon per trade, in the same order as t.trades.list —
@@ -64,14 +69,6 @@ function LandingContent() {
   // chantier connection that gap could sit empty for a second or two, right
   // on the section carrying the site's main commercial argument.
   const [plansLoading, setPlansLoading] = useState(true);
-  const [landingStats, setLandingStats] = useState<{
-    users_count: number;
-    organizations_count: number;
-    cash_collected_chf: number;
-  } | null>(null);
-  const usersBurst = useCountUpBurst(landingStats?.users_count);
-  const orgsBurst = useCountUpBurst(landingStats?.organizations_count);
-  const cashBurst = useCountUpBurst(landingStats?.cash_collected_chf);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   // Starts on the first item (not null) so the accordion's payoff — the
   // checklist detail — is visible on arrival instead of requiring a click
@@ -109,7 +106,6 @@ function LandingContent() {
   const heroHeadlineAnim = useRef(new Animated.Value(0)).current;
   const heroSubAnim = useRef(new Animated.Value(0)).current;
   const heroCtaAnim = useRef(new Animated.Value(0)).current;
-  const livePulse = useRef(new Animated.Value(0)).current;
   const skeletonPulse = useRef(new Animated.Value(0.5)).current;
   // Continuous, subtle motion so the hero doesn't read as a static screenshot:
   // the phone mockup gently floats, and the two background blobs breathe out
@@ -205,46 +201,6 @@ function LandingContent() {
       });
   }, []);
 
-  // Real, live stats: fetched once on load, then kept current via a Realtime
-  // subscription on the single public.landing_stats row (refreshed
-  // server-side by triggers whenever a signup, an org, a devis or a
-  // facture_payments write happens — see the landing_stats migration).
-  useEffect(() => {
-    supabase
-      .from('landing_stats')
-      .select('users_count, organizations_count, cash_collected_chf')
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setLandingStats({
-            users_count: data.users_count,
-            organizations_count: data.organizations_count,
-            cash_collected_chf: Number(data.cash_collected_chf),
-          });
-        }
-      });
-
-    const channel = supabase
-      .channel('landing-stats-live')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'landing_stats' },
-        (payload) => {
-          const row = payload.new as Record<string, unknown>;
-          setLandingStats({
-            users_count: Number(row.users_count),
-            organizations_count: Number(row.organizations_count),
-            cash_collected_chf: Number(row.cash_collected_chf),
-          });
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   useEffect(() => {
     Animated.stagger(110, [
       Animated.timing(heroKickerAnim, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
@@ -263,19 +219,6 @@ function LandingContent() {
   // blobPulse stay declared (still wired into the transforms below) but are
   // never driven, so every interpolation simply resolves to its resting
   // value: a fixed slight lean on the cards, no pulsing glow.
-
-  useEffect(() => {
-    const liveLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(livePulse, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(livePulse, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
-    liveLoop.start();
-    return () => {
-      liveLoop.stop();
-    };
-  }, [livePulse]);
 
   useEffect(() => {
     if (!plansLoading) return;
@@ -419,14 +362,12 @@ function LandingContent() {
                     </Link>
                   </HoverLift>
                   <HoverLift style={isCompactHero && styles.ctaButtonCompact}>
-                    <Link href={authHref('login')} asChild>
-                      <Button
-                        title={t.hero.cta2}
-                        onPress={() => {}}
-                        variant="secondary"
-                        style={StyleSheet.flatten([styles.ctaButton, isCompactHero && styles.ctaButtonCompact])}
-                      />
-                    </Link>
+                    <Button
+                      title={t.hero.cta2}
+                      onPress={scrollToServices}
+                      variant="secondary"
+                      style={StyleSheet.flatten([styles.ctaButton, isCompactHero && styles.ctaButtonCompact])}
+                    />
                   </HoverLift>
                 </Animated.View>
               </View>
@@ -517,139 +458,19 @@ function LandingContent() {
             </View>
           </View>
 
-          {/* ---- Live stats: a full-bleed ticker bar, not a rounded pill —
-              see the landing_stats table + triggers in the Supabase
-              migration. Every figure spawns a little floating glyph and
-              pulses as it counts up, not just the cash one. Mobile gets its
-              own stacked layout instead of the desktop row wrapping
-              mid-label. ---- */}
-          <View style={styles.statsTickerOuter}>
-            {isCompactNav ? (
-              <View style={styles.statsTickerCompact}>
-                <View style={styles.statsTickerLiveCompact}>
-                  <View style={styles.statsLiveDotWrap}>
-                    <Animated.View
-                      style={[
-                        styles.statsLiveDotGlow,
-                        {
-                          opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
-                          transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
-                        },
-                      ]}
-                    />
-                    <View style={styles.statsLiveDotCore} />
-                  </View>
-                  <Text style={styles.statsTickerLiveText}>En direct</Text>
-                </View>
-                <View style={styles.statsTickerRowCompact}>
-                  <View style={styles.statsTickerCoinAnchor}>
-                    <Animated.Text
-                      style={[styles.statsTickerValueCompact, { transform: [{ scale: orgsBurst.pulse }] }]}
-                    >
-                      {landingStats ? formatStatCount(Math.round(orgsBurst.display)) : '—'}
-                    </Animated.Text>
-                    {orgsBurst.particles.map((p) => (
-                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => orgsBurst.removeParticle(p.id)} />
-                    ))}
-                  </View>
-                  <Text style={styles.statsTickerLabelCompact}>entreprises inscrites</Text>
-                </View>
-                <View style={styles.statsTickerRowCompact}>
-                  <View style={styles.statsTickerCoinAnchor}>
-                    <Animated.Text
-                      style={[styles.statsTickerValueCompact, { transform: [{ scale: usersBurst.pulse }] }]}
-                    >
-                      {landingStats ? formatStatCount(Math.round(usersBurst.display)) : '—'}
-                    </Animated.Text>
-                    {usersBurst.particles.map((p) => (
-                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => usersBurst.removeParticle(p.id)} />
-                    ))}
-                  </View>
-                  <Text style={styles.statsTickerLabelCompact}>utilisateurs actifs</Text>
-                </View>
-                <View style={[styles.statsTickerRowCompact, styles.statsTickerRowCompactLast]}>
-                  <View style={styles.statsTickerCoinAnchor}>
-                    <Animated.Text
-                      style={[
-                        styles.statsTickerValueCompact,
-                        styles.statsTickerValueAccent,
-                        { transform: [{ scale: cashBurst.pulse }] },
-                      ]}
-                    >
-                      {landingStats ? `CHF ${formatStatChf(cashBurst.display)}` : '—'}
-                    </Animated.Text>
-                    {cashBurst.particles.map((p) => (
-                      <BurstParticle key={p.id} x={p.x} glyph="CHF" onDone={() => cashBurst.removeParticle(p.id)} />
-                    ))}
-                  </View>
-                  <Text style={styles.statsTickerLabelCompact}>encaissés via Cantia</Text>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.statsTickerInner}>
-                <View style={styles.statsTickerLive}>
-                  <View style={styles.statsLiveDotWrap}>
-                    <Animated.View
-                      style={[
-                        styles.statsLiveDotGlow,
-                        {
-                          opacity: livePulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.9] }),
-                          transform: [{ scale: livePulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }],
-                        },
-                      ]}
-                    />
-                    <View style={styles.statsLiveDotCore} />
-                  </View>
-                  <Text style={styles.statsTickerLiveText}>En direct</Text>
-                </View>
-                <View style={styles.statsTickerDivider} />
-                <View style={styles.statsTickerStat}>
-                  <View style={styles.statsTickerCoinAnchor}>
-                    <Animated.Text
-                      style={[styles.statsTickerValue, { transform: [{ scale: orgsBurst.pulse }] }]}
-                    >
-                      {landingStats ? formatStatCount(Math.round(orgsBurst.display)) : '—'}
-                    </Animated.Text>
-                    {orgsBurst.particles.map((p) => (
-                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => orgsBurst.removeParticle(p.id)} />
-                    ))}
-                  </View>
-                  <Text style={styles.statsTickerLabel}>entreprises nous ont déjà rejoint</Text>
-                </View>
-                <View style={styles.statsTickerDivider} />
-                <View style={styles.statsTickerStat}>
-                  <View style={styles.statsTickerCoinAnchor}>
-                    <Animated.Text
-                      style={[styles.statsTickerValue, { transform: [{ scale: usersBurst.pulse }] }]}
-                    >
-                      {landingStats ? formatStatCount(Math.round(usersBurst.display)) : '—'}
-                    </Animated.Text>
-                    {usersBurst.particles.map((p) => (
-                      <BurstParticle key={p.id} x={p.x} glyph="+1" onDone={() => usersBurst.removeParticle(p.id)} />
-                    ))}
-                  </View>
-                  <Text style={styles.statsTickerLabel}>utilisateurs actifs</Text>
-                </View>
-                <View style={styles.statsTickerDivider} />
-                <View style={styles.statsTickerStat}>
-                  <View style={styles.statsTickerCoinAnchor}>
-                    <Animated.Text
-                      style={[
-                        styles.statsTickerValue,
-                        styles.statsTickerValueAccent,
-                        { transform: [{ scale: cashBurst.pulse }] },
-                      ]}
-                    >
-                      {landingStats ? `CHF ${formatStatChf(cashBurst.display)}` : '—'}
-                    </Animated.Text>
-                    {cashBurst.particles.map((p) => (
-                      <BurstParticle key={p.id} x={p.x} glyph="CHF" onDone={() => cashBurst.removeParticle(p.id)} />
-                    ))}
-                  </View>
-                  <Text style={styles.statsTickerLabel}>encaissés via Cantia</Text>
-                </View>
-              </View>
-            )}
+          {/* ---- Trust line: replaces the previous live-updating stats
+              ticker (org/user/cash counters with realtime Supabase
+              subscription). A real, manually-checked headcount reads as
+              more credible on a young product than an animated counter —
+              and never risks visibly showing a number shrink. Bump
+              TRUST_COMPANY_COUNT by hand as the real count grows; never
+              invent it. No star rating is shown because Cantia has no
+              verifiable external reviews yet — add one only once it does. ---- */}
+          <View style={styles.trustLineOuter}>
+            <Feather name="users" size={15} color={colors.primary} />
+            <Text style={styles.trustLineText}>
+              +{TRUST_COMPANY_COUNT} entreprises du bâtiment nous font déjà confiance
+            </Text>
           </View>
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
@@ -990,6 +811,28 @@ function LandingContent() {
             </View>
           </Reveal>
 
+          {/* ---- Multi-device: the web app already works everywhere — this
+              is distinct from the "mobile" section right below it, which is
+              specifically about the dedicated native App Store/Google Play
+              apps still coming. DevicesMockup below is a built illustration
+              (three abstracted device frames), not a real screenshot — swap
+              its contents for an actual product mockup once one exists;
+              nothing else on the page depends on its internals. ---- */}
+          <Reveal id="devices" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>Partout avec vous</Text>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.devices.title}</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.devices.text}</Text>
+            <DevicesMockup />
+            <View style={styles.devicesBenefits}>
+              {t.devices.benefits.map((b) => (
+                <View key={b.title} style={styles.devicesBenefitCard}>
+                  <Text style={styles.devicesBenefitTitle}>{b.title}</Text>
+                  <Text style={styles.devicesBenefitText}>{b.text}</Text>
+                </View>
+              ))}
+            </View>
+          </Reveal>
+
           {/* ---- Mobile apps ---- */}
           <Reveal id="mobile" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.mobile.title}</Text>
@@ -1288,136 +1131,6 @@ function formatChf(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(2);
 }
 
-// Swiss thousands grouping (apostrophe) for the live stats section — these
-// numbers can grow past 4 digits where formatChf's plain string would stop
-// being readable.
-function formatStatCount(n: number | undefined): string {
-  if (n === undefined) return '—';
-  return n.toLocaleString('de-CH');
-}
-
-function formatStatChf(n: number): string {
-  return Math.round(n).toLocaleString('de-CH');
-}
-
-// Smoothly tweens from the previous value to `target` whenever it changes
-// (initial load counts up from 0; a live update counts from the old figure
-// to the new one) instead of the number just snapping — this is the one
-// piece of motion that actually sells "these are live", not a screenshot.
-function useCountUp(target: number | undefined, duration = 1300): number {
-  const anim = useRef(new Animated.Value(0)).current;
-  const prevTarget = useRef(0);
-  const [display, setDisplay] = useState(0);
-
-  useEffect(() => {
-    if (target === undefined) return;
-    const from = prevTarget.current;
-    anim.setValue(0);
-    const listenerId = anim.addListener(({ value }) => {
-      setDisplay(from + (target - from) * value);
-    });
-    Animated.timing(anim, {
-      toValue: 1,
-      duration,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start(() => {
-      prevTarget.current = target;
-    });
-    return () => {
-      anim.removeListener(listenerId);
-    };
-  }, [target, duration, anim]);
-
-  return display;
-}
-
-// Same count-up tween as useCountUp, but every ~140ms of forward progress
-// it also spawns a little floating glyph (rendered by BurstParticle below,
-// "CHF" for money, "+1" for headcounts) and gives the number itself a
-// quick scale pulse — every ticker figure gets this "filling up" motion,
-// not just the cash one.
-function useCountUpBurst(target: number | undefined, duration = 1300) {
-  const anim = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(1)).current;
-  const prevTarget = useRef(0);
-  const [display, setDisplay] = useState(0);
-  const [particles, setParticles] = useState<{ id: number; x: number }[]>([]);
-  const nextParticleId = useRef(0);
-  const lastSpawnAt = useRef(0);
-
-  useEffect(() => {
-    if (target === undefined) return;
-    const from = prevTarget.current;
-    anim.setValue(0);
-    lastSpawnAt.current = 0;
-    const listenerId = anim.addListener(({ value }) => {
-      setDisplay(from + (target - from) * value);
-      const now = Date.now();
-      if (target > from && value < 1 && now - lastSpawnAt.current > 140) {
-        lastSpawnAt.current = now;
-        const id = nextParticleId.current++;
-        setParticles((prev) => [...prev.slice(-5), { id, x: Math.round((Math.random() - 0.5) * 56) }]);
-        Animated.sequence([
-          Animated.timing(pulse, { toValue: 1.1, duration: 110, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-          Animated.spring(pulse, { toValue: 1, friction: 4, useNativeDriver: true }),
-        ]).start();
-      }
-    });
-    Animated.timing(anim, {
-      toValue: 1,
-      duration,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start(() => {
-      prevTarget.current = target;
-    });
-    return () => {
-      anim.removeListener(listenerId);
-    };
-  }, [target, duration, anim, pulse]);
-
-  const removeParticle = useCallback((id: number) => {
-    setParticles((prev) => prev.filter((p) => p.id !== id));
-  }, []);
-
-  return { display, pulse, particles, removeParticle };
-}
-
-// A single glyph that rises and fades once, then removes itself — the
-// little "+1" / "CHF" popping out of a ticker figure as it climbs.
-function BurstParticle({ x, glyph, onDone }: { x: number; glyph: string; onDone: () => void }) {
-  const anim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(anim, {
-      toValue: 1,
-      duration: 850,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start(onDone);
-  }, [anim, onDone]);
-
-  return (
-    <Animated.Text
-      pointerEvents="none"
-      style={[
-        styles.coinParticle,
-        {
-          marginLeft: x,
-          opacity: anim.interpolate({ inputRange: [0, 0.75, 1], outputRange: [1, 0.9, 0] }),
-          transform: [
-            { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [0, -36] }) },
-            { scale: anim.interpolate({ inputRange: [0, 0.25, 1], outputRange: [0.5, 1, 0.8] }) },
-          ],
-        },
-      ]}
-    >
-      {glyph}
-    </Animated.Text>
-  );
-}
-
 // Placeholder shown in the pricing grid while `plans` is still loading — same
 // footprint as a real priceCard (same style, same 7 feature rows + CTA bar)
 // so the section never collapses to a bare gap between the toggle and the
@@ -1660,6 +1373,47 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
       </Animated.View>
       <Text style={styles.demoCaption}>{copy.caption}</Text>
     </Pressable>
+  );
+}
+
+// Three abstracted device frames (desktop behind, tablet and phone
+// overlapping in front) suggesting "the same app, any screen" without
+// claiming to be an actual screenshot. Percentage-based inner geometry so
+// the whole thing scales with devicesMockup's own width via aspectRatio,
+// no per-breakpoint sizing needed. This is the swap point for a real
+// product mockup later — replace the three <View> frames below with an
+// <Image source={require('../assets/marketing/devices-mockup.webp')}> once
+// that asset exists; nothing else on the page reads from this component.
+function DevicesMockup() {
+  return (
+    <View style={styles.devicesMockup}>
+      <View style={[styles.deviceFrame, styles.deviceDesktop]}>
+        <View style={styles.deviceDesktopBar}>
+          <View style={styles.deviceDot} />
+          <View style={styles.deviceDot} />
+          <View style={styles.deviceDot} />
+        </View>
+        <View style={styles.deviceContent}>
+          <View style={[styles.deviceBar, { width: '70%' }]} />
+          <View style={[styles.deviceBar, { width: '45%' }]} />
+          <View style={[styles.deviceBar, styles.deviceBarAccent, { width: '30%' }]} />
+          <View style={[styles.deviceBar, { width: '55%' }]} />
+        </View>
+      </View>
+      <View style={[styles.deviceFrame, styles.deviceTablet]}>
+        <View style={styles.deviceContent}>
+          <View style={[styles.deviceBar, { width: '80%' }]} />
+          <View style={[styles.deviceBar, styles.deviceBarAccent, { width: '55%' }]} />
+          <View style={[styles.deviceBar, { width: '65%' }]} />
+        </View>
+      </View>
+      <View style={[styles.deviceFrame, styles.devicePhone]}>
+        <View style={styles.deviceContent}>
+          <View style={[styles.deviceBar, { width: '75%' }]} />
+          <View style={[styles.deviceBar, styles.deviceBarAccent, { width: '50%' }]} />
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -2382,119 +2136,26 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.textMuted,
   },
-  // Full-bleed ticker bar: edge to edge, not a rounded pill — a hairline
-  // "info bar" that reads as live data rather than a decorative chip.
-  statsTickerOuter: {
+  // Full-bleed hairline bar, same footprint as the old ticker, but a single
+  // static line — no count-up, no realtime subscription.
+  trustLineOuter: {
     width: '100%',
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-  } as unknown as ViewStyle,
-  statsTickerInner: {
-    maxWidth: 1080,
-    width: '100%',
-    alignSelf: 'center',
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xl,
+    gap: spacing.xs,
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
-  },
-  statsTickerLive: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  statsTickerLiveText: {
-    fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  // Sits right on the live badge, not off in the hero — fixed, not part of
-  // the count-up figures, so a quieter untracked style than the numbers.
-  statsTickerDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: colors.border,
-  },
-  statsTickerStat: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
-  },
-  statsTickerCoinAnchor: {
-    position: 'relative',
-  },
-  statsTickerValue: {
-    fontSize: 23,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: -0.5,
-    fontVariant: ['tabular-nums'],
-  },
-  statsTickerValueAccent: {
-    color: colors.primary,
-  },
-  statsTickerLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  // Mobile gets its own stacked list instead of the desktop row's inline
-  // wrapping — a long label like "entreprises nous ont déjà rejoint" next
-  // to a number has nowhere good to break on a narrow screen, so each stat
-  // gets a full-width row instead of fighting for space.
-  statsTickerCompact: {
-    width: '100%',
-    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-  },
-  statsTickerLiveCompact: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingBottom: spacing.sm,
-    marginBottom: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  statsTickerRowCompact: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  statsTickerRowCompactLast: {
-    borderBottomWidth: 0,
-  },
-  statsTickerValueCompact: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: -0.5,
-    fontVariant: ['tabular-nums'],
-  },
-  statsTickerLabelCompact: {
-    fontSize: fontSize.xs,
+  } as unknown as ViewStyle,
+  trustLineText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
     color: colors.textMuted,
-    textAlign: 'right',
-    flexShrink: 1,
-  },
-  coinParticle: {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.primary,
+    textAlign: 'center',
   },
   section: {
     maxWidth: 1080,
@@ -2847,33 +2508,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 3,
     backgroundColor: colors.primary,
-  },
-  statsLiveDotWrap: {
-    width: 10,
-    height: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statsLiveDotGlow: {
-    position: 'absolute',
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    backgroundColor: NEON_GREEN,
-    shadowColor: NEON_GREEN,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 5,
-  },
-  statsLiveDotCore: {
-    width: 5,
-    height: 5,
-    borderRadius: 999,
-    backgroundColor: NEON_GREEN,
-    shadowColor: NEON_GREEN,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 3,
   },
   // Positioning context for the ChaosChip mockups either side of painList —
   // spans the section's full (already-padded) content width so the chips'
@@ -3538,6 +3172,92 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     lineHeight: 22,
     marginBottom: spacing.xl,
+  },
+  devicesMockup: {
+    width: '100%',
+    maxWidth: 640,
+    aspectRatio: 640 / 340,
+    alignSelf: 'center',
+    position: 'relative',
+    marginTop: spacing.xl,
+    marginBottom: spacing.xxl,
+  } as unknown as ViewStyle,
+  deviceFrame: {
+    position: 'absolute',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: '4%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+  } as unknown as ViewStyle,
+  deviceDesktop: {
+    left: '0%',
+    top: '10%',
+    width: '60%',
+    height: '76%',
+  } as unknown as ViewStyle,
+  deviceTablet: {
+    left: '48%',
+    top: '2%',
+    width: '30%',
+    height: '58%',
+    zIndex: 2,
+  } as unknown as ViewStyle,
+  devicePhone: {
+    left: '76%',
+    top: '38%',
+    width: '20%',
+    height: '58%',
+    zIndex: 3,
+  } as unknown as ViewStyle,
+  deviceDesktopBar: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: spacing.sm,
+  },
+  deviceDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.border,
+  },
+  deviceContent: {
+    gap: 6,
+  },
+  deviceBar: {
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: colors.surfaceAlt,
+  },
+  deviceBarAccent: {
+    backgroundColor: colors.primary,
+  },
+  devicesBenefits: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.xl,
+  },
+  devicesBenefitCard: {
+    minWidth: 200,
+    maxWidth: 260,
+    gap: spacing.xs,
+    alignItems: 'center',
+  },
+  devicesBenefitTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  devicesBenefitText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   storeRow: {
     flexDirection: 'row',

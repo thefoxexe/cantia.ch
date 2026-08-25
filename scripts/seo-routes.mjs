@@ -10,9 +10,9 @@ export const OG_IMAGE = `${SITE}/og-image.jpg`;
 
 const HOME = {
   path: '',
-  title: 'Cantia — Gestion de chantier pour artisans et entreprises du bâtiment (Suisse)',
+  title: 'Logiciel de gestion de chantier en Suisse | Cantia',
   description:
-    "Rapports de chantier, devis, photos géolocalisées, documents et levés cadastraux suisses — tout au même endroit. Le logiciel de gestion de chantier pensé pour le bâtiment en Suisse.",
+    'Cantia centralise devis, factures, planning, rapports, heures et rentabilité pour les artisans et PME du bâtiment en Suisse.',
 };
 
 // One entry per public marketing route — copied from each page's own
@@ -690,6 +690,13 @@ export const ROUTES = [
   },
 ];
 
+// Turns "rapports-chantier" into "Rapports chantier" for a breadcrumb label
+// — not shown to visitors, just needs to be a reasonable name for the node.
+function humanizeSegment(segment) {
+  const words = segment.replace(/-/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 export function jsonLdFor(url, description, faq) {
   const graph = [
     {
@@ -713,6 +720,32 @@ export function jsonLdFor(url, description, faq) {
       offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: '0', offerCount: '3' },
     },
   ];
+  if (url === `${SITE}/`) {
+    // Homepage only — lets Google understand the site as a whole (and is
+    // the prerequisite for a sitelinks search box, though that's Google's
+    // call, not something this markup can force).
+    graph.push({
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      name: 'Cantia',
+      url: `${SITE}/`,
+      inLanguage: 'fr-CH',
+      publisher: { '@id': `${SITE}/#organization` },
+    });
+  } else {
+    // Every other page gets a breadcrumb back to the homepage — cheap,
+    // accurate (it's literally the URL structure), and one of the few
+    // structured-data types safe to add without any real risk of a
+    // manual-action penalty for fabricated content.
+    const segments = url.replace(SITE, '').split('/').filter(Boolean);
+    const items = [{ '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE}/` }];
+    let acc = '';
+    segments.forEach((seg, i) => {
+      acc += `/${seg}`;
+      items.push({ '@type': 'ListItem', position: i + 2, name: humanizeSegment(seg), item: `${SITE}${acc}` });
+    });
+    graph.push({ '@type': 'BreadcrumbList', itemListElement: items });
+  }
   // Matches the visible FAQ section rendered on the same page
   // (components/SolutionPage.tsx) — Google requires structured data to
   // reflect content actually shown to visitors, not hidden-only markup.
