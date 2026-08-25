@@ -1,10 +1,13 @@
 import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
 import type {
   AdminAuditLog,
   AdminDashboardStats,
   AdminModuleSummary,
+  AdminOrgBillingStatus,
   AdminOrganizationDetail,
   AdminOrganizationSummary,
+  AdminRevenueOverview,
   AdminUserSummary,
   PlatformModule,
 } from '../types';
@@ -112,6 +115,25 @@ export async function listAuditLogs(limit = 50, offset = 0): Promise<{ rows: Adm
   if (err || !data) return { rows: [], total: 0, error: err };
   const rows = data as (AdminAuditLog & { total_count: number })[];
   return { rows, total: rows[0]?.total_count ?? 0, error: null };
+}
+
+// Real Stripe billing state — never derived/guessed locally. The edge
+// function itself re-checks is_platform_admin() and never returns the
+// Stripe secret key, only these derived fields.
+export async function getRevenueOverview(): Promise<{ overview: AdminRevenueOverview | null; error: string | null }> {
+  const { data, error } = await invokeFunction<AdminRevenueOverview>('admin-billing-overview', { action: 'overview' });
+  if (error) console.error('[admin] admin-billing-overview(overview) failed:', error);
+  return { overview: data, error };
+}
+
+export async function getOrgBillingStatuses(organizationIds: string[]): Promise<{ statuses: Record<string, AdminOrgBillingStatus>; error: string | null }> {
+  if (organizationIds.length === 0) return { statuses: {}, error: null };
+  const { data, error } = await invokeFunction<{ statuses: Record<string, AdminOrgBillingStatus> }>('admin-billing-overview', {
+    action: 'org_billing',
+    organization_ids: organizationIds,
+  });
+  if (error) console.error('[admin] admin-billing-overview(org_billing) failed:', error);
+  return { statuses: data?.statuses ?? {}, error };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the

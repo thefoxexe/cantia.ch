@@ -29,11 +29,15 @@ Deno.serve(async (req: Request) => {
     // a real, toggleable Stripe Promotion Code (see admin-create-promo), we just
     // read its trial_days metadata instead of letting Stripe apply its discount.
     let trialDays: number | undefined;
+    let appliedPromoCode: string | undefined;
     if (typeof promo_code === 'string' && promo_code.trim()) {
       const found = await stripe.promotionCodes.list({ code: promo_code.trim().toUpperCase(), active: true, limit: 1 });
       const promo = found.data[0];
       const days = Number(promo?.coupon?.metadata?.trial_days ?? promo?.metadata?.trial_days);
-      if (promo && Number.isFinite(days) && days > 0) trialDays = days;
+      if (promo && Number.isFinite(days) && days > 0) {
+        trialDays = days;
+        appliedPromoCode = promo.code;
+      }
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -81,6 +85,13 @@ Deno.serve(async (req: Request) => {
       await admin.from('organizations').update({ stripe_customer_id: customerId }).eq('id', org.id);
     }
 
+    // Stripe itself never sees this code as a redemption (see the comment
+    // above — only trial_days is borrowed from it), so this column is the
+    // only durable record of which promo an org came in through.
+    if (appliedPromoCode) {
+      await admin.from('organizations').update({ promo_code_used: appliedPromoCode }).eq('id', org.id);
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
@@ -88,7 +99,7 @@ Deno.serve(async (req: Request) => {
       client_reference_id: org.id,
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
-        metadata: { organization_id: org.id, plan_id: plan.id },
+        metadata: { organization_id: org.id, plan_id: plan.id, ...(appliedPromoCode ? { promo_code: appliedPromoCode } : {}) },
         ...(trialDays ? { trial_period_days: trialDays } : {}),
       },
       success_url,

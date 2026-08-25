@@ -4,15 +4,22 @@ import { useLocalSearchParams } from 'expo-router';
 import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { getOrganizationDetail, listModules, setOrganizationModule } from '../../../lib/api/admin';
+import { Feather } from '@expo/vector-icons';
+import { getOrgBillingStatuses, getOrganizationDetail, listModules, setOrganizationModule } from '../../../lib/api/admin';
 import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
-import type { AdminModuleSummary, AdminOrganizationDetail } from '../../../lib/types';
+import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
 
 const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJECT_MODULES].map((m) => [m.key, m.label]));
+
+const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatChf(amount: number): string {
+  return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
 }
 
 export default function AdminOrganizationDetailScreen() {
@@ -23,6 +30,8 @@ export default function AdminOrganizationDetailScreen() {
   const [pendingKeys, setPendingKeys] = useState<Set<string>>(new Set());
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [billing, setBilling] = useState<AdminOrgBillingStatus | null>(null);
+  const [billingLoading, setBillingLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -31,6 +40,10 @@ export default function AdminOrganizationDetailScreen() {
     setAllModules(mods.rows);
     setError(d.error ?? mods.error);
     setLoading(false);
+    setBillingLoading(true);
+    const { statuses } = await getOrgBillingStatuses([id]);
+    setBilling(statuses[id] ?? null);
+    setBillingLoading(false);
   }, [id]);
 
   useEffect(() => {
@@ -105,6 +118,46 @@ export default function AdminOrganizationDetailScreen() {
             </Text>
           </View>
         </View>
+
+        {org.stripe_customer_id || org.promo_code_used ? (
+          <>
+            <Text style={styles.sectionTitle}>Facturation Stripe</Text>
+            {billingLoading ? (
+              <Text style={styles.emptyText}>Vérification auprès de Stripe…</Text>
+            ) : (
+              <View style={styles.billingCard}>
+                <View style={styles.billingRow}>
+                  <Feather name="credit-card" size={16} color={billing?.has_payment_method ? colors.success : colors.danger} />
+                  <Text style={styles.billingText}>
+                    {billing?.has_payment_method
+                      ? `${CARD_BRAND_LABEL[billing.card_brand ?? ''] ?? billing.card_brand} •••• ${billing.card_last4} — exp. ${billing.card_exp_month}/${billing.card_exp_year}`
+                      : 'Aucune carte enregistrée'}
+                  </Text>
+                </View>
+                {billing?.subscription_status ? (
+                  <View style={styles.billingRow}>
+                    <Feather name={billing.will_be_charged ? 'check-circle' : 'alert-triangle'} size={16} color={billing.will_be_charged ? colors.success : colors.warning} />
+                    <Text style={styles.billingText}>
+                      {billing.will_be_charged
+                        ? billing.next_invoice_amount_chf != null
+                          ? `Sera débité : ${formatChf(billing.next_invoice_amount_chf)} le ${formatDate(billing.next_invoice_date)}`
+                          : 'Sera débité au prochain cycle'
+                        : billing.cancel_at_period_end
+                          ? "Résiliation programmée — ne sera plus débité"
+                          : "Ne sera pas débité (pas de carte ou abonnement inactif)"}
+                    </Text>
+                  </View>
+                ) : null}
+                {org.promo_code_used ? (
+                  <View style={styles.billingRow}>
+                    <Feather name="tag" size={16} color={colors.textMuted} />
+                    <Text style={styles.billingText}>Code promo utilisé à l'inscription : {org.promo_code_used}</Text>
+                  </View>
+                ) : null}
+              </View>
+            )}
+          </>
+        ) : null}
 
         <Text style={styles.sectionTitle}>Membres ({detail.members.length})</Text>
         <View style={styles.list}>
@@ -217,6 +270,26 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.md,
     marginTop: spacing.md,
+  },
+  billingCard: {
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  billingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  billingText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
   },
   list: {
     gap: spacing.sm,

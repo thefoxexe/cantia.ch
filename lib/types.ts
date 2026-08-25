@@ -94,6 +94,7 @@ export interface Organization {
   trial_ends_at: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  promo_code_used: string | null;
   subscription_status: string | null;
   enabled_modules: string[];
   plan_selected: boolean;
@@ -814,6 +815,45 @@ export interface AdminOrganizationSummary {
   is_internal: boolean;
   internal_label: string | null;
   total_count: number;
+}
+
+export interface AdminOrgBillingStatus {
+  has_payment_method: boolean;
+  card_brand: string | null;
+  card_last4: string | null;
+  card_exp_month: number | null;
+  card_exp_year: number | null;
+  subscription_status: string | null;
+  cancel_at_period_end: boolean;
+  next_invoice_amount_chf: number | null;
+  next_invoice_date: string | null;
+  will_be_charged: boolean;
+}
+
+export interface AdminRevenuePlanBreakdown {
+  plan_id: string;
+  plan_name: string;
+  active_count: number;
+  trialing_count: number;
+  mrr_chf: number;
+}
+
+export interface AdminRevenuePromoCode {
+  code: string;
+  org_count: number;
+  active_count: number;
+  trialing_count: number;
+}
+
+export interface AdminRevenueOverview {
+  mrr_active_chf: number;
+  mrr_trialing_chf: number;
+  ca_total_chf: number;
+  ca_this_month_chf: number;
+  active_count: number;
+  trialing_count: number;
+  by_plan: AdminRevenuePlanBreakdown[];
+  promo_codes: AdminRevenuePromoCode[];
 }
 
 export interface AdminOrganizationMember {

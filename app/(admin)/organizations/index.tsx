@@ -5,13 +5,14 @@ import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { InternalTag } from '../../../components/InternalTag';
+import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { listOrganizations } from '../../../lib/api/admin';
-import type { AdminOrganizationSummary } from '../../../lib/types';
+import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
+import type { AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
 
 const PAGE_SIZE = 30;
 
-function Row({ org, onPress }: { org: AdminOrganizationSummary; onPress: () => void }) {
+function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing: AdminOrgBillingStatus | undefined; onPress: () => void }) {
   const isTrial = !!org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now();
   const statusLabel = org.subscription_status === 'active' ? 'Payant' : isTrial ? 'Essai' : org.plan_selected ? 'Actif' : 'Sans plan';
   const statusColor = org.subscription_status === 'active' ? colors.success : isTrial ? colors.warning : colors.textMuted;
@@ -27,6 +28,7 @@ function Row({ org, onPress }: { org: AdminOrganizationSummary; onPress: () => v
           {org.private_modules_count > 0 ? ` · ${org.private_modules_count} module${org.private_modules_count > 1 ? 's' : ''} privé${org.private_modules_count > 1 ? 's' : ''}` : ''}
         </Text>
       </View>
+      <PaymentStatusIcon status={billing} />
       <View style={[styles.statusPill, { backgroundColor: `${statusColor}22` }]}>
         <Text style={[styles.statusPillText, { color: statusColor }]}>{statusLabel}</Text>
       </View>
@@ -42,6 +44,7 @@ export default function AdminOrganizationsList() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [billing, setBilling] = useState<Record<string, AdminOrgBillingStatus>>({});
 
   const load = useCallback(async (query: string) => {
     setLoading(true);
@@ -50,6 +53,9 @@ export default function AdminOrganizationsList() {
     setTotal(t);
     setError(err);
     setLoading(false);
+    // Non-blocking: the list renders immediately, real Stripe payment-method
+    // status trickles in a moment later once this bulk call resolves.
+    getOrgBillingStatuses(r.map((o) => o.id)).then(({ statuses }) => setBilling(statuses));
   }, []);
 
   useEffect(() => {
@@ -70,7 +76,9 @@ export default function AdminOrganizationsList() {
         <FlatList
           data={rows}
           keyExtractor={(o) => o.id}
-          renderItem={({ item }) => <Row org={item} onPress={() => router.push(`/(admin)/organizations/${item.id}` as any)} />}
+          renderItem={({ item }) => (
+            <Row org={item} billing={billing[item.id]} onPress={() => router.push(`/(admin)/organizations/${item.id}` as any)} />
+          )}
           ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
           scrollEnabled={false}
         />
