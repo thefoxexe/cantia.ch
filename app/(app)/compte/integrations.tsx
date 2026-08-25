@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
+import { supabase } from '../../../lib/supabase';
 import { connectBexio, disconnectBexio, getIntegration } from '../../../lib/api/integrations';
 import { Button, Container, PageHeader, Screen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -18,6 +19,7 @@ export default function IntegrationsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ bexio?: string; message?: string }>();
   const [integration, setIntegration] = useState<Integration | null>(null);
+  const [entitled, setEntitled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +29,12 @@ export default function IntegrationsScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const { data, error: err } = await getIntegration(organization.id, 'bexio');
+    const [{ data }, { data: plan }] = await Promise.all([
+      getIntegration(organization.id, 'bexio'),
+      supabase.from('plans').select('has_bexio_integration').eq('id', organization.plan_id).maybeSingle(),
+    ]);
     setIntegration(data);
-    if (err) setError(err);
+    setEntitled(!!plan?.has_bexio_integration);
     setLoading(false);
   }, [organization]);
 
@@ -55,7 +60,7 @@ export default function IntegrationsScreen() {
   );
 
   async function handleConnect() {
-    if (!organization || busy) return;
+    if (!organization || busy || !entitled) return;
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -81,6 +86,7 @@ export default function IntegrationsScreen() {
   }
 
   const isConnected = integration?.status === 'connected';
+  const locked = !loading && !entitled;
 
   return (
     <Screen>
@@ -99,22 +105,35 @@ export default function IntegrationsScreen() {
           </View>
         ) : null}
 
-        <View style={styles.card}>
+        <View style={[styles.card, locked && styles.cardLocked]}>
           <View style={styles.cardHeader}>
-            <View style={styles.logoBadge}>
-              <Text style={styles.logoText}>B</Text>
+            <View style={[styles.logoBadge, locked && styles.logoBadgeLocked]}>
+              <Image source={require('../../../assets/integrations/bexio-logo.png')} style={styles.logoImage} resizeMode="contain" />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>Bexio</Text>
-              <Text style={styles.cardSubtitle}>
-                {isConnected ? 'Connecté' : "Synchronisez vos clients, produits et factures avec Bexio."}
+              <Text style={[styles.cardTitle, locked && styles.textLocked]}>Bexio</Text>
+              <Text style={[styles.cardSubtitle, locked && styles.textLocked]}>
+                {locked
+                  ? 'Disponible à partir du plan Entreprise'
+                  : isConnected
+                    ? 'Connecté'
+                    : "Synchronisez vos clients, produits et factures avec Bexio."}
               </Text>
             </View>
-            {isConnected ? <View style={styles.statusDot} /> : null}
+            {locked ? (
+              <Feather name="lock" size={16} color={colors.textMuted} />
+            ) : isConnected ? (
+              <View style={styles.statusDot} />
+            ) : null}
           </View>
 
           {loading ? (
             <Text style={styles.helperText}>Chargement…</Text>
+          ) : locked ? (
+            <Pressable style={styles.upgradeButton} onPress={() => router.push('/(app)/compte/facturation')}>
+              <Text style={styles.upgradeText}>Voir les plans</Text>
+              <Feather name="arrow-right" size={14} color={colors.primary} />
+            </Pressable>
           ) : isConnected ? (
             <View style={styles.details}>
               <View style={styles.detailRow}>
@@ -140,8 +159,9 @@ export default function IntegrationsScreen() {
         </View>
 
         <Text style={styles.footnote}>
-          La synchronisation des contacts, produits et factures avec Bexio est en cours de construction — pour l'instant, seule la connexion
-          de votre compte Bexio est disponible.
+          {locked
+            ? "L'intégration Bexio permet de synchroniser vos clients, produits et factures. Elle est incluse à partir du plan Entreprise."
+            : "La synchronisation des contacts, produits et factures avec Bexio est en cours de construction — pour l'instant, seule la connexion de votre compte Bexio est disponible."}
         </Text>
       </Container>
     </Screen>
@@ -186,6 +206,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing.lg,
   },
+  cardLocked: {
+    opacity: 0.6,
+  },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -195,14 +218,17 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: radius.md,
-    backgroundColor: '#1C2B4A',
+    backgroundColor: '#0A3A47',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  logoText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: fontSize.md,
+  logoBadgeLocked: {
+    backgroundColor: colors.border,
+  },
+  logoImage: {
+    width: 42,
+    height: 42,
   },
   cardTitle: {
     fontSize: fontSize.md,
@@ -214,6 +240,9 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
   },
+  textLocked: {
+    color: colors.textMuted,
+  },
   statusDot: {
     width: 10,
     height: 10,
@@ -224,6 +253,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginTop: spacing.md,
+  },
+  upgradeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+    marginTop: spacing.md,
+  },
+  upgradeText: {
+    color: colors.primary,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
   },
   details: {
     marginTop: spacing.md,

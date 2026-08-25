@@ -46,6 +46,17 @@ Deno.serve(async (req: Request) => {
     const { data: isAdmin } = await userClient.rpc('is_org_admin', { org_id: organization_id });
     if (!isAdmin) return json({ error: "Seul un administrateur de l'entreprise peut connecter Bexio." }, 403);
 
+    // The client greys out the connect button below plan tier, but that's
+    // just UI — this is the real gate. Not everything the UI hides should be
+    // treated as untrustworthy client input, but a plan entitlement is
+    // exactly the kind of thing a determined user could otherwise route
+    // around by calling this function directly.
+    const { data: org } = await admin.from('organizations').select('plan_id').eq('id', organization_id).maybeSingle();
+    const { data: plan } = await admin.from('plans').select('has_bexio_integration').eq('id', org?.plan_id ?? '').maybeSingle();
+    if (!plan?.has_bexio_integration) {
+      return json({ error: "L'intégration Bexio nécessite le plan Entreprise ou supérieur." }, 403);
+    }
+
     // A long, unguessable, single-use value — this is the only thing that
     // lets bexio-oauth-callback (hit directly by Bexio's redirect, with no
     // Cantia session attached at all) know which organization and which

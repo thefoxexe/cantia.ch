@@ -51,6 +51,7 @@ export interface Plan {
   has_profitability: boolean;
   has_payroll: boolean;
   has_treasury: boolean;
+  has_bexio_integration: boolean;
   max_trames: number | null;
   max_ai_uses_per_month: number | null;
   stripe_price_id: string | null;
