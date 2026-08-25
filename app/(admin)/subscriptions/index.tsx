@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { InternalTag } from '../../../components/InternalTag';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listOrganizations } from '../../../lib/api/admin';
 import type { AdminOrganizationSummary } from '../../../lib/types';
@@ -54,9 +55,16 @@ export default function AdminSubscriptionsList() {
             {rows.map((org) => {
               const isTrial = !!org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now();
               return (
-                <Pressable key={org.id} style={styles.row} onPress={() => router.push(`/(admin)/organizations/${org.id}` as any)}>
+                <Pressable
+                  key={org.id}
+                  style={[styles.row, org.is_internal && styles.rowInternal]}
+                  onPress={() => router.push(`/(admin)/organizations/${org.id}` as any)}
+                >
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.rowTitle}>{org.name}</Text>
+                    <View style={styles.rowTitleLine}>
+                      <Text style={styles.rowTitle}>{org.name}</Text>
+                      {org.is_internal && org.internal_label ? <InternalTag label={org.internal_label} /> : null}
+                    </View>
                     <Text style={styles.rowSubtitle}>{org.plan_name}</Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
@@ -97,6 +105,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  rowInternal: {
+    opacity: 0.55,
+  },
+  rowTitleLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   rowTitle: {
     fontSize: fontSize.md,

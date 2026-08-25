@@ -3,6 +3,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'r
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, LoadingScreen } from '../../components/ui';
+import { InternalTag } from '../../components/InternalTag';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { getDashboardStats, listOrganizations, subscribeToNewOrganizations } from '../../lib/api/admin';
 import type { AdminDashboardStats, AdminOrganizationSummary } from '../../lib/types';
@@ -24,9 +25,12 @@ function OrgRow({ org, onPress }: { org: AdminOrganizationSummary; onPress: () =
   const statusLabel = org.subscription_status === 'active' ? 'Payant' : isTrial ? 'Essai' : org.plan_selected ? 'Actif' : 'Sans plan';
   const statusColor = org.subscription_status === 'active' ? colors.success : isTrial ? colors.warning : colors.textMuted;
   return (
-    <Pressable style={styles.row} onPress={onPress}>
+    <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.rowTitle}>{org.name}</Text>
+        <View style={styles.rowTitleLine}>
+          <Text style={styles.rowTitle}>{org.name}</Text>
+          {org.is_internal && org.internal_label ? <InternalTag label={org.internal_label} /> : null}
+        </View>
         <Text style={styles.rowSubtitle}>
           {org.owner_email ?? 'Sans propriétaire'} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
         </Text>
@@ -212,6 +216,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  rowInternal: {
+    opacity: 0.55,
+  },
+  rowTitleLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   rowTitle: {
     fontSize: fontSize.md,

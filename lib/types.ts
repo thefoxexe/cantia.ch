@@ -811,6 +811,8 @@ export interface AdminOrganizationSummary {
   member_count: number;
   owner_email: string | null;
   private_modules_count: number;
+  is_internal: boolean;
+  internal_label: string | null;
   total_count: number;
 }
 

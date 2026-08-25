@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { InternalTag } from '../../../components/InternalTag';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listOrganizations } from '../../../lib/api/admin';
 import type { AdminOrganizationSummary } from '../../../lib/types';
@@ -15,9 +16,12 @@ function Row({ org, onPress }: { org: AdminOrganizationSummary; onPress: () => v
   const statusLabel = org.subscription_status === 'active' ? 'Payant' : isTrial ? 'Essai' : org.plan_selected ? 'Actif' : 'Sans plan';
   const statusColor = org.subscription_status === 'active' ? colors.success : isTrial ? colors.warning : colors.textMuted;
   return (
-    <Pressable style={styles.row} onPress={onPress}>
+    <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.rowTitle}>{org.name}</Text>
+        <View style={styles.rowTitleLine}>
+          <Text style={styles.rowTitle}>{org.name}</Text>
+          {org.is_internal && org.internal_label ? <InternalTag label={org.internal_label} /> : null}
+        </View>
         <Text style={styles.rowSubtitle}>
           {org.owner_email ?? 'Sans propriétaire'} · {org.plan_name} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
           {org.private_modules_count > 0 ? ` · ${org.private_modules_count} module${org.private_modules_count > 1 ? 's' : ''} privé${org.private_modules_count > 1 ? 's' : ''}` : ''}
@@ -96,6 +100,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  rowInternal: {
+    opacity: 0.55,
+  },
+  rowTitleLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   rowTitle: {
     fontSize: fontSize.md,
