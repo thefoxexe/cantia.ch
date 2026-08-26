@@ -98,7 +98,7 @@ export function SolutionPage({
                 <Link href={authHref('signup')} asChild>
                   <Button title="Essayer gratuitement" onPress={() => {}} />
                 </Link>
-                <Link href="/" asChild>
+                <Link href="/#pricing" asChild>
                   <Button title="Voir les tarifs" variant="secondary" onPress={() => {}} />
                 </Link>
               </View>

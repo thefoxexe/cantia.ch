@@ -45,9 +45,12 @@ function buildEmail(entreprise?: string): { subject: string; html: string } {
     <p style="margin:0 0 12px; font-weight:700; color:${text};">Concrètement, avec Cantia :</p>
     ${feature('Devis &amp; factures', 'envoyés en quelques minutes, avec QR-facture suisse intégré')}
     ${feature('Suivi de chantier', 'photos, rapports, tout depuis le téléphone')}
+    ${feature('Heures &amp; salaires', 'vos employés remplissent leurs heures, vous les extrayez pour facturer vos clients et verser les salaires en un clic')}
     ${feature('Compatible Bexio', 'vos clients, devis et factures se synchronisent automatiquement, sans double saisie')}
     <p style="margin:0; padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:${primary}; font-weight:800;">·</span><strong style="color:${text};">Essai gratuit</strong> — 30 jours, résiliable à tout moment</p>
   </div>
+
+  <p style="margin:0 0 24px;">Et si votre façon de travailler ne rentre pas dans une case : on peut développer un module <strong>100% sur mesure</strong>, calqué sur votre workflow et vos automatisations, pas sur celui d'un logiciel générique.</p>
 
   <p style="margin:0 0 24px; text-align:center;">
     <a href="https://cantia.ch" style="display:inline-block; padding:12px 30px; border:1.5px solid ${primary}; border-radius:999px; color:${primary}; font-weight:700; text-decoration:none;">Découvrir Cantia</a>

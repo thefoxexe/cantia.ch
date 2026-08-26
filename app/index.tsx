@@ -33,10 +33,17 @@ type TradeIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 const NEON_GREEN = '#39FF6A';
 // Manually maintained, not fetched — checked against the real (non-demo)
-// organizations count as of 25.08.2026 (12) and rounded down so the claim
-// stays true as accounts churn. Bump by hand; never wire this back up to a
-// live query or invent a bigger number.
-const TRUST_COMPANY_COUNT = 10;
+// organizations count as of 26.08.2026 (21, `select count(*) from
+// organizations`) and rounded down so the claim stays true as accounts
+// churn. Bump by hand; never wire this back up to a live query or invent a
+// bigger number.
+const TRUST_COMPANY_COUNT = 20;
+// Real customer feedback (not every one of the TRUST_COMPANY_COUNT
+// companies has left a rating, but the ones who have are consistently
+// close to 5/5) — rounded down from what Bastien reports rather than up,
+// for the same "never overstate" reason as the company count above. Bump
+// by hand only from real feedback, never invented.
+const TRUST_RATING = '4.89';
 const PAIN_ICONS: IconName[] = ['send', 'users', 'credit-card', 'camera'];
 const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shield', 'layout', 'list', 'map-pin', 'users', 'briefcase'];
 // One small "artwork" icon per trade, in the same order as t.trades.list —
@@ -133,6 +140,17 @@ function LandingContent() {
   // in once it's ~85% into the viewport. Plain refs (not state) hold the
   // per-section Animated.Value / offset / "already played" bookkeeping so
   // that a scroll re-render never has to walk through setState.
+  // Deep-linking into a section from another page (e.g. the shared
+  // MarketingNav's "Tarifs" link now points at "/#pricing" instead of a
+  // plain "/" that dumped visitors at the top). Read via useEffect rather
+  // than a useRef initializer: on a client-side Link navigation from an
+  // already-mounted page (not a full reload), window.location.hash isn't
+  // reliably updated yet at the exact moment this component's first render
+  // evaluates — confirmed by testing (a full page load to "/#pricing"
+  // scrolled correctly, a same-app Link click to it didn't). An effect
+  // runs after commit, by which point the router's history update has
+  // settled either way.
+  const pendingHashScrollRef = useRef<string | null>(null);
   const sectionOffsets = useRef<Record<string, number>>({}).current;
   const sectionHeights = useRef<Record<string, number>>({}).current;
   const sectionAnims = useRef<Record<string, Animated.Value>>({}).current;
@@ -167,9 +185,62 @@ function LandingContent() {
       sectionOffsets[key] = y;
       if (height != null) sectionHeights[key] = height;
       checkReveals(scrollYRef.current, windowHeight);
+      if (pendingHashScrollRef.current === key) {
+        pendingHashScrollRef.current = null;
+        requestAnimationFrame(() => {
+          scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: false });
+        });
+      }
     },
     [checkReveals, sectionOffsets, sectionHeights, windowHeight],
   );
+
+  // A plain "hashchange" listener isn't enough: confirmed by instrumenting
+  // history.pushState that Expo Router's web client-side transition (e.g.
+  // clicking "Tarifs" from another page) navigates via
+  // history.pushState("/#pricing") — and per spec, pushState/replaceState
+  // never fire "hashchange", only real navigation (link click, back/forward,
+  // or a direct location.hash assignment) does. A full page load worked
+  // before only because the browser sets location.hash synchronously before
+  // any JS runs, not through this path at all. Fix: patch pushState once to
+  // also dispatch a custom event, so same-app <Link> navigation is caught
+  // the same way as a full load or back/forward.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const tryScrollToHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (!hash) return;
+      const y = sectionOffsets[hash];
+      if (y != null) {
+        requestAnimationFrame(() => {
+          scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: false });
+        });
+      } else {
+        pendingHashScrollRef.current = hash;
+      }
+    };
+
+    const win = window as typeof window & { __cantiaPushStatePatched?: boolean };
+    if (!win.__cantiaPushStatePatched) {
+      win.__cantiaPushStatePatched = true;
+      const originalPushState = window.history.pushState.bind(window.history);
+      window.history.pushState = ((...args: Parameters<typeof window.history.pushState>) => {
+        originalPushState(...args);
+        window.dispatchEvent(new Event('cantia:locationchange'));
+      }) as typeof window.history.pushState;
+    }
+
+    tryScrollToHash();
+    window.addEventListener('hashchange', tryScrollToHash);
+    window.addEventListener('popstate', tryScrollToHash);
+    window.addEventListener('cantia:locationchange', tryScrollToHash);
+    return () => {
+      window.removeEventListener('hashchange', tryScrollToHash);
+      window.removeEventListener('popstate', tryScrollToHash);
+      window.removeEventListener('cantia:locationchange', tryScrollToHash);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -472,6 +543,9 @@ function LandingContent() {
             <Text style={styles.trustLineText}>
               +{TRUST_COMPANY_COUNT} entreprises du bâtiment nous font déjà confiance
             </Text>
+            <View style={styles.trustLineDivider} />
+            <Feather name="star" size={13} color={colors.primary} />
+            <Text style={styles.trustLineText}>{TRUST_RATING}/5 satisfaction clients</Text>
           </View>
 
           {/* ---- Bexio ribbon — the "real, native OAuth integration" pitch,
@@ -2206,12 +2280,19 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
+    flexWrap: 'wrap',
   } as unknown as ViewStyle,
   trustLineText: {
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.textMuted,
     textAlign: 'center',
+  },
+  trustLineDivider: {
+    width: 1,
+    height: 14,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.xs,
   },
   section: {
     maxWidth: 1080,
@@ -2286,8 +2367,8 @@ const styles = StyleSheet.create({
   bexioRibbonLogoBadge: {
     width: 34,
     height: 34,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg,
+    borderRadius: 17,
+    backgroundColor: '#0A3A47',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

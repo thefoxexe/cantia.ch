@@ -43,10 +43,10 @@ export function MarketingNav() {
         </Pressable>
       ) : (
         <View style={styles.navLinks}>
-          <Link href="/">
+          <Link href="/#services">
             <Text style={styles.navLink}>{t.nav.services}</Text>
           </Link>
-          <Link href="/">
+          <Link href="/#pricing">
             <Text style={styles.navLink}>{t.nav.pricing}</Text>
           </Link>
           <Link href="/telechargement">
@@ -85,14 +85,14 @@ export function MarketingNav() {
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
-              <Link href="/" asChild>
+              <Link href="/#services" asChild>
                 <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="grid" size={18} color={colors.primary} />
                   <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
                   <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                 </Pressable>
               </Link>
-              <Link href="/" asChild>
+              <Link href="/#pricing" asChild>
                 <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="tag" size={18} color={colors.primary} />
                   <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
@@ -175,7 +175,7 @@ export function MarketingFooter({
               <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
             </Pressable>
           ) : (
-            <Link href="/">
+            <Link href="/#services">
               <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
             </Link>
           )}
@@ -184,7 +184,7 @@ export function MarketingFooter({
               <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
             </Pressable>
           ) : (
-            <Link href="/">
+            <Link href="/#pricing">
               <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
             </Link>
           )}
