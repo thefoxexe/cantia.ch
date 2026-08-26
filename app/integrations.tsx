@@ -20,45 +20,64 @@ import { marketingFonts } from '../lib/marketingTheme';
 // crisply on web, iOS and Android at any width.
 type FlowIcon = keyof typeof Feather.glyphMap;
 
-// A single dashed, curved, two-way arrow. viewBoxWidth is a nominal
-// coordinate-space width (not pixels) — the Svg stretches to fill its
-// actual container via width="100%" + preserveAspectRatio="none", so the
-// same curve reads correctly at any real rendered width.
+// A single bold, curved, two-way arrow — solid stroke with open chevron
+// (hand-drawn-style) arrowheads on both ends, not a thin dashed line with
+// tiny filled triangles. viewBoxWidth is a nominal coordinate-space width
+// (not pixels) — the Svg stretches to fill its actual container via
+// width="100%" + preserveAspectRatio="none", so the same curve reads
+// correctly at any real rendered width.
 function CurvedArrow({
   height,
   bulge,
-  color = colors.border,
+  color = colors.primary,
+  strokeWidth = 3,
   viewBoxWidth = 320,
 }: {
   height: number;
   bulge: number;
   color?: string;
+  strokeWidth?: number;
   viewBoxWidth?: number;
 }) {
   const y = height / 2;
-  const x1 = 6;
-  const x2 = viewBoxWidth - 6;
+  const x1 = 10;
+  const x2 = viewBoxWidth - 10;
   const cx = viewBoxWidth / 2;
   const cy = y + bulge;
-  const s = 5;
+  const headLen = 11;
+  const headSpread = 7;
   return (
     <Svg width="100%" height={height} viewBox={`0 0 ${viewBoxWidth} ${height}`} preserveAspectRatio="none">
-      <Path d={`M${x1},${y} Q${cx},${cy} ${x2},${y}`} stroke={color} strokeWidth={2} fill="none" strokeDasharray="1,6" strokeLinecap="round" />
-      <Path d={`M${x1 + s + 3},${y - s} L${x1},${y} L${x1 + s + 3},${y + s} Z`} fill={color} />
-      <Path d={`M${x2 - s - 3},${y - s} L${x2},${y} L${x2 - s - 3},${y + s} Z`} fill={color} />
+      <Path d={`M${x1},${y} Q${cx},${cy} ${x2},${y}`} stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" />
+      <Path
+        d={`M${x1 + headLen},${y - headSpread} L${x1},${y} L${x1 + headLen},${y + headSpread}`}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d={`M${x2 - headLen},${y - headSpread} L${x2},${y} L${x2 - headLen},${y + headSpread}`}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }
 
 const FLOW_ROWS: { icon: FlowIcon; label: string; bulge: number; cute?: boolean }[] = [
-  { icon: 'smile', label: 'Clients', bulge: 8, cute: true },
-  { icon: 'file-text', label: 'Devis', bulge: -8 },
-  { icon: 'file', label: 'Factures', bulge: 8 },
-  { icon: 'credit-card', label: 'Statuts de paiement', bulge: -8 },
+  { icon: 'smile', label: 'Clients', bulge: 15, cute: true },
+  { icon: 'file-text', label: 'Devis', bulge: -15 },
+  { icon: 'file', label: 'Factures', bulge: 15 },
+  { icon: 'credit-card', label: 'Statuts de paiement', bulge: -15 },
 ];
 
-const ARC_ROW_HEIGHT = 44;
-const ARC_BADGE_SIZE = 26;
+const ARC_ROW_HEIGHT = 58;
+const ARC_BADGE_SIZE = 30;
 
 function CantiaLogoBadge({ size }: { size: number }) {
   return (
@@ -108,7 +127,7 @@ function IntegrationsVisual() {
                   },
                 ]}
               >
-                <Feather name={row.icon} size={13} color={row.cute ? colors.accent : '#fff'} />
+                <Feather name={row.icon} size={14} color={row.cute ? colors.accent : '#fff'} />
               </View>
             </View>
           </View>
@@ -149,7 +168,8 @@ const BAND_CHIPS: { icon: FlowIcon; label: string; t: number; cute?: boolean }[]
 ];
 
 function IntegrationsFlowBand() {
-  const s = 6;
+  const headLen = 16;
+  const headSpread = 10;
   return (
     <View style={styles.bandOuter}>
       <View style={styles.bandCard}>
@@ -163,14 +183,27 @@ function IntegrationsFlowBand() {
           >
             <Path
               d={`M${BAND_X1},${BAND_CENTER_Y} Q${BAND_VB_WIDTH / 2},${BAND_CENTER_Y + BAND_BULGE} ${BAND_X2},${BAND_CENTER_Y}`}
-              stroke={colors.border}
-              strokeWidth={2.5}
+              stroke={colors.primary}
+              strokeWidth={4}
               fill="none"
-              strokeDasharray="1,8"
               strokeLinecap="round"
             />
-            <Path d={`M${BAND_X1 + s + 4},${BAND_CENTER_Y - s} L${BAND_X1},${BAND_CENTER_Y} L${BAND_X1 + s + 4},${BAND_CENTER_Y + s} Z`} fill={colors.border} />
-            <Path d={`M${BAND_X2 - s - 4},${BAND_CENTER_Y - s} L${BAND_X2},${BAND_CENTER_Y} L${BAND_X2 - s - 4},${BAND_CENTER_Y + s} Z`} fill={colors.border} />
+            <Path
+              d={`M${BAND_X1 + headLen},${BAND_CENTER_Y - headSpread} L${BAND_X1},${BAND_CENTER_Y} L${BAND_X1 + headLen},${BAND_CENTER_Y + headSpread}`}
+              stroke={colors.primary}
+              strokeWidth={4}
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <Path
+              d={`M${BAND_X2 - headLen},${BAND_CENTER_Y - headSpread} L${BAND_X2},${BAND_CENTER_Y} L${BAND_X2 - headLen},${BAND_CENTER_Y + headSpread}`}
+              stroke={colors.primary}
+              strokeWidth={4}
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </Svg>
 
           <View style={[styles.bandLogoCol, styles.bandLogoColLeft]}>
