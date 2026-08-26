@@ -19,7 +19,7 @@ import {
   sendFactureEmail,
 } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
-import { getFactureBexioMapping, getIntegration, pushFactureToBexio } from '../../../../lib/api/integrations';
+import { getFactureBexioMapping, getIntegration, pushFactureToBexio, syncBexio } from '../../../../lib/api/integrations';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -222,6 +222,30 @@ export default function FactureDetailScreen() {
     setPushingBexio(true);
     setError(null);
     setActionsOpen(false);
+    const { error: pushError } = await pushFactureToBexio(facture.organization_id, facture.id);
+    setPushingBexio(false);
+    if (pushError) {
+      setError(pushError);
+      return;
+    }
+    load();
+  }
+
+  // Shown as a shortcut under the "client not linked to a Bexio contact"
+  // error — Bexio stays the only place a contact gets created (V1 scope),
+  // so this can't create the missing contact, but it can re-pull clients
+  // and retry the push in one tap instead of sending the user to
+  // Compte > Intégrations and back.
+  async function handleSyncClientsAndRetryPush() {
+    if (!facture || pushingBexio) return;
+    setPushingBexio(true);
+    setError(null);
+    const { error: syncError } = await syncBexio(facture.organization_id, 'contacts');
+    if (syncError) {
+      setPushingBexio(false);
+      setError(syncError);
+      return;
+    }
     const { error: pushError } = await pushFactureToBexio(facture.organization_id, facture.id);
     setPushingBexio(false);
     if (pushError) {
@@ -516,7 +540,21 @@ export default function FactureDetailScreen() {
             ))}
           </Card>
         ) : null}
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? (
+          <View>
+            <Text style={styles.error}>{error}</Text>
+            {error.includes("n'est pas relié à un contact Bexio") ? (
+              <Button
+                title="Synchroniser les clients et réessayer"
+                variant="secondary"
+                icon="refresh-cw"
+                onPress={handleSyncClientsAndRetryPush}
+                loading={pushingBexio}
+                style={styles.errorBlockButton}
+              />
+            ) : null}
+          </View>
+        ) : null}
 
         <Text style={styles.sectionTitle}>Lignes</Text>
         <Card>
@@ -848,6 +886,10 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: fontSize.sm,
     marginTop: spacing.md,
+  },
+  errorBlockButton: {
+    marginTop: spacing.sm,
+    alignSelf: 'flex-start',
   },
   lockedNoticeText: {
     fontSize: fontSize.xs,
