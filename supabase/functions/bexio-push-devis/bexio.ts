@@ -156,25 +156,56 @@ async function doFetch(token: string, path: string, init: RequestInit): Promise<
 // {message, error_code} object or an array of {field?, message} entries —
 // whichever shape comes back, this pulls out something a human can act on
 // instead of the previous "champ manquant ou invalide" black box.
+//
+// Some endpoints (observed on kb_offer) wrap the real per-field errors in a
+// nested key (errors/error_list/details) alongside a generic top-level
+// "message" summary like "The form could not be saved due to the following
+// errors:" — describeOne() on the top-level object alone used to return
+// just that summary and silently drop the nested detail entirely, so the
+// UI showed a sentence with no actual reason after the colon. Both the
+// top-level message and any nested entries are now collected.
 function describeBexioErrorBody(detail: string): string | null {
+  function describeOne(e: unknown): string | null {
+    if (typeof e === 'string') return e;
+    if (e && typeof e === 'object') {
+      const field = (e as any).field ?? (e as any).name;
+      const msg = (e as any).message ?? (e as any).error ?? (e as any).detail;
+      if (field && msg) return `${field}: ${msg}`;
+      return msg ?? field ?? null;
+    }
+    return null;
+  }
   try {
     const parsed = JSON.parse(detail);
-    const entries = Array.isArray(parsed) ? parsed : [parsed];
-    const parts = entries
-      .map((e) => {
-        if (typeof e === 'string') return e;
-        if (e && typeof e === 'object') {
-          const field = (e as any).field ?? (e as any).name;
-          const msg = (e as any).message ?? (e as any).error ?? (e as any).detail;
-          if (field && msg) return `${field}: ${msg}`;
-          return msg ?? field ?? null;
+    const parts: string[] = [];
+    if (Array.isArray(parsed)) {
+      for (const e of parsed) {
+        const d = describeOne(e);
+        if (d) parts.push(d);
+      }
+    } else if (parsed && typeof parsed === 'object') {
+      const top = describeOne(parsed);
+      if (top) parts.push(top);
+      const nested = (parsed as any).errors ?? (parsed as any).error_list ?? (parsed as any).details;
+      if (Array.isArray(nested)) {
+        for (const e of nested) {
+          const d = describeOne(e);
+          if (d) parts.push(d);
         }
-        return null;
-      })
-      .filter((v): v is string => !!v);
-    return parts.length ? parts.join(' · ') : null;
+      } else if (nested && typeof nested === 'object') {
+        for (const [key, value] of Object.entries(nested)) {
+          for (const v of Array.isArray(value) ? value : [value]) {
+            parts.push(`${key}: ${typeof v === 'string' ? v : JSON.stringify(v)}`);
+          }
+        }
+      }
+    }
+    // Dedupe: the top-level summary and a single nested entry sometimes
+    // repeat the exact same text.
+    const unique = [...new Set(parts)];
+    return unique.length ? unique.join(' · ') : null;
   } catch {
-    return detail.trim() ? detail.trim().slice(0, 300) : null;
+    return detail.trim() ? detail.trim().slice(0, 600) : null;
   }
 }
 
