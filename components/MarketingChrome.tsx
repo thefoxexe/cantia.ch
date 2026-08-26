@@ -215,6 +215,9 @@ export function MarketingFooter({
           <Link href="/solutions/tresorerie">
             <Text style={styles.footerLink}>Trésorerie</Text>
           </Link>
+          <Link href="/integrations">
+            <Text style={styles.footerLink}>Intégrations</Text>
+          </Link>
           <Link href="/blog">
             <Text style={styles.footerLink}>Blog</Text>
           </Link>

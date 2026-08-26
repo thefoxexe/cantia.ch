@@ -858,9 +858,9 @@ function LandingContent() {
                   factures s'envoient en un clic, et leur statut de paiement reste à jour tout seul. Fini la double
                   saisie entre le chantier et la comptabilité.
                 </Text>
-                <Link href={'/blog/integration-bexio-cantia-synchronisation-automatique' as any} asChild>
+                <Link href={'/integrations' as any} asChild>
                   <Pressable style={styles.bexioLink}>
-                    <Text style={styles.bexioLinkText}>Comment ça marche</Text>
+                    <Text style={styles.bexioLinkText}>Voir les intégrations</Text>
                     <Feather name="arrow-right" size={14} color={colors.primary} />
                   </Pressable>
                 </Link>

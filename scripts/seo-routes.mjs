@@ -237,6 +237,17 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'integrations',
+    title: 'Intégrations | Cantia',
+    description:
+      "Cantia se connecte directement à votre comptabilité : Bexio dès aujourd'hui, clients et articles importés, factures envoyées en un clic, statuts de paiement synchronisés.",
+    faq: [
+      { q: 'Quelles intégrations Cantia propose-t-il aujourd’hui ?', a: 'Bexio, disponible nativement dès le plan Entreprise. D’autres intégrations suivront le même principe de connexion officielle.' },
+      { q: 'L’intégration Bexio est-elle payante en plus de l’abonnement ?', a: 'Non — elle est incluse automatiquement à partir du plan Entreprise, sans module ni coût supplémentaire.' },
+      { q: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?', a: 'Non. Chaque facture arrive dans Bexio en brouillon uniquement — la finalisation reste toujours une action manuelle côté Bexio.' },
+    ],
+  },
+  {
     path: 'blog',
     title: 'Blog | Cantia — Réponses concrètes pour le bâtiment suisse',
     description:
