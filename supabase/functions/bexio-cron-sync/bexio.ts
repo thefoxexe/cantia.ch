@@ -145,17 +145,48 @@ async function doFetch(token: string, path: string, init: RequestInit): Promise<
   return fetch(`${BEXIO_API_BASE}${path}`, { ...init, headers });
 }
 
+// Bexio's validation error bodies are typically either a single
+// {message, error_code} object or an array of {field?, message} entries —
+// whichever shape comes back, this pulls out something a human can act on
+// instead of the previous "champ manquant ou invalide" black box.
+function describeBexioErrorBody(detail: string): string | null {
+  try {
+    const parsed = JSON.parse(detail);
+    const entries = Array.isArray(parsed) ? parsed : [parsed];
+    const parts = entries
+      .map((e) => {
+        if (typeof e === 'string') return e;
+        if (e && typeof e === 'object') {
+          const field = (e as any).field ?? (e as any).name;
+          const msg = (e as any).message ?? (e as any).error ?? (e as any).detail;
+          if (field && msg) return `${field}: ${msg}`;
+          return msg ?? field ?? null;
+        }
+        return null;
+      })
+      .filter((v): v is string => !!v);
+    return parts.length ? parts.join(' · ') : null;
+  } catch {
+    return detail.trim() ? detail.trim().slice(0, 300) : null;
+  }
+}
+
 export async function bexioJson<T>(admin: any, integration: BexioIntegrationRow, path: string, init?: RequestInit): Promise<T> {
   const res = await bexioFetch(admin, integration, path, init);
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
+    console.error('Bexio API error', path, res.status, detail);
     if (res.status === 422) {
-      throw new BexioError('BEXIO_VALIDATION_ERROR', "Bexio a refusé la donnée envoyée (champ manquant ou invalide).", 422);
+      const described = describeBexioErrorBody(detail);
+      throw new BexioError(
+        'BEXIO_VALIDATION_ERROR',
+        described ? `Bexio a refusé la donnée envoyée : ${described}` : "Bexio a refusé la donnée envoyée (champ manquant ou invalide).",
+        422,
+      );
     }
     if (res.status === 404) {
       throw new BexioError('BEXIO_NOT_FOUND', 'Ressource introuvable dans Bexio.', 404);
     }
-    console.error('Bexio API error', path, res.status, detail);
     throw new BexioError('BEXIO_NETWORK_ERROR', `Erreur Bexio (${res.status}).`, res.status);
   }
   if (res.status === 204) return undefined as unknown as T;

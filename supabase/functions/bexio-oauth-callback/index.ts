@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { syncBexioContacts, syncBexioSettings } from './bexio-sync-logic.ts';
+import { syncBexioArticles, syncBexioContacts, syncBexioSettings } from './bexio-sync-logic.ts';
 
 // Hit directly by the user's browser when Bexio redirects back after
 // consent — there is no Cantia session/Authorization header here at all,
@@ -185,6 +185,7 @@ Deno.serve(async (req: Request) => {
     const integrationRow = { id: integration.id, organization_id: stateRow.organization_id, status: 'connected' };
     await syncBexioSettings(admin, integrationRow).catch((err) => console.error('Initial Bexio settings sync failed', err));
     await syncBexioContacts(admin, integrationRow).catch((err) => console.error('Initial Bexio contacts sync failed', err));
+    await syncBexioArticles(admin, integrationRow).catch((err) => console.error('Initial Bexio articles sync failed', err));
 
     return redirect('connected');
   } catch (err) {

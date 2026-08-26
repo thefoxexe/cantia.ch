@@ -344,6 +344,8 @@ export default function FactureDetailScreen() {
   const paymentRef = generatePaymentReference(orgIban, facture.id);
 
   const canDeposit = !facture.is_deposit && !!facture.devis_id && !siblingFactures.some((f) => f.is_deposit);
+  const canPushToBexio =
+    !!plan?.has_bexio_integration && bexioConnected && facture.status !== 'draft' && facture.status !== 'cancelled' && !!facture.client_id;
 
   const actionRows: ActionRow[] = [
     { key: 'pdf', icon: 'download', label: 'Télécharger le PDF', onPress: handleDownloadPdf },
@@ -379,16 +381,6 @@ export default function FactureDetailScreen() {
               setDepositModalVisible(true);
               setActionsOpen(false);
             },
-          },
-        ] as ActionRow[])
-      : []),
-    ...(plan?.has_bexio_integration && bexioConnected && facture.status !== 'draft' && facture.status !== 'cancelled' && facture.client_id
-      ? ([
-          {
-            key: 'bexio',
-            icon: 'refresh-cw',
-            label: bexioExternalId ? 'Resynchroniser avec Bexio' : 'Envoyer vers Bexio',
-            onPress: handlePushToBexio,
           },
         ] as ActionRow[])
       : []),
@@ -438,6 +430,16 @@ export default function FactureDetailScreen() {
                 Synchronisée avec Bexio{bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString('fr-CH')}` : ''}
               </Text>
             </View>
+          ) : null}
+          {canPushToBexio ? (
+            <Button
+              title={bexioExternalId ? 'Resynchroniser avec Bexio' : 'Envoyer vers Bexio'}
+              variant="secondary"
+              icon="refresh-cw"
+              onPress={handlePushToBexio}
+              loading={pushingBexio}
+              style={{ marginTop: spacing.md }}
+            />
           ) : null}
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />

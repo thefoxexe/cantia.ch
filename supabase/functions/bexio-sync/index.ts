@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { syncBexioContacts, syncBexioInvoiceStatuses, syncBexioSettings } from './bexio-sync-logic.ts';
+import { syncBexioArticles, syncBexioContacts, syncBexioInvoiceStatuses, syncBexioSettings } from './bexio-sync-logic.ts';
 import { BexioError } from './bexio.ts';
 
 const corsHeaders = {
@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
 
     const { organization_id, action } = await req.json();
     if (!organization_id) return json({ error: 'organization_id requis' }, 400);
-    if (!['contacts', 'settings', 'invoice_status', 'all'].includes(action)) {
+    if (!['contacts', 'settings', 'articles', 'invoice_status', 'all'].includes(action)) {
       return json({ error: 'action inconnue' }, 400);
     }
 
@@ -51,6 +51,7 @@ Deno.serve(async (req: Request) => {
     const results = [];
     if (action === 'settings' || action === 'all') results.push(await syncBexioSettings(admin, integration));
     if (action === 'contacts' || action === 'all') results.push(await syncBexioContacts(admin, integration));
+    if (action === 'articles' || action === 'all') results.push(await syncBexioArticles(admin, integration));
     if (action === 'invoice_status' || action === 'all') results.push(await syncBexioInvoiceStatuses(admin, integration));
 
     await admin.from('integrations').update({ last_sync_at: new Date().toISOString() }).eq('id', integration.id);

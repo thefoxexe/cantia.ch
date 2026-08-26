@@ -161,7 +161,38 @@ Deno.serve(async (req: Request) => {
 
     return json({ ok: true, external_id: externalId });
   } catch (err) {
-    if (err instanceof BexioError) return json({ error: err.message, code: err.code }, err.httpStatus ?? 500);
+    if (err instanceof BexioError) {
+      try {
+        const body = await req.clone().json().catch(() => null);
+        if (body?.organization_id && body?.facture_id) {
+          const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+          const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+          const admin = createClient(supabaseUrl, serviceKey);
+          const { data: integration } = await admin
+            .from('integrations')
+            .select('id, organization_id, status')
+            .eq('organization_id', body.organization_id)
+            .eq('provider', 'bexio')
+            .maybeSingle();
+          if (integration) {
+            await admin.from('integration_sync_logs').insert({
+              integration_id: integration.id,
+              organization_id: body.organization_id,
+              entity_type: 'facture',
+              local_id: body.facture_id,
+              direction: 'push',
+              action: 'error',
+              status: 'error',
+              error_message: err.message,
+            });
+          }
+        }
+      } catch {
+        // Logging the error is best-effort — never let a logging failure
+        // mask the original BexioError response below.
+      }
+      return json({ error: err.message, code: err.code }, err.httpStatus ?? 500);
+    }
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);
   }

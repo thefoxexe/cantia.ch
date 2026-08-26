@@ -178,6 +178,101 @@ export async function syncBexioContacts(admin: any, integration: BexioIntegratio
 }
 
 // ---------------------------------------------------------------------------
+// Articles: Bexio -> Cantia Catalogue, same one-directional, Bexio-is-
+// source-of-truth pattern as contacts (article_show scope). Bexio's article
+// field names aren't in a dedicated cahier des charges section beyond the
+// scope grant, so they're inferred by analogy the same way KbPositionCustom
+// was for the invoice push — an article missing a name or sale price is
+// skipped rather than guessed. Manual/on-connect only (see bexio-cron-sync
+// header), never part of the hourly sweep.
+// ---------------------------------------------------------------------------
+function normalizeCatalogKey(input: string): string {
+  return input
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+interface BexioArticle {
+  id: number;
+  intern_name: string | null;
+  sale_price: string | number | null;
+  updated_at: string | null;
+}
+
+export async function syncBexioArticles(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
+  try {
+    const articles = await fetchAllBexioPages<BexioArticle>(admin, integration, '/2.0/article');
+    let count = 0;
+    let skipped = 0;
+    for (const article of articles) {
+      const name = article.intern_name?.trim();
+      const price = article.sale_price != null ? Number(article.sale_price) : null;
+      if (!name || price == null || Number.isNaN(price)) {
+        skipped += 1;
+        continue;
+      }
+      const externalId = String(article.id);
+
+      const { data: existingMapping } = await admin
+        .from('integration_mappings')
+        .select('id, local_id')
+        .eq('integration_id', integration.id)
+        .eq('entity_type', 'article')
+        .eq('external_id', externalId)
+        .maybeSingle();
+
+      if (existingMapping) {
+        await admin.from('catalog_items').update({ description: name, unit_price: price }).eq('id', existingMapping.local_id);
+        await admin
+          .from('integration_mappings')
+          .update({ last_synced_at: new Date().toISOString(), external_updated_at: article.updated_at })
+          .eq('id', existingMapping.id);
+      } else {
+        const key = normalizeCatalogKey(name);
+        if (!key) {
+          skipped += 1;
+          continue;
+        }
+        // A local catalogue row with the same normalized description
+        // (e.g. created earlier from a devis line) is linked and refreshed
+        // instead of duplicated — catalog_items enforces a unique
+        // (organization_id, description_key).
+        const { data: upserted, error: upsertError } = await admin
+          .from('catalog_items')
+          .upsert(
+            { organization_id: integration.organization_id, description: name, description_key: key, unit_price: price },
+            { onConflict: 'organization_id,description_key' },
+          )
+          .select('id')
+          .single();
+        if (upsertError || !upserted) throw new Error(upsertError?.message ?? 'Échec de création de la position de catalogue');
+        await admin.from('integration_mappings').insert({
+          integration_id: integration.id,
+          organization_id: integration.organization_id,
+          entity_type: 'article',
+          local_id: upserted.id,
+          external_id: externalId,
+          external_type: 'article',
+          sync_direction: 'pull',
+          last_synced_at: new Date().toISOString(),
+          external_updated_at: article.updated_at,
+        });
+      }
+      count += 1;
+    }
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'article', payload_summary: { count, skipped } });
+    return { action: 'articles', ok: true, count };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'article', error_message: message });
+    return { action: 'articles', ok: false, error: message };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Invoice status pull (cahier des charges section 44/47). Cantia stays the
 // source of truth for the invoice content, Bexio for payment status — this
 // only ever updates status/paid_at, never touches facture_items or amounts.
