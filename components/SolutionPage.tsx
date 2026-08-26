@@ -42,6 +42,7 @@ export function SolutionPage({
   subtitle,
   visual,
   features,
+  afterFeatures,
   steps,
   faq,
   related,
@@ -53,6 +54,11 @@ export function SolutionPage({
   subtitle: string;
   visual?: ReactNode;
   features: SolutionFeature[];
+  // Optional full-width block rendered right after the features grid, ahead
+  // of "Comment ça marche" — for a page that needs something wider/taller
+  // than the hero's cramped visual slot (e.g. integrations.tsx's flow
+  // diagram) without every /solutions/* page paying for the extra section.
+  afterFeatures?: ReactNode;
   steps?: SolutionStep[];
   faq?: SolutionFaqItem[];
   related?: SolutionRelatedLink[];
@@ -133,6 +139,8 @@ export function SolutionPage({
             ))}
           </View>
         </Container>
+
+        {afterFeatures}
 
         {steps?.length ? (
           <Container style={styles.section}>
