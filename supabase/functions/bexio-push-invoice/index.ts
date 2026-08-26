@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { bexioJson, BexioError } from './bexio.ts';
+import { bexioJson, BexioError, decodeBexioCompanyUserId, getValidAccessToken, resolveBexioSalesTaxId } from './bexio.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,13 +12,15 @@ const corsHeaders = {
 // not built yet). Idempotent via integration_mappings: a facture already
 // mapped is updated in place (POST /2.0/kb_invoice/{id}), never re-created.
 //
-// Two fields the cahier des charges explicitly forbids hardcoding —
-// user_id and per-position tax_id — have no resolving endpoint anywhere in
-// the spec (no "list users", no "list taxes" route given). They're
-// deliberately omitted from the payload here rather than guessed; if Bexio
-// rejects the call for a missing required field, that surfaces as a real,
-// honest BEXIO_VALIDATION_ERROR instead of a fabricated value silently
-// corrupting the invoice.
+// user_id (top-level) and tax_id (per position) are required by Bexio —
+// confirmed live on the sibling kb_offer push with the identical 422
+// ("user_id: Pflichtfeld", "positions: 0 [tax_id [Pflichtfeld]]"), same
+// document family. Resolved the same way: user_id from the OAuth access
+// token's company_user_id claim, tax_id from the account's own active
+// sales-tax rates matched against the facture's vat_rate — see
+// decodeBexioCompanyUserId / resolveBexioSalesTaxId in bexio.ts. Left out
+// only if either lookup comes back empty, so a real BEXIO_VALIDATION_ERROR
+// still surfaces instead of a guessed value silently corrupting the invoice.
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -56,7 +58,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: facture } = await admin
       .from('factures')
-      .select('id, organization_id, number, client_id, notes, due_date, created_at')
+      .select('id, organization_id, number, client_id, notes, due_date, created_at, vat_rate')
       .eq('id', facture_id)
       .eq('organization_id', organization_id)
       .maybeSingle();
@@ -89,6 +91,10 @@ Deno.serve(async (req: Request) => {
     const { data: settingsRow } = await admin.from('integration_settings').select('entity_settings').eq('integration_id', integration.id).maybeSingle();
     const defaults = (settingsRow?.entity_settings as any)?.invoice_defaults ?? {};
 
+    const accessToken = await getValidAccessToken(admin, integration);
+    const companyUserId = decodeBexioCompanyUserId(accessToken);
+    const taxId = await resolveBexioSalesTaxId(admin, integration, Number(facture.vat_rate));
+
     // Field names inferred by analogy with the documented KbPositionArticle
     // shape (cahier des charges section 40) — KbPositionCustom's own field
     // list isn't given in the spec, this is the closest verified example.
@@ -97,11 +103,13 @@ Deno.serve(async (req: Request) => {
       text: item.description,
       amount: String(item.quantity),
       unit_price: String(item.unit_price),
+      tax_id: taxId ?? undefined,
     }));
 
     const payload: Record<string, unknown> = {
       title: facture.number ? `Facture ${facture.number}` : 'Facture Cantia',
       contact_id: Number(clientMapping.external_id),
+      user_id: companyUserId ?? undefined,
       language_id: defaults.default_language_id ?? undefined,
       bank_account_id: defaults.default_bank_account_id ?? undefined,
       currency_id: defaults.default_currency_id ?? undefined,

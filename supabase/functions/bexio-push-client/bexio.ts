@@ -282,3 +282,24 @@ export function decodeBexioCompanyUserId(accessToken: string): number | null {
     return null;
   }
 }
+
+// Resolves a Bexio tax_id for a given VAT percentage — required on every
+// kb_offer/kb_invoice position ("tax_id: Pflichtfeld" on POST, confirmed
+// live) with no static mapping given anywhere in the cahier des charges.
+// GET /3.0/taxes returns the account's own tax rates; only active
+// type='sales_tax' entries are real candidates for an outgoing document
+// (the others are purchase/import/pre-tax codes). Matches by numeric
+// value (e.g. 8.1) rather than by code, since the code (UN81, UR26...)
+// is Bexio-internal and not something Cantia's own vat_rate carries.
+// Returns null — never a guessed id — when nothing matches, so a real
+// BEXIO_VALIDATION_ERROR surfaces instead of a silently wrong tax rate.
+export async function resolveBexioSalesTaxId(admin: any, integration: BexioIntegrationRow, ratePercent: number): Promise<number | null> {
+  try {
+    const taxes = await bexioJson<{ id: number; type: string; is_active: boolean; value: number }[]>(admin, integration, '/3.0/taxes');
+    const rounded = Math.round(ratePercent * 10) / 10;
+    const match = taxes.find((t) => t.type === 'sales_tax' && t.is_active && Math.round(t.value * 10) / 10 === rounded);
+    return match?.id ?? null;
+  } catch {
+    return null;
+  }
+}

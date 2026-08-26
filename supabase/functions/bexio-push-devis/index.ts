@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { bexioJson, BexioError } from './bexio.ts';
+import { bexioJson, BexioError, decodeBexioCompanyUserId, getValidAccessToken, resolveBexioSalesTaxId } from './bexio.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,15 +21,15 @@ const corsHeaders = {
 //    today because the cahier des charges explicitly calls out this exact
 //    failure mode with pseudo-code, not something inferred.
 //
-// Fields intentionally left out of the payload: tax_id, account_id, unit_id
-// on positions. Cantia has no per-organization mapping from its own VAT
-// rate to a Bexio tax_id (the cahier des charges explicitly forbids
-// hardcoding this — section 20 — and building that mapping table is future
-// work), so positions are sent as plain KbPositionCustom with just
-// text/amount/unit_price, same minimal shape bexio-push-invoice already
-// uses successfully. If Bexio actually requires one of these, that surfaces
-// as a real BEXIO_VALIDATION_ERROR instead of a guessed value silently
-// misclassifying the line.
+// Two fields confirmed required by a live 422 ("user_id: Pflichtfeld",
+// "positions: 0 [tax_id [Pflichtfeld]]"): the offer's own user_id (same
+// company_user_id token claim used by bexio-push-client) and a tax_id on
+// every position, resolved from the devis's own vat_rate against the
+// account's actual tax rates (GET /3.0/taxes — see resolveBexioSalesTaxId
+// in bexio.ts) rather than a hardcoded id. account_id/unit_id on positions
+// are still left out — Bexio's 422 never flagged them as required, so
+// guessing them risks silently misclassifying the line instead of letting
+// a real BEXIO_VALIDATION_ERROR surface.
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -111,11 +111,16 @@ Deno.serve(async (req: Request) => {
     const { data: settingsRow } = await admin.from('integration_settings').select('entity_settings').eq('integration_id', integration.id).maybeSingle();
     const defaults = (settingsRow?.entity_settings as any)?.quote_defaults ?? {};
 
+    const accessToken = await getValidAccessToken(admin, integration);
+    const companyUserId = decodeBexioCompanyUserId(accessToken);
+    const taxId = await resolveBexioSalesTaxId(admin, integration, Number(devis.vat_rate));
+
     const positions = items.map((item: any) => ({
       type: 'KbPositionCustom',
       text: item.description,
       amount: String(item.quantity),
       unit_price: String(item.unit_price),
+      tax_id: taxId ?? undefined,
     }));
 
     // is_valid_until: the devis itself carries no expiry date of its own —
@@ -132,6 +137,7 @@ Deno.serve(async (req: Request) => {
     const payload: Record<string, unknown> = {
       title: devis.number ? `Devis ${devis.number}` : 'Devis Cantia',
       contact_id: Number(clientMapping.external_id),
+      user_id: companyUserId ?? undefined,
       language_id: defaults.default_language_id ?? undefined,
       bank_account_id: defaults.default_bank_account_id ?? undefined,
       currency_id: defaults.default_currency_id ?? undefined,
