@@ -67,6 +67,12 @@ export default function NewDevisScreen() {
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [priceMismatches, setPriceMismatches] = useState<PriceMismatch[] | null>(null);
   const [showSignaturePrompt, setShowSignaturePrompt] = useState(false);
+  // A remise is represented as one more ordinary (negative) line item rather
+  // than a separate schema field — every place that already sums
+  // devis_items (PDF, portail client, facturation depuis un devis) picks it
+  // up automatically, with no special-casing needed. Same pattern as
+  // devis/factures/new.tsx.
+  const [discountPercent, setDiscountPercent] = useState('');
 
   useEffect(() => {
     if (!organization) return;
@@ -235,7 +241,9 @@ export default function NewDevisScreen() {
     setDevisLinesTranscript('');
   }
 
-  const total = lines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
+  const subtotal = lines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
+  const discountAmount = Math.max(0, Math.min(100, Number(discountPercent) || 0)) > 0 ? subtotal * (Math.min(100, Number(discountPercent)) / 100) : 0;
+  const total = subtotal - discountAmount;
 
   // Only flags an *exact* description match against the catalog (not a
   // fuzzy suggestion-level match) with a real price difference — prompting
@@ -319,6 +327,16 @@ export default function NewDevisScreen() {
       unit_price: Number(l.unitPrice) || 0,
       sort_order: i,
     }));
+    if (discountAmount > 0) {
+      itemsPayload.push({
+        devis_id: devis.id,
+        description: `Remise (${Number(discountPercent)}%)`,
+        quantity: 1,
+        unit: 'pce',
+        unit_price: -Math.round(discountAmount * 100) / 100,
+        sort_order: itemsPayload.length,
+      });
+    }
 
     const { error: itemsError } = await supabase.from('devis_items').insert(itemsPayload);
     setLoading(false);
@@ -540,6 +558,24 @@ export default function NewDevisScreen() {
             <Text style={styles.addLineText}>Ajouter une ligne</Text>
           </Pressable>
 
+          <View style={styles.discountRow}>
+            <Text style={styles.discountLabel}>Remise globale (%)</Text>
+            <TextInput
+              style={styles.discountInput}
+              value={discountPercent}
+              onChangeText={setDiscountPercent}
+              keyboardType="decimal-pad"
+              placeholder="0"
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
+
+          {discountAmount > 0 ? (
+            <>
+              <Text style={styles.totalsSubline}>Sous-total : CHF {subtotal.toFixed(2)}</Text>
+              <Text style={styles.totalsSubline}>Remise : − CHF {discountAmount.toFixed(2)}</Text>
+            </>
+          ) : null}
           <Text style={styles.total}>Total HT estimé : CHF {total.toFixed(2)}</Text>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -965,6 +1001,36 @@ const styles = StyleSheet.create({
   addLineText: {
     color: colors.primary,
     fontWeight: '600',
+  },
+  discountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  discountLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  discountInput: {
+    width: 70,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    height: 36,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.bg,
+    textAlign: 'right',
+  },
+  totalsSubline: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'right',
+    marginBottom: 2,
   },
   total: {
     fontSize: fontSize.lg,

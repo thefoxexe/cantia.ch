@@ -139,46 +139,101 @@ Deno.serve(async (req: Request) => {
       .eq('integration_id', integration.id)
       .maybeSingle();
 
+    // Stored by name via vault_upsert_secret (update-if-exists,
+    // create-otherwise) rather than always calling vault_create_secret —
+    // bexio-disconnect overwrites a secret's value but never deletes it
+    // (Vault has no public delete function), only removing the
+    // integration_credentials row. A plain create with the same
+    // `bexio_access_<integration.id>` name after any earlier disconnect
+    // hit a duplicate-name error every time, silently (this RPC's error
+    // was never checked), leaving the org's connection unusable while the
+    // UI still briefly claimed "connected". Every write below is checked
+    // and any failure now surfaces as a real error instead.
+    let credentialsOk = true;
+    let credentialsError: string | null = null;
+
     if (existingCredentials) {
-      // Reconnecting: update the existing Vault secrets in place rather
-      // than creating fresh ones each time and orphaning the old ones.
-      await admin.rpc('vault_update_secret', { secret_id: existingCredentials.access_token_secret_id, new_secret: tokens.access_token });
+      const { error: accessErr } = await admin.rpc('vault_update_secret', {
+        secret_id: existingCredentials.access_token_secret_id,
+        new_secret: tokens.access_token,
+      });
+      if (accessErr) {
+        credentialsOk = false;
+        credentialsError = accessErr.message;
+      }
       let refreshSecretId = existingCredentials.refresh_token_secret_id;
-      if (tokens.refresh_token) {
+      if (credentialsOk && tokens.refresh_token) {
         if (refreshSecretId) {
-          await admin.rpc('vault_update_secret', { secret_id: refreshSecretId, new_secret: tokens.refresh_token });
+          const { error: refreshErr } = await admin.rpc('vault_update_secret', { secret_id: refreshSecretId, new_secret: tokens.refresh_token });
+          if (refreshErr) {
+            credentialsOk = false;
+            credentialsError = refreshErr.message;
+          }
         } else {
-          const { data: newRefreshId } = await admin.rpc('vault_create_secret', {
-            secret: tokens.refresh_token,
+          const { data: newRefreshId, error: refreshErr } = await admin.rpc('vault_upsert_secret', {
             secret_name: `bexio_refresh_${integration.id}`,
+            secret: tokens.refresh_token,
           });
+          if (refreshErr || !newRefreshId) {
+            credentialsOk = false;
+            credentialsError = refreshErr?.message ?? 'Échec de stockage du jeton de renouvellement Bexio.';
+          }
           refreshSecretId = newRefreshId ?? null;
         }
       }
-      await admin
-        .from('integration_credentials')
-        .update({ refresh_token_secret_id: refreshSecretId, expires_at: expiresAt, scopes })
-        .eq('id', existingCredentials.id);
+      if (credentialsOk) {
+        const { error: updateErr } = await admin
+          .from('integration_credentials')
+          .update({ refresh_token_secret_id: refreshSecretId, expires_at: expiresAt, scopes })
+          .eq('id', existingCredentials.id);
+        if (updateErr) {
+          credentialsOk = false;
+          credentialsError = updateErr.message;
+        }
+      }
     } else {
-      const { data: accessSecretId } = await admin.rpc('vault_create_secret', {
-        secret: tokens.access_token,
+      const { data: accessSecretId, error: accessErr } = await admin.rpc('vault_upsert_secret', {
         secret_name: `bexio_access_${integration.id}`,
+        secret: tokens.access_token,
       });
+      if (accessErr || !accessSecretId) {
+        credentialsOk = false;
+        credentialsError = accessErr?.message ?? "Échec de stockage du jeton d'accès Bexio.";
+      }
       let refreshSecretId: string | null = null;
-      if (tokens.refresh_token) {
-        const { data: newRefreshId } = await admin.rpc('vault_create_secret', {
-          secret: tokens.refresh_token,
+      if (credentialsOk && tokens.refresh_token) {
+        const { data: newRefreshId, error: refreshErr } = await admin.rpc('vault_upsert_secret', {
           secret_name: `bexio_refresh_${integration.id}`,
+          secret: tokens.refresh_token,
         });
+        if (refreshErr) {
+          credentialsOk = false;
+          credentialsError = refreshErr.message;
+        }
         refreshSecretId = newRefreshId ?? null;
       }
-      await admin.from('integration_credentials').insert({
-        integration_id: integration.id,
-        access_token_secret_id: accessSecretId,
-        refresh_token_secret_id: refreshSecretId,
-        expires_at: expiresAt,
-        scopes,
-      });
+      if (credentialsOk) {
+        const { error: insertErr } = await admin.from('integration_credentials').insert({
+          integration_id: integration.id,
+          access_token_secret_id: accessSecretId,
+          refresh_token_secret_id: refreshSecretId,
+          expires_at: expiresAt,
+          scopes,
+        });
+        if (insertErr) {
+          credentialsOk = false;
+          credentialsError = insertErr.message;
+        }
+      }
+    }
+
+    if (!credentialsOk) {
+      console.error('Failed to store Bexio credentials', credentialsError);
+      await admin
+        .from('integrations')
+        .update({ status: 'error', last_error: "Impossible d'enregistrer les jetons Bexio — réessayez la connexion." })
+        .eq('id', integration.id);
+      return redirect('error&message=' + encodeURIComponent("La connexion à Bexio a échoué lors de l'enregistrement des jetons — réessayez."));
     }
 
     // existingIntegration is only used to decide log wording; not required
