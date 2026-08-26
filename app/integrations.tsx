@@ -91,7 +91,7 @@ export default function IntegrationsPage() {
       steps={[
         {
           title: 'Ouvrez Compte → Intégrations',
-          text: 'Un administrateur de votre organisation retrouve la carte Bexio, disponible dès le plan Entreprise.',
+          text: 'Un administrateur de votre organisation retrouve la carte Bexio, disponible dès le plan Équipe.',
         },
         {
           title: 'Connectez-vous à Bexio',
@@ -105,11 +105,11 @@ export default function IntegrationsPage() {
       faq={[
         {
           question: 'Quelles intégrations Cantia propose-t-il aujourd’hui ?',
-          answer: 'Bexio, disponible nativement dès le plan Entreprise. D’autres intégrations suivront le même principe de connexion officielle.',
+          answer: 'Bexio, disponible nativement dès le plan Équipe. D’autres intégrations suivront le même principe de connexion officielle.',
         },
         {
           question: 'L’intégration Bexio est-elle payante en plus de l’abonnement ?',
-          answer: 'Non — elle est incluse automatiquement à partir du plan Entreprise, sans module ni coût supplémentaire.',
+          answer: 'Non — elle est incluse automatiquement à partir du plan Équipe, sans module ni coût supplémentaire.',
         },
         {
           question: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?',
@@ -126,7 +126,7 @@ export default function IntegrationsPage() {
         { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
       ]}
       closingTitle="Connectez Bexio en deux minutes"
-      closingText="Depuis Compte → Intégrations, un administrateur autorise l'accès et la synchronisation démarre — inclus dès le plan Entreprise."
+      closingText="Depuis Compte → Intégrations, un administrateur autorise l'accès et la synchronisation démarre — inclus dès le plan Équipe."
     />
   );
 }

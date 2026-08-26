@@ -54,7 +54,7 @@ Deno.serve(async (req: Request) => {
     const { data: org } = await admin.from('organizations').select('plan_id').eq('id', organization_id).maybeSingle();
     const { data: plan } = await admin.from('plans').select('has_bexio_integration').eq('id', org?.plan_id ?? '').maybeSingle();
     if (!plan?.has_bexio_integration) {
-      return json({ error: "L'intégration Bexio nécessite le plan Entreprise ou supérieur." }, 403);
+      return json({ error: "L'intégration Bexio nécessite le plan Équipe ou supérieur." }, 403);
     }
 
     // A long, unguessable, single-use value — this is the only thing that
