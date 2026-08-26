@@ -374,6 +374,9 @@ export default function FacturesListScreen() {
               right={
                 isAdmin ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+                    <Pressable onPress={() => router.push('/(app)/devis/factures/new')} hitSlop={8}>
+                      <Feather name="plus-circle" size={18} color={colors.primary} />
+                    </Pressable>
                     <Pressable onPress={() => router.push('/(app)/devis/factures/import-releve')} hitSlop={8}>
                       <Feather name="upload-cloud" size={18} color={colors.textMuted} />
                     </Pressable>
