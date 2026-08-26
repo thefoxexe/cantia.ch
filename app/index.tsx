@@ -474,6 +474,27 @@ function LandingContent() {
             </Text>
           </View>
 
+          {/* ---- Bexio banner — the "real, native OAuth integration" pitch,
+              deliberately placed this high (right under the hero) rather
+              than buried near pricing further down, since it's one of the
+              first things prospects already on Bexio ask about. Slim
+              banner strip, not the full pitch — /integrations has the
+              detail (features, steps, FAQ). ---- */}
+          <Link href={'/integrations' as any} asChild>
+            <Pressable style={StyleSheet.flatten([styles.bexioBanner, isCompactNav && styles.bexioBannerCompact])}>
+              <View style={styles.bexioBannerLogoBadge}>
+                <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioBannerLogoImage} resizeMode="contain" />
+              </View>
+              <Text style={styles.bexioBannerText}>
+                Compatible avec <Text style={styles.bexioBannerTextStrong}>Bexio</Text> — clients, factures et statuts de paiement synchronisés automatiquement.
+              </Text>
+              <View style={styles.bexioBannerLinkRow}>
+                <Text style={styles.bexioBannerLinkText}>Voir les intégrations</Text>
+                <Feather name="arrow-right" size={13} color={colors.primary} />
+              </View>
+            </Pressable>
+          </Link>
+
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
           <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>Automatisations</Text>
@@ -815,58 +836,6 @@ function LandingContent() {
                 </Pressable>
                 );
               })}
-            </View>
-          </Reveal>
-
-          {/* ---- Bexio integration — real, native OAuth connection to the
-              Bexio API (contacts pull, invoice push, payment status sync),
-              not a private per-org module: included automatically from the
-              Entreprise plan up. ---- */}
-          <Reveal id="bexioIntegration" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <View style={[styles.bexioCard, isCompactNav && styles.bexioCardCompact]}>
-              <View style={styles.bexioLogoBadge}>
-                <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioLogoImage} resizeMode="contain" />
-              </View>
-              <View style={styles.bexioCopy}>
-                <Text style={styles.sectionEyebrow}>Intégration</Text>
-                <Text style={styles.bexioTitle}>Compatible avec Bexio</Text>
-                <Text style={styles.bexioText}>
-                  Cantia se connecte directement à votre compte Bexio : vos clients sont importés automatiquement, vos
-                  factures s'envoient en un clic, et leur statut de paiement reste à jour tout seul. Fini la double
-                  saisie entre le chantier et la comptabilité.
-                </Text>
-                <Link href={'/integrations' as any} asChild>
-                  <Pressable style={styles.bexioLink}>
-                    <Text style={styles.bexioLinkText}>Voir les intégrations</Text>
-                    <Feather name="arrow-right" size={14} color={colors.primary} />
-                  </Pressable>
-                </Link>
-              </View>
-            </View>
-          </Reveal>
-
-          {/* ---- Custom modules / integrations — the "Cantia s'adapte à
-              votre entreprise" pitch. Same environment Cantia for everyone;
-              private modules/integrations are opt-in per organization via
-              the Super Admin panel, never a forked copy of the app. ---- */}
-          <Reveal id="customModules" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <View style={styles.customModulesCard}>
-              <Text style={styles.sectionEyebrow}>Sur mesure</Text>
-              <Text style={styles.customModulesTitle}>{t.customModules.title}</Text>
-              <Text style={styles.customModulesText}>{t.customModules.text}</Text>
-              <View style={styles.customModulesBullets}>
-                {t.customModules.bullets.map((b) => (
-                  <View key={b} style={styles.customModulesBulletRow}>
-                    <Feather name="check-circle" size={16} color={colors.primary} />
-                    <Text style={styles.customModulesBulletText}>{b}</Text>
-                  </View>
-                ))}
-              </View>
-              <Button
-                title={t.customModules.cta}
-                onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Intégration sur mesure Cantia').catch(() => {})}
-                style={styles.customModulesButton}
-              />
             </View>
           </Reveal>
 
@@ -2279,111 +2248,61 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
-  bexioCard: {
+  bexioBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xl,
+    gap: spacing.md,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.xl,
-    padding: spacing.xxl,
-    maxWidth: 720,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  bexioCardCompact: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    padding: spacing.xl,
-  },
-  bexioLogoBadge: {
-    width: 72,
-    height: 72,
     borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginHorizontal: spacing.xl,
+    marginTop: spacing.lg,
+  },
+  bexioBannerCompact: {
+    flexWrap: 'wrap',
+    marginHorizontal: spacing.md,
+  },
+  bexioBannerLogoBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
     backgroundColor: '#0A3A47',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     flexShrink: 0,
   },
-  bexioLogoImage: {
-    width: 72,
-    height: 72,
+  bexioBannerLogoImage: {
+    width: 36,
+    height: 36,
   },
-  bexioCopy: {
+  bexioBannerText: {
     flex: 1,
     minWidth: 200,
-  },
-  bexioTitle: {
-    fontFamily: marketingFonts.display,
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.3,
-    marginTop: spacing.xs,
-    marginBottom: spacing.sm,
-  } as unknown as TextStyle,
-  bexioText: {
     fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
+    fontSize: fontSize.sm,
     color: colors.textMuted,
-    lineHeight: 22,
+    lineHeight: 20,
   },
-  bexioLink: {
+  bexioBannerTextStrong: {
+    fontFamily: marketingFonts.body,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  bexioBannerLinkRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    marginTop: spacing.md,
+    flexShrink: 0,
   },
-  bexioLinkText: {
+  bexioBannerLinkText: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.primary,
-  },
-  customModulesCard: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    padding: spacing.xxl,
-    maxWidth: 720,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  customModulesTitle: {
-    fontFamily: marketingFonts.display,
-    fontSize: 28,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.3,
-    marginBottom: spacing.md,
-  } as unknown as TextStyle,
-  customModulesText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    lineHeight: 24,
-    marginBottom: spacing.xl,
-  },
-  customModulesBullets: {
-    gap: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  customModulesBulletRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  customModulesBulletText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.text,
-    fontWeight: '500',
-  },
-  customModulesButton: {
-    alignSelf: 'flex-start',
   },
   // Visual thread linking "le problème" to "ce qu'on apporte" — a short
   // gradient stem ending in an arrow badge, standing in for the connective

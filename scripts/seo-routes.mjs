@@ -248,6 +248,17 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'sur-mesure',
+    title: 'Développement sur mesure | Cantia',
+    description:
+      "Au-delà des modules standards, Cantia peut développer un workflow, une automatisation ou une intégration spécialement pour votre entreprise — sans changer l'expérience des autres clients.",
+    faq: [
+      { q: 'Un module sur mesure est-il visible par les autres entreprises ?', a: 'Non. Un module développé pour vous est activé uniquement pour votre organisation — les autres clients Cantia ne le voient jamais.' },
+      { q: 'Est-ce que je dois changer de logiciel ou installer autre chose ?', a: 'Non — le module vit dans le même Cantia que vous utilisez déjà, avec les mêmes accès et les mêmes mises à jour.' },
+      { q: 'Combien coûte un développement sur mesure ?', a: 'Cela dépend entièrement du besoin. On en discute d’abord ensemble, et vous recevez un devis clair avant tout engagement.' },
+    ],
+  },
+  {
     path: 'blog',
     title: 'Blog | Cantia — Réponses concrètes pour le bâtiment suisse',
     description:

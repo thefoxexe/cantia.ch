@@ -218,6 +218,9 @@ export function MarketingFooter({
           <Link href="/integrations">
             <Text style={styles.footerLink}>Intégrations</Text>
           </Link>
+          <Link href="/sur-mesure">
+            <Text style={styles.footerLink}>Sur mesure</Text>
+          </Link>
           <Link href="/blog">
             <Text style={styles.footerLink}>Blog</Text>
           </Link>
