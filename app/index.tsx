@@ -278,7 +278,6 @@ function LandingContent() {
     scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: true });
   }, [sectionOffsets]);
 
-  const contactPlan = plans.find((p) => p.is_contact_only) ?? null;
 
   return (
     <Screen>
@@ -751,7 +750,7 @@ function LandingContent() {
                     </Text>
                     <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>
                   </View>
-                  {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null ? (
+                  {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null && !isFromPrice ? (
                     <Text style={[styles.priceYearlyNote, dark && styles.priceYearlyNoteOnDark]}>
                       {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
                     </Text>
@@ -816,28 +815,6 @@ function LandingContent() {
                 </Pressable>
                 );
               })}
-              {!plansLoading && contactPlan ? (
-                <View style={styles.priceCard}>
-                  <Text style={styles.priceName}>{planName(contactPlan.id, contactPlan.name)}</Text>
-                  <View style={styles.priceAmountRow}>
-                    <Text style={styles.priceAmount}>Sur devis</Text>
-                  </View>
-                  <Text style={styles.priceYearlyNote}>Chaque projet est chiffré séparément, selon sa complexité.</Text>
-                  <View style={styles.priceFeatures}>
-                    <PriceFeature text="Toutes les fonctionnalités des plans ci-dessus" included />
-                    <PriceFeature text="Accompagnement personnalisé" included />
-                    <PriceFeature text="Intégrations spécifiques" included />
-                    <PriceFeature text="Modules métier sur mesure" included />
-                    <PriceFeature text="Workflows personnalisés" included />
-                    <PriceFeature text="Support prioritaire" included />
-                  </View>
-                  <Button
-                    title="Nous contacter"
-                    variant="secondary"
-                    onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Plan Entreprise Cantia').catch(() => {})}
-                  />
-                </View>
-              ) : null}
             </View>
           </Reveal>
 
