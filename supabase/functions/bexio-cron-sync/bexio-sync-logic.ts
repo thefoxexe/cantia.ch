@@ -4,7 +4,15 @@
 //
 // deno-lint-ignore-file no-explicit-any
 
-import { bexioJson, bexioSearch, fetchAllBexioPages, type BexioIntegrationRow } from './bexio.ts';
+import {
+  bexioJson,
+  bexioSearch,
+  decodeBexioCompanyUserId,
+  fetchAllBexioPages,
+  getValidAccessToken,
+  resolveBexioSalesTaxId,
+  type BexioIntegrationRow,
+} from './bexio.ts';
 
 export interface SyncResult {
   action: string;
@@ -514,16 +522,138 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
 // the source of truth for the devis content — this only ever refreshes the
 // read-only Bexio-side display fields (document_nr, network_link) plus the
 // raw kb_item_status_id. That status id is stored as-is and never
-// translated into Cantia's own devis.status: the cahier des charges is
-// explicit that inventing a full status-code correspondence table from
-// guesses is not acceptable (section 35), so the UI shows Bexio's own
-// number rather than a fabricated French label for it.
+// translated into Cantia's own devis.status by guessing the full Bexio
+// status-code table (cahier des charges section 35) — except for
+// BEXIO_OFFER_STATUS_ACCEPTED below, which isn't a guess: it was confirmed
+// live against the connected account by accepting a real offer in Bexio and
+// observing its kb_item_status_id flip from 1 to 3 while an untouched
+// sibling offer stayed at 1. That one value is the only one this file acts
+// on; every other id is still just displayed, never interpreted.
 // ---------------------------------------------------------------------------
+const BEXIO_OFFER_STATUS_ACCEPTED = 3;
+
 interface BexioOffer {
   id: number;
   document_nr: string | null;
   kb_item_status_id: number | null;
   network_link: string | null;
+}
+
+// Pushes a freshly auto-converted facture to Bexio as a kb_invoice draft —
+// same payload shape as bexio-push-invoice/index.ts (kept in sync by hand,
+// same as the bexio.ts helpers are across all six functions), reused here
+// so a devis accepted on Bexio's side doesn't just create a local facture
+// but also lands in Bexio without a separate manual click.
+async function pushFactureToBexio(admin: any, integration: BexioIntegrationRow, factureId: string): Promise<{ ok: boolean; externalId?: string; error?: string }> {
+  const { data: facture } = await admin
+    .from('factures')
+    .select('id, organization_id, number, client_id, notes, due_date, created_at, vat_rate')
+    .eq('id', factureId)
+    .maybeSingle();
+  if (!facture || !facture.client_id) return { ok: false, error: 'Facture introuvable ou sans client.' };
+
+  const { data: clientMapping } = await admin
+    .from('integration_mappings')
+    .select('external_id')
+    .eq('integration_id', integration.id)
+    .eq('entity_type', 'client')
+    .eq('local_id', facture.client_id)
+    .maybeSingle();
+  if (!clientMapping) return { ok: false, error: "Le client de cette facture n'est pas relié à un contact Bexio." };
+
+  const { data: items } = await admin
+    .from('facture_items')
+    .select('description, quantity, unit_price, sort_order')
+    .eq('facture_id', facture.id)
+    .order('sort_order', { ascending: true });
+  if (!items || items.length === 0) return { ok: false, error: 'Cette facture ne contient aucune ligne.' };
+
+  const { data: settingsRow } = await admin.from('integration_settings').select('entity_settings').eq('integration_id', integration.id).maybeSingle();
+  const defaults = (settingsRow?.entity_settings as any)?.invoice_defaults ?? {};
+
+  const accessToken = await getValidAccessToken(admin, integration);
+  const companyUserId = decodeBexioCompanyUserId(accessToken);
+  const taxId = await resolveBexioSalesTaxId(admin, integration, Number(facture.vat_rate));
+
+  const positions = items.map((item: any) => ({
+    type: 'KbPositionCustom',
+    text: item.description,
+    amount: String(item.quantity),
+    unit_price: String(item.unit_price),
+    tax_id: taxId ?? undefined,
+  }));
+
+  const payload: Record<string, unknown> = {
+    title: facture.number ? `Facture ${facture.number}` : 'Facture Cantia',
+    contact_id: Number(clientMapping.external_id),
+    user_id: companyUserId ?? undefined,
+    language_id: defaults.default_language_id ?? undefined,
+    bank_account_id: defaults.default_bank_account_id ?? undefined,
+    currency_id: defaults.default_currency_id ?? undefined,
+    payment_type_id: defaults.default_payment_type_id ?? undefined,
+    mwst_type: defaults.default_mwst_type ?? undefined,
+    mwst_is_net: defaults.default_mwst_is_net ?? undefined,
+    header: '',
+    footer: facture.notes ?? '',
+    is_valid_from: new Date(facture.created_at).toISOString().slice(0, 10),
+    is_valid_to: facture.due_date,
+    api_reference: `cantia:facture:${facture.id}`,
+    positions,
+  };
+
+  try {
+    const created = await bexioJson<{ id: number }>(admin, integration, '/2.0/kb_invoice', { method: 'POST', body: JSON.stringify(payload) });
+    const externalId = String(created.id);
+    await admin.from('integration_mappings').insert({
+      integration_id: integration.id,
+      organization_id: facture.organization_id,
+      entity_type: 'facture',
+      local_id: facture.id,
+      external_id: externalId,
+      external_type: 'kb_invoice',
+      sync_direction: 'push',
+      last_synced_at: new Date().toISOString(),
+    });
+    await logSync(admin, integration, { direction: 'push', action: 'create', status: 'success', entity_type: 'facture', local_id: facture.id, external_id: externalId, payload_summary: { position_count: positions.length, auto: true } });
+    return { ok: true, externalId };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await logSync(admin, integration, { direction: 'push', action: 'error', status: 'error', entity_type: 'facture', local_id: facture.id, error_message: message });
+    return { ok: false, error: message };
+  }
+}
+
+// Devis just turned 'accepted' via the Bexio pull above — auto-create the
+// Cantia facture and push it to Bexio too, so accepting an offer on Bexio's
+// side alone is enough to get a drafted invoice on both ends. Reuses
+// convert_devis_to_facture_internal (no permission check of its own by
+// design — it's also the function the public client-portal accept flow
+// calls, since neither caller has an authenticated dashboard session).
+// Guarded by "no non-cancelled facture already exists for this devis" so a
+// repeated cron pass (or an already-accepted devis at deploy time) never
+// creates a second facture — it only fires once, on the real transition.
+async function autoCreateAndPushFactureForAcceptedDevis(admin: any, integration: BexioIntegrationRow, devisId: string) {
+  const { data: existing } = await admin.from('factures').select('id').eq('devis_id', devisId).neq('status', 'cancelled').limit(1).maybeSingle();
+  if (existing) return;
+
+  const { data: factureId, error: convertError } = await admin.rpc('convert_devis_to_facture_internal', {
+    p_devis_id: devisId,
+    p_due_days: 30,
+    p_deposit_percent: null,
+  });
+  if (convertError || !factureId) {
+    const message = convertError?.message ?? 'Échec de la création automatique de la facture.';
+    await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'facture', local_id: devisId, error_message: message });
+    return;
+  }
+
+  const pushResult = await pushFactureToBexio(admin, integration, factureId);
+  if (!pushResult.ok) {
+    // The Cantia facture exists either way — only the Bexio push failed
+    // (e.g. client not yet linked to a Bexio contact). Already logged by
+    // pushFactureToBexio itself; nothing more to do here than leave it for
+    // the next manual "Envoyer vers Bexio" or sync pass to retry.
+  }
 }
 
 export async function syncBexioDevisStatuses(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
@@ -545,12 +675,19 @@ export async function syncBexioDevisStatuses(admin: any, integration: BexioInteg
         await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'devis', local_id: mapping.local_id, external_id: mapping.external_id, error_message: message });
         continue;
       }
-      await admin
-        .from('devis')
-        .update({ bexio_document_nr: offer.document_nr, bexio_status_id: offer.kb_item_status_id, bexio_network_link: offer.network_link })
-        .eq('id', mapping.local_id);
+
+      const { data: localDevis } = await admin.from('devis').select('status').eq('id', mapping.local_id).maybeSingle();
+      const wasAccepted = localDevis?.status === 'accepted';
+
+      const updatePayload: Record<string, unknown> = { bexio_document_nr: offer.document_nr, bexio_status_id: offer.kb_item_status_id, bexio_network_link: offer.network_link };
+      const justAccepted = offer.kb_item_status_id === BEXIO_OFFER_STATUS_ACCEPTED && !wasAccepted && localDevis != null;
+      if (justAccepted) updatePayload.status = 'accepted';
+
+      await admin.from('devis').update(updatePayload).eq('id', mapping.local_id);
       await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
       count += 1;
+
+      if (justAccepted) await autoCreateAndPushFactureForAcceptedDevis(admin, integration, mapping.local_id);
     }
     if (failed > 0 && count === 0) {
       throw new Error(`Échec de synchronisation des devis pour ${failed} devis — la connexion Bexio est probablement invalide.`);
