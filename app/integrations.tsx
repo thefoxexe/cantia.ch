@@ -7,44 +7,58 @@ import { marketingFonts } from '../lib/marketingTheme';
 // Directory page for third-party integrations — today just Bexio, but the
 // shape (one detailed card per integration, room for a "bientôt" row) is
 // built to grow without a redesign once a second one ships. Distinct from
-// the "Compatible avec Bexio" teaser card on the homepage: this is the
+// the "Compatible avec Bexio" teaser ribbon on the homepage: this is the
 // place that actually explains what each integration does, in detail.
+//
+// The hero visual is a real interconnection diagram — Cantia's mark on one
+// end, Bexio's logo on the other, with one connector row per data type
+// that actually syncs — rather than a fake browser-chrome mockup of a
+// screen that doesn't really look like this. It's meant to read at a
+// glance as "these two systems talk to each other, both ways", which a
+// static screenshot-style mockup never communicated as clearly.
 function IntegrationsVisual() {
+  const rows: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
+    { icon: 'users', label: 'Clients' },
+    { icon: 'file-text', label: 'Devis' },
+    { icon: 'file', label: 'Factures' },
+    { icon: 'credit-card', label: 'Statuts de paiement' },
+  ];
   return (
     <View style={styles.visualFrame}>
-      <View style={styles.visualTopBar}>
-        <View style={styles.visualDots}>
-          <View style={[styles.visualDot, { backgroundColor: '#E38B7A' }]} />
-          <View style={[styles.visualDot, { backgroundColor: '#E8C57A' }]} />
-          <View style={[styles.visualDot, { backgroundColor: '#8FB88A' }]} />
+      <View style={styles.visualEndpoints}>
+        <View style={styles.visualEndpoint}>
+          <View style={styles.visualLogoBadgeCantia}>
+            <Image source={require('../assets/logo-mark.png')} style={styles.visualLogoImageCantia} resizeMode="contain" />
+          </View>
+          <Text style={styles.visualEndpointLabel}>Cantia</Text>
         </View>
-        <View style={styles.visualAddressBar}>
-          <Feather name="lock" size={9} color={colors.textMuted} />
-          <Text style={styles.visualAddressText}>cantia.ch/compte/integrations</Text>
-        </View>
-      </View>
-      <View style={styles.visualScreen}>
-        <View style={styles.visualBexioRow}>
+        <View style={styles.visualEndpoint}>
           <View style={styles.visualLogoBadge}>
             <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.visualLogoImage} resizeMode="contain" />
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.visualBexioTitle}>Bexio</Text>
-            <View style={styles.visualStatusRow}>
-              <View style={styles.visualStatusDot} />
-              <Text style={styles.visualStatusText}>Connecté</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.visualSyncList}>
-          {['Clients', 'Articles → Catalogue', 'Factures', 'Statuts de paiement'].map((label) => (
-            <View key={label} style={styles.visualSyncRow}>
-              <Feather name="check-circle" size={13} color={colors.success} />
-              <Text style={styles.visualSyncText}>{label}</Text>
-            </View>
-          ))}
+          <Text style={styles.visualEndpointLabel}>Bexio</Text>
         </View>
       </View>
+
+      <View style={styles.visualLinks}>
+        {rows.map((row) => (
+          <View key={row.label} style={styles.visualLinkRow}>
+            <View style={styles.visualLinkLabelWrap}>
+              <Feather name={row.icon} size={12} color={colors.textMuted} />
+              <Text style={styles.visualLinkLabel}>{row.label}</Text>
+            </View>
+            <View style={styles.visualLinkLine}>
+              <View style={styles.visualDash} />
+              <View style={styles.visualSyncDot}>
+                <Feather name="repeat" size={9} color="#fff" />
+              </View>
+              <View style={styles.visualDash} />
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <Text style={styles.visualCaption}>Synchronisé automatiquement, dans les deux sens</Text>
     </View>
   );
 }
@@ -134,111 +148,108 @@ export default function IntegrationsPage() {
 const styles = StyleSheet.create({
   visualFrame: {
     width: '100%',
-    maxWidth: 380,
+    maxWidth: 460,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
-    overflow: 'hidden',
+    padding: spacing.xl,
+    gap: spacing.lg,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
   },
-  visualTopBar: {
+  visualEndpoints: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  visualEndpoint: {
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    gap: spacing.xs,
+  },
+  visualLogoBadgeCantia: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.lg,
     backgroundColor: colors.surfaceAlt,
-  },
-  visualDots: {
-    flexDirection: 'row',
-    gap: 5,
-  },
-  visualDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  visualAddressBar: {
-    flex: 1,
-    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.surface,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  visualAddressText: {
-    fontFamily: marketingFonts.body,
-    fontSize: 10,
-    color: colors.textMuted,
-  },
-  visualScreen: {
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  visualBexioRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
+  visualLogoImageCantia: {
+    width: 34,
+    height: 34,
   },
   visualLogoBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+    width: 56,
+    height: 56,
+    borderRadius: radius.lg,
     backgroundColor: '#0A3A47',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   visualLogoImage: {
-    width: 44,
-    height: 44,
+    width: 56,
+    height: 56,
   },
-  visualBexioTitle: {
+  visualEndpointLabel: {
     fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
+    fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
   },
-  visualStatusRow: {
+  visualLinks: {
+    gap: spacing.md,
+  },
+  visualLinkRow: {
+    gap: 6,
+  },
+  visualLinkLabelWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginTop: 2,
+    gap: 6,
   },
-  visualStatusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.success,
+  visualLinkLabel: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
-  visualStatusText: {
+  visualLinkLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  visualDash: {
+    flex: 1,
+    height: 0,
+    borderTopWidth: 2,
+    borderStyle: 'dashed',
+    borderTopColor: colors.border,
+  },
+  visualSyncDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  visualCaption: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.xs,
     color: colors.textMuted,
-  },
-  visualSyncList: {
-    gap: spacing.sm,
-    paddingTop: spacing.sm,
+    textAlign: 'center',
+    paddingTop: spacing.xs,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-  },
-  visualSyncRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  visualSyncText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.text,
-    fontWeight: '600',
   },
 });

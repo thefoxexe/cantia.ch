@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
@@ -16,6 +16,7 @@ export default function ChoosePlanScreen() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
+  const [stayingFree, setStayingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Pre-applied so the trial is the default, not something a prospect has to
   // dig for — they can still clear/edit the field before choosing a plan.
@@ -69,6 +70,13 @@ export default function ChoosePlanScreen() {
     setBusyPlan(null);
   }
 
+  async function stayFree() {
+    if (!organization || stayingFree) return;
+    setStayingFree(true);
+    await supabase.from('organizations').update({ plan_selected: true }).eq('id', organization.id);
+    await refreshOrganization();
+  }
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -91,10 +99,7 @@ export default function ChoosePlanScreen() {
 
         <View style={styles.promoBanner}>
           <Feather name="gift" size={16} color={colors.primary} />
-          <Text style={styles.promoBannerText}>
-            30 jours d'essai gratuit sur n'importe quel plan — carte requise, aucun débit avant la fin de l'essai,
-            résiliable à tout moment.
-          </Text>
+          <Text style={styles.promoBannerText}>30 jours d'essai gratuit sur n'importe quel plan — résiliable à tout moment.</Text>
         </View>
         <View style={styles.promoRow}>
           <Text style={styles.promoLabel}>Code promo</Text>
@@ -135,6 +140,14 @@ export default function ChoosePlanScreen() {
             />
           ))}
         </View>
+
+        <Pressable onPress={stayFree} disabled={stayingFree} style={styles.freeLink} hitSlop={8}>
+          {stayingFree ? (
+            <ActivityIndicator size="small" color={colors.textMuted} />
+          ) : (
+            <Text style={styles.freeLinkText}>Rester sur la version gratuite</Text>
+          )}
+        </Pressable>
       </ScrollView>
     </Screen>
   );
@@ -395,5 +408,15 @@ const styles = StyleSheet.create({
   },
   featureTextMuted: {
     color: colors.textMuted,
+  },
+  freeLink: {
+    alignSelf: 'center',
+    marginTop: spacing.xxl,
+    paddingVertical: spacing.sm,
+  },
+  freeLinkText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textDecorationLine: 'underline',
   },
 });
