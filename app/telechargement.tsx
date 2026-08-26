@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Container, Screen } from '../components/ui';
@@ -13,8 +13,6 @@ type InstallIcon = 'share' | 'more-vertical' | 'download';
 interface InstallPlatform {
   key: 'ios' | 'android' | 'desktop';
   label: string;
-  device: 'phone' | 'desktop';
-  chromePosition: 'top' | 'bottom';
   icon: InstallIcon;
   steps: string[];
 }
@@ -22,9 +20,7 @@ interface InstallPlatform {
 const INSTALL_PLATFORMS: InstallPlatform[] = [
   {
     key: 'ios',
-    label: 'iPhone (Safari)',
-    device: 'phone',
-    chromePosition: 'bottom',
+    label: 'iPhone & iPad',
     icon: 'share',
     steps: [
       'Ouvrez cantia.ch dans Safari',
@@ -34,9 +30,7 @@ const INSTALL_PLATFORMS: InstallPlatform[] = [
   },
   {
     key: 'android',
-    label: 'Android (Chrome)',
-    device: 'phone',
-    chromePosition: 'top',
+    label: 'Android',
     icon: 'more-vertical',
     steps: [
       'Ouvrez cantia.ch dans Chrome',
@@ -47,8 +41,6 @@ const INSTALL_PLATFORMS: InstallPlatform[] = [
   {
     key: 'desktop',
     label: 'Ordinateur',
-    device: 'desktop',
-    chromePosition: 'top',
     icon: 'download',
     steps: [
       'Ouvrez cantia.ch dans Chrome ou Edge',
@@ -77,25 +69,58 @@ const TRUST_ITEMS: { icon: 'lock' | 'flag' | 'shield'; title: string; text: stri
 ];
 
 export default function TelechargementScreen() {
+  const heroAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(heroAnim, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [heroAnim]);
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
-        <Container style={styles.container}>
-          <View style={styles.versionBadge}>
-            <Text style={styles.versionBadgeText}>Version 1.0</Text>
-          </View>
-          <Text style={styles.title}>Cantia sur mobile</Text>
-          <Text style={styles.lead}>
-            Aujourd'hui, Cantia fonctionne comme une application web — installable et utilisable depuis n'importe
-            quel navigateur, sur ordinateur comme sur téléphone. Les applications natives iOS et Android arrivent
-            bientôt : on préfère sortir une version 1.0 solide plutôt que de se précipiter sur les stores.
-          </Text>
+        {/* Same grid + soft blob backdrop as the homepage hero, so this page
+            reads as part of the same site rather than a bolted-on screen. */}
+        <View style={styles.heroWrap}>
+          <View pointerEvents="none" style={styles.heroGrid} />
+          <View pointerEvents="none" style={styles.heroBlob} />
+          <Container style={styles.heroContainer}>
+            <Animated.View
+              style={{
+                opacity: heroAnim,
+                transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
+              }}
+            >
+              <View style={styles.kickerPill}>
+                <Text style={styles.kickerText}>Application Cantia</Text>
+              </View>
+              <Text style={styles.title}>Cantia, partout où vous travaillez</Text>
+              <Text style={styles.subtitle}>
+                Cantia fonctionne déjà comme une application complète — installable en un geste sur votre téléphone
+                ou votre ordinateur, sans passer par un store. Les applications natives iOS et Android arrivent
+                ensuite : mieux vaut une version 1.0 solide qu'une sortie précipitée.
+              </Text>
+              <View style={styles.heroCtaRow}>
+                <Link href={authHref('signup')} asChild>
+                  <Button title="Essayer gratuitement" onPress={() => {}} />
+                </Link>
+              </View>
+            </Animated.View>
+          </Container>
+        </View>
 
-          <View style={styles.storeGrid}>
-            <StoreCard kind="apple" name="App Store" />
-            <StoreCard kind="google" name="Google Play" />
+        <Container style={styles.container}>
+          <View style={styles.storeSection}>
+            <Text style={styles.sectionTitle}>L'app officielle arrive</Text>
+            <Text style={styles.sectionLead}>
+              Vous préférez l'installer depuis un store ? La version Android est actuellement en développement pour
+              Google Play, iOS suivra. En attendant leur sortie, la version web ci-dessous propose déjà l'intégralité
+              des fonctionnalités — photos, dictée vocale, devis, factures, QR-facture.
+            </Text>
+            <View style={styles.storeGrid}>
+              <StoreCard kind="apple" name="App Store" />
+              <StoreCard kind="google" name="Google Play" />
+            </View>
           </View>
 
           <View style={styles.webCard}>
@@ -116,7 +141,7 @@ export default function TelechargementScreen() {
           </View>
 
           <View style={styles.installSection}>
-            <Text style={styles.installTitle}>Comment l'installer</Text>
+            <Text style={styles.installTitle}>Comment l'installer aujourd'hui</Text>
             <Text style={styles.installLead}>
               Trois étapes, une seule fois — ensuite Cantia s'ouvre en plein écran depuis son icône, comme une vraie
               app.
@@ -154,12 +179,10 @@ export default function TelechargementScreen() {
   );
 }
 
-// Illustrated (not photographed) walkthrough of the browser "Add to Home
-// Screen" flow, since Cantia isn't on the App Store / Play Store yet and
-// that flow looks different enough per platform that a single generic
-// blurb ("ajoutez-la à votre écran d'accueil") wasn't enough on its own.
-// Built entirely from Views/icons rather than real screenshots — same
-// illustrated-mockup approach as the hero devis card above.
+// Platform switcher + numbered steps only — no illustrated device mockup.
+// A real product photo/mockup is planned for this page (design in progress
+// separately); until then, plain steps read cleaner than an approximated
+// browser-chrome illustration built out of Views.
 function InstallGuide() {
   const [platform, setPlatform] = useState<InstallPlatform['key']>('ios');
   const active = INSTALL_PLATFORMS.find((p) => p.key === platform)!;
@@ -173,81 +196,23 @@ function InstallGuide() {
             onPress={() => setPlatform(p.key)}
             style={[styles.installTab, platform === p.key && styles.installTabActive]}
           >
+            <Feather name={p.icon} size={14} color={platform === p.key ? colors.primary : colors.textMuted} />
             <Text style={[styles.installTabText, platform === p.key && styles.installTabTextActive]}>{p.label}</Text>
           </Pressable>
         ))}
       </View>
 
-      <View style={styles.installBody}>
-        <BrowserMockup platform={active} />
-        <View style={styles.installSteps}>
-          {active.steps.map((step, i) => (
-            <View key={step} style={styles.installStepRow}>
-              <View style={styles.installStepNumber}>
-                <Text style={styles.installStepNumberText}>{i + 1}</Text>
-              </View>
-              <Text style={styles.installStepText}>{step}</Text>
+      <View style={styles.installStepsCard}>
+        {active.steps.map((step, i) => (
+          <View key={step} style={styles.installStepRow}>
+            <View style={styles.installStepNumber}>
+              <Text style={styles.installStepNumberText}>{i + 1}</Text>
             </View>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function BrowserMockup({ platform }: { platform: InstallPlatform }) {
-  const highlight = (
-    <View style={styles.mockHighlightWrap}>
-      <View style={styles.mockHighlightGlow} />
-      <View style={styles.mockHighlightIcon}>
-        <Feather name={platform.icon} size={platform.device === 'phone' ? 15 : 13} color="#fff" />
-      </View>
-    </View>
-  );
-
-  const chrome =
-    platform.device === 'phone' ? (
-      <View style={[styles.mockPhoneChrome, platform.chromePosition === 'top' && styles.mockPhoneChromeTop]}>
-        <View style={styles.mockChromeDot} />
-        <View style={styles.mockChromeDot} />
-        <View style={{ flex: 1 }} />
-        {highlight}
-      </View>
-    ) : null;
-
-  if (platform.device === 'desktop') {
-    return (
-      <View style={styles.mockDesktopFrame}>
-        <View style={styles.mockDesktopTopBar}>
-          <View style={styles.mockTrafficLights}>
-            <View style={[styles.mockTrafficDot, { backgroundColor: '#ED6A5E' }]} />
-            <View style={[styles.mockTrafficDot, { backgroundColor: '#F4BF4F' }]} />
-            <View style={[styles.mockTrafficDot, { backgroundColor: '#61C554' }]} />
+            <Text style={styles.installStepText}>{step}</Text>
+            {i < active.steps.length - 1 ? <View style={styles.installStepConnector} /> : null}
           </View>
-          <View style={styles.mockAddressBar}>
-            <Feather name="lock" size={10} color={colors.textMuted} />
-            <Text style={styles.mockAddressBarText}>cantia.ch</Text>
-            {highlight}
-          </View>
-        </View>
-        <View style={styles.mockDesktopContent}>
-          <View style={styles.mockContentHero} />
-          <View style={styles.mockContentLine} />
-          <View style={[styles.mockContentLine, { width: '60%' }]} />
-        </View>
+        ))}
       </View>
-    );
-  }
-
-  return (
-    <View style={styles.mockPhoneFrame}>
-      {platform.chromePosition === 'top' ? chrome : null}
-      <View style={styles.mockPhoneScreen}>
-        <View style={styles.mockContentHeroSmall} />
-        <View style={styles.mockContentLine} />
-        <View style={[styles.mockContentLine, { width: '70%' }]} />
-      </View>
-      {platform.chromePosition === 'bottom' ? chrome : null}
     </View>
   );
 }
@@ -256,11 +221,12 @@ function StoreCard({ kind, name }: { kind: 'apple' | 'google'; name: string }) {
   return (
     <View style={styles.storeCard}>
       <View style={styles.storeCardIcon}>
-        <Ionicons name={kind === 'apple' ? 'logo-apple' : 'logo-google-playstore'} size={28} color="#fff" />
+        <Ionicons name={kind === 'apple' ? 'logo-apple' : 'logo-google-playstore'} size={26} color="#fff" />
       </View>
       <Text style={styles.storeCardName}>{name}</Text>
       <View style={styles.storeCardSoon}>
-        <Text style={styles.storeCardSoonText}>Bientôt disponible</Text>
+        <View style={styles.storeCardSoonDot} />
+        <Text style={styles.storeCardSoonText}>En développement</Text>
       </View>
     </View>
   );
@@ -270,6 +236,77 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
+  heroWrap: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heroGrid: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage:
+      `linear-gradient(${colors.border} 1px, transparent 1px), linear-gradient(90deg, ${colors.border} 1px, transparent 1px)`,
+    backgroundSize: '44px 44px',
+    opacity: 0.5,
+    maskImage: 'linear-gradient(to bottom, black, transparent)',
+    WebkitMaskImage: 'linear-gradient(to bottom, black, transparent)',
+  } as unknown as ViewStyle,
+  heroBlob: {
+    position: 'absolute',
+    top: -140,
+    right: -120,
+    width: 420,
+    height: 420,
+    borderRadius: 210,
+    backgroundColor: colors.primarySoft,
+    opacity: 0.35,
+  },
+  heroContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xl,
+  },
+  kickerPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    marginBottom: spacing.md,
+  },
+  kickerText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  title: {
+    fontFamily: marketingFonts.display,
+    fontSize: 46,
+    fontWeight: '600',
+    color: colors.text,
+    letterSpacing: -0.6,
+    lineHeight: 50,
+  } as unknown as ViewStyle,
+  subtitle: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    marginTop: spacing.md,
+    lineHeight: 24,
+    maxWidth: 540,
+  },
+  heroCtaRow: {
+    flexDirection: 'row',
+    marginTop: spacing.xl,
+  },
   container: {
     maxWidth: 720,
     width: '100%',
@@ -278,40 +315,29 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxxl,
   },
-  versionBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    marginBottom: spacing.sm,
-  },
-  versionBadgeText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  title: {
+  sectionTitle: {
     fontFamily: marketingFonts.display,
-    fontSize: 38,
+    fontSize: 24,
     fontWeight: '600',
     color: colors.text,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
-  lead: {
+  sectionLead: {
     fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
+    fontSize: fontSize.sm,
     color: colors.textMuted,
-    marginTop: spacing.sm,
-    lineHeight: 22,
+    marginTop: spacing.xs,
+    lineHeight: 20,
     maxWidth: 560,
+  },
+  storeSection: {
+    marginBottom: spacing.xl,
   },
   storeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
   },
   storeCard: {
     flex: 1,
@@ -339,10 +365,19 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   storeCardSoon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 4,
+  },
+  storeCardSoonDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
   },
   storeCardSoonText: {
     fontFamily: marketingFonts.body,
@@ -415,6 +450,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   installTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
@@ -435,35 +473,32 @@ const styles = StyleSheet.create({
   installTabTextActive: {
     color: colors.primary,
   },
-  installBody: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xl,
-    alignItems: 'flex-start',
-  },
-  installSteps: {
-    flex: 1,
-    minWidth: 220,
-    gap: spacing.md,
-    paddingTop: spacing.xs,
+  installStepsCard: {
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   installStepRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: spacing.md,
     alignItems: 'flex-start',
+    position: 'relative',
   },
   installStepNumber: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    marginTop: 1,
+    zIndex: 1,
   },
   installStepNumberText: {
-    fontSize: 11,
+    fontFamily: marketingFonts.body,
+    fontSize: 12,
     fontWeight: '800',
     color: colors.primary,
   },
@@ -473,130 +508,16 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
     lineHeight: 20,
+    paddingVertical: spacing.xs,
+    paddingBottom: spacing.md,
   },
-  // Phone mockup — a dark bezel frame around a browser chrome strip (top or
-  // bottom, depending on platform) and a small abstracted "page" — built
-  // from plain Views, not a real screenshot.
-  mockPhoneFrame: {
-    width: 172,
-    borderRadius: 26,
-    borderWidth: 8,
-    borderColor: colors.text,
-    backgroundColor: colors.text,
-    overflow: 'hidden',
-  },
-  mockPhoneScreen: {
-    height: 220,
-    backgroundColor: colors.surfaceAlt,
-    padding: spacing.sm,
-  },
-  mockPhoneChrome: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 10,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  mockPhoneChromeTop: {
-    borderTopWidth: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  mockChromeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.textMuted,
-    opacity: 0.35,
-  },
-  mockHighlightWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mockHighlightGlow: {
+  installStepConnector: {
     position: 'absolute',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.primarySoft,
-  },
-  mockHighlightIcon: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mockContentHeroSmall: {
-    height: 40,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primarySoft,
-    marginBottom: 8,
-  },
-  mockContentHero: {
-    height: 60,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primarySoft,
-    marginBottom: 8,
-  },
-  mockContentLine: {
-    height: 8,
-    borderRadius: 4,
+    left: 12,
+    top: 26,
+    bottom: -2,
+    width: 2,
     backgroundColor: colors.border,
-    marginBottom: 6,
-    width: '90%',
-  },
-  // Desktop mockup — a browser window frame (traffic lights + address bar)
-  // above the same abstracted "page" content.
-  mockDesktopFrame: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
-  },
-  mockDesktopTopBar: {
-    paddingHorizontal: spacing.sm,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  mockTrafficLights: {
-    flexDirection: 'row',
-    gap: 6,
-    marginBottom: 8,
-  },
-  mockTrafficDot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-  },
-  mockAddressBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.surface,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-  },
-  mockAddressBarText: {
-    flex: 1,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  mockDesktopContent: {
-    padding: spacing.md,
   },
   note: {
     fontFamily: marketingFonts.body,
