@@ -47,7 +47,14 @@ export async function getValidAccessToken(admin: any, integration: BexioIntegrat
     .eq('integration_id', integration.id)
     .maybeSingle();
 
-  if (!creds) throw new BexioError('BEXIO_AUTH_ERROR', "Aucun jeton Bexio enregistré pour cette entreprise.");
+  if (!creds) {
+    // The integration row can say "connected" while its credentials row is
+    // gone (revoked token, manual cleanup, a partial reconnect) — without
+    // this, every sync silently fails forever while the UI still shows a
+    // green "Connecté" dot. Flip the status so it's visible and actionable.
+    await markIntegrationError(admin, integration.id, 'BEXIO_AUTH_ERROR', "Aucun jeton Bexio enregistré — reconnectez l'intégration.");
+    throw new BexioError('BEXIO_AUTH_ERROR', "Aucun jeton Bexio enregistré pour cette entreprise.");
+  }
 
   const expiresAt = creds.expires_at ? new Date(creds.expires_at).getTime() : 0;
   const stillValid = expiresAt > Date.now() + 60_000;

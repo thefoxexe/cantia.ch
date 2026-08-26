@@ -292,6 +292,7 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
       .eq('integration_id', integration.id)
       .eq('entity_type', 'facture');
     let count = 0;
+    let failed = 0;
     for (const mapping of mappings ?? []) {
       const { data: facture } = await admin.from('factures').select('id, status, paid_at').eq('id', mapping.local_id).maybeSingle();
       // Never let an automated pull resurrect a locally cancelled/draft
@@ -301,7 +302,17 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
       let invoice: BexioInvoiceStatus;
       try {
         invoice = await bexioJson<BexioInvoiceStatus>(admin, integration, `/2.0/kb_invoice/${mapping.external_id}`);
-      } catch {
+      } catch (err) {
+        // Used to silently `continue` here — a broken connection (expired
+        // token, revoked access) meant every single invoice failed the
+        // same way, yet the loop finished and logged an overall "success"
+        // with count=0, so a facture staying "envoyée" while paid in Bexio
+        // looked like nothing was wrong. Each failure is now logged, and a
+        // sweep where every mapped invoice failed surfaces as a real error
+        // below instead of a quiet no-op.
+        failed += 1;
+        const message = err instanceof Error ? err.message : String(err);
+        await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'facture', local_id: mapping.local_id, external_id: mapping.external_id, error_message: message });
         continue;
       }
 
@@ -320,8 +331,11 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
       await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
       count += 1;
     }
+    if (failed > 0 && count === 0) {
+      throw new Error(`Échec de synchronisation des statuts pour ${failed} facture(s) — la connexion Bexio est probablement invalide.`);
+    }
     await admin.from('integrations').update({ last_sync_at: new Date().toISOString(), last_successful_sync_at: new Date().toISOString() }).eq('id', integration.id);
-    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'facture', payload_summary: { count } });
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'facture', payload_summary: { count, failed } });
     return { action: 'invoice_status', ok: true, count };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
