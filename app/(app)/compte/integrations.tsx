@@ -205,7 +205,7 @@ export default function IntegrationsScreen() {
         <Text style={styles.footnote}>
           {locked
             ? "L'intégration Bexio permet de synchroniser vos clients, produits et factures. Elle est incluse à partir du plan Entreprise."
-            : "Vos clients et vos articles Bexio sont importés automatiquement à la connexion et à chaque synchronisation (les articles viennent alimenter votre Catalogue). Pour vos factures : ouvrez une facture et utilisez \"Envoyer vers Bexio\" — son statut de paiement sera ensuite tenu à jour ici."}
+            : "Vos clients et vos articles Bexio sont importés automatiquement à la connexion et à chaque synchronisation (les articles viennent alimenter votre Catalogue). Les factures voyagent dans les deux sens : envoyez une facture Cantia vers Bexio depuis son détail, ou créez-la directement dans Bexio — elle apparaît ici à la synchronisation suivante, avec son statut de paiement tenu à jour."}
         </Text>
       </Container>
     </Screen>

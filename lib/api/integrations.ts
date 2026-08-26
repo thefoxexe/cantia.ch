@@ -47,7 +47,7 @@ export async function disconnectBexio(organizationId: string): Promise<{ error: 
   return { error };
 }
 
-export type BexioSyncAction = 'contacts' | 'settings' | 'articles' | 'invoice_status' | 'all';
+export type BexioSyncAction = 'contacts' | 'settings' | 'articles' | 'invoices_pull' | 'invoice_status' | 'all';
 
 export async function syncBexio(organizationId: string, action: BexioSyncAction): Promise<{ error: string | null }> {
   const { error } = await invokeFunction('bexio-sync', { organization_id: organizationId, action });

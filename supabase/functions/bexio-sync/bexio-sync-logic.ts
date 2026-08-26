@@ -331,6 +331,149 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
   }
 }
 
+// ---------------------------------------------------------------------------
+// Invoices created directly in Bexio -> Cantia (pull, the missing other
+// direction of the push in bexio-push-invoice). An invoice already mapped
+// (created from Cantia, or already imported once) is skipped — this only
+// ever picks up Bexio-side invoices Cantia has never seen. Positions are
+// read back from the same /2.0/kb_invoice/{id} detail endpoint used to
+// write them; if Bexio doesn't return a positions array for some invoice
+// (e.g. it was built entirely from bexio-native article positions this
+// integration doesn't resolve), a single synthetic line based on the
+// invoice's own total is used instead of guessing item-level detail.
+// ---------------------------------------------------------------------------
+interface BexioInvoiceListEntry {
+  id: number;
+  contact_id: number | null;
+}
+
+interface BexioInvoiceDetail {
+  id: number;
+  title: string | null;
+  contact_id: number | null;
+  is_valid_to: string | null;
+  total_net: string | number | null;
+  total_received_payments: string | number | null;
+  total_remaining_payments: string | number | null;
+  positions?: { type?: string; text?: string | null; amount?: string | number | null; unit_price?: string | number | null }[];
+}
+
+export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
+  try {
+    const invoices = await fetchAllBexioPages<BexioInvoiceListEntry>(admin, integration, '/2.0/kb_invoice');
+    let count = 0;
+    let skipped = 0;
+    for (const entry of invoices) {
+      const externalId = String(entry.id);
+      const { data: existingMapping } = await admin
+        .from('integration_mappings')
+        .select('id')
+        .eq('integration_id', integration.id)
+        .eq('entity_type', 'facture')
+        .eq('external_id', externalId)
+        .maybeSingle();
+      if (existingMapping) continue;
+
+      let clientId: string | null = null;
+      if (entry.contact_id != null) {
+        const { data: clientMapping } = await admin
+          .from('integration_mappings')
+          .select('local_id')
+          .eq('integration_id', integration.id)
+          .eq('entity_type', 'client')
+          .eq('external_id', String(entry.contact_id))
+          .maybeSingle();
+        clientId = clientMapping?.local_id ?? null;
+      }
+      if (!clientId) {
+        // No known Cantia client for this Bexio contact — synchronize
+        // clients first (or this invoice's contact predates the client
+        // sync) rather than creating a facture with a guessed name.
+        skipped += 1;
+        continue;
+      }
+      const { data: client } = await admin.from('clients').select('name, address, email').eq('id', clientId).maybeSingle();
+      if (!client) {
+        skipped += 1;
+        continue;
+      }
+
+      let detail: BexioInvoiceDetail;
+      try {
+        detail = await bexioJson<BexioInvoiceDetail>(admin, integration, `/2.0/kb_invoice/${entry.id}`);
+      } catch {
+        skipped += 1;
+        continue;
+      }
+
+      const remaining = Number(detail.total_remaining_payments ?? 0);
+      const received = Number(detail.total_received_payments ?? 0);
+      const status = remaining <= 0 && received > 0 ? 'paid' : received > 0 ? 'partial' : 'sent';
+
+      const { data: facture, error: factureError } = await admin
+        .from('factures')
+        .insert({
+          organization_id: integration.organization_id,
+          client_id: clientId,
+          client_name: client.name,
+          client_address: client.address,
+          client_email: client.email,
+          notes: 'Importée automatiquement depuis Bexio.',
+          status,
+          due_date: detail.is_valid_to ?? undefined,
+          paid_at: status === 'paid' ? new Date().toISOString() : null,
+        })
+        .select('id')
+        .single();
+      if (factureError || !facture) {
+        skipped += 1;
+        continue;
+      }
+
+      const positions = Array.isArray(detail.positions) ? detail.positions.filter((p) => p.text) : [];
+      const itemsPayload =
+        positions.length > 0
+          ? positions.map((p, i) => ({
+              facture_id: facture.id,
+              description: p.text ?? 'Position',
+              quantity: p.amount != null ? Number(p.amount) : 1,
+              unit: 'pce',
+              unit_price: p.unit_price != null ? Number(p.unit_price) : 0,
+              sort_order: i,
+            }))
+          : [
+              {
+                facture_id: facture.id,
+                description: detail.title || 'Facture importée de Bexio',
+                quantity: 1,
+                unit: 'pce',
+                unit_price: detail.total_net != null ? Number(detail.total_net) : 0,
+                sort_order: 0,
+              },
+            ];
+      await admin.from('facture_items').insert(itemsPayload);
+
+      await admin.from('integration_mappings').insert({
+        integration_id: integration.id,
+        organization_id: integration.organization_id,
+        entity_type: 'facture',
+        local_id: facture.id,
+        external_id: externalId,
+        external_type: 'kb_invoice',
+        sync_direction: 'pull',
+        last_synced_at: new Date().toISOString(),
+      });
+      count += 1;
+    }
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'facture', payload_summary: { count, skipped } });
+    return { action: 'invoices_pull', ok: true, count };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'facture', error_message: message });
+    return { action: 'invoices_pull', ok: false, error: message };
+  }
+}
+
 // Re-exported so bexio-push-invoice can search for a Bexio contact by name
 // as a last-resort diagnostic (never auto-creates or auto-links — V1 keeps
 // contact creation Bexio-side only, per section 18).
