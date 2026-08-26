@@ -105,11 +105,12 @@ Deno.serve(async (req: Request) => {
 
     const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null;
     const scopes = tokens.scope ? tokens.scope.split(' ') : [];
-    // Connections made before contact_edit was added to the requested
-    // scope set only carry contact_show — this flag tells the UI a
-    // reconnect is needed before client-push to Bexio will work. Cleared
-    // automatically the moment Bexio actually grants contact_edit.
-    const needsReconnect = !scopes.includes('contact_edit');
+    // Connections made before contact_edit/kb_offer_edit were added to the
+    // requested scope set only carry the read-only scopes — this flag
+    // tells the UI a reconnect is needed before client-push or devis-push
+    // to Bexio will work. Cleared automatically the moment Bexio actually
+    // grants both.
+    const needsReconnect = !scopes.includes('contact_edit') || !scopes.includes('kb_offer_edit');
 
     const { data: integration, error: upsertIntegrationError } = await admin
       .from('integrations')

@@ -62,17 +62,38 @@ export async function syncBexioSettings(admin: any, integration: BexioIntegratio
       default_mwst_is_net: invoiceSetting.default_mwst_is_net ?? null,
     };
 
+    // KbOffer defaults for the devis -> kb_offer push (bexio-push-devis) —
+    // same idea as invoice_defaults above, one more entry pulled from the
+    // same endpoint. Falls back to rows[0] the same way invoiceSetting
+    // does if this org's account genuinely has no KbOffer entry yet
+    // (e.g. it's never had a quote/offer feature touched in Bexio).
+    const offerSetting = rows.find((r) => r?.kb_item_class === 'KbOffer') ?? rows[0];
+    const quoteDefaults = offerSetting
+      ? {
+          default_language_id: offerSetting.default_language_id ?? null,
+          default_bank_account_id: offerSetting.default_client_bank_account_new_id ?? null,
+          default_currency_id: offerSetting.default_currency_id ?? null,
+          default_payment_type_id: offerSetting.default_payment_type_id ?? null,
+          default_mwst_type: offerSetting.default_mwst_type ?? null,
+          default_mwst_is_net: offerSetting.default_mwst_is_net ?? null,
+          default_show_position_taxes: offerSetting.default_show_position_taxes ?? null,
+          default_time_period_in_days: offerSetting.default_time_period_in_days ?? null,
+        }
+      : null;
+
     const { data: existing } = await admin.from('integration_settings').select('id, entity_settings').eq('integration_id', integration.id).maybeSingle();
+    const nextEntitySettings = {
+      ...(existing?.entity_settings ?? {}),
+      invoice_defaults: invoiceDefaults,
+      ...(quoteDefaults ? { quote_defaults: quoteDefaults } : {}),
+    };
     if (existing) {
-      await admin
-        .from('integration_settings')
-        .update({ entity_settings: { ...(existing.entity_settings ?? {}), invoice_defaults: invoiceDefaults } })
-        .eq('id', existing.id);
+      await admin.from('integration_settings').update({ entity_settings: nextEntitySettings }).eq('id', existing.id);
     } else {
       await admin.from('integration_settings').insert({
         integration_id: integration.id,
         organization_id: integration.organization_id,
-        entity_settings: { invoice_defaults: invoiceDefaults },
+        entity_settings: nextEntitySettings,
       });
     }
     await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'settings', payload_summary: invoiceDefaults });
@@ -485,6 +506,61 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
     const message = err instanceof Error ? err.message : String(err);
     await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'facture', error_message: message });
     return { action: 'invoices_pull', ok: false, error: message };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Devis status pull (kb_offer cahier des charges section 51). Cantia stays
+// the source of truth for the devis content — this only ever refreshes the
+// read-only Bexio-side display fields (document_nr, network_link) plus the
+// raw kb_item_status_id. That status id is stored as-is and never
+// translated into Cantia's own devis.status: the cahier des charges is
+// explicit that inventing a full status-code correspondence table from
+// guesses is not acceptable (section 35), so the UI shows Bexio's own
+// number rather than a fabricated French label for it.
+// ---------------------------------------------------------------------------
+interface BexioOffer {
+  id: number;
+  document_nr: string | null;
+  kb_item_status_id: number | null;
+  network_link: string | null;
+}
+
+export async function syncBexioDevisStatuses(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
+  try {
+    const { data: mappings } = await admin
+      .from('integration_mappings')
+      .select('id, local_id, external_id')
+      .eq('integration_id', integration.id)
+      .eq('entity_type', 'devis');
+    let count = 0;
+    let failed = 0;
+    for (const mapping of mappings ?? []) {
+      let offer: BexioOffer;
+      try {
+        offer = await bexioJson<BexioOffer>(admin, integration, `/2.0/kb_offer/${mapping.external_id}`);
+      } catch (err) {
+        failed += 1;
+        const message = err instanceof Error ? err.message : String(err);
+        await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'devis', local_id: mapping.local_id, external_id: mapping.external_id, error_message: message });
+        continue;
+      }
+      await admin
+        .from('devis')
+        .update({ bexio_document_nr: offer.document_nr, bexio_status_id: offer.kb_item_status_id, bexio_network_link: offer.network_link })
+        .eq('id', mapping.local_id);
+      await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
+      count += 1;
+    }
+    if (failed > 0 && count === 0) {
+      throw new Error(`Échec de synchronisation des devis pour ${failed} devis — la connexion Bexio est probablement invalide.`);
+    }
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'devis', payload_summary: { count, failed } });
+    return { action: 'devis_status', ok: true, count };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'devis', error_message: message });
+    return { action: 'devis_status', ok: false, error: message };
   }
 }
 

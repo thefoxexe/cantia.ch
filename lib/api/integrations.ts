@@ -62,6 +62,17 @@ export async function pushFactureToBexio(organizationId: string, factureId: stri
   return { externalId: data?.external_id ?? null, error };
 }
 
+// Pushes a devis to Bexio as a kb_offer ("Offre"). Create-or-update: a devis
+// already linked (or found by api_reference server-side) is updated in
+// place rather than duplicated — see bexio-push-devis for the full logic.
+export async function pushDevisToBexio(organizationId: string, devisId: string): Promise<{ externalId: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ external_id: string }>('bexio-push-devis', {
+    organization_id: organizationId,
+    devis_id: devisId,
+  });
+  return { externalId: data?.external_id ?? null, error };
+}
+
 // Fire-and-forget from createClient() so a client created in Cantia reaches
 // Bexio without waiting for the hourly pull — also callable directly for a
 // manual retry (see clients/[id].tsx). Returns an error string (never
@@ -91,6 +102,19 @@ export async function getFactureBexioMapping(organizationId: string, factureId: 
     .eq('integration_id', integration.id)
     .eq('entity_type', 'facture')
     .eq('local_id', factureId)
+    .maybeSingle();
+  return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null };
+}
+
+export async function getDevisBexioMapping(organizationId: string, devisId: string): Promise<{ externalId: string | null; lastSyncedAt: string | null }> {
+  const { data: integration } = await supabase.from('integrations').select('id').eq('organization_id', organizationId).eq('provider', 'bexio').maybeSingle();
+  if (!integration) return { externalId: null, lastSyncedAt: null };
+  const { data } = await supabase
+    .from('integration_mappings')
+    .select('external_id, last_synced_at')
+    .eq('integration_id', integration.id)
+    .eq('entity_type', 'devis')
+    .eq('local_id', devisId)
     .maybeSingle();
   return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null };
 }

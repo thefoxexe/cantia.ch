@@ -166,8 +166,8 @@ export default function IntegrationsScreen() {
                 <View style={styles.reconnectBanner}>
                   <Feather name="alert-triangle" size={14} color={colors.warning} />
                   <Text style={styles.reconnectText}>
-                    Reconnexion nécessaire pour activer l'envoi automatique de vos clients vers Bexio (nouveau droit
-                    d'écriture demandé).
+                    Reconnexion nécessaire pour activer l'envoi de vos clients et devis vers Bexio (nouveaux droits
+                    d'écriture demandés).
                   </Text>
                   {isAdmin ? (
                     <Pressable style={styles.reconnectButton} onPress={handleConnect} disabled={busy}>
@@ -220,7 +220,7 @@ export default function IntegrationsScreen() {
         <Text style={styles.footnote}>
           {locked
             ? "L'intégration Bexio permet de synchroniser vos clients, produits et factures. Elle est incluse à partir du plan Équipe."
-            : "Les clients voyagent dans les deux sens : un client créé dans Bexio est importé à la connexion et à chaque synchronisation (toutes les 15 minutes), un client créé dans Cantia est envoyé vers Bexio dès sa création. Les articles Bexio alimentent votre Catalogue. Les factures voyagent aussi dans les deux sens : envoyez une facture Cantia vers Bexio depuis son détail, ou créez-la directement dans Bexio — elle apparaît ici à la synchronisation suivante, avec son statut de paiement tenu à jour."}
+            : "Les clients voyagent dans les deux sens : un client créé dans Bexio est importé à la connexion et à chaque synchronisation (toutes les 15 minutes), un client créé dans Cantia est envoyé vers Bexio dès sa création. Les articles Bexio alimentent votre Catalogue. Les factures voyagent aussi dans les deux sens : envoyez une facture Cantia vers Bexio depuis son détail, ou créez-la directement dans Bexio — elle apparaît ici à la synchronisation suivante, avec son statut de paiement tenu à jour. Les devis peuvent être envoyés vers Bexio comme offre depuis leur détail — son numéro Bexio revient s'afficher automatiquement."}
         </Text>
       </Container>
     </Screen>

@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { syncBexioArticles, syncBexioContacts, syncBexioInvoiceStatuses, syncBexioInvoicesFromBexio, syncBexioSettings } from './bexio-sync-logic.ts';
+import { syncBexioArticles, syncBexioContacts, syncBexioDevisStatuses, syncBexioInvoiceStatuses, syncBexioInvoicesFromBexio, syncBexioSettings } from './bexio-sync-logic.ts';
 import { BexioError } from './bexio.ts';
 
 const corsHeaders = {
@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
 
     const { organization_id, action } = await req.json();
     if (!organization_id) return json({ error: 'organization_id requis' }, 400);
-    if (!['contacts', 'settings', 'articles', 'invoice_status', 'invoices_pull', 'all'].includes(action)) {
+    if (!['contacts', 'settings', 'articles', 'invoice_status', 'invoices_pull', 'devis_status', 'all'].includes(action)) {
       return json({ error: 'action inconnue' }, 400);
     }
 
@@ -57,6 +57,7 @@ Deno.serve(async (req: Request) => {
     // the same manual sync instead of waiting for the next run.
     if (action === 'invoices_pull' || action === 'all') results.push(await syncBexioInvoicesFromBexio(admin, integration));
     if (action === 'invoice_status' || action === 'all') results.push(await syncBexioInvoiceStatuses(admin, integration));
+    if (action === 'devis_status' || action === 'all') results.push(await syncBexioDevisStatuses(admin, integration));
 
     await admin.from('integrations').update({ last_sync_at: new Date().toISOString() }).eq('id', integration.id);
 

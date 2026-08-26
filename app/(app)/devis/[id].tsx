@@ -12,6 +12,7 @@ import { duplicateDevis, sendDevisEmail } from '../../../lib/api/devis';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
+import { getDevisBexioMapping, getIntegration, pushDevisToBexio, syncBexio } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
@@ -54,6 +55,10 @@ export default function DevisDetailScreen() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
+  const [bexioConnected, setBexioConnected] = useState(false);
+  const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
+  const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
+  const [pushingBexio, setPushingBexio] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -67,6 +72,19 @@ export default function DevisDetailScreen() {
     if (organization) {
       const { data: planRow } = await supabase.from('plans').select('*').eq('id', organization.plan_id).single();
       setPlan(planRow ?? null);
+      if (planRow?.has_bexio_integration && d) {
+        const [{ data: integration }, mapping] = await Promise.all([
+          getIntegration(organization.id, 'bexio'),
+          getDevisBexioMapping(organization.id, id),
+        ]);
+        setBexioConnected(integration?.status === 'connected');
+        setBexioExternalId(mapping.externalId);
+        setBexioLastSyncedAt(mapping.lastSyncedAt);
+      } else {
+        setBexioConnected(false);
+        setBexioExternalId(null);
+        setBexioLastSyncedAt(null);
+      }
     }
     if (d?.project_id) {
       const { data: p } = await supabase.from('projects').select('*').eq('id', d.project_id).single();
@@ -191,6 +209,41 @@ export default function DevisDetailScreen() {
     load();
   }
 
+  async function handlePushToBexio() {
+    if (!devis || pushingBexio) return;
+    setPushingBexio(true);
+    setError(null);
+    const { error: pushError } = await pushDevisToBexio(devis.organization_id, devis.id);
+    setPushingBexio(false);
+    if (pushError) {
+      setError(pushError);
+      return;
+    }
+    load();
+  }
+
+  // Same shortcut as the facture detail screen: Bexio stays the only place
+  // a contact gets created (V1 scope), so this can't create the missing
+  // contact, but it can re-pull clients and retry the push in one tap.
+  async function handleSyncClientsAndRetryPush() {
+    if (!devis || pushingBexio) return;
+    setPushingBexio(true);
+    setError(null);
+    const { error: syncError } = await syncBexio(devis.organization_id, 'contacts');
+    if (syncError) {
+      setPushingBexio(false);
+      setError(syncError);
+      return;
+    }
+    const { error: pushError } = await pushDevisToBexio(devis.organization_id, devis.id);
+    setPushingBexio(false);
+    if (pushError) {
+      setError(pushError);
+      return;
+    }
+    load();
+  }
+
   async function handleSaveTrame() {
     if (!organization) return;
     if (!trameName.trim()) {
@@ -220,6 +273,7 @@ export default function DevisDetailScreen() {
   const subtotal = items.reduce((sum, it) => sum + Number(it.quantity) * Number(it.unit_price), 0);
   const vat = subtotal * (Number(devis.vat_rate) / 100);
   const total = subtotal + vat;
+  const canPushToBexio = !!plan?.has_bexio_integration && bexioConnected && devis.status !== 'draft' && !!devis.client_id;
 
   return (
     <Screen>
@@ -253,6 +307,25 @@ export default function DevisDetailScreen() {
           <Text style={styles.client}>{devis.client_name}</Text>
           {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
           {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
+          {bexioExternalId ? (
+            <View style={styles.bexioBadge}>
+              <Feather name="check-circle" size={12} color={colors.success} />
+              <Text style={styles.bexioBadgeText}>
+                {devis.bexio_document_nr ? `Bexio ${devis.bexio_document_nr}` : 'Synchronisé avec Bexio'}
+                {bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString('fr-CH')}` : ''}
+              </Text>
+            </View>
+          ) : null}
+          {canPushToBexio ? (
+            <Button
+              title={bexioExternalId ? 'Resynchroniser avec Bexio' : 'Envoyer vers Bexio'}
+              variant="secondary"
+              icon="refresh-cw"
+              onPress={handlePushToBexio}
+              loading={pushingBexio}
+              style={{ marginTop: spacing.md }}
+            />
+          ) : null}
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
@@ -342,7 +415,21 @@ export default function DevisDetailScreen() {
           </View>
         </Card>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? (
+          <View>
+            <Text style={styles.error}>{error}</Text>
+            {error.includes("n'est pas relié à un contact Bexio") ? (
+              <Button
+                title="Synchroniser les clients et réessayer"
+                variant="secondary"
+                icon="refresh-cw"
+                onPress={handleSyncClientsAndRetryPush}
+                loading={pushingBexio}
+                style={styles.errorBlockButton}
+              />
+            ) : null}
+          </View>
+        ) : null}
         {error?.includes('plan payant') ? (
           <Button
             title="Passer à un plan payant"
@@ -479,6 +566,17 @@ const styles = StyleSheet.create({
   projectPickerRow: {
     marginTop: spacing.sm,
   },
+  bexioBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: spacing.xs,
+  },
+  bexioBadgeText: {
+    fontSize: fontSize.xs,
+    color: colors.success,
+    fontWeight: '600',
+  },
   clientLinkRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -564,6 +662,10 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: fontSize.sm,
     marginTop: spacing.md,
+  },
+  errorBlockButton: {
+    marginTop: spacing.sm,
+    alignSelf: 'flex-start',
   },
   lockedNoticeText: {
     fontSize: fontSize.xs,

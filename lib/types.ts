@@ -275,6 +275,13 @@ export interface Devis {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  // Bexio kb_offer display fields — informational only, refreshed by
+  // syncBexioDevisStatuses(). bexio_status_id is Bexio's own raw
+  // kb_item_status_id, never translated into DevisStatus (see that
+  // function's header comment for why).
+  bexio_document_nr: string | null;
+  bexio_status_id: number | null;
+  bexio_network_link: string | null;
 }
 
 export interface DevisItem {
