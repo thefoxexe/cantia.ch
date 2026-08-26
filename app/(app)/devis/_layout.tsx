@@ -54,6 +54,7 @@ export default function DevisLayout() {
       <Stack.Screen name="new" options={{ title: 'Nouveau devis', presentation: 'modal' }} />
       <Stack.Screen name="[id]" options={{ title: 'Devis' }} />
       <Stack.Screen name="factures/index" options={{ headerShown: false }} />
+      <Stack.Screen name="factures/new" options={{ title: 'Nouvelle facture', presentation: 'modal' }} />
       <Stack.Screen name="factures/[id]" options={{ title: 'Facture' }} />
       <Stack.Screen name="factures/import-releve" options={{ headerShown: false }} />
       <Stack.Screen name="trames/index" options={{ headerShown: false }} />
