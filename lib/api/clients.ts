@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { pushClientToBexio } from './integrations';
 import type { Client, ClientNote, ClientType, Devis, ExtraWork, Facture } from '../types';
 
 export interface ClientInput {
@@ -29,6 +30,13 @@ export async function createClient(
     .insert({ organization_id: organizationId, ...input })
     .select('id')
     .single();
+  if (data?.id) {
+    // Best-effort, never blocks/fails client creation — if Bexio isn't
+    // connected or entitled for this org, or the push itself fails, the
+    // client still exists in Cantia; the retry affordance on its detail
+    // screen (or the next hourly sweep, for the pull direction) covers it.
+    pushClientToBexio(organizationId, data.id).catch(() => {});
+  }
   return { id: data?.id ?? null, error: error?.message ?? null };
 }
 

@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { addClientNote, deleteClientNote, getClientHistory, listClientNotes, updateClient, type ClientHistory } from '../../../lib/api/clients';
-import { getClientBexioMapping } from '../../../lib/api/integrations';
+import { getClientBexioMapping, getIntegration, pushClientToBexio } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, EmptyState, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
@@ -36,6 +36,9 @@ export default function ClientDetailScreen() {
   const [newNote, setNewNote] = useState('');
   const [addingNote, setAddingNote] = useState(false);
   const [bexioLinked, setBexioLinked] = useState(false);
+  const [bexioEligible, setBexioEligible] = useState(false);
+  const [pushingBexio, setPushingBexio] = useState(false);
+  const [bexioPushError, setBexioPushError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data } = await supabase.from('clients').select('*').eq('id', id).single();
@@ -51,7 +54,33 @@ export default function ClientDetailScreen() {
     setHistory(h);
     setNotes(n);
     setBexioLinked(linked);
+
+    const { data: org } = await supabase.from('organizations').select('plan_id').eq('id', data.organization_id).maybeSingle();
+    if (org?.plan_id) {
+      const { data: planRow } = await supabase.from('plans').select('has_bexio_integration').eq('id', org.plan_id).maybeSingle();
+      if (planRow?.has_bexio_integration) {
+        const { data: integration } = await getIntegration(data.organization_id, 'bexio');
+        setBexioEligible(integration?.status === 'connected' && !integration?.needs_reconnect);
+      } else {
+        setBexioEligible(false);
+      }
+    } else {
+      setBexioEligible(false);
+    }
   }, [id]);
+
+  async function handlePushToBexio() {
+    if (!client || pushingBexio) return;
+    setPushingBexio(true);
+    setBexioPushError(null);
+    const { error: pushError } = await pushClientToBexio(client.organization_id, client.id);
+    setPushingBexio(false);
+    if (pushError) {
+      setBexioPushError(pushError);
+      return;
+    }
+    setBexioLinked(true);
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -151,6 +180,17 @@ export default function ClientDetailScreen() {
             <View style={styles.bexioBadge}>
               <Feather name="check-circle" size={12} color={colors.success} />
               <Text style={styles.bexioBadgeText}>Lié à Bexio</Text>
+            </View>
+          ) : bexioEligible ? (
+            <View style={styles.bexioBadge}>
+              <Button
+                title="Envoyer vers Bexio"
+                variant="secondary"
+                icon="refresh-cw"
+                onPress={handlePushToBexio}
+                loading={pushingBexio}
+              />
+              {bexioPushError ? <Text style={styles.error}>{bexioPushError}</Text> : null}
             </View>
           ) : null}
 

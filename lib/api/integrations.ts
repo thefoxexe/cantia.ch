@@ -62,6 +62,21 @@ export async function pushFactureToBexio(organizationId: string, factureId: stri
   return { externalId: data?.external_id ?? null, error };
 }
 
+// Fire-and-forget from createClient() so a client created in Cantia reaches
+// Bexio without waiting for the hourly pull — also callable directly for a
+// manual retry (see clients/[id].tsx). Returns an error string (never
+// throws) when Bexio isn't connected/entitled for the org — the automatic
+// call ignores it, the manual retry button surfaces it. Already-linked
+// clients (pushed before, or originally pulled from Bexio) come back
+// {externalId, error: null} without creating a duplicate contact.
+export async function pushClientToBexio(organizationId: string, clientId: string): Promise<{ externalId: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ external_id: string }>('bexio-push-client', {
+    organization_id: organizationId,
+    client_id: clientId,
+  });
+  return { externalId: data?.external_id ?? null, error };
+}
+
 export async function setBexioAutoSync(organizationId: string, enabled: boolean): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('set_bexio_auto_sync', { org_id: organizationId, enabled });
   return { error: error?.message ?? null };

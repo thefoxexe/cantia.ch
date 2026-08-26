@@ -10,12 +10,12 @@ const corsHeaders = {
 // this is the current issuer per Bexio's own docs, confirmed by the user.
 const BEXIO_AUTHORIZE_URL = 'https://auth.bexio.com/realms/bexio/protocol/openid-connect/auth';
 
-// V1 scope set only (cahier des charges section 8/103): reading contacts and
-// articles, and creating/editing invoices. contact_edit/article_edit are
-// deliberately not requested — Cantia doesn't write back to those resources
-// yet, and a scope should never be requested before the feature using it
-// exists.
-const BEXIO_SCOPES = 'openid company_profile offline_access contact_show article_show kb_invoice_edit';
+// V1 scope set (cahier des charges section 8/103), plus contact_edit added
+// once client-push (Cantia -> Bexio contact) shipped. article_edit stays
+// out — Cantia never writes articles back, only reads them into the
+// Catalogue. A scope should never be requested before the feature using it
+// exists; contact_edit is requested here because bexio-push-client now does.
+const BEXIO_SCOPES = 'openid company_profile offline_access contact_show contact_edit article_show kb_invoice_edit';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });

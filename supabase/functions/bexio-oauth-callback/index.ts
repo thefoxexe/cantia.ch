@@ -103,6 +103,14 @@ Deno.serve(async (req: Request) => {
       .eq('provider', 'bexio')
       .maybeSingle();
 
+    const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null;
+    const scopes = tokens.scope ? tokens.scope.split(' ') : [];
+    // Connections made before contact_edit was added to the requested
+    // scope set only carry contact_show — this flag tells the UI a
+    // reconnect is needed before client-push to Bexio will work. Cleared
+    // automatically the moment Bexio actually grants contact_edit.
+    const needsReconnect = !scopes.includes('contact_edit');
+
     const { data: integration, error: upsertIntegrationError } = await admin
       .from('integrations')
       .upsert(
@@ -114,6 +122,7 @@ Deno.serve(async (req: Request) => {
           external_company_name: companyName,
           connected_by: stateRow.created_by,
           last_error: null,
+          needs_reconnect: needsReconnect,
         },
         { onConflict: 'organization_id,provider' },
       )
@@ -123,9 +132,6 @@ Deno.serve(async (req: Request) => {
       console.error('Failed to upsert integration row', upsertIntegrationError);
       return redirect('error&message=' + encodeURIComponent('Impossible d’enregistrer la connexion Bexio.'));
     }
-
-    const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null;
-    const scopes = tokens.scope ? tokens.scope.split(' ') : [];
 
     const { data: existingCredentials } = await admin
       .from('integration_credentials')

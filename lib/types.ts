@@ -967,6 +967,7 @@ export interface Integration {
   auto_sync_enabled: boolean;
   last_error: string | null;
   connected_by: string | null;
+  needs_reconnect: boolean;
   created_at: string;
   updated_at: string;
 }

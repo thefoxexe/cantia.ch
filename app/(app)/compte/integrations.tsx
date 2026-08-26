@@ -111,6 +111,7 @@ export default function IntegrationsScreen() {
   }
 
   const isConnected = integration?.status === 'connected';
+  const needsReconnect = isConnected && !!integration?.needs_reconnect;
   const locked = !loading && !entitled;
 
   return (
@@ -161,6 +162,20 @@ export default function IntegrationsScreen() {
             </Pressable>
           ) : isConnected ? (
             <View style={styles.details}>
+              {needsReconnect ? (
+                <View style={styles.reconnectBanner}>
+                  <Feather name="alert-triangle" size={14} color={colors.warning} />
+                  <Text style={styles.reconnectText}>
+                    Reconnexion nécessaire pour activer l'envoi automatique de vos clients vers Bexio (nouveau droit
+                    d'écriture demandé).
+                  </Text>
+                  {isAdmin ? (
+                    <Pressable style={styles.reconnectButton} onPress={handleConnect} disabled={busy}>
+                      <Text style={styles.reconnectButtonText}>Reconnecter Bexio</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : null}
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Entreprise</Text>
                 <Text style={styles.detailValue}>{integration?.external_company_name || integration?.external_company_id || '—'}</Text>
@@ -174,7 +189,7 @@ export default function IntegrationsScreen() {
                   <View style={styles.autoSyncRow}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.detailLabel}>Synchronisation automatique</Text>
-                      <Text style={styles.autoSyncHint}>Statut des factures relevé chaque heure</Text>
+                      <Text style={styles.autoSyncHint}>Clients, articles et statuts de paiement relevés toutes les 15 minutes</Text>
                     </View>
                     <Switch
                       value={!!integration?.auto_sync_enabled}
@@ -205,7 +220,7 @@ export default function IntegrationsScreen() {
         <Text style={styles.footnote}>
           {locked
             ? "L'intégration Bexio permet de synchroniser vos clients, produits et factures. Elle est incluse à partir du plan Équipe."
-            : "Vos clients et vos articles Bexio sont importés automatiquement à la connexion et à chaque synchronisation (les articles viennent alimenter votre Catalogue). Les factures voyagent dans les deux sens : envoyez une facture Cantia vers Bexio depuis son détail, ou créez-la directement dans Bexio — elle apparaît ici à la synchronisation suivante, avec son statut de paiement tenu à jour."}
+            : "Les clients voyagent dans les deux sens : un client créé dans Bexio est importé à la connexion et à chaque synchronisation (toutes les 15 minutes), un client créé dans Cantia est envoyé vers Bexio dès sa création. Les articles Bexio alimentent votre Catalogue. Les factures voyagent aussi dans les deux sens : envoyez une facture Cantia vers Bexio depuis son détail, ou créez-la directement dans Bexio — elle apparaît ici à la synchronisation suivante, avec son statut de paiement tenu à jour."}
         </Text>
       </Container>
     </Screen>
@@ -313,6 +328,27 @@ const styles = StyleSheet.create({
   details: {
     marginTop: spacing.md,
     gap: spacing.sm,
+  },
+  reconnectBanner: {
+    backgroundColor: '#FDF3E3',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  reconnectText: {
+    color: colors.warning,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    lineHeight: 16,
+  },
+  reconnectButton: {
+    alignSelf: 'flex-start',
+  },
+  reconnectButtonText: {
+    color: colors.warning,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
   detailRow: {
     flexDirection: 'row',
