@@ -474,23 +474,30 @@ function LandingContent() {
             </Text>
           </View>
 
-          {/* ---- Bexio banner — the "real, native OAuth integration" pitch,
+          {/* ---- Bexio ribbon — the "real, native OAuth integration" pitch,
               deliberately placed this high (right under the hero) rather
               than buried near pricing further down, since it's one of the
-              first things prospects already on Bexio ask about. Slim
-              banner strip, not the full pitch — /integrations has the
-              detail (features, steps, FAQ). ---- */}
+              first things prospects already on Bexio ask about. Full-bleed
+              dark strip rather than an inset bordered card, so it reads as
+              an announcement banner instead of blending into the page's
+              other cream-on-cream cards — /integrations has the detail
+              (features, steps, FAQ). ---- */}
           <Link href={'/integrations' as any} asChild>
-            <Pressable style={StyleSheet.flatten([styles.bexioBanner, isCompactNav && styles.bexioBannerCompact])}>
-              <View style={styles.bexioBannerLogoBadge}>
-                <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioBannerLogoImage} resizeMode="contain" />
-              </View>
-              <Text style={styles.bexioBannerText}>
-                Compatible avec <Text style={styles.bexioBannerTextStrong}>Bexio</Text> — clients, factures et statuts de paiement synchronisés automatiquement.
-              </Text>
-              <View style={styles.bexioBannerLinkRow}>
-                <Text style={styles.bexioBannerLinkText}>Voir les intégrations</Text>
-                <Feather name="arrow-right" size={13} color={colors.primary} />
+            <Pressable style={styles.bexioRibbon}>
+              <View style={StyleSheet.flatten([styles.bexioRibbonInner, isCompactNav && styles.bexioRibbonInnerCompact])}>
+                <View style={styles.bexioRibbonLeft}>
+                  <View style={styles.bexioRibbonLogoBadge}>
+                    <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioBannerLogoImage} resizeMode="contain" />
+                  </View>
+                  <Text style={styles.bexioRibbonText}>
+                    <Text style={styles.bexioRibbonTextStrong}>Nouveau — </Text>
+                    intégration native avec <Text style={styles.bexioRibbonTextAccent}>Bexio</Text> : clients, factures et paiements synchronisés automatiquement.
+                  </Text>
+                </View>
+                <View style={styles.bexioRibbonCta}>
+                  <Text style={styles.bexioRibbonCtaText}>Découvrir</Text>
+                  <Feather name="arrow-right" size={13} color={colors.text} />
+                </View>
               </View>
             </Pressable>
           </Link>
@@ -2248,61 +2255,82 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
-  bexioBanner: {
+  bexioRibbon: {
+    width: '100%',
+    backgroundColor: colors.text,
+    marginTop: spacing.lg,
+  },
+  bexioRibbonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.lg,
+    maxWidth: 1080,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+  },
+  bexioRibbonInnerCompact: {
+    justifyContent: 'flex-start',
+    paddingHorizontal: spacing.md,
+  },
+  bexioRibbonLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    marginHorizontal: spacing.xl,
-    marginTop: spacing.lg,
+    flex: 1,
+    minWidth: 240,
   },
-  bexioBannerCompact: {
-    flexWrap: 'wrap',
-    marginHorizontal: spacing.md,
-  },
-  bexioBannerLogoBadge: {
-    width: 36,
-    height: 36,
+  bexioRibbonLogoBadge: {
+    width: 34,
+    height: 34,
     borderRadius: radius.md,
-    backgroundColor: '#0A3A47',
+    backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     flexShrink: 0,
   },
   bexioBannerLogoImage: {
-    width: 36,
-    height: 36,
+    width: 34,
+    height: 34,
   },
-  bexioBannerText: {
+  bexioRibbonText: {
     flex: 1,
-    minWidth: 200,
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: colors.bg,
     lineHeight: 20,
+    opacity: 0.94,
   },
-  bexioBannerTextStrong: {
+  bexioRibbonTextStrong: {
     fontFamily: marketingFonts.body,
-    fontWeight: '700',
-    color: colors.text,
+    fontWeight: '800',
+    color: colors.bg,
+    opacity: 1,
   },
-  bexioBannerLinkRow: {
+  bexioRibbonTextAccent: {
+    fontFamily: marketingFonts.body,
+    fontWeight: '800',
+    color: colors.accent,
+  },
+  bexioRibbonCta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 6,
+    backgroundColor: colors.bg,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
     flexShrink: 0,
   },
-  bexioBannerLinkText: {
+  bexioRibbonCtaText: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.text,
   },
   // Visual thread linking "le problème" to "ce qu'on apporte" — a short
   // gradient stem ending in an arrow badge, standing in for the connective
