@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { bexioJson, BexioError } from './bexio.ts';
+import { bexioJson, BexioError, decodeBexioCompanyUserId, getValidAccessToken } from './bexio.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,14 +16,15 @@ const corsHeaders = {
 // admin-only — this is a background side effect of an action a normal
 // member is already allowed to take, not a new sensitive admin capability.
 //
-// Only fields Cantia has verified round-trip (read from Bexio's own contact
-// response elsewhere in this codebase) are sent: name_1, mail, phone_fixed,
-// address, remarks. contact_type_id is only set to 1 (confirmed = company)
-// for 'entreprise' clients — the code for an individual/person contact was
-// never confirmed anywhere in the cahier des charges, so it's left out
-// rather than guessed; if Bexio actually requires it, that surfaces as a
-// real, honest BEXIO_VALIDATION_ERROR instead of a fabricated value quietly
-// miscategorizing a contact.
+// Fields sent: name_1, mail, phone_fixed, address, remarks, plus three
+// fields Bexio's own form rejected the first live attempt without
+// ("Pflichtfeld" on contact_type_id/user_id/owner_id) — confirmed by
+// inspecting GET /2.0/contact_type (1 = Firma/company, 2 = Privat/
+// individual) and an existing contact's own user_id/owner_id (both equal
+// the access token's `company_user_id` JWT claim — see
+// decodeBexioCompanyUserId in bexio.ts). user_id/owner_id are left out
+// only if that claim can't be decoded, so a real failure still surfaces
+// as an honest BEXIO_VALIDATION_ERROR instead of a guessed value.
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -91,13 +92,18 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, external_id: existingMapping.external_id, skipped: true });
     }
 
+    const accessToken = await getValidAccessToken(admin, integration);
+    const companyUserId = decodeBexioCompanyUserId(accessToken);
+
     const payload: Record<string, unknown> = {
       name_1: client.type === 'entreprise' ? client.company_name || client.name : client.name,
-      contact_type_id: client.type === 'entreprise' ? 1 : undefined,
+      contact_type_id: client.type === 'entreprise' ? 1 : 2,
       mail: client.email ?? undefined,
       phone_fixed: client.phone ?? undefined,
       address: client.address ?? undefined,
       remarks: client.notes ?? undefined,
+      user_id: companyUserId ?? undefined,
+      owner_id: companyUserId ?? undefined,
     };
 
     const created = await bexioJson<{ id: number }>(admin, integration, '/2.0/contact', { method: 'POST', body: JSON.stringify(payload) });

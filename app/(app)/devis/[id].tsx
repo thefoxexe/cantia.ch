@@ -12,7 +12,7 @@ import { duplicateDevis, sendDevisEmail } from '../../../lib/api/devis';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
-import { getDevisBexioMapping, getIntegration, pushDevisToBexio, syncBexio } from '../../../lib/api/integrations';
+import { getDevisBexioMapping, getIntegration, pushClientToBexio, pushDevisToBexio } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
@@ -222,17 +222,19 @@ export default function DevisDetailScreen() {
     load();
   }
 
-  // Same shortcut as the facture detail screen: Bexio stays the only place
-  // a contact gets created (V1 scope), so this can't create the missing
-  // contact, but it can re-pull clients and retry the push in one tap.
+  // Same shortcut as the facture detail screen: a client created in Cantia
+  // (rather than pulled from Bexio) has no Bexio contact yet, which is what
+  // triggers this error. Pushes that client to Bexio, then retries the
+  // devis push in one tap instead of sending the user to the client's own
+  // page or Compte > Intégrations.
   async function handleSyncClientsAndRetryPush() {
-    if (!devis || pushingBexio) return;
+    if (!devis || !devis.client_id || pushingBexio) return;
     setPushingBexio(true);
     setError(null);
-    const { error: syncError } = await syncBexio(devis.organization_id, 'contacts');
-    if (syncError) {
+    const { error: clientPushError } = await pushClientToBexio(devis.organization_id, devis.client_id);
+    if (clientPushError) {
       setPushingBexio(false);
-      setError(syncError);
+      setError(clientPushError);
       return;
     }
     const { error: pushError } = await pushDevisToBexio(devis.organization_id, devis.id);
@@ -420,7 +422,7 @@ export default function DevisDetailScreen() {
             <Text style={styles.error}>{error}</Text>
             {error.includes("n'est pas relié à un contact Bexio") ? (
               <Button
-                title="Synchroniser les clients et réessayer"
+                title="Lier le client à Bexio et réessayer"
                 variant="secondary"
                 icon="refresh-cw"
                 onPress={handleSyncClientsAndRetryPush}

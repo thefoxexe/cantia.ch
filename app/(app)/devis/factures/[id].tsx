@@ -19,7 +19,7 @@ import {
   sendFactureEmail,
 } from '../../../../lib/api/factures';
 import { confirm } from '../../../../lib/confirm';
-import { getFactureBexioMapping, getIntegration, pushFactureToBexio, syncBexio } from '../../../../lib/api/integrations';
+import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -232,18 +232,18 @@ export default function FactureDetailScreen() {
   }
 
   // Shown as a shortcut under the "client not linked to a Bexio contact"
-  // error — Bexio stays the only place a contact gets created (V1 scope),
-  // so this can't create the missing contact, but it can re-pull clients
-  // and retry the push in one tap instead of sending the user to
-  // Compte > Intégrations and back.
+  // error — a client created in Cantia (rather than pulled from Bexio) has
+  // no Bexio contact yet, which is what triggers this error. Pushes that
+  // client to Bexio, then retries the facture push in one tap instead of
+  // sending the user to the client's own page or Compte > Intégrations.
   async function handleSyncClientsAndRetryPush() {
-    if (!facture || pushingBexio) return;
+    if (!facture || !facture.client_id || pushingBexio) return;
     setPushingBexio(true);
     setError(null);
-    const { error: syncError } = await syncBexio(facture.organization_id, 'contacts');
-    if (syncError) {
+    const { error: clientPushError } = await pushClientToBexio(facture.organization_id, facture.client_id);
+    if (clientPushError) {
       setPushingBexio(false);
-      setError(syncError);
+      setError(clientPushError);
       return;
     }
     const { error: pushError } = await pushFactureToBexio(facture.organization_id, facture.id);
@@ -545,7 +545,7 @@ export default function FactureDetailScreen() {
             <Text style={styles.error}>{error}</Text>
             {error.includes("n'est pas relié à un contact Bexio") ? (
               <Button
-                title="Synchroniser les clients et réessayer"
+                title="Lier le client à Bexio et réessayer"
                 variant="secondary"
                 icon="refresh-cw"
                 onPress={handleSyncClientsAndRetryPush}

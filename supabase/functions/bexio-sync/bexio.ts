@@ -258,3 +258,27 @@ export async function bexioSearch<T>(
   // The search endpoints require an array body, never a bare object.
   return bexioJson<T[]>(admin, integration, path, { method: 'POST', body: JSON.stringify(filters) });
 }
+
+// Bexio's own OAuth access token is a JWT that carries the connecting
+// user's per-company id as `company_user_id` — confirmed by decoding a
+// live token and cross-checking it against an existing contact's
+// user_id/owner_id fields (both equal 1 for a single-user company; see
+// GET /2.0/contact/1). Several write endpoints (POST /2.0/contact at
+// least) require user_id/owner_id as the Bexio user who owns the record,
+// with no "list users" route in the cahier des charges to resolve it
+// from — decoding it out of the token itself avoids both a hardcoded
+// guess and an extra API call. Returns null (never throws) if decoding
+// fails for any reason, so callers can fall back to omitting the field
+// and let a real BEXIO_VALIDATION_ERROR surface instead of a silent 401.
+export function decodeBexioCompanyUserId(accessToken: string): number | null {
+  try {
+    const payload = accessToken.split('.')[1];
+    if (!payload) return null;
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/').padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+    const claims = JSON.parse(atob(base64));
+    const id = claims.company_user_id;
+    return typeof id === 'number' ? id : null;
+  } catch {
+    return null;
+  }
+}
