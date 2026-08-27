@@ -949,7 +949,16 @@ function LandingContent() {
               iPad/iPhone) — it already carries its own heading, so no
               separate eyebrow/title/subtitle is rendered above it here. ---- */}
           <Reveal id="devices" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Image source={require('../assets/marketing/devices-hero.jpg')} style={styles.devicesHero} resizeMode="contain" />
+            {/* aspectRatio lives on this wrapping View, not the Image itself —
+                react-native-web has been observed falling back to the source
+                file's raw pixel height (ignoring the container's actual
+                width) when aspectRatio is set directly on an <Image>, which
+                blew the section up to several screens tall on narrow
+                viewports. An Image absolutely filling a pre-sized box
+                doesn't hit that. */}
+            <View style={styles.devicesHeroWrap}>
+              <Image source={require('../assets/marketing/devices-hero.jpg')} style={styles.devicesHero} resizeMode="contain" />
+            </View>
             <View style={styles.devicesBenefits}>
               {t.devices.benefits.map((b) => (
                 <View key={b.title} style={styles.devicesBenefitCard}>
@@ -3338,12 +3347,16 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: spacing.xl,
   },
-  devicesHero: {
+  devicesHeroWrap: {
     width: '100%',
     maxWidth: 1100,
     aspectRatio: 1535 / 1024,
     alignSelf: 'center',
     marginBottom: spacing.xxl,
+  } as unknown as ViewStyle,
+  devicesHero: {
+    width: '100%',
+    height: '100%',
   },
   devicesBenefits: {
     flexDirection: 'row',
