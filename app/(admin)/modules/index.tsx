@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listModules } from '../../../lib/api/admin';
 import type { AdminModuleSummary } from '../../../lib/types';
@@ -22,6 +23,7 @@ export default function AdminModulesList() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    setLoading(true);
     const { rows, error: err } = await listModules();
     setModules(rows);
     setError(err);
@@ -35,7 +37,10 @@ export default function AdminModulesList() {
   return (
     <ScrollView>
       <Container style={styles.container}>
-        <Text style={styles.title}>Modules</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Modules</Text>
+          <AdminRefreshButton onPress={load} loading={loading} />
+        </View>
         <Text style={styles.hint}>
           Le registre des modules sur mesure développés pour des entreprises précises. Pour en créer un, demande-le
           directement dans la conversation — le module et son entrée ici sont livrés ensemble.
@@ -81,11 +86,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.sm,
   },
   hint: {
     fontSize: fontSize.xs,

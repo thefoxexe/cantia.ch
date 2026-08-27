@@ -1,21 +1,43 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, LoadingScreen } from '../../components/ui';
+import { AdminErrorBanner } from '../../components/AdminErrorBanner';
+import { AdminRefreshButton } from '../../components/AdminRefreshButton';
 import { InternalTag } from '../../components/InternalTag';
+import { GrowthChart } from '../../components/GrowthChart';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { getDashboardStats, listOrganizations, subscribeToNewOrganizations } from '../../lib/api/admin';
-import type { AdminDashboardStats, AdminOrganizationSummary } from '../../lib/types';
+import { getDashboardStats, getRevenueOverview, listOrganizations, subscribeToNewOrganizations } from '../../lib/api/admin';
+import type { AdminDashboardStats, AdminOrganizationSummary, AdminRevenueOverview } from '../../lib/types';
 
-function StatTile({ label, value, icon }: { label: string; value: number; icon: keyof typeof Feather.glyphMap }) {
+function formatChf(amount: number): string {
+  return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 }).format(amount);
+}
+
+function StatTile({ label, value, icon, accent }: { label: string; value: number | string; icon: keyof typeof Feather.glyphMap; accent?: string }) {
   return (
     <View style={styles.tile}>
-      <View style={styles.tileIcon}>
-        <Feather name={icon} size={16} color={colors.primary} />
+      <View style={[styles.tileIcon, accent ? { backgroundColor: `${accent}22` } : null]}>
+        <Feather name={icon} size={16} color={accent ?? colors.primary} />
       </View>
-      <Text style={styles.tileValue}>{value.toLocaleString('fr-CH')}</Text>
+      <Text style={[styles.tileValue, accent ? { color: accent } : null]}>{typeof value === 'number' ? value.toLocaleString('fr-CH') : value}</Text>
       <Text style={styles.tileLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function SectionHeading({ title, action }: { title: string; action?: { label: string; href: string } }) {
+  return (
+    <View style={styles.sectionHeading}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {action ? (
+        <Link href={action.href as any} asChild>
+          <Pressable>
+            <Text style={styles.sectionAction}>{action.label} →</Text>
+          </Pressable>
+        </Link>
+      ) : null}
     </View>
   );
 }
@@ -46,6 +68,7 @@ function OrgRow({ org, onPress }: { org: AdminOrganizationSummary; onPress: () =
 export default function AdminDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
+  const [overview, setOverview] = useState<AdminRevenueOverview | null>(null);
   const [recent, setRecent] = useState<AdminOrganizationSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,10 +76,11 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [s, orgs] = await Promise.all([getDashboardStats(), listOrganizations('', 8, 0)]);
+    const [s, ov, orgs] = await Promise.all([getDashboardStats(), getRevenueOverview(), listOrganizations('', 8, 0)]);
     setStats(s.stats);
+    setOverview(ov.overview);
     setRecent(orgs.rows);
-    setError(s.error ?? orgs.error);
+    setError(s.error ?? ov.error ?? orgs.error);
     setNewSignal(false);
   }, []);
 
@@ -80,34 +104,58 @@ export default function AdminDashboard() {
   if (loading) return <LoadingScreen label="Chargement du tableau de bord…" />;
 
   return (
-    <ScrollView contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+    <ScrollView contentContainerStyle={styles.scroll}>
       <Container style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Dashboard</Text>
-          <Pressable style={styles.refreshButton} onPress={onRefresh}>
-            {newSignal ? <View style={styles.refreshDot} /> : null}
-            <Feather name="refresh-cw" size={14} color={colors.text} />
-            <Text style={styles.refreshButtonText}>Actualiser</Text>
-          </Pressable>
+          <AdminRefreshButton onPress={onRefresh} loading={refreshing} hasSignal={newSignal} />
         </View>
 
-        {error ? (
-          <View style={styles.errorBanner}>
-            <Feather name="alert-triangle" size={14} color={colors.danger} />
-            <Text style={styles.errorBannerText}>{error}</Text>
-          </View>
-        ) : null}
+        {error ? <AdminErrorBanner message={error} /> : null}
 
+        <SectionHeading title="Croissance" />
         <View style={styles.grid}>
           <StatTile label="Entreprises" value={stats?.organizations_count ?? 0} icon="briefcase" />
           <StatTile label="Utilisateurs" value={stats?.users_count ?? 0} icon="users" />
-          <StatTile label="Essais actifs" value={stats?.active_trials_count ?? 0} icon="clock" />
-          <StatTile label="Abonnements payants" value={stats?.paid_subscriptions_count ?? 0} icon="credit-card" />
           <StatTile label="Inscriptions aujourd'hui" value={stats?.signups_today_count ?? 0} icon="user-plus" />
           <StatTile label="Entreprises créées aujourd'hui" value={stats?.organizations_created_today_count ?? 0} icon="plus-circle" />
         </View>
 
-        <Text style={styles.sectionTitle}>Dernières inscriptions</Text>
+        <SectionHeading title="Abonnements" action={{ label: 'Voir le détail', href: '/(admin)/subscriptions' }} />
+        <View style={styles.grid}>
+          <StatTile label="Essais actifs" value={stats?.active_trials_count ?? 0} icon="clock" accent={colors.warning} />
+          <StatTile label="Abonnements payants" value={stats?.paid_subscriptions_count ?? 0} icon="credit-card" accent={colors.success} />
+        </View>
+
+        {overview ? (
+          <>
+            <SectionHeading title="Argent" action={{ label: 'Voir le détail', href: '/(admin)/subscriptions' }} />
+            <View style={styles.grid}>
+              <StatTile label="Encaissé ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" accent={colors.success} />
+              <StatTile label="MRR actif" value={formatChf(overview.mrr_active_chf)} icon="trending-up" />
+              <StatTile label="ARR" value={formatChf(overview.arr_chf)} icon="bar-chart-2" />
+            </View>
+
+            {overview.by_plan.length > 0 ? (
+              <View style={styles.planList}>
+                {overview.by_plan.map((p) => (
+                  <View key={p.plan_id} style={styles.planRow}>
+                    <Text style={styles.planName}>{p.plan_name}</Text>
+                    <Text style={styles.planMeta}>
+                      {p.active_count} payant{p.active_count > 1 ? 's' : ''}
+                      {p.trialing_count > 0 ? ` · ${p.trialing_count} en essai` : ''}
+                    </Text>
+                    <Text style={styles.planValue}>{formatChf(p.mrr_chf)}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+
+            <GrowthChart points={overview.timeseries} />
+          </>
+        ) : null}
+
+        <SectionHeading title="Dernières inscriptions" action={{ label: 'Voir toutes les entreprises', href: '/(admin)/organizations' }} />
         <View style={styles.list}>
           {recent.length === 0 ? (
             <Text style={styles.emptyText}>Aucune entreprise pour le moment.</Text>
@@ -139,36 +187,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
-  refreshButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  refreshDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  refreshButtonText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.md,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.lg,
   },
   tile: {
-    minWidth: 180,
+    minWidth: 170,
     flexGrow: 1,
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -197,14 +223,58 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '500',
   },
+  sectionHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+  },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.md,
+  },
+  sectionAction: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  planList: {
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  planRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  planName: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    minWidth: 90,
+  },
+  planMeta: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  planValue: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+    fontVariant: ['tabular-nums'],
   },
   list: {
     gap: spacing.sm,
+    marginBottom: spacing.xl,
   },
   row: {
     flexDirection: 'row',
@@ -247,21 +317,5 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
-  },
-  errorBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.dangerSoft,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  errorBannerText: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.danger,
   },
 });

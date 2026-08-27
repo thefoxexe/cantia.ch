@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { GrowthChart } from '../../../components/GrowthChart';
@@ -181,19 +182,27 @@ export default function AdminSubscriptionsList() {
     getOrgBillingStatuses(r.map((o) => o.id)).then(({ statuses }) => setBilling(statuses));
   }, []);
 
+  const loadOverview = useCallback(async () => {
+    setOverviewLoading(true);
+    const { overview: o, error: err } = await getRevenueOverview();
+    setOverview(o);
+    setOverviewError(err);
+    setOverviewLoading(false);
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => load(search), 250);
     return () => clearTimeout(timer);
   }, [search, load]);
 
   useEffect(() => {
-    setOverviewLoading(true);
-    getRevenueOverview().then(({ overview: o, error: err }) => {
-      setOverview(o);
-      setOverviewError(err);
-      setOverviewLoading(false);
-    });
-  }, []);
+    loadOverview();
+  }, [loadOverview]);
+
+  function refreshAll() {
+    load(search);
+    loadOverview();
+  }
 
   const plans = useMemo(() => Array.from(new Map(rows.map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
   const filteredRows = useMemo(() => (planFilter ? rows.filter((o) => o.plan_id === planFilter) : rows), [rows, planFilter]);
@@ -201,7 +210,10 @@ export default function AdminSubscriptionsList() {
   return (
     <ScrollView>
       <Container style={styles.container}>
-        <Text style={styles.title}>Abonnements {total > 0 ? `(${total})` : ''}</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Abonnements {total > 0 ? `(${total})` : ''}</Text>
+          <AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />
+        </View>
 
         <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} />
 
@@ -261,11 +273,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.lg,
   },
   grid: {
     flexDirection: 'row',

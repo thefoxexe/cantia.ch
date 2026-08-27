@@ -199,8 +199,14 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '500',
   },
+  // minHeight: 0 matters here on web: a flex child otherwise refuses to
+  // shrink below its content's natural height, so the Slot's own ScrollView
+  // never gets a bounded height to scroll within — the whole document
+  // scrolls instead and drags the sidebar/tab bar along with it. This is
+  // the root cause behind the "scroll sometimes breaks" reports.
   content: {
     flex: 1,
+    minHeight: 0,
   },
   mobileRoot: {
     flex: 1,
@@ -226,6 +232,7 @@ const styles = StyleSheet.create({
   },
   mobileContent: {
     flex: 1,
+    minHeight: 0,
   },
   mobileTabBar: {
     flexDirection: 'row',

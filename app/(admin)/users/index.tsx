@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listUsers } from '../../../lib/api/admin';
 import type { AdminUserSummary } from '../../../lib/types';
@@ -39,7 +40,10 @@ export default function AdminUsersList() {
   return (
     <ScrollView>
       <Container style={styles.container}>
-        <Text style={styles.title}>Utilisateurs {total > 0 ? `(${total})` : ''}</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Utilisateurs {total > 0 ? `(${total})` : ''}</Text>
+          <AdminRefreshButton onPress={() => load(search)} loading={loading} />
+        </View>
         <Field label="Rechercher" placeholder="Nom ou e-mail…" value={search} onChangeText={setSearch} />
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
@@ -78,11 +82,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.lg,
   },
   list: {
     gap: spacing.sm,

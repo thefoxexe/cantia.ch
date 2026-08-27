@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listAuditLogs } from '../../../lib/api/admin';
 import type { AdminAuditLog } from '../../../lib/types';
@@ -22,6 +23,7 @@ export default function AdminLogsList() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    setLoading(true);
     const { rows: r, error: err } = await listAuditLogs(100, 0);
     setRows(r);
     setError(err);
@@ -35,7 +37,10 @@ export default function AdminLogsList() {
   return (
     <ScrollView>
       <Container style={styles.container}>
-        <Text style={styles.title}>Logs</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Logs</Text>
+          <AdminRefreshButton onPress={load} loading={loading} />
+        </View>
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
           <LoadingScreen label="Chargement…" />
@@ -68,11 +73,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.lg,
   },
   list: {
     gap: spacing.sm,

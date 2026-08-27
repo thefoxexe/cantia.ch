@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -64,26 +65,31 @@ export default function AdminOrganizationsList() {
   }, [search, load]);
 
   return (
-    <Container style={styles.container}>
-      <Text style={styles.title}>Entreprises {total > 0 ? `(${total})` : ''}</Text>
-      <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
-      {error ? <AdminErrorBanner message={error} /> : null}
-      {loading ? (
-        <LoadingScreen label="Chargement…" />
-      ) : rows.length === 0 ? (
-        <EmptyState title="Aucune entreprise trouvée" subtitle={search ? 'Essayez une autre recherche.' : undefined} />
-      ) : (
-        <FlatList
-          data={rows}
-          keyExtractor={(o) => o.id}
-          renderItem={({ item }) => (
-            <Row org={item} billing={billing[item.id]} onPress={() => router.push(`/(admin)/organizations/${item.id}` as any)} />
-          )}
-          ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
-          scrollEnabled={false}
-        />
-      )}
-    </Container>
+    <ScrollView>
+      <Container style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Entreprises {total > 0 ? `(${total})` : ''}</Text>
+          <AdminRefreshButton onPress={() => load(search)} loading={loading} />
+        </View>
+        <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
+        {error ? <AdminErrorBanner message={error} /> : null}
+        {loading ? (
+          <LoadingScreen label="Chargement…" />
+        ) : rows.length === 0 ? (
+          <EmptyState title="Aucune entreprise trouvée" subtitle={search ? 'Essayez une autre recherche.' : undefined} />
+        ) : (
+          <FlatList
+            data={rows}
+            keyExtractor={(o) => o.id}
+            renderItem={({ item }) => (
+              <Row org={item} billing={billing[item.id]} onPress={() => router.push(`/(admin)/organizations/${item.id}` as any)} />
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
+            scrollEnabled={false}
+          />
+        )}
+      </Container>
+    </ScrollView>
   );
 }
 
@@ -92,11 +98,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.lg,
   },
   row: {
     flexDirection: 'row',
