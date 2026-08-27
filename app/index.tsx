@@ -1527,11 +1527,11 @@ function DevicesMockup() {
       </View>
       <View style={[styles.deviceFrame, styles.deviceBezel, styles.deviceTablet]}>
         <View style={styles.deviceCamera} />
-        <Image source={require('../assets/marketing/device-tablet.jpg')} style={styles.deviceImageInset} resizeMode="cover" />
+        <Image source={require('../assets/marketing/device-tablet.jpg')} style={styles.deviceImageInsetTablet} resizeMode="cover" />
       </View>
       <View style={[styles.deviceFrame, styles.deviceBezel, styles.devicePhone]}>
         <View style={styles.deviceCamera} />
-        <Image source={require('../assets/marketing/device-phone.jpg')} style={styles.deviceImageInset} resizeMode="cover" />
+        <Image source={require('../assets/marketing/device-phone.jpg')} style={styles.deviceImageInsetPhone} resizeMode="cover" />
       </View>
     </View>
   );
@@ -3421,48 +3421,55 @@ const styles = StyleSheet.create({
     width: '100%',
     flex: 1,
   },
-  // Tablet & phone: a dark bezel frame (padding reveals the bezel colour
-  // behind an inset, more-rounded image) — the generic device shape a real
-  // tablet/phone bezel reads as, tinted with the app's own ink rather than
-  // pure black so the whole composition stays on-brand.
+  // Tablet & phone: a slim dark bezel (thin padding, not a thick block) with
+  // a faint lighter rim to fake a metallic edge catching light — what
+  // actually reads as "a real device" is the bezel being thin relative to
+  // the screen, not just any dark rounded rectangle around the screenshot.
   deviceBezel: {
-    backgroundColor: colors.text,
+    backgroundColor: '#171310',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
     alignItems: 'center',
     justifyContent: 'center',
   } as unknown as ViewStyle,
   deviceTablet: {
-    left: '48%',
-    top: '4%',
-    width: '27%',
+    left: '47%',
+    top: '3%',
+    width: '28%',
     aspectRatio: 1640 / 2360,
-    borderRadius: 22,
-    padding: '3.5%',
+    borderRadius: 18,
+    padding: '1.6%',
     zIndex: 2,
   } as unknown as ViewStyle,
   devicePhone: {
-    left: '64.7%',
-    top: '37.7%',
-    width: '15%',
+    left: '65%',
+    top: '39%',
+    width: '15.5%',
     aspectRatio: 1080 / 1866,
-    borderRadius: 16,
-    padding: '4.5%',
+    borderRadius: 24,
+    padding: '2.6%',
     zIndex: 3,
   } as unknown as ViewStyle,
   deviceCamera: {
     position: 'absolute',
-    top: '1.4%',
+    top: '1%',
     left: '50%',
-    marginLeft: -2.5,
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    marginLeft: -2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.18)',
     zIndex: 1,
   } as unknown as ViewStyle,
-  deviceImageInset: {
+  deviceImageInsetTablet: {
     width: '100%',
     height: '100%',
-    borderRadius: 10,
+    borderRadius: 13,
+  },
+  deviceImageInsetPhone: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 19,
   },
   devicesBenefits: {
     flexDirection: 'row',

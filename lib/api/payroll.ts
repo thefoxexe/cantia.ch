@@ -140,6 +140,52 @@ export interface PayrollTimeEntryWithNames extends PayrollTimeEntry {
   work_type_label: string | null;
 }
 
+// Accepts "8" -> 08:00, "8.5"/"8,5" -> 08:05, "830"/"1430" -> 08:30/14:30,
+// "14:30" -> 14:30 — every shorthand someone would actually type while
+// logging a start/end time without reaching for a picker.
+export function parseFlexibleTime(raw: string): string | null {
+  const s = raw.trim();
+  if (!s) return null;
+  if (/^\d{1,2}$/.test(s)) {
+    const h = Number(s);
+    if (h > 23) return null;
+    return `${String(h).padStart(2, '0')}:00`;
+  }
+  const sepMatch = s.match(/^(\d{1,2})[.,](\d{1,2})$/);
+  if (sepMatch) {
+    const h = Number(sepMatch[1]);
+    const m = Number(sepMatch[2].padStart(2, '0'));
+    if (h > 23 || m > 59) return null;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
+  const colonMatch = s.match(/^(\d{1,2}):(\d{2})$/);
+  if (colonMatch) {
+    const h = Number(colonMatch[1]);
+    const m = Number(colonMatch[2]);
+    if (h > 23 || m > 59) return null;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
+  const compact = s.match(/^(\d{3,4})$/);
+  if (compact) {
+    const digits = compact[1].padStart(4, '0');
+    const h = Number(digits.slice(0, 2));
+    const m = Number(digits.slice(2));
+    if (h > 23 || m > 59) return null;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
+  return null;
+}
+
+// Decimal hours between two "HH:MM" times, rolling over past midnight for an
+// overnight shift (end earlier than start).
+export function hoursFromRange(startTime: string, endTime: string): number {
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  let minutes = eh * 60 + em - (sh * 60 + sm);
+  if (minutes < 0) minutes += 24 * 60;
+  return Math.round((minutes / 60) * 100) / 100;
+}
+
 export async function listTimeEntries(
   organizationId: string,
   userId: string,

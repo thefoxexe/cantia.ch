@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import {
@@ -8,11 +8,13 @@ import {
   deleteExpense,
   deleteTimeEntry,
   groupHoursForExport,
+  hoursFromRange,
   hoursToCsv,
   listExpenseTypes,
   listExpenses,
   listTimeEntries,
   listWorkTypes,
+  parseFlexibleTime,
   updateTimeEntry,
   type ExportGranularity,
   type PayrollExpenseWithNames,
@@ -75,6 +77,16 @@ function formatHoursForInput(hours: number): string {
   return `${h}.${String(m).padStart(2, '0')}`;
 }
 
+// Below this viewport width the grid's 7 columns no longer fit legibly —
+// entries render as stacked cards instead (see EntryCard).
+const MOBILE_BREAKPOINT = 640;
+
+// Postgres returns a `time` column as "HH:MM:SS" — the input only ever shows/
+// edits "HH:MM", seconds are never something a person types here.
+function formatTimeForInput(t: string | null): string {
+  return t ? t.slice(0, 5) : '';
+}
+
 function defaultMonthRange(): DateRange {
   const now = new Date();
   return { start: toIso(startOfMonth(now)), end: toIso(endOfMonth(now)) };
@@ -99,10 +111,16 @@ function draftEntryDate(range: DateRange): string {
   return range.start === range.end ? range.start : toIso(new Date());
 }
 
-type EditableEntry = PayrollTimeEntryWithNames & { hoursText: string; noteText: string };
+type EditableEntry = PayrollTimeEntryWithNames & { hoursText: string; noteText: string; startText: string; endText: string };
 
 function toEditable(e: PayrollTimeEntryWithNames): EditableEntry {
-  return { ...e, hoursText: formatHoursForInput(Number(e.hours)), noteText: e.note ?? '' };
+  return {
+    ...e,
+    hoursText: formatHoursForInput(Number(e.hours)),
+    noteText: e.note ?? '',
+    startText: formatTimeForInput(e.start_time),
+    endText: formatTimeForInput(e.end_time),
+  };
 }
 
 interface DraftRow {
@@ -110,10 +128,20 @@ interface DraftRow {
   projectId: string | null;
   workTypeId: string | null;
   note: string;
+  startText: string;
+  endText: string;
   hoursText: string;
 }
 
-const BLANK_DRAFT: DraftRow = { projectPicked: false, projectId: null, workTypeId: null, note: '', hoursText: '' };
+const BLANK_DRAFT: DraftRow = {
+  projectPicked: false,
+  projectId: null,
+  workTypeId: null,
+  note: '',
+  startText: '',
+  endText: '',
+  hoursText: '',
+};
 
 // A tap-to-open dropdown anchored under its own cell (same measureInWindow +
 // transparent Modal technique as AccountMenu) — the closest RN-Web/native
@@ -228,6 +256,9 @@ export function PayrollEntryPanel({
   onRangeChange: (r: DateRange) => void;
   showCalendar?: boolean;
 }) {
+  const { width: windowWidth } = useWindowDimensions();
+  const isMobile = windowWidth < MOBILE_BREAKPOINT;
+
   const [projects, setProjects] = useState<PickItem[]>([]);
   const [workTypes, setWorkTypes] = useState<PayrollWorkType[]>([]);
   const [expenseTypes, setExpenseTypes] = useState<PayrollExpenseType[]>([]);
@@ -274,14 +305,8 @@ export function PayrollEntryPanel({
 
   const workTypeOptions: PickItem[] = workTypes.map((w) => ({ id: w.id, label: w.label }));
 
-  // Saves the trailing draft row as soon as it has a chantier decided (even
-  // "Sans chantier" counts) and a valid Heures value — that's the one field
-  // whose completion means "this line is done", since it's always filled
-  // last in the natural chantier → type de travail → remarque → heures order
-  // the columns are laid out in.
-  async function commitDraft() {
+  async function commitDraftWith(hours: number, startTime: string | null, endTime: string | null) {
     if (savingDraft || !draft.projectPicked) return;
-    const hours = parseFlexibleHours(draft.hoursText);
     if (!hours || hours <= 0 || hours > 24) return;
     setSavingDraft(true);
     setDraftError(null);
@@ -292,8 +317,8 @@ export function PayrollEntryPanel({
       userId: targetUserId,
       entryDate: draftEntryDate(range),
       hours,
-      startTime: null,
-      endTime: null,
+      startTime,
+      endTime,
       note: draft.note,
       createdBy: currentUserId,
     });
@@ -304,6 +329,30 @@ export function PayrollEntryPanel({
     }
     setDraft(BLANK_DRAFT);
     load();
+  }
+
+  // Saves the trailing draft row as soon as it has a chantier decided (even
+  // "Sans chantier" counts) and a valid Heures value — that's the one field
+  // whose completion means "this line is done", since it's always filled
+  // last in the natural chantier → type de travail → remarque → début/fin →
+  // heures order the columns are laid out in.
+  function commitDraft() {
+    const hours = parseFlexibleHours(draft.hoursText);
+    if (!hours) return;
+    commitDraftWith(hours, parseFlexibleTime(draft.startText), parseFlexibleTime(draft.endText));
+  }
+
+  // Fires when Début or Fin blurs — if both parse, the pair is enough to
+  // commit the line on its own, without needing the person to also touch
+  // Heures (which gets auto-filled here just so the row reads consistently
+  // before it saves and gets replaced by a fresh blank one).
+  function onDraftTimeBlur() {
+    const start = parseFlexibleTime(draft.startText);
+    const end = parseFlexibleTime(draft.endText);
+    if (!start || !end) return;
+    const hours = hoursFromRange(start, end);
+    setDraft((d) => ({ ...d, hoursText: formatHoursForInput(hours) }));
+    commitDraftWith(hours, start, end);
   }
 
   // Optimistic local patch first (so typing/picking feels instant), then
@@ -355,6 +404,27 @@ export function PayrollEntryPanel({
       return;
     }
     const updated = patchEntryLocal(e.id, { hours, hoursText: formatHoursForInput(hours) });
+    if (updated) persistEntry(updated);
+  }
+
+  // Fires when either Début or Fin blurs. A single valid time is kept as-is
+  // (someone may only know the start so far); once both parse, Heures is
+  // recomputed from the range and takes over as the saved value.
+  function onEntryTimeBlur(e: EditableEntry) {
+    const start = parseFlexibleTime(e.startText);
+    const end = parseFlexibleTime(e.endText);
+    const patch: Partial<EditableEntry> = {};
+    if (e.startText.trim() && !start) patch.startText = formatTimeForInput(e.start_time);
+    else if (start) patch.start_time = start;
+    if (e.endText.trim() && !end) patch.endText = formatTimeForInput(e.end_time);
+    else if (end) patch.end_time = end;
+    if (start && end) {
+      const hours = hoursFromRange(start, end);
+      patch.hours = hours;
+      patch.hoursText = formatHoursForInput(hours);
+    }
+    if (Object.keys(patch).length === 0) return;
+    const updated = patchEntryLocal(e.id, patch);
     if (updated) persistEntry(updated);
   }
 
@@ -457,101 +527,291 @@ export function PayrollEntryPanel({
           <Text style={styles.sectionTitle}>Heures</Text>
           <Text style={styles.sectionTotal}>{totalHours} h</Text>
         </View>
+        <View style={styles.desktopHintRow}>
+          <Feather name="monitor" size={12} color={colors.textMuted} />
+          <Text style={styles.desktopHintText}>Plus simple à utiliser sur ordinateur, sur grand écran.</Text>
+        </View>
 
-        <View style={styles.grid}>
-          <View style={styles.gridHeaderRow}>
-            <Text style={[styles.gridHeaderCell, styles.colProject]}>Chantier</Text>
-            <Text style={[styles.gridHeaderCell, styles.colType]}>Type de travail</Text>
-            <Text style={[styles.gridHeaderCell, styles.colNote]}>Remarque</Text>
-            <Text style={[styles.gridHeaderCell, styles.colHours]}>Heures</Text>
-            <View style={styles.colTrash} />
+        {isMobile ? (
+          <View style={styles.cardList}>
+            {entries.map((e) => (
+              <View key={e.id} style={styles.entryCard}>
+                <View style={styles.entryCardTopRow}>
+                  <PickerCell
+                    containerStyle={styles.entryCardProject}
+                    value={e.project_id}
+                    noneLabel="Sans chantier"
+                    options={projects}
+                    onChange={(id) => onPickEntryProject(e, id)}
+                  />
+                  <Pressable onPress={() => removeHours(e.id)} hitSlop={8}>
+                    <Feather name="trash-2" size={16} color={colors.textMuted} />
+                  </Pressable>
+                </View>
+                <PickerCell
+                  containerStyle={styles.entryCardFull}
+                  value={e.work_type_id}
+                  noneLabel="Non précisé"
+                  options={workTypeOptions}
+                  onChange={(id) => onPickEntryWorkType(e, id)}
+                />
+                <TextInput
+                  style={[styles.cellInput, styles.entryCardFull]}
+                  value={e.noteText}
+                  onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, noteText: v } : x)))}
+                  onBlur={() => onEntryNoteBlur(e)}
+                  placeholder="Remarque (optionnel)"
+                  placeholderTextColor={colors.textMuted}
+                />
+                <View style={styles.entryCardTimeRow}>
+                  <View style={styles.entryCardTimeField}>
+                    <Text style={styles.entryCardFieldLabel}>Début</Text>
+                    <TextInput
+                      style={styles.cellInput}
+                      value={e.startText}
+                      onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, startText: v } : x)))}
+                      onBlur={() => onEntryTimeBlur(e)}
+                      placeholder="08:00"
+                      placeholderTextColor={colors.textMuted}
+                    />
+                  </View>
+                  <View style={styles.entryCardTimeField}>
+                    <Text style={styles.entryCardFieldLabel}>Fin</Text>
+                    <TextInput
+                      style={styles.cellInput}
+                      value={e.endText}
+                      onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, endText: v } : x)))}
+                      onBlur={() => onEntryTimeBlur(e)}
+                      placeholder="17:00"
+                      placeholderTextColor={colors.textMuted}
+                    />
+                  </View>
+                  <View style={styles.entryCardTimeField}>
+                    <Text style={styles.entryCardFieldLabel}>Heures</Text>
+                    <TextInput
+                      style={[styles.cellInput, styles.cellInputRight]}
+                      value={e.hoursText}
+                      onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, hoursText: v } : x)))}
+                      onBlur={() => onEntryHoursBlur(e)}
+                      keyboardType="decimal-pad"
+                      returnKeyType="done"
+                    />
+                  </View>
+                </View>
+              </View>
+            ))}
+
+            <View style={[styles.entryCard, styles.entryCardDraft]}>
+              <View style={styles.entryCardTopRow}>
+                <PickerCell
+                  containerStyle={styles.entryCardProject}
+                  value={draft.projectId}
+                  picked={draft.projectPicked}
+                  noneLabel="Sans chantier"
+                  placeholder="+ Sélectionner un chantier"
+                  options={projects}
+                  onChange={(id) => setDraft((d) => ({ ...d, projectId: id, projectPicked: true }))}
+                />
+              </View>
+              <PickerCell
+                containerStyle={styles.entryCardFull}
+                value={draft.workTypeId}
+                picked={draft.projectPicked}
+                disabled={!draft.projectPicked}
+                noneLabel="Non précisé"
+                placeholder="—"
+                options={workTypeOptions}
+                onChange={(id) => setDraft((d) => ({ ...d, workTypeId: id }))}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.entryCardFull, !draft.projectPicked && styles.cellInputDisabled]}
+                value={draft.note}
+                onChangeText={(v) => setDraft((d) => ({ ...d, note: v }))}
+                editable={draft.projectPicked}
+                placeholder={draft.projectPicked ? 'Remarque (optionnel)' : '—'}
+                placeholderTextColor={colors.textMuted}
+              />
+              <View style={styles.entryCardTimeRow}>
+                <View style={styles.entryCardTimeField}>
+                  <Text style={styles.entryCardFieldLabel}>Début</Text>
+                  <TextInput
+                    style={[styles.cellInput, !draft.projectPicked && styles.cellInputDisabled]}
+                    value={draft.startText}
+                    onChangeText={(v) => setDraft((d) => ({ ...d, startText: v }))}
+                    onBlur={onDraftTimeBlur}
+                    editable={draft.projectPicked}
+                    placeholder="08:00"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
+                <View style={styles.entryCardTimeField}>
+                  <Text style={styles.entryCardFieldLabel}>Fin</Text>
+                  <TextInput
+                    style={[styles.cellInput, !draft.projectPicked && styles.cellInputDisabled]}
+                    value={draft.endText}
+                    onChangeText={(v) => setDraft((d) => ({ ...d, endText: v }))}
+                    onBlur={onDraftTimeBlur}
+                    editable={draft.projectPicked}
+                    placeholder="17:00"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
+                <View style={styles.entryCardTimeField}>
+                  <Text style={styles.entryCardFieldLabel}>Heures</Text>
+                  <TextInput
+                    style={[styles.cellInput, styles.cellInputRight, !draft.projectPicked && styles.cellInputDisabled]}
+                    value={draft.hoursText}
+                    onChangeText={(v) => setDraft((d) => ({ ...d, hoursText: v }))}
+                    onBlur={commitDraft}
+                    editable={draft.projectPicked && !savingDraft}
+                    placeholder={draft.projectPicked ? 'Ex : 4.30' : '—'}
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="decimal-pad"
+                    returnKeyType="done"
+                  />
+                </View>
+              </View>
+            </View>
           </View>
+        ) : (
+          <View style={styles.grid}>
+            <View style={styles.gridHeaderRow}>
+              <Text style={[styles.gridHeaderCell, styles.colProject]}>Chantier</Text>
+              <Text style={[styles.gridHeaderCell, styles.colType]}>Type de travail</Text>
+              <Text style={[styles.gridHeaderCell, styles.colNote]}>Remarque</Text>
+              <Text style={[styles.gridHeaderCell, styles.colTime]}>Début</Text>
+              <Text style={[styles.gridHeaderCell, styles.colTime]}>Fin</Text>
+              <Text style={[styles.gridHeaderCell, styles.colHours]}>Heures</Text>
+              <View style={styles.colTrash} />
+            </View>
 
-          {entries.map((e) => (
-            <View key={e.id} style={styles.gridRow}>
+            {entries.map((e) => (
+              <View key={e.id} style={styles.gridRow}>
+                <PickerCell
+                  containerStyle={styles.colProject}
+                  value={e.project_id}
+                  noneLabel="Sans chantier"
+                  options={projects}
+                  onChange={(id) => onPickEntryProject(e, id)}
+                />
+                <PickerCell
+                  containerStyle={styles.colType}
+                  value={e.work_type_id}
+                  noneLabel="Non précisé"
+                  options={workTypeOptions}
+                  onChange={(id) => onPickEntryWorkType(e, id)}
+                />
+                <TextInput
+                  style={[styles.cellInput, styles.colNote]}
+                  value={e.noteText}
+                  onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, noteText: v } : x)))}
+                  onBlur={() => onEntryNoteBlur(e)}
+                  placeholder="—"
+                  placeholderTextColor={colors.textMuted}
+                />
+                <TextInput
+                  style={[styles.cellInput, styles.colTime]}
+                  value={e.startText}
+                  onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, startText: v } : x)))}
+                  onBlur={() => onEntryTimeBlur(e)}
+                  placeholder="08:00"
+                  placeholderTextColor={colors.textMuted}
+                />
+                <TextInput
+                  style={[styles.cellInput, styles.colTime]}
+                  value={e.endText}
+                  onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, endText: v } : x)))}
+                  onBlur={() => onEntryTimeBlur(e)}
+                  placeholder="17:00"
+                  placeholderTextColor={colors.textMuted}
+                />
+                <TextInput
+                  style={[styles.cellInput, styles.colHours, styles.cellInputRight]}
+                  value={e.hoursText}
+                  onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, hoursText: v } : x)))}
+                  onBlur={() => onEntryHoursBlur(e)}
+                  keyboardType="decimal-pad"
+                  returnKeyType="done"
+                />
+                <Pressable onPress={() => removeHours(e.id)} hitSlop={8} style={styles.colTrash}>
+                  <Feather name="trash-2" size={14} color={colors.textMuted} />
+                </Pressable>
+              </View>
+            ))}
+
+            <View style={styles.gridRow}>
               <PickerCell
                 containerStyle={styles.colProject}
-                value={e.project_id}
+                value={draft.projectId}
+                picked={draft.projectPicked}
                 noneLabel="Sans chantier"
+                placeholder="+ Sélectionner un chantier"
                 options={projects}
-                onChange={(id) => onPickEntryProject(e, id)}
+                onChange={(id) => setDraft((d) => ({ ...d, projectId: id, projectPicked: true }))}
               />
               <PickerCell
                 containerStyle={styles.colType}
-                value={e.work_type_id}
+                value={draft.workTypeId}
+                picked={draft.projectPicked}
+                disabled={!draft.projectPicked}
                 noneLabel="Non précisé"
+                placeholder="—"
                 options={workTypeOptions}
-                onChange={(id) => onPickEntryWorkType(e, id)}
+                onChange={(id) => setDraft((d) => ({ ...d, workTypeId: id }))}
               />
               <TextInput
-                style={[styles.cellInput, styles.colNote]}
-                value={e.noteText}
-                onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, noteText: v } : x)))}
-                onBlur={() => onEntryNoteBlur(e)}
-                placeholder="—"
+                style={[styles.cellInput, styles.colNote, !draft.projectPicked && styles.cellInputDisabled]}
+                value={draft.note}
+                onChangeText={(v) => setDraft((d) => ({ ...d, note: v }))}
+                editable={draft.projectPicked}
+                placeholder={draft.projectPicked ? 'Optionnel' : '—'}
                 placeholderTextColor={colors.textMuted}
               />
               <TextInput
-                style={[styles.cellInput, styles.colHours, styles.cellInputRight]}
-                value={e.hoursText}
-                onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, hoursText: v } : x)))}
-                onBlur={() => onEntryHoursBlur(e)}
+                style={[styles.cellInput, styles.colTime, !draft.projectPicked && styles.cellInputDisabled]}
+                value={draft.startText}
+                onChangeText={(v) => setDraft((d) => ({ ...d, startText: v }))}
+                onBlur={onDraftTimeBlur}
+                editable={draft.projectPicked}
+                placeholder={draft.projectPicked ? '08:00' : '—'}
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colTime, !draft.projectPicked && styles.cellInputDisabled]}
+                value={draft.endText}
+                onChangeText={(v) => setDraft((d) => ({ ...d, endText: v }))}
+                onBlur={onDraftTimeBlur}
+                editable={draft.projectPicked}
+                placeholder={draft.projectPicked ? '17:00' : '—'}
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colHours, styles.cellInputRight, !draft.projectPicked && styles.cellInputDisabled]}
+                value={draft.hoursText}
+                onChangeText={(v) => setDraft((d) => ({ ...d, hoursText: v }))}
+                onBlur={commitDraft}
+                editable={draft.projectPicked && !savingDraft}
+                placeholder={draft.projectPicked ? 'Ex : 4.30' : '—'}
+                placeholderTextColor={colors.textMuted}
                 keyboardType="decimal-pad"
                 returnKeyType="done"
               />
-              <Pressable onPress={() => removeHours(e.id)} hitSlop={8} style={styles.colTrash}>
-                <Feather name="trash-2" size={14} color={colors.textMuted} />
-              </Pressable>
+              <View style={styles.colTrash} />
             </View>
-          ))}
-
-          <View style={styles.gridRow}>
-            <PickerCell
-              containerStyle={styles.colProject}
-              value={draft.projectId}
-              picked={draft.projectPicked}
-              noneLabel="Sans chantier"
-              placeholder="+ Sélectionner un chantier"
-              options={projects}
-              onChange={(id) => setDraft((d) => ({ ...d, projectId: id, projectPicked: true }))}
-            />
-            <PickerCell
-              containerStyle={styles.colType}
-              value={draft.workTypeId}
-              picked={draft.projectPicked}
-              disabled={!draft.projectPicked}
-              noneLabel="Non précisé"
-              placeholder="—"
-              options={workTypeOptions}
-              onChange={(id) => setDraft((d) => ({ ...d, workTypeId: id }))}
-            />
-            <TextInput
-              style={[styles.cellInput, styles.colNote, !draft.projectPicked && styles.cellInputDisabled]}
-              value={draft.note}
-              onChangeText={(v) => setDraft((d) => ({ ...d, note: v }))}
-              editable={draft.projectPicked}
-              placeholder={draft.projectPicked ? 'Optionnel' : '—'}
-              placeholderTextColor={colors.textMuted}
-            />
-            <TextInput
-              style={[styles.cellInput, styles.colHours, styles.cellInputRight, !draft.projectPicked && styles.cellInputDisabled]}
-              value={draft.hoursText}
-              onChangeText={(v) => setDraft((d) => ({ ...d, hoursText: v }))}
-              onBlur={commitDraft}
-              editable={draft.projectPicked && !savingDraft}
-              placeholder={draft.projectPicked ? 'Ex : 4.30' : '—'}
-              placeholderTextColor={colors.textMuted}
-              keyboardType="decimal-pad"
-              returnKeyType="done"
-            />
-            <View style={styles.colTrash} />
           </View>
-        </View>
+        )}
+
         {draftError ? <Text style={styles.error}>{draftError}</Text> : null}
         {workTypes.length === 0 ? (
           <Text style={styles.hint}>Aucun type de travail configuré — un administrateur peut en ajouter depuis Compte → RH & Salaires.</Text>
         ) : null}
+      </Card>
 
+      <Card>
+        <Text style={styles.sectionTitle}>Export du rapport</Text>
+        <Text style={styles.exportIntro}>
+          La saisie ci-dessus est toujours journalière. Choisissez ici comment regrouper les heures dans le rapport exporté.
+        </Text>
         <View style={styles.exportRow}>
           <View style={styles.granChips}>
             {GRANULARITIES.map((g) => (
@@ -691,6 +951,16 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.primary,
   },
+  desktopHintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: spacing.md,
+  },
+  desktopHintText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
   grid: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -729,17 +999,61 @@ const styles = StyleSheet.create({
   colNote: {
     flex: 1.2,
   },
+  colTime: {
+    width: 54,
+  },
   colHours: {
-    width: 68,
+    width: 56,
   },
   colTrash: {
     width: 22,
     alignItems: 'center',
   },
+  cardList: {
+    gap: spacing.sm,
+  },
+  entryCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    gap: 6,
+  },
+  entryCardDraft: {
+    borderStyle: 'dashed',
+  },
+  entryCardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  entryCardProject: {
+    flex: 1,
+  },
+  entryCardFull: {
+    width: '100%',
+  },
+  entryCardTimeRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  entryCardTimeField: {
+    flex: 1,
+  },
+  entryCardFieldLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    marginBottom: 2,
+    paddingHorizontal: 4,
+  },
   pickerCell: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
   },
   pickerCellDisabled: {
     opacity: 0.4,
@@ -758,6 +1072,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
     borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
   },
   cellInputRight: {
     textAlign: 'right',
@@ -793,16 +1108,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
   },
+  exportIntro: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
+  },
   exportRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: spacing.sm,
-    marginTop: spacing.lg,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   granChips: {
     flexDirection: 'row',
