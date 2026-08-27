@@ -35,6 +35,7 @@ const ITEMS: { href: string; icon: IconName; label: string; description: string;
   // Opens the real cantia.ch/aide instead of a second, in-app copy of the
   // same content — see lib/appHost.ts's helpHref().
   { href: helpHref(), icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.', external: true },
+  { href: '/(app)/compte/danger', icon: 'alert-triangle', label: 'Zone dangereuse', description: "Supprimer l'entreprise ou votre compte." },
 ];
 
 const RH_ITEM: { href: string; icon: IconName; label: string; description: string; external?: boolean } = {

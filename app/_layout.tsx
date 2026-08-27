@@ -14,7 +14,7 @@ import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
 import '../lib/pwaInstall';
 
 function RootNavigation() {
-  const { session, organization, loading, isPlatformAdmin } = useAuth();
+  const { session, organization, loading, isPlatformAdmin, isPasswordRecovery } = useAuth();
   const segments = useSegments();
   const pathname = usePathname();
   const router = useRouter();
@@ -73,6 +73,15 @@ function RootNavigation() {
     // their own isn't forced into onboarding/choose-plan just to reach it.
     if (inAdminGroup) return;
 
+    // A password-recovery link creates a real (temporary) session — without
+    // this check, the branches below would happily route that session
+    // straight into the app before the person has actually set a new
+    // password. Takes priority over everything except the admin group.
+    if (isPasswordRecovery) {
+      if (subroute !== 'update-password') router.replace('/(auth)/update-password');
+      return;
+    }
+
     // A platform admin's session is for running Cantia, not a Cantia
     // customer's workspace — every login lands straight on the admin panel,
     // skipping onboarding/choose-plan/dashboard entirely, regardless of
@@ -101,7 +110,7 @@ function RootNavigation() {
       // visitor there lands straight on the login screen instead.
       router.replace('/(auth)/login');
     }
-  }, [session, organization, loading, isPlatformAdmin, pendingInvite, segments, router]);
+  }, [session, organization, loading, isPlatformAdmin, isPasswordRecovery, pendingInvite, segments, router]);
 
   return (
     <>

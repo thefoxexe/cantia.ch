@@ -47,6 +47,9 @@ export default function LoginScreen() {
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Button title="Se connecter" onPress={handleSubmit} loading={loading} />
+            <Link href="/(auth)/forgot-password" style={styles.forgotLink}>
+              <Text style={styles.linkText}>Mot de passe oublié ?</Text>
+            </Link>
           </View>
 
           <View style={styles.dividerRow}>
@@ -95,6 +98,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxl,
   },
   form: {
+    marginTop: spacing.md,
+  },
+  forgotLink: {
+    alignSelf: 'center',
     marginTop: spacing.md,
   },
   dividerRow: {

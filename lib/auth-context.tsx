@@ -48,12 +48,20 @@ interface AuthContextValue {
   // never derived from anything in the organization/role payload above.
   isPlatformAdmin: boolean;
   loading: boolean;
+  // Set once Supabase reports a PASSWORD_RECOVERY auth event (the user
+  // followed the "mot de passe oublié" e-mail link) — the root layout's
+  // redirect effect checks this to force them onto /(auth)/update-password
+  // instead of wherever the session/organization state would otherwise
+  // send them.
+  isPasswordRecovery: boolean;
   refreshOrganization: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -68,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [permissions, setPermissions] = useState<RolePermissions>(FULL_ACCESS);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   const loadOrganization = useCallback(async (userId: string) => {
     try {
@@ -147,6 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (_event === 'PASSWORD_RECOVERY') setIsPasswordRecovery(true);
       setSession(newSession);
       if (newSession?.user) {
         await Promise.all([loadOrganization(newSession.user.id), checkIsPlatformAdmin().then(setIsPlatformAdmin)]);
@@ -254,6 +264,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   }, []);
 
+  // Web: redirect back to the app's own origin — the recovery link lands
+  // there with the token in the URL, detectSessionInUrl picks it up, and
+  // the PASSWORD_RECOVERY event above sends them to update-password.
+  // Native: same idea via the cantia:// deep link scheme.
+  const resetPassword = useCallback(async (email: string) => {
+    const redirectTo = Platform.OS === 'web' ? (typeof window !== 'undefined' ? window.location.origin : undefined) : Linking.createURL('/');
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    return { error: error?.message ?? null };
+  }, []);
+
+  const updatePassword = useCallback(async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (!error) setIsPasswordRecovery(false);
+    return { error: error?.message ?? null };
+  }, []);
+
   const createOrganization = useCallback(
     async (name: string, trade: string | null) => {
       const { error } = await supabase.rpc('create_organization', { org_name: name, org_trade: trade });
@@ -276,12 +302,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       permissions,
       isPlatformAdmin,
       loading,
+      isPasswordRecovery,
       refreshOrganization,
       signIn,
       signUp,
       signInWithGoogle,
       signOut,
       createOrganization,
+      resetPassword,
+      updatePassword,
     }),
     [
       session,
@@ -293,12 +322,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       permissions,
       isPlatformAdmin,
       loading,
+      isPasswordRecovery,
       refreshOrganization,
       signIn,
       signUp,
       signInWithGoogle,
       signOut,
       createOrganization,
+      resetPassword,
+      updatePassword,
     ],
   );
 
