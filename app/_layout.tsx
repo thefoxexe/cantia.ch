@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, usePathname, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
+import { trackPageview } from '../lib/siteAnalytics';
 import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
@@ -15,6 +16,7 @@ import '../lib/pwaInstall';
 function RootNavigation() {
   const { session, organization, loading, isPlatformAdmin } = useAuth();
   const segments = useSegments();
+  const pathname = usePathname();
   const router = useRouter();
   // undefined = not read from storage yet, null = no pending invite.
   const [pendingInvite, setPendingInvite] = useState<string | null | undefined>(undefined);
@@ -26,6 +28,12 @@ function RootNavigation() {
   useEffect(() => {
     excludeAppHostFromIndexing();
   }, []);
+
+  // trackPageview no-ops off the marketing host (app.cantia.ch, native,
+  // localhost/preview builds) — see lib/siteAnalytics.ts.
+  useEffect(() => {
+    trackPageview(pathname);
+  }, [pathname]);
 
   // Ask for push permission once signed in — the standard place to prompt
   // is right after auth resolves, not at cold start before there's even a

@@ -886,6 +886,27 @@ export interface AdminRevenueOverview {
   timeseries: AdminRevenueTimeseriesPoint[];
 }
 
+export interface AdminSiteTrafficTopPage {
+  path: string;
+  visits: number;
+}
+
+export interface AdminSiteTrafficPoint {
+  date: string;
+  visits: number;
+  unique_visitors: number;
+}
+
+export interface AdminSiteTrafficOverview {
+  visits_today: number;
+  visits_7d: number;
+  visits_30d: number;
+  unique_visitors_today: number;
+  unique_visitors_7d: number;
+  top_pages: AdminSiteTrafficTopPage[];
+  timeseries: AdminSiteTrafficPoint[];
+}
+
 export interface AdminOrganizationMember {
   user_id: string;
   full_name: string | null;

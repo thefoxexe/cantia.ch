@@ -8,6 +8,7 @@ import type {
   AdminOrganizationDetail,
   AdminOrganizationSummary,
   AdminRevenueOverview,
+  AdminSiteTrafficOverview,
   AdminUserSummary,
   PlatformModule,
 } from '../types';
@@ -134,6 +135,15 @@ export async function getOrgBillingStatuses(organizationIds: string[]): Promise<
   });
   if (error) console.error('[admin] admin-billing-overview(org_billing) failed:', error);
   return { statuses: data?.statuses ?? {}, error };
+}
+
+// cantia.ch pageviews, logged client-side by lib/siteAnalytics.ts — see the
+// migration for why this table has no SELECT policy at all (read-only via
+// this security-definer RPC, same is_platform_admin() gate as every other
+// admin_* call).
+export async function getSiteTraffic(): Promise<{ overview: AdminSiteTrafficOverview | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_site_traffic_overview');
+  return { overview: error ? null : (data as AdminSiteTrafficOverview), error: logRpcError('admin_site_traffic_overview', error) };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the
