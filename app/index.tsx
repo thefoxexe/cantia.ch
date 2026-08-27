@@ -944,15 +944,12 @@ function LandingContent() {
           {/* ---- Multi-device: the web app already works everywhere — this
               is distinct from the "mobile" section right below it, which is
               specifically about the dedicated native App Store/Google Play
-              apps still coming. DevicesMockup renders three real product
-              screenshots (assets/marketing/device-*.jpg), each framed at its
-              own true aspect ratio rather than forced into one illustrated
-              shape. ---- */}
+              apps still coming. devices-hero.jpg is a single composed
+              graphic (logo + headline + real product screenshots on Mac/
+              iPad/iPhone) — it already carries its own heading, so no
+              separate eyebrow/title/subtitle is rendered above it here. ---- */}
           <Reveal id="devices" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionEyebrow, styles.centerText]}>Partout avec vous</Text>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.devices.title}</Text>
-            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.devices.text}</Text>
-            <DevicesMockup />
+            <Image source={require('../assets/marketing/devices-hero.jpg')} style={styles.devicesHero} resizeMode="contain" />
             <View style={styles.devicesBenefits}>
               {t.devices.benefits.map((b) => (
                 <View key={b.title} style={styles.devicesBenefitCard}>
@@ -1503,37 +1500,6 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
       </Animated.View>
       <Text style={styles.demoCaption}>{copy.caption}</Text>
     </Pressable>
-  );
-}
-
-// Three real product screenshots (assets/marketing/device-*.jpg), each kept
-// at its own true aspect ratio — a wide desktop crop, a portrait iPad, a
-// taller portrait phone — rather than stretched into one shared illustrated
-// shape. Every frame sets its own `aspectRatio` from the source image, so
-// only `width`/`left`/`top` (percentages of devicesMockup) need tuning; the
-// desktop sits behind, the tablet and phone overlap in front and lower,
-// cascading toward the bottom-right the way a hand-arranged product shot
-// would.
-function DevicesMockup() {
-  return (
-    <View style={styles.devicesMockup}>
-      <View style={[styles.deviceFrame, styles.deviceDesktop]}>
-        <View style={styles.deviceDesktopBar}>
-          <View style={[styles.deviceDot, styles.deviceDotRed]} />
-          <View style={[styles.deviceDot, styles.deviceDotYellow]} />
-          <View style={[styles.deviceDot, styles.deviceDotGreen]} />
-        </View>
-        <Image source={require('../assets/marketing/device-desktop.jpg')} style={styles.deviceImage} resizeMode="cover" />
-      </View>
-      <View style={[styles.deviceFrame, styles.deviceBezel, styles.deviceTablet]}>
-        <View style={styles.deviceCamera} />
-        <Image source={require('../assets/marketing/device-tablet.jpg')} style={styles.deviceImageInsetTablet} resizeMode="cover" />
-      </View>
-      <View style={[styles.deviceFrame, styles.deviceBezel, styles.devicePhone]}>
-        <View style={styles.deviceCamera} />
-        <Image source={require('../assets/marketing/device-phone.jpg')} style={styles.deviceImageInsetPhone} resizeMode="cover" />
-      </View>
-    </View>
   );
 }
 
@@ -3372,104 +3338,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: spacing.xl,
   },
-  devicesMockup: {
+  devicesHero: {
     width: '100%',
-    maxWidth: 640,
-    aspectRatio: 2.171,
+    maxWidth: 1100,
+    aspectRatio: 1535 / 1024,
     alignSelf: 'center',
-    position: 'relative',
-    marginTop: spacing.xl,
     marginBottom: spacing.xxl,
-  } as unknown as ViewStyle,
-  deviceFrame: {
-    position: 'absolute',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.16,
-    shadowRadius: 24,
-  } as unknown as ViewStyle,
-  // Desktop: light "browser window" chrome — a thin traffic-light bar above
-  // the screenshot — sized purely from the crop's own ratio (no browser/OS
-  // chrome left in the image itself, see scripts used to produce it).
-  deviceDesktop: {
-    left: '0%',
-    top: '19.5%',
-    width: '54%',
-    aspectRatio: 1917 / 866,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-  } as unknown as ViewStyle,
-  deviceDesktopBar: {
-    flexDirection: 'row',
-    gap: 5,
-    paddingHorizontal: '3%',
-    paddingVertical: '3%',
-    backgroundColor: colors.surfaceAlt,
-  },
-  deviceDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-  },
-  deviceDotRed: { backgroundColor: '#E5675C' },
-  deviceDotYellow: { backgroundColor: '#E0B04C' },
-  deviceDotGreen: { backgroundColor: '#5FAE6E' },
-  deviceImage: {
-    width: '100%',
-    flex: 1,
-  },
-  // Tablet & phone: a slim dark bezel (thin padding, not a thick block) with
-  // a faint lighter rim to fake a metallic edge catching light — what
-  // actually reads as "a real device" is the bezel being thin relative to
-  // the screen, not just any dark rounded rectangle around the screenshot.
-  deviceBezel: {
-    backgroundColor: '#171310',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as unknown as ViewStyle,
-  deviceTablet: {
-    left: '47%',
-    top: '3%',
-    width: '28%',
-    aspectRatio: 1640 / 2360,
-    borderRadius: 18,
-    padding: '1.6%',
-    zIndex: 2,
-  } as unknown as ViewStyle,
-  devicePhone: {
-    left: '65%',
-    top: '39%',
-    width: '15.5%',
-    aspectRatio: 1080 / 1866,
-    borderRadius: 24,
-    padding: '2.6%',
-    zIndex: 3,
-  } as unknown as ViewStyle,
-  deviceCamera: {
-    position: 'absolute',
-    top: '1%',
-    left: '50%',
-    marginLeft: -2,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    zIndex: 1,
-  } as unknown as ViewStyle,
-  deviceImageInsetTablet: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 13,
-  },
-  deviceImageInsetPhone: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 19,
   },
   devicesBenefits: {
     flexDirection: 'row',
