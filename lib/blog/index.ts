@@ -39,6 +39,26 @@ import { post as p37 } from './posts/contrat-ecrit-petits-travaux-quand-necessai
 import { post as p38 } from './posts/appel-offres-marches-publics-batiment-suisse';
 import { post as p39 } from './posts/estimer-chantier-a-distance-devis-photo';
 import { post as p40 } from './posts/integration-bexio-cantia-synchronisation-automatique';
+import { post as p41 } from './posts/resiliation-contrat-entreprise-chantier-en-cours';
+import { post as p42 } from './posts/hypotheque-legale-artisans-entrepreneurs-suisse';
+import { post as p43 } from './posts/reception-travaux-proces-verbal-chantier';
+import { post as p44 } from './posts/poursuite-facture-impayee-procedure-suisse';
+import { post as p45 } from './posts/mentions-obligatoires-facture-suisse-tva';
+import { post as p46 } from './posts/devis-gratuit-ou-payant-que-dit-la-loi';
+import { post as p47 } from './posts/licenciement-ouvrier-batiment-delai-conge-cct';
+import { post as p48 } from './posts/accident-travail-chantier-obligations-employeur-suva';
+import { post as p49 } from './posts/apprenti-batiment-salaire-obligations-employeur';
+import { post as p50 } from './posts/vacances-non-prises-fin-annee-batiment-cct';
+import { post as p51 } from './posts/calculer-prix-horaire-reel-ouvrier-batiment';
+import { post as p52 } from './posts/pourquoi-entreprises-batiment-font-faillite-suisse';
+import { post as p53 } from './posts/retard-chantier-meteo-obligations-contractuelles';
+import { post as p54 } from './posts/excel-vs-logiciel-gestion-chantier-limites';
+import { post as p55 } from './posts/combien-coute-logiciel-gestion-chantier-roi';
+import { post as p56 } from './posts/assurance-chantier-tous-risques-ectr-obligatoire';
+import { post as p57 } from './posts/planning-chantier-eviter-conflits-ressources';
+import { post as p58 } from './posts/application-hors-ligne-chantier-pourquoi-important';
+import { post as p59 } from './posts/facturation-heures-regie-batiment-comment-faire';
+import { post as p60 } from './posts/sous-effectif-chantier-recruter-ou-sous-traiter';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -48,7 +68,8 @@ import { post as p40 } from './posts/integration-bexio-cantia-synchronisation-au
 // entry, following the same pattern as /solutions/*.
 export const BLOG_POSTS: BlogPost[] = [
   p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27,
-  p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40,
+  p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52,
+  p53, p54, p55, p56, p57, p58, p59, p60,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

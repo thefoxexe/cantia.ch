@@ -99,7 +99,7 @@ export default function BlogIndexScreen() {
             <>
               {featured ? (
                 <Link href={`/blog/${featured.slug}` as any} asChild>
-                  <Pressable style={({ hovered }: any) => [styles.featuredCard, hovered && styles.featuredCardHovered]}>
+                  <Pressable style={styles.featuredCard}>
                     <View style={styles.featuredTop}>
                       <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[featured.category].soft }]}>
                         <Feather name={CATEGORY_STYLE[featured.category].icon} size={13} color={CATEGORY_STYLE[featured.category].color} />
@@ -125,27 +125,31 @@ export default function BlogIndexScreen() {
                 </Link>
               ) : null}
 
+              <Text style={styles.gridCount}>
+                {rest.length} autre{rest.length > 1 ? 's' : ''} article{rest.length > 1 ? 's' : ''}
+              </Text>
+
               <View style={styles.grid}>
                 {rest.map((p) => (
                   <Link key={p.slug} href={`/blog/${p.slug}` as any} asChild>
-                    <Pressable style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}>
-                      <View style={[styles.cardAccent, { backgroundColor: CATEGORY_STYLE[p.category].color }]} />
-                      <View style={styles.cardBody}>
-                        <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[p.category].soft }]}>
-                          <Feather name={CATEGORY_STYLE[p.category].icon} size={12} color={CATEGORY_STYLE[p.category].color} />
-                          <Text style={[styles.categoryBadgeText, { color: CATEGORY_STYLE[p.category].color }]}>{p.category}</Text>
-                        </View>
-                        <Text style={styles.cardTitle}>{p.title}</Text>
-                        <Text style={styles.cardExcerpt} numberOfLines={2}>
-                          {p.excerpt}
-                        </Text>
+                    <Pressable style={styles.card}>
+                      <View style={[styles.cardMedallion, { backgroundColor: CATEGORY_STYLE[p.category].soft }]}>
+                        <Feather name={CATEGORY_STYLE[p.category].icon} size={18} color={CATEGORY_STYLE[p.category].color} />
+                      </View>
+                      <Text style={[styles.cardCategory, { color: CATEGORY_STYLE[p.category].color }]}>{p.category}</Text>
+                      <Text style={styles.cardTitle} numberOfLines={3}>
+                        {p.title}
+                      </Text>
+                      <Text style={styles.cardExcerpt} numberOfLines={2}>
+                        {p.excerpt}
+                      </Text>
+                      <View style={styles.cardFooter}>
                         <View style={styles.cardMetaRow}>
                           <Text style={styles.cardMetaText}>{formatDate(p.publishedAt)}</Text>
                           <View style={styles.cardMetaDot} />
                           <Text style={styles.cardMetaText}>{p.readMinutes} min</Text>
-                          <View style={{ flex: 1 }} />
-                          <Feather name="arrow-right" size={14} color={colors.textMuted} />
                         </View>
+                        <Feather name="arrow-right" size={14} color={colors.textMuted} />
                       </View>
                     </Pressable>
                   </Link>
@@ -348,48 +352,59 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     maxWidth: 620,
   },
+  gridCount: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: spacing.md,
+  },
   grid: {
-    gap: spacing.md,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.lg,
   },
   card: {
-    flexDirection: 'row',
+    flexBasis: '31%',
+    flexGrow: 1,
+    minWidth: 280,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    overflow: 'hidden',
+    padding: spacing.lg,
+    gap: 6,
     shadowColor: '#231A12',
-    shadowOpacity: 0.06,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 1,
     transitionProperty: 'transform, border-color, box-shadow',
     transitionDuration: '0.2s',
   } as unknown as ViewStyle,
   cardHovered: {
     borderColor: colors.primary,
-    transform: [{ translateY: -2 }],
+    transform: [{ translateY: -3 }],
     shadowOpacity: 0.12,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 10 },
   },
-  cardAccent: {
-    width: 5,
-    alignSelf: 'stretch',
-  },
-  cardBody: {
-    flex: 1,
-    minWidth: 0,
-    padding: spacing.lg,
-    gap: spacing.xs,
+  cardMedallion: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
   },
   cardCategory: {
     fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primary,
+    fontSize: 11,
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 0.4,
+    letterSpacing: 0.5,
   },
   cardTitle: {
     fontFamily: marketingFonts.body,
@@ -397,18 +412,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     lineHeight: 21,
+    marginTop: 2,
   },
   cardExcerpt: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 19,
+    flexGrow: 1,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   cardMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    marginTop: spacing.xs,
   },
   cardMetaText: {
     fontFamily: marketingFonts.body,

@@ -95,7 +95,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <View style={styles.relatedGrid}>
               {related.map((r) => (
                 <Link key={r.slug} href={`/blog/${r.slug}` as any} asChild>
-                  <Pressable style={({ hovered }: any) => [styles.relatedCard, hovered && styles.relatedCardHovered]}>
+                  <Pressable style={styles.relatedCard}>
                     <Text style={styles.relatedCategory}>{r.category}</Text>
                     <Text style={styles.relatedTitle}>{r.title}</Text>
                     <View style={styles.relatedMore}>

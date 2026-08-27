@@ -705,6 +705,226 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/resiliation-contrat-entreprise-chantier-en-cours',
+    title: 'Résiliation d’un contrat d’entreprise en cours de chantier (art. 377 CO) | Cantia',
+    description:
+      "Un maître d’ouvrage peut résilier un contrat d’entreprise à tout moment, même en plein chantier — mais l’art. 377 CO lui impose de vous indemniser intégralement.",
+    faq: [
+      { q: 'Un client peut-il résilier un contrat de chantier sans raison ?', a: 'Oui, l’art. 377 CO le permet à tout moment tant que l’ouvrage n’est pas terminé.' },
+      { q: 'Que doit payer le client qui résilie un chantier en cours ?', a: 'Le travail déjà exécuté, les dépenses engagées, et le gain manqué sur la part non réalisée.' },
+      { q: 'Faut-il un motif écrit pour que la résiliation soit valable ?', a: 'Non, mais une notification claire et datée fixe le point de départ du calcul de l’indemnisation.' },
+    ],
+  },
+  {
+    path: 'blog/hypotheque-legale-artisans-entrepreneurs-suisse',
+    title: 'Hypothèque légale des artisans et entrepreneurs : délai de 4 mois | Cantia',
+    description:
+      "L’hypothèque légale (art. 837 CC) garantit le paiement de vos travaux sur l’immeuble lui-même — mais elle doit être inscrite au registre foncier dans un délai de 4 mois.",
+    faq: [
+      { q: 'Qu’est-ce que l’hypothèque légale des artisans et entrepreneurs ?', a: 'Un droit de gage sur l’immeuble construit ou rénové, garantissant le paiement des travaux.' },
+      { q: 'Quel est le délai pour l’inscrire ?', a: 'Quatre mois à compter de l’achèvement des travaux, sinon le droit s’éteint définitivement.' },
+      { q: 'Un sous-traitant peut-il demander une hypothèque légale ?', a: 'Oui, indépendamment d’un lien contractuel direct avec le propriétaire de l’immeuble.' },
+    ],
+  },
+  {
+    path: 'blog/reception-travaux-proces-verbal-chantier',
+    title: 'Réception des travaux : pourquoi le procès-verbal est essentiel | Cantia',
+    description:
+      "La réception des travaux déclenche le délai de garantie et fige les défauts constatés. Sans procès-verbal écrit, ce moment charnière devient impossible à prouver.",
+    faq: [
+      { q: 'La réception des travaux doit-elle obligatoirement être écrite ?', a: 'Pas de formalisme strict, mais sans écrit, prouver la date et les défauts devient très difficile.' },
+      { q: 'Que se passe-t-il si le client refuse de signer le procès-verbal ?', a: 'L’entrepreneur peut l’établir unilatéralement et le notifier au client.' },
+      { q: 'Quel est l’effet principal de la réception sur les garanties ?', a: 'Elle déclenche le point de départ du délai de garantie (2 ou 5 ans).' },
+    ],
+  },
+  {
+    path: 'blog/poursuite-facture-impayee-procedure-suisse',
+    title: 'Facture impayée : la procédure de poursuite en Suisse | Cantia',
+    description:
+      "Réquisition de poursuite, commandement de payer, opposition, mainlevée : voici comment fonctionne une poursuite pour facture impayée, étape par étape.",
+    faq: [
+      { q: 'Faut-il un avocat pour lancer une poursuite en Suisse ?', a: 'Non, pour une créance simple et documentée, la démarche se fait sans représentation obligatoire.' },
+      { q: 'Que se passe-t-il en cas d’opposition au commandement de payer ?', a: 'Il faut demander la mainlevée au tribunal pour la faire lever.' },
+      { q: 'Une poursuite garantit-elle d’être payé ?', a: 'Non, elle peut se terminer par un acte de défaut de biens si le débiteur est insolvable.' },
+    ],
+  },
+  {
+    path: 'blog/mentions-obligatoires-facture-suisse-tva',
+    title: 'Facture suisse : les mentions obligatoires côté TVA | Cantia',
+    description:
+      "Numéro TVA, taux applicable, date de prestation, référence QR : une facture incomplète peut être refusée en comptabilité ou contestée par un client.",
+    faq: [
+      { q: 'Le numéro IDE est-il obligatoire sur toute facture suisse ?', a: 'Oui, dès qu’une entreprise est assujettie à la TVA.' },
+      { q: 'Quel taux de TVA s’applique aux travaux du bâtiment en Suisse ?', a: 'Le taux normal de 8,1 % s’applique à la majorité des prestations du bâtiment.' },
+      { q: 'Une facture sans TVA détaillée est-elle valable ?', a: 'Au-delà de CHF 400.-, le taux et le montant de TVA doivent apparaître clairement.' },
+    ],
+  },
+  {
+    path: 'blog/devis-gratuit-ou-payant-que-dit-la-loi',
+    title: 'Devis gratuit ou payant : ce que la loi suisse impose (rien) | Cantia',
+    description:
+      "Aucune loi suisse n’oblige un artisan à établir un devis gratuit — c’est un usage du marché, pas une obligation légale.",
+    faq: [
+      { q: 'La loi suisse oblige-t-elle à faire des devis gratuits ?', a: 'Non, aucune loi ne l’impose — c’est un usage du marché.' },
+      { q: 'Peut-on déduire le prix d’un devis facturé du montant final ?', a: 'Oui, c’est une pratique courante et bien acceptée par les clients.' },
+      { q: 'Faut-il prévenir le client avant de facturer un devis ?', a: 'Oui, dans les faits c’est indispensable pour éviter un litige commercial.' },
+    ],
+  },
+  {
+    path: 'blog/licenciement-ouvrier-batiment-delai-conge-cct',
+    title: 'Licenciement dans le bâtiment : délais de congé CCT et CO | Cantia',
+    description:
+      "Le délai de congé d’un ouvrier du bâtiment dépend de son ancienneté et de la CCT applicable — se tromper expose à devoir indemniser la différence.",
+    faq: [
+      { q: 'Quel est le délai de congé légal pour 3 ans d’ancienneté ?', a: 'Deux mois pour la fin d’un mois selon l’art. 335c CO, sauf disposition CCT plus favorable.' },
+      { q: 'Peut-on licencier un employé en arrêt maladie ?', a: 'Non, le congé donné pendant une période de protection est nul.' },
+      { q: 'La CCT peut-elle prévoir un délai plus long que le CO ?', a: 'Oui, et dans ce cas elle prime sur le régime légal supplétif.' },
+    ],
+  },
+  {
+    path: 'blog/accident-travail-chantier-obligations-employeur-suva',
+    title: 'Accident de travail sur chantier : obligations envers la SUVA | Cantia',
+    description:
+      "Déclaration dans les délais, salaire pendant l’incapacité, reprise du travail : un accident de chantier déclenche des obligations précises pour l’employeur.",
+    faq: [
+      { q: 'Qui paie le salaire les premiers jours après un accident ?', a: 'L’employeur continue à verser le salaire durant une courte période, avant la prise en charge SUVA.' },
+      { q: 'Faut-il déclarer un accident même léger à la SUVA ?', a: 'Oui, dès qu’il entraîne une incapacité de travail ou des soins médicaux.' },
+      { q: 'La SUVA est-elle obligatoire dans la construction ?', a: 'Oui, sans possibilité de choisir un autre assureur pour cette couverture.' },
+    ],
+  },
+  {
+    path: 'blog/apprenti-batiment-salaire-obligations-employeur',
+    title: 'Apprenti dans le bâtiment : salaire et obligations employeur | Cantia',
+    description:
+      "Former un apprenti implique un salaire progressif fixé par la CCT, un encadrement pédagogique réel et une autorisation cantonale.",
+    faq: [
+      { q: 'Le salaire d’un apprenti du bâtiment est-il négociable ?', a: 'Non, il suit une grille fixée par la CCT du métier, progressive selon l’année de formation.' },
+      { q: 'Faut-il une autorisation pour former un apprenti ?', a: 'Oui, une autorisation de former délivrée par l’autorité cantonale compétente.' },
+      { q: 'Un apprenti a-t-il droit à un 13e salaire prorata ?', a: 'En général oui, selon les mêmes règles que les employés qualifiés.' },
+    ],
+  },
+  {
+    path: 'blog/vacances-non-prises-fin-annee-batiment-cct',
+    title: 'Vacances non prises en fin d’année dans le bâtiment | Cantia',
+    description:
+      "Le solde de vacances non prises pose une vraie question de droit du travail — les vacances doivent être prises en nature, pas simplement payées.",
+    faq: [
+      { q: 'Peut-on payer les vacances non prises au lieu de les faire poser ?', a: 'En principe non tant que les rapports de travail durent, sauf cas particuliers.' },
+      { q: 'Un employé peut-il reporter ses vacances sur l’année suivante ?', a: 'Oui, dans une mesure raisonnable, mais pas indéfiniment.' },
+      { q: 'Qui décide de la date des vacances ?', a: 'L’employeur, en tenant compte des désirs de l’employé dans la mesure compatible avec l’entreprise.' },
+    ],
+  },
+  {
+    path: 'blog/calculer-prix-horaire-reel-ouvrier-batiment',
+    title: 'Le vrai coût horaire d’un ouvrier du bâtiment | Cantia',
+    description:
+      "Un devis chiffré sur le seul salaire brut sous-estime systématiquement le vrai coût horaire — charges sociales et temps non facturable doivent entrer dans le calcul.",
+    faq: [
+      { q: 'Faut-il inclure les charges sociales dans le calcul du coût horaire ?', a: 'Oui, elles représentent généralement 15 à 20 % du salaire brut.' },
+      { q: 'Combien d’heures un ouvrier travaille-t-il réellement par an ?', a: 'Autour de 1750 heures facturables en moyenne, une fois absences déduites.' },
+      { q: 'Pourquoi le taux horaire de référence est-il souvent trop bas ?', a: 'Parce qu’il est hérité d’une pratique ancienne jamais recalculée.' },
+    ],
+  },
+  {
+    path: 'blog/pourquoi-entreprises-batiment-font-faillite-suisse',
+    title: 'Pourquoi des entreprises du bâtiment en activité font faillite | Cantia',
+    description:
+      "Avoir du travail ne suffit pas — les causes les plus fréquentes de faillite dans le bâtiment sont un problème de trésorerie et de marge invisible.",
+    faq: [
+      { q: 'Un bon carnet de commandes protège-t-il de la faillite ?', a: 'Non, la cause la plus fréquente est un problème de trésorerie ou de marge non mesurée.' },
+      { q: 'Pourquoi un chantier rentable peut-il créer une rupture de trésorerie ?', a: 'Parce que les charges se paient mensuellement alors que les clients règlent à 30-90 jours.' },
+      { q: 'Quel est le meilleur indicateur de santé financière ?', a: 'La rentabilité mesurée chantier par chantier, pas le chiffre d’affaires global.' },
+    ],
+  },
+  {
+    path: 'blog/retard-chantier-meteo-obligations-contractuelles',
+    title: 'Retard de chantier causé par la météo : qui est responsable ? | Cantia',
+    description:
+      "Un délai contractuel dépassé à cause d’intempéries n’est pas automatiquement une faute de l’entrepreneur — mais encore faut-il pouvoir le prouver.",
+    faq: [
+      { q: 'Un entrepreneur est-il responsable d’un retard causé par la météo ?', a: 'En principe non, tant que le retard reste raisonnable et a été communiqué au client.' },
+      { q: 'Faut-il prévenir le client d’un retard dès qu’il devient probable ?', a: 'Oui, c’est la meilleure protection contractuelle.' },
+      { q: 'Un relevé météo officiel suffit-il à justifier un retard ?', a: 'Une trace datée de ce qui s’est passé sur le chantier est souvent plus convaincante.' },
+    ],
+  },
+  {
+    path: 'blog/excel-vs-logiciel-gestion-chantier-limites',
+    title: 'Excel pour gérer ses chantiers : jusqu’où ça tient | Cantia',
+    description:
+      "Excel fonctionne bien à petite échelle — jusqu’à ce qu’un deuxième employé le modifie en même temps, ou qu’un devis oublié coûte cher.",
+    faq: [
+      { q: 'Excel est-il suffisant pour une petite entreprise du bâtiment ?', a: 'Pour un usage ponctuel oui, mais les limites deviennent vite problématiques à l’échelle.' },
+      { q: 'Quel est le principal risque d’Excel pour la gestion de chantier ?', a: 'L’absence de trace fiable des modifications et de lien automatique devis-facture-paiement.' },
+      { q: 'À partir de quand faut-il un vrai logiciel de gestion ?', a: 'Dès que plusieurs chantiers ou plusieurs personnes accèdent aux mêmes informations en même temps.' },
+    ],
+  },
+  {
+    path: 'blog/combien-coute-logiciel-gestion-chantier-roi',
+    title: 'Logiciel de gestion de chantier : ce qu’il coûte et rapporte | Cantia',
+    description:
+      "Le prix affiché d’un abonnement n’est qu’une partie du calcul — voici comment évaluer le retour réel d’un logiciel de gestion pour une entreprise du bâtiment.",
+    faq: [
+      { q: 'Comment évaluer si un logiciel de gestion est rentable ?', a: 'En comparant le temps administratif perdu, valorisé au taux horaire réel, au coût de l’abonnement.' },
+      { q: 'Quel est le principal gain d’un logiciel de gestion ?', a: 'Le temps administratif récupéré sur les devis, factures et rapprochements manuels.' },
+      { q: 'Un abonnement payant est-il nécessaire dès le départ ?', a: 'Pas forcément, un plan gratuit permet souvent de mesurer le gain réel avant d’investir.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-chantier-tous-risques-ectr-obligatoire',
+    title: 'Assurance chantier tous risques (ECTR) : obligatoire ou pas ? | Cantia',
+    description:
+      "Contrairement à la RC professionnelle, l’ECTR n’est imposée par aucune loi fédérale — mais son absence peut coûter très cher en cas de sinistre.",
+    faq: [
+      { q: 'L’ECTR est-elle obligatoire en Suisse ?', a: 'Non, aucune loi fédérale ne l’impose, mais son absence expose fortement les intervenants.' },
+      { q: 'Qui souscrit généralement l’ECTR ?', a: 'Le plus souvent le maître d’ouvrage, au bénéfice de tous les intervenants du chantier.' },
+      { q: 'L’ECTR remplace-t-elle la RC professionnelle ?', a: 'Non, ce sont deux couvertures différentes.' },
+    ],
+  },
+  {
+    path: 'blog/planning-chantier-eviter-conflits-ressources',
+    title: 'Conflits de planning entre chantiers : comment les éviter | Cantia',
+    description:
+      "Un ouvrier ou une machine réservés deux fois le même jour sur deux chantiers différents — un classique quand le planning vit dans plusieurs têtes.",
+    faq: [
+      { q: 'Pourquoi les conflits de planning arrivent-ils même en équipe organisée ?', a: 'Parce que le planning existe souvent dans plusieurs endroits séparés, sans vue partagée.' },
+      { q: 'Quel est le vrai coût d’un conflit de planning ?', a: 'Un trajet perdu, un client mécontent, et une improvisation plus coûteuse que le temps gagné.' },
+      { q: 'Un planning centralisé suffit-il à éviter tous les conflits ?', a: 'Il réduit fortement le risque, à condition d’être mis à jour dès qu’un changement survient.' },
+    ],
+  },
+  {
+    path: 'blog/application-hors-ligne-chantier-pourquoi-important',
+    title: 'Application de chantier sans réseau : le mode hors ligne | Cantia',
+    description:
+      "Un sous-sol en béton, une vallée mal couverte, un chantier isolé — le réseau mobile n’est jamais garanti sur un chantier.",
+    faq: [
+      { q: 'Pourquoi le réseau mobile n’est-il pas fiable sur un chantier ?', a: 'Structures en béton, sous-sols, zones rurales ou saturation locale du réseau.' },
+      { q: 'Que se passe-t-il sans mode hors ligne ?', a: 'Photos et rapports risquent d’être perdus, poussant l’équipe à abandonner l’outil.' },
+      { q: 'Un vrai mode hors ligne synchronise-t-il automatiquement ?', a: 'Oui, dès que le réseau revient, sans action manuelle de l’utilisateur.' },
+    ],
+  },
+  {
+    path: 'blog/facturation-heures-regie-batiment-comment-faire',
+    title: 'Facturer en régie dans le bâtiment sans être contesté | Cantia',
+    description:
+      "Un travail facturé au temps passé plutôt qu’à prix fixe expose davantage à la contestation client — sauf si le détail est réellement traçable.",
+    faq: [
+      { q: 'Une facture en régie doit-elle détailler les heures jour par jour ?', a: 'Oui, un total global sans détail est bien plus contestable qu’un relevé précis.' },
+      { q: 'Faut-il un accord écrit avant de facturer en régie ?', a: 'Pas obligatoire légalement, mais fortement recommandé pour éviter les litiges.' },
+      { q: 'Comment se protéger si un client conteste les heures facturées ?', a: 'Avec un relevé d’heures horodaté, saisi au fur et à mesure.' },
+    ],
+  },
+  {
+    path: 'blog/sous-effectif-chantier-recruter-ou-sous-traiter',
+    title: 'Manque de main-d’œuvre : recruter ou sous-traiter ? | Cantia',
+    description:
+      "Refuser des chantiers faute de personnel est un mauvais calcul, mais recruter trop vite en est un autre — voici comment trancher.",
+    faq: [
+      { q: 'Comment savoir s’il faut recruter plutôt que sous-traiter ?', a: 'Si la surcharge est structurelle et concerne une compétence centrale au métier.' },
+      { q: 'Quel est le principal risque d’un recrutement précipité ?', a: 'Un salaire fixe qui pèse sur la trésorerie une fois le pic d’activité retombé.' },
+      { q: 'La sous-traitance est-elle adaptée à un besoin ponctuel ?', a: 'Oui, elle convient bien à un pic limité dans le temps sans engagement long terme.' },
+    ],
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:
