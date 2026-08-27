@@ -251,18 +251,38 @@ export default function PayrollScreen() {
   if (!canManagePayroll) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <View style={styles.selfContainer}>
+        <View style={isDesktop ? styles.adminContainer : styles.selfContainer}>
           <PageHeader title="RH & Salaires" backTo="/(app)" />
           <Text style={styles.pageSubtitle}>Vos heures et frais professionnels, chantier par chantier.</Text>
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
-            <PayrollEntryPanel
-              organizationId={organization.id}
-              targetUserId={user.id}
-              currentUserId={user.id}
-              range={range}
-              onRangeChange={setRange}
-            />
-          </ScrollView>
+          {isDesktop ? (
+            <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+              <View style={styles.desktopLayout}>
+                <View style={styles.calendarCol}>
+                  <PayrollDateFilter range={range} onChange={setRange} />
+                </View>
+                <View style={[styles.panelCol, { gap: spacing.lg }]}>
+                  <PayrollEntryPanel
+                    organizationId={organization.id}
+                    targetUserId={user.id}
+                    currentUserId={user.id}
+                    range={range}
+                    onRangeChange={setRange}
+                    showCalendar={false}
+                  />
+                </View>
+              </View>
+            </ScrollView>
+          ) : (
+            <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+              <PayrollEntryPanel
+                organizationId={organization.id}
+                targetUserId={user.id}
+                currentUserId={user.id}
+                range={range}
+                onRangeChange={setRange}
+              />
+            </ScrollView>
+          )}
         </View>
       </Screen>
     );
