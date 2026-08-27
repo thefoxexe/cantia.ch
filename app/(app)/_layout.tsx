@@ -135,7 +135,9 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
           <Feather name="menu" size={22} color={colors.text} />
         </Pressable>
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
-        <Text style={styles.mobileBrand}>Cantia</Text>
+        <Text style={styles.mobileBrand} numberOfLines={1}>
+          Cantia
+        </Text>
         <View style={{ flex: 1 }} />
         <SafeNotificationBell />
         <AccountMenu />
@@ -275,6 +277,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '800',
     color: colors.text,
+    flexShrink: 1,
   },
   desktopRoot: {
     flex: 1,

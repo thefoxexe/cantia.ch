@@ -1,17 +1,19 @@
 import { useCallback, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
+import { getSignedUrls } from '../../../lib/api/storage';
 import { Button, Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../components/ui';
-import { colors, fontSize, spacing } from '../../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Project } from '../../../lib/types';
 
 export default function ChantiersListScreen() {
   const { organization, canCreateProjects } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [coverUrls, setCoverUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -23,6 +25,8 @@ export default function ChantiersListScreen() {
       .eq('organization_id', organization.id)
       .order('created_at', { ascending: false });
     setProjects(data ?? []);
+    const paths = (data ?? []).map((p) => p.cover_photo_url).filter((p): p is string => !!p);
+    setCoverUrls(await getSignedUrls(paths));
     setLoading(false);
   }, [organization]);
 
@@ -59,6 +63,13 @@ export default function ChantiersListScreen() {
           renderItem={({ item }) => (
             <Pressable onPress={() => router.push(`/(app)/chantiers/${item.id}`)}>
               <Card style={styles.card}>
+                {item.cover_photo_url && coverUrls[item.cover_photo_url] ? (
+                  <Image source={{ uri: coverUrls[item.cover_photo_url] }} style={styles.thumb} />
+                ) : (
+                  <View style={[styles.thumb, styles.thumbPlaceholder]}>
+                    <Feather name="image" size={16} color={colors.textMuted} />
+                  </View>
+                )}
                 <View style={styles.cardBody}>
                   <View style={styles.row}>
                     <Text style={styles.name}>{item.name}</Text>
@@ -93,6 +104,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+  },
+  thumb: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+  },
+  thumbPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cardBody: {
     flex: 1,

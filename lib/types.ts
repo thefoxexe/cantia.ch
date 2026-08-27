@@ -175,6 +175,7 @@ export interface Project {
   client_name: string | null;
   address: string | null;
   status: string;
+  cover_photo_url: string | null;
   enabled_modules: string[];
   created_by: string | null;
   created_at: string;

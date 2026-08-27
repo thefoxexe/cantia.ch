@@ -1,8 +1,12 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
+import { getSignedUrl, uploadToOrgBucket } from '../../../../lib/api/storage';
+import { assetFileInfo } from '../../../../lib/imageAsset';
 import { Button, Card, Container, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -22,6 +26,8 @@ export default function ChantierSettingsScreen() {
   const [clientName, setClientName] = useState('');
   const [address, setAddress] = useState('');
   const [status, setStatus] = useState('active');
+  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [accessUserIds, setAccessUserIds] = useState<Set<string>>(new Set());
   const [restricted, setRestricted] = useState(false);
@@ -37,6 +43,7 @@ export default function ChantierSettingsScreen() {
       setClientName(project.client_name ?? '');
       setAddress(project.address ?? '');
       setStatus(project.status);
+      setCoverPhotoUrl(project.cover_photo_url ? await getSignedUrl(project.cover_photo_url) : null);
       setEnabledModules(project.enabled_modules ?? []);
       const [{ data: memberRows }, { data: accessRows }, { data: org }] = await Promise.all([
         supabase.from('organization_members').select('*').eq('organization_id', project.organization_id).order('created_at'),
@@ -73,6 +80,26 @@ export default function ChantierSettingsScreen() {
       })
       .eq('id', id);
     setSaving(false);
+  }
+
+  async function pickCoverPhoto() {
+    if (!id) return;
+    const { data: project } = await supabase.from('projects').select('organization_id').eq('id', id).single();
+    if (!project) return;
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8, allowsEditing: true, aspect: [16, 9] });
+    if (result.canceled || !result.assets?.length) return;
+    const asset = result.assets[0];
+    setUploadingCover(true);
+    const { ext, contentType } = assetFileInfo(asset);
+    const subPath = `projects/${id}-${Date.now()}.${ext}`;
+    const { path } = await uploadToOrgBucket(project.organization_id, subPath, asset.uri, contentType);
+    if (path) {
+      await supabase.from('projects').update({ cover_photo_url: path }).eq('id', id);
+      setCoverPhotoUrl(await getSignedUrl(path));
+    }
+    setUploadingCover(false);
   }
 
   function isPlanGated(key: ModuleKey): boolean {
@@ -129,6 +156,22 @@ export default function ChantierSettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title="Paramètres du chantier" backTo={`/(app)/chantiers/${id}`} />
+
+          <Pressable onPress={pickCoverPhoto} style={styles.coverWrap}>
+            {coverPhotoUrl ? (
+              <Image source={{ uri: coverPhotoUrl }} style={styles.coverImage} />
+            ) : (
+              <View style={[styles.coverImage, styles.coverPlaceholder]}>
+                <Feather name="image" size={22} color={colors.textMuted} />
+              </View>
+            )}
+            <View style={styles.coverEditBadge}>
+              <Feather name="camera" size={12} color="#fff" />
+            </View>
+          </Pressable>
+          <Text style={styles.coverHint}>
+            {uploadingCover ? 'Envoi en cours…' : coverPhotoUrl ? 'Touchez pour changer la photo' : 'Touchez pour ajouter une photo — elle apparaît dans la liste des chantiers'}
+          </Text>
 
           <Field label="Nom du chantier" value={name} onChangeText={setName} />
           <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
@@ -215,6 +258,41 @@ export default function ChantierSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  coverWrap: {
+    position: 'relative',
+    marginBottom: spacing.sm,
+  },
+  coverImage: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+  },
+  coverPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
+  coverEditBadge: {
+    position: 'absolute',
+    right: spacing.sm,
+    bottom: spacing.sm,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  coverHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
+  },
   fieldLabel: {
     fontSize: fontSize.sm,
     color: colors.textMuted,

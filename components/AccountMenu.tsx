@@ -15,38 +15,66 @@ type IconName = keyof typeof Feather.glyphMap;
 // desktop top bar — the dropdown anchors under whichever one rendered it via
 // measureInWindow (same technique as RowActionMenu) rather than a fixed
 // position, since the trigger's on-screen spot differs between the two.
+// Same Propriétaire/Administrateur/custom-grade/Membre labeling as the
+// équipe screen's pillFor() — kept as a small standalone copy here rather
+// than a shared import since it's the only other place this exact mapping
+// is needed.
+const OWNER_COLOR = '#9C6510';
+
 export function AccountMenu() {
   const router = useRouter();
-  const { user, organization, signOut, isPlatformAdmin } = useAuth();
+  const { user, organization, role, signOut, isPlatformAdmin } = useAuth();
   const [visible, setVisible] = useState(false);
   const [supportVisible, setSupportVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
+  const [roleLabel, setRoleLabel] = useState('Membre');
+  const [roleColor, setRoleColor] = useState(colors.textMuted);
   const triggerRef = useRef<View>(null);
 
-  // Personal avatar lives on organization_members (per user+org row), not a
-  // global profile table — see app/(app)/compte/profil.tsx.
+  // Personal avatar/name live on organization_members (per user+org row),
+  // not a global profile table — see app/(app)/compte/profil.tsx. The grade
+  // shown alongside is either the structural owner/admin role, or a custom
+  // grade (organization_roles) if one is assigned — same source équipe.tsx
+  // reads from.
   useEffect(() => {
     let cancelled = false;
     async function load() {
       if (!organization || !user) {
         setAvatarUrl(null);
+        setFullName(null);
         return;
       }
       const { data } = await supabase
         .from('organization_members')
-        .select('avatar_url')
+        .select('full_name, avatar_url, role_id, organization_roles(name, color)')
         .eq('organization_id', organization.id)
         .eq('user_id', user.id)
         .maybeSingle();
       if (cancelled) return;
       setAvatarUrl(data?.avatar_url ? await getSignedUrl(data.avatar_url) : null);
+      setFullName(data?.full_name ?? null);
+      const custom = data?.organization_roles as unknown as { name: string; color: string } | null;
+      if (role === 'owner') {
+        setRoleLabel('Propriétaire');
+        setRoleColor(OWNER_COLOR);
+      } else if (role === 'admin') {
+        setRoleLabel('Administrateur');
+        setRoleColor(colors.primary);
+      } else if (custom) {
+        setRoleLabel(custom.name);
+        setRoleColor(custom.color);
+      } else {
+        setRoleLabel('Membre');
+        setRoleColor(colors.textMuted);
+      }
     }
     load();
     return () => {
       cancelled = true;
     };
-  }, [organization, user]);
+  }, [organization, user, role]);
 
   function open() {
     triggerRef.current?.measureInWindow((x, y, width, height) => {
@@ -82,12 +110,24 @@ export function AccountMenu() {
   return (
     <>
       <View ref={triggerRef} collapsable={false}>
-        <Pressable onPress={open} style={styles.avatar} hitSlop={6}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
-          ) : (
-            <Feather name="user" size={16} color={colors.primary} />
-          )}
+        <Pressable onPress={open} style={styles.trigger} hitSlop={6}>
+          <View style={styles.avatar}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <Feather name="user" size={16} color={colors.primary} />
+            )}
+          </View>
+          {fullName ? (
+            <View style={styles.identity}>
+              <Text style={styles.identityName} numberOfLines={1}>
+                {fullName}
+              </Text>
+              <Text style={[styles.identityRole, { color: roleColor }]} numberOfLines={1}>
+                {roleLabel}
+              </Text>
+            </View>
+          ) : null}
         </Pressable>
       </View>
 
@@ -181,6 +221,11 @@ function MenuRow({ icon, label, onPress, danger }: { icon: IconName; label: stri
 }
 
 const styles = StyleSheet.create({
+  trigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   avatar: {
     width: 34,
     height: 34,
@@ -193,6 +238,19 @@ const styles = StyleSheet.create({
   avatarImage: {
     width: 34,
     height: 34,
+  },
+  identity: {
+    maxWidth: 90,
+  },
+  identityName: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  identityRole: {
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 1,
   },
   backdrop: {
     flex: 1,
