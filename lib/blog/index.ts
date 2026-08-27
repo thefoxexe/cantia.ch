@@ -59,6 +59,24 @@ import { post as p57 } from './posts/planning-chantier-eviter-conflits-ressource
 import { post as p58 } from './posts/application-hors-ligne-chantier-pourquoi-important';
 import { post as p59 } from './posts/facturation-heures-regie-batiment-comment-faire';
 import { post as p60 } from './posts/sous-effectif-chantier-recruter-ou-sous-traiter';
+import { post as p61 } from './posts/meilleur-logiciel-devis-facture-batiment-suisse-2026';
+import { post as p62 } from './posts/logiciel-facturation-qr-facture-comparatif-suisse';
+import { post as p63 } from './posts/crm-artisan-batiment-pourquoi-utile';
+import { post as p64 } from './posts/duree-validite-devis-non-signe-combien-temps';
+import { post as p65 } from './posts/note-de-credit-facture-rectificative-suisse';
+import { post as p66 } from './posts/prescription-facture-impayee-delai-10-ans';
+import { post as p67 } from './posts/numerotation-facture-obligations-legales-suisse';
+import { post as p68 } from './posts/difference-sia-108-sia-118-devis-contrat';
+import { post as p69 } from './posts/degats-voisinage-chantier-qui-est-responsable';
+import { post as p70 } from './posts/retenue-de-garantie-chantier-consignation';
+import { post as p71 } from './posts/litige-chantier-mediation-ou-tribunal';
+import { post as p72 } from './posts/certificat-de-travail-obligation-employeur-batiment';
+import { post as p73 } from './posts/demission-employe-batiment-preavis-a-respecter';
+import { post as p74 } from './posts/travailleur-temporaire-interimaire-batiment-regles';
+import { post as p75 } from './posts/calculer-prix-de-revient-chantier-batiment';
+import { post as p76 } from './posts/previsionnel-tresorerie-entreprise-batiment';
+import { post as p77 } from './posts/checklist-ouverture-chantier-artisan';
+import { post as p78 } from './posts/checklist-cloture-chantier-avant-facturation';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -69,7 +87,8 @@ import { post as p60 } from './posts/sous-effectif-chantier-recruter-ou-sous-tra
 export const BLOG_POSTS: BlogPost[] = [
   p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27,
   p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52,
-  p53, p54, p55, p56, p57, p58, p59, p60,
+  p53, p54, p55, p56, p57, p58, p59, p60, p61, p62, p63, p64, p65, p66, p67, p68, p69, p70,
+  p71, p72, p73, p74, p75, p76, p77, p78,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

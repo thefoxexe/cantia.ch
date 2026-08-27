@@ -925,6 +925,204 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/meilleur-logiciel-devis-facture-batiment-suisse-2026',
+    title: 'Meilleur logiciel de devis et facturation bâtiment Suisse | Cantia',
+    description:
+      "QR-facture native, catalogue de prix, suivi par chantier, hors-ligne sur le terrain : les critères concrets pour choisir un logiciel de devis et facturation adapté au bâtiment suisse.",
+    faq: [
+      { q: 'Un logiciel de facturation généraliste suffit-il pour une entreprise du bâtiment ?', a: 'Rarement — la plupart n’ont pas de QR-facture native ni de lien devis/chantier.' },
+      { q: 'Quel est le critère le plus important pour un logiciel bâtiment en Suisse ?', a: 'La QR-facture native conforme, couplée à un suivi par chantier.' },
+      { q: 'Le logiciel doit-il fonctionner hors connexion ?', a: 'Idéalement oui, le réseau n’est jamais garanti sur un chantier.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-facturation-qr-facture-comparatif-suisse',
+    title: 'Logiciel de facturation QR-facture : comparatif Suisse | Cantia',
+    description:
+      "Beaucoup d'outils affichent « QR-facture compatible » sans respecter la norme dans le détail — voici ce qui distingue un vrai support d'un module bricolé.",
+    faq: [
+      { q: 'Quelle est la différence entre IBAN et QR-IBAN ?', a: 'Le QR-IBAN est dédié aux QR-factures avec référence QR structurée (QRR).' },
+      { q: 'Pourquoi une QR-facture peut-elle échouer au scan ?', a: 'Une adresse non structurée ou une zone de quiétude insuffisante peuvent bloquer le scan.' },
+      { q: 'Depuis quand l’adresse structurée est-elle obligatoire ?', a: 'Depuis la norme 2.3 en novembre 2025, obligatoire dès le 30 septembre 2026.' },
+    ],
+  },
+  {
+    path: 'blog/crm-artisan-batiment-pourquoi-utile',
+    title: 'CRM pour artisan du bâtiment : utile ou superflu ? | Cantia',
+    description:
+      "Un artisan qui gère 30, 50 ou 100 clients a le même problème de mémoire qu'un commercial — voici quand un CRM devient réellement utile.",
+    faq: [
+      { q: 'Un artisan indépendant a-t-il besoin d’un CRM ?', a: 'Dès qu’il devient difficile de se souvenir de l’historique de chaque client sans chercher dans ses e-mails.' },
+      { q: 'Quelle est la différence entre un CRM et un carnet d’adresses ?', a: 'Un CRM relie l’historique complet (devis, factures, chantiers) à chaque client.' },
+      { q: 'Faut-il un logiciel séparé pour le CRM et la facturation ?', a: 'Pas nécessairement, un outil qui relie nativement les deux évite la double saisie.' },
+    ],
+  },
+  {
+    path: 'blog/duree-validite-devis-non-signe-combien-temps',
+    title: 'Combien de temps un devis reste valable en Suisse | Cantia',
+    description:
+      "Sans mention explicite, un devis non signé n'a pas de durée de validité légale fixe — ce qui expose l'entreprise à devoir honorer un ancien prix.",
+    faq: [
+      { q: 'Un devis a-t-il une durée de validité légale fixe en Suisse ?', a: 'Non, sans mention explicite le devis peut rester valable indéfiniment.' },
+      { q: 'Quelle durée de validité choisir pour un devis de travaux ?', a: '30 jours est l’usage le plus courant dans le bâtiment suisse.' },
+      { q: 'Que se passe-t-il si un client accepte un devis après sa date de validité ?', a: 'L’entreprise peut demander une réévaluation du prix.' },
+    ],
+  },
+  {
+    path: 'blog/note-de-credit-facture-rectificative-suisse',
+    title: 'Corriger une facture envoyée : note de crédit en Suisse | Cantia',
+    description:
+      "Une erreur sur une facture déjà envoyée ne se corrige jamais en éditant le PDF original — voici la bonne méthode, conforme à la comptabilité suisse.",
+    faq: [
+      { q: 'Peut-on modifier une facture déjà envoyée à un client ?', a: 'Non, toute correction doit passer par une note de crédit suivie d’une nouvelle facture.' },
+      { q: 'Qu’est-ce qu’une note de crédit exactement ?', a: 'Un document qui annule tout ou partie d’une facture déjà émise.' },
+      { q: 'Faut-il une note de crédit pour une simple faute de frappe ?', a: 'Pas nécessairement si le montant et la TVA ne changent pas.' },
+    ],
+  },
+  {
+    path: 'blog/prescription-facture-impayee-delai-10-ans',
+    title: 'Prescription d’une facture impayée en Suisse : le délai | Cantia',
+    description:
+      "Une créance contractuelle se prescrit en principe par 10 ans en Suisse — mais des actes interruptifs existent, à ne jamais laisser filer.",
+    faq: [
+      { q: 'Au bout de combien de temps une créance se prescrit-elle en Suisse ?', a: 'En principe 10 ans pour une créance contractuelle (art. 127 CO).' },
+      { q: 'Une relance amiable interrompt-elle la prescription ?', a: 'Non, seuls une poursuite, une reconnaissance de dette ou une action en justice l’interrompent.' },
+      { q: 'Que se passe-t-il quand une créance est prescrite ?', a: 'Le débiteur peut légalement refuser de payer en invoquant la prescription.' },
+    ],
+  },
+  {
+    path: 'blog/numerotation-facture-obligations-legales-suisse',
+    title: 'Numérotation des factures en Suisse : la continuité | Cantia',
+    description:
+      "Un numéro de facture sauté ou réutilisé attire immédiatement l'attention lors d'un contrôle fiscal — la continuité numérique est l'un des premiers points vérifiés.",
+    faq: [
+      { q: 'La numérotation continue des factures est-elle obligatoire en Suisse ?', a: 'L’AFC attend une série chronologique et traçable, vérifiée en cas de contrôle.' },
+      { q: 'Peut-on réutiliser un numéro de facture annulée ?', a: 'Non, une facture annulée doit rester identifiable avec une note de crédit associée.' },
+      { q: 'Que risque une entreprise avec une numérotation désordonnée ?', a: 'Un contrôle fiscal peut interpréter les incohérences comme un signe de dissimulation.' },
+    ],
+  },
+  {
+    path: 'blog/difference-sia-108-sia-118-devis-contrat',
+    title: 'SIA 108 vs SIA 118 : deux normes, deux rôles différents | Cantia',
+    description:
+      "La SIA 118 régit les relations avec l'entrepreneur, la SIA 108 celles avec les mandataires — les confondre expose à appliquer les mauvaises règles.",
+    faq: [
+      { q: 'Quelle norme SIA s’applique à un artisan qui exécute des travaux ?', a: 'La SIA 118, qui régit le contrat d’entreprise.' },
+      { q: 'Les normes SIA s’appliquent-elles automatiquement à un chantier ?', a: 'Non, elles doivent être explicitement mentionnées dans le contrat ou le devis.' },
+      { q: 'Quelle est la différence de régime entre les deux normes ?', a: 'La SIA 118 repose sur une obligation de résultat, la SIA 108 sur une obligation de moyens.' },
+    ],
+  },
+  {
+    path: 'blog/degats-voisinage-chantier-qui-est-responsable',
+    title: 'Dégâts au voisinage causés par un chantier : qui paie ? | Cantia',
+    description:
+      "Une fissure chez le voisin après des travaux, de la poussière sur une façade : la responsabilité n'est pas automatique, et se prouve avec un état des lieux préalable.",
+    faq: [
+      { q: 'Qui est responsable des dégâts causés à un voisin par un chantier ?', a: 'L’entrepreneur répond de sa propre exécution fautive.' },
+      { q: 'Comment se protéger contre une accusation de dégât non fondée ?', a: 'En réalisant un état des lieux contradictoire, avec photos datées, avant travaux.' },
+      { q: 'L’assurance RC professionnelle couvre-t-elle les dégâts au voisinage ?', a: 'En général oui, si le dommage est correctement documenté.' },
+    ],
+  },
+  {
+    path: 'blog/retenue-de-garantie-chantier-consignation',
+    title: 'Retenue de garantie sur un chantier : ce qu’elle couvre | Cantia',
+    description:
+      "Un maître d'ouvrage retient parfois 5 à 10 % du montant final — une pratique qui n'est pas automatique et doit être négociée, pas subie.",
+    faq: [
+      { q: 'Un maître d’ouvrage peut-il imposer une retenue sans accord préalable ?', a: 'Non, elle doit être négociée et acceptée explicitement.' },
+      { q: 'Quel pourcentage est généralement retenu sur un chantier ?', a: 'Entre 5 et 10 % du montant final selon ce qui a été négocié.' },
+      { q: 'Existe-t-il une alternative à la retenue en espèces ?', a: 'Oui, une garantie bancaire à première demande.' },
+    ],
+  },
+  {
+    path: 'blog/litige-chantier-mediation-ou-tribunal',
+    title: 'Litige de chantier : médiation, conciliation ou tribunal | Cantia',
+    description:
+      "Le tribunal n'est presque jamais la première étape logique — une procédure de conciliation est même obligatoire avant la plupart des actions civiles.",
+    faq: [
+      { q: 'Faut-il obligatoirement passer par une conciliation avant un procès en Suisse ?', a: 'Oui, pour la majorité des litiges civils, c’est une condition de recevabilité.' },
+      { q: 'La médiation est-elle obligatoire pour un litige de chantier ?', a: 'Non, elle est volontaire, contrairement à la conciliation.' },
+      { q: 'Qu’est-ce qui accélère le plus une conciliation ?', a: 'Un dossier documentaire solide (devis, échanges, photos).' },
+    ],
+  },
+  {
+    path: 'blog/certificat-de-travail-obligation-employeur-batiment',
+    title: 'Certificat de travail dans le bâtiment : une obligation | Cantia',
+    description:
+      "Un employé quittant l'entreprise a le droit d'exiger un certificat de travail à tout moment — le refuser expose l'employeur à un litige.",
+    faq: [
+      { q: 'Un employeur peut-il refuser de délivrer un certificat de travail ?', a: 'Non, c’est un droit de l’employé prévu par l’art. 330a CO.' },
+      { q: 'Quelle est la différence entre certificat complet et attestation simple ?', a: 'Le certificat complet inclut une appréciation, l’attestation non.' },
+      { q: 'Peut-on mentionner une maladie dans un certificat de travail ?', a: 'Non, sauf lien direct avec la prestation de travail.' },
+    ],
+  },
+  {
+    path: 'blog/demission-employe-batiment-preavis-a-respecter',
+    title: 'Démission d’un employé du bâtiment : le délai de préavis | Cantia',
+    description:
+      "Le préavis de démission suit les mêmes règles que le licenciement — un employé qui part sans le respecter expose l'entreprise à un manque organisationnel.",
+    faq: [
+      { q: 'Le délai de préavis est-il le même pour une démission et un licenciement ?', a: 'Oui, l’art. 335c CO fixe le même régime dans les deux sens.' },
+      { q: 'Que peut faire un employeur si un employé part sans préavis ?', a: 'Il peut réclamer une indemnité équivalente au salaire du délai non respecté.' },
+      { q: 'Un employé peut-il partir immédiatement pour justes motifs ?', a: 'Oui, mais cela exige des motifs sérieux et documentés.' },
+    ],
+  },
+  {
+    path: 'blog/travailleur-temporaire-interimaire-batiment-regles',
+    title: 'Intérimaire dans le bâtiment : règles et pièges à éviter | Cantia',
+    description:
+      "L'intérim permet d'absorber un pic d'activité rapidement, mais implique une entreprise de location de services soumise à autorisation.",
+    faq: [
+      { q: 'Peut-on prêter du personnel entre entreprises sans agence ?', a: 'Non, un vrai prêt de main-d’œuvre nécessite une entreprise de location de services autorisée.' },
+      { q: 'Un intérimaire est-il soumis à la CCT du chantier ?', a: 'Oui, au même titre qu’un employé fixe.' },
+      { q: 'Pourquoi un intérimaire coûte-t-il plus cher à l’heure ?', a: 'Le tarif inclut déjà salaire, charges sociales et marge de l’agence.' },
+    ],
+  },
+  {
+    path: 'blog/calculer-prix-de-revient-chantier-batiment',
+    title: 'Prix de revient d’un chantier : la méthode de calcul | Cantia',
+    description:
+      "Le montant facturé n'est pas le prix de revient. Sans additionner main-d'œuvre réelle, matériaux et sous-traitance, impossible de savoir si un chantier a été rentable.",
+    faq: [
+      { q: 'Le montant facturé est-il le même que le prix de revient ?', a: 'Non, le prix de revient additionne le coût réel de tous les postes.' },
+      { q: 'Pourquoi calculer le prix de revient chantier par chantier ?', a: 'Un chiffre d’affaires positif peut masquer des chantiers individuellement perdants.' },
+      { q: 'Quelle est la composante la plus souvent sous-estimée ?', a: 'La main-d’œuvre réelle au coût horaire complet.' },
+    ],
+  },
+  {
+    path: 'blog/previsionnel-tresorerie-entreprise-batiment',
+    title: 'Prévisionnel de trésorerie pour une entreprise du bâtiment | Cantia',
+    description:
+      "Pas besoin d'un plan financier complexe pour anticiper un creux de trésorerie — un prévisionnel à 30-60-90 jours suffit à voir venir les problèmes.",
+    faq: [
+      { q: 'Un prévisionnel de trésorerie doit-il être complexe ?', a: 'Non, un prévisionnel simple à 30-60-90 jours suffit pour une PME.' },
+      { q: 'À quelle fréquence mettre à jour un prévisionnel ?', a: 'Idéalement à chaque nouvelle facture ou paiement reçu.' },
+      { q: 'Quel est le principal bénéfice d’un prévisionnel ?', a: 'Repérer un creux plusieurs semaines à l’avance pour agir à temps.' },
+    ],
+  },
+  {
+    path: 'blog/checklist-ouverture-chantier-artisan',
+    title: 'Checklist d’ouverture de chantier : avant le premier jour | Cantia',
+    description:
+      "Un chantier qui démarre mal coûte du temps et de l'argent à rattraper. Une checklist simple évite l'essentiel des mauvaises surprises.",
+    faq: [
+      { q: 'Pourquoi documenter l’état des lieux avant le chantier ?', a: 'Pour se protéger en cas de contestation ultérieure sur l’état préexistant.' },
+      { q: 'Faut-il attendre l’acompte avant de démarrer ?', a: 'C’est fortement recommandé pour éviter un risque financier évitable.' },
+      { q: 'Quelle est la cause la plus fréquente de faux départ de chantier ?', a: 'Un point administratif ou logistique oublié.' },
+    ],
+  },
+  {
+    path: 'blog/checklist-cloture-chantier-avant-facturation',
+    title: 'Checklist de fin de chantier avant la facture finale | Cantia',
+    description:
+      "Une facture finale envoyée trop vite ouvre la porte à des contestations évitables. Voici les points à cocher avant de clôturer un chantier.",
+    faq: [
+      { q: 'Pourquoi documenter la réception avant la facture finale ?', a: 'Elle déclenche le délai de garantie et fige les défauts constatés.' },
+      { q: 'Que risque-t-on à oublier des travaux supplémentaires ?', a: 'Une perte financière directe et une difficulté à les réclamer après coup.' },
+      { q: 'Faut-il archiver le dossier après la facturation finale ?', a: 'Oui, il reste utile pendant toute la période de garantie.' },
+    ],
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:
