@@ -969,17 +969,22 @@ function LandingContent() {
             </View>
           </Reveal>
 
-          {/* ---- Mobile apps ---- */}
+          {/* ---- Mobile apps: the web app already works on phone/tablet
+              today (installable, full-screen, no store) — this section
+              leads with that, and treats the native App Store/Google Play
+              apps as a secondary "also coming" note rather than implying
+              nothing works on mobile yet. ---- */}
           <Reveal id="mobile" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.mobile.title}</Text>
             <Text style={styles.mobileText}>{t.mobile.text}</Text>
+            <Link href="/telechargement" asChild>
+              <Button title={t.mobile.installCta} onPress={() => {}} icon="download" style={styles.mobileInstallCta} />
+            </Link>
+            <Text style={styles.mobileStoreNote}>{t.mobile.storeNote}</Text>
             <View style={styles.storeRow}>
               <StoreBadge kind="apple" label={t.mobile.appStore} comingSoon={t.mobile.comingSoon} />
               <StoreBadge kind="google" label={t.mobile.googlePlay} comingSoon={t.mobile.comingSoon} />
             </View>
-            <Link href="/telechargement" style={styles.mobileMoreLink}>
-              <Text style={styles.mobileMoreLinkText}>En savoir plus →</Text>
-            </Link>
           </Reveal>
 
           {/* ---- Final CTA — the hero's closing mirror: same grid/glow
@@ -3405,14 +3410,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
-  mobileMoreLink: {
+  mobileInstallCta: {
     alignSelf: 'center',
-    marginTop: spacing.md,
   },
-  mobileMoreLinkText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.primary,
+  mobileStoreNote: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.xxl,
+    marginBottom: spacing.sm,
   },
   finalCtaOuter: {
     position: 'relative',

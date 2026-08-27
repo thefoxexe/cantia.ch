@@ -80,7 +80,10 @@ export default function TelechargementScreen() {
         <MarketingNav />
 
         {/* Same grid + soft blob backdrop as the homepage hero, so this page
-            reads as part of the same site rather than a bolted-on screen. */}
+            reads as part of the same site rather than a bolted-on screen.
+            One message only: Cantia already works as an installable app
+            today, no store needed — everything else (native apps, security)
+            is secondary detail further down, not competing for attention. */}
         <View style={styles.heroWrap}>
           <View pointerEvents="none" style={styles.heroGrid} />
           <View pointerEvents="none" style={styles.heroBlob} />
@@ -94,11 +97,11 @@ export default function TelechargementScreen() {
               <View style={styles.kickerPill}>
                 <Text style={styles.kickerText}>Application Cantia</Text>
               </View>
-              <Text style={styles.title}>Cantia, partout où vous travaillez</Text>
+              <Text style={styles.title}>Cantia sur votre mobile, dès aujourd'hui</Text>
               <Text style={styles.subtitle}>
-                Cantia fonctionne déjà comme une application complète — installable en un geste sur votre téléphone
-                ou votre ordinateur, sans passer par un store. Les applications natives iOS et Android arrivent
-                ensuite : mieux vaut une version 1.0 solide qu'une sortie précipitée.
+                Pas d'attente, pas de store : ouvrez cantia.ch depuis votre téléphone et installez Cantia en un
+                geste. Plein écran, icône sur l'écran d'accueil, toutes les fonctionnalités déjà là — photos, dictée
+                vocale, devis, factures, QR-facture.
               </Text>
               <View style={styles.heroCtaRow}>
                 <Link href={authHref('signup')} asChild>
@@ -110,38 +113,8 @@ export default function TelechargementScreen() {
         </View>
 
         <Container style={styles.container}>
-          <View style={styles.storeSection}>
-            <Text style={styles.sectionTitle}>L'app officielle arrive</Text>
-            <Text style={styles.sectionLead}>
-              Vous préférez l'installer depuis un store ? La version Android est actuellement en développement pour
-              Google Play, iOS suivra. En attendant leur sortie, la version web ci-dessous propose déjà l'intégralité
-              des fonctionnalités — photos, dictée vocale, devis, factures, QR-facture.
-            </Text>
-            <View style={styles.storeGrid}>
-              <StoreCard kind="apple" name="App Store" />
-              <StoreCard kind="google" name="Google Play" />
-            </View>
-          </View>
-
-          <View style={styles.webCard}>
-            <View style={styles.webCardIcon}>
-              <Feather name="globe" size={20} color={colors.primary} />
-            </View>
-            <View style={styles.webCardBody}>
-              <Text style={styles.webCardTitle}>Utiliser Cantia dès maintenant</Text>
-              <Text style={styles.webCardText}>
-                L'app web fonctionne sur mobile exactement comme les futures apps natives — photos, dictée vocale,
-                devis, QR-factures, tout y est déjà. Ouvrez cantia.ch depuis votre téléphone et ajoutez-la à votre
-                écran d'accueil pour un accès en un geste.
-              </Text>
-              <Link href={authHref('signup')} asChild>
-                <Button title="Essayer gratuitement" onPress={() => {}} style={styles.webCardCta} />
-              </Link>
-            </View>
-          </View>
-
           <View style={styles.installSection}>
-            <Text style={styles.installTitle}>Comment l'installer aujourd'hui</Text>
+            <Text style={styles.installTitle}>Comment l'installer</Text>
             <Text style={styles.installLead}>
               Trois étapes, une seule fois — ensuite Cantia s'ouvre en plein écran depuis son icône, comme une vraie
               app.
@@ -149,9 +122,23 @@ export default function TelechargementScreen() {
             <InstallGuide />
           </View>
 
-          <Text style={styles.note}>
-            Envie d'être prévenu·e à la sortie des applications ? Écrivez-nous à info@cantia.ch.
-          </Text>
+          <View style={styles.storeSection}>
+            <View style={styles.storeSectionIcon}>
+              <Feather name="package" size={18} color={colors.primary} />
+            </View>
+            <View style={styles.storeSectionBody}>
+              <Text style={styles.storeSectionTitle}>Et les applications officielles ?</Text>
+              <Text style={styles.storeSectionText}>
+                Les versions App Store et Google Play sont en développement. Elles n'apporteront rien de plus que
+                l'app web d'aujourd'hui — mêmes fonctionnalités, mêmes données — donc pas besoin de les attendre
+                pour commencer.
+              </Text>
+              <View style={styles.storeChipRow}>
+                <StoreChip kind="apple" name="App Store" />
+                <StoreChip kind="google" name="Google Play" />
+              </View>
+            </View>
+          </View>
 
           <View style={styles.trustSection}>
             <Text style={styles.trustTitle}>Vos données, en sécurité</Text>
@@ -171,6 +158,10 @@ export default function TelechargementScreen() {
               ))}
             </View>
           </View>
+
+          <Text style={styles.note}>
+            Envie d'être prévenu·e à la sortie des applications ? Écrivez-nous à info@cantia.ch.
+          </Text>
         </Container>
 
         <MarketingFooter />
@@ -217,17 +208,13 @@ function InstallGuide() {
   );
 }
 
-function StoreCard({ kind, name }: { kind: 'apple' | 'google'; name: string }) {
+function StoreChip({ kind, name }: { kind: 'apple' | 'google'; name: string }) {
   return (
-    <View style={styles.storeCard}>
-      <View style={styles.storeCardIcon}>
-        <Ionicons name={kind === 'apple' ? 'logo-apple' : 'logo-google-playstore'} size={26} color="#fff" />
-      </View>
-      <Text style={styles.storeCardName}>{name}</Text>
-      <View style={styles.storeCardSoon}>
-        <View style={styles.storeCardSoonDot} />
-        <Text style={styles.storeCardSoonText}>En développement</Text>
-      </View>
+    <View style={styles.storeChip}>
+      <Ionicons name={kind === 'apple' ? 'logo-apple' : 'logo-google-playstore'} size={16} color="#fff" />
+      <Text style={styles.storeChipName}>{name}</Text>
+      <View style={styles.storeChipSoonDot} />
+      <Text style={styles.storeChipSoonText}>En développement</Text>
     </View>
   );
 }
@@ -331,100 +318,75 @@ const styles = StyleSheet.create({
     maxWidth: 560,
   },
   storeSection: {
-    marginBottom: spacing.xl,
-  },
-  storeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginTop: spacing.lg,
-  },
-  storeCard: {
-    flex: 1,
-    minWidth: 200,
-    alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  storeCardIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.md,
-    backgroundColor: colors.text,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  storeCardName: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  storeCardSoon: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-  },
-  storeCardSoonDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.primary,
-  },
-  storeCardSoonText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  webCard: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginTop: spacing.xl,
+    marginTop: spacing.xxl,
     padding: spacing.lg,
     borderRadius: radius.lg,
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  webCardIcon: {
-    width: 40,
-    height: 40,
+  storeSectionIcon: {
+    width: 36,
+    height: 36,
     borderRadius: radius.md,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
-  webCardBody: {
+  storeSectionBody: {
     flex: 1,
     gap: spacing.xs,
   },
-  webCardTitle: {
+  storeSectionTitle: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
   },
-  webCardText: {
+  storeSectionText: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 20,
   },
-  webCardCta: {
-    alignSelf: 'flex-start',
+  storeChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     marginTop: spacing.sm,
   },
+  storeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    backgroundColor: '#111414',
+  },
+  storeChipName: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  storeChipSoonDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: colors.primary,
+    marginLeft: 2,
+  },
+  storeChipSoonText: {
+    fontFamily: marketingFonts.body,
+    fontSize: 10,
+    color: '#C7CCC9',
+  },
   installSection: {
-    marginTop: spacing.xxl,
+    marginTop: spacing.sm,
   },
   installTitle: {
     fontFamily: marketingFonts.display,

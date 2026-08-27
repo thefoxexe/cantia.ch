@@ -34,7 +34,7 @@ interface Dict {
   };
   swiss: { title: string; text: string };
   devices: { title: string; text: string; benefits: { title: string; text: string }[] };
-  mobile: { title: string; text: string; comingSoon: string; appStore: string; googlePlay: string };
+  mobile: { title: string; text: string; installCta: string; storeNote: string; comingSoon: string; appStore: string; googlePlay: string };
   finalCta: { title: string; subtitle: string; button: string; trust: string[] };
   footer: {
     blurb: string;
@@ -232,9 +232,11 @@ const fr: Dict = {
     ],
   },
   mobile: {
-    title: 'Bientôt sur mobile',
-    text: 'Les applications natives App Store et Google Play arrivent prochainement, pour une expérience encore plus rapide sur téléphone.',
-    comingSoon: 'Bientôt disponible',
+    title: 'Cantia est déjà sur votre mobile',
+    text: "Ouvrez cantia.ch sur votre téléphone et ajoutez Cantia à l'écran d'accueil : vous obtenez une vraie application, en plein écran, sans passer par un store — dès aujourd'hui.",
+    installCta: 'Comment l’installer',
+    storeNote: 'Les versions officielles arrivent aussi :',
+    comingSoon: 'En développement',
     appStore: 'App Store',
     googlePlay: 'Google Play',
   },
