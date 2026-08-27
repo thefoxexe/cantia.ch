@@ -944,10 +944,10 @@ function LandingContent() {
           {/* ---- Multi-device: the web app already works everywhere — this
               is distinct from the "mobile" section right below it, which is
               specifically about the dedicated native App Store/Google Play
-              apps still coming. DevicesMockup below is a built illustration
-              (three abstracted device frames), not a real screenshot — swap
-              its contents for an actual product mockup once one exists;
-              nothing else on the page depends on its internals. ---- */}
+              apps still coming. DevicesMockup renders three real product
+              screenshots (assets/marketing/device-*.jpg), each framed at its
+              own true aspect ratio rather than forced into one illustrated
+              shape. ---- */}
           <Reveal id="devices" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>Partout avec vous</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.devices.title}</Text>
@@ -1506,42 +1506,32 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
   );
 }
 
-// Three abstracted device frames (desktop behind, tablet and phone
-// overlapping in front) suggesting "the same app, any screen" without
-// claiming to be an actual screenshot. Percentage-based inner geometry so
-// the whole thing scales with devicesMockup's own width via aspectRatio,
-// no per-breakpoint sizing needed. This is the swap point for a real
-// product mockup later — replace the three <View> frames below with an
-// <Image source={require('../assets/marketing/devices-mockup.webp')}> once
-// that asset exists; nothing else on the page reads from this component.
+// Three real product screenshots (assets/marketing/device-*.jpg), each kept
+// at its own true aspect ratio — a wide desktop crop, a portrait iPad, a
+// taller portrait phone — rather than stretched into one shared illustrated
+// shape. Every frame sets its own `aspectRatio` from the source image, so
+// only `width`/`left`/`top` (percentages of devicesMockup) need tuning; the
+// desktop sits behind, the tablet and phone overlap in front and lower,
+// cascading toward the bottom-right the way a hand-arranged product shot
+// would.
 function DevicesMockup() {
   return (
     <View style={styles.devicesMockup}>
       <View style={[styles.deviceFrame, styles.deviceDesktop]}>
         <View style={styles.deviceDesktopBar}>
-          <View style={styles.deviceDot} />
-          <View style={styles.deviceDot} />
-          <View style={styles.deviceDot} />
+          <View style={[styles.deviceDot, styles.deviceDotRed]} />
+          <View style={[styles.deviceDot, styles.deviceDotYellow]} />
+          <View style={[styles.deviceDot, styles.deviceDotGreen]} />
         </View>
-        <View style={styles.deviceContent}>
-          <View style={[styles.deviceBar, { width: '70%' }]} />
-          <View style={[styles.deviceBar, { width: '45%' }]} />
-          <View style={[styles.deviceBar, styles.deviceBarAccent, { width: '30%' }]} />
-          <View style={[styles.deviceBar, { width: '55%' }]} />
-        </View>
+        <Image source={require('../assets/marketing/device-desktop.jpg')} style={styles.deviceImage} resizeMode="cover" />
       </View>
-      <View style={[styles.deviceFrame, styles.deviceTablet]}>
-        <View style={styles.deviceContent}>
-          <View style={[styles.deviceBar, { width: '80%' }]} />
-          <View style={[styles.deviceBar, styles.deviceBarAccent, { width: '55%' }]} />
-          <View style={[styles.deviceBar, { width: '65%' }]} />
-        </View>
+      <View style={[styles.deviceFrame, styles.deviceBezel, styles.deviceTablet]}>
+        <View style={styles.deviceCamera} />
+        <Image source={require('../assets/marketing/device-tablet.jpg')} style={styles.deviceImageInset} resizeMode="cover" />
       </View>
-      <View style={[styles.deviceFrame, styles.devicePhone]}>
-        <View style={styles.deviceContent}>
-          <View style={[styles.deviceBar, { width: '75%' }]} />
-          <View style={[styles.deviceBar, styles.deviceBarAccent, { width: '50%' }]} />
-        </View>
+      <View style={[styles.deviceFrame, styles.deviceBezel, styles.devicePhone]}>
+        <View style={styles.deviceCamera} />
+        <Image source={require('../assets/marketing/device-phone.jpg')} style={styles.deviceImageInset} resizeMode="cover" />
       </View>
     </View>
   );
@@ -3385,7 +3375,7 @@ const styles = StyleSheet.create({
   devicesMockup: {
     width: '100%',
     maxWidth: 640,
-    aspectRatio: 640 / 340,
+    aspectRatio: 2.171,
     alignSelf: 'center',
     position: 'relative',
     marginTop: spacing.xl,
@@ -3393,57 +3383,86 @@ const styles = StyleSheet.create({
   } as unknown as ViewStyle,
   deviceFrame: {
     position: 'absolute',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
+  } as unknown as ViewStyle,
+  // Desktop: light "browser window" chrome — a thin traffic-light bar above
+  // the screenshot — sized purely from the crop's own ratio (no browser/OS
+  // chrome left in the image itself, see scripts used to produce it).
+  deviceDesktop: {
+    left: '0%',
+    top: '19.5%',
+    width: '54%',
+    aspectRatio: 1917 / 866,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
-    padding: '4%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-  } as unknown as ViewStyle,
-  deviceDesktop: {
-    left: '0%',
-    top: '10%',
-    width: '60%',
-    height: '76%',
-  } as unknown as ViewStyle,
-  deviceTablet: {
-    left: '48%',
-    top: '2%',
-    width: '30%',
-    height: '58%',
-    zIndex: 2,
-  } as unknown as ViewStyle,
-  devicePhone: {
-    left: '76%',
-    top: '38%',
-    width: '20%',
-    height: '58%',
-    zIndex: 3,
   } as unknown as ViewStyle,
   deviceDesktopBar: {
     flexDirection: 'row',
-    gap: 4,
-    marginBottom: spacing.sm,
-  },
-  deviceDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.border,
-  },
-  deviceContent: {
-    gap: 6,
-  },
-  deviceBar: {
-    height: 7,
-    borderRadius: 4,
+    gap: 5,
+    paddingHorizontal: '3%',
+    paddingVertical: '3%',
     backgroundColor: colors.surfaceAlt,
   },
-  deviceBarAccent: {
-    backgroundColor: colors.primary,
+  deviceDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  deviceDotRed: { backgroundColor: '#E5675C' },
+  deviceDotYellow: { backgroundColor: '#E0B04C' },
+  deviceDotGreen: { backgroundColor: '#5FAE6E' },
+  deviceImage: {
+    width: '100%',
+    flex: 1,
+  },
+  // Tablet & phone: a dark bezel frame (padding reveals the bezel colour
+  // behind an inset, more-rounded image) — the generic device shape a real
+  // tablet/phone bezel reads as, tinted with the app's own ink rather than
+  // pure black so the whole composition stays on-brand.
+  deviceBezel: {
+    backgroundColor: colors.text,
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as unknown as ViewStyle,
+  deviceTablet: {
+    left: '48%',
+    top: '4%',
+    width: '27%',
+    aspectRatio: 1640 / 2360,
+    borderRadius: 22,
+    padding: '3.5%',
+    zIndex: 2,
+  } as unknown as ViewStyle,
+  devicePhone: {
+    left: '64.7%',
+    top: '37.7%',
+    width: '15%',
+    aspectRatio: 1080 / 1866,
+    borderRadius: 16,
+    padding: '4.5%',
+    zIndex: 3,
+  } as unknown as ViewStyle,
+  deviceCamera: {
+    position: 'absolute',
+    top: '1.4%',
+    left: '50%',
+    marginLeft: -2.5,
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    zIndex: 1,
+  } as unknown as ViewStyle,
+  deviceImageInset: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
   },
   devicesBenefits: {
     flexDirection: 'row',
