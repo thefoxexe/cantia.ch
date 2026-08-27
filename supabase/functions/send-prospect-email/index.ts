@@ -89,6 +89,12 @@ Deno.serve(async (req: Request) => {
         html,
       });
       results.push({ email: r.email, ok, error });
+      // Resend's default rate limit is 2 req/sec, shared across the whole
+      // account (including any other transactional sends happening at the
+      // same time) — 550ms cut it too close in practice: one 429 tends to
+      // cascade into the rest of the batch also failing, since the window
+      // doesn't clear within a request or two. 2000ms keeps real headroom.
+      if (recipients.length > 1) await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     return json({ sent: results.length, results });
