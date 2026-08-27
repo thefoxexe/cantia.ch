@@ -220,16 +220,6 @@ export async function deleteTimeEntry(id: string): Promise<{ error: string | nul
   return { error: error?.message ?? null };
 }
 
-// Hours worked from a "de X à Y" range, handling an overnight shift
-// (end earlier than start) by rolling over to the next day.
-export function hoursFromRange(startTime: string, endTime: string): number {
-  const [sh, sm] = startTime.split(':').map(Number);
-  const [eh, em] = endTime.split(':').map(Number);
-  let minutes = eh * 60 + em - (sh * 60 + sm);
-  if (minutes <= 0) minutes += 24 * 60;
-  return Math.round((minutes / 60) * 100) / 100;
-}
-
 // ==========================================================================
 // Expenses — chantier + type de frais (km-rated or forfait), same
 // visibility rule as time entries.

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import {
@@ -8,7 +8,6 @@ import {
   deleteExpense,
   deleteTimeEntry,
   groupHoursForExport,
-  hoursFromRange,
   hoursToCsv,
   listExpenseTypes,
   listExpenses,
@@ -20,7 +19,7 @@ import {
   type PayrollTimeEntryWithNames,
 } from '../lib/api/payroll';
 import { downloadTextFile } from '../lib/downloadFile';
-import { Button, Card, EmptyState } from './ui';
+import { Button, Card } from './ui';
 import { DateField } from './DateField';
 import { PayrollDateFilter, type DateRange } from './PayrollDateFilter';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
@@ -47,53 +46,9 @@ function endOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }
 
-// Tolerant time parsing for the Début/Fin cells — typing should never
-// require the exact "HH:MM" shape. Rules: "8" alone means 8h pile ("08:00");
-// with a "." or "," separator the digits on the right are the minutes
-// *literally* (not a decimal fraction) — "8.5"/"8,5" ("huit virgule cinq")
-// means 08:05, "8.25" means 08:25; with no separator, 3 or 4 digits are read
-// as H:MM / HH:MM ("830" → 08:30, "1430" → 14:30). Returns null while the
-// text isn't (yet) a resolvable time, e.g. mid-typing.
-function parseFlexibleTime(raw: string): string | null {
-  const s = raw.trim();
-  if (!s) return null;
-  if (/^\d{1,2}:\d{2}$/.test(s)) {
-    const [h, m] = s.split(':').map(Number);
-    if (h > 23 || m > 59) return null;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  }
-  const sepMatch = s.match(/^(\d{1,2})[.,](\d{1,2})$/);
-  if (sepMatch) {
-    const h = Number(sepMatch[1]);
-    const minutes = sepMatch[2].padStart(2, '0');
-    const m = Number(minutes);
-    if (h > 23 || m > 59) return null;
-    return `${String(h).padStart(2, '0')}:${minutes}`;
-  }
-  if (/^\d{1,2}$/.test(s)) {
-    const h = Number(s);
-    if (h > 23) return null;
-    return `${String(h).padStart(2, '0')}:00`;
-  }
-  if (/^\d{3}$/.test(s)) {
-    const h = Number(s.slice(0, 1));
-    const m = Number(s.slice(1));
-    if (m > 59) return null;
-    return `${String(h).padStart(2, '0')}:${s.slice(1)}`;
-  }
-  if (/^\d{4}$/.test(s)) {
-    const h = Number(s.slice(0, 2));
-    const m = Number(s.slice(2));
-    if (h > 23 || m > 59) return null;
-    return `${s.slice(0, 2)}:${s.slice(2)}`;
-  }
-  return null;
-}
-
-// Same "H.MM read as literal minutes" convention as parseFlexibleTime,
-// applied to the standalone Heures field: "4" -> 4h, "4.45"/"4,45" -> 4h45
-// (i.e. 4.75) — never a decimal fraction of an hour, since nobody mentally
-// converts 45 minutes to ".75" while typing a timesheet.
+// Same "H.MM read as literal minutes" convention throughout the Heures cell:
+// "4" -> 4h, "4.45"/"4,45" -> 4h45 (i.e. 4.75) — never a decimal fraction of
+// an hour, since nobody mentally converts 45 minutes to ".75" while typing.
 function parseFlexibleHours(raw: string): number | null {
   const s = raw.trim();
   if (!s) return null;
@@ -110,21 +65,14 @@ function parseFlexibleHours(raw: string): number | null {
   return null;
 }
 
-// Inverse of parseFlexibleHours — redisplays a stored decimal-hours value
-// (e.g. from an existing entry, or from a computed start/end range) in the
-// same "H.MM read as minutes" shape the field expects on input, so editing
-// an entry round-trips instead of showing a raw decimal like "4.75".
+// Inverse of parseFlexibleHours — redisplays a stored decimal-hours value in
+// the same "H.MM read as minutes" shape the field expects on input, so
+// editing an entry round-trips instead of showing a raw decimal like "4.75".
 function formatHoursForInput(hours: number): string {
   const h = Math.floor(hours);
   const m = Math.round((hours - h) * 60);
   if (m === 0) return String(h);
   return `${h}.${String(m).padStart(2, '0')}`;
-}
-
-// Half-open interval overlap ("13:00–13:15" and "12:45–15:00" share
-// 13:00–13:15) — the same person can't physically be on two things at once.
-function timesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
-  return aStart < bEnd && bStart < aEnd;
 }
 
 function defaultMonthRange(): DateRange {
@@ -143,12 +91,128 @@ function defaultTodayRange(): DateRange {
 
 export { defaultMonthRange, defaultTodayRange };
 
+// A new row saved with no explicit date picker in the grid (see below) takes
+// the currently filtered day when that's a single specific date, or today
+// otherwise — matching the "log what I did today" use case the grid is
+// built around, without forcing a date choice on every single line.
+function draftEntryDate(range: DateRange): string {
+  return range.start === range.end ? range.start : toIso(new Date());
+}
+
+type EditableEntry = PayrollTimeEntryWithNames & { hoursText: string; noteText: string };
+
+function toEditable(e: PayrollTimeEntryWithNames): EditableEntry {
+  return { ...e, hoursText: formatHoursForInput(Number(e.hours)), noteText: e.note ?? '' };
+}
+
+interface DraftRow {
+  projectPicked: boolean;
+  projectId: string | null;
+  workTypeId: string | null;
+  note: string;
+  hoursText: string;
+}
+
+const BLANK_DRAFT: DraftRow = { projectPicked: false, projectId: null, workTypeId: null, note: '', hoursText: '' };
+
+// A tap-to-open dropdown anchored under its own cell (same measureInWindow +
+// transparent Modal technique as AccountMenu) — the closest RN-Web/native
+// cross-platform equivalent of clicking a spreadsheet cell with a dropdown
+// validation list, without the weight of a full-screen picker modal.
+function PickerCell({
+  containerStyle,
+  value,
+  picked = true,
+  noneLabel,
+  placeholder = 'Choisir…',
+  options,
+  disabled = false,
+  onChange,
+}: {
+  containerStyle: object;
+  value: string | null;
+  picked?: boolean;
+  noneLabel: string;
+  placeholder?: string;
+  options: PickItem[];
+  disabled?: boolean;
+  onChange: (id: string | null) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const triggerRef = useRef<View>(null);
+
+  function open() {
+    if (disabled) return;
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      const windowWidth = Dimensions.get('window').width;
+      const cardWidth = Math.max(width, 200);
+      const left = Math.min(Math.max(spacing.sm, x), windowWidth - cardWidth - spacing.sm);
+      setPos({ top: y + height + 4, left, width: cardWidth });
+      setVisible(true);
+    });
+  }
+
+  const label = !picked ? placeholder : value ? options.find((o) => o.id === value)?.label ?? '—' : noneLabel;
+
+  return (
+    <>
+      <View ref={triggerRef} collapsable={false} style={containerStyle}>
+        <Pressable onPress={open} style={[styles.pickerCell, disabled && styles.pickerCellDisabled]}>
+          <Text style={[styles.pickerCellText, !picked && styles.pickerCellPlaceholder]} numberOfLines={1}>
+            {label}
+          </Text>
+        </Pressable>
+      </View>
+
+      <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
+        <Pressable style={styles.dropdownBackdrop} onPress={() => setVisible(false)}>
+          {pos ? (
+            <View style={[styles.dropdownCard, { top: pos.top, left: pos.left, minWidth: pos.width }]}>
+              <ScrollView style={styles.dropdownScroll} showsVerticalScrollIndicator={false}>
+                <Pressable
+                  onPress={() => {
+                    onChange(null);
+                    setVisible(false);
+                  }}
+                  style={styles.dropdownItem}
+                >
+                  <Text style={styles.dropdownItemText}>{noneLabel}</Text>
+                </Pressable>
+                {options.map((o) => (
+                  <Pressable
+                    key={o.id}
+                    onPress={() => {
+                      onChange(o.id);
+                      setVisible(false);
+                    }}
+                    style={styles.dropdownItem}
+                  >
+                    <Text style={styles.dropdownItemText}>{o.label}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
 // The grid-style hours/frais editor — used both for "my own hours" (self
 // service, targetUserId = the signed-in user) and, unchanged, for an admin
 // editing an employee's entries from the RH cockpit (targetUserId = that
 // employee, writes allowed by RLS via can_manage_org_payroll). Same panel,
 // same rules either way, because the RLS policies themselves treat both
 // cases identically.
+//
+// The Heures table below is a live spreadsheet, not a modal-per-entry form:
+// every row (saved or the trailing blank one) is directly editable in place.
+// Filling the trailing row's Heures cell saves it and replaces it with a
+// fresh blank row — so logging several chantiers in one day is just filling
+// cells left to right, line after line, the way people actually think about
+// a timesheet.
 export function PayrollEntryPanel({
   organizationId,
   targetUserId,
@@ -167,23 +231,14 @@ export function PayrollEntryPanel({
   const [projects, setProjects] = useState<PickItem[]>([]);
   const [workTypes, setWorkTypes] = useState<PayrollWorkType[]>([]);
   const [expenseTypes, setExpenseTypes] = useState<PayrollExpenseType[]>([]);
-  const [entries, setEntries] = useState<PayrollTimeEntryWithNames[]>([]);
+  const [entries, setEntries] = useState<EditableEntry[]>([]);
   const [expenses, setExpenses] = useState<PayrollExpenseWithNames[]>([]);
   const [loading, setLoading] = useState(true);
   const [granularity, setGranularity] = useState<ExportGranularity>('month');
 
-  const [showHoursForm, setShowHoursForm] = useState(false);
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
-  const [hoursProjectPicked, setHoursProjectPicked] = useState(false);
-  const [hoursProjectId, setHoursProjectId] = useState<string | null>(null);
-  const [hoursWorkTypeId, setHoursWorkTypeId] = useState<string | null>(null);
-  const [hoursDate, setHoursDate] = useState('');
-  const [hoursTotal, setHoursTotal] = useState('');
-  const [hoursStart, setHoursStart] = useState('');
-  const [hoursEnd, setHoursEnd] = useState('');
-  const [hoursNote, setHoursNote] = useState('');
-  const [hoursError, setHoursError] = useState<string | null>(null);
-  const [savingHours, setSavingHours] = useState(false);
+  const [draft, setDraft] = useState<DraftRow>(BLANK_DRAFT);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
 
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [expenseTypePicked, setExpenseTypePicked] = useState(false);
@@ -208,7 +263,7 @@ export function PayrollEntryPanel({
     setProjects((projectRows ?? []).map((p) => ({ id: p.id, label: p.name })));
     setWorkTypes(work.filter((w) => w.active));
     setExpenseTypes(expType.filter((e) => e.active));
-    setEntries(entryRows);
+    setEntries(entryRows.map(toEditable));
     setExpenses(expenseRows);
     setLoading(false);
   }, [organizationId, targetUserId, range.start, range.end]);
@@ -217,137 +272,97 @@ export function PayrollEntryPanel({
     load();
   }, [load]);
 
-  function selectHoursProject(id: string | null) {
-    setHoursProjectId(id);
-    setHoursProjectPicked(true);
-  }
+  const workTypeOptions: PickItem[] = workTypes.map((w) => ({ id: w.id, label: w.label }));
 
-  function openHoursCreate() {
-    setEditingEntryId(null);
-    setHoursProjectPicked(false);
-    setHoursProjectId(null);
-    setHoursWorkTypeId(null);
-    setHoursDate(toIso(new Date()));
-    setHoursTotal('');
-    setHoursStart('');
-    setHoursEnd('');
-    setHoursNote('');
-    setHoursError(null);
-    setShowHoursForm(true);
-  }
-
-  function openHoursEdit(e: PayrollTimeEntryWithNames) {
-    setEditingEntryId(e.id);
-    setHoursProjectPicked(true);
-    setHoursProjectId(e.project_id);
-    setHoursWorkTypeId(e.work_type_id);
-    setHoursDate(e.entry_date);
-    if (e.start_time && e.end_time) {
-      setHoursStart(e.start_time.slice(0, 5));
-      setHoursEnd(e.end_time.slice(0, 5));
-    } else {
-      setHoursStart('');
-      setHoursEnd('');
-    }
-    setHoursTotal(formatHoursForInput(Number(e.hours)));
-    setHoursNote(e.note ?? '');
-    setHoursError(null);
-    setShowHoursForm(true);
-  }
-
-  // Excel-style: Début/Fin and Heures are just three cells on the same
-  // row — filling in a valid start+end recomputes Heures automatically
-  // (like a formula cell), but typing straight into Heures works too, no
-  // mode to pick first. Whichever pair actually has a valid start+end at
-  // submit time wins and gets stored as a real range; otherwise the typed
-  // total is used as-is and no range is stored.
-  function setHoursStartAndCompute(v: string) {
-    setHoursStart(v);
-    const start = parseFlexibleTime(v);
-    const end = parseFlexibleTime(hoursEnd);
-    if (start && end) setHoursTotal(formatHoursForInput(hoursFromRange(start, end)));
-  }
-  function setHoursEndAndCompute(v: string) {
-    setHoursEnd(v);
-    const start = parseFlexibleTime(hoursStart);
-    const end = parseFlexibleTime(v);
-    if (start && end) setHoursTotal(formatHoursForInput(hoursFromRange(start, end)));
-  }
-  // Snaps the visible text to a canonical "HH:MM" once the user leaves the
-  // field, so "8.5" becomes "08:05" on screen — not while they're still typing.
-  function normalizeHoursStart() {
-    const parsed = parseFlexibleTime(hoursStart);
-    if (parsed) setHoursStart(parsed);
-  }
-  function normalizeHoursEnd() {
-    const parsed = parseFlexibleTime(hoursEnd);
-    if (parsed) setHoursEnd(parsed);
-  }
-
-  async function submitHours() {
-    if (!hoursDate) {
-      setHoursError('La date est requise.');
-      return;
-    }
-    const startParsed = parseFlexibleTime(hoursStart);
-    const endParsed = parseFlexibleTime(hoursEnd);
-    const hasRange = !!startParsed && !!endParsed;
-    const hours = hasRange ? hoursFromRange(startParsed, endParsed) : parseFlexibleHours(hoursTotal);
-    if (!hours || hours <= 0 || hours > 24) {
-      setHoursError('Indiquez un nombre d’heures valide (entre 0 et 24), ou un horaire de début/fin.');
-      return;
-    }
-    const startTime = hasRange ? startParsed : null;
-    const endTime = hasRange ? endParsed : null;
-
-    // Same person can't be logged on two overlapping ranges the same day —
-    // re-fetches that one day fresh rather than trusting the panel's own
-    // `entries` (scoped to whatever period is currently displayed, which
-    // might not even include the date being edited).
-    if (hasRange) {
-      const dayEntries = await listTimeEntries(organizationId, targetUserId, hoursDate, hoursDate);
-      const conflict = dayEntries.find(
-        (e) => e.id !== editingEntryId && e.start_time && e.end_time && timesOverlap(startTime!, endTime!, e.start_time.slice(0, 5), e.end_time.slice(0, 5)),
-      );
-      if (conflict) {
-        setHoursError(
-          `Conflit : ${conflict.start_time!.slice(0, 5)}–${conflict.end_time!.slice(0, 5)} est déjà enregistré ce jour-là pour cette personne.`,
-        );
-        return;
-      }
-    }
-
-    setSavingHours(true);
-    setHoursError(null);
-    const { error } = editingEntryId
-      ? await updateTimeEntry(editingEntryId, {
-          projectId: hoursProjectId,
-          workTypeId: hoursWorkTypeId,
-          entryDate: hoursDate,
-          hours,
-          startTime,
-          endTime,
-          note: hoursNote,
-        })
-      : await createTimeEntry({
-          organizationId,
-          projectId: hoursProjectId,
-          workTypeId: hoursWorkTypeId,
-          userId: targetUserId,
-          entryDate: hoursDate,
-          hours,
-          startTime,
-          endTime,
-          note: hoursNote,
-          createdBy: currentUserId,
-        });
-    setSavingHours(false);
+  // Saves the trailing draft row as soon as it has a chantier decided (even
+  // "Sans chantier" counts) and a valid Heures value — that's the one field
+  // whose completion means "this line is done", since it's always filled
+  // last in the natural chantier → type de travail → remarque → heures order
+  // the columns are laid out in.
+  async function commitDraft() {
+    if (savingDraft || !draft.projectPicked) return;
+    const hours = parseFlexibleHours(draft.hoursText);
+    if (!hours || hours <= 0 || hours > 24) return;
+    setSavingDraft(true);
+    setDraftError(null);
+    const { error } = await createTimeEntry({
+      organizationId,
+      projectId: draft.projectId,
+      workTypeId: draft.workTypeId,
+      userId: targetUserId,
+      entryDate: draftEntryDate(range),
+      hours,
+      startTime: null,
+      endTime: null,
+      note: draft.note,
+      createdBy: currentUserId,
+    });
+    setSavingDraft(false);
     if (error) {
-      setHoursError(error);
+      setDraftError(error);
       return;
     }
-    setShowHoursForm(false);
+    setDraft(BLANK_DRAFT);
     load();
+  }
+
+  // Optimistic local patch first (so typing/picking feels instant), then
+  // persists the *entire* row — updateTimeEntry replaces every column, so
+  // any single-field edit has to resend the row's current full state.
+  function patchEntryLocal(id: string, patch: Partial<EditableEntry>): EditableEntry | null {
+    let next: EditableEntry | null = null;
+    setEntries((prev) =>
+      prev.map((e) => {
+        if (e.id !== id) return e;
+        next = { ...e, ...patch };
+        return next;
+      }),
+    );
+    return next;
+  }
+
+  async function persistEntry(e: EditableEntry) {
+    const { error } = await updateTimeEntry(e.id, {
+      projectId: e.project_id,
+      workTypeId: e.work_type_id,
+      entryDate: e.entry_date,
+      hours: Number(e.hours),
+      startTime: e.start_time,
+      endTime: e.end_time,
+      note: e.note ?? '',
+    });
+    if (error) load();
+  }
+
+  function onPickEntryProject(e: EditableEntry, projectId: string | null) {
+    const updated = patchEntryLocal(e.id, { project_id: projectId, project_name: projects.find((p) => p.id === projectId)?.label ?? null });
+    if (updated) persistEntry(updated);
+  }
+
+  function onPickEntryWorkType(e: EditableEntry, workTypeId: string | null) {
+    const updated = patchEntryLocal(e.id, { work_type_id: workTypeId, work_type_label: workTypes.find((w) => w.id === workTypeId)?.label ?? null });
+    if (updated) persistEntry(updated);
+  }
+
+  function onEntryHoursBlur(e: EditableEntry) {
+    const hours = parseFlexibleHours(e.hoursText);
+    if (!hours || hours <= 0 || hours > 24) {
+      patchEntryLocal(e.id, { hoursText: formatHoursForInput(Number(e.hours)) });
+      return;
+    }
+    if (hours === Number(e.hours)) {
+      patchEntryLocal(e.id, { hoursText: formatHoursForInput(hours) });
+      return;
+    }
+    const updated = patchEntryLocal(e.id, { hours, hoursText: formatHoursForInput(hours) });
+    if (updated) persistEntry(updated);
+  }
+
+  function onEntryNoteBlur(e: EditableEntry) {
+    const trimmed = e.noteText.trim();
+    if (trimmed === (e.note ?? '')) return;
+    const updated = patchEntryLocal(e.id, { note: trimmed || null });
+    if (updated) persistEntry(updated);
   }
 
   async function removeHours(id: string) {
@@ -443,30 +458,99 @@ export function PayrollEntryPanel({
           <Text style={styles.sectionTotal}>{totalHours} h</Text>
         </View>
 
-        {!loading && entries.length === 0 ? (
-          <EmptyState title="Aucune heure saisie" subtitle="Ajoutez des heures pour cette période." />
-        ) : (
-          <View style={styles.grid}>
-            <View style={styles.gridHeaderRow}>
-              <Text style={[styles.gridHeaderCell, styles.colDate]}>Date</Text>
-              <Text style={[styles.gridHeaderCell, styles.colProject]}>Chantier</Text>
-              <Text style={[styles.gridHeaderCell, styles.colType]}>Type de travail</Text>
-              <Text style={[styles.gridHeaderCell, styles.colHours]}>Heures</Text>
-            </View>
-            {entries.map((e) => (
-              <Pressable key={e.id} onPress={() => openHoursEdit(e)} style={styles.gridRow}>
-                <Text style={[styles.gridCell, styles.colDate]}>{new Date(`${e.entry_date}T00:00:00`).toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit' })}</Text>
-                <Text style={[styles.gridCell, styles.colProject]} numberOfLines={1}>{e.project_name ?? 'Sans chantier'}</Text>
-                <Text style={[styles.gridCell, styles.colType]} numberOfLines={1}>{e.work_type_label ?? '—'}</Text>
-                <Text style={[styles.gridCell, styles.colHours, styles.gridCellBold]}>{Number(e.hours)} h</Text>
-                <Pressable onPress={() => removeHours(e.id)} hitSlop={8} style={styles.gridDelete}>
-                  <Feather name="trash-2" size={14} color={colors.textMuted} />
-                </Pressable>
-              </Pressable>
-            ))}
+        <View style={styles.grid}>
+          <View style={styles.gridHeaderRow}>
+            <Text style={[styles.gridHeaderCell, styles.colProject]}>Chantier</Text>
+            <Text style={[styles.gridHeaderCell, styles.colType]}>Type de travail</Text>
+            <Text style={[styles.gridHeaderCell, styles.colNote]}>Remarque</Text>
+            <Text style={[styles.gridHeaderCell, styles.colHours]}>Heures</Text>
+            <View style={styles.colTrash} />
           </View>
-        )}
-        <Button title="Ajouter une ligne" icon="plus" variant="secondary" onPress={openHoursCreate} style={{ marginTop: spacing.md }} />
+
+          {entries.map((e) => (
+            <View key={e.id} style={styles.gridRow}>
+              <PickerCell
+                containerStyle={styles.colProject}
+                value={e.project_id}
+                noneLabel="Sans chantier"
+                options={projects}
+                onChange={(id) => onPickEntryProject(e, id)}
+              />
+              <PickerCell
+                containerStyle={styles.colType}
+                value={e.work_type_id}
+                noneLabel="Non précisé"
+                options={workTypeOptions}
+                onChange={(id) => onPickEntryWorkType(e, id)}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colNote]}
+                value={e.noteText}
+                onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, noteText: v } : x)))}
+                onBlur={() => onEntryNoteBlur(e)}
+                placeholder="—"
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[styles.cellInput, styles.colHours, styles.cellInputRight]}
+                value={e.hoursText}
+                onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, hoursText: v } : x)))}
+                onBlur={() => onEntryHoursBlur(e)}
+                keyboardType="decimal-pad"
+                returnKeyType="done"
+              />
+              <Pressable onPress={() => removeHours(e.id)} hitSlop={8} style={styles.colTrash}>
+                <Feather name="trash-2" size={14} color={colors.textMuted} />
+              </Pressable>
+            </View>
+          ))}
+
+          <View style={styles.gridRow}>
+            <PickerCell
+              containerStyle={styles.colProject}
+              value={draft.projectId}
+              picked={draft.projectPicked}
+              noneLabel="Sans chantier"
+              placeholder="+ Sélectionner un chantier"
+              options={projects}
+              onChange={(id) => setDraft((d) => ({ ...d, projectId: id, projectPicked: true }))}
+            />
+            <PickerCell
+              containerStyle={styles.colType}
+              value={draft.workTypeId}
+              picked={draft.projectPicked}
+              disabled={!draft.projectPicked}
+              noneLabel="Non précisé"
+              placeholder="—"
+              options={workTypeOptions}
+              onChange={(id) => setDraft((d) => ({ ...d, workTypeId: id }))}
+            />
+            <TextInput
+              style={[styles.cellInput, styles.colNote, !draft.projectPicked && styles.cellInputDisabled]}
+              value={draft.note}
+              onChangeText={(v) => setDraft((d) => ({ ...d, note: v }))}
+              editable={draft.projectPicked}
+              placeholder={draft.projectPicked ? 'Optionnel' : '—'}
+              placeholderTextColor={colors.textMuted}
+            />
+            <TextInput
+              style={[styles.cellInput, styles.colHours, styles.cellInputRight, !draft.projectPicked && styles.cellInputDisabled]}
+              value={draft.hoursText}
+              onChangeText={(v) => setDraft((d) => ({ ...d, hoursText: v }))}
+              onBlur={commitDraft}
+              editable={draft.projectPicked && !savingDraft}
+              placeholder={draft.projectPicked ? 'Ex : 4.30' : '—'}
+              placeholderTextColor={colors.textMuted}
+              keyboardType="decimal-pad"
+              returnKeyType="done"
+            />
+            <View style={styles.colTrash} />
+          </View>
+        </View>
+        {draftError ? <Text style={styles.error}>{draftError}</Text> : null}
+        {workTypes.length === 0 ? (
+          <Text style={styles.hint}>Aucun type de travail configuré — un administrateur peut en ajouter depuis Compte → RH & Salaires.</Text>
+        ) : null}
 
         <View style={styles.exportRow}>
           <View style={styles.granChips}>
@@ -489,7 +573,7 @@ export function PayrollEntryPanel({
           <Text style={styles.sectionTotal}>CHF {totalExpenses.toFixed(2)}</Text>
         </View>
         {!loading && expenses.length === 0 ? (
-          <EmptyState title="Aucun frais" subtitle="Ex : trajets en voiture entre chantiers." />
+          <Text style={styles.hint}>Aucun frais. Ex : trajets en voiture entre chantiers.</Text>
         ) : (
           <View style={{ gap: spacing.sm }}>
             {expenses.map((e) => (
@@ -512,88 +596,6 @@ export function PayrollEntryPanel({
         )}
         <Button title="Ajouter un frais" icon="plus" variant="secondary" onPress={openExpenseCreate} style={{ marginTop: spacing.md }} />
       </Card>
-
-      <Modal visible={showHoursForm} animationType="fade" transparent onRequestClose={() => setShowHoursForm(false)}>
-        <View style={styles.backdrop}>
-          <View style={styles.sheet}>
-            <ScrollView>
-              <Text style={styles.sheetTitle}>{editingEntryId ? 'Modifier des heures' : 'Ajouter des heures'}</Text>
-
-              <Text style={styles.fieldLabel}>1. Chantier</Text>
-              <View style={styles.chips}>
-                <Pressable onPress={() => selectHoursProject(null)} style={[styles.chip, hoursProjectPicked && hoursProjectId === null && styles.chipActive]}>
-                  <Text style={[styles.chipText, hoursProjectPicked && hoursProjectId === null && styles.chipTextActive]}>Sans chantier</Text>
-                </Pressable>
-                {projects.map((p) => (
-                  <Pressable key={p.id} onPress={() => selectHoursProject(p.id)} style={[styles.chip, hoursProjectId === p.id && hoursProjectPicked && styles.chipActive]}>
-                    <Text style={[styles.chipText, hoursProjectId === p.id && hoursProjectPicked && styles.chipTextActive]}>{p.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {hoursProjectPicked ? (
-                <>
-                  <Text style={styles.fieldLabel}>2. Type de travail</Text>
-                  {workTypes.length === 0 ? (
-                    <Text style={styles.hint}>Aucun type de travail configuré — un administrateur peut en ajouter depuis Compte → RH & Salaires.</Text>
-                  ) : (
-                    <View style={styles.chips}>
-                      <Pressable onPress={() => setHoursWorkTypeId(null)} style={[styles.chip, hoursWorkTypeId === null && styles.chipActive]}>
-                        <Text style={[styles.chipText, hoursWorkTypeId === null && styles.chipTextActive]}>Non précisé</Text>
-                      </Pressable>
-                      {workTypes.map((w) => (
-                        <Pressable key={w.id} onPress={() => setHoursWorkTypeId(w.id)} style={[styles.chip, hoursWorkTypeId === w.id && styles.chipActive]}>
-                          <Text style={[styles.chipText, hoursWorkTypeId === w.id && styles.chipTextActive]}>{w.label}</Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                  )}
-
-                  <Text style={styles.fieldLabel}>3. Date et heures</Text>
-                  <DateField label="Date" value={hoursDate} onChange={(v) => setHoursDate(v ?? '')} />
-
-                  <View style={styles.row3}>
-                    <View style={styles.row3Item}>
-                      <Text style={styles.miniLabel}>Début</Text>
-                      <TextInput style={styles.numberInput} value={hoursStart} onChangeText={setHoursStartAndCompute} onBlur={normalizeHoursStart} placeholder="08:00" placeholderTextColor={colors.textMuted} />
-                    </View>
-                    <View style={styles.row3Item}>
-                      <Text style={styles.miniLabel}>Fin</Text>
-                      <TextInput style={styles.numberInput} value={hoursEnd} onChangeText={setHoursEndAndCompute} onBlur={normalizeHoursEnd} placeholder="12:00" placeholderTextColor={colors.textMuted} />
-                    </View>
-                    <View style={styles.row3Item}>
-                      <Text style={styles.miniLabel}>Heures</Text>
-                      <TextInput
-                        style={styles.numberInput}
-                        value={hoursTotal}
-                        onChangeText={(v) => {
-                          setHoursTotal(v);
-                          setHoursStart('');
-                          setHoursEnd('');
-                        }}
-                        placeholder="Ex : 8"
-                        placeholderTextColor={colors.textMuted}
-                        keyboardType="decimal-pad"
-                      />
-                    </View>
-                  </View>
-                  <Text style={styles.hint}>
-                    Début/Fin acceptent "8" (8h00), "8.5" ou "8,5" (8h05), "830" (8h30) — calcul automatique. Ou
-                    remplissez directement Heures.
-                  </Text>
-
-                  <Text style={styles.fieldLabel}>Note (optionnel)</Text>
-                  <TextInput style={styles.noteInput} value={hoursNote} onChangeText={setHoursNote} placeholder="Ex : pose de carrelage" placeholderTextColor={colors.textMuted} multiline />
-
-                  {hoursError ? <Text style={styles.error}>{hoursError}</Text> : null}
-                  <Button title={editingEntryId ? 'Enregistrer' : 'Ajouter'} icon="check" onPress={submitHours} loading={savingHours} style={{ marginTop: spacing.md }} />
-                </>
-              ) : null}
-              <Button title="Annuler" variant="secondary" onPress={() => setShowHoursForm(false)} style={{ marginTop: spacing.sm }} />
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
 
       <Modal visible={showExpenseForm} animationType="fade" transparent onRequestClose={() => setShowExpenseForm(false)}>
         <View style={styles.backdrop}>
@@ -697,48 +699,99 @@ const styles = StyleSheet.create({
   },
   gridHeaderRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surfaceAlt,
     paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.xs,
   },
   gridHeaderCell: {
     fontSize: 10,
     fontWeight: '800',
     color: colors.textMuted,
     textTransform: 'uppercase',
+    paddingHorizontal: 4,
   },
   gridRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    paddingHorizontal: spacing.xs,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-  },
-  gridCell: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  gridCellBold: {
-    fontWeight: '700',
-  },
-  colDate: {
-    width: 52,
+    gap: 4,
   },
   colProject: {
-    flex: 1.2,
-    paddingRight: spacing.xs,
+    flex: 1.3,
   },
   colType: {
     flex: 1,
-    paddingRight: spacing.xs,
+  },
+  colNote: {
+    flex: 1.2,
   },
   colHours: {
-    width: 56,
-    textAlign: 'right',
+    width: 68,
   },
-  gridDelete: {
-    marginLeft: spacing.sm,
+  colTrash: {
+    width: 22,
+    alignItems: 'center',
+  },
+  pickerCell: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+  },
+  pickerCellDisabled: {
+    opacity: 0.4,
+  },
+  pickerCellText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  pickerCellPlaceholder: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  cellInput: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    borderRadius: radius.sm,
+  },
+  cellInputRight: {
+    textAlign: 'right',
+    fontWeight: '700',
+  },
+  cellInputDisabled: {
+    color: colors.textMuted,
+  },
+  dropdownBackdrop: {
+    flex: 1,
+  },
+  dropdownCard: {
+    position: 'absolute',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    maxWidth: 320,
+  },
+  dropdownScroll: {
+    maxHeight: 260,
+  },
+  dropdownItem: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  dropdownItemText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
   },
   exportRow: {
     flexDirection: 'row',
@@ -867,20 +920,6 @@ const styles = StyleSheet.create({
   row2Item: {
     flex: 1,
   },
-  row3: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  row3Item: {
-    flex: 1,
-  },
-  miniLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
   numberInput: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -895,8 +934,7 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: -spacing.md,
-    marginBottom: spacing.md,
+    marginTop: spacing.sm,
   },
   noteInput: {
     minHeight: 60,
