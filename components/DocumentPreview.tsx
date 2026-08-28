@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { spacing } from '../lib/theme';
+import { colors, spacing } from '../lib/theme';
 import type { Organization } from '../lib/types';
 
 export interface PreviewLine {
@@ -184,109 +184,35 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
   );
 }
 
-// A persistent strip — never hidden behind a tap — showing the running
-// total and the last line typed, live, while the keyboard is still up and
-// the full-page preview (behind a modal on mobile) isn't visible. Tapping
-// it opens that full preview; the bar itself needs no interaction to stay
-// current, it just re-renders with the same props as the page on every
-// keystroke.
-export function LivePreviewBar({
-  kind,
-  organization,
-  lines,
-  discountPercent,
-  onPress,
-}: {
-  kind: 'devis' | 'facture';
-  organization: Organization | null;
-  lines: PreviewLine[];
-  discountPercent: string;
-  onPress: () => void;
-}) {
-  const vatRate = organization?.default_vat_rate ?? 8.1;
-  const { validLines, total } = computeDocumentTotals(lines, discountPercent, vatRate);
-  const lastLine = validLines[validLines.length - 1];
-
+// A single, minimal circular button — an eye, nothing else — floating
+// above the form. Tapping it opens the full A4 preview (live: it reflects
+// whatever's been typed the instant it opens, no stale snapshot). Kept
+// deliberately plain rather than surfacing a running total or last line
+// here — that read as UI noise; the preview itself is one tap away.
+export function LivePreviewBar({ onPress }: { onPress: () => void }) {
   return (
-    <Pressable style={barStyles.bar} onPress={onPress}>
-      <View style={barStyles.left}>
-        <View style={barStyles.liveDot} />
-        <View style={barStyles.leftText}>
-          <Text style={barStyles.liveLabel}>Aperçu en direct</Text>
-          <Text style={barStyles.lastLine} numberOfLines={1}>
-            {lastLine ? lastLine.description : kind === 'devis' ? 'Votre devis se construit ici' : 'Votre facture se construit ici'}
-          </Text>
-        </View>
-      </View>
-      <View style={barStyles.right}>
-        <Text style={barStyles.total}>CHF {total.toFixed(2)}</Text>
-        <Feather name="chevron-up" size={16} color={MUTED} />
-      </View>
+    <Pressable style={barStyles.fab} onPress={onPress} hitSlop={8}>
+      <Feather name="eye" size={20} color="#fff" />
     </Pressable>
   );
 }
 
 const barStyles = StyleSheet.create({
-  bar: {
+  fab: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    flexDirection: 'row',
+    right: spacing.lg,
+    bottom: spacing.xl,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: LINE,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.lg,
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: -2 },
-  },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    flex: 1,
-    minWidth: 0,
-  },
-  liveDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#2E6B4F',
-  },
-  leftText: {
-    flex: 1,
-    minWidth: 0,
-  },
-  liveLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: MUTED,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  lastLine: {
-    fontSize: 13,
-    color: INK,
-    fontWeight: '600',
-    marginTop: 1,
-  },
-  right: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  total: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: INK,
-    fontVariant: ['tabular-nums'],
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
 });
 

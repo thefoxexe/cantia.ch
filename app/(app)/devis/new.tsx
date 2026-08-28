@@ -613,15 +613,7 @@ export default function NewDevisScreen() {
         </View>
       </ScrollView>
 
-      {!isDesktop ? (
-        <LivePreviewBar
-          kind="devis"
-          organization={organization}
-          lines={lines}
-          discountPercent={discountPercent}
-          onPress={() => setPreviewVisible(true)}
-        />
-      ) : null}
+      {!isDesktop ? <LivePreviewBar onPress={() => setPreviewVisible(true)} /> : null}
 
       <Modal visible={previewVisible} animationType="slide" transparent onRequestClose={() => setPreviewVisible(false)}>
         <View style={styles.modalOverlay}>
@@ -715,7 +707,7 @@ const styles = StyleSheet.create({
     top: spacing.xl,
   },
   scrollWithBar: {
-    paddingBottom: 96,
+    paddingBottom: 84,
   },
   modalOverlay: {
     flex: 1,
