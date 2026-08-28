@@ -9,7 +9,7 @@ import { ClientPicker } from '../../../components/ClientPicker';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { TramePicker } from '../../../components/TramePicker';
 import { SignaturePromptModal } from '../../../components/SignaturePromptModal';
-import { DocumentPreview } from '../../../components/DocumentPreview';
+import { DocumentPreview, LivePreviewBar } from '../../../components/DocumentPreview';
 import { fetchTrame } from '../../../lib/api/trames';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
@@ -379,7 +379,7 @@ export default function NewDevisScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
+      <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
           <Text style={styles.sectionTitle}>Client</Text>
@@ -614,10 +614,13 @@ export default function NewDevisScreen() {
       </ScrollView>
 
       {!isDesktop ? (
-        <Pressable style={styles.previewFab} onPress={() => setPreviewVisible(true)}>
-          <Feather name="eye" size={16} color="#fff" />
-          <Text style={styles.previewFabText}>Aperçu</Text>
-        </Pressable>
+        <LivePreviewBar
+          kind="devis"
+          organization={organization}
+          lines={lines}
+          discountPercent={discountPercent}
+          onPress={() => setPreviewVisible(true)}
+        />
       ) : null}
 
       <Modal visible={previewVisible} animationType="slide" transparent onRequestClose={() => setPreviewVisible(false)}>
@@ -711,27 +714,8 @@ const styles = StyleSheet.create({
     position: 'sticky' as 'relative',
     top: spacing.xl,
   },
-  previewFab: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: spacing.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  previewFabText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: fontSize.sm,
+  scrollWithBar: {
+    paddingBottom: 96,
   },
   modalOverlay: {
     flex: 1,

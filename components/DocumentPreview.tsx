@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { spacing } from '../lib/theme';
 import type { Organization } from '../lib/types';
 
@@ -18,6 +19,27 @@ interface Props {
   projectName?: string | null;
   lines: PreviewLine[];
   discountPercent: string;
+}
+
+// Same shape the real submit builds: the discount is one more (negative)
+// line item, not a separate totals row — see devis/new.tsx and
+// devis/factures/new.tsx's buildItemsPayload/submitDevis. Shared by
+// DocumentPreview and LivePreviewBar so the running total shown while
+// typing (bar) never drifts from the full preview (page) even by a
+// rounding step.
+export function computeDocumentTotals(lines: PreviewLine[], discountPercent: string, vatRate: number) {
+  const validLines = lines.filter((l) => l.description.trim());
+  const discountPct = Math.max(0, Math.min(100, Number(discountPercent) || 0));
+  const rawSubtotal = validLines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
+  const discountAmount = discountPct > 0 ? Math.round(rawSubtotal * (discountPct / 100) * 100) / 100 : 0;
+  const tableRows: PreviewLine[] =
+    discountAmount > 0
+      ? [...validLines, { description: `Remise (${discountPct}%)`, quantity: '1', unit: 'pce', unitPrice: String(-discountAmount) }]
+      : validLines;
+  const subtotal = tableRows.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
+  const vat = subtotal * (vatRate / 100);
+  const total = subtotal + vat;
+  return { validLines, tableRows, subtotal, vat, total };
 }
 
 // A4-proportioned, purely client-side facsimile of the real PDF layout —
@@ -43,21 +65,7 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
   const brandColor = organization?.brand_color || '#1F3D3A';
   const vatRate = organization?.default_vat_rate ?? 8.1;
   const docLabel = kind === 'devis' ? 'Devis' : 'Facture';
-
-  // Same shape the real submit builds: the discount is one more (negative)
-  // line item, not a separate totals row — see devis/new.tsx and
-  // devis/factures/new.tsx's buildItemsPayload/submitDevis.
-  const validLines = lines.filter((l) => l.description.trim());
-  const discountPct = Math.max(0, Math.min(100, Number(discountPercent) || 0));
-  const rawSubtotal = validLines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
-  const discountAmount = discountPct > 0 ? Math.round(rawSubtotal * (discountPct / 100) * 100) / 100 : 0;
-  const tableRows =
-    discountAmount > 0
-      ? [...validLines, { description: `Remise (${discountPct}%)`, quantity: '1', unit: 'pce', unitPrice: String(-discountAmount) }]
-      : validLines;
-  const subtotal = tableRows.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
-  const vat = subtotal * (vatRate / 100);
-  const total = subtotal + vat;
+  const { tableRows, subtotal, vat, total } = computeDocumentTotals(lines, discountPercent, vatRate);
 
   const orgAddressParts = [
     organization?.street || organization?.address,
@@ -175,6 +183,112 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
     </View>
   );
 }
+
+// A persistent strip — never hidden behind a tap — showing the running
+// total and the last line typed, live, while the keyboard is still up and
+// the full-page preview (behind a modal on mobile) isn't visible. Tapping
+// it opens that full preview; the bar itself needs no interaction to stay
+// current, it just re-renders with the same props as the page on every
+// keystroke.
+export function LivePreviewBar({
+  kind,
+  organization,
+  lines,
+  discountPercent,
+  onPress,
+}: {
+  kind: 'devis' | 'facture';
+  organization: Organization | null;
+  lines: PreviewLine[];
+  discountPercent: string;
+  onPress: () => void;
+}) {
+  const vatRate = organization?.default_vat_rate ?? 8.1;
+  const { validLines, total } = computeDocumentTotals(lines, discountPercent, vatRate);
+  const lastLine = validLines[validLines.length - 1];
+
+  return (
+    <Pressable style={barStyles.bar} onPress={onPress}>
+      <View style={barStyles.left}>
+        <View style={barStyles.liveDot} />
+        <View style={barStyles.leftText}>
+          <Text style={barStyles.liveLabel}>Aperçu en direct</Text>
+          <Text style={barStyles.lastLine} numberOfLines={1}>
+            {lastLine ? lastLine.description : kind === 'devis' ? 'Votre devis se construit ici' : 'Votre facture se construit ici'}
+          </Text>
+        </View>
+      </View>
+      <View style={barStyles.right}>
+        <Text style={barStyles.total}>CHF {total.toFixed(2)}</Text>
+        <Feather name="chevron-up" size={16} color={MUTED} />
+      </View>
+    </Pressable>
+  );
+}
+
+const barStyles = StyleSheet.create({
+  bar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: LINE,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.lg,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -2 },
+  },
+  left: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    flex: 1,
+    minWidth: 0,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#2E6B4F',
+  },
+  leftText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  liveLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: MUTED,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  lastLine: {
+    fontSize: 13,
+    color: INK,
+    fontWeight: '600',
+    marginTop: 1,
+  },
+  right: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  total: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: INK,
+    fontVariant: ['tabular-nums'],
+  },
+});
 
 const styles = StyleSheet.create({
   wrap: {
