@@ -316,6 +316,7 @@ export default function NewFactureScreen() {
       clientName={clientName}
       clientAddress={clientAddress}
       clientEmail={clientEmail}
+      projectName={selectedProject?.name}
       lines={lines}
       discountPercent={discountPercent}
     />

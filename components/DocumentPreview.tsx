@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { getSignedUrl } from '../lib/api/storage';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { StyleSheet, Text, View } from 'react-native';
+import { spacing } from '../lib/theme';
 import type { Organization } from '../lib/types';
 
 export interface PreviewLine {
@@ -17,129 +15,163 @@ interface Props {
   clientName: string;
   clientAddress: string;
   clientEmail: string;
+  projectName?: string | null;
   lines: PreviewLine[];
   discountPercent: string;
 }
 
-// A live, purely client-side facsimile of the eventual PDF — not a render of
-// the real thing (that's generated server-side, see generate-devis-pdf /
-// generate-facture-pdf), just close enough visually that filling in the form
-// reads as "building a document" instead of "filling in a spreadsheet".
-// Recomputes from the same raw line data the form already holds, so it's
-// always in sync with zero extra network calls.
-export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, lines, discountPercent }: Props) {
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+// A4-proportioned, purely client-side facsimile of the real PDF layout —
+// same page ratio, same single-column header (no logo: the real renderer
+// never draws one, see supabase/functions/_shared/pdf-document-renderers.ts
+// — the org name in brand color is the document's identity mark instead),
+// same 4-column table, same totals composition (a discount is folded into
+// the line items as a negative row server-side, not a separate totals
+// line — mirrored here so the numbers read exactly like the eventual PDF),
+// same colors (INK/MUTED/LINE pulled straight from pdf-helpers.ts). Not a
+// render of the real thing (that's server-generated, see
+// generate-devis-pdf / generate-facture-pdf) — recomputed instantly from
+// the same raw form state on every keystroke, with zero network calls.
+const INK = '#181C1B';
+const MUTED = '#5C6560';
+const LINE = '#E1DED4';
+// PDF page constants (pt), from supabase/functions/_shared/pdf-helpers.ts —
+// only the ratio matters here, the preview scales to fit its column.
+const PAGE_WIDTH = 595.28;
+const PAGE_HEIGHT = 841.89;
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!organization?.logo_url) {
-      setLogoUrl(null);
-      return;
-    }
-    getSignedUrl(organization.logo_url).then((url) => {
-      if (!cancelled) setLogoUrl(url);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [organization?.logo_url]);
-
-  const validLines = lines.filter((l) => l.description.trim());
-  const subtotal = validLines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
-  const discountPct = Math.max(0, Math.min(100, Number(discountPercent) || 0));
-  const discountAmount = discountPct > 0 ? subtotal * (discountPct / 100) : 0;
-  const afterDiscount = subtotal - discountAmount;
+export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent }: Props) {
+  const brandColor = organization?.brand_color || '#1F3D3A';
   const vatRate = organization?.default_vat_rate ?? 8.1;
-  const vat = afterDiscount * (vatRate / 100);
-  const total = afterDiscount + vat;
+  const docLabel = kind === 'devis' ? 'Devis' : 'Facture';
 
-  const brandColor = organization?.brand_color || colors.primary;
-  const orgAddressLines = [organization?.street || organization?.address, [organization?.postal_code, organization?.locality].filter(Boolean).join(' ')].filter(
+  // Same shape the real submit builds: the discount is one more (negative)
+  // line item, not a separate totals row — see devis/new.tsx and
+  // devis/factures/new.tsx's buildItemsPayload/submitDevis.
+  const validLines = lines.filter((l) => l.description.trim());
+  const discountPct = Math.max(0, Math.min(100, Number(discountPercent) || 0));
+  const rawSubtotal = validLines.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
+  const discountAmount = discountPct > 0 ? Math.round(rawSubtotal * (discountPct / 100) * 100) / 100 : 0;
+  const tableRows =
+    discountAmount > 0
+      ? [...validLines, { description: `Remise (${discountPct}%)`, quantity: '1', unit: 'pce', unitPrice: String(-discountAmount) }]
+      : validLines;
+  const subtotal = tableRows.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
+  const vat = subtotal * (vatRate / 100);
+  const total = subtotal + vat;
+
+  const orgAddressParts = [
+    organization?.street || organization?.address,
+    [organization?.postal_code, organization?.locality].filter(Boolean).join(' ') || null,
+  ].filter((p): p is string => !!p && p.trim().length > 0);
+  const orgLine = [orgAddressParts.join(', '), organization?.ide_number ? `IDE ${organization.ide_number}` : null].filter(Boolean).join(' · ');
+  const contactLine = [organization?.phone, organization?.email, organization?.website].filter(Boolean).join(' · ');
+
+  const today = new Date();
+  const dueDate = new Date(today.getTime() + 30 * 86400000);
+  const metaLine = kind === 'facture' ? `Échéance : ${dueDate.toLocaleDateString('fr-CH')}` : null;
+
+  const clientLines = [clientName || 'Nom du client', clientAddress, clientEmail, projectName ? `Chantier : ${projectName}` : null].filter(
     (l): l is string => !!l,
   );
-  const today = new Date().toLocaleDateString('fr-CH');
+
+  const validityDays = organization?.devis_validity_days ?? 30;
+  const termsBase =
+    kind === 'devis' ? `Devis valable ${validityDays} jours.` : 'Merci de régler cette facture avant l\'échéance indiquée ci-dessus.';
+  const terms = `${organization?.devis_terms?.trim() ? `${organization.devis_terms.trim()} ` : ''}${termsBase} Prix en francs suisses (CHF).`;
+
+  const footerText = organization?.footer_text?.trim() || 'Document généré avec Cantia — cantia.ch';
+  const showQrNote = kind === 'facture' && !!organization?.iban;
 
   return (
     <View style={styles.wrap}>
-      <View style={styles.badge}>
-        <Text style={styles.badgeText}>Aperçu — se met à jour au fur et à mesure</Text>
+      <View style={styles.badgeRow}>
+        <Text style={styles.badgeText}>Aperçu en direct — pas encore le PDF final</Text>
       </View>
-      <ScrollView style={styles.sheet} contentContainerStyle={styles.paper} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerRow}>
-          <View style={styles.headerLeft}>
-            {logoUrl ? <Image source={{ uri: logoUrl }} style={styles.logo} resizeMode="contain" /> : null}
-            <Text style={styles.orgName}>{organization?.name || 'Votre entreprise'}</Text>
-            {orgAddressLines.map((line) => (
-              <Text key={line} style={styles.meta}>
-                {line}
+
+      <View style={styles.page}>
+        <Text style={[styles.orgName, { color: brandColor }]}>{organization?.name || 'Votre entreprise'}</Text>
+        {orgLine ? <Text style={styles.meta}>{orgLine}</Text> : null}
+        {contactLine ? <Text style={styles.meta}>{contactLine}</Text> : null}
+        <View style={styles.rule} />
+
+        <View style={styles.titleRow}>
+          <Text style={[styles.docTitle, { color: brandColor }]} numberOfLines={1}>
+            {docLabel}
+          </Text>
+          <Text style={styles.meta}>{today.toLocaleDateString('fr-CH')}</Text>
+        </View>
+        {metaLine ? <Text style={[styles.meta, styles.metaLine]}>{metaLine}</Text> : null}
+
+        <Text style={styles.label}>Client</Text>
+        {clientLines.map((line, i) => (
+          <Text key={i} style={[styles.body, i === 0 && styles.clientName]}>
+            {line}
+          </Text>
+        ))}
+
+        <View style={styles.tableHeadRow}>
+          <Text style={[styles.th, styles.colDesc]}>Description</Text>
+          <Text style={[styles.th, styles.colQty]}>Qté</Text>
+          <Text style={[styles.th, styles.colUnit]}>Unité</Text>
+          <Text style={[styles.th, styles.colPrice]}>Prix</Text>
+          <Text style={[styles.th, styles.colTotal]}>Total</Text>
+        </View>
+        {tableRows.length === 0 ? (
+          <Text style={styles.emptyHint}>Les lignes ajoutées apparaîtront ici.</Text>
+        ) : (
+          tableRows.map((l, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={[styles.td, styles.colDesc]} numberOfLines={2}>
+                {l.description}
               </Text>
-            ))}
-            {organization?.ide_number ? <Text style={styles.meta}>IDE {organization.ide_number}</Text> : null}
-          </View>
-          <View style={styles.headerRight}>
-            <Text style={[styles.docType, { color: brandColor }]}>{kind === 'devis' ? 'DEVIS' : 'FACTURE'}</Text>
-            <Text style={styles.meta}>Brouillon</Text>
-            <Text style={styles.meta}>{today}</Text>
-          </View>
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: brandColor }]} />
-
-        <View style={styles.clientBlock}>
-          <Text style={styles.clientLabel}>{kind === 'devis' ? 'Devis pour' : 'Facturé à'}</Text>
-          <Text style={styles.clientName}>{clientName || 'Nom du client'}</Text>
-          {clientAddress ? <Text style={styles.meta}>{clientAddress}</Text> : null}
-          {clientEmail ? <Text style={styles.meta}>{clientEmail}</Text> : null}
-        </View>
-
-        <View style={styles.table}>
-          <View style={styles.tableHeadRow}>
-            <Text style={[styles.th, styles.colDesc]}>Description</Text>
-            <Text style={[styles.th, styles.colQty]}>Qté</Text>
-            <Text style={[styles.th, styles.colPrice]}>P.U.</Text>
-            <Text style={[styles.th, styles.colTotal]}>Total</Text>
-          </View>
-          {validLines.length === 0 ? (
-            <Text style={styles.emptyHint}>Les lignes ajoutées ci-contre apparaîtront ici.</Text>
-          ) : (
-            validLines.map((l, i) => (
-              <View key={i} style={styles.tableRow}>
-                <Text style={[styles.td, styles.colDesc]} numberOfLines={2}>
-                  {l.description}
-                </Text>
-                <Text style={[styles.td, styles.colQty]}>
-                  {l.quantity} {l.unit}
-                </Text>
-                <Text style={[styles.td, styles.colPrice]}>{(Number(l.unitPrice) || 0).toFixed(2)}</Text>
-                <Text style={[styles.td, styles.colTotal]}>{((Number(l.quantity) || 0) * (Number(l.unitPrice) || 0)).toFixed(2)}</Text>
-              </View>
-            ))
-          )}
-        </View>
+              <Text style={[styles.td, styles.colQty]}>{l.quantity}</Text>
+              <Text style={[styles.td, styles.colUnit]}>{l.unit}</Text>
+              <Text style={[styles.td, styles.colPrice]}>{(Number(l.unitPrice) || 0).toFixed(2)}</Text>
+              <Text style={[styles.td, styles.colTotal]}>{((Number(l.quantity) || 0) * (Number(l.unitPrice) || 0)).toFixed(2)}</Text>
+            </View>
+          ))
+        )}
+        <View style={styles.tableBottomRule} />
 
         <View style={styles.totals}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Sous-total</Text>
-            <Text style={styles.totalValue}>CHF {subtotal.toFixed(2)}</Text>
+            <Text style={styles.body}>Sous-total</Text>
+            <Text style={styles.body}>CHF {subtotal.toFixed(2)}</Text>
           </View>
-          {discountAmount > 0 ? (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Remise ({discountPct}%)</Text>
-              <Text style={styles.totalValue}>− CHF {discountAmount.toFixed(2)}</Text>
-            </View>
-          ) : null}
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>TVA ({vatRate}%)</Text>
-            <Text style={styles.totalValue}>CHF {vat.toFixed(2)}</Text>
+            <Text style={styles.body}>TVA ({vatRate}%)</Text>
+            <Text style={styles.body}>CHF {vat.toFixed(2)}</Text>
           </View>
-          <View style={[styles.totalRow, styles.grandTotalRow, { borderTopColor: brandColor }]}>
-            <Text style={styles.grandTotalLabel}>Total {kind === 'facture' ? 'TTC' : 'estimé'}</Text>
-            <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {total.toFixed(2)}</Text>
+          <View style={styles.totalRow}>
+            <Text style={styles.grandTotalLabel}>Total TTC</Text>
+            <Text style={styles.grandTotalValue}>CHF {total.toFixed(2)}</Text>
           </View>
         </View>
 
-        {kind === 'devis' && organization?.devis_terms ? <Text style={styles.terms}>{organization.devis_terms}</Text> : null}
-      </ScrollView>
+        <Text style={styles.terms}>{terms}</Text>
+
+        {kind === 'devis' ? (
+          <View style={styles.signatureRow}>
+            <View style={styles.signatureBlock}>
+              <Text style={styles.signatureLabel}>Signature</Text>
+              <View style={styles.signatureLine} />
+            </View>
+            <View style={styles.signatureBlock}>
+              <Text style={styles.signatureLabel}>{clientName ? `Signature ${clientName}` : 'Signature client'}</Text>
+              <View style={styles.signatureLine} />
+            </View>
+          </View>
+        ) : null}
+
+        {showQrNote ? <Text style={styles.qrNote}>Un bulletin de paiement QR-facture sera joint au PDF final.</Text> : null}
+
+        <View style={styles.footerRow}>
+          <Text style={styles.footerText} numberOfLines={1}>
+            {footerText}
+          </Text>
+          <Text style={styles.footerText}>Page 1</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -148,171 +180,191 @@ const styles = StyleSheet.create({
   wrap: {
     gap: spacing.sm,
   },
-  badge: {
+  badgeRow: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 5,
   },
   badgeText: {
-    fontSize: fontSize.xs,
+    fontSize: 11,
     fontWeight: '700',
-    color: colors.primaryDark,
+    color: MUTED,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
+  page: {
+    width: '100%',
+    aspectRatio: PAGE_WIDTH / PAGE_HEIGHT,
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: colors.border,
-    maxHeight: 640,
-  },
-  paper: {
-    padding: spacing.lg,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  headerLeft: {
-    flex: 1,
-    gap: 2,
-  },
-  logo: {
-    width: 90,
-    height: 36,
-    marginBottom: spacing.xs,
+    borderColor: LINE,
+    borderRadius: 2,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    overflow: 'hidden',
   },
   orgName: {
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  headerRight: {
-    alignItems: 'flex-end',
-    gap: 2,
-  },
-  docType: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    letterSpacing: 1,
+    fontSize: 13,
+    fontWeight: '700',
   },
   meta: {
-    fontSize: 11,
-    color: colors.textMuted,
+    fontSize: 8.5,
+    color: MUTED,
+    marginTop: 2,
   },
-  divider: {
-    height: 2,
-    borderRadius: 1,
-    marginVertical: spacing.md,
-    opacity: 0.7,
+  rule: {
+    height: 1,
+    backgroundColor: LINE,
+    marginTop: 10,
+    marginBottom: 14,
   },
-  clientBlock: {
-    marginBottom: spacing.lg,
-    gap: 2,
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
   },
-  clientLabel: {
-    fontSize: 10,
+  docTitle: {
+    fontSize: 12.5,
     fontWeight: '700',
-    color: colors.textMuted,
+  },
+  metaLine: {
+    textAlign: 'right',
+    marginTop: 3,
+  },
+  label: {
+    fontSize: 7.5,
+    fontWeight: '700',
+    color: MUTED,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 2,
+    letterSpacing: 0.4,
+    marginTop: 14,
+    marginBottom: 4,
+  },
+  body: {
+    fontSize: 8.5,
+    color: INK,
+    marginTop: 1,
   },
   clientName: {
-    fontSize: fontSize.sm,
     fontWeight: '700',
-    color: colors.text,
-  },
-  table: {
-    marginBottom: spacing.md,
   },
   tableHeadRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingBottom: 6,
-    marginBottom: 4,
+    borderBottomColor: LINE,
+    paddingBottom: 5,
+    marginTop: 16,
   },
   th: {
-    fontSize: 10,
+    fontSize: 7.5,
     fontWeight: '700',
-    color: colors.textMuted,
+    color: MUTED,
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
   },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceAlt,
+    paddingVertical: 5,
   },
   td: {
-    fontSize: 11.5,
-    color: colors.text,
+    fontSize: 8.5,
+    color: INK,
   },
   colDesc: {
-    flex: 2.4,
-    paddingRight: spacing.xs,
+    flex: 2.6,
+    paddingRight: 4,
   },
   colQty: {
-    flex: 1,
+    flex: 0.5,
+    textAlign: 'right',
+  },
+  colUnit: {
+    flex: 0.7,
     textAlign: 'right',
   },
   colPrice: {
-    flex: 1,
+    flex: 0.9,
     textAlign: 'right',
   },
   colTotal: {
-    flex: 1,
+    flex: 0.9,
     textAlign: 'right',
     fontWeight: '700',
   },
   emptyHint: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
+    fontSize: 8.5,
+    color: MUTED,
     fontStyle: 'italic',
-    paddingVertical: spacing.md,
+    paddingVertical: 10,
+  },
+  tableBottomRule: {
+    height: 1,
+    backgroundColor: LINE,
+    marginTop: 2,
   },
   totals: {
     alignSelf: 'flex-end',
-    minWidth: 200,
-    gap: 4,
+    minWidth: '48%',
+    marginTop: 10,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: spacing.md,
-  },
-  totalLabel: {
-    fontSize: 11.5,
-    color: colors.textMuted,
-  },
-  totalValue: {
-    fontSize: 11.5,
-    color: colors.text,
-    fontVariant: ['tabular-nums'],
-  },
-  grandTotalRow: {
-    borderTopWidth: 1,
-    marginTop: 4,
-    paddingTop: 6,
+    marginTop: 2,
   },
   grandTotalLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.text,
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: INK,
   },
   grandTotalValue: {
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: INK,
   },
   terms: {
-    fontSize: 10,
-    color: colors.textMuted,
-    marginTop: spacing.lg,
-    lineHeight: 14,
+    fontSize: 7,
+    color: MUTED,
+    marginTop: 16,
+    lineHeight: 10,
+  },
+  signatureRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 24,
+    marginTop: 22,
+  },
+  signatureBlock: {
+    alignItems: 'flex-start',
+    minWidth: 90,
+  },
+  signatureLabel: {
+    fontSize: 7,
+    color: MUTED,
+    marginBottom: 16,
+  },
+  signatureLine: {
+    height: 1,
+    width: '100%',
+    backgroundColor: LINE,
+  },
+  qrNote: {
+    fontSize: 7,
+    color: MUTED,
+    fontStyle: 'italic',
+    marginTop: 14,
+  },
+  footerRow: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    bottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  footerText: {
+    fontSize: 6.5,
+    color: MUTED,
   },
 });

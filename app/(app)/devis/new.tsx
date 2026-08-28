@@ -371,6 +371,7 @@ export default function NewDevisScreen() {
       clientName={clientName}
       clientAddress={clientAddress}
       clientEmail={clientEmail}
+      projectName={selectedProject?.name}
       lines={lines}
       discountPercent={discountPercent}
     />
