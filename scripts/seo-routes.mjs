@@ -1123,6 +1123,226 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/logiciel-devis-facture-maconnerie-suisse',
+    title: 'Devis et factures pour une entreprise de maçonnerie | Cantia',
+    description:
+      "Un devis de maçonnerie mal structuré cache souvent une perte : matériaux sous-évalués, heures d'équipe mal comptées, imprévus non provisionnés. Méthode concrète pour chiffrer juste.",
+    faq: [
+      { q: 'Comment chiffrer un devis de maçonnerie qui mélange plusieurs unités ?', a: 'En détaillant chaque poste avec sa propre unité — m³ pour le béton et les fondations, m² pour les murs et finitions, heures de régie pour la manutention — plutôt qu\'un prix forfaitaire unique qui masque les écarts.' },
+      { q: 'Faut-il inclure le prix des matériaux dans le prix au m² de maçonnerie ?', a: 'Il est préférable de les séparer sur le devis : cela permet d\'ajuster facilement si le prix des matériaux change avant le début du chantier, sans devoir refaire tout le calcul.' },
+      { q: 'Comment ne pas oublier le temps de manutention dans un devis de maçonnerie ?', a: 'En prévoyant une ligne dédiée en heures de régie pour le transport des matériaux, l\'évacuation des gravats et le nettoyage — un poste qui représente souvent 15 à 20 % du temps total du chantier.' },
+    ],
+  },
+  {
+    path: 'blog/gestion-chantier-facturation-electricien-suisse',
+    title: 'Électricien indépendant : devis, heures et facturation | Cantia',
+    description:
+      "Entre les points électriques à chiffrer, les heures réparties sur plusieurs chantiers dans la même journée et les contrôles NIBT à ne pas oublier, la gestion administrative d'un électricien a ses pièges.",
+    faq: [
+      { q: 'Faut-il facturer un devis d\'électricité au point ou au forfait ?', a: 'Les deux se combinent : le prix unitaire par point électrique convient aux rénovations détaillées, le forfait convient mieux aux circuits complets standardisés où le temps varie peu.' },
+      { q: 'Comment un électricien facture-t-il ses déplacements entre plusieurs chantiers ?', a: 'Il n\'existe pas de règle unique — l\'essentiel est de le décider clairement à l\'avance et de le communiquer au client, pas de l\'absorber silencieusement dans la marge.' },
+      { q: 'Le contrôle NIBT doit-il figurer sur le devis d\'électricité ?', a: 'Oui — toute installation créée ou modifiée doit être annoncée et contrôlée. L\'intégrer au devis dès le départ évite une facturation d\'urgence, moins avantageuse.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-plombier-sanitaire-suisse',
+    title: 'Plombier-sanitaire : devis planifié et urgence | Cantia',
+    description:
+      "Entre un devis de salle de bain complète et un dépannage de fuite un dimanche soir, le plombier-sanitaire jongle avec deux logiques de facturation opposées. Comment structurer les deux sans y perdre.",
+    faq: [
+      { q: 'Comment différencier le tarif d\'un devis planifié et d\'un dépannage en plomberie ?', a: 'En appliquant deux logiques distinctes : un devis détaillé poste par poste pour les chantiers planifiés, et un tarif de dépannage annoncé clairement avant intervention pour les urgences.' },
+      { q: 'Peut-on facturer un dépannage plus cher le soir ou le week-end ?', a: 'Oui, c\'est une pratique courante et légitime, à condition que la majoration soit annoncée avant l\'intervention plutôt que découverte sur la facture.' },
+      { q: 'Faut-il séparer la fourniture du matériel sanitaire et la pose sur le devis ?', a: 'C\'est recommandé — cela permet au client de comprendre la répartition du prix et facilite les ajustements si le matériel choisi change en cours de projet.' },
+    ],
+  },
+  {
+    path: 'blog/devis-peintre-batiment-calcul-surface-suisse',
+    title: 'Devis de peinture en bâtiment : calculer la surface | Cantia',
+    description:
+      "Une surface mal calculée (déductions oubliées, nombre de couches sous-estimé, préparation du support négligée) est la première cause de perte de marge chez les peintres en bâtiment.",
+    faq: [
+      { q: 'Faut-il déduire les portes et fenêtres du calcul de surface peinture ?', a: 'Oui pour la surface facturée, mais le temps de finition aux bords des ouvertures reste réel — d\'où l\'intérêt d\'un tarif qui tient compte du nombre d\'ouvertures.' },
+      { q: 'Comment facturer une deuxième couche de peinture nécessaire mais non prévue ?', a: 'Le mieux est de l\'anticiper dans le devis initial selon le type de support et de changement de teinte prévu, plutôt que de la découvrir sur chantier.' },
+      { q: 'Le temps de protection du chantier doit-il être facturé séparément ?', a: 'Ce n\'est pas obligatoire, mais c\'est recommandé sur les chantiers occupés ou avec du mobilier à protéger — ce temps est réel et souvent sous-estimé.' },
+    ],
+  },
+  {
+    path: 'blog/devis-carreleur-facturation-au-m2-suisse',
+    title: 'Devis de carrelage : au-delà du prix au m² | Cantia',
+    description:
+      "Format du carreau, motif de pose, découpes, plans de calepinage : autant de facteurs qui font varier fortement le temps de pose d'un carrelage, à surface égale. Comment les intégrer au devis.",
+    faq: [
+      { q: 'Pourquoi deux devis de carrelage à surface identique peuvent-ils avoir des prix très différents ?', a: 'Le format des carreaux, le motif de pose et le nombre de découpes autour des obstacles font varier fortement le temps de pose réel, même à surface égale.' },
+      { q: 'Quelle marge de casse prévoir sur une commande de carrelage ?', a: 'Généralement entre 8 et 12 % selon la complexité de la pose — un motif avec beaucoup de découpes consomme davantage de carreaux qu\'une pose droite simple.' },
+      { q: 'Faut-il prévoir le ragréage du support dans le devis initial de carrelage ?', a: 'C\'est recommandé, au moins en option chiffrée à part, car l\'état réel du support n\'est souvent visible qu\'une fois l\'ancien revêtement retiré.' },
+    ],
+  },
+  {
+    path: 'blog/devis-charpente-bois-facturation-suisse',
+    title: 'Charpente bois : matière, façonnage et pose | Cantia',
+    description:
+      "Entre le prix du bois qui fluctue, le temps de façonnage en atelier et la pose sur chantier, un devis de charpente additionne trois postes très différents. Comment les structurer.",
+    faq: [
+      { q: 'Comment se protéger de la variation du prix du bois entre le devis et la commande ?', a: 'En intégrant une clause de révision de prix sur le poste bois, indexée sur la date réelle de commande plutôt que sur la date de signature du devis.' },
+      { q: 'Faut-il facturer le levage de charpente séparément de la pose ?', a: 'C\'est recommandé lorsqu\'une grue ou un camion-grue est loué spécifiquement, car ce coût est fixe pour la journée, indépendamment du temps de pose effectif.' },
+      { q: 'Comment gérer un report de chantier de charpente pour cause de météo ?', a: 'Idéalement via une clause prévue au devis dès le départ, précisant qui absorbe le coût d\'un report plutôt que de le négocier après coup sous pression.' },
+    ],
+  },
+  {
+    path: 'blog/gestion-chantier-devis-couvreur-toiture-suisse',
+    title: 'Couvreur : chiffrer une toiture sans se faire piéger | Cantia',
+    description:
+      "Un chantier de toiture dépend directement de la météo et impose des mesures de sécurité qui ont un coût réel. Comment les intégrer au devis sans les cacher dans une marge invisible.",
+    faq: [
+      { q: 'Comment intégrer le risque météo dans un devis de toiture ?', a: 'En prévoyant explicitement une clause de report sans pénalité en cas d\'intempérie empêchant le travail en hauteur.' },
+      { q: 'Faut-il facturer séparément les dispositifs de sécurité sur un chantier de toiture ?', a: 'C\'est recommandé — échafaudage, ligne de vie et garde-corps ont un coût réel qui doit rester visible, plutôt que d\'être dilué dans le prix au m² de couverture.' },
+      { q: 'Peut-on chiffrer une réparation de charpente sans inspection préalable ?', a: 'Non, ou seulement de manière très approximative — l\'état réel d\'une charpente n\'est souvent visible qu\'après dépose de la couverture existante.' },
+    ],
+  },
+  {
+    path: 'blog/devis-menuisier-sur-mesure-facturation-suisse',
+    title: 'Menuisier-agenceur : chiffrer le sur-mesure | Cantia',
+    description:
+      "Un agencement sur mesure passe par la prise de cotes, la conception, la fabrication en atelier et le montage sur site — quatre étapes qui méritent chacune leur propre ligne de devis.",
+    faq: [
+      { q: 'Faut-il facturer la prise de cotes et les plans d\'un agencement sur mesure ?', a: 'C\'est recommandé, au moins comme un forfait d\'étude déductible du prix final si le devis est signé — cela protège un temps de travail réel souvent invisible pour le client.' },
+      { q: 'Comment chiffrer le temps de montage d\'un agencement sur mesure ?', a: 'En prévoyant systématiquement une marge par rapport au temps théorique d\'atelier, car les irrégularités du bâti existant allongent presque toujours la pose réelle.' },
+      { q: 'Le devis de menuiserie sur mesure doit-il inclure une clause de modification ?', a: 'Oui — un client qui change d\'avis sur une finition ou une dimension après validation des plans doit générer un avenant chiffré, pas une modification silencieuse.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-facadier-isolation-suisse',
+    title: 'Façadier et isolation périphérique : devis et subventions | Cantia',
+    description:
+      "Un devis d'isolation périphérique (CECB, Programme Bâtiments) implique souvent une demande de subvention en parallèle du chantier. Comment structurer devis et facturation sans bloquer le dossier du client.",
+    faq: [
+      { q: 'Le devis d\'isolation périphérique doit-il indiquer la valeur U du matériau ?', a: 'C\'est fortement recommandé — les dossiers de subvention cantonaux exigent généralement une valeur d\'isolation précise, pas seulement une désignation commerciale du matériau.' },
+      { q: 'Faut-il attendre le versement de la subvention avant de facturer le client ?', a: 'Non — il est préférable de facturer selon l\'avancement normal du chantier, sans lier sa propre trésorerie au calendrier de versement de l\'aide cantonale.' },
+      { q: 'Un devis d\'isolation périphérique doit-il avoir une durée de validité plus longue que la moyenne ?', a: 'C\'est conseillé, car le montage d\'un dossier de subvention peut prendre plusieurs semaines.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-paysagiste-jardinier-suisse',
+    title: 'Paysagiste : aménagement ponctuel et entretien récurrent | Cantia',
+    description:
+      "Un chantier d'aménagement extérieur et un contrat d'entretien de jardin suivent deux logiques de facturation opposées — l'un au projet, l'autre en récurrence. Comment les structurer proprement.",
+    faq: [
+      { q: 'Faut-il refaire un devis à chaque passage d\'entretien de jardin ?', a: 'Non — un contrat d\'entretien annuel ou saisonnier avec une fréquence de passage définie évite de reproduire un devis à chaque intervention.' },
+      { q: 'Comment chiffrer la fourniture de végétaux dans un devis d\'aménagement ?', a: 'En la séparant du temps de plantation, car le prix des végétaux varie fortement selon la saison et la disponibilité.' },
+      { q: 'Comment gérer la saisonnalité de l\'activité d\'un paysagiste sur l\'année ?', a: 'En sécurisant une part de revenu récurrent via des contrats d\'entretien à l\'année, qui lissent partiellement les mois plus creux.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-chauffagiste-cvc-suisse',
+    title: 'Chauffagiste CVC : remplacement de chaudière et subvention | Cantia',
+    description:
+      "Remplacer un chauffage à mazout ou gaz par une pompe à chaleur implique un devis technique, un délai de livraison souvent long, et fréquemment une subvention cantonale. Comment tout intégrer.",
+    faq: [
+      { q: 'Faut-il attendre l\'octroi de la subvention avant de commencer les travaux de chauffage ?', a: 'Généralement oui — la plupart des programmes cantonaux exigent que le devis soit soumis et l\'aide accordée avant le début des travaux.' },
+      { q: 'Comment communiquer un long délai de livraison de pompe à chaleur au client ?', a: 'En l\'indiquant explicitement et par écrit dès le devis, surtout en haute saison où les délais peuvent dépasser deux à trois mois.' },
+      { q: 'Le devis de chauffage doit-il inclure l\'adaptation du réseau existant ?', a: 'C\'est recommandé, en particulier pour un passage à une pompe à chaleur, car les radiateurs et la régulation existants ne sont pas toujours compatibles sans ajustement.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-serrurier-metallier-suisse',
+    title: 'Serrurier-métallier : sur-mesure et dépannage urgent | Cantia',
+    description:
+      "Un garde-corps sur mesure se conçoit tranquillement, une porte forcée se dépanne dans l'heure — le serrurier-métallier vit des deux logiques en parallèle. Comment les structurer sans les confondre.",
+    faq: [
+      { q: 'Comment facturer un dépannage de serrurerie en urgence sans devis préalable ?', a: 'En annonçant clairement le tarif de déplacement et d\'intervention avant de se rendre sur place, plutôt que d\'établir la facture après coup sans accord préalable.' },
+      { q: 'Peut-on majorer le tarif d\'un dépannage de serrurerie hors horaires normaux ?', a: 'Oui, c\'est une pratique courante — généralement entre 30 et 50 % de majoration — à condition que le client en soit informé avant l\'intervention.' },
+      { q: 'Faut-il prévoir une clause de révision de prix sur un ouvrage métallique sur mesure ?', a: 'C\'est recommandé lorsque la fabrication s\'étale sur plusieurs semaines, car le cours des matières premières peut varier sensiblement.' },
+    ],
+  },
+  {
+    path: 'blog/trouver-clients-artisan-batiment-suisse',
+    title: 'Trouver des clients sans budget marketing | Cantia',
+    description:
+      "Pas besoin d'une grosse campagne publicitaire pour remplir son carnet de commandes. Les canaux qui fonctionnent réellement pour un artisan du bâtiment en Suisse, du bouche-à-oreille au référencement local.",
+    faq: [
+      { q: 'Quel est le canal d\'acquisition le plus efficace pour un artisan du bâtiment ?', a: 'Le bouche-à-oreille reste généralement le plus efficace, suivi de près par une fiche Google Business bien entretenue avec des photos de chantiers réels.' },
+      { q: 'Faut-il un site internet pour trouver des clients en tant qu\'artisan ?', a: 'Ce n\'est pas indispensable, mais un site simple avec des exemples de réalisations rassure un client qui compare plusieurs artisans.' },
+      { q: 'Pourquoi la vitesse de réponse à une demande de devis est-elle si importante ?', a: 'Parce qu\'un client qui contacte plusieurs artisans choisit souvent celui qui répond en premier, à qualité équivalente.' },
+    ],
+  },
+  {
+    path: 'blog/avis-google-entreprise-construction-suisse',
+    title: 'Avis Google pour une entreprise du bâtiment | Cantia',
+    description:
+      "Avant de contacter un artisan, la plupart des clients regardent ses avis Google. Comment en obtenir davantage sans paraître insistant, et que faire face à un avis négatif.",
+    faq: [
+      { q: 'Quand faut-il demander un avis Google à un client ?', a: 'Idéalement juste après la réception des travaux, quand la satisfaction est la plus fraîche.' },
+      { q: 'Comment répondre à un avis négatif sur une fiche Google d\'entreprise du bâtiment ?', a: 'De manière factuelle et professionnelle, sans agressivité, en expliquant brièvement le contexte ou la solution apportée.' },
+      { q: 'Est-il légal de proposer une réduction en échange d\'un avis Google ?', a: 'Non, cette pratique est contraire aux règles de Google et fragilise la crédibilité des avis obtenus.' },
+    ],
+  },
+  {
+    path: 'blog/site-internet-artisan-batiment-utile',
+    title: 'Un site internet pour un artisan du bâtiment | Cantia',
+    description:
+      "Un site internet n'est pas indispensable pour trouver des clients, mais il change ce qui se passe après le premier contact. Ce qu'il doit vraiment contenir pour être utile, sans budget démesuré.",
+    faq: [
+      { q: 'Un artisan indépendant a-t-il vraiment besoin d\'un site internet ?', a: 'Pas indispensable pour trouver des clients directement, mais utile pour rassurer un prospect qui vérifie en ligne avant de contacter un artisan recommandé.' },
+      { q: 'Combien de pages doit contenir le site d\'un artisan du bâtiment ?', a: 'Généralement moins de dix suffisent — accueil, réalisations, services proposés et contact.' },
+      { q: 'Le référencement local est-il plus important que la publicité payante pour un artisan ?', a: 'Dans la majorité des cas, oui — un site bien référencé localement et une fiche Google Business active rapportent généralement plus qu\'une campagne publicitaire générique.' },
+    ],
+  },
+  {
+    path: 'blog/vitesse-reponse-devis-taux-conversion-batiment',
+    title: 'La vitesse de réponse à un devis convertit plus que le prix | Cantia',
+    description:
+      "Un client qui contacte plusieurs artisans en même temps choisit très souvent celui qui répond en premier, avant même de comparer les prix en détail. Comment s'organiser pour ne plus perdre ce client.",
+    faq: [
+      { q: 'Pourquoi la vitesse de réponse compte-t-elle plus que le prix sur un devis ?', a: 'Parce qu\'un client compare généralement plusieurs artisans en parallèle et retient souvent celui qui a réagi en premier.' },
+      { q: 'Faut-il envoyer un devis complet immédiatement pour convertir un client ?', a: 'Pas nécessairement — un accusé de réception rapide suivi d\'un devis réfléchi sous un délai annoncé fonctionne généralement mieux.' },
+      { q: 'Combien de temps un client attend-il en moyenne avant de relancer un artisan sans réponse ?', a: 'Très peu de temps en réalité — la plupart des clients ne relancent pas et passent directement à l\'entreprise suivante.' },
+    ],
+  },
+  {
+    path: 'blog/parrainage-recommandation-clients-artisan-batiment',
+    title: 'Transformer un client satisfait en apporteur d\'affaires | Cantia',
+    description:
+      "Le bouche-à-oreille ne se décrète pas, mais il s'encourage. Comment mettre en place un système simple de recommandation sans donner l'impression de mendier des clients.",
+    faq: [
+      { q: 'Quand demander à un client de recommander son artisan ?', a: 'Le meilleur moment est juste après la réception des travaux, quand la satisfaction est la plus fraîche et concrète.' },
+      { q: 'Faut-il offrir une récompense financière pour une recommandation ?', a: 'Ce n\'est pas obligatoire — un geste simple de remerciement suffit souvent à entretenir la relation.' },
+      { q: 'Pourquoi un client recommandé se convertit-il plus facilement qu\'un prospect classique ?', a: 'Parce que la confiance est déjà en partie établie par le lien avec la personne qui recommande.' },
+    ],
+  },
+  {
+    path: 'blog/fixer-prix-artisan-sans-brader-concurrence-suisse',
+    title: 'Fixer ses prix sans les brader | Cantia',
+    description:
+      "Baisser systématiquement ses prix pour rester compétitif finit toujours par fragiliser l'entreprise. Comment construire un prix défendable et le justifier face à un client qui compare des devis.",
+    faq: [
+      { q: 'Faut-il s\'aligner sur le devis le moins cher d\'un concurrent ?', a: 'Généralement non — un prix construit sur un calcul réel de coût de revient et de marge ne peut pas s\'aligner indéfiniment sans finir par travailler à perte.' },
+      { q: 'Comment justifier un prix plus élevé qu\'un devis concurrent ?', a: 'En expliquant concrètement ce que le prix couvre — qualité des matériaux, garantie, assurance, délai — plutôt qu\'en défendant simplement le chiffre.' },
+      { q: 'Quelle marge bénéficiaire une entreprise du bâtiment doit-elle viser ?', a: 'Généralement entre 10 et 15 % nets après couverture de tous les coûts réels.' },
+    ],
+  },
+  {
+    path: 'blog/portfolio-photos-avant-apres-chantier-vente',
+    title: 'Les photos avant/après de chantier, un outil commercial | Cantia',
+    description:
+      "La plupart des artisans prennent des photos de chantier pour le suivi, sans jamais les réutiliser commercialement. Comment en faire un vrai portfolio qui aide à convertir de nouveaux devis.",
+    faq: [
+      { q: 'Faut-il l\'accord du client pour publier des photos de son chantier ?', a: 'Oui, en particulier pour un intérieur privé — il est recommandé de demander explicitement l\'accord avant toute publication.' },
+      { q: 'Combien de photos avant/après faut-il pour un portfolio efficace ?', a: 'Un petit nombre bien choisi (3 à 5 par type de prestation) est généralement plus efficace qu\'une grande quantité de photos peu organisées.' },
+      { q: 'Comment prendre une bonne photo avant/après de chantier ?', a: 'En conservant le même angle exact entre l\'avant et l\'après, avec une lumière naturelle si possible, et un chantier propre au moment de la photo finale.' },
+    ],
+  },
+  {
+    path: 'blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse',
+    title: 'Fidéliser ses ouvriers qualifiés face à la pénurie | Cantia',
+    description:
+      "Recruter un ouvrier qualifié coûte cher et prend du temps — en garder un déjà formé coûte presque toujours moins cher. Les leviers concrets de fidélisation dans un secteur en tension.",
+    faq: [
+      { q: 'Pourquoi la fidélisation des ouvriers est-elle devenue un enjeu stratégique dans le bâtiment ?', a: 'Parce que la pénurie de main-d\'œuvre qualifiée rend le remplacement d\'un bon élément long et coûteux.' },
+      { q: 'Le salaire est-il le principal facteur de fidélisation d\'un ouvrier qualifié ?', a: 'C\'est un facteur important, mais rarement le seul — l\'organisation des chantiers et la reconnaissance du travail jouent souvent un rôle tout aussi déterminant.' },
+      { q: 'Former un apprenti est-il rentable pour une petite entreprise du bâtiment ?', a: 'Généralement oui sur la durée — un apprenti formé en interne présente souvent un taux de départ plus faible qu\'un profil recruté en externe.' },
+    ],
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:

@@ -19,6 +19,12 @@ export const colors = {
   successSoft: '#E2EEE6',
   warning: '#9C6510',
   warningSoft: '#F3E8D6',
+  // Same curated muted family as ROLE_COLORS (compte/equipe.tsx) — used for
+  // blog category accents beyond the original five.
+  slate: '#3F5D7D',
+  slateSoft: '#E2E8ED',
+  plum: '#6B4E8E',
+  plumSoft: '#EAE3F0',
 };
 
 export const spacing = {

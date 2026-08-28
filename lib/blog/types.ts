@@ -24,7 +24,9 @@ export type BlogCategory =
   | 'Juridique & normes'
   | 'RH & salaires'
   | 'Chantier & rentabilité'
-  | 'Comparatifs & outils';
+  | 'Comparatifs & outils'
+  | 'Métiers du bâtiment'
+  | 'Croissance & acquisition';
 
 export interface BlogPost {
   slug: string;

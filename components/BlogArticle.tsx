@@ -16,6 +16,8 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'RH & salaires': 'users',
   'Chantier & rentabilité': 'trending-up',
   'Comparatifs & outils': 'layers',
+  'Métiers du bâtiment': 'tool',
+  'Croissance & acquisition': 'target',
 };
 
 function formatDate(iso: string): string {

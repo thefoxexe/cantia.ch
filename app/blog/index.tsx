@@ -17,6 +17,8 @@ const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap
   'RH & salaires': { icon: 'users', color: colors.warning, soft: colors.warningSoft },
   'Chantier & rentabilité': { icon: 'trending-up', color: colors.success, soft: colors.successSoft },
   'Comparatifs & outils': { icon: 'layers', color: colors.accent, soft: colors.accentSoft },
+  'Métiers du bâtiment': { icon: 'tool', color: colors.slate, soft: colors.slateSoft },
+  'Croissance & acquisition': { icon: 'target', color: colors.plum, soft: colors.plumSoft },
 };
 
 function normalize(text: string): string {
