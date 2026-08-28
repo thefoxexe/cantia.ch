@@ -187,7 +187,9 @@ export default function FactureDetailScreen() {
   // copy the client link or send it by e-mail — both of those also
   // regenerate on their own, this is just convenience.
   async function handleFinalize() {
+    setBusy(true);
     await setStatus('sent');
+    setBusy(false);
     generateFacturePdf(id);
   }
 
@@ -468,12 +470,23 @@ export default function FactureDetailScreen() {
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
-          {!facture.client_email ? (
+          {facture.status === 'draft' ? (
+            <>
+              <Button
+                title="Finaliser le brouillon"
+                icon="check"
+                onPress={handleFinalize}
+                loading={busy}
+                style={{ marginTop: spacing.md }}
+              />
+              <Text style={styles.copyLinkHint}>
+                {facture.client_email
+                  ? 'Une fois finalisée, vous pourrez copier le lien client ou l\'envoyer par e-mail.'
+                  : "Une fois finalisée, ajoutez l'email du client pour générer un lien de consultation sécurisé."}
+              </Text>
+            </>
+          ) : !facture.client_email ? (
             <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation sécurisé.</Text>
-          ) : facture.status === 'draft' ? (
-            <Text style={styles.copyLinkHint}>
-              Cliquez sur "Actions" ci-dessous puis "Finaliser" pour pouvoir copier le lien client ou l'envoyer par e-mail.
-            </Text>
           ) : (
             <View style={styles.clientLinkRow}>
               <Button

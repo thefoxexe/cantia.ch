@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRef, useState, useEffect } from 'react';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
@@ -8,7 +8,8 @@ import { Button, Card, Screen } from '../../../../components/ui';
 import { ClientPicker } from '../../../../components/ClientPicker';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { TramePicker } from '../../../../components/TramePicker';
-import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { DocumentPreview } from '../../../../components/DocumentPreview';
+import { colors, fontSize, radius, spacing, breakpoints } from '../../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../../lib/catalog';
 import { generateDevisLines } from '../../../../lib/api/ai';
 import { useDictation } from '../../../../lib/useDictation';
@@ -44,6 +45,9 @@ function emptyLine(): Line {
 // facture doesn't carry the client-signature block a devis PDF does.
 export default function NewFactureScreen() {
   const { organization, user } = useAuth();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= breakpoints.desktop;
+  const [previewVisible, setPreviewVisible] = useState(false);
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
@@ -305,10 +309,23 @@ export default function NewFactureScreen() {
     await submitFacture(validLines, mismatches);
   }
 
+  const previewNode = (
+    <DocumentPreview
+      kind="facture"
+      organization={organization}
+      clientName={clientName}
+      clientAddress={clientAddress}
+      clientEmail={clientEmail}
+      lines={lines}
+      discountPercent={discountPercent}
+    />
+  );
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
-        <View style={styles.content}>
+        <View style={isDesktop ? styles.layoutDesktop : undefined}>
+        <View style={[styles.content, isDesktop && styles.contentDesktop]}>
           <Text style={styles.sectionTitle}>Client</Text>
           {organization ? (
             <ClientPicker
@@ -531,7 +548,30 @@ export default function NewFactureScreen() {
 
           <Button title="Créer la facture" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>
+        {isDesktop ? <View style={styles.previewColumn}>{previewNode}</View> : null}
+        </View>
       </ScrollView>
+
+      {!isDesktop ? (
+        <Pressable style={styles.previewFab} onPress={() => setPreviewVisible(true)}>
+          <Feather name="eye" size={16} color="#fff" />
+          <Text style={styles.previewFabText}>Aperçu</Text>
+        </Pressable>
+      ) : null}
+
+      <Modal visible={previewVisible} animationType="slide" transparent onRequestClose={() => setPreviewVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Aperçu de la facture</Text>
+              <Pressable hitSlop={8} onPress={() => setPreviewVisible(false)}>
+                <Feather name="x" size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <View style={styles.modalBody}>{previewNode}</View>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={priceMismatches != null} animationType="slide" transparent onRequestClose={() => setPriceMismatches(null)}>
         <View style={styles.modalOverlay}>
@@ -589,6 +629,46 @@ const styles = StyleSheet.create({
     maxWidth: 720,
     width: '100%',
     alignSelf: 'center',
+  },
+  layoutDesktop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xl,
+    maxWidth: 1120,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  contentDesktop: {
+    flex: 1,
+    maxWidth: 660,
+    alignSelf: 'stretch',
+  },
+  previewColumn: {
+    width: 380,
+    position: 'sticky' as 'relative',
+    top: spacing.xl,
+  },
+  previewFab: {
+    position: 'absolute',
+    right: spacing.lg,
+    bottom: spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  previewFabText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: fontSize.sm,
   },
   modalOverlay: {
     flex: 1,
