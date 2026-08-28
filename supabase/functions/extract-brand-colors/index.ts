@@ -14,9 +14,87 @@ const corsHeaders = {
 
 const FETCH_TIMEOUT_MS = 6000;
 const MAX_BYTES = 400_000;
+const MAX_REDIRECTS = 3;
 
-const PRIVATE_HOSTNAME_RE =
-  /^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[::1\]|\[fc|\[fd)/i;
+// Fast literal pre-filter — cheap first line of defense, kept as a sanity
+// check. The real protection is resolveAndCheckHostname() below: a literal
+// hostname check alone is bypassable via DNS rebinding (a domain that
+// resolves to a public IP on first check, then a private one when actually
+// fetched) or an alternate IP encoding (decimal/octal/hex) that never
+// matches this regex but still resolves to a private address.
+const PRIVATE_HOSTNAME_RE = /^(localhost|\[::1\])$/i;
+
+function ipv4ToInt(ip: string): number | null {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return null;
+  let n = 0;
+  for (const part of parts) {
+    if (!/^\d{1,3}$/.test(part)) return null;
+    const v = Number(part);
+    if (v > 255) return null;
+    n = (n << 8) | v;
+  }
+  return n >>> 0;
+}
+
+// RFC1918 + loopback + link-local + CGNAT + documentation/reserved ranges —
+// anything that could plausibly reach an internal service or cloud
+// metadata endpoint (169.254.169.254) rather than the public internet.
+const PRIVATE_IPV4_BLOCKS: [string, number][] = [
+  ['0.0.0.0', 8],
+  ['10.0.0.0', 8],
+  ['100.64.0.0', 10],
+  ['127.0.0.0', 8],
+  ['169.254.0.0', 16],
+  ['172.16.0.0', 12],
+  ['192.0.0.0', 24],
+  ['192.0.2.0', 24],
+  ['192.168.0.0', 16],
+  ['198.18.0.0', 15],
+  ['198.51.100.0', 24],
+  ['203.0.113.0', 24],
+  ['224.0.0.0', 4],
+  ['240.0.0.0', 4],
+];
+
+function isPrivateIpv4(ip: string): boolean {
+  const n = ipv4ToInt(ip);
+  if (n === null) return true; // unparseable — fail closed
+  for (const [base, bits] of PRIVATE_IPV4_BLOCKS) {
+    const baseN = ipv4ToInt(base)!;
+    const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+    if ((n & mask) === (baseN & mask)) return true;
+  }
+  return false;
+}
+
+function isPrivateIpv6(ip: string): boolean {
+  const lower = ip.toLowerCase();
+  if (lower === '::' || lower === '::1') return true;
+  if (/^fe[89ab][0-9a-f]:/.test(lower)) return true; // fe80::/10 link-local
+  if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true; // fc00::/7 unique local
+  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(lower);
+  if (mapped) return isPrivateIpv4(mapped[1]);
+  return false;
+}
+
+// Resolves the hostname ourselves and checks every returned address,
+// instead of trusting the hostname string alone — closes the DNS-rebinding
+// gap a literal-only check leaves open.
+async function resolveAndCheckHostname(hostname: string): Promise<boolean> {
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return !isPrivateIpv4(hostname);
+  if (hostname.includes(':')) return !isPrivateIpv6(hostname.replace(/^\[|\]$/g, ''));
+  try {
+    const [v4, v6] = await Promise.all([
+      Deno.resolveDns(hostname, 'A').catch(() => [] as string[]),
+      Deno.resolveDns(hostname, 'AAAA').catch(() => [] as string[]),
+    ]);
+    if (v4.length === 0 && v6.length === 0) return false; // couldn't resolve — fail closed
+    return !v4.some(isPrivateIpv4) && !v6.some(isPrivateIpv6);
+  } catch {
+    return false; // fail closed
+  }
+}
 
 function normalizeUrl(input: string): URL | null {
   const trimmed = input.trim();
@@ -32,35 +110,61 @@ function normalizeUrl(input: string): URL | null {
   }
 }
 
-async function fetchCapped(url: string, timeoutMs: number, maxBytes: number): Promise<string | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CantiaBrandBot/1.0)' },
-    });
+// Fetches with the redirect chain validated hop-by-hop (redirect: 'manual'
+// + re-check each Location ourselves) rather than letting fetch() follow
+// redirects transparently, which would skip our private-IP check on
+// whichever host the response actually redirects to.
+async function fetchCapped(startUrl: URL, timeoutMs: number, maxBytes: number): Promise<string | null> {
+  let url = startUrl;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    if (!(await resolveAndCheckHostname(url.hostname))) return null;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    let res: Response;
+    try {
+      res = await fetch(url.toString(), {
+        signal: controller.signal,
+        redirect: 'manual',
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CantiaBrandBot/1.0)' },
+      });
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get('location');
+      if (!location) return null;
+      const next = normalizeUrl(new URL(location, url).toString());
+      if (!next) return null;
+      url = next;
+      continue;
+    }
+
     if (!res.ok || !res.body) return null;
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let text = '';
     let received = 0;
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      received += value.byteLength;
-      text += decoder.decode(value, { stream: true });
-      if (received >= maxBytes) {
-        reader.cancel().catch(() => {});
-        break;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.byteLength;
+        text += decoder.decode(value, { stream: true });
+        if (received >= maxBytes) {
+          reader.cancel().catch(() => {});
+          break;
+        }
       }
+    } catch {
+      return null;
     }
     return text;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
   }
+  return null; // too many redirects
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -111,13 +215,14 @@ Deno.serve(async (req: Request) => {
     const url = normalizeUrl(website);
     if (!url) return json({ suggestions: [] });
 
-    const html = await fetchCapped(url.toString(), FETCH_TIMEOUT_MS, MAX_BYTES);
+    const html = await fetchCapped(url, FETCH_TIMEOUT_MS, MAX_BYTES);
     if (!html) return json({ suggestions: [] });
 
     const themeColor = extractThemeColor(html);
 
     const cssHref = extractFirstStylesheetHref(html, url);
-    const css = cssHref ? await fetchCapped(cssHref, FETCH_TIMEOUT_MS, MAX_BYTES) : null;
+    const cssUrl = cssHref ? normalizeUrl(cssHref) : null;
+    const css = cssUrl ? await fetchCapped(cssUrl, FETCH_TIMEOUT_MS, MAX_BYTES) : null;
 
     const tally = new Map<string, number>();
     for (const hex of extractHexColors(html + (css ?? ''))) {

@@ -101,14 +101,14 @@ export default function ChoosePlanScreen() {
 
         <View style={styles.promoBanner}>
           <Feather name="gift" size={16} color={colors.primary} />
-          <Text style={styles.promoBannerText}>30 jours d'essai gratuit sur n'importe quel plan — résiliable à tout moment.</Text>
+          <Text style={styles.promoBannerText}>Entrez le code ESSAI30 ci-dessous pour profiter de 30 jours d'essai gratuit, résiliable à tout moment.</Text>
         </View>
         <View style={styles.promoRow}>
           <Text style={styles.promoLabel}>Code promo</Text>
           <TextInput
             value={promoCode}
             onChangeText={setPromoCode}
-            placeholder="Code promo (facultatif)"
+            placeholder="Ex. ESSAI30"
             placeholderTextColor={colors.textMuted}
             autoCapitalize="characters"
             autoCorrect={false}

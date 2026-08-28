@@ -9,10 +9,10 @@ import { syncBexioArticles, syncBexioContacts, syncBexioDevisStatuses, syncBexio
 // devis already pushed as kb_offer. A product created in Bexio between two
 // manual "Synchroniser maintenant" clicks used to only reach the Catalogue
 // on the next manual sync or reconnect — now every sweep picks it up too.
-const DISPATCH_SECRET = 'b7f0e4c1a9d84f2c9a3e6b5d1f7c8e2a4d6b9c0e3f5a7b1d8c2e4f6a9b3d5c7e';
+const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
 
 Deno.serve(async (req: Request) => {
-  if (req.headers.get('x-dispatch-secret') !== DISPATCH_SECRET) {
+  if (!DISPATCH_SECRET || req.headers.get('x-dispatch-secret') !== DISPATCH_SECRET) {
     return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403 });
   }
 

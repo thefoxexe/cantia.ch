@@ -205,7 +205,7 @@ const fr: Dict = {
   },
   pricing: {
     title: 'Un plan pour chaque taille d’équipe',
-    subtitle: '30 jours d’essai gratuit sur n’importe quel plan, résiliable à tout moment.',
+    subtitle: 'Le code ESSAI30 offre 30 jours d’essai gratuit sur n’importe quel plan, résiliable à tout moment.',
     monthly: 'Facturation mensuelle',
     yearly: 'Facturation annuelle',
     yearlySavings: '-20%',
@@ -244,7 +244,7 @@ const fr: Dict = {
     title: 'Essayez Cantia sur votre prochain chantier',
     subtitle: 'Créez votre compte en deux minutes. Le premier devis sera prêt avant d’avoir quitté le chantier.',
     button: 'Essayer gratuitement',
-    trust: ['30 jours d’essai gratuit', 'Résiliable à tout moment', 'Hébergé en Suisse'],
+    trust: ['Code ESSAI30 : 30 jours offerts', 'Résiliable à tout moment', 'Hébergé en Suisse'],
   },
   footer: {
     blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures et métré, tous au même endroit.',

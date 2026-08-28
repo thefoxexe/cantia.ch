@@ -13,8 +13,14 @@ import { escapeHtml, sendResendEmail } from './resend-lib.ts';
 // Never called by a client — protected by a shared dispatch secret the
 // same way bexio-cron-sync is, invoked directly (curl/pg_net) with a
 // recipients array. Kept generic enough to reuse for the real batch send:
-// each recipient gets `email` plus an optional `entreprise` name.
-const DISPATCH_SECRET = '450db466265b9ffcc65591c120ebb3f10d54b14b3795f87b989560c0a6a6444e';
+// each recipient gets `email` plus an optional `entreprise` name. Secret is
+// read from the environment, never hardcoded — see
+// 20260828140000_dispatch_secret_vault.sql.
+const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
+// Hard ceiling on a single call's blast radius: even with a valid secret,
+// one request can't turn into an unbounded mass-send — split a bigger batch
+// into several calls instead.
+const MAX_RECIPIENTS_PER_CALL = 100;
 
 function buildEmail(entreprise?: string): { subject: string; html: string } {
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
@@ -68,10 +74,13 @@ function buildEmail(entreprise?: string): { subject: string; html: string } {
 Deno.serve(async (req: Request) => {
   try {
     const body = await req.json();
-    if (body.dispatch_secret !== DISPATCH_SECRET) return json({ error: 'forbidden' }, 403);
+    if (!DISPATCH_SECRET || body.dispatch_secret !== DISPATCH_SECRET) return json({ error: 'forbidden' }, 403);
 
     const recipients: { email: string; entreprise?: string }[] = Array.isArray(body.recipients) ? body.recipients : [];
     if (recipients.length === 0) return json({ error: 'recipients requis' }, 400);
+    if (recipients.length > MAX_RECIPIENTS_PER_CALL) {
+      return json({ error: `Maximum ${MAX_RECIPIENTS_PER_CALL} destinataires par appel — découpez le lot.` }, 400);
+    }
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
     if (!apiKey) return json({ error: 'RESEND_API_KEY manquant' }, 500);

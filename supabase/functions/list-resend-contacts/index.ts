@@ -1,16 +1,35 @@
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
 // Read-only lookup of what's currently sitting in the Resend account
-// (audiences + their contacts), used to size up the "send to everyone on
-// Resend" mass-send before it happens — no prospecting infra tracked these
-// contacts anywhere else, Resend itself is the source of truth here.
+// (audiences + their contacts — emails, names: personal data), used to size
+// up the "send to everyone on Resend" mass-send before it happens — no
+// prospecting infra tracked these contacts anywhere else, Resend itself is
+// the source of truth here.
 //
-// Never called by a client — protected by a shared dispatch secret the same
-// way send-prospect-email / bexio-cron-sync are.
-const DISPATCH_SECRET = '5521b7850a9db2110bb79575a98c37f218a2fd9cb9311ffe39bd88d447c7947b';
+// Never called by a client app screen — protected by a shared dispatch
+// secret the same way send-prospect-email / bexio-cron-sync are (read from
+// the environment, never hardcoded — see
+// 20260828140000_dispatch_secret_vault.sql), AND, since this returns real
+// personal data rather than just triggering an action, additionally
+// requires a valid platform-admin session on top of the secret — a leaked
+// secret alone is no longer enough to exfiltrate the contact list.
+const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
 
 Deno.serve(async (req: Request) => {
   try {
     const body = await req.json().catch(() => ({}));
-    if (body.dispatch_secret !== DISPATCH_SECRET) return json({ error: 'forbidden' }, 403);
+    if (!DISPATCH_SECRET || body.dispatch_secret !== DISPATCH_SECRET) return json({ error: 'forbidden' }, 403);
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
+    const {
+      data: { user },
+    } = await userClient.auth.getUser();
+    if (!user) return json({ error: 'Non authentifié' }, 401);
+    const { data: isAdmin } = await userClient.rpc('is_platform_admin');
+    if (!isAdmin) return json({ error: 'Accès refusé : réservé aux administrateurs de la plateforme.' }, 403);
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
     if (!apiKey) return json({ error: 'RESEND_API_KEY manquant' }, 500);
