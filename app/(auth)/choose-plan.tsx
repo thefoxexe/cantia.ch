@@ -18,9 +18,11 @@ export default function ChoosePlanScreen() {
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [stayingFree, setStayingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Pre-applied so the trial is the default, not something a prospect has to
-  // dig for — they can still clear/edit the field before choosing a plan.
-  const [promoCode, setPromoCode] = useState('ESSAI30');
+  // Left empty by default — auto-pre-filling ESSAI30 applied its trial_days
+  // silently on every plan, and that value doesn't match the advertised 30
+  // days for every plan in Stripe. A prospect who wants the trial can still
+  // type the code in themselves.
+  const [promoCode, setPromoCode] = useState('');
 
   useEffect(() => {
     supabase
