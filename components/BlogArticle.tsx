@@ -18,6 +18,7 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'Comparatifs & outils': 'layers',
   'Métiers du bâtiment': 'tool',
   'Croissance & acquisition': 'target',
+  'Sur-mesure & automatisations': 'sliders',
 };
 
 function formatDate(iso: string): string {

@@ -97,6 +97,46 @@ import { post as p95 } from './posts/parrainage-recommandation-clients-artisan-b
 import { post as p96 } from './posts/fixer-prix-artisan-sans-brader-concurrence-suisse';
 import { post as p97 } from './posts/portfolio-photos-avant-apres-chantier-vente';
 import { post as p98 } from './posts/fideliser-ouvriers-qualifies-penurie-batiment-suisse';
+import { post as p99 } from './posts/logiciel-facturation-gratuit-independant-suisse';
+import { post as p100 } from './posts/meilleur-outil-gestion-independant-suisse';
+import { post as p101 } from './posts/logiciel-gestion-tout-en-un-petite-entreprise-suisse';
+import { post as p102 } from './posts/combien-coute-logiciel-facturation-pas-cher';
+import { post as p103 } from './posts/devis-gratuit-en-ligne-suisse-outil';
+import { post as p104 } from './posts/quel-logiciel-choisir-demarrer-entreprise-construction';
+import { post as p105 } from './posts/logiciel-facturation-raison-individuelle-suisse';
+import { post as p106 } from './posts/application-gestion-freelance-batiment';
+import { post as p107 } from './posts/meilleur-logiciel-pas-cher-petit-artisan';
+import { post as p108 } from './posts/gerer-entreprise-sans-comptable-debut';
+import { post as p109 } from './posts/logiciel-tout-en-un-devis-facture-chantier-rh';
+import { post as p110 } from './posts/outil-facturation-en-ligne-pme-suisse';
+import { post as p111 } from './posts/logiciel-simple-debuter-independant-batiment';
+import { post as p112 } from './posts/gestion-entreprise-sur-mobile-artisan';
+import { post as p113 } from './posts/budget-logiciel-gestion-demarrage-entreprise';
+import { post as p114 } from './posts/meilleures-alternatives-gratuites-bexio';
+import { post as p115 } from './posts/logiciel-gestion-chantier-abordable-petite-entreprise';
+import { post as p116 } from './posts/comment-facturer-premiers-clients-debut-activite';
+import { post as p117 } from './posts/outil-devis-factures-sans-double-saisie';
+import { post as p118 } from './posts/logiciel-gestion-societe-individuelle-suisse';
+import { post as p119 } from './posts/demarrer-entreprise-batiment-outils-indispensables';
+import { post as p120 } from './posts/checklist-logiciels-ouverture-societe-construction';
+import { post as p121 } from './posts/logiciel-facturation-conforme-tva-suisse-pas-cher';
+import { post as p122 } from './posts/meilleur-rapport-qualite-prix-logiciel-pme-batiment';
+import { post as p123 } from './posts/essai-gratuit-logiciel-facturation-suisse';
+import { post as p124 } from './posts/gerer-entreprise-seul-sans-embaucher-outils';
+import { post as p125 } from './posts/erreurs-choisir-premier-logiciel-gestion';
+import { post as p126 } from './posts/logiciel-gestion-evolutif-grandit-avec-entreprise';
+import { post as p127 } from './posts/pourquoi-artisan-independant-besoin-logiciel-des-le-debut';
+import { post as p128 } from './posts/lancer-entreprise-batiment-suisse-par-ou-commencer';
+import { post as p129 } from './posts/cantia-adapte-metier-specifique-batiment';
+import { post as p130 } from './posts/automatiser-taches-repetitives-entreprise-sans-developpeur';
+import { post as p131 } from './posts/creer-champ-processus-sur-mesure-logiciel-gestion';
+import { post as p132 } from './posts/logiciel-standard-vs-solution-personnalisee-batiment';
+import { post as p133 } from './posts/automatiser-rappels-relances-entreprise';
+import { post as p134 } from './posts/faire-evoluer-outil-gestion-avec-entreprise';
+import { post as p135 } from './posts/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment';
+import { post as p136 } from './posts/demander-fonctionnalite-sur-mesure-editeur-logiciel';
+import { post as p137 } from './posts/automatiser-suivi-administratif-entreprise-artisanale';
+import { post as p138 } from './posts/logiciel-construit-avec-vous-sur-mesure';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -109,7 +149,9 @@ export const BLOG_POSTS: BlogPost[] = [
   p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52,
   p53, p54, p55, p56, p57, p58, p59, p60, p61, p62, p63, p64, p65, p66, p67, p68, p69, p70,
   p71, p72, p73, p74, p75, p76, p77, p78, p79, p80, p81, p82, p83, p84, p85, p86, p87, p88, p89, p90,
-  p91, p92, p93, p94, p95, p96, p97, p98,
+  p91, p92, p93, p94, p95, p96, p97, p98, p99, p100, p101, p102, p103, p104, p105, p106, p107, p108, p109, p110,
+  p111, p112, p113, p114, p115, p116, p117, p118, p119, p120, p121, p122, p123, p124, p125, p126, p127, p128, p129, p130,
+  p131, p132, p133, p134, p135, p136, p137, p138,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

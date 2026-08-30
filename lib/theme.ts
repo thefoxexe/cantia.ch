@@ -25,6 +25,8 @@ export const colors = {
   slateSoft: '#E2E8ED',
   plum: '#6B4E8E',
   plumSoft: '#EAE3F0',
+  moss: '#5C7A5C',
+  mossSoft: '#E3E9E1',
 };
 
 export const spacing = {

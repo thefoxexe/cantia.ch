@@ -26,7 +26,8 @@ export type BlogCategory =
   | 'Chantier & rentabilité'
   | 'Comparatifs & outils'
   | 'Métiers du bâtiment'
-  | 'Croissance & acquisition';
+  | 'Croissance & acquisition'
+  | 'Sur-mesure & automatisations';
 
 export interface BlogPost {
   slug: string;

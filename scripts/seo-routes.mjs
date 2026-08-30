@@ -1343,6 +1343,446 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/logiciel-facturation-gratuit-independant-suisse',
+    title: 'Logiciel de facturation gratuit pour indépendant | Cantia',
+    description:
+      "Un plan gratuit existe presque toujours, mais rarement sans limite. Ce qu'un indépendant suisse doit vérifier avant de miser sur un logiciel de facturation \"gratuit\".",
+    faq: [
+      { q: 'Un logiciel de facturation gratuit inclut-il la QR-facture suisse ?', a: 'Pas systématiquement — certains plans gratuits la réservent au niveau payant, un point à vérifier avant de choisir.' },
+      { q: 'Quelle est la limite la plus courante des logiciels de facturation gratuits ?', a: 'Un plafond de documents émis par mois (souvent 5 à 10), au-delà duquel il faut passer à un plan payant.' },
+      { q: 'Vaut-il mieux un outil gratuit limité ou un essai gratuit complet ?', a: 'Un essai gratuit complet donne une idée plus fiable de ce que l\'outil vaut vraiment, plutôt qu\'une version tronquée.' },
+    ],
+  },
+  {
+    path: 'blog/meilleur-outil-gestion-independant-suisse',
+    title: 'Le meilleur outil de gestion pour un indépendant | Cantia',
+    description:
+      "Face à la question \"quel outil choisir\", la bonne réponse dépend moins des fonctionnalités listées que de ce qu'un indépendant utilisera vraiment dans les six premiers mois.",
+    faq: [
+      { q: 'Faut-il plusieurs outils séparés ou un seul outil tout-en-un pour démarrer ?', a: 'Un outil unique couvrant devis, factures et suivi de chantier évite la dispersion de l\'information.' },
+      { q: 'Combien de temps faut-il pour prendre en main un logiciel de gestion en tant qu\'indépendant ?', a: 'Avec un bon outil, quelques minutes suffisent généralement pour créer un premier devis conforme.' },
+      { q: 'Comment savoir si un outil est vraiment adapté à un indépendant du bâtiment ?', a: 'En vérifiant qu\'il fonctionne directement depuis le chantier, sur mobile, sans ressaisie le soir.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse',
+    title: 'Logiciel de gestion tout-en-un pour petite entreprise | Cantia',
+    description:
+      "Le terme \"tout-en-un\" est utilisé par presque tous les éditeurs. Ce qu'il recouvre réellement, et comment vérifier qu'un outil l'est vraiment.",
+    faq: [
+      { q: 'Comment vérifier qu\'un logiciel "tout-en-un" l\'est vraiment ?', a: 'En testant le parcours complet — un devis accepté doit se transformer en facture sans ressaisie.' },
+      { q: 'Un logiciel tout-en-un est-il plus cher qu\'un outil de facturation seul ?', a: 'Pas nécessairement — le coût réel d\'outils séparés inclut souvent le temps perdu à les faire communiquer.' },
+      { q: 'Un tout-en-un est-il adapté à une toute petite entreprise sans employé ?', a: 'Oui — les modules RH ou planning restent utiles même inutilisés au départ.' },
+    ],
+  },
+  {
+    path: 'blog/combien-coute-logiciel-facturation-pas-cher',
+    title: 'Combien coûte vraiment un logiciel de facturation pas cher | Cantia',
+    description:
+      "Les prix affichés vont de zéro à plusieurs centaines de francs par mois. Comment évaluer ce qui est réellement abordable pour une entreprise qui démarre.",
+    faq: [
+      { q: 'Quel budget prévoir pour un logiciel de facturation en tant que petite entreprise du bâtiment ?', a: 'Généralement entre CHF 30 et 90 par mois pour un outil complet.' },
+      { q: 'Pourquoi un logiciel "pas cher" peut-il coûter plus cher au final ?', a: 'Si le prix affiché ne couvre pas la facturation illimitée ou les modules nécessaires, des coûts supplémentaires s\'ajoutent après coup.' },
+      { q: 'Faut-il comparer les logiciels uniquement sur leur prix mensuel ?', a: 'Non — le temps administratif réellement économisé compte au moins autant que le prix affiché.' },
+    ],
+  },
+  {
+    path: 'blog/devis-gratuit-en-ligne-suisse-outil',
+    title: 'Faire un devis gratuit en ligne : options et limites | Cantia',
+    description:
+      "Générateurs de devis gratuits, modèles Word, outils en ligne — un tour d'horizon de ce que chaque option permet vraiment, et où elle bloque.",
+    faq: [
+      { q: 'Un modèle Word gratuit suffit-il pour faire des devis en tant qu\'artisan ?', a: 'Pour un premier document ponctuel oui, mais sans calcul de TVA ni suivi de statut la charge augmente vite.' },
+      { q: 'Quel est l\'avantage d\'un catalogue de prix dans un outil de devis ?', a: 'Il évite de retaper les mêmes prestations à chaque nouveau devis.' },
+      { q: 'Pourquoi suivre le statut de ses devis est-il important ?', a: 'Sans suivi centralisé, il devient difficile de savoir quels devis relancer.' },
+    ],
+  },
+  {
+    path: 'blog/quel-logiciel-choisir-demarrer-entreprise-construction',
+    title: 'Quel logiciel choisir en démarrant son entreprise de construction | Cantia',
+    description:
+      "La méthode la plus simple pour choisir un logiciel en démarrant : partir de ce dont on a réellement besoin les trois premiers mois.",
+    faq: [
+      { q: 'Faut-il choisir un logiciel complet dès la création de son entreprise de construction ?', a: 'Pas nécessairement tout utiliser dès le départ, mais choisir un outil capable de couvrir les besoins futurs.' },
+      { q: 'Quels sont les besoins logiciels prioritaires pour une nouvelle entreprise de construction ?', a: 'Émettre des devis conformes, les transformer en factures, et suivre chaque chantier.' },
+      { q: 'Pourquoi anticiper la croissance de l\'entreprise dans le choix du logiciel ?', a: 'Changer d\'outil après plusieurs mois fait perdre du temps et de l\'historique.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-facturation-raison-individuelle-suisse',
+    title: 'Logiciel de facturation pour raison individuelle | Cantia',
+    description:
+      "Une raison individuelle n'a pas les mêmes obligations qu'une société de capitaux, mais un logiciel de facturation reste tout aussi utile.",
+    faq: [
+      { q: 'Une raison individuelle a-t-elle vraiment besoin d\'un logiciel de facturation ?', a: 'Oui, souvent plus qu\'une société avec équipe administrative, faute de personne pour relancer les impayés.' },
+      { q: 'Les mentions obligatoires sur une facture changent-elles selon le statut juridique ?', a: 'Non, les mentions légales de base s\'appliquent quel que soit le statut.' },
+      { q: 'Un logiciel de comptabilité complète est-il nécessaire pour une raison individuelle ?', a: 'Pas systématiquement — un outil simple couvrant devis, factures et trésorerie suffit souvent.' },
+    ],
+  },
+  {
+    path: 'blog/application-gestion-freelance-batiment',
+    title: 'Application de gestion pour freelance du bâtiment | Cantia',
+    description:
+      "Un freelance du bâtiment passe le plus clair de son temps sur chantier — une application de gestion doit être pensée pour ça en priorité.",
+    faq: [
+      { q: 'Une application de gestion pour freelance du bâtiment doit-elle fonctionner hors-ligne ?', a: 'C\'est fortement recommandé, de nombreux chantiers ayant un réseau faible ou absent.' },
+      { q: 'Peut-on créer un devis complet directement depuis un téléphone ?', a: 'Avec une application bien pensée pour le mobile, oui.' },
+      { q: 'Quelle est la différence entre une application "responsive" et une vraie application mobile ?', a: 'Une application responsive s\'affiche bien sur téléphone mais n\'est pas forcément pensée pour un usage tactile réel sur chantier.' },
+    ],
+  },
+  {
+    path: 'blog/meilleur-logiciel-pas-cher-petit-artisan',
+    title: 'Le meilleur logiciel pas cher pour un petit artisan | Cantia',
+    description:
+      "Pour un artisan qui travaille seul, \"pas cher\" ne doit jamais vouloir dire \"sans les fonctions essentielles\".",
+    faq: [
+      { q: 'Un plan "solo" pas cher est-il forcément incomplet ?', a: 'Pas nécessairement — un bon plan solo reste complet sur les fonctions essentielles.' },
+      { q: 'Peut-on faire évoluer un plan solo le jour d\'une première embauche ?', a: 'Avec un outil bien conçu, oui, sans perdre l\'historique.' },
+      { q: 'Comment comparer réellement le prix de deux logiciels pour artisan solo ?', a: 'En comparant ce que chaque prix inclut concrètement, pas seulement le chiffre affiché.' },
+    ],
+  },
+  {
+    path: 'blog/gerer-entreprise-sans-comptable-debut',
+    title: 'Gérer son entreprise sans comptable au démarrage | Cantia',
+    description:
+      "Beaucoup d'indépendants démarrent sans fiduciaire pour économiser. Ce qu'il est réaliste de gérer soi-même, et le moment où un accompagnement devient nécessaire.",
+    faq: [
+      { q: 'Peut-on démarrer son activité sans fiduciaire en Suisse ?', a: 'Oui pour les tâches de base, mais la déclaration TVA et le bouclement annuel demandent généralement un accompagnement.' },
+      { q: 'À partir de quel chiffre d\'affaires faut-il envisager un fiduciaire ?', a: 'Le seuil d\'assujettissement à la TVA (généralement CHF 100 000) est souvent le repère qui pousse à un accompagnement.' },
+      { q: 'Un bon logiciel de gestion remplace-t-il un fiduciaire ?', a: 'Non, mais il facilite grandement son travail en gardant un historique de documents propre et conforme.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-tout-en-un-devis-facture-chantier-rh',
+    title: 'Devis, facture, chantier, RH dans un seul logiciel | Cantia',
+    description:
+      "Quatre domaines très différents dans un seul outil, ça semble ambitieux — voici ce qui rend ça possible en pratique.",
+    faq: [
+      { q: 'Un logiciel tout-en-un traite-t-il vraiment les modules de façon connectée ?', a: 'Ça dépend de l\'outil — le vrai test est de vérifier si les heures d\'un chantier alimentent automatiquement sa rentabilité et la paie.' },
+      { q: 'Faut-il activer tous les modules dès le départ ?', a: 'Non — une petite entreprise peut commencer avec devis et factures seuls.' },
+      { q: 'Quel est l\'avantage de connecter chantier et RH dans le même outil ?', a: 'Les heures travaillées servent à la fois au calcul de la paie et de la rentabilité, sans double saisie.' },
+    ],
+  },
+  {
+    path: 'blog/outil-facturation-en-ligne-pme-suisse',
+    title: 'Outil de facturation en ligne pour PME suisse | Cantia',
+    description:
+      "Entre un logiciel installé sur un seul ordinateur et un outil en ligne accessible partout, ce qu'une PME suisse y gagne vraiment.",
+    faq: [
+      { q: 'Quel est le principal avantage d\'un outil de facturation en ligne ?', a: 'L\'accès depuis n\'importe quel appareil, sans dépendre d\'un seul ordinateur.' },
+      { q: 'Un outil en ligne est-il aussi sûr qu\'un logiciel installé localement ?', a: 'Généralement plus sûr grâce aux sauvegardes automatiques, à condition de vérifier l\'hébergement des données.' },
+      { q: 'Faut-il installer quelque chose pour utiliser un outil de facturation en ligne ?', a: 'Non, un simple navigateur ou une application mobile suffit.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-simple-debuter-independant-batiment',
+    title: 'Un logiciel simple pour débuter dans le bâtiment | Cantia',
+    description:
+      "La simplicité d'un outil ne se juge pas sur sa page d'accueil, mais sur le temps qu'il faut pour émettre un premier devis.",
+    faq: [
+      { q: 'Comment savoir si un logiciel de gestion est vraiment simple avant de s\'engager ?', a: 'Le meilleur test est de créer un compte et d\'essayer d\'envoyer un premier devis sans lire de mode d\'emploi.' },
+      { q: 'Un outil simple peut-il quand même avoir des fonctions avancées ?', a: 'Oui — la simplicité concerne surtout la prise en main des tâches de base.' },
+      { q: 'Faut-il une formation pour utiliser un logiciel de gestion en tant qu\'indépendant débutant ?', a: 'Avec un outil bien conçu, non.' },
+    ],
+  },
+  {
+    path: 'blog/gestion-entreprise-sur-mobile-artisan',
+    title: 'Gérer son entreprise depuis son téléphone | Cantia',
+    description:
+      "Devis, factures, photos de chantier, heures d'équipe — ce qui se fait réellement bien sur mobile aujourd'hui, et ce qui reste plus confortable sur ordinateur.",
+    faq: [
+      { q: 'Peut-on vraiment créer un devis complet depuis son téléphone ?', a: 'Oui, avec un outil bien conçu pour mobile, catalogue de prix inclus.' },
+      { q: 'Quelles tâches restent plus faciles sur ordinateur que sur mobile ?', a: 'La construction initiale d\'un catalogue de prix détaillé ou l\'analyse de plusieurs chantiers.' },
+      { q: 'Un artisan peut-il se passer complètement d\'ordinateur avec un bon outil mobile ?', a: 'Pour le quotidien, largement oui.' },
+    ],
+  },
+  {
+    path: 'blog/budget-logiciel-gestion-demarrage-entreprise',
+    title: 'Quel budget logiciel prévoir en démarrant son entreprise | Cantia',
+    description:
+      "Entre le logiciel de gestion, la comptabilité et les outils annexes, combien une nouvelle entreprise du bâtiment doit-elle réellement prévoir.",
+    faq: [
+      { q: 'Quel pourcentage du chiffre d\'affaires les outils numériques représentent-ils généralement ?', a: 'Environ 1 à 2 % pour une petite entreprise du bâtiment une fois l\'activité stabilisée.' },
+      { q: 'Faut-il inclure le logiciel de gestion dans le business plan de création d\'entreprise ?', a: 'Oui, c\'est une dépense récurrente qui mérite sa propre ligne budgétaire.' },
+      { q: 'Un outil tout-en-un coûte-t-il vraiment moins cher que plusieurs outils séparés ?', a: 'Souvent oui, une fois additionnés les prix de chaque outil séparé.' },
+    ],
+  },
+  {
+    path: 'blog/meilleures-alternatives-gratuites-bexio',
+    title: 'Alternatives à Bexio pour démarrer | Cantia',
+    description:
+      "Bexio reste une référence en Suisse, mais son positionnement comptable complet n'est pas toujours nécessaire pour une entreprise du bâtiment qui démarre.",
+    faq: [
+      { q: 'Bexio est-il adapté à une entreprise du bâtiment qui démarre ?', a: 'Il couvre très bien la comptabilité complète, mais une entreprise qui démarre a souvent besoin d\'un outil spécialisé bâtiment plus léger.' },
+      { q: 'Peut-on utiliser un outil spécialisé bâtiment en plus de Bexio ?', a: 'Oui — certains outils comme Cantia se synchronisent directement avec Bexio.' },
+      { q: 'Faut-il choisir entre un outil bâtiment spécialisé et un outil comptable complet ?', a: 'Pas nécessairement — les deux peuvent se compléter.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-gestion-chantier-abordable-petite-entreprise',
+    title: 'Un logiciel de gestion de chantier abordable | Cantia',
+    description:
+      "Le suivi de chantier a longtemps été réservé aux grandes entreprises avec des outils coûteux. Ce qui a changé.",
+    faq: [
+      { q: 'Le suivi de chantier numérique est-il réservé aux grandes entreprises ?', a: 'Non — il est aujourd\'hui accessible aux petites structures, souvent inclus dans un abonnement abordable.' },
+      { q: 'Quel est le coût typique d\'un suivi de chantier pour une petite entreprise ?', a: 'Généralement entre CHF 30 et 60 par mois, intégré à un outil plus large.' },
+      { q: 'Que doit couvrir un suivi de chantier même dans une offre abordable ?', a: 'Au minimum des photos géolocalisées et horodatées, et un accès simple depuis un téléphone.' },
+    ],
+  },
+  {
+    path: 'blog/comment-facturer-premiers-clients-debut-activite',
+    title: 'Facturer ses premiers clients : les bons réflexes | Cantia',
+    description:
+      "La première facture donne le ton pour toutes celles qui suivront. Les points à vérifier avant de l'envoyer.",
+    faq: [
+      { q: 'Quelles mentions ne doivent jamais manquer sur une première facture ?', a: 'Un numéro séquentiel, le taux de TVA, des coordonnées bancaires exactes et un délai de paiement clair.' },
+      { q: 'Combien de temps après la fin du chantier faut-il envoyer la facture ?', a: 'Le plus rapidement possible, tant que le client se souvient encore clairement du travail.' },
+      { q: 'Un logiciel de facturation aide-t-il à éviter les erreurs de débutant ?', a: 'Oui — il applique automatiquement la numérotation, la TVA et les mentions obligatoires.' },
+    ],
+  },
+  {
+    path: 'blog/outil-devis-factures-sans-double-saisie',
+    title: 'En finir avec la double saisie devis-facture | Cantia',
+    description:
+      "Retaper un devis accepté pour en faire une facture est une perte de temps évitable — et une source d'erreurs.",
+    faq: [
+      { q: 'Pourquoi la double saisie entre devis et facture est-elle risquée ?', a: 'Elle introduit un risque de recopier une erreur de prix ou de quantité qui n\'existait pas dans l\'original.' },
+      { q: 'Combien de temps fait gagner un outil qui automatise le passage devis-facture ?', a: 'Généralement 10 à 20 minutes par document.' },
+      { q: 'Comment vérifier qu\'un logiciel évite vraiment la double saisie ?', a: 'En testant le passage d\'un devis accepté à une facture — les lignes doivent se reporter automatiquement.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-gestion-societe-individuelle-suisse',
+    title: 'Logiciel de gestion pour société individuelle | Cantia',
+    description:
+      "Une société individuelle a des besoins différents d'une PME avec plusieurs employés. Les critères de choix à privilégier.",
+    faq: [
+      { q: 'Quelles sont les priorités spécifiques d\'une société individuelle dans le choix d\'un logiciel ?', a: 'La rapidité d\'utilisation, un prix adapté à un seul utilisateur, et un accès mobile complet.' },
+      { q: 'Un outil pour société individuelle peut-il évoluer si l\'entreprise grandit ?', a: 'Avec un bon outil, oui, sans perdre l\'historique.' },
+      { q: 'Faut-il un logiciel différent selon qu\'on est en société individuelle ou en Sàrl ?', a: 'Pas fondamentalement — les besoins de base restent les mêmes.' },
+    ],
+  },
+  {
+    path: 'blog/demarrer-entreprise-batiment-outils-indispensables',
+    title: 'Les outils réellement indispensables pour démarrer | Cantia',
+    description:
+      "Entre ce qui est indispensable et ce qui peut attendre, la liste des outils à avoir dès le premier jour d'une entreprise du bâtiment.",
+    faq: [
+      { q: 'Quels outils numériques sont vraiment indispensables pour démarrer une entreprise du bâtiment ?', a: 'Principalement un outil de devis/factures conforme et un moyen de documenter les chantiers en photos.' },
+      { q: 'Faut-il un module RH dès la création de l\'entreprise ?', a: 'Non, un module RH n\'est utile qu\'à partir de la première embauche.' },
+      { q: 'Est-il préférable de s\'équiper progressivement plutôt que tout d\'un coup ?', a: 'Généralement oui — un outil simple bien maîtrisé est plus efficace qu\'une suite complète sous-exploitée.' },
+    ],
+  },
+  {
+    path: 'blog/checklist-logiciels-ouverture-societe-construction',
+    title: 'Checklist logiciels pour ouvrir sa société de construction | Cantia',
+    description:
+      "Une liste concrète et ordonnée des outils numériques à mettre en place au moment de créer sa société de construction.",
+    faq: [
+      { q: 'Quelle est la première étape logicielle à l\'ouverture d\'une société de construction ?', a: 'Configurer un outil de devis/factures avec les bonnes coordonnées et le bon taux de TVA.' },
+      { q: 'Faut-il un catalogue de prix complet dès l\'ouverture de la société ?', a: 'Non — il peut se construire progressivement au fil des premiers devis.' },
+      { q: 'Est-il utile de tester l\'outil avant le premier vrai client ?', a: 'Oui, pour repérer les ajustements nécessaires sans impact sur un vrai client.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-facturation-conforme-tva-suisse-pas-cher',
+    title: 'Facturation conforme TVA suisse à petit prix | Cantia',
+    description:
+      "La conformité TVA n'est pas réservée aux logiciels chers — voici ce qui doit être présent, même sur un plan économique.",
+    faq: [
+      { q: 'Un logiciel de facturation pas cher est-il forcément moins conforme sur la TVA ?', a: 'Non — la conformité TVA de base est généralement incluse même sur les plans économiques des outils sérieux.' },
+      { q: 'Qu\'est-ce qui différencie un plan premium d\'un plan économique ?', a: 'Généralement des fonctions avancées, pas la conformité TVA de base.' },
+      { q: 'Comment vérifier qu\'un logiciel est vraiment conforme avant de s\'engager ?', a: 'En générant une facture test et en vérifiant le taux de TVA, le numéro IDE et la numérotation.' },
+    ],
+  },
+  {
+    path: 'blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment',
+    title: 'Rapport qualité-prix d\'un logiciel de gestion | Cantia',
+    description:
+      "Le prix seul ne dit rien du rapport qualité-prix. Une méthode simple pour comparer objectivement plusieurs outils.",
+    faq: [
+      { q: 'Comment comparer objectivement le rapport qualité-prix de deux logiciels ?', a: 'En listant ses besoins réels et en divisant le prix par le nombre de besoins réellement satisfaits.' },
+      { q: 'Le meilleur rapport qualité-prix est-il le même pour toutes les entreprises ?', a: 'Non, il dépend directement du profil de l\'entreprise.' },
+      { q: 'Faut-il se fier uniquement aux comparatifs en ligne pour choisir un logiciel ?', a: 'Non, un essai gratuit sur une utilisation réelle donne une image plus fiable.' },
+    ],
+  },
+  {
+    path: 'blog/essai-gratuit-logiciel-facturation-suisse',
+    title: 'Essai gratuit d\'un logiciel de facturation : bien l\'utiliser | Cantia',
+    description:
+      "Un essai gratuit ne sert à rien s'il n'est pas utilisé méthodiquement. Comment tester efficacement un outil avant de s'engager.",
+    faq: [
+      { q: 'Que faut-il tester en priorité pendant un essai gratuit de logiciel de facturation ?', a: 'Créer un vrai devis, le transformer en facture, et vérifier la conformité du PDF généré.' },
+      { q: 'Faut-il utiliser l\'essai gratuit régulièrement ou attendre la fin de la période ?', a: 'Il vaut mieux l\'utiliser dès les premiers jours sur de vrais documents.' },
+      { q: 'Un essai gratuit doit-il demander une carte bancaire ?', a: 'Pas nécessairement — de nombreux outils sérieux proposent un essai sans carte bancaire.' },
+    ],
+  },
+  {
+    path: 'blog/gerer-entreprise-seul-sans-embaucher-outils',
+    title: 'Gérer son entreprise seul, avec les bons outils | Cantia',
+    description:
+      "Certains indépendants préfèrent rester seuls le plus longtemps possible plutôt que d'embaucher trop tôt. Les outils qui rendent ça vraiment tenable.",
+    faq: [
+      { q: 'Est-il possible de faire grandir son chiffre d\'affaires sans embaucher ?', a: 'Oui, en s\'appuyant sur l\'automatisation administrative et le recours ponctuel à des sous-traitants.' },
+      { q: 'Quel est le principal levier pour gérer son entreprise seul efficacement ?', a: 'Automatiser tout ce qui peut l\'être — TVA, numérotation, relances de paiement.' },
+      { q: 'Le sous-traitant est-il une bonne alternative à l\'embauche pour un indépendant ?', a: 'Souvent oui, pour absorber un pic d\'activité ponctuel.' },
+    ],
+  },
+  {
+    path: 'blog/erreurs-choisir-premier-logiciel-gestion',
+    title: 'Les erreurs courantes en choisissant son premier logiciel | Cantia',
+    description:
+      "Certaines erreurs de choix reviennent sans cesse chez les entreprises qui démarrent — les repérer à l'avance évite une migration forcée.",
+    faq: [
+      { q: 'Quelle est l\'erreur la plus fréquente en choisissant un premier logiciel de gestion ?', a: 'Choisir uniquement sur le prix affiché, sans jamais tester l\'outil sur des documents réels.' },
+      { q: 'Faut-il choisir un outil complexe "au cas où" ?', a: 'Non — un outil trop complexe sous-exploité est souvent moins efficace qu\'un outil simple et évolutif.' },
+      { q: 'Combien de temps avant qu\'un mauvais choix de logiciel ne pousse à migrer ?', a: 'Généralement entre 6 et 12 mois.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-gestion-evolutif-grandit-avec-entreprise',
+    title: 'Un logiciel qui grandit avec l\'entreprise | Cantia',
+    description:
+      "Certains outils tiennent la route sur la durée, d'autres montrent leurs limites dès la première embauche. Les signes à repérer.",
+    faq: [
+      { q: 'Comment savoir si un logiciel de gestion pourra suivre la croissance de l\'entreprise ?', a: 'En vérifiant l\'existence de plans supérieurs, de modules RH/planning et d\'une gestion des rôles.' },
+      { q: 'Faut-il payer un plan plus cher dès le départ pour anticiper la croissance ?', a: 'Non — il suffit de choisir un éditeur dont les plans supérieurs restent accessibles sans migration.' },
+      { q: 'Quelle question poser à un éditeur pour évaluer l\'évolutivité de son outil ?', a: 'Ce qui se passe en cas de première embauche ou de plusieurs chantiers en parallèle.' },
+    ],
+  },
+  {
+    path: 'blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut',
+    title: 'Pourquoi s\'équiper dès le premier jour d\'activité | Cantia',
+    description:
+      "Beaucoup d'indépendants repoussent l'achat d'un logiciel de gestion \"jusqu'à avoir plus de clients\". Pourquoi c'est souvent l'inverse qui devrait se passer.",
+    faq: [
+      { q: 'Faut-il attendre d\'avoir plusieurs clients pour investir dans un logiciel de gestion ?', a: 'Non — les habitudes prises dès le début sont difficiles à corriger plus tard.' },
+      { q: 'Un bon logiciel est-il plus facile à apprendre au début ou une fois débordé ?', a: 'Au début, avec peu de clients à gérer.' },
+      { q: 'Le coût d\'un logiciel de gestion se justifie-t-il dès le premier client ?', a: 'Généralement oui, son coût mensuel restant minime comparé au chiffre d\'affaires d\'un premier chantier.' },
+    ],
+  },
+  {
+    path: 'blog/lancer-entreprise-batiment-suisse-par-ou-commencer',
+    title: 'Lancer son entreprise du bâtiment en Suisse : par où commencer | Cantia',
+    description:
+      "Entre le statut juridique, les assurances et les premiers outils, un ordre logique pour ne rien manquer au moment de se lancer.",
+    faq: [
+      { q: 'Quelle est la première étape pour lancer une entreprise du bâtiment en Suisse ?', a: 'Choisir un statut juridique adapté, puis s\'inscrire au registre du commerce si nécessaire.' },
+      { q: 'Faut-il tout avoir en place avant d\'accepter son premier client ?', a: 'Non — le strict nécessaire suffit pour démarrer.' },
+      { q: 'À quel moment mettre en place son outil de gestion en lançant son entreprise ?', a: 'Idéalement avant le tout premier client.' },
+    ],
+  },
+  {
+    path: 'blog/cantia-adapte-metier-specifique-batiment',
+    title: 'Un métier trop spécifique pour un logiciel standard ? | Cantia',
+    description:
+      "Certains métiers du bâtiment ont des besoins que les outils standards ne couvrent jamais tout à fait. Comment une fonctionnalité sur mesure peut combler cet écart.",
+    faq: [
+      { q: 'Cantia peut-il développer une fonctionnalité pour un métier très spécifique du bâtiment ?', a: 'Oui — en plus du socle standard, Cantia peut développer des modules sur mesure.' },
+      { q: 'Faut-il changer complètement d\'outil pour un besoin métier non standard ?', a: 'Pas nécessairement — une fonctionnalité sur mesure s\'ajoute généralement au socle déjà utilisé.' },
+      { q: 'Comment savoir si son besoin spécifique peut être couvert sur mesure ?', a: 'Le plus simple est d\'en discuter directement avec l\'équipe.' },
+    ],
+  },
+  {
+    path: 'blog/automatiser-taches-repetitives-entreprise-sans-developpeur',
+    title: 'Automatiser sans coder pour une entreprise du bâtiment | Cantia',
+    description:
+      "L'automatisation n'est plus réservée aux entreprises avec un service informatique. Ce qui peut aujourd'hui être automatisé sans écrire une ligne de code.",
+    faq: [
+      { q: 'Faut-il des compétences techniques pour automatiser des tâches ?', a: 'Non — de nombreuses automatisations existent déjà de façon standard dans un bon outil de gestion.' },
+      { q: 'Quelles tâches peuvent être automatisées en priorité ?', a: 'Les relances de factures impayées, les notifications de devis, et le calcul de rentabilité d\'un chantier.' },
+      { q: 'Une automatisation retire-t-elle le contrôle sur les décisions de l\'entreprise ?', a: 'Non, une bonne automatisation reste toujours visible et modifiable manuellement.' },
+    ],
+  },
+  {
+    path: 'blog/creer-champ-processus-sur-mesure-logiciel-gestion',
+    title: 'Ajouter un champ ou un processus sur mesure | Cantia',
+    description:
+      "Un formulaire standard ne colle jamais à 100% à la façon de travailler d'une entreprise. Comment un champ ou un processus sur mesure comble ce dernier écart.",
+    faq: [
+      { q: 'Peut-on ajouter un champ personnalisé à un devis ou une facture dans Cantia ?', a: 'C\'est possible via le développement de fonctionnalités sur mesure.' },
+      { q: 'Comment démarre concrètement une demande de champ sur mesure ?', a: 'En général par une discussion directe sur le problème concret rencontré au quotidien.' },
+      { q: 'Un champ sur mesure reste-t-il intégré au reste de l\'outil ?', a: 'Oui — il s\'intègre directement aux données existantes, sans ressaisie.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-standard-vs-solution-personnalisee-batiment',
+    title: 'Logiciel standard ou 100% sur mesure ? | Cantia',
+    description:
+      "Entre un outil standard rigide et un développement 100% personnalisé coûteux, il existe une troisième voie : un socle standard complété par du sur-mesure ciblé.",
+    faq: [
+      { q: 'Un développement logiciel 100% sur mesure est-il un bon choix pour une PME du bâtiment ?', a: 'Rarement, en raison du coût, du délai et de la charge de maintenance à long terme.' },
+      { q: 'Quelle est la meilleure option entre logiciel standard et solution personnalisée ?', a: 'Généralement un socle standard bien maintenu, complété par des fonctionnalités sur mesure ciblées.' },
+      { q: 'Un outil sur mesure profite-t-il des mises à jour légales comme un outil standard ?', a: 'Si le sur-mesure est développé au-dessus d\'un socle standard bien maintenu, oui.' },
+    ],
+  },
+  {
+    path: 'blog/automatiser-rappels-relances-entreprise',
+    title: 'Automatiser ses relances : ne plus oublier un impayé | Cantia',
+    description:
+      "Relancer un client pour une facture impayée ou un devis en attente est souvent la première tâche administrative oubliée. Comment l'automatiser.",
+    faq: [
+      { q: 'Pourquoi les relances de factures impayées sont-elles souvent oubliées ?', a: 'Parce qu\'elles n\'ont pas de date fixe dans l\'agenda, contrairement à un rendez-vous de chantier.' },
+      { q: 'Une relance automatique remplace-t-elle totalement le suivi manuel ?', a: 'Non — une bonne relance automatisée reste modifiable au cas par cas.' },
+      { q: 'Quel est l\'impact concret d\'une relance automatique bien calibrée ?', a: 'Généralement 15 à 20 % des factures en retard sont réglées dans les jours suivants.' },
+    ],
+  },
+  {
+    path: 'blog/faire-evoluer-outil-gestion-avec-entreprise',
+    title: 'Faire évoluer son outil de gestion avec l\'entreprise | Cantia',
+    description:
+      "Un outil de gestion ne devrait jamais être un frein à la croissance. Comment anticiper ses évolutions plutôt que de les subir.",
+    faq: [
+      { q: 'Quel est le signal le plus clair qu\'un outil de gestion doit évoluer ?', a: 'L\'apparition d\'un tableur "de secours" à côté de l\'outil principal.' },
+      { q: 'Vaut-il mieux anticiper l\'évolution de son outil ou attendre un besoin urgent ?', a: 'Anticiper — cela évite une migration complète, toujours plus coûteuse.' },
+      { q: 'À quelle fréquence faire le point sur ses outils de gestion ?', a: 'Une fois par an est une bonne pratique courante.' },
+    ],
+  },
+  {
+    path: 'blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment',
+    title: 'Pourquoi un modèle figé ne convient pas à tout le bâtiment | Cantia',
+    description:
+      "Le bâtiment regroupe des métiers très différents entre eux. Pourquoi un même modèle rigide ne peut logiquement pas convenir à tous en même temps.",
+    faq: [
+      { q: 'Pourquoi un logiciel générique "bâtiment" ne convient-il pas parfaitement à tous les métiers ?', a: 'Parce que le bâtiment regroupe plus de 15 corps de métier différents, chacun avec ses propres besoins.' },
+      { q: 'Qu\'est-ce qui reste commun entre tous les métiers du bâtiment ?', a: 'La grande majorité des besoins de base — devis, factures, conformité TVA, suivi de chantier.' },
+      { q: 'Un logiciel doit-il s\'adapter au métier ou l\'inverse ?', a: 'Idéalement l\'outil s\'adapte au métier.' },
+    ],
+  },
+  {
+    path: 'blog/demander-fonctionnalite-sur-mesure-editeur-logiciel',
+    title: 'Demander une fonctionnalité sur mesure à son éditeur | Cantia',
+    description:
+      "Beaucoup d'entreprises n'osent jamais demander une fonctionnalité sur mesure. La réalité, et la bonne façon de formuler la demande.",
+    faq: [
+      { q: 'Une fonctionnalité sur mesure est-elle réservée aux grandes entreprises ?', a: 'Pas nécessairement — cela dépend surtout de la clarté du besoin exprimé.' },
+      { q: 'Comment bien formuler une demande de fonctionnalité sur mesure ?', a: 'En décrivant le problème concret rencontré, avec un exemple réel.' },
+      { q: 'Que se passe-t-il après avoir formulé une demande sur mesure ?', a: 'Généralement un échange pour cerner précisément le besoin, suivi d\'une proposition concrète.' },
+    ],
+  },
+  {
+    path: 'blog/automatiser-suivi-administratif-entreprise-artisanale',
+    title: 'Automatiser le suivi administratif, pas que la facturation | Cantia',
+    description:
+      "L'automatisation se limite souvent, dans l'esprit, à l'envoi de factures. Ce qui peut aussi être automatisé dans le suivi administratif plus large.",
+    faq: [
+      { q: 'L\'automatisation dans le bâtiment se limite-t-elle à la facturation ?', a: 'Non — le suivi administratif plus large peut aussi être largement automatisé.' },
+      { q: 'Quel type d\'automatisation fait généralement le plus gagner de temps ?', a: 'Les automatisations discrètes, en arrière-plan.' },
+      { q: 'L\'automatisation du suivi administratif profite-t-elle aussi aux clients ?', a: 'Oui — un rapport de chantier généré rapidement renforce l\'image professionnelle perçue.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-construit-avec-vous-sur-mesure',
+    title: 'Un logiciel construit avec vous, pas juste vendu | Cantia',
+    description:
+      "La différence entre un éditeur qui vend un produit figé et un éditeur qui construit avec ses clients.",
+    faq: [
+      { q: 'Qu\'est-ce qui différencie un logiciel "construit avec ses clients" d\'un logiciel classique ?', a: 'Les nouvelles fonctionnalités naissent souvent de besoins réels signalés directement par des clients.' },
+      { q: 'Un logiciel construit avec ses clients développe-t-il une version différente pour chacun ?', a: 'Non — le socle standard reste commun à tous.' },
+      { q: 'Comment un retour client peut-il concrètement influencer l\'évolution de l\'outil ?', a: 'Un problème remonté peut donner naissance à une fonctionnalité qui profite ensuite à tous les utilisateurs.' },
+    ],
+  },
+  {
     path: 'telechargement',
     title: 'Télécharger Cantia | App mobile & web',
     description:
