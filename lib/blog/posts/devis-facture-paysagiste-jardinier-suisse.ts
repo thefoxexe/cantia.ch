@@ -71,4 +71,5 @@ export const post: BlogPost = {
     'facturation-heures-regie-batiment-comment-faire',
     'sous-traitant-batiment-suisse-contrat-facturation',
   ],
+  relatedTradeSlug: 'paysagiste',
 };

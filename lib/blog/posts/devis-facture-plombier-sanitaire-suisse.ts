@@ -71,4 +71,5 @@ export const post: BlogPost = {
     'relancer-client-facture-impayee-sans-perdre-client',
     'application-hors-ligne-chantier-pourquoi-important',
   ],
+  relatedTradeSlug: 'plombier',
 };

@@ -71,4 +71,5 @@ export const post: BlogPost = {
     'calculer-heures-travail-ouvrier-minutes-decimales',
     'facturation-heures-regie-batiment-comment-faire',
   ],
+  relatedTradeSlug: 'electricien',
 };

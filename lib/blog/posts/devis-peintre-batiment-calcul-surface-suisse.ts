@@ -70,4 +70,5 @@ export const post: BlogPost = {
     'checklist-cloture-chantier-avant-facturation',
     'devis-facture-facadier-isolation-suisse',
   ],
+  relatedTradeSlug: 'peintre',
 };

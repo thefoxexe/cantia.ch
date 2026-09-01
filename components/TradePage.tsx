@@ -10,6 +10,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { TRADE_PAGES, type TradeLandingPage } from '../lib/tradeLandingPages';
+import { getPostBySlug } from '../lib/blog';
 
 // Features present on every trade page regardless of métier — the "richesse
 // globale" block from the brief (section 11), same content everywhere so it
@@ -31,6 +32,7 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
   }, [heroAnim]);
 
   const related = (trade.relatedTrades ?? []).map((slug) => TRADE_PAGES[slug]).filter(Boolean);
+  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((slug) => getPostBySlug(slug)).filter((p) => !!p);
 
   return (
     <Screen>
@@ -158,6 +160,22 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         <SwissSection />
         <PricingSection />
+
+        {relatedPosts.length ? (
+          <Container style={styles.section}>
+            <Text style={styles.eyebrow}>Pour aller plus loin</Text>
+            <View style={styles.relatedRow}>
+              {relatedPosts.map((post) => (
+                <Link key={post!.slug} href={`/blog/${post!.slug}` as any} asChild>
+                  <Pressable style={styles.relatedChip}>
+                    <Text style={styles.relatedChipText}>{post!.title}</Text>
+                    <Feather name="arrow-right" size={13} color={colors.primary} />
+                  </Pressable>
+                </Link>
+              ))}
+            </View>
+          </Container>
+        ) : null}
 
         {/* ---- FAQ ---- */}
         <Container style={styles.section}>

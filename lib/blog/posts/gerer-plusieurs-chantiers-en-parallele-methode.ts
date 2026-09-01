@@ -75,4 +75,5 @@ export const post: BlogPost = {
     'suivre-rentabilite-chantier-sans-excel',
     'chantier-complet-peut-etre-en-perte-taux-horaire',
   ],
+  relatedTradeSlug: 'entreprise-generale',
 };

@@ -92,6 +92,19 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </Container>
         ) : null}
 
+        {post.relatedTradeSlug ? (
+          <Container style={styles.section}>
+            <Link href={`/${post.relatedTradeSlug}` as any} asChild>
+              <Pressable style={styles.tradeLinkCard}>
+                <Feather name="tool" size={16} color={colors.primary} />
+                <Text style={styles.tradeLinkText}>
+                  Voir comment Cantia s’adapte à ce métier <Text style={styles.tradeLinkTextAccent}>→</Text>
+                </Text>
+              </Pressable>
+            </Link>
+          </Container>
+        ) : null}
+
         {related.length ? (
           <Container style={styles.section}>
             <Text style={styles.sectionEyebrow}>À lire aussi</Text>
@@ -116,10 +129,10 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <View style={styles.closing}>
             <Text style={styles.closingTitle}>Piloter vos chantiers sans y penser</Text>
             <Text style={styles.closingText}>
-              Devis, factures QR, rapports et rentabilité par chantier — tout Cantia, gratuit pour commencer.
+              Devis, factures QR, rapports et rentabilité par chantier, réunis dans un seul outil. 14 jours d'essai, aucun code nécessaire.
             </Text>
             <Link href={authHref('signup')} asChild>
-              <Button title="Essayer gratuitement" variant="secondary" onPress={() => {}} style={styles.closingCta} />
+              <Button title="Essayer Cantia" variant="secondary" onPress={() => {}} style={styles.closingCta} />
             </Link>
           </View>
         </Container>
@@ -478,6 +491,23 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 21,
+  },
+  tradeLinkCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primarySoft,
+  },
+  tradeLinkText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
+  tradeLinkTextAccent: {
+    color: colors.primary,
   },
   relatedGrid: {
     flexDirection: 'row',

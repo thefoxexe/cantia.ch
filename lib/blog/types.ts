@@ -44,4 +44,8 @@ export interface BlogPost {
   blocks: BlogBlock[];
   faq?: BlogFaqItem[];
   relatedSlugs?: string[];
+  // Slug of a matching /[metier] trade landing page (lib/tradeLandingPages.ts),
+  // when this article is specific enough to one trade to warrant a direct
+  // link — e.g. 'plombier' for an article about plumber devis/facturation.
+  relatedTradeSlug?: string;
 }

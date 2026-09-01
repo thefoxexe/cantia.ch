@@ -71,4 +71,5 @@ export const post: BlogPost = {
     'devis-oral-valeur-legale-suisse',
     'validite-devis-signe-prix-qui-bouge',
   ],
+  relatedTradeSlug: 'menuisier',
 };
