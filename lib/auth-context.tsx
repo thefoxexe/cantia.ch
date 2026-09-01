@@ -63,6 +63,7 @@ interface AuthContextValue {
   verifySignupCode: (email: string, code: string) => Promise<{ error: string | null }>;
   resendSignupCode: (email: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
+  signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
@@ -249,22 +250,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   //
   // Native: skipBrowserRedirect gets us the auth URL without any redirect
   // happening, WebBrowser.openAuthSessionAsync opens it as an in-app browser
-  // sheet and waits for Google to bounce back to our own `cantia://` scheme,
-  // and the tokens are pulled out of that return URL by hand since native
-  // has no "current page" for Supabase to auto-detect a session from.
-  const signInWithGoogle = useCallback(async () => {
+  // sheet and waits for the provider to bounce back to our own `cantia://`
+  // scheme, and the tokens are pulled out of that return URL by hand since
+  // native has no "current page" for Supabase to auto-detect a session from.
+  // Shared by Google and Microsoft — same dance either way, only the
+  // provider id and the generic error message differ.
+  const signInWithOAuthProvider = useCallback(async (provider: 'google' | 'azure', providerLabel: string) => {
     if (Platform.OS === 'web') {
       const redirectTo = typeof window !== 'undefined' ? window.location.origin : undefined;
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+      const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo } });
       return { error: error?.message ?? null };
     }
 
     const redirectTo = Linking.createURL('auth-callback');
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: { redirectTo, skipBrowserRedirect: true },
     });
-    if (error || !data?.url) return { error: error?.message ?? 'Impossible de démarrer la connexion Google.' };
+    if (error || !data?.url) return { error: error?.message ?? `Impossible de démarrer la connexion ${providerLabel}.` };
 
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
     if (result.type !== 'success') return { error: null };
@@ -272,11 +275,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { params, errorCode } = QueryParams.getQueryParams(result.url);
     if (errorCode) return { error: errorCode };
     const { access_token, refresh_token } = params;
-    if (!access_token || !refresh_token) return { error: 'Connexion Google incomplète.' };
+    if (!access_token || !refresh_token) return { error: `Connexion ${providerLabel} incomplète.` };
 
     const { error: sessionError } = await supabase.auth.setSession({ access_token, refresh_token });
     return { error: sessionError?.message ?? null };
   }, []);
+
+  const signInWithGoogle = useCallback(() => signInWithOAuthProvider('google', 'Google'), [signInWithOAuthProvider]);
+  // Supabase's built-in provider id for Microsoft Entra ID (formerly Azure
+  // AD) is 'azure' — set up in Supabase Dashboard > Authentication >
+  // Providers > Azure, using an app registration created in the Azure
+  // Portal.
+  const signInWithMicrosoft = useCallback(() => signInWithOAuthProvider('azure', 'Microsoft'), [signInWithOAuthProvider]);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -327,6 +337,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verifySignupCode,
       resendSignupCode,
       signInWithGoogle,
+      signInWithMicrosoft,
       signOut,
       createOrganization,
       resetPassword,
@@ -349,6 +360,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verifySignupCode,
       resendSignupCode,
       signInWithGoogle,
+      signInWithMicrosoft,
       signOut,
       createOrganization,
       resetPassword,

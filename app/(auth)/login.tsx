@@ -3,6 +3,7 @@ import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, Vi
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
+import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
 import { Button, Field, Screen } from '../../components/ui';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
@@ -65,7 +66,10 @@ export default function LoginScreen() {
             <Text style={styles.dividerText}>ou</Text>
             <View style={styles.dividerLine} />
           </View>
-          <GoogleSignInButton />
+          <View style={{ gap: spacing.sm }}>
+            <GoogleSignInButton />
+            <MicrosoftSignInButton />
+          </View>
 
           <Link href="/(auth)/signup" style={styles.link}>
             <Text style={styles.linkText}>Pas encore de compte ? Créer un compte</Text>
