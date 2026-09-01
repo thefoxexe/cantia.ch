@@ -19,12 +19,14 @@ import {
 } from '../../../lib/api/payroll';
 import { Button, Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollExpenseType, PayrollWorkType } from '../../../lib/types';
 
 type Kind = 'work' | 'expense' | 'deduction';
 
 export default function PayrollSettingsScreen() {
+  const { t } = useTranslation();
   const { organization, canManagePayroll } = useAuth();
   const [workTypes, setWorkTypes] = useState<PayrollWorkType[]>([]);
   const [expenseTypes, setExpenseTypes] = useState<PayrollExpenseType[]>([]);
@@ -101,7 +103,7 @@ export default function PayrollSettingsScreen() {
   async function handleSave() {
     if (!organization || !editKind) return;
     if (!label.trim()) {
-      setError('Le nom est requis.');
+      setError(t('payrollSettings.nameRequired'));
       return;
     }
     setSaving(true);
@@ -147,9 +149,9 @@ export default function PayrollSettingsScreen() {
   if (!canManagePayroll) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title="RH & Salaires" backTo="/(app)/compte" />
+        <PageHeader title={t('payrollSettings.title')} backTo="/(app)/compte" />
         <Card style={{ marginTop: spacing.lg }}>
-          <Text style={styles.emptyText}>Réservé à la secrétaire RH et aux administrateurs.</Text>
+          <Text style={styles.emptyText}>{t('payrollSettings.adminOnlyHint')}</Text>
         </Card>
       </Screen>
     );
@@ -159,15 +161,12 @@ export default function PayrollSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="RH & Salaires" backTo="/(app)/compte" />
-          <Text style={styles.hint}>
-            Ces listes sont proposées aux employés quand ils saisissent leurs heures et leurs frais. Les types de
-            cotisation ne sont visibles que par vous.
-          </Text>
+          <PageHeader title={t('payrollSettings.title')} backTo="/(app)/compte" />
+          <Text style={styles.hint}>{t('payrollSettings.intro')}</Text>
 
           <TypeSection
-            title="Types de travail"
-            subtitle="Ex : élaboration de projets, dessin, chantier. Le tarif horaire sert de base pour facturer les heures."
+            title={t('payrollSettings.workTypesTitle')}
+            subtitle={t('payrollSettings.workTypesSubtitle')}
             loading={loading}
             rows={workTypes.map((w) => ({
               id: w.id,
@@ -180,13 +179,13 @@ export default function PayrollSettingsScreen() {
           />
 
           <TypeSection
-            title="Types de frais"
-            subtitle="Ex : kilométrage (au taux défini), repas, outillage (montant libre à chaque saisie)."
+            title={t('payrollSettings.expenseTypesTitle')}
+            subtitle={t('payrollSettings.expenseTypesSubtitle')}
             loading={loading}
             rows={expenseTypes.map((e) => ({
               id: e.id,
               label: e.label,
-              meta: e.unit === 'km' && e.rate_chf != null ? `CHF ${e.rate_chf.toFixed(2)}/km` : 'Montant libre',
+              meta: e.unit === 'km' && e.rate_chf != null ? `CHF ${e.rate_chf.toFixed(2)}/km` : t('payrollSettings.freeAmount'),
               active: e.active,
               onPress: () => openEditExpense(e),
             }))}
@@ -194,8 +193,8 @@ export default function PayrollSettingsScreen() {
           />
 
           <TypeSection
-            title="Types de cotisation"
-            subtitle="Les lignes de déduction utilisées pour calculer le salaire net. Chaque employé peut ensuite avoir un taux différent depuis sa fiche."
+            title={t('payrollSettings.deductionTypesTitle')}
+            subtitle={t('payrollSettings.deductionTypesSubtitle')}
             loading={loading}
             rows={deductionTypes.map((d) => ({
               id: d.id,
@@ -214,28 +213,43 @@ export default function PayrollSettingsScreen() {
           <View style={styles.sheet}>
             <ScrollView>
               <Text style={styles.sheetTitle}>
-                {editId ? 'Modifier' : 'Ajouter'}
-                {editKind === 'work' ? ' un type de travail' : editKind === 'expense' ? ' un type de frais' : ' un type de cotisation'}
+                {editId
+                  ? editKind === 'work'
+                    ? t('payrollSettings.modalTitleWorkEdit')
+                    : editKind === 'expense'
+                      ? t('payrollSettings.modalTitleExpenseEdit')
+                      : t('payrollSettings.modalTitleDeductionEdit')
+                  : editKind === 'work'
+                    ? t('payrollSettings.modalTitleWorkAdd')
+                    : editKind === 'expense'
+                      ? t('payrollSettings.modalTitleExpenseAdd')
+                      : t('payrollSettings.modalTitleDeductionAdd')}
               </Text>
 
-              <Text style={styles.fieldLabel}>Nom</Text>
+              <Text style={styles.fieldLabel}>{t('payrollSettings.nameLabel')}</Text>
               <TextInput
                 style={styles.input}
                 value={label}
                 onChangeText={setLabel}
-                placeholder={editKind === 'deduction' ? 'Ex : Cotisation AVS/AI/APG' : editKind === 'expense' ? 'Ex : Kilométrage' : 'Ex : Dessin'}
+                placeholder={
+                  editKind === 'deduction'
+                    ? t('payrollSettings.deductionNamePlaceholder')
+                    : editKind === 'expense'
+                      ? t('payrollSettings.expenseNamePlaceholder')
+                      : t('payrollSettings.workNamePlaceholder')
+                }
                 placeholderTextColor={colors.textMuted}
               />
 
               {editKind === 'expense' ? (
                 <>
-                  <Text style={styles.fieldLabel}>Type de montant</Text>
+                  <Text style={styles.fieldLabel}>{t('payrollSettings.amountTypeLabel')}</Text>
                   <View style={styles.chips}>
                     <Pressable onPress={() => setUnit('km')} style={[styles.chip, unit === 'km' && styles.chipActive]}>
-                      <Text style={[styles.chipText, unit === 'km' && styles.chipTextActive]}>Au kilomètre</Text>
+                      <Text style={[styles.chipText, unit === 'km' && styles.chipTextActive]}>{t('payrollSettings.perKilometer')}</Text>
                     </Pressable>
                     <Pressable onPress={() => setUnit('forfait')} style={[styles.chip, unit === 'forfait' && styles.chipActive]}>
-                      <Text style={[styles.chipText, unit === 'forfait' && styles.chipTextActive]}>Montant libre</Text>
+                      <Text style={[styles.chipText, unit === 'forfait' && styles.chipTextActive]}>{t('payrollSettings.freeAmount')}</Text>
                     </Pressable>
                   </View>
                 </>
@@ -244,14 +258,18 @@ export default function PayrollSettingsScreen() {
               {editKind !== 'expense' || unit === 'km' ? (
                 <>
                   <Text style={styles.fieldLabel}>
-                    {editKind === 'work' ? 'Tarif horaire (CHF/h, optionnel)' : editKind === 'expense' ? 'Taux (CHF/km)' : 'Taux par défaut (%, optionnel)'}
+                    {editKind === 'work'
+                      ? t('payrollSettings.hourlyRateLabel')
+                      : editKind === 'expense'
+                        ? t('payrollSettings.kmRateLabel')
+                        : t('payrollSettings.defaultRateLabel')}
                   </Text>
                   <TextInput
                     style={styles.input}
                     value={rate}
                     onChangeText={setRate}
                     keyboardType="decimal-pad"
-                    placeholder="Ex : 0.70"
+                    placeholder={t('payrollSettings.ratePlaceholder')}
                     placeholderTextColor={colors.textMuted}
                   />
                 </>
@@ -259,18 +277,18 @@ export default function PayrollSettingsScreen() {
 
               {editId ? (
                 <View style={styles.activeRow}>
-                  <Text style={styles.fieldLabel}>Actif</Text>
+                  <Text style={styles.fieldLabel}>{t('payrollSettings.activeLabel')}</Text>
                   <Switch value={active} onChange={setActive} />
                 </View>
               ) : null}
 
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
-              <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
+              <Button title={t('payrollSettings.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
               {editId ? (
-                <Button title="Supprimer" icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
+                <Button title={t('payrollSettings.delete')} icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
               ) : null}
-              <Button title="Annuler" variant="secondary" onPress={() => setEditKind(null)} style={{ marginTop: spacing.sm }} />
+              <Button title={t('payrollSettings.cancel')} variant="secondary" onPress={() => setEditKind(null)} style={{ marginTop: spacing.sm }} />
             </ScrollView>
           </View>
         </View>
@@ -292,22 +310,23 @@ function TypeSection({
   rows: { id: string; label: string; meta: string | null; active: boolean; onPress: () => void }[];
   onAdd: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Card style={{ marginTop: spacing.lg }}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <Text style={styles.sectionSubtitle}>{subtitle}</Text>
-      {!loading && rows.length === 0 ? <Text style={styles.emptyText}>Aucun type pour le moment.</Text> : null}
+      {!loading && rows.length === 0 ? <Text style={styles.emptyText}>{t('payrollSettings.emptyTypes')}</Text> : null}
       <View style={{ gap: spacing.xs, marginTop: spacing.md }}>
         {rows.map((r) => (
           <Pressable key={r.id} onPress={r.onPress} style={styles.row}>
             <Text style={[styles.rowLabel, !r.active && styles.rowLabelInactive]}>{r.label}</Text>
             {r.meta ? <Text style={styles.rowMeta}>{r.meta}</Text> : null}
-            {!r.active ? <Text style={styles.inactiveBadge}>Inactif</Text> : null}
+            {!r.active ? <Text style={styles.inactiveBadge}>{t('payrollSettings.inactive')}</Text> : null}
             <Feather name="chevron-right" size={16} color={colors.textMuted} />
           </Pressable>
         ))}
       </View>
-      <Button title="Ajouter" icon="plus" variant="secondary" onPress={onAdd} style={{ marginTop: spacing.md }} />
+      <Button title={t('payrollSettings.add')} icon="plus" variant="secondary" onPress={onAdd} style={{ marginTop: spacing.md }} />
     </Card>
   );
 }
