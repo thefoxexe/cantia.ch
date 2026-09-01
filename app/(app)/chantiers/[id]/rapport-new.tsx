@@ -13,6 +13,7 @@ import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
 import { fetchCatalog, findMatches, type CatalogEntry, type CatalogMatch } from '../../../../lib/catalog';
 import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface PendingPhoto {
@@ -26,6 +27,7 @@ interface PendingPhoto {
 }
 
 export default function NewReportScreen() {
+  const { t } = useTranslation();
   const { id: projectId } = useLocalSearchParams<{ id: string }>();
   const { organization, user } = useAuth();
   const [title, setTitle] = useState('');
@@ -76,14 +78,14 @@ export default function NewReportScreen() {
     notesBaseRef.current = notes;
     const started = await dictation.start('fr-FR');
     if (!started) {
-      Alert.alert('Permission requise', "Autorisez l'accès au microphone pour dicter votre rapport.");
+      Alert.alert(t('newReport.micPermissionTitle'), t('newReport.micPermission'));
     }
   }
 
   async function addFromCamera() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission requise', "Autorisez l'accès à l'appareil photo pour prendre des photos.");
+      Alert.alert(t('newReport.micPermissionTitle'), t('newReport.cameraPermission'));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
@@ -105,7 +107,7 @@ export default function NewReportScreen() {
   async function addFromGallery() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission requise', "Autorisez l'accès à vos photos pour en importer.");
+      Alert.alert(t('newReport.micPermissionTitle'), t('newReport.galleryPermission'));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsMultipleSelection: true, exif: true });
@@ -132,14 +134,14 @@ export default function NewReportScreen() {
   async function handleSubmit() {
     if (!organization) return;
     if (!title.trim()) {
-      setError('Le titre du rapport est requis.');
+      setError(t('newReport.titleRequired'));
       return;
     }
     setError(null);
     setLoading(true);
 
     try {
-      setStep('Enregistrement du rapport…');
+      setStep(t('newReport.savingReport'));
       const { data: report, error: reportError } = await supabase
         .from('reports')
         .insert({
@@ -152,10 +154,10 @@ export default function NewReportScreen() {
         .select()
         .single();
 
-      if (reportError || !report) throw new Error(reportError?.message ?? 'Échec de la création du rapport');
+      if (reportError || !report) throw new Error(reportError?.message ?? t('newReport.createFailed'));
 
       for (let i = 0; i < photos.length; i++) {
-        setStep(`Envoi photo ${i + 1}/${photos.length}…`);
+        setStep(t('newReport.sendingPhoto', { current: i + 1, total: photos.length }));
         const p = photos[i];
         const raw = assetFileInfo(p);
         const { uri, ext, contentType } = await normalizeImageOrientation(p.uri, raw.contentType);
@@ -179,17 +181,17 @@ export default function NewReportScreen() {
       // remember. Best-effort: if it fails (e.g. no notes at all), the
       // report still gets created and PDF'd with whatever notes exist.
       if (notes.trim()) {
-        setStep('Rédaction du rapport par IA…');
+        setStep(t('newReport.aiWriting'));
         const { notes: polished } = await polishReportNotes(report.id);
         if (polished) {
           await supabase.from('reports').update({ notes: polished }).eq('id', report.id);
         }
       }
 
-      setStep('Génération du PDF…');
+      setStep(t('newReport.generatingPdf'));
       const { error: pdfError } = await generateReportPdf(report.id);
       if (pdfError) {
-        setError(`Rapport enregistré, mais la génération du PDF a échoué : ${pdfError}`);
+        setError(t('newReport.savedButPdfFailed', { error: pdfError }));
         setLoading(false);
         setStep(null);
         return;
@@ -206,21 +208,19 @@ export default function NewReportScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <PageHeader title="Nouveau rapport" backTo={`/(app)/chantiers/${projectId}/reports`} />
+        <PageHeader title={t('newReport.title')} backTo={`/(app)/chantiers/${projectId}/reports`} />
 
-        <Field label="Titre du rapport" value={title} onChangeText={setTitle} placeholder="Ex : Visite de chantier du 12 mars" />
+        <Field label={t('newReport.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('newReport.titlePlaceholder')} />
 
         {organization && !organization.logo_url ? (
           <View style={styles.warning}>
             <Feather name="alert-triangle" size={14} color={colors.accent} />
-            <Text style={styles.warningText}>
-              Aucun logo chargé — ce rapport PDF partira sans logo. Ajoutez-en un dans Compte → Profil entreprise.
-            </Text>
+            <Text style={styles.warningText}>{t('newReport.noLogoWarning')}</Text>
           </View>
         ) : null}
 
         <View style={styles.notesLabelRow}>
-          <Text style={styles.fieldLabel}>Notes</Text>
+          <Text style={styles.fieldLabel}>{t('newReport.notesLabel')}</Text>
           {dictation.supported ? (
             <Pressable
               onPress={toggleDictation}
@@ -235,7 +235,7 @@ export default function NewReportScreen() {
               <Text
                 style={[styles.dictateButtonText, (dictation.listening || dictation.transcribing) && styles.dictateButtonTextActive]}
               >
-                {dictation.transcribing ? 'Transcription…' : dictation.listening ? 'Écoute…' : 'Dicter'}
+                {dictation.transcribing ? t('newReport.transcribing') : dictation.listening ? t('newReport.listening') : t('newReport.dictate')}
               </Text>
             </Pressable>
           ) : null}
@@ -244,7 +244,7 @@ export default function NewReportScreen() {
           style={styles.notes}
           value={notes}
           onChangeText={setNotes}
-          placeholder="Observations, remarques, avancement…"
+          placeholder={t('newReport.notesPlaceholder')}
           placeholderTextColor={colors.textMuted}
           multiline
           textAlignVertical="top"
@@ -266,15 +266,15 @@ export default function NewReportScreen() {
           </View>
         ) : null}
 
-        <Text style={styles.fieldLabel}>Photos ({photos.length})</Text>
+        <Text style={styles.fieldLabel}>{t('newReport.photosLabel', { count: photos.length })}</Text>
         <View style={styles.photoButtons}>
           <Pressable style={styles.photoButton} onPress={addFromCamera}>
             <Feather name="camera" size={16} color={colors.text} />
-            <Text style={styles.photoButtonText}>Prendre une photo</Text>
+            <Text style={styles.photoButtonText}>{t('newReport.takePhoto')}</Text>
           </Pressable>
           <Pressable style={styles.photoButton} onPress={addFromGallery}>
             <Feather name="image" size={16} color={colors.text} />
-            <Text style={styles.photoButtonText}>Depuis la galerie</Text>
+            <Text style={styles.photoButtonText}>{t('newReport.fromGallery')}</Text>
           </Pressable>
         </View>
 
@@ -285,14 +285,14 @@ export default function NewReportScreen() {
               <TextInput
                 style={styles.captionInput}
                 value={p.caption}
-                onChangeText={(t) => updateCaption(i, t)}
-                placeholder="Légende (optionnel)"
+                onChangeText={(val) => updateCaption(i, val)}
+                placeholder={t('newReport.captionPlaceholder')}
                 placeholderTextColor={colors.textMuted}
               />
               <View style={styles.geoRow}>
                 <Feather name="map-pin" size={11} color={colors.textMuted} />
                 <Text style={styles.geo}>
-                  {p.latitude != null ? `${p.latitude.toFixed(4)}, ${p.longitude!.toFixed(4)}` : 'Position non disponible'}
+                  {p.latitude != null ? `${p.latitude.toFixed(4)}, ${p.longitude!.toFixed(4)}` : t('newReport.positionUnavailable')}
                 </Text>
               </View>
             </View>
@@ -306,7 +306,7 @@ export default function NewReportScreen() {
         {step ? <Text style={styles.step}>{step}</Text> : null}
 
         <Button
-          title="Créer et générer le rapport PDF"
+          title={t('newReport.submit')}
           onPress={handleSubmit}
           loading={loading}
           style={{ marginTop: spacing.xl }}
