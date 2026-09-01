@@ -15,6 +15,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -228,30 +229,35 @@ export function LoadingScreen({ label = 'Chargement…' }: { label?: string }) {
   );
 }
 
-const STATUS_STYLES: Record<string, { bg: string; fg: string; label: string }> = {
-  draft: { bg: colors.warningSoft, fg: colors.warning, label: 'Brouillon' },
-  ready: { bg: colors.accentSoft, fg: colors.accent, label: "Prêt à l'envoi" },
-  sent: { bg: colors.primarySoft, fg: colors.primary, label: 'Envoyé' },
-  partial: { bg: colors.accentSoft, fg: colors.accent, label: 'Partiellement payée' },
-  accepted: { bg: colors.successSoft, fg: colors.success, label: 'Accepté' },
-  refused: { bg: colors.dangerSoft, fg: colors.danger, label: 'Refusé' },
-  generated: { bg: colors.successSoft, fg: colors.success, label: 'Généré' },
-  active: { bg: colors.primarySoft, fg: colors.primary, label: 'Actif' },
-  completed: { bg: colors.successSoft, fg: colors.success, label: 'Terminé' },
-  archived: { bg: colors.border, fg: colors.textMuted, label: 'Archivé' },
-  paid: { bg: colors.successSoft, fg: colors.success, label: 'Payée' },
-  cancelled: { bg: colors.border, fg: colors.textMuted, label: 'Annulée' },
-  planifie: { bg: colors.accentSoft, fg: colors.accent, label: 'Planifié' },
-  en_cours: { bg: colors.primarySoft, fg: colors.primary, label: 'En cours' },
-  termine: { bg: colors.successSoft, fg: colors.success, label: 'Terminé' },
-  annule: { bg: colors.border, fg: colors.textMuted, label: 'Annulé' },
+// Colors only — the label itself comes from common.status.<key> in
+// lib/translations, kept in one place so it doesn't drift between here and
+// any screen that used to hardcode its own copy of this same map.
+const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
+  draft: { bg: colors.warningSoft, fg: colors.warning },
+  ready: { bg: colors.accentSoft, fg: colors.accent },
+  sent: { bg: colors.primarySoft, fg: colors.primary },
+  partial: { bg: colors.accentSoft, fg: colors.accent },
+  accepted: { bg: colors.successSoft, fg: colors.success },
+  refused: { bg: colors.dangerSoft, fg: colors.danger },
+  generated: { bg: colors.successSoft, fg: colors.success },
+  active: { bg: colors.primarySoft, fg: colors.primary },
+  completed: { bg: colors.successSoft, fg: colors.success },
+  archived: { bg: colors.border, fg: colors.textMuted },
+  paid: { bg: colors.successSoft, fg: colors.success },
+  cancelled: { bg: colors.border, fg: colors.textMuted },
+  planifie: { bg: colors.accentSoft, fg: colors.accent },
+  en_cours: { bg: colors.primarySoft, fg: colors.primary },
+  termine: { bg: colors.successSoft, fg: colors.success },
+  annule: { bg: colors.border, fg: colors.textMuted },
 };
 
 export function StatusBadge({ status }: { status: string }) {
-  const s = STATUS_STYLES[status] ?? { bg: colors.border, fg: colors.textMuted, label: status };
+  const { t } = useTranslation();
+  const s = STATUS_STYLES[status] ?? { bg: colors.border, fg: colors.textMuted };
+  const label = STATUS_STYLES[status] ? t(`common.status.${status}`) : status;
   return (
     <View style={[styles.badge, { backgroundColor: s.bg }]}>
-      <Text style={[styles.badgeText, { color: s.fg }]}>{s.label}</Text>
+      <Text style={[styles.badgeText, { color: s.fg }]}>{label}</Text>
     </View>
   );
 }

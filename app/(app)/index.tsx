@@ -9,39 +9,39 @@ import { isOnline } from '../../lib/presence';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
 import { Button, Card, EmptyState, Screen } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { DashboardTask, DashboardTaskCategory, OrganizationMember, Project } from '../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
-const STATUS_LABELS: Record<string, string> = {
-  active: 'Actif',
-  completed: 'Terminé',
-  archived: 'Archivé',
-};
-
 const WEATHER_REFRESH_MS = 20 * 60 * 1000;
 
-const CATEGORY_META: Record<DashboardTaskCategory, { label: string; fg: string; bg: string }> = {
-  general: { label: 'Général', fg: colors.textMuted, bg: colors.surfaceAlt },
-  administratif: { label: 'Administratif', fg: colors.primary, bg: colors.primarySoft },
-  chantier: { label: 'Chantier', fg: colors.accent, bg: colors.accentSoft },
-  client: { label: 'Client', fg: colors.success, bg: colors.successSoft },
-  urgent: { label: 'Urgent', fg: colors.danger, bg: colors.dangerSoft },
+const CATEGORY_COLORS: Record<DashboardTaskCategory, { fg: string; bg: string }> = {
+  general: { fg: colors.textMuted, bg: colors.surfaceAlt },
+  administratif: { fg: colors.primary, bg: colors.primarySoft },
+  chantier: { fg: colors.accent, bg: colors.accentSoft },
+  client: { fg: colors.success, bg: colors.successSoft },
+  urgent: { fg: colors.danger, bg: colors.dangerSoft },
 };
 
 const CATEGORY_ORDER: DashboardTaskCategory[] = ['general', 'urgent', 'chantier', 'client', 'administratif'];
 
-function formatDateFr(date: Date): string {
-  const label = date.toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+// 'fr-CH'/'de-CH' both format dates sensibly for either language — picking
+// the locale by the app's own current language rather than the device's,
+// since the two aren't necessarily the same (someone using a French phone
+// can still have chosen German inside Cantia).
+function formatDateLong(date: Date, locale: string): string {
+  const label = date.toLocaleDateString(`${locale}-CH`, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+function formatTime(date: Date, locale: string): string {
+  return date.toLocaleTimeString(`${locale}-CH`, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 export default function DashboardScreen() {
+  const { t, i18n } = useTranslation();
   const { organization, user, canViewFinances, role, permissions } = useAuth();
   const router = useRouter();
   const isAdmin = role === 'owner' || role === 'admin';
@@ -168,18 +168,18 @@ export default function DashboardScreen() {
   // it always lays out as a clean, fully-filled 2x2 grid.
   const shortcuts = useMemo(() => {
     const list: { key: string; label: string; icon: IconName; href: string }[] = [
-      { key: 'chantiers', label: 'Chantiers', icon: 'layers', href: '/(app)/chantiers' },
+      { key: 'chantiers', label: t('dashboard.shortcutChantiers'), icon: 'layers', href: '/(app)/chantiers' },
     ];
     if (financeVisible) {
       list.push(
-        { key: 'devis', label: 'Devis', icon: 'file-text', href: '/(app)/devis' },
-        { key: 'factures', label: 'Factures', icon: 'dollar-sign', href: '/(app)/devis/factures' },
+        { key: 'devis', label: t('dashboard.shortcutDevis'), icon: 'file-text', href: '/(app)/devis' },
+        { key: 'factures', label: t('dashboard.shortcutFactures'), icon: 'dollar-sign', href: '/(app)/devis/factures' },
       );
     }
-    if (payrollEnabled) list.push({ key: 'rh', label: 'Heures', icon: 'clock', href: '/(app)/rh' });
-    if (planningEnabled) list.push({ key: 'planning', label: 'Planning', icon: 'calendar', href: '/(app)/planning' });
+    if (payrollEnabled) list.push({ key: 'rh', label: t('dashboard.shortcutHeures'), icon: 'clock', href: '/(app)/rh' });
+    if (planningEnabled) list.push({ key: 'planning', label: t('dashboard.shortcutPlanning'), icon: 'calendar', href: '/(app)/planning' });
     return list.slice(0, 4);
-  }, [financeVisible, planningEnabled, payrollEnabled]);
+  }, [financeVisible, planningEnabled, payrollEnabled, t]);
 
   const weatherInfo = weather ? describeWeatherCode(weather.code) : null;
 
@@ -191,7 +191,7 @@ export default function DashboardScreen() {
       >
         <View style={styles.helloRow}>
           <View>
-            <Text style={styles.hello}>{firstName ? `Salut ${firstName}` : 'Salut'}</Text>
+            <Text style={styles.hello}>{firstName ? t('dashboard.helloName', { name: firstName }) : t('dashboard.hello')}</Text>
             <Text style={styles.org}>{organization?.name}</Text>
           </View>
         </View>
@@ -203,9 +203,8 @@ export default function DashboardScreen() {
           >
             <Feather name="clock" size={16} color={colors.accent} />
             <Text style={styles.trialBannerText}>
-              Essai Découverte — {trialDaysLeft ?? 0} jour{(trialDaysLeft ?? 0) > 1 ? 's' : ''} restant
-              {(trialDaysLeft ?? 0) > 1 ? 's' : ''}, tout est débloqué.
-              {isAdmin ? ' Choisissez un plan avant la fin pour tout garder.' : ''}
+              {t('dashboard.trialBanner', { count: trialDaysLeft ?? 0 })}
+              {isAdmin ? t('dashboard.trialBannerAdminSuffix') : ''}
             </Text>
             {isAdmin ? <Feather name="chevron-right" size={16} color={colors.accent} /> : null}
           </Pressable>
@@ -213,8 +212,8 @@ export default function DashboardScreen() {
 
         <Card style={styles.timeCard}>
           <View style={styles.timeLeft}>
-            <Text style={styles.dateText}>{formatDateFr(now)}</Text>
-            <Text style={styles.clockText}>{formatTime(now)}</Text>
+            <Text style={styles.dateText}>{formatDateLong(now, i18n.language)}</Text>
+            <Text style={styles.clockText}>{formatTime(now, i18n.language)}</Text>
           </View>
           <View style={styles.weatherRight}>
             {weatherInfo && weather ? (
@@ -228,7 +227,7 @@ export default function DashboardScreen() {
             ) : weatherChecked ? (
               <>
                 <Feather name="cloud-off" size={22} color={colors.textMuted} />
-                <Text style={styles.weatherUnavailable}>Météo indisponible</Text>
+                <Text style={styles.weatherUnavailable}>{t('dashboard.weatherUnavailable')}</Text>
               </>
             ) : (
               <ActivityIndicator size="small" color={colors.textMuted} />
@@ -239,18 +238,18 @@ export default function DashboardScreen() {
         <FeatureHint
           id="dashboard-welcome"
           icon="compass"
-          title="Bienvenue sur Cantia"
-          text="Créez un chantier, ajoutez des rapports et des documents sur le terrain, puis générez vos devis en quelques minutes."
+          title={t('dashboard.welcomeTitle')}
+          text={t('dashboard.welcomeText')}
         />
 
         <View style={styles.quickRow}>
-          <Button title="Nouveau chantier" icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flex: 1 }} />
+          <Button title={t('dashboard.newProject')} icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flex: 1 }} />
           {financeVisible ? (
-            <Button title="Nouveau devis" icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
+            <Button title={t('dashboard.newDevis')} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
           ) : null}
         </View>
 
-        <Text style={styles.sectionTitle}>Raccourcis</Text>
+        <Text style={styles.sectionTitle}>{t('dashboard.shortcuts')}</Text>
         <View style={styles.shortcutGrid}>
           {shortcuts.map((s) => (
             <Pressable key={s.key} onPress={() => router.push(s.href as any)} style={styles.shortcutTile}>
@@ -265,10 +264,10 @@ export default function DashboardScreen() {
         </View>
 
         <View style={styles.sectionHeaderRow}>
-          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Tâches</Text>
+          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('dashboard.tasks')}</Text>
           {openTaskCount > tasks.length ? (
             <Pressable onPress={() => router.push('/(app)/taches' as any)}>
-              <Text style={styles.sectionLink}>Tout voir ({openTaskCount})</Text>
+              <Text style={styles.sectionLink}>{t('dashboard.seeAllCount', { count: openTaskCount })}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -277,7 +276,7 @@ export default function DashboardScreen() {
             <TextInput
               value={newTaskTitle}
               onChangeText={setNewTaskTitle}
-              placeholder="Ajouter une tâche…"
+              placeholder={t('dashboard.addTaskPlaceholder')}
               placeholderTextColor={colors.textMuted}
               style={styles.taskInput}
               onSubmitEditing={handleAddTask}
@@ -289,7 +288,7 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.categoryRow}>
             {CATEGORY_ORDER.map((cat) => {
-              const meta = CATEGORY_META[cat];
+              const meta = CATEGORY_COLORS[cat];
               const active = newTaskCategory === cat;
               return (
                 <Pressable
@@ -297,18 +296,18 @@ export default function DashboardScreen() {
                   onPress={() => setNewTaskCategory(cat)}
                   style={[styles.categoryChip, { backgroundColor: active ? meta.bg : colors.surfaceAlt }]}
                 >
-                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{meta.label}</Text>
+                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{t(`common.taskCategory.${cat}`)}</Text>
                 </Pressable>
               );
             })}
           </View>
           {taskError ? <Text style={styles.taskError}>{taskError}</Text> : null}
           {tasks.length === 0 ? (
-            <Text style={styles.tasksEmpty}>Aucune tâche en cours. Belle journée.</Text>
+            <Text style={styles.tasksEmpty}>{t('dashboard.noTasks')}</Text>
           ) : (
             <View style={styles.taskList}>
               {tasks.map((task) => {
-                const meta = CATEGORY_META[task.category] ?? CATEGORY_META.general;
+                const meta = CATEGORY_COLORS[task.category] ?? CATEGORY_COLORS.general;
                 return (
                   <View key={task.id} style={styles.taskRow}>
                     <Pressable onPress={() => handleToggleTask(task)} style={styles.taskCheckbox} hitSlop={8} />
@@ -325,14 +324,14 @@ export default function DashboardScreen() {
         </Card>
 
         <View style={styles.sectionHeaderRow}>
-          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Chantiers récents</Text>
+          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('dashboard.recentProjects')}</Text>
           <Pressable onPress={() => router.push('/(app)/chantiers')}>
-            <Text style={styles.sectionLink}>Tout voir</Text>
+            <Text style={styles.sectionLink}>{t('common.seeAll')}</Text>
           </Pressable>
         </View>
         {recentProjects.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <EmptyState title="Aucun chantier pour l'instant" subtitle="Créez votre premier chantier pour le voir apparaître ici." />
+            <EmptyState title={t('dashboard.noProjectsTitle')} subtitle={t('dashboard.noProjectsSubtitle')} />
           </Card>
         ) : (
           <View style={styles.list}>
@@ -347,7 +346,7 @@ export default function DashboardScreen() {
                       {p.name}
                     </Text>
                     <Text style={styles.recentMeta} numberOfLines={1}>
-                      {[p.client_name, STATUS_LABELS[p.status] ?? p.status].filter(Boolean).join(' · ')}
+                      {[p.client_name, t(`common.projectStatus.${p.status}` as any) ?? p.status].filter(Boolean).join(' · ')}
                     </Text>
                   </View>
                   <Feather name="chevron-right" size={18} color={colors.textMuted} />
@@ -360,21 +359,21 @@ export default function DashboardScreen() {
         {members.length > 1 ? (
           <>
             <View style={styles.sectionHeaderRow}>
-              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Équipe</Text>
+              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('dashboard.team')}</Text>
               <Pressable onPress={() => router.push('/(app)/compte/equipe')}>
-                <Text style={styles.sectionLink}>Gérer</Text>
+                <Text style={styles.sectionLink}>{t('common.manage')}</Text>
               </Pressable>
             </View>
             <Card style={styles.teamCard}>
               <Text style={styles.teamCount}>
-                {members.filter((m) => isOnline(m.last_seen_at)).length} en ligne sur {members.length}
+                {t('dashboard.teamOnline', { online: members.filter((m) => isOnline(m.last_seen_at)).length, total: members.length })}
               </Text>
               <View style={styles.teamList}>
                 {members.map((m) => (
                   <View key={m.id} style={styles.teamRow}>
                     <View style={[styles.presenceDot, isOnline(m.last_seen_at) && styles.presenceDotOnline]} />
                     <Text style={styles.teamName} numberOfLines={1}>
-                      {m.full_name || 'Membre'}
+                      {m.full_name || t('common.member')}
                     </Text>
                   </View>
                 ))}

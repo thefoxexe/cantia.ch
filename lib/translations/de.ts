@@ -4,12 +4,154 @@ import type { TranslationDict } from './fr';
 // spelling (ss, not ß). Keys must mirror fr.ts exactly; TranslationDict
 // enforces that at compile time so a missing key is a type error, not a
 // silent runtime fallback.
+//
+// Terminology glossary — keep these consistent across every screen rather
+// than re-deriving a translation each time:
+//   devis → Offerte(n)          facture → Rechnung(en)
+//   chantier → Baustelle(n)     client → Kunde/Kundin
+//   entreprise → Unternehmen    équipe → Team
+//   rapport (de chantier) → Baustellenrapport
+//   planning → Planung          paramètres → Einstellungen
+//   employé → Mitarbeiter       sous-traitant → Subunternehmer
+//   trésorerie → Liquidität     métré → Aufmass
+//   RH & salaires → Personal & Löhne
+//   catalogue → Katalog         trame → Vorlage
+//   TVA → MWST                  membre → Mitglied
+//   rôle → Rolle                statut → Status
+//   brouillon → Entwurf         envoyé → Gesendet
+//   accepté → Akzeptiert        refusé → Abgelehnt
+//   payé → Bezahlt              en retard → Überfällig
+//   tâche → Aufgabe
 export const de: TranslationDict = {
   common: {
     save: 'Speichern',
     saving: 'Wird gespeichert…',
     cancel: 'Abbrechen',
     language: 'Sprache',
+    seeAll: 'Alle anzeigen',
+    manage: 'Verwalten',
+    member: 'Mitglied',
+    projectStatus: {
+      active: 'Aktiv',
+      completed: 'Abgeschlossen',
+      archived: 'Archiviert',
+    },
+    status: {
+      draft: 'Entwurf',
+      ready: 'Versandbereit',
+      sent: 'Gesendet',
+      partial: 'Teilweise bezahlt',
+      accepted: 'Akzeptiert',
+      refused: 'Abgelehnt',
+      generated: 'Erstellt',
+      active: 'Aktiv',
+      completed: 'Abgeschlossen',
+      archived: 'Archiviert',
+      paid: 'Bezahlt',
+      cancelled: 'Storniert',
+      planifie: 'Geplant',
+      en_cours: 'Im Gange',
+      termine: 'Abgeschlossen',
+      annule: 'Storniert',
+    },
+    taskCategory: {
+      general: 'Allgemein',
+      administratif: 'Administration',
+      chantier: 'Baustelle',
+      client: 'Kunde',
+      urgent: 'Dringend',
+    },
+  },
+  devisList: {
+    title: 'Offerten',
+    subtitle: 'Erstellen, verfolgen und mahnen Sie alle Ihre Kundenofferten.',
+    newDevis: 'Neue Offerte',
+    allDevis: 'Alle Offerten',
+    kpiPending: 'Wartet auf Antwort',
+    kpiAccepted: 'Diesen Monat akzeptiert',
+    kpiRefused: 'Abgelehnt',
+    kpiDraft: 'Entwürfe',
+    unassigned: 'Ohne Baustelle',
+    projects: 'Baustellen',
+    emptyTitle: 'Keine Offerte',
+    emptySubtitle: 'Erstellen Sie Ihre erste Offerte für einen Kunden.',
+    emptyProjectSubtitle: 'Noch keine Offerte für diese Baustelle.',
+    duplicate: 'Duplizieren',
+    delete: 'Löschen',
+    deleteConfirmTitle: 'Diese Offerte löschen?',
+    deleteConfirmBody: 'Die Offerte {{number}} für {{client}} wird endgültig gelöscht.',
+    countSuffix_one: '{{count}} Offerte',
+    countSuffix_other: '{{count}} Offerten',
+  },
+  dashboard: {
+    hello: 'Hallo',
+    helloName: 'Hallo {{name}}',
+    trialBanner_one: 'Découverte-Testphase — noch {{count}} Tag, alles ist freigeschaltet.',
+    trialBanner_other: 'Découverte-Testphase — noch {{count}} Tage, alles ist freigeschaltet.',
+    trialBannerAdminSuffix: ' Wählen Sie vor Ablauf einen Plan, um alles zu behalten.',
+    weatherUnavailable: 'Wetter nicht verfügbar',
+    welcomeTitle: 'Willkommen bei Cantia',
+    welcomeText: 'Erstellen Sie eine Baustelle, fügen Sie vor Ort Rapporte und Dokumente hinzu und erstellen Sie in wenigen Minuten Ihre Offerten.',
+    newProject: 'Neue Baustelle',
+    newDevis: 'Neue Offerte',
+    shortcuts: 'Verknüpfungen',
+    shortcutChantiers: 'Baustellen',
+    shortcutDevis: 'Offerten',
+    shortcutFactures: 'Rechnungen',
+    shortcutHeures: 'Stunden',
+    shortcutPlanning: 'Planung',
+    tasks: 'Aufgaben',
+    seeAllCount: 'Alle anzeigen ({{count}})',
+    addTaskPlaceholder: 'Aufgabe hinzufügen…',
+    noTasks: 'Keine offenen Aufgaben. Schönen Tag noch.',
+    recentProjects: 'Letzte Baustellen',
+    noProjectsTitle: 'Noch keine Baustelle',
+    noProjectsSubtitle: 'Erstellen Sie Ihre erste Baustelle, damit sie hier erscheint.',
+    team: 'Team',
+    teamOnline: '{{online}} von {{total}} online',
+  },
+  facturesList: {
+    title: 'Rechnungen',
+    subtitle: 'Verfolgen Sie Zahlungen, Fälligkeiten und Mahnungen Ihrer Rechnungen.',
+    allFactures: 'Alle Rechnungen',
+    kpiOverdue: 'Überfällig',
+    kpiPending: 'Ausstehend',
+    kpiPaidThisMonth: 'Diesen Monat bezahlt',
+    kpiDraft: 'Entwürfe',
+    searchPlaceholder: 'Rechnungsnr., Kunde, Baustelle oder QR-Referenz',
+    matchBanner: 'Zahlung zugeordnet: Rechnung {{number}} · {{client}}',
+    filterAll: 'Alle',
+    filterOverdue: 'Überfällig',
+    filterPending: 'Ausstehend',
+    filterPaid: 'Bezahlt',
+    filterDraft: 'Entwürfe',
+    sortLabel: 'Sortieren nach',
+    sortPriority: 'Priorität',
+    sortIssued: 'Ausstellungsdatum',
+    sortDue: 'Fälligkeitsdatum',
+    unassigned: 'Ohne Baustelle',
+    projects: 'Baustellen',
+    countSuffix_one: '{{count}} Rechnung',
+    countSuffix_other: '{{count}} Rechnungen',
+    emptyTitle: 'Keine Rechnung',
+    emptyProjectFilterSubtitle: 'Nichts in diesem Filter für diese Baustelle.',
+    emptySearchSubtitle: 'Kein Treffer für diese Suche.',
+    emptyGlobalSubtitle: 'Wandeln Sie eine akzeptierte Offerte auf ihrer Seite in eine Rechnung um.',
+    emptyFilterSubtitle: 'Momentan nichts in diesem Filter.',
+    deposit: 'Anzahlung',
+    overduePrefix: 'Überfällig · ',
+    dueDate: 'Fällig am {{date}}',
+    remindButton: 'Mahnen',
+    remindHintEmail: 'Mahnung per E-Mail',
+    remindSoon: 'Bald verfügbar',
+    remindToday: 'heute gemahnt',
+    remindYesterday: 'gestern gemahnt',
+    remindDaysAgo: 'vor {{days}} Tagen gemahnt',
+    duplicate: 'Duplizieren',
+    delete: 'Löschen',
+    deleteConfirmTitle: 'Diese Rechnung löschen?',
+    deleteConfirmBody: 'Die Rechnung {{number}} für {{client}} wird endgültig gelöscht.',
+    reminderSendError: 'Mahnung konnte nicht gesendet werden.',
   },
   profil: {
     title: 'Mein Profil',

@@ -8,6 +8,7 @@ import { duplicateDevis } from '../../../lib/api/devis';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
+import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
 
@@ -45,17 +46,18 @@ function KpiTile({
   icon: React.ComponentProps<typeof Feather>['name'];
   hideAmount?: boolean;
 }) {
-  const t = TONE_COLORS[tone];
+  const { t: translate } = useTranslation();
+  const tone_ = TONE_COLORS[tone];
   return (
     <View style={styles.kpiTile}>
-      <View style={[styles.kpiIcon, { backgroundColor: t.bg }]}>
-        <Feather name={icon} size={14} color={t.fg} />
+      <View style={[styles.kpiIcon, { backgroundColor: tone_.bg }]}>
+        <Feather name={icon} size={14} color={tone_.fg} />
       </View>
       <Text style={styles.kpiLabel}>{label}</Text>
       {!hideAmount ? <Text style={styles.kpiAmount}>CHF {(amount ?? 0).toFixed(2)}</Text> : null}
       {count !== undefined ? (
         <Text style={styles.kpiCount}>
-          {count} devis
+          {translate('devisList.countSuffix', { count })}
         </Text>
       ) : null}
     </View>
@@ -67,6 +69,7 @@ function KpiTile({
 // mirrors how the org actually thinks about its documents (by chantier)
 // instead of one long undifferentiated feed.
 export default function DevisListScreen() {
+  const { t } = useTranslation();
   const { organization, role } = useAuth();
   const router = useRouter();
   const [devisList, setDevisList] = useState<Devis[]>([]);
@@ -161,7 +164,7 @@ export default function DevisListScreen() {
   }
 
   async function handleDelete(item: Devis) {
-    const ok = await confirm('Supprimer ce devis ?', `Le devis ${item.number ?? ''} pour ${item.client_name} sera définitivement supprimé.`);
+    const ok = await confirm(t('devisList.deleteConfirmTitle'), t('devisList.deleteConfirmBody', { number: item.number ?? '', client: item.client_name }));
     if (!ok) return;
     setActionError(null);
     const { error } = await supabase.from('devis').delete().eq('id', item.id);
@@ -183,7 +186,7 @@ export default function DevisListScreen() {
                 <StatusBadge status={item.status} />
               </View>
               <Text style={styles.client}>{item.client_name}</Text>
-              <Text style={styles.meta}>{new Date(item.created_at).toLocaleDateString('fr-CH')}</Text>
+              <Text style={styles.meta}>{formatDate(item.created_at)}</Text>
             </View>
             <Feather name="chevron-right" size={18} color={colors.textMuted} />
           </Card>
@@ -191,9 +194,9 @@ export default function DevisListScreen() {
         <View style={styles.cardMenu}>
           <RowActionMenu
             actions={[
-              { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
+              { key: 'duplicate', icon: 'copy', label: t('devisList.duplicate'), onPress: () => handleDuplicate(item.id) },
               ...(isAdmin
-                ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
+                ? [{ key: 'delete', icon: 'trash-2' as const, label: t('devisList.delete'), danger: true, onPress: () => handleDelete(item) }]
                 : []),
             ]}
           />
@@ -209,13 +212,13 @@ export default function DevisListScreen() {
           <>
             <Pressable onPress={() => setOpenProjectId(null)} style={styles.backRow} hitSlop={8}>
               <Feather name="arrow-left" size={16} color={colors.textMuted} />
-              <Text style={styles.backText}>Tous les devis</Text>
+              <Text style={styles.backText}>{t('devisList.allDevis')}</Text>
             </Pressable>
             <PageHeader title={openProject.name} />
           </>
         ) : (
           <PageHeader
-            title="Devis"
+            title={t('devisList.title')}
             backTo="/(app)"
             right={
               isAdmin ? (
@@ -226,10 +229,10 @@ export default function DevisListScreen() {
             }
           />
         )}
-        {!openProject ? <Text style={styles.pageSubtitle}>Créez, suivez et relancez tous vos devis clients.</Text> : null}
+        {!openProject ? <Text style={styles.pageSubtitle}>{t('devisList.subtitle')}</Text> : null}
 
         <Button
-          title="Nouveau devis"
+          title={t('devisList.newDevis')}
           icon="plus"
           onPress={() => router.push('/(app)/devis/new')}
           style={{ marginBottom: spacing.lg }}
@@ -243,25 +246,25 @@ export default function DevisListScreen() {
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
             {!openProject ? (
               <View style={styles.kpiGrid}>
-                <KpiTile label="En attente de réponse" amount={kpis.sentSum} count={kpis.sentCount} tone="primary" icon="clock" />
-                <KpiTile label="Acceptés ce mois" amount={kpis.acceptedSum} tone="success" icon="check-circle" />
-                <KpiTile label="Refusés" count={kpis.refusedCount} tone="danger" icon="x-circle" hideAmount />
-                <KpiTile label="Brouillons" count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
+                <KpiTile label={t('devisList.kpiPending')} amount={kpis.sentSum} count={kpis.sentCount} tone="primary" icon="clock" />
+                <KpiTile label={t('devisList.kpiAccepted')} amount={kpis.acceptedSum} tone="success" icon="check-circle" />
+                <KpiTile label={t('devisList.kpiRefused')} count={kpis.refusedCount} tone="danger" icon="x-circle" hideAmount />
+                <KpiTile label={t('devisList.kpiDraft')} count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
               </View>
             ) : null}
             {openProject ? (
               openProjectDevis.length === 0 ? (
-                <EmptyState title="Aucun devis" subtitle="Aucun devis lié à ce chantier pour le moment." />
+                <EmptyState title={t('devisList.emptyTitle')} subtitle={t('devisList.emptyProjectSubtitle')} />
               ) : (
                 openProjectDevis.map((item) => <DevisRow key={item.id} item={item} />)
               )
             ) : devisList.length === 0 ? (
-              <EmptyState title="Aucun devis" subtitle="Créez votre premier devis pour un client." />
+              <EmptyState title={t('devisList.emptyTitle')} subtitle={t('devisList.emptySubtitle')} />
             ) : (
               <>
                 {unassigned.length > 0 ? (
                   <View style={{ gap: spacing.md }}>
-                    <Text style={styles.sectionTitle}>Sans chantier</Text>
+                    <Text style={styles.sectionTitle}>{t('devisList.unassigned')}</Text>
                     {unassigned.map((item) => (
                       <DevisRow key={item.id} item={item} />
                     ))}
@@ -269,7 +272,7 @@ export default function DevisListScreen() {
                 ) : null}
                 {folders.length > 0 ? (
                   <View style={{ gap: spacing.sm }}>
-                    <Text style={styles.sectionTitle}>Chantiers</Text>
+                    <Text style={styles.sectionTitle}>{t('devisList.projects')}</Text>
                     {folders.map((f) => (
                       <Pressable key={f.id} onPress={() => setOpenProjectId(f.id)}>
                         <Card style={styles.folderCard}>
@@ -278,9 +281,7 @@ export default function DevisListScreen() {
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={styles.folderName}>{f.name}</Text>
-                            <Text style={styles.folderCount}>
-                              {f.count} devis{f.count > 1 ? '' : ''}
-                            </Text>
+                            <Text style={styles.folderCount}>{t('devisList.countSuffix', { count: f.count })}</Text>
                           </View>
                           <Feather name="chevron-right" size={18} color={colors.textMuted} />
                         </Card>

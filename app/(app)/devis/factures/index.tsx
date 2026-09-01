@@ -9,16 +9,17 @@ import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
+import { formatDate, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
 
 type FilterKey = 'all' | 'overdue' | 'pending' | 'paid' | 'draft';
 type SortKey = 'priority' | 'issued' | 'due';
 
-const SORTS: { key: SortKey; label: string }[] = [
-  { key: 'priority', label: 'Priorité' },
-  { key: 'issued', label: "Date d'émission" },
-  { key: 'due', label: "Date d'échéance" },
+const SORTS: { key: SortKey; labelKey: 'facturesList.sortPriority' | 'facturesList.sortIssued' | 'facturesList.sortDue' }[] = [
+  { key: 'priority', labelKey: 'facturesList.sortPriority' },
+  { key: 'issued', labelKey: 'facturesList.sortIssued' },
+  { key: 'due', labelKey: 'facturesList.sortDue' },
 ];
 
 const REMINDERS_ENABLED = true;
@@ -93,14 +94,15 @@ function matchesFilter(f: Facture, filter: FilterKey): boolean {
   }
 }
 
-function relativeReminder(iso: string): string {
+function relativeReminder(iso: string, t: ReturnType<typeof useTranslation>['t']): string {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-  if (days <= 0) return "relancée aujourd'hui";
-  if (days === 1) return 'relancée hier';
-  return `relancée il y a ${days} j`;
+  if (days <= 0) return t('facturesList.remindToday');
+  if (days === 1) return t('facturesList.remindYesterday');
+  return t('facturesList.remindDaysAgo', { days });
 }
 
 export default function FacturesListScreen() {
+  const { t } = useTranslation();
   const { organization, role } = useAuth();
   const router = useRouter();
   const [factures, setFactures] = useState<Facture[]>([]);
@@ -233,7 +235,7 @@ export default function FacturesListScreen() {
     const { sent, error } = await sendFactureReminder(facture.id);
     setRemindingId(null);
     if (!sent) {
-      setReminderError(error ?? "Échec de l'envoi de la relance.");
+      setReminderError(error ?? t('facturesList.reminderSendError'));
       return;
     }
     load();
@@ -250,7 +252,10 @@ export default function FacturesListScreen() {
   }
 
   async function handleDelete(item: Facture) {
-    const ok = await confirm('Supprimer cette facture ?', `La facture ${item.number ?? ''} pour ${item.client_name} sera définitivement supprimée.`);
+    const ok = await confirm(
+      t('facturesList.deleteConfirmTitle'),
+      t('facturesList.deleteConfirmBody', { number: item.number ?? '', client: item.client_name }),
+    );
     if (!ok) return;
     setReminderError(null);
     const { error } = await supabase.from('factures').delete().eq('id', item.id);
@@ -263,11 +268,11 @@ export default function FacturesListScreen() {
   }
 
   const filters: { key: FilterKey; label: string; count: number }[] = [
-    { key: 'all', label: 'Toutes', count: factures.length },
-    { key: 'overdue', label: 'En retard', count: kpis.overdueCount },
-    { key: 'pending', label: 'À encaisser', count: kpis.pendingCount },
-    { key: 'paid', label: 'Payées', count: factures.filter((f) => f.status === 'paid').length },
-    { key: 'draft', label: 'Brouillons', count: kpis.draftCount },
+    { key: 'all', label: t('facturesList.filterAll'), count: factures.length },
+    { key: 'overdue', label: t('facturesList.filterOverdue'), count: kpis.overdueCount },
+    { key: 'pending', label: t('facturesList.filterPending'), count: kpis.pendingCount },
+    { key: 'paid', label: t('facturesList.filterPaid'), count: factures.filter((f) => f.status === 'paid').length },
+    { key: 'draft', label: t('facturesList.filterDraft'), count: kpis.draftCount },
   ];
 
   function FactureRow({ item }: { item: Facture }) {
@@ -285,7 +290,7 @@ export default function FacturesListScreen() {
                   <Text style={styles.number}>{item.number}</Text>
                   {item.is_deposit ? (
                     <View style={styles.depositBadge}>
-                      <Text style={styles.depositBadgeText}>Acompte</Text>
+                      <Text style={styles.depositBadgeText}>{t('facturesList.deposit')}</Text>
                     </View>
                   ) : null}
                 </View>
@@ -300,7 +305,8 @@ export default function FacturesListScreen() {
               ) : null}
               <View style={styles.metaRow}>
                 <Text style={[styles.meta, overdue && styles.overdue]}>
-                  {overdue ? 'En retard · ' : ''}Échéance {new Date(item.due_date).toLocaleDateString('fr-CH')}
+                  {overdue ? t('facturesList.overduePrefix') : ''}
+                  {t('facturesList.dueDate', { date: formatDate(item.due_date) })}
                 </Text>
                 <Text style={styles.amount}>CHF {amount.toFixed(2)}</Text>
               </View>
@@ -310,7 +316,7 @@ export default function FacturesListScreen() {
           {REMINDERS_ENABLED && canRemind ? (
             <View style={styles.remindRow}>
               {item.last_reminded_at ? (
-                <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at)}</Text>
+                <Text style={styles.remindHint}>{relativeReminder(item.last_reminded_at, t)}</Text>
               ) : (
                 <View />
               )}
@@ -324,17 +330,17 @@ export default function FacturesListScreen() {
                 ) : (
                   <>
                     <Feather name="mail" size={12} color={overdue ? '#fff' : colors.primary} />
-                    <Text style={[styles.remindButtonText, overdue && styles.remindButtonTextUrgent]}>Relancer</Text>
+                    <Text style={[styles.remindButtonText, overdue && styles.remindButtonTextUrgent]}>{t('facturesList.remindButton')}</Text>
                   </>
                 )}
               </Pressable>
             </View>
           ) : !REMINDERS_ENABLED && showRemindRow ? (
             <View style={styles.remindRow}>
-              <Text style={styles.remindHint}>Relance par e-mail</Text>
+              <Text style={styles.remindHint}>{t('facturesList.remindHintEmail')}</Text>
               <View style={styles.remindSoonBadge}>
                 <Feather name="clock" size={11} color={colors.textMuted} />
-                <Text style={styles.remindSoonText}>Bientôt disponible</Text>
+                <Text style={styles.remindSoonText}>{t('facturesList.remindSoon')}</Text>
               </View>
             </View>
           ) : null}
@@ -342,9 +348,9 @@ export default function FacturesListScreen() {
         <View style={styles.cardMenu}>
           <RowActionMenu
             actions={[
-              { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: () => handleDuplicate(item.id) },
+              { key: 'duplicate', icon: 'copy', label: t('facturesList.duplicate'), onPress: () => handleDuplicate(item.id) },
               ...(isAdmin
-                ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: () => handleDelete(item) }]
+                ? [{ key: 'delete', icon: 'trash-2' as const, label: t('facturesList.delete'), danger: true, onPress: () => handleDelete(item) }]
                 : []),
             ]}
           />
@@ -362,14 +368,14 @@ export default function FacturesListScreen() {
           <>
             <Pressable onPress={() => setOpenProjectId(null)} style={styles.backRow} hitSlop={8}>
               <Feather name="arrow-left" size={16} color={colors.textMuted} />
-              <Text style={styles.backText}>Toutes les factures</Text>
+              <Text style={styles.backText}>{t('facturesList.allFactures')}</Text>
             </Pressable>
             <PageHeader title={openProject.name} />
           </>
         ) : (
           <>
             <PageHeader
-              title="Factures"
+              title={t('facturesList.title')}
               backTo="/(app)"
               right={
                 isAdmin ? (
@@ -390,7 +396,7 @@ export default function FacturesListScreen() {
                 ) : undefined
               }
             />
-            <Text style={styles.pageSubtitle}>Suivez les paiements, les échéances et les relances de vos factures.</Text>
+            <Text style={styles.pageSubtitle}>{t('facturesList.subtitle')}</Text>
           </>
         )}
 
@@ -401,10 +407,10 @@ export default function FacturesListScreen() {
             {!openProject ? (
               <View style={{ gap: spacing.md }}>
                 <View style={styles.kpiGrid}>
-                  <KpiTile label="En retard" amount={kpis.overdueSum} count={kpis.overdueCount} tone="danger" icon="alert-triangle" />
-                  <KpiTile label="À encaisser" amount={kpis.pendingSum} count={kpis.pendingCount} tone="primary" icon="clock" />
-                  <KpiTile label="Encaissé ce mois" amount={kpis.paidSum} tone="success" icon="check-circle" />
-                  <KpiTile label="Brouillons" count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
+                  <KpiTile label={t('facturesList.kpiOverdue')} amount={kpis.overdueSum} count={kpis.overdueCount} tone="danger" icon="alert-triangle" />
+                  <KpiTile label={t('facturesList.kpiPending')} amount={kpis.pendingSum} count={kpis.pendingCount} tone="primary" icon="clock" />
+                  <KpiTile label={t('facturesList.kpiPaidThisMonth')} amount={kpis.paidSum} tone="success" icon="check-circle" />
+                  <KpiTile label={t('facturesList.kpiDraft')} count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
                 </View>
 
                 <View style={styles.searchRow}>
@@ -412,7 +418,7 @@ export default function FacturesListScreen() {
                   <TextInput
                     value={search}
                     onChangeText={setSearch}
-                    placeholder="N° de facture, client, chantier ou référence QR"
+                    placeholder={t('facturesList.searchPlaceholder')}
                     placeholderTextColor={colors.textMuted}
                     style={styles.searchInput}
                     autoCapitalize="none"
@@ -427,7 +433,7 @@ export default function FacturesListScreen() {
                   <Pressable style={styles.matchBanner} onPress={() => router.push(`/(app)/devis/factures/${referenceMatch.id}`)}>
                     <Feather name="check-circle" size={16} color={colors.success} />
                     <Text style={styles.matchBannerText}>
-                      Paiement rapproché : facture {referenceMatch.number} · {referenceMatch.client_name}
+                      {t('facturesList.matchBanner', { number: referenceMatch.number, client: referenceMatch.client_name })}
                     </Text>
                     <Feather name="chevron-right" size={16} color={colors.success} />
                   </Pressable>
@@ -446,10 +452,10 @@ export default function FacturesListScreen() {
             </View>
 
             <View style={styles.sortRow}>
-              <Text style={styles.sortLabel}>Trier par</Text>
+              <Text style={styles.sortLabel}>{t('facturesList.sortLabel')}</Text>
               {SORTS.map((s) => (
                 <Pressable key={s.key} onPress={() => setSort(s.key)} style={[styles.sortChip, sort === s.key && styles.sortChipActive]}>
-                  <Text style={[styles.sortChipText, sort === s.key && styles.sortChipTextActive]}>{s.label}</Text>
+                  <Text style={[styles.sortChipText, sort === s.key && styles.sortChipTextActive]}>{t(s.labelKey)}</Text>
                 </Pressable>
               ))}
             </View>
@@ -459,8 +465,8 @@ export default function FacturesListScreen() {
             {listToShow ? (
               listToShow.length === 0 ? (
                 <EmptyState
-                  title="Aucune facture"
-                  subtitle={openProject ? 'Rien dans ce filtre pour ce chantier.' : 'Rien ne correspond à cette recherche.'}
+                  title={t('facturesList.emptyTitle')}
+                  subtitle={openProject ? t('facturesList.emptyProjectFilterSubtitle') : t('facturesList.emptySearchSubtitle')}
                 />
               ) : (
                 <View style={{ gap: spacing.md }}>
@@ -470,12 +476,12 @@ export default function FacturesListScreen() {
                 </View>
               )
             ) : factures.length === 0 ? (
-              <EmptyState title="Aucune facture" subtitle="Transformez un devis accepté en facture depuis sa fiche." />
+              <EmptyState title={t('facturesList.emptyTitle')} subtitle={t('facturesList.emptyGlobalSubtitle')} />
             ) : (
               <>
                 {unassigned.length > 0 ? (
                   <View style={{ gap: spacing.md }}>
-                    <Text style={styles.sectionTitle}>Sans chantier</Text>
+                    <Text style={styles.sectionTitle}>{t('facturesList.unassigned')}</Text>
                     {unassigned.map((item) => (
                       <FactureRow key={item.id} item={item} />
                     ))}
@@ -483,7 +489,7 @@ export default function FacturesListScreen() {
                 ) : null}
                 {folders.length > 0 ? (
                   <View style={{ gap: spacing.sm }}>
-                    <Text style={styles.sectionTitle}>Chantiers</Text>
+                    <Text style={styles.sectionTitle}>{t('facturesList.projects')}</Text>
                     {folders.map((f) => (
                       <Pressable key={f.id} onPress={() => setOpenProjectId(f.id)}>
                         <Card style={styles.folderCard}>
@@ -492,7 +498,7 @@ export default function FacturesListScreen() {
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={styles.folderName}>{f.name}</Text>
-                            <Text style={styles.folderCount}>{f.count} facture{f.count > 1 ? 's' : ''}</Text>
+                            <Text style={styles.folderCount}>{t('facturesList.countSuffix', { count: f.count })}</Text>
                           </View>
                           <Feather name="chevron-right" size={18} color={colors.textMuted} />
                         </Card>
@@ -501,7 +507,7 @@ export default function FacturesListScreen() {
                   </View>
                 ) : null}
                 {unassigned.length === 0 && folders.length === 0 ? (
-                  <EmptyState title="Aucune facture" subtitle="Rien dans ce filtre pour le moment." />
+                  <EmptyState title={t('facturesList.emptyTitle')} subtitle={t('facturesList.emptyFilterSubtitle')} />
                 ) : null}
               </>
             )}
@@ -534,17 +540,18 @@ function KpiTile({
   icon: React.ComponentProps<typeof Feather>['name'];
   hideAmount?: boolean;
 }) {
-  const t = TONE_COLORS[tone];
+  const { t: translate } = useTranslation();
+  const tone_ = TONE_COLORS[tone];
   return (
     <View style={styles.kpiTile}>
-      <View style={[styles.kpiIcon, { backgroundColor: t.bg }]}>
-        <Feather name={icon} size={14} color={t.fg} />
+      <View style={[styles.kpiIcon, { backgroundColor: tone_.bg }]}>
+        <Feather name={icon} size={14} color={tone_.fg} />
       </View>
       <Text style={styles.kpiLabel}>{label}</Text>
       {!hideAmount ? <Text style={styles.kpiAmount}>CHF {(amount ?? 0).toFixed(2)}</Text> : null}
       {count !== undefined ? (
         <Text style={styles.kpiCount}>
-          {count} facture{count > 1 ? 's' : ''}
+          {translate('facturesList.countSuffix', { count })}
         </Text>
       ) : null}
     </View>

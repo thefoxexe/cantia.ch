@@ -56,5 +56,13 @@ export function getAppLocale(): AppLocale {
   return AVAILABLE_LOCALES.includes(current as AppLocale) ? (current as AppLocale) : DEFAULT_LOCALE;
 }
 
+// Replaces the many scattered `.toLocaleDateString('fr-CH')` calls across
+// the app — 'fr-CH'/'de-CH' both format sensibly, the point is picking the
+// one matching the app's current language rather than always French.
+export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString(`${getAppLocale()}-CH`, options);
+}
+
 export { i18next };
 export { useTranslation } from 'react-i18next';
