@@ -37,6 +37,7 @@ import {
   type QueuedPhoto,
 } from '../lib/offline/photoQueue';
 import { Button, EmptyState, Field } from './ui';
+import { formatDate, getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { FeedEntry } from '../lib/types';
 
@@ -60,6 +61,7 @@ function formatDuration(seconds: number | null | undefined): string {
 }
 
 export function ProjectFeed({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
   const router = useRouter();
   const { width: winWidth } = useWindowDimensions();
@@ -124,7 +126,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     ]);
     setEntries(feed);
     const names: Record<string, string> = {};
-    for (const m of members ?? []) names[m.user_id] = m.full_name || 'Membre';
+    for (const m of members ?? []) names[m.user_id] = m.full_name || t('common.member');
     setAuthorNames(names);
     const avatarPaths = (members ?? []).filter((m) => m.avatar_url) as { user_id: string; avatar_url: string }[];
     if (avatarPaths.length) {
@@ -249,7 +251,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     setVoiceError(null);
     const started = await voiceRecorder.start();
     if (!started) {
-      Alert.alert('Permission requise', "Autorisez l'accès au microphone pour envoyer un message vocal.");
+      Alert.alert(t('projectFeed.micPermissionTitle'), t('projectFeed.micPermissionVoice'));
     }
   }
 
@@ -275,7 +277,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     textDictationBaseRef.current = text;
     const started = await textDictation.start('fr-FR');
     if (!started) {
-      Alert.alert('Permission requise', 'Autorisez l’accès au microphone pour dicter.');
+      Alert.alert(t('projectFeed.micPermissionTitle'), t('projectFeed.micPermissionDictation'));
     }
   }
 
@@ -283,7 +285,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     if (!organization) return;
     const recording = await voiceRecorder.stop();
     if (!recording) {
-      setVoiceError("Échec de l'enregistrement du message vocal.");
+      setVoiceError(t('projectFeed.voiceRecordFailed'));
       return;
     }
     setSendingVoice(true);
@@ -329,7 +331,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   async function takePhoto() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission requise', "Autorisez l'accès à l'appareil photo.");
+      Alert.alert(t('projectFeed.micPermissionTitle'), t('projectFeed.cameraPermission'));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
@@ -359,7 +361,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   async function pickFromGallery() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission requise', 'Autorisez l’accès à vos photos.');
+      Alert.alert(t('projectFeed.micPermissionTitle'), t('projectFeed.galleryPermission'));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7, exif: true, allowsMultipleSelection: true });
@@ -558,7 +560,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       organizationId: organization.id,
       projectId,
       userId: user?.id,
-      title: reportTitle.trim() || `Rapport du ${new Date().toLocaleDateString('fr-CH')}`,
+      title: reportTitle.trim() || t('projectFeed.reportDefaultTitle', { date: formatDate(new Date()) }),
       entries: selectedEntries,
       authorNames,
     });
@@ -580,9 +582,9 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
 
   function renderEntry(entry: FeedEntry) {
     const isMe = entry.created_by === user?.id;
-    const author = (entry.created_by && authorNames[entry.created_by]) || 'Membre';
+    const author = (entry.created_by && authorNames[entry.created_by]) || t('common.member');
     const isSelected = selected.has(entry.id);
-    const time = new Date(entry.created_at).toLocaleString('fr-CH', {
+    const time = new Date(entry.created_at).toLocaleString(`${getAppLocale()}-CH`, {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',
@@ -613,7 +615,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         ) : null}
         <View style={[styles.bubble, isMe && styles.bubbleMe]}>
           <View style={styles.bubbleHeader}>
-            <Text style={styles.bubbleAuthor}>{isMe ? 'Vous' : author}</Text>
+            <Text style={styles.bubbleAuthor}>{isMe ? t('projectFeed.you') : author}</Text>
             <Text style={styles.bubbleTime}>{time}</Text>
           </View>
           {entry.type === 'note' ? (
@@ -646,7 +648,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
               {entry.latitude != null ? (
                 <Pressable onPress={() => openMap(entry)} style={styles.mapLink} hitSlop={6}>
                   <Feather name="map-pin" size={11} color={colors.accent} />
-                  <Text style={styles.mapLinkText}>Voir sur la carte</Text>
+                  <Text style={styles.mapLinkText}>{t('projectFeed.seeOnMap')}</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -654,7 +656,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
           {entry.report_id ? (
             <View style={styles.usedBadge}>
               <Feather name="check" size={10} color={colors.success} />
-              <Text style={styles.usedBadgeText}>Inclus dans un rapport</Text>
+              <Text style={styles.usedBadgeText}>{t('projectFeed.includedInReport')}</Text>
             </View>
           ) : null}
         </View>
@@ -668,10 +670,10 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       <View style={[styles.bubbleRow, styles.bubbleRowMe]}>
         <View style={[styles.bubble, styles.bubbleMe, styles.bubblePendingBubble]}>
           <View style={styles.bubbleHeader}>
-            <Text style={styles.bubbleAuthor}>Vous</Text>
+            <Text style={styles.bubbleAuthor}>{t('projectFeed.you')}</Text>
             <View style={styles.pendingTag}>
               <Feather name="clock" size={10} color={colors.textMuted} />
-              <Text style={styles.pendingTagText}>En attente</Text>
+              <Text style={styles.pendingTagText}>{t('projectFeed.pending')}</Text>
             </View>
           </View>
           {uri ? (
@@ -682,7 +684,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
             </View>
           )}
           {photo.caption ? <Text style={styles.bubbleCaption}>{photo.caption}</Text> : null}
-          <Text style={styles.pendingHint}>S'enverra automatiquement dès que le réseau revient</Text>
+          <Text style={styles.pendingHint}>{t('projectFeed.pendingHint')}</Text>
         </View>
       </View>
     );
@@ -698,24 +700,20 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       <View style={styles.toolbar}>
         <Pressable style={styles.toolbarButton} onPress={toggleSelecting}>
           <Feather name={selecting ? 'x' : 'file-text'} size={15} color={colors.primary} />
-          <Text style={styles.toolbarButtonText}>{selecting ? 'Annuler la sélection' : 'Générer un rapport'}</Text>
+          <Text style={styles.toolbarButtonText}>{selecting ? t('projectFeed.cancelSelection') : t('projectFeed.generateReport')}</Text>
         </Pressable>
       </View>
 
       {selecting ? (
-        <Text style={styles.selectHint}>
-          Touchez les notes et photos à inclure ({selected.size} sélectionné{selected.size > 1 ? 's' : ''}).
-        </Text>
+        <Text style={styles.selectHint}>{t('projectFeed.selectHint', { count: selected.size })}</Text>
       ) : null}
 
       {offline ? (
         <View style={styles.offlineBanner}>
           <Feather name="wifi-off" size={13} color={colors.textMuted} />
           <Text style={styles.offlineBannerText}>
-            Hors-ligne
-            {pendingLocal.length > 0
-              ? ` — ${pendingLocal.length} photo${pendingLocal.length > 1 ? 's' : ''} en attente`
-              : ''}
+            {t('projectFeed.offline')}
+            {pendingLocal.length > 0 ? t('projectFeed.offlinePending', { count: pendingLocal.length }) : ''}
           </Text>
         </View>
       ) : null}
@@ -723,8 +721,8 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       {entries.length === 0 && pendingLocal.length === 0 && !loading ? (
         <View style={styles.emptyWrap}>
           <EmptyState
-            title="Aucune activité pour l'instant"
-            subtitle="Décrivez l'avancement, ajoutez des photos — c'est le journal de bord du chantier."
+            title={t('projectFeed.emptyTitle')}
+            subtitle={t('projectFeed.emptySubtitle')}
           />
         </View>
       ) : (
@@ -743,16 +741,16 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
           {showTitleField ? (
             <>
               <Field
-                label="Titre du rapport"
+                label={t('projectFeed.reportTitleLabel')}
                 value={reportTitle}
                 onChangeText={setReportTitle}
-                placeholder={`Rapport du ${new Date().toLocaleDateString('fr-CH')}`}
+                placeholder={t('projectFeed.reportDefaultTitle', { date: formatDate(new Date()) })}
               />
-              <Button title="Créer le rapport PDF" icon="check" onPress={confirmGenerate} loading={generating} />
+              <Button title={t('projectFeed.createReportPdf')} icon="check" onPress={confirmGenerate} loading={generating} />
             </>
           ) : (
             <Button
-              title={`Générer un rapport avec ${selected.size} élément${selected.size > 1 ? 's' : ''}`}
+              title={t('projectFeed.generateWithCount', { count: selected.size })}
               icon="arrow-right"
               onPress={() => setShowTitleField(true)}
             />
@@ -786,7 +784,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
             <View style={styles.recordingRow}>
               <View style={styles.recordingDot} />
               <Text style={styles.recordingTime}>{formatDuration(voiceRecorder.elapsedSeconds)}</Text>
-              <Text style={styles.recordingHint}>Enregistrement…</Text>
+              <Text style={styles.recordingHint}>{t('projectFeed.recording')}</Text>
               <View style={{ flex: 1 }} />
               <Pressable style={styles.recordingCancelButton} onPress={cancelVoiceRecording} hitSlop={8}>
                 <Feather name="trash-2" size={16} color={colors.danger} />
@@ -806,7 +804,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                 style={styles.composerInput}
                 value={text}
                 onChangeText={setText}
-                placeholder="Décrivez l'avancement, une remarque…"
+                placeholder={t('projectFeed.composerPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 multiline
               />
@@ -873,7 +871,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
             >
               <Feather name="layers" size={13} color="#fff" />
               <Text style={styles.quickStackHintText}>
-                {stagedPhotos.length} en attente
+                {t('projectFeed.pendingStack', { count: stagedPhotos.length })}
               </Text>
             </Pressable>
           ) : null}
@@ -884,7 +882,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
               style={styles.quickCaptionInput}
               value={quickPhoto?.caption ?? ''}
               onChangeText={updateQuickCaption}
-              placeholder="Ajouter une légende…"
+              placeholder={t('projectFeed.addCaption')}
               placeholderTextColor="rgba(255,255,255,0.55)"
             />
             <View style={styles.quickActions}>
@@ -901,7 +899,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                 ) : (
                   <>
                     <Feather name="send" size={16} color="#fff" />
-                    <Text style={styles.quickSendText}>Envoyer</Text>
+                    <Text style={styles.quickSendText}>{t('projectFeed.send')}</Text>
                   </>
                 )}
               </Pressable>
@@ -945,8 +943,8 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                   <TextInput
                     style={styles.reviewCaptionInput}
                     value={photo.caption}
-                    onChangeText={(t) => updateStagedCaption(photo.id, t)}
-                    placeholder={`Légende photo ${i + 1} (optionnel)`}
+                    onChangeText={(val) => updateStagedCaption(photo.id, val)}
+                    placeholder={t('projectFeed.photoCaptionPlaceholder', { index: i + 1 })}
                     placeholderTextColor={colors.textMuted}
                   />
                   <Pressable
@@ -955,7 +953,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                     disabled={sendingPhotos}
                   >
                     <Feather name="trash-2" size={16} color={colors.danger} />
-                    <Text style={styles.reviewDeleteText}>Supprimer</Text>
+                    <Text style={styles.reviewDeleteText}>{t('projectFeed.delete')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -965,15 +963,15 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
           <View style={styles.reviewBottomActions}>
             <Pressable style={styles.stagingActionButton} onPress={takePhoto} disabled={sendingPhotos}>
               <Feather name="camera" size={16} color={colors.primary} />
-              <Text style={styles.stagingActionText}>Reprendre une photo</Text>
+              <Text style={styles.stagingActionText}>{t('projectFeed.retakePhoto')}</Text>
             </Pressable>
             <Pressable style={styles.stagingActionButton} onPress={pickFromGallery} disabled={sendingPhotos}>
               <Feather name="image" size={16} color={colors.primary} />
-              <Text style={styles.stagingActionText}>Galerie</Text>
+              <Text style={styles.stagingActionText}>{t('projectFeed.gallery')}</Text>
             </Pressable>
           </View>
           <Button
-            title={sendingPhotos ? 'Envoi en cours…' : `Envoyer ${stagedPhotos.length} photo${stagedPhotos.length > 1 ? 's' : ''}`}
+            title={sendingPhotos ? t('projectFeed.sendingPhotos') : t('projectFeed.sendPhotosCount', { count: stagedPhotos.length })}
             icon="send"
             onPress={sendStagedPhotos}
             loading={sendingPhotos}
