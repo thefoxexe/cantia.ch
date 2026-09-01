@@ -58,12 +58,12 @@ export const post: BlogPost = {
     {
       question: 'Faut-il payer un plan plus cher dès le départ pour anticiper la croissance ?',
       answer:
-        'Non — il suffit de choisir un éditeur dont les plans supérieurs existent et restent accessibles sans migration technique, le jour où le besoin apparaît réellement.',
+        'Non, il suffit simplement de choisir un éditeur dont les plans supérieurs existent et restent accessibles sans migration technique, le jour où le besoin apparaît réellement.',
     },
     {
       question: 'Quelle question poser à un éditeur pour évaluer l\'évolutivité de son outil ?',
       answer:
-        'Demander concrètement ce qui se passe en cas de première embauche ou de gestion de plusieurs chantiers en parallèle — la réponse révèle si l\'outil est vraiment pensé pour grandir.',
+        'Demander concrètement ce qui se passe en cas de première embauche ou de gestion de plusieurs chantiers en parallèle. La réponse révèle si l\'outil est vraiment pensé pour grandir.',
     },
   ],
   relatedSlugs: [

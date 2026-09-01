@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Comment un serrurier-métallier doit-il chiffrer un devis entre fabrication sur mesure et dépannage urgent ?',
   title: 'Serrurier-métallier : chiffrer entre ouvrage sur mesure et dépannage dans l’urgence',
   description:
-    'Un garde-corps sur mesure se conçoit tranquillement, une porte forcée se dépanne dans l’heure — le serrurier-métallier vit des deux logiques en parallèle. Comment les structurer sans les confondre.',
+    'Un garde-corps sur mesure se conçoit tranquillement, une porte forcée se dépanne dans l’heure : le serrurier-métallier vit des deux logiques en parallèle. Comment les structurer sans les confondre.',
   excerpt:
     'Entre un portail en acier fabriqué sur plusieurs semaines et une serrure changée en urgence un samedi soir, le métallier-serrurier doit faire cohabiter deux façons de facturer radicalement différentes.',
   category: 'Métiers du bâtiment',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La construction métallique sur mesure (garde-corps, portails, escaliers, structures) suit le rythme d’un chantier classique — prise de cotes, conception, fabrication en atelier, pose. Le dépannage de serrurerie (porte claquée, serrure forcée, clé cassée) suit un rythme totalement différent : intervention immédiate, souvent hors horaires normaux, sans le temps de préparer un devis détaillé au préalable.',
+      text: 'La construction métallique sur mesure (garde-corps, portails, escaliers, structures) suit le rythme d’un chantier classique : prise de cotes, conception, fabrication en atelier, pose. Le dépannage de serrurerie (porte claquée, serrure forcée, clé cassée) suit un rythme totalement différent : intervention immédiate, souvent hors horaires normaux, sans le temps de préparer un devis détaillé au préalable.',
     },
     { type: 'h2', text: 'Ouvrage sur mesure : un devis qui suit la fabrication' },
     {
@@ -30,7 +30,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Dépannage : un tarif annoncé avant d’intervenir, même sous pression' },
     {
       type: 'p',
-      text: 'Une personne bloquée devant sa porte n’est pas en position de négocier sereinement un prix. Annoncer clairement le tarif de déplacement et d’intervention avant de se déplacer — plutôt que de facturer après coup — protège le client d’une mauvaise surprise et protège le serrurier d’une contestation ultérieure du prix.',
+      text: 'Une personne bloquée devant sa porte n’est pas en position de négocier sereinement un prix. Annoncer clairement le tarif de déplacement et d’intervention avant de se déplacer, plutôt que de facturer après coup, protège le client d’une mauvaise surprise et protège le serrurier d’une contestation ultérieure du prix.',
     },
     {
       type: 'stat',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Facturez un dépannage depuis le trottoir, en quelques minutes',
-      text: 'Cantia permet d’émettre une facture directement depuis le téléphone juste après une intervention de dépannage — pas besoin de rentrer à l’atelier pour ne pas oublier de la facturer.',
+      text: 'Cantia permet d’émettre une facture directement depuis le téléphone juste après une intervention de dépannage, sans besoin de rentrer à l’atelier pour ne pas oublier de la facturer.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -58,7 +58,7 @@ export const post: BlogPost = {
     {
       question: 'Peut-on majorer le tarif d’un dépannage de serrurerie hors horaires normaux ?',
       answer:
-        'Oui, c’est une pratique courante — généralement entre 30 et 50 % de majoration — à condition que le client en soit informé avant l’intervention, pas seulement sur la facture finale.',
+        'Oui, c’est une pratique courante (généralement entre 30 et 50 % de majoration), à condition que le client en soit informé avant l’intervention, pas seulement sur la facture finale.',
     },
     {
       question: 'Faut-il prévoir une clause de révision de prix sur un ouvrage métallique sur mesure ?',

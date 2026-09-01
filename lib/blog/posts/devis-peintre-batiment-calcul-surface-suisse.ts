@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Une surface mal calculée (déductions oubliées, nombre de couches sous-estimé, préparation du support négligée) est la première cause de perte de marge chez les peintres en bâtiment.',
   excerpt:
-    'Le prix au m² est simple à annoncer, mais tout se joue dans le calcul de la surface réelle — et c’est précisément là que la plupart des devis de peinture perdent de la marge sans que personne ne s’en aperçoive.',
+    'Le prix au m² est simple à annoncer, mais tout se joue dans le calcul de la surface réelle. C’est précisément là que la plupart des devis de peinture perdent de la marge sans que personne ne s’en aperçoive.',
   category: 'Métiers du bâtiment',
   keywords: ['devis peintre bâtiment', 'calcul surface peinture', 'prix peinture au m2 Suisse', 'facturation peintre indépendant', 'préparation support peinture devis'],
   publishedAt: '2026-09-02',
@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un prix au m² annoncé au client cache une hypothèse implicite : une couche standard, sur un support déjà prêt, sans déduction particulière. En pratique, presque aucun chantier ne correspond exactement à cette hypothèse — d’où l’écart fréquent entre le devis signé et le temps réellement passé.',
+      text: 'Un prix au m² annoncé au client cache une hypothèse implicite : une couche standard, sur un support déjà prêt, sans déduction particulière. En pratique, presque aucun chantier ne correspond exactement à cette hypothèse, ce qui explique l’écart fréquent entre le devis signé et le temps réellement passé.',
     },
     { type: 'h2', text: 'Trois erreurs de calcul qui rongent la marge' },
     {
       type: 'list',
       items: [
-        'Ne pas déduire les ouvertures (portes, fenêtres) alors qu’elles réduisent la surface réelle à peindre — mais rallonger le temps de finition aux bords',
+        'Ne pas déduire les ouvertures (portes, fenêtres) alors qu’elles réduisent la surface réelle à peindre, tout en rallongeant le temps de finition aux bords',
         'Compter une seule couche alors que le changement de teinte ou un support poreux en exige souvent deux',
         'Oublier le temps de préparation du support (rebouchage, ponçage, protection du mobilier) qui peut représenter autant de temps que l’application elle-même',
       ],
@@ -39,7 +39,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La protection du chantier n’est pas gratuite',
-      text: 'Bâcher les sols, protéger le mobilier, poser du ruban de masquage : ce temps de protection est réel et doit apparaître quelque part dans le prix — soit intégré au taux horaire, soit en poste séparé sur les chantiers occupés.',
+      text: 'Bâcher les sols, protéger le mobilier, poser du ruban de masquage : ce temps de protection est réel et doit apparaître quelque part dans le prix, soit intégré au taux horaire, soit en poste séparé sur les chantiers occupés.',
     },
     {
       type: 'cta',
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il déduire les portes et fenêtres du calcul de surface peinture ?',
       answer:
-        'Oui pour la surface facturée, mais le temps de finition aux bords des ouvertures reste réel — d’où l’intérêt d’un tarif qui tient compte du nombre d’ouvertures, pas seulement de la surface nette.',
+        'Oui pour la surface facturée, mais le temps de finition aux bords des ouvertures reste réel, ce qui justifie un tarif qui tient compte du nombre d’ouvertures, pas seulement de la surface nette.',
     },
     {
       question: 'Comment facturer une deuxième couche de peinture nécessaire mais non prévue ?',
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Le temps de protection du chantier doit-il être facturé séparément ?',
       answer:
-        'Ce n’est pas obligatoire, mais c’est recommandé sur les chantiers occupés ou avec du mobilier à protéger — ce temps est réel et souvent sous-estimé s’il reste noyé dans le prix au m².',
+        'Ce n’est pas obligatoire, mais c’est recommandé sur les chantiers occupés ou avec du mobilier à protéger. Ce temps est réel et souvent sous-estimé s’il reste noyé dans le prix au m².',
     },
   ],
   relatedSlugs: [

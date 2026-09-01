@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Le bâtiment regroupe des métiers très différents entre eux. Pourquoi un même modèle rigide de devis ou de suivi de chantier ne peut logiquement pas convenir à tous en même temps.',
   excerpt:
-    'Un maçon, un électricien et un paysagiste n\'ont pas la même façon de chiffrer, de suivre un chantier ou de facturer — un modèle unique et figé ne peut donc jamais parfaitement convenir à tous les trois en même temps.',
+    'Un maçon, un électricien et un paysagiste n\'ont pas la même façon de chiffrer, de suivre un chantier ou de facturer. Un modèle unique et figé ne peut donc jamais parfaitement convenir à tous les trois en même temps.',
   category: 'Sur-mesure & automatisations',
   keywords: ['modèle figé logiciel bâtiment', 'logiciel adapté métier construction', 'pourquoi outil générique ne suffit pas', 'diversité métiers bâtiment logiciel', 'personnalisation par métier construction'],
   publishedAt: '2026-08-24',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le terme "bâtiment" recouvre une réalité extrêmement diverse — maçonnerie, électricité, paysagisme, charpente, chacun avec ses propres unités de mesure, ses propres processus de chantier, ses propres habitudes de facturation. Un modèle figé, pensé pour "le bâtiment" en général, ne peut structurellement pas parfaitement convenir à chacun.',
+      text: 'Le terme "bâtiment" recouvre une réalité extrêmement diverse : maçonnerie, électricité, paysagisme, charpente, chacun avec ses propres unités de mesure, ses propres processus de chantier, ses propres habitudes de facturation. Un modèle figé, pensé pour "le bâtiment" en général, ne peut structurellement pas parfaitement convenir à chacun.',
     },
     { type: 'h2', text: 'Des exemples concrets de cette diversité' },
     {
@@ -29,17 +29,17 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '15+',
-      label: 'corps de métier différents généralement regroupés sous le terme générique "bâtiment" — chacun avec des besoins de gestion qui divergent sur des points concrets',
+      label: 'corps de métier différents généralement regroupés sous le terme générique "bâtiment" (chacun avec des besoins de gestion qui divergent sur des points concrets)',
     },
     { type: 'h2', text: 'Un bon outil de gestion doit se plier au métier, pas l\'inverse' },
     {
       type: 'p',
-      text: 'Plutôt que de forcer chaque métier à s\'adapter à un modèle unique, un outil de gestion pensé pour le bâtiment devrait permettre d\'ajuster ce qui compte réellement pour chaque métier — les unités utilisées, les étapes de suivi, les documents générés — sans perdre la cohérence d\'ensemble.',
+      text: 'Plutôt que de forcer chaque métier à s\'adapter à un modèle unique, un outil de gestion pensé pour le bâtiment devrait permettre d\'ajuster ce qui compte réellement pour chaque métier (les unités utilisées, les étapes de suivi, les documents générés) sans perdre la cohérence d\'ensemble.',
     },
     {
       type: 'callout',
       title: 'Le socle commun reste large, seuls les détails changent',
-      text: 'La plupart des besoins (devis, factures, TVA, suivi de chantier) sont communs à tous les métiers du bâtiment — c\'est sur les détails spécifiques que la personnalisation fait vraiment la différence.',
+      text: 'La plupart des besoins (devis, factures, TVA, suivi de chantier) sont communs à tous les métiers du bâtiment. C\'est sur les détails spécifiques que la personnalisation fait vraiment la différence.',
     },
     {
       type: 'cta',
@@ -57,12 +57,12 @@ export const post: BlogPost = {
     {
       question: 'Qu\'est-ce qui reste commun entre tous les métiers du bâtiment dans un logiciel de gestion ?',
       answer:
-        'La grande majorité des besoins de base — devis, factures, conformité TVA, suivi de chantier — reste commune, seuls certains détails spécifiques diffèrent d\'un métier à l\'autre.',
+        'La grande majorité des besoins de base (devis, factures, conformité TVA, suivi de chantier) reste commune, seuls certains détails spécifiques diffèrent d\'un métier à l\'autre.',
     },
     {
       question: 'Un logiciel de gestion doit-il s\'adapter au métier ou le métier s\'adapter au logiciel ?',
       answer:
-        'Idéalement l\'outil s\'adapte au métier — un bon logiciel doit permettre d\'ajuster ce qui compte réellement (unités, étapes, documents) sans forcer l\'entreprise à changer sa façon de travailler.',
+        'Idéalement l\'outil s\'adapte au métier, car un bon logiciel doit permettre d\'ajuster ce qui compte réellement (unités, étapes, documents) sans forcer l\'entreprise à changer sa façon de travailler.',
     },
   ],
   relatedSlugs: [

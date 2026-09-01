@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Comment des photos de chantier peuvent-elles servir de preuve en cas de litige ?',
   title: 'Photos de chantier : la preuve la plus solide, si elle est bien prise',
   description:
-    'Une photo de chantier vaut comme preuve devant un tribunal civil suisse — à condition d’être datée, contextualisée et conservée correctement. Une photo seule, sans ces éléments, vaut beaucoup moins.',
+    'À condition d’être datée, contextualisée et conservée correctement, une photo de chantier vaut comme preuve devant un tribunal civil suisse. Une photo seule, sans ces éléments, vaut beaucoup moins.',
   excerpt:
     'Une photo prise au bon moment peut clore un litige de garantie en une seule pièce. La même photo, sans date ni contexte, ne vaut presque rien devant un juge.',
   category: 'Chantier & rentabilité',
@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un client conteste, huit mois après la réception, l’état d’un mur avant travaux. Une entreprise qui a une photo datée de cette même zone, prise le premier jour du chantier, règle le désaccord en quelques secondes. Une entreprise qui n’en a pas se retrouve à discuter de mémoire contre mémoire — la position la plus faible possible en cas de litige.',
+      text: 'Un client conteste, huit mois après la réception, l’état d’un mur avant travaux. Une entreprise qui a une photo datée de cette même zone, prise le premier jour du chantier, règle le désaccord en quelques secondes. Une entreprise qui n’en a pas se retrouve à discuter de mémoire contre mémoire, ce qui est la position la plus faible possible en cas de litige.',
     },
     { type: 'h2', text: 'Ce qui fait qu’une photo « vaut » comme preuve' },
     {
       type: 'list',
       items: [
-        'Une date et une heure fiables — un horodatage manipulable après coup (métadonnées modifiables) pèse moins qu’un système qui l’enregistre automatiquement au moment de la prise',
+        'Une date et une heure fiables : un horodatage manipulable après coup (métadonnées modifiables) pèse moins qu’un système qui l’enregistre automatiquement au moment de la prise',
         'Un contexte clair sur ce qu’elle montre : quel local, quelle étape du chantier, idéalement une géolocalisation qui confirme l’endroit exact',
         'Une conservation dans le temps qui garantit qu’elle n’a pas pu être remplacée ou modifiée entre la prise et sa présentation en cas de litige',
       ],
@@ -40,16 +40,16 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le point qui rend la plupart des archives photo inutilisables',
-      text: 'Des photos stockées sur les téléphones personnels de plusieurs collaborateurs, sans centralisation ni horodatage fiable, ne constituent presque jamais une preuve solide — même si la photo elle-même existe bel et bien quelque part. Ce qui compte n’est pas seulement la photo, c’est sa traçabilité.',
+      text: 'Des photos stockées sur les téléphones personnels de plusieurs collaborateurs, sans centralisation ni horodatage fiable, ne constituent presque jamais une preuve solide, même si la photo elle-même existe bel et bien quelque part. Ce qui compte n’est pas seulement la photo, c’est sa traçabilité.',
     },
     {
       type: 'p',
-      text: 'C’est particulièrement vrai depuis la réforme du droit de la garantie de 2026 (délai de 60 jours pour signaler un défaut caché) : une entreprise capable de prouver précisément quand un défaut est apparu — ou n’était pas visible avant — se retrouve en bien meilleure position qu’une entreprise qui ne peut que l’affirmer.',
+      text: 'C’est particulièrement vrai depuis la réforme du droit de la garantie de 2026 (délai de 60 jours pour signaler un défaut caché) : une entreprise capable de prouver précisément quand un défaut est apparu (ou qu’il n’était pas visible avant) se retrouve en bien meilleure position qu’une entreprise qui ne peut que l’affirmer.',
     },
     {
       type: 'cta',
       title: 'Chaque photo, datée et géolocalisée automatiquement',
-      text: 'Les rapports de chantier Cantia horodatent et géolocalisent chaque photo prise, classée par chantier — la preuve existe déjà, sans démarche supplémentaire au moment où elle devient utile.',
+      text: 'Les rapports de chantier Cantia horodatent et géolocalisent chaque photo prise, classée par chantier. La preuve existe déjà, sans démarche supplémentaire au moment où elle devient utile.',
       buttonLabel: 'Découvrir les rapports de chantier',
     },
   ],
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'À quels moments du chantier est-il le plus utile de prendre des photos ?',
       answer:
-        'Avant travaux, avant fermeture d’éléments qui ne resteront plus visibles ensuite, et à la réception finale — ce sont les moments qui servent le plus en cas de litige ultérieur.',
+        'Ce sont les moments qui servent le plus en cas de litige ultérieur, à savoir avant travaux, avant fermeture d’éléments qui ne resteront plus visibles ensuite, et à la réception finale.',
     },
     {
       question: 'Pourquoi des photos stockées sur des téléphones personnels sont-elles peu utilisables ?',

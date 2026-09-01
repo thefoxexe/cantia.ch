@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le suivi de chantier numérique — photos, avancement, documents — a longtemps été perçu comme un outil de grande entreprise, avec des coûts et une complexité qui décourageaient les petites structures. Cette image ne correspond plus à l\'offre actuelle.',
+      text: 'Le suivi de chantier numérique (photos, avancement, documents) a longtemps été perçu comme un outil de grande entreprise, avec des coûts et une complexité qui décourageaient les petites structures. Cette image ne correspond plus à l\'offre actuelle.',
     },
     { type: 'h2', text: 'Ce qui a changé' },
     {
@@ -39,7 +39,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le vrai coût d\'absence de suivi de chantier',
-      text: 'Sans documentation régulière, une contestation client ou un désaccord avec un sous-traitant devient beaucoup plus difficile à trancher — le coût de l\'absence d\'outil dépasse souvent celui de l\'outil lui-même.',
+      text: 'Sans documentation régulière, une contestation client ou un désaccord avec un sous-traitant devient beaucoup plus difficile à trancher. Le coût de l\'absence d\'outil dépasse souvent celui de l\'outil lui-même.',
     },
     {
       type: 'cta',
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Le suivi de chantier numérique est-il réservé aux grandes entreprises ?',
       answer:
-        'Non — il est aujourd\'hui accessible aux petites structures, souvent inclus dans un abonnement mensuel abordable plutôt que vendu comme un module séparé coûteux.',
+        'Non : il est aujourd\'hui accessible aux petites structures, souvent inclus dans un abonnement mensuel abordable plutôt que vendu comme un module séparé coûteux.',
     },
     {
       question: 'Quel est le coût typique d\'un suivi de chantier pour une petite entreprise ?',

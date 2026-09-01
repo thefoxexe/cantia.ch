@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un carnet de commandes qui déborde et une équipe trop courte pour l’absorber — c’est une bonne nouvelle qui devient vite un problème si la décision de renforcer l’effectif se prend dans l’urgence. Recruter et sous-traiter ne répondent pas au même besoin, et confondre les deux mène souvent soit à un effectif surdimensionné une fois le pic passé, soit à une dépendance mal maîtrisée envers des sous-traitants.',
+      text: 'Un carnet de commandes qui déborde et une équipe trop courte pour l’absorber : c’est une bonne nouvelle qui devient vite un problème si la décision de renforcer l’effectif se prend dans l’urgence. Recruter et sous-traiter ne répondent pas au même besoin, et confondre les deux mène souvent soit à un effectif surdimensionné une fois le pic passé, soit à une dépendance mal maîtrisée envers des sous-traitants.',
     },
     { type: 'h2', text: 'Quand recruter a du sens' },
     {
       type: 'list',
       items: [
-        'La surcharge est structurelle, pas ponctuelle — elle se répète chantier après chantier depuis plusieurs mois',
+        'La surcharge est structurelle, pas ponctuelle, car elle se répète chantier après chantier depuis plusieurs mois',
         'Le savoir-faire recherché est central au métier de l’entreprise, pas une compétence périphérique',
         'L’entreprise a la trésorerie pour absorber un salaire fixe même dans un mois plus calme',
       ],
@@ -38,12 +38,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le vrai coût d’un recrutement précipité se voit après le pic d’activité, pas pendant',
-      text: 'Un salaire fixe engagé pour absorber une surcharge ponctuelle continue de peser sur la trésorerie une fois le pic retombé — c’est souvent là, plusieurs mois plus tard, que la décision se révèle avoir été la mauvaise.',
+      text: 'Un salaire fixe engagé pour absorber une surcharge ponctuelle continue de peser sur la trésorerie une fois le pic retombé. C’est souvent là, plusieurs mois plus tard, que la décision se révèle avoir été la mauvaise.',
     },
     {
       type: 'cta',
       title: 'Un répertoire de sous-traitants toujours à jour',
-      text: 'Le module Sous-traitants de Cantia centralise vos partenaires par métier et par chantier — pour décider vite entre renfort ponctuel et recrutement, sans repartir de zéro à chaque pic d’activité.',
+      text: 'Le module Sous-traitants de Cantia centralise vos partenaires par métier et par chantier. De quoi décider vite entre renfort ponctuel et recrutement, sans repartir de zéro à chaque pic d’activité.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -56,7 +56,7 @@ export const post: BlogPost = {
     {
       question: 'Quel est le principal risque d’un recrutement précipité ?',
       answer:
-        'Un salaire fixe continue de peser sur la trésorerie une fois le pic d’activité retombé — le coût réel d’une mauvaise décision se voit souvent plusieurs mois après, pas immédiatement.',
+        'Un salaire fixe continue de peser sur la trésorerie une fois le pic d’activité retombé, ce qui fait que le coût réel d’une mauvaise décision se voit souvent plusieurs mois après, pas immédiatement.',
     },
     {
       question: 'La sous-traitance est-elle adaptée à un besoin ponctuel ?',

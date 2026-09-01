@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Quel taux d’indemnité kilométrique appliquer à ses employés en 2026 ?',
   title: 'Indemnités kilométriques 2026 : le taux qui vient de changer',
   description:
-    'L’Administration fédérale des contributions relève le taux forfaitaire de CHF 0,70 à CHF 0,75/km au 1er janvier 2026 — avec une nouvelle obligation de déclaration sur le certificat de salaire.',
+    'Au 1er janvier 2026, l’Administration fédérale des contributions relève le taux forfaitaire de CHF 0,70 à CHF 0,75/km, et introduit une nouvelle obligation de déclaration sur le certificat de salaire.',
   excerpt:
-    'CHF 0,70 par kilomètre, c’est fini. Le nouveau guide du certificat de salaire fixe CHF 0,75 depuis le 1er janvier 2026 — et ajoute une case à cocher que personne ne connaît encore.',
+    'CHF 0,70 par kilomètre, c’est fini. Le nouveau guide du certificat de salaire fixe CHF 0,75 depuis le 1er janvier 2026. Il ajoute aussi une case à cocher que personne ne connaît encore.',
   category: 'RH & salaires',
   keywords: ['indemnité kilométrique', 'frais professionnels', 'certificat de salaire', 'véhicule privé', 'afc'],
   publishedAt: '2026-03-30',
@@ -15,17 +15,17 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'CHF 0,70 par kilomètre — le chiffre que presque toutes les entreprises suisses avaient en tête pour indemniser un employé utilisant son véhicule privé. Depuis le 1er janvier 2026, ce n’est plus le bon chiffre : l’Administration fédérale des contributions l’a relevé à CHF 0,75/km dans son guide mis à jour pour l’établissement du certificat de salaire.',
+      text: 'CHF 0,70 par kilomètre : le chiffre que presque toutes les entreprises suisses avaient en tête pour indemniser un employé utilisant son véhicule privé. Depuis le 1er janvier 2026, ce n’est plus le bon chiffre : l’Administration fédérale des contributions l’a relevé à CHF 0,75/km dans son guide mis à jour pour l’établissement du certificat de salaire.',
     },
     { type: 'h2', text: 'Ce que ce taux couvre réellement' },
     {
       type: 'p',
-      text: 'C’est un taux forfaitaire, censé couvrir l’ensemble des frais liés à l’usage professionnel d’un véhicule privé — carburant, usure, assurance, amortissement — sans que l’employé doive justifier chaque poste séparément. Une entreprise reste libre de fixer un taux différent par contrat ou convention interne, mais CHF 0,75/km sert de référence par défaut pour l’administration fiscale.',
+      text: 'C’est un taux forfaitaire, censé couvrir l’ensemble des frais liés à l’usage professionnel d’un véhicule privé (carburant, usure, assurance, amortissement), sans que l’employé doive justifier chaque poste séparément. Une entreprise reste libre de fixer un taux différent par contrat ou convention interne, mais CHF 0,75/km sert de référence par défaut pour l’administration fiscale.',
     },
     {
       type: 'callout',
       title: 'La nouveauté qui compte plus que le montant lui-même',
-      text: 'Une indemnité forfaitaire pour l’usage d’un véhicule privé doit désormais être expressément signalée sur le certificat de salaire, par une croix à la lettre F — une obligation déclarative qui n’existait pas sous cette forme auparavant. Ne pas la cocher n’efface pas l’indemnité, mais expose à une correction lors d’un contrôle fiscal.',
+      text: 'Une indemnité forfaitaire pour l’usage d’un véhicule privé doit désormais être expressément signalée sur le certificat de salaire, par une croix à la lettre F (une obligation déclarative qui n’existait pas sous cette forme auparavant). Ne pas la cocher n’efface pas l’indemnité, mais expose à une correction lors d’un contrôle fiscal.',
     },
     { type: 'h2', text: 'Ce que ça change concrètement pour une entreprise du bâtiment' },
     {
@@ -33,7 +33,7 @@ export const post: BlogPost = {
       items: [
         'Les indemnités kilométriques versées après le 1er janvier 2026 doivent utiliser le nouveau taux de référence pour rester alignées avec le guide AFC',
         'Le certificat de salaire de fin d’année doit refléter la nouvelle case cochée pour tout employé recevant ce type d’indemnité',
-        'Un taux différent, fixé contractuellement, reste possible — mais un écart significatif avec le taux de référence peut attirer l’attention lors d’un contrôle',
+        'Un taux différent, fixé contractuellement, reste possible. Un écart significatif avec le taux de référence peut toutefois attirer l’attention lors d’un contrôle',
       ],
     },
     {
@@ -56,7 +56,7 @@ export const post: BlogPost = {
     {
       question: 'Une entreprise doit-elle obligatoirement appliquer ce taux ?',
       answer:
-        'Non, elle reste libre de fixer un taux différent par contrat ou convention interne — CHF 0,75/km sert de référence par défaut pour l’administration fiscale, pas de plancher légal obligatoire.',
+        'Non, elle reste libre de fixer un taux différent par contrat ou convention interne : CHF 0,75/km sert de référence par défaut pour l’administration fiscale, pas de plancher légal obligatoire.',
     },
     {
       question: 'Qu’est-ce qui doit désormais figurer sur le certificat de salaire ?',

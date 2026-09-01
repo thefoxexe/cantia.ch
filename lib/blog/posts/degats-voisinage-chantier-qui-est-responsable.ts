@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Une fissure chez le voisin après des travaux de terrassement, de la poussière sur une façade fraîchement repeinte : la responsabilité n’est pas automatique, et se prouve avec un état des lieux préalable.',
   excerpt:
-    'Sans état des lieux avant travaux, un voisin peut attribuer à votre chantier une fissure qui existait déjà — et l’entreprise se retrouve à devoir prouver le contraire, souvent trop tard.',
+    'Sans état des lieux avant travaux, un voisin peut attribuer à votre chantier une fissure qui existait déjà. L’entreprise se retrouve alors à devoir prouver le contraire, souvent trop tard.',
   category: 'Juridique & normes',
   keywords: ['dégâts voisinage chantier', 'responsabilité travaux voisin', 'fissure chantier voisinage', 'nuisances chantier', 'état des lieux avant travaux'],
   publishedAt: '2026-06-19',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un chantier de terrassement, de démolition ou de gros œuvre peut causer des nuisances ou des dégâts chez un voisin — fissures, vibrations, poussière, dépôt de matériaux débordant sur une propriété adjacente. La responsabilité n’est jamais automatique : elle dépend de qui a causé le dommage, et surtout, de ce qui peut être prouvé.',
+      text: 'Un chantier de terrassement, de démolition ou de gros œuvre peut causer des nuisances ou des dégâts chez un voisin (fissures, vibrations, poussière, dépôt de matériaux débordant sur une propriété adjacente). La responsabilité n’est jamais automatique : elle dépend de qui a causé le dommage, et surtout, de ce qui peut être prouvé.',
     },
     { type: 'h2', text: 'Qui porte la responsabilité en principe' },
     {
@@ -29,7 +29,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La protection la plus efficace : l’état des lieux avant travaux' },
     {
       type: 'p',
-      text: 'Un état des lieux contradictoire (photos datées, éventuellement avec le voisin) réalisé avant le début des travaux est la meilleure protection pour l’entreprise. Sans lui, un voisin peut légitimement — ou de mauvaise foi — attribuer une fissure préexistante au chantier, et l’entreprise n’a alors aucun moyen de prouver le contraire.',
+      text: 'Un état des lieux contradictoire (photos datées, éventuellement avec le voisin) réalisé avant le début des travaux est la meilleure protection pour l’entreprise. Sans lui, un voisin peut, légitimement ou de mauvaise foi, attribuer une fissure préexistante au chantier, et l’entreprise n’a alors aucun moyen de prouver le contraire.',
     },
     {
       type: 'list',
@@ -42,12 +42,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Un état des lieux réalisé après une plainte du voisin ne prouve rien',
-      text: 'La preuve doit exister avant le fait contesté — un relevé pris après coup, une fois le litige déclaré, n’a aucune valeur pour établir l’état antérieur du bien.',
+      text: 'La preuve doit exister avant le fait contesté : un relevé pris après coup, une fois le litige déclaré, n’a aucune valeur pour établir l’état antérieur du bien.',
     },
     {
       type: 'cta',
       title: 'Photos de chantier horodatées, dès le premier jour',
-      text: 'Le fil d’actualité de Cantia géolocalise et horodate chaque photo — un état des lieux avant travaux devient un réflexe simple, documenté automatiquement.',
+      text: 'Le fil d’actualité de Cantia géolocalise et horodate chaque photo. Un état des lieux avant travaux devient ainsi un réflexe simple, documenté automatiquement.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -60,7 +60,7 @@ export const post: BlogPost = {
     {
       question: 'Comment se protéger contre une accusation de dégât non fondée ?',
       answer:
-        'En réalisant un état des lieux contradictoire, avec photos datées, avant le début des travaux — c’est la seule preuve fiable de l’état antérieur du bien voisin.',
+        'En réalisant un état des lieux contradictoire, avec photos datées, avant le début des travaux : c’est la seule preuve fiable de l’état antérieur du bien voisin.',
     },
     {
       question: 'L’assurance RC professionnelle couvre-t-elle les dégâts au voisinage ?',

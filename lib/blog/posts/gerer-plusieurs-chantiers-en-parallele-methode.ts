@@ -20,7 +20,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Le vrai problème n’est jamais la charge, c’est la mémoire' },
     {
       type: 'p',
-      text: 'La plupart des ratés sur des chantiers multiples ne viennent pas d’un manque de compétence ou de main-d’œuvre — ils viennent d’une information qui existait quelque part (dans un SMS, une conversation orale, un post-it) mais qui n’était nulle part accessible au bon moment, pour la bonne personne.',
+      text: 'La plupart des ratés sur des chantiers multiples ne viennent pas d’un manque de compétence ou de main-d’œuvre. Ils viennent d’une information qui existait quelque part (dans un SMS, une conversation orale, un post-it) mais qui n’était nulle part accessible au bon moment, pour la bonne personne.',
     },
     {
       type: 'list',
@@ -36,20 +36,20 @@ export const post: BlogPost = {
       type: 'list',
       ordered: true,
       items: [
-        'Un planning d’équipe unique et partagé, où chaque affectation est rattachée à un chantier précis — visible par toute l’équipe, pas seulement par celui qui l’a écrit',
-        'Un seul endroit par chantier où atterrit tout ce qui le concerne : photos, notes, devis, factures — pas un fil WhatsApp d’un côté et un dossier papier de l’autre',
-        'Un point de rentabilité par chantier consulté régulièrement, pas seulement à la clôture — pour repérer tôt un chantier qui dérape pendant qu’il reste du temps pour réagir',
+        'Un planning d’équipe unique et partagé, visible par toute l’équipe et pas seulement par celui qui l’a écrit, où chaque affectation est rattachée à un chantier précis',
+        'Un seul endroit par chantier où atterrit tout ce qui le concerne (photos, notes, devis, factures), plutôt qu’un fil WhatsApp d’un côté et un dossier papier de l’autre',
+        'Un point de rentabilité par chantier consulté régulièrement, pas seulement à la clôture, afin de repérer tôt un chantier qui dérape pendant qu’il reste du temps pour réagir',
       ],
     },
     {
       type: 'callout',
       title: 'Le signe qu’il est temps de changer de méthode',
-      text: 'Si une question revient régulièrement — « c’était pour quel chantier déjà ? », « qui devait s’en occuper ? » — ce n’est pas un problème de mémoire individuelle à corriger, c’est un signal que l’information n’a pas d’endroit fixe où vivre. Le corriger, c’est changer d’outil, pas se forcer à mieux se souvenir.',
+      text: 'Si une question revient régulièrement (« c’était pour quel chantier déjà ? », « qui devait s’en occuper ? »), ce n’est pas un problème de mémoire individuelle à corriger, c’est un signal que l’information n’a pas d’endroit fixe où vivre. Le corriger, c’est changer d’outil, pas se forcer à mieux se souvenir.',
     },
     {
       type: 'cta',
       title: 'Chaque chantier, un seul endroit pour tout',
-      text: 'Cantia centralise planning, devis, factures, rapports et sous-traitants par chantier — l’équipe entière voit la même information, à jour, au même endroit.',
+      text: 'Cantia centralise planning, devis, factures, rapports et sous-traitants par chantier. L’équipe entière voit ainsi la même information, à jour, au même endroit.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Pourquoi gérer plusieurs chantiers est-il plus difficile que multiplier un seul chantier ?',
       answer:
-        'Parce que la difficulté n’est pas la charge de travail elle-même, mais la coordination et la mémoire des informations spécifiques à chaque chantier — qui se perdent facilement sans un endroit centralisé pour les stocker.',
+        'Parce que la difficulté n’est pas la charge de travail elle-même, mais la coordination et la mémoire des informations spécifiques à chaque chantier. Sans un endroit centralisé pour les stocker, ces informations se perdent facilement.',
     },
     {
       question: 'Quel est le signe qu’une entreprise a besoin d’un meilleur système de suivi ?',
@@ -67,7 +67,7 @@ export const post: BlogPost = {
     {
       question: 'Un planning WhatsApp suffit-il pour gérer plusieurs chantiers ?',
       answer:
-        'Ça fonctionne un temps avec une petite équipe, mais l’information s’y perd vite dans le défilement des messages — sans structure par chantier, elle devient rapidement impossible à retrouver.',
+        'Ça fonctionne un temps avec une petite équipe, mais l’information s’y perd vite dans le défilement des messages, et sans structure par chantier, elle devient rapidement impossible à retrouver.',
     },
   ],
   relatedSlugs: [

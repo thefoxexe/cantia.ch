@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'L\'automatisation se limite souvent, dans l\'esprit, à l\'envoi de factures. Ce qui peut aussi être automatisé dans le suivi administratif plus large d\'une entreprise artisanale.',
   excerpt:
-    'Quand on pense automatisation dans le bâtiment, on pense souvent aux factures — mais le suivi administratif d\'un chantier, d\'un client ou d\'une équipe peut être automatisé bien au-delà de ça.',
+    'Quand on pense automatisation dans le bâtiment, on pense souvent aux factures. Pourtant, le suivi administratif d\'un chantier, d\'un client ou d\'une équipe peut être automatisé bien au-delà de ça.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatiser suivi administratif entreprise', 'automatisation gestion artisanale', 'réduire charge administrative bâtiment', 'automatiser suivi chantier client', 'gagner du temps administratif artisan'],
   publishedAt: '2026-08-27',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'L\'automatisation dans le bâtiment évoque presque toujours la facturation — mais le suivi administratif d\'une entreprise artisanale va bien au-delà d\'une facture envoyée. Chantiers, clients, équipe : plusieurs de ces flux peuvent aussi être largement automatisés.',
+      text: 'L\'automatisation dans le bâtiment évoque presque toujours la facturation, alors que le suivi administratif d\'une entreprise artisanale va bien au-delà d\'une facture envoyée. Chantiers, clients, équipe : plusieurs de ces flux peuvent aussi être largement automatisés.',
     },
     { type: 'h2', text: 'Au-delà de la facture : ce qui peut être automatisé' },
     {
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'L\'automatisation la plus utile est souvent la plus discrète' },
     {
       type: 'p',
-      text: 'Les automatisations qui font le plus gagner de temps ne sont généralement pas visibles — un rapport qui se génère tout seul en arrière-plan, un document classé automatiquement au bon endroit — plutôt que des fonctions spectaculaires rarement utilisées au quotidien.',
+      text: 'Les automatisations qui font le plus gagner de temps ne sont généralement pas visibles (un rapport qui se génère tout seul en arrière-plan, un document classé automatiquement au bon endroit), plutôt que des fonctions spectaculaires rarement utilisées au quotidien.',
     },
     {
       type: 'callout',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Le suivi administratif automatisé, du chantier au client',
-      text: 'Cantia automatise la génération de rapports, le classement de documents et les alertes de suivi — pour libérer du temps administratif au quotidien.',
+      text: 'Cantia automatise la génération de rapports, le classement de documents et les alertes de suivi, afin de libérer du temps administratif au quotidien.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,7 +53,7 @@ export const post: BlogPost = {
     {
       question: 'L\'automatisation dans le bâtiment se limite-t-elle à la facturation ?',
       answer:
-        'Non — le suivi administratif plus large (rapports de chantier, classement de documents, alertes d\'expiration) peut aussi être largement automatisé.',
+        'Non : le suivi administratif plus large (rapports de chantier, classement de documents, alertes d\'expiration) peut aussi être largement automatisé.',
     },
     {
       question: 'Quel type d\'automatisation fait généralement le plus gagner de temps au quotidien ?',
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'L\'automatisation du suivi administratif profite-t-elle aussi aux clients ?',
       answer:
-        'Oui — un rapport de chantier généré rapidement et proprement, sans délai de mise en forme manuelle, renforce directement l\'image professionnelle perçue par le client.',
+        'Oui, car un rapport de chantier généré rapidement et proprement, sans délai de mise en forme manuelle, renforce directement l\'image professionnelle perçue par le client.',
     },
   ],
   relatedSlugs: [

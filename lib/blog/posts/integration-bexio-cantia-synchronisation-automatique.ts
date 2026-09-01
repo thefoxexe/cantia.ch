@@ -19,15 +19,15 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'Ce n’est plus nécessaire. Cantia se connecte maintenant directement à Bexio via son API officielle. Une fois la connexion faite, les clients, les réglages de facturation et le statut de paiement de chaque facture circulent automatiquement entre les deux — sans export, sans copier-coller, sans risque de décalage entre ce que dit Cantia et ce que dit Bexio.',
+      text: 'Ce n’est plus nécessaire. Cantia se connecte maintenant directement à Bexio via son API officielle. Une fois la connexion faite, les clients, les réglages de facturation et le statut de paiement de chaque facture circulent automatiquement entre les deux : sans export, sans copier-coller, sans risque de décalage entre ce que dit Cantia et ce que dit Bexio.',
     },
     { type: 'h2', text: 'Ce qui se synchronise, concrètement' },
     {
       type: 'list',
       items: [
-        'Vos clients Bexio sont importés dans Cantia dès la connexion, puis tenus à jour à chaque synchronisation — plus besoin de créer un client des deux côtés',
+        'Vos clients Bexio sont importés dans Cantia dès la connexion, puis tenus à jour à chaque synchronisation, ce qui évite de créer un client des deux côtés',
         'Les réglages de facturation (devise, coordonnées bancaires, mode de TVA, mode de paiement) sont récupérés depuis Bexio, jamais saisis en double ni devinés',
-        'Une facture Cantia s’envoie vers Bexio en un clic depuis son détail — elle y arrive en brouillon, prête à être vérifiée avant tout envoi ou déclaration',
+        'Une facture Cantia s’envoie vers Bexio en un clic depuis son détail. Elle y arrive en brouillon, prête à être vérifiée avant tout envoi ou déclaration',
         'Le statut de paiement fait le chemin inverse : dès qu’une facture est payée dans Bexio, Cantia le sait dans l’heure qui suit, sans action manuelle',
       ],
     },
@@ -39,7 +39,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Se connecter : deux minutes, un administrateur' },
     {
       type: 'p',
-      text: 'La connexion se fait depuis Compte → Intégrations. Un administrateur de l’organisation clique sur « Connecter Bexio », se connecte à son compte Bexio comme d’habitude et autorise l’accès — c’est le mécanisme d’authentification officiel de Bexio (OAuth), le même que celui utilisé par les autres intégrations tierces de la plateforme. Cantia ne voit jamais votre mot de passe Bexio et ne stocke aucun identifiant en clair : uniquement un jeton d’accès révocable à tout moment, d’un côté comme de l’autre.',
+      text: 'La connexion se fait depuis Compte → Intégrations. Un administrateur de l’organisation clique sur « Connecter Bexio », se connecte à son compte Bexio comme d’habitude et autorise l’accès. Il s’agit du mécanisme d’authentification officiel de Bexio (OAuth), le même que celui utilisé par les autres intégrations tierces de la plateforme. Cantia ne voit jamais votre mot de passe Bexio et ne stocke aucun identifiant en clair : uniquement un jeton d’accès révocable à tout moment, d’un côté comme de l’autre.',
     },
     {
       type: 'p',
@@ -48,16 +48,16 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce que Cantia ne fait pas à la place de Bexio' },
     {
       type: 'p',
-      text: 'Cantia ne finalise ni n’envoie jamais une facture au client à votre place côté Bexio, et ne supprime jamais rien côté Bexio : chaque facture arrive en brouillon, pour que la comptabilité garde le contrôle final. Cantia reste ce qu’il a toujours été — l’outil du chantier, pas un logiciel de comptabilité générale — et Bexio reste responsable de la tenue comptable, des déclarations TVA et de tout ce qui touche à la clôture des comptes.',
+      text: 'Cantia ne finalise ni n’envoie jamais une facture au client à votre place côté Bexio, et ne supprime jamais rien côté Bexio : chaque facture arrive en brouillon, pour que la comptabilité garde le contrôle final. Cantia reste ce qu’il a toujours été (l’outil du chantier, pas un logiciel de comptabilité générale), et Bexio reste responsable de la tenue comptable, des déclarations TVA et de tout ce qui touche à la clôture des comptes.',
     },
     {
       type: 'table',
       headers: ['', 'Avant', 'Avec l’intégration'],
       rows: [
-        ['Créer un client', 'Une fois dans Cantia, une fois dans Bexio', 'Une fois — importé automatiquement'],
+        ['Créer un client', 'Une fois dans Cantia, une fois dans Bexio', 'Importé automatiquement, une seule fois'],
         ['Envoyer une facture en comptabilité', 'Retapée à la main dans Bexio', 'Envoyée en un clic depuis la facture'],
         ['Savoir si une facture est payée', 'À vérifier manuellement dans Bexio', 'Mis à jour automatiquement, chaque heure'],
-        ['Risque de doublon ou d’écart', 'Réel, à chaque ressaisie', 'Éliminé — chaque facture n’existe qu’une fois'],
+        ['Risque de doublon ou d’écart', 'Réel, à chaque ressaisie', 'Éliminé : chaque facture n’existe qu’une fois'],
       ],
     },
     {
@@ -71,12 +71,12 @@ export const post: BlogPost = {
     {
       question: 'L’intégration Bexio est-elle payante en plus de mon abonnement ?',
       answer:
-        'Non — elle est incluse automatiquement à partir du plan Entreprise (et disponible sur le plan Sur devis), sans coût ni module supplémentaire à activer.',
+        'Non. Elle est incluse automatiquement à partir du plan Entreprise (et disponible sur le plan Sur devis), sans coût ni module supplémentaire à activer.',
     },
     {
       question: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?',
       answer:
-        'Non. Chaque facture est envoyée vers Bexio en brouillon uniquement — c’est toujours vous, ou votre fiduciaire, qui décide de sa finalisation côté Bexio.',
+        'Non. Chaque facture est envoyée vers Bexio en brouillon uniquement : c’est toujours vous, ou votre fiduciaire, qui décide de sa finalisation côté Bexio.',
     },
     {
       question: 'Que se passe-t-il si je déconnecte l’intégration ?',
@@ -86,7 +86,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il ressaisir mes clients existants dans Bexio pour que ça fonctionne ?',
       answer:
-        'Non — vos clients Bexio existants sont importés automatiquement dans Cantia dès la connexion, dans le sens Bexio vers Cantia.',
+        'Non. Vos clients Bexio existants sont importés automatiquement dans Cantia dès la connexion, dans le sens Bexio vers Cantia.',
     },
   ],
   relatedSlugs: ['bexio-vs-cantia-logiciel-batiment', 'suivre-rentabilite-chantier-sans-excel', 'qr-facture-obligatoire-2026'],

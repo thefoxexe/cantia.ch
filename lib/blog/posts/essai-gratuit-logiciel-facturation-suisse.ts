@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un essai gratuit ne sert à rien s\'il n\'est pas utilisé méthodiquement. Comment tester efficacement un outil de facturation avant de s\'engager sur un abonnement.',
   excerpt:
-    'La plupart des essais gratuits sont mal exploités — quelques clics rapides, puis l\'abandon ou la souscription par défaut, sans avoir vraiment vérifié ce qui compte.',
+    'La plupart des essais gratuits sont mal exploités : quelques clics rapides, puis l\'abandon ou la souscription par défaut, sans avoir vraiment vérifié ce qui compte.',
   category: 'Comparatifs & outils',
   keywords: ['essai gratuit logiciel facturation', 'tester logiciel avant abonnement', 'période essai outil gestion Suisse', 'comment tester logiciel devis facture', 'essai gratuit 30 jours logiciel'],
   publishedAt: '2026-08-06',
@@ -35,12 +35,12 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ne pas attendre la fin de l\'essai pour se décider' },
     {
       type: 'p',
-      text: 'Utiliser l\'essai gratuit de façon régulière, dès les premiers jours, plutôt que de le laisser de côté jusqu\'à la dernière semaine, permet d\'avoir un vrai retour d\'expérience — pas juste une impression basée sur quelques minutes de découverte.',
+      text: 'Utiliser l\'essai gratuit de façon régulière, dès les premiers jours, plutôt que de le laisser de côté jusqu\'à la dernière semaine, permet d\'avoir un vrai retour d\'expérience, et non pas juste une impression basée sur quelques minutes de découverte.',
     },
     {
       type: 'callout',
       title: 'Un essai gratuit sans carte bancaire demandée est un bon signe',
-      text: 'Un éditeur confiant dans son produit ne demande généralement pas de carte bancaire pour un essai — ça évite aussi le risque d\'un prélèvement automatique oublié à la fin de la période.',
+      text: 'Un éditeur confiant dans son produit ne demande généralement pas de carte bancaire pour un essai. Cela évite aussi le risque d\'un prélèvement automatique oublié à la fin de la période.',
     },
     {
       type: 'cta',
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Un essai gratuit doit-il demander une carte bancaire ?',
       answer:
-        'Pas nécessairement — de nombreux outils sérieux proposent un essai sans carte bancaire, ce qui évite aussi le risque d\'un prélèvement automatique oublié à la fin de la période.',
+        'Pas nécessairement, car de nombreux outils sérieux proposent un essai sans carte bancaire, ce qui évite aussi le risque d\'un prélèvement automatique oublié à la fin de la période.',
     },
   ],
   relatedSlugs: [

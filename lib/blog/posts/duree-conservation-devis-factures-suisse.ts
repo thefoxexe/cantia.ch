@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Combien de temps garder ses devis et factures en Suisse ?',
   title: 'Combien de temps conserver devis et factures en Suisse ?',
   description:
-    'Le Code des obligations (art. 958f) impose une conservation de 10 ans pour les pièces comptables, factures incluses — délai qui court depuis la fin de l’exercice, pas la date du document.',
+    'Le Code des obligations (art. 958f) impose une conservation de 10 ans pour les pièces comptables, factures incluses, un délai qui court depuis la fin de l’exercice, pas la date du document.',
   excerpt:
     'Une facture de mars 2026 doit rester accessible jusqu’à fin 2036, pas jusqu’à mars 2036. Un détail de calcul du délai que la plupart des entreprises ratent.',
   category: 'Juridique & normes',
@@ -25,7 +25,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'L’exemple qui rend le calcul évident',
-      text: 'Une facture datée du 15 mars 2026, pour une entreprise dont l’exercice se termine le 31 décembre, doit rester accessible jusqu’au 31 décembre 2036 — pas jusqu’au 15 mars 2036. Neuf mois de plus que ce que la plupart des gens calculent instinctivement.',
+      text: 'Une facture datée du 15 mars 2026, pour une entreprise dont l’exercice se termine le 31 décembre, doit rester accessible jusqu’au 31 décembre 2036, et non jusqu’au 15 mars 2036. Neuf mois de plus que ce que la plupart des gens calculent instinctivement.',
     },
     { type: 'h2', text: 'Quels documents sont concernés' },
     {
@@ -40,7 +40,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Papier ou numérique : ce que la loi accepte réellement' },
     {
       type: 'p',
-      text: 'Papier, forme électronique, ou toute forme équivalente — la loi n’impose pas de support précis, à condition que le lien avec les opérations concernées reste garanti et que l’accessibilité soit assurée pendant toute la durée légale. En pratique, une conservation numérique bien sauvegardée est largement acceptée, et infiniment plus rapide à retrouver qu’une pile de classeurs papier fouillée un après-midi de contrôle fiscal.',
+      text: 'La loi n’impose pas de support précis : papier, forme électronique, ou toute forme équivalente conviennent, à condition que le lien avec les opérations concernées reste garanti et que l’accessibilité soit assurée pendant toute la durée légale. En pratique, une conservation numérique bien sauvegardée est largement acceptée, et infiniment plus rapide à retrouver qu’une pile de classeurs papier fouillée un après-midi de contrôle fiscal.',
     },
     { type: 'h2', text: 'Pourquoi ça compte, au-delà de l’obligation' },
     {
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Le délai de 10 ans court-il depuis la date de la facture ?',
       answer:
-        'Non — il court depuis la fin de l’exercice comptable dans lequel la facture s’inscrit, pas depuis sa date d’émission propre.',
+        'Non. Il court depuis la fin de l’exercice comptable dans lequel la facture s’inscrit, pas depuis sa date d’émission propre.',
     },
     {
       question: 'Peut-on conserver ses factures uniquement en format numérique ?',

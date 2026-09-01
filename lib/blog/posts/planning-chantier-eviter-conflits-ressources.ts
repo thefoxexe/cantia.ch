@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Comment éviter qu’une même équipe ou une même machine soit prévue sur deux chantiers en même temps ?',
   title: 'Conflits de planning entre chantiers : comment une petite entreprise les évite vraiment',
   description:
-    'Un ouvrier ou une machine réservés deux fois le même jour sur deux chantiers différents — un classique quand le planning vit dans plusieurs têtes ou plusieurs fichiers séparés.',
+    'Un ouvrier ou une machine réservés deux fois le même jour sur deux chantiers différents : un classique quand le planning vit dans plusieurs têtes ou plusieurs fichiers séparés.',
   excerpt:
     'Ce n’est presque jamais un problème de mauvaise volonté : c’est un problème de visibilité. Personne ne voit tout le planning au même endroit, donc personne ne peut repérer le conflit avant qu’il n’explose sur le terrain.',
   category: 'Chantier & rentabilité',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Dès qu’une entreprise gère plus de deux ou trois chantiers en parallèle, le risque de double-réservation devient réel : un ouvrier annoncé sur un chantier alors qu’il est déjà prévu ailleurs, une bétonnière ou un échafaudage réservé deux fois le même jour. Le problème n’est presque jamais un manque d’organisation individuelle — c’est un manque de visibilité partagée sur l’ensemble des engagements.',
+      text: 'Dès qu’une entreprise gère plus de deux ou trois chantiers en parallèle, le risque de double-réservation devient réel : un ouvrier annoncé sur un chantier alors qu’il est déjà prévu ailleurs, une bétonnière ou un échafaudage réservé deux fois le même jour. Le problème n’est presque jamais un manque d’organisation individuelle, c’est plutôt un manque de visibilité partagée sur l’ensemble des engagements.',
     },
     { type: 'h2', text: 'Pourquoi ça arrive, même dans des équipes bien organisées' },
     {
@@ -36,14 +36,14 @@ export const post: BlogPost = {
       type: 'list',
       items: [
         'Un planning unique, visible par toute l’équipe, plutôt qu’une source d’information par personne',
-        'Une vue par personne et par machine, pas seulement par chantier — pour repérer un conflit avant qu’il ne devienne un problème sur le terrain',
+        'Une vue par personne et par machine, pas seulement par chantier, afin de repérer un conflit avant qu’il ne devienne un problème sur le terrain',
         'Une mise à jour en temps réel, accessible depuis le chantier et pas seulement depuis le bureau',
       ],
     },
     {
       type: 'cta',
       title: 'Un planning que toute l’équipe voit, en temps réel',
-      text: 'Le module Planning de Cantia centralise les affectations d’équipe et de chantier en un seul endroit accessible depuis le terrain — fini les doubles réservations découvertes trop tard.',
+      text: 'Le module Planning de Cantia centralise les affectations d’équipe et de chantier en un seul endroit accessible depuis le terrain. Fini les doubles réservations découvertes trop tard.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

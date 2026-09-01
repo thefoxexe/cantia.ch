@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un devis sans date de validité engage l’entreprise sans limite dans le temps, même si le prix du matériel a doublé depuis. La clause qui manque sur la plupart des devis suisses.',
   excerpt:
-    'Un devis signé sans date de validité vous engage indéfiniment — même si le prix du bois a doublé entre-temps. C’est une ligne, pas un détail.',
+    'Un devis signé sans date de validité vous engage indéfiniment, y compris si le prix du bois a doublé entre-temps. C’est une ligne, pas un détail.',
   category: 'Devis & facturation',
   keywords: ['validité devis', 'prix matériel', 'engagement contractuel', 'clause de révision', 'devis signé'],
   publishedAt: '2026-03-02',
@@ -25,7 +25,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La ligne à ne jamais oublier',
-      text: '« Devis valable 30 jours » (ou 60, selon la nature du chantier) n’est pas une formule de politesse — c’est ce qui empêche un client de ressortir un prix figé des mois plus tard, pendant que vos fournisseurs ont déjà révisé les leurs.',
+      text: '« Devis valable 30 jours » (ou 60, selon la nature du chantier) n’est pas une formule de politesse. C’est ce qui empêche un client de ressortir un prix figé des mois plus tard, pendant que vos fournisseurs ont déjà révisé les leurs.',
     },
     { type: 'h2', text: 'Que faire quand le chantier démarre après l’expiration' },
     {
@@ -33,7 +33,7 @@ export const post: BlogPost = {
       items: [
         'Si le devis a expiré, un nouveau devis (ou un avenant confirmant le prix révisé) doit être établi et accepté avant de démarrer',
         'Si le chantier a déjà commencé sous l’ancien devis, une clause de révision de prix (matériaux notamment) permet de répercuter une hausse documentée sans renégocier tout le contrat',
-        'À défaut de clause, une hausse significative et documentée du prix d’un matériau spécifique peut parfois justifier un avenant négocié — mais c’est une discussion, pas un droit automatique',
+        'À défaut de clause, une hausse significative et documentée du prix d’un matériau spécifique peut parfois justifier un avenant négocié (mais c’est une discussion, pas un droit automatique)',
       ],
     },
     { type: 'h2', text: 'Ce que ça change en pratique' },
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'La validité, jamais oubliée sur un devis',
-      text: 'Chaque devis Cantia inclut automatiquement sa date de validité, calculée depuis vos paramètres d’entreprise — plus besoin d’y penser à chaque envoi.',
+      text: 'Chaque devis Cantia inclut automatiquement sa date de validité, calculée depuis vos paramètres d’entreprise. Plus besoin d’y penser à chaque envoi.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -52,17 +52,17 @@ export const post: BlogPost = {
     {
       question: 'Un devis sans date de validité engage-t-il indéfiniment l’entreprise ?',
       answer:
-        'En principe oui, tant qu’il n’a pas été retiré ou remplacé — c’est pourquoi une durée de validité explicite (30 à 90 jours selon les cas) doit toujours figurer sur le document.',
+        'En principe oui, tant qu’il n’a pas été retiré ou remplacé : c’est pourquoi une durée de validité explicite (30 à 90 jours selon les cas) doit toujours figurer sur le document.',
     },
     {
       question: 'Peut-on répercuter une hausse du prix des matériaux sur un devis déjà signé ?',
       answer:
-        'Seulement si une clause de révision de prix le prévoit explicitement, ou par un avenant négocié avec le client — ce n’est jamais un droit automatique en l’absence de clause.',
+        'Seulement si une clause de révision de prix le prévoit explicitement, ou par un avenant négocié avec le client (ce n’est jamais un droit automatique en l’absence de clause).',
     },
     {
       question: 'Quelle durée de validité choisir pour un devis de rénovation ?',
       answer:
-        '30 jours est courant pour des matériaux dont le prix bouge, jusqu’à 90 jours pour des prestations principalement en main-d’œuvre — à ajuster selon la volatilité réelle des postes du devis.',
+        '30 jours est courant pour des matériaux dont le prix bouge, jusqu’à 90 jours pour des prestations principalement en main-d’œuvre. Le choix final se fait selon la volatilité réelle des postes du devis.',
     },
   ],
   relatedSlugs: [

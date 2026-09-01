@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Le prix seul ne dit rien du rapport qualité-prix. Une méthode simple pour comparer objectivement plusieurs outils de gestion pour une PME du bâtiment.',
   excerpt:
-    'Comparer deux logiciels sur leur seul prix mensuel, c\'est comme comparer deux devis sans regarder ce qu\'ils incluent — le rapport qualité-prix se calcule autrement.',
+    'Comparer deux logiciels sur leur seul prix mensuel, c\'est comme comparer deux devis sans regarder ce qu\'ils incluent : le rapport qualité-prix se calcule autrement.',
   category: 'Comparatifs & outils',
   keywords: ['rapport qualité prix logiciel PME bâtiment', 'comparer logiciels gestion construction', 'meilleur outil pour son budget bâtiment', 'évaluer logiciel gestion prix', 'comparatif qualité prix logiciel chantier'],
   publishedAt: '2026-08-04',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Comparer deux logiciels de gestion sur leur seul prix mensuel donne une image incomplète — un outil à CHF 80 qui couvre tous les besoins peut valoir bien plus qu\'un outil à CHF 30 qui n\'en couvre que la moitié et nécessite des solutions annexes.',
+      text: 'Comparer deux logiciels de gestion sur leur seul prix mensuel donne une image incomplète. Un outil à CHF 80 qui couvre tous les besoins peut valoir bien plus qu\'un outil à CHF 30 qui n\'en couvre que la moitié et nécessite des solutions annexes.',
     },
     { type: 'h2', text: 'Une méthode simple pour comparer objectivement' },
     {
@@ -40,12 +40,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Se méfier des comparatifs qui ne testent jamais l\'outil réellement',
-      text: 'Un bon comparatif se base sur une utilisation concrète, pas seulement sur la liste de fonctionnalités annoncée par chaque éditeur — un essai gratuit reste le meilleur moyen de vérifier.',
+      text: 'Un bon comparatif se base sur une utilisation concrète, pas seulement sur la liste de fonctionnalités annoncée par chaque éditeur, donc un essai gratuit reste le meilleur moyen de vérifier.',
     },
     {
       type: 'cta',
       title: 'Jugez le rapport qualité-prix par vous-même',
-      text: 'Cantia offre 30 jours d\'essai gratuit avec le code ESSAI30 — de quoi comparer objectivement, sur une utilisation réelle, plutôt que sur une brochure.',
+      text: 'Cantia offre 30 jours d\'essai gratuit avec le code ESSAI30 : de quoi comparer objectivement, sur une utilisation réelle, plutôt que sur une brochure.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -58,7 +58,7 @@ export const post: BlogPost = {
     {
       question: 'Le meilleur rapport qualité-prix est-il le même pour toutes les entreprises ?',
       answer:
-        'Non — il dépend directement du profil de l\'entreprise (solo, petite équipe, plusieurs chantiers en parallèle), un outil adapté à l\'un pouvant être surdimensionné pour l\'autre.',
+        'Non. Il dépend directement du profil de l\'entreprise (solo, petite équipe, plusieurs chantiers en parallèle), un outil adapté à l\'un pouvant être surdimensionné pour l\'autre.',
     },
     {
       question: 'Faut-il se fier uniquement aux comparatifs en ligne pour choisir un logiciel ?',

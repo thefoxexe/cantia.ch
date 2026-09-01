@@ -24,13 +24,13 @@ export const post: BlogPost = {
         'La gestion correcte de l’IBAN vs QR-IBAN (deux formats différents selon le type de compte, avec ou sans référence QR)',
         'L’adresse structurée (NPA et localité séparés), obligatoire depuis la norme 2.3 : une adresse en texte libre sera rejetée dès fin septembre 2026',
         'Le calcul et la vérification automatique de la référence QR (QRR), pour éviter une erreur de rapprochement côté client',
-        'Une zone de quiétude (quiet zone) suffisante autour du QR-code — un code mal marginé peut échouer au scan même si les données sont correctes',
+        'Une zone de quiétude (quiet zone) suffisante autour du QR-code : un code mal marginé peut échouer au scan même si les données sont correctes',
       ],
     },
     {
       type: 'callout',
       title: 'Un bug de génération QR-facture ne se voit souvent qu’au moment du paiement',
-      text: 'Le PDF a l’air normal, le client tente de scanner ou de saisir la référence, et ça échoue — le problème remonte alors comme un retard de paiement, sans que la vraie cause (un défaut de conformité) soit évidente.',
+      text: 'Le PDF a l’air normal, le client tente de scanner ou de saisir la référence, et ça échoue. Le problème remonte alors comme un retard de paiement, sans que la vraie cause (un défaut de conformité) soit évidente.',
     },
     { type: 'h2', text: 'Comment vérifier la conformité avant de choisir' },
     {
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Depuis quand l’adresse structurée est-elle obligatoire sur une QR-facture ?',
       answer:
-        'Depuis la norme 2.3 en novembre 2025 — les adresses en texte libre seront définitivement rejetées à partir du 30 septembre 2026.',
+        'Depuis la norme 2.3 en novembre 2025. Les adresses en texte libre seront définitivement rejetées à partir du 30 septembre 2026.',
     },
   ],
   relatedSlugs: [

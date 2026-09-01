@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un formulaire standard ne colle jamais à 100% à la façon de travailler d\'une entreprise. Comment un champ ou un processus sur mesure comble ce dernier écart.',
   excerpt:
-    'Un formulaire de devis standard couvre 90% des besoins — les 10% restants, propres à la façon de travailler d\'une entreprise précise, méritent parfois un champ qui n\'existe dans aucun outil générique.',
+    'Un formulaire de devis standard couvre 90% des besoins. Les 10% restants, propres à la façon de travailler d\'une entreprise précise, méritent parfois un champ qui n\'existe dans aucun outil générique.',
   category: 'Sur-mesure & automatisations',
   keywords: ['ajouter champ sur mesure logiciel', 'processus personnalisé gestion entreprise', 'formulaire sur mesure devis facture', 'adapter logiciel besoins spécifiques', 'champ personnalisé outil gestion bâtiment'],
   publishedAt: '2026-08-18',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un outil de gestion standard couvre généralement la grande majorité des besoins d\'une entreprise du bâtiment. Mais certaines entreprises ont un détail de fonctionnement propre — une information à suivre systématiquement, une étape de validation particulière — qu\'aucun formulaire générique ne prévoit.',
+      text: 'Un outil de gestion standard couvre généralement la grande majorité des besoins d\'une entreprise du bâtiment. Mais certaines entreprises ont un détail de fonctionnement propre (une information à suivre systématiquement, une étape de validation particulière) qu\'aucun formulaire générique ne prévoit.',
     },
     { type: 'h2', text: 'Des exemples de champs ou processus vraiment sur mesure' },
     {
@@ -30,22 +30,22 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '80/20',
-      label: 'répartition typique entre besoins couverts par un outil standard et besoins vraiment spécifiques à une entreprise — c\'est sur ces derniers 20% que le sur-mesure fait la différence',
+      label: 'répartition typique entre besoins couverts par un outil standard et besoins vraiment spécifiques à une entreprise : c\'est sur ces derniers 20% que le sur-mesure fait la différence',
     },
     { type: 'h2', text: 'Le sur-mesure part toujours d\'un vrai besoin, pas d\'une idée abstraite' },
     {
       type: 'p',
-      text: 'Un champ ou un processus sur mesure n\'a de sens que s\'il répond à une friction réelle rencontrée au quotidien — c\'est pourquoi il se construit généralement en discutant directement du problème concret, pas en listant des envies théoriques.',
+      text: 'Un champ ou un processus sur mesure n\'a de sens que s\'il répond à une friction réelle rencontrée au quotidien. C\'est pourquoi il se construit généralement en discutant directement du problème concret, pas en listant des envies théoriques.',
     },
     {
       type: 'callout',
       title: 'Un champ sur mesure reste intégré au reste de l\'outil',
-      text: 'Contrairement à un contournement bricolé (un tableur à côté, par exemple), un champ développé sur mesure s\'intègre au même endroit que le reste des données — pas de ressaisie ni de système parallèle à maintenir.',
+      text: 'Contrairement à un contournement bricolé (un tableur à côté, par exemple), un champ développé sur mesure s\'intègre au même endroit que le reste des données. Il n\'y a alors ni ressaisie ni système parallèle à maintenir.',
     },
     {
       type: 'cta',
       title: 'Parlons de ce qui manque à votre quotidien',
-      text: 'Si un détail de votre façon de travailler ne trouve pas sa place dans Cantia aujourd\'hui, discutons-en — c\'est souvent le point de départ d\'une fonctionnalité sur mesure.',
+      text: 'Si un détail de votre façon de travailler ne trouve pas sa place dans Cantia aujourd\'hui, discutons-en. C\'est souvent le point de départ d\'une fonctionnalité sur mesure.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Un champ sur mesure reste-t-il intégré au reste de l\'outil ?',
       answer:
-        'Oui — contrairement à un contournement externe (tableur séparé, par exemple), un champ développé sur mesure s\'intègre directement aux données existantes, sans ressaisie.',
+        'Oui : contrairement à un contournement externe (tableur séparé, par exemple), un champ développé sur mesure s\'intègre directement aux données existantes, sans ressaisie.',
     },
   ],
   relatedSlugs: [

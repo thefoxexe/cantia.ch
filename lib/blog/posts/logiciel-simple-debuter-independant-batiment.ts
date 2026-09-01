@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'La simplicité d\'un outil ne se juge pas sur sa page d\'accueil, mais sur le temps qu\'il faut pour émettre un premier devis sans avoir lu de mode d\'emploi.',
   excerpt:
-    'Beaucoup d\'outils se disent "simples" — le vrai test, c\'est de chronométrer combien de temps il faut pour envoyer un premier devis sans jamais avoir ouvert l\'aide en ligne.',
+    'Beaucoup d\'outils se disent "simples" : le vrai test, c\'est de chronométrer combien de temps il faut pour envoyer un premier devis sans jamais avoir ouvert l\'aide en ligne.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel simple débuter indépendant', 'outil facile bâtiment débutant', 'logiciel gestion sans formation', 'application simple artisan', 'prise en main rapide logiciel devis'],
   publishedAt: '2026-07-19',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Quand on débute une activité, le temps manque déjà pour tout ce qui n\'est pas le travail lui-même — apprendre un logiciel complexe pendant des heures n\'est pas une option réaliste. La simplicité d\'un outil devrait pouvoir se vérifier en quelques minutes, pas en le testant une semaine.',
+      text: 'Quand on débute une activité, le temps manque déjà pour tout ce qui n\'est pas le travail lui-même. Apprendre un logiciel complexe pendant des heures n\'est pas une option réaliste. La simplicité d\'un outil devrait pouvoir se vérifier en quelques minutes, pas en le testant une semaine.',
     },
     { type: 'h2', text: 'Comment repérer un outil vraiment simple' },
     {
@@ -40,12 +40,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Tester avant de juger sur les captures d\'écran',
-      text: 'Une interface qui a l\'air simple sur des captures d\'écran marketing peut se révéler compliquée à l\'usage réel — un essai gratuit reste le seul moyen fiable de vérifier.',
+      text: 'Une interface qui a l\'air simple sur des captures d\'écran marketing peut se révéler compliquée à l\'usage réel, donc un essai gratuit reste le seul moyen fiable de vérifier.',
     },
     {
       type: 'cta',
       title: 'Un premier devis en quelques minutes, sans formation',
-      text: 'Cantia est pensé pour être compris dès la première utilisation — testez-le gratuitement 30 jours avec le code ESSAI30 et jugez par vous-même.',
+      text: 'Cantia est pensé pour être compris dès la première utilisation. Testez-le gratuitement 30 jours avec le code ESSAI30 et jugez par vous-même.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,17 +53,17 @@ export const post: BlogPost = {
     {
       question: 'Comment savoir si un logiciel de gestion est vraiment simple avant de s\'engager ?',
       answer:
-        'Le meilleur test est de créer un compte et d\'essayer d\'envoyer un premier devis sans lire de mode d\'emploi — si ça prend plus de quelques minutes, l\'outil n\'est probablement pas aussi simple qu\'annoncé.',
+        'Le meilleur test est de créer un compte et d\'essayer d\'envoyer un premier devis sans lire de mode d\'emploi. Si ça prend plus de quelques minutes, l\'outil n\'est probablement pas aussi simple qu\'annoncé.',
     },
     {
       question: 'Un outil simple peut-il quand même avoir des fonctions avancées ?',
       answer:
-        'Oui — la simplicité concerne surtout la prise en main des tâches de base, sans empêcher d\'accéder plus tard à des fonctions plus poussées comme le planning ou la trésorerie.',
+        'Oui, car la simplicité concerne surtout la prise en main des tâches de base, sans empêcher d\'accéder plus tard à des fonctions plus poussées comme le planning ou la trésorerie.',
     },
     {
       question: 'Faut-il une formation pour utiliser un logiciel de gestion en tant qu\'indépendant débutant ?',
       answer:
-        'Avec un outil bien conçu, non — les tâches de base (devis, facture) doivent être accessibles sans formation préalable ni lecture d\'aide en ligne.',
+        'Avec un outil bien conçu, non : les tâches de base (devis, facture) doivent être accessibles sans formation préalable ni lecture d\'aide en ligne.',
     },
   ],
   relatedSlugs: [

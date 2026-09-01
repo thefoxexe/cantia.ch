@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Faut-il un permis de construire pour une rénovation en Suisse ?',
   title: 'Permis de construire pour une rénovation : quand c’est nécessaire',
   description:
-    'Refaire une cuisine ou une salle de bains ne demande en principe pas de permis. Dès que la structure, l’aspect extérieur ou l’affectation changent, la donne change — et ça dépend fortement du canton.',
+    'Refaire une cuisine ou une salle de bains ne demande en principe pas de permis. Dès que la structure, l’aspect extérieur ou l’affectation changent, la donne change, et cela dépend fortement du canton.',
   excerpt:
-    'Refaire une salle de bains ne demande en principe aucun permis. Toucher un mur porteur, si — et la limite entre les deux se joue à des détails que peu d’artisans vérifient avant de commencer.',
+    'Refaire une salle de bains ne demande en principe aucun permis. Toucher un mur porteur, si, et la limite entre les deux se joue à des détails que peu d’artisans vérifient avant de commencer.',
   category: 'Juridique & normes',
   keywords: ['permis de construire', 'rénovation', 'procédure d’annonce', 'autorisation travaux', 'canton'],
   publishedAt: '2026-03-16',
@@ -45,16 +45,16 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La vraie variable : le canton, pas la Confédération' },
     {
       type: 'p',
-      text: 'Il n’existe pas de règle fédérale unique — chaque canton, parfois chaque commune, fixe ses propres seuils de dispense et ses propres procédures. Un même chantier de rénovation peut être totalement libre dans un canton et soumis à annonce simplifiée dans un autre. Vérifier auprès de la commune avant de s’engager coûte une visite ; ne pas le faire peut coûter un arrêt de chantier en cours de route.',
+      text: 'Il n’existe pas de règle fédérale unique : chaque canton, parfois chaque commune, fixe ses propres seuils de dispense et ses propres procédures. Un même chantier de rénovation peut être totalement libre dans un canton et soumis à annonce simplifiée dans un autre. Vérifier auprès de la commune avant de s’engager coûte une visite ; ne pas le faire peut coûter un arrêt de chantier en cours de route.',
     },
     {
       type: 'p',
-      text: 'Sur un chantier qui touche potentiellement à la structure ou à l’aspect extérieur, mieux vaut poser la question à la commune avant le devis, pas après — un délai de procédure mal anticipé se répercute directement sur le planning promis au client.',
+      text: 'Sur un chantier qui touche potentiellement à la structure ou à l’aspect extérieur, mieux vaut poser la question à la commune avant le devis, pas après. Un délai de procédure mal anticipé se répercute directement sur le planning promis au client.',
     },
     {
       type: 'cta',
       title: 'Le planning du chantier, jamais perdu de vue',
-      text: 'Le planning d’équipe Cantia rattache chaque affectation à un chantier précis — utile pour absorber un délai de procédure sans perdre le fil du reste des engagements.',
+      text: 'Le planning d’équipe Cantia rattache chaque affectation à un chantier précis, ce qui aide à absorber un délai de procédure sans perdre le fil du reste des engagements.',
       buttonLabel: 'Découvrir le planning d’équipe',
     },
   ],
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Refaire une cuisine ou une salle de bains nécessite-t-il un permis ?',
       answer:
-        'En principe non, tant que la structure porteuse et l’usage des locaux ne sont pas modifiés — mais une annonce à la commune peut rester nécessaire selon le canton.',
+        'En principe non, tant que la structure porteuse et l’usage des locaux ne sont pas modifiés. Une annonce à la commune peut toutefois rester nécessaire selon le canton.',
     },
     {
       question: 'Quels travaux de rénovation nécessitent presque toujours un permis ?',
@@ -72,7 +72,7 @@ export const post: BlogPost = {
     {
       question: 'Les règles de permis sont-elles les mêmes dans tous les cantons suisses ?',
       answer:
-        'Non — chaque canton, parfois chaque commune, fixe ses propres seuils de dispense et procédures. Il n’existe pas de règle fédérale unique pour les rénovations.',
+        'Non, ce n’est pas le cas. Chaque canton, parfois chaque commune, fixe ses propres seuils de dispense et procédures : il n’existe pas de règle fédérale unique pour les rénovations.',
     },
   ],
   relatedSlugs: [

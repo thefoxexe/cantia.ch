@@ -41,12 +41,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le catalogue de prix se construit mieux progressivement',
-      text: 'Pas besoin d\'avoir un catalogue complet dès le premier jour — l\'ajouter au fil des premiers devis, prestation par prestation, reste plus réaliste que de tout anticiper d\'un coup.',
+      text: 'Pas besoin d\'avoir un catalogue complet dès le premier jour. L\'ajouter au fil des premiers devis, prestation par prestation, reste plus réaliste que de tout anticiper d\'un coup.',
     },
     {
       type: 'cta',
       title: 'Prêt à facturer dès la première utilisation',
-      text: 'Cantia se configure en quelques minutes — coordonnées, catalogue de prix, premiers devis — avant même l\'arrivée du premier client.',
+      text: 'Cantia se configure en quelques minutes (coordonnées, catalogue de prix, premiers devis) avant même l\'arrivée du premier client.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -59,7 +59,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il un catalogue de prix complet dès l\'ouverture de la société ?',
       answer:
-        'Non — il peut se construire progressivement, prestation par prestation, au fil des premiers devis réels plutôt que d\'être anticipé entièrement à l\'avance.',
+        'Non : il peut se construire progressivement, prestation par prestation, au fil des premiers devis réels plutôt que d\'être anticipé entièrement à l\'avance.',
     },
     {
       question: 'Est-il utile de tester l\'outil avant le premier vrai client ?',

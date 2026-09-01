@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Entre le logiciel de gestion, la comptabilité et les outils annexes, combien une nouvelle entreprise du bâtiment doit-elle réellement prévoir pour ses outils numériques.',
   excerpt:
-    'Le budget logiciel d\'une entreprise qui démarre est souvent sous-estimé au moment du business plan — puis découvert, poste par poste, dans les premiers mois d\'activité.',
+    'Le budget logiciel d\'une entreprise qui démarre est souvent sous-estimé au moment du business plan. Il se découvre ensuite, poste par poste, dans les premiers mois d\'activité.',
   category: 'Comparatifs & outils',
   keywords: ['budget logiciel démarrage entreprise', 'coût outils numériques PME bâtiment', 'business plan logiciel gestion', 'prévoir budget informatique entreprise', 'dépenses logicielles démarrage'],
   publishedAt: '2026-07-22',
@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un business plan de création d\'entreprise du bâtiment détaille souvent l\'outillage, le véhicule, les assurances — et oublie parfois le poste logiciel, pourtant récurrent chaque mois. Un budget réaliste évite la mauvaise surprise du premier relevé bancaire.',
+      text: 'Un business plan de création d\'entreprise du bâtiment détaille souvent l\'outillage, le véhicule, les assurances, mais oublie parfois le poste logiciel, pourtant récurrent chaque mois. Un budget réaliste évite la mauvaise surprise du premier relevé bancaire.',
     },
     { type: 'h2', text: 'Les postes logiciels à prévoir' },
     {
       type: 'list',
       items: [
-        'Un outil de gestion (devis, factures, chantier) — généralement CHF 30 à 90 par mois selon les besoins',
+        'Un outil de gestion (devis, factures, chantier) : généralement entre CHF 30 et 90 par mois selon les besoins',
         'Un accès fiduciaire ou comptable, ponctuel ou régulier selon le volume d\'activité',
         'Une assurance RC professionnelle, indispensable et souvent négligée dans le calcul "logiciel"',
         'D\'éventuels outils annexes (site internet, réseaux sociaux) si l\'acquisition de clients en dépend',
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Un outil unique coûte souvent moins cher que plusieurs outils séparés' },
     {
       type: 'p',
-      text: 'Additionner un outil de devis, un tableur d\'heures payant et une appli de suivi de chantier séparée dépasse souvent le prix d\'un outil tout-en-un équivalent — sans compter le temps perdu à les faire communiquer entre eux.',
+      text: 'Additionner un outil de devis, un tableur d\'heures payant et une appli de suivi de chantier séparée dépasse souvent le prix d\'un outil tout-en-un équivalent (sans compter le temps perdu à les faire communiquer entre eux).',
     },
     {
       type: 'callout',
@@ -58,12 +58,12 @@ export const post: BlogPost = {
     {
       question: 'Faut-il inclure le logiciel de gestion dans le business plan de création d\'entreprise ?',
       answer:
-        'Oui — c\'est une dépense récurrente mensuelle qui mérite sa propre ligne budgétaire, au même titre que l\'outillage ou l\'assurance RC professionnelle.',
+        'Oui : c\'est une dépense récurrente mensuelle qui mérite sa propre ligne budgétaire, au même titre que l\'outillage ou l\'assurance RC professionnelle.',
     },
     {
       question: 'Un outil tout-en-un coûte-t-il vraiment moins cher que plusieurs outils séparés ?',
       answer:
-        'Souvent oui, une fois additionnés les prix de chaque outil séparé — sans compter le temps perdu à faire communiquer des systèmes qui ne se parlent pas entre eux.',
+        'Souvent oui, une fois additionnés les prix de chaque outil séparé (sans compter le temps perdu à faire communiquer des systèmes qui ne se parlent pas entre eux).',
     },
   ],
   relatedSlugs: [

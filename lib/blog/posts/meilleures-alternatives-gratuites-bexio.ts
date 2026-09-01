@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Bexio reste une référence en Suisse, mais son positionnement comptable complet n\'est pas toujours nécessaire pour une entreprise du bâtiment qui démarre. Les options plus légères à connaître.',
   excerpt:
-    'Bexio est excellent pour la comptabilité complète — mais une entreprise du bâtiment qui démarre a d\'abord besoin de devis, de factures et de suivi de chantier, pas forcément d\'un grand livre comptable.',
+    'Bexio est excellent pour la comptabilité complète. Mais une entreprise du bâtiment qui démarre a d\'abord besoin de devis, de factures et de suivi de chantier, pas forcément d\'un grand livre comptable.',
   category: 'Comparatifs & outils',
   keywords: ['alternative gratuite Bexio', 'logiciel moins cher que Bexio', 'comparatif Bexio Suisse', 'outil bâtiment vs Bexio', 'logiciel gestion bâtiment abordable'],
   publishedAt: '2026-07-23',
@@ -15,15 +15,15 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Bexio s\'est imposé comme une référence en Suisse pour la comptabilité des PME — mais c\'est justement sa force qui peut devenir un frein pour une petite entreprise du bâtiment qui démarre : un outil pensé pour la comptabilité complète est souvent plus complexe (et plus cher) que ce qu\'exige un devis ou une facture au quotidien.',
+      text: 'Bexio s\'est imposé comme une référence en Suisse pour la comptabilité des PME. Mais c\'est justement sa force qui peut devenir un frein pour une petite entreprise du bâtiment qui démarre : un outil pensé pour la comptabilité complète est souvent plus complexe (et plus cher) que ce qu\'exige un devis ou une facture au quotidien.',
     },
     { type: 'h2', text: 'Ce qu\'il faut vraiment comparer' },
     {
       type: 'list',
       items: [
-        'Le prix d\'entrée — un outil spécialisé bâtiment démarre souvent moins cher qu\'un outil comptable généraliste complet',
-        'La spécialisation métier — devis chiffrés en heures de régie, suivi de chantier, photos géoréférencées : des besoins propres au bâtiment, pas toujours natifs dans un outil comptable généraliste',
-        'La complexité d\'utilisation — un outil pensé pour un comptable n\'a pas la même ergonomie qu\'un outil pensé pour un artisan sur chantier',
+        'Le prix d\'entrée : un outil spécialisé bâtiment démarre souvent moins cher qu\'un outil comptable généraliste complet',
+        'La spécialisation métier, à savoir devis chiffrés en heures de régie, suivi de chantier, photos géoréférencées : des besoins propres au bâtiment, pas toujours natifs dans un outil comptable généraliste',
+        'La complexité d\'utilisation (un outil pensé pour un comptable n\'a pas la même ergonomie qu\'un outil pensé pour un artisan sur chantier)',
       ],
     },
     {
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Les deux ne s\'excluent pas forcément' },
     {
       type: 'p',
-      text: 'Certains outils spécialisés bâtiment, comme Cantia, se synchronisent directement avec Bexio — clients, devis et factures poussés automatiquement — pour profiter du meilleur des deux mondes : un outil terrain pensé pour le bâtiment, connecté à la comptabilité complète le jour où elle devient nécessaire.',
+      text: 'Certains outils spécialisés bâtiment, comme Cantia, se synchronisent directement avec Bexio (clients, devis et factures poussés automatiquement) pour profiter du meilleur des deux mondes : un outil terrain pensé pour le bâtiment, connecté à la comptabilité complète le jour où elle devient nécessaire.',
     },
     {
       type: 'callout',
@@ -57,12 +57,12 @@ export const post: BlogPost = {
     {
       question: 'Peut-on utiliser un outil spécialisé bâtiment en plus de Bexio ?',
       answer:
-        'Oui — certains outils comme Cantia se synchronisent directement avec Bexio, poussant automatiquement clients, devis et factures pour éviter la double saisie.',
+        'Oui, car certains outils comme Cantia se synchronisent directement avec Bexio, poussant automatiquement clients, devis et factures pour éviter la double saisie.',
     },
     {
       question: 'Faut-il choisir entre un outil bâtiment spécialisé et un outil comptable complet ?',
       answer:
-        'Pas nécessairement — les deux peuvent se compléter, l\'un pour le pilotage quotidien du chantier, l\'autre pour la comptabilité complète une fois l\'activité plus établie.',
+        'Pas nécessairement : les deux peuvent se compléter, l\'un pour le pilotage quotidien du chantier, l\'autre pour la comptabilité complète une fois l\'activité plus établie.',
     },
   ],
   relatedSlugs: [

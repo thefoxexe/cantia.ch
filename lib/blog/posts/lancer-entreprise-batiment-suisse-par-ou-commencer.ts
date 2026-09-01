@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Entre le statut juridique, les assurances et les premiers outils, un ordre logique pour ne rien manquer au moment de se lancer dans le bâtiment en Suisse.',
   excerpt:
-    'Se lancer dans le bâtiment implique une dizaine de décisions à prendre à peu près en même temps — un ordre clair aide à ne rien oublier sans se sentir submergé dès le premier jour.',
+    'Se lancer dans le bâtiment implique une dizaine de décisions à prendre à peu près en même temps : un ordre clair aide à ne rien oublier sans se sentir submergé dès le premier jour.',
   category: 'Comparatifs & outils',
   keywords: ['lancer entreprise bâtiment Suisse', 'par où commencer entreprise construction', 'étapes création entreprise bâtiment', 'démarches entreprise artisan Suisse', 'checklist lancement activité bâtiment'],
   publishedAt: '2026-08-13',
@@ -37,7 +37,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ne pas tout vouloir perfectionner avant de démarrer' },
     {
       type: 'p',
-      text: 'Attendre d\'avoir "tout" en place avant d\'accepter un premier client repousse inutilement le début de l\'activité. Le strict nécessaire (statut, assurance, outil de facturation) suffit pour démarrer — le reste (catalogue de prix complet, planning, RH) peut se construire au fil de l\'eau.',
+      text: 'Attendre d\'avoir "tout" en place avant d\'accepter un premier client repousse inutilement le début de l\'activité. Le strict nécessaire (statut, assurance, outil de facturation) suffit pour démarrer. Le reste (catalogue de prix complet, planning, RH) peut se construire au fil de l\'eau.',
     },
     {
       type: 'callout',
@@ -47,7 +47,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Prêt à facturer dès votre premier jour d\'activité',
-      text: 'Cantia s\'installe rapidement et couvre devis, factures et suivi de chantier dès le lancement — essayez gratuitement 30 jours avec le code ESSAI30.',
+      text: 'Cantia s\'installe rapidement et couvre devis, factures et suivi de chantier dès le lancement. Essayez-le gratuitement 30 jours avec le code ESSAI30.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -60,7 +60,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il tout avoir en place avant d\'accepter son premier client ?',
       answer:
-        'Non — le strict nécessaire (statut juridique, assurance RC, outil de facturation conforme) suffit pour démarrer, le reste peut se construire progressivement.',
+        'Non, car le strict nécessaire (statut juridique, assurance RC, outil de facturation conforme) suffit pour démarrer, et le reste peut se construire progressivement.',
     },
     {
       question: 'À quel moment mettre en place son outil de gestion en lançant son entreprise ?',

@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Quelles sont les erreurs les plus fréquentes en choisissant son premier logiciel de gestion ?',
   title: 'Les erreurs les plus courantes en choisissant son premier logiciel de gestion',
   description:
-    'Certaines erreurs de choix reviennent sans cesse chez les entreprises qui démarrent — les repérer à l\'avance évite une migration forcée quelques mois plus tard.',
+    'Certaines erreurs de choix reviennent sans cesse chez les entreprises qui démarrent : les repérer à l\'avance évite une migration forcée quelques mois plus tard.',
   excerpt:
     'La plupart des mauvais choix de logiciel de gestion ne viennent pas d\'un manque d\'options sur le marché, mais des mêmes erreurs répétées d\'une entreprise à l\'autre.',
   category: 'Comparatifs & outils',
@@ -36,17 +36,17 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La bonne méthode : tester avant de comparer les prix' },
     {
       type: 'p',
-      text: 'Inverser l\'ordre habituel — tester réellement deux ou trois outils avant même de comparer les prix — permet d\'éliminer rapidement ceux qui ne conviennent pas à l\'usage, plutôt que de choisir sur le papier puis découvrir les limites après coup.',
+      text: 'Inverser l\'ordre habituel (tester réellement deux ou trois outils avant même de comparer les prix) permet d\'éliminer rapidement ceux qui ne conviennent pas à l\'usage, plutôt que de choisir sur le papier puis découvrir les limites après coup.',
     },
     {
       type: 'callout',
       title: 'Une migration de logiciel coûte plus cher qu\'un mauvais choix évité',
-      text: 'Changer d\'outil après plusieurs mois signifie ressaisir clients, catalogue de prix et parfois historique — un coût largement supérieur au temps investi à bien choisir dès le départ.',
+      text: 'Changer d\'outil après plusieurs mois signifie ressaisir clients, catalogue de prix et parfois historique. Ce coût est largement supérieur au temps investi à bien choisir dès le départ.',
     },
     {
       type: 'cta',
       title: 'Testez avant de vous engager',
-      text: 'Cantia propose un essai gratuit de 30 jours avec le code ESSAI30 — de quoi éviter les erreurs de choix classiques en testant sur des documents réels.',
+      text: 'Cantia propose un essai gratuit de 30 jours avec le code ESSAI30 : de quoi éviter les erreurs de choix classiques en testant sur des documents réels.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -59,12 +59,12 @@ export const post: BlogPost = {
     {
       question: 'Faut-il choisir un outil complexe "au cas où" pour anticiper les besoins futurs ?',
       answer:
-        'Non — un outil trop complexe dont la moitié des fonctions ne sont jamais utilisées est souvent moins efficace qu\'un outil simple, évolutif, adapté aux besoins réels du moment.',
+        'Non. Un outil trop complexe dont la moitié des fonctions ne sont jamais utilisées est souvent moins efficace qu\'un outil simple, évolutif, adapté aux besoins réels du moment.',
     },
     {
       question: 'Combien de temps avant qu\'un mauvais choix de logiciel ne pousse à migrer ?',
       answer:
-        'Généralement entre 6 et 12 mois — un délai qui montre l\'intérêt de bien tester l\'outil dès le départ plutôt que de devoir migrer plus tard.',
+        'Généralement entre 6 et 12 mois, ce qui montre l\'intérêt de bien tester l\'outil dès le départ plutôt que de devoir migrer plus tard.',
     },
   ],
   relatedSlugs: [

@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Un logiciel peut-il vraiment couvrir devis, factures, chantier et RH en même temps ?',
   title: 'Devis, factures, chantier, RH : est-ce réaliste dans un seul logiciel ?',
   description:
-    'Quatre domaines très différents dans un seul outil, ça semble ambitieux — voici ce qui rend ça possible en pratique, et ce qu\'il faut vérifier avant d\'y croire sur parole.',
+    'Quatre domaines très différents dans un seul outil, ça semble ambitieux : voici ce qui rend ça possible en pratique, et ce qu\'il faut vérifier avant d\'y croire sur parole.',
   excerpt:
-    'Sur le papier, réunir devis, factures, chantier et RH dans un seul outil semble trop beau — en pratique, c\'est justement parce que ces quatre domaines partagent les mêmes données de base que ça fonctionne.',
+    'Sur le papier, réunir devis, factures, chantier et RH dans un seul outil semble trop beau. En pratique, c\'est justement parce que ces quatre domaines partagent les mêmes données de base que ça fonctionne.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel devis facture chantier RH', 'gestion complète entreprise bâtiment', 'outil unique tous les besoins PME', 'logiciel intégré construction', 'plateforme gestion bâtiment complète'],
   publishedAt: '2026-07-16',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Devis, factures, suivi de chantier et gestion RH semblent, à première vue, quatre métiers différents — ce qui fait douter qu\'un seul outil puisse vraiment bien faire les quatre. En réalité, ces domaines partagent souvent les mêmes données de base : un chantier, une équipe, un client, un prix.',
+      text: 'Devis, factures, suivi de chantier et gestion RH semblent, à première vue, quatre métiers différents, ce qui fait douter qu\'un seul outil puisse vraiment bien faire les quatre. En réalité, ces domaines partagent souvent les mêmes données de base : un chantier, une équipe, un client, un prix.',
     },
     { type: 'h2', text: 'Le lien entre les quatre domaines' },
     {
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce qu\'il faut vérifier avant de croire à la promesse' },
     {
       type: 'p',
-      text: 'Certains outils annoncent ces quatre domaines mais les traitent comme des modules cloisonnés, sans vraie connexion entre eux — auquel cas le bénéfice du "tout-en-un" disparaît. Une bonne façon de vérifier : demander si les heures pointées sur un chantier apparaissent automatiquement dans le calcul de sa rentabilité.',
+      text: 'Certains outils annoncent ces quatre domaines mais les traitent comme des modules cloisonnés, sans vraie connexion entre eux. Dans ce cas, le bénéfice du "tout-en-un" disparaît. Une bonne façon de vérifier : demander si les heures pointées sur un chantier apparaissent automatiquement dans le calcul de sa rentabilité.',
     },
     {
       type: 'callout',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Quatre domaines, une seule base de données',
-      text: 'Chez Cantia, devis, factures, chantiers et RH partagent les mêmes informations — un chantier documenté aujourd\'hui alimente automatiquement sa rentabilité et sa facturation demain.',
+      text: 'Chez Cantia, devis, factures, chantiers et RH partagent les mêmes informations : un chantier documenté aujourd\'hui alimente automatiquement sa rentabilité et sa facturation demain.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,12 +53,12 @@ export const post: BlogPost = {
     {
       question: 'Un logiciel tout-en-un traite-t-il vraiment les modules de façon connectée ?',
       answer:
-        'Ça dépend de l\'outil — certains traitent chaque module de façon cloisonnée. Le vrai test est de vérifier si les heures d\'un chantier alimentent automatiquement sa rentabilité et la paie.',
+        'Ça dépend de l\'outil, car certains traitent chaque module de façon cloisonnée. Le vrai test est de vérifier si les heures d\'un chantier alimentent automatiquement sa rentabilité et la paie.',
     },
     {
       question: 'Faut-il activer tous les modules (devis, facture, chantier, RH) dès le départ ?',
       answer:
-        'Non — une petite entreprise peut commencer avec devis et factures seuls, et activer les autres modules au fur et à mesure que ses besoins évoluent.',
+        'Non : une petite entreprise peut commencer avec devis et factures seuls, et activer les autres modules au fur et à mesure que ses besoins évoluent.',
     },
     {
       question: 'Quel est l\'avantage concret de connecter chantier et RH dans le même outil ?',

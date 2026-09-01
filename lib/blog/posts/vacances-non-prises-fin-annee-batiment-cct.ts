@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Que faire des jours de vacances non pris par un employé du bâtiment en fin d’année ?',
   title: 'Vacances non prises en fin d’année dans le bâtiment : report, paiement ou perte ?',
   description:
-    'Le solde de vacances non prises pose une vraie question de trésorerie et de droit du travail pour les entreprises du bâtiment — voici les règles à connaître avant de trancher.',
+    'Le solde de vacances non prises pose une vraie question de trésorerie et de droit du travail pour les entreprises du bâtiment : voici les règles à connaître avant de trancher.',
   excerpt:
     'Un solde de vacances qui s’accumule d’année en année n’est jamais anodin : soit il représente une dette envers l’employé, soit il révèle un problème d’organisation qui va se répéter.',
   category: 'RH & salaires',
@@ -20,7 +20,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Pourquoi la compensation en argent est risquée' },
     {
       type: 'p',
-      text: 'Le paiement en espèces des vacances en cours de contrat est admis seulement dans des cas très limités — typiquement pour un emploi de courte durée ou irrégulier où le repos effectif n’est pas praticable. Pour un employé en poste stable dans le bâtiment, ce n’est en principe pas la règle, et un contrôle ultérieur peut requalifier ces paiements et exiger malgré tout que les jours soient effectivement pris ou compensés.',
+      text: 'Le paiement en espèces des vacances en cours de contrat est admis seulement dans des cas très limités, typiquement un emploi de courte durée ou irrégulier où le repos effectif n’est pas praticable. Pour un employé en poste stable dans le bâtiment, ce n’est en principe pas la règle, et un contrôle ultérieur peut requalifier ces paiements et exiger malgré tout que les jours soient effectivement pris ou compensés.',
     },
     {
       type: 'list',
@@ -34,12 +34,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le vrai enjeu opérationnel : planifier les vacances avant la fin d’année',
-      text: 'Un solde qui explose en décembre traduit souvent un manque de visibilité sur le planning de chantier — l’employeur hésite à libérer du monde par peur de retarder les travaux en cours.',
+      text: 'Un solde qui explose en décembre traduit souvent un manque de visibilité sur le planning de chantier. L’employeur hésite à libérer du monde par peur de retarder les travaux en cours.',
     },
     {
       type: 'cta',
       title: 'Un planning d’équipe qui anticipe les absences',
-      text: 'Le module Planning de Cantia donne une vue claire des chantiers en cours et de l’équipe disponible — de quoi planifier les vacances sans se retrouver à court de main-d’œuvre en pleine saison.',
+      text: 'Le module Planning de Cantia donne une vue claire des chantiers en cours et de l’équipe disponible. De quoi planifier les vacances sans se retrouver à court de main-d’œuvre en pleine saison.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -47,7 +47,7 @@ export const post: BlogPost = {
     {
       question: 'Peut-on payer les vacances non prises au lieu de les faire poser ?',
       answer:
-        'En principe non tant que les rapports de travail durent — sauf cas particuliers comme un emploi de courte durée. Le paiement en argent devient la règle uniquement à la fin du contrat.',
+        'Sauf cas particuliers comme un emploi de courte durée, la réponse est non tant que les rapports de travail durent. Le paiement en argent devient la règle uniquement à la fin du contrat.',
     },
     {
       question: 'Un employé peut-il reporter ses vacances sur l’année suivante ?',
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Qui décide de la date des vacances : l’employeur ou l’employé ?',
       answer:
-        'L’employeur fixe la date en tenant compte des désirs de l’employé dans la mesure compatible avec les besoins de l’entreprise — ce n’est pas un droit unilatéral de l’un ou de l’autre.',
+        'L’employeur fixe la date en tenant compte des désirs de l’employé dans la mesure compatible avec les besoins de l’entreprise. Ce n’est pas un droit unilatéral de l’un ou de l’autre.',
     },
   ],
   relatedSlugs: [

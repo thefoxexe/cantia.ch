@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'L\'automatisation n\'est plus réservée aux entreprises avec un service informatique. Ce qui peut aujourd\'hui être automatisé dans une petite entreprise du bâtiment, sans écrire une ligne de code.',
   excerpt:
-    'Automatiser fait souvent penser à des scripts compliqués ou des logiciels coûteux — pour une petite entreprise du bâtiment, ça peut simplement vouloir dire qu\'une relance de facture part toute seule, au bon moment.',
+    'Automatiser fait souvent penser à des scripts compliqués ou des logiciels coûteux. Pour une petite entreprise du bâtiment, ça peut pourtant simplement vouloir dire qu\'une relance de facture part toute seule, au bon moment.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatiser tâches entreprise sans développeur', 'automatisation PME bâtiment', 'automatiser sans coder', 'gagner du temps automatisation gestion', 'automatisation administrative artisan'],
   publishedAt: '2026-08-16',
@@ -35,17 +35,17 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La différence entre automatisation standard et automatisation sur mesure' },
     {
       type: 'p',
-      text: 'Certaines automatisations existent déjà de façon standard dans un bon outil de gestion (relances, notifications). D\'autres, propres à la façon de travailler d\'une entreprise en particulier, peuvent être développées sur mesure — sans que l\'entreprise n\'ait besoin d\'embaucher un développeur pour ça.',
+      text: 'Certaines automatisations existent déjà de façon standard dans un bon outil de gestion (relances, notifications). D\'autres sont propres à la façon de travailler d\'une entreprise en particulier : elles peuvent être développées sur mesure, sans que l\'entreprise n\'ait besoin d\'embaucher un développeur pour ça.',
     },
     {
       type: 'callout',
       title: 'Automatiser, ce n\'est pas perdre le contrôle',
-      text: 'Une bonne automatisation reste toujours visible et modifiable — une relance automatique peut être annulée manuellement si la situation le demande, elle ne remplace pas le jugement de l\'entreprise.',
+      text: 'Une bonne automatisation reste toujours visible et modifiable. Une relance automatique peut être annulée manuellement si la situation le demande : elle ne remplace pas le jugement de l\'entreprise.',
     },
     {
       type: 'cta',
       title: 'Des automatisations déjà prêtes, et d\'autres possibles sur mesure',
-      text: 'Cantia automatise déjà relances et notifications de base — et peut développer des automatisations propres à votre façon de travailler si besoin.',
+      text: 'Cantia automatise déjà relances et notifications de base. Elle peut aussi développer des automatisations propres à votre façon de travailler si besoin.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,7 +53,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il des compétences techniques pour automatiser des tâches dans son entreprise du bâtiment ?',
       answer:
-        'Non — de nombreuses automatisations (relances, notifications, calculs) existent déjà de façon standard dans un bon outil de gestion, sans nécessiter de compétences en programmation.',
+        'Non, car de nombreuses automatisations (relances, notifications, calculs) existent déjà de façon standard dans un bon outil de gestion, sans nécessiter de compétences en programmation.',
     },
     {
       question: 'Quelles tâches peuvent être automatisées en priorité dans une petite entreprise du bâtiment ?',
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Une automatisation retire-t-elle le contrôle sur les décisions de l\'entreprise ?',
       answer:
-        'Non, une bonne automatisation reste toujours visible et modifiable manuellement — elle accélère les tâches répétitives sans remplacer le jugement humain sur les décisions importantes.',
+        'Non, une bonne automatisation reste toujours visible et modifiable manuellement. Elle accélère les tâches répétitives sans remplacer le jugement humain sur les décisions importantes.',
     },
   ],
   relatedSlugs: [

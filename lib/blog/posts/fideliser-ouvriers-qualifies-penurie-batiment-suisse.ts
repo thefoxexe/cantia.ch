@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Comment une entreprise du bâtiment peut-elle fidéliser ses ouvriers qualifiés face à la pénurie de main-d’œuvre ?',
   title: 'Fidéliser ses ouvriers qualifiés quand la main-d’œuvre se fait rare',
   description:
-    'Recruter un ouvrier qualifié coûte cher et prend du temps — en garder un déjà formé coûte presque toujours moins cher. Les leviers concrets de fidélisation dans un secteur en tension.',
+    'Recruter un ouvrier qualifié coûte cher et prend du temps. En garder un déjà formé coûte presque toujours moins cher. Les leviers concrets de fidélisation dans un secteur en tension.',
   excerpt:
-    'Dans un secteur où chaque entreprise se dispute les mêmes profils qualifiés, la fidélisation n’est plus un sujet secondaire de ressources humaines — c’est devenu un vrai levier de compétitivité.',
+    'Dans un secteur où chaque entreprise se dispute les mêmes profils qualifiés, la fidélisation n’est plus un sujet secondaire de ressources humaines : c’est devenu un vrai levier de compétitivité.',
   category: 'Croissance & acquisition',
   keywords: ['fidéliser ouvriers bâtiment', 'pénurie main d’œuvre construction Suisse', 'garder ses employés entreprise bâtiment', 'recrutement chantier difficile', 'turnover ouvrier qualifié'],
   publishedAt: '2026-09-18',
@@ -21,7 +21,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'Un salaire aligné, voire légèrement au-dessus, du marché — la CCT fixe un plancher, pas un plafond',
+        'Un salaire aligné, voire légèrement au-dessus, du marché (la CCT fixe un plancher, pas un plafond)',
         'Une organisation claire des chantiers, sans improvisation permanente qui use l’équipe sur la durée',
         'Des heures correctement comptées et payées, y compris les heures supplémentaires, sans négociation systématique',
         'Une reconnaissance concrète du travail bien fait, pas seulement l’absence de reproches',
@@ -40,12 +40,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Former un apprenti est aussi une stratégie de fidélisation à long terme',
-      text: 'Un apprenti formé en interne, qui connaît déjà les méthodes et l’équipe de l’entreprise, part statistiquement moins souvent qu’un profil recruté à l’extérieur — la formation est un investissement de fidélisation autant que de compétence.',
+      text: 'Un apprenti formé en interne, qui connaît déjà les méthodes et l’équipe de l’entreprise, part statistiquement moins souvent qu’un profil recruté à l’extérieur. La formation est ainsi un investissement de fidélisation autant que de compétence.',
     },
     {
       type: 'cta',
       title: 'Des heures et des salaires transparents, sans friction',
-      text: 'Cantia permet à chaque employé de saisir ses heures facilement depuis le chantier, avec un décompte clair — de quoi éviter les malentendus sur les heures supplémentaires qui érodent la confiance sur la durée.',
+      text: 'Cantia permet à chaque employé de saisir ses heures facilement depuis le chantier, avec un décompte clair, afin d’éviter les malentendus sur les heures supplémentaires qui érodent la confiance sur la durée.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,17 +53,17 @@ export const post: BlogPost = {
     {
       question: 'Pourquoi la fidélisation des ouvriers est-elle devenue un enjeu stratégique dans le bâtiment ?',
       answer:
-        'Parce que la pénurie de main-d’œuvre qualifiée rend le remplacement d’un bon élément long et coûteux — souvent plusieurs mois entre le départ et la pleine productivité d’un remplaçant.',
+        'Parce que la pénurie de main-d’œuvre qualifiée rend le remplacement d’un bon élément long et coûteux (souvent plusieurs mois entre le départ et la pleine productivité d’un remplaçant).',
     },
     {
       question: 'Le salaire est-il le principal facteur de fidélisation d’un ouvrier qualifié ?',
       answer:
-        'C’est un facteur important, mais rarement le seul — l’organisation des chantiers, la transparence sur les heures et la reconnaissance du travail jouent souvent un rôle tout aussi déterminant.',
+        'C’est un facteur important, mais rarement le seul. L’organisation des chantiers, la transparence sur les heures et la reconnaissance du travail jouent souvent un rôle tout aussi déterminant.',
     },
     {
       question: 'Former un apprenti est-il rentable pour une petite entreprise du bâtiment ?',
       answer:
-        'Généralement oui sur la durée — un apprenti formé en interne connaît déjà les méthodes de l’entreprise et présente souvent un taux de départ plus faible qu’un profil recruté en externe.',
+        'Généralement oui sur la durée : un apprenti formé en interne connaît déjà les méthodes de l’entreprise et présente souvent un taux de départ plus faible qu’un profil recruté en externe.',
     },
   ],
   relatedSlugs: [

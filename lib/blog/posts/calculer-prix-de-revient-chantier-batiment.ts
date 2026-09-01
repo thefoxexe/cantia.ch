@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le montant facturé à un client ne dit rien, en soi, de la rentabilité d’un chantier. Le prix de revient — ce que le chantier a réellement coûté à l’entreprise — est une donnée distincte, qui demande d’additionner plusieurs composantes souvent dispersées entre plusieurs sources différentes.',
+      text: 'Le montant facturé à un client ne dit rien, en soi, de la rentabilité d’un chantier. Le prix de revient (ce que le chantier a réellement coûté à l’entreprise) est une donnée distincte, qui demande d’additionner plusieurs composantes souvent dispersées entre plusieurs sources différentes.',
     },
     { type: 'h2', text: 'Les composantes du prix de revient' },
     {
@@ -35,17 +35,17 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Pourquoi cette différence est presque toujours sous-estimée' },
     {
       type: 'p',
-      text: 'Un devis fixe un prix à l’avance, sur la base d’hypothèses (temps estimé, prix des matériaux au jour du chiffrage). Le chantier réel dévie presque toujours un peu — un imprévu, un délai supplémentaire, une variation de prix fournisseur. Sans comparaison systématique entre devisé et réel une fois le chantier terminé, cette dérive reste invisible, chantier après chantier.',
+      text: 'Un devis fixe un prix à l’avance, sur la base d’hypothèses (temps estimé, prix des matériaux au jour du chiffrage). Le chantier réel dévie presque toujours un peu, qu’il s’agisse d’un imprévu, d’un délai supplémentaire ou d’une variation de prix fournisseur. Sans comparaison systématique entre devisé et réel une fois le chantier terminé, cette dérive reste invisible, chantier après chantier.',
     },
     {
       type: 'callout',
       title: 'Le calcul n’a de valeur que fait chantier par chantier, pas globalement en fin d’année',
-      text: 'Un chiffre d’affaires annuel positif peut masquer plusieurs chantiers structurellement perdants compensés par d’autres — seule une analyse par chantier révèle lesquels tirent réellement l’activité vers le bas.',
+      text: 'Un chiffre d’affaires annuel positif peut masquer plusieurs chantiers structurellement perdants compensés par d’autres. Seule une analyse par chantier révèle lesquels tirent réellement l’activité vers le bas.',
     },
     {
       type: 'cta',
       title: 'Le prix de revient calculé automatiquement',
-      text: 'Le module Rentabilité de Cantia confronte le devisé aux heures et coûts réellement engagés sur chaque chantier — plus besoin de reconstituer le calcul à la main.',
+      text: 'Le module Rentabilité de Cantia confronte le devisé aux heures et coûts réellement engagés sur chaque chantier, sans besoin de reconstituer le calcul à la main.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,17 +53,17 @@ export const post: BlogPost = {
     {
       question: 'Le montant facturé est-il le même que le prix de revient d’un chantier ?',
       answer:
-        'Non, le prix de revient additionne le coût réel de la main-d’œuvre, des matériaux, de la sous-traitance et des frais généraux — il peut être très différent du montant facturé au client.',
+        'Non, le prix de revient additionne le coût réel de la main-d’œuvre, des matériaux, de la sous-traitance et des frais généraux : il peut être très différent du montant facturé au client.',
     },
     {
       question: 'Pourquoi calculer le prix de revient chantier par chantier plutôt que globalement ?',
       answer:
-        'Parce qu’un chiffre d’affaires annuel positif peut masquer des chantiers individuellement perdants compensés par d’autres — seule une analyse fine révèle où l’entreprise perd réellement de l’argent.',
+        'Parce qu’un chiffre d’affaires annuel positif peut masquer des chantiers individuellement perdants compensés par d’autres. Seule une analyse fine révèle où l’entreprise perd réellement de l’argent.',
     },
     {
       question: 'Quelle est la composante la plus souvent sous-estimée dans un prix de revient ?',
       answer:
-        'La main-d’œuvre réelle, calculée au coût horaire complet charges comprises — elle est presque toujours plus élevée que le taux horaire théorique utilisé lors du chiffrage initial.',
+        'La main-d’œuvre réelle, calculée au coût horaire complet charges comprises. Elle est presque toujours plus élevée que le taux horaire théorique utilisé lors du chiffrage initial.',
     },
   ],
   relatedSlugs: [

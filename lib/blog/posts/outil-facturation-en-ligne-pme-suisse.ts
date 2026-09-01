@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Accessible partout, hébergé en Suisse',
-      text: 'Cantia fonctionne en ligne, accessible depuis n\'importe quel appareil, avec des données hébergées en Suisse — testez gratuitement pendant 30 jours avec le code ESSAI30.',
+      text: 'Cantia fonctionne en ligne, accessible depuis n\'importe quel appareil, avec des données hébergées en Suisse. Testez gratuitement pendant 30 jours avec le code ESSAI30.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,17 +53,17 @@ export const post: BlogPost = {
     {
       question: 'Quel est le principal avantage d\'un outil de facturation en ligne par rapport à un logiciel installé ?',
       answer:
-        'L\'accès depuis n\'importe quel appareil, sans dépendre d\'un seul ordinateur — un avantage particulièrement important pour une entreprise qui travaille sur plusieurs chantiers.',
+        'L\'accès depuis n\'importe quel appareil, sans dépendre d\'un seul ordinateur, ce qui est particulièrement important pour une entreprise qui travaille sur plusieurs chantiers.',
     },
     {
       question: 'Un outil en ligne est-il aussi sûr qu\'un logiciel installé localement ?',
       answer:
-        'Généralement plus sûr en pratique, grâce aux sauvegardes automatiques — à condition de vérifier que l\'éditeur héberge les données en Suisse ou dans l\'UE et applique de bonnes pratiques de sécurité.',
+        'Généralement plus sûr en pratique, grâce aux sauvegardes automatiques, à condition toutefois de vérifier que l\'éditeur héberge les données en Suisse ou dans l\'UE et applique de bonnes pratiques de sécurité.',
     },
     {
       question: 'Faut-il installer quelque chose pour utiliser un outil de facturation en ligne ?',
       answer:
-        'Non, un simple navigateur ou une application mobile suffit — aucune installation ni mise à jour manuelle n\'est nécessaire.',
+        'Non, un simple navigateur ou une application mobile suffit. Aucune installation ni mise à jour manuelle n\'est nécessaire.',
     },
   ],
   relatedSlugs: [

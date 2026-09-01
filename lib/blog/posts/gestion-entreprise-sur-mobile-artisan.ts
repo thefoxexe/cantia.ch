@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Peut-on vraiment gérer toute son entreprise artisanale depuis un téléphone ?',
   title: 'Gérer son entreprise depuis son téléphone : jusqu\'où c\'est vraiment possible',
   description:
-    'Devis, factures, photos de chantier, heures d\'équipe — ce qui se fait réellement bien sur mobile aujourd\'hui, et ce qui reste plus confortable sur un écran plus grand.',
+    'Devis, factures, photos de chantier, heures d\'équipe : ce qui se fait réellement bien sur mobile aujourd\'hui, et ce qui reste plus confortable sur un écran plus grand.',
   excerpt:
-    'La promesse "gérez tout depuis votre téléphone" est vraie pour l\'essentiel du quotidien d\'un artisan — mais pas pour absolument tout, et mieux vaut savoir où se situe la limite.',
+    'La promesse "gérez tout depuis votre téléphone" est vraie pour l\'essentiel du quotidien d\'un artisan. Elle ne l\'est pas pour absolument tout, et mieux vaut savoir où se situe la limite.',
   category: 'Comparatifs & outils',
   keywords: ['gestion entreprise mobile', 'gérer artisanat depuis téléphone', 'application gestion smartphone bâtiment', 'tout gérer sur mobile PME', 'logiciel mobile artisan Suisse'],
   publishedAt: '2026-07-20',
@@ -44,12 +44,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La bonne appli complète le mobile plutôt que de le remplacer totalement',
-      text: 'Un outil qui fonctionne aussi bien sur ordinateur que sur mobile permet de faire les tâches rapides sur le terrain, et les tâches de configuration plus posées au bureau — sans jamais être bloqué d\'un côté ou de l\'autre.',
+      text: 'Un outil qui fonctionne aussi bien sur ordinateur que sur mobile permet de faire les tâches rapides sur le terrain, et les tâches de configuration plus posées au bureau, ce qui évite d\'être bloqué d\'un côté ou de l\'autre.',
     },
     {
       type: 'cta',
       title: 'Le quotidien sur mobile, la configuration sur ordinateur',
-      text: 'Cantia s\'utilise aussi bien depuis un téléphone sur chantier que depuis un ordinateur pour les tâches plus poussées — un seul compte, partout.',
+      text: 'Un seul compte Cantia suffit, aussi bien depuis un téléphone sur chantier que depuis un ordinateur pour les tâches plus poussées.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Peut-on vraiment créer un devis complet depuis son téléphone ?',
       answer:
-        'Oui, avec un outil bien conçu pour mobile — y compris avec un catalogue de prix pour éviter de tout retaper à la main sur un petit écran.',
+        'Oui, avec un outil bien conçu pour mobile (y compris avec un catalogue de prix pour éviter de tout retaper à la main sur un petit écran).',
     },
     {
       question: 'Quelles tâches restent plus faciles sur ordinateur que sur mobile ?',
@@ -67,7 +67,7 @@ export const post: BlogPost = {
     {
       question: 'Un artisan peut-il se passer complètement d\'ordinateur en utilisant un bon outil mobile ?',
       answer:
-        'Pour le quotidien, largement oui — mais garder un accès occasionnel à un ordinateur reste utile pour les tâches de configuration plus poussées.',
+        'Pour le quotidien, largement oui. Garder un accès occasionnel à un ordinateur reste toutefois utile pour les tâches de configuration plus poussées.',
     },
   ],
   relatedSlugs: [

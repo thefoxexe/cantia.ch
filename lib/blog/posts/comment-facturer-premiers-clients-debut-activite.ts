@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'La première facture donne le ton pour toutes celles qui suivront. Les points à vérifier avant de l\'envoyer, pour partir sur de bonnes bases dès le début de l\'activité.',
   excerpt:
-    'La toute première facture envoyée compte plus qu\'elle n\'en a l\'air — c\'est souvent elle qui détermine si un client débutant paie vite et sans négocier, ou traîne des pieds.',
+    'La toute première facture envoyée compte plus qu\'elle n\'en a l\'air. C\'est souvent elle qui détermine si un client débutant paie vite et sans négocier, ou traîne des pieds.',
   category: 'Comparatifs & outils',
   keywords: ['facturer premiers clients', 'première facture indépendant', 'débuter facturation activité', 'facture conforme débutant Suisse', 'conseils première facturation'],
   publishedAt: '2026-07-26',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La première facture envoyée à un client marque souvent un cap symbolique dans une nouvelle activité — mais elle a aussi un vrai poids pratique : un document professionnel et conforme dès le départ installe une relation de confiance, un document approximatif installe le doute.',
+      text: 'La première facture envoyée à un client marque souvent un cap symbolique dans une nouvelle activité, mais elle a aussi un vrai poids pratique : un document professionnel et conforme dès le départ installe une relation de confiance, un document approximatif installe le doute.',
     },
     { type: 'h2', text: 'Ce qu\'il ne faut jamais oublier sur une première facture' },
     {
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Facturer vite après la fin du travail, pas des semaines plus tard' },
     {
       type: 'p',
-      text: 'Un client se souvient encore clairement du travail effectué et de sa satisfaction juste après la fin du chantier — une facture envoyée rapidement se conteste beaucoup moins qu\'une facture arrivée trois semaines plus tard, une fois le souvenir plus flou.',
+      text: 'Un client se souvient encore clairement du travail effectué et de sa satisfaction juste après la fin du chantier. Une facture envoyée rapidement se conteste donc beaucoup moins qu\'une facture arrivée trois semaines plus tard, une fois le souvenir plus flou.',
     },
     {
       type: 'callout',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Une facture conforme dès le premier envoi',
-      text: 'Cantia applique automatiquement numérotation, TVA et QR-facture suisse — pour que même la toute première facture soit irréprochable.',
+      text: 'Cantia applique automatiquement numérotation, TVA et QR-facture suisse : même la toute première facture en ressort irréprochable.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -58,12 +58,12 @@ export const post: BlogPost = {
     {
       question: 'Combien de temps après la fin du chantier faut-il envoyer la facture ?',
       answer:
-        'Le plus rapidement possible — un client se souvient encore clairement du travail effectué juste après, ce qui réduit le risque de contestation par rapport à une facture envoyée des semaines plus tard.',
+        'Le plus rapidement possible, car un client se souvient encore clairement du travail effectué juste après, ce qui réduit le risque de contestation par rapport à une facture envoyée des semaines plus tard.',
     },
     {
       question: 'Un logiciel de facturation aide-t-il à éviter les erreurs de débutant ?',
       answer:
-        'Oui — il applique automatiquement la numérotation, la TVA et les mentions obligatoires, ce qui évite les oublis fréquents sur une facture faite manuellement.',
+        'Oui : il applique automatiquement la numérotation, la TVA et les mentions obligatoires, ce qui évite les oublis fréquents sur une facture faite manuellement.',
     },
   ],
   relatedSlugs: [

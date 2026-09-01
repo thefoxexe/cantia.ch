@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Quel délai de congé respecter pour licencier un ouvrier du bâtiment en Suisse ?',
   title: 'Licenciement dans le bâtiment : les délais de congé selon la CCT et le Code des obligations',
   description:
-    'Le délai de congé d’un ouvrier du bâtiment dépend de son ancienneté et de la CCT applicable — se tromper expose l’employeur à devoir indemniser la différence. Voici comment le calculer correctement.',
+    'Le délai de congé d’un ouvrier du bâtiment dépend de son ancienneté et de la CCT applicable. Se tromper expose l’employeur à devoir indemniser la différence. Voici comment le calculer correctement.',
   excerpt:
     'Un délai de congé mal calculé n’est pas juste une erreur administrative : c’est une créance salariale que l’ouvrier peut réclamer, parfois des mois après son départ.',
   category: 'RH & salaires',
@@ -31,7 +31,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La CCT du secteur peut imposer des délais différents',
-      text: 'La convention collective nationale du secteur principal de la construction (et ses variantes cantonales) prévoit parfois des dispositions spécifiques sur les délais, les périodes de protection ou la forme du congé — elle prime sur le régime légal supplétif quand elle est plus favorable au travailleur.',
+      text: 'La convention collective nationale du secteur principal de la construction (et ses variantes cantonales) prévoit parfois des dispositions spécifiques sur les délais, les périodes de protection ou la forme du congé : elle prime sur le régime légal supplétif quand elle est plus favorable au travailleur.',
     },
     { type: 'h2', text: 'Les périodes où le congé ne peut pas être donné' },
     {
@@ -46,7 +46,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Une équipe suivie, chantier par chantier',
-      text: 'Le module RH de Cantia centralise les dates d’entrée de chaque employé et son historique — utile pour vérifier l’ancienneté exacte au moment de calculer un délai de congé.',
+      text: 'Le module RH de Cantia centralise les dates d’entrée de chaque employé et son historique, ce qui est utile pour vérifier l’ancienneté exacte au moment de calculer un délai de congé.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -59,12 +59,12 @@ export const post: BlogPost = {
     {
       question: 'Peut-on licencier un employé en arrêt maladie ?',
       answer:
-        'Non, le congé donné pendant une période de protection (maladie, accident, service militaire, maternité) est nul — il devra être notifié à nouveau une fois la période protégée écoulée.',
+        'Non, le congé donné pendant une période de protection (maladie, accident, service militaire, maternité) est nul. Il devra être notifié à nouveau une fois la période protégée écoulée.',
     },
     {
       question: 'La CCT peut-elle prévoir un délai plus long que le Code des obligations ?',
       answer:
-        'Oui, et dans ce cas elle prime sur le régime légal supplétif — il faut toujours vérifier la CCT applicable avant de se fier uniquement à l’art. 335c CO.',
+        'Oui, et dans ce cas elle prime sur le régime légal supplétif : il faut toujours vérifier la CCT applicable avant de se fier uniquement à l’art. 335c CO.',
     },
   ],
   relatedSlugs: [

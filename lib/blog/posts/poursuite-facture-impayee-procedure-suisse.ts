@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Après plusieurs relances restées sans effet, beaucoup d’artisans hésitent à passer à l’étape suivante par méconnaissance de la procédure — ou par crainte qu’elle soit lourde et coûteuse. En réalité, la poursuite pour dettes en Suisse est une procédure administrative standardisée, accessible sans avocat pour une créance simple et documentée.',
+      text: 'Après plusieurs relances restées sans effet, beaucoup d’artisans hésitent à passer à l’étape suivante, par méconnaissance de la procédure ou par crainte qu’elle soit lourde et coûteuse. En réalité, la poursuite pour dettes en Suisse est une procédure administrative standardisée, accessible sans avocat pour une créance simple et documentée.',
     },
     { type: 'h2', text: 'Les 4 étapes concrètes' },
     {
@@ -36,7 +36,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce qui rend une poursuite plus ou moins efficace' },
     {
       type: 'p',
-      text: 'La poursuite ne garantit pas le recouvrement — si le débiteur est réellement insolvable, elle se soldera par un acte de défaut de biens. Mais elle a un effet dissuasif réel (elle apparaît dans l’extrait du registre des poursuites, ce qui pèse pour toute entreprise ou personne cherchant un crédit, un bail ou un marché), et elle reste souvent le déclencheur qui fait enfin payer un débiteur solvable mais de mauvaise foi.',
+      text: 'La poursuite ne garantit pas le recouvrement : si le débiteur est réellement insolvable, elle se soldera par un acte de défaut de biens. Mais elle a un effet dissuasif réel (elle apparaît dans l’extrait du registre des poursuites, ce qui pèse pour toute entreprise ou personne cherchant un crédit, un bail ou un marché), et elle reste souvent le déclencheur qui fait enfin payer un débiteur solvable mais de mauvaise foi.',
     },
     {
       type: 'list',
@@ -49,7 +49,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un dossier de facture toujours prêt',
-      text: 'Cantia garde chaque facture, son historique d’envoi et son statut de paiement centralisés par client — de quoi remplir une réquisition de poursuite en quelques minutes plutôt qu’en fouillant des mois d’e-mails.',
+      text: 'Cantia garde chaque facture, son historique d’envoi et son statut de paiement centralisés par client. De quoi remplir une réquisition de poursuite en quelques minutes plutôt qu’en fouillant des mois d’e-mails.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -62,12 +62,12 @@ export const post: BlogPost = {
     {
       question: 'Que se passe-t-il si le débiteur fait opposition au commandement de payer ?',
       answer:
-        'Il faut demander la mainlevée au tribunal pour faire lever l’opposition — une procédure nettement plus rapide si la créance repose sur un titre signé par le débiteur.',
+        'Il faut demander la mainlevée au tribunal pour faire lever l’opposition : une procédure nettement plus rapide si la créance repose sur un titre signé par le débiteur.',
     },
     {
       question: 'Une poursuite garantit-elle d’être payé ?',
       answer:
-        'Non — si le débiteur est insolvable, la poursuite peut se terminer par un acte de défaut de biens sans recouvrement, mais elle reste inscrite au registre des poursuites du débiteur.',
+        'Non. Si le débiteur est insolvable, la poursuite peut se terminer par un acte de défaut de biens sans recouvrement, mais elle reste inscrite au registre des poursuites du débiteur.',
     },
   ],
   relatedSlugs: [

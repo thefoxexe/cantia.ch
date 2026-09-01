@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Un artisan du bâtiment a-t-il vraiment besoin d’un CRM ?',
   title: 'CRM pour artisan du bâtiment : utile ou superflu ?',
   description:
-    'Le mot CRM évoque des équipes commerciales et des tableaux de bord complexes — mais un artisan qui gère 30, 50 ou 100 clients a exactement le même problème de mémoire qu’un commercial.',
+    'Le mot CRM évoque des équipes commerciales et des tableaux de bord complexes. Pourtant, un artisan qui gère 30, 50 ou 100 clients a exactement le même problème de mémoire qu’un commercial.',
   excerpt:
     'Pas besoin d’un logiciel de vente complexe pour avoir besoin d’un CRM. Le vrai signal, c’est le nombre de fois où on cherche « c’était qui déjà, ce client » dans ses e-mails.',
   category: 'Comparatifs & outils',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le mot CRM (customer relationship management) évoque souvent des équipes commerciales avec des pipelines de vente complexes — un univers loin du quotidien d’un artisan. Mais la fonction de base d’un CRM (savoir qui sont ses clients, ce qu’ils ont déjà commandé, et quand les relancer) concerne exactement autant une entreprise du bâtiment qu’une équipe commerciale.',
+      text: 'Le mot CRM (customer relationship management) évoque souvent des équipes commerciales avec des pipelines de vente complexes (un univers loin du quotidien d’un artisan). Mais la fonction de base d’un CRM (savoir qui sont ses clients, ce qu’ils ont déjà commandé, et quand les relancer) concerne exactement autant une entreprise du bâtiment qu’une équipe commerciale.',
     },
     { type: 'h2', text: 'Le signal qui indique qu’un CRM devient utile' },
     {
@@ -42,12 +42,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Un client récurrent coûte bien moins cher à conserver qu’un nouveau à acquérir',
-      text: 'Dans le bâtiment comme ailleurs, la fidélisation est presque toujours plus rentable que la prospection — encore faut-il avoir la visibilité nécessaire pour savoir qui relancer et quand.',
+      text: 'Dans le bâtiment comme ailleurs, la fidélisation est presque toujours plus rentable que la prospection. Encore faut-il avoir la visibilité nécessaire pour savoir qui relancer et quand.',
     },
     {
       type: 'cta',
       title: 'Un historique client intégré, pas un logiciel à part',
-      text: 'Cantia centralise devis, factures et notes par client directement lié aux chantiers — pas besoin d’un CRM séparé à synchroniser en plus.',
+      text: 'Cantia centralise devis, factures et notes par client directement lié aux chantiers : pas besoin d’un CRM séparé à synchroniser en plus.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -65,7 +65,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il un logiciel séparé pour le CRM et la facturation ?',
       answer:
-        'Pas nécessairement — un outil qui relie nativement clients, devis et factures évite la double saisie et la synchronisation entre deux systèmes distincts.',
+        'Pas nécessairement : un outil qui relie nativement clients, devis et factures évite la double saisie et la synchronisation entre deux systèmes distincts.',
     },
   ],
   relatedSlugs: [

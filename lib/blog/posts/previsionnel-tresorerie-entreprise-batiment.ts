@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Comment faire un prévisionnel de trésorerie simple pour une entreprise du bâtiment ?',
   title: 'Prévisionnel de trésorerie pour une entreprise du bâtiment : la méthode sans usine à gaz',
   description:
-    'Pas besoin d’un plan financier complexe pour anticiper un creux de trésorerie — un prévisionnel à 30-60-90 jours basé sur les factures en attente et les charges connues suffit à voir venir les problèmes.',
+    'Pas besoin d’un plan financier complexe pour anticiper un creux de trésorerie : un prévisionnel à 30-60-90 jours basé sur les factures en attente et les charges connues suffit à voir venir les problèmes.',
   excerpt:
     'La trésorerie ne s’effondre presque jamais sans signe avant-coureur. Le problème, c’est que sans prévisionnel, ce signe reste invisible jusqu’au jour où le compte est déjà dans le rouge.',
   category: 'Chantier & rentabilité',
@@ -32,19 +32,19 @@ export const post: BlogPost = {
       type: 'table',
       headers: ['Horizon', 'Ce qu’il révèle'],
       rows: [
-        ['30 jours', 'Le risque immédiat — un creux de trésorerie visible dès maintenant'],
-        ['60 jours', 'La tendance — l’activité en cours suffit-elle à couvrir les charges fixes'],
+        ['30 jours', 'Le risque immédiat : un creux de trésorerie visible dès maintenant'],
+        ['60 jours', 'La tendance (l’activité en cours suffit-elle à couvrir les charges fixes ?)'],
         ['90 jours', 'La marge de manœuvre pour décider d’un investissement ou d’un recrutement'],
       ],
     },
     {
       type: 'callout',
       title: 'Le prévisionnel n’a de valeur que s’il est mis à jour régulièrement',
-      text: 'Un prévisionnel figé le jour de sa création perd toute utilité en quelques semaines — chaque nouvelle facture émise ou chaque paiement reçu doit venir l’actualiser pour rester fiable.',
+      text: 'Un prévisionnel figé le jour de sa création perd toute utilité en quelques semaines. Chaque nouvelle facture émise ou chaque paiement reçu doit venir l’actualiser pour rester fiable.',
     },
     {
       type: 'p',
-      text: 'Le vrai bénéfice d’un prévisionnel n’est pas de prédire l’avenir avec précision, mais de repérer un creux plusieurs semaines à l’avance — assez tôt pour relancer une facture en retard, décaler un achat non urgent, ou négocier un délai avec un fournisseur, plutôt que de découvrir le problème le jour où le compte est déjà négatif.',
+      text: 'Le vrai bénéfice d’un prévisionnel n’est pas de prédire l’avenir avec précision, mais de repérer un creux plusieurs semaines à l’avance : assez tôt pour relancer une facture en retard, décaler un achat non urgent, ou négocier un délai avec un fournisseur, plutôt que de découvrir le problème le jour où le compte est déjà négatif.',
     },
     {
       type: 'cta',
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'À quelle fréquence faut-il mettre à jour un prévisionnel de trésorerie ?',
       answer:
-        'Idéalement à chaque nouvelle facture émise ou chaque paiement reçu — un prévisionnel figé perd rapidement sa fiabilité.',
+        'Idéalement à chaque nouvelle facture émise ou chaque paiement reçu. Un prévisionnel figé perd rapidement sa fiabilité.',
     },
     {
       question: 'Quel est le principal bénéfice d’un prévisionnel de trésorerie ?',

@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Gardez vos chantiers ponctuels et vos contrats d’entretien bien séparés',
-      text: 'Cantia permet de suivre chaque chantier indépendamment — devis, factures et rentabilité — pour distinguer clairement vos projets d’aménagement de vos contrats d’entretien récurrents.',
+      text: 'Cantia permet de suivre chaque chantier indépendamment (devis, factures et rentabilité) pour distinguer clairement vos projets d’aménagement de vos contrats d’entretien récurrents.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,12 +53,12 @@ export const post: BlogPost = {
     {
       question: 'Faut-il refaire un devis à chaque passage d’entretien de jardin ?',
       answer:
-        'Non — un contrat d’entretien annuel ou saisonnier avec une fréquence de passage définie évite de reproduire un devis à chaque intervention et simplifie la facturation récurrente.',
+        'Non : un contrat d’entretien annuel ou saisonnier avec une fréquence de passage définie évite de reproduire un devis à chaque intervention et simplifie la facturation récurrente.',
     },
     {
       question: 'Comment chiffrer la fourniture de végétaux dans un devis d’aménagement ?',
       answer:
-        'En la séparant du temps de plantation, car le prix des végétaux varie fortement selon la saison et la disponibilité — les mélanger dans un forfait unique complique toute révision ultérieure.',
+        'En la séparant du temps de plantation, car le prix des végétaux varie fortement selon la saison et la disponibilité. Les mélanger dans un forfait unique complique toute révision ultérieure.',
     },
     {
       question: 'Comment gérer la saisonnalité de l’activité d’un paysagiste sur l’année ?',

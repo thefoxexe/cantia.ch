@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un chantier qui démarre bien se remarque rarement — c’est celui qui démarre mal qui coûte du temps. La plupart des faux départs ne viennent pas d’un problème technique imprévisible, mais d’un point administratif ou logistique tout simplement oublié avant le premier jour.',
+      text: 'Un chantier qui démarre bien se remarque rarement. C’est celui qui démarre mal qui coûte du temps. La plupart des faux départs ne viennent pas d’un problème technique imprévisible, mais d’un point administratif ou logistique tout simplement oublié avant le premier jour.',
     },
     { type: 'h2', text: 'Avant le premier jour de chantier' },
     {

@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Si vous facturez encore avec un bulletin de versement orange ou rose en 2026, la banque de votre client ne l’acceptera tout simplement plus — ces documents sont morts depuis le 30 septembre 2022. Mais la vraie question pour cette année n’est plus là : elle est dans un changement de format bien plus discret, passé sous le radar de la plupart des entreprises.',
+      text: 'Si vous facturez encore avec un bulletin de versement orange ou rose en 2026, la banque de votre client ne l’acceptera tout simplement plus. Ces documents sont morts depuis le 30 septembre 2022. Mais la vraie question pour cette année n’est plus là : elle est dans un changement de format bien plus discret, passé sous le radar de la plupart des entreprises.',
     },
     { type: 'h2', text: 'Ce qu’est la QR-facture' },
     {
       type: 'p',
-      text: 'Un talon de paiement structuré (montant, IBAN ou QR-IBAN, référence, débiteur) plus un QR-code lisible par n’importe quelle app bancaire suisse. Le client scanne, le montant et les coordonnées se remplissent tout seuls — fini l’erreur de saisie de référence, fini le bulletin égaré au fond d’un classeur.',
+      text: 'Un talon de paiement structuré (montant, IBAN ou QR-IBAN, référence, débiteur) plus un QR-code lisible par n’importe quelle app bancaire suisse. Le client scanne, le montant et les coordonnées se remplissent tout seuls : fini l’erreur de saisie de référence, fini le bulletin égaré au fond d’un classeur.',
     },
     {
       type: 'stat',
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Pourquoi personne ne le voit venir',
-      text: 'Un logiciel qui génère encore des QR-factures en adresse non structurée continue à produire des documents parfaitement fonctionnels aujourd’hui. Le problème n’apparaît pas en test, il apparaît le jour où une banque commence à rejeter — souvent sans message d’erreur clair du côté de l’utilisateur.',
+      text: 'Un logiciel qui génère encore des QR-factures en adresse non structurée continue à produire des documents parfaitement fonctionnels aujourd’hui. Le problème n’apparaît pas en test, il apparaît le jour où une banque commence à rejeter, et ce souvent sans message d’erreur clair du côté de l’utilisateur.',
     },
     { type: 'h2', text: 'Ce qu’une QR-facture doit contenir' },
     {
@@ -44,7 +44,7 @@ export const post: BlogPost = {
         'IBAN ou QR-IBAN du bénéficiaire (numéro dédié pour la référence QR structurée)',
         'Montant et devise, ou champ vide si le montant est laissé au débiteur',
         'Référence de paiement (QRR à 27 chiffres, ou référence ISO 11649/SCOR)',
-        'Coordonnées du créancier et, le cas échéant, du débiteur — en adresse structurée depuis 2025-2026',
+        'Coordonnées du créancier et, le cas échéant, du débiteur (en adresse structurée depuis 2025-2026)',
         'Le QR-code lui-même, dimensionné et positionné selon la norme, zone de tranquillité incluse',
       ],
     },

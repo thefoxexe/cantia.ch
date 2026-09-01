@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Face à la question "quel outil choisir", la bonne réponse dépend moins des fonctionnalités listées que de ce qu\'un indépendant utilisera vraiment dans les six premiers mois.',
   excerpt:
-    'Un indépendant qui démarre compare souvent des outils sur leur liste de fonctionnalités — alors que la question qui compte vraiment est : lequel sera encore ouvert sur son téléphone dans six mois ?',
+    'Un indépendant qui démarre compare souvent des outils sur leur liste de fonctionnalités. Pourtant la question qui compte vraiment est : lequel sera encore ouvert sur son téléphone dans six mois ?',
   category: 'Comparatifs & outils',
   keywords: ['meilleur outil gestion indépendant', 'logiciel gestion Suisse démarrage', 'outil pour indépendant du bâtiment', 'gestion administrative indépendant', 'comparatif outil gestion Suisse'],
   publishedAt: '2026-07-02',
@@ -23,7 +23,7 @@ export const post: BlogPost = {
       items: [
         'Peut-on l\'utiliser depuis le chantier, sans revenir au bureau le soir pour tout ressaisir ?',
         'Le prix reste-t-il raisonnable quand l\'activité grandit, ou explose-t-il au premier palier ?',
-        'Combien de temps faut-il pour être opérationnel — un outil qui demande une semaine de paramétrage n\'est pas fait pour démarrer vite',
+        'Combien de temps faut-il pour être opérationnel : un outil qui demande une semaine de paramétrage n\'est pas fait pour démarrer vite',
       ],
     },
     {
@@ -39,7 +39,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le meilleur outil est celui que l\'on ouvre encore après trois mois',
-      text: 'Beaucoup d\'indépendants testent un outil, l\'abandonnent après quelques semaines faute de temps pour l\'apprendre, et reviennent à Excel — mieux vaut un outil simple utilisé à fond qu\'un outil complet à moitié compris.',
+      text: 'Beaucoup d\'indépendants testent un outil, l\'abandonnent après quelques semaines faute de temps pour l\'apprendre, et reviennent à Excel. Mieux vaut un outil simple utilisé à fond qu\'un outil complet à moitié compris.',
     },
     {
       type: 'cta',
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Combien de temps faut-il pour prendre en main un logiciel de gestion en tant qu\'indépendant ?',
       answer:
-        'Avec un outil bien pensé, quelques minutes suffisent généralement pour créer un premier devis conforme — un outil qui demande une longue phase de paramétrage n\'est pas adapté à un démarrage rapide.',
+        'Avec un outil bien pensé, quelques minutes suffisent généralement pour créer un premier devis conforme, alors qu\'un outil qui demande une longue phase de paramétrage n\'est pas adapté à un démarrage rapide.',
     },
     {
       question: 'Comment savoir si un outil de gestion est vraiment adapté à un indépendant du bâtiment ?',

@@ -15,27 +15,27 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La numérotation des factures n’est pas qu’une question d’ordre — c’est l’un des premiers éléments vérifiés lors d’un contrôle de l’Administration fédérale des contributions (AFC). Une série continue et chronologique prouve qu’aucune facture n’a été émise puis dissimulée ; une série trouée ou désordonnée soulève immédiatement une question.',
+      text: 'La numérotation des factures n’est pas qu’une question d’ordre : c’est l’un des premiers éléments vérifiés lors d’un contrôle de l’Administration fédérale des contributions (AFC). Une série continue et chronologique prouve qu’aucune facture n’a été émise puis dissimulée ; une série trouée ou désordonnée soulève immédiatement une question.',
     },
     { type: 'h2', text: 'Les règles de base à respecter' },
     {
       type: 'list',
       items: [
         'Chaque facture doit porter un numéro unique, jamais réutilisé, même après une annulation',
-        'La série doit rester chronologique — un numéro plus récent ne doit jamais correspondre à une date antérieure à un numéro précédent',
+        'La série doit rester chronologique : un numéro plus récent ne doit jamais correspondre à une date antérieure à un numéro précédent',
         'Une facture annulée doit rester visible dans la série (avec sa note de crédit associée), pas simplement supprimée du système',
         'Un format cohérent (par exemple 2026-001, 2026-002…) facilite le suivi et le contrôle, sans être une obligation stricte de forme',
       ],
     },
     {
       type: 'callout',
-      title: 'Un « trou » dans la numérotation n’est pas automatiquement une fraude — mais il faut pouvoir l’expliquer',
-      text: 'Une facture annulée avant envoi, par exemple, peut légitimement laisser un numéro inutilisé — l’essentiel est de pouvoir retracer pourquoi, avec une note de crédit ou un justificatif associé.',
+      title: 'Un « trou » dans la numérotation n’est pas automatiquement une fraude, à condition de pouvoir l’expliquer',
+      text: 'Une facture annulée avant envoi, par exemple, peut légitimement laisser un numéro inutilisé. L’essentiel est de pouvoir retracer pourquoi, avec une note de crédit ou un justificatif associé.',
     },
     { type: 'h2', text: 'Le risque concret d’une numérotation mal gérée' },
     {
       type: 'p',
-      text: 'Plusieurs séries de factures gérées séparément (par exemple un carnet manuel en parallèle d’un logiciel) est l’erreur la plus fréquente chez les petites entreprises — chaque système génère sa propre numérotation, créant des doublons ou des trous inexplicables au moment de tout rassembler pour la comptabilité annuelle.',
+      text: 'Plusieurs séries de factures gérées séparément (par exemple un carnet manuel en parallèle d’un logiciel) est l’erreur la plus fréquente chez les petites entreprises. Chaque système génère sa propre numérotation, créant des doublons ou des trous inexplicables au moment de tout rassembler pour la comptabilité annuelle.',
     },
     {
       type: 'cta',
@@ -48,17 +48,17 @@ export const post: BlogPost = {
     {
       question: 'La numérotation continue des factures est-elle obligatoire en Suisse ?',
       answer:
-        'Ce n’est pas formalisée comme une loi stricte de format, mais l’AFC attend une série chronologique et traçable — un contrôle fiscal vérifie systématiquement cette continuité.',
+        'Ce n’est pas formalisée comme une loi stricte de format, mais l’AFC attend une série chronologique et traçable. Un contrôle fiscal vérifie systématiquement cette continuité.',
     },
     {
       question: 'Peut-on réutiliser un numéro de facture annulée ?',
       answer:
-        'Non — une facture annulée doit rester identifiable dans la série avec une note de crédit associée, jamais être remplacée en réutilisant son numéro.',
+        'Non : une facture annulée doit rester identifiable dans la série avec une note de crédit associée, jamais être remplacée en réutilisant son numéro.',
     },
     {
       question: 'Que risque une entreprise avec une numérotation désordonnée ?',
       answer:
-        'Un contrôle fiscal peut interpréter les incohérences comme un signe de dissimulation de chiffre d’affaires, même en l’absence de fraude réelle — la charge de la preuve retombe alors sur l’entreprise.',
+        'Un contrôle fiscal peut interpréter les incohérences comme un signe de dissimulation de chiffre d’affaires, même en l’absence de fraude réelle, si bien que la charge de la preuve retombe alors sur l’entreprise.',
     },
   ],
   relatedSlugs: [

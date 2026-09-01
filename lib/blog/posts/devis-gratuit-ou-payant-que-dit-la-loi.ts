@@ -48,7 +48,7 @@ export const post: BlogPost = {
     {
       question: 'La loi suisse oblige-t-elle à faire des devis gratuits ?',
       answer:
-        'Non, aucune loi ne l’impose. La gratuité est un usage du marché, pas une obligation légale — un devis peut être facturé s’il est annoncé clairement au préalable.',
+        'Non, aucune loi ne l’impose. La gratuité est un usage du marché, pas une obligation légale. Un devis peut d’ailleurs être facturé s’il est annoncé clairement au préalable.',
     },
     {
       question: 'Peut-on déduire le prix d’un devis facturé du montant final des travaux ?',
@@ -58,7 +58,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il prévenir le client avant de facturer un devis ?',
       answer:
-        'Oui, dans les faits c’est indispensable — facturer un devis sans l’avoir annoncé au préalable crée un litige commercial évitable, même si rien ne l’interdit légalement.',
+        'Oui, dans les faits c’est indispensable : facturer un devis sans l’avoir annoncé au préalable crée un litige commercial évitable, même si rien ne l’interdit légalement.',
     },
   ],
   relatedSlugs: [

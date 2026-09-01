@@ -15,17 +15,17 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Faire appel à un sous-traitant est une pratique courante dans le bâtiment suisse — un chantier de rénovation combine presque toujours plusieurs corps de métier qu’une seule entreprise ne couvre pas. Ce que beaucoup découvrent trop tard : sous-traiter ne déleste jamais l’entrepreneur principal de sa responsabilité envers le client.',
+      text: 'Faire appel à un sous-traitant est une pratique courante dans le bâtiment suisse : un chantier de rénovation combine presque toujours plusieurs corps de métier qu’une seule entreprise ne couvre pas. Ce que beaucoup découvrent trop tard : sous-traiter ne déleste jamais l’entrepreneur principal de sa responsabilité envers le client.',
     },
     { type: 'h2', text: 'La responsabilité ne se sous-traite pas' },
     {
       type: 'p',
-      text: 'Vis-à-vis du client, l’entrepreneur principal reste responsable du résultat de l’ouvrage, même si une partie du travail a été confiée à un sous-traitant. Le client n’a en principe aucun lien contractuel direct avec le sous-traitant — c’est un contrat séparé entre l’entrepreneur principal et lui. En cas de malfaçon du sous-traitant, c’est d’abord l’entrepreneur principal qui répond envers le client, avant de pouvoir éventuellement se retourner contre son sous-traitant.',
+      text: 'Vis-à-vis du client, l’entrepreneur principal reste responsable du résultat de l’ouvrage, même si une partie du travail a été confiée à un sous-traitant. Le client n’a en principe aucun lien contractuel direct avec le sous-traitant. Il s’agit d’un contrat séparé entre l’entrepreneur principal et lui. En cas de malfaçon du sous-traitant, c’est d’abord l’entrepreneur principal qui répond envers le client, avant de pouvoir éventuellement se retourner contre son sous-traitant.',
     },
     {
       type: 'callout',
       title: 'Vérifier les assurances avant de signer, pas après un sinistre',
-      text: 'Avant d’engager un sous-traitant, vérifier qu’il dispose d’une responsabilité civile professionnelle en cours de validité, et qu’il est correctement affilié aux assurances sociales pour son personnel. Une lacune ici retombe potentiellement sur l’entrepreneur principal — le pire moment pour le découvrir est en plein sinistre.',
+      text: 'Avant d’engager un sous-traitant, vérifier qu’il dispose d’une responsabilité civile professionnelle en cours de validité, et qu’il est correctement affilié aux assurances sociales pour son personnel. Une lacune ici retombe potentiellement sur l’entrepreneur principal, et le pire moment pour le découvrir est en plein sinistre.',
     },
     { type: 'h2', text: 'Ce qu’un contrat de sous-traitance devrait verrouiller' },
     {
@@ -35,13 +35,13 @@ export const post: BlogPost = {
         'Le prix convenu et les modalités de paiement (acompte, échéancier, délai après réception)',
         'Les délais d’exécution, coordonnés avec le planning global du chantier',
         'Les garanties applicables et leur durée, en cohérence avec ce que l’entrepreneur principal a lui-même promis au client final',
-        'La référence explicite à la norme SIA 118 si elle s’applique au contrat principal — pour éviter un décalage entre les deux niveaux de contrat',
+        'La référence explicite à la norme SIA 118 si elle s’applique au contrat principal, afin d’éviter un décalage entre les deux niveaux de contrat',
       ],
     },
     { type: 'h2', text: 'Le vrai point de friction : pas le juridique, le suivi financier' },
     {
       type: 'p',
-      text: 'Au-delà du contrat, la difficulté la plus fréquente au quotidien est bien plus terre à terre : combien a-t-on déjà facturé à ce sous-traitant, combien reste-t-il dû, intervient-il sur plusieurs chantiers en même temps ? Sans suivi centralisé par chantier, une facture reçue se perd facilement, ou se rattache au mauvais chantier au moment de calculer la rentabilité — et personne ne s’en rend compte avant la clôture.',
+      text: 'Au-delà du contrat, la difficulté la plus fréquente au quotidien est bien plus terre à terre : combien a-t-on déjà facturé à ce sous-traitant, combien reste-t-il dû, intervient-il sur plusieurs chantiers en même temps ? Sans suivi centralisé par chantier, une facture reçue se perd facilement, ou se rattache au mauvais chantier au moment de calculer la rentabilité, sans que personne ne s’en rende compte avant la clôture.',
     },
     {
       type: 'p',
@@ -50,7 +50,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un répertoire de sous-traitants, lié à vos chantiers',
-      text: 'Cantia centralise vos sous-traitants, leurs affectations par chantier et les factures reçues — directement rattachées au calcul de rentabilité du chantier concerné.',
+      text: 'Cantia centralise vos sous-traitants, leurs affectations par chantier et les factures reçues, directement rattachées au calcul de rentabilité du chantier concerné.',
       buttonLabel: 'Découvrir le module Sous-traitants',
     },
   ],
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il vérifier les assurances d’un sous-traitant avant de l’engager ?',
       answer:
-        'Oui — notamment sa responsabilité civile professionnelle et son affiliation aux assurances sociales (LAA) pour son personnel, car une lacune peut avoir des conséquences pour l’entrepreneur principal.',
+        'Oui : il faut vérifier notamment sa responsabilité civile professionnelle et son affiliation aux assurances sociales (LAA) pour son personnel, car une lacune peut avoir des conséquences pour l’entrepreneur principal.',
     },
     {
       question: 'Le contrat de sous-traitance doit-il reprendre la norme SIA 118 du contrat principal ?',

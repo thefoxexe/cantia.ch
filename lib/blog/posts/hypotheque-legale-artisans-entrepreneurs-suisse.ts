@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Qu’est-ce que l’hypothèque légale des artisans et entrepreneurs, et comment ne pas la perdre ?',
   title: 'Hypothèque légale des artisans et entrepreneurs : votre garantie de paiement, avec un délai strict',
   description:
-    'L’hypothèque légale (art. 837 CC) garantit le paiement de vos travaux sur l’immeuble lui-même — mais elle doit être inscrite au registre foncier dans un délai de 4 mois. Passé ce délai, elle disparaît.',
+    'L’hypothèque légale (art. 837 CC) garantit le paiement de vos travaux sur l’immeuble lui-même. Elle doit toutefois être inscrite au registre foncier dans un délai de 4 mois. Passé ce délai, elle disparaît.',
   excerpt:
-    'Un client qui ne paie pas peut être poursuivi — mais s’il est insolvable ou disparaît, la poursuite ne récupère rien. L’hypothèque légale, elle, garde une prise directe sur le bâtiment que vous avez construit.',
+    'Un client qui ne paie pas peut être poursuivi. Mais s’il est insolvable ou disparaît, la poursuite ne récupère rien. L’hypothèque légale, elle, garde une prise directe sur le bâtiment que vous avez construit.',
   category: 'Juridique & normes',
   keywords: ['hypothèque légale artisans', 'art 837 CC', 'garantie paiement chantier', 'registre foncier', 'entrepreneur impayé'],
   publishedAt: '2026-08-24',
@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un client insolvable ou de mauvaise foi qui ne paie pas votre facture n’est pas seulement un problème de trésorerie — c’est un risque que la poursuite ordinaire ne couvre pas toujours, s’il n’a plus d’actifs mobiliers. L’hypothèque légale des artisans et entrepreneurs, prévue par l’art. 837 du Code civil, existe précisément pour ce cas : elle vous donne un droit de gage directement sur l’immeuble que vous avez construit, transformé ou rénové.',
+      text: 'Un client insolvable ou de mauvaise foi qui ne paie pas votre facture n’est pas seulement un problème de trésorerie : c’est un risque que la poursuite ordinaire ne couvre pas toujours, s’il n’a plus d’actifs mobiliers. L’hypothèque légale des artisans et entrepreneurs, prévue par l’art. 837 du Code civil, existe précisément pour ce cas : elle vous donne un droit de gage directement sur l’immeuble que vous avez construit, transformé ou rénové.',
     },
     { type: 'h2', text: 'Un droit puissant, mais qui expire vite' },
     {
       type: 'p',
-      text: 'Ce droit n’est pas automatique et n’est pas permanent : il doit être inscrit au registre foncier dans un délai de 4 mois après l’achèvement des travaux. Passé ce délai, l’hypothèque légale s’éteint définitivement, même si la créance elle-même reste due. C’est le piège le plus fréquent — beaucoup d’entrepreneurs découvrent ce mécanisme seulement quand il est déjà trop tard pour l’utiliser.',
+      text: 'Ce droit n’est pas automatique et n’est pas permanent : il doit être inscrit au registre foncier dans un délai de 4 mois après l’achèvement des travaux. Passé ce délai, l’hypothèque légale s’éteint définitivement, même si la créance elle-même reste due. C’est d’ailleurs le piège le plus fréquent, car beaucoup d’entrepreneurs découvrent ce mécanisme seulement quand il est déjà trop tard pour l’utiliser.',
     },
     {
       type: 'stat',
@@ -34,18 +34,18 @@ export const post: BlogPost = {
         'Tout artisan ou entrepreneur ayant fourni des matériaux et/ou du travail pour la construction ou la rénovation d’un immeuble',
         'Y compris un sous-traitant, même sans lien contractuel direct avec le propriétaire du bien',
         'La garantie porte sur l’immeuble concerné, quel que soit le montage financier ou le nombre d’intervenants sur le chantier',
-        'Un simple accord ou une reconnaissance de dette du client ne remplace jamais l’inscription — seule l’inscription au registre foncier crée la sûreté',
+        'Un simple accord ou une reconnaissance de dette du client ne remplace jamais l’inscription : seule l’inscription au registre foncier crée la sûreté',
       ],
     },
     {
       type: 'callout',
       title: 'Le compte à rebours démarre à la fin réelle des travaux, pas à la date de la facture',
-      text: 'Savoir précisément quand un chantier s’est terminé — et pouvoir le prouver — est ce qui détermine si vous êtes encore dans le délai de 4 mois ou déjà hors délai.',
+      text: 'Savoir précisément quand un chantier s’est terminé (et pouvoir le prouver) est ce qui détermine si vous êtes encore dans le délai de 4 mois ou déjà hors délai.',
     },
     {
       type: 'cta',
       title: 'Un chantier daté, du premier au dernier jour',
-      text: 'Cantia garde la trace de chaque chantier, de son ouverture à sa clôture — de quoi établir sans ambiguïté la date de fin de travaux si vous devez agir vite pour préserver votre hypothèque légale.',
+      text: 'Cantia garde la trace de chaque chantier, de son ouverture à sa clôture, ce qui permet d’établir sans ambiguïté la date de fin de travaux si vous devez agir vite pour préserver votre hypothèque légale.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
