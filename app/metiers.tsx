@@ -16,6 +16,22 @@ const TRADE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   menuisier: 'tool',
   'entreprise-generale': 'briefcase',
   paysagiste: 'sun',
+  couvreur: 'home',
+  chauffagiste: 'thermometer',
+  carreleur: 'square',
+  platrier: 'layers',
+  'genie-civil': 'trending-up',
+  terrassier: 'truck',
+  'entreprise-renovation': 'refresh-cw',
+  serrurier: 'lock',
+  ferblantier: 'wind',
+  facadier: 'columns',
+  etancheur: 'umbrella',
+  'construction-bois': 'feather',
+  vitrier: 'square',
+  parqueteur: 'grid',
+  echafaudeur: 'bar-chart-2',
+  demolition: 'x-octagon',
 };
 
 export default function MetiersScreen() {
