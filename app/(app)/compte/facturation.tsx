@@ -7,10 +7,12 @@ import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
 import { openCheckoutUrl } from '../../../lib/openUrl';
 import { Button, Container, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
 export default function FacturationScreen() {
+  const { t } = useTranslation();
   const { organization, role, refreshOrganization } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -62,7 +64,7 @@ export default function FacturationScreen() {
     const { url, error: err } = await startCheckout(planId);
     if (err || !url) {
       setBusy(false);
-      setError(err ?? 'Impossible de démarrer le paiement.');
+      setError(err ?? t('facturationSettings.checkoutFailed'));
       return;
     }
     await openCheckoutUrl(url);
@@ -78,7 +80,7 @@ export default function FacturationScreen() {
     const { url, error: err } = await openBillingPortal(flow);
     if (err || !url) {
       setBusy(false);
-      setError(err ?? "Impossible d'ouvrir la gestion de l'abonnement.");
+      setError(err ?? t('facturationSettings.portalFailed'));
       return;
     }
     await openCheckoutUrl(url);
@@ -101,46 +103,44 @@ export default function FacturationScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Abonnement" backTo="/(app)/compte" />
+          <PageHeader title={t('facturationSettings.title')} backTo="/(app)/compte" />
 
           <View style={styles.planRow}>
             <Text style={styles.planName}>{plan?.name ?? '—'}</Text>
             <Text style={styles.planPrice}>
-              {plan ? (plan.is_contact_only ? 'Sur devis' : `CHF ${plan.price_chf_monthly}/mois`) : ''}
+              {plan ? (plan.is_contact_only ? t('facturationSettings.onQuote') : t('facturationSettings.pricePerMonth', { price: plan.price_chf_monthly })) : ''}
             </Text>
           </View>
           {plan ? (
             <Text style={styles.meta}>
-              {(plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage ·{' '}
-              {plan.max_members} membre{plan.max_members > 1 ? 's' : ''}
+              {t('facturationSettings.storageAndMembers', {
+                storage: (plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0),
+                count: plan.max_members,
+              })}
             </Text>
           ) : null}
 
           {isTrialing ? (
             <View style={styles.trialBanner}>
               <Feather name="clock" size={16} color={colors.accent} />
-              <Text style={styles.trialBannerText}>
-                Essai Découverte — {trialDaysLeft ?? 0} jour{(trialDaysLeft ?? 0) > 1 ? 's' : ''} restant
-                {(trialDaysLeft ?? 0) > 1 ? 's' : ''}. Tout est débloqué pour l'essayer en vrai ; votre carte sera
-                débitée automatiquement à la fin de l'essai, sauf annulation avant cette date.
-              </Text>
+              <Text style={styles.trialBannerText}>{t('facturationSettings.trialBanner', { count: trialDaysLeft ?? 0 })}</Text>
             </View>
           ) : hasActiveSubscription ? (
             <View style={styles.banner}>
               <Feather name="check-circle" size={16} color={colors.success} />
               <Text style={styles.bannerText}>
-                Abonnement {organization?.subscription_status === 'active' ? 'actif' : organization?.subscription_status}.
+                {t('facturationSettings.subscriptionPrefix', {
+                  status: organization?.subscription_status === 'active' ? t('facturationSettings.subscriptionActive') : organization?.subscription_status,
+                })}
                 {isMaxPlan
                   ? contactPlan
-                    ? ' Vous êtes sur le plan le plus élevé en libre-service. Besoin de plus ? Contactez-nous.'
-                    : ' Vous êtes sur le plan le plus élevé.'
-                  : ' Le moyen de paiement, le downgrade et la résiliation se gèrent depuis "Gérer mon abonnement".'}
+                    ? t('facturationSettings.maxPlanWithContact')
+                    : t('facturationSettings.maxPlanNoContact')
+                  : t('facturationSettings.manageHint')}
               </Text>
             </View>
           ) : (
-            <Text style={styles.hint}>
-              Passez à un plan payant pour débloquer davantage de stockage et de fonctionnalités.
-            </Text>
+            <Text style={styles.hint}>{t('facturationSettings.upgradeHint')}</Text>
           )}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -149,7 +149,7 @@ export default function FacturationScreen() {
             <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
               {!hasActiveSubscription ? (
                 <Button
-                  title="Passer à un plan payant"
+                  title={t('facturationSettings.goToPaidPlan')}
                   icon="arrow-up-circle"
                   onPress={() => setShowChoice(true)}
                   loading={busy}
@@ -157,18 +157,18 @@ export default function FacturationScreen() {
               ) : null}
               {nextPlan ? (
                 <Button
-                  title={`Passer à ${nextPlan.name} (CHF ${nextPlan.price_chf_monthly}/mois)`}
+                  title={t('facturationSettings.upgradeToPlan', { name: nextPlan.name, price: nextPlan.price_chf_monthly })}
                   icon="arrow-up-circle"
                   onPress={() => goToCheckout(nextPlan.id)}
                   loading={busy}
                 />
               ) : null}
               {isMaxPlan && contactPlan ? (
-                <Button title="Nous contacter (plan sur mesure)" icon="mail" variant="secondary" onPress={contactForCustomPlan} />
+                <Button title={t('facturationSettings.contactCustomPlan')} icon="mail" variant="secondary" onPress={contactForCustomPlan} />
               ) : null}
               {hasActiveSubscription ? (
                 <Button
-                  title="Gérer mon abonnement"
+                  title={t('facturationSettings.manageSubscription')}
                   icon="settings"
                   variant="secondary"
                   onPress={() => setShowManage(true)}
@@ -186,7 +186,7 @@ export default function FacturationScreen() {
         <View style={styles.sheetOverlay}>
           <View style={styles.sheet}>
             <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Choisissez votre plan</Text>
+              <Text style={styles.sheetTitle}>{t('facturationSettings.choosePlanTitle')}</Text>
               <Pressable onPress={() => setShowChoice(false)} hitSlop={10}>
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
@@ -196,11 +196,13 @@ export default function FacturationScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.planOptionName}>{p.name}</Text>
                   <Text style={styles.planOptionMeta}>
-                    {(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} Go · {p.max_members} membre
-                    {p.max_members > 1 ? 's' : ''}
+                    {t('facturationSettings.planOptionStorageMembers', {
+                      storage: (p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0),
+                      count: p.max_members,
+                    })}
                   </Text>
                 </View>
-                <Text style={styles.planOptionPrice}>CHF {p.price_chf_monthly}/mois</Text>
+                <Text style={styles.planOptionPrice}>{t('facturationSettings.pricePerMonth', { price: p.price_chf_monthly })}</Text>
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Pressable>
             ))}
@@ -214,9 +216,9 @@ export default function FacturationScreen() {
               >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.planOptionName}>{contactPlan.name}</Text>
-                  <Text style={styles.planOptionMeta}>Plus de 10 personnes, besoins spécifiques — sur devis</Text>
+                  <Text style={styles.planOptionMeta}>{t('facturationSettings.contactPlanHint')}</Text>
                 </View>
-                <Text style={styles.planOptionPrice}>Nous contacter</Text>
+                <Text style={styles.planOptionPrice}>{t('facturationSettings.contactUs')}</Text>
                 <Feather name="mail" size={18} color={colors.textMuted} />
               </Pressable>
             ) : null}
@@ -230,7 +232,7 @@ export default function FacturationScreen() {
         <View style={styles.sheetOverlay}>
           <View style={styles.sheet}>
             <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Gérer mon abonnement</Text>
+              <Text style={styles.sheetTitle}>{t('facturationSettings.manageSubscriptionModalTitle')}</Text>
               <Pressable onPress={() => setShowManage(false)} hitSlop={10}>
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
@@ -238,16 +240,16 @@ export default function FacturationScreen() {
             <Pressable style={styles.planOption} onPress={() => pickManageAction()}>
               <Feather name="credit-card" size={18} color={colors.text} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.planOptionName}>Gérer mon abonnement</Text>
-                <Text style={styles.planOptionMeta}>Moyen de paiement, factures, changer de plan</Text>
+                <Text style={styles.planOptionName}>{t('facturationSettings.manageSubscription')}</Text>
+                <Text style={styles.planOptionMeta}>{t('facturationSettings.manageSubscriptionOptionHint')}</Text>
               </View>
               <Feather name="chevron-right" size={18} color={colors.textMuted} />
             </Pressable>
             <Pressable style={styles.planOption} onPress={() => pickManageAction('cancel')}>
               <Feather name="x-circle" size={18} color={colors.danger} />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.planOptionName, { color: colors.danger }]}>Résilier mon abonnement</Text>
-                <Text style={styles.planOptionMeta}>Annuler directement sur Stripe</Text>
+                <Text style={[styles.planOptionName, { color: colors.danger }]}>{t('facturationSettings.cancelSubscription')}</Text>
+                <Text style={styles.planOptionMeta}>{t('facturationSettings.cancelSubscriptionHint')}</Text>
               </View>
               <Feather name="chevron-right" size={18} color={colors.textMuted} />
             </Pressable>
