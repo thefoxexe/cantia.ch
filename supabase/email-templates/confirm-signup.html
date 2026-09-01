@@ -2,8 +2,11 @@
   Reference copy only — Supabase doesn't read this file. Paste the HTML
   below into: Supabase Dashboard → Authentication → Email Templates →
   "Confirm signup". {{ .Token }} is Supabase's own placeholder for the
-  6-digit one-time code it generates — same visual language as the
-  client-portal verification email (see
+  one-time code it generates — its length is Supabase's own call, not
+  fixed here, so the box below doesn't assume a specific digit count
+  (word-break + no fixed letter-spacing) and the app's verify-email
+  screen accepts whatever comes through rather than capping input at 6.
+  Same visual language as the client-portal verification email (see
   supabase/functions/_shared/resend.ts's buildBrandedEmailShell), so the
   two are recognizably the same product mid-flow.
 
@@ -30,7 +33,7 @@
         Here's your code to activate your Cantia account:
       </p>
       <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
-        <span style="font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #7C3B21;">{{ .Token }}</span>
+        <span style="font-size: 28px; font-weight: 700; letter-spacing: 4px; color: #7C3B21; word-break: break-all;">{{ .Token }}</span>
       </div>
       <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
         This code expires in 24 hours and can only be used once. If you didn't request this, you can safely ignore

@@ -22,7 +22,7 @@ export default function VerifyEmailScreen() {
   const [resendHint, setResendHint] = useState<string | null>(null);
 
   async function handleVerify() {
-    if (!email || code.trim().length !== 6) return;
+    if (!email || !code.trim()) return;
     setVerifying(true);
     setError(null);
     const { error: err } = await verifySignupCode(email, code.trim());
@@ -54,21 +54,24 @@ export default function VerifyEmailScreen() {
           <Text style={styles.brand}>Cantia</Text>
           <Text style={styles.subtitle}>Confirmez votre adresse e-mail</Text>
           <Text style={styles.hint}>
-            {email ? `Un code à 6 chiffres a été envoyé à ${email}.` : 'Un code à 6 chiffres a été envoyé à votre adresse e-mail.'}
+            {email ? `Un code a été envoyé à ${email}.` : 'Un code a été envoyé à votre adresse e-mail.'}
           </Text>
 
           <View style={styles.form}>
+            {/* Not capped to a fixed length: Supabase generates this code,
+                not us (unlike the client-portal one), so the field takes
+                whatever length it actually sends rather than assuming 6
+                digits and silently truncating a longer one. */}
             <Field
               label="Code de vérification"
               value={code}
-              onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+              onChangeText={(v) => setCode(v.replace(/\D/g, ''))}
               keyboardType="number-pad"
-              placeholder="000000"
-              maxLength={6}
+              placeholder="Code reçu par e-mail"
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             {resendHint ? <Text style={styles.success}>{resendHint}</Text> : null}
-            <Button title="Vérifier" onPress={handleVerify} loading={verifying} disabled={code.trim().length !== 6} />
+            <Button title="Vérifier" onPress={handleVerify} loading={verifying} disabled={!code.trim()} />
           </View>
 
           <View style={styles.resendRow}>
