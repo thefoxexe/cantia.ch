@@ -1,4 +1,5 @@
 import { supabase, STORAGE_BUCKET } from '../supabase';
+import { getAppLocale } from '../translations';
 
 export async function uploadToOrgBucket(
   orgId: string,
@@ -43,9 +44,17 @@ export async function deleteFromOrgBucket(path: string): Promise<{ error: string
   return { error: error?.message ?? null };
 }
 
+// French uses octet-based units (o/Ko/Mo/Go), German uses byte-based
+// units (B/KB/MB/GB) — same magnitudes, different abbreviations.
+const BYTE_UNITS: Record<'fr' | 'de', { base: string; units: string[] }> = {
+  fr: { base: 'o', units: ['Ko', 'Mo', 'Go'] },
+  de: { base: 'B', units: ['KB', 'MB', 'GB'] },
+};
+
 export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} o`;
-  const units = ['Ko', 'Mo', 'Go'];
+  const locale = getAppLocale();
+  const { base, units } = BYTE_UNITS[locale] ?? BYTE_UNITS.fr;
+  if (bytes < 1024) return `${bytes} ${base}`;
   let value = bytes / 1024;
   let unitIndex = 0;
   while (value >= 1024 && unitIndex < units.length - 1) {
