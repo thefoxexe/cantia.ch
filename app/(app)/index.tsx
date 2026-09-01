@@ -1,15 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
+import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
 import { Button, Card, EmptyState, Screen, StatusBadge } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import type { Devis, Facture, OrganizationMember, Project } from '../../lib/types';
+import type { DashboardTask, DashboardTaskCategory, Devis, Facture, OrganizationMember, Project } from '../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -19,65 +20,110 @@ const STATUS_LABELS: Record<string, string> = {
   archived: 'Archivé',
 };
 
-const TONE_COLORS: Record<string, { fg: string; bg: string }> = {
-  primary: { fg: colors.primary, bg: colors.primarySoft },
-  danger: { fg: colors.danger, bg: colors.dangerSoft },
-  success: { fg: colors.success, bg: colors.successSoft },
-  muted: { fg: colors.textMuted, bg: colors.surfaceAlt },
+const WEATHER_REFRESH_MS = 20 * 60 * 1000;
+
+const CATEGORY_META: Record<DashboardTaskCategory, { label: string; fg: string; bg: string }> = {
+  general: { label: 'Général', fg: colors.textMuted, bg: colors.surfaceAlt },
+  administratif: { label: 'Administratif', fg: colors.primary, bg: colors.primarySoft },
+  chantier: { label: 'Chantier', fg: colors.accent, bg: colors.accentSoft },
+  client: { label: 'Client', fg: colors.success, bg: colors.successSoft },
+  urgent: { label: 'Urgent', fg: colors.danger, bg: colors.dangerSoft },
 };
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+const CATEGORY_ORDER: DashboardTaskCategory[] = ['general', 'urgent', 'chantier', 'client', 'administratif'];
+
+function formatDateFr(date: Date): string {
+  const label = date.toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 export default function DashboardScreen() {
-  const { organization, user, canViewFinances, role } = useAuth();
+  const { organization, user, canViewFinances, role, permissions } = useAuth();
   const router = useRouter();
   const isAdmin = role === 'owner' || role === 'admin';
   const trialDaysLeft = organization?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(organization.trial_ends_at).getTime() - Date.now()) / 86400000))
     : null;
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
-  // A member without finance permission (see équipe screen) gets none of
-  // the devis/facture widgets below — same tiles/list logic as before,
-  // just gated on this too everywhere devisEnabled was checked alone.
   const financeVisible = devisEnabled && canViewFinances;
+  const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
+  const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
   const firstName = fullName?.trim().split(' ')[0] || null;
 
+  const [now, setNow] = useState(new Date());
+  const [weather, setWeather] = useState<WeatherNow | null>(null);
   const [activeProjects, setActiveProjects] = useState(0);
-  const [devisPending, setDevisPending] = useState(0);
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [recentDevis, setRecentDevis] = useState<Devis[]>([]);
   const [devisAmounts, setDevisAmounts] = useState<Record<string, number>>({});
   const [recentFactures, setRecentFactures] = useState<Facture[]>([]);
   const [factureAmounts, setFactureAmounts] = useState<Record<string, number>>({});
-  const [pendingAmount, setPendingAmount] = useState(0);
-  const [paidThisMonth, setPaidThisMonth] = useState(0);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [tasks, setTasks] = useState<DashboardTask[]>([]);
+  const [openTaskCount, setOpenTaskCount] = useState(0);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskCategory, setNewTaskCategory] = useState<DashboardTaskCategory>('general');
+  const [taskError, setTaskError] = useState<string | null>(null);
+
+  // The clock ticks locally once fetched — no need to re-render every second
+  // from a network call, only the calendar day/hour itself needs to advance.
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (!organization) return;
+    const query = addressQueryFor(organization);
+    if (!query) {
+      setWeather(null);
+      return;
+    }
+    let cancelled = false;
+    function load() {
+      fetchWeatherFor(query!).then((result) => {
+        if (!cancelled) setWeather(result);
+      });
+    }
+    load();
+    const id = setInterval(load, WEATHER_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [organization?.id, organization?.postal_code, organization?.locality, organization?.address]);
 
   const load = useCallback(async () => {
     if (!organization) return;
 
-    const [{ count: projects }, { count: pendingDevisCount }, { data: recentProj }, { data: team }, { data: devisList }] =
-      await Promise.all([
-        supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).eq('status', 'active'),
-        financeVisible
-          ? supabase.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).in('status', ['draft', 'ready', 'sent'])
-          : Promise.resolve({ count: 0 }),
-        supabase.from('projects').select('*').eq('organization_id', organization.id).order('updated_at', { ascending: false }).limit(4),
-        supabase.from('organization_members').select('*').eq('organization_id', organization.id),
-        financeVisible
-          ? supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }).limit(3)
-          : Promise.resolve({ data: [] as Devis[] }),
-      ]);
+    const [{ count: projects }, { data: recentProj }, { data: team }, { data: devisList }, { data: openTasks }] = await Promise.all([
+      supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).eq('status', 'active'),
+      supabase.from('projects').select('*').eq('organization_id', organization.id).order('updated_at', { ascending: false }).limit(4),
+      supabase.from('organization_members').select('*').eq('organization_id', organization.id),
+      financeVisible
+        ? supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }).limit(3)
+        : Promise.resolve({ data: [] as Devis[] }),
+      supabase
+        .from('dashboard_tasks')
+        .select('*')
+        .eq('organization_id', organization.id)
+        .eq('done', false)
+        .order('created_at', { ascending: false }),
+    ]);
 
     setActiveProjects(projects ?? 0);
-    setDevisPending(pendingDevisCount ?? 0);
     setRecentProjects(recentProj ?? []);
     setMembers(team ?? []);
     setRecentDevis(devisList ?? []);
+    const openList = (openTasks ?? []) as DashboardTask[];
+    setOpenTaskCount(openList.length);
+    setTasks(openList.slice(0, 5));
 
     if (devisList?.length) {
       const { data: items } = await supabase.from('devis_items').select('devis_id, quantity, unit_price').in('devis_id', devisList.map((d) => d.id));
@@ -101,21 +147,10 @@ export default function DashboardScreen() {
         subtotals[it.facture_id] = (subtotals[it.facture_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
       }
       const withVat: Record<string, number> = {};
-      let pending = 0;
-      let paid = 0;
-      const now = new Date();
       for (const f of list) {
-        const amount = (subtotals[f.id] ?? 0) * (1 + Number(f.vat_rate) / 100);
-        withVat[f.id] = amount;
-        if (f.status === 'sent') pending += amount;
-        if (f.status === 'paid' && f.paid_at) {
-          const paidAt = new Date(f.paid_at);
-          if (paidAt.getFullYear() === now.getFullYear() && paidAt.getMonth() === now.getMonth()) paid += amount;
-        }
+        withVat[f.id] = (subtotals[f.id] ?? 0) * (1 + Number(f.vat_rate) / 100);
       }
       setFactureAmounts(withVat);
-      setPendingAmount(pending);
-      setPaidThisMonth(paid);
     }
   }, [organization, financeVisible]);
 
@@ -131,19 +166,53 @@ export default function DashboardScreen() {
     setRefreshing(false);
   }
 
-  const tiles = useMemo(() => {
-    const list: { key: string; label: string; icon: IconName; tone: keyof typeof TONE_COLORS; value: string }[] = [
-      { key: 'projects', label: 'Chantiers actifs', icon: 'layers', tone: 'primary', value: String(activeProjects) },
+  async function handleAddTask() {
+    const title = newTaskTitle.trim();
+    if (!title || !organization) return;
+    setTaskError(null);
+    const { data, error } = await supabase
+      .from('dashboard_tasks')
+      .insert({ organization_id: organization.id, title, category: newTaskCategory, created_by: user?.id ?? null })
+      .select('*')
+      .single();
+    if (error) {
+      setTaskError(error.message);
+      return;
+    }
+    setNewTaskTitle('');
+    setTasks((prev) => [data as DashboardTask, ...prev].slice(0, 5));
+    setOpenTaskCount((n) => n + 1);
+  }
+
+  async function handleToggleTask(task: DashboardTask) {
+    setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    setOpenTaskCount((n) => Math.max(0, n - 1));
+    const { error } = await supabase.from('dashboard_tasks').update({ done: true, done_at: new Date().toISOString() }).eq('id', task.id);
+    if (error) {
+      setTaskError(error.message);
+      load();
+    }
+  }
+
+  const shortcuts = useMemo(() => {
+    const list: { key: string; label: string; icon: IconName; href: string }[] = [
+      { key: 'chantiers', label: 'Chantiers', icon: 'layers', href: '/(app)/chantiers' },
     ];
     if (financeVisible) {
       list.push(
-        { key: 'devis', label: 'Devis en cours', icon: 'file-text', tone: 'muted', value: String(devisPending) },
-        { key: 'pending', label: 'À encaisser', icon: 'clock', tone: 'danger', value: `CHF ${pendingAmount.toFixed(0)}` },
-        { key: 'paid', label: 'Encaissé ce mois', icon: 'check-circle', tone: 'success', value: `CHF ${paidThisMonth.toFixed(0)}` },
+        { key: 'devis', label: 'Devis', icon: 'file-text', href: '/(app)/devis' },
+        { key: 'factures', label: 'Factures', icon: 'dollar-sign', href: '/(app)/devis/factures' },
+        { key: 'clients', label: 'Clients', icon: 'users', href: '/(app)/clients' },
       );
     }
+    if (planningEnabled) list.push({ key: 'planning', label: 'Planning', icon: 'calendar', href: '/(app)/planning' });
+    if (payrollEnabled) list.push({ key: 'rh', label: 'RH & Salaires', icon: 'clock', href: '/(app)/rh' });
+    if (isAdmin) list.push({ key: 'equipe', label: 'Équipe', icon: 'user-plus', href: '/(app)/compte/equipe' });
+    list.push({ key: 'parametres', label: 'Paramètres', icon: 'settings', href: '/(app)/compte' });
     return list;
-  }, [activeProjects, financeVisible, devisPending, pendingAmount, paidThisMonth]);
+  }, [financeVisible, planningEnabled, payrollEnabled, isAdmin]);
+
+  const weatherInfo = weather ? describeWeatherCode(weather.code) : null;
 
   return (
     <Screen>
@@ -173,6 +242,22 @@ export default function DashboardScreen() {
           </Pressable>
         ) : null}
 
+        <Card style={styles.timeCard}>
+          <View style={styles.timeLeft}>
+            <Text style={styles.dateText}>{formatDateFr(now)}</Text>
+            <Text style={styles.clockText}>{formatTime(now)}</Text>
+          </View>
+          {weatherInfo && weather ? (
+            <View style={styles.weatherRight}>
+              <Feather name={weatherInfo.icon} size={26} color={colors.primary} />
+              <Text style={styles.weatherTemp}>{Math.round(weather.temperatureC)}°C</Text>
+              <Text style={styles.weatherLabel} numberOfLines={1}>
+                {weatherInfo.label}
+              </Text>
+            </View>
+          ) : null}
+        </Card>
+
         <FeatureHint
           id="dashboard-welcome"
           icon="compass"
@@ -180,27 +265,86 @@ export default function DashboardScreen() {
           text="Créez un chantier, ajoutez des rapports et des documents sur le terrain, puis générez vos devis en quelques minutes."
         />
 
-        <View style={styles.grid}>
-          {tiles.map((tile) => {
-            const t = TONE_COLORS[tile.tone];
-            return (
-              <Card key={tile.key} style={styles.tile}>
-                <View style={[styles.tileIcon, { backgroundColor: t.bg }]}>
-                  <Feather name={tile.icon} size={16} color={t.fg} />
-                </View>
-                <Text style={styles.tileValue}>{tile.value}</Text>
-                <Text style={styles.tileLabel}>{tile.label}</Text>
-              </Card>
-            );
-          })}
-        </View>
-
         <View style={styles.quickRow}>
           <Button title="Nouveau chantier" icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flex: 1 }} />
           {financeVisible ? (
             <Button title="Nouveau devis" icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
           ) : null}
         </View>
+
+        <Text style={styles.sectionTitle}>Raccourcis</Text>
+        <View style={styles.shortcutGrid}>
+          {shortcuts.map((s) => (
+            <Pressable key={s.key} onPress={() => router.push(s.href as any)} style={styles.shortcutTile}>
+              <View style={styles.shortcutIcon}>
+                <Feather name={s.icon} size={17} color={colors.primary} />
+              </View>
+              <Text style={styles.shortcutLabel} numberOfLines={1}>
+                {s.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Tâches</Text>
+          {openTaskCount > tasks.length ? (
+            <Pressable onPress={() => router.push('/(app)/taches' as any)}>
+              <Text style={styles.sectionLink}>Tout voir ({openTaskCount})</Text>
+            </Pressable>
+          ) : null}
+        </View>
+        <Card style={styles.tasksCard}>
+          <View style={styles.taskAddRow}>
+            <TextInput
+              value={newTaskTitle}
+              onChangeText={setNewTaskTitle}
+              placeholder="Ajouter une tâche…"
+              placeholderTextColor={colors.textMuted}
+              style={styles.taskInput}
+              onSubmitEditing={handleAddTask}
+              returnKeyType="done"
+            />
+            <Pressable onPress={handleAddTask} style={styles.taskAddButton} hitSlop={8}>
+              <Feather name="plus" size={16} color="#fff" />
+            </Pressable>
+          </View>
+          <View style={styles.categoryRow}>
+            {CATEGORY_ORDER.map((cat) => {
+              const meta = CATEGORY_META[cat];
+              const active = newTaskCategory === cat;
+              return (
+                <Pressable
+                  key={cat}
+                  onPress={() => setNewTaskCategory(cat)}
+                  style={[styles.categoryChip, { backgroundColor: active ? meta.bg : colors.surfaceAlt }]}
+                >
+                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{meta.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          {taskError ? <Text style={styles.taskError}>{taskError}</Text> : null}
+          {tasks.length === 0 ? (
+            <Text style={styles.tasksEmpty}>Aucune tâche en cours. Belle journée.</Text>
+          ) : (
+            <View style={styles.taskList}>
+              {tasks.map((task) => {
+                const meta = CATEGORY_META[task.category] ?? CATEGORY_META.general;
+                return (
+                  <View key={task.id} style={styles.taskRow}>
+                    <Pressable onPress={() => handleToggleTask(task)} style={styles.taskCheckbox} hitSlop={8} />
+
+                    <Text style={styles.taskTitle} numberOfLines={2}>
+                      {task.title}
+                    </Text>
+                    <View style={[styles.categoryDot, { backgroundColor: meta.fg }]} />
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </Card>
 
         <View style={styles.sectionHeaderRow}>
           <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Chantiers récents</Text>
@@ -361,35 +505,40 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
-  grid: {
+  timeCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: spacing.lg,
   },
-  tile: {
-    flexGrow: 1,
-    flexBasis: 140,
-    paddingVertical: spacing.lg,
+  timeLeft: {
+    gap: 2,
   },
-  tileIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
+  dateText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
   },
-  tileValue: {
-    fontSize: fontSize.xl,
+  clockText: {
+    fontSize: 28,
     fontWeight: '800',
     color: colors.text,
     fontVariant: ['tabular-nums'],
   },
-  tileLabel: {
+  weatherRight: {
+    alignItems: 'center',
+    gap: 2,
+    minWidth: 90,
+  },
+  weatherTemp: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  weatherLabel: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: spacing.xs,
   },
   quickRow: {
     flexDirection: 'row',
@@ -413,6 +562,117 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.primary,
+  },
+  shortcutGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  shortcutTile: {
+    flexGrow: 1,
+    flexBasis: 100,
+    maxWidth: 140,
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+  },
+  shortcutIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shortcutLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  tasksCard: {
+    gap: spacing.sm,
+  },
+  taskAddRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  taskInput: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 8,
+  },
+  taskAddButton: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+  },
+  categoryChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
+  },
+  categoryChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+  },
+  taskError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+  },
+  tasksEmpty: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    paddingVertical: spacing.sm,
+  },
+  taskList: {
+    gap: spacing.sm,
+  },
+  taskRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.sm,
+  },
+  taskCheckbox: {
+    width: 20,
+    height: 20,
+    borderRadius: radius.sm,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  taskTitle: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  categoryDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   emptyCard: {
     paddingVertical: spacing.sm,

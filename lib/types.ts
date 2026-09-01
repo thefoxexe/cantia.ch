@@ -295,6 +295,19 @@ export interface DevisItem {
   sort_order: number;
 }
 
+export type DashboardTaskCategory = 'general' | 'administratif' | 'chantier' | 'client' | 'urgent';
+
+export interface DashboardTask {
+  id: string;
+  organization_id: string;
+  title: string;
+  category: DashboardTaskCategory;
+  done: boolean;
+  done_at: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
 export type ExtraWorkStatus = 'draft' | 'sent' | 'accepted' | 'refused';
 
 // Travaux supplémentaires : les extras demandés en cours de chantier

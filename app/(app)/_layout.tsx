@@ -41,7 +41,12 @@ function buildSections(
     ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: 'Trésorerie', icon: 'archive' as const }] : []),
   ];
   return [
-    { links: [{ href: '/(app)', label: 'Accueil', icon: 'home' }] },
+    {
+      links: [
+        { href: '/(app)', label: 'Accueil', icon: 'home' as const },
+        { href: '/(app)/taches', label: 'Tâches', icon: 'check-square' as const },
+      ],
+    },
     {
       title: 'CHANTIERS',
       links: [
