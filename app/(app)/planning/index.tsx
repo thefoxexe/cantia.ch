@@ -13,6 +13,7 @@ import {
 } from '../../../lib/api/planning';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
@@ -21,7 +22,7 @@ interface PickItem {
   label: string;
 }
 
-const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+const DAY_LABEL_KEYS = ['dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri', 'daySat', 'daySun'] as const;
 
 // Deterministic color per project (not per assignment) — same chantier
 // always reads as the same color across the whole grid, so a glance at the
@@ -65,10 +66,11 @@ function toIso(d: Date): string {
 }
 
 function formatShort(d: Date): string {
-  return d.toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit' });
+  return d.toLocaleDateString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit' });
 }
 
 export default function PlanningScreen() {
+  const { t } = useTranslation();
   const { organization, user, permissions } = useAuth();
   const router = useRouter();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
@@ -103,7 +105,7 @@ export default function PlanningScreen() {
     ]);
     setAssignments(list);
     setProjects((projectRows ?? []).map((p) => ({ id: p.id, label: p.name })));
-    setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || 'Membre' })));
+    setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || t('planning.memberFallback') })));
     setPlan(planRow ?? null);
     setLoading(false);
   }, [organization, weekStart, weekEnd]);
@@ -144,11 +146,11 @@ export default function PlanningScreen() {
 
   async function handleSubmit() {
     if (!organization || !formMemberId || !formStart || !formEnd) {
-      setFormError('Membre et dates sont requis.');
+      setFormError(t('planning.memberRequired'));
       return;
     }
     if (formEnd < formStart) {
-      setFormError('La date de fin doit être après la date de début.');
+      setFormError(t('planning.endAfterStart'));
       return;
     }
     setSaving(true);
@@ -197,14 +199,11 @@ export default function PlanningScreen() {
   if (!permissions.planning) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title="Planning" backTo="/(app)" />
+        <PageHeader title={t('planning.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="lock" size={22} color={colors.textMuted} />
-          <Text style={styles.upsellTitle}>Accès non autorisé</Text>
-          <Text style={styles.upsellText}>
-            Vous n'avez pas accès au planning de cette entreprise. Demandez à un administrateur de vous donner accès
-            depuis Équipe.
-          </Text>
+          <Text style={styles.upsellTitle}>{t('planning.accessDeniedTitle')}</Text>
+          <Text style={styles.upsellText}>{t('planning.accessDeniedText')}</Text>
         </Card>
       </Screen>
     );
@@ -213,15 +212,13 @@ export default function PlanningScreen() {
   if (plan && !plan.has_planning) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title="Planning" backTo="/(app)" />
+        <PageHeader title={t('planning.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="calendar" size={22} color={colors.accent} />
-          <Text style={styles.upsellTitle}>Planning d'équipe</Text>
-          <Text style={styles.upsellText}>
-            Organisez qui va sur quel chantier, et quand, avec une vue calendrier par semaine partagée avec toute l'équipe.
-          </Text>
-          <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
-          <Button title="Voir les plans" variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
+          <Text style={styles.upsellTitle}>{t('planning.upsellTitle')}</Text>
+          <Text style={styles.upsellText}>{t('planning.upsellText')}</Text>
+          <Text style={styles.upsellText}>{t('planning.upsellPlanHint')}</Text>
+          <Button title={t('planning.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
       </Screen>
     );
@@ -230,8 +227,8 @@ export default function PlanningScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Planning" backTo="/(app)" right={<Button title="Assigner" icon="plus" onPress={() => openCreateForm()} />} />
-        <Text style={styles.pageSubtitle}>L'équipe de la semaine, chantier par chantier et jour par jour.</Text>
+        <PageHeader title={t('planning.title')} backTo="/(app)" right={<Button title={t('planning.assign')} icon="plus" onPress={() => openCreateForm()} />} />
+        <Text style={styles.pageSubtitle}>{t('planning.subtitle')}</Text>
 
         <View style={styles.weekNav}>
           <Pressable onPress={() => setWeekStart((w) => addDays(w, -7))} hitSlop={8} style={styles.weekNavButton}>
@@ -248,7 +245,7 @@ export default function PlanningScreen() {
         </View>
 
         {members.length === 0 ? (
-          <EmptyState title="Aucun membre" subtitle="Invitez votre équipe pour commencer à planifier." />
+          <EmptyState title={t('planning.emptyMembersTitle')} subtitle={t('planning.emptyMembersSubtitle')} />
         ) : (
           <ScrollView
             contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
@@ -278,7 +275,7 @@ export default function PlanningScreen() {
                       return (
                         <View key={toIso(day)} style={[styles.dayHeaderCell, isToday && styles.dayHeaderCellToday]}>
                           <Text style={[styles.dayHeaderLabel, isToday && styles.dayHeaderLabelToday]}>
-                            {DAY_LABELS[(day.getDay() + 6) % 7]}
+                            {t(`planning.${DAY_LABEL_KEYS[(day.getDay() + 6) % 7]}`)}
                           </Text>
                           <Text style={[styles.dayHeaderDate, isToday && styles.dayHeaderLabelToday]}>{formatShort(day)}</Text>
                         </View>
@@ -340,7 +337,7 @@ export default function PlanningScreen() {
               {assignments.some((a) => !a.project_id) ? (
                 <View style={styles.legendItem}>
                   <View style={[styles.legendDot, { backgroundColor: NO_PROJECT_COLOR }]} />
-                  <Text style={styles.legendText}>Sans chantier</Text>
+                  <Text style={styles.legendText}>{t('planning.noProject')}</Text>
                 </View>
               ) : null}
             </View>
@@ -352,15 +349,15 @@ export default function PlanningScreen() {
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
             <ScrollView>
-              <Text style={styles.sheetTitle}>{editingId ? "Modifier l'affectation" : 'Nouvelle affectation'}</Text>
+              <Text style={styles.sheetTitle}>{editingId ? t('planning.editAssignmentTitle') : t('planning.newAssignmentTitle')}</Text>
 
-              <Text style={styles.fieldLabel}>Chantier (optionnel)</Text>
+              <Text style={styles.fieldLabel}>{t('planning.projectOptional')}</Text>
               <View style={styles.chips}>
                 <Pressable
                   onPress={() => setFormProjectId(null)}
                   style={[styles.chip, formProjectId === null && styles.chipActive]}
                 >
-                  <Text style={[styles.chipText, formProjectId === null && styles.chipTextActive]}>Sans chantier</Text>
+                  <Text style={[styles.chipText, formProjectId === null && styles.chipTextActive]}>{t('planning.noProject')}</Text>
                 </Pressable>
                 {projects.map((p) => (
                   <Pressable
@@ -373,7 +370,7 @@ export default function PlanningScreen() {
                 ))}
               </View>
 
-              <Text style={styles.fieldLabel}>Membre</Text>
+              <Text style={styles.fieldLabel}>{t('planning.memberLabel')}</Text>
               <View style={styles.chips}>
                 {members.map((m) => (
                   <Pressable
@@ -388,19 +385,19 @@ export default function PlanningScreen() {
 
               <View style={styles.row2}>
                 <View style={styles.row2Item}>
-                  <DateField label="Début" value={formStart} onChange={(v) => setFormStart(v ?? '')} />
+                  <DateField label={t('planning.startLabel')} value={formStart} onChange={(v) => setFormStart(v ?? '')} />
                 </View>
                 <View style={styles.row2Item}>
-                  <DateField label="Fin" value={formEnd} onChange={(v) => setFormEnd(v ?? '')} />
+                  <DateField label={t('planning.endLabel')} value={formEnd} onChange={(v) => setFormEnd(v ?? '')} />
                 </View>
               </View>
 
-              <Text style={styles.fieldLabel}>Note (optionnel)</Text>
+              <Text style={styles.fieldLabel}>{t('planning.noteOptional')}</Text>
               <TextInput
                 style={styles.noteInput}
                 value={formNote}
                 onChangeText={setFormNote}
-                placeholder="Ex : livraison matériel le matin"
+                placeholder={t('planning.notePlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 multiline
               />
@@ -408,7 +405,7 @@ export default function PlanningScreen() {
               {formError ? <Text style={styles.error}>{formError}</Text> : null}
 
               <Button
-                title={editingId ? 'Enregistrer' : 'Créer'}
+                title={editingId ? t('planning.save') : t('planning.create')}
                 icon="check"
                 onPress={handleSubmit}
                 loading={saving}
@@ -416,7 +413,7 @@ export default function PlanningScreen() {
               />
               {editingId ? (
                 <Button
-                  title="Supprimer"
+                  title={t('planning.delete')}
                   icon="trash-2"
                   variant="danger"
                   onPress={handleDelete}
@@ -425,7 +422,7 @@ export default function PlanningScreen() {
                 />
               ) : null}
               <Button
-                title="Annuler"
+                title={t('planning.cancel')}
                 variant="secondary"
                 onPress={() => setShowForm(false)}
                 style={{ marginTop: spacing.sm }}
