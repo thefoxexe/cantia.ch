@@ -22,24 +22,6 @@ Deno.serve(async (req: Request) => {
     if (!success_url || !cancel_url) return json({ error: 'success_url et cancel_url requis' }, 400);
     const yearly = billing_interval === 'year';
 
-    // A promo code here grants a free trial (via subscription_data.trial_period_days)
-    // rather than a Stripe discount — a percent-off coupon would waive an entire
-    // annual invoice instead of just 30 days, so trial days are the only mechanism
-    // that behaves the same regardless of billing interval. The code still lives as
-    // a real, toggleable Stripe Promotion Code (see admin-create-promo), we just
-    // read its trial_days metadata instead of letting Stripe apply its discount.
-    let trialDays: number | undefined;
-    let appliedPromoCode: string | undefined;
-    if (typeof promo_code === 'string' && promo_code.trim()) {
-      const found = await stripe.promotionCodes.list({ code: promo_code.trim().toUpperCase(), active: true, limit: 1 });
-      const promo = found.data[0];
-      const days = Number(promo?.coupon?.metadata?.trial_days ?? promo?.metadata?.trial_days);
-      if (promo && Number.isFinite(days) && days > 0) {
-        trialDays = days;
-        appliedPromoCode = promo.code;
-      }
-    }
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -85,11 +67,18 @@ Deno.serve(async (req: Request) => {
       await admin.from('organizations').update({ stripe_customer_id: customerId }).eq('id', org.id);
     }
 
-    // Stripe itself never sees this code as a redemption (see the comment
-    // above — only trial_days is borrowed from it), so this column is the
-    // only durable record of which promo an org came in through.
-    if (appliedPromoCode) {
-      await admin.from('organizations').update({ promo_code_used: appliedPromoCode }).eq('id', org.id);
+    // Every organization gets exactly one automatic 14-day trial, granted
+    // the first time it ever completes a checkout — no promo code to type
+    // in. trial_used is service-role-only (see
+    // 20260828100000_lock_billing_and_ownership_columns.sql), so this is
+    // the only place that can flip it; a client can't re-arm its own
+    // trial by hitting checkout again. Checkout's default
+    // payment_method_collection ('always') still requires a card up front
+    // even with a trial, so the trial doesn't charge now but does bill
+    // automatically in 14 days unless cancelled.
+    const grantTrial = org.trial_used !== true;
+    if (grantTrial) {
+      await admin.from('organizations').update({ trial_used: true }).eq('id', org.id);
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -99,8 +88,8 @@ Deno.serve(async (req: Request) => {
       client_reference_id: org.id,
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
-        metadata: { organization_id: org.id, plan_id: plan.id, ...(appliedPromoCode ? { promo_code: appliedPromoCode } : {}) },
-        ...(trialDays ? { trial_period_days: trialDays } : {}),
+        metadata: { organization_id: org.id, plan_id: plan.id },
+        ...(grantTrial ? { trial_period_days: 14 } : {}),
       },
       success_url,
       cancel_url,

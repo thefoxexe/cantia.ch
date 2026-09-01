@@ -75,10 +75,16 @@ Deno.serve(async (req: Request) => {
         const subscription = event.data.object as Stripe.Subscription;
         const organizationId = subscription.metadata?.organization_id;
         if (organizationId) {
+          // No free plan to fall back to — cancelling locks the org out
+          // (plan_selected = false forces the choose-plan.tsx redirect
+          // already wired in app/_layout.tsx) instead of quietly degrading
+          // to free features forever. plan_id is left as-is; it's dead
+          // once plan_selected is false, and gets overwritten for real the
+          // moment they pick a plan again.
           await admin
             .from('organizations')
             .update({
-              plan_id: 'free',
+              plan_selected: false,
               stripe_subscription_id: null,
               subscription_status: 'canceled',
             })

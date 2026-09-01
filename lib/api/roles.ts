@@ -38,6 +38,21 @@ export async function createOrgRole(
   color: string,
   permissions: RolePermissions,
 ): Promise<{ role: OrganizationRole | null; error: string | null }> {
+  // Belt-and-suspenders: equipe.tsx already hides "Nouveau rôle" once the
+  // plan's cap is reached, but this closes the same gate at the API layer
+  // so it can't be bypassed by calling createOrgRole directly.
+  const [{ count }, { data: org }] = await Promise.all([
+    supabase.from('organization_roles').select('*', { count: 'exact', head: true }).eq('organization_id', organizationId),
+    supabase.from('organizations').select('plans(max_org_roles)').eq('id', organizationId).single(),
+  ]);
+  const maxRoles = (org?.plans as unknown as { max_org_roles: number | null } | null)?.max_org_roles;
+  if (maxRoles != null && (count ?? 0) >= maxRoles) {
+    return {
+      role: null,
+      error: `Limite de ${maxRoles} rôles atteinte pour votre offre. Passez à Équipe pour créer des rôles personnalisés en nombre illimité.`,
+    };
+  }
+
   const { data, error } = await supabase
     .from('organization_roles')
     .insert({ organization_id: organizationId, name: name.trim(), color, ...toRow(permissions) })

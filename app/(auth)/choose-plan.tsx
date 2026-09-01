@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
@@ -10,19 +10,27 @@ import { Button, Card, Screen, Switch } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 
+// Presentation-only copy, keyed by plan id — not worth a migration/column
+// for content this is meant to be iterated on freely.
+const PLAN_TAGLINE: Record<string, string> = {
+  solo: 'Pour démarrer seul ou à quelques-uns, sans rien sacrifier sur l\'essentiel.',
+  equipe: 'Pour les équipes qui gèrent chantiers, RH et trésorerie au même endroit.',
+  pro: 'Pour les structures établies qui ont besoin de plus de marge de manœuvre.',
+};
+
+const PLAN_HIGHLIGHTS: Record<string, string[]> = {
+  solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', '2 rôles d\'équipe modifiables', 'IA généreuse (150 usages/mois)'],
+  equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', 'Rôles d\'équipe personnalisés illimités'],
+  pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire', '200 Go de stockage'],
+};
+
 export default function ChoosePlanScreen() {
   const { organization, refreshOrganization, isPlatformAdmin } = useAuth();
   const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
-  const [stayingFree, setStayingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Left empty by default — auto-pre-filling ESSAI30 applied its trial_days
-  // silently on every plan, and that value doesn't match the advertised 30
-  // days for every plan in Stripe. A prospect who wants the trial can still
-  // type the code in themselves.
-  const [promoCode, setPromoCode] = useState('');
 
   useEffect(() => {
     supabase
@@ -43,7 +51,9 @@ export default function ChoosePlanScreen() {
     // Fetch the Stripe URL before touching plan_selected: flipping that
     // flag first triggers the root layout's redirect away from this screen,
     // which raced the checkout request and left Stripe's tab never opened.
-    const { url, error: err } = await startCheckout(planId, billingInterval, promoCode);
+    // The 14-day trial is automatic server-side (stripe-checkout grants it
+    // once per org) — no promo code needed here.
+    const { url, error: err } = await startCheckout(planId, billingInterval);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? 'Impossible de démarrer le paiement.');
@@ -72,13 +82,6 @@ export default function ChoosePlanScreen() {
     setBusyPlan(null);
   }
 
-  async function stayFree() {
-    if (!organization || stayingFree) return;
-    setStayingFree(true);
-    await supabase.from('organizations').update({ plan_selected: true }).eq('id', organization.id);
-    await refreshOrganization();
-  }
-
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -101,19 +104,10 @@ export default function ChoosePlanScreen() {
 
         <View style={styles.promoBanner}>
           <Feather name="gift" size={16} color={colors.primary} />
-          <Text style={styles.promoBannerText}>Entrez le code ESSAI30 ci-dessous pour profiter de 30 jours d'essai gratuit, résiliable à tout moment.</Text>
-        </View>
-        <View style={styles.promoRow}>
-          <Text style={styles.promoLabel}>Code promo</Text>
-          <TextInput
-            value={promoCode}
-            onChangeText={setPromoCode}
-            placeholder="Ex. ESSAI30"
-            placeholderTextColor={colors.textMuted}
-            autoCapitalize="characters"
-            autoCorrect={false}
-            style={styles.promoInput}
-          />
+          <Text style={styles.promoBannerText}>
+            14 jours d'essai complet inclus sur chaque plan. Une carte est demandée à l'inscription, mais rien n'est
+            débité avant la fin de l'essai — résiliable à tout moment.
+          </Text>
         </View>
 
         <Pressable
@@ -130,12 +124,12 @@ export default function ChoosePlanScreen() {
         </Pressable>
 
         <View style={styles.grid}>
-          {plans.map((p, i) => (
+          {plans.map((p) => (
             <PlanCard
               key={p.id}
               plan={p}
               billingInterval={billingInterval}
-              highlight={i === 0}
+              highlight={p.id === 'equipe'}
               loading={busyPlan === p.id}
               disabled={!!busyPlan}
               onChoose={() => choosePlan(p.id)}
@@ -143,12 +137,12 @@ export default function ChoosePlanScreen() {
           ))}
         </View>
 
-        <Pressable onPress={stayFree} disabled={stayingFree} style={styles.freeLink} hitSlop={8}>
-          {stayingFree ? (
-            <ActivityIndicator size="small" color={colors.textMuted} />
-          ) : (
-            <Text style={styles.freeLinkText}>Rester sur la version gratuite</Text>
-          )}
+        <Pressable style={styles.contactCard} onPress={() => router.push('/sur-mesure')} hitSlop={8}>
+          <Feather name="tool" size={16} color={colors.textMuted} />
+          <Text style={styles.contactCardText}>
+            Plus de 25 membres, ou un besoin métier bien à vous ?{' '}
+            <Text style={styles.contactCardLink}>Découvrez Sur mesure →</Text>
+          </Text>
         </Pressable>
       </ScrollView>
     </Screen>
@@ -182,8 +176,8 @@ function PlanCard({
         </View>
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
+      {PLAN_TAGLINE[plan.id] ? <Text style={styles.tagline}>{PLAN_TAGLINE[plan.id]}</Text> : null}
       <View style={styles.priceRow}>
-        {plan.id === 'illimite' ? <Text style={styles.fromLabel}>dès</Text> : null}
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>/mois</Text>
       </View>
@@ -192,8 +186,10 @@ function PlanCard({
       ) : null}
       <View style={styles.features}>
         <Feature text={`${(plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
-        <Feature text={`${plan.max_members} membre${plan.max_members > 1 ? 's' : ''}`} />
-        <Feature text="Rapports & devis illimités" />
+        <Feature text={`Jusqu'à ${plan.max_members} membre${plan.max_members > 1 ? 's' : ''}`} />
+        {(PLAN_HIGHLIGHTS[plan.id] ?? []).map((text) => (
+          <Feature key={text} text={text} />
+        ))}
       </View>
       <Button
         title={`Choisir ${plan.name}`}
@@ -273,40 +269,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     alignSelf: 'center',
+    maxWidth: 460,
     backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
+    borderRadius: radius.lg,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  promoBannerText: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primaryDark,
-  },
-  promoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    alignSelf: 'center',
     marginBottom: spacing.lg,
   },
-  promoLabel: {
+  promoBannerText: {
+    flex: 1,
     fontSize: fontSize.sm,
-    color: colors.textMuted,
-  },
-  promoInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    backgroundColor: colors.surface,
-    minWidth: 140,
-    textAlign: 'center',
+    fontWeight: '600',
+    color: colors.primaryDark,
+    lineHeight: 18,
   },
   billingToggle: {
     flexDirection: 'row',
@@ -374,6 +349,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
+  tagline: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 16,
+    marginTop: 2,
+    marginBottom: spacing.xs,
+  },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -390,12 +372,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: 4,
   },
-  fromLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-    marginBottom: 6,
-  },
   features: {
     gap: spacing.xs,
   },
@@ -411,14 +387,24 @@ const styles = StyleSheet.create({
   featureTextMuted: {
     color: colors.textMuted,
   },
-  freeLink: {
+  contactCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     alignSelf: 'center',
+    maxWidth: 460,
     marginTop: spacing.xxl,
     paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
-  freeLinkText: {
-    fontSize: fontSize.xs,
+  contactCardText: {
+    flex: 1,
+    fontSize: fontSize.sm,
     color: colors.textMuted,
-    textDecorationLine: 'underline',
+    lineHeight: 19,
+  },
+  contactCardLink: {
+    color: colors.primary,
+    fontWeight: '700',
   },
 });

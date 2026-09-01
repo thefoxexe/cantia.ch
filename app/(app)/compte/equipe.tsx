@@ -90,6 +90,7 @@ export default function EquipeScreen() {
   const [invites, setInvites] = useState<OrganizationInvite[]>([]);
   const [joinRequests, setJoinRequests] = useState<PendingJoinRequest[]>([]);
   const [maxMembers, setMaxMembers] = useState<number | null>(null);
+  const [maxOrgRoles, setMaxOrgRoles] = useState<number | null>(null);
   const [inviting, setInviting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [respondingId, setRespondingId] = useState<string | null>(null);
@@ -100,12 +101,13 @@ export default function EquipeScreen() {
   const [assigningMember, setAssigningMember] = useState<OrganizationMember | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
   const atCapacity = maxMembers != null && members.length >= maxMembers;
+  const rolesAtCapacity = maxOrgRoles != null && roles.length >= maxOrgRoles;
 
   const load = useCallback(async () => {
     if (!organization) return;
     const [{ data: memberRows }, { data: planRow }, roleRows, inviteRows, requestRows] = await Promise.all([
       supabase.from('organization_members').select('*').eq('organization_id', organization.id).order('created_at'),
-      supabase.from('plans').select('max_members').eq('id', organization.plan_id).maybeSingle(),
+      supabase.from('plans').select('max_members, max_org_roles').eq('id', organization.plan_id).maybeSingle(),
       listOrgRoles(organization.id),
       listActiveInvites(organization.id),
       isAdmin ? listPendingRequestsForOrg(organization.id) : Promise.resolve([]),
@@ -113,6 +115,7 @@ export default function EquipeScreen() {
     setMembers(memberRows ?? []);
     setRoles(roleRows);
     setMaxMembers(planRow?.max_members ?? null);
+    setMaxOrgRoles(planRow?.max_org_roles ?? null);
     setInvites(inviteRows);
     setJoinRequests(requestRows);
   }, [organization, isAdmin]);
@@ -359,11 +362,19 @@ export default function EquipeScreen() {
                     </Text>
                   </Pressable>
                 ))}
-                <Pressable style={styles.roleChipNew} onPress={() => setRoleDraft(EMPTY_DRAFT)}>
-                  <Feather name="plus" size={13} color={colors.textMuted} />
-                  <Text style={styles.roleChipNewText}>Nouveau rôle</Text>
-                </Pressable>
+                {rolesAtCapacity ? null : (
+                  <Pressable style={styles.roleChipNew} onPress={() => setRoleDraft(EMPTY_DRAFT)}>
+                    <Feather name="plus" size={13} color={colors.textMuted} />
+                    <Text style={styles.roleChipNewText}>Nouveau rôle</Text>
+                  </Pressable>
+                )}
               </View>
+              {rolesAtCapacity ? (
+                <Text style={styles.capacityHint}>
+                  Votre plan est limité à {maxOrgRoles} rôles. Passez à Équipe pour créer des rôles personnalisés en
+                  nombre illimité.
+                </Text>
+              ) : null}
             </View>
           ) : null}
 
