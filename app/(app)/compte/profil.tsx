@@ -10,13 +10,25 @@ import { assetFileInfo } from '../../../lib/imageAsset';
 import { SignaturePad } from '../../../components/SignaturePad';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { AVAILABLE_LOCALES, useTranslation, type AppLocale } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+
+const LOCALE_LABEL_KEY: Record<AppLocale, 'languageFrench' | 'languageGerman'> = {
+  fr: 'languageFrench',
+  de: 'languageGerman',
+};
 
 // Personal, not company: name/photo/language belong to the person, not the
 // org — kept on organization_members (the per user+org row) like full_name
 // already was, rather than introducing a separate global profile table.
 export default function ProfilScreen() {
-  const { user, organization, refreshOrganization } = useAuth();
+  const { t, i18n } = useTranslation();
+  // i18n.language updates (and re-renders this component) the moment
+  // changeLocale() below calls i18next.changeLanguage() — no local state
+  // to keep in sync by hand.
+  const locale = i18n.language as AppLocale;
+  const { user, organization, refreshOrganization, changeLocale } = useAuth();
+  const [changingLocale, setChangingLocale] = useState(false);
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
@@ -107,6 +119,14 @@ export default function ProfilScreen() {
     setUploadingSignature(false);
   }
 
+  async function handleChangeLocale(next: AppLocale) {
+    if (next === locale || changingLocale) return;
+    setChangingLocale(true);
+    const { error } = await changeLocale(next);
+    setChangingLocale(false);
+    if (!error) showSavedCheckmark();
+  }
+
   async function saveDrawnSignature() {
     if (!organization || !user || !drawnSignature) return;
     setUploadingSignature(true);
@@ -132,7 +152,7 @@ export default function ProfilScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Mon profil" backTo="/(app)/compte" />
+          <PageHeader title={t('profil.title')} backTo="/(app)/compte" />
 
           <Card style={styles.avatarCard}>
             <Pressable onPress={pickAvatar} style={styles.avatarWrap}>
@@ -147,24 +167,35 @@ export default function ProfilScreen() {
                 <Feather name="camera" size={12} color="#fff" />
               </View>
             </Pressable>
-            <Text style={styles.avatarHint}>{uploadingAvatar ? 'Envoi en cours…' : 'Touchez pour changer votre photo'}</Text>
+            <Text style={styles.avatarHint}>{uploadingAvatar ? t('profil.uploading') : t('profil.changePhoto')}</Text>
           </Card>
 
-          <Field label="Nom affiché" value={fullName} onChangeText={setFullName} placeholder="Votre nom" />
-          <Button title="Enregistrer" icon="check" onPress={saveName} loading={saving} style={{ marginTop: spacing.sm }} />
+          <Field label={t('profil.displayName')} value={fullName} onChangeText={setFullName} placeholder={t('profil.displayNamePlaceholder')} />
+          <Button title={t('common.save')} icon="check" onPress={saveName} loading={saving} style={{ marginTop: spacing.sm }} />
 
-          <Text style={styles.sectionTitle}>Ma signature</Text>
-          <Text style={styles.sectionHint}>
-            Utilisée sur les devis que vous créez (à côté de l'emplacement pour la signature du client) et sur vos
-            rapports de chantier.
-          </Text>
+          <Text style={styles.sectionTitle}>{t('profil.languageTitle')}</Text>
+          <Text style={styles.sectionHint}>{t('profil.languageHint')}</Text>
+          <View style={styles.toggleRow}>
+            {AVAILABLE_LOCALES.map((loc) => (
+              <Text
+                key={loc}
+                onPress={() => handleChangeLocale(loc)}
+                style={[styles.toggleOption, locale === loc && styles.toggleOptionActive]}
+              >
+                {t(`profil.${LOCALE_LABEL_KEY[loc]}`)}
+              </Text>
+            ))}
+          </View>
+
+          <Text style={styles.sectionTitle}>{t('profil.signatureTitle')}</Text>
+          <Text style={styles.sectionHint}>{t('profil.signatureHint')}</Text>
 
           <View style={styles.toggleRow}>
             <Text onPress={() => setSignatureMode('draw')} style={[styles.toggleOption, signatureMode === 'draw' && styles.toggleOptionActive]}>
-              Dessiner
+              {t('profil.draw')}
             </Text>
             <Text onPress={() => setSignatureMode('photo')} style={[styles.toggleOption, signatureMode === 'photo' && styles.toggleOptionActive]}>
-              Importer une photo
+              {t('profil.importPhoto')}
             </Text>
           </View>
 
@@ -172,7 +203,7 @@ export default function ProfilScreen() {
             <Card>
               <SignaturePad onChange={setDrawnSignature} />
               <Button
-                title={uploadingSignature ? 'Enregistrement…' : 'Enregistrer cette signature'}
+                title={uploadingSignature ? t('common.saving') : t('profil.saveSignature')}
                 icon="check"
                 onPress={saveDrawnSignature}
                 loading={uploadingSignature}
@@ -181,17 +212,14 @@ export default function ProfilScreen() {
               />
               {signatureUrl ? (
                 <View style={{ marginTop: spacing.lg }}>
-                  <Text style={styles.avatarHint}>Signature actuelle :</Text>
+                  <Text style={styles.avatarHint}>{t('profil.currentSignature')}</Text>
                   <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} resizeMode="contain" />
                 </View>
               ) : null}
             </Card>
           ) : (
             <Card style={styles.signatureCard}>
-              <Text style={styles.sectionHint}>
-                Pour un rendu propre, prenez en photo ou scannez votre signature sur une feuille blanche, bien
-                cadrée, sans ombre.
-              </Text>
+              <Text style={styles.sectionHint}>{t('profil.signaturePhotoHint')}</Text>
               <Pressable onPress={pickSignature} style={styles.signatureWrap}>
                 {signatureUrl ? (
                   <Image source={{ uri: signatureUrl }} style={styles.signaturePreview} resizeMode="contain" />
@@ -202,7 +230,7 @@ export default function ProfilScreen() {
                 )}
               </Pressable>
               <Text style={styles.avatarHint}>
-                {uploadingSignature ? 'Envoi en cours…' : signatureUrl ? 'Touchez pour changer votre signature' : 'Touchez pour ajouter votre signature'}
+                {uploadingSignature ? t('profil.uploading') : signatureUrl ? t('profil.changeSignature') : t('profil.addSignature')}
               </Text>
             </Card>
           )}

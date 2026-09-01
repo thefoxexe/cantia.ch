@@ -6,6 +6,7 @@ import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
+import { AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -62,6 +63,9 @@ interface AuthContextValue {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null; needsVerification: boolean }>;
   verifySignupCode: (email: string, code: string) => Promise<{ error: string | null }>;
   resendSignupCode: (email: string) => Promise<{ error: string | null }>;
+  // Updates organization_members.locale (the source of truth) for the
+  // current user+org and switches the running app's language immediately.
+  changeLocale: (locale: AppLocale) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -89,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: membership } = await supabase
         .from('organization_members')
         .select(
-          'role, role_id, organization_id, organizations(*), organization_roles(can_view_finances, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
+          'role, role_id, organization_id, locale, organizations(*), organization_roles(can_view_finances, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
         )
         .eq('user_id', userId)
         .limit(1)
@@ -98,6 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (membership?.organizations) {
         setOrganization(membership.organizations as unknown as Organization);
         setRole(membership.role as OrgRole);
+        // organization_members.locale is the source of truth — reconcile
+        // it against whatever the AsyncStorage cache guessed at boot.
+        const dbLocale = membership.locale as AppLocale | null;
+        if (dbLocale && AVAILABLE_LOCALES.includes(dbLocale) && dbLocale !== getAppLocale()) {
+          setAppLocale(dbLocale);
+        }
         const assignedRole = membership.organization_roles as unknown as {
           can_view_finances: boolean;
           can_view_metre: boolean;
@@ -144,6 +154,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshOrganization = useCallback(async () => {
     if (session?.user) await loadOrganization(session.user.id);
   }, [session, loadOrganization]);
+
+  // Fire-and-forget: gets the app into the right language immediately on a
+  // repeat visit, before the session/org round-trip below even resolves.
+  // loadOrganization() reconciles it against organization_members.locale
+  // (the real source of truth) once that lands.
+  useEffect(() => {
+    restoreCachedLocale();
+  }, []);
 
   useEffect(() => {
     supabase.auth
@@ -226,12 +244,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+    // Whatever language the marketing site was showing when they signed up
+    // (French by default, German on /de/... pages) — create_organization()
+    // reads this back out of raw_user_meta_data and seeds
+    // organization_members.locale with it, same mechanism as full_name.
+    const locale = getAppLocale();
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName, locale } } });
     // Supabase returns a user with no session when "Confirm email" is
     // enabled and this account isn't confirmed yet — that's the only
     // reliable signal here, since the call itself still succeeds either way.
     return { error: error?.message ?? null, needsVerification: !error && !data.session };
   }, []);
+
+  const changeLocale = useCallback(
+    async (locale: AppLocale) => {
+      await setAppLocale(locale);
+      if (!session?.user || !organization) return { error: null };
+      const { error } = await supabase
+        .from('organization_members')
+        .update({ locale })
+        .eq('organization_id', organization.id)
+        .eq('user_id', session.user.id);
+      return { error: error?.message ?? null };
+    },
+    [session, organization],
+  );
 
   const verifySignupCode = useCallback(async (email: string, code: string) => {
     const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' });
@@ -336,6 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       verifySignupCode,
       resendSignupCode,
+      changeLocale,
       signInWithGoogle,
       signInWithMicrosoft,
       signOut,
@@ -359,6 +397,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       verifySignupCode,
       resendSignupCode,
+      changeLocale,
       signInWithGoogle,
       signInWithMicrosoft,
       signOut,
