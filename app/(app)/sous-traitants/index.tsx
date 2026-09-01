@@ -5,10 +5,12 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listActiveAssignmentsForOrg, listSubcontractors } from '../../../lib/api/subcontractors';
 import { Button, Card, EmptyState, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Subcontractor } from '../../../lib/types';
 
 export default function SubcontractorsListScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const router = useRouter();
   const [subcontractors, setSubcontractors] = useState<Subcontractor[]>([]);
@@ -55,14 +57,11 @@ export default function SubcontractorsListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Sous-traitants" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>
-          Vos entreprises sous-traitées, réutilisables d'un chantier à l'autre — interventions, assurances et
-          factures reçues, au même endroit.
-        </Text>
+        <PageHeader title={t('subcontractorsList.title')} backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>{t('subcontractorsList.subtitle')}</Text>
 
         <Button
-          title="Nouvelle entreprise"
+          title={t('subcontractorsList.newCompany')}
           icon="plus"
           onPress={() => router.push('/(app)/sous-traitants/new')}
           style={{ marginBottom: spacing.sm }}
@@ -73,7 +72,7 @@ export default function SubcontractorsListScreen() {
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder="Rechercher par nom, métier, contact"
+            placeholder={t('subcontractorsList.searchPlaceholder')}
             placeholderTextColor={colors.textMuted}
             style={styles.searchInput}
             autoCapitalize="none"
@@ -88,7 +87,7 @@ export default function SubcontractorsListScreen() {
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
           ListEmptyComponent={
             !loading ? (
-              <EmptyState title="Aucun sous-traitant" subtitle="Ajoutez la première entreprise sous-traitée." />
+              <EmptyState title={t('subcontractorsList.emptyTitle')} subtitle={t('subcontractorsList.emptySubtitle')} />
             ) : null
           }
           renderItem={({ item }) => {
