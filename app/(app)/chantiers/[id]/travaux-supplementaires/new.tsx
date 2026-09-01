@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../lib/auth-context';
 import { useProject } from '../../../../../lib/useProject';
 import { supabase } from '../../../../../lib/supabase';
 import { Button, Card, Field, Screen } from '../../../../../components/ui';
+import { useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../../../lib/catalog';
 import type { Devis } from '../../../../../lib/types';
@@ -32,6 +33,7 @@ function emptyLine(): Line {
 }
 
 export default function NewExtraWorkScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { organization, user } = useAuth();
@@ -118,16 +120,16 @@ export default function NewExtraWorkScreen() {
 
   async function handleCreate() {
     if (!title.trim()) {
-      setError('Le titre est requis.');
+      setError(t('newExtraWork.titleRequired'));
       return;
     }
     if (!clientName.trim()) {
-      setError('Le nom du client est requis.');
+      setError(t('newExtraWork.clientNameRequired'));
       return;
     }
     const validLines = lines.filter((l) => l.description.trim());
     if (validLines.length === 0) {
-      setError('Ajoutez au moins une ligne.');
+      setError(t('newExtraWork.lineRequired'));
       return;
     }
     setError(null);
@@ -163,7 +165,7 @@ export default function NewExtraWorkScreen() {
       .single();
 
     if (workError || !work) {
-      setError(workError?.message ?? 'Échec de la création.');
+      setError(workError?.message ?? t('newExtraWork.createFailed'));
       setLoading(false);
       return;
     }
@@ -203,25 +205,25 @@ export default function NewExtraWorkScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
-          <Text style={styles.pageTitle}>Nouveaux travaux supplémentaires</Text>
+          <Text style={styles.pageTitle}>{t('newExtraWork.title')}</Text>
           <Text style={styles.pageSubtitle}>{project?.name}</Text>
 
-          <Field label="Titre" value={title} onChangeText={setTitle} placeholder="Ex. Percement mur porteur supplémentaire" />
+          <Field label={t('newExtraWork.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('newExtraWork.titlePlaceholder')} />
 
-          <Text style={styles.sectionTitle}>Client</Text>
-          <Field label="Nom du client" value={clientName} onChangeText={setClientName} />
-          <Field label="E-mail (pour l'envoi et la validation en ligne)" value={clientEmail} onChangeText={setClientEmail} autoCapitalize="none" keyboardType="email-address" />
+          <Text style={styles.sectionTitle}>{t('newExtraWork.clientSection')}</Text>
+          <Field label={t('newExtraWork.clientNameLabel')} value={clientName} onChangeText={setClientName} />
+          <Field label={t('newExtraWork.clientEmailLabel')} value={clientEmail} onChangeText={setClientEmail} autoCapitalize="none" keyboardType="email-address" />
 
           {devisOptions.length > 0 ? (
             <>
-              <Text style={styles.sectionTitle}>Devis d'origine</Text>
-              <Text style={styles.sectionHint}>Optionnel — relie ces travaux au devis initial du chantier.</Text>
+              <Text style={styles.sectionTitle}>{t('newExtraWork.originDevisSection')}</Text>
+              <Text style={styles.sectionHint}>{t('newExtraWork.originDevisHint')}</Text>
               <View style={styles.devisRow}>
                 <Pressable
                   onPress={() => setSelectedDevisId(null)}
                   style={[styles.devisChip, selectedDevisId === null && styles.devisChipActive]}
                 >
-                  <Text style={[styles.devisChipText, selectedDevisId === null && styles.devisChipTextActive]}>Aucun</Text>
+                  <Text style={[styles.devisChipText, selectedDevisId === null && styles.devisChipTextActive]}>{t('newExtraWork.none')}</Text>
                 </Pressable>
                 {devisOptions.map((d) => (
                   <Pressable
@@ -229,21 +231,21 @@ export default function NewExtraWorkScreen() {
                     onPress={() => setSelectedDevisId(d.id)}
                     style={[styles.devisChip, selectedDevisId === d.id && styles.devisChipActive]}
                   >
-                    <Text style={[styles.devisChipText, selectedDevisId === d.id && styles.devisChipTextActive]}>{d.number ?? 'Devis'}</Text>
+                    <Text style={[styles.devisChipText, selectedDevisId === d.id && styles.devisChipTextActive]}>{d.number ?? t('newExtraWork.devisFallback')}</Text>
                   </Pressable>
                 ))}
               </View>
             </>
           ) : null}
 
-          <Text style={styles.sectionTitle}>Lignes</Text>
+          <Text style={styles.sectionTitle}>{t('newExtraWork.linesSection')}</Text>
           {lines.map((line, i) => {
             const lineTotal = (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0);
             const matches = findMatches(catalog, line.description);
             return (
               <View key={i} style={styles.lineCard}>
                 <View style={styles.lineCardHeader}>
-                  <Text style={styles.lineIndex}>Ligne {i + 1}</Text>
+                  <Text style={styles.lineIndex}>{t('newExtraWork.line', { index: i + 1 })}</Text>
                   {lines.length > 1 ? (
                     <Pressable onPress={() => removeLine(i)} hitSlop={8}>
                       <Feather name="trash-2" size={16} color={colors.textMuted} />
@@ -253,8 +255,8 @@ export default function NewExtraWorkScreen() {
                 <TextInput
                   style={styles.lineDesc}
                   value={line.description}
-                  onChangeText={(t) => handleDescriptionChange(i, t)}
-                  placeholder="Description du travail supplémentaire"
+                  onChangeText={(val) => handleDescriptionChange(i, val)}
+                  placeholder={t('newExtraWork.lineDescPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   multiline
                 />
@@ -276,35 +278,35 @@ export default function NewExtraWorkScreen() {
                 ) : null}
                 <View style={styles.lineFields}>
                   <View style={styles.lineFieldQty}>
-                    <Text style={styles.lineFieldLabel}>Qté</Text>
-                    <TextInput style={styles.lineInput} value={line.quantity} onChangeText={(t) => updateLine(i, { quantity: t })} keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} />
+                    <Text style={styles.lineFieldLabel}>{t('newExtraWork.qty')}</Text>
+                    <TextInput style={styles.lineInput} value={line.quantity} onChangeText={(val) => updateLine(i, { quantity: val })} keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} />
                   </View>
                   <View style={styles.lineFieldUnit}>
-                    <Text style={styles.lineFieldLabel}>Unité</Text>
-                    <TextInput style={styles.lineInput} value={line.unit} onChangeText={(t) => updateLine(i, { unit: t, unitAuto: false })} placeholder="pce, h, m²…" placeholderTextColor={colors.textMuted} />
+                    <Text style={styles.lineFieldLabel}>{t('newExtraWork.unit')}</Text>
+                    <TextInput style={styles.lineInput} value={line.unit} onChangeText={(val) => updateLine(i, { unit: val, unitAuto: false })} placeholder={t('newExtraWork.unitPlaceholder')} placeholderTextColor={colors.textMuted} />
                   </View>
                   <View style={styles.lineFieldPrice}>
-                    <Text style={styles.lineFieldLabel}>Prix unit. CHF</Text>
-                    <TextInput style={styles.lineInput} value={line.unitPrice} onChangeText={(t) => updateLine(i, { unitPrice: t })} keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} />
+                    <Text style={styles.lineFieldLabel}>{t('newExtraWork.unitPrice')}</Text>
+                    <TextInput style={styles.lineInput} value={line.unitPrice} onChangeText={(val) => updateLine(i, { unitPrice: val })} keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} />
                   </View>
                 </View>
-                <Text style={styles.lineTotal}>Sous-total : CHF {lineTotal.toFixed(2)}</Text>
+                <Text style={styles.lineTotal}>{t('newExtraWork.lineSubtotal', { amount: lineTotal.toFixed(2) })}</Text>
               </View>
             );
           })}
 
           <Pressable style={styles.addLine} onPress={addLine}>
             <Feather name="plus" size={16} color={colors.primary} />
-            <Text style={styles.addLineText}>Ajouter une ligne</Text>
+            <Text style={styles.addLineText}>{t('newExtraWork.addLine')}</Text>
           </Pressable>
 
-          <Field label="Notes (optionnel)" value={notes} onChangeText={setNotes} multiline style={{ minHeight: 70 }} />
+          <Field label={t('newExtraWork.notesLabel')} value={notes} onChangeText={setNotes} multiline style={{ minHeight: 70 }} />
 
-          <Text style={styles.total}>Total HT estimé : CHF {total.toFixed(2)}</Text>
+          <Text style={styles.total}>{t('newExtraWork.totalEstimate', { amount: total.toFixed(2) })}</Text>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <Button title="Créer" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+          <Button title={t('newExtraWork.create')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>
       </ScrollView>
 
@@ -312,37 +314,34 @@ export default function NewExtraWorkScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Prix différent du catalogue</Text>
+              <Text style={styles.modalTitle}>{t('newExtraWork.mismatchModalTitle')}</Text>
               <Pressable hitSlop={8} onPress={() => setPriceMismatches(null)}>
                 <Feather name="x" size={20} color={colors.textMuted} />
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.modalBody}>
-              <Text style={styles.mismatchIntro}>
-                Le prix saisi diffère de celui déjà connu. Choisissez, pour chaque ligne, si le nouveau prix doit être enregistré dans le catalogue
-                ou rester une exception.
-              </Text>
+              <Text style={styles.mismatchIntro}>{t('newExtraWork.mismatchIntro')}</Text>
               {(priceMismatches ?? []).map((m) => (
                 <View key={m.catalogItemId} style={styles.mismatchCard}>
                   <Text style={styles.mismatchDesc} numberOfLines={2}>
                     {m.description}
                   </Text>
                   <View style={styles.mismatchPrices}>
-                    <Text style={styles.mismatchOldPrice}>Catalogue : CHF {m.catalogPrice.toFixed(2)}</Text>
+                    <Text style={styles.mismatchOldPrice}>{t('newExtraWork.mismatchCatalogPrice', { amount: m.catalogPrice.toFixed(2) })}</Text>
                     <Feather name="arrow-right" size={12} color={colors.textMuted} />
-                    <Text style={styles.mismatchNewPrice}>Saisi : CHF {m.enteredPrice.toFixed(2)}</Text>
+                    <Text style={styles.mismatchNewPrice}>{t('newExtraWork.mismatchEnteredPrice', { amount: m.enteredPrice.toFixed(2) })}</Text>
                   </View>
                   <View style={styles.mismatchChoices}>
                     <Pressable style={[styles.mismatchChoice, !m.updateCatalog && styles.mismatchChoiceActive]} onPress={() => m.updateCatalog && toggleMismatchUpdate(m.catalogItemId)}>
-                      <Text style={[styles.mismatchChoiceText, !m.updateCatalog && styles.mismatchChoiceTextActive]}>Garder l'écart</Text>
+                      <Text style={[styles.mismatchChoiceText, !m.updateCatalog && styles.mismatchChoiceTextActive]}>{t('newExtraWork.keepDifference')}</Text>
                     </Pressable>
                     <Pressable style={[styles.mismatchChoice, m.updateCatalog && styles.mismatchChoiceActive]} onPress={() => !m.updateCatalog && toggleMismatchUpdate(m.catalogItemId)}>
-                      <Text style={[styles.mismatchChoiceText, m.updateCatalog && styles.mismatchChoiceTextActive]}>Mettre à jour le catalogue</Text>
+                      <Text style={[styles.mismatchChoiceText, m.updateCatalog && styles.mismatchChoiceTextActive]}>{t('newExtraWork.updateCatalog')}</Text>
                     </Pressable>
                   </View>
                 </View>
               ))}
-              <Button title="Confirmer et créer" onPress={confirmMismatchesAndSubmit} loading={loading} style={{ marginTop: spacing.md }} />
+              <Button title={t('newExtraWork.confirmAndCreate')} onPress={confirmMismatchesAndSubmit} loading={loading} style={{ marginTop: spacing.md }} />
             </ScrollView>
           </View>
         </View>
