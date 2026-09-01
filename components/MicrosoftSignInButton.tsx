@@ -4,6 +4,12 @@ import { MicrosoftLogo } from './MicrosoftLogo';
 import { useAuth } from '../lib/auth-context';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
+// Off until the Azure app registration + Supabase provider setup is
+// actually finished (see chat history) — the button itself and the wiring
+// in lib/auth-context.tsx stay in place so flipping this back to true is
+// the only step needed once that's done, no re-implementation.
+const MICROSOFT_SIGNIN_ENABLED = false;
+
 export function MicrosoftSignInButton() {
   const { signInWithMicrosoft } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -19,6 +25,8 @@ export function MicrosoftSignInButton() {
     // a dismissed browser sheet on native lands here with no error too.
     if (err) setError(err);
   }
+
+  if (!MICROSOFT_SIGNIN_ENABLED) return null;
 
   return (
     <View>
