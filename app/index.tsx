@@ -263,8 +263,13 @@ function LandingContent() {
       .from('plans')
       .select('*')
       // "decouverte" is the auto-assigned 14-day trial, not something to pick
-      // or pay for — never shown as a plan option.
+      // or pay for — never shown as a plan option. "free" is a retired
+      // legacy plan (no permanent free tier anymore, see
+      // 20260901000000_repricing_no_free_plan_and_role_limits.sql) — kept
+      // in the table only because a few pre-existing organizations still
+      // technically reference the row, but never marketed or offered again.
       .neq('id', 'decouverte')
+      .neq('id', 'free')
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => {
         setPlans(data ?? []);
@@ -811,7 +816,7 @@ function LandingContent() {
             </Pressable>
             <View style={styles.pricingGrid}>
               {plansLoading
-                ? [0, 1, 2, 3].map((i) => <PriceCardSkeleton key={i} pulse={skeletonPulse} highlight={i === 1} />)
+                ? [0, 1, 2].map((i) => <PriceCardSkeleton key={i} pulse={skeletonPulse} highlight={i === 1} />)
                 : plans.filter((p) => !p.is_contact_only).map((p) => {
                 const isYearly = billingInterval === 'year';
                 const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
