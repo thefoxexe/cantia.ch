@@ -6,15 +6,17 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { connectBexio, disconnectBexio, getIntegration, setBexioAutoSync, syncBexio } from '../../../lib/api/integrations';
 import { Button, Container, PageHeader, Screen } from '../../../components/ui';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Integration } from '../../../lib/types';
 
 function formatDateTime(iso: string | null): string {
   if (!iso) return '—';
-  return new Date(iso).toLocaleString('fr-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 export default function IntegrationsScreen() {
+  const { t } = useTranslation();
   const { organization, role } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams<{ bexio?: string; message?: string }>();
@@ -49,10 +51,10 @@ export default function IntegrationsScreen() {
   useFocusEffect(
     useCallback(() => {
       if (params.bexio === 'connected') {
-        setNotice('Bexio est connecté.');
+        setNotice(t('integrationsSettings.bexioConnected'));
         router.setParams({ bexio: undefined, message: undefined });
       } else if (params.bexio === 'error') {
-        setError(params.message ? String(params.message) : 'La connexion à Bexio a échoué.');
+        setError(params.message ? String(params.message) : t('integrationsSettings.bexioConnectFailed'));
         router.setParams({ bexio: undefined, message: undefined });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,7 +81,7 @@ export default function IntegrationsScreen() {
     if (err) {
       setError(err);
     } else {
-      setNotice('Bexio a été déconnecté.');
+      setNotice(t('integrationsSettings.bexioDisconnected'));
       await load();
     }
     setBusy(false);
@@ -94,7 +96,7 @@ export default function IntegrationsScreen() {
     if (err) {
       setError(err);
     } else {
-      setNotice('Synchronisation terminée.');
+      setNotice(t('integrationsSettings.syncComplete'));
       await load();
     }
     setBusy(false);
@@ -117,7 +119,7 @@ export default function IntegrationsScreen() {
   return (
     <Screen>
       <Container>
-        <PageHeader title="Intégrations" backTo="/(app)/compte" />
+        <PageHeader title={t('integrationsSettings.title')} backTo="/(app)/compte" />
         {error ? (
           <View style={styles.errorBanner}>
             <Feather name="alert-circle" size={16} color={colors.danger} />
@@ -140,10 +142,10 @@ export default function IntegrationsScreen() {
               <Text style={[styles.cardTitle, locked && styles.textLocked]}>Bexio</Text>
               <Text style={[styles.cardSubtitle, locked && styles.textLocked]}>
                 {locked
-                  ? 'Disponible à partir du plan Équipe'
+                  ? t('integrationsSettings.subtitleLocked')
                   : isConnected
-                    ? 'Connecté'
-                    : "Synchronisez vos clients, produits et factures avec Bexio."}
+                    ? t('integrationsSettings.subtitleConnected')
+                    : t('integrationsSettings.subtitleDisconnected')}
               </Text>
             </View>
             {locked ? (
@@ -154,10 +156,10 @@ export default function IntegrationsScreen() {
           </View>
 
           {loading ? (
-            <Text style={styles.helperText}>Chargement…</Text>
+            <Text style={styles.helperText}>{t('integrationsSettings.loading')}</Text>
           ) : locked ? (
             <Pressable style={styles.upgradeButton} onPress={() => router.push('/(app)/compte/facturation')}>
-              <Text style={styles.upgradeText}>Voir les plans</Text>
+              <Text style={styles.upgradeText}>{t('integrationsSettings.seePlans')}</Text>
               <Feather name="arrow-right" size={14} color={colors.primary} />
             </Pressable>
           ) : isConnected ? (
@@ -165,31 +167,28 @@ export default function IntegrationsScreen() {
               {needsReconnect ? (
                 <View style={styles.reconnectBanner}>
                   <Feather name="alert-triangle" size={14} color={colors.warning} />
-                  <Text style={styles.reconnectText}>
-                    Reconnexion nécessaire pour activer l'envoi de vos clients et devis vers Bexio (nouveaux droits
-                    d'écriture demandés).
-                  </Text>
+                  <Text style={styles.reconnectText}>{t('integrationsSettings.reconnectHint')}</Text>
                   {isAdmin ? (
                     <Pressable style={styles.reconnectButton} onPress={handleConnect} disabled={busy}>
-                      <Text style={styles.reconnectButtonText}>Reconnecter Bexio</Text>
+                      <Text style={styles.reconnectButtonText}>{t('integrationsSettings.reconnectBexio')}</Text>
                     </Pressable>
                   ) : null}
                 </View>
               ) : null}
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Entreprise</Text>
+                <Text style={styles.detailLabel}>{t('integrationsSettings.company')}</Text>
                 <Text style={styles.detailValue}>{integration?.external_company_name || integration?.external_company_id || '—'}</Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Dernière synchronisation</Text>
+                <Text style={styles.detailLabel}>{t('integrationsSettings.lastSync')}</Text>
                 <Text style={styles.detailValue}>{formatDateTime(integration?.last_sync_at ?? null)}</Text>
               </View>
               {!isAdmin ? null : (
                 <>
                   <View style={styles.autoSyncRow}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.detailLabel}>Synchronisation automatique</Text>
-                      <Text style={styles.autoSyncHint}>Clients, articles et statuts de paiement relevés toutes les 15 minutes</Text>
+                      <Text style={styles.detailLabel}>{t('integrationsSettings.autoSync')}</Text>
+                      <Text style={styles.autoSyncHint}>{t('integrationsSettings.autoSyncHint')}</Text>
                     </View>
                     <Switch
                       value={!!integration?.auto_sync_enabled}
@@ -201,26 +200,24 @@ export default function IntegrationsScreen() {
                   </View>
                   <Pressable style={styles.syncButton} onPress={handleSyncNow} disabled={busy}>
                     <Feather name="refresh-cw" size={14} color={colors.primary} />
-                    <Text style={styles.syncText}>Synchroniser maintenant</Text>
+                    <Text style={styles.syncText}>{t('integrationsSettings.syncNow')}</Text>
                   </Pressable>
                   <Pressable style={styles.disconnectButton} onPress={handleDisconnect} disabled={busy}>
                     <Feather name="x-circle" size={14} color={colors.danger} />
-                    <Text style={styles.disconnectText}>Déconnecter</Text>
+                    <Text style={styles.disconnectText}>{t('integrationsSettings.disconnect')}</Text>
                   </Pressable>
                 </>
               )}
             </View>
           ) : isAdmin ? (
-            <Button title="Connecter Bexio" onPress={handleConnect} loading={busy} style={{ marginTop: spacing.md }} />
+            <Button title={t('integrationsSettings.connectBexio')} onPress={handleConnect} loading={busy} style={{ marginTop: spacing.md }} />
           ) : (
-            <Text style={styles.helperText}>Seul un administrateur peut connecter Bexio.</Text>
+            <Text style={styles.helperText}>{t('integrationsSettings.adminOnlyHint')}</Text>
           )}
         </View>
 
         <Text style={styles.footnote}>
-          {locked
-            ? "L'intégration Bexio permet de synchroniser vos clients, produits et factures. Elle est incluse à partir du plan Équipe."
-            : "Les clients voyagent dans les deux sens : un client créé dans Bexio est importé à la connexion et à chaque synchronisation (toutes les 15 minutes), un client créé dans Cantia est envoyé vers Bexio dès sa création. Les articles Bexio alimentent votre Catalogue. Les factures voyagent aussi dans les deux sens : envoyez une facture Cantia vers Bexio depuis son détail, ou créez-la directement dans Bexio — elle apparaît ici à la synchronisation suivante, avec son statut de paiement tenu à jour. Les devis peuvent être envoyés vers Bexio comme offre depuis leur détail — son numéro Bexio revient s'afficher automatiquement."}
+          {locked ? t('integrationsSettings.footnoteLocked') : t('integrationsSettings.footnoteUnlocked')}
         </Text>
       </Container>
     </Screen>
