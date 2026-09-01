@@ -6,10 +6,12 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrls } from '../../../lib/api/storage';
 import { Button, Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Project } from '../../../lib/types';
 
 export default function ChantiersListScreen() {
+  const { t } = useTranslation();
   const { organization, canCreateProjects } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -39,12 +41,12 @@ export default function ChantiersListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Chantiers" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>Tous vos chantiers en cours, avec leur avancement et leur équipe.</Text>
+        <PageHeader title={t('chantiersList.title')} backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>{t('chantiersList.subtitle')}</Text>
 
         {canCreateProjects ? (
           <Button
-            title="Nouveau chantier"
+            title={t('chantiersList.newProject')}
             icon="plus"
             onPress={() => router.push('/(app)/chantiers/new')}
             style={{ marginBottom: spacing.lg }}
@@ -58,7 +60,7 @@ export default function ChantiersListScreen() {
           onRefresh={load}
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
           ListEmptyComponent={
-            !loading ? <EmptyState title="Aucun chantier" subtitle="Créez votre premier chantier pour commencer." /> : null
+            !loading ? <EmptyState title={t('chantiersList.emptyTitle')} subtitle={t('chantiersList.emptySubtitle')} /> : null
           }
           renderItem={({ item }) => (
             <Pressable onPress={() => router.push(`/(app)/chantiers/${item.id}`)}>
@@ -75,7 +77,7 @@ export default function ChantiersListScreen() {
                     <Text style={styles.name}>{item.name}</Text>
                     <StatusBadge status={item.status} />
                   </View>
-                  {item.client_name ? <Text style={styles.meta}>Client : {item.client_name}</Text> : null}
+                  {item.client_name ? <Text style={styles.meta}>{t('chantiersList.client', { name: item.client_name })}</Text> : null}
                   {item.address ? <Text style={styles.meta}>{item.address}</Text> : null}
                 </View>
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />

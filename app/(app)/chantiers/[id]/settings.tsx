@@ -9,16 +9,18 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../../lib/api/storage';
 import { assetFileInfo } from '../../../../lib/imageAsset';
 import { Button, Card, Container, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
+import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { OrganizationMember, Plan } from '../../../../lib/types';
 
-const STATUSES: { key: string; label: string }[] = [
-  { key: 'active', label: 'Actif' },
-  { key: 'completed', label: 'Terminé' },
-  { key: 'archived', label: 'Archivé' },
+const STATUSES: { key: string; labelKey: 'active' | 'completed' | 'archived' }[] = [
+  { key: 'active', labelKey: 'active' },
+  { key: 'completed', labelKey: 'completed' },
+  { key: 'archived', labelKey: 'archived' },
 ];
 
 export default function ChantierSettingsScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { role } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
@@ -155,7 +157,7 @@ export default function ChantierSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Paramètres du chantier" backTo={`/(app)/chantiers/${id}`} />
+          <PageHeader title={t('chantierSettings.title')} backTo={`/(app)/chantiers/${id}`} />
 
           <Pressable onPress={pickCoverPhoto} style={styles.coverWrap}>
             {coverPhotoUrl ? (
@@ -170,19 +172,23 @@ export default function ChantierSettingsScreen() {
             </View>
           </Pressable>
           <Text style={styles.coverHint}>
-            {uploadingCover ? 'Envoi en cours…' : coverPhotoUrl ? 'Touchez pour changer la photo' : 'Touchez pour ajouter une photo — elle apparaît dans la liste des chantiers'}
+            {uploadingCover
+              ? t('chantierSettings.uploadingCover')
+              : coverPhotoUrl
+                ? t('chantierSettings.changeCoverHint')
+                : t('chantierSettings.addCoverHint')}
           </Text>
 
-          <Field label="Nom du chantier" value={name} onChangeText={setName} />
-          <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
-          <Field label="Adresse" value={address} onChangeText={setAddress} placeholder="Adresse du chantier" />
+          <Field label={t('chantierSettings.nameLabel')} value={name} onChangeText={setName} />
+          <Field label={t('chantierSettings.clientLabel')} value={clientName} onChangeText={setClientName} placeholder={t('chantierSettings.clientPlaceholder')} />
+          <Field label={t('chantierSettings.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('chantierSettings.addressPlaceholder')} />
 
-          <Text style={styles.fieldLabel}>Statut</Text>
+          <Text style={styles.fieldLabel}>{t('chantierSettings.statusLabel')}</Text>
           <View style={styles.statusRow}>
             {STATUSES.map((s) => (
               <Button
                 key={s.key}
-                title={s.label}
+                title={t(`common.projectStatus.${s.labelKey}`)}
                 variant={status === s.key ? 'primary' : 'secondary'}
                 onPress={() => setStatus(s.key)}
                 style={{ flex: 1 }}
@@ -190,19 +196,19 @@ export default function ChantierSettingsScreen() {
             ))}
           </View>
 
-          <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+          <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
 
-          <Text style={[styles.sectionTitle, { marginTop: spacing.xxl, marginBottom: spacing.sm }]}>Outils</Text>
-          <Text style={styles.accessHint}>Choisissez les outils utiles à ce chantier. Fil d'actualité et Rapports restent toujours actifs.</Text>
+          <Text style={[styles.sectionTitle, { marginTop: spacing.xxl, marginBottom: spacing.sm }]}>{t('chantierSettings.toolsTitle')}</Text>
+          <Text style={styles.accessHint}>{t('chantierSettings.toolsHint')}</Text>
           <Card style={{ padding: 0, overflow: 'hidden' }}>
             {PROJECT_MODULES.map((m, i) => {
               const gated = isPlanGated(m.key);
               return (
                 <View key={m.key} style={[styles.memberRow, i < PROJECT_MODULES.length - 1 && styles.memberRowBorder]}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.memberName}>{m.label}</Text>
-                    <Text style={styles.memberRole}>{m.description}</Text>
-                    {gated ? <Text style={styles.openLink}>Disponible à partir du plan Équipe</Text> : null}
+                    <Text style={styles.memberName}>{t(`modules.${m.key}.label` as any)}</Text>
+                    <Text style={styles.memberRole}>{t(`modules.${m.key}.description` as any)}</Text>
+                    {gated ? <Text style={styles.openLink}>{t('chantierSettings.modulePlanGatedHint')}</Text> : null}
                   </View>
                   <Switch
                     value={!gated && isModuleEnabled(enabledModules, m.key)}
@@ -217,17 +223,15 @@ export default function ChantierSettingsScreen() {
           </Card>
 
           <View style={styles.accessHeader}>
-            <Text style={styles.sectionTitle}>Accès</Text>
+            <Text style={styles.sectionTitle}>{t('chantierSettings.accessTitle')}</Text>
             {restricted ? (
               <Text style={styles.openLink} onPress={openToEveryone}>
-                Rendre accessible à tous
+                {t('chantierSettings.openToEveryone')}
               </Text>
             ) : null}
           </View>
           <Text style={styles.accessHint}>
-            {restricted
-              ? 'Ce chantier est restreint : seules les personnes activées ci-dessous y ont accès (fil, rapports, documents, photos).'
-              : "Par défaut, tous les membres de l'équipe ont accès à ce chantier. Désactivez une personne pour restreindre l'accès."}
+            {restricted ? t('chantierSettings.accessHintRestricted') : t('chantierSettings.accessHintOpen')}
           </Text>
           <Card style={{ padding: 0, overflow: 'hidden' }}>
             {members.map((m, i) => {
@@ -235,9 +239,13 @@ export default function ChantierSettingsScreen() {
               return (
                 <View key={m.id} style={[styles.memberRow, i < members.length - 1 && styles.memberRowBorder]}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
+                    <Text style={styles.memberName}>{m.full_name || t('common.member')}</Text>
                     <Text style={styles.memberRole}>
-                      {alwaysOn ? (m.role === 'owner' ? 'Propriétaire · toujours accès' : 'Administrateur · toujours accès') : 'Membre'}
+                      {alwaysOn
+                        ? m.role === 'owner'
+                          ? t('chantierSettings.ownerAlwaysAccess')
+                          : t('chantierSettings.adminAlwaysAccess')
+                        : t('common.member')}
                     </Text>
                   </View>
                   <Switch

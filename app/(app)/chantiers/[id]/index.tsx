@@ -7,6 +7,7 @@ import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
 import { isModuleEnabled } from '../../../../lib/modules';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -23,16 +24,18 @@ interface HubItem {
 // Cheap head-count queries for the modules where it's a single table keyed
 // by project_id — gives an at-a-glance sense of activity on the row
 // instead of a bare icon (feed/map/profitability aren't simple counts, so
-// they're left without one).
-const COUNTABLE: Record<string, { table: string; unit: string; unitPlural: string }> = {
-  reports: { table: 'reports', unit: 'rapport', unitPlural: 'rapports' },
-  documents: { table: 'files', unit: 'fichier', unitPlural: 'fichiers' },
-  metre: { table: 'metre_items', unit: 'ligne', unitPlural: 'lignes' },
-  subcontractors: { table: 'project_subcontractors', unit: 'sous-traitant', unitPlural: 'sous-traitants' },
-  extraWorks: { table: 'extra_works', unit: 'travaux supplémentaire', unitPlural: 'travaux supplémentaires' },
+// they're left without one). The translation key suffix (after "count")
+// must match a chantierHub.count<Suffix>_one/_other pair in fr.ts/de.ts.
+const COUNTABLE: Record<string, { table: string; countKey: string }> = {
+  reports: { table: 'reports', countKey: 'countReports' },
+  documents: { table: 'files', countKey: 'countDocuments' },
+  metre: { table: 'metre_items', countKey: 'countMetre' },
+  subcontractors: { table: 'project_subcontractors', countKey: 'countSubcontractors' },
+  extraWorks: { table: 'extra_works', countKey: 'countExtraWorks' },
 };
 
 export default function ChantierDetailScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { canViewFinances, permissions } = useAuth();
@@ -69,53 +72,53 @@ export default function ChantierDetailScreen() {
 
   const enabled = project.enabled_modules;
   const items: HubItem[] = [
-    { key: 'feed', label: "Fil d'actualité", icon: 'message-circle', route: `/(app)/chantiers/${id}/feed`, visible: true },
-    { key: 'reports', label: 'Rapports', icon: 'file-text', route: `/(app)/chantiers/${id}/reports`, visible: true },
+    { key: 'feed', label: t('chantierHub.feed'), icon: 'message-circle', route: `/(app)/chantiers/${id}/feed`, visible: true },
+    { key: 'reports', label: t('chantierHub.reports'), icon: 'file-text', route: `/(app)/chantiers/${id}/reports`, visible: true },
     {
       key: 'documents',
-      label: 'Documents',
+      label: t('chantierHub.documents'),
       icon: 'folder',
       route: `/(app)/chantiers/${id}/documents`,
       visible: isModuleEnabled(enabled, 'documents') && permissions.documents,
     },
     {
       key: 'photos',
-      label: 'Photos',
+      label: t('chantierHub.photos'),
       icon: 'image',
       route: `/(app)/chantiers/${id}/photos`,
       visible: isModuleEnabled(enabled, 'photos'),
     },
     {
       key: 'map',
-      label: 'Carte',
+      label: t('chantierHub.map'),
       icon: 'map',
       route: `/(app)/chantiers/${id}/map`,
       visible: isModuleEnabled(enabled, 'photos'),
     },
     {
       key: 'metre',
-      label: 'Métré',
+      label: t('chantierHub.metre'),
       icon: 'list',
       route: `/(app)/chantiers/${id}/metre`,
       visible: isModuleEnabled(enabled, 'metre') && permissions.metre,
     },
     {
       key: 'subcontractors',
-      label: 'Sous-traitants',
+      label: t('chantierHub.subcontractors'),
       icon: 'users',
       route: `/(app)/chantiers/${id}/subcontractors`,
       visible: isModuleEnabled(enabled, 'subcontractors') && permissions.subcontractors,
     },
     {
       key: 'profitability',
-      label: 'Rentabilité',
+      label: t('chantierHub.profitability'),
       icon: 'trending-up',
       route: `/(app)/chantiers/${id}/profitability`,
       visible: isModuleEnabled(enabled, 'profitability') && canViewFinances,
     },
     {
       key: 'extraWorks',
-      label: 'Travaux supplémentaires',
+      label: t('chantierHub.extraWorks'),
       icon: 'plus-circle',
       route: `/(app)/chantiers/${id}/travaux-supplementaires`,
       visible: canViewFinances,
@@ -127,7 +130,7 @@ export default function ChantierDetailScreen() {
     if (!def) return null;
     const n = counts[key];
     if (n === undefined) return null;
-    return `${n} ${n === 1 ? def.unit : def.unitPlural}`;
+    return t(`chantierHub.${def.countKey}` as any, { count: n });
   }
 
   return (

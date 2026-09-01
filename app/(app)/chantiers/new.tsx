@@ -5,12 +5,14 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, PageHeader, Screen } from '../../../components/ui';
 import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
 const DEFAULT_MODULES = ['documents', 'photos', 'metre'];
 
 export default function NewChantierScreen() {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
   const [name, setName] = useState('');
   const [clientName, setClientName] = useState('');
@@ -51,7 +53,7 @@ export default function NewChantierScreen() {
   async function handleCreate() {
     if (!organization) return;
     if (!name.trim()) {
-      setError('Le nom du chantier est requis.');
+      setError(t('newChantier.nameRequired'));
       return;
     }
     setError(null);
@@ -81,32 +83,29 @@ export default function NewChantierScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView>
-        <PageHeader title="Nouveau chantier" backTo="/(app)/chantiers" />
+        <PageHeader title={t('newChantier.title')} backTo="/(app)/chantiers" />
 
-        <Field label="Nom du chantier" value={name} onChangeText={setName} placeholder="Ex : Villa Dupont - Rue du Lac 12" />
-        <Field label="Client" value={clientName} onChangeText={setClientName} placeholder="Nom du client" />
-        <Field label="Adresse" value={address} onChangeText={setAddress} placeholder="Adresse du chantier" />
+        <Field label={t('newChantier.nameLabel')} value={name} onChangeText={setName} placeholder={t('newChantier.namePlaceholder')} />
+        <Field label={t('newChantier.clientLabel')} value={clientName} onChangeText={setClientName} placeholder={t('newChantier.clientPlaceholder')} />
+        <Field label={t('newChantier.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('newChantier.addressPlaceholder')} />
         {error ? <Text style={{ color: colors.danger, fontSize: fontSize.sm, marginBottom: spacing.md }}>{error}</Text> : null}
-        <Button title="Créer le chantier" onPress={handleCreate} loading={loading} />
+        <Button title={t('newChantier.create')} onPress={handleCreate} loading={loading} />
       </ScrollView>
 
       <Modal visible={!!createdId} animationType="fade" transparent onRequestClose={confirmModules}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
-            <Text style={styles.sheetTitle}>Quels outils pour ce chantier ?</Text>
-            <Text style={styles.sheetSubtitle}>
-              Choisissez les outils utiles à ce chantier précis. Vous pourrez changer ça à tout moment depuis ses
-              paramètres.
-            </Text>
+            <Text style={styles.sheetTitle}>{t('newChantier.modulesTitle')}</Text>
+            <Text style={styles.sheetSubtitle}>{t('newChantier.modulesSubtitle')}</Text>
             <ScrollView contentContainerStyle={styles.sheetList}>
               {PROJECT_MODULES.map((m) => {
                 const gated = isPlanGated(m.key);
                 return (
                   <View key={m.key} style={styles.row}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.rowLabel}>{m.label}</Text>
-                      <Text style={styles.rowDesc}>{m.description}</Text>
-                      {gated ? <Text style={styles.upgradeHint}>Disponible à partir du plan Équipe</Text> : null}
+                      <Text style={styles.rowLabel}>{t(`modules.${m.key}.label` as any)}</Text>
+                      <Text style={styles.rowDesc}>{t(`modules.${m.key}.description` as any)}</Text>
+                      {gated ? <Text style={styles.upgradeHint}>{t('newChantier.modulePlanGatedHint')}</Text> : null}
                     </View>
                     <Switch
                       value={!gated && isModuleEnabled(enabledModules, m.key)}
@@ -119,7 +118,7 @@ export default function NewChantierScreen() {
                 );
               })}
             </ScrollView>
-            <Button title="Continuer" icon="check" onPress={confirmModules} loading={savingModules} style={{ marginTop: spacing.lg }} />
+            <Button title={t('newChantier.continue')} icon="check" onPress={confirmModules} loading={savingModules} style={{ marginTop: spacing.lg }} />
           </View>
         </View>
       </Modal>
