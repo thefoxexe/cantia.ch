@@ -6,8 +6,8 @@ import { Pressable } from 'react-native';
 import { listClientDocuments, getPublicDocumentPdfUrl } from '../../lib/api/publicPortal';
 import { downloadFile } from '../../lib/downloadFile';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
-import { Card } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { premiumCard, portalFonts } from '../../lib/clientPortalTheme';
 import type { ClientDocumentsPayload, ClientDocumentSummary } from '../../lib/types';
 
 const DEVIS_STATUS_LABELS: Record<string, string> = {
@@ -116,7 +116,7 @@ export default function ClientDocumentsScreen() {
       {!loading && !error && groups.length === 0 ? <Text style={styles.hint}>Aucun document trouvé.</Text> : null}
 
       {groups.map(([projectName, docs]) => (
-        <Card key={projectName} style={styles.group}>
+        <View key={projectName} style={[premiumCard, styles.group]}>
           <Text style={styles.groupTitle}>{projectName}</Text>
 
           {docs.devis.length > 0 ? (
@@ -174,7 +174,7 @@ export default function ClientDocumentsScreen() {
               ))}
             </View>
           ) : null}
-        </Card>
+        </View>
       ))}
     </ScrollView>
   );
@@ -204,9 +204,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
+    fontFamily: portalFonts.display,
+    fontSize: 22,
+    fontWeight: '600',
     color: colors.text,
+    letterSpacing: -0.3,
     marginBottom: spacing.sm,
   },
   hint: {

@@ -7,8 +7,10 @@ import { getPublicDevis, getPublicDocumentPdfUrl, acceptPublicDevis } from '../.
 import { downloadFile } from '../../lib/downloadFile';
 import { SignaturePad } from '../../components/SignaturePad';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
-import { Button, Card, Field } from '../../components/ui';
+import { ClientPortalFooter } from '../../components/ClientPortalFooter';
+import { Button, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { premiumCard, portalFonts, heroWash } from '../../lib/clientPortalTheme';
 import type { PublicDevisPayload } from '../../lib/types';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -18,6 +20,12 @@ const STATUS_LABELS: Record<string, string> = {
   accepted: 'Accepté',
   refused: 'Refusé',
 };
+
+const TRUST_POINTS: { icon: React.ComponentProps<typeof Feather>['name']; label: string }[] = [
+  { icon: 'lock', label: 'Lien chiffré et personnel' },
+  { icon: 'map-pin', label: 'Hébergé en Suisse' },
+  { icon: 'eye-off', label: 'Vos données ne sont pas partagées' },
+];
 
 function chf(n: number): string {
   return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
@@ -104,14 +112,13 @@ export default function PublicDevisScreen() {
 
   if (!payload) {
     return (
-      <View style={styles.gate}>
+      <ScrollView style={[styles.screen, heroWash]} contentContainerStyle={styles.gate}>
         <View style={styles.gateHeader}>
           <ClientPortalHeader />
         </View>
-        <Card style={styles.gateCard}>
-          <View style={styles.secureBadge}>
-            <Feather name="shield" size={14} color={colors.success} />
-            <Text style={styles.secureBadgeText}>Connexion sécurisée</Text>
+        <View style={[premiumCard, styles.gateCard]}>
+          <View style={styles.gateIcon}>
+            <Feather name="shield" size={22} color={colors.primary} />
           </View>
           <Text style={styles.gateTitle}>Consulter mon devis</Text>
           <Text style={styles.gateSubtitle}>
@@ -120,9 +127,18 @@ export default function PublicDevisScreen() {
           </Text>
           <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
           {checkError ? <Text style={styles.error}>{checkError}</Text> : null}
-          <Button title="Voir le devis" onPress={handleVerify} loading={checking} disabled={!email.trim()} />
-        </Card>
-      </View>
+          <Button title="Voir le devis" onPress={handleVerify} loading={checking} disabled={!email.trim()} style={styles.pillButton} />
+          <View style={styles.trustList}>
+            {TRUST_POINTS.map((p) => (
+              <View key={p.label} style={styles.trustRow}>
+                <Feather name={p.icon} size={13} color={colors.success} />
+                <Text style={styles.trustText}>{p.label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <ClientPortalFooter />
+      </ScrollView>
     );
   }
 
@@ -133,16 +149,20 @@ export default function PublicDevisScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <ClientPortalHeader onMenuPress={handleOpenHistory} />
-      <View style={styles.secureBadge}>
-        <Feather name="shield" size={14} color={colors.success} />
-        <Text style={styles.secureBadgeText}>Connexion sécurisée — vos informations ne sortent pas de cette page</Text>
-      </View>
 
-      <Card style={styles.headerCard}>
+      <View style={[premiumCard, styles.headerCard]}>
+        <Text style={styles.eyebrow}>Devis {devis.number ?? ''}</Text>
         <Text style={styles.orgName}>{organization.name}</Text>
-        <Text style={styles.devisNumber}>Devis {devis.number ?? ''}</Text>
         <View style={[styles.statusPill, isAccepted && styles.statusPillAccepted, isRefused && styles.statusPillRefused]}>
-          <Text style={styles.statusPillText}>{STATUS_LABELS[devis.status] ?? devis.status}</Text>
+          <Text
+            style={[
+              styles.statusPillText,
+              isAccepted && styles.statusPillTextAccepted,
+              isRefused && styles.statusPillTextRefused,
+            ]}
+          >
+            {STATUS_LABELS[devis.status] ?? devis.status}
+          </Text>
         </View>
         {devis.has_pdf ? (
           <Button
@@ -151,19 +171,19 @@ export default function PublicDevisScreen() {
             icon="download"
             loading={downloadingPdf}
             onPress={handleDownloadPdf}
-            style={{ marginTop: spacing.sm, alignSelf: 'flex-start' }}
+            style={{ marginTop: spacing.md, alignSelf: 'flex-start', borderRadius: radius.pill }}
           />
         ) : null}
         {downloadError ? <Text style={styles.error}>{downloadError}</Text> : null}
-      </Card>
+      </View>
 
-      <Card>
+      <View style={[premiumCard, styles.card]}>
         <Text style={styles.sectionTitle}>Client</Text>
         <Text style={styles.line}>{devis.client_name}</Text>
         {devis.client_address ? <Text style={styles.lineMuted}>{devis.client_address}</Text> : null}
-      </Card>
+      </View>
 
-      <Card>
+      <View style={[premiumCard, styles.card]}>
         <Text style={styles.sectionTitle}>Détail</Text>
         {items.map((item) => (
           <View key={item.id} style={styles.itemRow}>
@@ -188,28 +208,30 @@ export default function PublicDevisScreen() {
           <Text style={styles.totalAmount}>{chf(totals.total)}</Text>
         </View>
         {devis.notes ? <Text style={[styles.lineMuted, { marginTop: spacing.md }]}>{devis.notes}</Text> : null}
-      </Card>
+      </View>
 
       {isAccepted ? (
-        <Card style={styles.confirmCard}>
-          <Feather name="check-circle" size={22} color={colors.success} />
+        <View style={[premiumCard, styles.confirmCard]}>
+          <View style={styles.confirmIcon}>
+            <Feather name="check" size={22} color={colors.success} />
+          </View>
           <Text style={styles.confirmTitle}>Devis accepté</Text>
           <Text style={styles.confirmSubtitle}>
             {devis.client_signer_name ? `Signé par ${devis.client_signer_name}. ` : ''}
             {organization.name} a été notifié et prendra contact avec vous.
           </Text>
-        </Card>
+        </View>
       ) : isRefused ? (
-        <Card>
+        <View style={[premiumCard, styles.card]}>
           <Text style={styles.line}>Ce devis a été refusé et n'est plus disponible à l'acceptation en ligne. Contactez {organization.name} pour toute question.</Text>
-        </Card>
+        </View>
       ) : (
-        <Card>
+        <View style={[premiumCard, styles.card]}>
           <Text style={styles.sectionTitle}>Accepter ce devis</Text>
           <Field label="Prénom" value={firstName} onChangeText={setFirstName} />
           <Field label="Nom" value={lastName} onChangeText={setLastName} />
 
-          <Text style={styles.sectionTitle}>Signature</Text>
+          <Text style={[styles.sectionTitle, { marginTop: spacing.sm }]}>Signature</Text>
           <View style={styles.toggleRow}>
             <Text
               onPress={() => setSignatureMode('draw')}
@@ -235,9 +257,10 @@ export default function PublicDevisScreen() {
           )}
 
           {acceptError ? <Text style={styles.error}>{acceptError}</Text> : null}
-          <Button title="Accepter le devis" onPress={handleAccept} loading={accepting} style={{ marginTop: spacing.md }} />
-        </Card>
+          <Button title="Accepter le devis" onPress={handleAccept} loading={accepting} style={[styles.pillButton, { marginTop: spacing.md }]} />
+        </View>
       )}
+      <ClientPortalFooter />
     </ScrollView>
   );
 }
@@ -255,57 +278,83 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   gate: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexGrow: 1,
     padding: spacing.lg,
+    alignItems: 'center',
   },
   gateHeader: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 440,
   },
   gateCard: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 440,
     gap: spacing.md,
+    alignItems: 'flex-start',
+    marginTop: spacing.xl,
+  },
+  gateIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
   },
   gateTitle: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
+    fontFamily: portalFonts.display,
+    fontSize: 28,
+    fontWeight: '600',
     color: colors.text,
+    letterSpacing: -0.4,
   },
   gateSubtitle: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
-    lineHeight: 20,
+    lineHeight: 21,
   },
-  secureBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.successSoft,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+  pillButton: {
+    width: '100%',
     borderRadius: radius.pill,
   },
-  secureBadgeText: {
+  trustList: {
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  trustRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  trustText: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.success,
+    color: colors.textMuted,
   },
   headerCard: {
+    gap: 2,
+  },
+  card: {
     gap: spacing.xs,
   },
-  orgName: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
+  eyebrow: {
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  devisNumber: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
+  orgName: {
+    fontFamily: portalFonts.display,
+    fontSize: 26,
+    fontWeight: '600',
+    color: colors.text,
+    letterSpacing: -0.4,
+    marginTop: 2,
+    marginBottom: spacing.xs,
   },
   statusPill: {
     alignSelf: 'flex-start',
@@ -313,7 +362,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs / 2,
     borderRadius: radius.pill,
-    marginTop: spacing.xs,
   },
   statusPillAccepted: {
     backgroundColor: colors.successSoft,
@@ -326,18 +374,29 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primaryDark,
   },
+  statusPillTextAccepted: {
+    color: colors.success,
+  },
+  statusPillTextRefused: {
+    color: colors.danger,
+  },
   sectionTitle: {
-    fontSize: fontSize.sm,
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.xs,
     fontWeight: '800',
-    color: colors.text,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
     marginBottom: spacing.sm,
   },
   line: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.md,
     color: colors.text,
     fontWeight: '600',
   },
   lineMuted: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
   },
@@ -349,19 +408,23 @@ const styles = StyleSheet.create({
   },
   itemDescription: {
     flex: 1,
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.text,
   },
   itemQty: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
   },
   itemAmount: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.text,
     fontWeight: '700',
     minWidth: 90,
     textAlign: 'right',
+    fontVariant: ['tabular-nums'],
   },
   divider: {
     height: 1,
@@ -374,26 +437,40 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs / 2,
   },
   totalLabel: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.md,
     fontWeight: '800',
     color: colors.text,
   },
   totalAmount: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
+    fontFamily: portalFonts.display,
+    fontSize: 22,
+    fontWeight: '600',
     color: colors.primary,
+    fontVariant: ['tabular-nums'],
   },
   confirmCard: {
     alignItems: 'center',
     gap: spacing.xs,
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.xxl,
+  },
+  confirmIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.pill,
+    backgroundColor: colors.successSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
   },
   confirmTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
+    fontFamily: portalFonts.display,
+    fontSize: fontSize.xl,
+    fontWeight: '600',
     color: colors.text,
   },
   confirmSubtitle: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     textAlign: 'center',
@@ -404,6 +481,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   toggleOption: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.textMuted,
@@ -419,6 +497,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
   },
   error: {
+    fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.danger,
   },
