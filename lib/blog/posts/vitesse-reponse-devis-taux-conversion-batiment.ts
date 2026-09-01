@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un client qui a besoin de travaux contacte rarement un seul artisan — il compare, presque toujours entre deux et quatre entreprises pour la même demande. Celui qui répond en premier obtient un avantage réel : il fixe le point de comparaison auquel les autres devront se mesurer, plutôt que l’inverse.',
+      text: 'Un client qui a besoin de travaux contacte rarement un seul artisan. Il compare, presque toujours entre deux et quatre entreprises pour la même demande. Celui qui répond en premier obtient un avantage réel : il fixe le point de comparaison auquel les autres devront se mesurer, plutôt que l’inverse.',
     },
     { type: 'h2', text: 'Ce qui se joue dans les 24 premières heures' },
     {
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Rapide ne veut pas dire bâclé' },
     {
       type: 'p',
-      text: 'La vitesse concerne la première réaction, pas nécessairement le devis complet et chiffré — celui-ci mérite toujours d’être réfléchi correctement. La bonne pratique consiste à séparer les deux : un accusé de réception rapide qui montre que la demande a été prise en compte, puis un devis réfléchi envoyé dans un délai raisonnable annoncé au client.',
+      text: 'La vitesse concerne la première réaction, pas nécessairement le devis complet et chiffré. Celui-ci mérite toujours d’être réfléchi correctement. La bonne pratique consiste à séparer les deux : un accusé de réception rapide qui montre que la demande a été prise en compte, puis un devis réfléchi envoyé dans un délai raisonnable annoncé au client.',
     },
     {
       type: 'callout',
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un devis prêt à envoyer avant d’avoir quitté le chantier',
-      text: 'Avec Cantia, un devis se construit et s’envoie directement depuis le téléphone, catalogue de prix à l’appui — plus besoin d’attendre le retour au bureau pour répondre à une demande.',
+      text: 'Avec Cantia, un devis se construit et s’envoie directement depuis le téléphone, catalogue de prix à l’appui. Plus besoin d’attendre le retour au bureau pour répondre à une demande.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -57,12 +57,12 @@ export const post: BlogPost = {
     {
       question: 'Faut-il envoyer un devis complet immédiatement pour convertir un client ?',
       answer:
-        'Pas nécessairement — un accusé de réception rapide suivi d’un devis réfléchi sous un délai annoncé fonctionne généralement mieux qu’un devis bâclé envoyé dans la précipitation.',
+        'Pas nécessairement : un accusé de réception rapide suivi d’un devis réfléchi sous un délai annoncé fonctionne généralement mieux qu’un devis bâclé envoyé dans la précipitation.',
     },
     {
       question: 'Combien de temps un client attend-il en moyenne avant de relancer un artisan sans réponse ?',
       answer:
-        'Très peu de temps en réalité — la plupart des clients ne relancent pas et passent directement à l’entreprise suivante sur leur liste après quelques jours de silence.',
+        'Très peu de temps en réalité. La plupart des clients ne relancent pas et passent directement à l’entreprise suivante sur leur liste après quelques jours de silence.',
     },
   ],
   relatedSlugs: [
