@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { Button, Field, Screen } from '../../components/ui';
@@ -18,7 +18,15 @@ export default function LoginScreen() {
     setLoading(true);
     const { error } = await signIn(email.trim(), password);
     setLoading(false);
-    if (error) setError(error);
+    if (!error) return;
+    // Supabase's exact wording for a not-yet-confirmed account when
+    // "Confirm email" is on — send them to enter the code instead of just
+    // showing a dead-end error.
+    if (error.toLowerCase().includes('email not confirmed')) {
+      router.push(`/(auth)/verify-email?email=${encodeURIComponent(email.trim())}` as any);
+      return;
+    }
+    setError(error);
   }
 
   return (

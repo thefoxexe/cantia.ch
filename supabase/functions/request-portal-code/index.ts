@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { escapeHtml, sendResendEmail } from '../_shared/resend.ts';
+import { buildBrandedEmailShell, escapeHtml, sendResendEmail } from '../_shared/resend.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -76,13 +76,19 @@ Deno.serve(async (req: Request) => {
         const { data: org } = await admin.from('organizations').select('name').eq('id', row!.organization_id).single();
         const orgName = org?.name ?? 'Cantia';
         const docLabel = kind === 'devis' ? 'devis' : 'facture';
-        const html = `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #1a1f1c; max-width: 480px;">
-            <p style="margin: 0 0 20px;">Voici votre code de vérification pour consulter le ${docLabel} ${escapeHtml(row!.number ?? '')} de ${escapeHtml(orgName)} :</p>
-            <p style="margin: 0 0 20px; font-size: 32px; font-weight: 700; letter-spacing: 6px; text-align: center; padding: 16px; background: #f5f4f0; border-radius: 10px;">${code}</p>
-            <p style="margin: 0; color: #555f58;">Ce code expire dans ${CODE_TTL_MINUTES} minutes et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.</p>
+        const html = buildBrandedEmailShell(`
+          <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Code de vérification</p>
+          <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Consulter votre ${docLabel}</p>
+          <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
+            Voici votre code pour consulter le ${docLabel} ${escapeHtml(row!.number ?? '')} de ${escapeHtml(orgName)} :
+          </p>
+          <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
+            <span style="font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #7C3B21;">${code}</span>
           </div>
-        `.trim();
+          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
+            Ce code expire dans ${CODE_TTL_MINUTES} minutes et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.
+          </p>
+        `);
 
         await sendResendEmail({
           apiKey,

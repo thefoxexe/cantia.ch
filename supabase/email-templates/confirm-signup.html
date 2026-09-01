@@ -1,0 +1,39 @@
+<!--
+  Reference copy only — Supabase doesn't read this file. Paste the HTML
+  below into: Supabase Dashboard → Authentication → Email Templates →
+  "Confirm signup". {{ .Token }} is Supabase's own placeholder for the
+  6-digit one-time code it generates — same visual language as the
+  client-portal verification email (see
+  supabase/functions/_shared/resend.ts's buildBrandedEmailShell), so the
+  two are recognizably the same product mid-flow.
+
+  Requires the logo to be reachable at https://cantia.ch/logo-email.png
+  (already copied into public/logo-email.png in this repo — deploys
+  automatically with the rest of the site).
+-->
+<div style="background: #F7F1E6; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6D8C2; overflow: hidden;">
+    <div style="padding: 28px 32px 20px; border-bottom: 1px solid #E6D8C2;">
+      <img src="https://cantia.ch/logo-email.png" width="32" height="32" alt="Cantia" style="vertical-align: middle; border-radius: 7px; border: 0; display: inline-block;" />
+      <span style="font-size: 18px; font-weight: 700; color: #231A12; margin-left: 10px; vertical-align: middle;">Cantia</span>
+    </div>
+    <div style="padding: 32px;">
+      <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Bienvenue</p>
+      <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Confirmez votre adresse e-mail</p>
+      <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
+        Voici votre code pour activer votre compte Cantia :
+      </p>
+      <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
+        <span style="font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #7C3B21;">{{ .Token }}</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
+        Ce code expire dans 24 heures et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de cette
+        inscription, ignorez cet e-mail.
+      </p>
+    </div>
+  </div>
+  <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">
+    Cantia — logiciel suisse de gestion pour entreprises du bâtiment<br/>
+    <a href="https://cantia.ch" style="color: #BC5A31; text-decoration: none; font-weight: 600;">cantia.ch</a>
+  </p>
+</div>

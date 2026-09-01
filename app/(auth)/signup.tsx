@@ -26,10 +26,12 @@ export default function SignupScreen() {
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email.trim(), password, fullName.trim());
+    const { error, needsVerification } = await signUp(email.trim(), password, fullName.trim());
     setLoading(false);
     if (error) {
       setError(error);
+    } else if (needsVerification) {
+      router.replace(`/(auth)/verify-email?email=${encodeURIComponent(email.trim())}` as any);
     } else {
       setDone(true);
     }
@@ -41,11 +43,8 @@ export default function SignupScreen() {
         <View style={styles.container}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
-          <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>
-            Compte créé. Si la confirmation par e-mail est activée, vérifiez votre boîte mail avant de vous
-            connecter.
-          </Text>
-          <Button title="Aller à la connexion" onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
+          <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>Compte créé.</Text>
+          <Button title="Continuer" onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
         </View>
       </Screen>
     );

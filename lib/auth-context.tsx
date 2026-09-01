@@ -56,7 +56,12 @@ interface AuthContextValue {
   isPasswordRecovery: boolean;
   refreshOrganization: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
+  // needsVerification is true when Supabase's "Confirm email" setting is on
+  // and the account isn't confirmed yet — signUp() then returns no session
+  // (nothing to sign in with) until verifySignupCode() succeeds.
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null; needsVerification: boolean }>;
+  verifySignupCode: (email: string, code: string) => Promise<{ error: string | null }>;
+  resendSignupCode: (email: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
@@ -220,7 +225,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+    // Supabase returns a user with no session when "Confirm email" is
+    // enabled and this account isn't confirmed yet — that's the only
+    // reliable signal here, since the call itself still succeeds either way.
+    return { error: error?.message ?? null, needsVerification: !error && !data.session };
+  }, []);
+
+  const verifySignupCode = useCallback(async (email: string, code: string) => {
+    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' });
+    return { error: error?.message ?? null };
+  }, []);
+
+  const resendSignupCode = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resend({ type: 'signup', email });
     return { error: error?.message ?? null };
   }, []);
 
@@ -306,6 +324,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshOrganization,
       signIn,
       signUp,
+      verifySignupCode,
+      resendSignupCode,
       signInWithGoogle,
       signOut,
       createOrganization,
@@ -326,6 +346,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshOrganization,
       signIn,
       signUp,
+      verifySignupCode,
+      resendSignupCode,
       signInWithGoogle,
       signOut,
       createOrganization,
