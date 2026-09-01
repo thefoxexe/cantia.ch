@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { deleteMyAccount, deleteOrganization } from '../../../lib/api/account';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // Typing the exact org name / a fixed word is the confirmation step itself
@@ -11,6 +12,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 // of it, since a second "are you sure?" after already typing it out would
 // just be friction, not safety.
 export default function DangerZoneScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { organization, role, signOut } = useAuth();
   const isOwner = role === 'owner';
@@ -38,7 +40,7 @@ export default function DangerZoneScreen() {
   }
 
   async function handleDeleteAccount() {
-    if (accountConfirm.trim().toUpperCase() !== 'SUPPRIMER') return;
+    if (accountConfirm.trim().toUpperCase() !== t('dangerZone.deleteWord')) return;
     setDeletingAccount(true);
     setAccountError(null);
     const { error } = await deleteMyAccount();
@@ -55,20 +57,15 @@ export default function DangerZoneScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Zone dangereuse" backTo="/(app)/compte" />
-          <Text style={styles.intro}>
-            Ces actions sont irréversibles. Une fois confirmées, les données supprimées ne peuvent pas être récupérées.
-          </Text>
+          <PageHeader title={t('dangerZone.title')} backTo="/(app)/compte" />
+          <Text style={styles.intro}>{t('dangerZone.intro')}</Text>
 
           {isOwner && organization ? (
             <Card style={styles.card}>
-              <Text style={styles.cardTitle}>Supprimer l'entreprise</Text>
-              <Text style={styles.cardText}>
-                Supprime définitivement « {organization.name} » : chantiers, devis, factures, documents, photos,
-                membres de l'équipe et abonnement. Cette action ne peut être faite que par le propriétaire.
-              </Text>
+              <Text style={styles.cardTitle}>{t('dangerZone.deleteOrgTitle')}</Text>
+              <Text style={styles.cardText}>{t('dangerZone.deleteOrgText', { name: organization.name })}</Text>
               <Field
-                label={`Tapez « ${organization.name} » pour confirmer`}
+                label={t('dangerZone.typeToConfirm', { name: organization.name })}
                 value={orgConfirm}
                 onChangeText={setOrgConfirm}
                 placeholder={organization.name}
@@ -76,7 +73,7 @@ export default function DangerZoneScreen() {
               />
               {orgError ? <Text style={styles.error}>{orgError}</Text> : null}
               <Button
-                title="Supprimer l'entreprise définitivement"
+                title={t('dangerZone.deleteOrgButton')}
                 variant="danger"
                 onPress={handleDeleteOrg}
                 loading={deletingOrg}
@@ -86,27 +83,25 @@ export default function DangerZoneScreen() {
           ) : null}
 
           <Card style={styles.card}>
-            <Text style={styles.cardTitle}>Supprimer mon compte</Text>
+            <Text style={styles.cardTitle}>{t('dangerZone.deleteAccountTitle')}</Text>
             <Text style={styles.cardText}>
-              Supprime définitivement votre compte et vos données personnelles (profil, heures, notifications).
-              {isOwner && organization
-                ? " Comme vous êtes propriétaire, si vous êtes seul dans l'entreprise, elle sera supprimée avec le compte ; si d'autres membres en font partie, transférez la propriété ou supprimez l'entreprise avant."
-                : ' Vous quitterez automatiquement votre entreprise.'}
+              {t('dangerZone.deleteAccountText')}
+              {isOwner && organization ? t('dangerZone.deleteAccountOwnerSuffix') : t('dangerZone.deleteAccountMemberSuffix')}
             </Text>
             <Field
-              label="Tapez SUPPRIMER pour confirmer"
+              label={t('dangerZone.typeWordToConfirm', { word: t('dangerZone.deleteWord') })}
               value={accountConfirm}
               onChangeText={setAccountConfirm}
-              placeholder="SUPPRIMER"
+              placeholder={t('dangerZone.deleteWord')}
               autoCapitalize="characters"
             />
             {accountError ? <Text style={styles.error}>{accountError}</Text> : null}
             <Button
-              title="Supprimer mon compte définitivement"
+              title={t('dangerZone.deleteAccountButton')}
               variant="danger"
               onPress={handleDeleteAccount}
               loading={deletingAccount}
-              disabled={accountConfirm.trim().toUpperCase() !== 'SUPPRIMER'}
+              disabled={accountConfirm.trim().toUpperCase() !== t('dangerZone.deleteWord')}
             />
           </Card>
         </Container>
