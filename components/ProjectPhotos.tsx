@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { getSignedUrls } from '../lib/api/storage';
 import { EmptyState } from './ui';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 interface ProjectPhoto {
@@ -19,10 +20,10 @@ interface ProjectPhoto {
 
 type DateFilter = 'all' | '7d' | '30d';
 
-const FILTERS: { key: DateFilter; label: string }[] = [
-  { key: 'all', label: 'Toutes' },
-  { key: '7d', label: '7 derniers jours' },
-  { key: '30d', label: '30 derniers jours' },
+const FILTERS: { key: DateFilter; labelKey: 'filterAll' | 'filter7d' | 'filter30d' }[] = [
+  { key: 'all', labelKey: 'filterAll' },
+  { key: '7d', labelKey: 'filter7d' },
+  { key: '30d', labelKey: 'filter30d' },
 ];
 
 function dayKey(iso: string): string {
@@ -31,11 +32,12 @@ function dayKey(iso: string): string {
 
 function formatDayHeading(iso: string): string {
   const d = new Date(iso);
-  const text = d.toLocaleDateString('fr-CH', { day: 'numeric', month: 'long', year: 'numeric' });
+  const text = d.toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'long', year: 'numeric' });
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 export function ProjectPhotos({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -112,13 +114,13 @@ export function ProjectPhotos({ projectId }: { projectId: string }) {
             onPress={() => setFilter(f.key)}
             style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
           >
-            <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>{f.label}</Text>
+            <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>{t(`projectPhotos.${f.labelKey}`)}</Text>
           </Pressable>
         ))}
       </View>
 
       {filtered.length === 0 && !loading ? (
-        <EmptyState title="Aucune photo" subtitle="Les photos ajoutées à vos rapports apparaîtront ici." />
+        <EmptyState title={t('projectPhotos.emptyTitle')} subtitle={t('projectPhotos.emptySubtitle')} />
       ) : (
         <View onLayout={onGridLayout}>
           {groups.map(([key, dayPhotos]) => (
@@ -143,12 +145,12 @@ export function ProjectPhotos({ projectId }: { projectId: string }) {
                       </Text>
                       <View style={styles.photoFooter}>
                         <Text style={styles.photoDate}>
-                          {new Date(photo.taken_at).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(photo.taken_at).toLocaleTimeString(`${getAppLocale()}-CH`, { hour: '2-digit', minute: '2-digit' })}
                         </Text>
                         {photo.latitude != null ? (
                           <Pressable onPress={() => openMap(photo)} style={styles.mapLink} hitSlop={6}>
                             <Feather name="map-pin" size={12} color={colors.accent} />
-                            <Text style={styles.mapLinkText}>Carte</Text>
+                            <Text style={styles.mapLinkText}>{t('projectPhotos.map')}</Text>
                           </Pressable>
                         ) : null}
                       </View>

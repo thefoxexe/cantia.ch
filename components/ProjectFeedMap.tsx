@@ -5,9 +5,11 @@ import { supabase } from '../lib/supabase';
 import { getSignedUrls } from '../lib/api/storage';
 import { FeedMap, type FeedMapPoint } from './FeedMap';
 import { EmptyState, LoadingScreen } from './ui';
+import { useTranslation } from '../lib/translations';
 import { colors, fontSize, spacing } from '../lib/theme';
 
 export function ProjectFeedMap({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const [points, setPoints] = useState<FeedMapPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,17 +49,15 @@ export function ProjectFeedMap({ projectId }: { projectId: string }) {
   if (points.length === 0) {
     return (
       <EmptyState
-        title="Aucune photo géolocalisée"
-        subtitle="Les photos prises depuis le fil d'actualité avec la position activée apparaîtront ici."
+        title={t('projectFeedMap.emptyTitle')}
+        subtitle={t('projectFeedMap.emptySubtitle')}
       />
     );
   }
 
   return (
     <View>
-      <Text style={styles.count}>
-        {points.length} photo{points.length > 1 ? 's' : ''} géolocalisée{points.length > 1 ? 's' : ''}
-      </Text>
+      <Text style={styles.count}>{t('projectFeedMap.count', { count: points.length })}</Text>
       <FeedMap points={points} height={460} />
     </View>
   );

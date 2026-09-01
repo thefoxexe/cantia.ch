@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { deleteFromOrgBucket, formatBytes, getSignedUrl, uploadToOrgBucket } from '../lib/api/storage';
 import { downloadFile } from '../lib/downloadFile';
 import { EmptyState } from './ui';
+import { useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { Folder, OpusFile } from '../lib/types';
 
@@ -17,8 +18,9 @@ interface Crumb {
 }
 
 export function ProjectDocuments({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const [crumbs, setCrumbs] = useState<Crumb[]>([{ id: null, name: 'Documents' }]);
+  const [crumbs, setCrumbs] = useState<Crumb[]>(() => [{ id: null, name: t('projectDocuments.root') }]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [files, setFiles] = useState<OpusFile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,10 +75,10 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
   }
 
   async function removeFolder(folder: Folder) {
-    Alert.alert('Supprimer ce dossier ?', `"${folder.name}" et tout son contenu seront supprimés.`, [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t('projectDocuments.deleteFolderTitle'), t('projectDocuments.deleteFolderBody', { name: folder.name }), [
+      { text: t('projectDocuments.cancel'), style: 'cancel' },
       {
-        text: 'Supprimer',
+        text: t('projectDocuments.delete'),
         style: 'destructive',
         onPress: async () => {
           await supabase.from('folders').delete().eq('id', folder.id);
@@ -118,10 +120,10 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
   }
 
   async function removeFile(file: OpusFile) {
-    Alert.alert('Supprimer ce fichier ?', file.name, [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t('projectDocuments.deleteFileTitle'), file.name, [
+      { text: t('projectDocuments.cancel'), style: 'cancel' },
       {
-        text: 'Supprimer',
+        text: t('projectDocuments.delete'),
         style: 'destructive',
         onPress: async () => {
           await deleteFromOrgBucket(file.storage_path);
@@ -155,11 +157,11 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
       <View style={styles.toolbar}>
         <Pressable style={styles.toolbarButton} onPress={() => setCreatingFolder((v) => !v)}>
           <Feather name="folder-plus" size={16} color={colors.text} />
-          <Text style={styles.toolbarButtonText}>Nouveau dossier</Text>
+          <Text style={styles.toolbarButtonText}>{t('projectDocuments.newFolder')}</Text>
         </Pressable>
         <Pressable style={styles.toolbarButton} onPress={uploadFile} disabled={busy}>
           <Feather name="upload" size={16} color={colors.text} />
-          <Text style={styles.toolbarButtonText}>{busy ? 'Envoi…' : 'Ajouter un fichier'}</Text>
+          <Text style={styles.toolbarButtonText}>{busy ? t('projectDocuments.uploading') : t('projectDocuments.addFile')}</Text>
         </Pressable>
       </View>
 
@@ -169,7 +171,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
             style={styles.newFolderInput}
             value={newFolderName}
             onChangeText={setNewFolderName}
-            placeholder="Nom du dossier"
+            placeholder={t('projectDocuments.folderNamePlaceholder')}
             placeholderTextColor={colors.textMuted}
             autoFocus
             onSubmitEditing={createFolder}
@@ -185,7 +187,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
         keyExtractor={(item) => `${item.type}-${item.data.id}`}
         scrollEnabled={false}
         ListEmptyComponent={
-          !loading ? <EmptyState title="Dossier vide" subtitle="Ajoutez des sous-dossiers ou des fichiers." /> : null
+          !loading ? <EmptyState title={t('projectDocuments.emptyTitle')} subtitle={t('projectDocuments.emptySubtitle')} /> : null
         }
         renderItem={({ item }) =>
           item.type === 'folder' ? (
