@@ -5,14 +5,16 @@ import { Feather } from '@expo/vector-icons';
 import { useProject } from '../../../../../lib/useProject';
 import { supabase } from '../../../../../lib/supabase';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { formatDate, getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../../../lib/theme';
 import type { ExtraWork, ExtraWorkItem } from '../../../../../lib/types';
 
 function chf(n: number): string {
-  return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
+  return `${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
 export default function ExtraWorksListScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { project } = useProject(id);
@@ -64,15 +66,12 @@ export default function ExtraWorksListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Travaux supplémentaires" backTo={`/(app)/chantiers/${id}`} />
+        <PageHeader title={t('extraWorksList.title')} backTo={`/(app)/chantiers/${id}`} />
         <Text style={styles.projectName}>{project.name}</Text>
-        <Text style={styles.hint}>
-          Un extra demandé en cours de chantier ("tant que vous y êtes...") ne se perd plus jamais — capturez-le, faites-le valider et signer par
-          le client, il devient une facture automatiquement.
-        </Text>
+        <Text style={styles.hint}>{t('extraWorksList.hint')}</Text>
 
         <Button
-          title="Nouveaux travaux supplémentaires"
+          title={t('extraWorksList.newExtraWork')}
           icon="plus"
           onPress={() => router.push(`/(app)/chantiers/${id}/travaux-supplementaires/new`)}
           style={{ marginBottom: spacing.lg }}
@@ -81,7 +80,7 @@ export default function ExtraWorksListScreen() {
         {loading ? (
           <LoadingScreen />
         ) : works.length === 0 ? (
-          <EmptyState title="Aucun travaux supplémentaires" subtitle="Rien d'enregistré pour ce chantier pour le moment." />
+          <EmptyState title={t('extraWorksList.emptyTitle')} subtitle={t('extraWorksList.emptySubtitle')} />
         ) : (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
             {works.map((w) => (
@@ -89,12 +88,12 @@ export default function ExtraWorksListScreen() {
                 <Card style={styles.card}>
                   <View style={styles.cardBody}>
                     <View style={styles.row}>
-                      <Text style={styles.number}>{w.number ?? 'Brouillon'}</Text>
+                      <Text style={styles.number}>{w.number ?? t('extraWorksList.draft')}</Text>
                       <StatusBadge status={w.status} />
                     </View>
                     <Text style={styles.title}>{w.title}</Text>
                     <Text style={styles.meta}>
-                      {chf(totals[w.id] ?? 0)} · {new Date(w.created_at).toLocaleDateString('fr-CH')}
+                      {chf(totals[w.id] ?? 0)} · {formatDate(w.created_at)}
                     </Text>
                   </View>
                   <Feather name="chevron-right" size={18} color={colors.textMuted} />

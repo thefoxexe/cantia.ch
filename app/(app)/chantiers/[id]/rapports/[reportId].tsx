@@ -8,10 +8,12 @@ import { generateReportPdf } from '../../../../../lib/api/pdf';
 import { downloadFile } from '../../../../../lib/downloadFile';
 import { confirm } from '../../../../../lib/confirm';
 import { Button, Card, Container, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { formatDate, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
 
 export default function ReportDetailScreen() {
+  const { t } = useTranslation();
   const { id: projectId, reportId } = useLocalSearchParams<{ id: string; reportId: string }>();
   const router = useRouter();
   const [report, setReport] = useState<Report | null>(null);
@@ -89,7 +91,7 @@ export default function ReportDetailScreen() {
 
   async function deleteReport() {
     if (!report) return;
-    const ok = await confirm('Supprimer ce rapport ?', 'Cette action est définitive et supprimera aussi ses photos.');
+    const ok = await confirm(t('reportDetail.deleteConfirmTitle'), t('reportDetail.deleteConfirmBody'));
     if (!ok) return;
     setDeleting(true);
     for (const p of photos) await deleteFromOrgBucket(p.storage_path);
@@ -124,26 +126,26 @@ export default function ReportDetailScreen() {
                   style={styles.titleInput}
                   value={editTitle}
                   onChangeText={setEditTitle}
-                  placeholder="Titre du rapport"
+                  placeholder={t('reportDetail.titlePlaceholder')}
                   placeholderTextColor={colors.textMuted}
                 />
                 <TextInput
                   style={styles.notesInput}
                   value={editNotes}
                   onChangeText={setEditNotes}
-                  placeholder="Notes"
+                  placeholder={t('reportDetail.notesPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   multiline
                   textAlignVertical="top"
                 />
                 <View style={styles.editButtonsRow}>
-                  <Button title="Annuler" variant="secondary" onPress={() => setEditing(false)} style={{ flex: 1 }} />
-                  <Button title="Enregistrer" icon="check" onPress={saveEdits} loading={saving} style={{ flex: 1 }} />
+                  <Button title={t('reportDetail.cancel')} variant="secondary" onPress={() => setEditing(false)} style={{ flex: 1 }} />
+                  <Button title={t('reportDetail.save')} icon="check" onPress={saveEdits} loading={saving} style={{ flex: 1 }} />
                 </View>
               </View>
             ) : (
               <>
-                <Text style={styles.meta}>{new Date(report.created_at).toLocaleDateString('fr-CH')}</Text>
+                <Text style={styles.meta}>{formatDate(report.created_at)}</Text>
                 {report.notes ? <Text style={styles.notes}>{report.notes}</Text> : null}
               </>
             )}
@@ -154,10 +156,10 @@ export default function ReportDetailScreen() {
           {!editing ? (
             <View style={styles.actionsRow}>
               {report.pdf_path ? (
-                <Button title="Ouvrir le PDF" icon="file-text" onPress={openPdf} style={{ flex: 1 }} />
+                <Button title={t('reportDetail.openPdf')} icon="file-text" onPress={openPdf} style={{ flex: 1 }} />
               ) : null}
               <Button
-                title={report.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}
+                title={report.pdf_path ? t('reportDetail.regeneratePdf') : t('reportDetail.generatePdf')}
                 icon="refresh-cw"
                 variant={report.pdf_path ? 'secondary' : 'primary'}
                 onPress={regenerate}
@@ -169,14 +171,14 @@ export default function ReportDetailScreen() {
 
           {!editing ? (
             <View style={styles.actionsRow}>
-              <Button title="Modifier" icon="edit-2" variant="secondary" onPress={startEditing} style={{ flex: 1 }} />
-              <Button title="Supprimer" icon="trash-2" variant="danger" onPress={deleteReport} loading={deleting} style={{ flex: 1 }} />
+              <Button title={t('reportDetail.edit')} icon="edit-2" variant="secondary" onPress={startEditing} style={{ flex: 1 }} />
+              <Button title={t('reportDetail.delete')} icon="trash-2" variant="danger" onPress={deleteReport} loading={deleting} style={{ flex: 1 }} />
             </View>
           ) : null}
 
           {photos.length > 0 ? (
             <>
-              <Text style={styles.sectionTitle}>Photos ({photos.length})</Text>
+              <Text style={styles.sectionTitle}>{t('reportDetail.photosCount', { count: photos.length })}</Text>
               <View style={styles.photoGrid}>
                 {photos.map((p) => (
                   <View key={p.id} style={styles.photoCard}>
@@ -187,7 +189,7 @@ export default function ReportDetailScreen() {
                     )}
                     {p.caption ? <Text style={styles.photoCaption}>{p.caption}</Text> : null}
                     <Text style={styles.photoMeta}>
-                      {p.latitude != null ? `${p.latitude.toFixed(4)}, ${p.longitude!.toFixed(4)}` : 'Position non disponible'}
+                      {p.latitude != null ? `${p.latitude.toFixed(4)}, ${p.longitude!.toFixed(4)}` : t('reportDetail.positionUnavailable')}
                     </Text>
                   </View>
                 ))}
