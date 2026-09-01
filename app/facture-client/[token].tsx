@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { getPublicFacture, getPublicDocumentPdfUrl } from '../../lib/api/publicPortal';
+import { getPublicFacture, getPublicDocumentPdfUrl, requestPortalCode, verifyPortalCode } from '../../lib/api/publicPortal';
 import { downloadFile } from '../../lib/downloadFile';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { ClientPortalFooter } from '../../components/ClientPortalFooter';
@@ -29,31 +29,87 @@ function chf(n: number): string {
   return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
+type GateStage = 'email' | 'code';
+
 export default function PublicFactureScreen() {
-  const { token } = useLocalSearchParams<{ token: string }>();
+  const { token, email: emailParam, session: sessionParam } = useLocalSearchParams<{ token: string; email?: string; session?: string }>();
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [checking, setChecking] = useState(false);
-  const [checkError, setCheckError] = useState<string | null>(null);
+  const [stage, setStage] = useState<GateStage>('email');
+  const [email, setEmail] = useState(emailParam ?? '');
+  const [code, setCode] = useState('');
+  const [session, setSession] = useState<string | null>(null);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [gateError, setGateError] = useState<string | null>(null);
+  const [resendHint, setResendHint] = useState<string | null>(null);
   const [payload, setPayload] = useState<PublicFacturePayload | null>(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
+  // Same opportunistic skip as the devis portal: a session carried from
+  // the "mes documents" history page is tried once, silently, and falls
+  // back to the normal gate on failure.
+  useEffect(() => {
+    if (!token || !emailParam || !sessionParam) return;
+    getPublicFacture(token, emailParam, sessionParam).then(({ data }) => {
+      if (data) {
+        setSession(sessionParam);
+        setPayload(data);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, emailParam, sessionParam]);
+
   function handleOpenHistory() {
-    if (!token || !email.trim()) return;
-    router.push(`/client-documents/${token}?kind=facture&email=${encodeURIComponent(email.trim())}` as any);
+    if (!token || !email.trim() || !session) return;
+    router.push(`/client-documents/${token}?kind=facture&email=${encodeURIComponent(email.trim())}&session=${encodeURIComponent(session)}` as any);
   }
 
-  async function handleVerify() {
+  async function handleRequestCode() {
     if (!token || !email.trim()) return;
-    setChecking(true);
-    setCheckError(null);
-    const { data, error } = await getPublicFacture(token, email.trim());
-    setChecking(false);
-    if (error || !data) {
-      setCheckError("Impossible de vérifier cette facture. Vérifiez l'adresse email associée à cette facture.");
+    setSendingCode(true);
+    setGateError(null);
+    setResendHint(null);
+    const { ok, error } = await requestPortalCode(token, 'facture', email.trim());
+    setSendingCode(false);
+    if (!ok) {
+      setGateError(error ?? "Échec de l'envoi du code.");
       return;
     }
+    setCode('');
+    setStage('code');
+  }
+
+  async function handleResendCode() {
+    if (!token || !email.trim() || sendingCode) return;
+    setSendingCode(true);
+    setGateError(null);
+    const { ok, error } = await requestPortalCode(token, 'facture', email.trim());
+    setSendingCode(false);
+    if (!ok) {
+      setGateError(error ?? "Échec de l'envoi du code.");
+      return;
+    }
+    setResendHint('Un nouveau code a été envoyé.');
+  }
+
+  async function handleVerifyCode() {
+    if (!token || !code.trim()) return;
+    setVerifyingCode(true);
+    setGateError(null);
+    const { session: newSession, error } = await verifyPortalCode(token, email.trim(), code.trim());
+    if (error || !newSession) {
+      setVerifyingCode(false);
+      setGateError(error ?? 'Code invalide.');
+      return;
+    }
+    const { data, error: loadError } = await getPublicFacture(token, email.trim(), newSession);
+    setVerifyingCode(false);
+    if (loadError || !data) {
+      setGateError(loadError ?? 'Impossible de charger la facture.');
+      return;
+    }
+    setSession(newSession);
     setPayload(data);
   }
 
@@ -65,16 +121,53 @@ export default function PublicFactureScreen() {
         </View>
         <View style={[premiumCard, styles.gateCard]}>
           <View style={styles.gateIcon}>
-            <Feather name="lock" size={22} color={colors.primary} />
+            <Feather name={stage === 'email' ? 'lock' : 'mail'} size={22} color={colors.primary} />
           </View>
-          <Text style={styles.gateTitle}>Consulter ma facture</Text>
-          <Text style={styles.gateSubtitle}>
-            Pour votre sécurité, saisissez l'adresse email à laquelle cette facture vous a été adressée. Ce lien est personnel et ne
-            fonctionne qu'avec cette adresse.
-          </Text>
-          <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
-          {checkError ? <Text style={styles.error}>{checkError}</Text> : null}
-          <Button title="Voir la facture" onPress={handleVerify} loading={checking} disabled={!email.trim()} style={styles.pillButton} />
+          {stage === 'email' ? (
+            <>
+              <Text style={styles.gateTitle}>Consulter ma facture</Text>
+              <Text style={styles.gateSubtitle}>
+                Pour votre sécurité, saisissez l'adresse email à laquelle cette facture vous a été adressée. Nous vous enverrons un code
+                de vérification à usage unique.
+              </Text>
+              <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
+              {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
+              <Button title="Recevoir mon code" onPress={handleRequestCode} loading={sendingCode} disabled={!email.trim()} style={styles.pillButton} />
+            </>
+          ) : (
+            <>
+              <Text style={styles.gateTitle}>Entrez votre code</Text>
+              <Text style={styles.gateSubtitle}>
+                Un code à 6 chiffres a été envoyé à {email.trim()} s'il correspond à cette facture. Il expire dans 10 minutes.
+              </Text>
+              <Field
+                label="Code de vérification"
+                value={code}
+                onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+                keyboardType="number-pad"
+                placeholder="000000"
+                maxLength={6}
+              />
+              {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
+              {resendHint ? <Text style={styles.hint}>{resendHint}</Text> : null}
+              <Button title="Vérifier" onPress={handleVerifyCode} loading={verifyingCode} disabled={code.trim().length !== 6} style={styles.pillButton} />
+              <View style={styles.gateLinksRow}>
+                <Text onPress={handleResendCode} style={styles.gateLink}>
+                  Renvoyer le code
+                </Text>
+                <Text
+                  onPress={() => {
+                    setStage('email');
+                    setGateError(null);
+                    setResendHint(null);
+                  }}
+                  style={styles.gateLink}
+                >
+                  Modifier l'adresse email
+                </Text>
+              </View>
+            </>
+          )}
           <View style={styles.trustList}>
             {TRUST_POINTS.map((p) => (
               <View key={p.label} style={styles.trustRow}>
@@ -90,10 +183,10 @@ export default function PublicFactureScreen() {
   }
 
   async function handleDownloadPdf() {
-    if (!token) return;
+    if (!token || !session) return;
     setDownloadingPdf(true);
     setDownloadError(null);
-    const { url, error } = await getPublicDocumentPdfUrl(token, 'facture', email.trim());
+    const { url, error } = await getPublicDocumentPdfUrl(token, 'facture', email.trim(), session);
     setDownloadingPdf(false);
     if (error || !url) {
       setDownloadError(error ?? 'Échec du téléchargement.');
@@ -231,6 +324,17 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 21,
   },
+  gateLinksRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -spacing.xs,
+  },
+  gateLink: {
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
   pillButton: {
     width: '100%',
     borderRadius: radius.pill,
@@ -363,5 +467,10 @@ const styles = StyleSheet.create({
     fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.danger,
+  },
+  hint: {
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.sm,
+    color: colors.success,
   },
 });

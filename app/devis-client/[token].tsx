@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { getPublicDevis, getPublicDocumentPdfUrl, acceptPublicDevis } from '../../lib/api/publicPortal';
+import { getPublicDevis, getPublicDocumentPdfUrl, acceptPublicDevis, requestPortalCode, verifyPortalCode } from '../../lib/api/publicPortal';
 import { downloadFile } from '../../lib/downloadFile';
 import { SignaturePad } from '../../components/SignaturePad';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
@@ -31,13 +31,36 @@ function chf(n: number): string {
   return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
+type GateStage = 'email' | 'code';
+
 export default function PublicDevisScreen() {
-  const { token } = useLocalSearchParams<{ token: string }>();
+  const { token, email: emailParam, session: sessionParam } = useLocalSearchParams<{ token: string; email?: string; session?: string }>();
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [checking, setChecking] = useState(false);
-  const [checkError, setCheckError] = useState<string | null>(null);
+  const [stage, setStage] = useState<GateStage>('email');
+  const [email, setEmail] = useState(emailParam ?? '');
+  const [code, setCode] = useState('');
+  const [session, setSession] = useState<string | null>(null);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [gateError, setGateError] = useState<string | null>(null);
+  const [resendHint, setResendHint] = useState<string | null>(null);
   const [payload, setPayload] = useState<PublicDevisPayload | null>(null);
+
+  // Arriving from the "mes documents" history page carries the email +
+  // session forward — try it once, silently: on success it skips the gate
+  // entirely, and on failure (expired/invalid) it just falls back to the
+  // normal email step with no error shown, since the visitor never
+  // consciously "did" anything that could fail here.
+  useEffect(() => {
+    if (!token || !emailParam || !sessionParam) return;
+    getPublicDevis(token, emailParam, sessionParam).then(({ data }) => {
+      if (data) {
+        setSession(sessionParam);
+        setPayload(data);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, emailParam, sessionParam]);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -50,20 +73,55 @@ export default function PublicDevisScreen() {
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
   function handleOpenHistory() {
-    if (!token || !email.trim()) return;
-    router.push(`/client-documents/${token}?kind=devis&email=${encodeURIComponent(email.trim())}` as any);
+    if (!token || !email.trim() || !session) return;
+    router.push(`/client-documents/${token}?kind=devis&email=${encodeURIComponent(email.trim())}&session=${encodeURIComponent(session)}` as any);
   }
 
-  async function handleVerify() {
+  async function handleRequestCode() {
     if (!token || !email.trim()) return;
-    setChecking(true);
-    setCheckError(null);
-    const { data, error } = await getPublicDevis(token, email.trim());
-    setChecking(false);
-    if (error || !data) {
-      setCheckError("Impossible de vérifier ce devis. Vérifiez l'adresse email associée à ce devis.");
+    setSendingCode(true);
+    setGateError(null);
+    setResendHint(null);
+    const { ok, error } = await requestPortalCode(token, 'devis', email.trim());
+    setSendingCode(false);
+    if (!ok) {
+      setGateError(error ?? "Échec de l'envoi du code.");
       return;
     }
+    setCode('');
+    setStage('code');
+  }
+
+  async function handleResendCode() {
+    if (!token || !email.trim() || sendingCode) return;
+    setSendingCode(true);
+    setGateError(null);
+    const { ok, error } = await requestPortalCode(token, 'devis', email.trim());
+    setSendingCode(false);
+    if (!ok) {
+      setGateError(error ?? "Échec de l'envoi du code.");
+      return;
+    }
+    setResendHint('Un nouveau code a été envoyé.');
+  }
+
+  async function handleVerifyCode() {
+    if (!token || !code.trim()) return;
+    setVerifyingCode(true);
+    setGateError(null);
+    const { session: newSession, error } = await verifyPortalCode(token, email.trim(), code.trim());
+    if (error || !newSession) {
+      setVerifyingCode(false);
+      setGateError(error ?? 'Code invalide.');
+      return;
+    }
+    const { data, error: loadError } = await getPublicDevis(token, email.trim(), newSession);
+    setVerifyingCode(false);
+    if (loadError || !data) {
+      setGateError(loadError ?? "Impossible de charger le devis.");
+      return;
+    }
+    setSession(newSession);
     setPayload(data);
   }
 
@@ -77,7 +135,7 @@ export default function PublicDevisScreen() {
   }
 
   async function handleAccept() {
-    if (!token) return;
+    if (!token || !session) return;
     if (!firstName.trim() || !lastName.trim()) {
       setAcceptError('Merci de renseigner votre prénom et votre nom.');
       return;
@@ -88,7 +146,7 @@ export default function PublicDevisScreen() {
     }
     setAccepting(true);
     setAcceptError(null);
-    const { status, error } = await acceptPublicDevis(token, email.trim(), `${firstName.trim()} ${lastName.trim()}`, signatureData);
+    const { status, error } = await acceptPublicDevis(token, email.trim(), `${firstName.trim()} ${lastName.trim()}`, signatureData, session);
     setAccepting(false);
     if (error || !status) {
       setAcceptError(error ?? "Échec de l'acceptation.");
@@ -98,10 +156,10 @@ export default function PublicDevisScreen() {
   }
 
   async function handleDownloadPdf() {
-    if (!token) return;
+    if (!token || !session) return;
     setDownloadingPdf(true);
     setDownloadError(null);
-    const { url, error } = await getPublicDocumentPdfUrl(token, 'devis', email.trim());
+    const { url, error } = await getPublicDocumentPdfUrl(token, 'devis', email.trim(), session);
     setDownloadingPdf(false);
     if (error || !url) {
       setDownloadError(error ?? 'Échec du téléchargement.');
@@ -118,16 +176,53 @@ export default function PublicDevisScreen() {
         </View>
         <View style={[premiumCard, styles.gateCard]}>
           <View style={styles.gateIcon}>
-            <Feather name="lock" size={22} color={colors.primary} />
+            <Feather name={stage === 'email' ? 'lock' : 'mail'} size={22} color={colors.primary} />
           </View>
-          <Text style={styles.gateTitle}>Consulter mon devis</Text>
-          <Text style={styles.gateSubtitle}>
-            Pour votre sécurité, saisissez l'adresse email à laquelle ce devis vous a été adressé. Ce lien est personnel et ne fonctionne
-            qu'avec cette adresse.
-          </Text>
-          <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
-          {checkError ? <Text style={styles.error}>{checkError}</Text> : null}
-          <Button title="Voir le devis" onPress={handleVerify} loading={checking} disabled={!email.trim()} style={styles.pillButton} />
+          {stage === 'email' ? (
+            <>
+              <Text style={styles.gateTitle}>Consulter mon devis</Text>
+              <Text style={styles.gateSubtitle}>
+                Pour votre sécurité, saisissez l'adresse email à laquelle ce devis vous a été adressé. Nous vous enverrons un code de
+                vérification à usage unique.
+              </Text>
+              <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
+              {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
+              <Button title="Recevoir mon code" onPress={handleRequestCode} loading={sendingCode} disabled={!email.trim()} style={styles.pillButton} />
+            </>
+          ) : (
+            <>
+              <Text style={styles.gateTitle}>Entrez votre code</Text>
+              <Text style={styles.gateSubtitle}>
+                Un code à 6 chiffres a été envoyé à {email.trim()} s'il correspond à ce devis. Il expire dans 10 minutes.
+              </Text>
+              <Field
+                label="Code de vérification"
+                value={code}
+                onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+                keyboardType="number-pad"
+                placeholder="000000"
+                maxLength={6}
+              />
+              {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
+              {resendHint ? <Text style={styles.hint}>{resendHint}</Text> : null}
+              <Button title="Vérifier" onPress={handleVerifyCode} loading={verifyingCode} disabled={code.trim().length !== 6} style={styles.pillButton} />
+              <View style={styles.gateLinksRow}>
+                <Text onPress={handleResendCode} style={styles.gateLink}>
+                  Renvoyer le code
+                </Text>
+                <Text
+                  onPress={() => {
+                    setStage('email');
+                    setGateError(null);
+                    setResendHint(null);
+                  }}
+                  style={styles.gateLink}
+                >
+                  Modifier l'adresse email
+                </Text>
+              </View>
+            </>
+          )}
           <View style={styles.trustList}>
             {TRUST_POINTS.map((p) => (
               <View key={p.label} style={styles.trustRow}>
@@ -314,6 +409,17 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 21,
   },
+  gateLinksRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -spacing.xs,
+  },
+  gateLink: {
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
   pillButton: {
     width: '100%',
     borderRadius: radius.pill,
@@ -499,5 +605,10 @@ const styles = StyleSheet.create({
     fontFamily: portalFonts.body,
     fontSize: fontSize.sm,
     color: colors.danger,
+  },
+  hint: {
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.sm,
+    color: colors.success,
   },
 });

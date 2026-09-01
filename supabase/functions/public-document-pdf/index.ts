@@ -16,7 +16,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { token, kind, email } = await req.json();
+    const { token, kind, email, session } = await req.json();
     if (!token || !kind || !email) return json({ error: 'Paramètres manquants' }, 400);
     if (kind !== 'devis' && kind !== 'facture') return json({ error: 'Type de document invalide' }, 400);
 
@@ -35,6 +35,9 @@ Deno.serve(async (req: Request) => {
     if (!row.client_email || row.client_email.trim().toLowerCase() !== String(email).trim().toLowerCase()) {
       return json({ error: 'Vérification impossible' }, 403);
     }
+
+    const { data: hasSession } = await admin.rpc('has_valid_document_session', { p_email: email, p_session: session ?? null });
+    if (!hasSession) return json({ error: 'Vérification requise' }, 403);
 
     // Always regenerate before signing — same reasoning as send-devis-email /
     // send-facture-email: a client can download at any time, including right

@@ -32,7 +32,7 @@ const FACTURE_STATUS_LABELS: Record<string, string> = {
 // kept in visually separate sections and a direct download action on every
 // row so they don't have to open a document first just to grab its PDF.
 export default function ClientDocumentsScreen() {
-  const { token, kind, email } = useLocalSearchParams<{ token: string; kind: string; email: string }>();
+  const { token, kind, email, session } = useLocalSearchParams<{ token: string; kind: string; email: string; session: string }>();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,18 +41,18 @@ export default function ClientDocumentsScreen() {
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!token || !email) return;
+    if (!token || !email || !session) return;
     setLoading(true);
     setError(null);
     const docKind = kind === 'facture' ? 'facture' : 'devis';
-    const { data, error: err } = await listClientDocuments(token, docKind, email);
+    const { data, error: err } = await listClientDocuments(token, docKind, email, session);
     setLoading(false);
     if (err || !data) {
       setError('Impossible de charger vos documents.');
       return;
     }
     setPayload(data);
-  }, [token, kind, email]);
+  }, [token, kind, email, session]);
 
   useFocusEffect(
     useCallback(() => {
@@ -80,10 +80,10 @@ export default function ClientDocumentsScreen() {
   }, [payload]);
 
   async function handleDownload(docToken: string, docKind: 'devis' | 'facture', filenamePrefix: string) {
-    if (!email) return;
+    if (!email || !session) return;
     setDownloadingToken(docToken);
     setDownloadError(null);
-    const { url, error: err } = await getPublicDocumentPdfUrl(docToken, docKind, email);
+    const { url, error: err } = await getPublicDocumentPdfUrl(docToken, docKind, email, session);
     setDownloadingToken(null);
     if (err || !url) {
       setDownloadError(err ?? 'Échec du téléchargement.');
@@ -92,12 +92,16 @@ export default function ClientDocumentsScreen() {
     await downloadFile(url, `${filenamePrefix}.pdf`);
   }
 
+  // Carrying email+session forward lets the destination page skip the
+  // verification gate entirely when the session is still valid — sessions
+  // are scoped to the email, not a single document, so one code unlocks
+  // browsing across all of it (see 20260901050000_portal_session_scope_by_email.sql).
   function openDevis(docToken: string) {
-    router.push(`/devis-client/${docToken}` as any);
+    router.push(`/devis-client/${docToken}?email=${encodeURIComponent(email)}&session=${encodeURIComponent(session)}` as any);
   }
 
   function openFacture(docToken: string) {
-    router.push(`/facture-client/${docToken}` as any);
+    router.push(`/facture-client/${docToken}?email=${encodeURIComponent(email)}&session=${encodeURIComponent(session)}` as any);
   }
 
   return (
