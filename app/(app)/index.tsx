@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
@@ -7,10 +7,10 @@ import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
-import { Button, Card, EmptyState, Screen, StatusBadge } from '../../components/ui';
+import { Button, Card, EmptyState, Screen } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import type { DashboardTask, DashboardTaskCategory, Devis, Facture, OrganizationMember, Project } from '../../lib/types';
+import type { DashboardTask, DashboardTaskCategory, OrganizationMember, Project } from '../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -57,12 +57,9 @@ export default function DashboardScreen() {
 
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState<WeatherNow | null>(null);
+  const [weatherChecked, setWeatherChecked] = useState(false);
   const [activeProjects, setActiveProjects] = useState(0);
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
-  const [recentDevis, setRecentDevis] = useState<Devis[]>([]);
-  const [devisAmounts, setDevisAmounts] = useState<Record<string, number>>({});
-  const [recentFactures, setRecentFactures] = useState<Facture[]>([]);
-  const [factureAmounts, setFactureAmounts] = useState<Record<string, number>>({});
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [tasks, setTasks] = useState<DashboardTask[]>([]);
@@ -83,12 +80,15 @@ export default function DashboardScreen() {
     const query = addressQueryFor(organization);
     if (!query) {
       setWeather(null);
+      setWeatherChecked(true);
       return;
     }
     let cancelled = false;
     function load() {
       fetchWeatherFor(query!).then((result) => {
-        if (!cancelled) setWeather(result);
+        if (cancelled) return;
+        setWeather(result);
+        setWeatherChecked(true);
       });
     }
     load();
@@ -97,18 +97,15 @@ export default function DashboardScreen() {
       cancelled = true;
       clearInterval(id);
     };
-  }, [organization?.id, organization?.postal_code, organization?.locality, organization?.address]);
+  }, [organization?.id, organization?.locality, organization?.address]);
 
   const load = useCallback(async () => {
     if (!organization) return;
 
-    const [{ count: projects }, { data: recentProj }, { data: team }, { data: devisList }, { data: openTasks }] = await Promise.all([
+    const [{ count: projects }, { data: recentProj }, { data: team }, { data: openTasks }] = await Promise.all([
       supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', organization.id).eq('status', 'active'),
       supabase.from('projects').select('*').eq('organization_id', organization.id).order('updated_at', { ascending: false }).limit(4),
       supabase.from('organization_members').select('*').eq('organization_id', organization.id),
-      financeVisible
-        ? supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }).limit(3)
-        : Promise.resolve({ data: [] as Devis[] }),
       supabase
         .from('dashboard_tasks')
         .select('*')
@@ -120,39 +117,10 @@ export default function DashboardScreen() {
     setActiveProjects(projects ?? 0);
     setRecentProjects(recentProj ?? []);
     setMembers(team ?? []);
-    setRecentDevis(devisList ?? []);
     const openList = (openTasks ?? []) as DashboardTask[];
     setOpenTaskCount(openList.length);
     setTasks(openList.slice(0, 5));
-
-    if (devisList?.length) {
-      const { data: items } = await supabase.from('devis_items').select('devis_id, quantity, unit_price').in('devis_id', devisList.map((d) => d.id));
-      const totals: Record<string, number> = {};
-      for (const it of items ?? []) {
-        totals[it.devis_id] = (totals[it.devis_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
-      }
-      setDevisAmounts(totals);
-    }
-
-    if (!financeVisible) return;
-
-    const { data: allFactures } = await supabase.from('factures').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false });
-    const list = allFactures ?? [];
-    setRecentFactures(list.slice(0, 3));
-
-    if (list.length) {
-      const { data: items } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', list.map((f) => f.id));
-      const subtotals: Record<string, number> = {};
-      for (const it of items ?? []) {
-        subtotals[it.facture_id] = (subtotals[it.facture_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
-      }
-      const withVat: Record<string, number> = {};
-      for (const f of list) {
-        withVat[f.id] = (subtotals[f.id] ?? 0) * (1 + Number(f.vat_rate) / 100);
-      }
-      setFactureAmounts(withVat);
-    }
-  }, [organization, financeVisible]);
+  }, [organization]);
 
   useFocusEffect(
     useCallback(() => {
@@ -194,6 +162,10 @@ export default function DashboardScreen() {
     }
   }
 
+  // Kept short and in priority order on purpose: this is for the handful of
+  // things someone opens the app for constantly (devis, factures, heures),
+  // not an exhaustive nav — that's what the sidebar is for. Capped at 4 so
+  // it always lays out as a clean, fully-filled 2x2 grid.
   const shortcuts = useMemo(() => {
     const list: { key: string; label: string; icon: IconName; href: string }[] = [
       { key: 'chantiers', label: 'Chantiers', icon: 'layers', href: '/(app)/chantiers' },
@@ -202,15 +174,12 @@ export default function DashboardScreen() {
       list.push(
         { key: 'devis', label: 'Devis', icon: 'file-text', href: '/(app)/devis' },
         { key: 'factures', label: 'Factures', icon: 'dollar-sign', href: '/(app)/devis/factures' },
-        { key: 'clients', label: 'Clients', icon: 'users', href: '/(app)/clients' },
       );
     }
+    if (payrollEnabled) list.push({ key: 'rh', label: 'Heures', icon: 'clock', href: '/(app)/rh' });
     if (planningEnabled) list.push({ key: 'planning', label: 'Planning', icon: 'calendar', href: '/(app)/planning' });
-    if (payrollEnabled) list.push({ key: 'rh', label: 'RH & Salaires', icon: 'clock', href: '/(app)/rh' });
-    if (isAdmin) list.push({ key: 'equipe', label: 'Équipe', icon: 'user-plus', href: '/(app)/compte/equipe' });
-    list.push({ key: 'parametres', label: 'Paramètres', icon: 'settings', href: '/(app)/compte' });
-    return list;
-  }, [financeVisible, planningEnabled, payrollEnabled, isAdmin]);
+    return list.slice(0, 4);
+  }, [financeVisible, planningEnabled, payrollEnabled]);
 
   const weatherInfo = weather ? describeWeatherCode(weather.code) : null;
 
@@ -247,15 +216,24 @@ export default function DashboardScreen() {
             <Text style={styles.dateText}>{formatDateFr(now)}</Text>
             <Text style={styles.clockText}>{formatTime(now)}</Text>
           </View>
-          {weatherInfo && weather ? (
-            <View style={styles.weatherRight}>
-              <Feather name={weatherInfo.icon} size={26} color={colors.primary} />
-              <Text style={styles.weatherTemp}>{Math.round(weather.temperatureC)}°C</Text>
-              <Text style={styles.weatherLabel} numberOfLines={1}>
-                {weatherInfo.label}
-              </Text>
-            </View>
-          ) : null}
+          <View style={styles.weatherRight}>
+            {weatherInfo && weather ? (
+              <>
+                <Feather name={weatherInfo.icon} size={26} color={colors.primary} />
+                <Text style={styles.weatherTemp}>{Math.round(weather.temperatureC)}°C</Text>
+                <Text style={styles.weatherLabel} numberOfLines={1}>
+                  {weatherInfo.label}
+                </Text>
+              </>
+            ) : weatherChecked ? (
+              <>
+                <Feather name="cloud-off" size={22} color={colors.textMuted} />
+                <Text style={styles.weatherUnavailable}>Météo indisponible</Text>
+              </>
+            ) : (
+              <ActivityIndicator size="small" color={colors.textMuted} />
+            )}
+          </View>
         </Card>
 
         <FeatureHint
@@ -379,64 +357,6 @@ export default function DashboardScreen() {
           </View>
         )}
 
-        {financeVisible && recentDevis.length > 0 ? (
-          <>
-            <View style={styles.sectionHeaderRow}>
-              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Devis récents</Text>
-              <Pressable onPress={() => router.push('/(app)/devis')}>
-                <Text style={styles.sectionLink}>Tout voir</Text>
-              </Pressable>
-            </View>
-            <View style={styles.list}>
-              {recentDevis.map((d) => (
-                <Pressable key={d.id} onPress={() => router.push(`/(app)/devis/${d.id}` as any)}>
-                  <Card style={styles.docRow}>
-                    <View style={{ flex: 1 }}>
-                      <View style={styles.docTop}>
-                        <Text style={styles.docNumber}>{d.number}</Text>
-                        <StatusBadge status={d.status} />
-                      </View>
-                      <Text style={styles.recentMeta} numberOfLines={1}>
-                        {d.client_name}
-                      </Text>
-                    </View>
-                    <Text style={styles.docAmount}>CHF {(devisAmounts[d.id] ?? 0).toFixed(2)}</Text>
-                  </Card>
-                </Pressable>
-              ))}
-            </View>
-          </>
-        ) : null}
-
-        {financeVisible && recentFactures.length > 0 ? (
-          <>
-            <View style={styles.sectionHeaderRow}>
-              <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Factures récentes</Text>
-              <Pressable onPress={() => router.push('/(app)/devis/factures')}>
-                <Text style={styles.sectionLink}>Tout voir</Text>
-              </Pressable>
-            </View>
-            <View style={styles.list}>
-              {recentFactures.map((f) => (
-                <Pressable key={f.id} onPress={() => router.push(`/(app)/devis/factures/${f.id}` as any)}>
-                  <Card style={styles.docRow}>
-                    <View style={{ flex: 1 }}>
-                      <View style={styles.docTop}>
-                        <Text style={styles.docNumber}>{f.number}</Text>
-                        <StatusBadge status={f.status} />
-                      </View>
-                      <Text style={styles.recentMeta} numberOfLines={1}>
-                        {f.client_name}
-                      </Text>
-                    </View>
-                    <Text style={styles.docAmount}>CHF {(factureAmounts[f.id] ?? 0).toFixed(2)}</Text>
-                  </Card>
-                </Pressable>
-              ))}
-            </View>
-          </>
-        ) : null}
-
         {members.length > 1 ? (
           <>
             <View style={styles.sectionHeaderRow}>
@@ -540,6 +460,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
   },
+  weatherUnavailable: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
   quickRow: {
     flexDirection: 'row',
     gap: spacing.sm,
@@ -569,20 +494,19 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   shortcutTile: {
+    flexBasis: '47%',
     flexGrow: 1,
-    flexBasis: 100,
-    maxWidth: 140,
     alignItems: 'center',
     gap: spacing.xs,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
   },
   shortcutIcon: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     borderRadius: radius.md,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
@@ -703,30 +627,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
-  },
-  docRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  docTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: 2,
-  },
-  docNumber: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  docAmount: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    fontVariant: ['tabular-nums'],
   },
   teamCard: {
     gap: spacing.md,

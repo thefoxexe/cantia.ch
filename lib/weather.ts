@@ -58,12 +58,17 @@ async function geocode(query: string): Promise<GeocodeResult | null> {
     const cache = cacheRaw ? (JSON.parse(cacheRaw) as Record<string, GeocodeResult>) : {};
     if (cache[query]) return cache[query];
 
-    const res = await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(query)}&count=1&language=fr&format=json`);
+    // Open-Meteo's geocoder matches place names, not "NPA Ville, Pays"
+    // strings — pass the bare town name and fetch a few candidates, then
+    // prefer a Swiss one, rather than a single combined query that can
+    // silently return zero results.
+    const res = await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(query)}&count=5&language=fr&format=json`);
     if (!res.ok) return null;
     const data = await res.json();
-    const first = data?.results?.[0];
-    if (!first) return null;
-    const result: GeocodeResult = { lat: first.latitude, lon: first.longitude };
+    const results: any[] = data?.results ?? [];
+    if (!results.length) return null;
+    const best = results.find((r) => r.country_code === 'CH') ?? results[0];
+    const result: GeocodeResult = { lat: best.latitude, lon: best.longitude };
     cache[query] = result;
     await AsyncStorage.setItem(GEOCODE_CACHE_KEY, JSON.stringify(cache));
     return result;
@@ -72,12 +77,12 @@ async function geocode(query: string): Promise<GeocodeResult | null> {
   }
 }
 
-// Prefers postal code + locality over the full street address: Open-Meteo's
-// geocoder resolves places, not exact street addresses, and a Swiss NPA +
-// town pair is precise enough for a weather glance anyway.
-export function addressQueryFor(org: { postal_code?: string | null; locality?: string | null; address?: string | null }): string | null {
-  if (org.locality) return org.postal_code ? `${org.postal_code} ${org.locality}, Suisse` : `${org.locality}, Suisse`;
-  if (org.address) return org.address;
+// The bare town name is what Open-Meteo's place geocoder actually matches
+// on — a postal code or "Suisse" suffix tacked on tends to return zero
+// results rather than narrowing the match.
+export function addressQueryFor(org: { locality?: string | null; address?: string | null }): string | null {
+  if (org.locality?.trim()) return org.locality.trim();
+  if (org.address?.trim()) return org.address.trim();
   return null;
 }
 

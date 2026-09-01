@@ -118,7 +118,7 @@ export default function PublicDevisScreen() {
         </View>
         <View style={[premiumCard, styles.gateCard]}>
           <View style={styles.gateIcon}>
-            <Feather name="shield" size={22} color={colors.primary} />
+            <Feather name="lock" size={22} color={colors.primary} />
           </View>
           <Text style={styles.gateTitle}>Consulter mon devis</Text>
           <Text style={styles.gateSubtitle}>
@@ -293,9 +293,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   gateIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',

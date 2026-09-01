@@ -20,8 +20,7 @@ export function ClientPortalHeader({ onMenuPress }: { onMenuPress?: () => void }
       </View>
       <View style={styles.right}>
         <View style={styles.trustChip}>
-          <SwissCross size={12} />
-          <Feather name="shield" size={12} color={colors.success} />
+          <SwissCross size={14} />
           <Text style={styles.trustChipText}>Sécurisé</Text>
         </View>
         {onMenuPress ? (
