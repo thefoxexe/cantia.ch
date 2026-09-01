@@ -452,6 +452,17 @@ export const fr = {
     paysagisme: 'Paysagisme',
     autre: 'Autre',
   },
+  devisSettings: {
+    title: 'Facturation',
+    vatRateLabel: 'TVA par défaut (%)',
+    validityLabel: 'Validité (jours)',
+    termsLabel: 'Mentions / conditions (pied de page PDF)',
+    termsPlaceholder: 'Ex : Paiement à 30 jours net. TVA non incluse dans les acomptes.',
+    hourlyCostLabel: 'Coût horaire moyen (CHF/h)',
+    hourlyCostPlaceholder: 'Ex : 85',
+    hourlyCostHint: "Utilisé pour estimer le coût de main d'œuvre dans l'onglet Rentabilité de chaque chantier.",
+    layoutHint: "Vos devis et factures partagent une mise en page unique, sans logo — logo et couleur se personnalisent depuis l'onglet Apparence.",
+  },
   entreprise: {
     title: 'Entreprise',
     nameLabel: 'Nom',

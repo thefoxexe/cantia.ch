@@ -5,9 +5,11 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function DevisSettingsScreen() {
+  const { t } = useTranslation();
   const { organization, role, refreshOrganization } = useAuth();
   const [vatRate, setVatRate] = useState(String(organization?.default_vat_rate ?? 8.1));
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
@@ -51,15 +53,15 @@ export default function DevisSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Facturation" backTo="/(app)/compte" />
+          <PageHeader title={t('devisSettings.title')} backTo="/(app)/compte" />
 
           <View style={styles.row2}>
             <View style={styles.row2Item}>
-              <Field label="TVA par défaut (%)" value={vatRate} onChangeText={setVatRate} editable={isAdmin} keyboardType="decimal-pad" />
+              <Field label={t('devisSettings.vatRateLabel')} value={vatRate} onChangeText={setVatRate} editable={isAdmin} keyboardType="decimal-pad" />
             </View>
             <View style={styles.row2Item}>
               <Field
-                label="Validité (jours)"
+                label={t('devisSettings.validityLabel')}
                 value={validityDays}
                 onChangeText={setValidityDays}
                 editable={isAdmin}
@@ -68,33 +70,28 @@ export default function DevisSettingsScreen() {
             </View>
           </View>
           <Field
-            label="Mentions / conditions (pied de page PDF)"
+            label={t('devisSettings.termsLabel')}
             value={devisTerms}
             onChangeText={setDevisTerms}
             editable={isAdmin}
-            placeholder="Ex : Paiement à 30 jours net. TVA non incluse dans les acomptes."
+            placeholder={t('devisSettings.termsPlaceholder')}
             multiline
             style={styles.terms}
           />
           <Field
-            label="Coût horaire moyen (CHF/h)"
+            label={t('devisSettings.hourlyCostLabel')}
             value={hourlyCost}
             onChangeText={setHourlyCost}
             editable={isAdmin}
             keyboardType="decimal-pad"
-            placeholder="Ex : 85"
+            placeholder={t('devisSettings.hourlyCostPlaceholder')}
           />
-          <Text style={styles.hint}>
-            Utilisé pour estimer le coût de main d'œuvre dans l'onglet Rentabilité de chaque chantier.
-          </Text>
+          <Text style={styles.hint}>{t('devisSettings.hourlyCostHint')}</Text>
           {isAdmin ? (
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}
 
-          <Text style={styles.hint}>
-            Vos devis et factures partagent une mise en page unique, sans logo — logo et couleur se personnalisent
-            depuis l'onglet Apparence.
-          </Text>
+          <Text style={styles.hint}>{t('devisSettings.layoutHint')}</Text>
         </Container>
       </ScrollView>
     </Screen>

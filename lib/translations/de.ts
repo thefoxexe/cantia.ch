@@ -471,6 +471,17 @@ export const de: TranslationDict = {
     paysagisme: 'Gartenbau',
     autre: 'Sonstiges',
   },
+  devisSettings: {
+    title: 'Abrechnung',
+    vatRateLabel: 'Standard-MWST (%)',
+    validityLabel: 'Gültigkeit (Tage)',
+    termsLabel: 'Hinweise / Bedingungen (PDF-Fusszeile)',
+    termsPlaceholder: 'Z. B.: Zahlbar netto innert 30 Tagen. MWST nicht in Akontozahlungen enthalten.',
+    hourlyCostLabel: 'Durchschnittlicher Stundensatz (CHF/h)',
+    hourlyCostPlaceholder: 'Z. B.: 85',
+    hourlyCostHint: 'Wird verwendet, um die Arbeitskosten im Rentabilitäts-Tab jeder Baustelle zu schätzen.',
+    layoutHint: 'Ihre Offerten und Rechnungen teilen sich ein einheitliches Layout ohne Logo — Logo und Farbe werden im Tab Erscheinungsbild angepasst.',
+  },
   entreprise: {
     title: 'Unternehmen',
     nameLabel: 'Name',
