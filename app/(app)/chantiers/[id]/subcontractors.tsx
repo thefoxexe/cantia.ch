@@ -4,9 +4,11 @@ import { useProject } from '../../../../lib/useProject';
 import { ProjectSubcontractors } from '../../../../components/ProjectSubcontractors';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
 export default function ChantierSubcontractorsScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
 
@@ -21,7 +23,7 @@ export default function ChantierSubcontractorsScreen() {
   return (
     <Screen>
       <PageHeader
-        title="Sous-traitants"
+        title={t('modules.subcontractors.label')}
         backTo={`/(app)/chantiers/${id}`}
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
@@ -30,8 +32,8 @@ export default function ChantierSubcontractorsScreen() {
           <FeatureHint
             id="chantier-subcontractors"
             icon="users"
-            title="Coordonnez vos sous-traitants"
-            text="Ajoutez les entreprises sous-traitées sur ce chantier, suivez leurs interventions et leurs attestations d'assurance."
+            title={t('chantierSubcontractors.hintTitle')}
+            text={t('chantierSubcontractors.hintText')}
           />
           <ProjectSubcontractors projectId={id} organizationId={project.organization_id} />
         </View>

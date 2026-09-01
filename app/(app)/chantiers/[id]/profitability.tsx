@@ -4,9 +4,11 @@ import { useProject } from '../../../../lib/useProject';
 import { ProjectProfitability } from '../../../../components/ProjectProfitability';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
 export default function ChantierProfitabilityScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
 
@@ -21,7 +23,7 @@ export default function ChantierProfitabilityScreen() {
   return (
     <Screen>
       <PageHeader
-        title="Rentabilité"
+        title={t('modules.profitability.label')}
         backTo={`/(app)/chantiers/${id}`}
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
@@ -30,8 +32,8 @@ export default function ChantierProfitabilityScreen() {
           <FeatureHint
             id="chantier-profitability"
             icon="trending-up"
-            title="Rentabilité de ce chantier"
-            text="Compare le devis accepté au coût réel (matériel saisi + main d'œuvre calculée depuis le Planning) pour savoir si ce chantier est rentable."
+            title={t('chantierProfitability.hintTitle')}
+            text={t('chantierProfitability.hintText')}
           />
           <ProjectProfitability projectId={id} organizationId={project.organization_id} />
         </View>

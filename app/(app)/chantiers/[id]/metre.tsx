@@ -4,9 +4,11 @@ import { useProject } from '../../../../lib/useProject';
 import { ProjectMetre } from '../../../../components/ProjectMetre';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
 export default function ChantierMetreScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
 
@@ -21,7 +23,7 @@ export default function ChantierMetreScreen() {
   return (
     <Screen>
       <PageHeader
-        title="Métré"
+        title={t('chantierMetre.title')}
         backTo={`/(app)/chantiers/${id}`}
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
@@ -30,8 +32,8 @@ export default function ChantierMetreScreen() {
           <FeatureHint
             id="chantier-metre"
             icon="list"
-            title="Métré poste par poste"
-            text="Détaillez vos quantités par poste, puis générez un devis pré-rempli en un clic à partir de ce métré."
+            title={t('chantierMetre.hintTitle')}
+            text={t('chantierMetre.hintText')}
           />
           <ProjectMetre projectId={id} organizationId={project.organization_id} />
         </View>

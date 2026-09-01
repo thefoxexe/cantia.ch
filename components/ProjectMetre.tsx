@@ -5,10 +5,12 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { Button, Card, EmptyState } from './ui';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { MetreItem } from '../lib/types';
 
 export function ProjectMetre({ projectId, organizationId }: { projectId: string; organizationId: string }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
   const [items, setItems] = useState<MetreItem[]>([]);
@@ -88,8 +90,8 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
       .insert({
         organization_id: organizationId,
         project_id: projectId,
-        client_name: 'À compléter',
-        notes: 'Devis généré depuis le métré.',
+        client_name: t('projectMetre.generatedClientName'),
+        notes: t('projectMetre.generatedDevisNote'),
         status: 'draft',
       })
       .select()
@@ -116,10 +118,10 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
   return (
     <View>
       <View style={styles.actionsRow}>
-        <Button title="Ajouter une ligne" icon="plus" onPress={addItem} />
+        <Button title={t('projectMetre.addLine')} icon="plus" onPress={addItem} />
         {items.length > 0 ? (
           <Button
-            title="Créer un devis depuis ce métré"
+            title={t('projectMetre.createDevisFromMetre')}
             variant="secondary"
             icon="file-plus"
             onPress={transferToDevis}
@@ -129,20 +131,20 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
       </View>
 
       {items.length === 0 && !loading ? (
-        <EmptyState title="Aucune ligne de métré" subtitle="Détaillez vos quantités poste par poste avant de chiffrer le devis." />
+        <EmptyState title={t('projectMetre.emptyTitle')} subtitle={t('projectMetre.emptySubtitle')} />
       ) : (
         <View style={{ gap: spacing.md }}>
           {items.map((it) => (
             <Card key={it.id} style={styles.itemCard}>
               <View style={styles.itemHeaderRow}>
                 <View style={styles.refField}>
-                  <Text style={styles.fieldLabel}>Réf.</Text>
+                  <Text style={styles.fieldLabel}>{t('projectMetre.ref')}</Text>
                   <TextInput
                     style={styles.cellInput}
                     value={it.reference ?? ''}
-                    onChangeText={(t) => patchLocal(it.id, { reference: t })}
+                    onChangeText={(val) => patchLocal(it.id, { reference: val })}
                     onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                    placeholder="1.1"
+                    placeholder={t('projectMetre.refPlaceholder')}
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
@@ -152,13 +154,13 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
               </View>
 
               <View style={styles.field}>
-                <Text style={styles.fieldLabel}>Désignation</Text>
+                <Text style={styles.fieldLabel}>{t('projectMetre.designation')}</Text>
                 <TextInput
                   style={[styles.cellInput, styles.descInput]}
                   value={it.description}
-                  onChangeText={(t) => patchLocal(it.id, { description: t })}
+                  onChangeText={(val) => patchLocal(it.id, { description: val })}
                   onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                  placeholder="Désignation du poste"
+                  placeholder={t('projectMetre.designationPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   multiline
                 />
@@ -166,24 +168,24 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
 
               <View style={styles.row2}>
                 <View style={styles.row2Item}>
-                  <Text style={styles.fieldLabel}>Quantité</Text>
+                  <Text style={styles.fieldLabel}>{t('projectMetre.quantity')}</Text>
                   <TextInput
                     style={styles.cellInput}
                     value={String(it.quantity)}
-                    onChangeText={(t) => patchLocal(it.id, { quantity: Number(t) || 0 })}
+                    onChangeText={(val) => patchLocal(it.id, { quantity: Number(val) || 0 })}
                     onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
                     keyboardType="decimal-pad"
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
                 <View style={styles.row2Item}>
-                  <Text style={styles.fieldLabel}>Unité</Text>
+                  <Text style={styles.fieldLabel}>{t('projectMetre.unit')}</Text>
                   <TextInput
                     style={styles.cellInput}
                     value={it.unit ?? ''}
-                    onChangeText={(t) => patchLocal(it.id, { unit: t })}
+                    onChangeText={(val) => patchLocal(it.id, { unit: val })}
                     onBlur={() => saveItem(items.find((x) => x.id === it.id)!)}
-                    placeholder="m², m³, ml…"
+                    placeholder={t('projectMetre.unitPlaceholder')}
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
@@ -195,12 +197,12 @@ export function ProjectMetre({ projectId, organizationId }: { projectId: string;
 
       {Object.keys(byUnit).length > 0 ? (
         <View style={styles.totals}>
-          <Text style={styles.totalsTitle}>Totaux par unité</Text>
+          <Text style={styles.totalsTitle}>{t('projectMetre.totalsTitle')}</Text>
           <View style={styles.totalsRow}>
             {Object.entries(byUnit).map(([unit, qty]) => (
               <View key={unit} style={styles.totalChip}>
                 <Text style={styles.totalChipText}>
-                  {qty.toLocaleString('fr-CH', { maximumFractionDigits: 2 })} {unit}
+                  {qty.toLocaleString(`${getAppLocale()}-CH`, { maximumFractionDigits: 2 })} {unit}
                 </Text>
               </View>
             ))}
