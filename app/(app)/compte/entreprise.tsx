@@ -7,12 +7,14 @@ import { supabase } from '../../../lib/supabase';
 import { isValidSwissIban } from '../../../lib/iban';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { TRADES } from '../../../lib/trades';
+import { TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 
 export default function EntrepriseScreen() {
+  const { t } = useTranslation();
   const { organization, role, refreshOrganization } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
   const [trade, setTrade] = useState(organization?.trade ?? null);
@@ -85,31 +87,29 @@ export default function EntrepriseScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Entreprise" backTo="/(app)/compte" />
+          <PageHeader title={t('entreprise.title')} backTo="/(app)/compte" />
 
-          <Field label="Nom" value={name} onChangeText={setName} editable={isAdmin} />
+          <Field label={t('entreprise.nameLabel')} value={name} onChangeText={setName} editable={isAdmin} />
 
-          <Text style={styles.fieldLabel}>Métier</Text>
+          <Text style={styles.fieldLabel}>{t('entreprise.tradeLabel')}</Text>
           <View style={styles.chips}>
-            {TRADES.map((t) => (
+            {TRADES.map((tr) => (
               <Pressable
-                key={t}
-                onPress={() => isAdmin && setTrade(t)}
+                key={tr}
+                onPress={() => isAdmin && setTrade(tr)}
                 disabled={!isAdmin}
-                style={[styles.chip, trade === t && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                style={[styles.chip, trade === tr && styles.chipActive, !isAdmin && styles.chipDisabled]}
               >
-                <Text style={[styles.chipText, trade === t && styles.chipTextActive]}>{t}</Text>
+                <Text style={[styles.chipText, trade === tr && styles.chipTextActive]}>{t(`trades.${TRADE_KEYS[tr]}` as any)}</Text>
               </Pressable>
             ))}
           </View>
           {!isAdmin ? (
-            <Text style={styles.readOnlyHint}>
-              Seul un propriétaire ou administrateur peut modifier le profil de l'entreprise.
-            </Text>
+            <Text style={styles.readOnlyHint}>{t('entreprise.readOnlyHint')}</Text>
           ) : null}
 
           <SwissAddressField
-            label="Rue et numéro"
+            label={t('entreprise.streetLabel')}
             value={street}
             onChangeText={setStreet}
             onSelectAddress={(addr) => {
@@ -118,34 +118,30 @@ export default function EntrepriseScreen() {
               setLocality(addr.locality);
             }}
             editable={isAdmin}
-            placeholder="Rue de l'Exemple 1"
+            placeholder={t('entreprise.streetPlaceholder')}
           />
           <View style={styles.row2}>
             <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
-              <Field label="NPA" value={postalCode} onChangeText={handlePostalCodeChange} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
+              <Field label={t('entreprise.npaLabel')} value={postalCode} onChangeText={handlePostalCodeChange} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
             </View>
             <View style={styles.row2Item}>
-              <Field label="Localité" value={locality} onChangeText={setLocality} editable={isAdmin} placeholder="Lausanne" />
+              <Field label={t('entreprise.localityLabel')} value={locality} onChangeText={setLocality} editable={isAdmin} placeholder="Lausanne" />
             </View>
           </View>
           {organization?.address && !street.trim() ? (
-            <Text style={styles.hint}>
-              Ancienne adresse enregistrée : « {organization.address} ». Merci de la ressaisir ci-dessus au format structuré.
-            </Text>
+            <Text style={styles.hint}>{t('entreprise.oldAddressHint', { address: organization.address })}</Text>
           ) : null}
           {iban.trim() && (!postalCode.trim() || !locality.trim()) ? (
             <View style={styles.warningBanner}>
               <Feather name="alert-triangle" size={14} color={colors.accent} />
-              <Text style={styles.warningText}>
-                NPA et localité sont requis pour générer une QR-facture conforme à la norme suisse (adresse structurée).
-              </Text>
+              <Text style={styles.warningText}>{t('entreprise.qrAddressWarning')}</Text>
             </View>
           ) : null}
-          <Field label="Numéro IDE" value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
+          <Field label={t('entreprise.ideLabel')} value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
           <View style={styles.row2}>
             <View style={styles.row2Item}>
               <Field
-                label="Téléphone"
+                label={t('entreprise.phoneLabel')}
                 value={phone}
                 onChangeText={setPhone}
                 editable={isAdmin}
@@ -155,7 +151,7 @@ export default function EntrepriseScreen() {
             </View>
             <View style={styles.row2Item}>
               <Field
-                label="E-mail entreprise"
+                label={t('entreprise.companyEmailLabel')}
                 value={email}
                 onChangeText={setEmail}
                 editable={isAdmin}
@@ -166,7 +162,7 @@ export default function EntrepriseScreen() {
             </View>
           </View>
           <Field
-            label="Site web"
+            label={t('entreprise.websiteLabel')}
             value={website}
             onChangeText={setWebsite}
             editable={isAdmin}
@@ -174,7 +170,7 @@ export default function EntrepriseScreen() {
             placeholder="www.entreprise.ch"
           />
           <Field
-            label="IBAN (pour la QR-facture)"
+            label={t('entreprise.ibanLabel')}
             value={iban}
             onChangeText={setIban}
             editable={isAdmin}
@@ -182,24 +178,19 @@ export default function EntrepriseScreen() {
             placeholder="CH00 0000 0000 0000 0000 0"
           />
           {iban.trim() && !isValidSwissIban(iban.trim()) ? (
-            <Text style={styles.errorHint}>IBAN suisse ou liechtensteinois invalide (format CHxx.../LIxx...).</Text>
+            <Text style={styles.errorHint}>{t('entreprise.ibanInvalid')}</Text>
           ) : (
-            <Text style={styles.hint}>
-              Renseigné, un bulletin de paiement QR suisse conforme est ajouté automatiquement à vos factures.
-            </Text>
+            <Text style={styles.hint}>{t('entreprise.ibanHint')}</Text>
           )}
-          <Text style={styles.sectionTitle}>E-mails</Text>
+          <Text style={styles.sectionTitle}>{t('entreprise.emailsSectionTitle')}</Text>
           <Pressable onPress={() => router.push('/(app)/compte/emails')} style={styles.emailsLink}>
             <Feather name="mail" size={16} color={colors.primary} />
-            <Text style={styles.emailsLinkText}>
-              Les textes des e-mails (devis, factures, relances, travaux supplémentaires, signature) se gèrent dans
-              Compte → E-mails.
-            </Text>
+            <Text style={styles.emailsLinkText}>{t('entreprise.emailsLinkText')}</Text>
             <Feather name="chevron-right" size={16} color={colors.textMuted} />
           </Pressable>
 
           {isAdmin ? (
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           ) : null}
         </Container>
       </ScrollView>
