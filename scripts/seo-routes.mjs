@@ -1784,7 +1784,7 @@ export const ROUTES = [
   },
   {
     path: 'metiers',
-    title: 'Cantia pour votre métier | Logiciel de gestion par corps de métier',
+    title: 'Cantia pour votre métier | Logiciel de gestion par métier',
     description:
       "Cantia centralise devis, chantiers, équipes et facturation. Découvrez comment il s'adapte au quotidien de votre métier du bâtiment en Suisse.",
   },
@@ -1803,9 +1803,9 @@ export const ROUTES = [
   },
   {
     path: 'macon',
-    title: 'Logiciel de gestion pour entreprises de maçonnerie en Suisse | Cantia',
+    title: 'Logiciel de gestion pour maçons en Suisse | Cantia',
     description:
-      'Suivez vos équipes, vos heures et la rentabilité réelle de vos chantiers avec Cantia, le logiciel de gestion conçu pour les entreprises de maçonnerie en Suisse.',
+      'Suivez vos équipes, vos heures et la rentabilité réelle de vos chantiers avec Cantia, le logiciel de gestion pour les entreprises de maçonnerie en Suisse.',
     faq: [
       { q: 'Cantia convient-il à une entreprise de maçonnerie avec plusieurs équipes ?', a: 'Oui, le planning et les rôles d\'équipe permettent de coordonner plusieurs équipes sur plusieurs chantiers.' },
       { q: 'Peut-on suivre les heures par chantier et par ouvrier ?', a: 'Oui, chaque heure saisie est rattachée à un chantier et à la personne concernée.' },
@@ -1816,7 +1816,7 @@ export const ROUTES = [
   },
   {
     path: 'electricien',
-    title: 'Logiciel de gestion pour entreprises d\'électricité en Suisse | Cantia',
+    title: 'Logiciel de gestion pour électriciens en Suisse | Cantia',
     description:
       'Gérez dépannages, chantiers, planning et facturation avec Cantia, le logiciel de gestion conçu pour les entreprises d\'électricité en Suisse.',
     faq: [
@@ -1829,9 +1829,9 @@ export const ROUTES = [
   },
   {
     path: 'plombier',
-    title: 'Logiciel de gestion pour plombiers et installateurs sanitaires en Suisse | Cantia',
+    title: 'Logiciel de gestion pour plombiers en Suisse | Cantia',
     description:
-      'Centralisez interventions, chantiers et facturation avec Cantia, le logiciel de gestion conçu pour les entreprises de plomberie et sanitaire en Suisse.',
+      'Centralisez interventions, chantiers et facturation avec Cantia, le logiciel de gestion pour les entreprises de plomberie et sanitaire en Suisse.',
     faq: [
       { q: 'Cantia convient-il à une petite entreprise de sanitaire ou de plomberie ?', a: 'Oui, le plan Essentiel couvre devis, interventions et facturation pour un plombier seul ou en petite équipe.' },
       { q: 'Peut-on facturer un dépannage directement depuis le terrain ?', a: 'Oui, une facture QR-suisse peut être générée sur place, dès la fin de l\'intervention.' },
@@ -1842,9 +1842,9 @@ export const ROUTES = [
   },
   {
     path: 'peintre',
-    title: 'Logiciel de gestion pour entreprises de peinture en Suisse | Cantia',
+    title: 'Logiciel de gestion pour peintres en bâtiment | Cantia',
     description:
-      'Préparez vos devis de peinture plus vite et suivez vos surfaces, équipes et travaux supplémentaires avec Cantia, le logiciel de gestion conçu pour la Suisse.',
+      'Préparez vos devis de peinture plus vite et suivez vos surfaces, équipes et travaux supplémentaires avec Cantia, le logiciel de gestion pour la Suisse.',
     faq: [
       { q: 'Cantia convient-il à une entreprise de peinture indépendante ?', a: 'Oui, le plan Essentiel couvre devis, catalogue et facturation pour un peintre qui travaille seul.' },
       { q: 'Puis-je créer un catalogue de mes prestations de peinture habituelles ?', a: 'Oui, chaque prestation chiffrée vient enrichir votre catalogue, réutilisable au chantier suivant.' },
@@ -1855,7 +1855,7 @@ export const ROUTES = [
   },
   {
     path: 'menuisier',
-    title: 'Logiciel de gestion pour entreprises de menuiserie en Suisse | Cantia',
+    title: 'Logiciel de gestion pour menuisiers en Suisse | Cantia',
     description:
       'Suivez chaque commande, de l\'atelier à la pose, avec Cantia, le logiciel de gestion conçu pour les entreprises de menuiserie en Suisse.',
     faq: [
@@ -1868,9 +1868,9 @@ export const ROUTES = [
   },
   {
     path: 'entreprise-generale',
-    title: 'Logiciel de gestion pour entreprises générales du bâtiment en Suisse | Cantia',
+    title: 'Logiciel de gestion pour entreprises générales | Cantia',
     description:
-      'Centralisez plusieurs chantiers, sous-traitants et budgets avec Cantia, le logiciel de gestion conçu pour les entreprises générales du bâtiment en Suisse.',
+      'Centralisez plusieurs chantiers, sous-traitants et budgets avec Cantia, le logiciel de gestion pour les entreprises générales du bâtiment en Suisse.',
     faq: [
       { q: 'Cantia convient-il à une entreprise générale qui gère plusieurs chantiers en parallèle ?', a: 'Oui, c\'est exactement le cas d\'usage visé par le planning multi-chantiers.' },
       { q: 'Peut-on suivre les sous-traitants et leurs attestations d\'assurance ?', a: 'Oui, un répertoire de sous-traitants réutilisable garde statut et attestations à jour.' },
@@ -1881,9 +1881,9 @@ export const ROUTES = [
   },
   {
     path: 'paysagiste',
-    title: 'Logiciel de gestion pour entreprises de paysagisme en Suisse | Cantia',
+    title: 'Logiciel de gestion pour paysagistes en Suisse | Cantia',
     description:
-      'Gérez équipes mobiles, chantiers d\'aménagement et contrats d\'entretien avec Cantia, le logiciel de gestion conçu pour les entreprises de paysagisme en Suisse.',
+      'Gérez équipes mobiles, chantiers d\'aménagement et contrats d\'entretien avec Cantia, le logiciel de gestion pour les entreprises de paysagisme en Suisse.',
     faq: [
       { q: 'Cantia convient-il à une entreprise de paysagisme avec plusieurs équipes mobiles ?', a: 'Oui, le planning centralisé organise plusieurs équipes sur plusieurs sites.' },
       { q: 'Peut-on gérer à la fois des chantiers d\'aménagement et des contrats d\'entretien ?', a: 'Oui, les deux vivent dans le même outil.' },
