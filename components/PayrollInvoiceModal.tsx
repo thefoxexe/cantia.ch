@@ -4,6 +4,7 @@ import { createFactureFromLines, markTimeEntriesInvoiced } from '../lib/api/fact
 import { Button, Card, Switch } from './ui';
 import { ClientPicker } from './ClientPicker';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 
 export interface InvoiceCandidateLine {
   workTypeId: string | null;
@@ -49,6 +50,7 @@ export function PayrollInvoiceModal({
   candidateLines: InvoiceCandidateLine[];
   onCreated: (factureId: string) => void;
 }) {
+  const { t } = useTranslation();
   const [drafts, setDrafts] = useState<Record<string, LineDraft>>({});
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
@@ -101,7 +103,7 @@ export function PayrollInvoiceModal({
   async function handleCreate() {
     if (!project) return;
     if (!clientName.trim()) {
-      setError('Le nom du client est requis.');
+      setError(t('payrollInvoiceModal.clientNameRequired'));
       return;
     }
     const includedLines = candidateLines.filter((line) => drafts[line.workTypeId ?? line.label]?.included);
@@ -112,7 +114,7 @@ export function PayrollInvoiceModal({
       return { description, amountChf: amountFor(draft, line.hours) };
     });
     if (lines.length === 0) {
-      setError('Sélectionnez au moins une position.');
+      setError(t('payrollInvoiceModal.selectAtLeastOneLine'));
       return;
     }
     setSaving(true);
@@ -130,7 +132,7 @@ export function PayrollInvoiceModal({
     });
     if (err || !id) {
       setSaving(false);
-      setError(err ?? 'Échec de la création de la facture.');
+      setError(err ?? t('payrollInvoiceModal.createFailed'));
       return;
     }
     // So "Facturer ce chantier" doesn't offer these same hours again.
@@ -145,9 +147,9 @@ export function PayrollInvoiceModal({
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <ScrollView>
-            <Text style={styles.sheetTitle}>Facturer {project?.name ?? 'ce chantier'}</Text>
+            <Text style={styles.sheetTitle}>{t('payrollInvoiceModal.title', { project: project?.name ?? t('payrollInvoiceModal.thisProjectFallback') })}</Text>
 
-            <Text style={styles.fieldLabel}>Client</Text>
+            <Text style={styles.fieldLabel}>{t('payrollInvoiceModal.clientLabel')}</Text>
             <ClientPicker
               organizationId={organizationId}
               onSelect={(client) => {
@@ -165,7 +167,7 @@ export function PayrollInvoiceModal({
               </Card>
             ) : null}
 
-            <Text style={styles.fieldLabel}>Positions</Text>
+            <Text style={styles.fieldLabel}>{t('payrollInvoiceModal.positionsLabel')}</Text>
             <View style={{ gap: spacing.md }}>
               {candidateLines.map((line) => {
                 const key = line.workTypeId ?? line.label;
@@ -185,15 +187,15 @@ export function PayrollInvoiceModal({
                           style={styles.descInput}
                           value={draft.description}
                           onChangeText={(v) => updateDraft(key, { description: v })}
-                          placeholder="Description (optionnel)"
+                          placeholder={t('payrollInvoiceModal.descriptionPlaceholder')}
                           placeholderTextColor={colors.textMuted}
                         />
                         <View style={styles.modeRow}>
                           <Pressable onPress={() => updateDraft(key, { mode: 'rate' })} style={[styles.modeChip, draft.mode === 'rate' && styles.modeChipActive]}>
-                            <Text style={[styles.modeChipText, draft.mode === 'rate' && styles.modeChipTextActive]}>Prix à l'heure</Text>
+                            <Text style={[styles.modeChipText, draft.mode === 'rate' && styles.modeChipTextActive]}>{t('payrollInvoiceModal.modeRate')}</Text>
                           </Pressable>
                           <Pressable onPress={() => updateDraft(key, { mode: 'fixed' })} style={[styles.modeChip, draft.mode === 'fixed' && styles.modeChipActive]}>
-                            <Text style={[styles.modeChipText, draft.mode === 'fixed' && styles.modeChipTextActive]}>Montant fixe</Text>
+                            <Text style={[styles.modeChipText, draft.mode === 'fixed' && styles.modeChipTextActive]}>{t('payrollInvoiceModal.modeFixed')}</Text>
                           </Pressable>
                         </View>
                         {draft.mode === 'rate' ? (
@@ -203,7 +205,7 @@ export function PayrollInvoiceModal({
                               value={draft.rate}
                               onChangeText={(v) => updateDraft(key, { rate: v })}
                               keyboardType="decimal-pad"
-                              placeholder="CHF/h"
+                              placeholder={t('payrollInvoiceModal.ratePlaceholder')}
                               placeholderTextColor={colors.textMuted}
                             />
                             <Text style={styles.amountResult}>= CHF {amountFor(draft, line.hours).toFixed(2)}</Text>
@@ -214,7 +216,7 @@ export function PayrollInvoiceModal({
                             value={draft.fixedAmount}
                             onChangeText={(v) => updateDraft(key, { fixedAmount: v })}
                             keyboardType="decimal-pad"
-                            placeholder="Montant CHF"
+                            placeholder={t('payrollInvoiceModal.fixedAmountPlaceholder')}
                             placeholderTextColor={colors.textMuted}
                           />
                         )}
@@ -226,15 +228,15 @@ export function PayrollInvoiceModal({
             </View>
 
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total HT</Text>
+              <Text style={styles.totalLabel}>{t('payrollInvoiceModal.totalExclVat')}</Text>
               <Text style={styles.totalValue}>CHF {total.toFixed(2)}</Text>
             </View>
-            <Text style={styles.hint}>La facture est créée en brouillon — vous pourrez ajuster le client, la TVA et l'échéance avant de l'envoyer.</Text>
+            <Text style={styles.hint}>{t('payrollInvoiceModal.draftHint')}</Text>
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
-            <Button title="Créer la facture" icon="check" onPress={handleCreate} loading={saving} style={{ marginTop: spacing.md }} />
-            <Button title="Annuler" variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
+            <Button title={t('payrollInvoiceModal.create')} icon="check" onPress={handleCreate} loading={saving} style={{ marginTop: spacing.md }} />
+            <Button title={t('payrollInvoiceModal.cancel')} variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
           </ScrollView>
         </View>
       </View>

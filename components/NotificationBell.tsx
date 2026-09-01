@@ -14,6 +14,7 @@ import {
 import { DEFAULT_NOTIFICATION_ICON, DEFAULT_NOTIFICATION_TONE, NOTIFICATION_ICON, NOTIFICATION_TONE } from './notificationMeta';
 import { EmptyState } from './ui';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 import type { Notification } from '../lib/types';
 
 const PREVIEW_LIMIT = 8;
@@ -25,6 +26,7 @@ const PREVIEW_LIMIT = 8;
 // + absolute card, same technique as AccountMenu) only applies from
 // tablet width up, where there's room for it next to the trigger.
 export function NotificationBell() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.tablet;
@@ -115,10 +117,10 @@ export function NotificationBell() {
           {pos ? (
             <View style={[styles.card, { top: pos.top, right: pos.right, width: Math.min(340, width - spacing.lg * 2) }]}>
               <View style={styles.header}>
-                <Text style={styles.headerTitle}>Notifications</Text>
+                <Text style={styles.headerTitle}>{t('notificationBell.title')}</Text>
                 {unread > 0 ? (
                   <Pressable onPress={handleMarkAllRead} hitSlop={6}>
-                    <Text style={styles.headerAction}>Tout marquer comme lu</Text>
+                    <Text style={styles.headerAction}>{t('notificationBell.markAllRead')}</Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -126,7 +128,7 @@ export function NotificationBell() {
 
               {items.length === 0 ? (
                 <View style={styles.empty}>
-                  <EmptyState title="Aucune notification" subtitle="Vous êtes à jour." />
+                  <EmptyState title={t('notificationBell.emptyTitle')} subtitle={t('notificationBell.emptySubtitle')} />
                 </View>
               ) : (
                 <ScrollView style={styles.list}>
@@ -152,7 +154,7 @@ export function NotificationBell() {
 
               <View style={styles.divider} />
               <Pressable onPress={handleSeeAll} style={styles.footer}>
-                <Text style={styles.footerText}>Tout voir</Text>
+                <Text style={styles.footerText}>{t('common.seeAll')}</Text>
               </Pressable>
             </View>
           ) : null}

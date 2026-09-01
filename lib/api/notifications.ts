@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { getAppLocale, i18next } from '../translations';
 import type { Notification, NotificationPreference, NotificationType } from '../types';
 
 export const NOTIFICATION_TYPES: { type: NotificationType; label: string; description: string }[] = [
@@ -100,11 +101,11 @@ export async function registerPushToken(userId: string, token: string, platform:
 export function formatRelativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return "à l'instant";
-  if (minutes < 60) return `il y a ${minutes} min`;
+  if (minutes < 1) return i18next.t('relativeTime.now');
+  if (minutes < 60) return i18next.t('relativeTime.minutesAgo', { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `il y a ${hours} h`;
+  if (hours < 24) return i18next.t('relativeTime.hoursAgo', { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 7) return `il y a ${days} j`;
-  return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' });
+  if (days < 7) return i18next.t('relativeTime.daysAgo', { count: days });
+  return new Date(iso).toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short' });
 }

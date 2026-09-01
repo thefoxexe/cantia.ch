@@ -6,6 +6,7 @@ import { uploadToOrgBucket } from '../lib/api/storage';
 import { SignaturePad } from './SignaturePad';
 import { Button } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 
 // Shown when a member without a saved signature reaches devis/new.tsx —
 // closes the loop the client asked for: every devis should come out
@@ -15,6 +16,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 // visit — as long as no signature is saved, the prompt returns next time a
 // devis is created rather than being silenced forever after one dismissal.
 export function SignaturePromptModal({ visible, onDone }: { visible: boolean; onDone: () => void }) {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
   const [drawn, setDrawn] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -40,14 +42,13 @@ export function SignaturePromptModal({ visible, onDone }: { visible: boolean; on
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onDone}>
       <View style={styles.backdrop}>
         <View style={styles.card}>
-          <Text style={styles.title}>Ajoutez votre signature</Text>
+          <Text style={styles.title}>{t('signaturePrompt.title')}</Text>
           <Text style={styles.hint}>
-            Dessinez-la une fois : elle sera posée automatiquement sur tous vos devis, à côté de celle du client.
-            Modifiable ensuite dans Compte → Mon profil.
+            {t('signaturePrompt.hint')}
           </Text>
           <SignaturePad onChange={setDrawn} />
           <Button
-            title={saving ? 'Enregistrement…' : 'Enregistrer ma signature'}
+            title={saving ? t('signaturePrompt.saving') : t('signaturePrompt.save')}
             icon="check"
             onPress={save}
             loading={saving}
@@ -55,7 +56,7 @@ export function SignaturePromptModal({ visible, onDone }: { visible: boolean; on
             style={{ marginTop: spacing.md }}
           />
           <Pressable onPress={onDone} style={styles.later}>
-            <Text style={styles.laterText}>Plus tard</Text>
+            <Text style={styles.laterText}>{t('signaturePrompt.later')}</Text>
           </Pressable>
         </View>
       </View>
