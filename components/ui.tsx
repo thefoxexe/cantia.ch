@@ -353,6 +353,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   field: {
+    width: '100%',
     marginBottom: spacing.lg,
   },
   fieldLabel: {

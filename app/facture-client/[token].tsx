@@ -207,7 +207,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 440,
     gap: spacing.md,
-    alignItems: 'flex-start',
     marginTop: spacing.xl,
   },
   gateIcon: {
