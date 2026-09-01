@@ -10,6 +10,7 @@ import { PayrollEntryPanel, defaultTodayRange } from '../../../components/Payrol
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
 import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
 import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import type { Plan, PayrollWorkType } from '../../../lib/types';
 
@@ -54,6 +55,7 @@ interface SummaryEntryDetail {
 }
 
 export default function PayrollScreen() {
+  const { t } = useTranslation();
   const { organization, user, canManagePayroll, canViewFinances } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -87,7 +89,7 @@ export default function PayrollScreen() {
         supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
         listWorkTypes(organization.id),
       ]);
-      setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || 'Membre' })));
+      setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || t('payrollHub.memberFallback') })));
       setHasWorkTypes(workTypes.length > 0);
     }
     setSelectedUserId((prev) => prev ?? user.id);
@@ -117,11 +119,11 @@ export default function PayrollScreen() {
     setProjects(projectRows ?? []);
     const projectNames = new Map((projectRows ?? []).map((p) => [p.id, p.name]));
     const workTypeById = new Map<string, PayrollWorkType>(workTypes.map((w) => [w.id, w]));
-    const memberNames = new Map((memberRows ?? []).map((m) => [m.user_id, m.full_name || 'Membre']));
+    const memberNames = new Map((memberRows ?? []).map((m) => [m.user_id, m.full_name || t('payrollHub.memberFallback')]));
     const totals = new Map<string, SummaryLine>();
     const entries: SummaryEntryDetail[] = [];
     for (const row of entryRows ?? []) {
-      const projectName = row.project_id ? projectNames.get(row.project_id) ?? 'Chantier' : 'Sans chantier';
+      const projectName = row.project_id ? projectNames.get(row.project_id) ?? t('payrollHub.projectFallback') : t('payrollHub.noProjectFallback');
       const wt = row.work_type_id ? workTypeById.get(row.work_type_id) : null;
       const key = `${row.project_id ?? 'none'}__${row.work_type_id ?? 'none'}`;
       const invoiced = !!row.invoiced_facture_id;
@@ -131,7 +133,7 @@ export default function PayrollScreen() {
           projectId: row.project_id,
           projectName,
           workTypeId: row.work_type_id,
-          workTypeLabel: wt?.label ?? 'Non précisé',
+          workTypeLabel: wt?.label ?? t('payrollHub.notSpecified'),
           hours: 0,
           totalHours: 0,
           invoicedHours: 0,
@@ -150,8 +152,8 @@ export default function PayrollScreen() {
       entries.push({
         id: row.id,
         projectId: row.project_id,
-        userName: row.user_id ? memberNames.get(row.user_id) ?? 'Membre' : 'Membre',
-        workTypeLabel: wt?.label ?? 'Non précisé',
+        userName: row.user_id ? memberNames.get(row.user_id) ?? t('payrollHub.memberFallback') : t('payrollHub.memberFallback'),
+        workTypeLabel: wt?.label ?? t('payrollHub.notSpecified'),
         date: row.entry_date,
         hours: h,
         invoiced,
@@ -233,16 +235,13 @@ export default function PayrollScreen() {
   if (plan && !plan.has_payroll) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title="RH & Salaires" backTo="/(app)" />
+        <PageHeader title={t('payrollHub.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="dollar-sign" size={22} color={colors.accent} />
-          <Text style={styles.upsellTitle}>RH, heures & salaires</Text>
-          <Text style={styles.upsellText}>
-            Chaque employé pointe ses heures par chantier et ses frais professionnels ; la secrétaire ou
-            l'administrateur gère la fiche de salaire de toute l'équipe.
-          </Text>
-          <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
-          <Button title="Voir les plans" variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
+          <Text style={styles.upsellTitle}>{t('payrollHub.upsellTitle')}</Text>
+          <Text style={styles.upsellText}>{t('payrollHub.upsellText')}</Text>
+          <Text style={styles.upsellText}>{t('payrollHub.upsellPlanHint')}</Text>
+          <Button title={t('payrollHub.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
       </Screen>
     );
@@ -252,8 +251,8 @@ export default function PayrollScreen() {
     return (
       <Screen style={{ padding: spacing.xl }}>
         <View style={isDesktop ? styles.adminContainer : styles.selfContainer}>
-          <PageHeader title="RH & Salaires" backTo="/(app)" />
-          <Text style={styles.pageSubtitle}>Vos heures et frais professionnels, chantier par chantier.</Text>
+          <PageHeader title={t('payrollHub.title')} backTo="/(app)" />
+          <Text style={styles.pageSubtitle}>{t('payrollHub.selfSubtitle')}</Text>
           {isDesktop ? (
             <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
               <View style={styles.desktopLayout}>
@@ -295,7 +294,7 @@ export default function PayrollScreen() {
 
   const employeeList = (
     <View style={styles.employeeList}>
-      <Text style={styles.employeeListTitle}>Équipe</Text>
+      <Text style={styles.employeeListTitle}>{t('payrollHub.teamTitle')}</Text>
       {members.map((m) => (
         <Pressable
           key={m.id}
@@ -306,7 +305,7 @@ export default function PayrollScreen() {
             <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
           </View>
           <Text style={[styles.memberName, mode === 'hours' && selectedUserId === m.id && styles.memberNameActive]} numberOfLines={1}>
-            {m.id === user.id ? `${m.label} (moi)` : m.label}
+            {m.id === user.id ? t('payrollHub.meSuffix', { name: m.label }) : m.label}
           </Text>
           {mode === 'salaries' ? <Feather name="chevron-right" size={16} color={colors.textMuted} /> : null}
         </Pressable>
@@ -318,7 +317,7 @@ export default function PayrollScreen() {
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.adminContainer}>
         <PageHeader
-          title="RH & Salaires"
+          title={t('payrollHub.title')}
           backTo="/(app)"
           right={
             <Pressable onPress={() => router.push('/(app)/compte/rh')} hitSlop={8}>
@@ -326,22 +325,22 @@ export default function PayrollScreen() {
             </Pressable>
           }
         />
-        <Text style={styles.pageSubtitle}>Heures, frais et salaires de toute l'équipe.</Text>
+        <Text style={styles.pageSubtitle}>{t('payrollHub.adminSubtitle')}</Text>
 
         <View style={styles.modeSwitch}>
           <Pressable onPress={() => setMode('hours')} style={[styles.modeTab, mode === 'hours' && styles.modeTabActive]}>
             <Feather name="clock" size={14} color={mode === 'hours' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'hours' && styles.modeTabTextActive]}>Heures & frais</Text>
+            <Text style={[styles.modeTabText, mode === 'hours' && styles.modeTabTextActive]}>{t('payrollHub.tabHours')}</Text>
           </Pressable>
           {canViewFinances ? (
             <Pressable onPress={() => setMode('invoicing')} style={[styles.modeTab, mode === 'invoicing' && styles.modeTabActive]}>
               <Feather name="file-plus" size={14} color={mode === 'invoicing' ? colors.primary : colors.textMuted} />
-              <Text style={[styles.modeTabText, mode === 'invoicing' && styles.modeTabTextActive]}>Facturation</Text>
+              <Text style={[styles.modeTabText, mode === 'invoicing' && styles.modeTabTextActive]}>{t('payrollHub.tabInvoicing')}</Text>
             </Pressable>
           ) : null}
           <Pressable onPress={() => setMode('salaries')} style={[styles.modeTab, mode === 'salaries' && styles.modeTabActive]}>
             <Feather name="dollar-sign" size={14} color={mode === 'salaries' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'salaries' && styles.modeTabTextActive]}>Salaires</Text>
+            <Text style={[styles.modeTabText, mode === 'salaries' && styles.modeTabTextActive]}>{t('payrollHub.tabSalaries')}</Text>
           </Pressable>
         </View>
 
@@ -349,10 +348,8 @@ export default function PayrollScreen() {
           <Pressable onPress={() => router.push('/(app)/compte/rh')} style={styles.setupBanner}>
             <Feather name="settings" size={16} color={colors.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.setupBannerTitle}>Première visite ? Configurez d'abord vos types de travail</Text>
-              <Text style={styles.setupBannerText}>
-                Ex : élaboration de projets, dessin. C'est ce que chaque employé choisira en saisissant ses heures.
-              </Text>
+              <Text style={styles.setupBannerTitle}>{t('payrollHub.setupBannerTitle')}</Text>
+              <Text style={styles.setupBannerText}>{t('payrollHub.setupBannerText')}</Text>
             </View>
             <Feather name="chevron-right" size={16} color={colors.textMuted} />
           </Pressable>
@@ -365,10 +362,7 @@ export default function PayrollScreen() {
               {isDesktop ? (
                 <View style={styles.salariesHint}>
                   <Feather name="dollar-sign" size={22} color={colors.textMuted} />
-                  <Text style={styles.salariesHintText}>
-                    Cliquez sur un membre de l'équipe pour voir et éditer sa fiche de salaire — taux, cotisations et
-                    fiche de paie imprimable.
-                  </Text>
+                  <Text style={styles.salariesHintText}>{t('payrollHub.salariesHint')}</Text>
                 </View>
               ) : null}
             </View>
@@ -482,6 +476,7 @@ function SummaryCard({
   onLinkExisting: (line: SummaryLine, factureId: string) => Promise<void>;
   collapsible?: boolean;
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const byProject = new Map<string, { projectId: string | null; projectName: string; lines: SummaryLine[] }>();
   for (const l of lines) {
@@ -502,17 +497,17 @@ function SummaryCard({
     <Card>
       {collapsible ? (
         <Pressable onPress={onToggle} style={styles.summaryHeader}>
-          <Text style={styles.sectionTitle}>Sommaire par chantier</Text>
+          <Text style={styles.sectionTitle}>{t('payrollHub.summaryByProject')}</Text>
           <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
         </Pressable>
       ) : (
-        <Text style={styles.sectionTitle}>Facturation par chantier</Text>
+        <Text style={styles.sectionTitle}>{t('payrollHub.invoicingByProject')}</Text>
       )}
       {open ? (
         loading ? (
-          <Text style={styles.hint}>Chargement…</Text>
+          <Text style={styles.hint}>{t('payrollHub.loading')}</Text>
         ) : lines.length === 0 ? (
-          <Text style={styles.hint}>Aucune heure enregistrée sur cette période.</Text>
+          <Text style={styles.hint}>{t('payrollHub.noHoursThisPeriod')}</Text>
         ) : (
           <View style={{ marginTop: spacing.md, gap: spacing.lg }}>
             {Array.from(byProject.values()).map((group) => {
@@ -527,12 +522,12 @@ function SummaryCard({
                     {group.projectId && canInvoice ? (
                       <Pressable onPress={() => onInvoiceProject(group.projectId!)} style={styles.invoiceButton}>
                         <Feather name="file-plus" size={13} color={colors.primary} />
-                        <Text style={styles.invoiceButtonText}>Facturer ce chantier</Text>
+                        <Text style={styles.invoiceButtonText}>{t('payrollHub.invoiceThisProject')}</Text>
                       </Pressable>
                     ) : null}
                   </View>
                   <View style={styles.groupTotalRow}>
-                    <Text style={styles.groupTotalLabel}>Total chantier</Text>
+                    <Text style={styles.groupTotalLabel}>{t('payrollHub.projectTotal')}</Text>
                     <Text style={styles.groupTotalHours}>{groupTotalHours} h</Text>
                     <Text style={styles.groupTotalChf}>CHF {groupChf.toFixed(2)}</Text>
                   </View>
@@ -542,31 +537,31 @@ function SummaryCard({
                   <ProjectDetailToggle entries={groupEntries} />
                   {factures.length > 0 ? (
                     <View style={styles.trackerBox}>
-                      <Text style={styles.trackerTitle}>Déjà facturé sur ce chantier</Text>
+                      <Text style={styles.trackerTitle}>{t('payrollHub.alreadyInvoicedOnProject')}</Text>
                       {factures.map((f) => (
                         <Pressable key={f.id} onPress={() => router.push(`/(app)/devis/factures/${f.id}`)} style={styles.trackerRow}>
-                          <Text style={styles.trackerNumber} numberOfLines={1}>{f.number ?? 'Brouillon'}</Text>
+                          <Text style={styles.trackerNumber} numberOfLines={1}>{f.number ?? t('payrollHub.draft')}</Text>
                           <StatusBadge status={f.status} />
                           <Text style={styles.trackerAmount}>CHF {f.total.toFixed(2)}</Text>
                           <Text style={[styles.trackerRemaining, f.remaining > 0 && styles.trackerRemainingDue]}>
-                            {f.remaining > 0 ? `Reste CHF ${f.remaining.toFixed(2)}` : 'Soldée'}
+                            {f.remaining > 0 ? t('payrollHub.remainingChf', { amount: f.remaining.toFixed(2) }) : t('payrollHub.settled')}
                           </Text>
                         </Pressable>
                       ))}
                     </View>
                   ) : group.projectId ? (
-                    <Text style={styles.trackerEmpty}>Aucune facture émise sur ce chantier pour l'instant.</Text>
+                    <Text style={styles.trackerEmpty}>{t('payrollHub.noInvoiceYetOnProject')}</Text>
                   ) : null}
                 </View>
               );
             })}
             {invoicedHours > 0 ? (
               <Text style={styles.grandTotalHint}>
-                {grandTotalHours} h au total sur la période · {invoicedHours} h déjà facturées · {totalHours} h restant à facturer
+                {t('payrollHub.grandTotalHint', { grandTotal: grandTotalHours, invoiced: invoicedHours, remaining: totalHours })}
               </Text>
             ) : null}
             <View style={styles.summaryTotalRow}>
-              <Text style={styles.summaryTotalLabel}>Reste à facturer</Text>
+              <Text style={styles.summaryTotalLabel}>{t('payrollHub.remainingToInvoice')}</Text>
               <Text style={styles.summaryHours}>{totalHours} h</Text>
               <Text style={styles.summaryChf}>CHF {totalChf.toFixed(2)}</Text>
             </View>
@@ -593,6 +588,7 @@ function SummaryLineRow({
   canInvoice: boolean;
   onLinkExisting: (line: SummaryLine, factureId: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [linkingId, setLinkingId] = useState<string | null>(null);
   const canLink = canInvoice && line.hours > 0 && factures.length > 0;
@@ -605,8 +601,8 @@ function SummaryLineRow({
           {line.invoicedHours > 0 ? (
             <Text style={styles.summarySubline}>
               {line.hours > 0
-                ? `${line.totalHours} h au total · ${line.invoicedHours} h déjà facturées`
-                : `${line.totalHours} h — entièrement facturées`}
+                ? t('payrollHub.totalHoursAndInvoiced', { total: line.totalHours, invoiced: line.invoicedHours })
+                : t('payrollHub.fullyInvoiced', { total: line.totalHours })}
             </Text>
           ) : null}
         </View>
@@ -620,7 +616,7 @@ function SummaryLineRow({
       </View>
       {open ? (
         <View style={styles.linkPanel}>
-          <Text style={styles.linkPanelHint}>Ces heures sont déjà couvertes par une de ces factures ?</Text>
+          <Text style={styles.linkPanelHint}>{t('payrollHub.linkHint')}</Text>
           {factures.map((f) => (
             <Pressable
               key={f.id}
@@ -634,9 +630,9 @@ function SummaryLineRow({
               style={styles.linkFactureRow}
             >
               <Text style={styles.linkFactureNumber} numberOfLines={1}>
-                {f.number ?? 'Brouillon'}
+                {f.number ?? t('payrollHub.draft')}
               </Text>
-              <Text style={styles.linkFactureAmount}>{linkingId === f.id ? 'Association…' : `CHF ${f.total.toFixed(2)}`}</Text>
+              <Text style={styles.linkFactureAmount}>{linkingId === f.id ? t('payrollHub.linking') : `CHF ${f.total.toFixed(2)}`}</Text>
             </Pressable>
           ))}
         </View>
@@ -649,6 +645,7 @@ function SummaryLineRow({
 // hours. `SummaryLineRow` above already aggregates by work type, so this
 // unfolds that same period's raw entries instead of re-querying anything.
 function ProjectDetailToggle({ entries }: { entries: SummaryEntryDetail[] }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   if (entries.length === 0) return null;
 
@@ -656,14 +653,14 @@ function ProjectDetailToggle({ entries }: { entries: SummaryEntryDetail[] }) {
     <View>
       <Pressable onPress={() => setOpen((o) => !o)} style={styles.detailToggle}>
         <Feather name={open ? 'chevron-up' : 'chevron-down'} size={13} color={colors.textMuted} />
-        <Text style={styles.detailToggleText}>{open ? 'Masquer le détail' : `Voir le détail (${entries.length})`}</Text>
+        <Text style={styles.detailToggleText}>{open ? t('payrollHub.hideDetail') : t('payrollHub.showDetail', { count: entries.length })}</Text>
       </Pressable>
       {open ? (
         <View style={styles.detailPanel}>
           {entries.map((e) => (
             <View key={e.id} style={styles.detailRow}>
               <Text style={styles.detailDate}>
-                {new Date(e.date).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' })}
+                {new Date(e.date).toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short' })}
               </Text>
               <Text style={styles.detailName} numberOfLines={1}>{e.userName}</Text>
               <Text style={styles.detailType} numberOfLines={1}>{e.workTypeLabel}</Text>
