@@ -13,6 +13,7 @@ import {
 } from '../lib/api/subcontractors';
 import { confirm } from '../lib/confirm';
 import { Button, Card, EmptyState, Field, StatusBadge } from './ui';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus } from '../lib/types';
 
@@ -20,7 +21,7 @@ const STATUS_CYCLE: SubcontractorAssignmentStatus[] = ['planifie', 'en_cours', '
 
 function displayDate(iso: string | null | undefined): string {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('fr-CH');
+  return new Date(iso).toLocaleDateString(`${getAppLocale()}-CH`);
 }
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -30,6 +31,7 @@ const todayIso = () => new Date().toISOString().slice(0, 10);
 // single place to manage its contact info, insurance, every chantier it's
 // on, and invoices received, rather than a chantier-scoped edit sheet.
 export function ProjectSubcontractors({ projectId, organizationId }: { projectId: string; organizationId: string }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
   const [assignments, setAssignments] = useState<ProjectSubcontractor[]>([]);
@@ -98,7 +100,7 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
   async function createAndAssign() {
     if (!user) return;
     if (!newCompany.trim()) {
-      setError("Le nom de l'entreprise est requis.");
+      setError(t('projectSubcontractors.companyNameRequired'));
       return;
     }
     setSaving(true);
@@ -112,7 +114,7 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
     });
     if (createErr || !subcontractor) {
       setSaving(false);
-      setError(createErr ?? 'Erreur lors de la création.');
+      setError(createErr ?? t('projectSubcontractors.createError'));
       return;
     }
     const { error: assignErr } = await assignSubcontractorToProject(organizationId, projectId, subcontractor.id, user.id, {});
@@ -132,7 +134,7 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
   }
 
   async function handleRemoveAssignment(a: ProjectSubcontractor) {
-    const ok = await confirm('Retirer ce sous-traitant du chantier ?', a.subcontractors?.company_name ?? '');
+    const ok = await confirm(t('projectSubcontractors.removeConfirmTitle'), a.subcontractors?.company_name ?? '');
     if (!ok) return;
     await removeAssignment(a.id);
     load();
@@ -140,12 +142,12 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
 
   return (
     <View>
-      <Button title="Ajouter un sous-traitant" icon="plus" onPress={openPicker} style={{ marginBottom: spacing.lg }} />
+      <Button title={t('projectSubcontractors.addSubcontractor')} icon="plus" onPress={openPicker} style={{ marginBottom: spacing.lg }} />
 
       {assignments.length === 0 && !loading ? (
         <EmptyState
-          title="Aucun sous-traitant"
-          subtitle="Ajoutez les entreprises sous-traitées sur ce chantier pour suivre leurs interventions et leurs documents."
+          title={t('projectSubcontractors.emptyTitle')}
+          subtitle={t('projectSubcontractors.emptySubtitle')}
         />
       ) : (
         <View style={{ gap: spacing.md }}>
@@ -178,13 +180,13 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
                     <View style={styles.insuranceRow}>
                       <Feather name={expired ? 'alert-triangle' : 'shield'} size={13} color={expired ? colors.danger : colors.success} />
                       <Text style={[styles.insuranceText, expired && { color: colors.danger }]}>
-                        {expired ? "Attestation d'assurance expirée" : "Attestation d'assurance à jour"}
+                        {expired ? t('projectSubcontractors.insuranceExpired') : t('projectSubcontractors.insuranceUpToDate')}
                       </Text>
                     </View>
                   ) : (
                     <View style={styles.insuranceRow}>
                       <Feather name="alert-circle" size={13} color={colors.textMuted} />
-                      <Text style={styles.insuranceTextMuted}>Aucune attestation d'assurance</Text>
+                      <Text style={styles.insuranceTextMuted}>{t('projectSubcontractors.insuranceMissing')}</Text>
                     </View>
                   )}
                 </Card>
@@ -199,7 +201,7 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
         <View style={styles.sheetOverlay}>
           <View style={styles.sheet}>
             <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Ajouter un sous-traitant</Text>
+              <Text style={styles.sheetTitle}>{t('projectSubcontractors.addSubcontractor')}</Text>
               <Pressable onPress={() => setPickerOpen(false)} hitSlop={10}>
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
@@ -207,10 +209,10 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
 
             {!creatingNew ? (
               <ScrollView style={{ maxHeight: 420 }}>
-                <Field label="Rechercher" value={search} onChangeText={setSearch} placeholder="Nom de l'entreprise" />
+                <Field label={t('projectSubcontractors.searchLabel')} value={search} onChangeText={setSearch} placeholder={t('projectSubcontractors.searchPlaceholder')} />
                 <Pressable style={styles.newEntryRow} onPress={() => setCreatingNew(true)}>
                   <Feather name="plus-circle" size={16} color={colors.primary} />
-                  <Text style={styles.newEntryText}>Nouvelle entreprise sous-traitée</Text>
+                  <Text style={styles.newEntryText}>{t('projectSubcontractors.newEntry')}</Text>
                 </Pressable>
                 {filteredDirectory.map((s) => (
                   <Pressable key={s.id} style={styles.directoryRow} onPress={() => pickExisting(s)}>
@@ -223,25 +225,25 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
                 ))}
                 {filteredDirectory.length === 0 ? (
                   <Text style={styles.emptyHint}>
-                    {directory.length === 0 ? "Aucun sous-traitant enregistré pour l'instant." : 'Aucun résultat.'}
+                    {directory.length === 0 ? t('projectSubcontractors.noneRegistered') : t('projectSubcontractors.noResults')}
                   </Text>
                 ) : null}
               </ScrollView>
             ) : (
               <ScrollView style={{ maxHeight: 420 }}>
-                <Field label="Nom de l'entreprise" value={newCompany} onChangeText={setNewCompany} placeholder="Ex. Électricité Progin SA" />
-                <Field label="Métier" value={newTrade} onChangeText={setNewTrade} placeholder="Électricité, plâtrerie…" />
-                <Field label="Contact" value={newContact} onChangeText={setNewContact} placeholder="Nom du contact" />
-                <Field label="Téléphone" value={newPhone} onChangeText={setNewPhone} keyboardType="phone-pad" />
-                <Field label="E-mail" value={newEmail} onChangeText={setNewEmail} keyboardType="email-address" autoCapitalize="none" />
+                <Field label={t('projectSubcontractors.companyNameLabel')} value={newCompany} onChangeText={setNewCompany} placeholder={t('projectSubcontractors.companyNamePlaceholder')} />
+                <Field label={t('projectSubcontractors.tradeLabel')} value={newTrade} onChangeText={setNewTrade} placeholder={t('projectSubcontractors.tradePlaceholder')} />
+                <Field label={t('projectSubcontractors.contactLabel')} value={newContact} onChangeText={setNewContact} placeholder={t('projectSubcontractors.contactPlaceholder')} />
+                <Field label={t('projectSubcontractors.phoneLabel')} value={newPhone} onChangeText={setNewPhone} keyboardType="phone-pad" />
+                <Field label={t('projectSubcontractors.emailLabel')} value={newEmail} onChangeText={setNewEmail} keyboardType="email-address" autoCapitalize="none" />
               </ScrollView>
             )}
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
             <View style={styles.sheetActions}>
-              {creatingNew ? <Button title="Retour" variant="secondary" onPress={() => setCreatingNew(false)} style={{ flex: 1 }} /> : null}
-              {creatingNew ? <Button title="Créer et ajouter" onPress={createAndAssign} loading={saving} style={{ flex: 1 }} /> : null}
+              {creatingNew ? <Button title={t('projectSubcontractors.back')} variant="secondary" onPress={() => setCreatingNew(false)} style={{ flex: 1 }} /> : null}
+              {creatingNew ? <Button title={t('projectSubcontractors.createAndAdd')} onPress={createAndAssign} loading={saving} style={{ flex: 1 }} /> : null}
             </View>
           </View>
         </View>

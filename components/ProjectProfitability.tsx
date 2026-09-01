@@ -6,13 +6,14 @@ import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { listProjectExpenses, createProjectExpense, deleteProjectExpense } from '../lib/api/expenses';
 import { Button, Card, EmptyState, Field } from './ui';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { Plan, ProjectExpense } from '../lib/types';
 
 const HOURS_PER_DAY = 8;
 
 function chf(n: number): string {
-  return `CHF ${n.toLocaleString('fr-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  return `CHF ${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 // Business days (Mon–Fri) in [start, end], inclusive — a simple stand-in
@@ -31,6 +32,7 @@ function businessDays(startIso: string, endIso: string): number {
 }
 
 export function ProjectProfitability({ projectId, organizationId }: { projectId: string; organizationId: string }) {
+  const { t } = useTranslation();
   const { user, organization } = useAuth();
   const router = useRouter();
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
@@ -92,12 +94,12 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
   const tone =
     marginPct === null
-      ? { fg: colors.textMuted, bg: colors.surfaceAlt, label: 'En attente d’un devis accepté' }
+      ? { fg: colors.textMuted, bg: colors.surfaceAlt, label: t('projectProfitability.toneWaiting') }
       : marginPct < 0
-        ? { fg: colors.danger, bg: colors.dangerSoft, label: 'Perte' }
+        ? { fg: colors.danger, bg: colors.dangerSoft, label: t('projectProfitability.toneLoss') }
         : marginPct < 15
-          ? { fg: colors.warning, bg: colors.warningSoft, label: 'Marge serrée' }
-          : { fg: colors.success, bg: colors.successSoft, label: 'Rentable' };
+          ? { fg: colors.warning, bg: colors.warningSoft, label: t('projectProfitability.toneTight') }
+          : { fg: colors.success, bg: colors.successSoft, label: t('projectProfitability.toneProfitable') };
 
   async function handleAddExpense() {
     if (!label.trim() || !amount.trim()) return;
@@ -123,13 +125,11 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
     return (
       <Card style={styles.upsell}>
         <Feather name="trending-up" size={22} color={colors.accent} />
-        <Text style={styles.upsellTitle}>Rentabilité par chantier</Text>
-        <Text style={styles.upsellText}>
-          Comparez le devis accepté au coût réel (matériel + main d’œuvre) pour savoir si un chantier est rentable.
-        </Text>
-        <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
+        <Text style={styles.upsellTitle}>{t('projectProfitability.upsellTitle')}</Text>
+        <Text style={styles.upsellText}>{t('projectProfitability.upsellText')}</Text>
+        <Text style={styles.upsellText}>{t('projectProfitability.upsellPlanHint')}</Text>
         <Button
-          title="Voir les plans"
+          title={t('projectProfitability.seePlans')}
           variant="secondary"
           icon="arrow-right"
           onPress={() => router.push('/(app)/compte')}
@@ -144,9 +144,7 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
       {hourlyCost === 0 ? (
         <Card style={styles.noticeCard}>
           <Feather name="info" size={16} color={colors.accent} />
-          <Text style={styles.noticeText}>
-            Réglez votre coût horaire moyen dans Compte → Facturation pour que la main d’œuvre soit comptée dans le calcul.
-          </Text>
+          <Text style={styles.noticeText}>{t('projectProfitability.hourlyCostNotice')}</Text>
         </Card>
       ) : null}
 
@@ -156,26 +154,28 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
         </View>
 
         <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Devisé (accepté)</Text>
+          <Text style={styles.summaryLabel}>{t('projectProfitability.devised')}</Text>
           <Text style={styles.summaryValue}>{chf(devisedTotal)}</Text>
         </View>
         {extraWorksTotal > 0 ? (
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Travaux supplémentaires (acceptés)</Text>
+            <Text style={styles.summaryLabel}>{t('projectProfitability.extraWorks')}</Text>
             <Text style={styles.summaryValue}>{chf(extraWorksTotal)}</Text>
           </View>
         ) : null}
         <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Coût matériel</Text>
+          <Text style={styles.summaryLabel}>{t('projectProfitability.materialCost')}</Text>
           <Text style={styles.summaryValueMuted}>− {chf(materialCost)}</Text>
         </View>
         <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Main d’œuvre ({laborDays} j × {HOURS_PER_DAY}h × {chf(hourlyCost)}/h)</Text>
+          <Text style={styles.summaryLabel}>
+            {t('projectProfitability.laborCost', { days: laborDays, hours: HOURS_PER_DAY, rate: chf(hourlyCost) })}
+          </Text>
           <Text style={styles.summaryValueMuted}>− {chf(laborCost)}</Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.summaryRow}>
-          <Text style={styles.marginLabel}>Marge</Text>
+          <Text style={styles.marginLabel}>{t('projectProfitability.margin')}</Text>
           <Text style={[styles.marginValue, { color: tone.fg }]}>
             {chf(margin)}
             {marginPct !== null ? ` (${marginPct.toFixed(0)}%)` : ''}
@@ -185,30 +185,30 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
       <View>
         <View style={styles.expensesHeader}>
-          <Text style={styles.sectionTitle}>Dépenses matériel</Text>
+          <Text style={styles.sectionTitle}>{t('projectProfitability.expensesTitle')}</Text>
           <Pressable onPress={() => setAddOpen((v) => !v)} style={styles.addButton} hitSlop={8}>
             <Feather name={addOpen ? 'x' : 'plus'} size={16} color={colors.primary} />
-            <Text style={styles.addButtonText}>{addOpen ? 'Annuler' : 'Ajouter une dépense'}</Text>
+            <Text style={styles.addButtonText}>{addOpen ? t('projectProfitability.cancel') : t('projectProfitability.addExpense')}</Text>
           </Pressable>
         </View>
 
         {addOpen ? (
           <Card style={styles.addCard}>
-            <Field label="Description" value={label} onChangeText={setLabel} placeholder="Ex : Achat carrelage — Dépôt Sàrl" />
-            <Field label="Montant (CHF)" value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
-            <Button title="Enregistrer" icon="check" onPress={handleAddExpense} loading={saving} style={{ marginTop: spacing.sm }} />
+            <Field label={t('projectProfitability.descriptionLabel')} value={label} onChangeText={setLabel} placeholder={t('projectProfitability.descriptionPlaceholder')} />
+            <Field label={t('projectProfitability.amountLabel')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
+            <Button title={t('projectProfitability.save')} icon="check" onPress={handleAddExpense} loading={saving} style={{ marginTop: spacing.sm }} />
           </Card>
         ) : null}
 
         {expenses.length === 0 ? (
-          <EmptyState title="Aucune dépense saisie" subtitle="Ajoutez vos achats de matériel au fur et à mesure du chantier." />
+          <EmptyState title={t('projectProfitability.emptyTitle')} subtitle={t('projectProfitability.emptySubtitle')} />
         ) : (
           <View style={{ gap: spacing.sm }}>
             {expenses.map((e) => (
               <Card key={e.id} style={styles.expenseRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.expenseLabel} numberOfLines={1}>{e.label}</Text>
-                  <Text style={styles.expenseDate}>{new Date(e.created_at).toLocaleDateString('fr-CH')}</Text>
+                  <Text style={styles.expenseDate}>{new Date(e.created_at).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                 </View>
                 <Text style={styles.expenseAmount}>{chf(Number(e.amount))}</Text>
                 <Pressable onPress={() => handleDelete(e.id)} hitSlop={8} style={styles.deleteButton}>
