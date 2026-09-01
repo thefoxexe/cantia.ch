@@ -3,13 +3,12 @@ import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-na
 import { Feather } from '@expo/vector-icons';
 import { DateField } from './DateField';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 export interface DateRange {
   start: string;
   end: string;
 }
-
-const DAY_LABELS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
 function toIso(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -35,7 +34,7 @@ function addMonths(d: Date, n: number): Date {
   return new Date(d.getFullYear(), d.getMonth() + n, 1);
 }
 function monthLabel(d: Date): string {
-  const label = d.toLocaleDateString('fr-CH', { month: 'long', year: 'numeric' });
+  const label = d.toLocaleDateString(`${getAppLocale()}-CH`, { month: 'long', year: 'numeric' });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
@@ -43,6 +42,8 @@ function monthLabel(d: Date): string {
 // phones, a stacked multi-month calendar on desktop (several months in a
 // row, so switching months doesn't mean losing sight of the one before).
 export function PayrollDateFilter({ range, onChange }: { range: DateRange; onChange: (r: DateRange) => void }) {
+  const { t } = useTranslation();
+  const dayLabels = t('payrollDateFilter.dayLabels', { returnObjects: true }) as string[];
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.tablet;
   const [monthsAnchor, setMonthsAnchor] = useState(() => startOfMonth(new Date()));
@@ -68,9 +69,9 @@ export function PayrollDateFilter({ range, onChange }: { range: DateRange; onCha
   return (
     <View>
       <View style={styles.quickRow}>
-        <QuickChip label="Aujourd'hui" active={isSingleDay && range.start === toIso(today)} onPress={setToday} />
-        <QuickChip label="Cette semaine" active={range.start === toIso(startOfWeek(today)) && range.end === toIso(addDays(startOfWeek(today), 6))} onPress={setThisWeek} />
-        <QuickChip label="Ce mois" active={range.start === toIso(startOfMonth(today)) && range.end === toIso(endOfMonth(today))} onPress={setThisMonth} />
+        <QuickChip label={t('payrollDateFilter.today')} active={isSingleDay && range.start === toIso(today)} onPress={setToday} />
+        <QuickChip label={t('payrollDateFilter.thisWeek')} active={range.start === toIso(startOfWeek(today)) && range.end === toIso(addDays(startOfWeek(today), 6))} onPress={setThisWeek} />
+        <QuickChip label={t('payrollDateFilter.thisMonth')} active={range.start === toIso(startOfMonth(today)) && range.end === toIso(endOfMonth(today))} onPress={setThisMonth} />
       </View>
 
       {isDesktop ? (
@@ -79,18 +80,18 @@ export function PayrollDateFilter({ range, onChange }: { range: DateRange; onCha
             <Pressable onPress={() => setMonthsAnchor((m) => addMonths(m, -1))} hitSlop={8} style={styles.navButton}>
               <Feather name="chevron-up" size={16} color={colors.text} />
             </Pressable>
-            <Text style={styles.navLabel}>Naviguer</Text>
+            <Text style={styles.navLabel}>{t('payrollDateFilter.navigate')}</Text>
             <Pressable onPress={() => setMonthsAnchor((m) => addMonths(m, 1))} hitSlop={8} style={styles.navButton}>
               <Feather name="chevron-down" size={16} color={colors.text} />
             </Pressable>
           </View>
           {[0, 1, 2].map((i) => (
-            <MiniMonth key={i} anchor={addMonths(monthsAnchor, i)} range={range} onPickDay={pickDay} />
+            <MiniMonth key={i} anchor={addMonths(monthsAnchor, i)} range={range} onPickDay={pickDay} dayLabels={dayLabels} />
           ))}
         </View>
       ) : (
         <View style={styles.mobileDateButton}>
-          <DateField label="Aller à une date" value={range.start} onChange={(v) => v && pickDay(v)} />
+          <DateField label={t('payrollDateFilter.goToDate')} value={range.start} onChange={(v) => v && pickDay(v)} />
         </View>
       )}
     </View>
@@ -105,7 +106,7 @@ function QuickChip({ label, active, onPress }: { label: string; active: boolean;
   );
 }
 
-function MiniMonth({ anchor, range, onPickDay }: { anchor: Date; range: DateRange; onPickDay: (iso: string) => void }) {
+function MiniMonth({ anchor, range, onPickDay, dayLabels }: { anchor: Date; range: DateRange; onPickDay: (iso: string) => void; dayLabels: string[] }) {
   const first = startOfMonth(anchor);
   const last = endOfMonth(anchor);
   const leading = (first.getDay() + 6) % 7;
@@ -116,7 +117,7 @@ function MiniMonth({ anchor, range, onPickDay }: { anchor: Date; range: DateRang
     <View style={styles.miniMonth}>
       <Text style={styles.miniMonthTitle}>{monthLabel(anchor)}</Text>
       <View style={styles.miniWeekRow}>
-        {DAY_LABELS.map((d, i) => (
+        {dayLabels.map((d, i) => (
           <Text key={i} style={styles.miniDayLabel}>{d}</Text>
         ))}
       </View>

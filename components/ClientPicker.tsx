@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { listClients, createClient } from '../lib/api/clients';
 import { Button, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 import type { Client, ClientType } from '../lib/types';
 
 // Trigger + modal used from devis/facture creation to fill the client fields
@@ -12,6 +13,7 @@ import type { Client, ClientType } from '../lib/types';
 // caller's own state (name/address/email) — devis/factures keep their own
 // free-text columns, this is purely a fast-fill shortcut.
 export function ClientPicker({ organizationId, onSelect }: { organizationId: string; onSelect: (client: Client) => void }) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,7 +56,7 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
 
   async function handleCreate() {
     if (!newName.trim()) {
-      setError('Le nom est requis.');
+      setError(t('newClient.nameRequired'));
       return;
     }
     setSaving(true);
@@ -70,7 +72,7 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
     });
     setSaving(false);
     if (createError || !id) {
-      setError(createError ?? 'Échec de la création.');
+      setError(createError ?? t('newClient.createFailed'));
       return;
     }
     pick({
@@ -99,14 +101,14 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
     <>
       <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
         <Feather name="users" size={15} color={colors.primary} />
-        <Text style={styles.triggerText}>Sélectionner ou créer un contact</Text>
+        <Text style={styles.triggerText}>{t('clientPicker.trigger')}</Text>
       </Pressable>
 
       <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
         <View style={styles.backdrop}>
           <View style={styles.card}>
             <View style={styles.header}>
-              <Text style={styles.title}>{creating ? 'Nouveau contact' : 'Choisir un contact'}</Text>
+              <Text style={styles.title}>{creating ? t('clientPicker.titleNew') : t('clientPicker.titlePick')}</Text>
               <Pressable onPress={close} hitSlop={8}>
                 <Feather name="x" size={18} color={colors.textMuted} />
               </Pressable>
@@ -115,26 +117,26 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
             {creating ? (
               <ScrollView contentContainerStyle={styles.form}>
                 <View style={styles.typeRow}>
-                  {(['particulier', 'entreprise'] as ClientType[]).map((t) => (
+                  {(['particulier', 'entreprise'] as ClientType[]).map((ct) => (
                     <Pressable
-                      key={t}
-                      onPress={() => setNewType(t)}
-                      style={[styles.typeChip, newType === t && styles.typeChipActive]}
+                      key={ct}
+                      onPress={() => setNewType(ct)}
+                      style={[styles.typeChip, newType === ct && styles.typeChipActive]}
                     >
-                      <Text style={[styles.typeChipText, newType === t && styles.typeChipTextActive]}>
-                        {t === 'particulier' ? 'Particulier' : 'Entreprise'}
+                      <Text style={[styles.typeChipText, newType === ct && styles.typeChipTextActive]}>
+                        {ct === 'particulier' ? t('newClient.typeParticulier') : t('newClient.typeEntreprise')}
                       </Text>
                     </Pressable>
                   ))}
                 </View>
-                <Field label="Nom" value={newName} onChangeText={setNewName} placeholder="Nom du contact" />
-                <Field label="E-mail" value={newEmail} onChangeText={setNewEmail} placeholder="client@exemple.ch" keyboardType="email-address" autoCapitalize="none" />
-                <Field label="Téléphone" value={newPhone} onChangeText={setNewPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
-                <Field label="Adresse" value={newAddress} onChangeText={setNewAddress} placeholder="Adresse" />
+                <Field label={t('newClient.nameLabel')} value={newName} onChangeText={setNewName} placeholder={t('newClient.namePlaceholder')} />
+                <Field label={t('newClient.emailLabel')} value={newEmail} onChangeText={setNewEmail} placeholder={t('newClient.emailPlaceholder')} keyboardType="email-address" autoCapitalize="none" />
+                <Field label={t('newClient.phoneLabel')} value={newPhone} onChangeText={setNewPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
+                <Field label={t('newClient.addressLabel')} value={newAddress} onChangeText={setNewAddress} placeholder={t('newClient.addressPlaceholder')} />
                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 <View style={styles.formActions}>
-                  <Button title="Retour" variant="secondary" onPress={() => setCreating(false)} style={{ flex: 1 }} />
-                  <Button title="Créer et choisir" onPress={handleCreate} loading={saving} style={{ flex: 1 }} />
+                  <Button title={t('clientPicker.back')} variant="secondary" onPress={() => setCreating(false)} style={{ flex: 1 }} />
+                  <Button title={t('clientPicker.createAndPick')} onPress={handleCreate} loading={saving} style={{ flex: 1 }} />
                 </View>
               </ScrollView>
             ) : (
@@ -144,7 +146,7 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
                   <TextInput
                     value={search}
                     onChangeText={setSearch}
-                    placeholder="Rechercher par nom, entreprise, e-mail"
+                    placeholder={t('clientPicker.searchPlaceholder')}
                     placeholderTextColor={colors.textMuted}
                     style={styles.searchInput}
                     autoCapitalize="none"
@@ -152,19 +154,19 @@ export function ClientPicker({ organizationId, onSelect }: { organizationId: str
                 </View>
                 <Pressable onPress={() => setCreating(true)} style={styles.newRow}>
                   <Feather name="plus" size={15} color={colors.primary} />
-                  <Text style={styles.newRowText}>Nouveau contact</Text>
+                  <Text style={styles.newRowText}>{t('clientPicker.newContact')}</Text>
                 </Pressable>
                 <ScrollView style={styles.list}>
                   {loading ? (
-                    <Text style={styles.hint}>Chargement…</Text>
+                    <Text style={styles.hint}>{t('clientPicker.loading')}</Text>
                   ) : filtered.length === 0 ? (
-                    <Text style={styles.hint}>Aucun contact.</Text>
+                    <Text style={styles.hint}>{t('clientPicker.empty')}</Text>
                   ) : (
                     filtered.map((c) => (
                       <Pressable key={c.id} onPress={() => pick(c)} style={styles.clientRow}>
                         <View>
                           <Text style={styles.clientName}>{c.name}</Text>
-                          <Text style={styles.clientMeta}>{[c.company_name, c.email].filter(Boolean).join(' · ') || 'Aucune information'}</Text>
+                          <Text style={styles.clientMeta}>{[c.company_name, c.email].filter(Boolean).join(' · ') || t('clientPicker.noInfo')}</Text>
                         </View>
                         <Feather name="chevron-right" size={16} color={colors.textMuted} />
                       </Pressable>

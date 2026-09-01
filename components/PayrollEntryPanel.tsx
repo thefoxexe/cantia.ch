@@ -25,18 +25,13 @@ import { Button, Card } from './ui';
 import { DateField } from './DateField';
 import { PayrollDateFilter, type DateRange } from './PayrollDateFilter';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import type { PayrollExpenseType, PayrollWorkType } from '../lib/types';
 
 interface PickItem {
   id: string;
   label: string;
 }
-
-const GRANULARITIES: { key: ExportGranularity; label: string }[] = [
-  { key: 'day', label: 'Journalier' },
-  { key: 'week', label: 'Hebdomadaire' },
-  { key: 'month', label: 'Mensuel' },
-];
 
 function toIso(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -152,7 +147,7 @@ function PickerCell({
   value,
   picked = true,
   noneLabel,
-  placeholder = 'Choisir…',
+  placeholder,
   options,
   disabled = false,
   onChange,
@@ -166,6 +161,8 @@ function PickerCell({
   disabled?: boolean;
   onChange: (id: string | null) => void;
 }) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('payrollEntry.choosePlaceholder');
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null);
   const triggerRef = useRef<View>(null);
@@ -181,7 +178,7 @@ function PickerCell({
     });
   }
 
-  const label = !picked ? placeholder : value ? options.find((o) => o.id === value)?.label ?? '—' : noneLabel;
+  const label = !picked ? resolvedPlaceholder : value ? options.find((o) => o.id === value)?.label ?? '—' : noneLabel;
 
   return (
     <>
@@ -256,6 +253,12 @@ export function PayrollEntryPanel({
   onRangeChange: (r: DateRange) => void;
   showCalendar?: boolean;
 }) {
+  const { t } = useTranslation();
+  const GRANULARITIES: { key: ExportGranularity; label: string }[] = [
+    { key: 'day', label: t('payrollEntry.granDay') },
+    { key: 'week', label: t('payrollEntry.granWeek') },
+    { key: 'month', label: t('payrollEntry.granMonth') },
+  ];
   const { width: windowWidth } = useWindowDimensions();
   const isMobile = windowWidth < MOBILE_BREAKPOINT;
 
@@ -459,11 +462,11 @@ export function PayrollEntryPanel({
     setShowExpenseForm(true);
   }
 
-  const selectedExpenseType = expenseTypes.find((t) => t.id === expenseTypeId) ?? null;
+  const selectedExpenseType = expenseTypes.find((et) => et.id === expenseTypeId) ?? null;
 
   async function submitExpense() {
     if (!expenseDate || !expenseTypeId) {
-      setExpenseError('La date et le type de frais sont requis.');
+      setExpenseError(t('payrollEntry.expenseDateTypeRequired'));
       return;
     }
     let amount: number;
@@ -471,14 +474,14 @@ export function PayrollEntryPanel({
     if (selectedExpenseType?.unit === 'km') {
       quantity = Number(expenseQuantity.replace(',', '.'));
       if (!quantity || quantity <= 0) {
-        setExpenseError('Indiquez un nombre de kilomètres valide.');
+        setExpenseError(t('payrollEntry.invalidKilometers'));
         return;
       }
       amount = Math.round(quantity * (selectedExpenseType.rate_chf ?? 0) * 100) / 100;
     } else {
       amount = Number(expenseAmount.replace(',', '.'));
       if (!amount || amount <= 0) {
-        setExpenseError('Indiquez un montant valide.');
+        setExpenseError(t('payrollEntry.invalidAmount'));
         return;
       }
     }
@@ -524,12 +527,12 @@ export function PayrollEntryPanel({
 
       <Card>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Heures</Text>
-          <Text style={styles.sectionTotal}>{totalHours} h</Text>
+          <Text style={styles.sectionTitle}>{t('payrollEntry.hoursTitle')}</Text>
+          <Text style={styles.sectionTotal}>{totalHours} {t('payrollEntry.hoursSuffix')}</Text>
         </View>
         <View style={styles.desktopHintRow}>
           <Feather name="monitor" size={12} color={colors.textMuted} />
-          <Text style={styles.desktopHintText}>Plus simple à utiliser sur ordinateur, sur grand écran.</Text>
+          <Text style={styles.desktopHintText}>{t('payrollEntry.desktopHint')}</Text>
         </View>
 
         {isMobile ? (
@@ -540,7 +543,7 @@ export function PayrollEntryPanel({
                   <PickerCell
                     containerStyle={styles.entryCardProject}
                     value={e.project_id}
-                    noneLabel="Sans chantier"
+                    noneLabel={t('payrollEntry.noProject')}
                     options={projects}
                     onChange={(id) => onPickEntryProject(e, id)}
                   />
@@ -551,7 +554,7 @@ export function PayrollEntryPanel({
                 <PickerCell
                   containerStyle={styles.entryCardFull}
                   value={e.work_type_id}
-                  noneLabel="Non précisé"
+                  noneLabel={t('payrollEntry.notSpecified')}
                   options={workTypeOptions}
                   onChange={(id) => onPickEntryWorkType(e, id)}
                 />
@@ -560,12 +563,12 @@ export function PayrollEntryPanel({
                   value={e.noteText}
                   onChangeText={(v) => setEntries((prev) => prev.map((x) => (x.id === e.id ? { ...x, noteText: v } : x)))}
                   onBlur={() => onEntryNoteBlur(e)}
-                  placeholder="Remarque (optionnel)"
+                  placeholder={t('payrollEntry.notePlaceholder')}
                   placeholderTextColor={colors.textMuted}
                 />
                 <View style={styles.entryCardTimeRow}>
                   <View style={styles.entryCardTimeField}>
-                    <Text style={styles.entryCardFieldLabel}>Début</Text>
+                    <Text style={styles.entryCardFieldLabel}>{t('payrollEntry.start')}</Text>
                     <TextInput
                       style={styles.cellInput}
                       value={e.startText}
@@ -576,7 +579,7 @@ export function PayrollEntryPanel({
                     />
                   </View>
                   <View style={styles.entryCardTimeField}>
-                    <Text style={styles.entryCardFieldLabel}>Fin</Text>
+                    <Text style={styles.entryCardFieldLabel}>{t('payrollEntry.end')}</Text>
                     <TextInput
                       style={styles.cellInput}
                       value={e.endText}
@@ -587,7 +590,7 @@ export function PayrollEntryPanel({
                     />
                   </View>
                   <View style={styles.entryCardTimeField}>
-                    <Text style={styles.entryCardFieldLabel}>Heures</Text>
+                    <Text style={styles.entryCardFieldLabel}>{t('payrollEntry.hours')}</Text>
                     <TextInput
                       style={[styles.cellInput, styles.cellInputRight]}
                       value={e.hoursText}
@@ -607,8 +610,8 @@ export function PayrollEntryPanel({
                   containerStyle={styles.entryCardProject}
                   value={draft.projectId}
                   picked={draft.projectPicked}
-                  noneLabel="Sans chantier"
-                  placeholder="+ Sélectionner un chantier"
+                  noneLabel={t('payrollEntry.noProject')}
+                  placeholder={t('payrollEntry.selectProjectPlaceholder')}
                   options={projects}
                   onChange={(id) => setDraft((d) => ({ ...d, projectId: id, projectPicked: true }))}
                 />
@@ -618,7 +621,7 @@ export function PayrollEntryPanel({
                 value={draft.workTypeId}
                 picked={draft.projectPicked}
                 disabled={!draft.projectPicked}
-                noneLabel="Non précisé"
+                noneLabel={t('payrollEntry.notSpecified')}
                 placeholder="—"
                 options={workTypeOptions}
                 onChange={(id) => setDraft((d) => ({ ...d, workTypeId: id }))}
@@ -628,12 +631,12 @@ export function PayrollEntryPanel({
                 value={draft.note}
                 onChangeText={(v) => setDraft((d) => ({ ...d, note: v }))}
                 editable={draft.projectPicked}
-                placeholder={draft.projectPicked ? 'Remarque (optionnel)' : '—'}
+                placeholder={draft.projectPicked ? t('payrollEntry.notePlaceholder') : '—'}
                 placeholderTextColor={colors.textMuted}
               />
               <View style={styles.entryCardTimeRow}>
                 <View style={styles.entryCardTimeField}>
-                  <Text style={styles.entryCardFieldLabel}>Début</Text>
+                  <Text style={styles.entryCardFieldLabel}>{t('payrollEntry.start')}</Text>
                   <TextInput
                     style={[styles.cellInput, !draft.projectPicked && styles.cellInputDisabled]}
                     value={draft.startText}
@@ -645,7 +648,7 @@ export function PayrollEntryPanel({
                   />
                 </View>
                 <View style={styles.entryCardTimeField}>
-                  <Text style={styles.entryCardFieldLabel}>Fin</Text>
+                  <Text style={styles.entryCardFieldLabel}>{t('payrollEntry.end')}</Text>
                   <TextInput
                     style={[styles.cellInput, !draft.projectPicked && styles.cellInputDisabled]}
                     value={draft.endText}
@@ -657,14 +660,14 @@ export function PayrollEntryPanel({
                   />
                 </View>
                 <View style={styles.entryCardTimeField}>
-                  <Text style={styles.entryCardFieldLabel}>Heures</Text>
+                  <Text style={styles.entryCardFieldLabel}>{t('payrollEntry.hours')}</Text>
                   <TextInput
                     style={[styles.cellInput, styles.cellInputRight, !draft.projectPicked && styles.cellInputDisabled]}
                     value={draft.hoursText}
                     onChangeText={(v) => setDraft((d) => ({ ...d, hoursText: v }))}
                     onBlur={commitDraft}
                     editable={draft.projectPicked && !savingDraft}
-                    placeholder={draft.projectPicked ? 'Ex : 4.30' : '—'}
+                    placeholder={draft.projectPicked ? t('payrollEntry.hoursExample') : '—'}
                     placeholderTextColor={colors.textMuted}
                     keyboardType="decimal-pad"
                     returnKeyType="done"
@@ -676,12 +679,12 @@ export function PayrollEntryPanel({
         ) : (
           <View style={styles.grid}>
             <View style={styles.gridHeaderRow}>
-              <Text style={[styles.gridHeaderCell, styles.colProject]}>Chantier</Text>
-              <Text style={[styles.gridHeaderCell, styles.colType]}>Type de travail</Text>
-              <Text style={[styles.gridHeaderCell, styles.colNote]}>Remarque</Text>
-              <Text style={[styles.gridHeaderCell, styles.colTime]}>Début</Text>
-              <Text style={[styles.gridHeaderCell, styles.colTime]}>Fin</Text>
-              <Text style={[styles.gridHeaderCell, styles.colHours]}>Heures</Text>
+              <Text style={[styles.gridHeaderCell, styles.colProject]}>{t('payrollEntry.colProject')}</Text>
+              <Text style={[styles.gridHeaderCell, styles.colType]}>{t('payrollEntry.colType')}</Text>
+              <Text style={[styles.gridHeaderCell, styles.colNote]}>{t('payrollEntry.colNote')}</Text>
+              <Text style={[styles.gridHeaderCell, styles.colTime]}>{t('payrollEntry.start')}</Text>
+              <Text style={[styles.gridHeaderCell, styles.colTime]}>{t('payrollEntry.end')}</Text>
+              <Text style={[styles.gridHeaderCell, styles.colHours]}>{t('payrollEntry.hours')}</Text>
               <View style={styles.colTrash} />
             </View>
 
@@ -690,14 +693,14 @@ export function PayrollEntryPanel({
                 <PickerCell
                   containerStyle={styles.colProject}
                   value={e.project_id}
-                  noneLabel="Sans chantier"
+                  noneLabel={t('payrollEntry.noProject')}
                   options={projects}
                   onChange={(id) => onPickEntryProject(e, id)}
                 />
                 <PickerCell
                   containerStyle={styles.colType}
                   value={e.work_type_id}
-                  noneLabel="Non précisé"
+                  noneLabel={t('payrollEntry.notSpecified')}
                   options={workTypeOptions}
                   onChange={(id) => onPickEntryWorkType(e, id)}
                 />
@@ -744,8 +747,8 @@ export function PayrollEntryPanel({
                 containerStyle={styles.colProject}
                 value={draft.projectId}
                 picked={draft.projectPicked}
-                noneLabel="Sans chantier"
-                placeholder="+ Sélectionner un chantier"
+                noneLabel={t('payrollEntry.noProject')}
+                placeholder={t('payrollEntry.selectProjectPlaceholder')}
                 options={projects}
                 onChange={(id) => setDraft((d) => ({ ...d, projectId: id, projectPicked: true }))}
               />
@@ -754,7 +757,7 @@ export function PayrollEntryPanel({
                 value={draft.workTypeId}
                 picked={draft.projectPicked}
                 disabled={!draft.projectPicked}
-                noneLabel="Non précisé"
+                noneLabel={t('payrollEntry.notSpecified')}
                 placeholder="—"
                 options={workTypeOptions}
                 onChange={(id) => setDraft((d) => ({ ...d, workTypeId: id }))}
@@ -764,7 +767,7 @@ export function PayrollEntryPanel({
                 value={draft.note}
                 onChangeText={(v) => setDraft((d) => ({ ...d, note: v }))}
                 editable={draft.projectPicked}
-                placeholder={draft.projectPicked ? 'Optionnel' : '—'}
+                placeholder={draft.projectPicked ? t('payrollEntry.noteOptionalPlaceholder') : '—'}
                 placeholderTextColor={colors.textMuted}
               />
               <TextInput
@@ -791,7 +794,7 @@ export function PayrollEntryPanel({
                 onChangeText={(v) => setDraft((d) => ({ ...d, hoursText: v }))}
                 onBlur={commitDraft}
                 editable={draft.projectPicked && !savingDraft}
-                placeholder={draft.projectPicked ? 'Ex : 4.30' : '—'}
+                placeholder={draft.projectPicked ? t('payrollEntry.hoursExample') : '—'}
                 placeholderTextColor={colors.textMuted}
                 keyboardType="decimal-pad"
                 returnKeyType="done"
@@ -803,14 +806,14 @@ export function PayrollEntryPanel({
 
         {draftError ? <Text style={styles.error}>{draftError}</Text> : null}
         {workTypes.length === 0 ? (
-          <Text style={styles.hint}>Aucun type de travail configuré — un administrateur peut en ajouter depuis Compte → RH & Salaires.</Text>
+          <Text style={styles.hint}>{t('payrollEntry.noWorkTypesHint')}</Text>
         ) : null}
       </Card>
 
       <Card>
-        <Text style={styles.sectionTitle}>Export du rapport</Text>
+        <Text style={styles.sectionTitle}>{t('payrollEntry.exportTitle')}</Text>
         <Text style={styles.exportIntro}>
-          La saisie ci-dessus est toujours journalière. Choisissez ici comment regrouper les heures dans le rapport exporté.
+          {t('payrollEntry.exportIntro')}
         </Text>
         <View style={styles.exportRow}>
           <View style={styles.granChips}>
@@ -822,26 +825,26 @@ export function PayrollEntryPanel({
           </View>
           <Pressable onPress={exportHours} style={styles.exportButton} hitSlop={8}>
             <Feather name="download" size={14} color={colors.primary} />
-            <Text style={styles.exportButtonText}>Exporter en CSV</Text>
+            <Text style={styles.exportButtonText}>{t('payrollEntry.exportCsv')}</Text>
           </Pressable>
         </View>
       </Card>
 
       <Card>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Frais professionnels</Text>
+          <Text style={styles.sectionTitle}>{t('payrollEntry.expensesTitle')}</Text>
           <Text style={styles.sectionTotal}>CHF {totalExpenses.toFixed(2)}</Text>
         </View>
         {!loading && expenses.length === 0 ? (
-          <Text style={styles.hint}>Aucun frais. Ex : trajets en voiture entre chantiers.</Text>
+          <Text style={styles.hint}>{t('payrollEntry.noExpensesHint')}</Text>
         ) : (
           <View style={{ gap: spacing.sm }}>
             {expenses.map((e) => (
               <View key={e.id} style={styles.entryRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.entryDate}>{new Date(`${e.expense_date}T00:00:00`).toLocaleDateString('fr-CH')}</Text>
+                  <Text style={styles.entryDate}>{new Date(`${e.expense_date}T00:00:00`).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                   <Text style={styles.entryMeta}>
-                    {e.expense_type_label ?? 'Frais'}
+                    {e.expense_type_label ?? t('payrollEntry.expenseFallback')}
                     {e.expense_type_unit === 'km' && e.quantity ? ` · ${e.quantity} km` : ''}
                     {e.project_name ? ` · ${e.project_name}` : ''}
                   </Text>
@@ -854,25 +857,25 @@ export function PayrollEntryPanel({
             ))}
           </View>
         )}
-        <Button title="Ajouter un frais" icon="plus" variant="secondary" onPress={openExpenseCreate} style={{ marginTop: spacing.md }} />
+        <Button title={t('payrollEntry.addExpense')} icon="plus" variant="secondary" onPress={openExpenseCreate} style={{ marginTop: spacing.md }} />
       </Card>
 
       <Modal visible={showExpenseForm} animationType="fade" transparent onRequestClose={() => setShowExpenseForm(false)}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
             <ScrollView>
-              <Text style={styles.sheetTitle}>Ajouter un frais</Text>
+              <Text style={styles.sheetTitle}>{t('payrollEntry.addExpenseTitle')}</Text>
 
-              <Text style={styles.fieldLabel}>1. Type de frais</Text>
+              <Text style={styles.fieldLabel}>{t('payrollEntry.expenseTypeStep')}</Text>
               {expenseTypes.length === 0 ? (
-                <Text style={styles.hint}>Aucun type de frais configuré — un administrateur peut en ajouter depuis Compte → RH & Salaires.</Text>
+                <Text style={styles.hint}>{t('payrollEntry.noExpenseTypesHint')}</Text>
               ) : (
                 <View style={styles.chips}>
-                  {expenseTypes.map((t) => (
-                    <Pressable key={t.id} onPress={() => selectExpenseType(t.id)} style={[styles.chip, expenseTypeId === t.id && styles.chipActive]}>
-                      <Text style={[styles.chipText, expenseTypeId === t.id && styles.chipTextActive]}>
-                        {t.label}
-                        {t.unit === 'km' && t.rate_chf != null ? ` (CHF ${t.rate_chf.toFixed(2)}/km)` : ''}
+                  {expenseTypes.map((et) => (
+                    <Pressable key={et.id} onPress={() => selectExpenseType(et.id)} style={[styles.chip, expenseTypeId === et.id && styles.chipActive]}>
+                      <Text style={[styles.chipText, expenseTypeId === et.id && styles.chipTextActive]}>
+                        {et.label}
+                        {et.unit === 'km' && et.rate_chf != null ? ` (CHF ${et.rate_chf.toFixed(2)}/km)` : ''}
                       </Text>
                     </Pressable>
                   ))}
@@ -881,10 +884,10 @@ export function PayrollEntryPanel({
 
               {expenseTypePicked ? (
                 <>
-                  <Text style={styles.fieldLabel}>2. Chantier (optionnel)</Text>
+                  <Text style={styles.fieldLabel}>{t('payrollEntry.expenseProjectStep')}</Text>
                   <View style={styles.chips}>
                     <Pressable onPress={() => setExpenseProjectId(null)} style={[styles.chip, expenseProjectId === null && styles.chipActive]}>
-                      <Text style={[styles.chipText, expenseProjectId === null && styles.chipTextActive]}>Sans chantier</Text>
+                      <Text style={[styles.chipText, expenseProjectId === null && styles.chipTextActive]}>{t('payrollEntry.noProject')}</Text>
                     </Pressable>
                     {projects.map((p) => (
                       <Pressable key={p.id} onPress={() => setExpenseProjectId(p.id)} style={[styles.chip, expenseProjectId === p.id && styles.chipActive]}>
@@ -895,15 +898,15 @@ export function PayrollEntryPanel({
 
                   <View style={styles.row2}>
                     <View style={styles.row2Item}>
-                      <DateField label="Date" value={expenseDate} onChange={(v) => setExpenseDate(v ?? '')} />
+                      <DateField label={t('payrollEntry.dateLabel')} value={expenseDate} onChange={(v) => setExpenseDate(v ?? '')} />
                     </View>
                     <View style={styles.row2Item}>
-                      <Text style={styles.fieldLabel}>{selectedExpenseType?.unit === 'km' ? 'Kilomètres' : 'Montant (CHF)'}</Text>
+                      <Text style={styles.fieldLabel}>{selectedExpenseType?.unit === 'km' ? t('payrollEntry.kilometersLabel') : t('payrollEntry.amountChfLabel')}</Text>
                       <TextInput
                         style={styles.numberInput}
                         value={selectedExpenseType?.unit === 'km' ? expenseQuantity : expenseAmount}
                         onChangeText={selectedExpenseType?.unit === 'km' ? setExpenseQuantity : setExpenseAmount}
-                        placeholder={selectedExpenseType?.unit === 'km' ? 'Ex : 24' : 'Ex : 35.50'}
+                        placeholder={selectedExpenseType?.unit === 'km' ? t('payrollEntry.kilometersExample') : t('payrollEntry.amountExample')}
                         placeholderTextColor={colors.textMuted}
                         keyboardType="decimal-pad"
                       />
@@ -915,14 +918,14 @@ export function PayrollEntryPanel({
                     </Text>
                   ) : null}
 
-                  <Text style={styles.fieldLabel}>Note (optionnel)</Text>
-                  <TextInput style={styles.noteInput} value={expenseNote} onChangeText={setExpenseNote} placeholder="Ex : trajet dépôt → chantier" placeholderTextColor={colors.textMuted} multiline />
+                  <Text style={styles.fieldLabel}>{t('payrollEntry.noteOptionalLabel')}</Text>
+                  <TextInput style={styles.noteInput} value={expenseNote} onChangeText={setExpenseNote} placeholder={t('payrollEntry.noteExample')} placeholderTextColor={colors.textMuted} multiline />
 
                   {expenseError ? <Text style={styles.error}>{expenseError}</Text> : null}
-                  <Button title="Ajouter" icon="check" onPress={submitExpense} loading={savingExpense} style={{ marginTop: spacing.md }} />
+                  <Button title={t('payrollEntry.add')} icon="check" onPress={submitExpense} loading={savingExpense} style={{ marginTop: spacing.md }} />
                 </>
               ) : null}
-              <Button title="Annuler" variant="secondary" onPress={() => setShowExpenseForm(false)} style={{ marginTop: spacing.sm }} />
+              <Button title={t('payrollEntry.cancel')} variant="secondary" onPress={() => setShowExpenseForm(false)} style={{ marginTop: spacing.sm }} />
             </ScrollView>
           </View>
         </View>

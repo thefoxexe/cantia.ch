@@ -3,6 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { Feather } from '@expo/vector-icons';
 import { listTrames, fetchTrame } from '../lib/api/trames';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 import type { DevisTrame, DevisTrameItem } from '../lib/types';
 
 // Trigger + modal used from devis creation to pre-fill the line items from a
@@ -10,6 +11,7 @@ import type { DevisTrame, DevisTrameItem } from '../lib/types';
 // inline "create" mode here: a trame's item list is involved enough that it
 // gets its own dedicated screen (devis/trames/new.tsx) instead.
 export function TramePicker({ organizationId, onSelect }: { organizationId: string; onSelect: (items: DevisTrameItem[]) => void }) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [trames, setTrames] = useState<DevisTrame[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,20 +40,20 @@ export function TramePicker({ organizationId, onSelect }: { organizationId: stri
     close();
   }
 
-  const filtered = trames.filter((t) => !search.trim() || t.name.toLowerCase().includes(search.trim().toLowerCase()));
+  const filtered = trames.filter((tr) => !search.trim() || tr.name.toLowerCase().includes(search.trim().toLowerCase()));
 
   return (
     <>
       <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
         <Feather name="layout" size={15} color={colors.primary} />
-        <Text style={styles.triggerText}>Utiliser une trame</Text>
+        <Text style={styles.triggerText}>{t('tramePicker.trigger')}</Text>
       </Pressable>
 
       <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
         <View style={styles.backdrop}>
           <View style={styles.card}>
             <View style={styles.header}>
-              <Text style={styles.title}>Choisir une trame</Text>
+              <Text style={styles.title}>{t('tramePicker.title')}</Text>
               <Pressable onPress={close} hitSlop={8}>
                 <Feather name="x" size={18} color={colors.textMuted} />
               </Pressable>
@@ -61,7 +63,7 @@ export function TramePicker({ organizationId, onSelect }: { organizationId: stri
               <TextInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Rechercher une trame"
+                placeholder={t('tramePicker.searchPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 style={styles.searchInput}
                 autoCapitalize="none"
@@ -69,14 +71,14 @@ export function TramePicker({ organizationId, onSelect }: { organizationId: stri
             </View>
             <ScrollView style={styles.list}>
               {loading ? (
-                <Text style={styles.hint}>Chargement…</Text>
+                <Text style={styles.hint}>{t('tramePicker.loading')}</Text>
               ) : filtered.length === 0 ? (
-                <Text style={styles.hint}>Aucune trame — créez-en une depuis la bibliothèque de trames.</Text>
+                <Text style={styles.hint}>{t('tramePicker.empty')}</Text>
               ) : (
-                filtered.map((t, i) => (
-                  <Pressable key={t.id} disabled={applying === t.id} onPress={() => pick(t)} style={[styles.row, i > 0 && styles.rowBorder]}>
-                    <Text style={styles.rowName}>{t.name}</Text>
-                    {applying === t.id ? <Text style={styles.hint}>…</Text> : <Feather name="chevron-right" size={16} color={colors.textMuted} />}
+                filtered.map((tr, i) => (
+                  <Pressable key={tr.id} disabled={applying === tr.id} onPress={() => pick(tr)} style={[styles.row, i > 0 && styles.rowBorder]}>
+                    <Text style={styles.rowName}>{tr.name}</Text>
+                    {applying === tr.id ? <Text style={styles.hint}>…</Text> : <Feather name="chevron-right" size={16} color={colors.textMuted} />}
                   </Pressable>
                 ))
               )}

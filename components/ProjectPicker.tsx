@@ -3,6 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 import type { Project } from '../lib/types';
 
 // Optional chantier link for a devis — purely organizational (it's what
@@ -18,6 +19,7 @@ export function ProjectPicker({
   selectedProject: Project | null;
   onSelect: (project: Project | null) => void;
 }) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,7 +59,7 @@ export function ProjectPicker({
             <Feather name="layers" size={18} color={colors.primary} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.selectedLabel}>Chantier lié</Text>
+            <Text style={styles.selectedLabel}>{t('projectPicker.linkedLabel')}</Text>
             <Text style={styles.selectedName}>{selectedProject.name}</Text>
             {selectedProject.client_name ? <Text style={styles.selectedMeta}>{selectedProject.client_name}</Text> : null}
           </View>
@@ -75,7 +77,7 @@ export function ProjectPicker({
       ) : (
         <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
           <Feather name="layers" size={16} color={colors.primary} />
-          <Text style={styles.triggerText}>Lier à un chantier (optionnel)</Text>
+          <Text style={styles.triggerText}>{t('projectPicker.trigger')}</Text>
           <Feather name="chevron-right" size={16} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
         </Pressable>
       )}
@@ -84,7 +86,7 @@ export function ProjectPicker({
         <View style={styles.backdrop}>
           <View style={styles.card}>
             <View style={styles.header}>
-              <Text style={styles.title}>Lier à un chantier</Text>
+              <Text style={styles.title}>{t('projectPicker.title')}</Text>
               <Pressable onPress={() => setVisible(false)} hitSlop={8}>
                 <Feather name="x" size={18} color={colors.textMuted} />
               </Pressable>
@@ -94,7 +96,7 @@ export function ProjectPicker({
               <TextInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Rechercher un chantier"
+                placeholder={t('projectPicker.searchPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 style={styles.searchInput}
                 autoCapitalize="none"
@@ -103,14 +105,14 @@ export function ProjectPicker({
             {selectedProject ? (
               <Pressable onPress={() => pick(null)} style={styles.clearRow}>
                 <Feather name="x-circle" size={15} color={colors.textMuted} />
-                <Text style={styles.clearRowText}>Ne lier à aucun chantier</Text>
+                <Text style={styles.clearRowText}>{t('projectPicker.clearSelection')}</Text>
               </Pressable>
             ) : null}
             <ScrollView style={styles.list}>
               {loading ? (
-                <Text style={styles.hint}>Chargement…</Text>
+                <Text style={styles.hint}>{t('projectPicker.loading')}</Text>
               ) : filtered.length === 0 ? (
-                <Text style={styles.hint}>Aucun chantier.</Text>
+                <Text style={styles.hint}>{t('projectPicker.empty')}</Text>
               ) : (
                 filtered.map((p) => (
                   <Pressable key={p.id} onPress={() => pick(p)} style={styles.projectRow}>
