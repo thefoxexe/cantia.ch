@@ -6,9 +6,11 @@ import { useAuth } from '../../../lib/auth-context';
 import { isModuleEnabled } from '../../../lib/modules';
 import { helpHref } from '../../../lib/appHost';
 import { Container, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
+type MenuKey = 'entreprise' | 'devis' | 'emails' | 'equipe' | 'facturation' | 'integrations' | 'modules' | 'notifications' | 'apparence' | 'stockage' | 'profil' | 'aide' | 'danger' | 'rh';
 
 // Du plus important au moins important pour faire tourner l'affaire, pas
 // alphabétique : l'identité de l'entreprise (tout en dépend, y compris la
@@ -16,36 +18,38 @@ type IconName = keyof typeof Feather.glyphMap;
 // (devis/factures, e-mails aux clients), puis l'équipe, puis le reste
 // (abonnement, modules, notifications) et enfin les réglages les plus
 // personnels/occasionnels (apparence, stockage, profil, aide) en dernier.
-const ITEMS: { href: string; icon: IconName; label: string; description: string; external?: boolean }[] = [
-  { href: '/(app)/compte/entreprise', icon: 'briefcase', label: 'Entreprise', description: "Coordonnées, TVA, IBAN et informations légales." },
-  { href: '/(app)/compte/devis', icon: 'file-text', label: 'Facturation', description: 'Réglages des devis et factures.' },
-  { href: '/(app)/compte/emails', icon: 'mail', label: 'E-mails', description: 'Textes des e-mails envoyés à vos clients (devis, factures, relances).' },
-  { href: '/(app)/compte/equipe', icon: 'users', label: 'Équipe', description: 'Membres, invitations et rôles personnalisés.' },
-  { href: '/(app)/compte/facturation', icon: 'credit-card', label: 'Abonnement', description: 'Votre plan et vos moyens de paiement.' },
+// Labels/descriptions come from compteMenu.<key> in lib/translations —
+// resolved in the component so they stay reactive to the current locale.
+const ITEMS: { href: string; icon: IconName; key: MenuKey; external?: boolean }[] = [
+  { href: '/(app)/compte/entreprise', icon: 'briefcase', key: 'entreprise' },
+  { href: '/(app)/compte/devis', icon: 'file-text', key: 'devis' },
+  { href: '/(app)/compte/emails', icon: 'mail', key: 'emails' },
+  { href: '/(app)/compte/equipe', icon: 'users', key: 'equipe' },
+  { href: '/(app)/compte/facturation', icon: 'credit-card', key: 'facturation' },
   // Visible to everyone regardless of plan — Bexio itself is gated inside
   // the screen (greyed out with an upgrade prompt below the Entreprise
   // plan), not by hiding the entry point, so what's missing is legible
   // rather than invisible.
-  { href: '/(app)/compte/integrations', icon: 'link', label: 'Intégrations', description: 'Connectez Bexio pour synchroniser clients, produits et factures.' },
-  { href: '/(app)/compte/modules', icon: 'grid', label: 'Outils & modules', description: "Sections de l'application activées pour votre équipe." },
-  { href: '/(app)/compte/notifications', icon: 'bell', label: 'Notifications', description: 'Choisissez ce qui vous alerte, et par quel canal.' },
-  { href: '/(app)/compte/apparence', icon: 'droplet', label: 'Apparence', description: 'Logo, couleur de marque et mise en page des PDF.' },
-  { href: '/(app)/compte/stockage', icon: 'hard-drive', label: 'Stockage', description: 'Espace utilisé par vos chantiers.' },
-  { href: '/(app)/compte/profil', icon: 'user', label: 'Mon profil', description: 'Nom, photo et mot de passe.' },
+  { href: '/(app)/compte/integrations', icon: 'link', key: 'integrations' },
+  { href: '/(app)/compte/modules', icon: 'grid', key: 'modules' },
+  { href: '/(app)/compte/notifications', icon: 'bell', key: 'notifications' },
+  { href: '/(app)/compte/apparence', icon: 'droplet', key: 'apparence' },
+  { href: '/(app)/compte/stockage', icon: 'hard-drive', key: 'stockage' },
+  { href: '/(app)/compte/profil', icon: 'user', key: 'profil' },
   // Opens the real cantia.ch/aide instead of a second, in-app copy of the
   // same content — see lib/appHost.ts's helpHref().
-  { href: helpHref(), icon: 'help-circle', label: 'Aide', description: 'Questions fréquentes et assistance.', external: true },
-  { href: '/(app)/compte/danger', icon: 'alert-triangle', label: 'Zone dangereuse', description: "Supprimer l'entreprise ou votre compte." },
+  { href: helpHref(), icon: 'help-circle', key: 'aide', external: true },
+  { href: '/(app)/compte/danger', icon: 'alert-triangle', key: 'danger' },
 ];
 
-const RH_ITEM: { href: string; icon: IconName; label: string; description: string; external?: boolean } = {
+const RH_ITEM: { href: string; icon: IconName; key: MenuKey; external?: boolean } = {
   href: '/(app)/compte/rh',
   icon: 'dollar-sign' as IconName,
-  label: 'RH & Salaires',
-  description: 'Types de travail, frais et cotisations utilisés par le module RH.',
+  key: 'rh',
 };
 
 export default function CompteIndexScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { organization, canManagePayroll } = useAuth();
   const [query, setQuery] = useState('');
@@ -57,10 +61,19 @@ export default function CompteIndexScreen() {
   // href instead of a hardcoded index so it stays correctly placed if
   // ITEMS above ever gets reordered again.
   const allItems = useMemo(() => {
-    if (!canManagePayroll || !isModuleEnabled(organization?.enabled_modules, 'payroll')) return ITEMS;
-    const insertAt = ITEMS.findIndex((item) => item.href === '/(app)/compte/devis') + 1;
-    return [...ITEMS.slice(0, insertAt), RH_ITEM, ...ITEMS.slice(insertAt)];
-  }, [canManagePayroll, organization?.enabled_modules]);
+    const base =
+      !canManagePayroll || !isModuleEnabled(organization?.enabled_modules, 'payroll')
+        ? ITEMS
+        : (() => {
+            const insertAt = ITEMS.findIndex((item) => item.href === '/(app)/compte/devis') + 1;
+            return [...ITEMS.slice(0, insertAt), RH_ITEM, ...ITEMS.slice(insertAt)];
+          })();
+    return base.map((item) => ({
+      ...item,
+      label: t(`compteMenu.${item.key}.label`),
+      description: t(`compteMenu.${item.key}.description`),
+    }));
+  }, [canManagePayroll, organization?.enabled_modules, t]);
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -72,14 +85,14 @@ export default function CompteIndexScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Compte" backTo="/(app)" />
+          <PageHeader title={t('compteMenu.title')} backTo="/(app)" />
           <View style={styles.searchBar}>
             <Feather name="search" size={16} color={colors.textMuted} />
             <TextInput
               style={styles.searchInput}
               value={query}
               onChangeText={setQuery}
-              placeholder="Rechercher un réglage…"
+              placeholder={t('compteMenu.searchPlaceholder')}
               placeholderTextColor={colors.textMuted}
             />
             {query ? (
@@ -89,7 +102,7 @@ export default function CompteIndexScreen() {
             ) : null}
           </View>
           {items.length === 0 ? (
-            <Text style={styles.empty}>Aucun réglage ne correspond à « {query} ».</Text>
+            <Text style={styles.empty}>{t('compteMenu.noResults', { query })}</Text>
           ) : (
             <View style={styles.list}>
               {items.map((item) => (
