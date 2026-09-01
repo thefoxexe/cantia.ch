@@ -110,6 +110,29 @@ export const de: TranslationDict = {
     team: 'Team',
     teamOnline: '{{online}} von {{total}} online',
   },
+  chantierDocuments: {
+    title: 'Dokumente',
+    hintTitle: 'Ein digitaler Ordner pro Baustelle',
+    hintText: 'Organisieren Sie Ihre Pläne und Dokumente in Ordnern und Unterordnern, wie in einem physischen Ordner.',
+  },
+  chantierPhotos: {
+    title: 'Fotos',
+    hintTitle: 'Alle Ihre Fotos, filterbar',
+    hintText: 'Alle Fotos Ihrer Rapporte erscheinen hier. Nach Datum filtern und die Position auf der Karte öffnen.',
+  },
+  chantierMap: {
+    title: 'Karte',
+    hintTitle: 'Alle Fotos auf einer Karte',
+    hintText: 'Die georeferenzierten Fotos aus den Neuigkeiten erscheinen hier auf dem Schweizer Kataster und Orthofoto.',
+  },
+  chantierReports: {
+    title: 'Rapporte',
+    newReport: 'Neuer Baustellenrapport',
+    emptyTitle: 'Kein Rapport',
+    emptySubtitle: 'Erstellen Sie einen Rapport mit Ihren Notizen und georeferenzierten Fotos.',
+    viewReport: 'Rapport ansehen',
+    pdfMissing: 'PDF nicht erstellt — Rapport ansehen',
+  },
   projectFeed: {
     you: 'Sie',
     cancelSelection: 'Auswahl abbrechen',

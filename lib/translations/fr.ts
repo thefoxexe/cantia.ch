@@ -91,6 +91,29 @@ export const fr = {
     team: 'Équipe',
     teamOnline: '{{online}} en ligne sur {{total}}',
   },
+  chantierDocuments: {
+    title: 'Documents',
+    hintTitle: 'Un classeur numérique par chantier',
+    hintText: 'Organisez vos plans et documents en dossiers et sous-dossiers, comme dans un classeur physique.',
+  },
+  chantierPhotos: {
+    title: 'Photos',
+    hintTitle: 'Toutes vos photos, filtrables',
+    hintText: 'Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte.',
+  },
+  chantierMap: {
+    title: 'Carte',
+    hintTitle: 'Toutes les photos, sur une carte',
+    hintText: "Les photos géolocalisées du fil d'actualité apparaissent ici sur le cadastre et l'orthophoto suisses.",
+  },
+  chantierReports: {
+    title: 'Rapports',
+    newReport: 'Nouveau rapport de chantier',
+    emptyTitle: 'Aucun rapport',
+    emptySubtitle: 'Créez un rapport avec vos notes et photos géoréférencées.',
+    viewReport: 'Voir le rapport',
+    pdfMissing: 'PDF non généré — voir le rapport',
+  },
   projectFeed: {
     you: 'Vous',
     cancelSelection: 'Annuler la sélection',

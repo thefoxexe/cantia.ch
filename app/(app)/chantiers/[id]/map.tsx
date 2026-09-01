@@ -4,9 +4,11 @@ import { useProject } from '../../../../lib/useProject';
 import { ProjectFeedMap } from '../../../../components/ProjectFeedMap';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
 export default function ChantierMapScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
 
@@ -21,7 +23,7 @@ export default function ChantierMapScreen() {
   return (
     <Screen>
       <PageHeader
-        title="Carte"
+        title={t('chantierMap.title')}
         backTo={`/(app)/chantiers/${id}`}
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
@@ -30,8 +32,8 @@ export default function ChantierMapScreen() {
           <FeatureHint
             id="chantier-map"
             icon="map"
-            title="Toutes les photos, sur une carte"
-            text="Les photos géolocalisées du fil d'actualité apparaissent ici sur le cadastre et l'orthophoto suisses."
+            title={t('chantierMap.hintTitle')}
+            text={t('chantierMap.hintText')}
           />
           <ProjectFeedMap projectId={id} />
         </View>

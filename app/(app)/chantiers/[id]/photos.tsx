@@ -4,9 +4,11 @@ import { useProject } from '../../../../lib/useProject';
 import { ProjectPhotos } from '../../../../components/ProjectPhotos';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
 export default function ChantierPhotosScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
 
@@ -21,7 +23,7 @@ export default function ChantierPhotosScreen() {
   return (
     <Screen>
       <PageHeader
-        title="Photos"
+        title={t('chantierPhotos.title')}
         backTo={`/(app)/chantiers/${id}`}
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
@@ -30,8 +32,8 @@ export default function ChantierPhotosScreen() {
           <FeatureHint
             id="chantier-photos"
             icon="image"
-            title="Toutes vos photos, filtrables"
-            text="Toutes les photos de vos rapports apparaissent ici. Filtrez par date et ouvrez leur position sur la carte."
+            title={t('chantierPhotos.hintTitle')}
+            text={t('chantierPhotos.hintText')}
           />
           <ProjectPhotos projectId={id} />
         </View>

@@ -4,9 +4,11 @@ import { useProject } from '../../../../lib/useProject';
 import { ProjectDocuments } from '../../../../components/ProjectDocuments';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
 export default function ChantierDocumentsScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
 
@@ -21,7 +23,7 @@ export default function ChantierDocumentsScreen() {
   return (
     <Screen>
       <PageHeader
-        title="Documents"
+        title={t('chantierDocuments.title')}
         backTo={`/(app)/chantiers/${id}`}
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
@@ -30,8 +32,8 @@ export default function ChantierDocumentsScreen() {
           <FeatureHint
             id="chantier-documents"
             icon="folder"
-            title="Un classeur numérique par chantier"
-            text="Organisez vos plans et documents en dossiers et sous-dossiers, comme dans un classeur physique."
+            title={t('chantierDocuments.hintTitle')}
+            text={t('chantierDocuments.hintText')}
           />
           <ProjectDocuments projectId={id} />
         </View>

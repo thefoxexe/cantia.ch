@@ -5,10 +5,12 @@ import { Feather } from '@expo/vector-icons';
 import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
 import { Button, EmptyState, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
+import { formatDate, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Report } from '../../../../lib/types';
 
 export default function ChantierReportsScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { project } = useProject(id);
@@ -38,17 +40,17 @@ export default function ChantierReportsScreen() {
 
   return (
     <Screen>
-      <PageHeader title="Rapports" backTo={`/(app)/chantiers/${id}`} style={styles.topBar} />
+      <PageHeader title={t('chantierReports.title')} backTo={`/(app)/chantiers/${id}`} style={styles.topBar} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
         <Button
-          title="Nouveau rapport de chantier"
+          title={t('chantierReports.newReport')}
           icon="plus"
           onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}
           style={{ marginBottom: spacing.lg }}
         />
 
         {reports.length === 0 && !loading ? (
-          <EmptyState title="Aucun rapport" subtitle="Créez un rapport avec vos notes et photos géoréférencées." />
+          <EmptyState title={t('chantierReports.emptyTitle')} subtitle={t('chantierReports.emptySubtitle')} />
         ) : (
           <View style={{ gap: spacing.md }}>
             {reports.map((r) => (
@@ -58,14 +60,14 @@ export default function ChantierReportsScreen() {
                     <Text style={styles.reportTitle}>{r.title}</Text>
                     <StatusBadge status={r.status} />
                   </View>
-                  <Text style={styles.meta}>{new Date(r.created_at).toLocaleDateString('fr-CH')}</Text>
+                  <Text style={styles.meta}>{formatDate(r.created_at)}</Text>
                   <View style={styles.pdfLink}>
                     <Feather
                       name={r.pdf_path ? 'file-text' : 'alert-triangle'}
                       size={14}
                       color={r.pdf_path ? colors.primary : colors.accent}
                     />
-                    <Text style={styles.pdfLinkText}>{r.pdf_path ? 'Voir le rapport' : 'PDF non généré — voir le rapport'}</Text>
+                    <Text style={styles.pdfLinkText}>{r.pdf_path ? t('chantierReports.viewReport') : t('chantierReports.pdfMissing')}</Text>
                   </View>
                 </Card>
               </Pressable>
