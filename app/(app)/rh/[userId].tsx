@@ -18,6 +18,7 @@ import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, SalaryType } from '../../../lib/types';
 
@@ -34,16 +35,17 @@ function toIso(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 function monthLabel(d: Date): string {
-  const label = d.toLocaleDateString('fr-CH', { month: 'long', year: 'numeric' });
+  const label = d.toLocaleDateString(`${getAppLocale()}-CH`, { month: 'long', year: 'numeric' });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 export default function PayrollProfileScreen() {
+  const { t } = useTranslation();
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const { organization, user, canManagePayroll } = useAuth();
   const router = useRouter();
   const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(new Date()));
-  const [memberName, setMemberName] = useState('Membre');
+  const [memberName, setMemberName] = useState(t('payrollProfile.memberFallback'));
   const [profile, setProfile] = useState<PayrollProfile | null>(null);
   const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
   const [overrides, setOverrides] = useState<PayrollProfileDeduction[]>([]);
@@ -86,7 +88,7 @@ export default function PayrollProfileScreen() {
       listProfileDeductions(organization.id, userId),
       listTimeEntries(organization.id, userId, rangeStart, rangeEnd),
     ]);
-    setMemberName(memberRow?.full_name || 'Membre');
+    setMemberName(memberRow?.full_name || t('payrollProfile.memberFallback'));
     setProfile(profileRow);
     setDeductionTypes(types.filter((t) => t.active));
     setOverrides(overrideRows);
@@ -181,10 +183,10 @@ export default function PayrollProfileScreen() {
     const { url, error: genError } = await generatePayslipPdf(String(userId), rangeStart);
     setExporting(false);
     if (genError || !url) {
-      setError(genError ?? 'Échec de la génération du PDF.');
+      setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
       return;
     }
-    const { error: dlError } = await downloadFile(url, `Salaire ${memberName} - ${monthLabel(monthAnchor)}.pdf`);
+    const { error: dlError } = await downloadFile(url, `${t('payrollProfile.payslipFilename', { name: memberName, month: monthLabel(monthAnchor) })}.pdf`);
     if (dlError) setError(dlError);
   }
 
@@ -199,11 +201,11 @@ export default function PayrollProfileScreen() {
   if (!canManagePayroll) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title="Fiche employé" backTo="/(app)/rh" />
+        <PageHeader title={t('payrollProfile.employeeSheetTitle')} backTo="/(app)/rh" />
         <Card style={styles.upsell}>
           <Feather name="lock" size={22} color={colors.textMuted} />
-          <Text style={styles.upsellTitle}>Accès non autorisé</Text>
-          <Text style={styles.upsellText}>Seuls la secrétaire RH et les administrateurs gèrent les fiches de salaire.</Text>
+          <Text style={styles.upsellTitle}>{t('payrollProfile.accessDeniedTitle')}</Text>
+          <Text style={styles.upsellText}>{t('payrollProfile.accessDeniedText')}</Text>
         </Card>
       </Screen>
     );
@@ -225,7 +227,7 @@ export default function PayrollProfileScreen() {
           <Pressable onPress={() => setMonthAnchor((m) => addMonths(m, -1))} hitSlop={8} style={styles.monthNavBtn}>
             <Feather name="chevron-left" size={18} color={colors.textMuted} />
           </Pressable>
-          <Text style={styles.pageSubtitle}>{monthLabel(monthAnchor)} — fiche de salaire.</Text>
+          <Text style={styles.pageSubtitle}>{t('payrollProfile.monthSuffix', { month: monthLabel(monthAnchor) })}</Text>
           <Pressable onPress={() => setMonthAnchor((m) => addMonths(m, 1))} hitSlop={8} style={styles.monthNavBtn}>
             <Feather name="chevron-right" size={18} color={colors.textMuted} />
           </Pressable>
@@ -235,31 +237,31 @@ export default function PayrollProfileScreen() {
           <Card style={styles.statsRow}>
             <View style={styles.stat}>
               <Text style={styles.statValue}>{totalHours} h</Text>
-              <Text style={styles.statLabel}>Heures ce mois</Text>
+              <Text style={styles.statLabel}>{t('payrollProfile.hoursThisMonth')}</Text>
             </View>
           </Card>
 
           <Card>
-            <Text style={styles.sectionTitle}>Salaire</Text>
+            <Text style={styles.sectionTitle}>{t('payrollProfile.salaryTitle')}</Text>
             <View style={styles.chips}>
               <Pressable onPress={() => setSalaryType('hourly')} style={[styles.chip, salaryType === 'hourly' && styles.chipActive]}>
-                <Text style={[styles.chipText, salaryType === 'hourly' && styles.chipTextActive]}>À l'heure</Text>
+                <Text style={[styles.chipText, salaryType === 'hourly' && styles.chipTextActive]}>{t('payrollProfile.hourly')}</Text>
               </Pressable>
               <Pressable onPress={() => setSalaryType('monthly')} style={[styles.chip, salaryType === 'monthly' && styles.chipActive]}>
-                <Text style={[styles.chipText, salaryType === 'monthly' && styles.chipTextActive]}>Salaire fixe</Text>
+                <Text style={[styles.chipText, salaryType === 'monthly' && styles.chipTextActive]}>{t('payrollProfile.monthly')}</Text>
               </Pressable>
             </View>
 
             {salaryType === 'hourly' ? (
-              <RateField label="Taux horaire" value={hourlyRate} onChange={setHourlyRate} suffix="CHF/h" />
+              <RateField label={t('payrollProfile.hourlyRateLabel')} value={hourlyRate} onChange={setHourlyRate} suffix="CHF/h" />
             ) : (
-              <RateField label="Salaire mensuel brut" value={monthlySalary} onChange={setMonthlySalary} suffix="CHF" />
+              <RateField label={t('payrollProfile.monthlySalaryLabel')} value={monthlySalary} onChange={setMonthlySalary} suffix="CHF" />
             )}
 
-            <Text style={styles.fieldLabel}>Notes (optionnel)</Text>
-            <TextInput style={styles.noteInput} value={notes} onChangeText={setNotes} placeholder="Ex : caisse de pension, particularités du contrat…" placeholderTextColor={colors.textMuted} multiline />
+            <Text style={styles.fieldLabel}>{t('payrollProfile.notesLabel')}</Text>
+            <TextInput style={styles.noteInput} value={notes} onChangeText={setNotes} placeholder={t('payrollProfile.notesPlaceholder')} placeholderTextColor={colors.textMuted} multiline />
 
-            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>Adresse postale (pour la fiche de salaire imprimable)</Text>
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.addressLabel')}</Text>
             <SwissAddressField
               value={street}
               onChangeText={setStreet}
@@ -268,25 +270,20 @@ export default function PayrollProfileScreen() {
                 setPostalCode(addr.postalCode);
                 setLocality(addr.locality);
               }}
-              placeholder="Rue et numéro"
+              placeholder={t('payrollProfile.streetPlaceholder')}
               inputStyle={styles.addressInput}
             />
             <View style={styles.addressRow}>
-              <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={handlePostalCodeChange} placeholder="NPA" placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
-              <TextInput style={[styles.addressInput, { flex: 1, minWidth: 0 }]} value={locality} onChangeText={setLocality} placeholder="Localité" placeholderTextColor={colors.textMuted} />
+              <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={handlePostalCodeChange} placeholder={t('payrollProfile.npaPlaceholder')} placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
+              <TextInput style={[styles.addressInput, { flex: 1, minWidth: 0 }]} value={locality} onChangeText={setLocality} placeholder={t('payrollProfile.localityPlaceholder')} placeholderTextColor={colors.textMuted} />
             </View>
           </Card>
 
           <Card>
-            <Text style={styles.sectionTitle}>Cotisations & taxes</Text>
-            <Text style={styles.hint}>
-              Taux repris de Compte → RH & Salaires, éditables ici pour cet employé uniquement. Décochez une ligne
-              qui ne s'applique pas à cette personne.
-            </Text>
+            <Text style={styles.sectionTitle}>{t('payrollProfile.deductionsTitle')}</Text>
+            <Text style={styles.hint}>{t('payrollProfile.deductionsHint')}</Text>
             {deductionTypes.length === 0 ? (
-              <Text style={styles.hint}>
-                Aucun type de cotisation configuré — ajoutez-en depuis Compte → RH & Salaires.
-              </Text>
+              <Text style={styles.hint}>{t('payrollProfile.noDeductionTypes')}</Text>
             ) : (
               <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
                 {deductionTypes.map((t) => (
@@ -311,24 +308,28 @@ export default function PayrollProfileScreen() {
             )}
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
+            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
           </Card>
 
           <Card>
             <Text style={styles.sectionTitle}>
-              {salaryType === 'hourly' ? `Brut estimé — ${monthLabel(monthAnchor)}` : `Brut fixe — ${monthLabel(monthAnchor)}`}
+              {salaryType === 'hourly'
+                ? t('payrollProfile.grossEstimated', { month: monthLabel(monthAnchor) })
+                : t('payrollProfile.grossFixed', { month: monthLabel(monthAnchor) })}
             </Text>
-            {salaryType === 'hourly' ? <Text style={styles.hint}>{totalHours} h × CHF {num(hourlyRate).toFixed(2)}/h</Text> : null}
+            {salaryType === 'hourly' ? (
+              <Text style={styles.hint}>{t('payrollProfile.hoursTimesRate', { hours: totalHours, rate: num(hourlyRate).toFixed(2) })}</Text>
+            ) : null}
             <View style={styles.breakdownRows}>
-              <BreakdownRow label="Salaire brut" value={breakdown.gross} bold />
+              <BreakdownRow label={t('payrollProfile.grossSalary')} value={breakdown.gross} bold />
               {breakdown.lines.map((l, i) => (
                 <BreakdownRow key={i} label={`− ${l.label}`} value={-l.amount} />
               ))}
               <View style={styles.breakdownDivider} />
-              <BreakdownRow label="Salaire net" value={breakdown.net} bold accent />
+              <BreakdownRow label={t('payrollProfile.netSalary')} value={breakdown.net} bold accent />
             </View>
             <Button
-              title="Exporter en PDF"
+              title={t('payrollProfile.exportPdf')}
               icon="download"
               variant="secondary"
               onPress={exportPayslip}
