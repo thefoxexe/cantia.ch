@@ -23,6 +23,7 @@ import {
 } from '../../../lib/api/roles';
 import { Button, Card, Container, Field, PageHeader, Screen, Switch } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { confirm } from '../../../lib/confirm';
 import { isOnline } from '../../../lib/presence';
@@ -51,14 +52,14 @@ type IconName = keyof typeof Feather.glyphMap;
 // membre sans rôle (default false) ; les autres défaultent à true pour
 // qu'un rôle n'ait besoin de décocher que ce qui doit être restreint,
 // sans devoir tout re-accorder ailleurs.
-const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName; label: string; description: string }[] = [
-  { key: 'canViewFinances', icon: 'file-text', label: 'Finance', description: 'Devis, factures et rentabilité par chantier.' },
-  { key: 'canViewMetre', icon: 'list', label: 'Métré', description: 'Tableau de quantités poste par poste.' },
-  { key: 'canViewPlanning', icon: 'calendar', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
-  { key: 'canViewDocuments', icon: 'folder', label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
-  { key: 'canViewSubcontractors', icon: 'users', label: 'Sous-traitants', description: 'Entreprises sous-traitées par chantier et leurs attestations.' },
-  { key: 'canCreateProjects', icon: 'plus-circle', label: 'Création de chantier', description: 'Créer de nouveaux chantiers.' },
-  { key: 'canManagePayroll', icon: 'dollar-sign', label: 'RH & salaires', description: "Fiches, heures et salaires de toute l'équipe." },
+const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName }[] = [
+  { key: 'canViewFinances', icon: 'file-text' },
+  { key: 'canViewMetre', icon: 'list' },
+  { key: 'canViewPlanning', icon: 'calendar' },
+  { key: 'canViewDocuments', icon: 'folder' },
+  { key: 'canViewSubcontractors', icon: 'users' },
+  { key: 'canCreateProjects', icon: 'plus-circle' },
+  { key: 'canManagePayroll', icon: 'dollar-sign' },
 ];
 
 interface RoleDraft {
@@ -84,6 +85,7 @@ const EMPTY_DRAFT: RoleDraft = {
 };
 
 export default function EquipeScreen() {
+  const { t } = useTranslation();
   const { organization, role, user } = useAuth();
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [roles, setRoles] = useState<OrganizationRole[]>([]);
@@ -136,11 +138,11 @@ export default function EquipeScreen() {
   }, [members]);
 
   function pillFor(member: OrganizationMember): { bg: string; fg: string; label: string } {
-    if (member.role === 'owner') return { ...OWNER_PILL, label: 'Propriétaire' };
-    if (member.role === 'admin') return { ...ADMIN_PILL, label: 'Administrateur' };
+    if (member.role === 'owner') return { ...OWNER_PILL, label: t('equipe.owner') };
+    if (member.role === 'admin') return { ...ADMIN_PILL, label: t('equipe.admin') };
     const custom = member.role_id ? rolesById.get(member.role_id) : null;
     if (custom) return { bg: `${custom.color}22`, fg: custom.color, label: custom.name };
-    return { ...NO_ROLE_PILL, label: 'Membre' };
+    return { ...NO_ROLE_PILL, label: t('common.member') };
   }
 
   async function toggleMemberRole(member: OrganizationMember) {
@@ -204,7 +206,7 @@ export default function EquipeScreen() {
     if (!organization || !roleDraft) return;
     const name = roleDraft.name.trim();
     if (!name) {
-      setRoleDraftError('Donnez un nom à ce rôle.');
+      setRoleDraftError(t('equipe.nameRequired'));
       return;
     }
     setSavingRole(true);
@@ -214,7 +216,7 @@ export default function EquipeScreen() {
       : await createOrgRole(organization.id, name, roleDraft.color, roleDraft.permissions);
     setSavingRole(false);
     if (error) {
-      setRoleDraftError(error.includes('duplicate') ? 'Un rôle porte déjà ce nom.' : error);
+      setRoleDraftError(error.includes('duplicate') ? t('equipe.duplicateName') : error);
       return;
     }
     setRoleDraft(null);
@@ -226,10 +228,8 @@ export default function EquipeScreen() {
     if (!roleDraft?.id) return;
     const count = memberCountByRole.get(roleDraft.id) ?? 0;
     const ok = await confirm(
-      'Supprimer ce rôle ?',
-      count > 0
-        ? `${count} membre${count > 1 ? 's' : ''} retrouve${count > 1 ? 'nt' : ''} le statut "Membre" sans accès particulier.`
-        : 'Cette action est définitive.',
+      t('equipe.deleteRoleConfirmTitle'),
+      count > 0 ? t('equipe.deleteRoleWithMembers', { count }) : t('equipe.deleteRoleNoMembers'),
     );
     if (!ok) return;
     setSavingRole(true);
@@ -250,11 +250,11 @@ export default function EquipeScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Équipe" backTo="/(app)/compte" />
+          <PageHeader title={t('equipe.title')} backTo="/(app)/compte" />
 
           {isAdmin && joinRequests.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Demandes d'adhésion</Text>
+              <Text style={styles.sectionTitle}>{t('equipe.joinRequestsTitle')}</Text>
               {requestError ? <Text style={styles.error}>{requestError}</Text> : null}
               {joinRequests.map((r) => (
                 <Card key={r.id} style={styles.requestCard}>
@@ -269,7 +269,7 @@ export default function EquipeScreen() {
                       disabled={respondingId === r.id}
                     >
                       <Feather name="check" size={13} color={colors.success} />
-                      <Text style={[styles.requestButtonText, { color: colors.success }]}>Accepter</Text>
+                      <Text style={[styles.requestButtonText, { color: colors.success }]}>{t('equipe.accept')}</Text>
                     </Pressable>
                     <Pressable
                       style={[styles.requestButton, styles.requestButtonReject]}
@@ -277,7 +277,7 @@ export default function EquipeScreen() {
                       disabled={respondingId === r.id}
                     >
                       <Feather name="x" size={13} color={colors.danger} />
-                      <Text style={[styles.requestButtonText, { color: colors.danger }]}>Refuser</Text>
+                      <Text style={[styles.requestButtonText, { color: colors.danger }]}>{t('equipe.reject')}</Text>
                     </Pressable>
                   </View>
                 </Card>
@@ -288,7 +288,7 @@ export default function EquipeScreen() {
           {isAdmin ? (
             <View style={styles.section}>
               <Button
-                title="Inviter un membre"
+                title={t('equipe.inviteMember')}
                 icon="user-plus"
                 variant="secondary"
                 onPress={handleInvite}
@@ -296,10 +296,7 @@ export default function EquipeScreen() {
                 disabled={atCapacity}
               />
               {atCapacity ? (
-                <Text style={styles.capacityHint}>
-                  Votre plan est limité à {maxMembers} membre{maxMembers && maxMembers > 1 ? 's' : ''}. Passez à un
-                  plan supérieur pour inviter plus de monde.
-                </Text>
+                <Text style={styles.capacityHint}>{t('equipe.capacityMembersHint', { count: maxMembers ?? 0 })}</Text>
               ) : null}
 
               {invites.map((invite) => (
@@ -308,18 +305,18 @@ export default function EquipeScreen() {
                     {inviteUrl(invite.token)}
                   </Text>
                   <Text style={styles.inviteMeta}>
-                    Expire le {new Date(invite.expires_at).toLocaleDateString('fr-CH')}
+                    {t('equipe.expiresOn', { date: formatDate(invite.expires_at) })}
                   </Text>
                   <View style={styles.inviteActions}>
                     <Pressable style={styles.inviteActionButton} onPress={() => handleShare(invite)}>
                       <Feather name={Platform.OS === 'web' ? 'copy' : 'share'} size={13} color={colors.primary} />
                       <Text style={styles.inviteActionText}>
-                        {copiedId === invite.id ? 'Copié !' : Platform.OS === 'web' ? 'Copier le lien' : 'Partager'}
+                        {copiedId === invite.id ? t('equipe.copied') : Platform.OS === 'web' ? t('equipe.copyLink') : t('equipe.share')}
                       </Text>
                     </Pressable>
                     <Pressable style={styles.inviteActionButton} onPress={() => handleRevoke(invite)}>
                       <Feather name="x" size={13} color={colors.danger} />
-                      <Text style={[styles.inviteActionText, { color: colors.danger }]}>Révoquer</Text>
+                      <Text style={[styles.inviteActionText, { color: colors.danger }]}>{t('equipe.revoke')}</Text>
                     </Pressable>
                   </View>
                 </Card>
@@ -330,8 +327,8 @@ export default function EquipeScreen() {
           {isAdmin ? (
             <View style={styles.section}>
               <View style={styles.rolesHeaderRow}>
-                <Text style={styles.sectionTitle}>Rôles</Text>
-                <Text style={styles.rolesHint}>Donnez à certains membres l'accès aux devis & factures.</Text>
+                <Text style={styles.sectionTitle}>{t('equipe.rolesTitle')}</Text>
+                <Text style={styles.rolesHint}>{t('equipe.rolesHint')}</Text>
               </View>
               <View style={styles.roleChipRow}>
                 {roles.map((r) => (
@@ -365,15 +362,12 @@ export default function EquipeScreen() {
                 {rolesAtCapacity ? null : (
                   <Pressable style={styles.roleChipNew} onPress={() => setRoleDraft(EMPTY_DRAFT)}>
                     <Feather name="plus" size={13} color={colors.textMuted} />
-                    <Text style={styles.roleChipNewText}>Nouveau rôle</Text>
+                    <Text style={styles.roleChipNewText}>{t('equipe.newRole')}</Text>
                   </Pressable>
                 )}
               </View>
               {rolesAtCapacity ? (
-                <Text style={styles.capacityHint}>
-                  Votre plan est limité à {maxOrgRoles} rôles. Passez à Équipe pour créer des rôles personnalisés en
-                  nombre illimité.
-                </Text>
+                <Text style={styles.capacityHint}>{t('equipe.capacityRolesHint', { count: maxOrgRoles ?? 0 })}</Text>
               ) : null}
             </View>
           ) : null}
@@ -390,8 +384,8 @@ export default function EquipeScreen() {
                       <View style={[styles.presenceDot, isOnline(m.last_seen_at) && styles.presenceDotOnline]} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.memberName}>{m.full_name || 'Membre'}</Text>
-                      <Text style={styles.memberMeta}>{isOnline(m.last_seen_at) ? 'En ligne' : 'Hors ligne'}</Text>
+                      <Text style={styles.memberName}>{m.full_name || t('common.member')}</Text>
+                      <Text style={styles.memberMeta}>{isOnline(m.last_seen_at) ? t('equipe.online') : t('equipe.offline')}</Text>
                     </View>
                   </View>
 
@@ -407,7 +401,7 @@ export default function EquipeScreen() {
                     {isAdmin && m.role !== 'owner' ? (
                       <View style={styles.memberActions}>
                         <Pressable style={styles.memberActionButton} onPress={() => toggleMemberRole(m)}>
-                          <Text style={styles.memberActionText}>{m.role === 'admin' ? 'Rétrograder' : 'Promouvoir'}</Text>
+                          <Text style={styles.memberActionText}>{m.role === 'admin' ? t('equipe.demote') : t('equipe.promote')}</Text>
                         </Pressable>
                         {m.user_id !== user?.id ? (
                           <Pressable hitSlop={8} onPress={() => removeMember(m)}>
@@ -429,14 +423,14 @@ export default function EquipeScreen() {
         <View style={styles.sheetOverlay}>
           <View style={styles.sheet}>
             <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Rôle de {assigningMember?.full_name || 'ce membre'}</Text>
+              <Text style={styles.sheetTitle}>{t('equipe.roleOf', { name: assigningMember?.full_name || t('equipe.thisMember') })}</Text>
               <Pressable onPress={() => setAssigningMember(null)} hitSlop={10}>
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
             </View>
             <Pressable style={styles.roleOption} onPress={() => handleAssignRole(null)}>
               <View style={[styles.roleChipDot, { backgroundColor: colors.textMuted }]} />
-              <Text style={styles.roleOptionText}>Aucun rôle (Membre)</Text>
+              <Text style={styles.roleOptionText}>{t('equipe.noRoleMember')}</Text>
               {!assigningMember?.role_id ? <Feather name="check" size={16} color={colors.primary} /> : null}
             </Pressable>
             {roles.map((r) => (
@@ -447,7 +441,7 @@ export default function EquipeScreen() {
               </Pressable>
             ))}
             {roles.length === 0 ? (
-              <Text style={styles.rolesHint}>Créez un rôle depuis la section "Rôles" pour pouvoir l'assigner ici.</Text>
+              <Text style={styles.rolesHint}>{t('equipe.createRoleHint')}</Text>
             ) : null}
           </View>
         </View>
@@ -458,20 +452,20 @@ export default function EquipeScreen() {
         <View style={styles.sheetOverlay}>
           <View style={styles.sheet}>
             <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>{roleDraft?.id ? 'Modifier le rôle' : 'Nouveau rôle'}</Text>
+              <Text style={styles.sheetTitle}>{roleDraft?.id ? t('equipe.editRole') : t('equipe.newRole')}</Text>
               <Pressable onPress={() => setRoleDraft(null)} hitSlop={10}>
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
             </View>
 
             <Field
-              label="Nom"
+              label={t('equipe.nameLabel')}
               value={roleDraft?.name ?? ''}
               onChangeText={(v) => setRoleDraft((d) => (d ? { ...d, name: v } : d))}
-              placeholder="Secrétaire, Finance…"
+              placeholder={t('equipe.namePlaceholder')}
             />
 
-            <Text style={styles.fieldLabel}>Couleur</Text>
+            <Text style={styles.fieldLabel}>{t('equipe.colorLabel')}</Text>
             <View style={styles.colorRow}>
               {ROLE_COLORS.map((c) => (
                 <Pressable
@@ -484,14 +478,14 @@ export default function EquipeScreen() {
               ))}
             </View>
 
-            <Text style={styles.fieldLabel}>Accès</Text>
+            <Text style={styles.fieldLabel}>{t('equipe.accessLabel')}</Text>
             <View style={{ gap: spacing.sm }}>
               {PERMISSION_CATALOG.map((p) => (
                 <View key={p.key} style={styles.permissionRow}>
                   <Feather name={p.icon} size={15} color={colors.textMuted} />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.permissionTitle}>{p.label}</Text>
-                    <Text style={styles.permissionSubtitle}>{p.description}</Text>
+                    <Text style={styles.permissionTitle}>{t(`equipe.permissions.${p.key}.label` as any)}</Text>
+                    <Text style={styles.permissionSubtitle}>{t(`equipe.permissions.${p.key}.description` as any)}</Text>
                   </View>
                   <Switch
                     value={roleDraft?.permissions[p.key] ?? false}
@@ -507,9 +501,9 @@ export default function EquipeScreen() {
 
             <View style={styles.sheetActions}>
               {roleDraft?.id ? (
-                <Button title="Supprimer" variant="danger" onPress={handleDeleteRole} disabled={savingRole} style={{ flex: 1 }} />
+                <Button title={t('equipe.delete')} variant="danger" onPress={handleDeleteRole} disabled={savingRole} style={{ flex: 1 }} />
               ) : null}
-              <Button title="Enregistrer" onPress={saveRoleDraft} loading={savingRole} style={{ flex: 1 }} />
+              <Button title={t('common.save')} onPress={saveRoleDraft} loading={savingRole} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
