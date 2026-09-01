@@ -12,9 +12,11 @@ import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 export default function ApparenceScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { organization, role, refreshOrganization } = useAuth();
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -97,26 +99,26 @@ export default function ApparenceScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Apparence" backTo="/(app)/compte" />
+          <PageHeader title={t('apparence.title')} backTo="/(app)/compte" />
 
-          <Text style={styles.hint}>
-            Le logo et la couleur de marque habillent automatiquement vos devis et rapports PDF.
-          </Text>
+          <Text style={styles.hint}>{t('apparence.intro')}</Text>
 
           <Card style={styles.previewCard}>
             <View style={[styles.previewBand, { backgroundColor: previewColor }]}>
-              <Text style={styles.previewBandText}>DEVIS</Text>
+              <Text style={styles.previewBandText}>{t('apparence.previewBand')}</Text>
             </View>
             <View style={styles.previewBody}>
               <Text style={[styles.previewOrgName, { color: previewColor }]} numberOfLines={1}>
-                {organization?.name || 'Votre entreprise'}
+                {organization?.name || t('apparence.previewOrgFallback')}
               </Text>
-              <Text style={styles.previewTrade}>{(organization?.trade || 'Métier').toUpperCase()} · Aperçu</Text>
-              <Text style={styles.previewTotal}>Total 1'234.50 CHF</Text>
+              <Text style={styles.previewTrade}>
+                {t('apparence.previewTradeSuffix', { trade: (organization?.trade || t('apparence.previewTradeFallback')).toUpperCase() })}
+              </Text>
+              <Text style={styles.previewTotal}>{t('apparence.previewTotal')}</Text>
             </View>
           </Card>
 
-          <Text style={styles.sectionTitle}>Logo</Text>
+          <Text style={styles.sectionTitle}>{t('apparence.logoTitle')}</Text>
           <View style={styles.brandingRow}>
             <View style={styles.brandingItem}>
               {logoUrl ? (
@@ -128,23 +130,20 @@ export default function ApparenceScreen() {
               )}
               {isAdmin ? (
                 <Pressable style={styles.brandingButton} onPress={pickLogo}>
-                  <Text style={styles.brandingButtonText}>Choisir un logo</Text>
+                  <Text style={styles.brandingButtonText}>{t('apparence.chooseLogo')}</Text>
                 </Pressable>
               ) : null}
             </View>
           </View>
-          <Text style={styles.hint}>
-            La signature (sur les devis et rapports) est personnelle à chaque membre — chacun ajoute la sienne dans
-            l'onglet « Mon profil ».
-          </Text>
+          <Text style={styles.hint}>{t('apparence.signatureHint')}</Text>
 
           {hasCustomization === false ? (
             <Card style={styles.upsell}>
               <Feather name="lock" size={20} color={colors.accent} />
-              <Text style={styles.upsellTitle}>Couleur de marque, placement du logo, pied de page</Text>
-              <Text style={styles.hint}>Disponible à partir du plan Indépendant (dès CHF 9/mois).</Text>
+              <Text style={styles.upsellTitle}>{t('apparence.upsellTitle')}</Text>
+              <Text style={styles.hint}>{t('apparence.upsellPlanHint')}</Text>
               <Button
-                title="Voir les plans"
+                title={t('apparence.seePlans')}
                 variant="secondary"
                 icon="arrow-right"
                 onPress={() => router.push('/(app)/compte/facturation')}
@@ -153,13 +152,13 @@ export default function ApparenceScreen() {
             </Card>
           ) : (
             <>
-              <Text style={styles.sectionTitle}>Couleur de marque</Text>
-              <Text style={styles.hint}>Suggérée automatiquement quand vous changez de logo — modifiable ci-dessous.</Text>
+              <Text style={styles.sectionTitle}>{t('apparence.brandColorTitle')}</Text>
+              <Text style={styles.hint}>{t('apparence.brandColorHint')}</Text>
               {isAdmin && website.trim() ? (
                 <Pressable onPress={analyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
                   <Feather name="globe" size={13} color={colors.primary} />
                   <Text style={styles.analyzeLinkText}>
-                    {analyzingWebsite ? 'Analyse du site en cours…' : 'Analyser les couleurs de mon site web'}
+                    {analyzingWebsite ? t('apparence.analyzing') : t('apparence.analyzeWebsite')}
                   </Text>
                 </Pressable>
               ) : null}
@@ -183,7 +182,7 @@ export default function ApparenceScreen() {
                 <View style={[styles.hexPreview, { backgroundColor: previewColor }]} />
                 <View style={{ flex: 1 }}>
                   <Field
-                    label="Couleur personnalisée (hex)"
+                    label={t('apparence.customColorLabel')}
                     value={brandColor}
                     onChangeText={setBrandColor}
                     editable={isAdmin}
@@ -193,10 +192,10 @@ export default function ApparenceScreen() {
                 </View>
               </View>
               {isAdmin && brandColor.trim() && !HEX_COLOR_RE.test(brandColor.trim()) ? (
-                <Text style={styles.errorHint}>Format attendu : #RRGGBB</Text>
+                <Text style={styles.errorHint}>{t('apparence.hexFormatError')}</Text>
               ) : null}
 
-              <Text style={styles.sectionTitle}>Placement du logo sur vos PDF</Text>
+              <Text style={styles.sectionTitle}>{t('apparence.logoPlacementTitle')}</Text>
               <View style={styles.placementRow}>
                 {LOGO_PLACEMENTS.map((p) => (
                   <Pressable
@@ -206,25 +205,25 @@ export default function ApparenceScreen() {
                     style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
                   >
                     <Feather name={p.icon} size={14} color={logoPlacement === p.id ? colors.primary : colors.textMuted} />
-                    <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{p.label}</Text>
+                    <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{t(`apparence.logoPlacements.${p.id}` as any)}</Text>
                   </Pressable>
                 ))}
               </View>
 
-              <Text style={styles.sectionTitle}>Pied de page</Text>
+              <Text style={styles.sectionTitle}>{t('apparence.footerTitle')}</Text>
               <Field
-                label="Pied de page personnalisé (PDF)"
+                label={t('apparence.footerLabel')}
                 value={footerText}
                 onChangeText={setFooterText}
                 editable={isAdmin}
-                placeholder="Ex : Rue Example 1, 1000 Lausanne — www.entreprise.ch"
+                placeholder={t('apparence.footerPlaceholder')}
               />
-              <Text style={styles.hint}>Remplace le nom de l'entreprise en bas de page. Laissez vide pour garder le nom.</Text>
+              <Text style={styles.hint}>{t('apparence.footerHint')}</Text>
             </>
           )}
 
           {isAdmin ? (
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
           ) : null}
         </Container>
       </ScrollView>
