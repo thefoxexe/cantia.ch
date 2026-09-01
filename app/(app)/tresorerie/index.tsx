@@ -22,17 +22,11 @@ import {
 } from '../../../lib/api/treasury';
 import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Expense, Plan, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
-
-const KIND_LABELS: Record<TreasuryItemKind, string> = {
-  facture: 'Facture client',
-  salaire: 'Salaires',
-  'sous-traitant': 'Sous-traitant',
-  recurrente: 'Dépense récurrente',
-};
 
 const KIND_ICONS: Record<TreasuryItemKind, IconName> = {
   facture: 'file-text',
@@ -52,7 +46,7 @@ function addDaysIso(iso: string, days: number): string {
 }
 
 function formatDateFr(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function daysUntil(iso: string): number {
@@ -72,7 +66,21 @@ function projectedBalanceAt(forecast: TreasuryForecast, horizonIso: string): num
   return balance;
 }
 
+function kindLabel(t: ReturnType<typeof useTranslation>['t'], kind: TreasuryItemKind): string {
+  switch (kind) {
+    case 'facture':
+      return t('treasury.kindFacture');
+    case 'salaire':
+      return t('treasury.kindSalaire');
+    case 'sous-traitant':
+      return t('treasury.kindSousTraitant');
+    case 'recurrente':
+      return t('treasury.kindRecurrente');
+  }
+}
+
 export default function TreasuryScreen() {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<'forecast' | 'recurring' | 'oneoff'>('forecast');
@@ -165,16 +173,13 @@ export default function TreasuryScreen() {
   if (plan && !plan.has_treasury) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title="Trésorerie" backTo="/(app)" />
+        <PageHeader title={t('treasury.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="archive" size={22} color={colors.accent} />
-          <Text style={styles.upsellTitle}>Trésorerie prévisionnelle</Text>
-          <Text style={styles.upsellText}>
-            Projetez votre solde à 30 et 90 jours à partir des factures, salaires, sous-traitants et dépenses
-            récurrentes.
-          </Text>
-          <Text style={styles.upsellText}>Disponible à partir du plan Équipe.</Text>
-          <Button title="Voir les plans" variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
+          <Text style={styles.upsellTitle}>{t('treasury.upsellTitle')}</Text>
+          <Text style={styles.upsellText}>{t('treasury.upsellText')}</Text>
+          <Text style={styles.upsellText}>{t('treasury.upsellPlanHint')}</Text>
+          <Button title={t('treasury.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
       </Screen>
     );
@@ -183,23 +188,21 @@ export default function TreasuryScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
-        <PageHeader title="Trésorerie" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>
-          Ce que vous avez, ce qui rentre, ce qui sort — sur 90 jours.
-        </Text>
+        <PageHeader title={t('treasury.title')} backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>{t('treasury.subtitle')}</Text>
 
         <View style={styles.modeSwitch}>
           <Pressable onPress={() => setMode('forecast')} style={[styles.modeTab, mode === 'forecast' && styles.modeTabActive]}>
             <Feather name="trending-up" size={14} color={mode === 'forecast' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'forecast' && styles.modeTabTextActive]}>Prévision</Text>
+            <Text style={[styles.modeTabText, mode === 'forecast' && styles.modeTabTextActive]}>{t('treasury.tabForecast')}</Text>
           </Pressable>
           <Pressable onPress={() => setMode('recurring')} style={[styles.modeTab, mode === 'recurring' && styles.modeTabActive]}>
             <Feather name="repeat" size={14} color={mode === 'recurring' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'recurring' && styles.modeTabTextActive]}>Dépenses récurrentes</Text>
+            <Text style={[styles.modeTabText, mode === 'recurring' && styles.modeTabTextActive]}>{t('treasury.tabRecurring')}</Text>
           </Pressable>
           <Pressable onPress={() => setMode('oneoff')} style={[styles.modeTab, mode === 'oneoff' && styles.modeTabActive]}>
             <Feather name="shopping-bag" size={14} color={mode === 'oneoff' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'oneoff' && styles.modeTabTextActive]}>Dépenses ponctuelles</Text>
+            <Text style={[styles.modeTabText, mode === 'oneoff' && styles.modeTabTextActive]}>{t('treasury.tabOneoff')}</Text>
           </Pressable>
         </View>
 
@@ -208,11 +211,11 @@ export default function TreasuryScreen() {
             <Card style={styles.balanceCard}>
               <View style={styles.balanceTop}>
                 <View>
-                  <Text style={styles.balanceLabel}>Solde actuel</Text>
+                  <Text style={styles.balanceLabel}>{t('treasury.currentBalance')}</Text>
                   <Text style={styles.balanceMeta}>
                     {forecast.startingBalanceRecordedAt
-                      ? `Mis à jour le ${formatDateFr(forecast.startingBalanceRecordedAt.slice(0, 10))}`
-                      : 'Jamais renseigné'}
+                      ? t('treasury.updatedOn', { date: formatDateFr(forecast.startingBalanceRecordedAt.slice(0, 10)) })
+                      : t('treasury.neverSet')}
                   </Text>
                 </View>
                 {!editingBalance ? (
@@ -240,8 +243,8 @@ export default function TreasuryScreen() {
                     style={styles.balanceInput}
                     autoFocus
                   />
-                  <Button title="Enregistrer" onPress={saveBalance} loading={savingBalance} style={{ flex: 0 }} />
-                  <Button title="Annuler" variant="secondary" onPress={() => setEditingBalance(false)} style={{ flex: 0 }} />
+                  <Button title={t('treasury.save')} onPress={saveBalance} loading={savingBalance} style={{ flex: 0 }} />
+                  <Button title={t('treasury.cancel')} variant="secondary" onPress={() => setEditingBalance(false)} style={{ flex: 0 }} />
                 </View>
               ) : (
                 <Text style={styles.balanceValue}>CHF {forecast.startingBalance.toFixed(2)}</Text>
@@ -250,11 +253,11 @@ export default function TreasuryScreen() {
 
             <View style={styles.kpiRow}>
               <Card style={styles.kpiTile}>
-                <Text style={styles.kpiLabel}>Projeté à 30 jours</Text>
+                <Text style={styles.kpiLabel}>{t('treasury.projected30')}</Text>
                 <Text style={[styles.kpiValue, projected30 < 0 && styles.kpiValueDanger]}>CHF {projected30.toFixed(0)}</Text>
               </Card>
               <Card style={styles.kpiTile}>
-                <Text style={styles.kpiLabel}>Projeté à 90 jours</Text>
+                <Text style={styles.kpiLabel}>{t('treasury.projected90')}</Text>
                 <Text style={[styles.kpiValue, projected90 < 0 && styles.kpiValueDanger]}>CHF {projected90.toFixed(0)}</Text>
               </Card>
             </View>
@@ -262,19 +265,17 @@ export default function TreasuryScreen() {
             {upcoming > 0 ? (
               <Pressable onPress={() => setMode('recurring')} style={styles.banner}>
                 <Feather name="bell" size={16} color={colors.warning} />
-                <Text style={styles.bannerText}>
-                  {upcoming} dépense{upcoming > 1 ? 's' : ''} récurrente{upcoming > 1 ? 's' : ''} arrive{upcoming > 1 ? 'nt' : ''} dans les 7 prochains jours
-                </Text>
+                <Text style={styles.bannerText}>{t('treasury.upcomingBanner', { count: upcoming })}</Text>
                 <Feather name="chevron-right" size={16} color={colors.warning} />
               </Pressable>
             ) : null}
 
-            <Text style={styles.sectionTitle}>Mouvements à venir</Text>
+            <Text style={styles.sectionTitle}>{t('treasury.upcomingMovements')}</Text>
             {datedItems.length === 0 && undatedItems.length === 0 ? (
               <Card>
                 <EmptyState
-                  title="Rien à l'horizon"
-                  subtitle="Les factures à encaisser, salaires, factures sous-traitants et dépenses récurrentes apparaîtront ici."
+                  title={t('treasury.emptyForecastTitle')}
+                  subtitle={t('treasury.emptyForecastSubtitle')}
                 />
               </Card>
             ) : (
@@ -287,7 +288,7 @@ export default function TreasuryScreen() {
 
             {undatedItems.length > 0 ? (
               <>
-                <Text style={styles.sectionTitleSmall}>Sans échéance connue</Text>
+                <Text style={styles.sectionTitleSmall}>{t('treasury.noKnownDueDate')}</Text>
                 <View style={{ gap: spacing.sm }}>
                   {undatedItems.map((item, idx) => (
                     <ForecastItemRow key={`${item.kind}-${item.sourceId}-u${idx}`} item={item} />
@@ -296,20 +297,18 @@ export default function TreasuryScreen() {
               </>
             ) : null}
 
-            <Text style={styles.disclaimer}>
-              Les salaires affichés sont une estimation (profils mensuels + heures déjà saisies ce mois) — pas un montant garanti.
-            </Text>
+            <Text style={styles.disclaimer}>{t('treasury.salaryDisclaimer')}</Text>
           </View>
         ) : null}
 
         {mode === 'recurring' ? (
           <View style={{ gap: spacing.lg }}>
-            <Button title="Nouvelle dépense récurrente" icon="plus" onPress={openAddExpense} />
+            <Button title={t('treasury.newRecurringExpense')} icon="plus" onPress={openAddExpense} />
             {expenses.length === 0 ? (
               <Card>
                 <EmptyState
-                  title="Aucune dépense récurrente"
-                  subtitle="Abonnements, assurances, loyers... ajoutez-les ici pour être prévenu avant qu'ils ne partent."
+                  title={t('treasury.emptyRecurringTitle')}
+                  subtitle={t('treasury.emptyRecurringSubtitle')}
                 />
               </Card>
             ) : (
@@ -333,15 +332,15 @@ export default function TreasuryScreen() {
         {mode === 'oneoff' ? (
           <View style={{ gap: spacing.lg }}>
             <Card style={styles.kpiTile}>
-              <Text style={styles.kpiLabel}>Dépensé ce mois-ci</Text>
+              <Text style={styles.kpiLabel}>{t('treasury.spentThisMonth')}</Text>
               <Text style={styles.kpiValue}>CHF {oneOffThisMonth.toFixed(0)}</Text>
             </Card>
-            <Button title="Nouvelle dépense" icon="plus" onPress={openAddOneOff} />
+            <Button title={t('treasury.newExpense')} icon="plus" onPress={openAddOneOff} />
             {oneOffExpenses.length === 0 ? (
               <Card>
                 <EmptyState
-                  title="Aucune dépense ponctuelle"
-                  subtitle="Fournitures, outillage, frais divers hors chantier — ajoutez-les ici pour garder une trace complète."
+                  title={t('treasury.emptyOneOffTitle')}
+                  subtitle={t('treasury.emptyOneOffSubtitle')}
                 />
               </Card>
             ) : (
@@ -395,6 +394,7 @@ export default function TreasuryScreen() {
 }
 
 function ForecastItemRow({ item }: { item: TreasuryForecastItem }) {
+  const { t } = useTranslation();
   const positive = item.amount >= 0;
   return (
     <Card style={styles.itemRow}>
@@ -406,8 +406,8 @@ function ForecastItemRow({ item }: { item: TreasuryForecastItem }) {
           {item.label}
         </Text>
         <View style={styles.itemMetaRow}>
-          <Text style={styles.itemMeta}>{item.date ? formatDateFr(item.date) : KIND_LABELS[item.kind]}</Text>
-          {item.overdue ? <Text style={styles.overdueTag}>En retard</Text> : null}
+          <Text style={styles.itemMeta}>{item.date ? formatDateFr(item.date) : kindLabel(t, item.kind)}</Text>
+          {item.overdue ? <Text style={styles.overdueTag}>{t('treasury.overdue')}</Text> : null}
         </View>
       </View>
       <Text style={[styles.itemAmount, positive ? styles.itemAmountPositive : styles.itemAmountNegative]}>
@@ -427,12 +427,13 @@ function RecurringExpenseRow({
   onPress: () => void;
   onToggleActive: (active: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const days = daysUntil(expense.next_due_date);
   let dueLabel = formatDateFr(expense.next_due_date);
   if (expense.active) {
-    if (days < 0) dueLabel = 'En retard';
-    else if (days === 0) dueLabel = "Aujourd'hui";
-    else if (days <= 14) dueLabel = `Dans ${days} j`;
+    if (days < 0) dueLabel = t('treasury.overdue');
+    else if (days === 0) dueLabel = t('treasury.today');
+    else if (days <= 14) dueLabel = t('treasury.inDays', { days });
   }
   return (
     <Pressable onPress={onPress}>
@@ -442,7 +443,7 @@ function RecurringExpenseRow({
             {expense.label}
           </Text>
           <Text style={styles.itemMeta}>
-            {[expense.category, `CHF ${expense.amount_chf.toFixed(0)} / ${expense.frequency === 'monthly' ? 'mois' : 'an'}`]
+            {[expense.category, t('treasury.perFrequency', { amount: expense.amount_chf.toFixed(0), unit: expense.frequency === 'monthly' ? t('treasury.perMonth') : t('treasury.perYear') })]
               .filter(Boolean)
               .join(' · ')}
           </Text>
@@ -471,6 +472,7 @@ function RecurringExpenseModal({
   editing: RecurringExpense | null;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [label, setLabel] = useState('');
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
@@ -497,9 +499,9 @@ function RecurringExpenseModal({
 
   async function handleSave() {
     const amountChf = Number(amount.replace(',', '.'));
-    if (!label.trim()) return setError('Le libellé est requis.');
-    if (!nextDueDate) return setError("La date d'échéance est requise.");
-    if (Number.isNaN(amountChf) || amountChf <= 0) return setError('Montant invalide.');
+    if (!label.trim()) return setError(t('treasury.labelRequired'));
+    if (!nextDueDate) return setError(t('treasury.dueDateRequired'));
+    if (Number.isNaN(amountChf) || amountChf <= 0) return setError(t('treasury.invalidAmount'));
 
     setSaving(true);
     setError(null);
@@ -520,10 +522,10 @@ function RecurringExpenseModal({
 
   function handleDelete() {
     if (!editing) return;
-    Alert.alert('Supprimer cette dépense ?', `"${editing.label}" ne sera plus projetée dans la trésorerie.`, [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t('treasury.deleteRecurringConfirmTitle'), t('treasury.deleteRecurringConfirmBody', { label: editing.label }), [
+      { text: t('treasury.cancel'), style: 'cancel' },
       {
-        text: 'Supprimer',
+        text: t('treasury.delete'),
         style: 'destructive',
         onPress: async () => {
           setSaving(true);
@@ -540,33 +542,33 @@ function RecurringExpenseModal({
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <ScrollView>
-            <Text style={styles.sheetTitle}>{editing ? 'Modifier la dépense' : 'Nouvelle dépense récurrente'}</Text>
+            <Text style={styles.sheetTitle}>{editing ? t('treasury.editRecurringTitle') : t('treasury.newRecurringTitle')}</Text>
 
-            <Field label="Libellé" value={label} onChangeText={setLabel} placeholder="Ex : Assurance RC, abonnement logiciel..." />
-            <Field label="Catégorie (optionnel)" value={category} onChangeText={setCategory} placeholder="Ex : Assurance, Abonnement, Loyer" />
-            <Field label="Montant CHF" value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
+            <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderRecurring')} />
+            <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderRecurring')} />
+            <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
 
-            <Text style={styles.fieldLabel}>Fréquence</Text>
+            <Text style={styles.fieldLabel}>{t('treasury.frequencyField')}</Text>
             <View style={styles.freqRow}>
               <Pressable onPress={() => setFrequency('monthly')} style={[styles.freqChip, frequency === 'monthly' && styles.freqChipActive]}>
-                <Text style={[styles.freqChipText, frequency === 'monthly' && styles.freqChipTextActive]}>Mensuelle</Text>
+                <Text style={[styles.freqChipText, frequency === 'monthly' && styles.freqChipTextActive]}>{t('treasury.monthlyOption')}</Text>
               </Pressable>
               <Pressable onPress={() => setFrequency('yearly')} style={[styles.freqChip, frequency === 'yearly' && styles.freqChipActive]}>
-                <Text style={[styles.freqChipText, frequency === 'yearly' && styles.freqChipTextActive]}>Annuelle</Text>
+                <Text style={[styles.freqChipText, frequency === 'yearly' && styles.freqChipTextActive]}>{t('treasury.yearlyOption')}</Text>
               </Pressable>
             </View>
 
-            <DateField label="Prochaine échéance" value={nextDueDate} onChange={setNextDueDate} />
-            <Field label="Rappel (jours avant)" value={reminderDays} onChangeText={setReminderDays} keyboardType="number-pad" placeholder="3" />
-            <Field label="Notes (optionnel)" value={notes} onChangeText={setNotes} placeholder="Numéro de contrat, résiliable jusqu'au..." multiline />
+            <DateField label={t('treasury.nextDueDateField')} value={nextDueDate} onChange={setNextDueDate} />
+            <Field label={t('treasury.reminderDaysField')} value={reminderDays} onChangeText={setReminderDays} keyboardType="number-pad" placeholder="3" />
+            <Field label={t('treasury.notesFieldOptional')} value={notes} onChangeText={setNotes} placeholder={t('treasury.notesPlaceholderRecurring')} multiline />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
+            <Button title={t('treasury.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
             {editing ? (
-              <Button title="Supprimer" icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
+              <Button title={t('treasury.delete')} icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
             ) : null}
-            <Button title="Annuler" variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
+            <Button title={t('treasury.cancel')} variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
           </ScrollView>
         </View>
       </View>
@@ -589,6 +591,7 @@ function OneOffExpenseModal({
   editing: Expense | null;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [label, setLabel] = useState('');
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
@@ -611,9 +614,9 @@ function OneOffExpenseModal({
 
   async function handleSave() {
     const amountChf = Number(amount.replace(',', '.'));
-    if (!label.trim()) return setError('Le libellé est requis.');
-    if (!expenseDate) return setError('La date est requise.');
-    if (Number.isNaN(amountChf) || amountChf <= 0) return setError('Montant invalide.');
+    if (!label.trim()) return setError(t('treasury.labelRequired'));
+    if (!expenseDate) return setError(t('treasury.dateRequired'));
+    if (Number.isNaN(amountChf) || amountChf <= 0) return setError(t('treasury.invalidAmount'));
 
     setSaving(true);
     setError(null);
@@ -632,10 +635,10 @@ function OneOffExpenseModal({
 
   function handleDelete() {
     if (!editing) return;
-    Alert.alert('Supprimer cette dépense ?', `"${editing.label}" sera définitivement supprimée.`, [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t('treasury.deleteOneOffConfirmTitle'), t('treasury.deleteOneOffConfirmBody', { label: editing.label }), [
+      { text: t('treasury.cancel'), style: 'cancel' },
       {
-        text: 'Supprimer',
+        text: t('treasury.delete'),
         style: 'destructive',
         onPress: async () => {
           setSaving(true);
@@ -652,21 +655,21 @@ function OneOffExpenseModal({
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <ScrollView>
-            <Text style={styles.sheetTitle}>{editing ? 'Modifier la dépense' : 'Nouvelle dépense ponctuelle'}</Text>
+            <Text style={styles.sheetTitle}>{editing ? t('treasury.editOneOffTitle') : t('treasury.newOneOffTitle')}</Text>
 
-            <Field label="Libellé" value={label} onChangeText={setLabel} placeholder="Ex : Achat matériel, outillage..." />
-            <Field label="Catégorie (optionnel)" value={category} onChangeText={setCategory} placeholder="Ex : Fournitures, Outillage, Frais" />
-            <Field label="Montant CHF" value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
-            <DateField label="Date" value={expenseDate} onChange={setExpenseDate} />
-            <Field label="Notes (optionnel)" value={notes} onChangeText={setNotes} placeholder="Fournisseur, référence..." multiline />
+            <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderOneOff')} />
+            <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderOneOff')} />
+            <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
+            <DateField label={t('treasury.dateField')} value={expenseDate} onChange={setExpenseDate} />
+            <Field label={t('treasury.notesFieldOptional')} value={notes} onChangeText={setNotes} placeholder={t('treasury.notesPlaceholderOneOff')} multiline />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
+            <Button title={t('treasury.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
             {editing ? (
-              <Button title="Supprimer" icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
+              <Button title={t('treasury.delete')} icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
             ) : null}
-            <Button title="Annuler" variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
+            <Button title={t('treasury.cancel')} variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
           </ScrollView>
         </View>
       </View>
