@@ -9,14 +9,16 @@ import { getClientBexioMapping, getIntegration, pushClientToBexio } from '../../
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, EmptyState, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Client, ClientNote, ClientType } from '../../../lib/types';
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export default function ClientDetailScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { role, user } = useAuth();
@@ -90,7 +92,7 @@ export default function ClientDetailScreen() {
 
   async function handleSave() {
     if (!name.trim()) {
-      setError('Le nom est requis.');
+      setError(t('clientDetail.nameRequired'));
       return;
     }
     setSaving(true);
@@ -113,7 +115,7 @@ export default function ClientDetailScreen() {
   }
 
   async function handleDelete() {
-    const ok = await confirm('Supprimer ce client ?', `${client?.name ?? ''} sera définitivement supprimé.`);
+    const ok = await confirm(t('clientDetail.deleteConfirmTitle'), t('clientDetail.deleteConfirmBody', { name: client?.name ?? '' }));
     if (!ok) return;
     const { error: delError } = await supabase.from('clients').delete().eq('id', id);
     if (delError) {
@@ -138,7 +140,7 @@ export default function ClientDetailScreen() {
   }
 
   async function handleDeleteNote(noteId: string) {
-    const ok = await confirm('Supprimer cette note ?', 'Cette note sera définitivement supprimée.');
+    const ok = await confirm(t('clientDetail.deleteNoteConfirmTitle'), t('clientDetail.deleteNoteConfirmBody'));
     if (!ok) return;
     await deleteClientNote(noteId);
     setNotes(await listClientNotes(id));
@@ -154,9 +156,9 @@ export default function ClientDetailScreen() {
 
   const historyRows = history
     ? [
-        ...history.devis.map((d) => ({ kind: 'Devis', label: d.number ?? 'Devis', status: d.status, date: d.created_at, href: `/(app)/devis/${d.id}` as const })),
-        ...history.factures.map((f) => ({ kind: 'Facture', label: f.number ?? 'Facture', status: f.status, date: f.created_at, href: `/(app)/devis/factures/${f.id}` as const })),
-        ...history.extraWorks.map((e) => ({ kind: 'Travaux suppl.', label: e.number ?? e.title, status: e.status, date: e.created_at, href: `/(app)/chantiers/${e.project_id}/travaux-supplementaires/${e.id}` as const })),
+        ...history.devis.map((d) => ({ kind: t('clientDetail.kindDevis'), label: d.number ?? t('clientDetail.kindDevis'), status: d.status, date: d.created_at, href: `/(app)/devis/${d.id}` as const })),
+        ...history.factures.map((f) => ({ kind: t('clientDetail.kindFacture'), label: f.number ?? t('clientDetail.kindFacture'), status: f.status, date: f.created_at, href: `/(app)/devis/factures/${f.id}` as const })),
+        ...history.extraWorks.map((e) => ({ kind: t('clientDetail.kindExtraWork'), label: e.number ?? e.title, status: e.status, date: e.created_at, href: `/(app)/chantiers/${e.project_id}/travaux-supplementaires/${e.id}` as const })),
       ].sort((a, b) => b.date.localeCompare(a.date))
     : [];
 
@@ -165,12 +167,12 @@ export default function ClientDetailScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader
-            title="Client"
+            title={t('clientDetail.title')}
             backTo="/(app)/clients"
             right={
               isAdmin ? (
                 <RowActionMenu
-                  actions={[{ key: 'delete', icon: 'trash-2', label: 'Supprimer', danger: true, onPress: handleDelete }]}
+                  actions={[{ key: 'delete', icon: 'trash-2', label: t('clientDetail.delete'), danger: true, onPress: handleDelete }]}
                 />
               ) : undefined
             }
@@ -179,12 +181,12 @@ export default function ClientDetailScreen() {
           {bexioLinked ? (
             <View style={styles.bexioBadge}>
               <Feather name="check-circle" size={12} color={colors.success} />
-              <Text style={styles.bexioBadgeText}>Lié à Bexio</Text>
+              <Text style={styles.bexioBadgeText}>{t('clientDetail.linkedToBexio')}</Text>
             </View>
           ) : bexioEligible ? (
             <View style={styles.bexioBadge}>
               <Button
-                title="Envoyer vers Bexio"
+                title={t('clientDetail.sendToBexio')}
                 variant="secondary"
                 icon="refresh-cw"
                 onPress={handlePushToBexio}
@@ -194,32 +196,32 @@ export default function ClientDetailScreen() {
             </View>
           ) : null}
 
-          <Text style={styles.fieldLabel}>Type</Text>
+          <Text style={styles.fieldLabel}>{t('newClient.typeLabel')}</Text>
           <View style={styles.typeRow}>
-            {(['particulier', 'entreprise'] as ClientType[]).map((t) => (
-              <Pressable key={t} onPress={() => setType(t)} style={[styles.typeChip, type === t && styles.typeChipActive]}>
-                <Text style={[styles.typeChipText, type === t && styles.typeChipTextActive]}>
-                  {t === 'particulier' ? 'Particulier' : 'Entreprise'}
+            {(['particulier', 'entreprise'] as ClientType[]).map((ct) => (
+              <Pressable key={ct} onPress={() => setType(ct)} style={[styles.typeChip, type === ct && styles.typeChipActive]}>
+                <Text style={[styles.typeChipText, type === ct && styles.typeChipTextActive]}>
+                  {ct === 'particulier' ? t('newClient.typeParticulier') : t('newClient.typeEntreprise')}
                 </Text>
               </Pressable>
             ))}
           </View>
 
-          <Field label="Nom" value={name} onChangeText={setName} placeholder="Nom du contact" />
+          <Field label={t('newClient.nameLabel')} value={name} onChangeText={setName} placeholder={t('newClient.namePlaceholder')} />
           {type === 'entreprise' ? (
-            <Field label="Entreprise" value={companyName} onChangeText={setCompanyName} placeholder="Raison sociale" />
+            <Field label={t('newClient.companyLabel')} value={companyName} onChangeText={setCompanyName} placeholder={t('newClient.companyPlaceholder')} />
           ) : null}
-          <Field label="E-mail" value={email} onChangeText={setEmail} placeholder="client@exemple.ch" keyboardType="email-address" autoCapitalize="none" />
-          <Field label="Téléphone" value={phone} onChangeText={setPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
-          <Field label="Adresse" value={address} onChangeText={setAddress} placeholder="Adresse" />
+          <Field label={t('newClient.emailLabel')} value={email} onChangeText={setEmail} placeholder={t('newClient.emailPlaceholder')} keyboardType="email-address" autoCapitalize="none" />
+          <Field label={t('newClient.phoneLabel')} value={phone} onChangeText={setPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
+          <Field label={t('newClient.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('newClient.addressPlaceholder')} />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+          <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
 
-          <Text style={styles.sectionTitle}>Historique</Text>
+          <Text style={styles.sectionTitle}>{t('clientDetail.historyTitle')}</Text>
           {historyRows.length === 0 ? (
             <Card style={{ marginBottom: spacing.lg }}>
-              <EmptyState title="Aucun document lié" subtitle="Les devis, factures et travaux supplémentaires créés pour ce client apparaîtront ici." />
+              <EmptyState title={t('clientDetail.emptyHistoryTitle')} subtitle={t('clientDetail.emptyHistorySubtitle')} />
             </Card>
           ) : (
             <Card style={{ marginBottom: spacing.lg, gap: spacing.sm }}>
@@ -236,20 +238,20 @@ export default function ClientDetailScreen() {
             </Card>
           )}
 
-          <Text style={styles.sectionTitle}>Notes</Text>
+          <Text style={styles.sectionTitle}>{t('clientDetail.notesTitle')}</Text>
           <Card style={{ marginBottom: spacing.md }}>
             <Field
-              label="Nouvelle note"
+              label={t('clientDetail.newNoteLabel')}
               value={newNote}
               onChangeText={setNewNote}
-              placeholder="Ajouter une note (visite, préférence, remarque...)"
+              placeholder={t('clientDetail.newNotePlaceholder')}
               multiline
               style={styles.notes}
             />
-            <Button title="Ajouter la note" icon="plus" variant="secondary" onPress={handleAddNote} loading={addingNote} disabled={!newNote.trim()} style={{ marginTop: spacing.sm }} />
+            <Button title={t('clientDetail.addNote')} icon="plus" variant="secondary" onPress={handleAddNote} loading={addingNote} disabled={!newNote.trim()} style={{ marginTop: spacing.sm }} />
           </Card>
           {notes.length === 0 ? (
-            <EmptyState title="Aucune note" subtitle="Chaque note ajoutée reste horodatée, sans écraser les précédentes." />
+            <EmptyState title={t('clientDetail.emptyNotesTitle')} subtitle={t('clientDetail.emptyNotesSubtitle')} />
           ) : (
             <View style={{ gap: spacing.sm }}>
               {notes.map((n) => (

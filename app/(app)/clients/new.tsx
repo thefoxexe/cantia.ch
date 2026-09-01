@@ -4,10 +4,12 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { createClient } from '../../../lib/api/clients';
 import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { ClientType } from '../../../lib/types';
 
 export default function NewClientScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const router = useRouter();
   const [type, setType] = useState<ClientType>('particulier');
@@ -23,7 +25,7 @@ export default function NewClientScreen() {
   async function handleSave() {
     if (!organization) return;
     if (!name.trim()) {
-      setError('Le nom est requis.');
+      setError(t('newClient.nameRequired'));
       return;
     }
     setSaving(true);
@@ -39,7 +41,7 @@ export default function NewClientScreen() {
     });
     setSaving(false);
     if (createError || !id) {
-      setError(createError ?? 'Échec de la création.');
+      setError(createError ?? t('newClient.createFailed'));
       return;
     }
     router.replace(`/(app)/clients/${id}`);
@@ -49,30 +51,30 @@ export default function NewClientScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Nouveau client" backTo="/(app)/clients" />
+          <PageHeader title={t('newClient.title')} backTo="/(app)/clients" />
 
-          <Text style={styles.fieldLabel}>Type</Text>
+          <Text style={styles.fieldLabel}>{t('newClient.typeLabel')}</Text>
           <View style={styles.typeRow}>
-            {(['particulier', 'entreprise'] as ClientType[]).map((t) => (
-              <Pressable key={t} onPress={() => setType(t)} style={[styles.typeChip, type === t && styles.typeChipActive]}>
-                <Text style={[styles.typeChipText, type === t && styles.typeChipTextActive]}>
-                  {t === 'particulier' ? 'Particulier' : 'Entreprise'}
+            {(['particulier', 'entreprise'] as ClientType[]).map((ct) => (
+              <Pressable key={ct} onPress={() => setType(ct)} style={[styles.typeChip, type === ct && styles.typeChipActive]}>
+                <Text style={[styles.typeChipText, type === ct && styles.typeChipTextActive]}>
+                  {ct === 'particulier' ? t('newClient.typeParticulier') : t('newClient.typeEntreprise')}
                 </Text>
               </Pressable>
             ))}
           </View>
 
-          <Field label="Nom" value={name} onChangeText={setName} placeholder="Nom du contact" />
+          <Field label={t('newClient.nameLabel')} value={name} onChangeText={setName} placeholder={t('newClient.namePlaceholder')} />
           {type === 'entreprise' ? (
-            <Field label="Entreprise" value={companyName} onChangeText={setCompanyName} placeholder="Raison sociale" />
+            <Field label={t('newClient.companyLabel')} value={companyName} onChangeText={setCompanyName} placeholder={t('newClient.companyPlaceholder')} />
           ) : null}
-          <Field label="E-mail" value={email} onChangeText={setEmail} placeholder="client@exemple.ch" keyboardType="email-address" autoCapitalize="none" />
-          <Field label="Téléphone" value={phone} onChangeText={setPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
-          <Field label="Adresse" value={address} onChangeText={setAddress} placeholder="Adresse" />
-          <Field label="Notes" value={notes} onChangeText={setNotes} placeholder="Notes internes" multiline style={styles.notes} />
+          <Field label={t('newClient.emailLabel')} value={email} onChangeText={setEmail} placeholder={t('newClient.emailPlaceholder')} keyboardType="email-address" autoCapitalize="none" />
+          <Field label={t('newClient.phoneLabel')} value={phone} onChangeText={setPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
+          <Field label={t('newClient.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('newClient.addressPlaceholder')} />
+          <Field label={t('newClient.notesLabel')} value={notes} onChangeText={setNotes} placeholder={t('newClient.notesPlaceholder')} multiline style={styles.notes} />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Créer le client" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+          <Button title={t('newClient.create')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
         </Container>
       </ScrollView>
     </Screen>

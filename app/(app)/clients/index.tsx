@@ -5,12 +5,14 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listClients } from '../../../lib/api/clients';
 import { Button, Card, EmptyState, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Client, ClientType } from '../../../lib/types';
 
 type FilterKey = 'all' | ClientType;
 
 export default function ClientsListScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
@@ -41,19 +43,19 @@ export default function ClientsListScreen() {
   }, [clients, filter, search]);
 
   const filters: { key: FilterKey; label: string }[] = [
-    { key: 'all', label: 'Tous les types' },
-    { key: 'particulier', label: 'Particuliers' },
-    { key: 'entreprise', label: 'Entreprises' },
+    { key: 'all', label: t('clientsList.filterAll') },
+    { key: 'particulier', label: t('clientsList.filterParticulier') },
+    { key: 'entreprise', label: t('clientsList.filterEntreprise') },
   ];
 
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Clients" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>Retrouvez vos clients et suivez leurs devis et chantiers.</Text>
+        <PageHeader title={t('clientsList.title')} backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>{t('clientsList.subtitle')}</Text>
 
         <Button
-          title="Nouveau client"
+          title={t('clientsList.newClient')}
           icon="plus"
           onPress={() => router.push('/(app)/clients/new')}
           style={{ marginBottom: spacing.sm }}
@@ -64,7 +66,7 @@ export default function ClientsListScreen() {
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder="Rechercher par nom, entreprise, e-mail"
+            placeholder={t('clientsList.searchPlaceholder')}
             placeholderTextColor={colors.textMuted}
             style={styles.searchInput}
             autoCapitalize="none"
@@ -91,7 +93,7 @@ export default function ClientsListScreen() {
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
           ListEmptyComponent={
             !loading ? (
-              <EmptyState title="Aucun client" subtitle="Ajoutez votre premier contact." />
+              <EmptyState title={t('clientsList.emptyTitle')} subtitle={t('clientsList.emptySubtitle')} />
             ) : null
           }
           renderItem={({ item }) => (
