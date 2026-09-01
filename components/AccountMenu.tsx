@@ -8,6 +8,7 @@ import { getSignedUrl } from '../lib/api/storage';
 import { canPromptInstall, promptInstall } from '../lib/pwaInstall';
 import { helpHref } from '../lib/appHost';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -23,13 +24,14 @@ const OWNER_COLOR = '#9C6510';
 
 export function AccountMenu() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user, organization, role, signOut, isPlatformAdmin } = useAuth();
   const [visible, setVisible] = useState(false);
   const [supportVisible, setSupportVisible] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
-  const [roleLabel, setRoleLabel] = useState('Membre');
+  const [roleLabel, setRoleLabel] = useState(t('common.member'));
   const [roleColor, setRoleColor] = useState(colors.textMuted);
   const triggerRef = useRef<View>(null);
 
@@ -57,16 +59,16 @@ export function AccountMenu() {
       setFullName(data?.full_name ?? null);
       const custom = data?.organization_roles as unknown as { name: string; color: string } | null;
       if (role === 'owner') {
-        setRoleLabel('Propriétaire');
+        setRoleLabel(t('equipe.owner'));
         setRoleColor(OWNER_COLOR);
       } else if (role === 'admin') {
-        setRoleLabel('Administrateur');
+        setRoleLabel(t('equipe.admin'));
         setRoleColor(colors.primary);
       } else if (custom) {
         setRoleLabel(custom.name);
         setRoleColor(custom.color);
       } else {
-        setRoleLabel('Membre');
+        setRoleLabel(t('common.member'));
         setRoleColor(colors.textMuted);
       }
     }
@@ -74,7 +76,7 @@ export function AccountMenu() {
     return () => {
       cancelled = true;
     };
-  }, [organization, user, role]);
+  }, [organization, user, role, t]);
 
   function open() {
     triggerRef.current?.measureInWindow((x, y, width, height) => {
@@ -137,22 +139,22 @@ export function AccountMenu() {
             <View style={[styles.card, { top: pos.top, right: pos.right }]}>
               <View style={styles.header}>
                 <Text style={styles.orgName} numberOfLines={1}>
-                  {organization?.name ?? 'Mon compte'}
+                  {organization?.name ?? t('accountMenu.myAccount')}
                 </Text>
-                <Text style={styles.orgSubtitle}>Mon compte</Text>
+                <Text style={styles.orgSubtitle}>{t('accountMenu.myAccount')}</Text>
               </View>
               <View style={styles.divider} />
               {isPlatformAdmin ? (
                 <>
-                  <MenuRow icon="shield" label="Administration" onPress={() => go('/(admin)')} />
+                  <MenuRow icon="shield" label={t('accountMenu.administration')} onPress={() => go('/(admin)')} />
                   <View style={styles.divider} />
                 </>
               ) : null}
-              <MenuRow icon="download" label="Installer l'app" onPress={handleInstall} />
-              <MenuRow icon="settings" label="Paramètres" onPress={() => go('/(app)/compte')} />
+              <MenuRow icon="download" label={t('accountMenu.installApp')} onPress={handleInstall} />
+              <MenuRow icon="settings" label={t('accountMenu.settings')} onPress={() => go('/(app)/compte')} />
               <MenuRow
                 icon="life-buoy"
-                label="Contacter le support"
+                label={t('accountMenu.contactSupport')}
                 onPress={() => {
                   onClose();
                   setSupportVisible(true);
@@ -161,7 +163,7 @@ export function AccountMenu() {
               <View style={styles.divider} />
               <MenuRow
                 icon="log-out"
-                label="Déconnexion"
+                label={t('accountMenu.signOut')}
                 danger
                 onPress={() => {
                   onClose();
@@ -176,8 +178,8 @@ export function AccountMenu() {
       <Modal visible={supportVisible} animationType="fade" transparent onRequestClose={() => setSupportVisible(false)}>
         <Pressable style={styles.backdrop} onPress={() => setSupportVisible(false)}>
           <View style={styles.supportCard}>
-            <Text style={styles.supportTitle}>Contacter le support</Text>
-            <Text style={styles.supportSubtitle}>Comment pouvons-nous vous aider ?</Text>
+            <Text style={styles.supportTitle}>{t('accountMenu.supportTitle')}</Text>
+            <Text style={styles.supportSubtitle}>{t('accountMenu.supportSubtitle')}</Text>
             <Pressable
               style={styles.supportOption}
               onPress={() => {
@@ -187,8 +189,8 @@ export function AccountMenu() {
             >
               <Feather name="mail" size={16} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.supportOptionTitle}>Envoyer un e-mail</Text>
-                <Text style={styles.supportOptionText}>info@cantia.ch — on vous répond directement.</Text>
+                <Text style={styles.supportOptionTitle}>{t('accountMenu.sendEmail')}</Text>
+                <Text style={styles.supportOptionText}>{t('accountMenu.sendEmailHint')}</Text>
               </View>
             </Pressable>
             <Pressable
@@ -200,8 +202,8 @@ export function AccountMenu() {
             >
               <Feather name="book-open" size={16} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.supportOptionTitle}>Voir la documentation</Text>
-                <Text style={styles.supportOptionText}>Les réponses aux questions les plus fréquentes.</Text>
+                <Text style={styles.supportOptionTitle}>{t('accountMenu.viewDocs')}</Text>
+                <Text style={styles.supportOptionText}>{t('accountMenu.viewDocsHint')}</Text>
               </View>
             </Pressable>
           </View>

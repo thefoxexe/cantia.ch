@@ -11,6 +11,7 @@ import { AccountMenu } from '../../components/AccountMenu';
 import { NotificationBell } from '../../components/NotificationBell';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { NavDrawer, type NavSection } from '../../components/NavDrawer';
+import { useTranslation } from '../../lib/translations';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -26,6 +27,7 @@ function SafeNotificationBell() {
 }
 
 function buildSections(
+  t: (key: string) => string,
   financeVisible: boolean,
   planningEnabled: boolean,
   subcontractorsVisible: boolean,
@@ -33,45 +35,45 @@ function buildSections(
   treasuryEnabled: boolean,
 ): NavSection[] {
   const teamLinks = [
-    ...(planningEnabled ? [{ href: '/(app)/planning', label: 'Planning', icon: 'calendar' as const }] : []),
+    ...(planningEnabled ? [{ href: '/(app)/planning', label: t('nav.planning'), icon: 'calendar' as const }] : []),
     // "clock", not "dollar-sign" — Factures already owns the money icon in
     // the FACTURATION section just above; sharing it here made the two
     // entries visually indistinguishable in the sidebar.
-    ...(payrollEnabled ? [{ href: '/(app)/rh', label: 'RH & Salaires', icon: 'clock' as const }] : []),
-    ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: 'Trésorerie', icon: 'archive' as const }] : []),
+    ...(payrollEnabled ? [{ href: '/(app)/rh', label: t('nav.payroll'), icon: 'clock' as const }] : []),
+    ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: t('nav.treasury'), icon: 'archive' as const }] : []),
   ];
   return [
     {
       links: [
-        { href: '/(app)', label: 'Accueil', icon: 'home' as const },
-        { href: '/(app)/taches', label: 'Tâches', icon: 'check-square' as const },
+        { href: '/(app)', label: t('nav.home'), icon: 'home' as const },
+        { href: '/(app)/taches', label: t('nav.tasks'), icon: 'check-square' as const },
       ],
     },
     {
-      title: 'CHANTIERS',
+      title: t('nav.sectionChantiers'),
       links: [
-        { href: '/(app)/chantiers', label: 'Chantiers', icon: 'layers' as const },
+        { href: '/(app)/chantiers', label: t('nav.chantiers'), icon: 'layers' as const },
         ...(subcontractorsVisible
-          ? [{ href: '/(app)/sous-traitants', label: 'Sous-traitants', icon: 'briefcase' as const }]
+          ? [{ href: '/(app)/sous-traitants', label: t('nav.subcontractors'), icon: 'briefcase' as const }]
           : []),
       ],
     },
     ...(financeVisible
       ? [
           {
-            title: 'FACTURATION',
+            title: t('nav.sectionFacturation'),
             links: [
-              { href: '/(app)/clients', label: 'Clients', icon: 'users' as const },
-              { href: '/(app)/devis', label: 'Devis', icon: 'file-text' as const },
-              { href: '/(app)/devis/trames', label: 'Trames', icon: 'layout' as const },
-              { href: '/(app)/devis/factures', label: 'Factures', icon: 'dollar-sign' as const },
-              { href: '/(app)/devis/inventaire', label: 'Catalogue', icon: 'box' as const },
+              { href: '/(app)/clients', label: t('nav.clients'), icon: 'users' as const },
+              { href: '/(app)/devis', label: t('nav.devis'), icon: 'file-text' as const },
+              { href: '/(app)/devis/trames', label: t('nav.trames'), icon: 'layout' as const },
+              { href: '/(app)/devis/factures', label: t('nav.factures'), icon: 'dollar-sign' as const },
+              { href: '/(app)/devis/inventaire', label: t('nav.catalogue'), icon: 'box' as const },
             ],
           },
         ]
       : []),
-    ...(teamLinks.length > 0 ? [{ title: 'ÉQUIPE', links: teamLinks }] : []),
-    { links: [{ href: '/(app)/compte', label: 'Paramètres', icon: 'settings' }] },
+    ...(teamLinks.length > 0 ? [{ title: t('nav.sectionEquipe'), links: teamLinks }] : []),
+    { links: [{ href: '/(app)/compte', label: t('nav.settings'), icon: 'settings' }] },
   ];
 }
 
@@ -97,6 +99,7 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 // child route the same way whether it's rendered by <Slot/> in either shell.
 export default function AppLayout() {
   const { width } = useWindowDimensions();
+  const { t } = useTranslation();
   const { organization, canViewFinances, permissions } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
@@ -112,7 +115,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, treasuryEnabled);
+  const sections = buildSections(t, financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, treasuryEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;
