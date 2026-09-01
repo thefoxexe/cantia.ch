@@ -49,7 +49,10 @@ Deno.serve(async (req: Request) => {
     const form = new FormData();
     form.append('file', file, `audio.${ext}`);
     form.append('model', 'whisper-1');
-    form.append('language', 'fr');
+    // No forced `language` param — Whisper auto-detects reliably on its
+    // own, and hard-coding 'fr' was forcing it to map German (or any other
+    // language) speech through French phonetics, producing garbage instead
+    // of a real transcript.
 
     const whisperResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',

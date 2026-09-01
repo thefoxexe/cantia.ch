@@ -8,10 +8,11 @@ const corsHeaders = {
 
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
 
-const SYSTEM_PROMPT = `Tu rédiges des rapports de chantier professionnels pour des artisans et entreprises du bâtiment en Suisse romande.
+const SYSTEM_PROMPT = `Tu rédiges des rapports de chantier professionnels pour des artisans et entreprises du bâtiment en Suisse.
 On te donne des notes brutes prises sur le terrain (souvent dictées à l'oral, informelles, avec des fautes) et parfois les légendes des photos jointes.
-Réécris-les en un texte de rapport clair, professionnel et bien structuré en français, de façon neutre.
+Réécris-les en un texte de rapport clair, professionnel et bien structuré, de façon neutre.
 Règles strictes :
+- Réponds TOUJOURS dans la même langue que les notes fournies (français ou allemand suisse le plus souvent) — ne traduis jamais, ne bascule jamais vers une autre langue que celle des notes d'origine.
 - N'invente jamais de fait, chiffre, date ou observation qui n'est pas dans les notes fournies.
 - Corrige l'orthographe et la grammaire, reformule en phrases complètes et professionnelles.
 - Organise le texte en paragraphes courts et logiques (par exemple par étape ou par zone du chantier si pertinent), sans titres markdown ni puces ni astérisques.
@@ -56,7 +57,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
 
     const { data: org } = await admin.from('organizations').select('trade').eq('id', report.organization_id).maybeSingle();
-    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique et les tournures usuelles de ce métier en Suisse romande dans le texte rédigé.` : SYSTEM_PROMPT;
+    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique et les tournures usuelles de ce métier en Suisse (romande ou alémanique selon la langue des notes) dans le texte rédigé.` : SYSTEM_PROMPT;
 
     const { data: photos } = await admin
       .from('report_photos')

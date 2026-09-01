@@ -9,14 +9,14 @@ const corsHeaders = {
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
 const MAX_CATALOG_ITEMS = 150;
 
-const SYSTEM_PROMPT = `Tu aides des artisans et entreprises du bâtiment en Suisse romande à transformer une description de devis dictée à l'oral en lignes structurées.
-On te donne le texte dicté (souvent informel, parfois mal transcrit) et le catalogue de prix habituels de cette entreprise (les articles qu'elle a déjà facturés par le passé, avec leur prix).
+const SYSTEM_PROMPT = `Tu aides des artisans et entreprises du bâtiment en Suisse à transformer une description de devis dictée à l'oral en lignes structurées.
+On te donne le texte dicté (souvent informel, parfois mal transcrit, en français ou en allemand suisse) et le catalogue de prix habituels de cette entreprise (les articles qu'elle a déjà facturés par le passé, avec leur prix).
 
 Règles strictes :
 - Découpe le texte en positions distinctes : une ligne par élément ou prestation mentionné. Ne fusionne jamais deux prestations différentes dans une même ligne.
 - Pour chaque position, déduis la quantité mentionnée (écrite en toutes lettres ou en chiffres) ; si aucune quantité n'est mentionnée, utilise 1.
 - Compare chaque position au catalogue fourni. Si un article du catalogue correspond clairement à la même prestation (même si le texte dicté est mal orthographié ou approximatif, ex. "tu es au PVC" pour "tuyau PVC"), reprends EXACTEMENT sa description, son unité et son prix unitaire tels que fournis dans le catalogue, et mets "matched": true.
-- Si aucun article du catalogue ne correspond clairement, rédige une description propre et professionnelle basée sur ce qui a été dit, choisis une unité plausible (pce, m², m³, ml, h, kg), mets "unitPrice": null (l'artisan devra saisir le prix lui-même) et "matched": false.
+- Si aucun article du catalogue ne correspond clairement, rédige une description propre et professionnelle basée sur ce qui a été dit, dans la même langue que le texte dicté (ne traduis jamais), choisis une unité plausible (pce, m², m³, ml, h, kg), mets "unitPrice": null (l'artisan devra saisir le prix lui-même) et "matched": false.
 - N'invente jamais de prix : un prix ne peut venir que du catalogue fourni.
 - Réponds UNIQUEMENT avec un tableau JSON valide, sans texte autour, sans balises markdown, au format exact :
 [{"description": string, "quantity": number, "unit": string, "unitPrice": number | null, "matched": boolean}]`;
@@ -71,7 +71,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
 
     const { data: org } = await userClient.from('organizations').select('trade').eq('id', organization_id).maybeSingle();
-    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique, les unités et les tournures usuelles de ce métier en Suisse romande pour interpréter la dictée et rédiger les descriptions.` : SYSTEM_PROMPT;
+    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique, les unités et les tournures usuelles de ce métier en Suisse (romande ou alémanique selon la langue de la dictée) pour interpréter la dictée et rédiger les descriptions.` : SYSTEM_PROMPT;
 
     const catalogItems: CatalogInput[] = Array.isArray(catalog) ? catalog.slice(0, MAX_CATALOG_ITEMS) : [];
     const catalogText = catalogItems.length
