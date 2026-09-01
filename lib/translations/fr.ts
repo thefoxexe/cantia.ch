@@ -452,6 +452,13 @@ export const fr = {
     paysagisme: 'Paysagisme',
     autre: 'Autre',
   },
+  moduleSettings: {
+    title: 'Outils & modules',
+    intro: "Sections principales de l'application, pour toute l'équipe. Les outils propres à un chantier (documents, photos, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de chaque chantier.",
+    upgradeHint: 'Disponible à partir du plan Équipe — voir les plans',
+    customModulesTitle: 'Modules sur mesure',
+    customModulesHint: 'Fonctionnalités développées spécifiquement pour votre entreprise. Activez-les quand votre équipe est prête.',
+  },
   apparence: {
     title: 'Apparence',
     intro: 'Le logo et la couleur de marque habillent automatiquement vos devis et rapports PDF.',

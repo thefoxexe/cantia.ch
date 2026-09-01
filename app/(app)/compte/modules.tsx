@@ -5,6 +5,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Container, PageHeader, Screen } from '../../../components/ui';
 import { ORG_MODULES, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
@@ -17,6 +18,7 @@ const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
 };
 
 export default function ModulesScreen() {
+  const { t } = useTranslation();
   const { organization, role, refreshOrganization } = useAuth();
   const router = useRouter();
   const [enabledModules, setEnabledModules] = useState<string[]>(organization?.enabled_modules ?? []);
@@ -70,23 +72,19 @@ export default function ModulesScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Outils & modules" backTo="/(app)/compte" />
-          <Text style={styles.hint}>
-            Sections principales de l'application, pour toute l'équipe. Les outils propres à un chantier (documents,
-            photos, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de
-            chaque chantier.
-          </Text>
+          <PageHeader title={t('moduleSettings.title')} backTo="/(app)/compte" />
+          <Text style={styles.hint}>{t('moduleSettings.intro')}</Text>
           <View style={{ marginTop: spacing.lg, gap: spacing.lg }}>
             {ORG_MODULES.map((m) => {
               const gated = isPlanGated(m.key);
               return (
                 <View key={m.key} style={styles.row}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.label}>{m.label}</Text>
-                    <Text style={styles.desc}>{m.description}</Text>
+                    <Text style={styles.label}>{t(`modules.${m.key}.label` as any)}</Text>
+                    <Text style={styles.desc}>{t(`modules.${m.key}.description` as any)}</Text>
                     {gated ? (
                       <Text style={styles.upgradeHint} onPress={() => router.push('/(app)/compte')}>
-                        Disponible à partir du plan Équipe — voir les plans
+                        {t('moduleSettings.upgradeHint')}
                       </Text>
                     ) : null}
                   </View>
@@ -104,8 +102,8 @@ export default function ModulesScreen() {
 
           {privateModules.length > 0 ? (
             <>
-              <Text style={styles.sectionTitle}>Modules sur mesure</Text>
-              <Text style={styles.hint}>Fonctionnalités développées spécifiquement pour votre entreprise. Activez-les quand votre équipe est prête.</Text>
+              <Text style={styles.sectionTitle}>{t('moduleSettings.customModulesTitle')}</Text>
+              <Text style={styles.hint}>{t('moduleSettings.customModulesHint')}</Text>
               <View style={{ marginTop: spacing.lg, gap: spacing.lg }}>
                 {privateModules.map((m) => (
                   <View key={m.key} style={styles.row}>

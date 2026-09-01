@@ -471,6 +471,13 @@ export const de: TranslationDict = {
     paysagisme: 'Gartenbau',
     autre: 'Sonstiges',
   },
+  moduleSettings: {
+    title: 'Werkzeuge & Module',
+    intro: 'Hauptbereiche der Anwendung für das gesamte Team. Baustellenspezifische Werkzeuge (Dokumente, Fotos, Aufmass, Subunternehmer, Rentabilität) werden separat in den Einstellungen jeder Baustelle gewählt.',
+    upgradeHint: 'Verfügbar ab dem Team-Plan — Pläne ansehen',
+    customModulesTitle: 'Massgeschneiderte Module',
+    customModulesHint: 'Speziell für Ihr Unternehmen entwickelte Funktionen. Aktivieren Sie sie, sobald Ihr Team bereit ist.',
+  },
   apparence: {
     title: 'Erscheinungsbild',
     intro: 'Logo und Markenfarbe gestalten automatisch Ihre Offerten und PDF-Rapporte.',
