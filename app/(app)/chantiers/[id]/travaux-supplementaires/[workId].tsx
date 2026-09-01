@@ -6,14 +6,16 @@ import { supabase } from '../../../../../lib/supabase';
 import { sendExtraWorkEmail, publicExtraWorkUrl } from '../../../../../lib/api/extraWorks';
 import { confirm } from '../../../../../lib/confirm';
 import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { ExtraWork, ExtraWorkItem } from '../../../../../lib/types';
 
 function chf(n: number): string {
-  return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
+  return `${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
 export default function ExtraWorkDetailScreen() {
+  const { t } = useTranslation();
   const { id, workId } = useLocalSearchParams<{ id: string; workId: string }>();
   const router = useRouter();
   const [work, setWork] = useState<ExtraWork | null>(null);
@@ -61,7 +63,7 @@ export default function ExtraWorkDetailScreen() {
 
   async function handleSendEmail() {
     if (!work!.client_email) {
-      setError("Aucune adresse e-mail client renseignée pour l'envoi.");
+      setError(t('extraWorkDetail.noEmailForSend'));
       return;
     }
     setSendingEmail(true);
@@ -73,7 +75,7 @@ export default function ExtraWorkDetailScreen() {
     }
     setSendingEmail(false);
     if (sendError || !sent) {
-      setError(sendError ?? "Échec de l'envoi de l'e-mail.");
+      setError(sendError ?? t('extraWorkDetail.emailSendFailed'));
       return;
     }
     setEmailSent(true);
@@ -86,7 +88,7 @@ export default function ExtraWorkDetailScreen() {
   }
 
   async function handleRefuse() {
-    const ok = await confirm('Marquer comme refusé ?', "Ces travaux supplémentaires seront marqués refusés et ne pourront plus être acceptés en ligne.");
+    const ok = await confirm(t('extraWorkDetail.refuseConfirmTitle'), t('extraWorkDetail.refuseConfirmBody'));
     if (!ok) return;
     await supabase.from('extra_works').update({ status: 'refused' }).eq('id', work!.id);
     load();
@@ -96,7 +98,7 @@ export default function ExtraWorkDetailScreen() {
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
         <View style={styles.container}>
-          <PageHeader title={work.number ?? 'Travaux supplémentaires'} backTo={`/(app)/chantiers/${id}/travaux-supplementaires`} />
+          <PageHeader title={work.number ?? t('extraWorkDetail.fallbackTitle')} backTo={`/(app)/chantiers/${id}/travaux-supplementaires`} />
 
           <Card style={{ gap: spacing.sm }}>
             <View style={styles.row}>
@@ -109,7 +111,7 @@ export default function ExtraWorkDetailScreen() {
           </Card>
 
           <Card style={{ marginTop: spacing.md }}>
-            <Text style={styles.sectionTitle}>Lignes</Text>
+            <Text style={styles.sectionTitle}>{t('extraWorkDetail.lines')}</Text>
             {items.map((it) => (
               <View key={it.id} style={styles.itemRow}>
                 <Text style={styles.itemDesc}>{it.description}</Text>
@@ -121,15 +123,15 @@ export default function ExtraWorkDetailScreen() {
             ))}
             <View style={styles.divider} />
             <View style={styles.totalsRow}>
-              <Text style={styles.metaLine}>Sous-total</Text>
+              <Text style={styles.metaLine}>{t('extraWorkDetail.subtotal')}</Text>
               <Text style={styles.line}>{chf(subtotal)}</Text>
             </View>
             <View style={styles.totalsRow}>
-              <Text style={styles.metaLine}>TVA ({work.vat_rate}%)</Text>
+              <Text style={styles.metaLine}>{t('extraWorkDetail.vat', { rate: work.vat_rate })}</Text>
               <Text style={styles.line}>{chf(vat)}</Text>
             </View>
             <View style={styles.totalsRow}>
-              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={styles.totalLabel}>{t('extraWorkDetail.total')}</Text>
               <Text style={styles.totalAmount}>{chf(total)}</Text>
             </View>
           </Card>
@@ -138,10 +140,14 @@ export default function ExtraWorkDetailScreen() {
 
           {work.status === 'accepted' ? (
             <Card style={styles.acceptedCard}>
-              <Text style={styles.acceptedTitle}>Accepté et signé{work.client_signer_name ? ` par ${work.client_signer_name}` : ''}</Text>
+              <Text style={styles.acceptedTitle}>
+                {work.client_signer_name
+                  ? t('extraWorkDetail.acceptedTitleBySigner', { name: work.client_signer_name })
+                  : t('extraWorkDetail.acceptedTitle')}
+              </Text>
               {work.facture_id ? (
                 <Button
-                  title="Voir la facture générée"
+                  title={t('extraWorkDetail.viewGeneratedInvoice')}
                   variant="secondary"
                   icon="file-text"
                   onPress={() => router.push(`/(app)/devis/factures/${work.facture_id}` as any)}
@@ -150,25 +156,25 @@ export default function ExtraWorkDetailScreen() {
               ) : null}
             </Card>
           ) : work.status === 'refused' ? (
-            <Text style={[styles.meta, { marginTop: spacing.md }]}>Ces travaux supplémentaires ont été refusés.</Text>
+            <Text style={[styles.meta, { marginTop: spacing.md }]}>{t('extraWorkDetail.refusedNotice')}</Text>
           ) : (
             <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
               {work.status === 'draft' ? (
-                <Button title="Marquer comme envoyé" variant="secondary" icon="send" onPress={handleMarkSent} />
+                <Button title={t('extraWorkDetail.markAsSent')} variant="secondary" icon="send" onPress={handleMarkSent} />
               ) : null}
               <Button
-                title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+                title={linkCopied ? t('extraWorkDetail.linkCopied') : t('extraWorkDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
                 onPress={handleCopyLink}
               />
               <Button
-                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                title={emailSent ? t('extraWorkDetail.emailSent') : t('extraWorkDetail.sendByEmail')}
                 icon="mail"
                 onPress={handleSendEmail}
                 loading={sendingEmail}
               />
-              <Button title="Marquer comme refusé" variant="secondary" icon="x-circle" onPress={handleRefuse} />
+              <Button title={t('extraWorkDetail.markAsRefused')} variant="secondary" icon="x-circle" onPress={handleRefuse} />
             </View>
           )}
         </View>
