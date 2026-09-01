@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La maçonnerie mélange plusieurs unités de mesure dans le même chantier — le m³ de béton coulé, le m² de mur monté, le nombre d’heures de manutention et de finition. Un devis qui applique un seul prix forfaitaire sur l’ensemble finit presque toujours par sous-évaluer une partie du travail, souvent la main-d’œuvre de finition, qui prend en réalité plus de temps que prévu.',
+      text: 'La maçonnerie mélange plusieurs unités de mesure dans le même chantier : le m³ de béton coulé, le m² de mur monté, le nombre d’heures de manutention et de finition. Un devis qui applique un seul prix forfaitaire sur l’ensemble finit presque toujours par sous-évaluer une partie du travail, souvent la main-d’œuvre de finition, qui prend en réalité plus de temps que prévu.',
     },
     { type: 'h2', text: 'Structurer le devis par poste, pas par chantier entier' },
     {
@@ -31,12 +31,12 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '15-20 %',
-      label: 'part typique du temps total d’un chantier de maçonnerie consacrée à la manutention et au nettoyage — souvent absente du devis initial',
+      label: 'part typique du temps total d’un chantier de maçonnerie consacrée à la manutention et au nettoyage, un poste souvent absent du devis initial',
     },
     { type: 'h2', text: 'Le piège du prix au m² qui ne dit rien de l’accès au chantier' },
     {
       type: 'p',
-      text: 'Deux chantiers avec la même surface de mur à monter peuvent avoir des coûts très différents selon l’accès (camion-toupie qui peut approcher ou non, étage, espace de stockage des matériaux). Un devis qui applique un prix au m² identique partout, sans ajuster selon l’accessibilité réelle du chantier, finit par égaliser les marges vers le bas — le chantier facile paie pour le chantier difficile.',
+      text: 'Deux chantiers avec la même surface de mur à monter peuvent avoir des coûts très différents selon l’accès (camion-toupie qui peut approcher ou non, étage, espace de stockage des matériaux). Un devis qui applique un prix au m² identique partout, sans ajuster selon l’accessibilité réelle du chantier, finit par égaliser les marges vers le bas. Le chantier facile paie alors pour le chantier difficile.',
     },
     {
       type: 'callout',
@@ -54,7 +54,7 @@ export const post: BlogPost = {
     {
       question: 'Comment chiffrer un devis de maçonnerie qui mélange plusieurs unités ?',
       answer:
-        'En détaillant chaque poste avec sa propre unité — m³ pour le béton et les fondations, m² pour les murs et finitions, heures de régie pour la manutention — plutôt qu’un prix forfaitaire unique qui masque les écarts.',
+        'En détaillant chaque poste avec sa propre unité (m³ pour le béton et les fondations, m² pour les murs et finitions, heures de régie pour la manutention), plutôt qu’un prix forfaitaire unique qui masque les écarts.',
     },
     {
       question: 'Faut-il inclure le prix des matériaux dans le prix au m² de maçonnerie ?',
@@ -64,7 +64,7 @@ export const post: BlogPost = {
     {
       question: 'Comment ne pas oublier le temps de manutention dans un devis de maçonnerie ?',
       answer:
-        'En prévoyant une ligne dédiée en heures de régie pour le transport des matériaux, l’évacuation des gravats et le nettoyage — un poste qui représente souvent 15 à 20 % du temps total du chantier.',
+        'En prévoyant une ligne dédiée en heures de régie pour le transport des matériaux, l’évacuation des gravats et le nettoyage : un poste qui représente souvent 15 à 20 % du temps total du chantier.',
     },
   ],
   relatedSlugs: [

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'La réception des travaux déclenche le délai de garantie, transfère les risques et fige les défauts constatés. Sans procès-verbal écrit, ce moment charnière devient impossible à prouver.',
   excerpt:
-    'Beaucoup de chantiers se terminent sans aucun document formel — juste des clés remises et un dernier acompte payé. C’est exactement le moment où un litige devient impossible à trancher faute de preuve.',
+    'Beaucoup de chantiers se terminent sans aucun document formel : juste des clés remises et un dernier acompte payé. C’est exactement le moment où un litige devient impossible à trancher faute de preuve.',
   category: 'Juridique & normes',
   keywords: ['réception des travaux', 'procès-verbal chantier', 'garantie construction', 'défauts chantier', 'fin de chantier'],
   publishedAt: '2026-08-21',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La réception des travaux est le moment juridique où le maître d’ouvrage accepte l’ouvrage tel qu’il est livré. Ce n’est pas une formalité accessoire : c’est l’événement qui déclenche le délai de garantie, transfère les risques de l’entrepreneur vers le client, et fige la liste des défauts constatés à cet instant précis — tout ce qui n’est pas signalé lors de la réception devient plus difficile à faire valoir ensuite.',
+      text: 'La réception des travaux est le moment juridique où le maître d’ouvrage accepte l’ouvrage tel qu’il est livré. Ce n’est pas une formalité accessoire : c’est l’événement qui déclenche le délai de garantie, transfère les risques de l’entrepreneur vers le client, et fige la liste des défauts constatés à cet instant précis. Tout ce qui n’est pas signalé lors de la réception devient en effet plus difficile à faire valoir ensuite.',
     },
     { type: 'h2', text: 'Ce que le procès-verbal doit contenir' },
     {
@@ -23,19 +23,19 @@ export const post: BlogPost = {
       items: [
         'La date exacte de la réception, point de départ du délai de garantie',
         'La liste précise des défauts constatés ce jour-là, avec leur emplacement',
-        'La signature des deux parties — sans signature, le document ne prouve rien en cas de désaccord',
+        'La signature des deux parties (sans elle, le document ne prouve rien en cas de désaccord)',
         'La mention explicite d’une réception sans réserve si aucun défaut n’est constaté',
       ],
     },
     { type: 'h2', text: 'Ce qui se passe sans procès-verbal écrit' },
     {
       type: 'p',
-      text: 'En l’absence de document formel, la réception peut être considérée comme tacite — par exemple lorsque le client utilise l’ouvrage sans réserve. Le problème n’est pas juridique mais pratique : sans date écrite, impossible de prouver précisément quand le délai de garantie a commencé à courir, ni quels défauts existaient déjà à ce moment-là plutôt qu’apparus après coup à cause d’un usage normal.',
+      text: 'En l’absence de document formel, la réception peut être considérée comme tacite, ce qui est le cas par exemple lorsque le client utilise l’ouvrage sans réserve. Le problème n’est pas juridique mais pratique : sans date écrite, impossible de prouver précisément quand le délai de garantie a commencé à courir, ni quels défauts existaient déjà à ce moment-là plutôt qu’apparus après coup à cause d’un usage normal.',
     },
     {
       type: 'callout',
       title: 'Un client qui refuse de signer n’empêche pas la réception d’avoir lieu',
-      text: 'Un procès-verbal peut être établi unilatéralement par l’entrepreneur et notifié au client — ce qui reste largement préférable à l’absence totale de trace écrite du moment de la réception.',
+      text: 'Même établi unilatéralement par l’entrepreneur et simplement notifié au client, un procès-verbal reste largement préférable à l’absence totale de trace écrite du moment de la réception.',
     },
     {
       type: 'p',
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un rapport de fin de chantier en quelques minutes',
-      text: 'Cantia génère un rapport PDF avec photos géolocalisées et horodatées, envoyable au client directement depuis le chantier — de quoi documenter proprement chaque réception de travaux.',
+      text: 'Cantia génère un rapport PDF avec photos géolocalisées et horodatées, envoyable au client directement depuis le chantier. De quoi documenter proprement chaque réception de travaux.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Que se passe-t-il si le client refuse de signer le procès-verbal ?',
       answer:
-        'L’entrepreneur peut établir le document unilatéralement et le notifier au client — cela reste une preuve bien plus solide que l’absence totale de trace écrite.',
+        'Même établi unilatéralement et simplement notifié au client, le document reste une preuve bien plus solide que l’absence totale de trace écrite.',
     },
     {
       question: 'Quel est l’effet principal de la réception sur les garanties ?',

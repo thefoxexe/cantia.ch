@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Comment éviter de ressaisir deux fois les mêmes informations entre devis et facture ?',
   title: 'En finir avec la double saisie entre devis et facture',
   description:
-    'Retaper un devis accepté pour en faire une facture est une perte de temps évitable — et une source d\'erreurs. Comment un outil bien conçu élimine cette étape.',
+    'Retaper un devis accepté pour en faire une facture est une perte de temps évitable, et surtout une source d\'erreurs. Comment un outil bien conçu élimine cette étape.',
   excerpt:
-    'Ressaisir un devis accepté pour en faire une facture n\'est pas juste une perte de temps — c\'est aussi l\'occasion de recopier une erreur de prix ou de quantité qui n\'existait pas dans l\'original.',
+    'Ressaisir un devis accepté pour en faire une facture n\'est pas juste une perte de temps : c\'est aussi l\'occasion de recopier une erreur de prix ou de quantité qui n\'existait pas dans l\'original.',
   category: 'Comparatifs & outils',
   keywords: ['éviter double saisie devis facture', 'transformer devis en facture automatiquement', 'logiciel sans ressaisie', 'gain de temps facturation', 'automatiser devis facture'],
   publishedAt: '2026-07-28',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Dans beaucoup de petites entreprises, un devis accepté est encore ressaisi à la main pour devenir une facture — parfois dans un outil différent, parfois simplement en retapant chaque ligne. Cette étape, invisible dans le quotidien, coûte du temps et introduit un risque d\'erreur évitable.',
+      text: 'Dans beaucoup de petites entreprises, un devis accepté est encore ressaisi à la main pour devenir une facture (parfois dans un outil différent, parfois simplement en retapant chaque ligne). Cette étape, invisible dans le quotidien, coûte du temps et introduit un risque d\'erreur évitable.',
     },
     { type: 'h2', text: 'Pourquoi la double saisie persiste encore souvent' },
     {
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce qu\'un vrai processus sans double saisie doit permettre' },
     {
       type: 'p',
-      text: 'Un devis accepté doit pouvoir devenir une facture en un seul geste — mêmes lignes, mêmes prix, mêmes quantités — avec seulement la possibilité d\'ajuster si nécessaire (acompte, remise finale). Le risque d\'erreur de recopie disparaît par construction, pas par vigilance.',
+      text: 'Un devis accepté doit pouvoir devenir une facture en un seul geste, avec les mêmes lignes, les mêmes prix et les mêmes quantités, en gardant seulement la possibilité d\'ajuster si nécessaire (acompte, remise finale). Le risque d\'erreur de recopie disparaît par construction, pas par vigilance.',
     },
     {
       type: 'callout',
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Comment vérifier qu\'un logiciel évite vraiment la double saisie ?',
       answer:
-        'En testant concrètement le passage d\'un devis accepté à une facture — si les lignes, prix et quantités se reportent automatiquement, la double saisie est bien éliminée.',
+        'Si les lignes, prix et quantités se reportent automatiquement lors du passage d\'un devis accepté à une facture, cela confirme concrètement que la double saisie est bien éliminée.',
     },
   ],
   relatedSlugs: [

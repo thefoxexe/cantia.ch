@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Comment choisir un logiciel de facturation qui gère vraiment bien la QR-facture suisse ?',
   title: 'Logiciel de facturation avec QR-facture : ce qui différencie un vrai support d’un module bricolé',
   description:
-    'Beaucoup d’outils affichent « QR-facture compatible » sans respecter la norme dans le détail — adresse structurée, IBAN vs QR-IBAN, référence QR. Voici ce qui distingue les deux.',
+    'Beaucoup d’outils affichent « QR-facture compatible » sans respecter la norme dans le détail : adresse structurée, IBAN vs QR-IBAN, référence QR. Voici ce qui distingue les deux.',
   excerpt:
     'Un QR-code qui « a l’air correct » peut être rejeté par une banque au scan. La QR-facture suisse a des règles précises, et tous les logiciels ne les respectent pas de la même façon.',
   category: 'Comparatifs & outils',
@@ -15,14 +15,14 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Depuis la disparition du bulletin de versement orange en 2022, la QR-facture est l’unique standard de paiement en Suisse. La plupart des logiciels de facturation affichent aujourd’hui « QR-facture » comme argument marketing — mais générer un QR-code qui scanne correctement, à chaque fois, avec les bonnes données, est plus exigeant qu’il n’y paraît.',
+      text: 'Depuis la disparition du bulletin de versement orange en 2022, la QR-facture est l’unique standard de paiement en Suisse. La plupart des logiciels de facturation affichent aujourd’hui « QR-facture » comme argument marketing. Mais générer un QR-code qui scanne correctement, à chaque fois, avec les bonnes données, est plus exigeant qu’il n’y paraît.',
     },
     { type: 'h2', text: 'Ce qui distingue un vrai support QR-facture' },
     {
       type: 'list',
       items: [
         'La gestion correcte de l’IBAN vs QR-IBAN (deux formats différents selon le type de compte, avec ou sans référence QR)',
-        'L’adresse structurée (NPA et localité séparés), obligatoire depuis la norme 2.3 — une adresse en texte libre sera rejetée dès fin septembre 2026',
+        'L’adresse structurée (NPA et localité séparés), obligatoire depuis la norme 2.3 : une adresse en texte libre sera rejetée dès fin septembre 2026',
         'Le calcul et la vérification automatique de la référence QR (QRR), pour éviter une erreur de rapprochement côté client',
         'Une zone de quiétude (quiet zone) suffisante autour du QR-code — un code mal marginé peut échouer au scan même si les données sont correctes',
       ],

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Passer de un à trois chantiers simultanés change la nature du travail : ce n’est plus une question de bras, c’est une question de mémoire et de coordination. Une méthode concrète.',
   excerpt:
-    'Le passage d’un à trois chantiers en parallèle ne double pas la charge de travail — il multiplie le nombre de choses qu’il faut se rappeler sans les avoir écrites nulle part.',
+    'Le passage d’un à trois chantiers en parallèle ne double pas la charge de travail : il multiplie le nombre de choses qu’il faut se rappeler sans les avoir écrites nulle part.',
   category: 'Chantier & rentabilité',
   keywords: ['plusieurs chantiers', 'organisation chantier', 'planning équipe', 'coordination', 'gestion multi-projets'],
   publishedAt: '2026-04-09',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un chantier à la fois se gère à la mémoire, sans vraiment y penser. Trois chantiers en parallèle changent tout — pas parce qu’il y a trois fois plus de travail physique, mais parce qu’il y a soudain dix fois plus de choses à se rappeler : qui est où, quel matériel a été commandé pour quel chantier, quel client attend quelle réponse.',
+      text: 'Un chantier à la fois se gère à la mémoire, sans vraiment y penser. Trois chantiers en parallèle changent tout. Non pas parce qu’il y a trois fois plus de travail physique, mais parce qu’il y a soudain dix fois plus de choses à se rappeler : qui est où, quel matériel a été commandé pour quel chantier, quel client attend quelle réponse.',
     },
     { type: 'h2', text: 'Le vrai problème n’est jamais la charge, c’est la mémoire' },
     {

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Une facture finale envoyée trop vite, sans réception documentée ni vérification du chiffrage, ouvre la porte à des contestations évitables. Voici les points à cocher avant de clôturer.',
   excerpt:
-    'La facture finale n’est pas juste le dernier document du chantier — c’est celui qui fige la relation client. Mieux vaut la préparer avec méthode que de devoir la corriger après coup.',
+    'La facture finale n’est pas juste le dernier document du chantier : c’est celui qui fige la relation client. Mieux vaut la préparer avec méthode que de devoir la corriger après coup.',
   category: 'Chantier & rentabilité',
   keywords: ['checklist fin de chantier', 'clôturer un chantier', 'facture finale travaux', 'vérification avant facturation', 'fin de travaux bâtiment'],
   publishedAt: '2026-06-10',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La facture finale d’un chantier n’est pas juste le dernier document administratif — c’est celui qui fige la relation avec le client, déclenche la garantie, et souvent conclut le dossier. L’envoyer sans une vérification structurée ouvre la porte à des erreurs évitables : travaux supplémentaires oubliés, acompte mal déduit, réception non documentée.',
+      text: 'La facture finale d’un chantier n’est pas juste le dernier document administratif. C’est celui qui fige la relation avec le client, déclenche la garantie, et souvent conclut le dossier. L’envoyer sans une vérification structurée ouvre la porte à des erreurs évitables : travaux supplémentaires oubliés, acompte mal déduit, réception non documentée.',
     },
     { type: 'h2', text: 'Avant d’envoyer la facture finale' },
     {
@@ -40,12 +40,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Une facture finale envoyée trop vite coûte souvent plus cher qu’un jour de retard',
-      text: 'Un oubli de travaux supplémentaires ou un acompte mal déduit se traduit directement en argent perdu — quelques minutes de vérification structurée évitent presque toujours cette perte.',
+      text: 'Un oubli de travaux supplémentaires ou un acompte mal déduit se traduit directement en argent perdu, alors que quelques minutes de vérification structurée évitent presque toujours cette perte.',
     },
     {
       type: 'cta',
       title: 'Un dossier de chantier complet, prêt pour la facture finale',
-      text: 'Cantia relie devis, acomptes, travaux supplémentaires et photos au même chantier — la facture finale se prépare sans reconstituer l’historique à la main.',
+      text: 'Cantia relie devis, acomptes, travaux supplémentaires et photos au même chantier, si bien que la facture finale se prépare sans reconstituer l’historique à la main.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,7 +53,7 @@ export const post: BlogPost = {
     {
       question: 'Pourquoi documenter la réception avant d’envoyer la facture finale ?',
       answer:
-        'Parce qu’elle déclenche le délai de garantie et fige les défauts constatés — sans document daté, ce moment devient impossible à prouver en cas de litige ultérieur.',
+        'Parce qu’elle déclenche le délai de garantie et fige les défauts constatés. Sans document daté, ce moment devient impossible à prouver en cas de litige ultérieur.',
     },
     {
       question: 'Que risque-t-on à oublier des travaux supplémentaires dans le décompte final ?',

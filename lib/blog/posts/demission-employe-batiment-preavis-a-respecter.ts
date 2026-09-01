@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Un employé du bâtiment démissionne : quel délai de préavis doit-il respecter ?',
   title: 'Démission d’un employé du bâtiment : le délai de préavis à respecter (et ce qui se passe s’il ne l’est pas)',
   description:
-    'Le préavis de démission suit les mêmes règles que le licenciement — mais un employé qui part sans le respecter expose l’entreprise à un manque organisationnel qu’elle peut, dans certains cas, faire valoir.',
+    'Le préavis de démission suit les mêmes règles que le licenciement. Un employé qui part sans le respecter expose toutefois l’entreprise à un manque organisationnel qu’elle peut, dans certains cas, faire valoir.',
   excerpt:
-    'Un ouvrier qui annonce son départ « pour dans deux semaines » ne peut pas toujours partir aussi vite — le délai de préavis fonctionne dans les deux sens, employeur comme employé.',
+    'Un ouvrier qui annonce son départ « pour dans deux semaines » ne peut pas toujours partir aussi vite, car le délai de préavis fonctionne dans les deux sens, employeur comme employé.',
   category: 'RH & salaires',
   keywords: ['démission employé préavis', 'délai congé démission bâtiment', 'préavis employé construction', 'départ employé sans préavis', 'CCT construction démission'],
   publishedAt: '2026-06-29',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le délai de préavis en cas de démission suit exactement les mêmes règles que celui applicable à un licenciement (art. 335c CO, sauf disposition CCT plus favorable) — il n’existe pas de régime plus souple pour un employé qui décide lui-même de partir. Un ouvrier annonçant un départ immédiat ou « dans deux semaines » sans que ce délai soit contractuellement compatible reste, en principe, tenu par le préavis normal.',
+      text: 'Le délai de préavis en cas de démission suit exactement les mêmes règles que celui applicable à un licenciement (art. 335c CO, sauf disposition CCT plus favorable). Il n’existe pas de régime plus souple pour un employé qui décide lui-même de partir : un ouvrier annonçant un départ immédiat ou « dans deux semaines », sans que ce délai soit contractuellement compatible, reste en principe tenu par le préavis normal.',
     },
     { type: 'h2', text: 'Les délais applicables (sauf CCT plus favorable)' },
     {
@@ -34,7 +34,7 @@ export const post: BlogPost = {
       items: [
         'L’employeur peut réclamer une indemnité correspondant au salaire que l’employé aurait perçu s’il avait respecté le délai',
         'Si l’absence cause un dommage supplémentaire concret (retard de chantier facturable, pénalité contractuelle), il peut aussi le réclamer, à condition de le documenter',
-        'En pratique, ce recours reste rarement exercé jusqu’au bout — mais son existence pèse dans une négociation d’un départ anticipé négocié à l’amiable',
+        'En pratique, ce recours est rarement exercé jusqu’au bout, mais son existence pèse dans la négociation d’un départ anticipé à l’amiable',
       ],
     },
     {

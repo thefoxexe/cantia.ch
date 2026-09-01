@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Un employeur du bâtiment est-il obligé de délivrer un certificat de travail, et que doit-il contenir ?',
   title: 'Certificat de travail dans le bâtiment : une obligation, pas une faveur',
   description:
-    'Un employé quittant l’entreprise a le droit d’exiger un certificat de travail à tout moment — le refuser ou le bâcler expose l’employeur à un litige, même longtemps après le départ.',
+    'Un employé quittant l’entreprise a le droit d’exiger un certificat de travail à tout moment. Le refuser ou le bâcler expose l’employeur à un litige, même longtemps après le départ.',
   excerpt:
     'Beaucoup de petites entreprises traitent le certificat de travail comme une formalité de dernière minute. C’est un droit de l’employé, encadré par des règles précises sur ce qu’il peut et ne peut pas contenir.',
   category: 'RH & salaires',
@@ -15,14 +15,14 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'L’art. 330a du Code des obligations donne à tout employé, sans exception, le droit d’exiger de son employeur un certificat de travail — que le départ soit une démission, un licenciement, ou une fin de contrat à durée déterminée. Ce droit existe à tout moment, y compris des années après le départ effectif de l’entreprise.',
+      text: 'L’art. 330a du Code des obligations donne à tout employé, sans exception, le droit d’exiger de son employeur un certificat de travail, quelle que soit la nature du départ : démission, licenciement ou fin de contrat à durée déterminée. Ce droit existe à tout moment, y compris des années après le départ effectif de l’entreprise.',
     },
     { type: 'h2', text: 'Deux formes possibles' },
     {
       type: 'list',
       items: [
-        'Le certificat complet : nature et durée des rapports de travail, qualité du travail et de la conduite — c’est la forme par défaut si l’employé ne précise pas',
-        'L’attestation de travail simple : uniquement la nature et la durée de l’emploi, sans appréciation — l’employé peut la demander explicitement à la place du certificat complet',
+        'Le certificat complet, qui détaille la nature et la durée des rapports de travail ainsi que la qualité du travail et de la conduite : c’est la forme par défaut quand l’employé ne précise rien',
+        'L’attestation de travail simple, qui mentionne uniquement la nature et la durée de l’emploi sans appréciation : l’employé peut la demander explicitement à la place du certificat complet',
       ],
     },
     { type: 'h2', text: 'Ce que le certificat ne doit jamais contenir' },
@@ -37,17 +37,17 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Un certificat de travail rédigé à la va-vite se retourne souvent contre l’entreprise',
-      text: 'Un employé qui estime son certificat inexact ou trop vague peut en demander la rectification, voire saisir le tribunal — mieux vaut le rédiger avec soin dès la première fois que de devoir le refaire sous contrainte.',
+      text: 'Un employé qui estime son certificat inexact ou trop vague peut en demander la rectification, voire saisir le tribunal. Mieux vaut donc le rédiger avec soin dès la première fois que de devoir le refaire sous contrainte.',
     },
     { type: 'h2', text: 'Comment simplifier sa rédaction' },
     {
       type: 'p',
-      text: 'Un certificat de travail bien fondé s’appuie sur des faits concrets et documentés : les chantiers réalisés, les responsabilités tenues, les compétences démontrées au fil du temps — plus l’activité de l’employé a été suivie et tracée pendant son emploi, plus la rédaction devient rapide et objective.',
+      text: 'Un certificat de travail bien fondé s’appuie sur des faits concrets et documentés : les chantiers réalisés, les responsabilités tenues, les compétences démontrées au fil du temps. Plus l’activité de l’employé a été suivie et tracée pendant son emploi, plus la rédaction devient rapide et objective.',
     },
     {
       type: 'cta',
       title: 'Un historique d’activité par employé, prêt quand il le faut',
-      text: 'Le module RH de Cantia garde une trace des affectations et de l’activité de chaque membre de l’équipe — une base concrète pour rédiger un certificat de travail juste et rapide.',
+      text: 'Le module RH de Cantia garde une trace des affectations et de l’activité de chaque membre de l’équipe. C’est une base concrète pour rédiger un certificat de travail juste et rapide.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -65,7 +65,7 @@ export const post: BlogPost = {
     {
       question: 'Peut-on mentionner une maladie dans un certificat de travail ?',
       answer:
-        'Non, sauf lien direct avec la prestation de travail elle-même — mentionner une maladie ou une grossesse sans pertinence directe n’est pas autorisé.',
+        'Non, sauf lien direct avec la prestation de travail elle-même : mentionner une maladie ou une grossesse sans pertinence directe n’est pas autorisé.',
     },
   ],
   relatedSlugs: [

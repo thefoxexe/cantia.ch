@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Un logiciel de gestion de chantier vaut-il la peine quand on est seul, sans équipe ?',
   title: 'Logiciel de gestion de chantier en solo : utile, ou juste pour les grandes équipes ?',
   description:
-    'La plupart des outils de gestion de chantier ciblent des équipes. Un indépendant seul a des besoins différents mais tout aussi réels — voici lesquels justifient vraiment l’outil.',
+    'La plupart des outils de gestion de chantier ciblent des équipes. Un indépendant seul a pourtant des besoins différents, tout aussi réels : voici ceux qui justifient vraiment l’outil.',
   excerpt:
     'La croyance la plus répandue chez les indépendants du bâtiment : « les logiciels de gestion, c’est pour les équipes ». C’est faux, et c’est même souvent l’inverse.',
   category: 'Comparatifs & outils',
@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: '« Je suis tout seul, je n’ai pas besoin d’un logiciel de gestion » — une phrase entendue très souvent, et qui repose sur une confusion : un logiciel de gestion de chantier n’est pas seulement un outil de coordination d’équipe. Pour un indépendant, c’est d’abord un outil qui récupère du temps administratif, seul poste que personne d’autre ne peut faire à sa place.',
+      text: '« Je suis tout seul, je n’ai pas besoin d’un logiciel de gestion. » Cette phrase, entendue très souvent, repose sur une confusion : un logiciel de gestion de chantier n’est pas seulement un outil de coordination d’équipe. Pour un indépendant, c’est d’abord un outil qui récupère du temps administratif, seul poste que personne d’autre ne peut faire à sa place.',
     },
     { type: 'h2', text: 'Le vrai coût, pour un indépendant, c’est le temps' },
     {
       type: 'p',
-      text: 'Un artisan seul qui passe ses soirées à retaper des devis, chercher un ancien prix client, ou reconstituer une facture à partir de notes papier perd un temps qu’il ne facture jamais — contrairement à une équipe où cette charge peut se répartir, un indépendant seul l’absorbe intégralement, en plus de ses heures de chantier.',
+      text: 'Un artisan seul qui passe ses soirées à retaper des devis, chercher un ancien prix client, ou reconstituer une facture à partir de notes papier perd un temps qu’il ne facture jamais. Contrairement à une équipe, où cette charge peut se répartir, un indépendant seul l’absorbe intégralement, en plus de ses heures de chantier.',
     },
     {
       type: 'list',
@@ -39,12 +39,12 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce qui reste inutile pour un solo, et ce qui compte vraiment' },
     {
       type: 'p',
-      text: 'Un planning d’équipe multi-personnes ou un système de permissions par rôle n’a effectivement aucun intérêt pour un indépendant seul. Ce qui compte pour lui : la rapidité de création d’un devis, la fiabilité de la facturation, et la capacité à retrouver une information ancienne sans effort — trois besoins qui n’ont rien à voir avec la taille de l’équipe.',
+      text: 'Un planning d’équipe multi-personnes ou un système de permissions par rôle n’a effectivement aucun intérêt pour un indépendant seul. Ce qui compte pour lui : la rapidité de création d’un devis, la fiabilité de la facturation, et la capacité à retrouver une information ancienne sans effort (trois besoins qui n’ont rien à voir avec la taille de l’équipe).',
     },
     {
       type: 'cta',
       title: 'Utile dès le premier devis, pas seulement à plusieurs',
-      text: 'Le plan gratuit de Cantia couvre devis, factures QR et catalogue de prix — pensé pour être utile dès qu’on travaille seul, pas seulement une fois l’équipe agrandie.',
+      text: 'Le plan gratuit de Cantia couvre devis, factures QR et catalogue de prix, pensé pour être utile dès qu’on travaille seul, pas seulement une fois l’équipe agrandie.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Un logiciel de gestion de chantier est-il utile pour un indépendant sans équipe ?',
       answer:
-        'Oui — l’essentiel de sa valeur pour un solo vient du temps administratif récupéré (devis, factures, historique client), pas de la coordination d’équipe.',
+        'Oui, car l’essentiel de sa valeur pour un solo vient du temps administratif récupéré (devis, factures, historique client), pas de la coordination d’équipe.',
     },
     {
       question: 'À partir de combien de devis par mois l’outil devient-il rentable ?',

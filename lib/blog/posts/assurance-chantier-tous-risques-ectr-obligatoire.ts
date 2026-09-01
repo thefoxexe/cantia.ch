@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'L’assurance chantier tous risques (ECTR) est-elle obligatoire, et qui doit la souscrire ?',
   title: 'Assurance chantier tous risques (ECTR) : obligatoire ou pas, et qui paie en cas de sinistre',
   description:
-    'Contrairement à la RC professionnelle, l’ECTR n’est imposée par aucune loi fédérale — mais son absence peut coûter très cher en cas de dégât avant réception. Voici qui la souscrit en pratique et pourquoi.',
+    'Contrairement à la RC professionnelle, l’ECTR n’est imposée par aucune loi fédérale, mais son absence peut coûter très cher en cas de dégât avant réception. Voici qui la souscrit en pratique et pourquoi.',
   excerpt:
-    'Un dégât d’eau qui détruit un chantier en cours, un incendie, un vol de matériel avant la pose — sans ECTR, la question « qui paie » se transforme vite en conflit entre maître d’ouvrage et entrepreneurs.',
+    'Un dégât d’eau qui détruit un chantier en cours, un incendie, un vol de matériel avant la pose : sans ECTR, la question « qui paie » se transforme vite en conflit entre maître d’ouvrage et entrepreneurs.',
   category: 'Juridique & normes',
   keywords: ['assurance chantier tous risques', 'ECTR construction', 'assurance dégât chantier', 'sinistre chantier en cours', 'assurance travaux'],
   publishedAt: '2026-08-01',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'L’assurance chantier tous risques (ECTR — Entreprise de Construction Tous Risques) couvre les dommages matériels survenant sur l’ouvrage en cours de construction, avant sa réception : incendie, dégât d’eau, tempête, vol de matériaux déjà posés, voire erreur d’exécution accidentelle. Contrairement à la RC professionnelle, aucune loi fédérale ne l’impose — mais son absence expose l’ensemble des intervenants à un risque financier disproportionné.',
+      text: 'L’assurance chantier tous risques (ECTR, pour Entreprise de Construction Tous Risques) couvre les dommages matériels survenant sur l’ouvrage en cours de construction, avant sa réception : incendie, dégât d’eau, tempête, vol de matériaux déjà posés, voire erreur d’exécution accidentelle. Contrairement à la RC professionnelle, aucune loi fédérale ne l’impose, mais son absence expose l’ensemble des intervenants à un risque financier disproportionné.',
     },
     { type: 'h2', text: 'Qui la souscrit, en pratique' },
     {
@@ -33,12 +33,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Sans ECTR, un sinistre avant réception retombe souvent sur l’entrepreneur',
-      text: 'Tant que l’ouvrage n’est pas réceptionné, l’entrepreneur en reste responsable — un incendie ou un dégât d’eau qui détruit un chantier en cours peut donc, en l’absence d’ECTR, représenter une perte sèche pour l’entreprise qui a exécuté les travaux.',
+      text: 'Tant que l’ouvrage n’est pas réceptionné, l’entrepreneur en reste responsable. Un incendie ou un dégât d’eau qui détruit un chantier en cours peut donc, en l’absence d’ECTR, représenter une perte sèche pour l’entreprise qui a exécuté les travaux.',
     },
     {
       type: 'cta',
       title: 'Documenter l’état du chantier avant tout sinistre',
-      text: 'Les rapports de chantier de Cantia, avec photos géolocalisées et horodatées, donnent une base factuelle précieuse pour toute déclaration de sinistre — ECTR ou RC professionnelle.',
+      text: 'Les rapports de chantier de Cantia, avec photos géolocalisées et horodatées, donnent une base factuelle précieuse pour toute déclaration de sinistre, que ce soit pour l’ECTR ou pour la RC professionnelle.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -46,12 +46,12 @@ export const post: BlogPost = {
     {
       question: 'L’ECTR est-elle obligatoire en Suisse ?',
       answer:
-        'Non, aucune loi fédérale ne l’impose — mais son absence expose fortement les intervenants du chantier en cas de sinistre avant réception, et certains maîtres d’ouvrage l’exigent contractuellement.',
+        'Non, aucune loi fédérale ne l’impose, mais son absence expose fortement les intervenants du chantier en cas de sinistre avant réception, et certains maîtres d’ouvrage l’exigent contractuellement.',
     },
     {
       question: 'Qui souscrit généralement l’assurance chantier tous risques ?',
       answer:
-        'Le plus souvent le maître d’ouvrage, au bénéfice de tous les intervenants du chantier — mais sur des projets plus modestes, l’entreprise principale peut aussi la souscrire elle-même.',
+        'Le plus souvent le maître d’ouvrage, au bénéfice de tous les intervenants du chantier. Sur des projets plus modestes, cependant, l’entreprise principale peut aussi la souscrire elle-même.',
     },
     {
       question: 'L’ECTR remplace-t-elle la RC professionnelle de l’entrepreneur ?',

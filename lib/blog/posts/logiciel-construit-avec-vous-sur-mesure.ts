@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Qu\'est-ce que ça change d\'avoir un logiciel construit avec vous plutôt que pour tout le monde ?',
   title: 'Un logiciel construit avec vous, pas juste vendu à tout le monde',
   description:
-    'La différence entre un éditeur qui vend un produit figé et un éditeur qui construit avec ses clients — ce que ça change concrètement pour une entreprise du bâtiment.',
+    'Un éditeur qui vend un produit figé et un éditeur qui construit avec ses clients ne proposent pas la même expérience : voici ce que ça change concrètement pour une entreprise du bâtiment.',
   excerpt:
-    'La plupart des logiciels sont pensés une fois, pour un client moyen imaginaire, puis vendus tels quels à tout le monde — un logiciel construit avec ses clients suit une autre logique, plus proche du terrain.',
+    'La plupart des logiciels sont pensés une fois, pour un client moyen imaginaire, puis vendus tels quels à tout le monde. Un logiciel construit avec ses clients suit une autre logique, plus proche du terrain.',
   category: 'Sur-mesure & automatisations',
   keywords: ['logiciel construit avec vous', 'éditeur qui écoute ses clients', 'logiciel gestion collaboratif bâtiment', 'produit qui évolue avec les retours clients', 'Cantia développement avec clients'],
   publishedAt: '2026-08-28',
@@ -35,17 +35,17 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce que ça ne veut pas dire' },
     {
       type: 'p',
-      text: 'Construire avec ses clients ne signifie pas développer une version totalement différente pour chacun — le socle standard reste commun à tous, ce qui change, c\'est la capacité à l\'ajuster réellement plutôt que d\'imposer un produit figé sans jamais l\'adapter.',
+      text: 'Construire avec ses clients ne signifie pas développer une version totalement différente pour chacun : le socle standard reste commun à tous. Ce qui change, c\'est la capacité à l\'ajuster réellement, plutôt que d\'imposer un produit figé sans jamais l\'adapter.',
     },
     {
       type: 'callout',
       title: 'Un retour, même petit, peut vraiment changer quelque chose',
-      text: 'Une remarque sur un détail qui coince au quotidien a souvent plus d\'impact sur l\'évolution de l\'outil qu\'on ne l\'imagine — ce genre de retour est directement à l\'origine de plusieurs fonctionnalités déjà existantes dans Cantia.',
+      text: 'Une remarque sur un détail qui coince au quotidien a souvent plus d\'impact sur l\'évolution de l\'outil qu\'on ne l\'imagine, car ce genre de retour est directement à l\'origine de plusieurs fonctionnalités déjà existantes dans Cantia.',
     },
     {
       type: 'cta',
       title: 'Votre avis façonne directement l\'outil',
-      text: 'Chez Cantia, chaque retour compte réellement dans l\'évolution du produit — essayez-le gratuitement et dites-nous ce qui pourrait mieux coller à votre façon de travailler.',
+      text: 'Chez Cantia, chaque retour compte réellement dans l\'évolution du produit. Essayez-le gratuitement et dites-nous ce qui pourrait mieux coller à votre façon de travailler.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -58,7 +58,7 @@ export const post: BlogPost = {
     {
       question: 'Un logiciel construit avec ses clients développe-t-il une version différente pour chacun ?',
       answer:
-        'Non — le socle standard reste commun à tous, la différence porte sur la capacité à l\'ajuster réellement selon les retours du terrain plutôt que de rester figé.',
+        'Non, le socle standard reste commun à tous : la différence porte sur la capacité à l\'ajuster réellement selon les retours du terrain, plutôt que de rester figé.',
     },
     {
       question: 'Comment un retour client peut-il concrètement influencer l\'évolution de l\'outil ?',

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Format du carreau, motif de pose, découpes, plans de calepinage : autant de facteurs qui font varier fortement le temps de pose d’un carrelage, à surface égale. Comment les intégrer au devis.',
   excerpt:
-    'Deux pièces de la même surface, carrelées avec le même matériau, peuvent demander deux fois plus de temps selon le format des carreaux et le motif de pose choisi — le prix au m² seul ne raconte jamais toute l’histoire.',
+    'Deux pièces de la même surface, carrelées avec le même matériau, peuvent demander deux fois plus de temps selon le format des carreaux et le motif de pose choisi : le prix au m² seul ne raconte jamais toute l’histoire.',
   category: 'Métiers du bâtiment',
   keywords: ['devis carreleur', 'prix carrelage au m2 Suisse', 'facturation pose carrelage', 'calepinage devis', 'découpe carrelage temps de pose'],
   publishedAt: '2026-09-03',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le client compare naturellement les devis de carrelage au prix au m² — c’est le chiffre qu’il retient. Mais ce chiffre seul ne dit rien du temps de pose réel, qui dépend fortement du format des carreaux, du motif choisi (droit, diagonale, chevron) et du nombre de découpes autour des angles, prises électriques ou sanitaires déjà en place.',
+      text: 'Le client compare naturellement les devis de carrelage au prix au m², car c’est le chiffre qu’il retient. Mais ce chiffre seul ne dit rien du temps de pose réel, qui dépend fortement du format des carreaux, du motif choisi (droit, diagonale, chevron) et du nombre de découpes autour des angles, prises électriques ou sanitaires déjà en place.',
     },
     { type: 'h2', text: 'Ce qui fait varier le temps de pose, à surface égale' },
     {
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Prévoir une marge de casse dès le devis' },
     {
       type: 'p',
-      text: 'Une commande de carrelage sans marge de casse expose à devoir recommander en urgence — avec le risque de ne plus trouver le même lot, la même teinte. Intégrer une marge de 8 à 12 % selon la complexité de la pose au moment du devis évite ce genre de mauvaise surprise en plein chantier.',
+      text: 'Une commande de carrelage sans marge de casse expose à devoir recommander en urgence, avec le risque de ne plus trouver le même lot ni la même teinte. Intégrer une marge de 8 à 12 % selon la complexité de la pose au moment du devis évite ce genre de mauvaise surprise en plein chantier.',
     },
     {
       type: 'callout',
@@ -58,7 +58,7 @@ export const post: BlogPost = {
     {
       question: 'Quelle marge de casse prévoir sur une commande de carrelage ?',
       answer:
-        'Généralement entre 8 et 12 % selon la complexité de la pose — un motif avec beaucoup de découpes consomme davantage de carreaux qu’une pose droite simple.',
+        'Généralement entre 8 et 12 % selon la complexité de la pose, car un motif avec beaucoup de découpes consomme davantage de carreaux qu’une pose droite simple.',
     },
     {
       question: 'Faut-il prévoir le ragréage du support dans le devis initial de carrelage ?',

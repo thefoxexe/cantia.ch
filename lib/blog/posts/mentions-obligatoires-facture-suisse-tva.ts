@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Numéro TVA, taux applicable, date de prestation, référence QR : une facture incomplète peut être refusée en comptabilité ou contestée par un client. Voici la liste exacte à vérifier.',
   excerpt:
-    'Une facture qui « a l’air correcte » et une facture qui respecte toutes les exigences de l’AFC ne sont pas toujours la même chose — une mention manquante suffit à la fragiliser.',
+    'Une facture qui « a l’air correcte » et une facture qui respecte toutes les exigences de l’AFC ne sont pas toujours la même chose. Une seule mention manquante suffit à la fragiliser.',
   category: 'Devis & facturation',
   keywords: ['mentions facture suisse', 'numéro TVA facture', 'AFC facture', 'facture conforme', 'facturation artisan'],
   publishedAt: '2026-08-15',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Une entreprise assujettie à la TVA doit émettre des factures respectant certaines exigences formelles — pas pour le plaisir de la paperasse, mais parce qu’une facture incomplète peut être refusée pour la déduction de l’impôt préalable côté client, ou fragilisée en cas de contrôle de l’Administration fédérale des contributions (AFC).',
+      text: 'Une entreprise assujettie à la TVA doit émettre des factures respectant certaines exigences formelles. Ce n’est pas une simple question de paperasse : une facture incomplète peut être refusée pour la déduction de l’impôt préalable côté client, ou fragilisée en cas de contrôle de l’Administration fédérale des contributions (AFC).',
     },
     { type: 'h2', text: 'La liste des mentions attendues' },
     {
@@ -32,17 +32,17 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'En dessous de CHF 400.-, une facture simplifiée suffit',
-      text: 'Pour les petits montants, il n’est pas nécessaire d’indiquer le nom du destinataire ni le détail du taux de TVA — mais le numéro IDE et le montant TTC restent obligatoires.',
+      text: 'Pour les petits montants, il n’est pas nécessaire d’indiquer le nom du destinataire ni le détail du taux de TVA. Le numéro IDE et le montant TTC restent en revanche obligatoires.',
     },
     { type: 'h2', text: 'La QR-facture ajoute ses propres exigences' },
     {
       type: 'p',
-      text: 'Une QR-facture doit en plus respecter le standard suisse de paiement (IBAN ou QR-IBAN valide, référence QR ou sans référence selon le compte utilisé, adresse structurée avec NPA et localité séparés depuis la version 2.3 de la norme) — un format non conforme peut être refusé par certaines banques ou générer une erreur au moment du scan côté client.',
+      text: 'Une QR-facture doit en plus respecter le standard suisse de paiement (IBAN ou QR-IBAN valide, référence QR ou sans référence selon le compte utilisé, adresse structurée avec NPA et localité séparés depuis la version 2.3 de la norme). Un format non conforme peut être refusé par certaines banques, ou générer une erreur au moment du scan côté client.',
     },
     {
       type: 'cta',
       title: 'Des factures conformes sans y penser',
-      text: 'Cantia génère automatiquement des factures et QR-factures avec toutes les mentions légales à jour — TVA, IBAN, adresse structurée — sans avoir à vérifier chaque champ à la main.',
+      text: 'Cantia génère automatiquement des factures et QR-factures avec toutes les mentions légales à jour (TVA, IBAN, adresse structurée), sans que vous ayez à vérifier chaque champ à la main.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -60,7 +60,7 @@ export const post: BlogPost = {
     {
       question: 'Une facture sans TVA détaillée est-elle valable ?',
       answer:
-        'Pour les montants supérieurs à CHF 400.-, le taux et le montant de TVA doivent apparaître clairement — leur absence peut faire refuser la déduction de l’impôt préalable au destinataire.',
+        'Pour les montants supérieurs à CHF 400.-, le taux et le montant de TVA doivent apparaître clairement, car leur absence peut faire refuser la déduction de l’impôt préalable au destinataire.',
     },
   ],
   relatedSlugs: [

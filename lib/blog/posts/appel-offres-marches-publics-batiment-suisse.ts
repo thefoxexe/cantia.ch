@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Une collectivité publique (commune, canton) qui lance un chantier ne peut pas simplement appeler l’entreprise qu’elle préfère au-delà d’un certain montant — elle doit suivre une procédure d’appel d’offres encadrée. Comprendre ces seuils permet à une entreprise du bâtiment de savoir où chercher les opportunités, et à quoi s’attendre en y répondant.',
+      text: 'Une collectivité publique (commune, canton) qui lance un chantier ne peut pas simplement appeler l’entreprise qu’elle préfère au-delà d’un certain montant : elle doit suivre une procédure d’appel d’offres encadrée. Comprendre ces seuils permet à une entreprise du bâtiment de savoir où chercher les opportunités, et à quoi s’attendre en y répondant.',
     },
     { type: 'h2', text: 'Le seuil qui déclenche la procédure formelle' },
     {
@@ -25,7 +25,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Ne pas confondre absence de seuil et absence d’opportunité',
-      text: 'La majorité des chantiers publics, notamment communaux, restent sous le seuil de publication SIMAP — ils ne sont pas pour autant fermés aux petites entreprises. Beaucoup de collectivités tiennent des listes de fournisseurs ou d’entreprises locales consultées directement pour ces marchés de gré à gré, en dehors de toute publication formelle.',
+      text: 'La majorité des chantiers publics, notamment communaux, restent sous le seuil de publication SIMAP, sans pour autant être fermés aux petites entreprises. Beaucoup de collectivités tiennent des listes de fournisseurs ou d’entreprises locales consultées directement pour ces marchés de gré à gré, en dehors de toute publication formelle.',
     },
     { type: 'h2', text: 'Les grandes étapes d’une procédure formelle' },
     {
@@ -34,7 +34,7 @@ export const post: BlogPost = {
       items: [
         'Publication de l’appel d’offres sur SIMAP, avec cahier des charges et critères d’adjudication',
         'Délai de dépôt des offres, généralement de plusieurs semaines pour laisser le temps de chiffrer',
-        'Évaluation selon des critères pondérés — le prix n’est presque jamais le seul critère, la qualité et les délais comptent aussi',
+        'Évaluation selon des critères pondérés, où le prix n’est presque jamais le seul élément retenu : la qualité et les délais comptent aussi',
         'Décision d’adjudication, publiée et motivée, avec un délai de recours possible pour les soumissionnaires évincés',
       ],
     },
@@ -59,7 +59,7 @@ export const post: BlogPost = {
     {
       question: 'Les petits chantiers publics sont-ils accessibles aux petites entreprises ?',
       answer:
-        'Oui — la majorité des marchés publics, notamment communaux, restent sous le seuil de publication formelle et passent par des procédures de gré à gré, souvent avec des entreprises locales.',
+        'Oui, la majorité des marchés publics, notamment communaux, restent sous le seuil de publication formelle et passent par des procédures de gré à gré, souvent avec des entreprises locales.',
     },
     {
       question: 'Le prix est-il le seul critère d’adjudication d’un marché public ?',

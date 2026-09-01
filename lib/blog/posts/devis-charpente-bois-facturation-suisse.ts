@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Entre le prix du bois qui fluctue, le temps de façonnage en atelier et la pose sur chantier, un devis de charpente additionne trois postes très différents. Comment les structurer pour ne pas perdre en route.',
   excerpt:
-    'Une charpente se construit en trois temps — l’achat du bois, le façonnage en atelier, la pose sur chantier — et un devis qui ne les distingue pas prend le risque de payer l’inflation du bois sur sa propre marge.',
+    'Une charpente se construit en trois temps : l’achat du bois, le façonnage en atelier, puis la pose sur chantier. Un devis qui ne les distingue pas prend le risque de payer l’inflation du bois sur sa propre marge.',
   category: 'Métiers du bâtiment',
   keywords: ['devis charpente bois', 'facturation charpentier Suisse', 'prix bois construction', 'devis atelier charpente', 'pose charpente chantier'],
   publishedAt: '2026-09-04',
@@ -29,7 +29,7 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '2 à 3 sem.',
-      label: 'délai typique entre l’établissement d’un devis de charpente et le lancement effectif de la commande de bois — assez pour que les prix bougent',
+      label: 'délai typique entre l’établissement d’un devis de charpente et le lancement effectif de la commande de bois, largement suffisant pour que les prix bougent',
     },
     { type: 'h2', text: 'Le levage n’est pas une simple ligne de main-d’œuvre' },
     {
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il facturer le levage de charpente séparément de la pose ?',
       answer:
-        'C’est recommandé lorsqu’une grue ou un camion-grue est loué spécifiquement, car ce coût est fixe pour la journée, indépendamment du temps de pose effectif — et il est directement exposé au risque météo.',
+        'C’est recommandé lorsqu’une grue ou un camion-grue est loué spécifiquement, car ce coût est fixe pour la journée, indépendamment du temps de pose effectif, et directement exposé au risque météo.',
     },
     {
       question: 'Comment gérer un report de chantier de charpente pour cause de météo ?',

@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Quel salaire verser à un apprenti du bâtiment, et quelles obligations pour l’entreprise formatrice ?',
   title: 'Apprenti dans le bâtiment : salaire, encadrement et obligations de l’entreprise formatrice',
   description:
-    'Former un apprenti dans le bâtiment implique un salaire progressif fixé par la CCT, un encadrement pédagogique réel et des obligations vis-à-vis du canton — voici ce qu’une petite entreprise doit anticiper.',
+    'Former un apprenti dans le bâtiment implique un salaire progressif fixé par la CCT, un encadrement pédagogique réel et des obligations vis-à-vis du canton : voici ce qu’une petite entreprise doit anticiper.',
   excerpt:
-    'Prendre un apprenti n’est pas juste « une paire de bras en plus » — c’est un engagement encadré, avec un salaire précis par année de formation et un vrai suivi pédagogique attendu de l’entreprise.',
+    'Prendre un apprenti n’est pas juste « une paire de bras en plus ». C’est un engagement encadré, avec un salaire précis par année de formation et un vrai suivi pédagogique attendu de l’entreprise.',
   category: 'RH & salaires',
   keywords: ['apprenti bâtiment salaire', 'formation professionnelle construction', 'CCT apprenti', 'entreprise formatrice', 'contrat apprentissage'],
   publishedAt: '2026-08-03',
@@ -20,7 +20,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Un salaire qui progresse chaque année de formation' },
     {
       type: 'p',
-      text: 'Le salaire d’apprentissage est fixé par la convention collective du métier concerné (maçonnerie, charpente, plâtrerie-peinture, etc.), avec une grille qui augmente à chaque année de formation. Il ne s’agit jamais d’un montant négociable au cas par cas — vérifier la CCT applicable au métier précis évite une erreur de grille fréquente.',
+      text: 'Le salaire d’apprentissage est fixé par la convention collective du métier concerné (maçonnerie, charpente, plâtrerie-peinture, etc.), avec une grille qui augmente à chaque année de formation. Il ne s’agit jamais d’un montant négociable au cas par cas, donc vérifier la CCT applicable au métier précis évite une erreur de grille fréquente.',
     },
     {
       type: 'list',
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'L’entreprise formatrice doit être autorisée par le canton',
-      text: 'Former un apprenti nécessite une autorisation de former délivrée par l’autorité cantonale compétente, qui vérifie que l’entreprise dispose de l’encadrement et de l’équipement nécessaires — ce n’est pas automatique du simple fait d’avoir un métier reconnu.',
+      text: 'Former un apprenti nécessite une autorisation de former délivrée par l’autorité cantonale compétente, qui vérifie que l’entreprise dispose de l’encadrement et de l’équipement nécessaires. Ce n’est pas automatique du simple fait d’avoir un métier reconnu.',
     },
     { type: 'h2', text: 'Le suivi pédagogique n’est pas optionnel' },
     {
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un journal de chantier qui sert aussi à former',
-      text: 'Le fil d’actualité par chantier de Cantia permet de documenter les tâches réalisées par chaque membre de l’équipe, apprentis compris — une base concrète pour un suivi de formation.',
+      text: 'Le fil d’actualité par chantier de Cantia permet de documenter les tâches réalisées par chaque membre de l’équipe, apprentis compris, ce qui constitue une base concrète pour un suivi de formation.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

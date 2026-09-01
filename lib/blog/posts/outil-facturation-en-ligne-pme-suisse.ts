@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Quels sont les avantages d\'un outil de facturation en ligne pour une PME suisse ?',
   title: 'Outil de facturation en ligne : ce que ça change concrètement pour une PME',
   description:
-    'Entre un logiciel installé sur un seul ordinateur et un outil en ligne accessible partout, la différence dépasse la simple commodité — voici ce qu\'une PME suisse y gagne vraiment.',
+    'Entre un logiciel installé sur un seul ordinateur et un outil en ligne accessible partout, la différence dépasse la simple commodité : voici ce qu\'une PME suisse y gagne vraiment.',
   excerpt:
     'Un logiciel installé sur un seul poste de travail semble suffire, jusqu\'au jour où il faut facturer depuis un chantier, un autre bureau, ou avec un collègue en même temps.',
   category: 'Comparatifs & outils',
@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un logiciel de facturation "en ligne" (cloud) s\'oppose à un logiciel installé localement sur un seul ordinateur — une distinction qui semble technique, mais qui a des conséquences très concrètes pour une PME du bâtiment au quotidien.',
+      text: 'Un logiciel de facturation "en ligne" (cloud) s\'oppose à un logiciel installé localement sur un seul ordinateur. Cette distinction semble technique, mais elle a des conséquences très concrètes pour une PME du bâtiment au quotidien.',
     },
     { type: 'h2', text: 'Ce que le "en ligne" apporte concrètement' },
     {
       type: 'list',
       items: [
-        'Accès depuis n\'importe quel appareil — chantier, bureau, domicile — sans dépendre d\'un seul poste',
+        'Accès depuis n\'importe quel appareil (chantier, bureau, domicile), sans dépendre d\'un seul poste',
         'Plusieurs personnes peuvent travailler en même temps, sans se marcher dessus sur le même fichier',
         'Les sauvegardes sont automatiques, pas dépendantes d\'un disque dur qui pourrait tomber en panne',
         'Les mises à jour (nouvelles normes TVA, QR-facture) arrivent automatiquement, sans manipulation',
@@ -30,7 +30,7 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '0',
-      label: 'installation ou mise à jour manuelle nécessaire avec un outil en ligne — tout se fait automatiquement côté éditeur',
+      label: 'installation ou mise à jour manuelle nécessaire avec un outil en ligne, car tout se fait automatiquement côté éditeur',
     },
     { type: 'h2', text: 'Le vrai risque d\'un logiciel installé localement' },
     {
@@ -40,7 +40,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La sécurité des données reste une vraie question à poser',
-      text: 'Un outil en ligne doit héberger les données en Suisse ou dans l\'UE et être transparent sur ses pratiques de sécurité — un point à vérifier avant de choisir, pas à supposer automatiquement.',
+      text: 'Avant de choisir un outil en ligne, il faut vérifier qu\'il héberge les données en Suisse ou dans l\'UE et qu\'il est transparent sur ses pratiques de sécurité, plutôt que de le supposer automatiquement.',
     },
     {
       type: 'cta',

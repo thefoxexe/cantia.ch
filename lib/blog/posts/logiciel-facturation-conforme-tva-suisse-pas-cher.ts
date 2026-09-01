@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Un logiciel de facturation pas cher peut-il quand même être conforme aux règles de TVA suisses ?',
   title: 'Facturation conforme TVA suisse à petit prix : c\'est tout à fait possible',
   description:
-    'La conformité TVA n\'est pas réservée aux logiciels chers — voici ce qui doit être présent, même sur un plan économique, pour rester en règle sans se ruiner.',
+    'La conformité TVA n\'est pas réservée aux logiciels chers : voici ce qui doit être présent, même sur un plan économique, pour rester en règle sans se ruiner.',
   excerpt:
-    'Beaucoup pensent qu\'un outil pas cher rime forcément avec risque de non-conformité TVA — en réalité, c\'est une fonction de base que presque tous les outils sérieux incluent, même sur leur plan le plus abordable.',
+    'Beaucoup pensent qu\'un outil pas cher rime forcément avec risque de non-conformité TVA. En réalité, c\'est une fonction de base que presque tous les outils sérieux incluent, même sur leur plan le plus abordable.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel facturation conforme TVA pas cher', 'facturation TVA Suisse petit budget', 'outil abordable conforme TVA', 'logiciel TVA petite entreprise Suisse', 'facturation légale pas cher'],
   publishedAt: '2026-08-03',
@@ -30,12 +30,12 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '8.1 %',
-      label: 'taux de TVA standard actuellement en vigueur en Suisse — un logiciel de facturation doit l\'appliquer automatiquement, quel que soit son prix',
+      label: 'taux de TVA standard actuellement en vigueur en Suisse, que tout logiciel de facturation doit appliquer automatiquement, quel que soit son prix',
     },
     { type: 'h2', text: 'Ce qui distingue un outil premium, ce n\'est pas la conformité de base' },
     {
       type: 'p',
-      text: 'La différence entre un plan économique et un plan premium se joue généralement sur des fonctions avancées (multi-utilisateurs, personnalisation poussée du PDF, intégrations comptables) — pas sur la conformité TVA elle-même, qui doit être garantie à tous les niveaux de prix.',
+      text: 'La différence entre un plan économique et un plan premium se joue généralement sur des fonctions avancées (multi-utilisateurs, personnalisation poussée du PDF, intégrations comptables), et non sur la conformité TVA elle-même, qui doit être garantie à tous les niveaux de prix.',
     },
     {
       type: 'callout',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'La conformité TVA incluse à tous les plans',
-      text: 'Chez Cantia, la conformité TVA et QR-facture est incluse sur tous les plans, y compris le plus abordable — testez gratuitement 30 jours avec le code ESSAI30.',
+      text: 'Chez Cantia, la conformité TVA et QR-facture est incluse sur tous les plans, y compris le plus abordable. Testez gratuitement 30 jours avec le code ESSAI30.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,7 +53,7 @@ export const post: BlogPost = {
     {
       question: 'Un logiciel de facturation pas cher est-il forcément moins conforme sur la TVA ?',
       answer:
-        'Non — la conformité TVA de base (calcul automatique, mentions obligatoires) est généralement incluse même sur les plans les plus économiques des outils sérieux.',
+        'Non, la conformité TVA de base (calcul automatique, mentions obligatoires) est généralement incluse même sur les plans les plus économiques des outils sérieux.',
     },
     {
       question: 'Qu\'est-ce qui différencie un plan premium d\'un plan économique en matière de facturation ?',

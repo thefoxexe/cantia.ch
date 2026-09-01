@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Un client peut-il résilier un contrat de chantier en cours de travaux, et à quel prix ?',
   title: 'Résiliation d’un contrat d’entreprise en cours de chantier : ce que dit l’art. 377 CO',
   description:
-    'Un maître d’ouvrage peut résilier un contrat d’entreprise à tout moment, même en plein chantier — mais l’art. 377 CO lui impose de vous indemniser intégralement. Voici comment.',
+    'Un maître d’ouvrage peut résilier un contrat d’entreprise à tout moment, même en plein chantier, mais l’art. 377 CO lui impose de vous indemniser intégralement. Voici comment.',
   excerpt:
-    'Un client peut arrêter un chantier du jour au lendemain, sans faute de votre part. La loi ne l’empêche pas — mais elle vous protège financièrement, à condition de savoir chiffrer correctement.',
+    'Un client peut arrêter un chantier du jour au lendemain, sans faute de votre part. La loi ne l’empêche pas, mais elle vous protège financièrement, à condition de savoir chiffrer correctement.',
   category: 'Juridique & normes',
   keywords: ['résiliation contrat chantier', 'art 377 CO', 'arrêt chantier', 'indemnisation entrepreneur', 'contrat entreprise'],
   publishedAt: '2026-08-27',
@@ -15,17 +15,17 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'C’est une situation qui déstabilise beaucoup d’artisans : un client annonce qu’il arrête le chantier, sans reproche particulier sur le travail effectué. Première réaction, souvent fausse : penser qu’un contrat signé ne peut pas être rompu unilatéralement. En droit suisse, si — et c’est même explicitement prévu par la loi.',
+      text: 'C’est une situation qui déstabilise beaucoup d’artisans : un client annonce qu’il arrête le chantier, sans reproche particulier sur le travail effectué. Première réaction, souvent fausse : penser qu’un contrat signé ne peut pas être rompu unilatéralement. En droit suisse, si, et c’est même explicitement prévu par la loi.',
     },
     { type: 'h2', text: 'L’art. 377 CO : une résiliation possible à tout moment' },
     {
       type: 'p',
-      text: 'L’article 377 du Code des obligations autorise le maître d’ouvrage à résilier le contrat en tout temps, tant que l’ouvrage n’est pas terminé — sans avoir à justifier de motif ni de faute de l’entrepreneur. Ce droit existe précisément parce que la contrepartie est claire : le client qui l’exerce doit indemniser l’entrepreneur pour l’intégralité du dommage causé par cet arrêt.',
+      text: 'L’article 377 du Code des obligations autorise le maître d’ouvrage à résilier le contrat en tout temps, tant que l’ouvrage n’est pas terminé, sans avoir à justifier de motif ni de faute de l’entrepreneur. Ce droit existe précisément parce que la contrepartie est claire : le client qui l’exerce doit indemniser l’entrepreneur pour l’intégralité du dommage causé par cet arrêt.',
     },
     {
       type: 'callout',
       title: 'L’indemnisation ne se limite pas au travail déjà fait',
-      text: 'L’art. 377 CO prévoit le remboursement des dépenses engagées, la rémunération du travail déjà exécuté, et le gain manqué que l’entrepreneur aurait réalisé si le chantier était allé à son terme — sous déduction de ce qu’il a économisé en n’ayant pas à le terminer.',
+      text: 'L’art. 377 CO prévoit le remboursement des dépenses engagées, la rémunération du travail déjà exécuté, et le gain manqué que l’entrepreneur aurait réalisé si le chantier était allé à son terme, sous déduction de ce qu’il a économisé en n’ayant pas à le terminer.',
     },
     { type: 'h2', text: 'Ce qu’il faut pouvoir prouver pour être indemnisé correctement' },
     {
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un historique clair, chantier par chantier',
-      text: 'Cantia relie chaque devis, facture et acompte à son chantier — de quoi reconstituer en quelques clics ce qui a été engagé et facturé si un client arrête un chantier en cours.',
+      text: 'Cantia relie chaque devis, facture et acompte à son chantier. De quoi reconstituer en quelques clics ce qui a été engagé et facturé si un client arrête un chantier en cours.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il un motif écrit pour que la résiliation soit valable ?',
       answer:
-        'Non, la loi n’exige pas de justification — mais une notification claire, datée, fixe le point de départ du calcul de l’indemnisation.',
+        'Non, la loi n’exige pas de justification, mais une notification claire, datée, fixe le point de départ du calcul de l’indemnisation.',
     },
   ],
   relatedSlugs: [

@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Comment un paysagiste doit-il chiffrer un devis entre aménagement ponctuel et entretien récurrent ?',
   title: 'Paysagiste : chiffrer l’aménagement ponctuel et l’entretien récurrent sans les mélanger',
   description:
-    'Un chantier d’aménagement extérieur et un contrat d’entretien de jardin suivent deux logiques de facturation opposées — l’un au projet, l’autre en récurrence. Comment les structurer proprement.',
+    'Un chantier d’aménagement extérieur et un contrat d’entretien de jardin suivent deux logiques de facturation opposées, l’un au projet, l’autre en récurrence. Comment les structurer proprement.',
   excerpt:
-    'Un paysagiste vend souvent deux choses très différentes au même client : un aménagement ponctuel facturé une fois, et un entretien récurrent facturé toute l’année — les confondre dans un même devis finit par mal chiffrer les deux.',
+    'Un paysagiste vend souvent deux choses très différentes au même client : un aménagement ponctuel facturé une fois, et un entretien récurrent facturé toute l’année. Les confondre dans un même devis finit par mal chiffrer les deux.',
   category: 'Métiers du bâtiment',
   keywords: ['devis paysagiste', 'facturation jardinier Suisse', 'contrat entretien jardin prix', 'devis aménagement extérieur', 'facturation récurrente paysagiste'],
   publishedAt: '2026-09-10',
@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'L’aménagement d’un jardin (terrassement, plantation, dallage, arrosage automatique) se chiffre comme n’importe quel chantier ponctuel : un devis, une réalisation, une facture. L’entretien qui suit — tonte, taille, désherbage — fonctionne sur un rythme complètement différent, souvent mensuel ou saisonnier, et mérite un contrat séparé plutôt qu’un devis classique repris chaque fois.',
+      text: 'L’aménagement d’un jardin (terrassement, plantation, dallage, arrosage automatique) se chiffre comme n’importe quel chantier ponctuel : un devis, une réalisation, une facture. L’entretien qui suit (tonte, taille, désherbage) fonctionne sur un rythme complètement différent, souvent mensuel ou saisonnier, et mérite un contrat séparé plutôt qu’un devis classique repris chaque fois.',
     },
     { type: 'h2', text: 'Aménagement ponctuel : chiffrer poste par poste' },
     {
       type: 'list',
       items: [
-        'Terrassement et évacuation de terre — souvent le poste le plus variable selon l’accès au terrain',
+        'Terrassement et évacuation de terre, souvent le poste le plus variable selon l’accès au terrain',
         'Fourniture de végétaux, séparée du temps de plantation, car les prix varient selon la saison',
         'Maçonnerie paysagère (murets, dallage, bordures) au m² ou au forfait',
         'Arrosage automatique et éclairage extérieur, souvent sous-traités mais à intégrer dans le suivi global du chantier',
@@ -40,7 +40,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La saisonnalité influence directement la trésorerie',
-      text: 'Un paysagiste dont l’activité se concentre sur le printemps et l’été doit anticiper les mois plus creux — un contrat d’entretien récurrent signé à l’année lisse une partie de cette saisonnalité, contrairement à des chantiers ponctuels qui s’arrêtent en hiver.',
+      text: 'Un paysagiste dont l’activité se concentre sur le printemps et l’été doit anticiper les mois plus creux. Un contrat d’entretien récurrent signé à l’année lisse une partie de cette saisonnalité, contrairement à des chantiers ponctuels qui s’arrêtent en hiver.',
     },
     {
       type: 'cta',

@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Pourquoi le mode hors ligne est-il si important pour une application utilisée sur un chantier ?',
   title: 'Application de chantier sans réseau : pourquoi le mode hors ligne n’est pas un détail',
   description:
-    'Un sous-sol en béton, une vallée mal couverte, un chantier isolé — le réseau mobile n’est jamais garanti sur un chantier. Une application qui l’exige en permanence perd sa valeur au pire moment.',
+    'Un sous-sol en béton, une vallée mal couverte, un chantier isolé : le réseau mobile n’est jamais garanti sur un chantier. Une application qui l’exige en permanence perd sa valeur au pire moment.',
   excerpt:
     'La démonstration en salle de réunion, avec du wifi partout, cache le vrai test : ce que l’application fait quand le réseau tombe en plein rapport de chantier, un sous-sol ou une zone rurale.',
   category: 'Comparatifs & outils',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Beaucoup d’applications de gestion de chantier sont testées et démontrées dans des conditions idéales — bureau, wifi stable. Le vrai test se passe ailleurs : dans un sous-sol en béton armé qui bloque tout signal, dans une vallée alpine mal couverte, ou simplement sur un chantier où plusieurs corps de métier saturent temporairement le réseau local.',
+      text: 'Beaucoup d’applications de gestion de chantier sont testées et démontrées dans des conditions idéales, au bureau, avec un wifi stable. Le vrai test se passe ailleurs : dans un sous-sol en béton armé qui bloque tout signal, dans une vallée alpine mal couverte, ou simplement sur un chantier où plusieurs corps de métier saturent temporairement le réseau local.',
     },
     { type: 'h2', text: 'Ce qui se passe sans mode hors ligne' },
     {
@@ -29,7 +29,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'L’adoption d’un outil se joue sur ses pires moments, pas sur ses meilleurs',
-      text: 'Une équipe qui a été bloquée une seule fois par un manque de réseau retient cette expérience bien plus fortement que dix utilisations réussies — c’est ce moment précis qui détermine si l’outil reste utilisé sur le terrain.',
+      text: 'Une équipe qui a été bloquée une seule fois par un manque de réseau retient cette expérience bien plus fortement que dix utilisations réussies, et c’est précisément ce moment qui détermine si l’outil reste utilisé sur le terrain.',
     },
     { type: 'h2', text: 'Ce qu’un vrai mode hors ligne doit garantir' },
     {
@@ -43,7 +43,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Conçu pour fonctionner même sans réseau',
-      text: 'Le fil d’actualité de chantier de Cantia enregistre photos et rapports même hors connexion, avec synchronisation automatique dès que le réseau revient — pensé pour de vraies conditions de chantier.',
+      text: 'Le fil d’actualité de chantier de Cantia enregistre photos et rapports même hors connexion, avec synchronisation automatique dès que le réseau revient, pensé pour de vraies conditions de chantier.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

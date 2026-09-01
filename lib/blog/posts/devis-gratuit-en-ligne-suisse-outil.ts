@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Comment faire un devis gratuit en ligne rapidement en tant qu\'artisan en Suisse ?',
   title: 'Faire un devis gratuit en ligne : les options, et leurs limites',
   description:
-    'Générateurs de devis gratuits, modèles Word, outils en ligne — un tour d\'horizon honnête de ce que chaque option permet vraiment, et où elle bloque dès que l\'activité se développe.',
+    'Générateurs de devis gratuits, modèles Word, outils en ligne : un tour d\'horizon honnête de ce que chaque option permet vraiment, et où elle bloque dès que l\'activité se développe.',
   excerpt:
     'Un générateur de devis gratuit en ligne dépanne pour un premier document, mais peu tiennent la distance une fois qu\'il faut suivre plusieurs clients et plusieurs chantiers en parallèle.',
   category: 'Comparatifs & outils',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Faire un premier devis gratuitement en ligne est presque toujours possible — la vraie question est ce qui se passe pour le deuxième, le dixième et le cinquantième devis, une fois que le suivi commence à peser.',
+      text: 'Faire un premier devis gratuitement en ligne est presque toujours possible. La vraie question est ce qui se passe pour le deuxième, le dixième et le cinquantième devis, une fois que le suivi commence à peser.',
     },
     { type: 'h2', text: 'Les options courantes, et où elles s\'arrêtent' },
     {
@@ -34,17 +34,17 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Le vrai gain de temps vient du catalogue, pas du modèle' },
     {
       type: 'p',
-      text: 'Un devis gratuit en ligne aide pour le premier document, mais le vrai gain de temps arrive quand l\'outil se souvient des prix déjà utilisés — plus besoin de retaper une prestation habituelle à chaque nouveau devis.',
+      text: 'Un devis gratuit en ligne aide pour le premier document, mais le vrai gain de temps arrive quand l\'outil se souvient des prix déjà utilisés, ce qui évite de retaper une prestation habituelle à chaque nouveau devis.',
     },
     {
       type: 'callout',
       title: 'Un devis sans suivi de statut se perd facilement',
-      text: 'Sans un endroit central pour voir quels devis sont envoyés, acceptés ou en attente, il devient vite difficile de savoir qui relancer — un simple générateur de document ne résout pas ce problème.',
+      text: 'Sans un endroit central pour voir quels devis sont envoyés, acceptés ou en attente, il devient vite difficile de savoir qui relancer. Un simple générateur de document ne résout pas ce problème.',
     },
     {
       type: 'cta',
       title: 'Un devis prêt en quelques minutes, avec suivi automatique',
-      text: 'Cantia génère un devis professionnel avec QR-facture suisse, catalogue de prix et suivi de statut intégrés — testez gratuitement pendant 30 jours avec le code ESSAI30.',
+      text: 'Cantia génère un devis professionnel avec QR-facture suisse, catalogue de prix et suivi de statut intégrés : testez gratuitement pendant 30 jours avec le code ESSAI30.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Un modèle Word gratuit suffit-il pour faire des devis en tant qu\'artisan ?',
       answer:
-        'Pour un premier document ponctuel, oui — mais sans calcul automatique de TVA ni suivi de statut, la charge de travail augmente vite dès que le nombre de devis à gérer grandit.',
+        'Pour un premier document ponctuel, la réponse est oui, mais sans calcul automatique de TVA ni suivi de statut, la charge de travail augmente vite dès que le nombre de devis à gérer grandit.',
     },
     {
       question: 'Quel est l\'avantage d\'un catalogue de prix dans un outil de devis ?',
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Pourquoi suivre le statut de ses devis est-il important ?',
       answer:
-        'Sans suivi centralisé, il devient difficile de savoir quels devis relancer — un facteur direct de perte de clients qui auraient pourtant accepté avec une relance à temps.',
+        'Sans suivi centralisé, il devient difficile de savoir quels devis relancer, ce qui fait perdre des clients qui auraient pourtant accepté avec une relance à temps.',
     },
   ],
   relatedSlugs: [

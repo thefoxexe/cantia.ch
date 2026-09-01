@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Certains indépendants préfèrent rester seuls le plus longtemps possible plutôt que d\'embaucher trop tôt. Les outils qui rendent ça vraiment tenable.',
   excerpt:
-    'Rester seul aux commandes de son entreprise n\'est pas toujours un choix par défaut — pour beaucoup d\'indépendants, c\'est un vrai choix, à condition d\'avoir les bons outils pour ne pas être débordé.',
+    'Rester seul aux commandes de son entreprise n\'est pas toujours un choix par défaut : pour beaucoup d\'indépendants, c\'est un vrai choix, à condition d\'avoir les bons outils pour ne pas être débordé.',
   category: 'Comparatifs & outils',
   keywords: ['gérer entreprise seul sans embaucher', 'outils indépendant sans employé', 'rester solo entreprise bâtiment', 'gestion administrative solo efficace', 'travailler seul artisan Suisse'],
   publishedAt: '2026-08-07',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Embaucher n\'est pas une obligation automatique une fois l\'activité qui grandit — beaucoup d\'indépendants choisissent délibérément de rester seuls, pour garder le contrôle total ou éviter la charge administrative liée à l\'emploi. Ce choix reste tenable avec les bons outils.',
+      text: 'Embaucher n\'est pas une obligation automatique une fois l\'activité qui grandit. Beaucoup d\'indépendants choisissent délibérément de rester seuls, pour garder le contrôle total ou éviter la charge administrative liée à l\'emploi, et ce choix reste tenable avec les bons outils.',
     },
     { type: 'h2', text: 'Ce qui rend le travail en solo vraiment tenable' },
     {
@@ -30,12 +30,12 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '5-8h',
-      label: 'temps hebdomadaire consacré à l\'administratif par un indépendant solo sans automatisation — un temps directement réductible avec les bons outils',
+      label: 'temps hebdomadaire consacré à l\'administratif par un indépendant solo sans automatisation (directement réductible avec les bons outils)',
     },
     { type: 'h2', text: 'Le sous-traitant, une alternative à l\'embauche' },
     {
       type: 'p',
-      text: 'Faire appel à un sous-traitant ponctuel pour absorber un pic d\'activité permet de rester seul en tant qu\'entreprise, tout en répondant à une charge de travail temporairement plus importante — une flexibilité qu\'un employé fixe n\'offre pas de la même façon.',
+      text: 'Faire appel à un sous-traitant ponctuel pour absorber un pic d\'activité permet de rester seul en tant qu\'entreprise, tout en répondant à une charge de travail temporairement plus importante, ce qui offre une flexibilité qu\'un employé fixe n\'apporte pas de la même façon.',
     },
     {
       type: 'callout',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Tout automatiser, même en solo',
-      text: 'Cantia automatise la TVA, la numérotation et les relances de paiement — pour rester efficace seul, sans y passer ses soirées.',
+      text: 'Pour rester efficace seul sans y passer ses soirées, Cantia automatise la TVA, la numérotation et les relances de paiement.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -58,7 +58,7 @@ export const post: BlogPost = {
     {
       question: 'Quel est le principal levier pour gérer son entreprise seul efficacement ?',
       answer:
-        'Automatiser tout ce qui peut l\'être — calcul de TVA, numérotation, relances de paiement — pour libérer du temps consacré au travail facturable plutôt qu\'à l\'administratif.',
+        'Automatiser tout ce qui peut l\'être (calcul de TVA, numérotation, relances de paiement), afin de libérer du temps consacré au travail facturable plutôt qu\'à l\'administratif.',
     },
     {
       question: 'Le sous-traitant est-il une bonne alternative à l\'embauche pour un indépendant ?',

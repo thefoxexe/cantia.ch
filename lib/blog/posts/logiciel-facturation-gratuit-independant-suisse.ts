@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un plan gratuit existe presque toujours, mais rarement sans limite. Ce qu\'un indépendant suisse doit vérifier avant de miser sur un logiciel de facturation "gratuit".',
   excerpt:
-    'Gratuit à vie ou gratuit pendant 30 jours, ce n\'est pas la même promesse — et la différence se découvre souvent au pire moment, en plein milieu du premier gros mois de factures.',
+    'Gratuit à vie ou gratuit pendant 30 jours, ce n\'est pas la même promesse. La différence se découvre souvent au pire moment, en plein milieu du premier gros mois de factures.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel facturation gratuit indépendant', 'facturation gratuite Suisse', 'outil devis facture sans frais', 'logiciel gratuit petite entreprise', 'facturation débutant Suisse'],
   publishedAt: '2026-07-01',
@@ -15,13 +15,13 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La recherche "logiciel de facturation gratuit" revient presque à chaque lancement d\'activité — logique quand la trésorerie est encore fragile. Le problème n\'est pas qu\'il n\'existe rien de gratuit, c\'est que "gratuit" recouvre des réalités très différentes d\'un éditeur à l\'autre.',
+      text: 'La recherche "logiciel de facturation gratuit" revient presque à chaque lancement d\'activité, ce qui est logique quand la trésorerie est encore fragile. Le problème n\'est pas qu\'il n\'existe rien de gratuit, c\'est que "gratuit" recouvre des réalités très différentes d\'un éditeur à l\'autre.',
     },
     { type: 'h2', text: 'Trois formes de "gratuit" à distinguer' },
     {
       type: 'list',
       items: [
-        'Gratuit à vie avec un plafond de documents par mois — suffisant pour démarrer, limitant dès que l\'activité prend',
+        'Gratuit à vie avec un plafond de documents par mois, suffisant pour démarrer mais limitant dès que l\'activité prend',
         'Gratuit pendant une période d\'essai (souvent 14 à 30 jours), puis payant',
         'Gratuit pour un usage très basique, avec la QR-facture, le multi-utilisateur ou l\'export comptable réservés au plan payant',
       ],
@@ -29,7 +29,7 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '5-10',
-      label: 'devis/factures par mois — plafond typique des plans gratuits limités par volume, avant de devoir passer au payant',
+      label: 'devis/factures par mois : plafond typique des plans gratuits limités par volume, avant de devoir passer au payant',
     },
     { type: 'h2', text: 'Ce qui ne doit jamais manquer, même en gratuit' },
     {
@@ -39,12 +39,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le vrai coût d\'un outil gratuit limité, c\'est le temps perdu à migrer',
-      text: 'Changer d\'outil après quelques mois signifie ressaisir son catalogue de prix, ses clients et parfois son historique — un coût caché que le prix "0.-" ne montre jamais au départ.',
+      text: 'Changer d\'outil après quelques mois signifie ressaisir son catalogue de prix, ses clients et parfois son historique : un coût caché que le prix "0.-" ne montre jamais au départ.',
     },
     {
       type: 'cta',
       title: 'Cantia propose un essai gratuit complet, pas une version bridée',
-      text: 'Avec le code ESSAI30, testez 30 jours l\'outil complet — devis, factures, QR-facture suisse, chantiers — sans fonctionnalité limitée pour vous forcer à payer plus tôt.',
+      text: 'Avec le code ESSAI30, testez 30 jours l\'outil complet (devis, factures, QR-facture suisse, chantiers) sans fonctionnalité limitée pour vous forcer à payer plus tôt.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Un logiciel de facturation gratuit inclut-il la QR-facture suisse ?',
       answer:
-        'Pas systématiquement — certains plans gratuits la réservent au niveau payant. C\'est un point à vérifier avant de choisir, car une facture sans QR-facture conforme complique le paiement pour le client.',
+        'Pas systématiquement : certains plans gratuits la réservent au niveau payant. C\'est un point à vérifier avant de choisir, car une facture sans QR-facture conforme complique le paiement pour le client.',
     },
     {
       question: 'Quelle est la limite la plus courante des logiciels de facturation gratuits ?',

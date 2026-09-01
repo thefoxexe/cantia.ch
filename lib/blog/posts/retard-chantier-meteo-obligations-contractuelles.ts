@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Un retard de chantier dû à la météo engage-t-il la responsabilité de l’entrepreneur ?',
   title: 'Retard de chantier causé par la météo : qui en porte la responsabilité ?',
   description:
-    'Un délai contractuel dépassé à cause d’intempéries n’est pas automatiquement une faute de l’entrepreneur — mais encore faut-il pouvoir le prouver, jour par jour, et l’avoir communiqué à temps.',
+    'Un délai contractuel dépassé à cause d’intempéries n’est pas automatiquement une faute de l’entrepreneur. Encore faut-il pouvoir le prouver, jour par jour, et l’avoir communiqué à temps.',
   excerpt:
-    'Le client attend son chantier terminé, la météo n’a pas coopéré — et sans preuve écrite, le retard risque de retomber intégralement sur l’entrepreneur, même quand il n’y est pour rien.',
+    'Le client attend son chantier terminé, la météo n’a pas coopéré, et sans preuve écrite, le retard risque de retomber intégralement sur l’entrepreneur, même quand il n’y est pour rien.',
   category: 'Chantier & rentabilité',
   keywords: ['retard chantier météo', 'intempéries construction', 'délai contractuel bâtiment', 'responsabilité entrepreneur', 'preuve retard chantier'],
   publishedAt: '2026-07-22',
@@ -30,17 +30,17 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'La preuve se construit au jour le jour, pas après coup',
-      text: 'Un relevé météo officiel a posteriori ne suffit pas toujours à convaincre un client — une trace datée de ce qui s’est réellement passé sur le chantier ce jour-là (photos, notes, absence d’équipe constatée) est bien plus solide.',
+      text: 'Un relevé météo officiel a posteriori ne suffit pas toujours à convaincre un client. Une trace datée de ce qui s’est réellement passé sur le chantier ce jour-là (photos, notes, absence d’équipe constatée) est bien plus solide.',
     },
     { type: 'h2', text: 'Prévenir plutôt que justifier après coup' },
     {
       type: 'p',
-      text: 'La meilleure protection reste de communiquer le retard au client dès qu’il devient prévisible, avec une nouvelle date estimée — plutôt que de laisser le silence s’installer jusqu’à ce que le client s’impatiente et découvre le décalage seul. Un message daté, même informel, vaut souvent plus qu’une justification détaillée présentée après coup.',
+      text: 'La meilleure protection reste de communiquer le retard au client dès qu’il devient prévisible, avec une nouvelle date estimée, plutôt que de laisser le silence s’installer jusqu’à ce que le client s’impatiente et découvre le décalage seul. Un message daté, même informel, vaut souvent plus qu’une justification détaillée présentée après coup.',
     },
     {
       type: 'cta',
       title: 'Un fil de chantier daté et documenté',
-      text: 'Le fil d’actualité de Cantia horodate chaque photo et chaque message du chantier — de quoi reconstituer précisément un enchaînement de jours d’arrêt si un retard doit être justifié.',
+      text: 'Le fil d’actualité de Cantia horodate chaque photo et chaque message du chantier, de quoi reconstituer précisément un enchaînement de jours d’arrêt si un retard doit être justifié.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -48,7 +48,7 @@ export const post: BlogPost = {
     {
       question: 'Un entrepreneur est-il responsable d’un retard causé par la météo ?',
       answer:
-        'En principe non, tant que le retard reste raisonnable au regard des conditions rencontrées et qu’il a été correctement communiqué au client — mais cela doit pouvoir être documenté.',
+        'En principe non, tant que le retard reste raisonnable au regard des conditions rencontrées et qu’il a été correctement communiqué au client. Cela doit toutefois pouvoir être documenté.',
     },
     {
       question: 'Faut-il prévenir le client d’un retard dès qu’il devient probable ?',

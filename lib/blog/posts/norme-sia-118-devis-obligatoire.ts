@@ -15,17 +15,17 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un architecte a évoqué la SIA 118 en réunion de chantier, et depuis vous croyez qu’elle s’applique automatiquement à tout ce que vous signez en Suisse. C’est faux — et c’est l’une des confusions juridiques les plus répandues du bâtiment romand, celle qui fait perdre des recours en garantie à des entrepreneurs pourtant dans leur bon droit.',
+      text: 'Un architecte a évoqué la SIA 118 en réunion de chantier, et depuis vous croyez qu’elle s’applique automatiquement à tout ce que vous signez en Suisse. C’est faux. Il s’agit même de l’une des confusions juridiques les plus répandues du bâtiment romand, celle qui fait perdre des recours en garantie à des entrepreneurs pourtant dans leur bon droit.',
     },
     { type: 'h2', text: 'Ce qu’est réellement la SIA 118' },
     {
       type: 'p',
-      text: 'La SIA 118 ("Conditions générales pour l’exécution des travaux de construction") est un contrat-type privé édité par la Société suisse des ingénieurs et des architectes — pas une loi. Elle complète et précise le Code des obligations sur des points comme les délais de garantie, la réception de l’ouvrage ou la gestion des défauts, mais uniquement là où les deux parties ont choisi d’y recourir.',
+      text: 'La SIA 118 ("Conditions générales pour l’exécution des travaux de construction") est un contrat-type privé édité par la Société suisse des ingénieurs et des architectes, et non une loi. Elle complète et précise le Code des obligations sur des points comme les délais de garantie, la réception de l’ouvrage ou la gestion des défauts, mais uniquement là où les deux parties ont choisi d’y recourir.',
     },
     {
       type: 'callout',
       title: 'Ce que ça change le jour où ça tourne mal',
-      text: 'Sans la phrase exacte « les présentes conditions sont soumises à la norme SIA 118 » quelque part sur le document signé, un juge appliquera le Code des obligations seul — même si tout le monde sur le chantier pensait être sous SIA 118. La différence se joue en années de garantie et en procédure de réception, pas en détail cosmétique.',
+      text: 'Sans la phrase exacte « les présentes conditions sont soumises à la norme SIA 118 » quelque part sur le document signé, un juge appliquera le Code des obligations seul, même si tout le monde sur le chantier pensait être sous SIA 118. La différence se joue en années de garantie et en procédure de réception, pas en détail cosmétique.',
     },
     { type: 'h2', text: 'Ce que ça change concrètement' },
     {
@@ -34,22 +34,22 @@ export const post: BlogPost = {
         'Délais de garantie et de prescription différents entre CO seul et CO + SIA 118',
         'Réception d’ouvrage plus formalisée sous SIA 118 (procès-verbal de réception)',
         'Règles de résiliation et d’acomptes précisées par la norme',
-        'Un juge n’applique la SIA 118 que si le contrat la mentionne noir sur blanc — jamais par déduction',
+        'Un juge n’applique la SIA 118 que si le contrat la mentionne noir sur blanc ; il ne la déduit jamais du contexte',
       ],
     },
     { type: 'h2', text: 'Faut-il l’imposer sur ses propres devis ?' },
     {
       type: 'p',
-      text: 'Pour du dépannage ou une petite rénovation chez un particulier, le CO seul suffit généralement et reste plus lisible pour un client non initié. Pour un chantier plus lourd, en sous-traitance d’un maître d’œuvre, ou quand l’architecte l’a déjà imposée au reste du chantier, mentionner la SIA 118 sur votre propre devis harmonise les conditions avec ce qui se joue autour de vous — et évite l’absurdité de deux régimes différents sur le même chantier.',
+      text: 'Pour du dépannage ou une petite rénovation chez un particulier, le CO seul suffit généralement et reste plus lisible pour un client non initié. Pour un chantier plus lourd, en sous-traitance d’un maître d’œuvre, ou quand l’architecte l’a déjà imposée au reste du chantier, mentionner la SIA 118 sur votre propre devis harmonise les conditions avec ce qui se joue autour de vous, et évite ainsi l’absurdité de deux régimes différents sur le même chantier.',
     },
     {
       type: 'p',
-      text: 'Le point qui compte vraiment : si vous choisissez de l’appliquer, la mention doit être visible sur le devis lui-même — pas glissée dans un document annexe que personne ne relit avant de signer.',
+      text: 'Le point qui compte vraiment : si vous choisissez de l’appliquer, la mention doit être visible sur le devis lui-même, et non glissée dans un document annexe que personne ne relit avant de signer.',
     },
     {
       type: 'cta',
       title: 'Vos conditions, jamais oubliées',
-      text: 'Vos mentions contractuelles (SIA 118 ou non) s’enregistrent une fois dans Cantia et réapparaissent automatiquement sur chaque devis PDF — impossible de les oublier sur un envoi pressé.',
+      text: 'Vos mentions contractuelles (SIA 118 ou non) s’enregistrent une fois dans Cantia et réapparaissent automatiquement sur chaque devis PDF, si bien qu’il devient impossible de les oublier sur un envoi pressé.',
       buttonLabel: 'Découvrir le module Devis',
     },
   ],
@@ -67,7 +67,7 @@ export const post: BlogPost = {
     {
       question: 'Un particulier peut-il refuser l’application de la SIA 118 ?',
       answer:
-        'Oui, dans la mesure où son intégration résulte d’un accord entre les parties — un client peut négocier son retrait ou son remplacement par les règles du CO seul avant de signer le devis.',
+        'Oui, dans la mesure où son intégration résulte d’un accord entre les parties : un client peut négocier son retrait ou son remplacement par les règles du CO seul avant de signer le devis.',
     },
   ],
   relatedSlugs: [

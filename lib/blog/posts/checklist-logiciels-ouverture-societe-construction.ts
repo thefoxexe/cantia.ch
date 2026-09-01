@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Une liste concrète et ordonnée des outils numériques à mettre en place au moment de créer sa société de construction, sans rien oublier ni s\'équiper inutilement.',
   excerpt:
-    'Entre l\'inscription au registre du commerce et le premier chantier, il y a une fenêtre courte pour mettre en place ses outils numériques — autant avoir une checklist plutôt que d\'improviser.',
+    'Entre l\'inscription au registre du commerce et le premier chantier, il y a une fenêtre courte pour mettre en place ses outils numériques. Autant avoir une checklist sous la main plutôt que d\'improviser.',
   category: 'Comparatifs & outils',
   keywords: ['checklist logiciels ouverture société construction', 'liste outils création entreprise bâtiment', 'préparer logiciels avant premier chantier', 'setup numérique nouvelle entreprise construction', 'démarches logicielles création société'],
   publishedAt: '2026-08-01',

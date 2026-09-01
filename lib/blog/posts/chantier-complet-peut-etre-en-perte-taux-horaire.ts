@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un chantier livré dans les temps, payé intégralement, peut malgré tout être en perte réelle si le coût horaire employé n’a jamais été comparé aux heures effectivement passées.',
   excerpt:
-    'Le chantier est livré, le client content, la facture payée. Et pourtant l’entreprise a peut-être perdu de l’argent dessus — sans qu’aucun signal ne l’ait montré.',
+    'Le chantier est livré, le client content, la facture payée. Et pourtant l’entreprise a peut-être perdu de l’argent dessus, sans qu’aucun signal ne l’ait jamais montré.',
   category: 'Chantier & rentabilité',
   keywords: ['chantier en perte', 'rentabilité chantier', 'coût horaire', 'devisé vs réel', 'marge réelle'],
   publishedAt: '2026-04-06',
@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le client est content, le paiement est arrivé, le chantier suivant démarre déjà. Tout indique un succès — sauf un chiffre que personne n’a regardé : combien d’heures ont vraiment été passées, comparées à ce qui avait été devisé. C’est là que se cache la perte que le sentiment de « chantier réussi » masque presque toujours.',
+      text: 'Le client est content, le paiement est arrivé, le chantier suivant démarre déjà. Tout indique un succès. Sauf un chiffre que personne n’a regardé : combien d’heures ont vraiment été passées, comparées à ce qui avait été devisé. C’est là que se cache la perte que le sentiment de « chantier réussi » masque presque toujours.',
     },
     { type: 'h2', text: 'Le piège du raisonnement « j’ai été payé donc j’ai gagné »' },
     {
       type: 'p',
-      text: 'Être payé le montant du devis ne veut rien dire sur la rentabilité si le devis lui-même sous-estimait les heures nécessaires. Un chantier devisé sur 40h de main-d’œuvre qui en a réellement demandé 58 n’a pas généré la marge attendue, même si le client a payé exactement le montant convenu — l’écart d’heures a simplement été absorbé en silence, sans que la facture n’en dise rien.',
+      text: 'Être payé le montant du devis ne veut rien dire sur la rentabilité si le devis lui-même sous-estimait les heures nécessaires. Un chantier devisé sur 40h de main-d’œuvre qui en a réellement demandé 58 n’a pas généré la marge attendue, même si le client a payé exactement le montant convenu. L’écart d’heures a simplement été absorbé en silence, sans que la facture n’en dise rien.',
     },
     {
       type: 'callout',
@@ -31,7 +31,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'La comptabilité générale de l’entreprise reste positive tant qu’un autre chantier plus rentable compense la perte du premier — la perte individuelle se noie dans la moyenne',
+        'La comptabilité générale de l’entreprise reste positive tant qu’un autre chantier plus rentable compense la perte du premier, si bien que la perte individuelle se noie dans la moyenne',
         'Sans suivi des heures chantier par chantier, il n’existe simplement aucun chiffre à comparer au devis initial',
         'Un dépassement d’heures étalé sur plusieurs semaines ne saute jamais aux yeux comme le ferait un dépassement d’un seul jour',
       ],
@@ -39,7 +39,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Le signal à surveiller, pas après coup' },
     {
       type: 'p',
-      text: 'Le moment utile pour détecter ce type de perte n’est pas la clôture du chantier, c’est le milieu — quand les heures déjà passées approchent déjà ce qui avait été devisé pour l’ensemble. À ce stade, il reste encore une marge de manœuvre : réorganiser, accélérer, ou à défaut, comprendre pour le prochain devis similaire.',
+      text: 'Le moment utile pour détecter ce type de perte n’est pas la clôture du chantier, c’est le milieu, quand les heures déjà passées approchent déjà ce qui avait été devisé pour l’ensemble. À ce stade, il reste encore une marge de manœuvre : réorganiser, accélérer, ou à défaut, comprendre pour le prochain devis similaire.',
     },
     {
       type: 'p',
@@ -48,7 +48,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'La marge réelle, visible chantier par chantier',
-      text: 'Le module Rentabilité de Cantia compare automatiquement le devisé et le réel — heures, matériel, sous-traitance — pour repérer un dépassement avant la clôture, pas après.',
+      text: 'Le module Rentabilité de Cantia compare automatiquement le devisé et le réel (heures, matériel, sous-traitance) pour repérer un dépassement avant la clôture, pas après.',
       buttonLabel: 'Découvrir la rentabilité par chantier',
     },
   ],
@@ -66,7 +66,7 @@ export const post: BlogPost = {
     {
       question: 'À quel moment faut-il vérifier si un chantier dérape en heures ?',
       answer:
-        'En cours de chantier, pas à la clôture — un suivi continu permet encore d’ajuster, alors qu’un constat fait après la fin des travaux ne sert plus qu’à comprendre ce qui s’est passé.',
+        'En cours de chantier, pas à la clôture : un suivi continu permet encore d’ajuster, alors qu’un constat fait après la fin des travaux ne sert plus qu’à comprendre ce qui s’est passé.',
     },
   ],
   relatedSlugs: [

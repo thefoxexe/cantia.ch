@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Certains outils tiennent la route sur la durée, d\'autres montrent leurs limites dès la première embauche ou le deuxième chantier en parallèle. Les signes à repérer avant de choisir.',
   excerpt:
-    'Un outil parfait pour un artisan solo peut devenir un frein le jour de la première embauche — reconnaître à l\'avance les signes d\'un outil évolutif évite cette mauvaise surprise.',
+    'Un outil parfait pour un artisan solo peut devenir un frein le jour de la première embauche. Reconnaître à l\'avance les signes d\'un outil évolutif évite cette mauvaise surprise.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel gestion évolutif', 'outil qui grandit avec entreprise', 'logiciel adapté croissance PME bâtiment', 'anticiper croissance logiciel gestion', 'outil gestion scalable Suisse'],
   publishedAt: '2026-08-10',
@@ -30,17 +30,17 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: '2-3 ans',
-      label: 'délai courant avant qu\'une entreprise du bâtiment qui démarre ne passe de solo à une première embauche — un horizon à anticiper dès le choix de l\'outil',
+      label: 'délai courant avant qu\'une entreprise du bâtiment qui démarre ne passe de solo à une première embauche (un horizon à anticiper dès le choix de l\'outil)',
     },
     { type: 'h2', text: 'Anticiper ne veut pas dire payer plus cher tout de suite' },
     {
       type: 'p',
-      text: 'Choisir un outil évolutif ne signifie pas souscrire au plan le plus cher dès le départ — cela signifie choisir un éditeur dont les plans supérieurs existent et sont accessibles le jour venu, sans migration technique complexe.',
+      text: 'Choisir un outil évolutif ne signifie pas souscrire au plan le plus cher dès le départ : cela signifie choisir un éditeur dont les plans supérieurs existent et sont accessibles le jour venu, sans migration technique complexe.',
     },
     {
       type: 'callout',
       title: 'Demander directement à l\'éditeur ce qui se passe en cas de croissance',
-      text: 'Une question simple avant de s\'engager : "que se passe-t-il si j\'embauche mon premier employé l\'année prochaine ?" — la réponse dit beaucoup sur l\'évolutivité réelle de l\'outil.',
+      text: 'Une question simple avant de s\'engager : "que se passe-t-il si j\'embauche mon premier employé l\'année prochaine ?" La réponse dit beaucoup sur l\'évolutivité réelle de l\'outil.',
     },
     {
       type: 'cta',

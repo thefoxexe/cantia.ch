@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Relancer un client pour une facture impayée ou un devis en attente est souvent la première tâche administrative oubliée. Comment l\'automatiser sans perdre le ton personnel.',
   excerpt:
-    'La relance client est souvent la tâche administrative la plus facile à oublier — pas par négligence, mais parce qu\'elle n\'a jamais de date fixe dans l\'agenda, contrairement à un rendez-vous chantier.',
+    'La relance client est souvent la tâche administrative la plus facile à oublier, non par négligence, mais parce qu\'elle n\'a jamais de date fixe dans l\'agenda, contrairement à un rendez-vous chantier.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatiser relances entreprise', 'rappel facture impayée automatique', 'relance devis automatique', 'automatisation paiement client bâtiment', 'ne plus oublier relance client'],
   publishedAt: '2026-08-21',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Contrairement à un rendez-vous de chantier, une relance de facture impayée n\'a pas de date fixée dans l\'agenda — elle dépend d\'un délai écoulé, facile à perdre de vue au milieu du reste de l\'activité. Résultat : des impayés qui traînent, non pas par mauvaise volonté, mais par oubli pur et simple.',
+      text: 'Contrairement à un rendez-vous de chantier, une relance de facture impayée n\'a pas de date fixée dans l\'agenda. Elle dépend d\'un délai écoulé, facile à perdre de vue au milieu du reste de l\'activité. Résultat : des impayés qui traînent, non pas par mauvaise volonté, mais par oubli pur et simple.',
     },
     { type: 'h2', text: 'Ce qu\'une relance automatisée permet concrètement' },
     {
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Automatiser ne veut pas dire perdre le contrôle de la relation client' },
     {
       type: 'p',
-      text: 'Une bonne relance automatisée reste toujours modifiable au cas par cas — pour un client fidèle qui a simplement un jour de retard, l\'entreprise garde la main pour ajuster le ton ou repousser l\'envoi, plutôt que de subir une automatisation rigide.',
+      text: 'Une bonne relance automatisée reste toujours modifiable au cas par cas : pour un client fidèle qui a simplement un jour de retard, l\'entreprise garde la main pour ajuster le ton ou repousser l\'envoi, plutôt que de subir une automatisation rigide.',
     },
     {
       type: 'callout',
@@ -53,12 +53,12 @@ export const post: BlogPost = {
     {
       question: 'Pourquoi les relances de factures impayées sont-elles souvent oubliées ?',
       answer:
-        'Parce qu\'elles n\'ont pas de date fixe dans l\'agenda, contrairement à un rendez-vous de chantier — elles dépendent d\'un délai écoulé, plus facile à perdre de vue.',
+        'Elles n\'ont pas de date fixe dans l\'agenda, contrairement à un rendez-vous de chantier, car elles dépendent d\'un délai écoulé, plus facile à perdre de vue.',
     },
     {
       question: 'Une relance automatique remplace-t-elle totalement le suivi manuel ?',
       answer:
-        'Non — une bonne relance automatisée reste modifiable au cas par cas, notamment pour un client fidèle avec qui un ajustement de ton ou de délai est justifié.',
+        'Non, l\'automatisation ne remplace pas totalement le suivi manuel : une bonne relance reste modifiable au cas par cas, notamment pour un client fidèle avec qui un ajustement de ton ou de délai est justifié.',
     },
     {
       question: 'Quel est l\'impact concret d\'une relance automatique bien calibrée ?',

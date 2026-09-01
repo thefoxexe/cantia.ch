@@ -5,9 +5,9 @@ export const post: BlogPost = {
   question: 'Comment calculer le vrai coût horaire d’un ouvrier, au-delà de son salaire brut ?',
   title: 'Le vrai coût horaire d’un ouvrier du bâtiment : bien plus que son salaire brut',
   description:
-    'Un devis chiffré sur le seul salaire brut d’un ouvrier sous-estime systématiquement le vrai coût horaire — charges sociales, absences payées et temps non facturable doivent entrer dans le calcul.',
+    'Un devis chiffré sur le seul salaire brut d’un ouvrier sous-estime systématiquement le vrai coût horaire : il faut aussi compter les charges sociales, les absences payées et le temps non facturable.',
   excerpt:
-    'Beaucoup d’entreprises chiffrent leurs devis sur un taux horaire approximatif, hérité d’années de pratique — sans jamais recalculer ce qu’un ouvrier coûte vraiment une fois toutes les charges intégrées.',
+    'Beaucoup d’entreprises chiffrent leurs devis sur un taux horaire approximatif hérité d’années de pratique, sans jamais prendre le temps de recalculer ce qu’un ouvrier coûte vraiment une fois toutes les charges intégrées.',
   category: 'Chantier & rentabilité',
   keywords: ['coût horaire ouvrier', 'calcul taux horaire bâtiment', 'charges sociales construction', 'rentabilité chantier', 'chiffrage devis'],
   publishedAt: '2026-07-28',
@@ -22,7 +22,7 @@ export const post: BlogPost = {
       type: 'list',
       items: [
         'Salaire brut annuel, y compris 13e salaire',
-        'Charges sociales patronales (AVS/AI/APG, LPP, LAA, allocations familiales) — généralement 15 à 20 % du salaire brut',
+        'Charges sociales patronales (AVS/AI/APG, LPP, LAA, allocations familiales), soit généralement 15 à 20 % du salaire brut',
         'Vacances et jours fériés payés, qui réduisent le nombre d’heures effectivement travaillées mais pas la masse salariale annuelle',
         'Temps non facturable : déplacements internes, entretien du matériel, formation, intempéries payées',
       ],
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La formule de base' },
     {
       type: 'p',
-      text: 'Coût horaire réel = (salaire brut annuel + charges sociales patronales) ÷ heures effectivement facturables dans l’année. Le piège classique est de diviser le coût annuel par le nombre d’heures contractuelles théoriques (par exemple 2080 heures pour un plein temps), sans déduire les absences et le temps non productif — ce qui sous-estime systématiquement le taux horaire réel.',
+      text: 'Coût horaire réel = (salaire brut annuel + charges sociales patronales) ÷ heures effectivement facturables dans l’année. Le piège classique est de diviser le coût annuel par le nombre d’heures contractuelles théoriques (par exemple 2080 heures pour un plein temps), sans déduire les absences et le temps non productif ; cette erreur sous-estime systématiquement le taux horaire réel.',
     },
     {
       type: 'callout',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Comparer devisé et coût réel, chantier par chantier',
-      text: 'Le module Rentabilité de Cantia confronte automatiquement ce qui a été devisé aux heures et coûts réellement engagés sur chaque chantier — la meilleure façon de savoir si votre taux horaire est réaliste.',
+      text: 'Le module Rentabilité de Cantia confronte automatiquement ce qui a été devisé aux heures et coûts réellement engagés sur chaque chantier. C’est la meilleure façon de savoir si votre taux horaire est réaliste.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Faut-il une numérotation continue des factures en Suisse, et que risque-t-on à ne pas la respecter ?',
   title: 'Numérotation des factures en Suisse : pourquoi la continuité n’est pas un détail',
   description:
-    'Un numéro de facture sauté, réutilisé ou désordonné attire immédiatement l’attention lors d’un contrôle fiscal — la continuité numérique est l’un des premiers points vérifiés.',
+    'Un numéro de facture sauté, réutilisé ou désordonné attire immédiatement l’attention lors d’un contrôle fiscal, car la continuité numérique est l’un des premiers points vérifiés.',
   excerpt:
     'Deux factures avec le même numéro, ou une série qui saute de 042 à 057 sans explication : c’est exactement le genre de détail qu’un contrôle de l’AFC repère en quelques secondes.',
   category: 'Devis & facturation',

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Les prix affichés vont de zéro à plusieurs centaines de francs par mois. Comment évaluer ce qui est réellement abordable pour une entreprise qui démarre, sans se focaliser sur le seul chiffre affiché.',
   excerpt:
-    'Le prix affiché en haut d\'une page tarifaire ne dit jamais tout — le vrai coût d\'un logiciel se juge sur ce qu\'il inclut réellement à ce prix, pas sur le chiffre seul.',
+    'Le prix affiché en haut d\'une page tarifaire ne dit jamais tout. Le vrai coût d\'un logiciel se juge sur ce qu\'il inclut réellement à ce prix, pas sur le chiffre seul.',
   category: 'Comparatifs & outils',
   keywords: ['prix logiciel facturation', 'logiciel facturation pas cher Suisse', 'coût outil gestion PME', 'tarif logiciel devis facture', 'budget logiciel gestion entreprise'],
   publishedAt: '2026-07-05',
@@ -22,7 +22,7 @@ export const post: BlogPost = {
       type: 'list',
       items: [
         'Le nombre de documents (devis/factures) inclus par mois avant surcoût',
-        'Le nombre d\'utilisateurs — un prix "par employé" grimpe vite avec l\'équipe',
+        'Le nombre d\'utilisateurs (un prix "par employé" grimpe vite avec l\'équipe)',
         'Les modules inclus (chantier, RH, trésorerie) versus vendus séparément en option',
         'L\'envoi d\'e-mails et la génération de PDF illimités, parfois facturés à part',
       ],
@@ -40,12 +40,12 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Se méfier des prix qui grimpent avec l\'utilisation',
-      text: 'Certains outils affichent un prix d\'appel bas puis facturent chaque document supplémentaire ou chaque utilisateur ajouté — vérifier la grille complète, pas seulement le chiffre en gras sur la page d\'accueil.',
+      text: 'Certains outils affichent un prix d\'appel bas puis facturent chaque document supplémentaire ou chaque utilisateur ajouté : mieux vaut vérifier la grille complète, pas seulement le chiffre en gras sur la page d\'accueil.',
     },
     {
       type: 'cta',
       title: 'Un prix simple, sans surprise à l\'usage',
-      text: 'Cantia propose des plans clairs, sans facturation cachée par document — et 30 jours d\'essai gratuit avec le code ESSAI30 pour juger sur pièces avant de s\'engager.',
+      text: 'Cantia propose des plans clairs, sans facturation cachée par document. L\'entreprise offre aussi 30 jours d\'essai gratuit avec le code ESSAI30 pour juger sur pièces avant de s\'engager.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Faut-il comparer les logiciels uniquement sur leur prix mensuel ?',
       answer:
-        'Non — le temps administratif réellement économisé compte au moins autant que le prix affiché pour juger si un outil est vraiment abordable.',
+        'Non, car le temps administratif réellement économisé compte au moins autant que le prix affiché pour juger si un outil est vraiment abordable.',
     },
   ],
   relatedSlugs: [
