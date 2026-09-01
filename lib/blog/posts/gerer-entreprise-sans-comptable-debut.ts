@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Beaucoup d\'indépendants démarrent sans fiduciaire pour économiser. Ce qu\'il est réaliste de gérer soi-même, et le moment où un accompagnement devient nécessaire.',
   excerpt:
-    'Se passer de comptable au démarrage n\'est pas une imprudence en soi — c\'est une question de savoir précisément où s\'arrête ce qu\'on peut gérer seul, et où ça devient risqué.',
+    'Se passer de comptable au démarrage n\'est pas une imprudence en soi : c\'est une question de savoir précisément où s\'arrête ce qu\'on peut gérer seul, et où ça devient risqué.',
   category: 'Comparatifs & outils',
   keywords: ['gérer entreprise sans comptable', 'démarrer sans fiduciaire Suisse', 'comptabilité indépendant débutant', 'gestion administrative sans comptable', 'auto-gestion entreprise bâtiment'],
   publishedAt: '2026-07-14',
@@ -15,14 +15,14 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Faire appel à un fiduciaire dès le premier jour représente un coût que beaucoup d\'indépendants préfèrent éviter au démarrage, quand chaque franc compte. Ce n\'est pas déraisonnable — à condition de savoir précisément ce qu\'on peut gérer seul et ce qui nécessite un accompagnement.',
+      text: 'Faire appel à un fiduciaire dès le premier jour représente un coût que beaucoup d\'indépendants préfèrent éviter au démarrage, quand chaque franc compte. À condition de savoir précisément ce qu\'on peut gérer seul et ce qui nécessite un accompagnement, ce n\'est pas déraisonnable.',
     },
     { type: 'h2', text: 'Ce qu\'un indépendant peut généralement gérer seul' },
     {
       type: 'list',
       items: [
         'L\'émission de devis et factures conformes, avec un outil qui applique automatiquement les bonnes règles',
-        'Le suivi de trésorerie de base — qui doit payer quoi, et quand',
+        'Le suivi de trésorerie de base : qui doit payer quoi, et quand',
         'L\'archivage des documents, pour retrouver facilement une facture en cas de contrôle',
       ],
     },
@@ -38,7 +38,7 @@ export const post: BlogPost = {
     {
       type: 'stat',
       value: 'CHF 100 000',
-      label: 'seuil de chiffre d\'affaires généralement associé à l\'assujettissement obligatoire à la TVA en Suisse — un repère souvent cité pour décider de faire appel à un fiduciaire',
+      label: 'seuil de chiffre d\'affaires généralement associé à l\'assujettissement obligatoire à la TVA en Suisse (un repère souvent cité pour décider de faire appel à un fiduciaire)',
     },
     {
       type: 'callout',
@@ -48,7 +48,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Une base propre dès le premier document',
-      text: 'Cantia structure automatiquement devis et factures de façon conforme — une base solide, que vous gériez seul aujourd\'hui ou avec un fiduciaire demain.',
+      text: 'Cantia structure automatiquement devis et factures de façon conforme. C\'est une base solide, que vous gériez seul aujourd\'hui ou avec un fiduciaire demain.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

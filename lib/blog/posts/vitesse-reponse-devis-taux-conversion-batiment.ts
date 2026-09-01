@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Un client qui contacte plusieurs artisans en même temps choisit très souvent celui qui répond en premier, avant même de comparer les prix en détail. Comment structurer son organisation pour ne plus perdre ce genre de client.',
   excerpt:
-    'Le prix le plus bas ne gagne pas toujours le devis — celui qui répond le premier, avec un devis clair et professionnel, rafle souvent le client avant que les autres n’aient même terminé leur estimation.',
+    'Le prix le plus bas ne gagne pas toujours le devis : celui qui répond le premier, avec un devis clair et professionnel, rafle souvent le client avant que les autres n’aient même terminé leur estimation.',
   category: 'Croissance & acquisition',
   keywords: ['vitesse réponse devis', 'taux de conversion devis bâtiment', 'répondre rapidement client artisan', 'perdre un client devis lent', 'délai envoi devis chantier'],
   publishedAt: '2026-09-05',
@@ -23,13 +23,13 @@ export const post: BlogPost = {
       items: [
         'Le client garde en tête la première entreprise qui a réagi, même si elle n’envoie le devis complet que quelques jours plus tard',
         'Un accusé de réception rapide ("j’ai bien reçu votre demande, je vous réponds sous 48h") rassure autant qu’un devis complet immédiat',
-        'Après plusieurs jours sans réponse, un client relance rarement — il passe simplement à l’artisan suivant sur sa liste',
+        'Après plusieurs jours sans réponse, un client relance rarement. Il passe simplement à l’artisan suivant sur sa liste',
       ],
     },
     {
       type: 'stat',
       value: '< 1h',
-      label: 'délai de première réponse considéré comme excellent pour une demande de devis entrante — même un simple accusé de réception, sans le chiffrage complet',
+      label: 'délai de première réponse considéré comme excellent pour une demande de devis entrante (même un simple accusé de réception, sans le chiffrage complet)',
     },
     { type: 'h2', text: 'Rapide ne veut pas dire bâclé' },
     {

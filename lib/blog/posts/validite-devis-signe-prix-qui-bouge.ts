@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Un client garde un devis signé six mois dans un tiroir, puis débarque en disant « j’ai signé, je veux ce prix ». Sans date de validité écrite sur le document, il a juridiquement raison — même si le prix du matériau a bougé de 20 % entre-temps.',
+      text: 'Un client garde un devis signé six mois dans un tiroir, puis débarque en disant « j’ai signé, je veux ce prix ». Sans date de validité écrite sur le document, il a juridiquement raison, et ce même si le prix du matériau a bougé de 20 % entre-temps.',
     },
     { type: 'h2', text: 'Un devis engage tant qu’il n’a pas de date de fin' },
     {
       type: 'p',
-      text: 'Un devis accepté par le client vaut acceptation d’une offre — il engage les deux parties aux conditions écrites, sans limite de durée sauf si le document en prévoit une. C’est le principe même de l’offre en droit des contrats suisse : celui qui l’a émise reste lié jusqu’à ce qu’elle expire ou soit retirée.',
+      text: 'Un devis accepté par le client vaut acceptation d’une offre : il engage les deux parties aux conditions écrites, sans limite de durée sauf si le document en prévoit une. C’est le principe même de l’offre en droit des contrats suisse : celui qui l’a émise reste lié jusqu’à ce qu’elle expire ou soit retirée.',
     },
     {
       type: 'callout',
@@ -39,7 +39,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce que ça change en pratique' },
     {
       type: 'p',
-      text: 'Sur des matériaux volatils (bois, métal, isolants), une validité de 30 jours plutôt que 90 réduit nettement le risque de devoir absorber une hausse sur un devis resté trop longtemps sans réponse. Sur des prestations de main-d’œuvre pure, la validité compte moins — mais ne coûte jamais rien à écrire.',
+      text: 'Sur des matériaux volatils (bois, métal, isolants), une validité de 30 jours plutôt que 90 réduit nettement le risque de devoir absorber une hausse sur un devis resté trop longtemps sans réponse. Sur des prestations de main-d’œuvre pure, la validité compte moins, mais elle ne coûte jamais rien à écrire.',
     },
     {
       type: 'cta',

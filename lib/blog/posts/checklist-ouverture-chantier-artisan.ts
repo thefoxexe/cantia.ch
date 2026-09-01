@@ -21,7 +21,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'Devis signé et acompte reçu — un chantier qui démarre sans acompte encaissé prend un risque financier évitable',
+        'Devis signé et acompte reçu : un chantier qui démarre sans acompte encaissé prend un risque financier évitable',
         'Autorisations nécessaires obtenues (permis de construire si requis, autorisation d’installation de chantier selon la commune)',
         'Accès au chantier confirmé (clés, code, horaires d’accès si occupé)',
         'Sécurisation de la zone (balisage, protection des éléments existants sensibles)',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Chaque chantier documenté dès le premier jour',
-      text: 'Cantia centralise devis, acompte, équipe affectée et photos dès l’ouverture du chantier — une checklist qui se coche presque toute seule.',
+      text: 'Cantia centralise devis, acompte, équipe affectée et photos dès l’ouverture du chantier, ce qui fait que la checklist se coche presque toute seule.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -53,12 +53,12 @@ export const post: BlogPost = {
     {
       question: 'Pourquoi documenter l’état des lieux avant le début du chantier ?',
       answer:
-        'Pour se protéger en cas de contestation ultérieure — sans preuve datée de l’état préexistant, il devient impossible de démontrer qu’un dégât n’a pas été causé par le chantier.',
+        'Pour se protéger en cas de contestation ultérieure. Sans preuve datée de l’état préexistant, il devient impossible de démontrer qu’un dégât n’a pas été causé par le chantier.',
     },
     {
       question: 'Faut-il attendre l’encaissement de l’acompte avant de démarrer ?',
       answer:
-        'C’est fortement recommandé — démarrer sans acompte encaissé prend un risque financier évitable, surtout sur un chantier de taille significative.',
+        'C’est fortement recommandé, car démarrer sans acompte encaissé prend un risque financier évitable, surtout sur un chantier de taille significative.',
     },
     {
       question: 'Quelle est la cause la plus fréquente de faux départ de chantier ?',

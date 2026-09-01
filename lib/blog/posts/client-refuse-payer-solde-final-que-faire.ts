@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Un client refuse de payer le solde final du chantier : que faire ?',
   title: 'Un client refuse de payer le solde final : la méthode, étape par étape',
   description:
-    'Un refus de paiement sur le solde final n’est presque jamais définitif — c’est souvent un désaccord sur un point précis. Distinguer les deux change toute la stratégie à suivre.',
+    'Un refus de paiement sur le solde final n’est presque jamais définitif. C’est souvent un désaccord sur un point précis. Distinguer les deux change toute la stratégie à suivre.',
   excerpt:
     'Un client qui « refuse de payer » a presque toujours une raison précise en tête — un défaut, un désaccord de prix, un doute. Identifier laquelle change tout le reste.',
   category: 'Devis & facturation',
