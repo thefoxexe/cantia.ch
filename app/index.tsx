@@ -23,6 +23,7 @@ import { Button, Screen, Switch } from '../components/ui';
 import { MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
 import { t } from '../lib/i18n';
+import { TRADE_PAGES, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
@@ -810,6 +811,21 @@ function LandingContent() {
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
             <TradesMarquee trades={t.trades.list} compact={isCompactNav} />
             <Text style={styles.tradeNote}>{t.trades.note}</Text>
+            <View style={styles.tradeLinksRow}>
+              {TRADE_PAGE_SLUGS.map((slug) => (
+                <Link key={slug} href={`/${slug}` as any} asChild>
+                  <Pressable style={styles.tradeLinkChip}>
+                    <Text style={styles.tradeLinkChipText}>{pluralTradeName(TRADE_PAGES[slug].tradeName)}</Text>
+                  </Pressable>
+                </Link>
+              ))}
+              <Link href="/metiers" asChild>
+                <Pressable style={styles.tradeLinkChipAll}>
+                  <Text style={styles.tradeLinkChipAllText}>Voir tous les métiers</Text>
+                  <Feather name="arrow-right" size={13} color={colors.primary} />
+                </Pressable>
+              </Link>
+            </View>
           </Reveal>
 
           {/* ---- Pricing ---- */}
@@ -3042,6 +3058,38 @@ const styles = StyleSheet.create({
     maxWidth: 560,
     alignSelf: 'center',
     lineHeight: 20,
+  },
+  tradeLinksRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+  },
+  tradeLinkChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  tradeLinkChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  tradeLinkChipAll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  tradeLinkChipAllText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
   },
   billingToggle: {
     flexDirection: 'row',

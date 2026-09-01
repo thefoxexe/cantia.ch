@@ -109,7 +109,7 @@ const fr: Dict = {
   },
   services: {
     title: 'Cantia relie le terrain et le bureau dans le même outil',
-    subtitle: 'Le premier tiers de la page montre le résultat, le reste prouve l’étendue du produit — cliquez sur un service pour voir précisément ce qu’il fait.',
+    subtitle: 'Le premier tiers de la page montre le résultat, le reste prouve l’étendue du produit. Cliquez sur un service pour voir précisément ce qu’il fait.',
     items: [
       {
         title: 'Du rendez-vous au devis sans refaire le travail le soir',
@@ -131,7 +131,7 @@ const fr: Dict = {
       },
       {
         title: 'Toute l’équipe sait où elle doit être',
-        text: 'Un planning central par employé et par chantier — plus besoin d’appeler le patron pour savoir où aller demain.',
+        text: 'Un planning central par employé et par chantier, pour ne plus avoir à appeler le patron afin de savoir où aller demain.',
         detail: [
           'Vue par membre et par jour, consultable par toute l’équipe',
           'Chaque affectation liée à un chantier précis',
@@ -255,7 +255,7 @@ const fr: Dict = {
   },
   mobile: {
     title: 'Cantia vous suit aussi sur le terrain',
-    text: "Ouvrez Cantia depuis votre téléphone ou votre tablette et ajoutez-le à votre écran d'accueil pour y accéder rapidement, en plein écran, comme à vos autres applications — dès aujourd'hui, sans passer par un store.",
+    text: "Ouvrez Cantia depuis votre téléphone ou votre tablette et ajoutez-le à votre écran d'accueil pour y accéder rapidement, en plein écran, comme à vos autres applications, dès aujourd'hui et sans passer par un store.",
     installCta: 'Comment l’installer',
     storeNote: 'Les versions officielles arrivent aussi :',
     comingSoon: 'En développement',
