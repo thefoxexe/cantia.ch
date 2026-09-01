@@ -458,6 +458,22 @@ export const de: TranslationDict = {
     countExtraWorks_one: '{{count}} Zusatzarbeit',
     countExtraWorks_other: '{{count}} Zusatzarbeiten',
   },
+  notificationSettings: {
+    title: 'Benachrichtigungen',
+    hint: 'Wählen Sie für jede Ereignisart, wie Sie benachrichtigt werden möchten — in der App, per E-Mail und auf Ihrem Telefon.',
+    colInApp: 'In-App',
+    colEmail: 'E-Mail',
+    colPush: 'Push',
+    types: {
+      devis_stale_draft: { label: 'Offerte ausstehend', description: 'Eine Offerte bleibt seit mehreren Tagen als Entwurf, ohne gesendet worden zu sein.' },
+      devis_expiring_soon: { label: 'Offerte läuft bald ab', description: 'Eine gesendete Offerte nähert sich dem Ende ihrer Gültigkeitsdauer.' },
+      devis_accepted: { label: 'Offerte unterschrieben', description: 'Ein Kunde hat eine Offerte über das Kundenportal akzeptiert und unterschrieben.' },
+      facture_overdue: { label: 'Rechnung überfällig', description: 'Eine gesendete Rechnung hat ihr Zahlungsdatum überschritten.' },
+      recurring_expense_due: { label: 'Wiederkehrende Ausgabe fällig', description: 'Ein Abonnement oder eine wiederkehrende Ausgabe wird fällig.' },
+      extra_work_accepted: { label: 'Zusatzarbeiten akzeptiert', description: 'Ein Kunde hat Zusatzarbeiten akzeptiert und unterschrieben.' },
+      feed_message: { label: 'Baustellen-Nachricht', description: 'Jemand postet eine Nachricht im Verlauf einer Baustelle.' },
+    },
+  },
   dangerZone: {
     title: 'Gefahrenzone',
     intro: 'Diese Aktionen sind unwiderruflich. Einmal bestätigt, können gelöschte Daten nicht wiederhergestellt werden.',

@@ -5,6 +5,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { NOTIFICATION_TYPES, listPreferences, upsertPreference } from '../../../lib/api/notifications';
 import { registerForPushNotificationsAsync } from '../../../lib/notifications/registerPush';
 import { Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { NotificationPreference, NotificationType } from '../../../lib/types';
 
@@ -24,6 +25,7 @@ function toPrefs(raw: Record<NotificationType, NotificationPreference | null>): 
 }
 
 export default function NotificationSettingsScreen() {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs | null>(null);
 
@@ -55,24 +57,22 @@ export default function NotificationSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="Notifications" backTo="/(app)/compte" />
-          <Text style={styles.hint}>
-            Pour chaque type d'événement, choisissez comment vous voulez être prévenu — dans l'application, par e-mail, et sur votre téléphone.
-          </Text>
+          <PageHeader title={t('notificationSettings.title')} backTo="/(app)/compte" />
+          <Text style={styles.hint}>{t('notificationSettings.hint')}</Text>
 
           <View style={styles.columnHeader}>
             <View style={{ flex: 1 }} />
-            <Text style={styles.columnLabel}>In-app</Text>
-            <Text style={styles.columnLabel}>E-mail</Text>
-            <Text style={styles.columnLabel}>Push</Text>
+            <Text style={styles.columnLabel}>{t('notificationSettings.colInApp')}</Text>
+            <Text style={styles.columnLabel}>{t('notificationSettings.colEmail')}</Text>
+            <Text style={styles.columnLabel}>{t('notificationSettings.colPush')}</Text>
           </View>
 
           <View style={{ gap: spacing.md }}>
-            {NOTIFICATION_TYPES.map(({ type, label, description }) => (
+            {NOTIFICATION_TYPES.map(({ type }) => (
               <Card key={type} style={styles.row}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>{label}</Text>
-                  <Text style={styles.description}>{description}</Text>
+                  <Text style={styles.label}>{t(`notificationSettings.types.${type}.label` as any)}</Text>
+                  <Text style={styles.description}>{t(`notificationSettings.types.${type}.description` as any)}</Text>
                 </View>
                 <View style={styles.switchCol}>
                   <Switch value={prefs[type].in_app} onChange={(v) => toggle(type, 'in_app', v)} />

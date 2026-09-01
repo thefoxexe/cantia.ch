@@ -439,6 +439,22 @@ export const fr = {
     countExtraWorks_one: '{{count}} travaux supplémentaire',
     countExtraWorks_other: '{{count}} travaux supplémentaires',
   },
+  notificationSettings: {
+    title: 'Notifications',
+    hint: "Pour chaque type d'événement, choisissez comment vous voulez être prévenu — dans l'application, par e-mail, et sur votre téléphone.",
+    colInApp: 'In-app',
+    colEmail: 'E-mail',
+    colPush: 'Push',
+    types: {
+      devis_stale_draft: { label: 'Devis en attente', description: 'Un devis reste en brouillon depuis plusieurs jours sans avoir été envoyé.' },
+      devis_expiring_soon: { label: 'Devis bientôt échu', description: 'Un devis envoyé arrive au bout de sa durée de validité.' },
+      devis_accepted: { label: 'Devis signé', description: 'Un client a accepté et signé un devis depuis le portail client.' },
+      facture_overdue: { label: 'Facture en retard', description: 'Une facture envoyée a dépassé son échéance de paiement.' },
+      recurring_expense_due: { label: 'Dépense récurrente à venir', description: 'Un abonnement ou une charge récurrente arrive à échéance.' },
+      extra_work_accepted: { label: 'Travaux supplémentaires acceptés', description: 'Un client a accepté et signé des travaux supplémentaires.' },
+      feed_message: { label: 'Message de chantier', description: "Quelqu'un poste un message dans le fil d'un chantier." },
+    },
+  },
   dangerZone: {
     title: 'Zone dangereuse',
     intro: 'Ces actions sont irréversibles. Une fois confirmées, les données supprimées ne peuvent pas être récupérées.',
