@@ -452,6 +452,40 @@ export const fr = {
     paysagisme: 'Paysagisme',
     autre: 'Autre',
   },
+  emailDefaults: {
+    // __CLIENT__/__ORG__ are placeholders swapped for the literal
+    // "{{client}}"/org name in lib/emailDefaults.ts — NOT run through
+    // i18next interpolation, since "{{client}}" must survive verbatim
+    // into the stored template for the backend's own later substitution
+    // (supabase/functions/_shared/resend.ts::applyEmailVariables).
+    devisMessage: 'Bonjour __CLIENT__,\n\nVoici notre devis, en pièce jointe.',
+    factureMessage: 'Bonjour __CLIENT__,\n\nVoici notre facture, en pièce jointe.',
+    extraWorkMessage: 'Bonjour __CLIENT__,\n\nDes travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.',
+    reminderUpcoming: 'Bonjour __CLIENT__,\n\nPetit rappel : cette facture arrive bientôt à échéance.',
+    reminderOverdue: "Bonjour __CLIENT__,\n\nSauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait.",
+    signature: 'Meilleures salutations,\n__ORG__',
+    variables: {
+      client: 'Client',
+      entreprise: 'Mon entreprise',
+      chantier: 'Chantier',
+      numero: 'Numéro',
+      echeance: 'Échéance',
+    },
+  },
+  emailsSettings: {
+    title: 'E-mails',
+    intro: 'Le texte de chaque e-mail envoyé à vos clients est entièrement à vous — formule d’appel comprise. Utilisez les chips sous chaque champ pour insérer le nom du client, le chantier ou le numéro du document : Cantia remplace automatiquement la variable par la bonne valeur à l’envoi.',
+    readOnlyHint: 'Seul un propriétaire ou administrateur peut modifier ces textes.',
+    insert: 'Insérer :',
+    devisLabel: 'Devis',
+    factureLabel: 'Facture',
+    reminderUpcomingLabel: 'Relance — avant échéance',
+    reminderOverdueLabel: 'Relance — facture en retard',
+    extraWorkLabel: 'Travaux supplémentaires',
+    signatureLabel: 'Signature',
+    signaturePlaceholder: 'Cordialement,\nJean Dupont\nDirecteur',
+    lockedNotice: 'Le lien sécurisé de consultation en ligne reste toujours ajouté automatiquement en fin d’e-mail — c’est aussi ce qui permet à votre client de retrouver et signer le document sans créer de compte. Tout le reste, y compris "Bonjour", est à vous.',
+  },
   moduleSettings: {
     title: 'Outils & modules',
     intro: "Sections principales de l'application, pour toute l'équipe. Les outils propres à un chantier (documents, photos, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de chaque chantier.",

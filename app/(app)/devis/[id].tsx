@@ -19,7 +19,7 @@ import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { DEFAULT_DEVIS_EMAIL_MESSAGE } from '../../../lib/emailDefaults';
+import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
@@ -189,7 +189,7 @@ export default function DevisDetailScreen() {
   }
 
   function handleOpenEmailModal() {
-    setEmailMessage(organization?.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
+    setEmailMessage(organization?.devis_email_message ?? defaultDevisEmailMessage());
     setEmailModalVisible(true);
   }
 

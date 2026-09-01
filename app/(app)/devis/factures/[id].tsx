@@ -24,7 +24,7 @@ import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } fr
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
-import { DEFAULT_FACTURE_EMAIL_MESSAGE } from '../../../../lib/emailDefaults';
+import { defaultFactureEmailMessage } from '../../../../lib/emailDefaults';
 import type { Facture, FactureItem, FacturePayment, FactureStatus, Plan, Project } from '../../../../lib/types';
 
 const DEPOSIT_PRESETS = [20, 30, 50];
@@ -108,7 +108,7 @@ export default function FactureDetailScreen() {
         .eq('id', f.organization_id)
         .single();
       setOrgIban(org?.iban ?? null);
-      setDefaultEmailMessage(org?.facture_email_message ?? DEFAULT_FACTURE_EMAIL_MESSAGE);
+      setDefaultEmailMessage(org?.facture_email_message ?? defaultFactureEmailMessage());
       if (org?.plan_id) {
         const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
         setPlan(planRow ?? null);

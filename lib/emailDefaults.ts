@@ -1,3 +1,5 @@
+import { i18next } from './translations';
+
 // Base text pre-filled in Compte → E-mails and in the per-send modals — the
 // org sees an actual editable default rather than an empty field. The whole
 // text (greeting included) is editable and supports {{variable}} tokens —
@@ -5,23 +7,40 @@
 // sending (supabase/functions/_shared/resend.ts::applyEmailVariables). Only
 // the "consultez en ligne" portal link paragraph is generated separately and
 // never editable.
-export const DEFAULT_DEVIS_EMAIL_MESSAGE = 'Bonjour {{client}},\n\nVoici notre devis, en pièce jointe.';
+//
+// Localized via lib/translations (emailDefaults.*) so a German-locale org
+// sees a German default the first time they open the settings — the
+// literal "{{client}}" token must survive into the stored template, so the
+// translated strings use a __CLIENT__ placeholder swapped in here rather
+// than going through i18next's own interpolation.
+function withClientToken(text: string): string {
+  return text.replace('__CLIENT__', '{{client}}');
+}
 
-export const DEFAULT_FACTURE_EMAIL_MESSAGE = 'Bonjour {{client}},\n\nVoici notre facture, en pièce jointe.';
+export function defaultDevisEmailMessage(): string {
+  return withClientToken(i18next.t('emailDefaults.devisMessage'));
+}
 
-export const DEFAULT_EXTRA_WORK_EMAIL_MESSAGE =
-  'Bonjour {{client}},\n\nDes travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.';
+export function defaultFactureEmailMessage(): string {
+  return withClientToken(i18next.t('emailDefaults.factureMessage'));
+}
 
-export const DEFAULT_FACTURE_REMINDER_MESSAGE_UPCOMING =
-  'Bonjour {{client}},\n\nPetit rappel : cette facture arrive bientôt à échéance.';
+export function defaultExtraWorkEmailMessage(): string {
+  return withClientToken(i18next.t('emailDefaults.extraWorkMessage'));
+}
 
-export const DEFAULT_FACTURE_REMINDER_MESSAGE_OVERDUE =
-  "Bonjour {{client}},\n\nSauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait.";
+export function defaultFactureReminderMessageUpcoming(): string {
+  return withClientToken(i18next.t('emailDefaults.reminderUpcoming'));
+}
+
+export function defaultFactureReminderMessageOverdue(): string {
+  return withClientToken(i18next.t('emailDefaults.reminderOverdue'));
+}
 
 // Signature default needs the org's own name, so it's built at call sites
 // rather than being a static constant here.
 export function defaultEmailSignature(orgName: string): string {
-  return `Meilleures salutations,\n${orgName}`;
+  return i18next.t('emailDefaults.signature').replace('__ORG__', orgName);
 }
 
 export interface EmailVariable {
@@ -33,20 +52,26 @@ export interface EmailVariable {
 // "Mon entreprise", pas juste "Entreprise" — un devis peut être adressé à un
 // client qui est lui-même un contact au sein d'une entreprise, donc le label
 // nu prêtait à confusion sur qui la variable désigne.
-const COMMON_EMAIL_VARIABLES: EmailVariable[] = [
-  { key: 'client', label: 'Client' },
-  { key: 'entreprise', label: 'Mon entreprise' },
-  { key: 'chantier', label: 'Chantier' },
-  { key: 'numero', label: 'Numéro' },
-];
+function commonEmailVariables(): EmailVariable[] {
+  return [
+    { key: 'client', label: i18next.t('emailDefaults.variables.client') },
+    { key: 'entreprise', label: i18next.t('emailDefaults.variables.entreprise') },
+    { key: 'chantier', label: i18next.t('emailDefaults.variables.chantier') },
+    { key: 'numero', label: i18next.t('emailDefaults.variables.numero') },
+  ];
+}
 
 // Only factures carry a due date — offered on the facture and relance fields.
-const DUE_DATE_EMAIL_VARIABLE: EmailVariable = { key: 'echeance', label: 'Échéance' };
+function dueDateEmailVariable(): EmailVariable {
+  return { key: 'echeance', label: i18next.t('emailDefaults.variables.echeance') };
+}
 
-export const EMAIL_VARIABLES: Record<'devis' | 'facture' | 'reminder' | 'extraWork' | 'signature', EmailVariable[]> = {
-  devis: COMMON_EMAIL_VARIABLES,
-  facture: [...COMMON_EMAIL_VARIABLES, DUE_DATE_EMAIL_VARIABLE],
-  reminder: [...COMMON_EMAIL_VARIABLES, DUE_DATE_EMAIL_VARIABLE],
-  extraWork: COMMON_EMAIL_VARIABLES,
-  signature: COMMON_EMAIL_VARIABLES,
-};
+export function emailVariablesFor(kind: 'devis' | 'facture' | 'reminder' | 'extraWork' | 'signature'): EmailVariable[] {
+  switch (kind) {
+    case 'facture':
+    case 'reminder':
+      return [...commonEmailVariables(), dueDateEmailVariable()];
+    default:
+      return commonEmailVariables();
+  }
+}

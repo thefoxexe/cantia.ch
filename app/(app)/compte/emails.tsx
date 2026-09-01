@@ -6,15 +6,16 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import {
-  DEFAULT_DEVIS_EMAIL_MESSAGE,
-  DEFAULT_FACTURE_EMAIL_MESSAGE,
-  DEFAULT_EXTRA_WORK_EMAIL_MESSAGE,
-  DEFAULT_FACTURE_REMINDER_MESSAGE_UPCOMING,
-  DEFAULT_FACTURE_REMINDER_MESSAGE_OVERDUE,
+  defaultDevisEmailMessage,
+  defaultFactureEmailMessage,
+  defaultExtraWorkEmailMessage,
+  defaultFactureReminderMessageUpcoming,
+  defaultFactureReminderMessageOverdue,
   defaultEmailSignature,
-  EMAIL_VARIABLES,
+  emailVariablesFor,
   type EmailVariable,
 } from '../../../lib/emailDefaults';
 
@@ -42,6 +43,7 @@ function EmailTemplateField({
   variables: EmailVariable[];
   placeholder?: string;
 }) {
+  const { t } = useTranslation();
   const selectionRef = useRef({ start: value.length, end: value.length });
   const [forcedSelection, setForcedSelection] = useState<{ start: number; end: number } | null>(null);
 
@@ -74,7 +76,7 @@ function EmailTemplateField({
       />
       {editable && variables.length > 0 ? (
         <View style={styles.varRow}>
-          <Text style={styles.varHint}>Insérer :</Text>
+          <Text style={styles.varHint}>{t('emailsSettings.insert')}</Text>
           {variables.map((v) => (
             <Pressable key={v.key} onPress={() => insertVariable(v.key)} style={styles.varChip}>
               <Text style={styles.varChipText}>{v.label}</Text>
@@ -94,6 +96,7 @@ function EmailTemplateField({
 // ligne" portal link, called out explicitly below instead of just being
 // absent.
 export default function EmailsSettingsScreen() {
+  const { t } = useTranslation();
   const { organization, role, refreshOrganization } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
 
@@ -107,11 +110,11 @@ export default function EmailsSettingsScreen() {
 
   const load = useCallback(() => {
     if (!organization) return;
-    setDevisMessage(organization.devis_email_message ?? DEFAULT_DEVIS_EMAIL_MESSAGE);
-    setFactureMessage(organization.facture_email_message ?? DEFAULT_FACTURE_EMAIL_MESSAGE);
-    setExtraWorkMessage(organization.extra_work_email_message ?? DEFAULT_EXTRA_WORK_EMAIL_MESSAGE);
-    setReminderUpcoming(organization.facture_reminder_message_upcoming ?? DEFAULT_FACTURE_REMINDER_MESSAGE_UPCOMING);
-    setReminderOverdue(organization.facture_reminder_message_overdue ?? DEFAULT_FACTURE_REMINDER_MESSAGE_OVERDUE);
+    setDevisMessage(organization.devis_email_message ?? defaultDevisEmailMessage());
+    setFactureMessage(organization.facture_email_message ?? defaultFactureEmailMessage());
+    setExtraWorkMessage(organization.extra_work_email_message ?? defaultExtraWorkEmailMessage());
+    setReminderUpcoming(organization.facture_reminder_message_upcoming ?? defaultFactureReminderMessageUpcoming());
+    setReminderOverdue(organization.facture_reminder_message_overdue ?? defaultFactureReminderMessageOverdue());
     setSignature(organization.email_signature ?? defaultEmailSignature(organization.name));
   }, [organization]);
 
@@ -144,94 +147,86 @@ export default function EmailsSettingsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title="E-mails" backTo="/(app)/compte" />
-          <Text style={styles.intro}>
-            Le texte de chaque e-mail envoyé à vos clients est entièrement à vous — formule d'appel comprise. Utilisez
-            les chips sous chaque champ pour insérer le nom du client, le chantier ou le numéro du document : Cantia
-            remplace automatiquement la variable par la bonne valeur à l'envoi.
-          </Text>
+          <PageHeader title={t('emailsSettings.title')} backTo="/(app)/compte" />
+          <Text style={styles.intro}>{t('emailsSettings.intro')}</Text>
           {!isAdmin ? (
-            <Text style={styles.readOnlyHint}>Seul un propriétaire ou administrateur peut modifier ces textes.</Text>
+            <Text style={styles.readOnlyHint}>{t('emailsSettings.readOnlyHint')}</Text>
           ) : null}
 
           <Card style={styles.section}>
             <EmailTemplateField
-              label="Devis"
+              label={t('emailsSettings.devisLabel')}
               value={devisMessage}
               onChangeText={setDevisMessage}
               editable={isAdmin}
               numberOfLines={4}
-              variables={EMAIL_VARIABLES.devis}
+              variables={emailVariablesFor('devis')}
             />
           </Card>
 
           <Card style={styles.section}>
             <EmailTemplateField
-              label="Facture"
+              label={t('emailsSettings.factureLabel')}
               value={factureMessage}
               onChangeText={setFactureMessage}
               editable={isAdmin}
               numberOfLines={4}
-              variables={EMAIL_VARIABLES.facture}
+              variables={emailVariablesFor('facture')}
             />
           </Card>
 
           <Card style={styles.section}>
             <EmailTemplateField
-              label="Relance — avant échéance"
+              label={t('emailsSettings.reminderUpcomingLabel')}
               value={reminderUpcoming}
               onChangeText={setReminderUpcoming}
               editable={isAdmin}
               numberOfLines={3}
-              variables={EMAIL_VARIABLES.reminder}
+              variables={emailVariablesFor('reminder')}
             />
           </Card>
 
           <Card style={styles.section}>
             <EmailTemplateField
-              label="Relance — facture en retard"
+              label={t('emailsSettings.reminderOverdueLabel')}
               value={reminderOverdue}
               onChangeText={setReminderOverdue}
               editable={isAdmin}
               numberOfLines={3}
-              variables={EMAIL_VARIABLES.reminder}
+              variables={emailVariablesFor('reminder')}
             />
           </Card>
 
           <Card style={styles.section}>
             <EmailTemplateField
-              label="Travaux supplémentaires"
+              label={t('emailsSettings.extraWorkLabel')}
               value={extraWorkMessage}
               onChangeText={setExtraWorkMessage}
               editable={isAdmin}
               numberOfLines={3}
-              variables={EMAIL_VARIABLES.extraWork}
+              variables={emailVariablesFor('extraWork')}
             />
           </Card>
 
           <Card style={styles.section}>
             <EmailTemplateField
-              label="Signature"
+              label={t('emailsSettings.signatureLabel')}
               value={signature}
               onChangeText={setSignature}
               editable={isAdmin}
               numberOfLines={3}
-              variables={EMAIL_VARIABLES.signature}
-              placeholder={'Cordialement,\nJean Dupont\nDirecteur'}
+              variables={emailVariablesFor('signature')}
+              placeholder={t('emailsSettings.signaturePlaceholder')}
             />
           </Card>
 
           <View style={styles.lockedNotice}>
             <Feather name="lock" size={14} color={colors.textMuted} />
-            <Text style={styles.lockedNoticeText}>
-              Le lien sécurisé de consultation en ligne reste toujours ajouté automatiquement en fin d'e-mail — c'est
-              aussi ce qui permet à votre client de retrouver et signer le document sans créer de compte. Tout le
-              reste, y compris "Bonjour", est à vous.
-            </Text>
+            <Text style={styles.lockedNoticeText}>{t('emailsSettings.lockedNotice')}</Text>
           </View>
 
           {isAdmin ? (
-            <Button title="Enregistrer" icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
+            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
           ) : null}
         </Container>
       </ScrollView>
