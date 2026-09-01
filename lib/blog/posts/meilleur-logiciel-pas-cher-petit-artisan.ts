@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un plan pensé pour un artisan solo, sans compromis sur l\'essentiel',
-      text: 'Cantia propose un plan abordable et complet pour un artisan qui travaille seul. Testez-le 30 jours gratuitement avec le code ESSAI30.',
+      text: 'Cantia propose un plan abordable et complet pour un artisan qui travaille seul. Testez-le 14 jours gratuitement, sans code à saisir.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

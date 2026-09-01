@@ -51,7 +51,7 @@ export default function RentabiliteSolutionPage() {
           answer: "Oui, chaque chantier affiche sa propre marge, ce qui permet de repérer rapidement les chantiers en perte.",
         },
         {
-          question: 'La rentabilité par chantier est-elle incluse dans le plan gratuit ?',
+          question: 'La rentabilité par chantier est-elle incluse dans tous les plans Cantia ?',
           answer: "Elle est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.",
         },
       ]}

@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un premier devis en quelques minutes, sans formation',
-      text: 'Cantia est pensé pour être compris dès la première utilisation. Testez-le gratuitement 30 jours avec le code ESSAI30 et jugez par vous-même.',
+      text: 'Cantia est pensé pour être compris dès la première utilisation. Testez-le gratuitement 14 jours, sans code à saisir, et jugez par vous-même.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

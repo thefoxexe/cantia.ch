@@ -66,7 +66,7 @@ export default function DicteeVocaleSolutionPage() {
         { href: '/solutions/rapports-chantier', label: 'Rapports de chantier' },
       ]}
       closingTitle="Moins de temps à taper, plus de temps sur le chantier"
-      closingText="La dictée vocale est incluse dans tous les plans Cantia, y compris le plan gratuit."
+      closingText="La dictée vocale est incluse dans tous les plans Cantia, sans exception."
     />
   );
 }

@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Accessible partout, hébergé en Suisse',
-      text: 'Cantia fonctionne en ligne, accessible depuis n\'importe quel appareil, avec des données hébergées en Suisse. Testez gratuitement pendant 30 jours avec le code ESSAI30.',
+      text: 'Cantia fonctionne en ligne, accessible depuis n\'importe quel appareil, avec des données hébergées en Suisse. Testez gratuitement pendant 14 jours, sans code à saisir.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

@@ -46,7 +46,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Testez avant de vous engager',
-      text: 'Cantia propose un essai gratuit de 30 jours avec le code ESSAI30 : de quoi éviter les erreurs de choix classiques en testant sur des documents réels.',
+      text: 'Cantia propose un essai gratuit de 14 jours, sans code à saisir : de quoi éviter les erreurs de choix classiques en testant sur des documents réels.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un devis prêt en quelques minutes, avec suivi automatique',
-      text: 'Cantia génère un devis professionnel avec QR-facture suisse, catalogue de prix et suivi de statut intégrés : testez gratuitement pendant 30 jours avec le code ESSAI30.',
+      text: 'Cantia génère un devis professionnel avec QR-facture suisse, catalogue de prix et suivi de statut intégrés : testez gratuitement pendant 14 jours, sans code à saisir.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

@@ -22,7 +22,7 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Screen, Switch } from '../components/ui';
 import { MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
-import { t, planName } from '../lib/i18n';
+import { t } from '../lib/i18n';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
@@ -44,8 +44,11 @@ const TRUST_COMPANY_COUNT = 20;
 // for the same "never overstate" reason as the company count above. Bump
 // by hand only from real feedback, never invented.
 const TRUST_RATING = '4.89';
-const PAIN_ICONS: IconName[] = ['send', 'users', 'credit-card', 'camera'];
-const FEATURE_ICONS: IconName[] = ['file-text', 'folder', 'image', 'zap', 'shield', 'layout', 'list', 'map-pin', 'users', 'briefcase'];
+const PAIN_ICONS: IconName[] = ['send', 'image', 'trending-down'];
+// One icon per lib/i18n.tsx services.items entry, same order: the 5
+// flagship features first (devis, chantiers & rapports, planning,
+// facturation, rentabilité), then the 7 secondary ones.
+const FEATURE_ICONS: IconName[] = ['mic', 'file-text', 'calendar', 'credit-card', 'trending-up', 'folder', 'image', 'shield', 'layout', 'list', 'users', 'briefcase'];
 // One small "artwork" icon per trade, in the same order as t.trades.list —
 // paired by index rather than by name so this stays a plain parallel array,
 // no separate per-trade copy needed. MaterialCommunityIcons rather than
@@ -447,6 +450,18 @@ function LandingContent() {
                     />
                   </HoverLift>
                 </Animated.View>
+                <Animated.Text
+                  style={[
+                    styles.heroTrust,
+                    isCompactHero && styles.heroTrustCompact,
+                    {
+                      opacity: heroCtaAnim,
+                      transform: [{ translateY: heroCtaAnim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }],
+                    },
+                  ]}
+                >
+                  {t.hero.trust}
+                </Animated.Text>
               </View>
 
               {/* ---- The claim made concrete: a live-looking devis card,
@@ -842,7 +857,7 @@ function LandingContent() {
                       <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
                     </View>
                   ) : null}
-                  <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{planName(p.id, p.name)}</Text>
+                  <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{p.name}</Text>
                   <View style={styles.priceAmountRow}>
                     {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && hasRealYearlyDiscount ? (
                       <Text style={[styles.priceAmountStrike, dark && styles.priceAmountStrikeOnDark]}>
@@ -912,7 +927,7 @@ function LandingContent() {
                       </View>
                       <Link href={authHref('signup')} asChild>
                         <Button
-                          title={p.price_chf_monthly === 0 ? t.pricing.freeCta : t.pricing.paidCta}
+                          title={t.pricing.paidCta}
                           onPress={() => {}}
                           variant={dark ? 'primary' : 'secondary'}
                         />
@@ -934,7 +949,12 @@ function LandingContent() {
                 <Text style={[styles.swissText, isCompactNav && styles.swissTextCompact]}>{t.swiss.text}</Text>
               </View>
               <View style={styles.swissFacts}>
-                {['Montants en CHF, TVA suisse intégrée', 'Données hébergées en Suisse', 'Pensé pour les PME suisses'].map((fact) => (
+                {[
+                  'Montants et documents adaptés aux entreprises suisses (CHF)',
+                  'Gestion des taux de TVA utilisés en Suisse',
+                  'Facturation avec QR-facture conforme au système suisse',
+                  'Données hébergées en Suisse',
+                ].map((fact) => (
                   <View key={fact} style={styles.swissFactRow}>
                     <View style={styles.swissFactCheck}>
                       <Feather name="check" size={11} color="#fff" />
@@ -2071,6 +2091,14 @@ const styles = StyleSheet.create({
   },
   ctaButtonCompact: {
     minWidth: 260,
+  },
+  heroTrust: {
+    marginTop: spacing.md,
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+  },
+  heroTrustCompact: {
+    textAlign: 'center',
   },
   // Pure-CSS hover transition (web only) for HoverLift — no Animated.Value,
   // just a transform swap the browser tweens on its own.

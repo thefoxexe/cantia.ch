@@ -20,4 +20,4 @@ Cantia s'adresse aux entreprises de construction, artisans indépendants et corp
 
 ## Plans et tarifs
 
-Cantia propose un plan gratuit et des plans payants (Indépendant, Entreprise) facturés mensuellement en CHF, avec stockage cloud, nombre de membres et fonctionnalités croissants selon le plan.
+Cantia propose trois plans payants (Essentiel, Équipe, Entreprise), facturés mensuellement ou annuellement en CHF, avec stockage cloud, nombre de membres et fonctionnalités croissants selon le plan. Chaque nouveau compte commence par 14 jours d'essai complet, sans code promotionnel. Un plan sur mesure (contact direct) existe pour les besoins au-delà d'Entreprise. Il n'existe pas de plan gratuit permanent.

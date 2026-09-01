@@ -57,7 +57,7 @@ export default function RhSalairesSolutionPage() {
             "Depuis le module RH & Salaires, en choisissant la granularité — journalière, hebdomadaire ou mensuelle — puis en téléchargeant un fichier CSV.",
         },
         {
-          question: 'Le module RH & Salaires est-il inclus dans le plan gratuit ?',
+          question: 'Le module RH & Salaires est-il inclus dans tous les plans Cantia ?',
           answer: "Il est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.",
         },
       ]}

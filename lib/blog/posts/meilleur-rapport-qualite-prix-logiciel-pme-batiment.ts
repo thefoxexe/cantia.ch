@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Jugez le rapport qualité-prix par vous-même',
-      text: 'Cantia offre 30 jours d\'essai gratuit avec le code ESSAI30 : de quoi comparer objectivement, sur une utilisation réelle, plutôt que sur une brochure.',
+      text: 'Cantia offre 14 jours d\'essai gratuit dès la création du compte, sans code à saisir : de quoi comparer objectivement, sur une utilisation réelle, plutôt que sur une brochure.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

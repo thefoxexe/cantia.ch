@@ -64,7 +64,7 @@ export const ROUTES = [
       },
       {
         q: 'Combien coûte la facturation avec QR-code via Cantia ?',
-        a: 'La facturation avec QR-bill suisse est incluse dans tous les plans, y compris le plan gratuit.',
+        a: "La facturation avec QR-bill suisse est incluse dans tous les plans Cantia, sans exception, dès la formule Essentiel.",
       },
     ],
   },
@@ -135,8 +135,8 @@ export const ROUTES = [
         a: 'Oui, chaque affectation est liée à un chantier précis et reste visible sur toute la semaine, membre par membre.',
       },
       {
-        q: 'Le planning est-il inclus dans le plan gratuit ?',
-        a: 'Le planning est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
+        q: 'Le planning est-il inclus dans tous les plans Cantia ?',
+        a: 'Il est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
       },
     ],
   },
@@ -159,7 +159,7 @@ export const ROUTES = [
         a: 'Oui, chaque chantier affiche sa propre marge, ce qui permet de repérer rapidement les chantiers en perte.',
       },
       {
-        q: 'La rentabilité par chantier est-elle incluse dans le plan gratuit ?',
+        q: 'La rentabilité par chantier est-elle incluse dans tous les plans Cantia ?',
         a: 'Elle est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
       },
     ],
@@ -183,7 +183,7 @@ export const ROUTES = [
         a: 'Depuis le module RH & Salaires, en choisissant la granularité — journalière, hebdomadaire ou mensuelle — puis en téléchargeant un fichier CSV.',
       },
       {
-        q: 'Le module RH & Salaires est-il inclus dans le plan gratuit ?',
+        q: 'Le module RH & Salaires est-il inclus dans tous les plans Cantia ?',
         a: 'Il est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
       },
     ],
@@ -231,7 +231,7 @@ export const ROUTES = [
         a: 'Un bandeau sur l’accueil et la page Trésorerie vous signale les dépenses récurrentes actives qui tombent dans les 7 prochains jours, avant qu’elles ne soient prélevées.',
       },
       {
-        q: 'La Trésorerie prévisionnelle est-elle incluse dans le plan gratuit ?',
+        q: 'La Trésorerie prévisionnelle est-elle incluse dans tous les plans Cantia ?',
         a: 'Elle est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
       },
     ],
@@ -1828,7 +1828,11 @@ export function jsonLdFor(url, description, faq) {
       url,
       image: OG_IMAGE,
       publisher: { '@id': `${SITE}/#organization` },
-      offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: '0', offerCount: '3' },
+      // lowPrice/highPrice mirror the three self-serve plans (Essentiel 39,
+      // Équipe 79, Entreprise 129 CHF/mois) — there is no free tier, so this
+      // must never read '0' again (that told Google Cantia starts at CHF 0,
+      // which stopped being true when the permanent free plan was retired).
+      offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: '39', highPrice: '129', offerCount: '3' },
     },
   ];
   if (url === `${SITE}/`) {

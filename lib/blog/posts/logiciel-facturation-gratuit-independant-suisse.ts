@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Cantia propose un essai gratuit complet, pas une version bridée',
-      text: 'Avec le code ESSAI30, testez 30 jours l\'outil complet (devis, factures, QR-facture suisse, chantiers) sans fonctionnalité limitée pour vous forcer à payer plus tôt.',
+      text: 'L\'essai démarre automatiquement à l\'inscription, sans code à saisir : testez 14 jours l\'outil complet (devis, factures, QR-facture suisse, chantiers) sans fonctionnalité limitée pour vous forcer à payer plus tôt.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

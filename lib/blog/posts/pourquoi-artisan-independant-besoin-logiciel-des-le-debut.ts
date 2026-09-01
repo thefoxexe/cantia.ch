@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Commencez du bon pied, dès le premier devis',
-      text: 'Cantia s\'installe en quelques minutes. Testez-le gratuitement 30 jours avec le code ESSAI30, dès votre tout premier client.',
+      text: 'Cantia s\'installe en quelques minutes. Testez-le gratuitement 14 jours, sans code à saisir, dès votre tout premier client.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

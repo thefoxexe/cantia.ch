@@ -49,8 +49,8 @@ export default function PlanningSolutionPage() {
           answer: "Oui, chaque affectation est liée à un chantier précis et reste visible sur toute la semaine, membre par membre.",
         },
         {
-          question: 'Le planning est-il inclus dans le plan gratuit ?',
-          answer: "Le planning est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.",
+          question: 'Le planning est-il inclus dans tous les plans Cantia ?',
+          answer: "Il est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.",
         },
       ]}
       related={[

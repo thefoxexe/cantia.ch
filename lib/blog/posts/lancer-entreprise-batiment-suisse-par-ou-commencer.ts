@@ -47,7 +47,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Prêt à facturer dès votre premier jour d\'activité',
-      text: 'Cantia s\'installe rapidement et couvre devis, factures et suivi de chantier dès le lancement. Essayez-le gratuitement 30 jours avec le code ESSAI30.',
+      text: 'Cantia s\'installe rapidement et couvre devis, factures et suivi de chantier dès le lancement. Essayez-le gratuitement 14 jours, sans code à saisir.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

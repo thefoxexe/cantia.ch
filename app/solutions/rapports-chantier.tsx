@@ -70,7 +70,7 @@ export default function RapportsChantierSolutionPage() {
         { href: '/solutions/planning', label: "Planning d'équipe" },
       ]}
       closingTitle="Un rapport professionnel, sans y passer la soirée"
-      closingText="Inclus dans tous les plans, y compris le plan gratuit."
+      closingText="Inclus dans tous les plans Cantia, sans exception."
     />
   );
 }

@@ -121,8 +121,8 @@ export default function FacturationScreen() {
               <Feather name="clock" size={16} color={colors.accent} />
               <Text style={styles.trialBannerText}>
                 Essai Découverte — {trialDaysLeft ?? 0} jour{(trialDaysLeft ?? 0) > 1 ? 's' : ''} restant
-                {(trialDaysLeft ?? 0) > 1 ? 's' : ''}. Tout est débloqué pour l'essayer en vrai ; passé ce délai, retour
-                automatique au plan Gratuit sauf si vous choisissez un plan payant avant.
+                {(trialDaysLeft ?? 0) > 1 ? 's' : ''}. Tout est débloqué pour l'essayer en vrai ; votre carte sera
+                débitée automatiquement à la fin de l'essai, sauf annulation avant cette date.
               </Text>
             </View>
           ) : hasActiveSubscription ? (

@@ -66,7 +66,7 @@ export default function TresorerieSolutionPage() {
             'Un bandeau sur l’accueil et la page Trésorerie vous signale les dépenses récurrentes actives qui tombent dans les 7 prochains jours, avant qu’elles ne soient prélevées.',
         },
         {
-          question: 'La Trésorerie prévisionnelle est-elle incluse dans le plan gratuit ?',
+          question: 'La Trésorerie prévisionnelle est-elle incluse dans tous les plans Cantia ?',
           answer: 'Elle est disponible à partir du plan Équipe, activable depuis les paramètres de votre organisation.',
         },
       ]}

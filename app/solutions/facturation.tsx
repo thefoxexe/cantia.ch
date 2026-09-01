@@ -73,7 +73,7 @@ export default function FacturationSolutionPage() {
         },
         {
           question: 'Combien coûte la facturation avec QR-code via Cantia ?',
-          answer: "La facturation avec QR-bill suisse est incluse dans tous les plans, y compris le plan gratuit.",
+          answer: "La facturation avec QR-bill suisse est incluse dans tous les plans Cantia, sans exception, dès la formule Essentiel.",
         },
       ]}
       related={[
@@ -82,7 +82,7 @@ export default function FacturationSolutionPage() {
         { href: '/solutions/tresorerie', label: 'Trésorerie prévisionnelle' },
       ]}
       closingTitle="La facturation suisse, sans jongler entre deux outils"
-      closingText="Disponible dès le plan gratuit, avec un quota mensuel de factures — sans engagement."
+      closingText="Devis et factures illimités sur tous les plans Cantia. Testez pendant 14 jours, sans code promo."
     />
   );
 }

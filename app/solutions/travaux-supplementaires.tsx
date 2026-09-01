@@ -77,7 +77,7 @@ export default function TravauxSupplementairesSolutionPage() {
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
       ]}
       closingTitle="Ne laissez plus un seul extra filer entre les mailles"
-      closingText="Travaux supplémentaires est inclus dès le plan gratuit — chaque TS accepté suit le même quota mensuel que vos devis et factures."
+      closingText="Travaux supplémentaires est inclus dans tous les plans Cantia, avec le même suivi illimité que vos devis et factures."
     />
   );
 }

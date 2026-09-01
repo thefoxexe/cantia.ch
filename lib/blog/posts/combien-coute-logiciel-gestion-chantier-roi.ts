@@ -44,8 +44,8 @@ export const post: BlogPost = {
     },
     {
       type: 'cta',
-      title: 'Un plan gratuit pour évaluer le gain avant d’investir',
-      text: 'Cantia propose un plan gratuit qui couvre devis, factures QR et catalogue de prix, ce qui permet de mesurer concrètement le temps récupéré avant de passer à un plan payant.',
+      title: 'Un essai de 14 jours pour évaluer le gain avant d’investir',
+      text: 'Cantia se teste 14 jours en conditions réelles, devis, factures QR et catalogue de prix inclus, ce qui permet de mesurer concrètement le temps récupéré avant de s’engager.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Un abonnement payant est-il nécessaire dès le départ ?',
       answer:
-        'Pas forcément. Un plan gratuit couvrant les fonctions essentielles (devis, factures, catalogue) permet souvent de mesurer le gain réel avant d’investir dans un plan plus complet.',
+        'Pas immédiatement. Un essai de 14 jours sur les fonctions essentielles (devis, factures, catalogue) permet souvent de mesurer le gain réel avant de s’engager sur un plan payant.',
     },
   ],
   relatedSlugs: [

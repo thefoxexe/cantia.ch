@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Un prix simple, sans surprise à l\'usage',
-      text: 'Cantia propose des plans clairs, sans facturation cachée par document. L\'entreprise offre aussi 30 jours d\'essai gratuit avec le code ESSAI30 pour juger sur pièces avant de s\'engager.',
+      text: 'Cantia propose des plans clairs, sans facturation cachée par document. L\'entreprise offre aussi 14 jours d\'essai gratuit, sans code à saisir, pour juger sur pièces avant de s\'engager.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],

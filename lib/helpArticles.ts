@@ -139,8 +139,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     title: 'Kit de marque, plans et abonnement',
     keywords: ['couleur', 'logo', 'marque', 'plan', 'abonnement', 'stripe', 'quota'],
     body: [
-      "Dans Compte → Entreprise, vous pouvez définir la couleur de marque et le logo utilisés sur vos devis, factures et rapports PDF (fonctionnalité des plans payants) — une couleur est même suggérée automatiquement à partir de votre logo ou de votre site web.",
-      "Le plan gratuit reste limité en volume mensuel de devis/factures et en espace de stockage ; passer à un plan payant lève ces limites. La gestion de l'abonnement se fait depuis Compte → Abonnement (facturation Stripe).",
+      "Dans Compte → Entreprise, vous pouvez définir la couleur de marque et le logo utilisés sur vos devis, factures et rapports PDF, dès le plan Essentiel — une couleur est même suggérée automatiquement à partir de votre logo ou de votre site web.",
+      "Devis et factures sont illimités sur tous les plans Cantia. Ce qui varie d'un plan à l'autre, c'est l'espace de stockage, le nombre de membres et l'accès à certains modules (planning, RH, trésorerie, dès Équipe). La gestion de l'abonnement se fait depuis Compte → Abonnement (facturation Stripe).",
       "Compte → Stockage détaille l'espace utilisé par catégorie (photos, PDF, autres fichiers) avec un bouton pour passer à un plan supérieur si besoin.",
     ],
   },

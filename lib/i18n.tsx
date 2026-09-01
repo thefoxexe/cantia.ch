@@ -6,7 +6,7 @@ interface FeatureItem {
 
 interface Dict {
   nav: { services: string; pricing: string; download: string; help: string; login: string; cta: string };
-  hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string };
+  hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string; trust: string };
   spotlight: {
     title: string;
     subtitle: string;
@@ -29,7 +29,6 @@ interface Dict {
     memberPlural: string;
     unlimited: string;
     badge: string;
-    freeCta: string;
     paidCta: string;
   };
   swiss: { title: string; text: string };
@@ -52,19 +51,20 @@ interface Dict {
 }
 
 const fr: Dict = {
-  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Documentation', login: 'Se connecter', cta: 'Essayer gratuitement' },
+  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Documentation', login: 'Se connecter', cta: 'Essayer Cantia' },
   hero: {
-    kicker: 'L’application métier du bâtiment suisse',
-    headlinePrefix: 'Le logiciel de gestion de chantier',
-    headlineHighlight: 'pensé pour les entreprises du bâtiment en Suisse',
+    kicker: 'Conçu pour le bâtiment suisse 🇨🇭',
+    headlinePrefix: 'Gérez vos chantiers.',
+    headlineHighlight: 'Pas votre administratif.',
     subheadline:
-      'Devis, factures, planning, rapports, heures et rentabilité réunis dans une seule application accessible partout.',
-    cta1: 'Essayer gratuitement',
+      'Cantia est le logiciel de gestion conçu pour les entreprises du bâtiment suisse. Devis, factures, planning, rapports et rentabilité réunis au même endroit, au bureau comme sur le chantier.',
+    cta1: 'Démarrer mon essai de 14 jours',
     cta2: 'Découvrir Cantia',
+    trust: '14 jours d’essai · Aucun code nécessaire · Hébergé en Suisse',
   },
   spotlight: {
-    title: 'Ça, aucun autre éditeur suisse ne le fait',
-    subtitle: 'Trois automatisations qui vous font gagner du temps dès le premier devis.',
+    title: 'Des automatisations pensées pour le quotidien du bâtiment',
+    subtitle: 'De la dictée du devis au QR-facture, Cantia automatise les tâches qui vous font perdre du temps entre le chantier et le bureau.',
     voice: {
       label: 'Dictée vocale',
       listening: 'Écoute en cours…',
@@ -94,34 +94,66 @@ const fr: Dict = {
     title: 'L’administratif ne vous coûte pas que du temps. Il vous coûte de l’argent.',
     items: [
       {
-        title: 'Le devis le plus rapide gagne le chantier',
-        text: 'Le temps de le rédiger le soir sur un coin de table, le client a déjà signé ailleurs.',
+        title: 'Vos devis attendent le soir. Vos clients, eux, n’attendent pas.',
+        text: 'Après une journée de chantier, il reste encore les offres à rédiger. Cantia permet de préparer un devis directement depuis le terrain et de réutiliser vos prestations habituelles.',
       },
       {
-        title: 'Personne ne sait qui est où, ni sur quoi',
-        text: 'Le planning vit dans la tête du patron ou sur un tableau blanc — deux équipes se croisent, un chantier attend.',
+        title: 'Photos, notes et décisions finissent partout sauf au bon endroit.',
+        text: 'WhatsApp, galerie du téléphone, papier, mails : Cantia rassemble l’historique directement dans le chantier concerné.',
       },
       {
-        title: 'Des factures parties, jamais relancées',
-        text: 'Personne ne sait qui doit quoi ni depuis quand. L’argent dort chez vos clients, pas dans votre trésorerie.',
-      },
-      {
-        title: 'Le chantier n’arrive jamais intact au bureau',
-        text: 'Notes sur un carnet, photos sur trois téléphones — le rapport du soir recolle les morceaux, avec des trous.',
+        title: 'Un chantier peut perdre de l’argent bien avant que vous le remarquiez.',
+        text: 'Comparez les heures, dépenses et montants facturés pendant le chantier pour détecter les écarts avant la fin des travaux.',
       },
     ],
   },
   services: {
-    title: 'Tout ce qu’il faut, du chantier au bureau',
-    subtitle: 'Dix outils, une seule application — cliquez sur un service pour voir précisément ce qu’il fait.',
+    title: 'Cantia relie le terrain et le bureau dans le même outil',
+    subtitle: 'Le premier tiers de la page montre le résultat, le reste prouve l’étendue du produit — cliquez sur un service pour voir précisément ce qu’il fait.',
     items: [
       {
-        title: 'Rapports de chantier automatiques',
-        text: 'Vos notes et photos de chantier, géolocalisées automatiquement, deviennent un rapport PDF prêt à envoyer avec votre logo et votre signature.',
+        title: 'Du rendez-vous au devis sans refaire le travail le soir',
+        text: 'Dictez vos lignes de devis à la voix depuis le chantier et laissez l’IA les chiffrer avec votre catalogue, TVA et totaux calculés, prêt à envoyer.',
+        detail: [
+          'Dictée vocale, catalogue de prestations réutilisables et prix mémorisés',
+          'Calcul automatique de la TVA et des totaux, PDF à votre couleur de marque',
+          'Envoi au client puis transformation en facture en un clic, sans ressaisie',
+        ],
+      },
+      {
+        title: 'Tout ce qui s’est passé sur le chantier reste avec le chantier',
+        text: 'Vos notes et photos, géolocalisées automatiquement, deviennent un rapport PDF prêt à envoyer avec votre logo et votre signature.',
         detail: [
           'Photos automatiquement horodatées et géolocalisées',
-          'PDF généré en un clic, avec votre logo et votre signature',
-          'Historique complet consultable à tout moment, par chantier',
+          'Remarques, documents et historique classés par chantier',
+          'PDF généré en un clic, consultable à tout moment',
+        ],
+      },
+      {
+        title: 'Toute l’équipe sait où elle doit être',
+        text: 'Un planning central par employé et par chantier — plus besoin d’appeler le patron pour savoir où aller demain.',
+        detail: [
+          'Vue par membre et par jour, consultable par toute l’équipe',
+          'Chaque affectation liée à un chantier précis',
+          'Plusieurs chantiers en parallèle sans conflit de ressources',
+        ],
+      },
+      {
+        title: 'Le chantier est terminé. La facture ne devrait pas attendre.',
+        text: 'Transformez un devis accepté en facture QR-suisse en un clic, avec suivi du statut jusqu’au paiement.',
+        detail: [
+          'Facture générée depuis le devis, sans ressaisie',
+          'QR-facture conforme, payable en un scan',
+          'Statut de paiement suivi en direct, relances facilitées',
+        ],
+      },
+      {
+        title: 'Sachez ce que chaque chantier vous rapporte réellement',
+        text: 'Comparez en direct heures, dépenses, montant devisé et montant facturé pour repérer une marge qui s’effrite avant la fin des travaux.',
+        detail: [
+          'Comparaison devisé vs coût réel (matériel et main d’œuvre)',
+          'Alerte visuelle dès qu’un chantier s’écarte de sa marge prévue',
+          'Vue chantier par chantier, pas seulement en fin de mois',
         ],
       },
       {
@@ -143,15 +175,6 @@ const fr: Dict = {
         ],
       },
       {
-        title: 'Devis en quelques minutes',
-        text: 'Dictez vos lignes de devis à la voix et laissez l’IA les chiffrer avec votre catalogue, avec suivi du statut jusqu’à la facture.',
-        detail: [
-          'PDF sobre et personnalisable à votre couleur de marque',
-          'Calcul automatique de la TVA et des totaux',
-          'Suivi de statut : brouillon, envoyé, accepté, refusé',
-        ],
-      },
-      {
         title: 'Un espace client sécurisé',
         text: 'Chaque devis et chaque facture est accessible via un lien unique et privé : votre client consulte, signe et suit le paiement sans jamais créer de compte.',
         detail: [
@@ -166,7 +189,7 @@ const fr: Dict = {
         detail: [
           'Couleur de marque et placement du logo personnalisables',
           'Plusieurs modèles par type de document, à choisir à la création',
-          'Réservé aux plans payants (dès Indépendant)',
+          'Disponible dès le plan Essentiel',
         ],
       },
       {
@@ -204,8 +227,8 @@ const fr: Dict = {
     list: ['Génie civil', 'Maçonnerie', 'Serrurerie', 'Électricité', 'Plomberie', 'Menuiserie', 'Peinture', 'Carrelage'],
   },
   pricing: {
-    title: 'Un plan pour chaque taille d’équipe',
-    subtitle: 'Le code ESSAI30 offre 30 jours d’essai gratuit sur n’importe quel plan, résiliable à tout moment.',
+    title: 'Choisissez la formule adaptée à votre entreprise',
+    subtitle: 'Tous les nouveaux comptes commencent par 14 jours d’essai complet, sans code promotionnel.',
     monthly: 'Facturation mensuelle',
     yearly: 'Facturation annuelle',
     yearlySavings: '-20%',
@@ -215,12 +238,11 @@ const fr: Dict = {
     memberPlural: 'membres',
     unlimited: 'Rapports & devis illimités',
     badge: 'Le plus choisi',
-    freeCta: 'Commencer gratuitement',
-    paidCta: 'Choisir ce plan',
+    paidCta: 'Démarrer l’essai de 14 jours',
   },
   swiss: {
     title: 'Pensé en Suisse, pas juste traduit pour la Suisse',
-    text: 'Pas une application américaine retouchée à la dernière minute. Cantia a été construit ici, pour les PME et les indépendants du bâtiment suisse — depuis le premier jour.',
+    text: 'Cantia a été développé pour le fonctionnement des entreprises du bâtiment suisse : CHF, TVA suisse, QR-facture et données hébergées en Suisse.',
   },
   devices: {
     title: 'Gérez vos chantiers, où que vous soyez',
@@ -232,8 +254,8 @@ const fr: Dict = {
     ],
   },
   mobile: {
-    title: 'Cantia est déjà sur votre mobile',
-    text: "Ouvrez cantia.ch sur votre téléphone et ajoutez Cantia à l'écran d'accueil : vous obtenez une vraie application, en plein écran, sans passer par un store — dès aujourd'hui.",
+    title: 'Cantia vous suit aussi sur le terrain',
+    text: "Ouvrez Cantia depuis votre téléphone ou votre tablette et ajoutez-le à votre écran d'accueil pour y accéder rapidement, en plein écran, comme à vos autres applications — dès aujourd'hui, sans passer par un store.",
     installCta: 'Comment l’installer',
     storeNote: 'Les versions officielles arrivent aussi :',
     comingSoon: 'En développement',
@@ -242,9 +264,9 @@ const fr: Dict = {
   },
   finalCta: {
     title: 'Essayez Cantia sur votre prochain chantier',
-    subtitle: 'Créez votre compte en deux minutes. Le premier devis sera prêt avant d’avoir quitté le chantier.',
-    button: 'Essayer gratuitement',
-    trust: ['Code ESSAI30 : 30 jours offerts', 'Résiliable à tout moment', 'Hébergé en Suisse'],
+    subtitle: 'Créez votre compte et découvrez pendant 14 jours comment Cantia rassemble vos devis, chantiers, rapports et factures au même endroit.',
+    button: 'Démarrer mes 14 jours d’essai',
+    trust: ['14 jours d’essai · Aucun code nécessaire', 'Résiliable à tout moment', 'Hébergé en Suisse'],
   },
   footer: {
     blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures et métré, tous au même endroit.',
@@ -263,14 +285,3 @@ const fr: Dict = {
 
 
 export const t: Dict = fr;
-
-const PLAN_NAMES: Record<string, string> = {
-  free: 'Gratuit',
-  solo: 'Indépendant',
-  equipe: 'Équipe',
-  pro: 'Entreprise',
-};
-
-export function planName(planId: string, fallbackName: string): string {
-  return PLAN_NAMES[planId] ?? fallbackName;
-}

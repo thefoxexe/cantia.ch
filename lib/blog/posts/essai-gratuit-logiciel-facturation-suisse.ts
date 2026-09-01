@@ -29,7 +29,7 @@ export const post: BlogPost = {
     },
     {
       type: 'stat',
-      value: '30 jours',
+      value: '14 jours',
       label: 'durée généralement suffisante pour tester un outil de gestion sur plusieurs devis et factures réels avant de décider',
     },
     { type: 'h2', text: 'Ne pas attendre la fin de l\'essai pour se décider' },
@@ -39,13 +39,13 @@ export const post: BlogPost = {
     },
     {
       type: 'callout',
-      title: 'Un essai gratuit sans carte bancaire demandée est un bon signe',
-      text: 'Un éditeur confiant dans son produit ne demande généralement pas de carte bancaire pour un essai. Cela évite aussi le risque d\'un prélèvement automatique oublié à la fin de la période.',
+      title: 'Un essai clair vaut mieux qu\'un essai sans engagement flou',
+      text: 'Certains essais demandent une carte dès le départ, d\'autres non. Ce qui compte vraiment, c\'est de savoir exactement quand l\'abonnement démarre et de pouvoir annuler avant, sans mauvaise surprise sur le relevé bancaire.',
     },
     {
       type: 'cta',
-      title: '30 jours pour tester Cantia en conditions réelles',
-      text: 'Avec le code ESSAI30, testez Cantia pendant 30 jours sur de vrais devis et factures, sans engagement.',
+      title: '14 jours pour tester Cantia en conditions réelles',
+      text: 'L\'essai démarre automatiquement à la création du compte, sans code à saisir : testez Cantia 14 jours sur de vrais devis et factures, résiliable à tout moment avant la fin de l\'essai.',
       buttonLabel: 'Essayer gratuitement',
     },
   ],
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     {
       question: 'Un essai gratuit doit-il demander une carte bancaire ?',
       answer:
-        'Pas nécessairement, car de nombreux outils sérieux proposent un essai sans carte bancaire, ce qui évite aussi le risque d\'un prélèvement automatique oublié à la fin de la période.',
+        'Ça varie selon l\'éditeur. L\'essentiel est de savoir clairement à quelle date l\'abonnement démarre réellement et de pouvoir annuler avant cette date sans y perdre de temps.',
     },
   ],
   relatedSlugs: [
