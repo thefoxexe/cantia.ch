@@ -8,6 +8,7 @@ import { addFacturePayment, listReconciliationCandidates, type ReconciliationCan
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { parseCamt053, type BankStatementEntry } from '../../../../lib/bankStatement';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface MatchedRow {
@@ -18,7 +19,7 @@ interface MatchedRow {
 }
 
 function formatDateFr(iso: string): string {
-  return new Date(`${iso.slice(0, 10)}T00:00:00`).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(`${iso.slice(0, 10)}T00:00:00`).toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 // Reference matches win first (unambiguous — the QR reference is
@@ -66,6 +67,7 @@ function matchEntries(
 }
 
 export default function ImportReleveScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const router = useRouter();
   const [picking, setPicking] = useState(false);
@@ -102,7 +104,7 @@ export default function ImportReleveScreen() {
       setRows(matched);
       setUnmatched(rest);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Échec de la lecture du fichier.');
+      setError(err instanceof Error ? err.message : t('importReleve.readError'));
     } finally {
       setPicking(false);
     }
@@ -133,39 +135,37 @@ export default function ImportReleveScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
-        <PageHeader title="Importer un relevé" backTo="/(app)/devis/factures" />
+        <PageHeader title={t('importReleve.title')} backTo="/(app)/devis/factures" />
         <Text style={styles.pageSubtitle}>
-          Importez un relevé de compte au format camt.053 (export standard de votre e-banking) pour rapprocher
-          automatiquement les paiements reçus avec vos factures en attente.
+          {t('importReleve.subtitle')}
         </Text>
 
         {!entries ? (
           <Card style={{ alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxl }}>
             <Feather name="upload-cloud" size={28} color={colors.primary} />
-            <Text style={styles.pickTitle}>Sélectionner un fichier .xml</Text>
-            <Text style={styles.pickHint}>Téléchargeable depuis votre e-banking (souvent sous "Relevés" ou "Exports").</Text>
-            <Button title="Choisir un fichier" icon="upload" onPress={handlePick} loading={picking} />
+            <Text style={styles.pickTitle}>{t('importReleve.pickTitle')}</Text>
+            <Text style={styles.pickHint}>{t('importReleve.pickHint')}</Text>
+            <Button title={t('importReleve.chooseFile')} icon="upload" onPress={handlePick} loading={picking} />
             {error ? <Text style={styles.error}>{error}</Text> : null}
           </Card>
         ) : result ? (
           <Card style={{ alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xxl }}>
             <Feather name="check-circle" size={28} color={colors.success} />
             <Text style={styles.pickTitle}>
-              {result.applied} paiement{result.applied > 1 ? 's' : ''} rapproché{result.applied > 1 ? 's' : ''}
+              {t('importReleve.paymentsReconciled', { count: result.applied })}
             </Text>
-            {result.failed > 0 ? <Text style={styles.error}>{result.failed} échec(s) — réessayez depuis la fiche facture.</Text> : null}
-            <Button title="Retour aux factures" variant="secondary" onPress={() => router.replace('/(app)/devis/factures')} style={{ marginTop: spacing.sm }} />
+            {result.failed > 0 ? <Text style={styles.error}>{t('importReleve.failuresText', { count: result.failed })}</Text> : null}
+            <Button title={t('importReleve.backToFactures')} variant="secondary" onPress={() => router.replace('/(app)/devis/factures')} style={{ marginTop: spacing.sm }} />
           </Card>
         ) : (
           <View style={{ gap: spacing.lg }}>
             <Text style={styles.summary}>
-              {creditCount} entrée{creditCount > 1 ? 's' : ''} créditrice{creditCount > 1 ? 's' : ''} lue{creditCount > 1 ? 's' : ''} ·{' '}
-              {rows.length} rapprochement{rows.length > 1 ? 's' : ''} proposé{rows.length > 1 ? 's' : ''}
+              {t('importReleve.summaryCredits', { count: creditCount })} · {t('importReleve.summaryMatches', { count: rows.length })}
             </Text>
 
             {rows.length === 0 ? (
               <Card>
-                <EmptyState title="Aucun rapprochement trouvé" subtitle="Aucune référence ni aucun montant de ce relevé ne correspond à une facture en attente." />
+                <EmptyState title={t('importReleve.noMatchTitle')} subtitle={t('importReleve.noMatchSubtitle')} />
               </Card>
             ) : (
               <View style={{ gap: spacing.sm }}>
@@ -177,10 +177,10 @@ export default function ImportReleveScreen() {
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.matchLabel} numberOfLines={1}>
-                          {row.candidate.number ?? 'Facture'} — {row.candidate.clientName}
+                          {row.candidate.number ?? t('importReleve.factureFallback')} — {row.candidate.clientName}
                         </Text>
                         <Text style={styles.matchMeta}>
-                          {formatDateFr(row.entry.date)} · {row.confidence === 'reference' ? 'Rapproché par référence QR' : 'Rapproché par montant'}
+                          {formatDateFr(row.entry.date)} · {row.confidence === 'reference' ? t('importReleve.matchedByReference') : t('importReleve.matchedByAmount')}
                         </Text>
                       </View>
                       <Text style={styles.matchAmount}>CHF {row.entry.amount.toFixed(2)}</Text>
@@ -188,7 +188,7 @@ export default function ImportReleveScreen() {
                   </Pressable>
                 ))}
                 <Button
-                  title={`Confirmer ${rows.filter((r) => r.checked).length} paiement${rows.filter((r) => r.checked).length > 1 ? 's' : ''}`}
+                  title={t('importReleve.confirmPayments', { count: rows.filter((r) => r.checked).length })}
                   icon="check"
                   onPress={handleApply}
                   loading={applying}
@@ -199,13 +199,13 @@ export default function ImportReleveScreen() {
 
             {unmatched.length > 0 ? (
               <>
-                <Text style={styles.sectionTitle}>Non rapprochées ({unmatched.length})</Text>
+                <Text style={styles.sectionTitle}>{t('importReleve.unmatchedTitle', { count: unmatched.length })}</Text>
                 <View style={{ gap: spacing.xs }}>
                   {unmatched.map((entry, i) => (
                     <Card key={`u-${i}`} style={styles.unmatchedRow}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.matchMeta} numberOfLines={1}>
-                          {formatDateFr(entry.date)} · {entry.debtorName ?? entry.info ?? 'Sans référence'}
+                          {formatDateFr(entry.date)} · {entry.debtorName ?? entry.info ?? t('importReleve.noReference')}
                         </Text>
                       </View>
                       <Text style={styles.matchMetaAmount}>CHF {entry.amount.toFixed(2)}</Text>
