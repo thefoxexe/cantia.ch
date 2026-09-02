@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -41,9 +42,10 @@ Deno.serve(async (req: Request) => {
 
     const { data: org } = await admin
       .from('organizations')
-      .select('name, email, plan_id, devis_email_message, email_signature')
+      .select('name, email, plan_id, devis_email_message, email_signature, locale')
       .eq('id', devis.organization_id)
       .single();
+    const locale = resolvePdfLocale(org);
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -77,20 +79,21 @@ Deno.serve(async (req: Request) => {
 
     const rawMessage =
       String(custom_message ?? org?.devis_email_message ?? '').trim() ||
-      'Bonjour {{client}},\n\nVoici notre devis, en pièce jointe.';
-    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      pdfT(locale, 'devisDefaultMessage');
+    const rawSignature = String(org?.email_signature ?? '').trim() || `${pdfT(locale, 'emailSignatureFallback')}\n${orgName}`;
     const bodyMessage = applyEmailVariables(rawMessage, vars);
     const signature = applyEmailVariables(rawSignature, vars);
 
-    const subject = `Devis ${devis.number ?? ''} — ${orgName}`;
+    const subject = `${pdfT(locale, 'devisLabel')} ${devis.number ?? ''} — ${orgName}`;
     const html = buildDocumentEmailHtml({
       clientName: devis.client_name,
       bodyMessage,
       includeGreeting: false,
       linkUrl: publicUrl,
-      linkLabel: 'Voir et signer le devis',
-      linkHint: 'sans créer de compte',
+      linkLabel: pdfT(locale, 'viewAndSignDevis'),
+      linkHint: pdfT(locale, 'withoutAccount'),
       signature,
+      locale,
     });
 
     const { ok, error } = await sendResendEmail({

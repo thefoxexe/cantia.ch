@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,9 +40,10 @@ Deno.serve(async (req: Request) => {
 
     const { data: org } = await admin
       .from('organizations')
-      .select('name, email, plan_id, extra_work_email_message, email_signature')
+      .select('name, email, plan_id, extra_work_email_message, email_signature, locale')
       .eq('id', work.organization_id)
       .single();
+    const locale = resolvePdfLocale(org);
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -60,20 +62,21 @@ Deno.serve(async (req: Request) => {
 
     const rawMessage =
       String(custom_message ?? org?.extra_work_email_message ?? '').trim() ||
-      'Bonjour {{client}},\n\nDes travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.';
-    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      pdfT(locale, 'extraWorkDefaultMessage');
+    const rawSignature = String(org?.email_signature ?? '').trim() || `${pdfT(locale, 'emailSignatureFallback')}\n${orgName}`;
     const bodyMessage = applyEmailVariables(rawMessage, vars);
     const signature = applyEmailVariables(rawSignature, vars);
 
-    const subject = `Travaux supplémentaires ${work.number ?? ''} — ${orgName}`;
+    const subject = `${pdfT(locale, 'extraWorkLabel')} ${work.number ?? ''} — ${orgName}`;
     const html = buildDocumentEmailHtml({
       clientName: work.client_name,
       bodyMessage,
       includeGreeting: false,
       linkUrl: publicUrl,
-      linkLabel: 'Voir et valider',
-      linkHint: 'sans créer de compte',
+      linkLabel: pdfT(locale, 'viewAndValidate'),
+      linkHint: pdfT(locale, 'withoutAccount'),
       signature,
+      locale,
     });
 
     const { ok, error } = await sendResendEmail({

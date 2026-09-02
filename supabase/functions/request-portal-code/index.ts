@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { buildBrandedEmailShell, escapeHtml, sendResendEmail } from '../_shared/resend.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,28 +74,36 @@ Deno.serve(async (req: Request) => {
     if (matches) {
       const apiKey = Deno.env.get('RESEND_API_KEY');
       if (apiKey) {
-        const { data: org } = await admin.from('organizations').select('name').eq('id', row!.organization_id).single();
+        const { data: org } = await admin.from('organizations').select('name, locale').eq('id', row!.organization_id).single();
         const orgName = org?.name ?? 'Cantia';
-        const docLabel = kind === 'devis' ? 'devis' : 'facture';
-        const html = buildBrandedEmailShell(`
-          <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Code de vérification</p>
-          <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Consulter votre ${docLabel}</p>
+        const locale = resolvePdfLocale(org);
+        // German nouns stay capitalized mid-sentence ("Ihr Angebot ansehen");
+        // French document nouns don't ("consulter votre devis") — only the
+        // French label needs lowercasing here.
+        const rawDocLabel = pdfT(locale, kind === 'devis' ? 'devisLabel' : 'factureLabel');
+        const docLabel = locale === 'de' ? rawDocLabel : rawDocLabel.toLowerCase();
+        const html = buildBrandedEmailShell(
+          `
+          <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">${escapeHtml(pdfT(locale, 'verificationCodeLabel'))}</p>
+          <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(pdfT(locale, 'verificationCodeTitle', { doc: docLabel }))}</p>
           <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
-            Voici votre code pour consulter le ${docLabel} ${escapeHtml(row!.number ?? '')} de ${escapeHtml(orgName)} :
+            ${escapeHtml(pdfT(locale, 'verificationCodeIntro', { doc: docLabel, number: row!.number ?? '', org: orgName }))}
           </p>
           <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
             <span style="font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #7C3B21;">${code}</span>
           </div>
           <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
-            Ce code expire dans ${CODE_TTL_MINUTES} minutes et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.
+            ${escapeHtml(pdfT(locale, 'verificationCodeHint', { minutes: CODE_TTL_MINUTES }))}
           </p>
-        `);
+        `,
+          locale,
+        );
 
         await sendResendEmail({
           apiKey,
           from: `Cantia <noreply@cantia.ch>`,
           to: [row!.client_email!],
-          subject: `${code} — votre code de vérification`,
+          subject: pdfT(locale, 'verificationCodeSubject', { code }),
           html,
         });
       }

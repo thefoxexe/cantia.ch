@@ -17,6 +17,7 @@ const LABELS = {
   factureDepositLabel: { fr: "Facture d'acompte", de: 'Anzahlungsrechnung' },
   client: { fr: 'Client', de: 'Kunde' },
   project: { fr: 'Chantier : {name}', de: 'Baustelle: {name}' },
+  projectLabel: { fr: 'Chantier', de: 'Baustelle' },
   description: { fr: 'Description', de: 'Beschreibung' },
   quantity: { fr: 'Qté', de: 'Menge' },
   unit: { fr: 'Unité', de: 'Einheit' },
@@ -63,6 +64,58 @@ const LABELS = {
   employeeFallback: { fr: 'Employé', de: 'Mitarbeiter' },
   dateLabel: { fr: '{place}, le {date}', de: '{place}, den {date}' },
   dateLabelNoPlace: { fr: 'Le {date}', de: 'Den {date}' },
+  // Client-facing transactional emails (send-devis-email, send-facture-email,
+  // send-extra-work-email, send-facture-reminder, request-portal-code) —
+  // same principle as the PDFs: these go out in the org's own document
+  // locale, not the recipient's browser language.
+  extraWorkLabel: { fr: 'Travaux supplémentaires', de: 'Zusätzliche Arbeiten' },
+  emailGreeting: { fr: 'Bonjour', de: 'Hallo' },
+  emailSignatureFallback: { fr: 'Meilleures salutations,', de: 'Freundliche Grüsse,' },
+  devisDefaultMessage: {
+    fr: 'Bonjour {{client}},\n\nVoici notre devis, en pièce jointe.',
+    de: 'Hallo {{client}},\n\nAnbei unser Angebot.',
+  },
+  factureDefaultMessage: {
+    fr: 'Bonjour {{client}},\n\nVoici notre facture, en pièce jointe.',
+    de: 'Hallo {{client}},\n\nAnbei unsere Rechnung.',
+  },
+  extraWorkDefaultMessage: {
+    fr: 'Bonjour {{client}},\n\nDes travaux supplémentaires ont été réalisés sur votre chantier, en complément du devis initial.',
+    de: 'Hallo {{client}},\n\nAuf Ihrer Baustelle wurden zusätzliche Arbeiten ausgeführt, ergänzend zum ursprünglichen Angebot.',
+  },
+  reminderOverdueDefaultMessage: {
+    fr: "Bonjour {{client}},\n\nSauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait.",
+    de: 'Hallo {{client}},\n\nSofern uns kein Fehler unterlaufen ist, ist diese Rechnung noch offen. Bitte begleichen Sie sie, oder informieren Sie uns, falls dies bereits geschehen ist.',
+  },
+  reminderUpcomingDefaultMessage: {
+    fr: 'Bonjour {{client}},\n\nPetit rappel : cette facture arrive bientôt à échéance.',
+    de: 'Hallo {{client}},\n\nEine kurze Erinnerung: Diese Rechnung wird bald fällig.',
+  },
+  viewAndSignDevis: { fr: 'Voir et signer le devis', de: 'Angebot ansehen und unterschreiben' },
+  viewFacture: { fr: 'Voir la facture', de: 'Rechnung ansehen' },
+  viewAndValidate: { fr: 'Voir et valider', de: 'Ansehen und bestätigen' },
+  withoutAccount: { fr: 'sans créer de compte', de: 'ohne Konto zu erstellen' },
+  detailAndBalance: { fr: 'détail et solde à jour', de: 'Details und aktueller Saldo' },
+  downloadPdfDefault: { fr: 'Télécharger le PDF', de: 'PDF herunterladen' },
+  downloadPdf7Days: { fr: 'Télécharger le PDF (valable 7 jours)', de: 'PDF herunterladen (7 Tage gültig)' },
+  reminderSubjectOverdue: { fr: 'Rappel — facture {number} en retard de paiement', de: 'Erinnerung — Rechnung {number} überfällig' },
+  reminderSubjectUpcoming: { fr: 'Rappel — facture {number} à régler prochainement', de: 'Erinnerung — Rechnung {number} bald fällig' },
+  verificationCodeLabel: { fr: 'Code de vérification', de: 'Bestätigungscode' },
+  // German intentionally drops the possessive/article ("Angebot ansehen",
+  // not "Ihr Angebot ansehen") — devis/facture take different genders
+  // (das Angebot vs. die Rechnung), and the article-less phrasing sidesteps
+  // that agreement entirely while staying natural, label-style German.
+  verificationCodeTitle: { fr: 'Consulter votre {doc}', de: '{doc} ansehen' },
+  verificationCodeIntro: { fr: 'Voici votre code pour consulter le {doc} {number} de {org} :', de: 'Hier ist Ihr Code, um {doc} {number} von {org} anzusehen:' },
+  verificationCodeHint: {
+    fr: "Ce code expire dans {minutes} minutes et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
+    de: 'Dieser Code läuft in {minutes} Minuten ab und kann nur einmal verwendet werden. Falls Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.',
+  },
+  verificationCodeSubject: { fr: '{code} — votre code de vérification', de: '{code} — Ihr Bestätigungscode' },
+  emailFooterTagline: {
+    fr: 'Cantia — logiciel suisse de gestion pour entreprises du bâtiment',
+    de: 'Cantia — Schweizer Verwaltungssoftware für Bauunternehmen',
+  },
 } as const;
 
 type LabelKey = keyof typeof LABELS;

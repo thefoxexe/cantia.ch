@@ -1,6 +1,7 @@
 // Shared by every send-*-email function (send-devis-email, send-facture-email,
 // send-facture-reminder) — one place for the Resend call + attachment
 // base64 encoding instead of duplicating it three times.
+import { PdfLocale, pdfT } from './pdf-i18n.ts';
 
 // Deno's built-in ICU data for 'fr-CH' isn't reliable for grouping
 // separators (toLocaleString silently drops the apostrophe in some edge
@@ -71,17 +72,18 @@ export function buildDocumentEmailHtml(params: {
   linkLabel: string;
   linkHint: string;
   signature: string;
+  locale?: PdfLocale;
 }): string {
-  const { clientName, bodyMessage, includeGreeting = true, projectName, detailsTitle, detailsLines, pdfUrl, pdfLabel, linkUrl, linkLabel, linkHint, signature } = params;
+  const { clientName, bodyMessage, includeGreeting = true, projectName, detailsTitle, detailsLines, pdfUrl, pdfLabel, linkUrl, linkLabel, linkHint, signature, locale = 'fr' } = params;
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
   return `
     <div style="font-family: ${font}; font-size: 15px; line-height: 1.6; color: #1a1f1c; max-width: 560px;">
-      ${includeGreeting ? `<p style="margin: 0 0 16px;">Bonjour${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>` : ''}
+      ${includeGreeting ? `<p style="margin: 0 0 16px;">${pdfT(locale, 'emailGreeting')}${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>` : ''}
       <p style="margin: 0 0 20px;">${textToHtmlLines(bodyMessage)}</p>
       ${
         projectName
-          ? `<p style="margin: 0 0 20px; color: #555f58;">Chantier : <strong style="color: #1a1f1c;">${escapeHtml(projectName)}</strong></p>`
+          ? `<p style="margin: 0 0 20px; color: #555f58;">${escapeHtml(pdfT(locale, 'projectLabel'))} : <strong style="color: #1a1f1c;">${escapeHtml(projectName)}</strong></p>`
           : ''
       }
       ${
@@ -94,7 +96,7 @@ export function buildDocumentEmailHtml(params: {
       }
       ${
         pdfUrl
-          ? `<p style="margin: 0 0 12px;"><a href="${pdfUrl}" style="color: #1f3d3a; font-weight: 600; text-decoration: underline;">${escapeHtml(pdfLabel ?? 'Télécharger le PDF')}</a></p>`
+          ? `<p style="margin: 0 0 12px;"><a href="${pdfUrl}" style="color: #1f3d3a; font-weight: 600; text-decoration: underline;">${escapeHtml(pdfLabel ?? pdfT(locale, 'downloadPdfDefault'))}</a></p>`
           : ''
       }
       <p style="margin: 0 0 24px;">
@@ -114,7 +116,7 @@ export function buildDocumentEmailHtml(params: {
 // Cantia product chrome. Colors match lib/theme.ts; the logo is served from
 // the public/ folder (not the hashed assets/ bundle) specifically so it has
 // a stable URL an email client can fetch: https://cantia.ch/logo-email.png.
-export function buildBrandedEmailShell(bodyHtml: string): string {
+export function buildBrandedEmailShell(bodyHtml: string, locale: PdfLocale = 'fr'): string {
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
   return `
     <div style="background: #F7F1E6; padding: 40px 20px; font-family: ${font};">
@@ -128,7 +130,7 @@ export function buildBrandedEmailShell(bodyHtml: string): string {
         </div>
       </div>
       <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">
-        Cantia — logiciel suisse de gestion pour entreprises du bâtiment<br/>
+        ${escapeHtml(pdfT(locale, 'emailFooterTagline'))}<br/>
         <a href="https://cantia.ch" style="color: #BC5A31; text-decoration: none; font-weight: 600;">cantia.ch</a>
       </p>
     </div>

@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { isValidSwissIban } from '../_shared/qrbill.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -43,9 +44,10 @@ Deno.serve(async (req: Request) => {
 
     const { data: org } = await admin
       .from('organizations')
-      .select('name, email, iban, plan_id, facture_email_message, email_signature')
+      .select('name, email, iban, plan_id, facture_email_message, email_signature, locale')
       .eq('id', facture.organization_id)
       .single();
+    const locale = resolvePdfLocale(org);
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -78,7 +80,7 @@ Deno.serve(async (req: Request) => {
 
     const orgName = org?.name ?? 'Notre entreprise';
     const publicUrl = `https://cantia.ch/facture-client/${facture.public_token}`;
-    const kind = facture.is_deposit ? "Facture d'acompte" : 'Facture';
+    const kind = pdfT(locale, facture.is_deposit ? 'factureDepositLabel' : 'factureLabel');
 
     let projectName: string | null = null;
     if (facture.project_id) {
@@ -95,8 +97,8 @@ Deno.serve(async (req: Request) => {
 
     const rawMessage =
       String(custom_message ?? org?.facture_email_message ?? '').trim() ||
-      'Bonjour {{client}},\n\nVoici notre facture, en pièce jointe.';
-    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      pdfT(locale, 'factureDefaultMessage');
+    const rawSignature = String(org?.email_signature ?? '').trim() || `${pdfT(locale, 'emailSignatureFallback')}\n${orgName}`;
     const bodyMessage = applyEmailVariables(rawMessage, vars);
     const signature = applyEmailVariables(rawSignature, vars);
 
@@ -106,9 +108,10 @@ Deno.serve(async (req: Request) => {
       bodyMessage,
       includeGreeting: false,
       linkUrl: publicUrl,
-      linkLabel: 'Voir la facture',
-      linkHint: 'détail et solde à jour',
+      linkLabel: pdfT(locale, 'viewFacture'),
+      linkHint: pdfT(locale, 'detailAndBalance'),
       signature,
+      locale,
     });
 
     const { ok, error } = await sendResendEmail({

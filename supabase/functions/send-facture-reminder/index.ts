@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -42,9 +43,10 @@ Deno.serve(async (req: Request) => {
 
     const { data: org } = await admin
       .from('organizations')
-      .select('name, email, plan_id, facture_reminder_message_upcoming, facture_reminder_message_overdue, email_signature')
+      .select('name, email, plan_id, facture_reminder_message_upcoming, facture_reminder_message_overdue, email_signature, locale')
       .eq('id', facture.organization_id)
       .single();
+    const locale = resolvePdfLocale(org);
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {
@@ -74,17 +76,13 @@ Deno.serve(async (req: Request) => {
       echeance: formatDateFr(facture.due_date),
     };
 
-    const subject = overdue
-      ? `Rappel — facture ${facture.number ?? ''} en retard de paiement`
-      : `Rappel — facture ${facture.number ?? ''} à régler prochainement`;
+    const subject = pdfT(locale, overdue ? 'reminderSubjectOverdue' : 'reminderSubjectUpcoming', { number: facture.number ?? '' });
 
     const rawMessage =
       String(custom_message ?? '').trim() ||
       String((overdue ? org?.facture_reminder_message_overdue : org?.facture_reminder_message_upcoming) ?? '').trim() ||
-      (overdue
-        ? "Bonjour {{client}},\n\nSauf erreur de notre part, cette facture est toujours impayée. Merci de la régler, ou de nous prévenir si c'est déjà fait."
-        : 'Bonjour {{client}},\n\nPetit rappel : cette facture arrive bientôt à échéance.');
-    const rawSignature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+      pdfT(locale, overdue ? 'reminderOverdueDefaultMessage' : 'reminderUpcomingDefaultMessage');
+    const rawSignature = String(org?.email_signature ?? '').trim() || `${pdfT(locale, 'emailSignatureFallback')}\n${orgName}`;
     const bodyMessage = applyEmailVariables(rawMessage, vars);
     const signature = applyEmailVariables(rawSignature, vars);
 
@@ -93,11 +91,12 @@ Deno.serve(async (req: Request) => {
       bodyMessage,
       includeGreeting: false,
       pdfUrl,
-      pdfLabel: 'Télécharger le PDF (valable 7 jours)',
+      pdfLabel: pdfT(locale, 'downloadPdf7Days'),
       linkUrl: publicUrl,
-      linkLabel: 'Voir la facture',
-      linkHint: 'détail et solde à jour',
+      linkLabel: pdfT(locale, 'viewFacture'),
+      linkHint: pdfT(locale, 'detailAndBalance'),
       signature,
+      locale,
     });
 
     const { ok, error } = await sendResendEmail({
