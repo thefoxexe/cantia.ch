@@ -1692,6 +1692,19 @@ export const fr = {
     updateCatalog: 'Mettre à jour le catalogue',
     confirmAndCreate: 'Confirmer et créer le devis',
   },
+  factureNew: {
+    clientNameRequired: 'Le nom du client est requis.',
+    lineRequired: 'Ajoutez au moins une ligne de facture.',
+    createFailed: 'Échec de la création de la facture',
+    chantierHint: 'Optionnel — permet de retrouver cette facture depuis la fiche du chantier et de suivre sa rentabilité.',
+    linesTitle: 'Lignes de la facture',
+    dictatePositions: 'Dicter les positions de la facture',
+    createFacture: 'Créer la facture',
+    previewTitle: 'Aperçu de la facture',
+    mismatchIntro: 'Le prix saisi diffère de celui déjà connu pour {{target}}. Choisissez, pour chacune, si le nouveau prix doit être enregistré dans le catalogue ou rester une exception pour cette facture.',
+    keepException: 'Garder l\'écart pour cette facture',
+    confirmAndCreate: 'Confirmer et créer la facture',
+  },
 };
 
 export type TranslationDict = typeof fr;

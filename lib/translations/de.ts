@@ -1706,4 +1706,17 @@ export const de: TranslationDict = {
     updateCatalog: 'Katalog aktualisieren',
     confirmAndCreate: 'Bestätigen und Offerte erstellen',
   },
+  factureNew: {
+    clientNameRequired: 'Der Name des Kunden ist erforderlich.',
+    lineRequired: 'Fügen Sie mindestens eine Rechnungsposition hinzu.',
+    createFailed: 'Erstellung der Rechnung fehlgeschlagen',
+    chantierHint: 'Optional — ermöglicht es, diese Rechnung über die Baustellenseite wiederzufinden und ihre Rentabilität zu verfolgen.',
+    linesTitle: 'Positionen der Rechnung',
+    dictatePositions: 'Positionen der Rechnung diktieren',
+    createFacture: 'Rechnung erstellen',
+    previewTitle: 'Vorschau der Rechnung',
+    mismatchIntro: 'Der eingegebene Preis weicht vom bereits bekannten Preis für {{target}} ab. Wählen Sie für jede, ob der neue Preis im Katalog gespeichert oder als Ausnahme für diese Rechnung behandelt werden soll.',
+    keepException: 'Abweichung für diese Rechnung beibehalten',
+    confirmAndCreate: 'Bestätigen und Rechnung erstellen',
+  },
 };
