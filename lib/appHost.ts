@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import { getAppLocale } from './translations';
+import { usePathname } from 'expo-router';
+import { forceLocale, getAppLocale } from './translations';
 
 // The marketing site (cantia.ch) and the authenticated app (app.cantia.ch)
 // are the same Expo Router web build, deployed once and reachable under two
@@ -77,4 +79,25 @@ export function toggleLocalePathname(pathname: string, targetLocale: 'fr' | 'de'
 export function helpHref(): string {
   if (isMarketingHost()) return '/aide';
   return 'https://cantia.ch/aide';
+}
+
+// Every /de/* route module calls forceLocale('de') at module scope, but
+// each of those web routes is code-split (dynamically imported the first
+// time it's actually navigated to) — so that call fires exactly once, the
+// first time a visitor's session ever loads that particular module, and
+// never again. A client-side <Link> transition later back to a bare French
+// page doesn't re-run it (the module's already loaded) and, critically, the
+// French pages themselves never called the equivalent forceLocale('fr') at
+// all — there was nothing to reset i18next's in-memory language back to
+// French after a visit to a German page, so it just stayed German. Call this
+// hook from the top of every marketing page/chrome component (not just
+// MarketingNav — the homepage has its own separate nav and needs it too) to
+// keep the visible language matching the current URL on every navigation,
+// however many times a visitor toggles between French and German.
+export function useSyncMarketingLocaleFromPath(): void {
+  const pathname = usePathname();
+  useEffect(() => {
+    const isDe = pathname === '/de' || pathname.startsWith('/de/');
+    forceLocale(isDe ? 'de' : 'fr');
+  }, [pathname]);
 }

@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { Link, usePathname } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-import { authHref, toggleLocalePathname } from '../lib/appHost';
+import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
-import { forceLocale, getAppLocale, useTranslation } from '../lib/translations';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 // FR/DE toggle for the marketing site's nav and footer — links to the same
 // page's other-language mirror (toggleLocalePathname), not just the
@@ -15,21 +15,30 @@ import { forceLocale, getAppLocale, useTranslation } from '../lib/translations';
 // that same page. Language names are deliberately not translated (a French
 // reader still expects to see "Deutsch", not "Allemand") — this is the one
 // piece of marketing chrome that stays hardcoded FR/DE either way.
-function LanguageSwitcher({ compact }: { compact?: boolean }) {
+// Expo Router's <Link asChild> clones its child through a <Slot> that only
+// accepts a single flattened style object on that direct child — an array
+// style (the usual RN "[base, condition && variant]" pattern) throws
+// "[expo-router]: You are passing an array of styles to a child of <Slot>"
+// and takes down the whole page's error boundary. StyleSheet.flatten here
+// keeps the same conditional-active-pill styling without ever handing Link
+// an array.
+export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
   const locale = getAppLocale();
   const frHref = toggleLocalePathname(pathname, 'fr');
   const deHref = toggleLocalePathname(pathname, 'de');
+  const pillStyle = (active: boolean): ViewStyle => StyleSheet.flatten([styles.langPill, active && styles.langPillActive]);
+  const pillTextStyle = (active: boolean) => StyleSheet.flatten([styles.langPillText, active && styles.langPillTextActive]);
   return (
     <View style={[styles.langSwitcher, compact && styles.langSwitcherCompact]}>
       <Link href={frHref as any} asChild>
-        <Pressable style={[styles.langPill, locale === 'fr' && styles.langPillActive]} hitSlop={4}>
-          <Text style={[styles.langPillText, locale === 'fr' && styles.langPillTextActive]}>FR</Text>
+        <Pressable style={pillStyle(locale === 'fr')} hitSlop={4}>
+          <Text style={pillTextStyle(locale === 'fr')}>FR</Text>
         </Pressable>
       </Link>
       <Link href={deHref as any} asChild>
-        <Pressable style={[styles.langPill, locale === 'de' && styles.langPillActive]} hitSlop={4}>
-          <Text style={[styles.langPillText, locale === 'de' && styles.langPillTextActive]}>DE</Text>
+        <Pressable style={pillStyle(locale === 'de')} hitSlop={4}>
+          <Text style={pillTextStyle(locale === 'de')}>DE</Text>
         </Pressable>
       </Link>
     </View>
@@ -54,19 +63,9 @@ export function MarketingNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuAnim = useRef(new Animated.Value(0)).current;
 
-  // Each /de/* route module forces German at module-scope, but that only
-  // ever runs once, the first time that module is evaluated — a client-side
-  // <Link> navigation elsewhere (a bare French page, or right back to a /de
-  // page on a later visit) doesn't re-run it and doesn't remount this SPA,
-  // so i18next's in-memory language previously just stuck at whatever it
-  // last was. MarketingNav renders at the top of every marketing page, so
-  // syncing it here on every pathname change (not just first mount) keeps
-  // the site's language matching the URL in both directions, however many
-  // times a visitor toggles.
-  useEffect(() => {
-    const isDe = pathname === '/de' || pathname.startsWith('/de/');
-    forceLocale(isDe ? 'de' : 'fr');
-  }, [pathname]);
+  // Keeps the visible language matching the URL on every client-side
+  // navigation, not just the first page load — see useSyncMarketingLocaleFromPath.
+  useSyncMarketingLocaleFromPath();
 
   useEffect(() => {
     Animated.timing(menuAnim, {

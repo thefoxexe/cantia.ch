@@ -17,17 +17,17 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import { Link, Redirect } from 'expo-router';
+import { Link, Redirect, usePathname } from 'expo-router';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Screen, Switch } from '../components/ui';
-import { MarketingFooter } from '../components/MarketingChrome';
+import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-import { authHref } from '../lib/appHost';
+import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -75,6 +75,13 @@ export default function LandingScreen() {
 function LandingContent() {
   const t = useMarketingDict();
   const { t: tr } = useTranslation();
+  // The homepage has its own nav (below) rather than the shared
+  // MarketingNav — it needs the same URL<->language resync on client-side
+  // navigation that MarketingNav gets, or a visitor arriving here from a
+  // /de page (via the footer's language switcher, since this page has no
+  // top-nav one — see the /de homepage question) stays stuck in German.
+  useSyncMarketingLocaleFromPath();
+  const pathname = usePathname();
   const appLocale = getAppLocale();
   const tradeHrefPrefix = appLocale === 'de' ? '/de/' : '/';
   const scrollRef = useRef<ScrollView>(null);
@@ -134,7 +141,7 @@ function LandingContent() {
   const heroTiltY = useRef(new Animated.Value(0)).current;
   const heroVisualRef = useRef<View>(null);
   const menuItemAnims = useRef(
-    Array.from({ length: 6 }, () => new Animated.Value(0)),
+    Array.from({ length: 7 }, () => new Animated.Value(0)),
   ).current;
   // The problem→solution connector's little "trailing" lag as you scroll:
   // each scroll tick nudges it away from rest by a fraction of that tick's
@@ -1103,6 +1110,7 @@ function LandingContent() {
                 <Link href="/aide">
                   <Text style={styles.navLink}>{t.nav.help}</Text>
                 </Link>
+                <LanguageSwitcher />
                 <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
                 </Link>
@@ -1150,11 +1158,19 @@ function LandingContent() {
                 <Link href="/aide" asChild>
                   <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} icon="life-buoy" label={t.nav.help} />
                 </Link>
+                <Link href={toggleLocalePathname(pathname, appLocale === 'de' ? 'fr' : 'de') as any} asChild>
+                  <MenuItem
+                    anim={menuItemAnims[4]}
+                    onPress={() => setMenuOpen(false)}
+                    icon="globe"
+                    label={appLocale === 'de' ? 'Français' : 'Deutsch'}
+                  />
+                </Link>
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[4],
+                    opacity: menuItemAnims[5],
                     transform: [
-                      { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -1169,9 +1185,9 @@ function LandingContent() {
 
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[5],
+                    opacity: menuItemAnims[6],
                     transform: [
-                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[6].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
