@@ -7,6 +7,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { confirm } from '../../../lib/confirm';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import { Button, Card, EmptyState, Field, PageHeader, Screen } from '../../../components/ui';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import {
   buildCatalogCsv,
@@ -28,6 +29,7 @@ interface ActionRow {
 }
 
 export default function InventaireScreen() {
+  const { t } = useTranslation();
   const { organization, role } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
@@ -88,7 +90,7 @@ export default function InventaireScreen() {
   async function handleSave() {
     if (!organization) return;
     if (!formDescription.trim()) {
-      setFormError('La description est requise.');
+      setFormError(t('inventaire.descriptionRequired'));
       return;
     }
     const price = Number(formPrice.replace(',', '.')) || 0;
@@ -108,7 +110,7 @@ export default function InventaireScreen() {
 
   async function handleDelete() {
     if (!editing?.id) return;
-    const ok = await confirm('Supprimer cette prestation ?', `"${editing.description}" sera définitivement retirée de l'inventaire.`);
+    const ok = await confirm(t('inventaire.deleteConfirmTitle'), t('inventaire.deleteConfirmBody', { description: editing.description }));
     if (!ok) return;
     setSaving(true);
     const { error } = await deleteCatalogItem(editing.id);
@@ -137,7 +139,7 @@ export default function InventaireScreen() {
         return;
       }
       if (!parsed.items.length) {
-        setActionError('Aucune ligne valide trouvée dans ce fichier.');
+        setActionError(t('inventaire.noValidLines'));
         return;
       }
       const { count, error } = await importCatalogItems(organization.id, parsed.items);
@@ -146,8 +148,8 @@ export default function InventaireScreen() {
         return;
       }
       setImportSummary(
-        `${count} prestation${count > 1 ? 's' : ''} importée${count > 1 ? 's' : ''}` +
-          (parsed.skipped ? ` · ${parsed.skipped} ligne${parsed.skipped > 1 ? 's' : ''} ignorée${parsed.skipped > 1 ? 's' : ''} (sans titre)` : ''),
+        t('inventaire.importSummary', { count }) +
+          (parsed.skipped ? t('inventaire.importSkippedSuffix', { count: parsed.skipped }) : ''),
       );
       load();
     } catch (err) {
@@ -165,21 +167,21 @@ export default function InventaireScreen() {
   }
 
   const actionRows: ActionRow[] = [
-    { key: 'new', icon: 'plus', label: 'Nouvel article', onPress: () => { setActionsOpen(false); openCreate(); } },
-    { key: 'import', icon: 'upload', label: importing ? 'Import en cours…' : 'Importer CSV', disabled: importing, onPress: () => { setActionsOpen(false); handleImport(); } },
-    { key: 'export', icon: 'download', label: 'Exporter CSV', onPress: () => { setActionsOpen(false); handleExport(); } },
+    { key: 'new', icon: 'plus', label: t('inventaire.newItem'), onPress: () => { setActionsOpen(false); openCreate(); } },
+    { key: 'import', icon: 'upload', label: importing ? t('inventaire.importing') : t('inventaire.importCsv'), disabled: importing, onPress: () => { setActionsOpen(false); handleImport(); } },
+    { key: 'export', icon: 'download', label: t('inventaire.exportCsv'), onPress: () => { setActionsOpen(false); handleExport(); } },
   ];
 
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Catalogue" />
+        <PageHeader title={t('inventaire.title')} />
         <Text style={styles.pageSubtitle}>
-          Les prix et unités déjà utilisés dans vos devis — Cantia les reconnaît et les suggère automatiquement.
+          {t('inventaire.subtitle')}
         </Text>
 
         <Button
-          title="Actions"
+          title={t('inventaire.actions')}
           icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
           onPress={() => setActionsOpen((v) => !v)}
           loading={importing}
@@ -209,7 +211,7 @@ export default function InventaireScreen() {
             style={styles.searchInput}
             value={query}
             onChangeText={setQuery}
-            placeholder="Rechercher une prestation…"
+            placeholder={t('inventaire.searchPlaceholder')}
             placeholderTextColor={colors.textMuted}
           />
         </View>
@@ -223,8 +225,8 @@ export default function InventaireScreen() {
           ListEmptyComponent={
             !loading ? (
               <EmptyState
-                title="Aucune entrée"
-                subtitle="Créez un article, importez un CSV, ou laissez vos devis enrichir l'inventaire automatiquement."
+                title={t('inventaire.emptyTitle')}
+                subtitle={t('inventaire.emptySubtitle')}
               />
             ) : null
           }
@@ -238,9 +240,9 @@ export default function InventaireScreen() {
                   <View style={styles.metaRow}>
                     <Text style={styles.meta}>{item.unit}</Text>
                     <Text style={styles.metaDot}>·</Text>
-                    <Text style={styles.meta}>Utilisé {item.count} fois</Text>
+                    <Text style={styles.meta}>{t('inventaire.usedCount', { count: item.count })}</Text>
                     <Text style={styles.metaDot}>·</Text>
-                    <Text style={styles.meta}>{new Date(item.lastUsedAt).toLocaleDateString('fr-CH')}</Text>
+                    <Text style={styles.meta}>{new Date(item.lastUsedAt).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                   </View>
                 </View>
                 <Text style={styles.price}>CHF {item.unitPrice.toFixed(2)}</Text>
@@ -254,23 +256,23 @@ export default function InventaireScreen() {
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{editing ? 'Modifier la prestation' : 'Nouvel article'}</Text>
-            <Field label="Description" value={formDescription} onChangeText={setFormDescription} multiline style={styles.descriptionInput} />
+            <Text style={styles.modalTitle}>{editing ? t('inventaire.editTitle') : t('inventaire.newItemTitle')}</Text>
+            <Field label={t('inventaire.descriptionLabel')} value={formDescription} onChangeText={setFormDescription} multiline style={styles.descriptionInput} />
             <View style={styles.formRow}>
               <View style={{ flex: 1 }}>
-                <Field label="Unité" value={formUnit} onChangeText={setFormUnit} />
+                <Field label={t('inventaire.unitLabel')} value={formUnit} onChangeText={setFormUnit} />
               </View>
               <View style={{ flex: 1 }}>
-                <Field label="Prix unitaire (CHF)" value={formPrice} onChangeText={setFormPrice} keyboardType="decimal-pad" />
+                <Field label={t('inventaire.unitPriceLabel')} value={formPrice} onChangeText={setFormPrice} keyboardType="decimal-pad" />
               </View>
             </View>
             {formError ? <Text style={styles.actionError}>{formError}</Text> : null}
             <View style={styles.modalActions}>
-              <Button title="Annuler" variant="secondary" onPress={() => setModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Enregistrer" onPress={handleSave} loading={saving} style={{ flex: 1 }} />
+              <Button title={t('inventaire.cancel')} variant="secondary" onPress={() => setModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('inventaire.save')} onPress={handleSave} loading={saving} style={{ flex: 1 }} />
             </View>
             {editing && isAdmin ? (
-              <Button title="Supprimer" variant="danger" icon="trash-2" onPress={handleDelete} style={styles.deleteButton} />
+              <Button title={t('inventaire.delete')} variant="danger" icon="trash-2" onPress={handleDelete} style={styles.deleteButton} />
             ) : null}
           </View>
         </View>
