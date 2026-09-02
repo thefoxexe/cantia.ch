@@ -6,6 +6,7 @@ import { useAuth } from '../../../../lib/auth-context';
 import { fetchTrame, renameTrame, replaceTrameItems, deleteTrame } from '../../../../lib/api/trames';
 import { confirm } from '../../../../lib/confirm';
 import { Button, Field, LoadingScreen, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface TrameLine {
@@ -19,6 +20,7 @@ function emptyLine(): TrameLine {
 }
 
 export default function TrameDetailScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { role } = useAuth();
@@ -60,12 +62,12 @@ export default function TrameDetailScreen() {
 
   async function handleSave() {
     if (!name.trim()) {
-      setError('Le nom de la trame est requis.');
+      setError(t('newTrame.nameRequired'));
       return;
     }
     const validLines = lines.filter((l) => l.description.trim());
     if (validLines.length === 0) {
-      setError('Ajoutez au moins une position.');
+      setError(t('newTrame.lineRequired'));
       return;
     }
     setError(null);
@@ -86,7 +88,7 @@ export default function TrameDetailScreen() {
   }
 
   async function handleDelete() {
-    const ok = await confirm('Supprimer cette trame ?', `"${name}" sera définitivement supprimée.`);
+    const ok = await confirm(t('trameDetail.deleteConfirmTitle'), t('trameDetail.deleteConfirmBody', { name }));
     if (!ok) return;
     const { error: delError } = await deleteTrame(id);
     if (delError) {
@@ -112,15 +114,15 @@ export default function TrameDetailScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
-          <Field label="Nom de la trame" value={name} onChangeText={setName} placeholder="Ex. Pose carrelage" />
+          <Field label={t('newTrame.nameLabel')} value={name} onChangeText={setName} placeholder={t('newTrame.namePlaceholder')} />
 
-          <Button title="Utiliser pour un nouveau devis" icon="file-plus" onPress={handleUse} style={{ marginTop: spacing.lg }} />
+          <Button title={t('trameDetail.useForNewDevis')} icon="file-plus" onPress={handleUse} style={{ marginTop: spacing.lg }} />
 
-          <Text style={styles.sectionTitle}>Positions</Text>
+          <Text style={styles.sectionTitle}>{t('newTrame.positionsTitle')}</Text>
           {lines.map((line, i) => (
             <View key={i} style={styles.lineCard}>
               <View style={styles.lineCardHeader}>
-                <Text style={styles.lineIndex}>Position {i + 1}</Text>
+                <Text style={styles.lineIndex}>{t('newTrame.positionIndex', { index: i + 1 })}</Text>
                 {lines.length > 1 ? (
                   <Pressable onPress={() => removeLine(i)} hitSlop={8}>
                     <Feather name="trash-2" size={16} color={colors.textMuted} />
@@ -130,28 +132,28 @@ export default function TrameDetailScreen() {
               <TextInput
                 style={styles.lineDesc}
                 value={line.description}
-                onChangeText={(t) => updateLine(i, { description: t })}
-                placeholder="Description de la prestation"
+                onChangeText={(v) => updateLine(i, { description: v })}
+                placeholder={t('newTrame.descriptionPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 multiline
               />
               <View style={styles.lineFields}>
                 <View style={styles.lineFieldUnit}>
-                  <Text style={styles.lineFieldLabel}>Unité</Text>
+                  <Text style={styles.lineFieldLabel}>{t('newTrame.unitLabel')}</Text>
                   <TextInput
                     style={styles.lineInput}
                     value={line.unit}
-                    onChangeText={(t) => updateLine(i, { unit: t })}
-                    placeholder="pce, h, m²…"
+                    onChangeText={(v) => updateLine(i, { unit: v })}
+                    placeholder={t('newTrame.unitPlaceholder')}
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
                 <View style={styles.lineFieldPrice}>
-                  <Text style={styles.lineFieldLabel}>Prix unit. CHF</Text>
+                  <Text style={styles.lineFieldLabel}>{t('newTrame.unitPriceLabel')}</Text>
                   <TextInput
                     style={styles.lineInput}
                     value={line.unitPrice}
-                    onChangeText={(t) => updateLine(i, { unitPrice: t })}
+                    onChangeText={(v) => updateLine(i, { unitPrice: v })}
                     keyboardType="decimal-pad"
                     placeholderTextColor={colors.textMuted}
                   />
@@ -162,13 +164,13 @@ export default function TrameDetailScreen() {
 
           <Pressable style={styles.addLine} onPress={addLine}>
             <Feather name="plus" size={16} color={colors.primary} />
-            <Text style={styles.addLineText}>Ajouter une position</Text>
+            <Text style={styles.addLineText}>{t('newTrame.addPosition')}</Text>
           </Pressable>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Enregistrer les modifications" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+          <Button title={t('trameDetail.saveChanges')} onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
           {isAdmin ? (
-            <Button title="Supprimer la trame" variant="danger" icon="trash-2" onPress={handleDelete} style={{ marginTop: spacing.md }} />
+            <Button title={t('trameDetail.deleteTrame')} variant="danger" icon="trash-2" onPress={handleDelete} style={{ marginTop: spacing.md }} />
           ) : null}
         </View>
       </ScrollView>

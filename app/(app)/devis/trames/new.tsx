@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { createTrame } from '../../../../lib/api/trames';
 import { Button, Field, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 interface TrameLine {
@@ -18,6 +19,7 @@ function emptyLine(): TrameLine {
 }
 
 export default function NewTrameScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const [name, setName] = useState('');
   const [lines, setLines] = useState<TrameLine[]>([emptyLine()]);
@@ -39,12 +41,12 @@ export default function NewTrameScreen() {
   async function handleCreate() {
     if (!organization) return;
     if (!name.trim()) {
-      setError('Le nom de la trame est requis.');
+      setError(t('newTrame.nameRequired'));
       return;
     }
     const validLines = lines.filter((l) => l.description.trim());
     if (validLines.length === 0) {
-      setError('Ajoutez au moins une position.');
+      setError(t('newTrame.lineRequired'));
       return;
     }
     setError(null);
@@ -56,7 +58,7 @@ export default function NewTrameScreen() {
     );
     setLoading(false);
     if (createError || !id) {
-      setError(createError ?? 'Échec de la création.');
+      setError(createError ?? t('newTrame.createFailed'));
       return;
     }
     router.replace(`/(app)/devis/trames/${id}`);
@@ -66,14 +68,14 @@ export default function NewTrameScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Nouvelle trame</Text>
-          <Field label="Nom de la trame" value={name} onChangeText={setName} placeholder="Ex. Pose carrelage" />
+          <Text style={styles.sectionTitle}>{t('newTrame.title')}</Text>
+          <Field label={t('newTrame.nameLabel')} value={name} onChangeText={setName} placeholder={t('newTrame.namePlaceholder')} />
 
-          <Text style={styles.sectionTitle}>Positions</Text>
+          <Text style={styles.sectionTitle}>{t('newTrame.positionsTitle')}</Text>
           {lines.map((line, i) => (
             <View key={i} style={styles.lineCard}>
               <View style={styles.lineCardHeader}>
-                <Text style={styles.lineIndex}>Position {i + 1}</Text>
+                <Text style={styles.lineIndex}>{t('newTrame.positionIndex', { index: i + 1 })}</Text>
                 {lines.length > 1 ? (
                   <Pressable onPress={() => removeLine(i)} hitSlop={8}>
                     <Feather name="trash-2" size={16} color={colors.textMuted} />
@@ -83,28 +85,28 @@ export default function NewTrameScreen() {
               <TextInput
                 style={styles.lineDesc}
                 value={line.description}
-                onChangeText={(t) => updateLine(i, { description: t })}
-                placeholder="Description de la prestation"
+                onChangeText={(v) => updateLine(i, { description: v })}
+                placeholder={t('newTrame.descriptionPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 multiline
               />
               <View style={styles.lineFields}>
                 <View style={styles.lineFieldUnit}>
-                  <Text style={styles.lineFieldLabel}>Unité</Text>
+                  <Text style={styles.lineFieldLabel}>{t('newTrame.unitLabel')}</Text>
                   <TextInput
                     style={styles.lineInput}
                     value={line.unit}
-                    onChangeText={(t) => updateLine(i, { unit: t })}
-                    placeholder="pce, h, m²…"
+                    onChangeText={(v) => updateLine(i, { unit: v })}
+                    placeholder={t('newTrame.unitPlaceholder')}
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
                 <View style={styles.lineFieldPrice}>
-                  <Text style={styles.lineFieldLabel}>Prix unit. CHF</Text>
+                  <Text style={styles.lineFieldLabel}>{t('newTrame.unitPriceLabel')}</Text>
                   <TextInput
                     style={styles.lineInput}
                     value={line.unitPrice}
-                    onChangeText={(t) => updateLine(i, { unitPrice: t })}
+                    onChangeText={(v) => updateLine(i, { unitPrice: v })}
                     keyboardType="decimal-pad"
                     placeholderTextColor={colors.textMuted}
                   />
@@ -115,11 +117,11 @@ export default function NewTrameScreen() {
 
           <Pressable style={styles.addLine} onPress={addLine}>
             <Feather name="plus" size={16} color={colors.primary} />
-            <Text style={styles.addLineText}>Ajouter une position</Text>
+            <Text style={styles.addLineText}>{t('newTrame.addPosition')}</Text>
           </Pressable>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Enregistrer la trame" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+          <Button title={t('newTrame.save')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>
       </ScrollView>
     </Screen>

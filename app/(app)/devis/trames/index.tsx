@@ -5,10 +5,12 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { listTrames } from '../../../../lib/api/trames';
 import { Button, Card, EmptyState, PageHeader, Screen } from '../../../../components/ui';
+import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { DevisTrame } from '../../../../lib/types';
 
 export default function TramesListScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const router = useRouter();
   const [trames, setTrames] = useState<DevisTrame[]>([]);
@@ -37,12 +39,11 @@ export default function TramesListScreen() {
   return (
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Trames" backTo="/(app)" />
+        <PageHeader title={t('tramesList.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>
-          Un jeu de positions réutilisable — enregistrez vos prestations types une fois, réutilisez-les dans un nouveau devis en changeant juste les
-          quantités.
+          {t('tramesList.subtitle')}
         </Text>
-        <Button title="Nouvelle trame" icon="plus" onPress={() => router.push('/(app)/devis/trames/new')} style={{ marginBottom: spacing.lg }} />
+        <Button title={t('tramesList.newTrame')} icon="plus" onPress={() => router.push('/(app)/devis/trames/new')} style={{ marginBottom: spacing.lg }} />
 
         <View style={styles.searchRow}>
           <Feather name="search" size={16} color={colors.textMuted} />
@@ -50,7 +51,7 @@ export default function TramesListScreen() {
             style={styles.searchInput}
             value={query}
             onChangeText={setQuery}
-            placeholder="Rechercher une trame…"
+            placeholder={t('tramesList.searchPlaceholder')}
             placeholderTextColor={colors.textMuted}
           />
         </View>
@@ -63,7 +64,7 @@ export default function TramesListScreen() {
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
           ListEmptyComponent={
             !loading ? (
-              <EmptyState title="Aucune trame" subtitle="Créez votre première trame, ou enregistrez-en une depuis un devis existant." />
+              <EmptyState title={t('tramesList.emptyTitle')} subtitle={t('tramesList.emptySubtitle')} />
             ) : null
           }
           renderItem={({ item }) => (

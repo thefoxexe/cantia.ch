@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // A member without the finance permission (see équipe screen) is already
@@ -12,6 +13,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 // an explicit message instead of a confusing "empty list" or a blank
 // insert-failed error.
 function AccessDenied() {
+  const { t } = useTranslation();
   const router = useRouter();
   return (
     <Screen>
@@ -19,18 +21,18 @@ function AccessDenied() {
         <View style={styles.deniedIcon}>
           <Feather name="lock" size={22} color={colors.textMuted} />
         </View>
-        <Text style={styles.deniedTitle}>Accès non autorisé</Text>
+        <Text style={styles.deniedTitle}>{t('devisLayout.deniedTitle')}</Text>
         <Text style={styles.deniedText}>
-          Vous n'avez pas accès aux devis et factures de cette entreprise. Demandez à un administrateur de vous
-          donner accès depuis Équipe.
+          {t('devisLayout.deniedText')}
         </Text>
-        <Button title="Retour à l'accueil" onPress={() => router.replace('/(app)')} />
+        <Button title={t('devisLayout.backHome')} onPress={() => router.replace('/(app)')} />
       </View>
     </Screen>
   );
 }
 
 export default function DevisLayout() {
+  const { t } = useTranslation();
   const { canViewFinances, loading } = useAuth();
   // The membership/role fetch that determines canViewFinances is async and
   // starts out false — without this guard, landing here directly (deep
@@ -51,15 +53,15 @@ export default function DevisLayout() {
           title) — the Stack's auto header would otherwise stack a second
           title above it. */}
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="new" options={{ title: 'Nouveau devis', presentation: 'modal' }} />
-      <Stack.Screen name="[id]" options={{ title: 'Devis' }} />
+      <Stack.Screen name="new" options={{ title: t('devisLayout.newDevis'), presentation: 'modal' }} />
+      <Stack.Screen name="[id]" options={{ title: t('devisLayout.devis') }} />
       <Stack.Screen name="factures/index" options={{ headerShown: false }} />
-      <Stack.Screen name="factures/new" options={{ title: 'Nouvelle facture', presentation: 'modal' }} />
-      <Stack.Screen name="factures/[id]" options={{ title: 'Facture' }} />
+      <Stack.Screen name="factures/new" options={{ title: t('devisLayout.newFacture'), presentation: 'modal' }} />
+      <Stack.Screen name="factures/[id]" options={{ title: t('devisLayout.facture') }} />
       <Stack.Screen name="factures/import-releve" options={{ headerShown: false }} />
       <Stack.Screen name="trames/index" options={{ headerShown: false }} />
-      <Stack.Screen name="trames/new" options={{ title: 'Nouvelle trame', presentation: 'modal' }} />
-      <Stack.Screen name="trames/[id]" options={{ title: 'Trame' }} />
+      <Stack.Screen name="trames/new" options={{ title: t('devisLayout.newTrame'), presentation: 'modal' }} />
+      <Stack.Screen name="trames/[id]" options={{ title: t('devisLayout.trame') }} />
       <Stack.Screen name="inventaire" options={{ headerShown: false }} />
       <Stack.Screen name="tva" options={{ headerShown: false }} />
     </Stack>
