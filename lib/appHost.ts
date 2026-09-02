@@ -45,17 +45,25 @@ export function excludeAppHostFromIndexing(): void {
 // Href for the "Se connecter" / "Créer un compte" links on the marketing
 // site: on cantia.ch these must cross over to app.cantia.ch (the browser
 // address bar should end up there); everywhere else, keep the normal
-// same-origin Expo Router path so dev/preview builds keep working. Carries
-// the current locale as a query param when it's not the default — a real
+// same-origin Expo Router path so dev/preview builds keep working. Always
+// carries the current locale as an explicit query param — a real
 // cross-origin navigation loses any in-memory state, so the URL is the only
 // way a visitor reading the German marketing site lands on a German signup
 // screen (see applyLocaleFromUrlParam in lib/translations, which reads this
-// back on the app host).
+// back on the app host). Deliberately NOT skipped for French (the default):
+// app.cantia.ch's own AsyncStorage cache can be stale from an earlier visit
+// in the same browser (a different account, an earlier /de test, ...), and
+// before an organization exists there's nothing in the DB yet to reconcile
+// it against (loadOrganization's dbLocale check only kicks in once
+// organization_members has a row) — so a French visitor with no explicit
+// signal would silently inherit that stale cache through the entire
+// onboarding flow (create/join-organization, choose-plan) until an org
+// finally loads. An explicit ?locale=fr closes that gap the same way
+// ?locale=de already did.
 export function authHref(kind: 'login' | 'signup'): string {
   const locale = getAppLocale();
-  const query = locale !== 'fr' ? `?locale=${locale}` : '';
-  if (isMarketingHost()) return `https://${APP_HOST}/${kind}${query}`;
-  return `/(auth)/${kind}${query}`;
+  if (isMarketingHost()) return `https://${APP_HOST}/${kind}?locale=${locale}`;
+  return `/(auth)/${kind}?locale=${locale}`;
 }
 
 // Maps the current marketing pathname onto its other-language equivalent —
