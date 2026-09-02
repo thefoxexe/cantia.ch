@@ -3,7 +3,7 @@ import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text
 import { Link, usePathname } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
-import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
+import { breakpoints, colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
@@ -77,7 +77,8 @@ export function MarketingNav() {
   }, [menuOpen, menuAnim]);
 
   return (
-    <View style={styles.nav}>
+    <View style={styles.navOuter}>
+      <View style={styles.nav}>
       <Link href={homeHref as any} asChild>
         <Pressable style={styles.navBrandRow}>
           <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
@@ -134,48 +135,66 @@ export function MarketingNav() {
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
-              <Link href={servicesHref as any} asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="grid" size={18} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
-              <Link href={pricingHref as any} asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="tag" size={18} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
-              <Link href="/telechargement" asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="download" size={18} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
-              <Link href="/aide" asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="life-buoy" size={18} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
-              <Link href={toggleLocalePathname(pathname, locale === 'de' ? 'fr' : 'de') as any} asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="globe" size={18} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{locale === 'de' ? 'Français' : 'Deutsch'}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
-              <Link href={authHref('login')} asChild>
-                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                  <Feather name="log-in" size={18} color={colors.primary} />
-                  <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                </Pressable>
-              </Link>
+              <View style={styles.mobileMenuGroup}>
+                <Link href={servicesHref as any} asChild>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                    <View style={styles.mobileMenuIconBadge}>
+                      <Feather name="grid" size={17} color={colors.primary} />
+                    </View>
+                    <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                  </Pressable>
+                </Link>
+                <Link href={pricingHref as any} asChild>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                    <View style={styles.mobileMenuIconBadge}>
+                      <Feather name="tag" size={17} color={colors.primary} />
+                    </View>
+                    <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                  </Pressable>
+                </Link>
+                <Link href="/telechargement" asChild>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                    <View style={styles.mobileMenuIconBadge}>
+                      <Feather name="download" size={17} color={colors.primary} />
+                    </View>
+                    <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                  </Pressable>
+                </Link>
+                <Link href="/aide" asChild>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                    <View style={styles.mobileMenuIconBadge}>
+                      <Feather name="life-buoy" size={17} color={colors.primary} />
+                    </View>
+                    <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                  </Pressable>
+                </Link>
+              </View>
+
+              <View style={styles.mobileMenuGroup}>
+                <Link href={toggleLocalePathname(pathname, locale === 'de' ? 'fr' : 'de') as any} asChild>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                    <View style={styles.mobileMenuIconBadge}>
+                      <Feather name="globe" size={17} color={colors.primary} />
+                    </View>
+                    <Text style={styles.mobileMenuText}>{locale === 'de' ? 'Français' : 'Deutsch'}</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                  </Pressable>
+                </Link>
+                <Link href={authHref('login')} asChild>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                    <View style={styles.mobileMenuIconBadge}>
+                      <Feather name="log-in" size={17} color={colors.primary} />
+                    </View>
+                    <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                  </Pressable>
+                </Link>
+              </View>
+
               <Link href={authHref('signup')} asChild>
                 <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
               </Link>
@@ -183,6 +202,7 @@ export function MarketingNav() {
           </Animated.View>
         </Modal>
       ) : null}
+      </View>
     </View>
   );
 }
@@ -320,6 +340,12 @@ export function MarketingFooter({
 }
 
 const styles = StyleSheet.create({
+  navOuter: {
+    width: '100%',
+    backgroundColor: colors.bg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
   nav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -398,6 +424,8 @@ const styles = StyleSheet.create({
   hamburgerButton: {
     width: 40,
     height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -412,19 +440,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl,
     paddingBottom: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   mobileMenuBody: {
     paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
-    gap: spacing.xs,
+  },
+  mobileMenuGroup: {
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
   },
   mobileMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  mobileMenuIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   mobileMenuText: {
     fontFamily: marketingFonts.body,
@@ -435,9 +480,10 @@ const styles = StyleSheet.create({
   },
   mobileMenuChevron: {
     marginLeft: 'auto',
+    opacity: 0.5,
   },
   mobileMenuCta: {
-    marginTop: spacing.lg,
+    marginTop: spacing.sm,
   },
   footer: {
     marginTop: spacing.xxxl,

@@ -1150,38 +1150,45 @@ function LandingContent() {
               </View>
 
               <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
-                <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} icon="grid" label={t.nav.services} />
-                <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} icon="tag" label={t.nav.pricing} />
-                <Link href="/telechargement" asChild>
-                  <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} icon="download" label={t.nav.download} />
-                </Link>
-                <Link href="/aide" asChild>
-                  <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} icon="life-buoy" label={t.nav.help} />
-                </Link>
-                <Link href={toggleLocalePathname(pathname, appLocale === 'de' ? 'fr' : 'de') as any} asChild>
-                  <MenuItem
-                    anim={menuItemAnims[4]}
-                    onPress={() => setMenuOpen(false)}
-                    icon="globe"
-                    label={appLocale === 'de' ? 'Français' : 'Deutsch'}
-                  />
-                </Link>
-                <Animated.View
-                  style={{
-                    opacity: menuItemAnims[5],
-                    transform: [
-                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
-                    ],
-                  }}
-                >
-                  <Link href={authHref('login')} asChild>
-                    <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                      <Feather name="log-in" size={18} color={colors.primary} />
-                      <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
-                      <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                    </Pressable>
+                <View style={styles.mobileMenuGroup}>
+                  <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} icon="grid" label={t.nav.services} />
+                  <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} icon="tag" label={t.nav.pricing} />
+                  <Link href="/telechargement" asChild>
+                    <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} icon="download" label={t.nav.download} />
                   </Link>
-                </Animated.View>
+                  <Link href="/aide" asChild>
+                    <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} icon="life-buoy" label={t.nav.help} />
+                  </Link>
+                </View>
+
+                <View style={styles.mobileMenuGroup}>
+                  <Link href={toggleLocalePathname(pathname, appLocale === 'de' ? 'fr' : 'de') as any} asChild>
+                    <MenuItem
+                      anim={menuItemAnims[4]}
+                      onPress={() => setMenuOpen(false)}
+                      icon="globe"
+                      label={appLocale === 'de' ? 'Français' : 'Deutsch'}
+                    />
+                  </Link>
+                  <Animated.View
+                    style={{
+                      opacity: menuItemAnims[5],
+                      transform: [
+                        { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      ],
+                    }}
+                  >
+                    <Link href={authHref('login')} asChild>
+                      <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                        <View style={styles.mobileMenuIconBadge}>
+                          <Feather name="log-in" size={17} color={colors.primary} />
+                        </View>
+                        <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
+                        <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                      </Pressable>
+                    </Link>
+                  </Animated.View>
+                </View>
 
                 <Animated.View
                   style={{
@@ -1324,7 +1331,9 @@ function MenuItem({
       }}
     >
       <Pressable style={styles.mobileMenuItem} onPress={onPress}>
-        <Feather name={icon} size={18} color={colors.primary} />
+        <View style={styles.mobileMenuIconBadge}>
+          <Feather name={icon} size={17} color={colors.primary} />
+        </View>
         <Text style={styles.mobileMenuText}>{label}</Text>
         <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
       </Pressable>
@@ -1928,8 +1937,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1939,7 +1947,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.bg,
   },
   mobileMenuHeader: {
     flexDirection: 'row',
@@ -1953,17 +1961,32 @@ const styles = StyleSheet.create({
   },
   mobileMenuBody: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
     flexGrow: 1,
+  },
+  mobileMenuGroup: {
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
   },
   mobileMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  mobileMenuIconBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   mobileMenuText: {
     flex: 1,
@@ -1973,9 +1996,10 @@ const styles = StyleSheet.create({
   },
   mobileMenuChevron: {
     marginLeft: 'auto',
+    opacity: 0.5,
   },
   mobileMenuCta: {
-    marginTop: spacing.xl,
+    marginTop: spacing.sm,
   },
   heroWrap: {
     position: 'relative',
