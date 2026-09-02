@@ -9,29 +9,31 @@ import { ClientPortalFooter } from '../../components/ClientPortalFooter';
 import { Button, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { premiumCard, portalFonts, heroWash } from '../../lib/clientPortalTheme';
+import { detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
 import type { PublicFacturePayload } from '../../lib/types';
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Brouillon',
-  sent: 'Envoyée',
-  partial: 'Partiellement payée',
-  paid: 'Payée',
-  cancelled: 'Annulée',
-};
-
-const TRUST_POINTS: { icon: React.ComponentProps<typeof Feather>['name']; label: string }[] = [
-  { icon: 'lock', label: 'Lien chiffré et personnel' },
-  { icon: 'map-pin', label: 'Hébergé en Suisse' },
-  { icon: 'eye-off', label: 'Vos données ne sont pas partagées' },
-];
+detectAndApplyBrowserLocale();
 
 function chf(n: number): string {
-  return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
+  return `${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
 type GateStage = 'email' | 'code';
 
 export default function PublicFactureScreen() {
+  const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    draft: t('common.status.draft'),
+    sent: t('common.status.sent'),
+    partial: t('common.status.partial'),
+    paid: t('common.status.paid'),
+    cancelled: t('common.status.cancelled'),
+  };
+  const TRUST_POINTS: { icon: React.ComponentProps<typeof Feather>['name']; label: string }[] = [
+    { icon: 'lock', label: t('publicFacturePortal.trustEncrypted') },
+    { icon: 'map-pin', label: t('publicFacturePortal.trustHostedSwitzerland') },
+    { icon: 'eye-off', label: t('publicFacturePortal.trustDataNotShared') },
+  ];
   const { token, email: emailParam, session: sessionParam } = useLocalSearchParams<{ token: string; email?: string; session?: string }>();
   const router = useRouter();
   const [stage, setStage] = useState<GateStage>('email');
@@ -73,7 +75,7 @@ export default function PublicFactureScreen() {
     const { ok, error } = await requestPortalCode(token, 'facture', email.trim());
     setSendingCode(false);
     if (!ok) {
-      setGateError(error ?? "Échec de l'envoi du code.");
+      setGateError(error ?? t('publicFacturePortal.codeSendFailed'));
       return;
     }
     setCode('');
@@ -87,10 +89,10 @@ export default function PublicFactureScreen() {
     const { ok, error } = await requestPortalCode(token, 'facture', email.trim());
     setSendingCode(false);
     if (!ok) {
-      setGateError(error ?? "Échec de l'envoi du code.");
+      setGateError(error ?? t('publicFacturePortal.codeSendFailed'));
       return;
     }
-    setResendHint('Un nouveau code a été envoyé.');
+    setResendHint(t('publicFacturePortal.newCodeSent'));
   }
 
   async function handleVerifyCode() {
@@ -100,13 +102,13 @@ export default function PublicFactureScreen() {
     const { session: newSession, error } = await verifyPortalCode(token, email.trim(), code.trim());
     if (error || !newSession) {
       setVerifyingCode(false);
-      setGateError(error ?? 'Code invalide.');
+      setGateError(error ?? t('publicFacturePortal.invalidCode'));
       return;
     }
     const { data, error: loadError } = await getPublicFacture(token, email.trim(), newSession);
     setVerifyingCode(false);
     if (loadError || !data) {
-      setGateError(loadError ?? 'Impossible de charger la facture.');
+      setGateError(loadError ?? t('publicFacturePortal.loadFailed'));
       return;
     }
     setSession(newSession);
@@ -125,23 +127,22 @@ export default function PublicFactureScreen() {
           </View>
           {stage === 'email' ? (
             <>
-              <Text style={styles.gateTitle}>Consulter ma facture</Text>
+              <Text style={styles.gateTitle}>{t('publicFacturePortal.gateTitleEmail')}</Text>
               <Text style={styles.gateSubtitle}>
-                Pour votre sécurité, saisissez l'adresse email à laquelle cette facture vous a été adressée. Nous vous enverrons un code
-                de vérification à usage unique.
+                {t('publicFacturePortal.gateSubtitleEmail')}
               </Text>
-              <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
+              <Field label={t('publicFacturePortal.emailLabel')} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder={t('publicFacturePortal.emailPlaceholder')} />
               {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
-              <Button title="Recevoir mon code" onPress={handleRequestCode} loading={sendingCode} disabled={!email.trim()} style={styles.pillButton} />
+              <Button title={t('publicFacturePortal.receiveCode')} onPress={handleRequestCode} loading={sendingCode} disabled={!email.trim()} style={styles.pillButton} />
             </>
           ) : (
             <>
-              <Text style={styles.gateTitle}>Entrez votre code</Text>
+              <Text style={styles.gateTitle}>{t('publicFacturePortal.gateTitleCode')}</Text>
               <Text style={styles.gateSubtitle}>
-                Un code à 6 chiffres a été envoyé à {email.trim()} s'il correspond à cette facture. Il expire dans 10 minutes.
+                {t('publicFacturePortal.gateSubtitleCode', { email: email.trim() })}
               </Text>
               <Field
-                label="Code de vérification"
+                label={t('publicFacturePortal.codeLabel')}
                 value={code}
                 onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
                 keyboardType="number-pad"
@@ -150,10 +151,10 @@ export default function PublicFactureScreen() {
               />
               {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
               {resendHint ? <Text style={styles.hint}>{resendHint}</Text> : null}
-              <Button title="Vérifier" onPress={handleVerifyCode} loading={verifyingCode} disabled={code.trim().length !== 6} style={styles.pillButton} />
+              <Button title={t('publicFacturePortal.verify')} onPress={handleVerifyCode} loading={verifyingCode} disabled={code.trim().length !== 6} style={styles.pillButton} />
               <View style={styles.gateLinksRow}>
                 <Text onPress={handleResendCode} style={styles.gateLink}>
-                  Renvoyer le code
+                  {t('publicFacturePortal.resendCode')}
                 </Text>
                 <Text
                   onPress={() => {
@@ -163,7 +164,7 @@ export default function PublicFactureScreen() {
                   }}
                   style={styles.gateLink}
                 >
-                  Modifier l'adresse email
+                  {t('publicFacturePortal.changeEmail')}
                 </Text>
               </View>
             </>
@@ -189,7 +190,7 @@ export default function PublicFactureScreen() {
     const { url, error } = await getPublicDocumentPdfUrl(token, 'facture', email.trim(), session);
     setDownloadingPdf(false);
     if (error || !url) {
-      setDownloadError(error ?? 'Échec du téléchargement.');
+      setDownloadError(error ?? t('publicFacturePortal.downloadFailed'));
       return;
     }
     await downloadFile(url, `Facture-${payload?.facture.number ?? token}.pdf`);
@@ -202,7 +203,7 @@ export default function PublicFactureScreen() {
       <ClientPortalHeader onMenuPress={handleOpenHistory} />
 
       <View style={[premiumCard, styles.headerCard]}>
-        <Text style={styles.eyebrow}>{facture.is_deposit ? 'Facture d’acompte' : 'Facture'} {facture.number ?? ''}</Text>
+        <Text style={styles.eyebrow}>{facture.is_deposit ? t('publicFacturePortal.depositFactureNumber', { number: facture.number ?? '' }) : t('publicFacturePortal.factureNumber', { number: facture.number ?? '' })}</Text>
         <Text style={styles.orgName}>{organization.name}</Text>
         <View style={[styles.statusPill, facture.status === 'paid' && styles.statusPillAccepted]}>
           <Text style={[styles.statusPillText, facture.status === 'paid' && styles.statusPillTextAccepted]}>
@@ -211,7 +212,7 @@ export default function PublicFactureScreen() {
         </View>
         {facture.has_pdf ? (
           <Button
-            title="Télécharger le PDF"
+            title={t('publicFacturePortal.downloadPdf')}
             variant="secondary"
             icon="download"
             loading={downloadingPdf}
@@ -223,13 +224,13 @@ export default function PublicFactureScreen() {
       </View>
 
       <View style={[premiumCard, styles.card]}>
-        <Text style={styles.sectionTitle}>Client</Text>
+        <Text style={styles.sectionTitle}>{t('publicFacturePortal.clientLabel')}</Text>
         <Text style={styles.line}>{facture.client_name}</Text>
         {facture.client_address ? <Text style={styles.lineMuted}>{facture.client_address}</Text> : null}
       </View>
 
       <View style={[premiumCard, styles.card]}>
-        <Text style={styles.sectionTitle}>Détail</Text>
+        <Text style={styles.sectionTitle}>{t('publicFacturePortal.detailLabel')}</Text>
         {items.map((item) => (
           <View key={item.id} style={styles.itemRow}>
             <Text style={styles.itemDescription}>{item.description}</Text>
@@ -241,34 +242,34 @@ export default function PublicFactureScreen() {
         ))}
         <View style={styles.divider} />
         <View style={styles.totalsRow}>
-          <Text style={styles.lineMuted}>Sous-total</Text>
+          <Text style={styles.lineMuted}>{t('publicFacturePortal.subtotal')}</Text>
           <Text style={styles.line}>{chf(totals.subtotal)}</Text>
         </View>
         <View style={styles.totalsRow}>
-          <Text style={styles.lineMuted}>TVA ({facture.vat_rate}%)</Text>
+          <Text style={styles.lineMuted}>{t('publicFacturePortal.vat', { rate: facture.vat_rate })}</Text>
           <Text style={styles.line}>{chf(totals.vat)}</Text>
         </View>
         <View style={styles.totalsRow}>
-          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalLabel}>{t('publicFacturePortal.total')}</Text>
           <Text style={styles.totalAmount}>{chf(totals.total)}</Text>
         </View>
         {paid > 0 ? (
           <View style={styles.totalsRow}>
-            <Text style={styles.lineMuted}>Déjà réglé</Text>
+            <Text style={styles.lineMuted}>{t('publicFacturePortal.alreadyPaid')}</Text>
             <Text style={styles.line}>{chf(paid)}</Text>
           </View>
         ) : null}
         <View style={styles.totalsRow}>
-          <Text style={styles.totalLabel}>Solde restant dû</Text>
+          <Text style={styles.totalLabel}>{t('publicFacturePortal.remainingBalance')}</Text>
           <Text style={styles.totalAmount}>{chf(remaining)}</Text>
         </View>
         {facture.notes ? <Text style={[styles.lineMuted, { marginTop: spacing.md }]}>{facture.notes}</Text> : null}
       </View>
 
       <View style={[premiumCard, styles.card]}>
-        <Text style={styles.sectionTitle}>Échéance</Text>
-        <Text style={styles.line}>{new Date(facture.due_date).toLocaleDateString('fr-CH')}</Text>
-        {facture.paid_at ? <Text style={styles.lineMuted}>Réglée le {new Date(facture.paid_at).toLocaleDateString('fr-CH')}</Text> : null}
+        <Text style={styles.sectionTitle}>{t('publicFacturePortal.dueDateLabel')}</Text>
+        <Text style={styles.line}>{new Date(facture.due_date).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
+        {facture.paid_at ? <Text style={styles.lineMuted}>{t('publicFacturePortal.paidOn', { date: new Date(facture.paid_at).toLocaleDateString(`${getAppLocale()}-CH`) })}</Text> : null}
       </View>
       <ClientPortalFooter />
     </ScrollView>
