@@ -53,7 +53,11 @@ interface Dict {
 }
 
 const fr: Dict = {
-  nav: { services: 'Services', pricing: 'Tarifs', download: 'Télécharger', help: 'Documentation', login: 'Se connecter', cta: 'Essayer Cantia' },
+  // "Download" left in English on purpose (not "Télécharger") — a common,
+  // internationally-understood tech word, so this one nav label reads
+  // identically for French and German visitors instead of needing its own
+  // translation per locale.
+  nav: { services: 'Services', pricing: 'Tarifs', download: 'Download', help: 'Documentation', login: 'Se connecter', cta: 'Essayer Cantia' },
   hero: {
     kicker: 'Conçu pour le bâtiment suisse 🇨🇭',
     headlinePrefix: 'Gérez vos chantiers.',
@@ -287,7 +291,9 @@ const fr: Dict = {
 
 
 const de: Dict = {
-  nav: { services: 'Leistungen', pricing: 'Preise', download: 'Herunterladen', help: 'Dokumentation', login: 'Anmelden', cta: 'Cantia testen' },
+  // "Download" left in English (not "Herunterladen") — see the fr dict's
+  // comment above, same reasoning.
+  nav: { services: 'Leistungen', pricing: 'Preise', download: 'Download', help: 'Dokumentation', login: 'Anmelden', cta: 'Cantia testen' },
   hero: {
     kicker: 'Für das Schweizer Baugewerbe entwickelt 🇨🇭',
     headlinePrefix: 'Verwalten Sie Ihre Baustellen.',
