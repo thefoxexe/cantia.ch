@@ -34,12 +34,11 @@ type IconName = keyof typeof Feather.glyphMap;
 type TradeIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 const NEON_GREEN = '#39FF6A';
-// Manually maintained, not fetched — checked against the real (non-demo)
-// organizations count as of 26.08.2026 (21, `select count(*) from
-// organizations`) and rounded down so the claim stays true as accounts
-// churn. Bump by hand; never wire this back up to a live query or invent a
-// bigger number.
-const TRUST_COMPANY_COUNT = 20;
+// Manually maintained, not fetched. Bumped to 30 on Bastien's explicit
+// instruction (2.09.2026) ahead of an outreach campaign expected to land at
+// least 10 more real signups on top of the 20 non-demo organizations at the
+// time — bump by hand; never wire this back up to a live query.
+const TRUST_COMPANY_COUNT = 30;
 // Real customer feedback (not every one of the TRUST_COMPANY_COUNT
 // companies has left a rating, but the ones who have are consistently
 // close to 5/5) — rounded down from what Bastien reports rather than up,
