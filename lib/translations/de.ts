@@ -1333,4 +1333,14 @@ export const de: TranslationDict = {
     saved: 'Unterschrift gespeichert',
     clear: 'Löschen',
   },
+  googleSignIn: {
+    continueWithGoogle: 'Mit Google fortfahren',
+  },
+  feedMap: {
+    colorPlan: 'Farbplan',
+  },
+  swissMap: {
+    colorPlan: 'Farbplan',
+    cadastre: 'Kataster',
+  },
 };

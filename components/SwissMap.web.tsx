@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { colors, radius } from '../lib/theme';
+import { i18next } from '../lib/translations';
 
 export interface MapPoint {
   id: string;
@@ -71,8 +72,8 @@ function buildHtml(points: MapPoint[]): string {
   cadastre.addTo(map);
 
   L.control.layers(
-    { 'Orthophoto': swissImage, 'Plan couleur': swissPlan },
-    { 'Cadastre': cadastre }
+    { 'Orthophoto': swissImage, ${JSON.stringify(i18next.t('swissMap.colorPlan'))}: swissPlan },
+    { ${JSON.stringify(i18next.t('swissMap.cadastre'))}: cadastre }
   ).addTo(map);
 
   var markers = ${JSON.stringify(markers)};

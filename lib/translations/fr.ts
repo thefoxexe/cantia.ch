@@ -1319,6 +1319,16 @@ export const fr = {
     saved: 'Signature enregistrée',
     clear: 'Effacer',
   },
+  googleSignIn: {
+    continueWithGoogle: 'Continuer avec Google',
+  },
+  feedMap: {
+    colorPlan: 'Plan couleur',
+  },
+  swissMap: {
+    colorPlan: 'Plan couleur',
+    cadastre: 'Cadastre',
+  },
 };
 
 export type TranslationDict = typeof fr;

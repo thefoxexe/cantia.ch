@@ -1,3 +1,5 @@
+import { getAppLocale, i18next } from './translations';
+
 export interface FeedMapPoint {
   id: string;
   lat: number;
@@ -19,7 +21,7 @@ export function buildFeedMapHtml(points: FeedMapPoint[]): string {
     thumb: p.thumbUrl,
     popup: [
       p.caption ? escapeHtml(p.caption) : null,
-      new Date(p.takenAt).toLocaleString('fr-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      new Date(p.takenAt).toLocaleString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
     ]
       .filter(Boolean)
       .join(' — '),
@@ -54,7 +56,7 @@ export function buildFeedMapHtml(points: FeedMapPoint[]): string {
     maxZoom: 20, attribution: 'swisstopo'
   });
   swissImage.addTo(map);
-  L.control.layers({ 'Orthophoto': swissImage, 'Plan couleur': swissPlan }).addTo(map);
+  L.control.layers({ 'Orthophoto': swissImage, ${JSON.stringify(i18next.t('feedMap.colorPlan'))}: swissPlan }).addTo(map);
 
   var markers = ${JSON.stringify(markers)};
   var bounds = [];

@@ -3,8 +3,10 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 
 export function GoogleSignInButton() {
+  const { t } = useTranslation();
   const { signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function GoogleSignInButton() {
         ) : (
           <>
             <Ionicons name="logo-google" size={18} color={colors.text} />
-            <Text style={styles.text}>Continuer avec Google</Text>
+            <Text style={styles.text}>{t('googleSignIn.continueWithGoogle')}</Text>
           </>
         )}
       </Pressable>
