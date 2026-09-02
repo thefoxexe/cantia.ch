@@ -1,46 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type ViewStyle } from 'react-native';
-import { Link, usePathname } from 'expo-router';
+import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { Button } from './ui';
+import { Button, LangToggle } from './ui';
 import { breakpoints, colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
-// FR/DE toggle for the marketing site's nav and footer — links to the same
-// page's other-language mirror (toggleLocalePathname), not just the
-// homepage, so switching from a trade or solution page keeps the visitor on
-// that same page. Language names are deliberately not translated (a French
-// reader still expects to see "Deutsch", not "Allemand") — this is the one
-// piece of marketing chrome that stays hardcoded FR/DE either way.
-// Expo Router's <Link asChild> clones its child through a <Slot> that only
-// accepts a single flattened style object on that direct child — an array
-// style (the usual RN "[base, condition && variant]" pattern) throws
-// "[expo-router]: You are passing an array of styles to a child of <Slot>"
-// and takes down the whole page's error boundary. StyleSheet.flatten here
-// keeps the same conditional-active-pill styling without ever handing Link
-// an array.
+// FR/DE toggle for the marketing site's nav, footer and mobile menu — an
+// animated sliding pill (LangToggle, see components/ui.tsx) rather than two
+// separate text links, so switching language reads as one small physical
+// gesture (the active side slides across) instead of picking between two
+// static labels. Navigates to the same page's other-language mirror
+// (toggleLocalePathname), not just the homepage, so switching from a trade
+// or solution page keeps the visitor on that same page. router.push rather
+// than <Link> — LangToggle's onChange is a plain callback, and a real
+// client-side navigation here still runs through the same pathname-change
+// effect (useSyncMarketingLocaleFromPath) a <Link> click would.
 export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
   const locale = getAppLocale();
-  const frHref = toggleLocalePathname(pathname, 'fr');
-  const deHref = toggleLocalePathname(pathname, 'de');
-  const pillStyle = (active: boolean): ViewStyle => StyleSheet.flatten([styles.langPill, active && styles.langPillActive]);
-  const pillTextStyle = (active: boolean) => StyleSheet.flatten([styles.langPillText, active && styles.langPillTextActive]);
   return (
-    <View style={[styles.langSwitcher, compact && styles.langSwitcherCompact]}>
-      <Link href={frHref as any} asChild>
-        <Pressable style={pillStyle(locale === 'fr')} hitSlop={4}>
-          <Text style={pillTextStyle(locale === 'fr')}>FR</Text>
-        </Pressable>
-      </Link>
-      <Link href={deHref as any} asChild>
-        <Pressable style={pillStyle(locale === 'de')} hitSlop={4}>
-          <Text style={pillTextStyle(locale === 'de')}>DE</Text>
-        </Pressable>
-      </Link>
+    <View style={compact ? styles.langSwitcherCompact : undefined}>
+      <LangToggle value={locale} onChange={(next) => router.push(toggleLocalePathname(pathname, next) as any)} />
     </View>
   );
 }
@@ -55,6 +40,7 @@ export function MarketingNav() {
   const { t: tr } = useTranslation();
   const locale = getAppLocale();
   const pathname = usePathname();
+  const router = useRouter();
   const homeHref = locale === 'de' ? '/de' : '/';
   const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
@@ -130,70 +116,43 @@ export function MarketingNav() {
                 <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
                 <Text style={styles.navBrand}>Cantia</Text>
               </View>
-              <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
-                <Feather name="x" size={22} color={colors.text} />
-              </Pressable>
+              <View style={styles.mobileMenuHeaderRight}>
+                <LangToggle value={locale} onChange={(next) => router.push(toggleLocalePathname(pathname, next) as any)} />
+                <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
+                  <Feather name="x" size={22} color={colors.text} />
+                </Pressable>
+              </View>
             </View>
             <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
               <View style={styles.mobileMenuGroup}>
                 <Link href={servicesHref as any} asChild>
                   <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <View style={styles.mobileMenuIconBadge}>
-                      <Feather name="grid" size={17} color={colors.primary} />
-                    </View>
                     <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                   </Pressable>
                 </Link>
                 <Link href={pricingHref as any} asChild>
                   <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <View style={styles.mobileMenuIconBadge}>
-                      <Feather name="tag" size={17} color={colors.primary} />
-                    </View>
                     <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                   </Pressable>
                 </Link>
                 <Link href="/telechargement" asChild>
                   <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <View style={styles.mobileMenuIconBadge}>
-                      <Feather name="download" size={17} color={colors.primary} />
-                    </View>
                     <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                   </Pressable>
                 </Link>
                 <Link href="/aide" asChild>
-                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <View style={styles.mobileMenuIconBadge}>
-                      <Feather name="life-buoy" size={17} color={colors.primary} />
-                    </View>
+                  <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
                     <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                   </Pressable>
                 </Link>
               </View>
 
-              <View style={styles.mobileMenuGroup}>
-                <Link href={toggleLocalePathname(pathname, locale === 'de' ? 'fr' : 'de') as any} asChild>
-                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <View style={styles.mobileMenuIconBadge}>
-                      <Feather name="globe" size={17} color={colors.primary} />
-                    </View>
-                    <Text style={styles.mobileMenuText}>{locale === 'de' ? 'Français' : 'Deutsch'}</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                  </Pressable>
-                </Link>
-                <Link href={authHref('login')} asChild>
-                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <View style={styles.mobileMenuIconBadge}>
-                      <Feather name="log-in" size={17} color={colors.primary} />
-                    </View>
-                    <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                  </Pressable>
-                </Link>
-              </View>
+              <Link href={authHref('login')} asChild>
+                <Pressable style={styles.mobileMenuSecondaryItem} onPress={() => setMenuOpen(false)}>
+                  <Feather name="log-in" size={15} color={colors.textMuted} />
+                  <Text style={styles.mobileMenuSecondaryText}>{t.nav.login}</Text>
+                </Pressable>
+              </Link>
 
               <Link href={authHref('signup')} asChild>
                 <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
@@ -385,41 +344,8 @@ const styles = StyleSheet.create({
   navCta: {
     paddingHorizontal: spacing.lg,
   },
-  // A tiny two-segment pill, like an iOS-style toggle — reads as a single
-  // small control rather than two loose "FR / DE" text links sitting
-  // awkwardly among the nav's other (much larger) touch targets.
-  langSwitcher: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: 999,
-    padding: 2,
-    gap: 1,
-  },
   langSwitcherCompact: {
     marginLeft: 0,
-  },
-  langPill: {
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  langPillActive: {
-    backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  langPillText: {
-    fontFamily: marketingFonts.body,
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textMuted,
-    letterSpacing: 0.2,
-  },
-  langPillTextActive: {
-    color: colors.primary,
   },
   hamburgerButton: {
     width: 40,
@@ -443,48 +369,52 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  mobileMenuHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   mobileMenuBody: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
   },
+  // A plain stacked list — large type, a hairline between rows, nothing
+  // else — reads calmer than the earlier boxed/icon-badge treatment and
+  // lets the type carry it, closer to how the rest of the marketing site's
+  // typography-led sections already look.
   mobileMenuGroup: {
+    marginBottom: spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  mobileMenuItem: {
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  mobileMenuItemLast: {
+    borderBottomWidth: 0,
+  },
+  mobileMenuText: {
+    fontFamily: marketingFonts.display,
+    fontSize: fontSize.xl,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  mobileMenuSecondaryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.xl,
   },
-  mobileMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  mobileMenuIconBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mobileMenuText: {
+  mobileMenuSecondaryText: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.md,
     fontWeight: '600',
-    color: colors.text,
-    flex: 1,
+    color: colors.textMuted,
   },
-  mobileMenuChevron: {
-    marginLeft: 'auto',
-    opacity: 0.5,
-  },
-  mobileMenuCta: {
-    marginTop: spacing.sm,
-  },
+  mobileMenuCta: {},
   footer: {
     marginTop: spacing.xxxl,
     borderTopWidth: 1,
@@ -599,3 +529,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
 });
+
+// A <Link asChild> clones its child through a <Slot> that only accepts a
+// single flattened style object on that direct child, not an array — the
+// usual RN "[base, condition && variant]" pattern throws "[expo-router]:
+// You are passing an array of styles to a child of <Slot>" and takes down
+// the whole page's error boundary. Flattened once here at module scope
+// (it's static) for the one row — last in its group — that needs the
+// bottom hairline removed.
+const mobileMenuLastItemStyle = StyleSheet.flatten([styles.mobileMenuItem, styles.mobileMenuItemLast]);

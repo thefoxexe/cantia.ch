@@ -21,7 +21,7 @@ import {
 import { translateEmailMessage } from '../../../../lib/api/ai';
 import { confirm } from '../../../../lib/confirm';
 import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
-import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { Button, Card, Container, Field, LangToggle, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
@@ -88,6 +88,14 @@ export default function FactureDetailScreen() {
   const [orgLocale, setOrgLocale] = useState<'fr' | 'de'>('fr');
   const [translatingMessage, setTranslatingMessage] = useState(false);
   const [translateError, setTranslateError] = useState<string | null>(null);
+  // Which language the message box currently reads as being in — drives the
+  // FR/DE toggle's slide position, independent of the member's own current
+  // UI language (see devis/[id].tsx's handleTranslateMessage for why: a
+  // fixed target broke exactly the case a German-UI member reported — their
+  // message was already French and they wanted German, but the old button
+  // only ever offered French, following the org's default document locale
+  // rather than the member's actual choice).
+  const [messageLocale, setMessageLocale] = useState<'fr' | 'de'>('fr');
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -180,25 +188,26 @@ export default function FactureDetailScreen() {
 
   function handleOpenEmailModal() {
     setEmailMessage(defaultEmailMessage);
+    setMessageLocale(facture?.locale ?? orgLocale);
     setTranslateError(null);
     setEmailModalVisible(true);
   }
 
-  // Translates the current message text into this facture's own resolved
-  // locale — for when it doesn't match (e.g. an org-saved French default
-  // message being sent alongside a facture whose own override is German).
-  async function handleTranslateMessage() {
-    if (!facture || !emailMessage.trim() || translatingMessage) return;
-    const docLocale = facture.locale ?? orgLocale;
+  // Translates the current message text into whichever language the member
+  // taps on the toggle — a free choice either way, not dictated by this
+  // facture's resolved locale or the member's own current UI language.
+  async function handleTranslateMessage(target: 'fr' | 'de') {
+    if (!facture || !emailMessage.trim() || translatingMessage || target === messageLocale) return;
     setTranslatingMessage(true);
     setTranslateError(null);
-    const { text, error: translateErr } = await translateEmailMessage(facture.organization_id, emailMessage, docLocale);
+    const { text, error: translateErr } = await translateEmailMessage(facture.organization_id, emailMessage, target);
     setTranslatingMessage(false);
     if (translateErr || !text) {
       setTranslateError(translateErr ?? t('factureDetail.translateFailed'));
       return;
     }
     setEmailMessage(text);
+    setMessageLocale(target);
   }
 
   async function handleSendEmail() {
@@ -757,16 +766,10 @@ export default function FactureDetailScreen() {
               numberOfLines={4}
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
             />
-            <Pressable onPress={handleTranslateMessage} disabled={translatingMessage} style={styles.translateLink}>
-              <Feather name="globe" size={13} color={colors.primary} />
-              <Text style={styles.translateLinkText}>
-                {translatingMessage
-                  ? t('factureDetail.translating')
-                  : t('factureDetail.translateToLang', {
-                      lang: (facture?.locale ?? orgLocale) === 'de' ? t('entreprise.localeDe') : t('entreprise.localeFr'),
-                    })}
-              </Text>
-            </Pressable>
+            <View style={styles.translateRow}>
+              <Text style={styles.translateLinkText}>{t('factureDetail.translateLabel')}</Text>
+              <LangToggle value={messageLocale} onChange={handleTranslateMessage} loading={translatingMessage} />
+            </View>
             {translateError ? <Text style={styles.error}>{translateError}</Text> : null}
             <Text style={styles.lockedNoticeText}>
               {t('factureDetail.lockedNoticeText')}
@@ -858,16 +861,16 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.md,
   },
-  translateLink: {
+  translateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    justifyContent: 'space-between',
     marginTop: spacing.sm,
   },
   translateLinkText: {
     fontSize: fontSize.xs,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.textMuted,
   },
   docLocaleBlock: {
     marginTop: spacing.lg,

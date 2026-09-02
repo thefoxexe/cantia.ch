@@ -17,9 +17,9 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import { Link, Redirect, usePathname } from 'expo-router';
+import { Link, Redirect, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Button, Screen, Switch } from '../components/ui';
+import { Button, LangToggle, Screen, Switch } from '../components/ui';
 import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
@@ -82,6 +82,7 @@ function LandingContent() {
   // top-nav one — see the /de homepage question) stays stuck in German.
   useSyncMarketingLocaleFromPath();
   const pathname = usePathname();
+  const router = useRouter();
   const appLocale = getAppLocale();
   const tradeHrefPrefix = appLocale === 'de' ? '/de/' : '/';
   const scrollRef = useRef<ScrollView>(null);
@@ -141,7 +142,7 @@ function LandingContent() {
   const heroTiltY = useRef(new Animated.Value(0)).current;
   const heroVisualRef = useRef<View>(null);
   const menuItemAnims = useRef(
-    Array.from({ length: 7 }, () => new Animated.Value(0)),
+    Array.from({ length: 6 }, () => new Animated.Value(0)),
   ).current;
   // The problem→solution connector's little "trailing" lag as you scroll:
   // each scroll tick nudges it away from rest by a fraction of that tick's
@@ -1144,57 +1145,47 @@ function LandingContent() {
                   <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
                   <Text style={styles.navBrand}>Cantia</Text>
                 </View>
-                <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
-                  <Feather name="x" size={22} color={colors.text} />
-                </Pressable>
+                <View style={styles.mobileMenuHeaderRight}>
+                  <LangToggle value={appLocale} onChange={(next) => router.push(toggleLocalePathname(pathname, next) as any)} />
+                  <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
+                    <Feather name="x" size={22} color={colors.text} />
+                  </Pressable>
+                </View>
               </View>
 
               <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
                 <View style={styles.mobileMenuGroup}>
-                  <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} icon="grid" label={t.nav.services} />
-                  <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} icon="tag" label={t.nav.pricing} />
+                  <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} label={t.nav.services} />
+                  <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} label={t.nav.pricing} />
                   <Link href="/telechargement" asChild>
-                    <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} icon="download" label={t.nav.download} />
+                    <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} label={t.nav.download} />
                   </Link>
                   <Link href="/aide" asChild>
-                    <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} icon="life-buoy" label={t.nav.help} />
+                    <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} label={t.nav.help} last />
                   </Link>
-                </View>
-
-                <View style={styles.mobileMenuGroup}>
-                  <Link href={toggleLocalePathname(pathname, appLocale === 'de' ? 'fr' : 'de') as any} asChild>
-                    <MenuItem
-                      anim={menuItemAnims[4]}
-                      onPress={() => setMenuOpen(false)}
-                      icon="globe"
-                      label={appLocale === 'de' ? 'Français' : 'Deutsch'}
-                    />
-                  </Link>
-                  <Animated.View
-                    style={{
-                      opacity: menuItemAnims[5],
-                      transform: [
-                        { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
-                      ],
-                    }}
-                  >
-                    <Link href={authHref('login')} asChild>
-                      <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                        <View style={styles.mobileMenuIconBadge}>
-                          <Feather name="log-in" size={17} color={colors.primary} />
-                        </View>
-                        <Text style={styles.mobileMenuText}>{t.nav.login}</Text>
-                        <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
-                      </Pressable>
-                    </Link>
-                  </Animated.View>
                 </View>
 
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[6],
+                    opacity: menuItemAnims[4],
                     transform: [
-                      { translateY: menuItemAnims[6].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                    ],
+                  }}
+                >
+                  <Link href={authHref('login')} asChild>
+                    <Pressable style={styles.mobileMenuSecondaryItem} onPress={() => setMenuOpen(false)}>
+                      <Feather name="log-in" size={15} color={colors.textMuted} />
+                      <Text style={styles.mobileMenuSecondaryText}>{t.nav.login}</Text>
+                    </Pressable>
+                  </Link>
+                </Animated.View>
+
+                <Animated.View
+                  style={{
+                    opacity: menuItemAnims[5],
+                    transform: [
+                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -1314,14 +1305,14 @@ function Reveal({
 
 function MenuItem({
   anim,
-  icon,
   label,
   onPress,
+  last,
 }: {
   anim: Animated.Value;
-  icon: React.ComponentProps<typeof Feather>['name'];
   label: string;
   onPress: () => void;
+  last?: boolean;
 }) {
   return (
     <Animated.View
@@ -1330,12 +1321,8 @@ function MenuItem({
         transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
       }}
     >
-      <Pressable style={styles.mobileMenuItem} onPress={onPress}>
-        <View style={styles.mobileMenuIconBadge}>
-          <Feather name={icon} size={17} color={colors.primary} />
-        </View>
+      <Pressable style={[styles.mobileMenuItem, last && styles.mobileMenuItemLast]} onPress={onPress}>
         <Text style={styles.mobileMenuText}>{label}</Text>
-        <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
       </Pressable>
     </Animated.View>
   );
@@ -1959,48 +1946,49 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  mobileMenuHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   mobileMenuBody: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
     flexGrow: 1,
   },
+  // A plain stacked list — large type, a hairline between rows, nothing
+  // else — reads calmer than the earlier boxed/icon-badge treatment.
   mobileMenuGroup: {
+    marginBottom: spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  mobileMenuItem: {
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  mobileMenuItemLast: {
+    borderBottomWidth: 0,
+  },
+  mobileMenuText: {
+    fontSize: fontSize.xl,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  mobileMenuSecondaryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.xl,
   },
-  mobileMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  mobileMenuIconBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mobileMenuText: {
-    flex: 1,
-    fontSize: fontSize.lg,
+  mobileMenuSecondaryText: {
+    fontSize: fontSize.md,
     fontWeight: '600',
-    color: colors.text,
+    color: colors.textMuted,
   },
-  mobileMenuChevron: {
-    marginLeft: 'auto',
-    opacity: 0.5,
-  },
-  mobileMenuCta: {
-    marginTop: spacing.sm,
-  },
+  mobileMenuCta: {},
   heroWrap: {
     position: 'relative',
     overflow: 'hidden',

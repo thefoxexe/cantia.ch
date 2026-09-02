@@ -221,6 +221,126 @@ const switchStyles = StyleSheet.create({
   },
 });
 
+const LANG_TOGGLE_WIDTH = 104;
+const LANG_TOGGLE_HEIGHT = 36;
+const LANG_TOGGLE_PAD = 3;
+const LANG_TOGGLE_HALF = (LANG_TOGGLE_WIDTH - LANG_TOGGLE_PAD * 2) / 2;
+
+// A small sliding FR/DE toggle — same animated-thumb pattern as Switch
+// above, but with two labeled halves instead of a boolean knob. `value` is
+// which side currently reads as "selected" (e.g. the language the shown
+// text is currently in); tapping the OTHER side calls onChange with that
+// locale and the thumb slides under it. Tapping the already-active side is
+// a no-op — there's nothing to do, it's already that language. Used both
+// as a real toggle (site language switcher) and as a one-shot action
+// trigger (translate this text into the tapped language) — either way the
+// slide affordance is the same "pick a side" gesture.
+export function LangToggle({
+  value,
+  onChange,
+  disabled,
+  loading,
+}: {
+  value: 'fr' | 'de';
+  onChange: (next: 'fr' | 'de') => void;
+  disabled?: boolean;
+  loading?: boolean;
+}) {
+  const anim = useRef(new Animated.Value(value === 'de' ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: value === 'de' ? 1 : 0,
+      duration: 200,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [value, anim]);
+
+  const thumbTranslate = anim.interpolate({ inputRange: [0, 1], outputRange: [0, LANG_TOGGLE_HALF] });
+  const isBusy = !!disabled || !!loading;
+
+  return (
+    <View style={[langToggleStyles.track, isBusy && langToggleStyles.trackBusy]}>
+      <Animated.View
+        pointerEvents="none"
+        style={[langToggleStyles.thumb, { transform: [{ translateX: thumbTranslate }] }]}
+      />
+      <Pressable
+        style={langToggleStyles.half}
+        onPress={() => !isBusy && value !== 'fr' && onChange('fr')}
+        disabled={isBusy}
+        accessibilityRole="button"
+        accessibilityLabel="Français"
+      >
+        <Text style={[langToggleStyles.text, value === 'fr' && langToggleStyles.textActive]}>FR</Text>
+      </Pressable>
+      <Pressable
+        style={langToggleStyles.half}
+        onPress={() => !isBusy && value !== 'de' && onChange('de')}
+        disabled={isBusy}
+        accessibilityRole="button"
+        accessibilityLabel="Deutsch"
+      >
+        <Text style={[langToggleStyles.text, value === 'de' && langToggleStyles.textActive]}>DE</Text>
+      </Pressable>
+      {loading ? (
+        <View style={langToggleStyles.spinnerOverlay}>
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+const langToggleStyles = StyleSheet.create({
+  track: {
+    width: LANG_TOGGLE_WIDTH,
+    height: LANG_TOGGLE_HEIGHT,
+    borderRadius: LANG_TOGGLE_HEIGHT / 2,
+    backgroundColor: colors.surfaceAlt,
+    flexDirection: 'row',
+    padding: LANG_TOGGLE_PAD,
+  },
+  trackBusy: {
+    opacity: 0.7,
+  },
+  thumb: {
+    position: 'absolute',
+    top: LANG_TOGGLE_PAD,
+    left: LANG_TOGGLE_PAD,
+    width: LANG_TOGGLE_HALF,
+    height: LANG_TOGGLE_HEIGHT - LANG_TOGGLE_PAD * 2,
+    borderRadius: (LANG_TOGGLE_HEIGHT - LANG_TOGGLE_PAD * 2) / 2,
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  half: {
+    width: LANG_TOGGLE_HALF,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  textActive: {
+    color: colors.primary,
+  },
+  spinnerOverlay: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    borderRadius: LANG_TOGGLE_HEIGHT / 2,
+  },
+});
+
 export function LoadingScreen({ label }: { label?: string }) {
   const { t } = useTranslation();
   return (

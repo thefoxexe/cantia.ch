@@ -15,7 +15,7 @@ import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
 import { getDevisBexioMapping, getIntegration, pushClientToBexio, pushDevisToBexio } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, Field, LangToggle, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
 import { ProjectPicker } from '../../../components/ProjectPicker';
@@ -60,6 +60,15 @@ export default function DevisDetailScreen() {
   const [emailMessage, setEmailMessage] = useState('');
   const [translatingMessage, setTranslatingMessage] = useState(false);
   const [translateError, setTranslateError] = useState<string | null>(null);
+  // Which language the message box currently reads as being in — drives the
+  // FR/DE toggle's slide position. Seeded from this devis's resolved locale
+  // when the modal opens (a reasonable starting guess, not a hard rule: the
+  // org's own saved message could be in either language regardless of any
+  // locale setting), then updated to whichever side the member actually
+  // translates into. Deliberately independent of the member's own current
+  // UI language — translating is a free choice in either direction, not
+  // something the platform's own current locale should constrain.
+  const [messageLocale, setMessageLocale] = useState<'fr' | 'de'>('fr');
   const [bexioConnected, setBexioConnected] = useState(false);
   const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
   const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
@@ -211,31 +220,37 @@ export default function DevisDetailScreen() {
     // The message actually reaching the client should match this devis's own
     // resolved locale (its override, or else the org's default) — not
     // necessarily whatever language the sender is currently browsing the app
-    // in — same reasoning as resolveDocLocale server-side.
+    // in — same reasoning as resolveDocLocale server-side. Only a starting
+    // guess for the toggle though (see messageLocale above), never a
+    // constraint on which direction the member can translate afterwards.
     const docLocale = devis?.locale ?? (organization?.locale === 'de' ? 'de' : 'fr');
     setEmailMessage(organization?.devis_email_message ?? defaultDevisEmailMessage(docLocale));
+    setMessageLocale(docLocale);
     setTranslateError(null);
     setEmailModalVisible(true);
   }
 
-  // Translates the current message text into this devis's own resolved
-  // locale — for when it doesn't match (e.g. an org-saved French default
-  // message being sent alongside a devis whose own override is German, see
-  // screenshot feedback: the compose modal's chrome was German but the
-  // prefilled message stayed French since a saved custom message is never
-  // auto-translated, only the generic default is locale-aware).
-  async function handleTranslateMessage() {
-    if (!organization || !emailMessage.trim() || translatingMessage) return;
-    const docLocale = devis?.locale ?? (organization.locale === 'de' ? 'de' : 'fr');
+  // Translates the current message text into whichever language the member
+  // actually taps on the toggle — a free choice either way, not dictated by
+  // this devis's resolved locale, the org's default, or the member's own
+  // current UI language. (Earlier version always targeted the devis's
+  // resolved locale, which broke exactly the case a German-locale member
+  // reported: their message was already in French and they wanted it in
+  // German, but the button only ever offered French — following whatever
+  // the org's default document locale happened to be, regardless of what
+  // language the member was actually working in or wanted.)
+  async function handleTranslateMessage(target: 'fr' | 'de') {
+    if (!organization || !emailMessage.trim() || translatingMessage || target === messageLocale) return;
     setTranslatingMessage(true);
     setTranslateError(null);
-    const { text, error: translateErr } = await translateEmailMessage(organization.id, emailMessage, docLocale);
+    const { text, error: translateErr } = await translateEmailMessage(organization.id, emailMessage, target);
     setTranslatingMessage(false);
     if (translateErr || !text) {
       setTranslateError(translateErr ?? t('devisDetail.translateFailed'));
       return;
     }
     setEmailMessage(text);
+    setMessageLocale(target);
   }
 
   async function handleConfirmSendEmail() {
@@ -581,16 +596,10 @@ export default function DevisDetailScreen() {
               numberOfLines={4}
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
             />
-            <Pressable onPress={handleTranslateMessage} disabled={translatingMessage} style={styles.translateLink}>
-              <Feather name="globe" size={13} color={colors.primary} />
-              <Text style={styles.translateLinkText}>
-                {translatingMessage
-                  ? t('devisDetail.translating')
-                  : t('devisDetail.translateToLang', {
-                      lang: (devis?.locale ?? (organization?.locale === 'de' ? 'de' : 'fr')) === 'de' ? t('entreprise.localeDe') : t('entreprise.localeFr'),
-                    })}
-              </Text>
-            </Pressable>
+            <View style={styles.translateRow}>
+              <Text style={styles.translateLinkText}>{t('devisDetail.translateLabel')}</Text>
+              <LangToggle value={messageLocale} onChange={handleTranslateMessage} loading={translatingMessage} />
+            </View>
             {translateError ? <Text style={styles.error}>{translateError}</Text> : null}
             <Text style={styles.lockedNoticeText}>
               {t('devisDetail.lockedNoticeText')}
@@ -667,16 +676,16 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.md,
   },
-  translateLink: {
+  translateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    justifyContent: 'space-between',
     marginTop: spacing.sm,
   },
   translateLinkText: {
     fontSize: fontSize.xs,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.textMuted,
   },
   docLocaleBlock: {
     marginTop: spacing.lg,
