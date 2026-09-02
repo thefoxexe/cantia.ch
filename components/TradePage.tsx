@@ -9,30 +9,40 @@ import { SwissSection } from './SwissSection';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
-import { TRADE_PAGES, type TradeLandingPage } from '../lib/tradeLandingPages';
+import { getTradePage } from '../lib/tradeLandingPages';
 import { getPostBySlug } from '../lib/blog';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
-// Features present on every trade page regardless of métier — the "richesse
-// globale" block from the brief (section 11), same content everywhere so it
-// never has to be written per métier. Trade-specific usages (5-6 per page,
-// from lib/trades.ts) are shown above this, in their own more detailed grid.
-const SECONDARY_FEATURES: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
-  { icon: 'users', title: 'Clients', text: 'Fiche client avec historique complet des devis, factures et chantiers.' },
-  { icon: 'credit-card', title: 'QR-facture', text: 'Facturation conforme au bulletin QR suisse, sur tous les plans.' },
-  { icon: 'dollar-sign', title: 'Dépenses', text: 'Rattachez les dépenses de chantier pour une rentabilité réelle.' },
-  { icon: 'folder', title: 'Documents', text: 'Plans, PDF et contrats classés en arborescence, par chantier.' },
-  { icon: 'list', title: 'Catalogue', text: 'Vos prestations et prix mémorisés, réutilisables d\'un devis à l\'autre.' },
-  { icon: 'zap', title: 'Intégrations', text: 'Synchronisation native avec Bexio pour votre comptabilité.' },
-];
-
-export function TradePage({ trade }: { trade: TradeLandingPage }) {
+export function TradePage({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const locale = getAppLocale();
+  const trade = getTradePage(slug, locale)!;
   const heroAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(heroAnim, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   }, [heroAnim]);
 
-  const related = (trade.relatedTrades ?? []).map((slug) => TRADE_PAGES[slug]).filter(Boolean);
-  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((slug) => getPostBySlug(slug)).filter((p) => !!p);
+  // Features present on every trade page regardless of métier — the "richesse
+  // globale" block from the brief (section 11), same content everywhere so it
+  // never has to be written per métier. Trade-specific usages (5-6 per page,
+  // from lib/trades.ts) are shown above this, in their own more detailed grid.
+  const SECONDARY_FEATURES: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
+    { icon: 'users', title: t('tradePage.secondaryClientsTitle'), text: t('tradePage.secondaryClientsText') },
+    { icon: 'credit-card', title: t('tradePage.secondaryQrTitle'), text: t('tradePage.secondaryQrText') },
+    { icon: 'dollar-sign', title: t('tradePage.secondaryExpensesTitle'), text: t('tradePage.secondaryExpensesText') },
+    { icon: 'folder', title: t('tradePage.secondaryDocumentsTitle'), text: t('tradePage.secondaryDocumentsText') },
+    { icon: 'list', title: t('tradePage.secondaryCatalogueTitle'), text: t('tradePage.secondaryCatalogueText') },
+    { icon: 'zap', title: t('tradePage.secondaryIntegrationsTitle'), text: t('tradePage.secondaryIntegrationsText') },
+  ];
+
+  // French needs a gendered/pluralized prefix ("les charpentiers"); German
+  // tradeName values are already authored as the natural plural/generic noun
+  // (e.g. "Zimmerleute"), so they're used as-is.
+  const forTrade = locale === 'de' ? trade.tradeName : genderedFor(trade.tradeName);
+
+  const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
+  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostBySlug(s)).filter((p) => !!p);
+  const hrefPrefix = locale === 'de' ? '/de/' : '/';
 
   return (
     <Screen>
@@ -41,9 +51,9 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         <Container style={styles.breadcrumbOuter}>
           <View style={styles.breadcrumb}>
-            <Link href="/"><Text style={styles.breadcrumbLink}>Accueil</Text></Link>
+            <Link href={locale === 'de' ? '/de' : '/'}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbHome')}</Text></Link>
             <Text style={styles.breadcrumbSep}>›</Text>
-            <Link href="/metiers"><Text style={styles.breadcrumbLink}>Métiers</Text></Link>
+            <Link href={`${hrefPrefix}metiers` as any}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbTrades')}</Text></Link>
             <Text style={styles.breadcrumbSep}>›</Text>
             <Text style={styles.breadcrumbCurrent}>{trade.tradeName.charAt(0).toUpperCase() + trade.tradeName.slice(1)}</Text>
           </View>
@@ -64,30 +74,30 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
             <Text style={styles.subtitle}>{trade.hero.subtitle}</Text>
             <View style={styles.ctaRow}>
               <Link href={authHref('signup')} asChild>
-                <Button title="Essayer Cantia pendant 14 jours" onPress={() => {}} />
+                <Button title={t('tradePage.ctaTrial')} onPress={() => {}} />
               </Link>
-              <Link href="/#services" asChild>
-                <Button title={`Découvrir Cantia pour ${genderedFor(trade.tradeName)}`} variant="secondary" onPress={() => {}} />
+              <Link href={`${hrefPrefix}#services` as any} asChild>
+                <Button title={t('tradePage.discoverFor', { trade: forTrade })} variant="secondary" onPress={() => {}} />
               </Link>
             </View>
-            <Text style={styles.heroTrust}>14 jours d'essai · Aucun code nécessaire</Text>
+            <Text style={styles.heroTrust}>{t('tradePage.heroTrust')}</Text>
           </Animated.View>
         </Container>
 
         {/* ---- Pain points ---- */}
         <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Le quotidien du métier</Text>
-          <Text style={styles.sectionTitle}>Vous connaissez probablement ces situations</Text>
+          <Text style={styles.eyebrow}>{t('tradePage.painEyebrow')}</Text>
+          <Text style={styles.sectionTitle}>{t('tradePage.painTitle')}</Text>
           <View style={styles.painList}>
             {trade.painPoints.map((p) => (
               <View key={p.problem} style={styles.painCard}>
                 <Text style={styles.painProblem}>{p.problem}</Text>
                 <View style={styles.painRow}>
-                  <Text style={styles.painLabel}>Conséquence</Text>
+                  <Text style={styles.painLabel}>{t('tradePage.painConsequence')}</Text>
                   <Text style={styles.painText}>{p.consequence}</Text>
                 </View>
                 <View style={styles.painRow}>
-                  <Text style={[styles.painLabel, styles.painLabelAccent]}>Réponse Cantia</Text>
+                  <Text style={[styles.painLabel, styles.painLabelAccent]}>{t('tradePage.painResponse')}</Text>
                   <Text style={styles.painText}>{p.response}</Text>
                 </View>
               </View>
@@ -97,8 +107,8 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         {/* ---- Usages ---- */}
         <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Comment Cantia s'adapte au métier</Text>
-          <Text style={styles.sectionTitle}>Ce que Cantia change concrètement pour {genderedFor(trade.tradeName)}</Text>
+          <Text style={styles.eyebrow}>{t('tradePage.usagesEyebrow')}</Text>
+          <Text style={styles.sectionTitle}>{t('tradePage.usagesTitle', { trade: forTrade })}</Text>
           <View style={styles.usageGrid}>
             {trade.usages.map((u) => (
               <View key={u.title} style={styles.usageCard}>
@@ -123,11 +133,11 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         {/* ---- Before / after ---- */}
         <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Avant / avec Cantia</Text>
+          <Text style={styles.eyebrow}>{t('tradePage.comparisonEyebrow')}</Text>
           <View style={styles.comparisonTable}>
             <View style={styles.comparisonHeaderRow}>
-              <Text style={[styles.comparisonHeaderText, styles.comparisonBefore]}>Avant</Text>
-              <Text style={[styles.comparisonHeaderText, styles.comparisonAfter]}>Avec Cantia</Text>
+              <Text style={[styles.comparisonHeaderText, styles.comparisonBefore]}>{t('tradePage.comparisonBefore')}</Text>
+              <Text style={[styles.comparisonHeaderText, styles.comparisonAfter]}>{t('tradePage.comparisonAfter')}</Text>
             </View>
             {trade.comparison.map((row) => (
               <View key={row.before} style={styles.comparisonRow}>
@@ -146,7 +156,7 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         {/* ---- Secondary features ---- */}
         <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Et bien plus encore</Text>
+          <Text style={styles.eyebrow}>{t('tradePage.secondaryEyebrow')}</Text>
           <View style={styles.secondaryGrid}>
             {SECONDARY_FEATURES.map((f) => (
               <View key={f.title} style={styles.secondaryCard}>
@@ -163,7 +173,7 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         {relatedPosts.length ? (
           <Container style={styles.section}>
-            <Text style={styles.eyebrow}>Pour aller plus loin</Text>
+            <Text style={styles.eyebrow}>{t('tradePage.furtherReadingEyebrow')}</Text>
             <View style={styles.relatedRow}>
               {relatedPosts.map((post) => (
                 <Link key={post!.slug} href={`/blog/${post!.slug}` as any} asChild>
@@ -179,7 +189,7 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         {/* ---- FAQ ---- */}
         <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Questions fréquentes</Text>
+          <Text style={styles.eyebrow}>{t('tradePage.faqEyebrow')}</Text>
           <View style={styles.faqList}>
             {trade.faq.map((f, i) => (
               <View key={f.question} style={[styles.faqRow, i === trade.faq.length - 1 && styles.faqRowLast]}>
@@ -192,19 +202,19 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
 
         {related.length ? (
           <Container style={styles.section}>
-            <Text style={styles.eyebrow}>Voir aussi</Text>
+            <Text style={styles.eyebrow}>{t('tradePage.seeAlsoEyebrow')}</Text>
             <View style={styles.relatedRow}>
               {related.map((r) => (
-                <Link key={r.slug} href={`/${r.slug}` as any} asChild>
+                <Link key={r.slug} href={`${hrefPrefix}${r.slug}` as any} asChild>
                   <Pressable style={styles.relatedChip}>
-                    <Text style={styles.relatedChipText}>Cantia pour {r.tradeName}</Text>
+                    <Text style={styles.relatedChipText}>{t('tradePage.seeAlsoTradeChip', { trade: r.tradeName })}</Text>
                     <Feather name="arrow-right" size={13} color={colors.primary} />
                   </Pressable>
                 </Link>
               ))}
-              <Link href="/metiers" asChild>
+              <Link href={`${hrefPrefix}metiers` as any} asChild>
                 <Pressable style={styles.relatedChip}>
-                  <Text style={styles.relatedChipText}>Tous les métiers</Text>
+                  <Text style={styles.relatedChipText}>{t('tradePage.seeAlsoAllTrades')}</Text>
                   <Feather name="arrow-right" size={13} color={colors.primary} />
                 </Pressable>
               </Link>
@@ -215,10 +225,10 @@ export function TradePage({ trade }: { trade: TradeLandingPage }) {
         {/* ---- Final CTA ---- */}
         <Container style={styles.closingOuter}>
           <View style={styles.closing}>
-            <Text style={styles.closingTitle}>Gérez vos chantiers avec moins d'administratif</Text>
-            <Text style={styles.closingText}>Découvrez Cantia gratuitement pendant 14 jours, aucun code nécessaire.</Text>
+            <Text style={styles.closingTitle}>{t('tradePage.closingTitle')}</Text>
+            <Text style={styles.closingText}>{t('tradePage.closingText')}</Text>
             <Link href={authHref('signup')} asChild>
-              <Button title="Démarrer mon essai" variant="secondary" onPress={() => {}} style={styles.closingCta} />
+              <Button title={t('tradePage.closingCta')} variant="secondary" onPress={() => {}} style={styles.closingCta} />
             </Link>
           </View>
         </Container>

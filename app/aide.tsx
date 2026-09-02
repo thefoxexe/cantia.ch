@@ -6,6 +6,7 @@ import { Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { HELP_ARTICLES } from '../lib/helpArticles';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
@@ -16,6 +17,7 @@ function normalize(text: string): string {
 // works, isn't forced through login), and linked to directly from inside the
 // app too (Compte, profile menu) — no separate in-app copy of this page.
 export default function PublicAideScreen() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -44,15 +46,15 @@ export default function PublicAideScreen() {
         <MarketingNav />
 
         <Container style={styles.container}>
-          <Text style={styles.title}>Centre d'aide</Text>
-          <Text style={styles.lead}>Les réponses aux questions les plus fréquentes sur Cantia.</Text>
+          <Text style={styles.title}>{t('aidePage.title')}</Text>
+          <Text style={styles.lead}>{t('aidePage.lead')}</Text>
 
           <Link href="/aide/videos" asChild>
             <Pressable style={styles.videosCard}>
               <Feather name="film" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.videosCardTitle}>Tutoriels & démos en vidéo</Text>
-                <Text style={styles.videosCardText}>Voir chaque module en action, module par module.</Text>
+                <Text style={styles.videosCardTitle}>{t('aidePage.videosCardTitle')}</Text>
+                <Text style={styles.videosCardText}>{t('aidePage.videosCardText')}</Text>
               </View>
               <Feather name="chevron-right" size={16} color={colors.textMuted} />
             </Pressable>
@@ -63,14 +65,14 @@ export default function PublicAideScreen() {
             <TextInput
               value={query}
               onChangeText={setQuery}
-              placeholder="ex : acompte, lien client, planning…"
+              placeholder={t('aidePage.searchPlaceholder')}
               placeholderTextColor={colors.textMuted}
               style={styles.searchInput}
             />
           </View>
 
           {grouped.length === 0 ? (
-            <Text style={styles.empty}>Aucun article ne correspond à cette recherche.</Text>
+            <Text style={styles.empty}>{t('aidePage.emptyText')}</Text>
           ) : (
             grouped.map(([category, articles]) => (
               <View key={category} style={styles.categoryBlock}>
@@ -102,8 +104,8 @@ export default function PublicAideScreen() {
           <View style={styles.contactCard}>
             <Feather name="life-buoy" size={18} color={colors.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.contactTitle}>Pas trouvé de réponse ?</Text>
-              <Text style={styles.contactText}>Écrivez-nous directement à info@cantia.ch.</Text>
+              <Text style={styles.contactTitle}>{t('aidePage.contactTitle')}</Text>
+              <Text style={styles.contactText}>{t('aidePage.contactText')}</Text>
             </View>
           </View>
         </Container>

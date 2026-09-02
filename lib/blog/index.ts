@@ -1,4 +1,5 @@
 import { BlogPost } from './types';
+import { BLOG_POSTS_DE } from './index-de';
 import { post as p1 } from './posts/calculer-prix-devis-renovation-suisse';
 import { post as p2 } from './posts/norme-sia-118-devis-obligatoire';
 import { post as p3 } from './posts/qr-facture-obligatoire-2026';
@@ -156,13 +157,32 @@ export const BLOG_POSTS: BlogPost[] = [
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));
 
-export function getPostBySlug(slug: string): BlogPost | undefined {
+// Same 138 posts, same order, with each one swapped for its German
+// translation where one exists yet — used by the blog index/listing so a
+// German visitor sees the full catalog immediately rather than only the
+// slice already translated (an untranslated post shows in French until its
+// batch lands, rather than not showing at all).
+export function getAllPosts(locale: 'fr' | 'de' = 'fr'): BlogPost[] {
+  if (locale !== 'de') return BLOG_POSTS;
+  return BLOG_POSTS.map((p) => BLOG_POSTS_DE.find((d) => d.slug === p.slug) ?? p);
+}
+
+// German translation is ongoing batch by batch (lib/blog/posts-de/), so
+// BLOG_POSTS_DE only covers a subset of BLOG_POSTS' 138 slugs so far — every
+// lookup here falls back to the French post for a slug not yet translated,
+// rather than a broken link or an empty page.
+export function getPostBySlug(slug: string, locale: 'fr' | 'de' = 'fr'): BlogPost | undefined {
+  if (locale === 'de') {
+    const de = BLOG_POSTS_DE.find((p) => p.slug === slug);
+    if (de) return de;
+  }
   return BLOG_POSTS.find((p) => p.slug === slug);
 }
 
-export function getRelatedPosts(post: BlogPost, max = 3): BlogPost[] {
-  const bySlug = post.relatedSlugs?.map((s) => getPostBySlug(s)).filter((p): p is BlogPost => !!p) ?? [];
+export function getRelatedPosts(post: BlogPost, max = 3, locale: 'fr' | 'de' = 'fr'): BlogPost[] {
+  const bySlug = post.relatedSlugs?.map((s) => getPostBySlug(s, locale)).filter((p): p is BlogPost => !!p) ?? [];
   if (bySlug.length >= max) return bySlug.slice(0, max);
-  const fallback = BLOG_POSTS.filter((p) => p.slug !== post.slug && p.category === post.category && !bySlug.includes(p));
+  const pool = locale === 'de' ? BLOG_POSTS_DE : BLOG_POSTS;
+  const fallback = pool.filter((p) => p.slug !== post.slug && p.category === post.category && !bySlug.includes(p));
   return [...bySlug, ...fallback].slice(0, max);
 }

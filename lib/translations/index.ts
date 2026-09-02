@@ -74,6 +74,18 @@ export function detectAndApplyBrowserLocale(): void {
   }
 }
 
+// For the crawlable /de/* marketing routes — the URL itself is the source of
+// truth for locale there (a German search result should always render in
+// German, regardless of a stale cached preference or the visitor's browser
+// language), so this is deterministic and session-only like
+// detectAndApplyBrowserLocale, just without the browser-language sniffing.
+// Called once at module scope in each /de/* route, before first render.
+export function forceLocale(locale: AppLocale): void {
+  if (i18next.language !== locale) {
+    i18next.changeLanguage(locale);
+  }
+}
+
 // Replaces the many scattered `.toLocaleDateString('fr-CH')` calls across
 // the app — 'fr-CH'/'de-CH' both format sensibly, the point is picking the
 // one matching the app's current language rather than always French.

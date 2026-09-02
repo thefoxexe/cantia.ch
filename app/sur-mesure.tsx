@@ -3,6 +3,7 @@ import { Feather } from '@expo/vector-icons';
 import { SolutionPage } from '../components/SolutionPage';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 // SEO/marketing page for the "on peut développer un module juste pour vous"
 // pitch — previously a homepage section (customModules), moved here so the
@@ -11,6 +12,8 @@ import { marketingFonts } from '../lib/marketingTheme';
 // or workflow can be switched on for one organization only, in the same
 // Cantia environment everyone else uses — never a forked copy of the app.
 function SurMesureVisual() {
+  const { t } = useTranslation();
+  const visualListItems = [t('surMesurePage.visualListItem1'), t('surMesurePage.visualListItem2'), t('surMesurePage.visualListItem3')];
   return (
     <View style={styles.visualFrame}>
       <View style={styles.visualTopBar}>
@@ -30,15 +33,15 @@ function SurMesureVisual() {
             <Feather name="sliders" size={18} color={colors.primary} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.visualModuleTitle}>Module privé</Text>
-            <Text style={styles.visualModuleSubtitle}>Développé pour votre entreprise</Text>
+            <Text style={styles.visualModuleTitle}>{t('surMesurePage.visualModuleTitle')}</Text>
+            <Text style={styles.visualModuleSubtitle}>{t('surMesurePage.visualModuleSubtitle')}</Text>
           </View>
           <View style={styles.visualToggleOn}>
             <View style={styles.visualToggleDot} />
           </View>
         </View>
         <View style={styles.visualListDivider} />
-        {['Visible uniquement dans votre entreprise', 'Reste dans le même environnement Cantia', 'Aucun impact sur les autres clients'].map((label) => (
+        {visualListItems.map((label) => (
           <View key={label} style={styles.visualListRow}>
             <Feather name="check-circle" size={13} color={colors.success} />
             <Text style={styles.visualListText}>{label}</Text>
@@ -50,82 +53,41 @@ function SurMesureVisual() {
 }
 
 export default function SurMesurePage() {
+  const { t } = useTranslation();
+  const locale = getAppLocale();
+  const integrationsHref = locale === 'de' ? '/de/integrations' : '/integrations';
+  const solutionsPrefix = locale === 'de' ? '/de/solutions' : '/solutions';
   return (
     <SolutionPage
-      kicker="Sur mesure"
-      title="Cantia s'adapte à votre façon de travailler"
-      subtitle="Chaque entreprise a ses propres méthodes. Au-delà des modules disponibles pour tous, Cantia peut développer un workflow, une automatisation ou une intégration spécialement pour votre organisation — sans jamais modifier l'expérience des autres utilisateurs."
+      kicker={t('surMesurePage.kicker')}
+      title={t('surMesurePage.title')}
+      subtitle={t('surMesurePage.subtitle')}
       visual={<SurMesureVisual />}
       features={[
-        {
-          icon: 'sliders',
-          title: 'Modules 100% personnalisés',
-          text: "Un écran, un calcul ou un workflow propre à votre métier, construit spécifiquement pour votre entreprise et activé uniquement chez vous.",
-        },
-        {
-          icon: 'link',
-          title: 'Intégrations avec vos outils existants',
-          text: "Une connexion vers un logiciel que vous utilisez déjà, sur le même principe que l'intégration Bexio déjà disponible nativement.",
-        },
-        {
-          icon: 'git-branch',
-          title: 'Workflows adaptés à votre fonctionnement',
-          text: "Vos étapes, vos validations, vos statuts — reproduits dans Cantia plutôt que l'inverse.",
-        },
-        {
-          icon: 'eye-off',
-          title: 'Fonctionnalités privées pour votre entreprise',
-          text: "Ce qui est développé pour vous reste invisible pour les autres organisations Cantia — jamais une fonctionnalité générale imposée à tout le monde.",
-        },
-        {
-          icon: 'refresh-cw',
-          title: 'Développement directement intégré à Cantia',
-          text: "Pas une application séparée à maintenir de votre côté : votre module vit dans le même Cantia, profite des mêmes mises à jour et de la même sécurité.",
-        },
-        {
-          icon: 'message-circle',
-          title: 'Un échange avant tout devis',
-          text: "On discute d'abord de votre besoin réel pour vous dire honnêtement si un module standard suffit déjà, ou si un développement sur mesure a du sens.",
-        },
+        { icon: 'sliders', title: t('surMesurePage.feature1Title'), text: t('surMesurePage.feature1Text') },
+        { icon: 'link', title: t('surMesurePage.feature2Title'), text: t('surMesurePage.feature2Text') },
+        { icon: 'git-branch', title: t('surMesurePage.feature3Title'), text: t('surMesurePage.feature3Text') },
+        { icon: 'eye-off', title: t('surMesurePage.feature4Title'), text: t('surMesurePage.feature4Text') },
+        { icon: 'refresh-cw', title: t('surMesurePage.feature5Title'), text: t('surMesurePage.feature5Text') },
+        { icon: 'message-circle', title: t('surMesurePage.feature6Title'), text: t('surMesurePage.feature6Text') },
       ]}
       steps={[
-        {
-          title: 'Vous nous décrivez votre besoin',
-          text: 'Par e-mail ou en appel : le workflow, l’outil externe ou la fonctionnalité qui vous manque aujourd’hui.',
-        },
-        {
-          title: 'On cadre ensemble la solution',
-          text: 'Nous vous proposons une approche concrète et un devis clair avant tout développement.',
-        },
-        {
-          title: 'Le module est développé et activé pour vous',
-          text: 'Une fois prêt, il est activé uniquement pour votre entreprise, dans votre Cantia habituel — sans changement pour personne d’autre.',
-        },
+        { title: t('surMesurePage.step1Title'), text: t('surMesurePage.step1Text') },
+        { title: t('surMesurePage.step2Title'), text: t('surMesurePage.step2Text') },
+        { title: t('surMesurePage.step3Title'), text: t('surMesurePage.step3Text') },
       ]}
       faq={[
-        {
-          question: 'Un module sur mesure est-il visible par les autres entreprises ?',
-          answer: 'Non. Un module développé pour vous est activé uniquement pour votre organisation — les autres clients Cantia ne le voient jamais et leur expérience ne change pas.',
-        },
-        {
-          question: 'Est-ce que je dois changer de logiciel ou installer autre chose ?',
-          answer: 'Non — le module vit dans le même Cantia que vous utilisez déjà, avec les mêmes accès, la même sécurité et les mêmes mises à jour.',
-        },
-        {
-          question: 'Combien coûte un développement sur mesure ?',
-          answer: 'Cela dépend entièrement du besoin. On en discute d’abord ensemble, et vous recevez un devis clair avant tout engagement.',
-        },
-        {
-          question: 'Cantia peut-il se connecter à un logiciel que vous ne connaissez pas encore ?',
-          answer: 'C’est en général possible dès que l’outil expose un moyen d’y accéder (API, export, etc.). Décrivez-nous votre outil, on vous dira si c’est réalisable.',
-        },
+        { question: t('surMesurePage.faq1Question'), answer: t('surMesurePage.faq1Answer') },
+        { question: t('surMesurePage.faq2Question'), answer: t('surMesurePage.faq2Answer') },
+        { question: t('surMesurePage.faq3Question'), answer: t('surMesurePage.faq3Answer') },
+        { question: t('surMesurePage.faq4Question'), answer: t('surMesurePage.faq4Answer') },
       ]}
       related={[
-        { href: '/integrations', label: 'Intégrations disponibles nativement' },
-        { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
+        { href: integrationsHref, label: t('surMesurePage.relatedIntegrationsLabel') },
+        { href: `${solutionsPrefix}/facturation`, label: t('surMesurePage.relatedFacturationLabel') },
       ]}
-      closingTitle="Parlons de votre besoin spécifique"
-      closingText="Décrivez-nous votre fonctionnement — on vous dira honnêtement ce que Cantia peut faire pour vous, standard ou sur mesure."
+      closingTitle={t('surMesurePage.closingTitle')}
+      closingText={t('surMesurePage.closingText')}
     />
   );
 }

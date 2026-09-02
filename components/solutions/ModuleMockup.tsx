@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../../lib/theme';
 import { marketingFonts } from '../../lib/marketingTheme';
+import { useTranslation } from '../../lib/translations';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -79,14 +80,15 @@ function ScreenHeader({ icon, title }: { icon: IconName; title: string }) {
 }
 
 function DevisContent() {
+  const { t } = useTranslation();
   const lines = [
-    { label: 'Isolation toiture — 42 m²', price: "3'150.—" },
-    { label: 'Fenêtres PVC triple vitrage', price: "5'840.—" },
-    { label: 'Main d’œuvre pose', price: "2'420.—" },
+    { label: t('solutionMockup.devisLine1'), price: "3'150.—" },
+    { label: t('solutionMockup.devisLine2'), price: "5'840.—" },
+    { label: t('solutionMockup.devisLine3'), price: "2'420.—" },
   ];
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="file-text" title="Devis #2026-014" />
+      <ScreenHeader icon="file-text" title={t('solutionMockup.devisNumber')} />
       <View style={styles.card}>
         {lines.map((l) => (
           <View key={l.label} style={styles.lineRow}>
@@ -96,14 +98,14 @@ function DevisContent() {
         ))}
         <View style={styles.divider} />
         <View style={styles.lineRow}>
-          <Text style={styles.totalLabel}>Total TTC</Text>
+          <Text style={styles.totalLabel}>{t('solutionMockup.devisTotal')}</Text>
           <Text style={styles.totalPrice}>{"11'410.—"}</Text>
         </View>
       </View>
       <View style={styles.pillRow}>
         <View style={[styles.pill, { backgroundColor: colors.successSoft }]}>
           <Feather name="check-circle" size={10} color={colors.success} />
-          <Text style={[styles.pillText, { color: colors.success }]}>Accepté par le client</Text>
+          <Text style={[styles.pillText, { color: colors.success }]}>{t('solutionMockup.devisAccepted')}</Text>
         </View>
       </View>
     </View>
@@ -111,14 +113,15 @@ function DevisContent() {
 }
 
 function FacturationContent() {
+  const { t } = useTranslation();
   const rows = [
-    { name: 'Villa Dupont', amount: "8'200.—", status: 'Payée', color: colors.success, bg: colors.successSoft },
-    { name: 'Rénovation Martin', amount: "4'950.—", status: 'Envoyée', color: colors.primary, bg: colors.primarySoft },
-    { name: 'Immeuble Rosier', amount: "2'100.—", status: 'En retard', color: colors.danger, bg: colors.dangerSoft },
+    { name: t('solutionMockup.facturationRow1Name'), amount: "8'200.—", status: t('solutionMockup.facturationRow1Status'), color: colors.success, bg: colors.successSoft },
+    { name: t('solutionMockup.facturationRow2Name'), amount: "4'950.—", status: t('solutionMockup.facturationRow2Status'), color: colors.primary, bg: colors.primarySoft },
+    { name: t('solutionMockup.facturationRow3Name'), amount: "2'100.—", status: t('solutionMockup.facturationRow3Status'), color: colors.danger, bg: colors.dangerSoft },
   ];
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="credit-card" title="Factures" />
+      <ScreenHeader icon="credit-card" title={t('solutionMockup.facturationTitle')} />
       <View style={styles.card}>
         {rows.map((r) => (
           <View key={r.name} style={styles.invoiceRow}>
@@ -137,9 +140,10 @@ function FacturationContent() {
 }
 
 function RapportsContent() {
+  const { t } = useTranslation();
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="camera" title="Fil de chantier" />
+      <ScreenHeader icon="camera" title={t('solutionMockup.rapportsTitle')} />
       <View style={styles.photoGrid}>
         {[0, 1, 2, 3].map((i) => (
           <View key={i} style={styles.photoTile}>
@@ -150,7 +154,7 @@ function RapportsContent() {
       <View style={styles.card}>
         <View style={styles.lineRow}>
           <Feather name="map-pin" size={11} color={colors.textMuted} />
-          <Text style={styles.metaText}>Chantier Villa Dupont · aujourd’hui 14:32</Text>
+          <Text style={styles.metaText}>{t('solutionMockup.rapportsMeta')}</Text>
         </View>
       </View>
     </View>
@@ -158,10 +162,11 @@ function RapportsContent() {
 }
 
 function DicteeContent() {
+  const { t } = useTranslation();
   const bars = [4, 9, 14, 8, 18, 11, 16, 6, 12, 9, 15, 5];
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="mic" title="Dictée vocale" />
+      <ScreenHeader icon="mic" title={t('solutionMockup.dicteeTitle')} />
       <View style={styles.waveRow}>
         {bars.map((h, i) => (
           <View key={i} style={[styles.waveBar, { height: h, opacity: i % 3 === 0 ? 1 : 0.55 }]} />
@@ -169,13 +174,13 @@ function DicteeContent() {
       </View>
       <View style={styles.card}>
         <Text style={styles.transcript}>
-          « Pose de 3 fenêtres PVC, isolation des combles, environ deux jours de main d’œuvre… »
+          {t('solutionMockup.dicteeTranscript')}
         </Text>
       </View>
       <View style={styles.pillRow}>
         <View style={[styles.pill, { backgroundColor: colors.primarySoft }]}>
           <Feather name="check" size={10} color={colors.primaryDark} />
-          <Text style={[styles.pillText, { color: colors.primaryDark }]}>3 lignes générées</Text>
+          <Text style={[styles.pillText, { color: colors.primaryDark }]}>{t('solutionMockup.dicteeGenerated')}</Text>
         </View>
       </View>
     </View>
@@ -183,7 +188,14 @@ function DicteeContent() {
 }
 
 function PlanningContent() {
-  const days = ['L', 'M', 'M', 'J', 'V'];
+  const { t } = useTranslation();
+  const days = [
+    t('solutionMockup.planningDayMon'),
+    t('solutionMockup.planningDayTue'),
+    t('solutionMockup.planningDayWed'),
+    t('solutionMockup.planningDayThu'),
+    t('solutionMockup.planningDayFri'),
+  ];
   const blocks: Record<number, { color: string; span: number }[]> = {
     0: [{ color: colors.primary, span: 2 }],
     1: [{ color: colors.primary, span: 2 }, { color: colors.accent, span: 1 }],
@@ -193,7 +205,7 @@ function PlanningContent() {
   };
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="calendar" title="Planning d’équipe" />
+      <ScreenHeader icon="calendar" title={t('solutionMockup.planningTitle')} />
       <View style={styles.planningRow}>
         {days.map((d, i) => (
           <View key={i} style={styles.planningCol}>
@@ -211,13 +223,14 @@ function PlanningContent() {
 }
 
 function RentabiliteContent() {
+  const { t } = useTranslation();
   const bars = [
-    { label: 'Devisé', h: 40, color: colors.border },
-    { label: 'Réel', h: 30, color: colors.primary },
+    { label: t('solutionMockup.rentabiliteDevise'), h: 40, color: colors.border },
+    { label: t('solutionMockup.rentabiliteReel'), h: 30, color: colors.primary },
   ];
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="trending-up" title="Rentabilité" />
+      <ScreenHeader icon="trending-up" title={t('solutionMockup.rentabiliteTitle')} />
       <View style={styles.card}>
         <View style={styles.chartRow}>
           {bars.map((b) => (
@@ -228,7 +241,7 @@ function RentabiliteContent() {
           ))}
           <View style={styles.marginBadge}>
             <Feather name="arrow-up-right" size={11} color={colors.success} />
-            <Text style={styles.marginText}>+24% marge</Text>
+            <Text style={styles.marginText}>{t('solutionMockup.rentabiliteMargin')}</Text>
           </View>
         </View>
       </View>
@@ -237,25 +250,26 @@ function RentabiliteContent() {
 }
 
 function RhContent() {
+  const { t } = useTranslation();
   const rows = [
     { name: 'S. Keller', hours: '38h', color: colors.success, bg: colors.successSoft },
     { name: 'M. Oliveira', hours: '41.5h', color: colors.primary, bg: colors.primarySoft },
   ];
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="clock" title="Heures & salaires" />
+      <ScreenHeader icon="clock" title={t('solutionMockup.rhTitle')} />
       <View style={styles.card}>
         {rows.map((r) => (
           <View key={r.name} style={styles.invoiceRow}>
             <Text style={styles.lineLabel}>{r.name}</Text>
             <View style={[styles.pill, { backgroundColor: r.bg }]}>
-              <Text style={[styles.pillText, { color: r.color }]}>{r.hours} cette semaine</Text>
+              <Text style={[styles.pillText, { color: r.color }]}>{r.hours} {t('solutionMockup.rhThisWeek')}</Text>
             </View>
           </View>
         ))}
         <View style={styles.divider} />
         <View style={styles.lineRow}>
-          <Text style={styles.totalLabel}>Salaire net</Text>
+          <Text style={styles.totalLabel}>{t('solutionMockup.rhNetSalary')}</Text>
           <Text style={styles.totalPrice}>{"5'240.—"}</Text>
         </View>
       </View>
@@ -264,17 +278,18 @@ function RhContent() {
 }
 
 function TravauxSupContent() {
+  const { t } = useTranslation();
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="plus-circle" title="Travaux supplémentaires" />
+      <ScreenHeader icon="plus-circle" title={t('solutionMockup.travauxSupTitle')} />
       <View style={styles.card}>
         <View style={styles.lineRow}>
-          <Text style={styles.lineLabel} numberOfLines={1}>Devis initial</Text>
+          <Text style={styles.lineLabel} numberOfLines={1}>{t('solutionMockup.travauxSupInitial')}</Text>
           <Text style={styles.linePrice}>{"11'410.—"}</Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.lineRow}>
-          <Text style={styles.extraLabel} numberOfLines={1}>+ Isolation combles (extra)</Text>
+          <Text style={styles.extraLabel} numberOfLines={1}>{t('solutionMockup.travauxSupExtra')}</Text>
           <Text style={styles.extraPrice}>{"1'240.—"}</Text>
         </View>
       </View>
@@ -284,7 +299,7 @@ function TravauxSupContent() {
         </View>
         <View style={[styles.pill, { backgroundColor: colors.successSoft }]}>
           <Feather name="check-circle" size={10} color={colors.success} />
-          <Text style={[styles.pillText, { color: colors.success }]}>Signé par le client</Text>
+          <Text style={[styles.pillText, { color: colors.success }]}>{t('solutionMockup.travauxSupSigned')}</Text>
         </View>
       </View>
     </View>
@@ -292,17 +307,18 @@ function TravauxSupContent() {
 }
 
 function TresorerieContent() {
+  const { t } = useTranslation();
   const rows: { label: string; date: string; amount: string; color: string }[] = [
-    { label: 'Facture Dupont', date: '12 fév.', amount: "+ 8'200.—", color: colors.success },
-    { label: 'Salaires', date: '25 fév.', amount: "− 14'600.—", color: colors.danger },
-    { label: 'Assurance RC · rappel', date: '3 mars', amount: "− 890.—", color: colors.danger },
+    { label: t('solutionMockup.tresorerieRow1Label'), date: t('solutionMockup.tresorerieRow1Date'), amount: "+ 8'200.—", color: colors.success },
+    { label: t('solutionMockup.tresorerieRow2Label'), date: t('solutionMockup.tresorerieRow2Date'), amount: "− 14'600.—", color: colors.danger },
+    { label: t('solutionMockup.tresorerieRow3Label'), date: t('solutionMockup.tresorerieRow3Date'), amount: "− 890.—", color: colors.danger },
   ];
   return (
     <View style={styles.stack}>
-      <ScreenHeader icon="trending-up" title="Trésorerie — 90 jours" />
+      <ScreenHeader icon="trending-up" title={t('solutionMockup.tresorerieTitle')} />
       <View style={styles.card}>
         <View style={styles.lineRow}>
-          <Text style={styles.totalLabel}>Solde actuel</Text>
+          <Text style={styles.totalLabel}>{t('solutionMockup.tresorerieBalance')}</Text>
           <Text style={styles.totalPrice}>{"24'300.—"}</Text>
         </View>
       </View>

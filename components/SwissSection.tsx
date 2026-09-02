@@ -3,25 +3,23 @@ import { Feather } from '@expo/vector-icons';
 import { Container } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-
-const FACTS: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
-  { icon: 'dollar-sign', title: 'CHF', text: 'Montants et documents adaptés aux entreprises suisses.' },
-  { icon: 'percent', title: 'TVA suisse', text: 'Gestion des taux de TVA utilisés en Suisse.' },
-  { icon: 'credit-card', title: 'QR-facture', text: 'Facturation avec QR-facture conforme au système suisse.' },
-  { icon: 'lock', title: 'Hébergement suisse', text: 'Données hébergées en Suisse.' },
-];
+import { useTranslation } from '../lib/translations';
 
 // Shared "Conçu pour les entreprises suisses" block — same four facts on
 // the homepage and every /[metier] trade page, so the Swiss positioning
 // never drifts or gets watered down on a page built later than the others.
 export function SwissSection() {
+  const { t } = useTranslation();
+  const FACTS: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
+    { icon: 'dollar-sign', title: t('swissSection.factChfTitle'), text: t('swissSection.factChfText') },
+    { icon: 'percent', title: t('swissSection.factVatTitle'), text: t('swissSection.factVatText') },
+    { icon: 'credit-card', title: t('swissSection.factQrTitle'), text: t('swissSection.factQrText') },
+    { icon: 'lock', title: t('swissSection.factHostingTitle'), text: t('swissSection.factHostingText') },
+  ];
   return (
     <Container style={styles.outer}>
-      <Text style={styles.title}>Conçu pour les entreprises suisses</Text>
-      <Text style={styles.text}>
-        Cantia a été développé pour le fonctionnement des entreprises du bâtiment suisse : CHF, TVA suisse, QR-facture
-        et données hébergées en Suisse.
-      </Text>
+      <Text style={styles.title}>{t('swissSection.title')}</Text>
+      <Text style={styles.text}>{t('swissSection.text')}</Text>
       <View style={styles.grid}>
         {FACTS.map((f) => (
           <View key={f.title} style={styles.card}>

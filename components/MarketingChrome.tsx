@@ -6,7 +6,8 @@ import { Button } from './ui';
 import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
-import { t } from '../lib/i18n';
+import { useMarketingDict } from '../lib/i18n';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 // Shared navbar + footer for every marketing page — the single-page index.tsx
 // (which has its own scroll-to-section links) and every static page below it
@@ -14,6 +15,12 @@ import { t } from '../lib/i18n';
 // mobile hamburger collapse below `breakpoints.tablet` as the home page, so
 // no page in the site is missing the responsive behavior the others have.
 export function MarketingNav() {
+  const t = useMarketingDict();
+  const { t: tr } = useTranslation();
+  const locale = getAppLocale();
+  const homeHref = locale === 'de' ? '/de' : '/';
+  const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
+  const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,7 +37,7 @@ export function MarketingNav() {
 
   return (
     <View style={styles.nav}>
-      <Link href="/" asChild>
+      <Link href={homeHref as any} asChild>
         <Pressable style={styles.navBrandRow}>
           <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
           <Text style={styles.navBrand}>Cantia</Text>
@@ -38,15 +45,15 @@ export function MarketingNav() {
       </Link>
 
       {isCompactNav ? (
-        <Pressable onPress={() => setMenuOpen(true)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel="Menu">
+        <Pressable onPress={() => setMenuOpen(true)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.menu')}>
           <Feather name="menu" size={22} color={colors.text} />
         </Pressable>
       ) : (
         <View style={styles.navLinks}>
-          <Link href="/#services">
+          <Link href={servicesHref as any}>
             <Text style={styles.navLink}>{t.nav.services}</Text>
           </Link>
-          <Link href="/#pricing">
+          <Link href={pricingHref as any}>
             <Text style={styles.navLink}>{t.nav.pricing}</Text>
           </Link>
           <Link href="/telechargement">
@@ -80,19 +87,19 @@ export function MarketingNav() {
                 <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
                 <Text style={styles.navBrand}>Cantia</Text>
               </View>
-              <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel="Fermer">
+              <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
-              <Link href="/#services" asChild>
+              <Link href={servicesHref as any} asChild>
                 <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="grid" size={18} color={colors.primary} />
                   <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
                   <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                 </Pressable>
               </Link>
-              <Link href="/#pricing" asChild>
+              <Link href={pricingHref as any} asChild>
                 <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="tag" size={18} color={colors.primary} />
                   <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
@@ -142,6 +149,11 @@ export function MarketingFooter({
   onServicesPress?: () => void;
   onPricingPress?: () => void;
 }) {
+  const t = useMarketingDict();
+  const { t: tr } = useTranslation();
+  const locale = getAppLocale();
+  const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
+  const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -154,13 +166,13 @@ export function MarketingFooter({
           <Link href="/aide" asChild>
             <Pressable style={styles.footerHelpPill}>
               <Feather name="life-buoy" size={14} color={colors.primaryDark} />
-              <Text style={styles.footerHelpPillText}>Centre d'aide & documentation</Text>
+              <Text style={styles.footerHelpPillText}>{tr('marketingChrome.helpCenter')}</Text>
             </Pressable>
           </Link>
           <Link href="mailto:info@cantia.ch" target="_blank" asChild>
             <Pressable style={styles.footerContact}>
               <Feather name="mail" size={13} color={colors.textMuted} />
-              <Text style={styles.footerContactText}>info@cantia.ch · Suisse</Text>
+              <Text style={styles.footerContactText}>{tr('marketingChrome.contactSuffix')}</Text>
             </Pressable>
           </Link>
         </View>
@@ -175,7 +187,7 @@ export function MarketingFooter({
               <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
             </Pressable>
           ) : (
-            <Link href="/#services">
+            <Link href={servicesHref as any}>
               <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
             </Link>
           )}
@@ -184,45 +196,45 @@ export function MarketingFooter({
               <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
             </Pressable>
           ) : (
-            <Link href="/#pricing">
+            <Link href={pricingHref as any}>
               <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
             </Link>
           )}
           <Link href="/solutions/devis">
-            <Text style={styles.footerLink}>Devis</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsDevis')}</Text>
           </Link>
           <Link href="/solutions/facturation">
-            <Text style={styles.footerLink}>Facturation & QR-facture</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsFacturation')}</Text>
           </Link>
           <Link href="/solutions/rapports-chantier">
-            <Text style={styles.footerLink}>Rapports de chantier</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRapports')}</Text>
           </Link>
           <Link href="/solutions/dictee-vocale">
-            <Text style={styles.footerLink}>Dictée vocale</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsDictee')}</Text>
           </Link>
           <Link href="/solutions/planning">
-            <Text style={styles.footerLink}>Planning</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsPlanning')}</Text>
           </Link>
           <Link href="/solutions/rentabilite">
-            <Text style={styles.footerLink}>Rentabilité</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRentabilite')}</Text>
           </Link>
           <Link href="/solutions/rh-salaires">
-            <Text style={styles.footerLink}>RH & Salaires</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRh')}</Text>
           </Link>
           <Link href="/solutions/travaux-supplementaires">
-            <Text style={styles.footerLink}>Travaux supplémentaires</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsTravauxSupp')}</Text>
           </Link>
           <Link href="/solutions/tresorerie">
-            <Text style={styles.footerLink}>Trésorerie</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsTresorerie')}</Text>
           </Link>
           <Link href="/integrations">
-            <Text style={styles.footerLink}>Intégrations</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsIntegrations')}</Text>
           </Link>
           <Link href="/sur-mesure">
-            <Text style={styles.footerLink}>Sur mesure</Text>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsSurMesure')}</Text>
           </Link>
-          <Link href="/blog">
-            <Text style={styles.footerLink}>Blog</Text>
+          <Link href={locale === 'de' ? '/de/blog' : '/blog'}>
+            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsBlog')}</Text>
           </Link>
         </View>
         <View style={styles.footerCol}>

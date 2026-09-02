@@ -1,6 +1,5 @@
 import { TradePage } from '../components/TradePage';
-import { TRADE_PAGES } from '../lib/tradeLandingPages';
 
 export default function ChauffagisteScreen() {
-  return <TradePage trade={TRADE_PAGES['chauffagiste']} />;
+  return <TradePage slug="chauffagiste" />;
 }

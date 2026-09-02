@@ -3,80 +3,55 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
 import { colors, fontSize, spacing } from '../lib/theme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 export default function ConfidentialiteScreen() {
+  const { t } = useTranslation();
+  const homeHref = getAppLocale() === 'de' ? '/de' : '/';
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Container style={styles.container}>
-          <Link href="/" asChild>
+          <Link href={homeHref as any} asChild>
             <Pressable style={styles.back} hitSlop={8}>
               <Feather name="arrow-left" size={16} color={colors.text} />
-              <Text style={styles.backText}>Retour</Text>
+              <Text style={styles.backText}>{t('confidentialite.back')}</Text>
             </Pressable>
           </Link>
 
-          <Text style={styles.title}>Politique de confidentialité</Text>
-          <Text style={styles.updated}>Dernière mise à jour : juillet 2026</Text>
+          <Text style={styles.title}>{t('confidentialite.title')}</Text>
+          <Text style={styles.updated}>{t('confidentialite.updated')}</Text>
 
-          <LegalSection title="Données collectées">
-            <Text style={styles.p}>
-              Nous collectons les informations nécessaires au fonctionnement du service : votre e-mail et mot de
-              passe (via l'authentification), les informations de votre entreprise (nom, adresse, logo), ainsi que
-              les données que vous saisissez dans l'application (chantiers, rapports, photos géolocalisées, devis,
-              documents).
-            </Text>
+          <LegalSection title={t('confidentialite.dataCollectedTitle')}>
+            <Text style={styles.p}>{t('confidentialite.dataCollectedText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Finalité du traitement">
-            <Text style={styles.p}>
-              Ces données sont utilisées exclusivement pour fournir le service Cantia : générer vos rapports et
-              devis, organiser vos chantiers et gérer votre abonnement. Elles ne sont jamais vendues à des tiers.
-            </Text>
+          <LegalSection title={t('confidentialite.purposeTitle')}>
+            <Text style={styles.p}>{t('confidentialite.purposeText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Sous-traitants">
-            <Text style={styles.p}>
-              Nous utilisons Supabase (base de données, authentification, stockage), Netlify (diffusion de
-              l'interface web) et Stripe (paiement des abonnements) comme sous-traitants techniques. Chacun applique
-              ses propres mesures de sécurité et de conformité.
-            </Text>
+          <LegalSection title={t('confidentialite.subprocessorsTitle')}>
+            <Text style={styles.p}>{t('confidentialite.subprocessorsText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Localisation des données">
-            <Text style={styles.p}>
-              Vos données — base de données, fichiers, photos et documents — sont hébergées et traitées en Suisse,
-              dans le centre de données Supabase basé à Zurich. Elles ne quittent pas le territoire suisse dans le
-              cadre du fonctionnement normal du service.
-            </Text>
+          <LegalSection title={t('confidentialite.dataLocationTitle')}>
+            <Text style={styles.p}>{t('confidentialite.dataLocationText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Vos droits">
-            <Text style={styles.p}>
-              Conformément à la loi suisse sur la protection des données (LPD) et, le cas échéant, au RGPD, vous
-              disposez d'un droit d'accès, de rectification et de suppression de vos données. Vous pouvez exercer ce
-              droit à tout moment en nous écrivant à info@cantia.ch, ou en supprimant directement vos données
-              depuis l'application.
-            </Text>
+          <LegalSection title={t('confidentialite.rightsTitle')}>
+            <Text style={styles.p}>{t('confidentialite.rightsText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Conservation des données">
-            <Text style={styles.p}>
-              Vos données sont conservées tant que votre compte est actif. En cas de suppression de votre compte,
-              elles sont supprimées de nos serveurs dans un délai raisonnable, sous réserve des obligations légales
-              de conservation.
-            </Text>
+          <LegalSection title={t('confidentialite.retentionTitle')}>
+            <Text style={styles.p}>{t('confidentialite.retentionText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Cookies">
-            <Text style={styles.p}>
-              L'application utilise uniquement des cookies et un stockage local techniques, nécessaires à votre
-              connexion et à vos préférences (langue). Aucun cookie publicitaire ou de suivi tiers n'est utilisé.
-            </Text>
+          <LegalSection title={t('confidentialite.cookiesTitle')}>
+            <Text style={styles.p}>{t('confidentialite.cookiesText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Contact">
-            <Text style={styles.p}>Pour toute question relative à vos données, écrivez-nous à info@cantia.ch.</Text>
+          <LegalSection title={t('confidentialite.contactTitle')}>
+            <Text style={styles.p}>{t('confidentialite.contactText')}</Text>
           </LegalSection>
         </Container>
       </ScrollView>

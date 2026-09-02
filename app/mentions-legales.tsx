@@ -3,58 +3,43 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
 import { colors, fontSize, spacing } from '../lib/theme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 export default function MentionsLegalesScreen() {
+  const { t } = useTranslation();
+  const homeHref = getAppLocale() === 'de' ? '/de' : '/';
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Container style={styles.container}>
-          <Link href="/" asChild>
+          <Link href={homeHref as any} asChild>
             <Pressable style={styles.back} hitSlop={8}>
               <Feather name="arrow-left" size={16} color={colors.text} />
-              <Text style={styles.backText}>Retour</Text>
+              <Text style={styles.backText}>{t('mentionsLegales.back')}</Text>
             </Pressable>
           </Link>
 
-          <Text style={styles.title}>Mentions légales</Text>
-          <Text style={styles.updated}>Dernière mise à jour : juillet 2026</Text>
+          <Text style={styles.title}>{t('mentionsLegales.title')}</Text>
+          <Text style={styles.updated}>{t('mentionsLegales.updated')}</Text>
 
-          <LegalSection title="Éditeur du site">
-            <Text style={styles.p}>
-              Le site et l'application Cantia sont édités par Cantia, entreprise individuelle basée en Suisse.
-              Pour toute question relative à l'identité légale de l'éditeur, contactez-nous à l'adresse
-              info@cantia.ch.
-            </Text>
+          <LegalSection title={t('mentionsLegales.publisherTitle')}>
+            <Text style={styles.p}>{t('mentionsLegales.publisherText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Hébergement">
-            <Text style={styles.p}>
-              L'application est hébergée par Supabase Inc. (base de données, authentification et stockage de
-              fichiers) et par Netlify, Inc. (diffusion de l'interface web). Vos données — base de données et
-              fichiers — sont stockées de manière sécurisée dans le centre de données Supabase de Zurich, en Suisse.
-              L'interface web est distribuée via le réseau mondial de Netlify, qui ne stocke aucune de vos données
-              personnelles.
-            </Text>
+          <LegalSection title={t('mentionsLegales.hostingTitle')}>
+            <Text style={styles.p}>{t('mentionsLegales.hostingText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Propriété intellectuelle">
-            <Text style={styles.p}>
-              L'ensemble des éléments du site et de l'application Cantia (marque, logo, textes, interface,
-              structure) est protégé par le droit d'auteur. Toute reproduction ou représentation, totale ou
-              partielle, sans autorisation préalable est interdite.
-            </Text>
+          <LegalSection title={t('mentionsLegales.ipTitle')}>
+            <Text style={styles.p}>{t('mentionsLegales.ipText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Responsabilité">
-            <Text style={styles.p}>
-              Cantia met tout en œuvre pour assurer l'exactitude et la mise à jour des informations diffusées sur
-              le site, mais ne saurait être tenu responsable des erreurs, omissions ou de l'indisponibilité
-              temporaire du service.
-            </Text>
+          <LegalSection title={t('mentionsLegales.liabilityTitle')}>
+            <Text style={styles.p}>{t('mentionsLegales.liabilityText')}</Text>
           </LegalSection>
 
-          <LegalSection title="Contact">
-            <Text style={styles.p}>Pour toute question, écrivez-nous à info@cantia.ch.</Text>
+          <LegalSection title={t('mentionsLegales.contactTitle')}>
+            <Text style={styles.p}>{t('mentionsLegales.contactText')}</Text>
           </LegalSection>
         </Container>
       </ScrollView>

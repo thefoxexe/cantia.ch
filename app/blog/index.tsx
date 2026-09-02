@@ -4,10 +4,11 @@ import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Container, Screen } from '../../components/ui';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
-import { BLOG_CATEGORIES, BLOG_POSTS } from '../../lib/blog';
+import { BLOG_CATEGORIES, getAllPosts } from '../../lib/blog';
 import { BlogCategory } from '../../lib/blog/types';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { marketingFonts } from '../../lib/marketingTheme';
+import { getAppLocale, useTranslation } from '../../lib/translations';
 
 // A distinct accent per category so a card reads as its own object at a
 // glance — not just a paragraph of text — even before the title is read.
@@ -26,28 +27,30 @@ function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso + 'T00:00:00');
-  return d.toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
 // The blog index — search + category filter over lib/blog's static content
 // array, following the same accent-insensitive normalize()+useMemo pattern
 // already established in app/aide.tsx, so a new visitor doesn't get a
 // second, differently-behaving search on the same site.
 export default function BlogIndexScreen() {
+  const { t } = useTranslation();
+  const locale = getAppLocale();
+  const posts = useMemo(() => getAllPosts(locale), [locale]);
+  const formatDate = (iso: string) => {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString(`${locale}-CH`, { day: 'numeric', month: 'short', year: 'numeric' });
+  };
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
-    return BLOG_POSTS.filter((p) => {
+    return posts.filter((p) => {
       if (category && p.category !== category) return false;
       if (!q) return true;
       const haystack = normalize([p.title, p.question, p.excerpt, p.category, ...p.keywords].join(' '));
       return haystack.includes(q);
     });
-  }, [query, category]);
+  }, [query, category, posts]);
 
   const [featured, ...rest] = filtered;
 
@@ -58,20 +61,17 @@ export default function BlogIndexScreen() {
 
         <Container style={styles.heroOuter}>
           <View style={styles.kickerPill}>
-            <Text style={styles.kickerText}>Blog</Text>
+            <Text style={styles.kickerText}>{t('blogIndexPage.kicker')}</Text>
           </View>
-          <Text style={styles.title}>Les réponses concrètes du chantier suisse</Text>
-          <Text style={styles.subtitle}>
-            Devis, facturation, RH, juridique, comparatifs — des réponses précises aux questions que se posent
-            vraiment les artisans et entreprises du bâtiment en Suisse.
-          </Text>
+          <Text style={styles.title}>{t('blogIndexPage.title')}</Text>
+          <Text style={styles.subtitle}>{t('blogIndexPage.subtitle')}</Text>
 
           <View style={styles.searchRow}>
             <Feather name="search" size={16} color={colors.textMuted} />
             <TextInput
               value={query}
               onChangeText={setQuery}
-              placeholder="ex : QR-facture, sous-traitant, heures, SIA 118…"
+              placeholder={t('blogIndexPage.searchPlaceholder')}
               placeholderTextColor={colors.textMuted}
               style={styles.searchInput}
             />
@@ -84,12 +84,12 @@ export default function BlogIndexScreen() {
 
           <View style={styles.chipRow}>
             <Pressable onPress={() => setCategory(null)} style={[styles.chip, !category && styles.chipActive]}>
-              <Text style={[styles.chipText, !category && styles.chipTextActive]}>Tous les articles</Text>
+              <Text style={[styles.chipText, !category && styles.chipTextActive]}>{t('blogIndexPage.allArticles')}</Text>
             </Pressable>
             {BLOG_CATEGORIES.map((c) => (
               <Pressable key={c} onPress={() => setCategory(category === c ? null : c)} style={[styles.chip, category === c && styles.chipActive]}>
                 <View style={[styles.chipDot, { backgroundColor: category === c ? '#fff' : CATEGORY_STYLE[c].color }]} />
-                <Text style={[styles.chipText, category === c && styles.chipTextActive]}>{c}</Text>
+                <Text style={[styles.chipText, category === c && styles.chipTextActive]}>{t(`blogCategories.${c}`)}</Text>
               </Pressable>
             ))}
           </View>
@@ -97,7 +97,7 @@ export default function BlogIndexScreen() {
 
         <Container style={styles.section}>
           {filtered.length === 0 ? (
-            <Text style={styles.empty}>Aucun article ne correspond à cette recherche.</Text>
+            <Text style={styles.empty}>{t('blogIndexPage.empty')}</Text>
           ) : (
             <>
               {featured ? (
@@ -106,10 +106,10 @@ export default function BlogIndexScreen() {
                     <View style={styles.featuredTop}>
                       <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[featured.category].soft }]}>
                         <Feather name={CATEGORY_STYLE[featured.category].icon} size={13} color={CATEGORY_STYLE[featured.category].color} />
-                        <Text style={[styles.categoryBadgeText, { color: CATEGORY_STYLE[featured.category].color }]}>{featured.category}</Text>
+                        <Text style={[styles.categoryBadgeText, { color: CATEGORY_STYLE[featured.category].color }]}>{t(`blogCategories.${featured.category}`)}</Text>
                       </View>
                       <View style={styles.featuredBadge}>
-                        <Text style={styles.featuredBadgeText}>Dernier article</Text>
+                        <Text style={styles.featuredBadgeText}>{t('blogIndexPage.latestArticle')}</Text>
                       </View>
                     </View>
                     <Text style={styles.featuredTitle}>{featured.title}</Text>
@@ -117,10 +117,10 @@ export default function BlogIndexScreen() {
                     <View style={styles.cardMetaRow}>
                       <Text style={styles.cardMetaText}>{formatDate(featured.publishedAt)}</Text>
                       <View style={styles.cardMetaDot} />
-                      <Text style={styles.cardMetaText}>{featured.readMinutes} min</Text>
+                      <Text style={styles.cardMetaText}>{t('blogIndexPage.minRead', { count: featured.readMinutes })}</Text>
                       <View style={{ flex: 1 }} />
                       <View style={styles.readMore}>
-                        <Text style={styles.readMoreText}>Lire l’article</Text>
+                        <Text style={styles.readMoreText}>{t('blogIndexPage.readArticle')}</Text>
                         <Feather name="arrow-right" size={13} color={colors.primary} />
                       </View>
                     </View>
@@ -128,9 +128,7 @@ export default function BlogIndexScreen() {
                 </Link>
               ) : null}
 
-              <Text style={styles.gridCount}>
-                {rest.length} autre{rest.length > 1 ? 's' : ''} article{rest.length > 1 ? 's' : ''}
-              </Text>
+              <Text style={styles.gridCount}>{t('blogIndexPage.otherArticles', { count: rest.length })}</Text>
 
               <View style={styles.grid}>
                 {rest.map((p) => (
@@ -139,7 +137,7 @@ export default function BlogIndexScreen() {
                       <View style={[styles.cardMedallion, { backgroundColor: CATEGORY_STYLE[p.category].soft }]}>
                         <Feather name={CATEGORY_STYLE[p.category].icon} size={18} color={CATEGORY_STYLE[p.category].color} />
                       </View>
-                      <Text style={[styles.cardCategory, { color: CATEGORY_STYLE[p.category].color }]}>{p.category}</Text>
+                      <Text style={[styles.cardCategory, { color: CATEGORY_STYLE[p.category].color }]}>{t(`blogCategories.${p.category}`)}</Text>
                       <Text style={styles.cardTitle} numberOfLines={3}>
                         {p.title}
                       </Text>
@@ -150,7 +148,7 @@ export default function BlogIndexScreen() {
                         <View style={styles.cardMetaRow}>
                           <Text style={styles.cardMetaText}>{formatDate(p.publishedAt)}</Text>
                           <View style={styles.cardMetaDot} />
-                          <Text style={styles.cardMetaText}>{p.readMinutes} min</Text>
+                          <Text style={styles.cardMetaText}>{t('blogIndexPage.minRead', { count: p.readMinutes })}</Text>
                         </View>
                         <Feather name="arrow-right" size={14} color={colors.textMuted} />
                       </View>

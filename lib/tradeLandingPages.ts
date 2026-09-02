@@ -1,4 +1,5 @@
 import { Feather } from '@expo/vector-icons';
+import { TRADE_PAGES_DE } from './tradeLandingPagesDe';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -1874,6 +1875,15 @@ export const TRADE_PAGES: Record<string, TradeLandingPage> = {
 };
 
 export const TRADE_PAGE_SLUGS = Object.keys(TRADE_PAGES);
+
+// German trade content lives in a sibling file (lib/tradeLandingPagesDe.ts)
+// rather than a `de` field on each entry here, so the much larger French
+// dataset above stays the single source of truth for slugs/structure and
+// German is free to be added trade-by-trade without touching this file.
+export function getTradePage(slug: string, locale: string): TradeLandingPage | undefined {
+  if (locale === 'de' && TRADE_PAGES_DE[slug]) return TRADE_PAGES_DE[slug];
+  return TRADE_PAGES[slug];
+}
 
 // tradeName + "s" only pluralizes correctly for single-word trades
 // ("charpentier" -> "charpentiers"). Several multi-word trade names break

@@ -9,6 +9,7 @@ import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { BlogPost } from '../lib/blog/types';
 import { getRelatedPosts } from '../lib/blog';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap> = {
   'Devis & facturation': 'file-text',
@@ -21,23 +22,25 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'Sur-mesure & automatisations': 'sliders',
 };
 
-function formatDate(iso: string): string {
-  const d = new Date(iso + 'T00:00:00');
-  return d.toLocaleDateString('fr-CH', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
 // Shared template for every /blog/[slug] article — same chrome, hero and
 // closing CTA pattern as SolutionPage.tsx, so the blog reads as the same
 // site rather than a bolted-on section. The content itself renders through
 // a small switch over BlogBlock, since no markdown/MDX parser exists in
 // this repo (see lib/blog/types.ts).
 export function BlogArticle({ post }: { post: BlogPost }) {
+  const { t } = useTranslation();
+  const locale = getAppLocale();
+  const formatDate = (iso: string) => {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString(`${locale}-CH`, { day: 'numeric', month: 'long', year: 'numeric' });
+  };
   const heroAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(heroAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   }, [heroAnim]);
 
-  const related = getRelatedPosts(post);
+  const related = getRelatedPosts(post, 3, locale);
+  const tradeHrefPrefix = locale === 'de' ? '/de/' : '/';
 
   return (
     <Screen>
@@ -54,13 +57,13 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <Link href="/blog" asChild>
               <Pressable style={styles.backLink}>
                 <Feather name="arrow-left" size={13} color={colors.primary} />
-                <Text style={styles.backLinkText}>Tous les articles</Text>
+                <Text style={styles.backLinkText}>{t('blogArticlePage.allArticles')}</Text>
               </Pressable>
             </Link>
 
             <View style={styles.kickerPill}>
               <Feather name={CATEGORY_ICON[post.category] ?? 'file-text'} size={12} color={colors.primaryDark} />
-              <Text style={styles.kickerText}>{post.category}</Text>
+              <Text style={styles.kickerText}>{t(`blogCategories.${post.category}`)}</Text>
             </View>
 
             <Text style={styles.title}>{post.title}</Text>
@@ -69,7 +72,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <View style={styles.metaRow}>
               <Text style={styles.metaText}>{formatDate(post.publishedAt)}</Text>
               <View style={styles.metaDot} />
-              <Text style={styles.metaText}>{post.readMinutes} min de lecture</Text>
+              <Text style={styles.metaText}>{t('blogArticlePage.minRead', { count: post.readMinutes })}</Text>
             </View>
           </Animated.View>
         </Container>
@@ -80,7 +83,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
         {post.faq?.length ? (
           <Container style={styles.section}>
-            <Text style={styles.sectionEyebrow}>Questions fréquentes</Text>
+            <Text style={styles.sectionEyebrow}>{t('blogArticlePage.faqEyebrow')}</Text>
             <View style={styles.faqList}>
               {post.faq.map((f, i) => (
                 <View key={f.question} style={[styles.faqRow, i === post.faq!.length - 1 && styles.faqRowLast]}>
@@ -94,11 +97,11 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
         {post.relatedTradeSlug ? (
           <Container style={styles.section}>
-            <Link href={`/${post.relatedTradeSlug}` as any} asChild>
+            <Link href={`${tradeHrefPrefix}${post.relatedTradeSlug}` as any} asChild>
               <Pressable style={styles.tradeLinkCard}>
                 <Feather name="tool" size={16} color={colors.primary} />
                 <Text style={styles.tradeLinkText}>
-                  Voir comment Cantia s’adapte à ce métier <Text style={styles.tradeLinkTextAccent}>→</Text>
+                  {t('blogArticlePage.tradeLinkText')} <Text style={styles.tradeLinkTextAccent}>→</Text>
                 </Text>
               </Pressable>
             </Link>
@@ -107,15 +110,15 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
         {related.length ? (
           <Container style={styles.section}>
-            <Text style={styles.sectionEyebrow}>À lire aussi</Text>
+            <Text style={styles.sectionEyebrow}>{t('blogArticlePage.seeAlsoEyebrow')}</Text>
             <View style={styles.relatedGrid}>
               {related.map((r) => (
                 <Link key={r.slug} href={`/blog/${r.slug}` as any} asChild>
                   <Pressable style={styles.relatedCard}>
-                    <Text style={styles.relatedCategory}>{r.category}</Text>
+                    <Text style={styles.relatedCategory}>{t(`blogCategories.${r.category}`)}</Text>
                     <Text style={styles.relatedTitle}>{r.title}</Text>
                     <View style={styles.relatedMore}>
-                      <Text style={styles.relatedMoreText}>Lire l’article</Text>
+                      <Text style={styles.relatedMoreText}>{t('blogArticlePage.readArticle')}</Text>
                       <Feather name="arrow-right" size={12} color={colors.primary} />
                     </View>
                   </Pressable>
@@ -127,12 +130,10 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
         <Container style={styles.closingOuter}>
           <View style={styles.closing}>
-            <Text style={styles.closingTitle}>Piloter vos chantiers sans y penser</Text>
-            <Text style={styles.closingText}>
-              Devis, factures QR, rapports et rentabilité par chantier, réunis dans un seul outil. 14 jours d'essai, aucun code nécessaire.
-            </Text>
+            <Text style={styles.closingTitle}>{t('blogArticlePage.closingTitle')}</Text>
+            <Text style={styles.closingText}>{t('blogArticlePage.closingText')}</Text>
             <Link href={authHref('signup')} asChild>
-              <Button title="Essayer Cantia" variant="secondary" onPress={() => {}} style={styles.closingCta} />
+              <Button title={t('blogArticlePage.closingCta')} variant="secondary" onPress={() => {}} style={styles.closingCta} />
             </Link>
           </View>
         </Container>

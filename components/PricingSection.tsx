@@ -4,7 +4,8 @@ import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Button, Container, Switch } from './ui';
 import { supabase } from '../lib/supabase';
-import { t } from '../lib/i18n';
+import { useMarketingDict } from '../lib/i18n';
+import { useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
@@ -16,6 +17,8 @@ import type { Plan } from '../lib/types';
 // same t.pricing copy, so a price or a plan name can only ever be wrong in
 // one place: the `plans` table itself. Never hardcode a number here.
 export function PricingSection({ compact }: { compact?: boolean }) {
+  const t = useMarketingDict();
+  const { t: tr } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
@@ -38,7 +41,7 @@ export function PricingSection({ compact }: { compact?: boolean }) {
     <Container style={styles.outer}>
       {compact ? null : (
         <>
-          <Text style={[styles.eyebrow, styles.centerText]}>Tarifs</Text>
+          <Text style={[styles.eyebrow, styles.centerText]}>{tr('pricingSection.eyebrow')}</Text>
           <Text style={[styles.title, styles.centerText]}>{t.pricing.title}</Text>
           <Text style={[styles.subtitle, styles.centerText]}>{t.pricing.subtitle}</Text>
         </>
@@ -72,19 +75,19 @@ export function PricingSection({ compact }: { compact?: boolean }) {
                       <Text style={[styles.price, dark && styles.textOnDark]}>
                         CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}
                       </Text>
-                      <Text style={[styles.period, dark && styles.textMutedOnDark]}>/mois</Text>
+                      <Text style={[styles.period, dark && styles.textMutedOnDark]}>{tr('pricingSection.perMonth')}</Text>
                     </View>
                     {isYearly && p.price_chf_yearly != null ? (
                       <Text style={[styles.yearlyNote, dark && styles.textMutedOnDark]}>
-                        Facturé CHF {p.price_chf_yearly.toFixed(2)}/an
+                        {tr('pricingSection.billedYearlyAmount', { amount: p.price_chf_yearly.toFixed(2) })}
                       </Text>
                     ) : null}
                     <View style={styles.features}>
-                      <PriceFeature dark={dark} text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
-                      <PriceFeature dark={dark} text={`Jusqu'à ${p.max_members} membre${p.max_members > 1 ? 's' : ''}`} />
-                      <PriceFeature dark={dark} text="Devis & factures illimités" />
-                      <PriceFeature dark={dark} text="Planning, RH & trésorerie" muted={!p.has_planning} included={p.has_planning} />
-                      <PriceFeature dark={dark} text="Intégration Bexio" muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
+                      <PriceFeature dark={dark} text={tr('pricingSection.storage', { amount: (p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0) })} />
+                      <PriceFeature dark={dark} text={tr('pricingSection.membersUpTo', { count: p.max_members })} />
+                      <PriceFeature dark={dark} text={tr('pricingSection.unlimitedDevisFactures')} />
+                      <PriceFeature dark={dark} text={tr('pricingSection.planningRhTresorerie')} muted={!p.has_planning} included={p.has_planning} />
+                      <PriceFeature dark={dark} text={tr('pricingSection.bexioIntegration')} muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
                     </View>
                     <Link href={authHref('signup')} asChild>
                       <Button title={t.pricing.paidCta} onPress={() => {}} variant={dark ? 'primary' : 'secondary'} style={{ marginTop: spacing.lg }} />
@@ -98,8 +101,8 @@ export function PricingSection({ compact }: { compact?: boolean }) {
         <Pressable style={StyleSheet.flatten([styles.contactCard, styles.contactCardInner])} hitSlop={8}>
           <Feather name="tool" size={16} color={colors.textMuted} />
           <Text style={styles.contactCardText}>
-            Plus de 25 membres, ou un besoin métier bien à vous ?{' '}
-            <Text style={styles.contactCardLink}>Découvrez Sur mesure →</Text>
+            {tr('pricingSection.contactText')}{' '}
+            <Text style={styles.contactCardLink}>{tr('pricingSection.contactLink')}</Text>
           </Text>
         </Pressable>
       </Link>

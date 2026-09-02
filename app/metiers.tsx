@@ -5,7 +5,8 @@ import { Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-import { TRADE_PAGES, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
+import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 const TRADE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   charpentier: 'layout',
@@ -35,23 +36,23 @@ const TRADE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
 };
 
 export default function MetiersScreen() {
+  const { t } = useTranslation();
+  const locale = getAppLocale();
+  const tradeHrefPrefix = locale === 'de' ? '/de/' : '/';
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
         <Container style={styles.heroOuter}>
-          <Text style={styles.eyebrow}>Cantia pour votre métier</Text>
-          <Text style={styles.title}>Un logiciel de gestion adapté aux métiers du bâtiment</Text>
-          <Text style={styles.subtitle}>
-            Cantia centralise devis, chantiers, équipes et facturation. Découvrez comment il peut s'adapter au
-            quotidien de votre métier.
-          </Text>
+          <Text style={styles.eyebrow}>{t('metiersPage.eyebrow')}</Text>
+          <Text style={styles.title}>{t('metiersPage.title')}</Text>
+          <Text style={styles.subtitle}>{t('metiersPage.subtitle')}</Text>
         </Container>
 
         <Container style={styles.grid}>
           {TRADE_PAGE_SLUGS.map((slug) => {
-            const trade = TRADE_PAGES[slug];
+            const trade = getTradePage(slug, locale)!;
             return (
               // The sizing (flexGrow/flexBasis/maxWidth) lives on this plain
               // outer View, not on the Pressable inside <Link asChild> — Link
@@ -60,19 +61,19 @@ export default function MetiersScreen() {
               // via the Pressable's own style silently loses its width and
               // stretches to fill the row instead of sitting in a grid.
               <View key={slug} style={styles.cardOuter}>
-                <Link href={`/${slug}` as any} asChild>
+                <Link href={`${tradeHrefPrefix}${slug}` as any} asChild>
                   <Pressable style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}>
                     {({ hovered }: any) => (
                       <>
                         <View style={[styles.cardIcon, hovered && styles.cardIconHovered]}>
                           <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={18} color={hovered ? '#fff' : colors.primary} />
                         </View>
-                        <Text style={styles.cardTitle}>{pluralTradeName(trade.tradeName)}</Text>
+                        <Text style={styles.cardTitle}>{locale === 'de' ? trade.tradeName : pluralTradeName(trade.tradeName)}</Text>
                         <Text style={styles.cardText} numberOfLines={3}>
                           {trade.hero.subtitle}
                         </Text>
                         <View style={styles.cardLinkRow}>
-                          <Text style={styles.cardLinkText}>Découvrir</Text>
+                          <Text style={styles.cardLinkText}>{t('metiersPage.discover')}</Text>
                           <Feather name="arrow-right" size={13} color={colors.primary} />
                         </View>
                       </>
@@ -86,8 +87,8 @@ export default function MetiersScreen() {
 
         <Container style={styles.noteOuter}>
           <Text style={styles.note}>
-            Votre métier n'est pas encore listé ? Cantia s'adapte à la plupart des corps de métier du bâtiment
-            suisse, <Link href="/sur-mesure"><Text style={styles.noteLink}>parlez-nous de votre activité</Text></Link>.
+            {t('metiersPage.noteBefore')}
+            <Link href="/sur-mesure"><Text style={styles.noteLink}>{t('metiersPage.noteLink')}</Text></Link>.
           </Text>
         </Container>
 

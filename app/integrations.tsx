@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { SolutionPage } from '../components/SolutionPage';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 // Directory page for third-party integrations — today just Bexio, but the
 // shape (one detailed card per integration, room for a "bientôt" row) is
@@ -50,13 +51,6 @@ function CurvedArrow({
   );
 }
 
-const FLOW_ROWS: { icon: FlowIcon; label: string; bulge: number; cute?: boolean }[] = [
-  { icon: 'smile', label: 'Clients', bulge: 8, cute: true },
-  { icon: 'file-text', label: 'Devis', bulge: -8 },
-  { icon: 'file', label: 'Factures', bulge: 8 },
-  { icon: 'credit-card', label: 'Statuts de paiement', bulge: -8 },
-];
-
 const ARC_ROW_HEIGHT = 44;
 const ARC_BADGE_SIZE = 26;
 
@@ -77,16 +71,23 @@ function BexioLogoBadge({ size }: { size: number }) {
 }
 
 function IntegrationsVisual() {
+  const { t } = useTranslation();
+  const FLOW_ROWS: { icon: FlowIcon; label: string; bulge: number; cute?: boolean }[] = [
+    { icon: 'smile', label: t('integrationsPage.flowClientsLabel'), bulge: 8, cute: true },
+    { icon: 'file-text', label: t('integrationsPage.flowDevisLabel'), bulge: -8 },
+    { icon: 'file', label: t('integrationsPage.flowFacturesLabel'), bulge: 8 },
+    { icon: 'credit-card', label: t('integrationsPage.flowPaymentsLabel'), bulge: -8 },
+  ];
   return (
     <View style={styles.visualFrame}>
       <View style={styles.visualEndpoints}>
         <View style={styles.visualEndpoint}>
           <CantiaLogoBadge size={68} />
-          <Text style={styles.visualEndpointLabel}>Cantia</Text>
+          <Text style={styles.visualEndpointLabel}>{t('integrationsPage.cantiaLabel')}</Text>
         </View>
         <View style={styles.visualEndpoint}>
           <BexioLogoBadge size={68} />
-          <Text style={styles.visualEndpointLabel}>Bexio</Text>
+          <Text style={styles.visualEndpointLabel}>{t('integrationsPage.bexioLabel')}</Text>
         </View>
       </View>
 
@@ -115,7 +116,7 @@ function IntegrationsVisual() {
         ))}
       </View>
 
-      <Text style={styles.visualCaption}>Synchronisé automatiquement, dans les deux sens</Text>
+      <Text style={styles.visualCaption}>{t('integrationsPage.visualCaption')}</Text>
     </View>
   );
 }
@@ -141,14 +142,14 @@ function bandPointAt(t: number) {
   return { leftPct: (x / BAND_VB_WIDTH) * 100, top: y };
 }
 
-const BAND_CHIPS: { icon: FlowIcon; label: string; t: number; cute?: boolean }[] = [
-  { icon: 'smile', label: 'Clients', t: 0.18, cute: true },
-  { icon: 'file-text', label: 'Devis', t: 0.4 },
-  { icon: 'file', label: 'Factures', t: 0.6 },
-  { icon: 'credit-card', label: 'Paiements', t: 0.82 },
-];
-
 function IntegrationsFlowBand() {
+  const { t: tr } = useTranslation();
+  const BAND_CHIPS: { icon: FlowIcon; label: string; t: number; cute?: boolean }[] = [
+    { icon: 'smile', label: tr('integrationsPage.flowClientsLabel'), t: 0.18, cute: true },
+    { icon: 'file-text', label: tr('integrationsPage.flowDevisLabel'), t: 0.4 },
+    { icon: 'file', label: tr('integrationsPage.flowFacturesLabel'), t: 0.6 },
+    { icon: 'credit-card', label: tr('integrationsPage.bandPaymentsLabel'), t: 0.82 },
+  ];
   const s = 6;
   return (
     <View style={styles.bandOuter}>
@@ -194,91 +195,50 @@ function IntegrationsFlowBand() {
             );
           })}
         </View>
-        <Text style={styles.visualCaption}>Synchronisé automatiquement, dans les deux sens</Text>
+        <Text style={styles.visualCaption}>{tr('integrationsPage.visualCaption')}</Text>
       </View>
     </View>
   );
 }
 
 export default function IntegrationsPage() {
+  const { t } = useTranslation();
+  const locale = getAppLocale();
+  const blogPrefix = locale === 'de' ? '/de/blog' : '/blog';
+  const solutionsPrefix = locale === 'de' ? '/de/solutions' : '/solutions';
   return (
     <SolutionPage
-      kicker="Intégrations"
-      title="Connectez Cantia aux outils que vous utilisez déjà"
-      subtitle="Cantia se connecte directement à votre comptabilité pour éviter la double saisie. Une première intégration native est disponible dès aujourd'hui — d'autres suivront, dans le même esprit : une connexion officielle, jamais un simple export à recopier."
+      kicker={t('integrationsPage.kicker')}
+      title={t('integrationsPage.title')}
+      subtitle={t('integrationsPage.subtitle')}
       visual={<IntegrationsVisual />}
       afterFeatures={<IntegrationsFlowBand />}
       features={[
-        {
-          icon: 'users',
-          title: 'Clients importés automatiquement',
-          text: "Vos contacts Bexio arrivent dans Cantia dès la connexion, puis restent à jour à chaque synchronisation — un seul endroit où les créer.",
-        },
-        {
-          icon: 'package',
-          title: 'Articles vers votre Catalogue',
-          text: "Vos articles et prestations Bexio alimentent le Catalogue Cantia, prêts à être réutilisés dans un devis ou une facture.",
-        },
-        {
-          icon: 'send',
-          title: 'Factures envoyées en un clic',
-          text: "Depuis une facture Cantia, un clic l'envoie vers Bexio en brouillon — jamais finalisée à votre place, jamais dupliquée si vous renvoyez.",
-        },
-        {
-          icon: 'refresh-cw',
-          title: 'Statuts de paiement synchronisés',
-          text: "Dès qu'une facture est payée dans Bexio, Cantia le sait dans l'heure qui suit — synchronisation automatique toutes les heures, ou à la demande.",
-        },
-        {
-          icon: 'shield',
-          title: 'Connexion officielle, révocable',
-          text: "L'authentification passe par le mécanisme officiel de Bexio (OAuth) — Cantia ne voit jamais votre mot de passe, et l'accès se coupe en un clic depuis Bexio ou Cantia.",
-        },
-        {
-          icon: 'plus-circle',
-          title: "D'autres intégrations à venir",
-          text: "Bexio est la première d'une série pensée sur le même principe : une vraie connexion, pas un fichier à réimporter à la main.",
-        },
+        { icon: 'users', title: t('integrationsPage.feature1Title'), text: t('integrationsPage.feature1Text') },
+        { icon: 'package', title: t('integrationsPage.feature2Title'), text: t('integrationsPage.feature2Text') },
+        { icon: 'send', title: t('integrationsPage.feature3Title'), text: t('integrationsPage.feature3Text') },
+        { icon: 'refresh-cw', title: t('integrationsPage.feature4Title'), text: t('integrationsPage.feature4Text') },
+        { icon: 'shield', title: t('integrationsPage.feature5Title'), text: t('integrationsPage.feature5Text') },
+        { icon: 'plus-circle', title: t('integrationsPage.feature6Title'), text: t('integrationsPage.feature6Text') },
       ]}
       steps={[
-        {
-          title: 'Ouvrez Compte → Intégrations',
-          text: 'Un administrateur de votre organisation retrouve la carte Bexio, disponible dès le plan Équipe.',
-        },
-        {
-          title: 'Connectez-vous à Bexio',
-          text: 'Vous vous identifiez normalement sur Bexio et autorisez l’accès — Cantia ne stocke jamais votre mot de passe.',
-        },
-        {
-          title: 'Laissez la synchronisation faire le reste',
-          text: 'Clients et articles arrivent immédiatement ; ensuite, envoyez vos factures en un clic et laissez les statuts de paiement se mettre à jour tout seuls.',
-        },
+        { title: t('integrationsPage.step1Title'), text: t('integrationsPage.step1Text') },
+        { title: t('integrationsPage.step2Title'), text: t('integrationsPage.step2Text') },
+        { title: t('integrationsPage.step3Title'), text: t('integrationsPage.step3Text') },
       ]}
       faq={[
-        {
-          question: 'Quelles intégrations Cantia propose-t-il aujourd’hui ?',
-          answer: 'Bexio, disponible nativement dès le plan Équipe. D’autres intégrations suivront le même principe de connexion officielle.',
-        },
-        {
-          question: 'L’intégration Bexio est-elle payante en plus de l’abonnement ?',
-          answer: 'Non — elle est incluse automatiquement à partir du plan Équipe, sans module ni coût supplémentaire.',
-        },
-        {
-          question: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?',
-          answer: 'Non. Chaque facture arrive dans Bexio en brouillon uniquement — la finalisation reste toujours une action manuelle côté Bexio.',
-        },
-        {
-          question: 'Puis-je demander une intégration qui n’existe pas encore ?',
-          answer: 'Oui, contactez-nous à info@cantia.ch : les intégrations sur mesure font partie de ce que Cantia peut développer pour votre organisation.',
-        },
+        { question: t('integrationsPage.faq1Question'), answer: t('integrationsPage.faq1Answer') },
+        { question: t('integrationsPage.faq2Question'), answer: t('integrationsPage.faq2Answer') },
+        { question: t('integrationsPage.faq3Question'), answer: t('integrationsPage.faq3Answer') },
+        { question: t('integrationsPage.faq4Question'), answer: t('integrationsPage.faq4Answer') },
       ]}
       related={[
-        { href: '/blog/integration-bexio-cantia-synchronisation-automatique', label: 'Comment fonctionne la connexion Bexio' },
-        { href: '/blog/bexio-vs-cantia-logiciel-batiment', label: 'Bexio vs Cantia' },
-        { href: '/solutions/facturation', label: 'Facturation & QR-facture' },
+        { href: `${blogPrefix}/integration-bexio-cantia-synchronisation-automatique`, label: t('integrationsPage.related1Label') },
+        { href: `${blogPrefix}/bexio-vs-cantia-logiciel-batiment`, label: t('integrationsPage.related2Label') },
+        { href: `${solutionsPrefix}/facturation`, label: t('integrationsPage.related3Label') },
       ]}
-      closingTitle="Connectez Bexio en deux minutes"
-      closingText="Depuis Compte → Intégrations, un administrateur autorise l'accès et la synchronisation démarre — inclus dès le plan Équipe."
+      closingTitle={t('integrationsPage.closingTitle')}
+      closingText={t('integrationsPage.closingText')}
     />
   );
 }

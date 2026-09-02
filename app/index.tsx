@@ -22,8 +22,9 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Screen, Switch } from '../components/ui';
 import { MarketingFooter } from '../components/MarketingChrome';
 import { supabase } from '../lib/supabase';
-import { t } from '../lib/i18n';
-import { TRADE_PAGES, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
+import { useMarketingDict } from '../lib/i18n';
+import { getAppLocale, useTranslation } from '../lib/translations';
+import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
@@ -73,6 +74,10 @@ export default function LandingScreen() {
 }
 
 function LandingContent() {
+  const t = useMarketingDict();
+  const { t: tr } = useTranslation();
+  const appLocale = getAppLocale();
+  const tradeHrefPrefix = appLocale === 'de' ? '/de/' : '/';
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   // Starts true so the pricing grid renders skeleton cards instead of a bare
@@ -488,37 +493,37 @@ function LandingContent() {
               >
                 <View style={styles.heroCardHeader}>
                   <View style={styles.heroCardDot} />
-                  <Text style={styles.heroCardTitle}>Devis #2024-118</Text>
+                  <Text style={styles.heroCardTitle}>{tr('landingPage.heroCardTitle')}</Text>
                   <View style={styles.heroCardStatusPill}>
-                    <Text style={styles.heroCardStatusText}>Envoyé</Text>
+                    <Text style={styles.heroCardStatusText}>{tr('landingPage.heroCardStatusSent')}</Text>
                   </View>
                 </View>
 
                 <View style={styles.heroCardLines}>
                   <View style={styles.heroCardLine}>
                     <Feather name="edit-3" size={13} color={colors.textMuted} />
-                    <Text style={styles.heroCardLineText}>Crépi façade nord</Text>
+                    <Text style={styles.heroCardLineText}>{tr('landingPage.heroCardLineFacade')}</Text>
                     <Text style={styles.heroCardLinePrice}>CHF 1 240.–</Text>
                   </View>
                   <View style={styles.heroCardLine}>
                     <Feather name="square" size={13} color={colors.textMuted} />
-                    <Text style={styles.heroCardLineText}>Fenêtres PVC (x3)</Text>
+                    <Text style={styles.heroCardLineText}>{tr('landingPage.heroCardLineWindows')}</Text>
                     <Text style={styles.heroCardLinePrice}>CHF 2 850.–</Text>
                   </View>
                   <View style={styles.heroCardLine}>
                     <Feather name="tool" size={13} color={colors.textMuted} />
-                    <Text style={styles.heroCardLineText}>Pose et main d'œuvre</Text>
+                    <Text style={styles.heroCardLineText}>{tr('landingPage.heroCardLineLabor')}</Text>
                     <Text style={styles.heroCardLinePrice}>CHF 980.–</Text>
                   </View>
                 </View>
                 <View style={styles.heroCardDivider} />
                 <View style={styles.heroCardTotalRow}>
-                  <Text style={styles.heroCardTotalLabel}>Total TTC</Text>
+                  <Text style={styles.heroCardTotalLabel}>{tr('landingPage.heroCardTotalLabel')}</Text>
                   <Text style={styles.heroCardTotalValue}>CHF 5 070.–</Text>
                 </View>
                 <View style={styles.heroCardBadge}>
                   <Feather name="check" size={12} color="#fff" />
-                  <Text style={styles.heroCardBadgeText}>Signé électroniquement</Text>
+                  <Text style={styles.heroCardBadgeText}>{tr('landingPage.heroCardSignedBadge')}</Text>
                 </View>
 
                 {/* A second, shallower layer of depth — bobs opposite the
@@ -543,8 +548,8 @@ function LandingContent() {
                     <Feather name="bell" size={11} color={colors.primary} />
                   </View>
                   <View>
-                    <Text style={styles.heroCardToastTitle}>Facture #204 payée</Text>
-                    <Text style={styles.heroCardToastText}>Il y a 2 minutes</Text>
+                    <Text style={styles.heroCardToastTitle}>{tr('landingPage.heroCardToastTitle')}</Text>
+                    <Text style={styles.heroCardToastText}>{tr('landingPage.heroCardToastTime')}</Text>
                   </View>
                 </Animated.View>
               </Animated.View>
@@ -562,11 +567,11 @@ function LandingContent() {
           <View style={styles.trustLineOuter}>
             <Feather name="users" size={15} color={colors.primary} />
             <Text style={styles.trustLineText}>
-              +{TRUST_COMPANY_COUNT} entreprises du bâtiment nous font déjà confiance
+              {tr('landingPage.trustLine', { count: TRUST_COMPANY_COUNT })}
             </Text>
             <View style={styles.trustLineDivider} />
             <Feather name="star" size={13} color={colors.primary} />
-            <Text style={styles.trustLineText}>{TRUST_RATING}/5 satisfaction clients</Text>
+            <Text style={styles.trustLineText}>{tr('landingPage.trustSatisfaction', { rating: TRUST_RATING })}</Text>
           </View>
 
           {/* ---- Bexio ribbon — the "real, native OAuth integration" pitch,
@@ -585,12 +590,12 @@ function LandingContent() {
                     <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioBannerLogoImage} resizeMode="contain" />
                   </View>
                   <Text style={styles.bexioRibbonText}>
-                    <Text style={styles.bexioRibbonTextStrong}>Nouveau — </Text>
-                    intégration native avec <Text style={styles.bexioRibbonTextAccent}>Bexio</Text> : clients, factures et paiements synchronisés automatiquement.
+                    <Text style={styles.bexioRibbonTextStrong}>{tr('landingPage.bexioRibbonNew')}</Text>
+                    {tr('landingPage.bexioRibbonTextBefore')}<Text style={styles.bexioRibbonTextAccent}>Bexio</Text>{tr('landingPage.bexioRibbonTextAfter')}
                   </Text>
                 </View>
                 <View style={styles.bexioRibbonCta}>
-                  <Text style={styles.bexioRibbonCtaText}>Découvrir</Text>
+                  <Text style={styles.bexioRibbonCtaText}>{tr('landingPage.bexioRibbonCta')}</Text>
                   <Feather name="arrow-right" size={13} color={colors.text} />
                 </View>
               </View>
@@ -599,7 +604,7 @@ function LandingContent() {
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
           <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionEyebrow, styles.centerText]}>Automatisations</Text>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.automationsEyebrow')}</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.spotlight.title}</Text>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.spotlight.subtitle}</Text>
             <View style={styles.spotlightGrid}>
@@ -620,7 +625,7 @@ function LandingContent() {
           <Reveal id="pain" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <View style={[styles.chaosLayer, showChaosChipsCompact && styles.chaosLayerCompact]}>
               <View>
-                <Text style={[styles.sectionEyebrow, styles.centerText]}>Le problème</Text>
+                <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.problemEyebrow')}</Text>
                 <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
                 {/* A rule-separated diagnostic list, not boxed cards — reads
                     as a short, scannable list of symptoms rather than three
@@ -654,10 +659,10 @@ function LandingContent() {
 
               {showChaosChips ? (
                 <>
-                  <ChaosChip icon="send" label="Devis #118" sub="Brouillon depuis 6 jours" posStyle={{ top: -14, left: 0 }} rotate={-1.5} />
-                  <ChaosChip icon="file-text" label="Rapport de chantier" sub="Toujours pas envoyé" posStyle={{ top: -14, right: 0 }} rotate={1} />
-                  <ChaosChip icon="credit-card" label="Facture #204" sub="62 jours de retard" posStyle={{ top: 100, left: 0 }} rotate={1.5} />
-                  <ChaosChip icon="camera" label="14 photos" sub="Non triées" posStyle={{ top: 100, right: 0 }} rotate={-1} />
+                  <ChaosChip icon="send" label={tr('landingPage.chaosDevisLabel')} sub={tr('landingPage.chaosDevisSub')} posStyle={{ top: -14, left: 0 }} rotate={-1.5} />
+                  <ChaosChip icon="file-text" label={tr('landingPage.chaosRapportLabel')} sub={tr('landingPage.chaosRapportSub')} posStyle={{ top: -14, right: 0 }} rotate={1} />
+                  <ChaosChip icon="credit-card" label={tr('landingPage.chaosFactureLabel')} sub={tr('landingPage.chaosFactureSub')} posStyle={{ top: 100, left: 0 }} rotate={1.5} />
+                  <ChaosChip icon="camera" label={tr('landingPage.chaosPhotosLabel')} sub={tr('landingPage.chaosPhotosSub')} posStyle={{ top: 100, right: 0 }} rotate={-1} />
                 </>
               ) : null}
 
@@ -665,32 +670,32 @@ function LandingContent() {
                 <>
                   <ChaosChip
                     icon="send"
-                    label="Devis #118"
-                    sub="Brouillon depuis 6 jours"
+                    label={tr('landingPage.chaosDevisLabel')}
+                    sub={tr('landingPage.chaosDevisSub')}
                     posStyle={{ top: 34, left: chaosChipCompactCenter - 16 }}
                     rotate={-3}
                     compact
                   />
                   <ChaosChip
                     icon="file-text"
-                    label="Rapport de chantier"
-                    sub="Toujours pas envoyé"
+                    label={tr('landingPage.chaosRapportLabel')}
+                    sub={tr('landingPage.chaosRapportSub')}
                     posStyle={{ top: 82, left: chaosChipCompactCenter + 14 }}
                     rotate={2}
                     compact
                   />
                   <ChaosChip
                     icon="credit-card"
-                    label="Facture #204"
-                    sub="62 jours de retard"
+                    label={tr('landingPage.chaosFactureLabel')}
+                    sub={tr('landingPage.chaosFactureSub')}
                     posStyle={{ top: 130, left: chaosChipCompactCenter + 14 }}
                     rotate={-2}
                     compact
                   />
                   <ChaosChip
                     icon="camera"
-                    label="14 photos"
-                    sub="Non triées"
+                    label={tr('landingPage.chaosPhotosLabel')}
+                    sub={tr('landingPage.chaosPhotosSub')}
                     posStyle={{ top: 178, left: chaosChipCompactCenter - 16 }}
                     rotate={3}
                     compact
@@ -721,7 +726,7 @@ function LandingContent() {
               by "Chantier" and "Bureau" endpoint labels. Same click-to-expand
               behavior as before, just a completely different container. ---- */}
           <Reveal id="services" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={styles.sectionEyebrow}>Ce qu'on apporte</Text>
+            <Text style={styles.sectionEyebrow}>{tr('landingPage.servicesEyebrow')}</Text>
             <Text style={styles.sectionTitle}>{t.services.title}</Text>
             <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
 
@@ -730,7 +735,7 @@ function LandingContent() {
                 <View style={styles.journeyEndpointIcon}>
                   <Feather name="tool" size={14} color={colors.textMuted} />
                 </View>
-                <Text style={styles.journeyEndpointText}>Chantier</Text>
+                <Text style={styles.journeyEndpointText}>{tr('landingPage.journeyChantier')}</Text>
               </View>
 
               <View style={styles.journeyList}>
@@ -800,28 +805,31 @@ function LandingContent() {
                 <View style={styles.journeyEndpointIcon}>
                   <Feather name="briefcase" size={14} color={colors.textMuted} />
                 </View>
-                <Text style={styles.journeyEndpointText}>Bureau</Text>
+                <Text style={styles.journeyEndpointText}>{tr('landingPage.journeyBureau')}</Text>
               </View>
             </View>
           </Reveal>
 
           {/* ---- Trades ---- */}
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionEyebrow, styles.centerText]}>Métiers couverts</Text>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.tradesEyebrow')}</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
             <TradesMarquee trades={t.trades.list} compact={isCompactNav} />
             <Text style={styles.tradeNote}>{t.trades.note}</Text>
             <View style={styles.tradeLinksRow}>
-              {TRADE_PAGE_SLUGS.map((slug) => (
-                <Link key={slug} href={`/${slug}` as any} asChild>
-                  <Pressable style={styles.tradeLinkChip}>
-                    <Text style={styles.tradeLinkChipText}>{pluralTradeName(TRADE_PAGES[slug].tradeName)}</Text>
-                  </Pressable>
-                </Link>
-              ))}
-              <Link href="/metiers" asChild>
+              {TRADE_PAGE_SLUGS.map((slug) => {
+                const tradePage = getTradePage(slug, appLocale)!;
+                return (
+                  <Link key={slug} href={`${tradeHrefPrefix}${slug}` as any} asChild>
+                    <Pressable style={styles.tradeLinkChip}>
+                      <Text style={styles.tradeLinkChipText}>{appLocale === 'de' ? tradePage.tradeName : pluralTradeName(tradePage.tradeName)}</Text>
+                    </Pressable>
+                  </Link>
+                );
+              })}
+              <Link href={appLocale === 'de' ? '/de/metiers' : '/metiers'} asChild>
                 <Pressable style={styles.tradeLinkChipAll}>
-                  <Text style={styles.tradeLinkChipAllText}>Voir tous les métiers</Text>
+                  <Text style={styles.tradeLinkChipAllText}>{tr('landingPage.seeAllTrades')}</Text>
                   <Feather name="arrow-right" size={13} color={colors.primary} />
                 </Pressable>
               </Link>
@@ -830,7 +838,7 @@ function LandingContent() {
 
           {/* ---- Pricing ---- */}
           <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionEyebrow, styles.centerText]}>Tarifs</Text>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.pricingEyebrow')}</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.pricing.subtitle}</Text>
             <Pressable
@@ -881,12 +889,12 @@ function LandingContent() {
                       </Text>
                     ) : null}
                     {isFromPrice ? (
-                      <Text style={[styles.priceFromLabel, dark && styles.priceFromLabelOnDark]}>dès</Text>
+                      <Text style={[styles.priceFromLabel, dark && styles.priceFromLabelOnDark]}>{tr('landingPage.priceFromLabel')}</Text>
                     ) : null}
                     <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
                       {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
                     </Text>
-                    <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>/mois</Text>
+                    <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>{tr('landingPage.pricePerMonth')}</Text>
                   </View>
                   {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null && !isFromPrice ? (
                     <Text style={[styles.priceYearlyNote, dark && styles.priceYearlyNoteOnDark]}>
@@ -902,10 +910,10 @@ function LandingContent() {
                     // "dès CHF 149" price better than a checkout button.
                     <>
                       <Text style={styles.priceFromPitch}>
-                        Tout est possible : nous adaptons Cantia à votre organisation, vos volumes et vos besoins spécifiques.
+                        {tr('landingPage.surMesurePitch')}
                       </Text>
                       <Button
-                        title="Nous contacter"
+                        title={tr('landingPage.contactUs')}
                         onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Plan Sur mesure Cantia').catch(() => {})}
                         variant="secondary"
                         style={{ marginTop: spacing.md }}
@@ -916,27 +924,27 @@ function LandingContent() {
                       <View style={styles.priceFeatures}>
                         <PriceFeature
                           dark={dark}
-                          text={`${(p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0)} ${t.pricing.storageSuffix}`}
+                          text={tr('pricingSection.storage', { amount: (p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0) })}
                         />
                         <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
                         <PriceFeature
                           dark={dark}
                           text={
                             p.max_devis_factures_per_month
-                              ? `${p.max_devis_factures_per_month} devis/factures par mois`
+                              ? tr('landingPage.quotaPerMonth', { count: p.max_devis_factures_per_month })
                               : t.pricing.unlimited
                           }
                           muted={!!p.max_devis_factures_per_month}
                         />
-                        <PriceFeature dark={dark} text="Envoi de devis/factures par e-mail" muted={!p.has_email_sending} included={p.has_email_sending} />
-                        <PriceFeature dark={dark} text="Planning d'équipe" muted={!p.has_planning} included={p.has_planning} />
-                        <PriceFeature dark={dark} text="RH, heures & salaires" muted={!p.has_payroll} included={p.has_payroll} />
-                        <PriceFeature dark={dark} text="Rentabilité par chantier" muted={!p.has_profitability} included={p.has_profitability} />
-                        <PriceFeature dark={dark} text="Trésorerie prévisionnelle" muted={!p.has_treasury} included={p.has_treasury} />
-                        <PriceFeature dark={dark} text="Intégration Bexio" muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
+                        <PriceFeature dark={dark} text={tr('landingPage.featureEmailSending')} muted={!p.has_email_sending} included={p.has_email_sending} />
+                        <PriceFeature dark={dark} text={tr('landingPage.featureTeamPlanning')} muted={!p.has_planning} included={p.has_planning} />
+                        <PriceFeature dark={dark} text={tr('landingPage.featureHrPayroll')} muted={!p.has_payroll} included={p.has_payroll} />
+                        <PriceFeature dark={dark} text={tr('landingPage.featureProfitability')} muted={!p.has_profitability} included={p.has_profitability} />
+                        <PriceFeature dark={dark} text={tr('landingPage.featureTreasury')} muted={!p.has_treasury} included={p.has_treasury} />
+                        <PriceFeature dark={dark} text={tr('landingPage.featureBexio')} muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
                         <PriceFeature
                           dark={dark}
-                          text={p.max_trames === 0 ? 'Bibliothèque de trames' : p.max_trames != null ? `${p.max_trames} trames enregistrées` : 'Bibliothèque de trames illimitée'}
+                          text={p.max_trames === 0 ? tr('landingPage.trameLibraryEmpty') : p.max_trames != null ? tr('landingPage.trameLibraryCount', { count: p.max_trames }) : tr('landingPage.trameLibraryUnlimited')}
                           muted={p.max_trames === 0}
                           included={p.max_trames !== 0}
                         />
@@ -966,10 +974,10 @@ function LandingContent() {
               </View>
               <View style={styles.swissFacts}>
                 {[
-                  'Montants et documents adaptés aux entreprises suisses (CHF)',
-                  'Gestion des taux de TVA utilisés en Suisse',
-                  'Facturation avec QR-facture conforme au système suisse',
-                  'Données hébergées en Suisse',
+                  tr('landingPage.swissFactChf'),
+                  tr('landingPage.swissFactVat'),
+                  tr('landingPage.swissFactQr'),
+                  tr('landingPage.swissFactHosting'),
                 ].map((fact) => (
                   <View key={fact} style={styles.swissFactRow}>
                     <View style={styles.swissFactCheck}>
@@ -1078,7 +1086,7 @@ function LandingContent() {
                 onPress={() => setMenuOpen((v) => !v)}
                 style={styles.hamburgerButton}
                 hitSlop={8}
-                accessibilityLabel="Menu"
+                accessibilityLabel={tr('marketingChrome.menu')}
               >
                 <Feather name={menuOpen ? 'x' : 'menu'} size={22} color={colors.text} />
               </Pressable>
@@ -1129,7 +1137,7 @@ function LandingContent() {
                   <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
                   <Text style={styles.navBrand}>Cantia</Text>
                 </View>
-                <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel="Fermer">
+                <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
                   <Feather name="x" size={22} color={colors.text} />
                 </Pressable>
               </View>
@@ -1566,16 +1574,17 @@ function VoiceDemo({ copy }: { copy: VoiceCopy }) {
 // certification stamp — instead of a flat rounded gradient card or a
 // dashed circle with horizontal text sitting inside it.
 function SwissStamp() {
+  const { t: tr } = useTranslation();
   return (
     <View style={styles.swissStamp}>
       <View style={styles.swissStampRingOuter} />
       <View style={styles.swissStampRingInner} />
-      <ArcText text="CANTIA   ·   SUISSE   ·" radius={49} startAngle={-100} endAngle={100} style={styles.swissStampArcText} />
+      <ArcText text={tr('landingPage.swissStampArcText')} radius={49} startAngle={-100} endAngle={100} style={styles.swissStampArcText} />
       <View style={styles.swissStampCross}>
         <View style={styles.swissStampCrossV} />
         <View style={styles.swissStampCrossH} />
       </View>
-      <Text style={styles.swissStampCenterText}>Depuis 2026</Text>
+      <Text style={styles.swissStampCenterText}>{tr('landingPage.swissStampSince')}</Text>
     </View>
   );
 }

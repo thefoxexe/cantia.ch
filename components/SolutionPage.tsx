@@ -7,6 +7,7 @@ import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -65,6 +66,8 @@ export function SolutionPage({
   closingTitle: string;
   closingText: string;
 }) {
+  const { t } = useTranslation();
+  const pricingHref = getAppLocale() === 'de' ? '/de/#pricing' : '/#pricing';
   // A single mount-in beat for the hero (fade + rise) — no scroll tracking
   // needed since it's the first thing visible on load, unlike index.tsx's
   // scroll-scrubbed reveals further down the page.
@@ -96,10 +99,10 @@ export function SolutionPage({
               <Text style={styles.subtitle}>{subtitle}</Text>
               <View style={styles.ctaRow}>
                 <Link href={authHref('signup')} asChild>
-                  <Button title="Essayer gratuitement" onPress={() => {}} />
+                  <Button title={t('solutionPage.ctaTrial')} onPress={() => {}} />
                 </Link>
-                <Link href="/#pricing" asChild>
-                  <Button title="Voir les tarifs" variant="secondary" onPress={() => {}} />
+                <Link href={pricingHref as any} asChild>
+                  <Button title={t('solutionPage.ctaPricing')} variant="secondary" onPress={() => {}} />
                 </Link>
               </View>
             </Animated.View>
@@ -144,7 +147,7 @@ export function SolutionPage({
 
         {steps?.length ? (
           <Container style={styles.section}>
-            <Text style={styles.stepsEyebrow}>Comment ça marche</Text>
+            <Text style={styles.stepsEyebrow}>{t('solutionPage.stepsEyebrow')}</Text>
             <View style={styles.stepsList}>
               {steps.map((s, i) => (
                 <View key={s.title} style={[styles.stepRow, i === steps.length - 1 && styles.stepRowLast]}>
@@ -166,7 +169,7 @@ export function SolutionPage({
 
         {faq?.length ? (
           <Container style={styles.section}>
-            <Text style={styles.stepsEyebrow}>Questions fréquentes</Text>
+            <Text style={styles.stepsEyebrow}>{t('solutionPage.faqEyebrow')}</Text>
             <View style={styles.faqList}>
               {faq.map((f, i) => (
                 <View key={f.question} style={[styles.faqRow, i === faq.length - 1 && styles.faqRowLast]}>
@@ -180,7 +183,7 @@ export function SolutionPage({
 
         {related?.length ? (
           <Container style={styles.section}>
-            <Text style={styles.stepsEyebrow}>Voir aussi</Text>
+            <Text style={styles.stepsEyebrow}>{t('solutionPage.seeAlsoEyebrow')}</Text>
             <View style={styles.relatedRow}>
               {related.map((r) => (
                 <Link key={r.href} href={r.href as any} asChild>
@@ -199,7 +202,7 @@ export function SolutionPage({
             <Text style={styles.closingTitle}>{closingTitle}</Text>
             <Text style={styles.closingText}>{closingText}</Text>
             <Link href={authHref('signup')} asChild>
-              <Button title="Essayer gratuitement" variant="secondary" onPress={() => {}} style={styles.closingCta} />
+              <Button title={t('solutionPage.ctaTrial')} variant="secondary" onPress={() => {}} style={styles.closingCta} />
             </Link>
           </View>
         </Container>

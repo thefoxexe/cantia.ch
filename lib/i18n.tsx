@@ -1,3 +1,5 @@
+import { useTranslation } from './translations';
+
 interface FeatureItem {
   title: string;
   text: string;
@@ -283,5 +285,243 @@ const fr: Dict = {
   },
 };
 
+
+const de: Dict = {
+  nav: { services: 'Leistungen', pricing: 'Preise', download: 'Herunterladen', help: 'Dokumentation', login: 'Anmelden', cta: 'Cantia testen' },
+  hero: {
+    kicker: 'Für das Schweizer Baugewerbe entwickelt 🇨🇭',
+    headlinePrefix: 'Verwalten Sie Ihre Baustellen.',
+    headlineHighlight: 'Nicht Ihre Administration.',
+    subheadline:
+      'Cantia ist die Verwaltungssoftware für Schweizer Bauunternehmen. Offerten, Rechnungen, Planung, Rapporte und Rentabilität an einem Ort, im Büro wie auf der Baustelle.',
+    cta1: 'Meine 14-tägige Testphase starten',
+    cta2: 'Cantia entdecken',
+    trust: '14 Tage Testphase · Kein Code nötig · In der Schweiz gehostet',
+  },
+  spotlight: {
+    title: 'Automatisierungen für den Alltag im Baugewerbe',
+    subtitle: 'Von der Offertendiktierung bis zur QR-Rechnung automatisiert Cantia die Aufgaben, die Ihnen zwischen Baustelle und Büro Zeit kosten.',
+    voice: {
+      label: 'Sprachdiktat',
+      listening: 'Aufnahme läuft…',
+      transcript: 'Nordfassade, 12 Quadratmeter Verputz zu erneuern, plus Lieferung und Montage von 3 PVC-Fenstern…',
+      resultTitle: 'Offerte automatisch erstellt',
+      resultLines: ['Verputz Nordfassade — 12 m²', 'PVC-Fenster (Lieferung + Montage) — 3 Stk', 'Total mit MWST berechnet'],
+      caption: 'Sie sprechen, Cantia schreibt. Ihre Offerte ist fertig, bevor Sie die Baustelle verlassen haben.',
+    },
+    qrbill: {
+      label: 'Schweizer QR-Rechnung',
+      title: 'Zahlbar mit einem Scan',
+      text: 'Jede Rechnung enthält den Schweizer QR-Einzahlungsschein, scannbar mit jeder Banking-App.',
+      badge: 'SIX-konform',
+    },
+    catalog: {
+      label: 'Intelligenter Katalog',
+      title: 'Ihre Preise, gespeichert',
+      text: 'Jede Offerte erweitert Ihren Katalog. Beim nächsten Mal erkennt Cantia Ihre Leistungen und schlägt bereits den richtigen Preis vor.',
+      items: [
+        { name: 'PVC-Fenster Doppelverglasung', match: 96 },
+        { name: 'Montage und Randabdichtung', match: 91 },
+        { name: 'Alu-Rollladen nach Mass', match: 88 },
+      ],
+    },
+  },
+  pain: {
+    title: 'Die Administration kostet Sie nicht nur Zeit. Sie kostet Sie Geld.',
+    items: [
+      {
+        title: 'Ihre Offerten warten bis zum Abend. Ihre Kunden warten nicht.',
+        text: 'Nach einem Tag auf der Baustelle bleiben die Offerten noch zu schreiben. Mit Cantia erstellen Sie eine Offerte direkt vor Ort und nutzen dabei Ihre gewohnten Leistungen wieder.',
+      },
+      {
+        title: 'Fotos, Notizen und Entscheidungen landen überall, nur nicht am richtigen Ort.',
+        text: 'WhatsApp, Fotogalerie, Papier, E-Mails: Cantia bündelt die Historie direkt in der betroffenen Baustelle.',
+      },
+      {
+        title: 'Eine Baustelle kann Geld verlieren, lange bevor Sie es bemerken.',
+        text: 'Vergleichen Sie Stunden, Ausgaben und verrechnete Beträge während der Bauzeit, um Abweichungen vor Bauende zu erkennen.',
+      },
+    ],
+  },
+  services: {
+    title: 'Cantia verbindet Baustelle und Büro in einem einzigen Tool',
+    subtitle: 'Das erste Drittel der Seite zeigt das Ergebnis, der Rest beweist die Bandbreite des Produkts. Klicken Sie auf eine Leistung, um genau zu sehen, was sie tut.',
+    items: [
+      {
+        title: 'Vom Termin zur Offerte, ohne die Arbeit am Abend zu wiederholen',
+        text: 'Diktieren Sie Ihre Offertpositionen per Sprache direkt von der Baustelle und lassen Sie die KI sie mit Ihrem Katalog kalkulieren, inklusive MWST und berechneten Totalen, versandbereit.',
+        detail: [
+          'Sprachdiktat, wiederverwendbarer Leistungskatalog und gespeicherte Preise',
+          'Automatische Berechnung von MWST und Totalen, PDF in Ihrer Markenfarbe',
+          'Versand an den Kunden und Umwandlung in eine Rechnung mit einem Klick, ohne erneute Eingabe',
+        ],
+      },
+      {
+        title: 'Alles, was auf der Baustelle passiert, bleibt bei der Baustelle',
+        text: 'Ihre Notizen und Fotos, automatisch georeferenziert, werden zu einem versandbereiten PDF-Rapport mit Ihrem Logo und Ihrer Unterschrift.',
+        detail: [
+          'Fotos automatisch mit Zeitstempel und Standort versehen',
+          'Bemerkungen, Dokumente und Historie nach Baustelle geordnet',
+          'PDF mit einem Klick erstellt, jederzeit einsehbar',
+        ],
+      },
+      {
+        title: 'Das ganze Team weiss, wo es sein muss',
+        text: 'Eine zentrale Planung pro Mitarbeiter und Baustelle, damit niemand mehr den Chef anrufen muss, um zu erfahren, wohin er morgen soll.',
+        detail: [
+          'Ansicht pro Mitarbeiter und Tag, für das ganze Team einsehbar',
+          'Jede Zuteilung mit einer bestimmten Baustelle verknüpft',
+          'Mehrere Baustellen parallel ohne Ressourcenkonflikt',
+        ],
+      },
+      {
+        title: 'Die Baustelle ist fertig. Die Rechnung sollte nicht warten.',
+        text: 'Verwandeln Sie eine angenommene Offerte mit einem Klick in eine Schweizer QR-Rechnung, mit Statusverfolgung bis zur Zahlung.',
+        detail: [
+          'Rechnung aus der Offerte erstellt, ohne erneute Eingabe',
+          'Konforme QR-Rechnung, zahlbar mit einem Scan',
+          'Zahlungsstatus live verfolgt, Mahnungen erleichtert',
+        ],
+      },
+      {
+        title: 'Wissen, was jede Baustelle wirklich einbringt',
+        text: 'Vergleichen Sie live Stunden, Ausgaben, offerierten und verrechneten Betrag, um eine schwindende Marge vor Bauende zu erkennen.',
+        detail: [
+          'Vergleich offeriert vs. tatsächliche Kosten (Material und Arbeit)',
+          'Visueller Alarm, sobald eine Baustelle von der geplanten Marge abweicht',
+          'Ansicht baustellenweise, nicht erst am Monatsende',
+        ],
+      },
+      {
+        title: 'Dokumente in Baumstruktur',
+        text: 'Jede Baustelle hat ihren eigenen digitalen Ordner, mit Unterordnern für Ihre Pläne und Ausschreibungen.',
+        detail: [
+          'Unbegrenzte Ordner und Unterordner pro Baustelle',
+          'Jeder Dateityp: Pläne, PDF, Fotos, Verträge',
+          'Ein Dokument in wenigen Sekunden wiederfinden',
+        ],
+      },
+      {
+        title: 'Intelligente Fotogalerie',
+        text: 'Alle Fotos einer Baustelle finden sich am selben Ort. Filtern Sie sie nach Datum und sehen Sie auf der Karte, wo sie aufgenommen wurden.',
+        detail: [
+          'Alle Fotos einer Baustelle automatisch gruppiert',
+          'Filter nach Datum: 7 Tage, 30 Tage oder gesamte Historie',
+          'Direkter Zugriff auf den Standort auf der Karte',
+        ],
+      },
+      {
+        title: 'Ein sicherer Kundenbereich',
+        text: 'Jede Offerte und jede Rechnung ist über einen eindeutigen, privaten Link zugänglich: Ihr Kunde sieht, unterschreibt und verfolgt die Zahlung, ohne je ein Konto zu erstellen.',
+        detail: [
+          'Elektronische Unterschrift mit Zeitstempel, als Nachweis gespeichert',
+          'Zahlungsstatus live sichtbar, noch vor Ihrer Mahnung',
+          'Vollständige Historie der Offerten und Rechnungen, nach Baustelle geordnet',
+        ],
+      },
+      {
+        title: 'Dokumente in Ihrem Stil',
+        text: 'Wählen Sie Ihre Markenfarbe, die Platzierung Ihres Logos, und erstellen Sie mehrere Vorlagen für Ihre Offerten und PDF-Rapporte.',
+        detail: [
+          'Markenfarbe und Logoplatzierung anpassbar',
+          'Mehrere Vorlagen pro Dokumenttyp, wählbar bei der Erstellung',
+          'Bereits im Plan Essentiel verfügbar',
+        ],
+      },
+      {
+        title: 'Aufmass Position für Position',
+        text: 'Erfassen Sie Ihre Mengen Position für Position, mit automatisch berechneten Totalen, und verwandeln Sie alles mit einem Klick in eine Offerte.',
+        detail: [
+          'Positionstabelle mit Referenz, Menge und Einheit',
+          'Automatische Totale pro Einheit (m², m³, lfm…)',
+          'Übertragung mit einem Klick in eine vorausgefüllte Offerte',
+        ],
+      },
+      {
+        title: 'Für das Team gedacht',
+        text: 'Erstellen Sie massgeschneiderte Rollen und entscheiden Sie genau, wer was sieht — Offerten, Rechnungen, Planung — ohne allen alles zu geben.',
+        detail: [
+          'Anpassbare Rollen mit ankreuzbaren Zugriffen pro Bereich',
+          'Finanzen, Aufmass, Planung und Dokumente separat verwaltet',
+          'Hinzufügen von Mitarbeitenden je nach Plan',
+        ],
+      },
+      {
+        title: 'Koordination der Subunternehmer',
+        text: 'Fügen Sie beauftragte Subunternehmer zu jeder Baustelle hinzu, verfolgen Sie ihre Einsätze und behalten Sie ihre Versicherungsnachweise griffbereit.',
+        detail: [
+          'Subunternehmer-Verzeichnis, von Baustelle zu Baustelle wiederverwendbar',
+          'Einsatzstatus und Termine pro Baustelle',
+          'Haftpflicht-Versicherungsnachweis gespeichert und datiert, nichts geht mehr vergessen',
+        ],
+      },
+    ],
+  },
+  trades: {
+    title: 'Für Ihren Beruf gedacht',
+    note: 'Jedes Konto passt sich Ihrem Beruf an, mit bereits konfigurierten Rapportvorlagen, MWST-Satz und Offertenlayout.',
+    list: ['Tiefbau', 'Maurerarbeiten', 'Schlosserei', 'Elektrik', 'Sanitär', 'Schreinerei', 'Malerarbeiten', 'Plattenarbeiten'],
+  },
+  pricing: {
+    title: 'Wählen Sie die passende Formel für Ihr Unternehmen',
+    subtitle: 'Alle neuen Konten starten mit einer vollständigen 14-tägigen Testphase, ohne Aktionscode.',
+    monthly: 'Monatliche Abrechnung',
+    yearly: 'Jährliche Abrechnung',
+    yearlySavings: '-20%',
+    billedYearly: 'Jährlich {amount} verrechnet',
+    storageSuffix: 'GB Speicherplatz',
+    memberSingular: 'Mitglied',
+    memberPlural: 'Mitglieder',
+    unlimited: 'Unbegrenzte Rapporte & Offerten',
+    badge: 'Meistgewählt',
+    paidCta: '14-tägige Testphase starten',
+  },
+  swiss: {
+    title: 'In der Schweiz entwickelt, nicht nur für die Schweiz übersetzt',
+    text: 'Cantia wurde für die Funktionsweise Schweizer Bauunternehmen entwickelt: CHF, Schweizer MWST, QR-Rechnung und in der Schweiz gehostete Daten.',
+  },
+  devices: {
+    title: 'Verwalten Sie Ihre Baustellen, wo auch immer Sie sind',
+    text: 'Im Büro, auf der Baustelle oder unterwegs, finden Sie Cantia auf Computer, Tablet und Smartphone.',
+    benefits: [
+      { title: 'Im Büro', text: 'Erstellen Sie Offerten, Rechnungen und Auswertungen.' },
+      { title: 'Auf der Baustelle', text: 'Fügen Sie Rapporte, Fotos und Stunden hinzu.' },
+      { title: 'Unterwegs', text: 'Greifen Sie von Ihrem Telefon auf Ihre Informationen zu.' },
+    ],
+  },
+  mobile: {
+    title: 'Cantia begleitet Sie auch auf der Baustelle',
+    text: 'Öffnen Sie Cantia von Ihrem Telefon oder Tablet aus und fügen Sie es zu Ihrem Startbildschirm hinzu, um schon heute im Vollbild wie bei Ihren anderen Apps darauf zuzugreifen, ganz ohne App Store.',
+    installCta: 'So installieren Sie es',
+    storeNote: 'Die offiziellen Versionen kommen auch:',
+    comingSoon: 'In Entwicklung',
+    appStore: 'App Store',
+    googlePlay: 'Google Play',
+  },
+  finalCta: {
+    title: 'Testen Sie Cantia auf Ihrer nächsten Baustelle',
+    subtitle: 'Erstellen Sie Ihr Konto und entdecken Sie 14 Tage lang, wie Cantia Ihre Offerten, Baustellen, Rapporte und Rechnungen an einem Ort bündelt.',
+    button: 'Meine 14-tägige Testphase starten',
+    trust: ['14 Tage Testphase · Kein Code nötig', 'Jederzeit kündbar', 'In der Schweiz gehostet'],
+  },
+  footer: {
+    blurb: 'Die Baustellenverwaltungs-App für das Schweizer Baugewerbe. Rapporte, Dokumente, Offerten, Rechnungen und Aufmass, alles an einem Ort.',
+    product: 'Produkt',
+    account: 'Konto',
+    legal: 'Rechtliches',
+    servicesLink: 'Leistungen',
+    pricingLink: 'Preise',
+    login: 'Anmelden',
+    signup: 'Konto erstellen',
+    legalLink: 'Impressum',
+    privacyLink: 'Datenschutz',
+    copyright: '© {year} Cantia. Entwickelt für das Schweizer Baugewerbe.',
+  },
+};
+
+export function useMarketingDict(): Dict {
+  const { i18n } = useTranslation();
+  return i18n.language === 'de' ? de : fr;
+}
 
 export const t: Dict = fr;

@@ -1,6 +1,5 @@
 import { TradePage } from '../components/TradePage';
-import { TRADE_PAGES } from '../lib/tradeLandingPages';
 
 export default function EntrepriseRenovationScreen() {
-  return <TradePage trade={TRADE_PAGES['entreprise-renovation']} />;
+  return <TradePage slug="entreprise-renovation" />;
 }
