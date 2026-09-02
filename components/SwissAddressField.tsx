@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View, type S
 import { Feather } from '@expo/vector-icons';
 import { searchSwissAddress, type SwissAddressResult } from '../lib/api/swissAddress';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useTranslation } from '../lib/translations';
 
 // A "Rue et numéro" input with a live dropdown of real Swiss addresses
 // (fed by the federal geo.admin.ch address search) — picking a suggestion
@@ -17,7 +18,7 @@ export function SwissAddressField({
   onChangeText,
   onSelectAddress,
   editable = true,
-  placeholder = 'Rue et numéro',
+  placeholder,
   inputStyle,
 }: {
   label?: string;
@@ -28,6 +29,8 @@ export function SwissAddressField({
   placeholder?: string;
   inputStyle?: StyleProp<TextStyle>;
 }) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('swissAddressField.placeholder');
   const [results, setResults] = useState<SwissAddressResult[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -68,7 +71,7 @@ export function SwissAddressField({
         value={value}
         onChangeText={handleChange}
         editable={editable}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         placeholderTextColor={colors.textMuted}
         onFocus={() => {
           setFocused(true);
@@ -85,7 +88,7 @@ export function SwissAddressField({
           {loading ? (
             <View style={styles.dropdownRow}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.dropdownLoading}>Recherche…</Text>
+              <Text style={styles.dropdownLoading}>{t('swissAddressField.searching')}</Text>
             </View>
           ) : (
             results.map((r, i) => (

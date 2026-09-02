@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Button } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 interface DateFieldProps {
   label: string;
@@ -23,13 +24,15 @@ function toIso(d: Date): string {
 }
 
 function displayDate(iso: string | null): string {
-  return iso ? isoToDate(iso).toLocaleDateString('fr-CH') : '';
+  return iso ? isoToDate(iso).toLocaleDateString(`${getAppLocale()}-CH`) : '';
 }
 
 // Native (iOS/Android) date picker. The web build resolves DateField.web.tsx
 // instead (Metro's platform-specific file resolution), which uses the
 // browser's own <input type="date">.
-export function DateField({ label, value, onChange, placeholder = 'Choisir une date' }: DateFieldProps) {
+export function DateField({ label, value, onChange, placeholder }: DateFieldProps) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('dateField.placeholder');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [draft, setDraft] = useState<Date>(() => isoToDate(value));
 
@@ -52,7 +55,7 @@ export function DateField({ label, value, onChange, placeholder = 'Choisir une d
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <Pressable style={styles.input} onPress={openPicker}>
-        <Text style={value ? styles.value : styles.placeholder}>{value ? displayDate(value) : placeholder}</Text>
+        <Text style={value ? styles.value : styles.placeholder}>{value ? displayDate(value) : resolvedPlaceholder}</Text>
         <Feather name="calendar" size={16} color={colors.textMuted} />
       </Pressable>
 
@@ -71,9 +74,9 @@ export function DateField({ label, value, onChange, placeholder = 'Choisir une d
                 onChange={(_event, selected) => selected && setDraft(selected)}
               />
               <View style={styles.sheetActions}>
-                <Button title="Annuler" variant="secondary" onPress={() => setPickerOpen(false)} style={{ flex: 1 }} />
+                <Button title={t('common.cancel')} variant="secondary" onPress={() => setPickerOpen(false)} style={{ flex: 1 }} />
                 <Button
-                  title="Valider"
+                  title={t('dateField.confirm')}
                   onPress={() => {
                     onChange(toIso(draft));
                     setPickerOpen(false);

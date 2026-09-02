@@ -60,13 +60,14 @@ export function PageHeader({
   style?: StyleProp<ViewStyle>;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   return (
     <View style={[styles.pageHeader, style]}>
       <Pressable
         onPress={() => (backTo ? router.replace(backTo as any) : router.back())}
         hitSlop={8}
         style={styles.pageHeaderBack}
-        accessibilityLabel="Retour"
+        accessibilityLabel={t('ui.back')}
       >
         <Feather name="arrow-left" size={20} color={colors.text} />
       </Pressable>
@@ -220,11 +221,12 @@ const switchStyles = StyleSheet.create({
   },
 });
 
-export function LoadingScreen({ label = 'Chargement…' }: { label?: string }) {
+export function LoadingScreen({ label }: { label?: string }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.loading}>
       <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.loadingText}>{label}</Text>
+      <Text style={styles.loadingText}>{label ?? t('ui.loading')}</Text>
     </View>
   );
 }

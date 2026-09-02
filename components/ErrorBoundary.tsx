@@ -3,6 +3,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button } from './ui';
 import { colors, fontSize, spacing } from '../lib/theme';
+import { i18next } from '../lib/translations';
 
 interface Props {
   children: ReactNode;
@@ -53,12 +54,12 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <View style={styles.container}>
           <Feather name="alert-triangle" size={28} color={colors.danger} />
-          <Text style={styles.title}>Un problème est survenu</Text>
+          <Text style={styles.title}>{i18next.t('errorBoundary.title')}</Text>
           <Text style={styles.text}>
-            Cette page n'a pas pu s'afficher correctement. Réessayez, et si ça persiste, prévenez-nous.
+            {i18next.t('errorBoundary.text')}
           </Text>
           {this.state.error.message ? <Text style={styles.errorDetail}>{this.state.error.message}</Text> : null}
-          <Button title="Recharger" onPress={this.reload} style={{ marginTop: spacing.md }} />
+          <Button title={i18next.t('errorBoundary.reload')} onPress={this.reload} style={{ marginTop: spacing.md }} />
         </View>
       );
     }

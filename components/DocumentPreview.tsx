@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing } from '../lib/theme';
+import { getAppLocale, i18next, useTranslation } from '../lib/translations';
 import type { Organization } from '../lib/types';
 
 export interface PreviewLine {
@@ -34,7 +35,7 @@ export function computeDocumentTotals(lines: PreviewLine[], discountPercent: str
   const discountAmount = discountPct > 0 ? Math.round(rawSubtotal * (discountPct / 100) * 100) / 100 : 0;
   const tableRows: PreviewLine[] =
     discountAmount > 0
-      ? [...validLines, { description: `Remise (${discountPct}%)`, quantity: '1', unit: 'pce', unitPrice: String(-discountAmount) }]
+      ? [...validLines, { description: i18next.t('documentPreview.discountLine', { pct: discountPct }), quantity: '1', unit: 'pce', unitPrice: String(-discountAmount) }]
       : validLines;
   const subtotal = tableRows.reduce((sum, l) => sum + (Number(l.quantity) || 0) * (Number(l.unitPrice) || 0), 0);
   const vat = subtotal * (vatRate / 100);
@@ -62,9 +63,10 @@ const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 
 export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent }: Props) {
+  const { t } = useTranslation();
   const brandColor = organization?.brand_color || '#1F3D3A';
   const vatRate = organization?.default_vat_rate ?? 8.1;
-  const docLabel = kind === 'devis' ? 'Devis' : 'Facture';
+  const docLabel = kind === 'devis' ? t('documentPreview.docLabelDevis') : t('documentPreview.docLabelFacture');
   const { tableRows, subtotal, vat, total } = computeDocumentTotals(lines, discountPercent, vatRate);
 
   const orgAddressParts = [
@@ -74,30 +76,31 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
   const orgLine = [orgAddressParts.join(', '), organization?.ide_number ? `IDE ${organization.ide_number}` : null].filter(Boolean).join(' · ');
   const contactLine = [organization?.phone, organization?.email, organization?.website].filter(Boolean).join(' · ');
 
+  const locale = `${getAppLocale()}-CH`;
   const today = new Date();
   const dueDate = new Date(today.getTime() + 30 * 86400000);
-  const metaLine = kind === 'facture' ? `Échéance : ${dueDate.toLocaleDateString('fr-CH')}` : null;
+  const metaLine = kind === 'facture' ? t('documentPreview.dueDate', { date: dueDate.toLocaleDateString(locale) }) : null;
 
-  const clientLines = [clientName || 'Nom du client', clientAddress, clientEmail, projectName ? `Chantier : ${projectName}` : null].filter(
+  const clientLines = [clientName || t('documentPreview.clientFallback'), clientAddress, clientEmail, projectName ? t('documentPreview.projectLine', { name: projectName }) : null].filter(
     (l): l is string => !!l,
   );
 
   const validityDays = organization?.devis_validity_days ?? 30;
   const termsBase =
-    kind === 'devis' ? `Devis valable ${validityDays} jours.` : 'Merci de régler cette facture avant l\'échéance indiquée ci-dessus.';
-  const terms = `${organization?.devis_terms?.trim() ? `${organization.devis_terms.trim()} ` : ''}${termsBase} Prix en francs suisses (CHF).`;
+    kind === 'devis' ? t('documentPreview.devisValidity', { days: validityDays }) : t('documentPreview.factureTermsBase');
+  const terms = `${organization?.devis_terms?.trim() ? `${organization.devis_terms.trim()} ` : ''}${termsBase} ${t('documentPreview.priceInChf')}`;
 
-  const footerText = organization?.footer_text?.trim() || 'Document généré avec Cantia — cantia.ch';
+  const footerText = organization?.footer_text?.trim() || t('documentPreview.footerFallback');
   const showQrNote = kind === 'facture' && !!organization?.iban;
 
   return (
     <View style={styles.wrap}>
       <View style={styles.badgeRow}>
-        <Text style={styles.badgeText}>Aperçu en direct — pas encore le PDF final</Text>
+        <Text style={styles.badgeText}>{t('documentPreview.liveBadge')}</Text>
       </View>
 
       <View style={styles.page}>
-        <Text style={[styles.orgName, { color: brandColor }]}>{organization?.name || 'Votre entreprise'}</Text>
+        <Text style={[styles.orgName, { color: brandColor }]}>{organization?.name || t('documentPreview.orgFallback')}</Text>
         {orgLine ? <Text style={styles.meta}>{orgLine}</Text> : null}
         {contactLine ? <Text style={styles.meta}>{contactLine}</Text> : null}
         <View style={styles.rule} />
@@ -106,11 +109,11 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
           <Text style={[styles.docTitle, { color: brandColor }]} numberOfLines={1}>
             {docLabel}
           </Text>
-          <Text style={styles.meta}>{today.toLocaleDateString('fr-CH')}</Text>
+          <Text style={styles.meta}>{today.toLocaleDateString(locale)}</Text>
         </View>
         {metaLine ? <Text style={[styles.meta, styles.metaLine]}>{metaLine}</Text> : null}
 
-        <Text style={styles.label}>Client</Text>
+        <Text style={styles.label}>{t('documentPreview.clientLabel')}</Text>
         {clientLines.map((line, i) => (
           <Text key={i} style={[styles.body, i === 0 && styles.clientName]}>
             {line}
@@ -118,14 +121,14 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
         ))}
 
         <View style={styles.tableHeadRow}>
-          <Text style={[styles.th, styles.colDesc]}>Description</Text>
-          <Text style={[styles.th, styles.colQty]}>Qté</Text>
-          <Text style={[styles.th, styles.colUnit]}>Unité</Text>
-          <Text style={[styles.th, styles.colPrice]}>Prix</Text>
-          <Text style={[styles.th, styles.colTotal]}>Total</Text>
+          <Text style={[styles.th, styles.colDesc]}>{t('documentPreview.colDescription')}</Text>
+          <Text style={[styles.th, styles.colQty]}>{t('documentPreview.colQty')}</Text>
+          <Text style={[styles.th, styles.colUnit]}>{t('documentPreview.colUnit')}</Text>
+          <Text style={[styles.th, styles.colPrice]}>{t('documentPreview.colPrice')}</Text>
+          <Text style={[styles.th, styles.colTotal]}>{t('documentPreview.colTotal')}</Text>
         </View>
         {tableRows.length === 0 ? (
-          <Text style={styles.emptyHint}>Les lignes ajoutées apparaîtront ici.</Text>
+          <Text style={styles.emptyHint}>{t('documentPreview.emptyLinesHint')}</Text>
         ) : (
           tableRows.map((l, i) => (
             <View key={i} style={styles.tableRow}>
@@ -143,15 +146,15 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
 
         <View style={styles.totals}>
           <View style={styles.totalRow}>
-            <Text style={styles.body}>Sous-total</Text>
+            <Text style={styles.body}>{t('documentPreview.subtotal')}</Text>
             <Text style={styles.body}>CHF {subtotal.toFixed(2)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.body}>TVA ({vatRate}%)</Text>
+            <Text style={styles.body}>{t('documentPreview.vat', { rate: vatRate })}</Text>
             <Text style={styles.body}>CHF {vat.toFixed(2)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.grandTotalLabel}>Total TTC</Text>
+            <Text style={styles.grandTotalLabel}>{t('documentPreview.grandTotal')}</Text>
             <Text style={styles.grandTotalValue}>CHF {total.toFixed(2)}</Text>
           </View>
         </View>
@@ -161,23 +164,23 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
         {kind === 'devis' ? (
           <View style={styles.signatureRow}>
             <View style={styles.signatureBlock}>
-              <Text style={styles.signatureLabel}>Signature</Text>
+              <Text style={styles.signatureLabel}>{t('documentPreview.signature')}</Text>
               <View style={styles.signatureLine} />
             </View>
             <View style={styles.signatureBlock}>
-              <Text style={styles.signatureLabel}>{clientName ? `Signature ${clientName}` : 'Signature client'}</Text>
+              <Text style={styles.signatureLabel}>{clientName ? t('documentPreview.signatureFor', { name: clientName }) : t('documentPreview.signatureClient')}</Text>
               <View style={styles.signatureLine} />
             </View>
           </View>
         ) : null}
 
-        {showQrNote ? <Text style={styles.qrNote}>Un bulletin de paiement QR-facture sera joint au PDF final.</Text> : null}
+        {showQrNote ? <Text style={styles.qrNote}>{t('documentPreview.qrNote')}</Text> : null}
 
         <View style={styles.footerRow}>
           <Text style={styles.footerText} numberOfLines={1}>
             {footerText}
           </Text>
-          <Text style={styles.footerText}>Page 1</Text>
+          <Text style={styles.footerText}>{t('documentPreview.page1')}</Text>
         </View>
       </View>
     </View>
