@@ -8,23 +8,10 @@ import { downloadFile } from '../../lib/downloadFile';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { premiumCard, portalFonts } from '../../lib/clientPortalTheme';
+import { detectAndApplyBrowserLocale, useTranslation } from '../../lib/translations';
 import type { ClientDocumentsPayload, ClientDocumentSummary } from '../../lib/types';
 
-const DEVIS_STATUS_LABELS: Record<string, string> = {
-  draft: 'Brouillon',
-  ready: "Prêt à l'envoi",
-  sent: 'Envoyé',
-  accepted: 'Accepté',
-  refused: 'Refusé',
-};
-
-const FACTURE_STATUS_LABELS: Record<string, string> = {
-  draft: 'Brouillon',
-  sent: 'Envoyée',
-  partial: 'Partiellement payée',
-  paid: 'Payée',
-  cancelled: 'Annulée',
-};
+detectAndApplyBrowserLocale();
 
 // A dedicated page (reached via the hamburger menu on a devis/facture page,
 // or the back button from one) rather than a bottom-sheet — the client's
@@ -32,6 +19,21 @@ const FACTURE_STATUS_LABELS: Record<string, string> = {
 // kept in visually separate sections and a direct download action on every
 // row so they don't have to open a document first just to grab its PDF.
 export default function ClientDocumentsScreen() {
+  const { t } = useTranslation();
+  const DEVIS_STATUS_LABELS: Record<string, string> = {
+    draft: t('common.status.draft'),
+    ready: t('common.status.ready'),
+    sent: t('common.status.sent'),
+    accepted: t('common.status.accepted'),
+    refused: t('common.status.refused'),
+  };
+  const FACTURE_STATUS_LABELS: Record<string, string> = {
+    draft: t('common.status.draft'),
+    sent: t('common.status.sent'),
+    partial: t('common.status.partial'),
+    paid: t('common.status.paid'),
+    cancelled: t('common.status.cancelled'),
+  };
   const { token, kind, email, session } = useLocalSearchParams<{ token: string; kind: string; email: string; session: string }>();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,7 @@ export default function ClientDocumentsScreen() {
     const { data, error: err } = await listClientDocuments(token, docKind, email, session);
     setLoading(false);
     if (err || !data) {
-      setError('Impossible de charger vos documents.');
+      setError(t('clientDocumentsPortal.loadFailed'));
       return;
     }
     setPayload(data);
@@ -63,7 +65,7 @@ export default function ClientDocumentsScreen() {
   const groups = useMemo(() => {
     if (!payload) return [] as [string, { devis: ClientDocumentSummary[]; factures: ClientDocumentSummary[] }][];
     const map = new Map<string, { devis: ClientDocumentSummary[]; factures: ClientDocumentSummary[] }>();
-    const keyFor = (name: string | null) => name ?? 'Sans chantier';
+    const keyFor = (name: string | null) => name ?? t('clientDocumentsPortal.noProject');
     for (const d of payload.devis) {
       const key = keyFor(d.project_name);
       const group = map.get(key) ?? { devis: [], factures: [] };
@@ -77,7 +79,7 @@ export default function ClientDocumentsScreen() {
       map.set(key, group);
     }
     return Array.from(map.entries());
-  }, [payload]);
+  }, [payload, t]);
 
   async function handleDownload(docToken: string, docKind: 'devis' | 'facture', filenamePrefix: string) {
     if (!email || !session) return;
@@ -86,7 +88,7 @@ export default function ClientDocumentsScreen() {
     const { url, error: err } = await getPublicDocumentPdfUrl(docToken, docKind, email, session);
     setDownloadingToken(null);
     if (err || !url) {
-      setDownloadError(err ?? 'Échec du téléchargement.');
+      setDownloadError(err ?? t('clientDocumentsPortal.downloadFailed'));
       return;
     }
     await downloadFile(url, `${filenamePrefix}.pdf`);
@@ -109,15 +111,15 @@ export default function ClientDocumentsScreen() {
       <ClientPortalHeader />
       <Pressable onPress={() => router.back()} style={styles.backRow} hitSlop={8}>
         <Feather name="arrow-left" size={16} color={colors.textMuted} />
-        <Text style={styles.backText}>Retour</Text>
+        <Text style={styles.backText}>{t('clientDocumentsPortal.back')}</Text>
       </Pressable>
 
-      <Text style={styles.title}>Mes documents{payload?.organization_name ? ` — ${payload.organization_name}` : ''}</Text>
+      <Text style={styles.title}>{payload?.organization_name ? t('clientDocumentsPortal.titleWithOrg', { org: payload.organization_name }) : t('clientDocumentsPortal.title')}</Text>
 
-      {loading ? <Text style={styles.hint}>Chargement…</Text> : null}
+      {loading ? <Text style={styles.hint}>{t('clientDocumentsPortal.loading')}</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {downloadError ? <Text style={styles.error}>{downloadError}</Text> : null}
-      {!loading && !error && groups.length === 0 ? <Text style={styles.hint}>Aucun document trouvé.</Text> : null}
+      {!loading && !error && groups.length === 0 ? <Text style={styles.hint}>{t('clientDocumentsPortal.noDocuments')}</Text> : null}
 
       {groups.map(([projectName, docs]) => (
         <View key={projectName} style={[premiumCard, styles.group]}>
@@ -125,13 +127,13 @@ export default function ClientDocumentsScreen() {
 
           {docs.devis.length > 0 ? (
             <View style={styles.subsection}>
-              <Text style={styles.subsectionTitle}>Devis</Text>
+              <Text style={styles.subsectionTitle}>{t('clientDocumentsPortal.devisTitle')}</Text>
               {docs.devis.map((d) => (
                 <View key={d.token} style={styles.docRow}>
                   <Pressable style={styles.docInfoRow} onPress={() => openDevis(d.token)}>
                     <Feather name="file-text" size={16} color={colors.textMuted} />
                     <View style={styles.docInfo}>
-                      <Text style={styles.docTitle}>Devis {d.number ?? ''}</Text>
+                      <Text style={styles.docTitle}>{t('clientDocumentsPortal.devisNumber', { number: d.number ?? '' })}</Text>
                       <Text style={styles.docMeta}>{DEVIS_STATUS_LABELS[d.status] ?? d.status}</Text>
                     </View>
                   </Pressable>
@@ -152,14 +154,14 @@ export default function ClientDocumentsScreen() {
 
           {docs.factures.length > 0 ? (
             <View style={styles.subsection}>
-              <Text style={styles.subsectionTitle}>Factures</Text>
+              <Text style={styles.subsectionTitle}>{t('clientDocumentsPortal.facturesTitle')}</Text>
               {docs.factures.map((f) => (
                 <View key={f.token} style={styles.docRow}>
                   <Pressable style={styles.docInfoRow} onPress={() => openFacture(f.token)}>
                     <Feather name="file" size={16} color={colors.textMuted} />
                     <View style={styles.docInfo}>
                       <Text style={styles.docTitle}>
-                        {f.is_deposit ? "Facture d'acompte" : 'Facture'} {f.number ?? ''}
+                        {f.is_deposit ? t('clientDocumentsPortal.depositFactureNumber', { number: f.number ?? '' }) : t('clientDocumentsPortal.factureNumber', { number: f.number ?? '' })}
                       </Text>
                       <Text style={styles.docMeta}>{FACTURE_STATUS_LABELS[f.status] ?? f.status}</Text>
                     </View>

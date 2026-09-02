@@ -1855,6 +1855,21 @@ export const fr = {
     photoSelected: 'Photo sélectionnée.',
     acceptWork: 'Accepter les travaux',
   },
+  clientDocumentsPortal: {
+    loadFailed: 'Impossible de charger vos documents.',
+    downloadFailed: 'Échec du téléchargement.',
+    back: 'Retour',
+    title: 'Mes documents',
+    titleWithOrg: 'Mes documents — {{org}}',
+    loading: 'Chargement…',
+    noDocuments: 'Aucun document trouvé.',
+    devisTitle: 'Devis',
+    facturesTitle: 'Factures',
+    devisNumber: 'Devis {{number}}',
+    factureNumber: 'Facture {{number}}',
+    depositFactureNumber: "Facture d'acompte {{number}}",
+    noProject: 'Sans chantier',
+  },
 };
 
 export type TranslationDict = typeof fr;
