@@ -4,9 +4,9 @@ import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
-import { HELP_ARTICLES } from '../lib/helpArticles';
+import { HELP_ARTICLES, HELP_ARTICLES_DE } from '../lib/helpArticles';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { useTranslation } from '../lib/translations';
+import { getAppLocale, useTranslation } from '../lib/translations';
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
@@ -20,15 +20,19 @@ export default function PublicAideScreen() {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
+  // useTranslation() above already re-renders this component on locale
+  // change (same mechanism every other marketing/app screen relies on for
+  // getAppLocale()), so this stays in sync with the FR/DE toggle.
+  const articles = getAppLocale() === 'de' ? HELP_ARTICLES_DE : HELP_ARTICLES;
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
-    if (!q) return HELP_ARTICLES;
-    return HELP_ARTICLES.filter((a) => {
+    if (!q) return articles;
+    return articles.filter((a) => {
       const haystack = normalize([a.title, a.category, ...a.keywords, ...a.body].join(' '));
       return haystack.includes(q);
     });
-  }, [query]);
+  }, [query, articles]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof HELP_ARTICLES>();
@@ -49,7 +53,7 @@ export default function PublicAideScreen() {
           <Text style={styles.title}>{t('aidePage.title')}</Text>
           <Text style={styles.lead}>{t('aidePage.lead')}</Text>
 
-          <Link href="/aide/videos" asChild>
+          <Link href={(getAppLocale() === 'de' ? '/de/aide/videos' : '/aide/videos') as any} asChild>
             <Pressable style={styles.videosCard}>
               <Feather name="film" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>

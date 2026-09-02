@@ -5,6 +5,7 @@ import { Container, Screen } from '../../components/ui';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { TUTORIAL_VIDEOS } from '../../lib/tutorialVideos';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { getAppLocale, useTranslation } from '../../lib/translations';
 
 // Public tutorial/demo library, one card per module — reachable from the
 // Centre d'aide. Only videos with a youtubeId filled in (see
@@ -12,7 +13,9 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 // the page shows a single "in production" notice instead of a grid of
 // individually-pending placeholders.
 export default function TutorialVideosScreen() {
+  const { t } = useTranslation();
   const available = TUTORIAL_VIDEOS.filter((v) => v.youtubeId);
+  const aideHref = getAppLocale() === 'de' ? '/de/aide' : '/aide';
 
   return (
     <Screen>
@@ -20,25 +23,19 @@ export default function TutorialVideosScreen() {
         <MarketingNav />
 
         <Container style={styles.container}>
-          <Link href="/aide" style={styles.backLink}>
+          <Link href={aideHref as any} style={styles.backLink}>
             <Feather name="arrow-left" size={14} color={colors.textMuted} />
-            <Text style={styles.backLinkText}>Centre d'aide</Text>
+            <Text style={styles.backLinkText}>{t('aideVideosPage.backLink')}</Text>
           </Link>
-          <Text style={styles.title}>Tutoriels & démos</Text>
-          <Text style={styles.lead}>
-            De courtes vidéos pour voir chaque module en action — prise en main, formation d'une nouvelle recrue,
-            ou juste un aperçu avant de s'inscrire.
-          </Text>
+          <Text style={styles.title}>{t('aideVideosPage.title')}</Text>
+          <Text style={styles.lead}>{t('aideVideosPage.lead')}</Text>
 
           {available.length === 0 ? (
             <View style={styles.notice}>
               <Feather name="film" size={22} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.noticeTitle}>Vidéos en préparation</Text>
-                <Text style={styles.noticeText}>
-                  Une vidéo de présentation par module est en cours de tournage. Elles seront disponibles ici
-                  courant septembre.
-                </Text>
+                <Text style={styles.noticeTitle}>{t('aideVideosPage.noticeTitle')}</Text>
+                <Text style={styles.noticeText}>{t('aideVideosPage.noticeText')}</Text>
               </View>
             </View>
           ) : (

@@ -85,6 +85,7 @@ function LandingContent() {
   const router = useRouter();
   const appLocale = getAppLocale();
   const tradeHrefPrefix = appLocale === 'de' ? '/de/' : '/';
+  const aideHref = `${tradeHrefPrefix}aide`;
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   // Starts true so the pricing grid renders skeleton cards instead of a bare
@@ -1108,7 +1109,7 @@ function LandingContent() {
                 <Link href="/telechargement">
                   <Text style={styles.navLink}>{t.nav.download}</Text>
                 </Link>
-                <Link href="/aide">
+                <Link href={aideHref as any}>
                   <Text style={styles.navLink}>{t.nav.help}</Text>
                 </Link>
                 <LanguageSwitcher />
@@ -1160,7 +1161,7 @@ function LandingContent() {
                   <Link href="/telechargement" asChild>
                     <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} label={t.nav.download} />
                   </Link>
-                  <Link href="/aide" asChild>
+                  <Link href={aideHref as any} asChild>
                     <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} label={t.nav.help} last />
                   </Link>
                 </View>

@@ -145,3 +145,147 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
 ];
+
+// German mirror of HELP_ARTICLES — same ids/order (app/aide.tsx groups and
+// filters by these), full body text translated rather than machine-run
+// through the UI dict, since these are long explanatory paragraphs rather
+// than short interface labels. Terminology kept consistent with the rest
+// of the German UI (Offerte, Baustelle, Rechnung, Anzahlung, Vorlage,
+// Aufmass, Katalog, Team, Modul, Rentabilität, Personal & Löhne,
+// Liquidität, Speicherplatz — see lib/translations/de.ts).
+export const HELP_ARTICLES_DE: HelpArticle[] = [
+  {
+    id: 'demarrage',
+    category: 'Erste Schritte',
+    title: 'Erste Schritte mit Cantia',
+    keywords: ['start', 'organisation', 'team', 'unternehmen', 'konto', 'onboarding'],
+    body: [
+      "Alles dreht sich um eine Organisation (Ihr Unternehmen): Sie haben sie bei der Registrierung erstellt, und alle Personen, die ihr beitreten, teilen dieselben Baustellen, Offerten, Rechnungen und Dokumente.",
+      "Die Module (Rentabilität, Planung, Aufmass, Katalog, Vorlagen…) lassen sich einzeln unter Konto → Module aktivieren — ein neues Modul erscheint nie von selbst in der unteren Leiste, es muss einmal aktiviert werden.",
+      "Die Navigationsleiste unten (oder die Seitenleiste auf Tablet/Desktop) scrollt horizontal, wenn mehr Reiter vorhanden sind als Platz — wischen Sie, um die aktivierten Module zu sehen.",
+      "Oben rechts bietet das Kontomenü Zugriff auf die Einstellungen, die Installation der Anwendung und die Abmeldung.",
+    ],
+  },
+  {
+    id: 'devis-creation',
+    category: 'Offerten',
+    title: 'Eine Offerte erstellen und versenden',
+    keywords: ['offerte', 'erstellen', 'diktieren', 'positionen', 'kunde', 'baustelle'],
+    body: [
+      "Eine Offerte wird mit einem Kunden (Name, Adresse, E-Mail) und Positionen (Beschreibung, Menge, Einheit, Einzelpreis) erstellt. Mit der Schaltfläche \"Diktieren\" können Sie Notizen oder eine ganze Position per Spracheingabe diktieren — die KI strukturiert automatisch Beschreibung, Menge und Preis.",
+      "Sie können eine Offerte schon bei der Erstellung mit einer bestehenden Baustelle verknüpfen (oder später von der Offerte aus) — das ermöglicht es später, die Rentabilität der Baustelle zu verfolgen und alle verknüpften Rechnungen wiederzufinden.",
+      "Der Status einer Offerte durchläuft folgenden Ablauf: Entwurf → Bereit zum Versand → Gesendet → Angenommen (oder Abgelehnt). Das PDF kann erst erzeugt bzw. heruntergeladen werden, sobald sie den Entwurfsstatus verlassen hat.",
+      "Sobald die Offerte angenommen wurde (manuell oder durch den Kunden selbst über den öffentlichen Link — siehe den Artikel \"Öffentlicher Kundenlink\"), wird die entsprechende Rechnung automatisch erstellt.",
+    ],
+  },
+  {
+    id: 'devis-trames',
+    category: 'Offerten',
+    title: 'Mit Vorlagen Zeit sparen',
+    keywords: ['vorlage', 'muster', 'bibliothek', 'positionen'],
+    body: [
+      "Eine Vorlage ist eine Sammlung wiederverwendbarer Offertpositionen (zum Beispiel alle üblichen Positionen für ein Badezimmer) — Sie fügen sie mit einem Klick in eine neue Offerte ein, statt dieselben Positionen jedes Mal neu einzutippen.",
+      "Sie können eine Vorlage aus einer bestehenden Offerte erstellen (\"Als Vorlage speichern\" im Offertmenü) oder direkt aus der Vorlagenbibliothek.",
+      "Der Katalog erkennt zudem automatisch die wahrscheinlichste Einheit für einen Artikel (zum Beispiel \"Laufmeter\" für PVC) und warnt Sie, wenn der eingegebene Preis stark vom üblichen Katalogpreis abweicht.",
+    ],
+  },
+  {
+    id: 'facturation-acomptes',
+    category: 'Rechnungsstellung',
+    title: 'Rechnungen, Anzahlungen und Teilzahlungen',
+    keywords: ['rechnung', 'anzahlung', 'zahlung', 'teilzahlung', 'saldo', 'abzug'],
+    body: [
+      "Ab einer angenommenen Offerte können Sie eine Anzahlung (einen Prozentsatz des Gesamtbetrags) vor der Schlussrechnung fakturieren. Die Schlussrechnung zieht automatisch alle bereits für diese Offerte fakturierten Anzahlungen ab — Sie müssen die Berechnung nie selbst vornehmen.",
+      "Wird eine Anzahlung storniert oder gelöscht, wird der Abzug auf der Schlussrechnung automatisch in die andere Richtung neu berechnet, damit der Saldo immer stimmt.",
+      "Eine Zahlung kann teilweise erfasst werden: Die Rechnung erhält dann den Status \"Teilweise bezahlt\" und zeigt den verbleibenden Restbetrag an, bis der Gesamtbetrag erreicht ist.",
+      "Wie Offerten können auch Rechnungen mit einer Baustelle verknüpft werden — die Rechnungsliste lässt sich nach Ausstellungsdatum, Fälligkeitsdatum, Status oder Baustelle sortieren und filtern.",
+    ],
+  },
+  {
+    id: 'facturation-email-lien',
+    category: 'Rechnungsstellung',
+    title: 'Eine Offerte oder Rechnung versenden, und der öffentliche Kundenlink',
+    keywords: ['e-mail', 'senden', 'link', 'unterschrift', 'portal', 'kunde', 'qr-rechnung'],
+    body: [
+      "Die Schaltfläche \"Per E-Mail senden\" bei einer Offerte oder Rechnung versendet automatisch das PDF als Anhang, zusammen mit dem Link zum Kundenportal — das PDF muss vorher erzeugt worden sein.",
+      "Die Schaltfläche \"Kundenlink kopieren\" erzeugt einen einzigartigen, nicht erratbaren Link, den Sie selbst versenden können (WhatsApp, manuelle E-Mail…), falls Sie das bevorzugen. Dieser Link funktioniert nur mit der auf dem Dokument hinterlegten E-Mail-Adresse des Kunden — eine zusätzliche Sicherheitsstufe, bevor irgendetwas angezeigt wird.",
+      "Bei einer Offerte kann der Kunde die Details online einsehen und sie annehmen, indem er mit der Maus/dem Finger unterschreibt oder ein Foto seiner Unterschrift hochlädt — die Annahme löst automatisch den Statuswechsel auf \"Angenommen\" und die Erstellung der Rechnung aus, genau wie wenn Sie es selbst in der Anwendung getan hätten.",
+      "Bei einer Rechnung ist der Link schreibgeschützt (Details und verbleibender Restbetrag) — der Kunde kann eine Rechnung nie selbst als bezahlt markieren, diese Feststellung bleibt immer eine interne Aktion des Unternehmens.",
+      "Rechnungen zeigen zudem eine Schweizer QR-Referenz (QR-Rechnung) an: Die Zahlung kann automatisch abgeglichen werden, indem diese Referenznummer in der Anwendung gesucht wird.",
+    ],
+  },
+  {
+    id: 'chantiers-rapports',
+    category: 'Baustellen & Berichte',
+    title: 'Baustellen-Feed und PDF-Berichte',
+    keywords: ['baustelle', 'bericht', 'foto', 'feed', 'neuigkeiten', 'pdf'],
+    body: [
+      "Jede Baustelle hat einen Feed im Chat-Stil: Sie posten dort laufend geolokalisierte Fotos und Nachrichten (bei Bedarf per Spracheingabe diktiert), während die Arbeiten voranschreiten.",
+      "Vom Feed aus erzeugt eine Schaltfläche einen Baustellenbericht als PDF aus den ausgewählten Einträgen — die KI kann auch einen Zusammenfassungstext aus Ihren Notizen verfassen.",
+      "Der PDF-Bericht enthält ein Fotoraster mit Bildunterschriften, GPS-Koordinaten, Zeitstempel sowie eine Karte, die die verstreuten Fotos auf der Baustelle verortet.",
+      "Der Offline-Modus ermöglicht es, auf der Baustelle ohne Netzverbindung Fotos aufzunehmen — sie werden automatisch synchronisiert, sobald die Verbindung wieder besteht.",
+    ],
+  },
+  {
+    id: 'rentabilite',
+    category: 'Baustellen & Berichte',
+    title: 'Rentabilität pro Baustelle',
+    keywords: ['rentabilität', 'kosten', 'ausgabe', 'arbeitskraft', 'marge'],
+    body: [
+      "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (manuell erfasste Ausgaben) und Arbeitskraft (geschätzt anhand der Planungs-Zuweisungen und des unter Konto → Rechnungsstellung festgelegten durchschnittlichen Stundenkostensatzes).",
+      "Ein Badge zeigt auf einen Blick, ob die Baustelle unter, um oder über der Rentabilitätsschwelle liegt, damit eine aus dem Ruder laufende Baustelle frühzeitig erkannt wird.",
+    ],
+  },
+  {
+    id: 'planning',
+    category: 'Planung',
+    title: 'Team-Planung',
+    keywords: ['planung', 'team', 'zuweisung', 'kalender'],
+    body: [
+      "Die Planung zeigt einen echten Kalender, in dem jedes Teammitglied für einen oder mehrere Tage einer Baustelle zugewiesen werden kann.",
+      "Diese Zuweisungen fliessen direkt in die Arbeitskraft-Schätzung des Rentabilitäts-Reiters ein — für eine vernünftige Schätzung der auf einer Baustelle verbrachten Stunden ist keine separate Stempeluhr nötig.",
+    ],
+  },
+  {
+    id: 'metre',
+    category: 'Aufmass',
+    title: 'Das Aufmass',
+    keywords: ['aufmass', 'menge', 'messung'],
+    body: [
+      "Das Aufmass-Modul bietet eine mobilgerechte Messtabelle, um Flächen und Mengen direkt auf der Baustelle zu berechnen.",
+      "Jede Aufmass-Position lässt sich mit einem Klick in eine bepreiste Offertposition umwandeln.",
+    ],
+  },
+  {
+    id: 'inventaire',
+    category: 'Katalog',
+    title: 'Wozu dient der Katalog?',
+    keywords: ['inventar', 'katalog', 'preis', 'positionen', 'csv', 'import', 'export'],
+    body: [
+      "Das ist keine Bestandsverwaltung für physisches Material: Es ist eine Bibliothek Ihrer Positionen (Beschreibung, Einheit, Preis), die sich bei jeder Offerte automatisch füllt — sobald eine Beschreibung zum ersten Mal verwendet wird, wird sie dort gespeichert.",
+      "Sie dient dann dazu, bei den nächsten Offerten schneller voranzukommen: Beim Eintippen einer bereits bekannten Beschreibung schlägt Cantia Ihnen die vollständige Position mit Einheit und letztem Preis vor, bereit zur Wiederverwendung oder Anpassung.",
+      "Sie können Positionen auch direkt im Katalog erstellen, ändern oder löschen, eine bestehende Liste per CSV importieren (Spalten werden automatisch erkannt) und alles jederzeit exportieren.",
+    ],
+  },
+  {
+    id: 'equipe-modules',
+    category: 'Team & Organisation',
+    title: 'Team einladen und Module aktivieren',
+    keywords: ['team', 'einladung', 'rolle', 'modul', 'admin'],
+    body: [
+      "Unter Konto → Team ermöglicht ein Einladungslink einem Kollegen, der Organisation beizutreten; ausstehende Beitrittsanfragen werden von einem Administrator bestätigt.",
+      "Konto → Module aktiviert oder deaktiviert die optionalen Funktionen (Planung, Rentabilität, Aufmass, Katalog, Vorlagen…) organisationsweise — ein deaktiviertes Modul verschwindet einfach aus der Navigationsleiste, es gehen keine Daten verloren, wenn Sie es später wieder aktivieren.",
+    ],
+  },
+  {
+    id: 'personnalisation-abonnement',
+    category: 'Anpassung & Abonnement',
+    title: 'Markenkit, Pläne und Abonnement',
+    keywords: ['farbe', 'logo', 'marke', 'plan', 'abonnement', 'stripe', 'kontingent'],
+    body: [
+      "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und PDF-Berichten verwendet werden — eine Farbe wird sogar automatisch anhand Ihres Logos oder Ihrer Website vorgeschlagen.",
+      "Offerten und Rechnungen sind bei allen Cantia-Plänen unbegrenzt. Was sich von Plan zu Plan unterscheidet, sind der Speicherplatz, die Anzahl der Mitglieder und der Zugriff auf bestimmte Module (Planung, Personal & Löhne, Liquidität, ab Équipe). Die Abonnementverwaltung erfolgt unter Konto → Abonnement (Stripe-Abrechnung).",
+      "Konto → Speicherplatz zeigt den genutzten Speicherplatz nach Kategorie im Detail an (Fotos, PDFs, weitere Dateien) mit einer Schaltfläche für ein Upgrade auf einen höheren Plan, falls nötig.",
+    ],
+  },
+];

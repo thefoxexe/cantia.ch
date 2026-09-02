@@ -2305,6 +2305,13 @@ export const de: TranslationDict = {
     contactTitle: 'Keine Antwort gefunden?',
     contactText: 'Schreiben Sie uns direkt an info@cantia.ch.',
   },
+  aideVideosPage: {
+    backLink: 'Hilfe-Center',
+    title: 'Tutorials & Demos',
+    lead: 'Kurze Videos, um jedes Modul in Aktion zu sehen — Einarbeitung, Schulung einer neuen Fachkraft, oder einfach ein Vorgeschmack vor der Anmeldung.',
+    noticeTitle: 'Videos in Vorbereitung',
+    noticeText: 'Pro Modul wird derzeit ein Präsentationsvideo gedreht. Sie werden im Laufe des Septembers hier verfügbar sein.',
+  },
   blogCategories: {
     'Devis & facturation': 'Offerten & Rechnungsstellung',
     'Juridique & normes': 'Recht & Normen',

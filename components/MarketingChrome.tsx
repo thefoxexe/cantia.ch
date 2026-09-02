@@ -44,6 +44,7 @@ export function MarketingNav() {
   const homeHref = locale === 'de' ? '/de' : '/';
   const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
+  const aideHref = locale === 'de' ? '/de/aide' : '/aide';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -87,7 +88,7 @@ export function MarketingNav() {
           <Link href="/telechargement">
             <Text style={styles.navLink}>{t.nav.download}</Text>
           </Link>
-          <Link href="/aide">
+          <Link href={aideHref as any}>
             <Text style={styles.navLink}>{t.nav.help}</Text>
           </Link>
           <LanguageSwitcher />
@@ -140,7 +141,7 @@ export function MarketingNav() {
                     <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
                   </Pressable>
                 </Link>
-                <Link href="/aide" asChild>
+                <Link href={aideHref as any} asChild>
                   <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
                     <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
                   </Pressable>
@@ -182,6 +183,7 @@ export function MarketingFooter({
   const locale = getAppLocale();
   const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
+  const aideHref = locale === 'de' ? '/de/aide' : '/aide';
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -191,7 +193,7 @@ export function MarketingFooter({
             <Text style={styles.footerBrand}>Cantia</Text>
           </View>
           <Text style={styles.footerText}>{t.footer.blurb}</Text>
-          <Link href="/aide" asChild>
+          <Link href={aideHref as any} asChild>
             <Pressable style={styles.footerHelpPill}>
               <Feather name="life-buoy" size={14} color={colors.primaryDark} />
               <Text style={styles.footerHelpPillText}>{tr('marketingChrome.helpCenter')}</Text>
@@ -273,7 +275,7 @@ export function MarketingFooter({
           <Link href={authHref('signup')}>
             <Text style={styles.footerLink}>{t.footer.signup}</Text>
           </Link>
-          <Link href="/aide">
+          <Link href={aideHref as any}>
             <Text style={styles.footerLink}>{t.nav.help}</Text>
           </Link>
           <Link href="/mentions-legales">

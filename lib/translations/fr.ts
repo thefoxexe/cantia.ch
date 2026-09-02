@@ -2291,6 +2291,13 @@ export const fr = {
     contactTitle: 'Pas trouvé de réponse ?',
     contactText: 'Écrivez-nous directement à info@cantia.ch.',
   },
+  aideVideosPage: {
+    backLink: "Centre d'aide",
+    title: 'Tutoriels & démos',
+    lead: "De courtes vidéos pour voir chaque module en action — prise en main, formation d'une nouvelle recrue, ou juste un aperçu avant de s'inscrire.",
+    noticeTitle: 'Vidéos en préparation',
+    noticeText: 'Une vidéo de présentation par module est en cours de tournage. Elles seront disponibles ici courant septembre.',
+  },
   blogCategories: {
     'Devis & facturation': 'Devis & facturation',
     'Juridique & normes': 'Juridique & normes',
