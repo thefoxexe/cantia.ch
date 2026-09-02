@@ -7,9 +7,11 @@ import { supabase } from '../../../lib/supabase';
 import { acceptInvite, getInvitePreview } from '../../../lib/api/invites';
 import { setPendingInvite, clearPendingInvite } from '../../../lib/pendingInvite';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
 export default function JoinScreen() {
+  const { t } = useTranslation();
   const { token } = useLocalSearchParams<{ token: string }>();
   const router = useRouter();
   const { session, organization, refreshOrganization } = useAuth();
@@ -83,12 +85,11 @@ export default function JoinScreen() {
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.title}>Invitation invalide</Text>
+            <Text style={styles.title}>{t('authJoinToken.invalidTitle')}</Text>
             <Text style={styles.subtitle}>
-              Ce lien d'invitation n'est plus valable : il a peut-être déjà été utilisé, révoqué, ou a expiré.
-              Demandez un nouveau lien à la personne qui vous a invité.
+              {t('authJoinToken.invalidText')}
             </Text>
-            <Button title="Aller à la connexion" onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
+            <Button title={t('authJoinToken.goToLogin')} onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
           </View>
         </ScrollView>
       </Screen>
@@ -101,12 +102,12 @@ export default function JoinScreen() {
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.title}>Vous êtes invité·e à rejoindre</Text>
+            <Text style={styles.title}>{t('authJoinToken.invitedTitle')}</Text>
             <Text style={styles.orgName}>{orgName}</Text>
-            <Text style={styles.subtitle}>Créez votre compte ou connectez-vous pour rejoindre l'équipe.</Text>
-            <Button title="Créer mon compte" onPress={() => router.push('/(auth)/signup')} style={{ marginTop: spacing.xl }} />
+            <Text style={styles.subtitle}>{t('authJoinToken.createAccountToJoin')}</Text>
+            <Button title={t('authJoinToken.createAccountBtn')} onPress={() => router.push('/(auth)/signup')} style={{ marginTop: spacing.xl }} />
             <Button
-              title="J'ai déjà un compte — Se connecter"
+              title={t('authJoinToken.alreadyHaveAccount')}
               variant="secondary"
               onPress={() => router.push('/(auth)/login')}
               style={{ marginTop: spacing.md }}
@@ -131,13 +132,11 @@ export default function JoinScreen() {
         <Screen>
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.container}>
-              <Text style={styles.title}>Vous êtes déjà dans une entreprise</Text>
+              <Text style={styles.title}>{t('authJoinToken.alreadyInOrgTitle')}</Text>
               <Text style={styles.subtitle}>
-                Votre compte fait déjà partie de {organization.name}, qui compte {currentMemberCount} membres. Comme
-                d'autres personnes en dépendent, vous ne pouvez pas la quitter automatiquement. Un administrateur de{' '}
-                {organization.name} doit d'abord vous retirer avant que vous puissiez rejoindre une autre entreprise.
+                {t('authJoinToken.alreadyInOrgManyText', { org: organization.name, count: currentMemberCount })}
               </Text>
-              <Button title="Retour à l'application" onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.xl }} />
+              <Button title={t('authJoinToken.backToApp')} onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.xl }} />
             </View>
           </ScrollView>
         </Screen>
@@ -152,19 +151,17 @@ export default function JoinScreen() {
         <Screen>
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.container}>
-              <Text style={styles.title}>Vous êtes déjà dans une entreprise</Text>
+              <Text style={styles.title}>{t('authJoinToken.alreadyInOrgTitle')}</Text>
               <Text style={styles.subtitle}>
-                Votre compte fait actuellement partie de {organization.name}. Vous pouvez tout de même rejoindre{' '}
-                {orgName}, mais comme vous êtes la seule personne de {organization.name}, cela supprimera
-                définitivement cette entreprise et toutes ses données.
+                {t('authJoinToken.switchConfirmText', { currentOrg: organization.name, newOrg: orgName })}
               </Text>
               <Button
-                title={`Rejoindre ${orgName} à la place`}
+                title={t('authJoinToken.joinInstead', { org: orgName })}
                 variant="secondary"
                 onPress={() => setConfirmSwitch(true)}
                 style={{ marginTop: spacing.xl }}
               />
-              <Button title="Retour à l'application" onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.md }} />
+              <Button title={t('authJoinToken.backToApp')} onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.md }} />
             </View>
           </ScrollView>
         </Screen>
@@ -176,22 +173,19 @@ export default function JoinScreen() {
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Feather name="alert-triangle" size={32} color={colors.danger} style={{ alignSelf: 'center', marginBottom: spacing.md }} />
-            <Text style={[styles.title, { color: colors.danger }]}>Attention, action irréversible</Text>
+            <Text style={[styles.title, { color: colors.danger }]}>{t('authJoinToken.irreversibleTitle')}</Text>
             <Text style={styles.subtitle}>
-              En rejoignant <Text style={{ fontWeight: '800', color: colors.text }}>{orgName}</Text>, vous allez
-              totalement quitter <Text style={{ fontWeight: '800', color: colors.text }}>{organization.name}</Text>{' '}
-              et cette entreprise sera supprimée avec toutes ses données (chantiers, rapports, devis, photos,
-              documents…). Cette action est définitive et ne peut pas être annulée.
+              {t('authJoinToken.irreversibleText', { newOrg: orgName, currentOrg: organization.name })}
             </Text>
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Button
-              title={`Oui, supprimer ${organization.name} et rejoindre ${orgName}`}
+              title={t('authJoinToken.deleteAndJoin', { org: organization.name, newOrg: orgName })}
               variant="danger"
               onPress={() => handleAccept(true)}
               loading={joining}
               style={{ marginTop: spacing.xl }}
             />
-            <Button title="Annuler" variant="secondary" onPress={() => setConfirmSwitch(false)} style={{ marginTop: spacing.md }} />
+            <Button title={t('authJoinToken.cancel')} variant="secondary" onPress={() => setConfirmSwitch(false)} style={{ marginTop: spacing.md }} />
           </View>
         </ScrollView>
       </Screen>
@@ -203,13 +197,13 @@ export default function JoinScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
           <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.title}>Rejoindre</Text>
+          <Text style={styles.title}>{t('authJoinToken.joinTitle')}</Text>
           <Text style={styles.orgName}>{orgName}</Text>
-          <Text style={styles.subtitle}>Vous allez rejoindre cette entreprise avec votre compte actuel.</Text>
+          <Text style={styles.subtitle}>{t('authJoinToken.joinSubtitle')}</Text>
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Rejoindre l'entreprise" onPress={() => handleAccept(false)} loading={joining} style={{ marginTop: spacing.xl }} />
+          <Button title={t('authJoinToken.joinBtn')} onPress={() => handleAccept(false)} loading={joining} style={{ marginTop: spacing.xl }} />
           <Button
-            title="Créer ma propre entreprise à la place"
+            title={t('authJoinToken.createInsteadBtn')}
             variant="secondary"
             onPress={handleCreateInstead}
             style={{ marginTop: spacing.md }}

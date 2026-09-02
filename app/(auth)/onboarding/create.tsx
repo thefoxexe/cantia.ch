@@ -11,14 +11,16 @@ import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Field, Screen } from '../../../components/ui';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { TRADES } from '../../../lib/trades';
+import { TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 
 const DEFAULT_BRAND_COLOR = '#1F3D3A';
 
 export default function CreateOrganizationScreen() {
+  const { t } = useTranslation();
   const { user, createOrganization, refreshOrganization } = useAuth();
   const router = useRouter();
   const [name, setName] = useState('');
@@ -68,7 +70,7 @@ export default function CreateOrganizationScreen() {
   async function handleCreate() {
     setError(null);
     if (!name.trim()) {
-      setError("Le nom de l'entreprise est requis.");
+      setError(t('authOnboardingCreate.nameRequired'));
       return;
     }
     setLoading(true);
@@ -118,29 +120,29 @@ export default function CreateOrganizationScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <Pressable onPress={() => router.replace('/(auth)/onboarding')} style={styles.backLink} hitSlop={8}>
           <Feather name="arrow-left" size={16} color={colors.textMuted} />
-          <Text style={styles.backLinkText}>Retour</Text>
+          <Text style={styles.backLinkText}>{t('authOnboardingCreate.backLink')}</Text>
         </Pressable>
 
-        <Text style={styles.title}>Créer votre entreprise</Text>
-        <Text style={styles.subtitle}>Ces informations apparaîtront sur vos devis et rapports.</Text>
+        <Text style={styles.title}>{t('authOnboardingCreate.title')}</Text>
+        <Text style={styles.subtitle}>{t('authOnboardingCreate.subtitle')}</Text>
 
         <Field
-          label="Nom de l'entreprise / raison individuelle"
+          label={t('authOnboardingCreate.nameLabel')}
           value={name}
           onChangeText={setName}
-          placeholder="Ex : Dupont Serrurerie Sàrl"
+          placeholder={t('authOnboardingCreate.namePlaceholder')}
         />
 
         <Field
-          label="Site web (optionnel)"
+          label={t('authOnboardingCreate.websiteLabel')}
           value={website}
           onChangeText={setWebsite}
           autoCapitalize="none"
-          placeholder="www.entreprise.ch"
+          placeholder={t('authOnboardingCreate.websitePlaceholder')}
         />
 
         <SwissAddressField
-          label="Rue et numéro (optionnel)"
+          label={t('authOnboardingCreate.streetLabel')}
           value={street}
           onChangeText={setStreet}
           onSelectAddress={(addr) => {
@@ -148,19 +150,19 @@ export default function CreateOrganizationScreen() {
             setPostalCode(addr.postalCode);
             setLocality(addr.locality);
           }}
-          placeholder="Rue de l'Exemple 1"
+          placeholder={t('authOnboardingCreate.streetPlaceholder')}
         />
         <View style={styles.row2}>
           <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
-            <Field label="NPA" value={postalCode} onChangeText={handlePostalCodeChange} keyboardType="number-pad" placeholder="1000" />
+            <Field label={t('authOnboardingCreate.npaLabel')} value={postalCode} onChangeText={handlePostalCodeChange} keyboardType="number-pad" placeholder="1000" />
           </View>
           <View style={styles.row2Item}>
-            <Field label="Localité" value={locality} onChangeText={setLocality} placeholder="Lausanne" />
+            <Field label={t('authOnboardingCreate.localityLabel')} value={locality} onChangeText={setLocality} placeholder={t('authOnboardingCreate.localityPlaceholder')} />
           </View>
         </View>
-        <Text style={styles.hint}>Requis plus tard pour générer des QR-factures conformes — modifiable dans les paramètres.</Text>
+        <Text style={styles.hint}>{t('authOnboardingCreate.addressHint')}</Text>
 
-        <Text style={styles.fieldLabel}>Logo (optionnel)</Text>
+        <Text style={styles.fieldLabel}>{t('authOnboardingCreate.logoLabel')}</Text>
         <View style={styles.logoRow}>
           {logoAsset ? (
             <Image source={{ uri: logoAsset.uri }} style={styles.logoPreview} />
@@ -170,15 +172,15 @@ export default function CreateOrganizationScreen() {
             </View>
           )}
           <Pressable style={styles.logoButton} onPress={pickLogo}>
-            <Text style={styles.logoButtonText}>{logoAsset ? 'Changer le logo' : 'Choisir un logo'}</Text>
+            <Text style={styles.logoButtonText}>{logoAsset ? t('authOnboardingCreate.changeLogo') : t('authOnboardingCreate.chooseLogo')}</Text>
           </Pressable>
         </View>
 
-        <Text style={styles.fieldLabel}>Couleur de marque</Text>
+        <Text style={styles.fieldLabel}>{t('authOnboardingCreate.brandColorLabel')}</Text>
         {suggestedColors.length ? (
-          <Text style={styles.hint}>Suggérée à partir de votre logo et/ou site web — choisissez une autre couleur si elle ne vous convient pas.</Text>
+          <Text style={styles.hint}>{t('authOnboardingCreate.colorSuggestedHint')}</Text>
         ) : (
-          <Text style={styles.hint}>Ajoutez un logo ou un site web pour une suggestion automatique, ou choisissez une couleur ci-dessous.</Text>
+          <Text style={styles.hint}>{t('authOnboardingCreate.colorDefaultHint')}</Text>
         )}
         <View style={styles.colorRow}>
           {[...new Set([...suggestedColors, ...BRAND_COLOR_PRESETS])].map((hex) => (
@@ -195,23 +197,23 @@ export default function CreateOrganizationScreen() {
           <Pressable onPress={analyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
             <Feather name="globe" size={13} color={colors.primary} />
             <Text style={styles.analyzeLinkText}>
-              {analyzingWebsite ? 'Analyse du site en cours…' : 'Analyser les couleurs de mon site web'}
+              {analyzingWebsite ? t('authOnboardingCreate.analyzingWebsite') : t('authOnboardingCreate.analyzeWebsite')}
             </Text>
           </Pressable>
         ) : null}
 
-        <Text style={styles.fieldLabel}>Métier</Text>
+        <Text style={styles.fieldLabel}>{t('authOnboardingCreate.tradeLabel')}</Text>
         <View style={styles.chips}>
-          {TRADES.map((t) => (
-            <Pressable key={t} onPress={() => setTrade(t)} style={[styles.chip, trade === t && styles.chipActive]}>
-              <Text style={[styles.chipText, trade === t && styles.chipTextActive]}>{t}</Text>
+          {TRADES.map((tr) => (
+            <Pressable key={tr} onPress={() => setTrade(tr)} style={[styles.chip, trade === tr && styles.chipActive]}>
+              <Text style={[styles.chipText, trade === tr && styles.chipTextActive]}>{t(`trades.${TRADE_KEYS[tr]}` as any)}</Text>
             </Pressable>
           ))}
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Button title="Créer mon espace" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.xl }} />
+        <Button title={t('authOnboardingCreate.submit')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.xl }} />
       </ScrollView>
     </Screen>
   );

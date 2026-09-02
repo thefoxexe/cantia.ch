@@ -5,10 +5,12 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { cancelJoinRequest, getMyPendingRequest, requestToJoin, searchOrganizations, type MyJoinRequest } from '../../../lib/api/invites';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { OrganizationSearchResult } from '../../../lib/types';
 
 export default function JoinOrganizationScreen() {
+  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [query, setQuery] = useState('');
@@ -71,13 +73,12 @@ export default function JoinOrganizationScreen() {
       <Screen>
         <ScrollView contentContainerStyle={styles.container}>
           <Feather name="clock" size={32} color={colors.primary} style={styles.centerIcon} />
-          <Text style={styles.title}>Demande envoyée</Text>
+          <Text style={styles.title}>{t('authOnboardingJoin.requestSentTitle')}</Text>
           <Text style={styles.subtitle}>
-            Votre demande pour rejoindre <Text style={styles.bold}>{pending.organization_name}</Text> est en attente de validation par un
-            administrateur. Vous serez ajouté automatiquement dès qu'elle sera acceptée.
+            {t('authOnboardingJoin.requestSentBody', { org: pending.organization_name })}
           </Text>
-          <Button title="Annuler la demande" variant="secondary" onPress={handleCancel} loading={cancelling} style={{ marginTop: spacing.xl }} />
-          <Button title="Se déconnecter" variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
+          <Button title={t('authOnboardingJoin.cancelRequest')} variant="secondary" onPress={handleCancel} loading={cancelling} style={{ marginTop: spacing.xl }} />
+          <Button title={t('authOnboardingJoin.signOut')} variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
         </ScrollView>
       </Screen>
     );
@@ -88,11 +89,11 @@ export default function JoinOrganizationScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <Pressable onPress={() => router.replace('/(auth)/onboarding')} style={styles.backLink} hitSlop={8}>
           <Feather name="arrow-left" size={16} color={colors.textMuted} />
-          <Text style={styles.backLinkText}>Retour</Text>
+          <Text style={styles.backLinkText}>{t('authOnboardingJoin.backLink')}</Text>
         </Pressable>
 
-        <Text style={styles.title}>Rejoindre une entreprise</Text>
-        <Text style={styles.subtitle}>Recherchez le nom de l'entreprise à rejoindre. Le propriétaire devra valider votre demande.</Text>
+        <Text style={styles.title}>{t('authOnboardingJoin.title')}</Text>
+        <Text style={styles.subtitle}>{t('authOnboardingJoin.subtitle')}</Text>
 
         <View style={styles.searchBar}>
           <Feather name="search" size={16} color={colors.textMuted} />
@@ -100,7 +101,7 @@ export default function JoinOrganizationScreen() {
             style={styles.searchInput}
             value={query}
             onChangeText={setQuery}
-            placeholder="Nom de l'entreprise"
+            placeholder={t('authOnboardingJoin.searchPlaceholder')}
             placeholderTextColor={colors.textMuted}
             autoCapitalize="none"
           />
@@ -115,19 +116,19 @@ export default function JoinOrganizationScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.resultName}>{org.name}</Text>
                 <Text style={styles.resultMeta}>
-                  {org.member_count} membre{Number(org.member_count) > 1 ? 's' : ''}
+                  {t('authOnboardingJoin.membersCount', { count: Number(org.member_count) })}
                 </Text>
               </View>
-              <Button title="Demander" onPress={() => handleRequest(org)} loading={requestingId === org.id} style={{ minWidth: 110 }} />
+              <Button title={t('authOnboardingJoin.requestBtn')} onPress={() => handleRequest(org)} loading={requestingId === org.id} style={{ minWidth: 110 }} />
             </View>
           ))}
           {query.trim().length >= 2 && !searching && results.length === 0 ? (
-            <Text style={styles.emptyText}>Aucune entreprise trouvée pour « {query.trim()} ».</Text>
+            <Text style={styles.emptyText}>{t('authOnboardingJoin.noResults', { query: query.trim() })}</Text>
           ) : null}
         </View>
 
         <Text style={styles.altText}>
-          Vous avez plutôt reçu un lien d'invitation ? Ouvrez-le directement, il vous ajoutera automatiquement.
+          {t('authOnboardingJoin.altText')}
         </Text>
       </ScrollView>
     </Screen>

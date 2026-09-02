@@ -5,9 +5,11 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { getMyPendingRequest, cancelJoinRequest, type MyJoinRequest } from '../../../lib/api/invites';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 export default function OnboardingHubScreen() {
+  const { t } = useTranslation();
   const { signOut } = useAuth();
   const router = useRouter();
   const [pending, setPending] = useState<MyJoinRequest | null | undefined>(undefined);
@@ -38,13 +40,12 @@ export default function OnboardingHubScreen() {
       <Screen>
         <ScrollView contentContainerStyle={styles.container}>
           <Feather name="clock" size={32} color={colors.primary} style={styles.centerIcon} />
-          <Text style={styles.title}>Demande envoyée</Text>
+          <Text style={styles.title}>{t('authOnboardingHub.requestSentTitle')}</Text>
           <Text style={styles.subtitle}>
-            Votre demande pour rejoindre <Text style={styles.bold}>{pending.organization_name}</Text> est en attente de validation par un
-            administrateur. Vous serez ajouté automatiquement dès qu'elle sera acceptée.
+            {t('authOnboardingHub.requestSentBody', { org: pending.organization_name })}
           </Text>
-          <Button title="Annuler la demande" variant="secondary" onPress={handleCancel} loading={cancelling} style={{ marginTop: spacing.xl }} />
-          <Button title="Se déconnecter" variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
+          <Button title={t('authOnboardingHub.cancelRequest')} variant="secondary" onPress={handleCancel} loading={cancelling} style={{ marginTop: spacing.xl }} />
+          <Button title={t('authOnboardingHub.signOut')} variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
         </ScrollView>
       </Screen>
     );
@@ -53,16 +54,16 @@ export default function OnboardingHubScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Bienvenue sur Cantia</Text>
-        <Text style={styles.subtitle}>Voulez-vous créer une entreprise ou rejoindre une entreprise existante ?</Text>
+        <Text style={styles.title}>{t('authOnboardingHub.welcomeTitle')}</Text>
+        <Text style={styles.subtitle}>{t('authOnboardingHub.welcomeSubtitle')}</Text>
 
         <Pressable style={styles.choiceCard} onPress={() => router.push('/(auth)/onboarding/create')}>
           <View style={styles.choiceIcon}>
             <Feather name="briefcase" size={22} color={colors.primary} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.choiceTitle}>Créer une entreprise</Text>
-            <Text style={styles.choiceText}>Vous êtes le premier de votre entreprise sur Cantia.</Text>
+            <Text style={styles.choiceTitle}>{t('authOnboardingHub.createOrgTitle')}</Text>
+            <Text style={styles.choiceText}>{t('authOnboardingHub.createOrgText')}</Text>
           </View>
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </Pressable>
@@ -72,13 +73,13 @@ export default function OnboardingHubScreen() {
             <Feather name="users" size={22} color={colors.primary} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.choiceTitle}>Rejoindre une entreprise</Text>
-            <Text style={styles.choiceText}>Votre entreprise utilise déjà Cantia.</Text>
+            <Text style={styles.choiceTitle}>{t('authOnboardingHub.joinOrgTitle')}</Text>
+            <Text style={styles.choiceText}>{t('authOnboardingHub.joinOrgText')}</Text>
           </View>
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </Pressable>
 
-        <Button title="Se déconnecter" onPress={signOut} variant="secondary" style={{ marginTop: spacing.xl }} />
+        <Button title={t('authOnboardingHub.signOut')} onPress={signOut} variant="secondary" style={{ marginTop: spacing.xl }} />
       </ScrollView>
     </Screen>
   );
