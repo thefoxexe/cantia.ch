@@ -25,12 +25,13 @@ import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
 import { defaultFactureEmailMessage } from '../../../../lib/emailDefaults';
+import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import type { Facture, FactureItem, FacturePayment, FactureStatus, Plan, Project } from '../../../../lib/types';
 
 const DEPOSIT_PRESETS = [20, 30, 50];
 
 function todayDisplay(): string {
-  return new Date().toLocaleDateString('fr-CH');
+  return new Date().toLocaleDateString(`${getAppLocale()}-CH`);
 }
 
 // "JJ.MM.AAAA" -> ISO "AAAA-MM-JJ", or null if unparsable.
@@ -58,6 +59,7 @@ interface ActionRow {
 // buried anything beyond "change status" at the very bottom of the page,
 // past however many line items the facture has.
 export default function FactureDetailScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { role } = useAuth();
@@ -160,7 +162,7 @@ export default function FactureDetailScreen() {
     const { sent, error: sendError } = await sendFactureEmail(id, emailMessage);
     setSendingEmail(false);
     if (sendError || !sent) {
-      setError(sendError ?? "Échec de l'envoi de l'e-mail.");
+      setError(sendError ?? t('factureDetail.emailSendFailed'));
       return;
     }
     setEmailModalVisible(false);
@@ -199,7 +201,7 @@ export default function FactureDetailScreen() {
     const { url, error: genError } = await generateFacturePdf(id);
     setBusy(false);
     if (genError || !url) {
-      setError(genError ?? 'Échec de la génération du PDF.');
+      setError(genError ?? t('factureDetail.pdfGenFailed'));
       return;
     }
     setActionsOpen(false);
@@ -260,10 +262,10 @@ export default function FactureDetailScreen() {
   async function handleDeleteOrCancel() {
     const isDraft = facture?.status === 'draft';
     const ok = await confirm(
-      isDraft ? 'Supprimer cette facture ?' : 'Annuler cette facture ?',
+      isDraft ? t('factureDetail.deleteConfirmTitle') : t('factureDetail.cancelConfirmTitle'),
       isDraft
-        ? `La facture ${facture?.number ?? ''} sera définitivement supprimée.`
-        : `La facture ${facture?.number ?? ''} sera marquée comme annulée.`,
+        ? t('factureDetail.deleteConfirmBody', { number: facture?.number ?? '' })
+        : t('factureDetail.cancelConfirmBody', { number: facture?.number ?? '' }),
     );
     if (!ok) return;
     setError(null);
@@ -284,12 +286,12 @@ export default function FactureDetailScreen() {
   async function handleRecordPayment() {
     const iso = parseSwissDate(paymentDate);
     if (!iso) {
-      setPaymentError('Date invalide (format JJ.MM.AAAA).');
+      setPaymentError(t('factureDetail.invalidDate'));
       return;
     }
     const amount = Number(paymentAmount.replace(',', '.'));
     if (!amount || amount <= 0) {
-      setPaymentError('Entrez un montant supérieur à 0.');
+      setPaymentError(t('factureDetail.invalidAmount'));
       return;
     }
     setPaymentError(null);
@@ -322,7 +324,7 @@ export default function FactureDetailScreen() {
   }
 
   async function handleDeletePayment(payment: FacturePayment) {
-    const ok = await confirm('Supprimer ce paiement ?', `Le paiement de CHF ${Number(payment.amount).toFixed(2)} sera retiré.`);
+    const ok = await confirm(t('factureDetail.deletePaymentConfirmTitle'), t('factureDetail.deletePaymentConfirmBody', { amount: Number(payment.amount).toFixed(2) }));
     if (!ok) return;
     const { error: delError } = await deleteFacturePayment(payment.id, id, total);
     if (delError) {
@@ -337,7 +339,7 @@ export default function FactureDetailScreen() {
     if (!facture?.devis_id) return;
     const percent = Number(depositPercent.replace(',', '.'));
     if (!percent || percent <= 0 || percent > 100) {
-      setDepositError('Entrez un pourcentage entre 1 et 100.');
+      setDepositError(t('factureDetail.invalidPercent'));
       return;
     }
     setBusy(true);
@@ -374,9 +376,9 @@ export default function FactureDetailScreen() {
     !!plan?.has_bexio_integration && bexioConnected && facture.status !== 'draft' && facture.status !== 'cancelled' && !!facture.client_id;
 
   const actionRows: ActionRow[] = [
-    { key: 'pdf', icon: 'download', label: 'Télécharger le PDF', onPress: handleDownloadPdf },
+    { key: 'pdf', icon: 'download', label: t('factureDetail.downloadPdf'), onPress: handleDownloadPdf },
     ...(facture.status === 'draft'
-      ? ([{ key: 'finalize', icon: 'check', label: 'Finaliser', onPress: handleFinalize }] as ActionRow[])
+      ? ([{ key: 'finalize', icon: 'check', label: t('factureDetail.finalize'), onPress: handleFinalize }] as ActionRow[])
       : []),
     ...(facture.status !== 'draft' && facture.status !== 'cancelled'
       ? ([
@@ -385,7 +387,7 @@ export default function FactureDetailScreen() {
                 {
                   key: 'record-payment',
                   icon: 'plus-circle',
-                  label: 'Enregistrer un paiement',
+                  label: t('factureDetail.recordPayment'),
                   onPress: () => {
                     setPaymentDate(todayDisplay());
                     setPaymentAmount(remaining.toFixed(2));
@@ -394,13 +396,13 @@ export default function FactureDetailScreen() {
                     setActionsOpen(false);
                   },
                 },
-                { key: 'mark-paid', icon: 'check-circle', label: 'Marquer payée', onPress: handleMarkPaid },
+                { key: 'mark-paid', icon: 'check-circle', label: t('factureDetail.markPaid'), onPress: handleMarkPaid },
               ] as ActionRow[])
             : []),
           {
             key: 'deposit',
             icon: 'percent',
-            label: 'Facturer un acompte',
+            label: t('factureDetail.invoiceDeposit'),
             disabled: !canDeposit,
             onPress: () => {
               setDepositError(null);
@@ -410,16 +412,16 @@ export default function FactureDetailScreen() {
           },
         ] as ActionRow[])
       : []),
-    { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+    { key: 'duplicate', icon: 'copy', label: t('factureDetail.duplicate'), onPress: handleDuplicate },
     ...(facture.devis_id
-      ? ([{ key: 'devis', icon: 'file-text', label: 'Voir le devis', onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }] as ActionRow[])
+      ? ([{ key: 'devis', icon: 'file-text', label: t('factureDetail.viewDevis'), onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }] as ActionRow[])
       : []),
     ...(isAdmin && facture.status !== 'cancelled'
       ? ([
           {
             key: 'delete-or-cancel',
             icon: facture.status === 'draft' ? 'trash-2' : 'slash',
-            label: facture.status === 'draft' ? 'Supprimer la facture' : 'Annuler la facture',
+            label: facture.status === 'draft' ? t('factureDetail.deleteFacture') : t('factureDetail.cancelFacture'),
             danger: true,
             onPress: handleDeleteOrCancel,
           },
@@ -437,7 +439,7 @@ export default function FactureDetailScreen() {
               <Text style={styles.number}>{facture.number}</Text>
               {facture.is_deposit ? (
                 <View style={styles.depositBadge}>
-                  <Text style={styles.depositBadgeText}>Acompte</Text>
+                  <Text style={styles.depositBadgeText}>{t('factureDetail.deposit')}</Text>
                 </View>
               ) : null}
             </View>
@@ -447,19 +449,19 @@ export default function FactureDetailScreen() {
           {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
           {facture.client_email ? <Text style={styles.meta}>{facture.client_email}</Text> : null}
           <Text style={[styles.meta, overdue && styles.overdue]}>
-            {overdue ? 'En retard · ' : ''}Échéance {new Date(facture.due_date).toLocaleDateString('fr-CH')}
+            {overdue ? t('factureDetail.overduePrefix') : ''}{t('factureDetail.dueDate', { date: new Date(facture.due_date).toLocaleDateString(`${getAppLocale()}-CH`) })}
           </Text>
           {bexioExternalId ? (
             <View style={styles.bexioBadge}>
               <Feather name="check-circle" size={12} color={colors.success} />
               <Text style={styles.bexioBadgeText}>
-                Synchronisée avec Bexio{bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString('fr-CH')}` : ''}
+                {t('factureDetail.bexioSynced')}{bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString(`${getAppLocale()}-CH`)}` : ''}
               </Text>
             </View>
           ) : null}
           {canPushToBexio ? (
             <Button
-              title={bexioExternalId ? 'Resynchroniser avec Bexio' : 'Envoyer vers Bexio'}
+              title={bexioExternalId ? t('factureDetail.resyncBexio') : t('factureDetail.sendToBexio')}
               variant="secondary"
               icon="refresh-cw"
               onPress={handlePushToBexio}
@@ -473,7 +475,7 @@ export default function FactureDetailScreen() {
           {facture.status === 'draft' ? (
             <>
               <Button
-                title="Finaliser le brouillon"
+                title={t('factureDetail.finalizeDraft')}
                 icon="check"
                 onPress={handleFinalize}
                 loading={busy}
@@ -481,23 +483,23 @@ export default function FactureDetailScreen() {
               />
               <Text style={styles.copyLinkHint}>
                 {facture.client_email
-                  ? 'Une fois finalisée, vous pourrez copier le lien client ou l\'envoyer par e-mail.'
-                  : "Une fois finalisée, ajoutez l'email du client pour générer un lien de consultation sécurisé."}
+                  ? t('factureDetail.finalizedHintWithEmail')
+                  : t('factureDetail.finalizedHintNoEmail')}
               </Text>
             </>
           ) : !facture.client_email ? (
-            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation sécurisé.</Text>
+            <Text style={styles.copyLinkHint}>{t('factureDetail.emailRequiredForLink')}</Text>
           ) : (
             <View style={styles.clientLinkRow}>
               <Button
-                title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+                title={linkCopied ? t('factureDetail.linkCopied') : t('factureDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
                 onPress={handleCopyClientLink}
                 style={styles.clientLinkButton}
               />
               <Button
-                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                title={emailSent ? t('factureDetail.emailSent') : t('factureDetail.sendByEmail')}
                 variant="secondary"
                 icon={emailSent ? 'check' : 'mail'}
                 disabled={plan?.has_email_sending === false}
@@ -508,7 +510,7 @@ export default function FactureDetailScreen() {
           )}
           {plan?.has_email_sending === false ? (
             <Text style={styles.copyLinkHint}>
-              L'envoi par e-mail est réservé à un plan supérieur — copiez le lien client ci-dessus, ou passez à un plan payant pour l'activer.
+              {t('factureDetail.emailPaidPlanOnly')}
             </Text>
           ) : null}
         </Card>
@@ -517,17 +519,17 @@ export default function FactureDetailScreen() {
           <View style={styles.refCard}>
             <Feather name="hash" size={16} color={colors.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.refLabel}>Référence de paiement</Text>
+              <Text style={styles.refLabel}>{t('factureDetail.paymentRefLabel')}</Text>
               <Text selectable style={styles.refValue}>
                 {formatReferenceForDisplay(paymentRef.reference, paymentRef.type)}
               </Text>
-              <Text style={styles.refHint}>Appui long pour copier</Text>
+              <Text style={styles.refHint}>{t('factureDetail.longPressToCopy')}</Text>
             </View>
           </View>
         ) : null}
 
         <Button
-          title="Actions"
+          title={t('factureDetail.actions')}
           icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
           onPress={() => setActionsOpen((v) => !v)}
           loading={busy}
@@ -546,7 +548,7 @@ export default function FactureDetailScreen() {
                 <Text style={[styles.actionRowText, action.danger && styles.actionRowTextDanger]}>{action.label}</Text>
                 {action.soon ? (
                   <View style={styles.soonBadge}>
-                    <Text style={styles.soonBadgeText}>Bientôt disponible</Text>
+                    <Text style={styles.soonBadgeText}>{t('factureDetail.soonAvailable')}</Text>
                   </View>
                 ) : null}
               </Pressable>
@@ -558,7 +560,7 @@ export default function FactureDetailScreen() {
             <Text style={styles.error}>{error}</Text>
             {error.includes("n'est pas relié à un contact Bexio") ? (
               <Button
-                title="Lier le client à Bexio et réessayer"
+                title={t('factureDetail.linkClientToBexioRetry')}
                 variant="secondary"
                 icon="refresh-cw"
                 onPress={handleSyncClientsAndRetryPush}
@@ -569,7 +571,7 @@ export default function FactureDetailScreen() {
           </View>
         ) : null}
 
-        <Text style={styles.sectionTitle}>Lignes</Text>
+        <Text style={styles.sectionTitle}>{t('factureDetail.linesTitle')}</Text>
         <Card>
           {items.map((it, idx) => (
             <View key={it.id} style={[styles.itemRow, idx > 0 && styles.itemRowBorder]}>
@@ -584,15 +586,15 @@ export default function FactureDetailScreen() {
           ))}
           <View style={styles.totalsBlock}>
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>Sous-total</Text>
+              <Text style={styles.meta}>{t('factureDetail.subtotal')}</Text>
               <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>TVA ({facture.vat_rate}%)</Text>
+              <Text style={styles.meta}>{t('factureDetail.vat', { rate: facture.vat_rate })}</Text>
               <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total TTC</Text>
+              <Text style={styles.totalLabel}>{t('factureDetail.totalInclVat')}</Text>
               <Text style={styles.totalLabel}>CHF {total.toFixed(2)}</Text>
             </View>
           </View>
@@ -600,14 +602,14 @@ export default function FactureDetailScreen() {
 
         {payments.length || facture.status === 'sent' || facture.status === 'partial' ? (
           <>
-            <Text style={styles.sectionTitle}>Paiements</Text>
+            <Text style={styles.sectionTitle}>{t('factureDetail.paymentsTitle')}</Text>
             <Card>
               <View style={styles.totalRow}>
-                <Text style={styles.meta}>Payé</Text>
+                <Text style={styles.meta}>{t('factureDetail.paid')}</Text>
                 <Text style={styles.meta}>CHF {totalPaid.toFixed(2)}</Text>
               </View>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Reste dû</Text>
+                <Text style={styles.totalLabel}>{t('factureDetail.remainingDue')}</Text>
                 <Text style={styles.totalLabel}>CHF {remaining.toFixed(2)}</Text>
               </View>
               {payments.length ? (
@@ -616,7 +618,7 @@ export default function FactureDetailScreen() {
                     <View key={p.id} style={styles.paymentRow}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.itemDesc}>CHF {Number(p.amount).toFixed(2)}</Text>
-                        <Text style={styles.meta}>{new Date(p.paid_at).toLocaleDateString('fr-CH')}</Text>
+                        <Text style={styles.meta}>{new Date(p.paid_at).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                       </View>
                       {isAdmin ? (
                         <Pressable onPress={() => handleDeletePayment(p)} hitSlop={8}>
@@ -636,14 +638,14 @@ export default function FactureDetailScreen() {
       <Modal visible={paymentModalVisible} transparent animationType="fade" onRequestClose={() => setPaymentModalVisible(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Enregistrer un paiement</Text>
-            <Text style={styles.meta}>Montant reçu et date de réception. Un paiement partiel réduit simplement le solde restant dû.</Text>
-            <Field label="Montant (CHF)" value={paymentAmount} onChangeText={setPaymentAmount} keyboardType="decimal-pad" />
-            <Field label="Date (JJ.MM.AAAA)" value={paymentDate} onChangeText={setPaymentDate} />
+            <Text style={styles.modalTitle}>{t('factureDetail.recordPaymentTitle')}</Text>
+            <Text style={styles.meta}>{t('factureDetail.recordPaymentHint')}</Text>
+            <Field label={t('factureDetail.amountLabel')} value={paymentAmount} onChangeText={setPaymentAmount} keyboardType="decimal-pad" />
+            <Field label={t('factureDetail.dateLabel')} value={paymentDate} onChangeText={setPaymentDate} />
             {paymentError ? <Text style={styles.error}>{paymentError}</Text> : null}
             <View style={styles.modalActions}>
-              <Button title="Annuler" variant="secondary" onPress={() => setPaymentModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Confirmer" onPress={handleRecordPayment} loading={busy} style={{ flex: 1 }} />
+              <Button title={t('factureDetail.cancel')} variant="secondary" onPress={() => setPaymentModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('factureDetail.confirm')} onPress={handleRecordPayment} loading={busy} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
@@ -652,8 +654,8 @@ export default function FactureDetailScreen() {
       <Modal visible={depositModalVisible} transparent animationType="fade" onRequestClose={() => setDepositModalVisible(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Facturer un acompte</Text>
-            <Text style={styles.meta}>Pourcentage du montant total du devis à facturer maintenant.</Text>
+            <Text style={styles.modalTitle}>{t('factureDetail.invoiceDepositTitle')}</Text>
+            <Text style={styles.meta}>{t('factureDetail.invoiceDepositHint')}</Text>
             <View style={styles.percentPresets}>
               {DEPOSIT_PRESETS.map((p) => (
                 <Pressable
@@ -665,11 +667,11 @@ export default function FactureDetailScreen() {
                 </Pressable>
               ))}
             </View>
-            <Field label="Pourcentage (%)" value={depositPercent} onChangeText={setDepositPercent} keyboardType="decimal-pad" />
+            <Field label={t('factureDetail.percentLabel')} value={depositPercent} onChangeText={setDepositPercent} keyboardType="decimal-pad" />
             {depositError ? <Text style={styles.error}>{depositError}</Text> : null}
             <View style={styles.modalActions}>
-              <Button title="Annuler" variant="secondary" onPress={() => setDepositModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Créer la facture" onPress={handleCreateDeposit} loading={busy} style={{ flex: 1 }} />
+              <Button title={t('factureDetail.cancel')} variant="secondary" onPress={() => setDepositModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('factureDetail.createFacture')} onPress={handleCreateDeposit} loading={busy} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
@@ -678,12 +680,12 @@ export default function FactureDetailScreen() {
       <Modal visible={emailModalVisible} transparent animationType="fade" onRequestClose={() => setEmailModalVisible(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Envoyer par e-mail</Text>
+            <Text style={styles.modalTitle}>{t('factureDetail.sendEmailTitle')}</Text>
             <Text style={styles.meta}>
-              Modifiable pour cet envoi uniquement — le message par défaut se règle dans Compte → E-mails.
+              {t('factureDetail.sendEmailHint')}
             </Text>
             <Field
-              label="Message"
+              label={t('factureDetail.messageLabel')}
               value={emailMessage}
               onChangeText={setEmailMessage}
               multiline
@@ -691,13 +693,12 @@ export default function FactureDetailScreen() {
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
             />
             <Text style={styles.lockedNoticeText}>
-              Le PDF joint et le lien sécurisé « Consulter cette facture en ligne » sont toujours ajoutés automatiquement à
-              la suite — non modifiables.
+              {t('factureDetail.lockedNoticeText')}
             </Text>
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.modalActions}>
-              <Button title="Annuler" variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Envoyer" onPress={handleSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
+              <Button title={t('factureDetail.cancel')} variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('factureDetail.send')} onPress={handleSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
