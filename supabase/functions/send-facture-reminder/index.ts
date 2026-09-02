@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
-import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
+import { pdfT, resolveDocLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -46,7 +46,7 @@ Deno.serve(async (req: Request) => {
       .select('name, email, plan_id, facture_reminder_message_upcoming, facture_reminder_message_overdue, email_signature, locale')
       .eq('id', facture.organization_id)
       .single();
-    const locale = resolvePdfLocale(org);
+    const locale = resolveDocLocale(facture, org);
 
     const { data: plan } = await admin.from('plans').select('has_email_sending').eq('id', org?.plan_id).single();
     if (plan && plan.has_email_sending === false) {

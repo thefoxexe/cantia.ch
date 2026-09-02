@@ -11,7 +11,7 @@ import {
 } from '../_shared/pdf-helpers.ts';
 import { appendQrBillPage, isValidSwissIban } from '../_shared/qrbill.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
-import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
+import { pdfT, resolveDocLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -66,7 +66,7 @@ Deno.serve(async (req: Request) => {
     // having their own — the layout needs (client block, items table,
     // totals) are identical, only the label/meta line differ, which is
     // handled via docLabel/metaLine below instead of a separate template kind.
-    const locale = resolvePdfLocale(org);
+    const locale = resolveDocLocale(facture, org);
     const template = await resolvePdfTemplate(admin, facture.organization_id, 'devis', facture.template_id);
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org, orgHasCustomization(org), locale);

@@ -106,11 +106,16 @@ export default function FactureDetailScreen() {
     if (f?.organization_id) {
       const { data: org } = await supabase
         .from('organizations')
-        .select('iban, plan_id, facture_email_message')
+        .select('iban, plan_id, facture_email_message, locale')
         .eq('id', f.organization_id)
         .single();
       setOrgIban(org?.iban ?? null);
-      setDefaultEmailMessage(org?.facture_email_message ?? defaultFactureEmailMessage());
+      // The message actually reaching the client should match this facture's
+      // own resolved locale (its override, or else the org's default) — not
+      // necessarily whatever language the sender is currently browsing the
+      // app in — same reasoning as resolveDocLocale server-side.
+      const docLocale = f.locale ?? (org?.locale === 'de' ? 'de' : 'fr');
+      setDefaultEmailMessage(org?.facture_email_message ?? defaultFactureEmailMessage(docLocale));
       if (org?.plan_id) {
         const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
         setPlan(planRow ?? null);
@@ -148,6 +153,23 @@ export default function FactureDetailScreen() {
     await Clipboard.setStringAsync(publicFactureUrl(facture.public_token));
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
+  }
+
+  // Per-document override of the org's default document locale (see
+  // compte/entreprise.tsx's own fr/de picker) — for the occasional client who
+  // needs this one facture in the other language without changing the whole
+  // org's default. null clears the override back to "inherit the org's".
+  async function handleSetDocLocale(locale: 'fr' | 'de' | null) {
+    if (!facture) return;
+    const { error: updateError } = await supabase.from('factures').update({ locale }).eq('id', facture.id);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    // Reload rather than patch local state in place — defaultEmailMessage
+    // (the compose modal's prefill) is derived from the facture's locale at
+    // load time and needs to be recomputed too, not just `facture` itself.
+    await load();
   }
 
   function handleOpenEmailModal() {
@@ -513,6 +535,25 @@ export default function FactureDetailScreen() {
               {t('factureDetail.emailPaidPlanOnly')}
             </Text>
           ) : null}
+          {plan?.has_document_locale_override ? (
+            <View style={styles.docLocaleBlock}>
+              <Text style={styles.docLocaleLabel}>{t('factureDetail.documentLocaleLabel')}</Text>
+              <Text style={styles.copyLinkHint}>{t('factureDetail.documentLocaleHint')}</Text>
+              <View style={styles.docLocaleChips}>
+                {([null, 'fr', 'de'] as const).map((loc) => (
+                  <Pressable
+                    key={loc ?? 'auto'}
+                    onPress={() => handleSetDocLocale(loc)}
+                    style={[styles.docLocaleChip, facture.locale === loc && styles.docLocaleChipActive]}
+                  >
+                    <Text style={[styles.docLocaleChipText, facture.locale === loc && styles.docLocaleChipTextActive]}>
+                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('factureDetail.documentLocaleAuto')}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : null}
         </Card>
 
         {paymentRef ? (
@@ -781,6 +822,42 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.md,
+  },
+  docLocaleBlock: {
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  docLocaleLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  docLocaleChips: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  docLocaleChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  docLocaleChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  docLocaleChipText: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+  },
+  docLocaleChipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: fontSize.lg,

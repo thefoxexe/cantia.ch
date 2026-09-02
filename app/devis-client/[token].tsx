@@ -59,7 +59,7 @@ export default function PublicDevisScreen() {
       if (data) {
         setSession(sessionParam);
         setPayload(data);
-        applyClientPortalLocale(data.organization.locale);
+        applyClientPortalLocale(data.devis.locale ?? data.organization.locale);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,7 +126,7 @@ export default function PublicDevisScreen() {
     }
     setSession(newSession);
     setPayload(data);
-    applyClientPortalLocale(data.organization.locale);
+    applyClientPortalLocale(data.devis.locale ?? data.organization.locale);
   }
 
   async function handlePickPhoto() {

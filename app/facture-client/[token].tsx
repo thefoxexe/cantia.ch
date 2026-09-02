@@ -57,7 +57,7 @@ export default function PublicFactureScreen() {
       if (data) {
         setSession(sessionParam);
         setPayload(data);
-        applyClientPortalLocale(data.organization.locale);
+        applyClientPortalLocale(data.facture.locale ?? data.organization.locale);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,7 +114,7 @@ export default function PublicFactureScreen() {
     }
     setSession(newSession);
     setPayload(data);
-    applyClientPortalLocale(data.organization.locale);
+    applyClientPortalLocale(data.facture.locale ?? data.organization.locale);
   }
 
   if (!payload) {

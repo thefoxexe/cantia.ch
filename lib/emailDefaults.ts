@@ -17,24 +17,32 @@ function withClientToken(text: string): string {
   return text.replace('__CLIENT__', '{{client}}');
 }
 
-export function defaultDevisEmailMessage(): string {
-  return withClientToken(i18next.t('emailDefaults.devisMessage'));
+// `locale` lets a caller render the default in a specific language rather
+// than the member's own current UI language — used when prefilling a
+// per-send compose modal for a devis/facture/extra-work that has its own
+// locale override (see devis/[id].tsx, factures/[id].tsx): the message that
+// actually reaches the client should match the document, not necessarily
+// whatever language the sender happens to be browsing the app in right now.
+// Compte → E-mails (editing the org-wide saved template) omits it and keeps
+// using the member's current language, which is correct there.
+export function defaultDevisEmailMessage(locale?: 'fr' | 'de'): string {
+  return withClientToken(i18next.t('emailDefaults.devisMessage', locale ? { lng: locale } : undefined));
 }
 
-export function defaultFactureEmailMessage(): string {
-  return withClientToken(i18next.t('emailDefaults.factureMessage'));
+export function defaultFactureEmailMessage(locale?: 'fr' | 'de'): string {
+  return withClientToken(i18next.t('emailDefaults.factureMessage', locale ? { lng: locale } : undefined));
 }
 
-export function defaultExtraWorkEmailMessage(): string {
-  return withClientToken(i18next.t('emailDefaults.extraWorkMessage'));
+export function defaultExtraWorkEmailMessage(locale?: 'fr' | 'de'): string {
+  return withClientToken(i18next.t('emailDefaults.extraWorkMessage', locale ? { lng: locale } : undefined));
 }
 
-export function defaultFactureReminderMessageUpcoming(): string {
-  return withClientToken(i18next.t('emailDefaults.reminderUpcoming'));
+export function defaultFactureReminderMessageUpcoming(locale?: 'fr' | 'de'): string {
+  return withClientToken(i18next.t('emailDefaults.reminderUpcoming', locale ? { lng: locale } : undefined));
 }
 
-export function defaultFactureReminderMessageOverdue(): string {
-  return withClientToken(i18next.t('emailDefaults.reminderOverdue'));
+export function defaultFactureReminderMessageOverdue(locale?: 'fr' | 'de'): string {
+  return withClientToken(i18next.t('emailDefaults.reminderOverdue', locale ? { lng: locale } : undefined));
 }
 
 // Signature default needs the org's own name, so it's built at call sites

@@ -11,7 +11,7 @@ import {
   resolvePdfTemplate,
 } from '../_shared/pdf-helpers.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
-import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
+import { pdfT, resolveDocLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
       if (decoded) clientSignatureImg = await embedImageSmart(pdfDoc, decoded.bytes, decoded.contentType);
     }
 
-    const locale = resolvePdfLocale(org);
+    const locale = resolveDocLocale(devis, org);
     const signatureLabel = creator?.full_name
       ? pdfT(locale, 'signatureOf', { name: creator.full_name })
       : pdfT(locale, 'signature');

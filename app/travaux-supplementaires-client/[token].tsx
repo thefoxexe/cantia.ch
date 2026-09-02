@@ -50,7 +50,7 @@ export default function PublicExtraWorkScreen() {
       return;
     }
     setPayload(data);
-    applyClientPortalLocale(data.organization.locale);
+    applyClientPortalLocale(data.extra_work.locale ?? data.organization.locale);
   }
 
   async function handlePickPhoto() {

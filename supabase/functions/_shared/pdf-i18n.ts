@@ -11,6 +11,17 @@ export function resolvePdfLocale(org: any): PdfLocale {
   return org?.locale === 'de' ? 'de' : 'fr';
 }
 
+// Per-document override (devis.locale/factures.locale/extra_works.locale,
+// plan-gated — see has_document_locale_override) — set explicitly by
+// whoever created that one document, for the occasional case of a client
+// who needs the other language even though the org otherwise always
+// documents in its own default. Falls back to the org's locale when unset
+// (the normal case), same as resolvePdfLocale alone did before this existed.
+export function resolveDocLocale(doc: any, org: any): PdfLocale {
+  if (doc?.locale === 'de' || doc?.locale === 'fr') return doc.locale;
+  return resolvePdfLocale(org);
+}
+
 const LABELS = {
   devisLabel: { fr: 'Devis', de: 'Angebot' },
   factureLabel: { fr: 'Facture', de: 'Rechnung' },

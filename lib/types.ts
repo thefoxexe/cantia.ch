@@ -56,6 +56,7 @@ export interface Plan {
   max_ai_uses_per_month: number | null;
   stripe_price_id: string | null;
   stripe_price_id_yearly: string | null;
+  has_document_locale_override: boolean;
 }
 
 export interface Organization {
@@ -289,6 +290,10 @@ export interface Devis {
   // function's header comment for why).
   bexio_document_nr: string | null;
   bexio_status_id: number | null;
+  // Per-document override of the org's default document locale (see
+  // organizations.locale) — null inherits the org's setting. Plan-gated,
+  // see Plan.has_document_locale_override.
+  locale: 'fr' | 'de' | null;
   bexio_network_link: string | null;
 }
 
@@ -342,6 +347,7 @@ export interface ExtraWork {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  locale: 'fr' | 'de' | null;
 }
 
 export interface ExtraWorkItem {
@@ -366,6 +372,7 @@ export interface PublicExtraWorkPayload {
     created_at: string;
     client_signed_at: string | null;
     client_signer_name: string | null;
+    locale: 'fr' | 'de' | null;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -397,6 +404,7 @@ export interface Facture {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  locale: 'fr' | 'de' | null;
 }
 
 // Shapes returned by the anonymous public-portal RPCs (get_public_devis,
@@ -442,6 +450,7 @@ export interface PublicDevisPayload {
     client_signed_at: string | null;
     client_signer_name: string | null;
     has_pdf: boolean;
+    locale: 'fr' | 'de' | null;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -462,6 +471,7 @@ export interface PublicFacturePayload {
     paid_at: string | null;
     created_at: string;
     has_pdf: boolean;
+    locale: 'fr' | 'de' | null;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;

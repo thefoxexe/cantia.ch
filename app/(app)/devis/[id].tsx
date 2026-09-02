@@ -180,6 +180,20 @@ export default function DevisDetailScreen() {
     router.replace('/(app)/devis');
   }
 
+  // Per-document override of the org's default document locale (see
+  // compte/entreprise.tsx's own fr/de picker) — for the occasional client who
+  // needs this one devis in the other language without changing the whole
+  // org's default. null clears the override back to "inherit the org's".
+  async function handleSetDocLocale(locale: 'fr' | 'de' | null) {
+    if (!devis) return;
+    const { error: updateError } = await supabase.from('devis').update({ locale }).eq('id', devis.id);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    setDevis({ ...devis, locale });
+  }
+
   // The public link is only ever checkable client-side by the client's own
   // email matching devis.client_email (see accept_public_devis RPC) — so
   // without an email on file, the link would never verify.
@@ -191,7 +205,12 @@ export default function DevisDetailScreen() {
   }
 
   function handleOpenEmailModal() {
-    setEmailMessage(organization?.devis_email_message ?? defaultDevisEmailMessage());
+    // The message actually reaching the client should match this devis's own
+    // resolved locale (its override, or else the org's default) — not
+    // necessarily whatever language the sender is currently browsing the app
+    // in — same reasoning as resolveDocLocale server-side.
+    const docLocale = devis?.locale ?? (organization?.locale === 'de' ? 'de' : 'fr');
+    setEmailMessage(organization?.devis_email_message ?? defaultDevisEmailMessage(docLocale));
     setEmailModalVisible(true);
   }
 
@@ -362,6 +381,25 @@ export default function DevisDetailScreen() {
             <Text style={styles.copyLinkHint}>
               {t('devisDetail.emailPaidPlanOnly')}
             </Text>
+          ) : null}
+          {plan?.has_document_locale_override ? (
+            <View style={styles.docLocaleBlock}>
+              <Text style={styles.docLocaleLabel}>{t('devisDetail.documentLocaleLabel')}</Text>
+              <Text style={styles.copyLinkHint}>{t('devisDetail.documentLocaleHint')}</Text>
+              <View style={styles.docLocaleChips}>
+                {([null, 'fr', 'de'] as const).map((loc) => (
+                  <Pressable
+                    key={loc ?? 'auto'}
+                    onPress={() => handleSetDocLocale(loc)}
+                    style={[styles.docLocaleChip, devis.locale === loc && styles.docLocaleChipActive]}
+                  >
+                    <Text style={[styles.docLocaleChipText, devis.locale === loc && styles.docLocaleChipTextActive]}>
+                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('devisDetail.documentLocaleAuto')}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
           ) : null}
         </Card>
 
@@ -593,6 +631,42 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.md,
+  },
+  docLocaleBlock: {
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  docLocaleLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  docLocaleChips: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  docLocaleChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  docLocaleChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  docLocaleChipText: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+  },
+  docLocaleChipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   signatureCard: {
     marginTop: spacing.md,
