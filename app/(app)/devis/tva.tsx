@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { getVatReport, type VatReport, type VatReportBasis } from '../../../lib/api/factures';
 import { Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 function quarterOf(date: Date): number {
@@ -19,6 +20,7 @@ function quarterBounds(year: number, quarter: number): { start: string; end: str
 }
 
 export default function VatReportScreen() {
+  const { t } = useTranslation();
   const { organization } = useAuth();
   const router = useRouter();
   const now = useMemo(() => new Date(), []);
@@ -62,17 +64,16 @@ export default function VatReportScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
-        <PageHeader title="TVA" backTo="/(app)/devis/factures" />
+        <PageHeader title={t('vatReport.title')} backTo="/(app)/devis/factures" />
         <Text style={styles.pageSubtitle}>
-          Chiffre d'affaires et TVA par taux, pour préparer votre décompte trimestriel. Ceci est un outil d'aide au
-          calcul — pas un décompte AFC pré-rempli, vérifiez toujours avec votre fiduciaire.
+          {t('vatReport.subtitle')}
         </Text>
 
         <View style={styles.periodRow}>
           <Pressable onPress={() => changeQuarter(-1)} hitSlop={8} style={styles.periodArrow}>
             <Feather name="chevron-left" size={18} color={colors.text} />
           </Pressable>
-          <Text style={styles.periodLabel}>T{quarter} {year}</Text>
+          <Text style={styles.periodLabel}>{t('vatReport.quarterLabel', { quarter, year })}</Text>
           <Pressable onPress={() => changeQuarter(1)} hitSlop={8} style={styles.periodArrow}>
             <Feather name="chevron-right" size={18} color={colors.text} />
           </Pressable>
@@ -80,23 +81,21 @@ export default function VatReportScreen() {
 
         <View style={styles.basisRow}>
           <Pressable onPress={() => setBasis('invoiced')} style={[styles.basisChip, basis === 'invoiced' && styles.basisChipActive]}>
-            <Text style={[styles.basisChipText, basis === 'invoiced' && styles.basisChipTextActive]}>Facturé (contre-prestations convenues)</Text>
+            <Text style={[styles.basisChipText, basis === 'invoiced' && styles.basisChipTextActive]}>{t('vatReport.basisInvoiced')}</Text>
           </Pressable>
           <Pressable onPress={() => setBasis('collected')} style={[styles.basisChip, basis === 'collected' && styles.basisChipActive]}>
-            <Text style={[styles.basisChipText, basis === 'collected' && styles.basisChipTextActive]}>Encaissé (contre-prestations reçues)</Text>
+            <Text style={[styles.basisChipText, basis === 'collected' && styles.basisChipTextActive]}>{t('vatReport.basisCollected')}</Text>
           </Pressable>
         </View>
         <Text style={styles.basisHint}>
-          {basis === 'invoiced'
-            ? "Méthode par défaut de l'AFC : compte les factures émises dans la période, payées ou non."
-            : "Méthode sur autorisation de l'AFC : compte les paiements effectivement reçus dans la période."}
+          {basis === 'invoiced' ? t('vatReport.basisHintInvoiced') : t('vatReport.basisHintCollected')}
         </Text>
 
         {loading ? (
           <LoadingScreen />
         ) : !report || report.rows.length === 0 ? (
           <Card style={{ marginTop: spacing.lg }}>
-            <EmptyState title="Aucun chiffre d'affaires" subtitle="Rien à déclarer pour cette période avec cette méthode." />
+            <EmptyState title={t('vatReport.emptyTitle')} subtitle={t('vatReport.emptySubtitle')} />
           </Card>
         ) : (
           <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
@@ -106,11 +105,11 @@ export default function VatReportScreen() {
                   <Text style={styles.rateBadgeText}>{row.vatRate}%</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.rateLabel}>CA HT au taux de {row.vatRate}%</Text>
+                  <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
                   <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.rateLabel}>TVA due</Text>
+                  <Text style={styles.rateLabel}>{t('vatReport.vatDue')}</Text>
                   <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
                 </View>
               </Card>
@@ -118,15 +117,15 @@ export default function VatReportScreen() {
 
             <Card style={styles.totalCard}>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Total CA HT</Text>
+                <Text style={styles.totalLabel}>{t('vatReport.totalTurnover')}</Text>
                 <Text style={styles.totalValue}>CHF {report.totalExclVat.toFixed(2)}</Text>
               </View>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Total TVA due</Text>
+                <Text style={styles.totalLabel}>{t('vatReport.totalVatDue')}</Text>
                 <Text style={styles.totalValue}>CHF {report.totalVat.toFixed(2)}</Text>
               </View>
               <View style={[styles.totalRow, styles.totalRowFinal]}>
-                <Text style={styles.totalLabelFinal}>Total TTC</Text>
+                <Text style={styles.totalLabelFinal}>{t('vatReport.totalInclVat')}</Text>
                 <Text style={styles.totalValueFinal}>CHF {report.totalInclVat.toFixed(2)}</Text>
               </View>
             </Card>

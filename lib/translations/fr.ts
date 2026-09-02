@@ -1529,6 +1529,22 @@ export const fr = {
     deleteConfirmTitle: 'Supprimer cette trame ?',
     deleteConfirmBody: '"{{name}}" sera définitivement supprimée.',
   },
+  vatReport: {
+    title: 'TVA',
+    subtitle: "Chiffre d'affaires et TVA par taux, pour préparer votre décompte trimestriel. Ceci est un outil d'aide au calcul — pas un décompte AFC pré-rempli, vérifiez toujours avec votre fiduciaire.",
+    quarterLabel: 'T{{quarter}} {{year}}',
+    basisInvoiced: 'Facturé (contre-prestations convenues)',
+    basisCollected: 'Encaissé (contre-prestations reçues)',
+    basisHintInvoiced: "Méthode par défaut de l'AFC : compte les factures émises dans la période, payées ou non.",
+    basisHintCollected: "Méthode sur autorisation de l'AFC : compte les paiements effectivement reçus dans la période.",
+    emptyTitle: "Aucun chiffre d'affaires",
+    emptySubtitle: 'Rien à déclarer pour cette période avec cette méthode.',
+    turnoverAtRate: 'CA HT au taux de {{rate}}%',
+    vatDue: 'TVA due',
+    totalTurnover: 'Total CA HT',
+    totalVatDue: 'Total TVA due',
+    totalInclVat: 'Total TTC',
+  },
 };
 
 export type TranslationDict = typeof fr;
