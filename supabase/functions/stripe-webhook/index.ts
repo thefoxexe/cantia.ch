@@ -33,6 +33,10 @@ Deno.serve(async (req: Request) => {
         const organizationId = session.metadata?.organization_id ?? session.client_reference_id;
         const planId = session.metadata?.plan_id;
         if (organizationId && session.subscription) {
+          // This is the only place plan_id/plan_selected get set for a new
+          // organization — both are service-role-only (see the 20260902070000
+          // migration) precisely so a client can't grant itself access before
+          // Stripe actually confirms the checkout.
           await admin
             .from('organizations')
             .update({
@@ -40,6 +44,7 @@ Deno.serve(async (req: Request) => {
               stripe_customer_id: String(session.customer),
               plan_id: planId ?? undefined,
               subscription_status: 'active',
+              plan_selected: true,
             })
             .eq('id', organizationId);
         }
@@ -60,12 +65,17 @@ Deno.serve(async (req: Request) => {
               .maybeSingle();
             if (plan) planId = plan.id;
           }
+          // The real trial end, straight from Stripe, replaces the old
+          // naive "+14 days from org creation" default — reflects any
+          // Stripe-side adjustment and stays null once the trial's over.
+          const trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null;
           await admin
             .from('organizations')
             .update({
               stripe_subscription_id: subscription.id,
               plan_id: planId ?? undefined,
               subscription_status: subscription.status,
+              trial_ends_at: trialEndsAt,
             })
             .eq('id', organizationId);
         }
@@ -75,15 +85,15 @@ Deno.serve(async (req: Request) => {
         const subscription = event.data.object as Stripe.Subscription;
         const organizationId = subscription.metadata?.organization_id;
         if (organizationId) {
-          // No free plan to fall back to — cancelling locks the org out
-          // (plan_selected = false forces the choose-plan.tsx redirect
-          // already wired in app/_layout.tsx) instead of quietly degrading
-          // to free features forever. plan_id is left as-is; it's dead
-          // once plan_selected is false, and gets overwritten for real the
-          // moment they pick a plan again.
+          // No free plan to fall back to — cancelling locks the org out.
+          // plan_id is cleared (not just plan_selected) so app/_layout.tsx's
+          // gate, which now checks plan_id directly, sends them straight
+          // back to choose-plan instead of leaving a stale plan_id that
+          // reads as "on a real plan" anywhere that inspects it directly.
           await admin
             .from('organizations')
             .update({
+              plan_id: null,
               plan_selected: false,
               stripe_subscription_id: null,
               subscription_status: 'canceled',

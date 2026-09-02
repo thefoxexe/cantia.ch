@@ -89,9 +89,12 @@ export interface Organization {
   facture_reminder_message_upcoming: string | null;
   facture_reminder_message_overdue: string | null;
   email_signature: string | null;
-  plan_id: string;
-  // Only set while plan_id = 'decouverte' (the 14-day trial) — a scheduled
-  // job drops the org back to 'free' and clears this once it passes.
+  // Null until stripe-webhook confirms a real Checkout — see
+  // app/_layout.tsx's redirect-to-choose-plan gate, which checks this
+  // directly. Only ever written by the webhook (service-role-only column).
+  plan_id: string | null;
+  // The trial end Stripe itself reports on the subscription, mirrored here
+  // by stripe-webhook — null once there's no trial (or no subscription).
   trial_ends_at: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -825,8 +828,10 @@ export interface AdminAuditLog {
 export interface AdminOrganizationSummary {
   id: string;
   name: string;
-  plan_id: string;
-  plan_name: string;
+  // Both null for an organization that never completed Stripe Checkout —
+  // see admin_list_organizations' left join.
+  plan_id: string | null;
+  plan_name: string | null;
   subscription_status: string | null;
   trial_ends_at: string | null;
   plan_selected: boolean;

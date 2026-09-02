@@ -36,9 +36,11 @@ export default function ChoosePlanScreen() {
     setError(null);
     setBusyPlan(planId);
 
-    // Fetch the Stripe URL before touching plan_selected: flipping that
-    // flag first triggers the root layout's redirect away from this screen,
-    // which raced the checkout request and left Stripe's tab never opened.
+    // Nothing is written to the organization here — plan_id/plan_selected
+    // only become real once stripe-webhook sees a completed Checkout
+    // Session (see app/_layout.tsx's gate). Setting plan_selected
+    // optimistically at this point used to let someone reach the app
+    // without ever finishing (or even opening) the Stripe checkout tab.
     // The 14-day trial is automatic server-side (stripe-checkout grants it
     // once per org) — no promo code needed here.
     const { url, error: err } = await startCheckout(planId, billingInterval);
@@ -47,11 +49,6 @@ export default function ChoosePlanScreen() {
       setError(err ?? t('authChoosePlan.checkoutStartError'));
       return;
     }
-
-    // The choice is locked in the moment you pick a plan — you can always
-    // upgrade, downgrade or cancel later from Facturation, but this gate
-    // only ever needs to be crossed once.
-    await supabase.from('organizations').update({ plan_selected: true }).eq('id', organization.id);
 
     if (Platform.OS === 'web') {
       // Leaving the SPA for Stripe entirely — no need to refresh local state

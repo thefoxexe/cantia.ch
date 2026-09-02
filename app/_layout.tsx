@@ -91,7 +91,13 @@ function RootNavigation() {
       return;
     }
 
-    if (session && organization && !organization.plan_selected) {
+    // plan_id is only ever set by stripe-webhook once a real Stripe Checkout
+    // completes (see supabase/functions/stripe-webhook) — gating on it
+    // directly, rather than the plan_selected flag, means there's no way to
+    // reach the app without a confirmed subscription: plan_selected used to
+    // be set client-side the moment a plan was picked, before Stripe was
+    // ever actually contacted.
+    if (session && organization && !organization.plan_id) {
       if (subroute !== 'choose-plan') router.replace('/(auth)/choose-plan');
     } else if (session && organization) {
       if (inAuthGroup || isLanding) router.replace('/(app)');
