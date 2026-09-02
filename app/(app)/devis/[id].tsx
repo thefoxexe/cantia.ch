@@ -9,6 +9,7 @@ import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
 import { duplicateDevis, sendDevisEmail } from '../../../lib/api/devis';
+import { translateEmailMessage } from '../../../lib/api/ai';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
@@ -57,6 +58,8 @@ export default function DevisDetailScreen() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
+  const [translatingMessage, setTranslatingMessage] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
   const [bexioConnected, setBexioConnected] = useState(false);
   const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
   const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
@@ -211,7 +214,28 @@ export default function DevisDetailScreen() {
     // in — same reasoning as resolveDocLocale server-side.
     const docLocale = devis?.locale ?? (organization?.locale === 'de' ? 'de' : 'fr');
     setEmailMessage(organization?.devis_email_message ?? defaultDevisEmailMessage(docLocale));
+    setTranslateError(null);
     setEmailModalVisible(true);
+  }
+
+  // Translates the current message text into this devis's own resolved
+  // locale — for when it doesn't match (e.g. an org-saved French default
+  // message being sent alongside a devis whose own override is German, see
+  // screenshot feedback: the compose modal's chrome was German but the
+  // prefilled message stayed French since a saved custom message is never
+  // auto-translated, only the generic default is locale-aware).
+  async function handleTranslateMessage() {
+    if (!organization || !emailMessage.trim() || translatingMessage) return;
+    const docLocale = devis?.locale ?? (organization.locale === 'de' ? 'de' : 'fr');
+    setTranslatingMessage(true);
+    setTranslateError(null);
+    const { text, error: translateErr } = await translateEmailMessage(organization.id, emailMessage, docLocale);
+    setTranslatingMessage(false);
+    if (translateErr || !text) {
+      setTranslateError(translateErr ?? t('devisDetail.translateFailed'));
+      return;
+    }
+    setEmailMessage(text);
   }
 
   async function handleConfirmSendEmail() {
@@ -557,6 +581,17 @@ export default function DevisDetailScreen() {
               numberOfLines={4}
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
             />
+            <Pressable onPress={handleTranslateMessage} disabled={translatingMessage} style={styles.translateLink}>
+              <Feather name="globe" size={13} color={colors.primary} />
+              <Text style={styles.translateLinkText}>
+                {translatingMessage
+                  ? t('devisDetail.translating')
+                  : t('devisDetail.translateToLang', {
+                      lang: (devis?.locale ?? (organization?.locale === 'de' ? 'de' : 'fr')) === 'de' ? t('entreprise.localeDe') : t('entreprise.localeFr'),
+                    })}
+              </Text>
+            </Pressable>
+            {translateError ? <Text style={styles.error}>{translateError}</Text> : null}
             <Text style={styles.lockedNoticeText}>
               {t('devisDetail.lockedNoticeText')}
             </Text>
@@ -631,6 +666,17 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.md,
+  },
+  translateLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  translateLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
   },
   docLocaleBlock: {
     marginTop: spacing.lg,

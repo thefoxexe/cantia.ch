@@ -18,6 +18,7 @@ import {
   recomputeFactureDepositDeduction,
   sendFactureEmail,
 } from '../../../../lib/api/factures';
+import { translateEmailMessage } from '../../../../lib/api/ai';
 import { confirm } from '../../../../lib/confirm';
 import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
 import { Button, Card, Container, Field, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
@@ -84,6 +85,9 @@ export default function FactureDetailScreen() {
   const [pushingBexio, setPushingBexio] = useState(false);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
+  const [orgLocale, setOrgLocale] = useState<'fr' | 'de'>('fr');
+  const [translatingMessage, setTranslatingMessage] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -114,7 +118,9 @@ export default function FactureDetailScreen() {
       // own resolved locale (its override, or else the org's default) — not
       // necessarily whatever language the sender is currently browsing the
       // app in — same reasoning as resolveDocLocale server-side.
-      const docLocale = f.locale ?? (org?.locale === 'de' ? 'de' : 'fr');
+      const resolvedOrgLocale: 'fr' | 'de' = org?.locale === 'de' ? 'de' : 'fr';
+      setOrgLocale(resolvedOrgLocale);
+      const docLocale = f.locale ?? resolvedOrgLocale;
       setDefaultEmailMessage(org?.facture_email_message ?? defaultFactureEmailMessage(docLocale));
       if (org?.plan_id) {
         const { data: planRow } = await supabase.from('plans').select('*').eq('id', org.plan_id).single();
@@ -174,7 +180,25 @@ export default function FactureDetailScreen() {
 
   function handleOpenEmailModal() {
     setEmailMessage(defaultEmailMessage);
+    setTranslateError(null);
     setEmailModalVisible(true);
+  }
+
+  // Translates the current message text into this facture's own resolved
+  // locale — for when it doesn't match (e.g. an org-saved French default
+  // message being sent alongside a facture whose own override is German).
+  async function handleTranslateMessage() {
+    if (!facture || !emailMessage.trim() || translatingMessage) return;
+    const docLocale = facture.locale ?? orgLocale;
+    setTranslatingMessage(true);
+    setTranslateError(null);
+    const { text, error: translateErr } = await translateEmailMessage(facture.organization_id, emailMessage, docLocale);
+    setTranslatingMessage(false);
+    if (translateErr || !text) {
+      setTranslateError(translateErr ?? t('factureDetail.translateFailed'));
+      return;
+    }
+    setEmailMessage(text);
   }
 
   async function handleSendEmail() {
@@ -733,6 +757,17 @@ export default function FactureDetailScreen() {
               numberOfLines={4}
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
             />
+            <Pressable onPress={handleTranslateMessage} disabled={translatingMessage} style={styles.translateLink}>
+              <Feather name="globe" size={13} color={colors.primary} />
+              <Text style={styles.translateLinkText}>
+                {translatingMessage
+                  ? t('factureDetail.translating')
+                  : t('factureDetail.translateToLang', {
+                      lang: (facture?.locale ?? orgLocale) === 'de' ? t('entreprise.localeDe') : t('entreprise.localeFr'),
+                    })}
+              </Text>
+            </Pressable>
+            {translateError ? <Text style={styles.error}>{translateError}</Text> : null}
             <Text style={styles.lockedNoticeText}>
               {t('factureDetail.lockedNoticeText')}
             </Text>
@@ -822,6 +857,17 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.md,
+  },
+  translateLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  translateLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
   },
   docLocaleBlock: {
     marginTop: spacing.lg,
