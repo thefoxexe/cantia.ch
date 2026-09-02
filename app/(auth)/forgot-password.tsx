@@ -3,9 +3,11 @@ import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, Vi
 import { Link } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { Button, Field, Screen } from '../../components/ui';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
 export default function ForgotPasswordScreen() {
+  const { t } = useTranslation();
   const { resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -32,30 +34,29 @@ export default function ForgotPasswordScreen() {
           {sent ? (
             <>
               <Text style={styles.subtitle}>
-                Si un compte existe pour {email.trim()}, un e-mail vient d'être envoyé avec un lien pour choisir un
-                nouveau mot de passe.
+                {t('authForgotPassword.sentText', { email: email.trim() })}
               </Text>
               <Link href="/(auth)/login" style={styles.link}>
-                <Text style={styles.linkText}>Retour à la connexion</Text>
+                <Text style={styles.linkText}>{t('authForgotPassword.backToLogin')}</Text>
               </Link>
             </>
           ) : (
             <>
-              <Text style={styles.subtitle}>Recevez un lien par e-mail pour choisir un nouveau mot de passe.</Text>
+              <Text style={styles.subtitle}>{t('authForgotPassword.subtitle')}</Text>
               <View style={styles.form}>
                 <Field
-                  label="E-mail"
+                  label={t('authForgotPassword.emailLabel')}
                   autoCapitalize="none"
                   keyboardType="email-address"
                   value={email}
                   onChangeText={setEmail}
-                  placeholder="vous@entreprise.ch"
+                  placeholder={t('authForgotPassword.emailPlaceholder')}
                 />
                 {error ? <Text style={styles.error}>{error}</Text> : null}
-                <Button title="Envoyer le lien" onPress={handleSubmit} loading={loading} disabled={!email.trim()} />
+                <Button title={t('authForgotPassword.submit')} onPress={handleSubmit} loading={loading} disabled={!email.trim()} />
               </View>
               <Link href="/(auth)/login" style={styles.link}>
-                <Text style={styles.linkText}>Retour à la connexion</Text>
+                <Text style={styles.linkText}>{t('authForgotPassword.backToLogin')}</Text>
               </Link>
             </>
           )}

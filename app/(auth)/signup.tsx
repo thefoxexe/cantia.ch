@@ -5,9 +5,11 @@ import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
 import { Button, Field, Screen } from '../../components/ui';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
 export default function SignupScreen() {
+  const { t } = useTranslation();
   const { signUp } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,11 +21,11 @@ export default function SignupScreen() {
   async function handleSubmit() {
     setError(null);
     if (!fullName.trim()) {
-      setError('Votre nom est requis.');
+      setError(t('authSignup.nameRequired'));
       return;
     }
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      setError(t('authSignup.passwordTooShort'));
       return;
     }
     setLoading(true);
@@ -44,8 +46,8 @@ export default function SignupScreen() {
         <View style={styles.container}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
-          <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>Compte créé.</Text>
-          <Button title="Continuer" onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
+          <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>{t('authSignup.accountCreated')}</Text>
+          <Button title={t('authSignup.continueBtn')} onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
         </View>
       </Screen>
     );
@@ -57,38 +59,38 @@ export default function SignupScreen() {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
-          <Text style={styles.subtitle}>Créez votre compte</Text>
+          <Text style={styles.subtitle}>{t('authSignup.subtitle')}</Text>
 
           <View style={styles.form}>
             <Field
-              label="Nom complet"
+              label={t('authSignup.nameLabel')}
               value={fullName}
               onChangeText={setFullName}
-              placeholder="Ex : Jean Dupont"
+              placeholder={t('authSignup.namePlaceholder')}
               autoCapitalize="words"
             />
             <Field
-              label="E-mail"
+              label={t('authSignup.emailLabel')}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
-              placeholder="vous@entreprise.ch"
+              placeholder={t('authSignup.emailPlaceholder')}
             />
             <Field
-              label="Mot de passe"
+              label={t('authSignup.passwordLabel')}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
-              placeholder="Au moins 6 caractères"
+              placeholder={t('authSignup.passwordPlaceholderMin')}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button title="Créer mon compte" onPress={handleSubmit} loading={loading} />
+            <Button title={t('authSignup.submit')} onPress={handleSubmit} loading={loading} />
           </View>
 
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={styles.dividerText}>{t('authSignup.or')}</Text>
             <View style={styles.dividerLine} />
           </View>
           <View style={{ gap: spacing.sm }}>
@@ -97,7 +99,7 @@ export default function SignupScreen() {
           </View>
 
           <Link href="/(auth)/login" style={styles.link}>
-            <Text style={styles.linkText}>Déjà un compte ? Se connecter</Text>
+            <Text style={styles.linkText}>{t('authSignup.haveAccount')}</Text>
           </Link>
         </ScrollView>
       </KeyboardAvoidingView>

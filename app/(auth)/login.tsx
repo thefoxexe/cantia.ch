@@ -5,9 +5,11 @@ import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
 import { Button, Field, Screen } from '../../components/ui';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,34 +38,34 @@ export default function LoginScreen() {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
-          <Text style={styles.subtitle}>La plateforme des artisans et entreprises du bâtiment</Text>
+          <Text style={styles.subtitle}>{t('authLogin.subtitle')}</Text>
 
           <View style={styles.form}>
             <Field
-              label="E-mail"
+              label={t('authLogin.emailLabel')}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
-              placeholder="vous@entreprise.ch"
+              placeholder={t('authLogin.emailPlaceholder')}
             />
             <Field
-              label="Mot de passe"
+              label={t('authLogin.passwordLabel')}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
-              placeholder="••••••••"
+              placeholder={t('authLogin.passwordPlaceholder')}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button title="Se connecter" onPress={handleSubmit} loading={loading} />
+            <Button title={t('authLogin.submit')} onPress={handleSubmit} loading={loading} />
             <Link href="/(auth)/forgot-password" style={styles.forgotLink}>
-              <Text style={styles.linkText}>Mot de passe oublié ?</Text>
+              <Text style={styles.linkText}>{t('authLogin.forgotPassword')}</Text>
             </Link>
           </View>
 
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={styles.dividerText}>{t('authLogin.or')}</Text>
             <View style={styles.dividerLine} />
           </View>
           <View style={{ gap: spacing.sm }}>
@@ -72,7 +74,7 @@ export default function LoginScreen() {
           </View>
 
           <Link href="/(auth)/signup" style={styles.link}>
-            <Text style={styles.linkText}>Pas encore de compte ? Créer un compte</Text>
+            <Text style={styles.linkText}>{t('authLogin.noAccount')}</Text>
           </Link>
         </ScrollView>
       </KeyboardAvoidingView>

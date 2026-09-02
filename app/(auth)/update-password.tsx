@@ -3,6 +3,7 @@ import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } f
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { Button, Field, Screen } from '../../components/ui';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
 // Only reachable via the "mot de passe oublié" e-mail link — the root
@@ -10,6 +11,7 @@ import { colors, fontSize, spacing } from '../../lib/theme';
 // (see app/_layout.tsx) and updatePassword() clears that flag on success,
 // letting the normal session-based redirect take over right after.
 export default function UpdatePasswordScreen() {
+  const { t } = useTranslation();
   const { updatePassword } = useAuth();
   const router = useRouter();
   const [password, setPassword] = useState('');
@@ -20,11 +22,11 @@ export default function UpdatePasswordScreen() {
   async function handleSubmit() {
     setError(null);
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      setError(t('authUpdatePassword.passwordTooShort'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Les deux mots de passe ne correspondent pas.');
+      setError(t('authUpdatePassword.passwordMismatch'));
       return;
     }
     setLoading(true);
@@ -43,24 +45,24 @@ export default function UpdatePasswordScreen() {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
-          <Text style={styles.subtitle}>Choisissez un nouveau mot de passe.</Text>
+          <Text style={styles.subtitle}>{t('authUpdatePassword.subtitle')}</Text>
 
           <Field
-            label="Nouveau mot de passe"
+            label={t('authUpdatePassword.newPasswordLabel')}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            placeholder="Au moins 6 caractères"
+            placeholder={t('authUpdatePassword.passwordPlaceholderMin')}
           />
           <Field
-            label="Confirmer le mot de passe"
+            label={t('authUpdatePassword.confirmPasswordLabel')}
             secureTextEntry
             value={confirmPassword}
             onChangeText={setConfirmPassword}
-            placeholder="Au moins 6 caractères"
+            placeholder={t('authUpdatePassword.passwordPlaceholderMin')}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Enregistrer" onPress={handleSubmit} loading={loading} style={{ marginTop: spacing.sm }} />
+          <Button title={t('authUpdatePassword.submit')} onPress={handleSubmit} loading={loading} style={{ marginTop: spacing.sm }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

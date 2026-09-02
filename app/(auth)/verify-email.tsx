@@ -3,6 +3,7 @@ import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, Vi
 import { useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { Button, Field, Screen } from '../../components/ui';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 // Reached two ways: signup.tsx routes here when signUp() comes back with
@@ -12,6 +13,7 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 // success sets a real session, and app/_layout.tsx's own session-driven
 // redirect takes it from there (onboarding or straight into the app).
 export default function VerifyEmailScreen() {
+  const { t } = useTranslation();
   const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
   const { verifySignupCode, resendSignupCode } = useAuth();
   const [email] = useState(emailParam ?? '');
@@ -43,7 +45,7 @@ export default function VerifyEmailScreen() {
       setError(err);
       return;
     }
-    setResendHint('Un nouveau code a été envoyé.');
+    setResendHint(t('authVerifyEmail.resendCodeSent'));
   }
 
   return (
@@ -52,9 +54,9 @@ export default function VerifyEmailScreen() {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
-          <Text style={styles.subtitle}>Confirmez votre adresse e-mail</Text>
+          <Text style={styles.subtitle}>{t('authVerifyEmail.subtitle')}</Text>
           <Text style={styles.hint}>
-            {email ? `Un code a été envoyé à ${email}.` : 'Un code a été envoyé à votre adresse e-mail.'}
+            {email ? t('authVerifyEmail.hintWithEmail', { email }) : t('authVerifyEmail.hintNoEmail')}
           </Text>
 
           <View style={styles.form}>
@@ -63,20 +65,20 @@ export default function VerifyEmailScreen() {
                 whatever length it actually sends rather than assuming 6
                 digits and silently truncating a longer one. */}
             <Field
-              label="Code de vérification"
+              label={t('authVerifyEmail.codeLabel')}
               value={code}
               onChangeText={(v) => setCode(v.replace(/\D/g, ''))}
               keyboardType="number-pad"
-              placeholder="Code reçu par e-mail"
+              placeholder={t('authVerifyEmail.codePlaceholder')}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             {resendHint ? <Text style={styles.success}>{resendHint}</Text> : null}
-            <Button title="Vérifier" onPress={handleVerify} loading={verifying} disabled={!code.trim()} />
+            <Button title={t('authVerifyEmail.submit')} onPress={handleVerify} loading={verifying} disabled={!code.trim()} />
           </View>
 
           <View style={styles.resendRow}>
             <Text onPress={handleResend} style={styles.linkText}>
-              {resending ? 'Envoi…' : 'Renvoyer le code'}
+              {resending ? t('authVerifyEmail.resending') : t('authVerifyEmail.resend')}
             </Text>
           </View>
         </ScrollView>

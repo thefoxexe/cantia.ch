@@ -7,24 +7,12 @@ import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
 import { openCheckoutUrl } from '../../lib/openUrl';
 import { Button, Card, Screen, Switch } from '../../components/ui';
+import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 
-// Presentation-only copy, keyed by plan id — not worth a migration/column
-// for content this is meant to be iterated on freely.
-const PLAN_TAGLINE: Record<string, string> = {
-  solo: 'Pour démarrer seul ou à quelques-uns, sans rien sacrifier sur l\'essentiel.',
-  equipe: 'Pour les équipes qui gèrent chantiers, RH et trésorerie au même endroit.',
-  pro: 'Pour les structures établies qui ont besoin de plus de marge de manœuvre.',
-};
-
-const PLAN_HIGHLIGHTS: Record<string, string[]> = {
-  solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', '2 rôles d\'équipe modifiables', 'IA généreuse (150 usages/mois)'],
-  equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', 'Rôles d\'équipe personnalisés illimités'],
-  pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire', '200 Go de stockage'],
-};
-
 export default function ChoosePlanScreen() {
+  const { t } = useTranslation();
   const { organization, refreshOrganization, isPlatformAdmin } = useAuth();
   const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -56,7 +44,7 @@ export default function ChoosePlanScreen() {
     const { url, error: err } = await startCheckout(planId, billingInterval);
     if (err || !url) {
       setBusyPlan(null);
-      setError(err ?? 'Impossible de démarrer le paiement.');
+      setError(err ?? t('authChoosePlan.checkoutStartError'));
       return;
     }
 
@@ -86,10 +74,9 @@ export default function ChoosePlanScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={styles.title}>Choisissez votre plan</Text>
+          <Text style={styles.title}>{t('authChoosePlan.title')}</Text>
           <Text style={styles.subtitle}>
-            Votre espace <Text style={{ fontWeight: '700', color: colors.text }}>{organization?.name}</Text> est
-            créé. Choisissez la formule qui vous convient pour commencer.
+            {t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
           </Text>
         </View>
 
@@ -98,15 +85,14 @@ export default function ChoosePlanScreen() {
         {isPlatformAdmin ? (
           <Pressable style={styles.adminShortcut} onPress={() => router.replace('/(admin)')}>
             <Feather name="shield" size={16} color={colors.primary} />
-            <Text style={styles.adminShortcutText}>Accéder à l'administration Cantia</Text>
+            <Text style={styles.adminShortcutText}>{t('authChoosePlan.adminAccess')}</Text>
           </Pressable>
         ) : null}
 
         <View style={styles.promoBanner}>
           <Feather name="gift" size={16} color={colors.primary} />
           <Text style={styles.promoBannerText}>
-            14 jours d'essai complet inclus sur chaque plan. Une carte est demandée à l'inscription, mais rien n'est
-            débité avant la fin de l'essai — résiliable à tout moment.
+            {t('authChoosePlan.trialBanner')}
           </Text>
         </View>
 
@@ -115,7 +101,7 @@ export default function ChoosePlanScreen() {
           style={styles.billingToggle}
         >
           <Text style={styles.billingToggleLabel}>
-            {billingInterval === 'year' ? 'Facturation annuelle' : 'Facturation mensuelle'}
+            {billingInterval === 'year' ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}
           </Text>
           <View style={styles.billingToggleSaveBadge}>
             <Text style={styles.billingToggleSaveText}>-20%</Text>
@@ -140,8 +126,8 @@ export default function ChoosePlanScreen() {
         <Pressable style={styles.contactCard} onPress={() => router.push('/sur-mesure')} hitSlop={8}>
           <Feather name="tool" size={16} color={colors.textMuted} />
           <Text style={styles.contactCardText}>
-            Plus de 25 membres, ou un besoin métier bien à vous ?{' '}
-            <Text style={styles.contactCardLink}>Découvrez Sur mesure →</Text>
+            {t('authChoosePlan.contactText')}{' '}
+            <Text style={styles.contactCardLink}>{t('authChoosePlan.contactLink')}</Text>
           </Text>
         </Pressable>
       </ScrollView>
@@ -164,6 +150,9 @@ function PlanCard({
   disabled: boolean;
   onChoose: () => void;
 }) {
+  const { t } = useTranslation();
+  const PLAN_TAGLINE = t('authChoosePlan.planTaglines', { returnObjects: true }) as Record<string, string>;
+  const PLAN_HIGHLIGHTS = t('authChoosePlan.planHighlights', { returnObjects: true }) as Record<string, string[]>;
   const isYearly = billingInterval === 'year';
   // is_contact_only plans are filtered out of the query this screen loads
   // from (self-serve checkout only), so price_chf_monthly is always set here.
@@ -172,27 +161,27 @@ function PlanCard({
     <Card style={[styles.card, highlight && styles.cardHighlight]}>
       {highlight ? (
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>Recommandé</Text>
+          <Text style={styles.badgeText}>{t('authChoosePlan.recommended')}</Text>
         </View>
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
       {PLAN_TAGLINE[plan.id] ? <Text style={styles.tagline}>{PLAN_TAGLINE[plan.id]}</Text> : null}
       <View style={styles.priceRow}>
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
-        <Text style={styles.period}>/mois</Text>
+        <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
       </View>
       {isYearly && plan.price_chf_yearly != null ? (
-        <Text style={styles.yearlyNote}>Facturé CHF {plan.price_chf_yearly.toFixed(2)}/an</Text>
+        <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: plan.price_chf_yearly.toFixed(2) })}</Text>
       ) : null}
       <View style={styles.features}>
-        <Feature text={`${(plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0)} Go de stockage`} />
-        <Feature text={`Jusqu'à ${plan.max_members} membre${plan.max_members > 1 ? 's' : ''}`} />
+        <Feature text={t('authChoosePlan.storageFeature', { gb: (plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0) })} />
+        <Feature text={t('authChoosePlan.membersFeature', { count: plan.max_members })} />
         {(PLAN_HIGHLIGHTS[plan.id] ?? []).map((text) => (
           <Feature key={text} text={text} />
         ))}
       </View>
       <Button
-        title={`Choisir ${plan.name}`}
+        title={t('authChoosePlan.choosePlanBtn', { name: plan.name })}
         onPress={onChoose}
         loading={loading}
         disabled={disabled && !loading}
