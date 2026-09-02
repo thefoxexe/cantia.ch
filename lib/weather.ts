@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { i18next } from './translations';
 
 // Open-Meteo: free, keyless, no quota to manage — geocoding resolves the
 // org's town to coordinates once, cached locally, then the forecast API is
@@ -18,38 +19,43 @@ interface GeocodeResult {
 }
 
 // WMO weather codes (used by Open-Meteo) collapsed into the handful of
-// states worth showing on a dashboard glance, in French.
-const WEATHER_CODE_MAP: Record<number, { label: string; icon: 'sun' | 'cloud' | 'cloud-drizzle' | 'cloud-rain' | 'cloud-snow' | 'cloud-lightning' }> = {
-  0: { label: 'Ciel dégagé', icon: 'sun' },
-  1: { label: 'Plutôt dégagé', icon: 'sun' },
-  2: { label: 'Partiellement nuageux', icon: 'cloud' },
-  3: { label: 'Couvert', icon: 'cloud' },
-  45: { label: 'Brouillard', icon: 'cloud' },
-  48: { label: 'Brouillard givrant', icon: 'cloud' },
-  51: { label: 'Bruine légère', icon: 'cloud-drizzle' },
-  53: { label: 'Bruine', icon: 'cloud-drizzle' },
-  55: { label: 'Bruine dense', icon: 'cloud-drizzle' },
-  61: { label: 'Pluie légère', icon: 'cloud-rain' },
-  63: { label: 'Pluie', icon: 'cloud-rain' },
-  65: { label: 'Forte pluie', icon: 'cloud-rain' },
-  66: { label: 'Pluie verglaçante', icon: 'cloud-rain' },
-  67: { label: 'Pluie verglaçante forte', icon: 'cloud-rain' },
-  71: { label: 'Neige légère', icon: 'cloud-snow' },
-  73: { label: 'Neige', icon: 'cloud-snow' },
-  75: { label: 'Forte neige', icon: 'cloud-snow' },
-  77: { label: 'Neige en grains', icon: 'cloud-snow' },
-  80: { label: 'Averses légères', icon: 'cloud-rain' },
-  81: { label: 'Averses', icon: 'cloud-rain' },
-  82: { label: 'Fortes averses', icon: 'cloud-rain' },
-  85: { label: 'Averses de neige', icon: 'cloud-snow' },
-  86: { label: 'Fortes averses de neige', icon: 'cloud-snow' },
-  95: { label: 'Orage', icon: 'cloud-lightning' },
-  96: { label: 'Orage avec grêle', icon: 'cloud-lightning' },
-  99: { label: 'Orage violent avec grêle', icon: 'cloud-lightning' },
+// states worth showing on a dashboard glance. Labels are translated
+// (weather.code<N> in lib/translations/{fr,de}.ts) — only the icon mapping
+// lives here.
+const WEATHER_CODE_ICON: Record<number, 'sun' | 'cloud' | 'cloud-drizzle' | 'cloud-rain' | 'cloud-snow' | 'cloud-lightning'> = {
+  0: 'sun',
+  1: 'sun',
+  2: 'cloud',
+  3: 'cloud',
+  45: 'cloud',
+  48: 'cloud',
+  51: 'cloud-drizzle',
+  53: 'cloud-drizzle',
+  55: 'cloud-drizzle',
+  61: 'cloud-rain',
+  63: 'cloud-rain',
+  65: 'cloud-rain',
+  66: 'cloud-rain',
+  67: 'cloud-rain',
+  71: 'cloud-snow',
+  73: 'cloud-snow',
+  75: 'cloud-snow',
+  77: 'cloud-snow',
+  80: 'cloud-rain',
+  81: 'cloud-rain',
+  82: 'cloud-rain',
+  85: 'cloud-snow',
+  86: 'cloud-snow',
+  95: 'cloud-lightning',
+  96: 'cloud-lightning',
+  99: 'cloud-lightning',
 };
 
 export function describeWeatherCode(code: number): { label: string; icon: 'sun' | 'cloud' | 'cloud-drizzle' | 'cloud-rain' | 'cloud-snow' | 'cloud-lightning' } {
-  return WEATHER_CODE_MAP[code] ?? { label: 'Météo', icon: 'cloud' };
+  const icon = WEATHER_CODE_ICON[code] ?? 'cloud';
+  const key = `weather.code${code}`;
+  const label = i18next.exists(key) ? i18next.t(key) : i18next.t('weather.unknown');
+  return { label, icon };
 }
 
 async function geocode(query: string): Promise<GeocodeResult | null> {

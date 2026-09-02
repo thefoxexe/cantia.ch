@@ -1,13 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, usePathname } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-import { authHref } from '../lib/appHost';
+import { authHref, toggleLocalePathname } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
+
+// FR/DE toggle for the marketing site's nav and footer — links to the same
+// page's other-language mirror (toggleLocalePathname), not just the
+// homepage, so switching from a trade or solution page keeps the visitor on
+// that same page. Language names are deliberately not translated (a French
+// reader still expects to see "Deutsch", not "Allemand") — this is the one
+// piece of marketing chrome that stays hardcoded FR/DE either way.
+function LanguageSwitcher({ compact }: { compact?: boolean }) {
+  const pathname = usePathname();
+  const locale = getAppLocale();
+  const frHref = toggleLocalePathname(pathname, 'fr');
+  const deHref = toggleLocalePathname(pathname, 'de');
+  return (
+    <View style={[styles.langSwitcher, compact && styles.langSwitcherCompact]}>
+      <Link href={frHref as any}>
+        <Text style={[styles.langOption, locale === 'fr' && styles.langOptionActive]}>FR</Text>
+      </Link>
+      <Text style={styles.langDivider}>/</Text>
+      <Link href={deHref as any}>
+        <Text style={[styles.langOption, locale === 'de' && styles.langOptionActive]}>DE</Text>
+      </Link>
+    </View>
+  );
+}
 
 // Shared navbar + footer for every marketing page — the single-page index.tsx
 // (which has its own scroll-to-section links) and every static page below it
@@ -18,6 +42,7 @@ export function MarketingNav() {
   const t = useMarketingDict();
   const { t: tr } = useTranslation();
   const locale = getAppLocale();
+  const pathname = usePathname();
   const homeHref = locale === 'de' ? '/de' : '/';
   const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
@@ -62,6 +87,7 @@ export function MarketingNav() {
           <Link href="/aide">
             <Text style={styles.navLink}>{t.nav.help}</Text>
           </Link>
+          <LanguageSwitcher />
           <Link href={authHref('login')}>
             <Text style={styles.navLink}>{t.nav.login}</Text>
           </Link>
@@ -117,6 +143,13 @@ export function MarketingNav() {
                 <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="life-buoy" size={18} color={colors.primary} />
                   <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
+                  <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
+                </Pressable>
+              </Link>
+              <Link href={toggleLocalePathname(pathname, locale === 'de' ? 'fr' : 'de') as any} asChild>
+                <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                  <Feather name="globe" size={18} color={colors.primary} />
+                  <Text style={styles.mobileMenuText}>{locale === 'de' ? 'Français' : 'Deutsch'}</Text>
                   <Feather name="chevron-right" size={16} color={colors.textMuted} style={styles.mobileMenuChevron} />
                 </Pressable>
               </Link>
@@ -258,6 +291,7 @@ export function MarketingFooter({
       </View>
       <View style={styles.footerBottom}>
         <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
+        <LanguageSwitcher compact />
         <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
           <Pressable style={styles.footerSocialLink}>
             <Ionicons name="logo-instagram" size={16} color="#E1306C" />
@@ -308,6 +342,27 @@ const styles = StyleSheet.create({
   },
   navCta: {
     paddingHorizontal: spacing.lg,
+  },
+  langSwitcher: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  langSwitcherCompact: {
+    marginLeft: spacing.sm,
+  },
+  langOption: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  langOptionActive: {
+    color: colors.primary,
+  },
+  langDivider: {
+    fontSize: fontSize.sm,
+    color: colors.border,
   },
   hamburgerButton: {
     width: 40,

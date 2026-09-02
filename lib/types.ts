@@ -89,6 +89,10 @@ export interface Organization {
   facture_reminder_message_upcoming: string | null;
   facture_reminder_message_overdue: string | null;
   email_signature: string | null;
+  // The org's own document/client-facing language — devis/facture PDFs and
+  // client-portal links default to this, independent of any individual
+  // member's personal UI locale (organization_members.locale).
+  locale: 'fr' | 'de';
   // Null until stripe-webhook confirms a real Checkout — see
   // app/_layout.tsx's redirect-to-choose-plan gate, which checks this
   // directly. Only ever written by the webhook (service-role-only column).
@@ -416,6 +420,7 @@ export interface PublicPortalOrganization {
   locality: string | null;
   address: string | null;
   ide_number: string | null;
+  locale: 'fr' | 'de';
 }
 
 export interface PublicPortalTotals {
@@ -477,6 +482,7 @@ export interface ClientDocumentSummary {
 
 export interface ClientDocumentsPayload {
   organization_name: string;
+  organization_locale: 'fr' | 'de';
   devis: ClientDocumentSummary[];
   factures: ClientDocumentSummary[];
 }

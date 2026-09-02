@@ -2,8 +2,33 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { portalFonts } from '../lib/clientPortalTheme';
-import { useTranslation } from '../lib/translations';
+import { AVAILABLE_LOCALES, AppLocale, getAppLocale, setClientPortalLocale, useTranslation } from '../lib/translations';
 import { SwissCross } from './SwissCross';
+
+// Session-only override of the org's default document locale (see
+// setClientPortalLocale) — the recipient of a devis/facture link can read it
+// in whichever of the two languages they prefer, independent of what
+// language the org itself issues its documents in (the PDF itself always
+// stays in the org's own locale, generated server-side).
+function LanguageSwitcher() {
+  // useTranslation() subscribes this component to i18next's languageChanged
+  // event (even though `t` itself isn't used below), so pressing the other
+  // pill re-renders it with the new active state.
+  useTranslation();
+  const current = getAppLocale();
+  return (
+    <View style={styles.langSwitcher}>
+      {AVAILABLE_LOCALES.map((loc, i) => (
+        <View key={loc} style={styles.langOptionWrap}>
+          {i > 0 ? <Text style={styles.langDivider}>·</Text> : null}
+          <Pressable onPress={() => setClientPortalLocale(loc as AppLocale)} hitSlop={6}>
+            <Text style={[styles.langOption, current === loc && styles.langOptionActive]}>{loc.toUpperCase()}</Text>
+          </Pressable>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 // Shared brand header for the public client portal pages (devis-client,
 // facture-client) — these are the only screens in the app a non-customer
@@ -21,6 +46,7 @@ export function ClientPortalHeader({ onMenuPress }: { onMenuPress?: () => void }
         <Text style={styles.brandText}>Cantia</Text>
       </View>
       <View style={styles.right}>
+        <LanguageSwitcher />
         <View style={styles.trustChip}>
           <SwissCross size={14} />
           <Text style={styles.trustChipText}>{t('clientPortalHeader.secure')}</Text>
@@ -90,5 +116,30 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  langSwitcher: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  langOptionWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  langDivider: {
+    fontSize: fontSize.xs,
+    color: colors.border,
+  },
+  langOption: {
+    fontFamily: portalFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+  },
+  langOptionActive: {
+    color: colors.primary,
   },
 });

@@ -6,7 +6,7 @@ import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
-import { AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
+import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -158,9 +158,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Fire-and-forget: gets the app into the right language immediately on a
   // repeat visit, before the session/org round-trip below even resolves.
   // loadOrganization() reconciles it against organization_members.locale
-  // (the real source of truth) once that lands.
+  // (the real source of truth) once that lands. applyLocaleFromUrlParam runs
+  // after, so an explicit ?locale=de carried over from the marketing site
+  // (see lib/appHost.ts's authHref) wins over a stale cached guess.
   useEffect(() => {
-    restoreCachedLocale();
+    restoreCachedLocale().then(applyLocaleFromUrlParam);
   }, []);
 
   useEffect(() => {

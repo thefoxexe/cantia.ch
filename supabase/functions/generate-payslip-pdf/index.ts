@@ -14,6 +14,7 @@ import {
   INK,
   MUTED,
 } from '../_shared/pdf-helpers.ts';
+import { pdfMonthLabel, pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -22,11 +23,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-const MONTH_LABELS = [
-  'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-  'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
-];
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -63,7 +59,6 @@ Deno.serve(async (req: Request) => {
     const start = new Date(`${period_start}T00:00:00`);
     const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
     const periodEndIso = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
-    const periodLabel = `${MONTH_LABELS[start.getMonth()]} ${start.getFullYear()}`;
 
     const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }] = await Promise.all([
       admin.from('organizations').select('*').eq('id', organizationId).single(),
@@ -72,6 +67,9 @@ Deno.serve(async (req: Request) => {
       admin.from('payroll_profile_deductions').select('*').eq('organization_id', organizationId).eq('user_id', user_id),
       admin.from('payroll_time_entries').select('hours').eq('organization_id', organizationId).eq('user_id', user_id).gte('entry_date', period_start).lte('entry_date', periodEndIso),
     ]);
+
+    const locale = resolvePdfLocale(org);
+    const periodLabel = `${pdfMonthLabel(locale, start.getMonth())} ${start.getFullYear()}`;
 
     const totalHours = (entries ?? []).reduce((sum: number, e: any) => sum + Number(e.hours), 0);
     const isHourly = profile.salary_type === 'hourly';
@@ -113,7 +111,7 @@ Deno.serve(async (req: Request) => {
       page.drawImage(logoImg, { x: PAGE_WIDTH - MARGIN - w, y: y - h, width: w, height: h });
     }
 
-    drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 12, INK);
+    drawText(page, org?.name ?? pdfT(locale, 'entrepriseFallback'), MARGIN, y, fontBold, 12, INK);
     y -= 16;
     const orgAddress = formatOrgAddress(org);
     if (orgAddress) {
@@ -131,7 +129,7 @@ Deno.serve(async (req: Request) => {
 
     // Recipient block — positioned like a real letter, so the whole page
     // reads correctly through a window envelope if printed and mailed.
-    const employeeName = member?.full_name || 'Employé';
+    const employeeName = member?.full_name || pdfT(locale, 'employeeFallback');
     drawText(page, employeeName, MARGIN, y, font, 10, INK);
     y -= 14;
     if (profile.street) {
@@ -144,12 +142,15 @@ Deno.serve(async (req: Request) => {
     }
 
     const today = new Date();
-    const dateLabel = `${org?.locality ?? ''}${org?.locality ? ', le ' : 'Le '}${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+    const todayStr = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+    const dateLabel = org?.locality
+      ? pdfT(locale, 'dateLabel', { place: org.locality, date: todayStr })
+      : pdfT(locale, 'dateLabelNoPlace', { date: todayStr });
     drawTextRight(page, dateLabel, PAGE_WIDTH - MARGIN, y + 14, font, 9, MUTED);
 
     y -= 30;
 
-    drawText(page, `Décompte de salaire — ${periodLabel}`, MARGIN, y, fontBold, 14, INK);
+    drawText(page, pdfT(locale, 'payslipTitle', { period: periodLabel }), MARGIN, y, fontBold, 14, INK);
     y -= 30;
 
     const rowLabelX = MARGIN;
@@ -164,10 +165,10 @@ Deno.serve(async (req: Request) => {
     }
 
     if (isHourly) {
-      row('Heures effectuées', `${totalHours.toFixed(2).replace(/\.00$/, '')} h`);
-      row('Taux horaire', `${formatChf(Number(profile.hourly_rate_chf ?? 0))} / h`);
+      row(pdfT(locale, 'hoursWorked'), `${totalHours.toFixed(2).replace(/\.00$/, '')} h`);
+      row(pdfT(locale, 'hourlyRate'), `${formatChf(Number(profile.hourly_rate_chf ?? 0))} / h`);
     }
-    row('Salaire brut', formatChf(gross), { bold: true });
+    row(pdfT(locale, 'grossSalary'), formatChf(gross), { bold: true });
 
     y -= 6;
     page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 0.5, color: MUTED });
@@ -182,9 +183,9 @@ Deno.serve(async (req: Request) => {
     page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 0.5, color: MUTED });
     y -= 14;
 
-    row('Salaire net', formatChf(net), { bold: true, size: 13 });
+    row(pdfT(locale, 'netSalary'), formatChf(net), { bold: true, size: 13 });
 
-    drawFooter(page, font, 1, org?.name ?? 'Cantia');
+    drawFooter(page, font, 1, org?.name ?? 'Cantia', locale);
 
     const pdfBytes = await pdfDoc.save();
     const path = `${organizationId}/payslips/${user_id}/${period_start}-${Date.now()}.pdf`;

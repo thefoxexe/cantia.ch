@@ -26,6 +26,7 @@ export default function EntrepriseScreen() {
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
+  const [docLocale, setDocLocale] = useState<'fr' | 'de'>(organization?.locale ?? 'fr');
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function EntrepriseScreen() {
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
     setIban(organization.iban ?? '');
+    setDocLocale(organization.locale ?? 'fr');
   }, [organization]);
 
   useFocusEffect(
@@ -76,6 +78,7 @@ export default function EntrepriseScreen() {
         email: email.trim() || null,
         website: website.trim() || null,
         iban: validIban ? ibanTrimmed.replace(/\s+/g, '').toUpperCase() || null : organization.iban,
+        locale: docLocale,
       })
       .eq('id', organization.id);
     setSaving(false);
@@ -182,6 +185,23 @@ export default function EntrepriseScreen() {
           ) : (
             <Text style={styles.hint}>{t('entreprise.ibanHint')}</Text>
           )}
+          <Text style={styles.sectionTitle}>{t('entreprise.documentLocaleTitle')}</Text>
+          <Text style={styles.hint}>{t('entreprise.documentLocaleHint')}</Text>
+          <View style={styles.chips}>
+            {(['fr', 'de'] as const).map((loc) => (
+              <Pressable
+                key={loc}
+                onPress={() => isAdmin && setDocLocale(loc)}
+                disabled={!isAdmin}
+                style={[styles.chip, docLocale === loc && styles.chipActive, !isAdmin && styles.chipDisabled]}
+              >
+                <Text style={[styles.chipText, docLocale === loc && styles.chipTextActive]}>
+                  {loc === 'fr' ? t('entreprise.localeFr') : t('entreprise.localeDe')}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
           <Text style={styles.sectionTitle}>{t('entreprise.emailsSectionTitle')}</Text>
           <Pressable onPress={() => router.push('/(app)/compte/emails')} style={styles.emailsLink}>
             <Feather name="mail" size={16} color={colors.primary} />

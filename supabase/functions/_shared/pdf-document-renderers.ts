@@ -29,6 +29,7 @@ import {
   swissRound,
   wrapText,
 } from './pdf-helpers.ts';
+import { PdfLocale, pdfT } from './pdf-i18n.ts';
 
 const chf = formatChf;
 
@@ -72,8 +73,10 @@ export interface RenderCtx {
   clientSignerName?: string | null;
   brand: RGB;
   footerText: string | null;
-  docLabel: string; // 'Devis' or 'Facture'
+  docLabel: string; // localized 'Devis'/'Angebot' or 'Facture'/'Rechnung'
+  docKind: 'devis' | 'facture'; // drives which fixed strings drawTerms/renderUnified pick, independent of docLabel's locale
   metaLine: string | null; // e.g. "Échéance : 05.09.2026" or "Payée le 20.08.2026"
+  locale: PdfLocale;
 }
 
 function renderUnified(ctx: RenderCtx): RenderResult {
@@ -93,20 +96,22 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     brand,
     footerText,
     docLabel,
+    docKind,
     metaLine,
+    locale,
   } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
   let pageNum = 1;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
+    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia', locale);
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
   };
 
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 17, brand);
+  drawText(page, org?.name ?? pdfT(locale, 'entrepriseFallback'), MARGIN, y, fontBold, 17, brand);
   y -= 16;
   const orgLine = [formatOrgAddress(org), org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
   if (orgLine) {
@@ -123,7 +128,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   y -= 28;
 
   drawText(page, `${docLabel} ${devis.number ?? ''}`, MARGIN, y, fontBold, 16, brand);
-  drawTextRight(page, formatDate(devis.created_at), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
+  drawTextRight(page, formatDate(devis.created_at, locale), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
   y -= 22;
   if (metaLine) {
     drawTextRight(page, metaLine, PAGE_WIDTH - MARGIN, y, font, 9, MUTED);
@@ -134,9 +139,9 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     devis.client_name,
     devis.client_address,
     devis.client_email,
-    devis.projects?.name ? `Chantier : ${devis.projects.name}` : null,
+    devis.projects?.name ? pdfT(locale, 'project', { name: devis.projects.name }) : null,
   ].filter(Boolean) as string[];
-  drawText(page, 'Client', MARGIN, y, fontBold, 10, MUTED);
+  drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 10, MUTED);
   y -= 14;
   for (const line of clientLines) {
     drawText(page, line, MARGIN, y, font, 10.5, INK);
@@ -158,11 +163,11 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   const colRight = { qty: colX.unit - 10, unit: colX.price - 10, price: colX.total - 10, total: tableRight };
 
   const drawTableHeader = () => {
-    drawText(page, 'Description', colX.desc, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, 'Qté', colRight.qty, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, 'Unité', colRight.unit, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, 'Prix', colRight.price, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, 'Total', colRight.total, y, fontBold, 9.5, MUTED);
+    drawText(page, pdfT(locale, 'description'), colX.desc, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, pdfT(locale, 'quantity'), colRight.qty, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, pdfT(locale, 'unit'), colRight.unit, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, pdfT(locale, 'price'), colRight.price, y, fontBold, 9.5, MUTED);
+    drawTextRight(page, pdfT(locale, 'total'), colRight.total, y, fontBold, 9.5, MUTED);
     y -= 8;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
     y -= 16;
@@ -186,7 +191,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
       y -= 13;
     }
     drawTextRight(page, String(item.quantity), colRight.qty, rowTop, font, 10, INK);
-    drawTextRight(page, item.unit ?? 'pce', colRight.unit, rowTop, font, 10, INK);
+    drawTextRight(page, item.unit ?? pdfT(locale, 'unitFallback'), colRight.unit, rowTop, font, 10, INK);
     drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop, font, 10, INK);
     drawTextRight(page, chf(lineTotal), colRight.total, rowTop, font, 10, INK);
     y -= 6;
@@ -201,14 +206,14 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   const vat = subtotal * (Number(devis.vat_rate) / 100);
   const total = swissRound(subtotal + vat);
 
-  drawTotalsLine(page, font, y, 'Sous-total', chf(subtotal));
+  drawTotalsLine(page, font, y, pdfT(locale, 'subtotal'), chf(subtotal));
   y -= 15;
-  drawTotalsLine(page, font, y, `TVA (${devis.vat_rate}%)`, chf(vat));
+  drawTotalsLine(page, font, y, pdfT(locale, 'vat', { rate: devis.vat_rate }), chf(vat));
   y -= 15;
-  drawTotalsLine(page, fontBold, y, 'Total TTC', chf(total), 12);
+  drawTotalsLine(page, fontBold, y, pdfT(locale, 'totalIncl'), chf(total), 12);
   y -= 30;
 
-  y = drawTerms(page, font, org, y, docLabel);
+  y = drawTerms(page, font, org, y, docKind, locale);
 
   if (showSignatures) {
     const h = 50;
@@ -232,12 +237,16 @@ function renderUnified(ctx: RenderCtx): RenderResult {
       // signature plus the exact moment it was captured, both baked
       // directly into the document instead of a blank line waiting to be
       // signed by hand.
-      const clientLabel = clientSignerName ? `Signé par ${clientSignerName}` : 'Signature client';
+      const clientLabel = clientSignerName
+        ? pdfT(locale, 'signedBy', { name: clientSignerName })
+        : pdfT(locale, 'clientSignature');
       drawText(page, clientLabel, clientX, y, font, 9, MUTED);
       page.drawImage(clientSignatureImg, { x: clientX, y: y - h - 10, width: clientW, height: h });
-      drawText(page, `le ${formatDateTime(clientSignedAt)}`, clientX, y - h - 22, font, 7.5, MUTED);
+      drawText(page, pdfT(locale, 'signedOn', { date: formatDateTime(clientSignedAt, locale) }), clientX, y - h - 22, font, 7.5, MUTED);
     } else {
-      const clientSignatureLabel = devis.client_name ? `Signature ${devis.client_name}` : 'Signature client';
+      const clientSignatureLabel = devis.client_name
+        ? pdfT(locale, 'signatureOf', { name: devis.client_name })
+        : pdfT(locale, 'clientSignature');
       drawText(page, clientSignatureLabel, clientX, y, font, 9, MUTED);
       page.drawLine({ start: { x: clientX, y: y - h - 10 }, end: { x: clientX + clientW, y: y - h - 10 }, thickness: 1, color: LINE });
     }
@@ -263,14 +272,13 @@ function drawTotalsLine(page: PDFPage, font: PDFFont, y: number, label: string, 
 // (byte-identical to the pre-facture behavior). For a facture: a payment
 // reminder instead — the actual due date is already shown as metaLine near
 // the title, this is just the closing courtesy line.
-function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docLabel: string): number {
+function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture', locale: PdfLocale): number {
   const validityDays = org?.devis_validity_days ?? 30;
   const baseText =
-    docLabel !== 'Devis'
-      ? 'Merci de régler cette facture avant l\'échéance indiquée ci-dessus.'
-      : `Devis valable ${validityDays} jours.`;
+    docKind === 'facture' ? pdfT(locale, 'paymentReminder') : pdfT(locale, 'quoteValidity', { days: validityDays });
+  const pricesLine = pdfT(locale, 'pricesInChf');
   const termsLines = wrapText(
-    org?.devis_terms?.trim() ? `${org.devis_terms.trim()} ${baseText} Prix en francs suisses (CHF).` : `${baseText} Prix en francs suisses (CHF).`,
+    org?.devis_terms?.trim() ? `${org.devis_terms.trim()} ${baseText} ${pricesLine}` : `${baseText} ${pricesLine}`,
     font,
     8.5,
     PAGE_WIDTH - 2 * MARGIN,

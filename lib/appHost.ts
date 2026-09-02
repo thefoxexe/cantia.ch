@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { getAppLocale } from './translations';
 
 // The marketing site (cantia.ch) and the authenticated app (app.cantia.ch)
 // are the same Expo Router web build, deployed once and reachable under two
@@ -42,10 +43,28 @@ export function excludeAppHostFromIndexing(): void {
 // Href for the "Se connecter" / "Créer un compte" links on the marketing
 // site: on cantia.ch these must cross over to app.cantia.ch (the browser
 // address bar should end up there); everywhere else, keep the normal
-// same-origin Expo Router path so dev/preview builds keep working.
+// same-origin Expo Router path so dev/preview builds keep working. Carries
+// the current locale as a query param when it's not the default — a real
+// cross-origin navigation loses any in-memory state, so the URL is the only
+// way a visitor reading the German marketing site lands on a German signup
+// screen (see applyLocaleFromUrlParam in lib/translations, which reads this
+// back on the app host).
 export function authHref(kind: 'login' | 'signup'): string {
-  if (isMarketingHost()) return `https://${APP_HOST}/${kind}`;
-  return `/(auth)/${kind}`;
+  const locale = getAppLocale();
+  const query = locale !== 'fr' ? `?locale=${locale}` : '';
+  if (isMarketingHost()) return `https://${APP_HOST}/${kind}${query}`;
+  return `/(auth)/${kind}${query}`;
+}
+
+// Maps the current marketing pathname onto its other-language equivalent —
+// every /de/* route is a straight mirror of its French counterpart at the
+// same path minus the prefix (see app/de/**), so toggling is just adding or
+// stripping "/de" rather than a per-page lookup table.
+export function toggleLocalePathname(pathname: string, targetLocale: 'fr' | 'de'): string {
+  const isDe = pathname === '/de' || pathname.startsWith('/de/');
+  const bare = isDe ? pathname.slice(3) || '/' : pathname;
+  if (targetLocale === 'fr') return bare;
+  return bare === '/' ? '/de' : `/de${bare}`;
 }
 
 // The in-app "Aide" screen used to duplicate the marketing site's Centre

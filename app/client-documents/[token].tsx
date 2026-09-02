@@ -8,7 +8,7 @@ import { downloadFile } from '../../lib/downloadFile';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { premiumCard, portalFonts } from '../../lib/clientPortalTheme';
-import { detectAndApplyBrowserLocale, useTranslation } from '../../lib/translations';
+import { applyClientPortalLocale, detectAndApplyBrowserLocale, useTranslation } from '../../lib/translations';
 import type { ClientDocumentsPayload, ClientDocumentSummary } from '../../lib/types';
 
 detectAndApplyBrowserLocale();
@@ -54,6 +54,7 @@ export default function ClientDocumentsScreen() {
       return;
     }
     setPayload(data);
+    applyClientPortalLocale(data.organization_locale);
   }, [token, kind, email, session]);
 
   useFocusEffect(

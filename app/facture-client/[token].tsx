@@ -9,7 +9,7 @@ import { ClientPortalFooter } from '../../components/ClientPortalFooter';
 import { Button, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { premiumCard, portalFonts, heroWash } from '../../lib/clientPortalTheme';
-import { detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
+import { applyClientPortalLocale, detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
 import type { PublicFacturePayload } from '../../lib/types';
 
 detectAndApplyBrowserLocale();
@@ -57,6 +57,7 @@ export default function PublicFactureScreen() {
       if (data) {
         setSession(sessionParam);
         setPayload(data);
+        applyClientPortalLocale(data.organization.locale);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,6 +114,7 @@ export default function PublicFactureScreen() {
     }
     setSession(newSession);
     setPayload(data);
+    applyClientPortalLocale(data.organization.locale);
   }
 
   if (!payload) {

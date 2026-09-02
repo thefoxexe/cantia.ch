@@ -11,7 +11,7 @@ import { ClientPortalFooter } from '../../components/ClientPortalFooter';
 import { Button, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { premiumCard, portalFonts, heroWash } from '../../lib/clientPortalTheme';
-import { detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
+import { applyClientPortalLocale, detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
 import type { PublicDevisPayload } from '../../lib/types';
 
 detectAndApplyBrowserLocale();
@@ -59,6 +59,7 @@ export default function PublicDevisScreen() {
       if (data) {
         setSession(sessionParam);
         setPayload(data);
+        applyClientPortalLocale(data.organization.locale);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,6 +126,7 @@ export default function PublicDevisScreen() {
     }
     setSession(newSession);
     setPayload(data);
+    applyClientPortalLocale(data.organization.locale);
   }
 
   async function handlePickPhoto() {

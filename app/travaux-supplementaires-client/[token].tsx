@@ -8,7 +8,7 @@ import { SignaturePad } from '../../components/SignaturePad';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { Button, Card, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
+import { applyClientPortalLocale, detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
 import type { PublicExtraWorkPayload } from '../../lib/types';
 
 detectAndApplyBrowserLocale();
@@ -50,6 +50,7 @@ export default function PublicExtraWorkScreen() {
       return;
     }
     setPayload(data);
+    applyClientPortalLocale(data.organization.locale);
   }
 
   async function handlePickPhoto() {

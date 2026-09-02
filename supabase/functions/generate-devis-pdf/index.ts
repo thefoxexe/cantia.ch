@@ -11,6 +11,7 @@ import {
   resolvePdfTemplate,
 } from '../_shared/pdf-helpers.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -77,7 +78,6 @@ Deno.serve(async (req: Request) => {
       const bytes = await fetchStorageBytes(admin, BUCKET, creator.signature_url);
       if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
-    const signatureLabel = creator?.full_name ? `Signature ${creator.full_name}` : 'Signature';
 
     // Proof of the client's own e-signature (captured once via
     // accept_public_devis, stored inline as a data: URL rather than a
@@ -89,9 +89,14 @@ Deno.serve(async (req: Request) => {
       if (decoded) clientSignatureImg = await embedImageSmart(pdfDoc, decoded.bytes, decoded.contentType);
     }
 
+    const locale = resolvePdfLocale(org);
+    const signatureLabel = creator?.full_name
+      ? pdfT(locale, 'signatureOf', { name: creator.full_name })
+      : pdfT(locale, 'signature');
+
     const template = await resolvePdfTemplate(admin, devis.organization_id, 'devis', devis.template_id);
     const brand = resolveBrand(template, org);
-    const footerText = resolveFooterText(template, org, orgHasCustomization(org));
+    const footerText = resolveFooterText(template, org, orgHasCustomization(org), locale);
 
     // A devis is a quote, not a payment request — no QR-bill here (that's
     // generate-facture-pdf's job, once the client has accepted and it's
@@ -111,10 +116,12 @@ Deno.serve(async (req: Request) => {
       clientSignerName: devis.client_signer_name,
       brand,
       footerText,
-      docLabel: 'Devis',
+      docLabel: pdfT(locale, 'devisLabel'),
+      docKind: 'devis',
       metaLine: null,
+      locale,
     });
-    drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia');
+    drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia', locale);
     const pdfBytes = await pdfDoc.save();
 
     const path = `${devis.organization_id}/devis/${devis.id}/devis-${Date.now()}.pdf`;

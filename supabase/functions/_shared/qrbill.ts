@@ -14,6 +14,7 @@
 import { PDFDocument, PDFFont, PDFPage, rgb } from 'npm:pdf-lib@1.17.1';
 import QRCode from 'npm:qrcode@1.5.4';
 import { INK, PAGE_HEIGHT, PAGE_WIDTH, drawText, drawTextRight, wrapText } from './pdf-helpers.ts';
+import { PdfLocale, pdfT } from './pdf-i18n.ts';
 
 const mm = (v: number) => v * 2.834645669; // 1mm in PDF points (72dpi/25.4)
 
@@ -298,6 +299,7 @@ export async function appendQrBillPage(
   fontBold: PDFFont,
   data: QrBillData,
   attachTo: { page: PDFPage; y: number } | null = null,
+  locale: PdfLocale = 'fr',
 ): Promise<boolean> {
   const { payload, reference, referenceType } = buildSpcPayload(data);
 
@@ -331,51 +333,51 @@ export async function appendQrBillPage(
   // --- Récépissé (left, 0-62mm) ---
   let ry = bandH - mm(10);
   const rx = mm(5);
-  drawText(page, 'Récépissé', rx, ry, fontBold, 11, INK);
+  drawText(page, pdfT(locale, 'receipt'), rx, ry, fontBold, 11, INK);
   ry -= mm(9);
-  drawText(page, 'Compte / Payable à', rx, ry, fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'accountPayableTo'), rx, ry, fontBold, 6, INK);
   ry -= mm(3.5);
   for (const line of [formatIbanDisplay(data.iban), ...partyLines(data.creditor)]) {
     drawText(page, line, rx, ry, font, 8, INK);
     ry -= mm(3.5);
   }
   ry -= mm(2);
-  drawText(page, 'Référence', rx, ry, fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'reference'), rx, ry, fontBold, 6, INK);
   ry -= mm(3.5);
   drawText(page, formatReferenceForDisplay(reference, referenceType), rx, ry, font, 8, INK);
   if (data.debtor) {
     ry -= mm(5);
-    drawText(page, 'Payable par', rx, ry, fontBold, 6, INK);
+    drawText(page, pdfT(locale, 'payableBy'), rx, ry, fontBold, 6, INK);
     ry -= mm(3.5);
     for (const line of partyLines(data.debtor)) {
       drawText(page, line, rx, ry, font, 8, INK);
       ry -= mm(3.5);
     }
   }
-  drawText(page, 'Monnaie', rx, mm(15), fontBold, 6, INK);
-  drawText(page, 'Montant', rx + mm(18), mm(15), fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'currency'), rx, mm(15), fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'amount'), rx + mm(18), mm(15), fontBold, 6, INK);
   drawText(page, data.currency, rx, mm(11), font, 8, INK);
   if (amountStr) drawText(page, amountStr, rx + mm(18), mm(11), font, 8, INK);
-  drawTextRight(page, 'Point de dépôt', receiptW - mm(5), mm(11), font, 6, GREY);
+  drawTextRight(page, pdfT(locale, 'depositPoint'), receiptW - mm(5), mm(11), font, 6, GREY);
 
   // --- Section paiement (right, 62-210mm) ---
   const px = receiptW + mm(5);
-  drawText(page, 'Section paiement', px, bandH - mm(10), fontBold, 11, INK);
+  drawText(page, pdfT(locale, 'paymentSection'), px, bandH - mm(10), fontBold, 11, INK);
 
   const qrSize = mm(46);
   const qrX = px;
   const qrY = bandH - mm(17) - qrSize;
   drawQrCode(page, payload, qrX, qrY, qrSize);
 
-  drawText(page, 'Monnaie', qrX, qrY - mm(8), fontBold, 6, INK);
-  drawText(page, 'Montant', qrX + mm(18), qrY - mm(8), fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'currency'), qrX, qrY - mm(8), fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'amount'), qrX + mm(18), qrY - mm(8), fontBold, 6, INK);
   drawText(page, data.currency, qrX, qrY - mm(12), font, 8, INK);
   if (amountStr) drawText(page, amountStr, qrX + mm(18), qrY - mm(12), font, 8, INK);
 
   const infoX = receiptW + mm(70);
   const infoWidth = PAGE_WIDTH - infoX - mm(5);
   let iy = bandH - mm(17);
-  drawText(page, 'Compte / Payable à', infoX, iy, fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'accountPayableTo'), infoX, iy, fontBold, 6, INK);
   iy -= mm(3.5);
   for (const line of [formatIbanDisplay(data.iban), ...partyLines(data.creditor)]) {
     for (const wrapped of wrapText(line, font, 8, infoWidth)) {
@@ -384,12 +386,12 @@ export async function appendQrBillPage(
     }
   }
   iy -= mm(2);
-  drawText(page, 'Référence', infoX, iy, fontBold, 6, INK);
+  drawText(page, pdfT(locale, 'reference'), infoX, iy, fontBold, 6, INK);
   iy -= mm(3.5);
   drawText(page, formatReferenceForDisplay(reference, referenceType), infoX, iy, font, 8, INK);
   if (data.debtor) {
     iy -= mm(5);
-    drawText(page, 'Payable par', infoX, iy, fontBold, 6, INK);
+    drawText(page, pdfT(locale, 'payableBy'), infoX, iy, fontBold, 6, INK);
     iy -= mm(3.5);
     for (const line of partyLines(data.debtor)) {
       for (const wrapped of wrapText(line, font, 8, infoWidth)) {
@@ -400,7 +402,7 @@ export async function appendQrBillPage(
   }
   if (data.unstructuredMessage) {
     iy -= mm(5);
-    drawText(page, 'Informations supplémentaires', infoX, iy, fontBold, 6, INK);
+    drawText(page, pdfT(locale, 'additionalInfo'), infoX, iy, fontBold, 6, INK);
     iy -= mm(3.5);
     for (const wrapped of wrapText(data.unstructuredMessage, font, 8, infoWidth)) {
       drawText(page, wrapped, infoX, iy, font, 8, INK);

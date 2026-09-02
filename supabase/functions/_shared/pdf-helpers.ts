@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFFont, PDFImage, PDFPage, RGB, rgb } from 'npm:pdf-lib@1.17.1';
+import { PdfLocale, pdfT } from './pdf-i18n.ts';
 
 export const PAGE_WIDTH = 595.28; // A4 pt
 export const PAGE_HEIGHT = 841.89;
@@ -171,14 +172,14 @@ export function formatOrgAddress(org: any): string | null {
   return structured || org?.address || null;
 }
 
-export function formatDate(iso: string): string {
+export function formatDate(iso: string, locale: PdfLocale = 'fr'): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return d.toLocaleDateString(locale === 'de' ? 'de-CH' : 'fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-export function drawFooter(page: PDFPage, font: PDFFont, pageNum: number, brand: string) {
+export function drawFooter(page: PDFPage, font: PDFFont, pageNum: number, brand: string, locale: PdfLocale = 'fr') {
   drawText(page, brand, MARGIN, 24, font, 8, MUTED);
-  drawTextRight(page, `Page ${pageNum}`, PAGE_WIDTH - MARGIN, 24, font, 8, MUTED);
+  drawTextRight(page, pdfT(locale, 'page', { n: pageNum }), PAGE_WIDTH - MARGIN, 24, font, 8, MUTED);
 }
 
 // Falls back to the previous hardcoded brand green whenever the org hasn't
@@ -286,8 +287,8 @@ export function resolveLogoPlacement(template: PdfTemplateRow, org: any): LogoPl
 // "org name" fallback print instead. Forcing a Cantia mention here is the
 // free plan's one bit of built-in advertising, and it's the only path that
 // can reach it — a paying org's own footer_text/override always wins.
-export function resolveFooterText(template: PdfTemplateRow, org: any, hasCustomization: boolean): string | null {
-  if (!hasCustomization) return 'Document généré avec Cantia — cantia.ch';
+export function resolveFooterText(template: PdfTemplateRow, org: any, hasCustomization: boolean, locale: PdfLocale = 'fr'): string | null {
+  if (!hasCustomization) return pdfT(locale, 'documentGenerated');
   return template.footer_text_override?.trim() || org?.footer_text?.trim() || null;
 }
 

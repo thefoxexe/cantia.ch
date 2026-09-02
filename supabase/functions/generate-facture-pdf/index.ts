@@ -11,6 +11,7 @@ import {
 } from '../_shared/pdf-helpers.ts';
 import { appendQrBillPage, isValidSwissIban } from '../_shared/qrbill.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
+import { pdfT, resolvePdfLocale } from '../_shared/pdf-i18n.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -65,16 +66,18 @@ Deno.serve(async (req: Request) => {
     // having their own — the layout needs (client block, items table,
     // totals) are identical, only the label/meta line differ, which is
     // handled via docLabel/metaLine below instead of a separate template kind.
+    const locale = resolvePdfLocale(org);
     const template = await resolvePdfTemplate(admin, facture.organization_id, 'devis', facture.template_id);
     const brand = resolveBrand(template, org);
-    const footerText = resolveFooterText(template, org, orgHasCustomization(org));
+    const footerText = resolveFooterText(template, org, orgHasCustomization(org), locale);
 
     const metaLine =
       facture.status === 'paid' && facture.paid_at
-        ? `Payée le ${formatDate(facture.paid_at)}`
-        : `Échéance : ${formatDate(facture.due_date)}`;
+        ? pdfT(locale, 'paidOn', { date: formatDate(facture.paid_at, locale) })
+        : pdfT(locale, 'dueDate', { date: formatDate(facture.due_date, locale) });
 
     let pdfBytes: Uint8Array;
+    const docLabel = pdfT(locale, facture.is_deposit ? 'factureDepositLabel' : 'factureLabel');
 
     {
       const rendered = RENDERERS[template.base_layout]({
@@ -89,8 +92,10 @@ Deno.serve(async (req: Request) => {
         showSignatures: false,
         brand,
         footerText,
-        docLabel: facture.is_deposit ? "Facture d'acompte" : 'Facture',
+        docLabel,
+        docKind: 'facture',
         metaLine,
+        locale,
       });
 
       // The QR-bill band goes on this same last page when there's enough
@@ -112,7 +117,7 @@ Deno.serve(async (req: Request) => {
             {
               iban: org.iban,
               creditor: {
-                name: org.name ?? 'Entreprise',
+                name: org.name ?? pdfT(locale, 'entrepriseFallback'),
                 addressLine1: org.street ?? org.address ?? null,
                 postalCode: org.postal_code ?? null,
                 town: org.locality ?? null,
@@ -123,9 +128,10 @@ Deno.serve(async (req: Request) => {
                 ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
                 : null,
               referenceId: facture.id,
-              unstructuredMessage: facture.number ? `Facture ${facture.number}` : undefined,
+              unstructuredMessage: facture.number ? `${docLabel} ${facture.number}` : undefined,
             },
             { page: rendered.page, y: rendered.y },
+            locale,
           );
           footerOwedOnContentPage = !reusedContentPage;
         } catch (qrErr) {
@@ -133,7 +139,7 @@ Deno.serve(async (req: Request) => {
         }
       }
       if (footerOwedOnContentPage) {
-        drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia');
+        drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia', locale);
       }
       pdfBytes = await pdfDoc.save();
     }

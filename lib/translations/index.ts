@@ -86,6 +86,48 @@ export function forceLocale(locale: AppLocale): void {
   }
 }
 
+// Carries the language a visitor was browsing the marketing site in across
+// the cantia.ch -> app.cantia.ch handoff — a real cross-origin navigation
+// (see lib/appHost.ts's authHref), so nothing in-memory survives it, only
+// the URL does. authHref appends ?locale=de when the marketing page it's
+// linked from is German; called once at boot on the app host, before the
+// auth screens render, so someone who clicked "S'inscrire"/"Anmelden" from
+// a German page lands on a German signup screen, and setAppLocale's
+// AsyncStorage write means the choice then survives every redirect through
+// onboarding into the app itself — not just this one page load. Takes
+// priority over restoreCachedLocale's guess since an explicit link click is
+// a stronger signal than a stale cached preference from a previous visit.
+export async function applyLocaleFromUrlParam(): Promise<void> {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  const param = new URLSearchParams(window.location.search).get('locale');
+  if (param && AVAILABLE_LOCALES.includes(param as AppLocale) && param !== getAppLocale()) {
+    await setAppLocale(param as AppLocale);
+  }
+}
+
+// Client-portal pages default to the org's own document locale (organizations
+// .locale, returned by get_public_devis/get_public_facture/
+// list_client_documents once the visitor's email+code gate is passed) rather
+// than the visitor's browser language — a German business's client is more
+// likely to read German than the reverse. But the visitor must still be able
+// to switch away from that default (ClientPortalHeader's language pills), and
+// once they do, later data refreshes on the same page must not silently flip
+// it back — this in-memory flag (reset on reload, like detectAndApplyBrowser
+// Locale, and deliberately never written to AsyncStorage) tracks that.
+let clientPortalManualOverride = false;
+
+export function applyClientPortalLocale(orgLocale: string | null | undefined): void {
+  if (Platform.OS !== 'web' || clientPortalManualOverride) return;
+  if (orgLocale && AVAILABLE_LOCALES.includes(orgLocale as AppLocale) && orgLocale !== i18next.language) {
+    i18next.changeLanguage(orgLocale);
+  }
+}
+
+export function setClientPortalLocale(locale: AppLocale): void {
+  clientPortalManualOverride = true;
+  i18next.changeLanguage(locale);
+}
+
 // Replaces the many scattered `.toLocaleDateString('fr-CH')` calls across
 // the app — 'fr-CH'/'de-CH' both format sensibly, the point is picking the
 // one matching the app's current language rather than always French.
