@@ -8,20 +8,23 @@ import { SignaturePad } from '../../components/SignaturePad';
 import { ClientPortalHeader } from '../../components/ClientPortalHeader';
 import { Button, Card, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
 import type { PublicExtraWorkPayload } from '../../lib/types';
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Brouillon',
-  sent: 'Envoyé',
-  accepted: 'Accepté',
-  refused: 'Refusé',
-};
+detectAndApplyBrowserLocale();
 
 function chf(n: number): string {
-  return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
+  return `${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
 export default function PublicExtraWorkScreen() {
+  const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    draft: t('common.status.draft'),
+    sent: t('common.status.sent'),
+    accepted: t('common.status.accepted'),
+    refused: t('common.status.refused'),
+  };
   const { token } = useLocalSearchParams<{ token: string }>();
   const [email, setEmail] = useState('');
   const [checking, setChecking] = useState(false);
@@ -43,7 +46,7 @@ export default function PublicExtraWorkScreen() {
     const { data, error } = await getPublicExtraWork(token, email.trim());
     setChecking(false);
     if (error || !data) {
-      setCheckError("Impossible de vérifier ces travaux supplémentaires. Vérifiez l'adresse email associée.");
+      setCheckError(t('publicExtraWorkPortal.verifyFailed'));
       return;
     }
     setPayload(data);
@@ -61,11 +64,11 @@ export default function PublicExtraWorkScreen() {
   async function handleAccept() {
     if (!token) return;
     if (!firstName.trim() || !lastName.trim()) {
-      setAcceptError('Merci de renseigner votre prénom et votre nom.');
+      setAcceptError(t('publicExtraWorkPortal.nameRequired'));
       return;
     }
     if (!signatureData) {
-      setAcceptError('Merci de signer (dessin ou photo) avant de valider.');
+      setAcceptError(t('publicExtraWorkPortal.signatureRequired'));
       return;
     }
     setAccepting(true);
@@ -73,7 +76,7 @@ export default function PublicExtraWorkScreen() {
     const { status, error } = await acceptPublicExtraWork(token, email.trim(), `${firstName.trim()} ${lastName.trim()}`, signatureData);
     setAccepting(false);
     if (error || !status) {
-      setAcceptError(error ?? "Échec de l'acceptation.");
+      setAcceptError(error ?? t('publicExtraWorkPortal.acceptFailed'));
       return;
     }
     setAccepted(true);
@@ -88,16 +91,15 @@ export default function PublicExtraWorkScreen() {
         <Card style={styles.gateCard}>
           <View style={styles.secureBadge}>
             <Feather name="shield" size={14} color={colors.success} />
-            <Text style={styles.secureBadgeText}>Connexion sécurisée</Text>
+            <Text style={styles.secureBadgeText}>{t('publicExtraWorkPortal.secureConnection')}</Text>
           </View>
-          <Text style={styles.gateTitle}>Travaux supplémentaires</Text>
+          <Text style={styles.gateTitle}>{t('publicExtraWorkPortal.gateTitle')}</Text>
           <Text style={styles.gateSubtitle}>
-            Pour votre sécurité, saisissez l'adresse email à laquelle ce document vous a été adressé. Ce lien est personnel et ne fonctionne
-            qu'avec cette adresse.
+            {t('publicExtraWorkPortal.gateSubtitle')}
           </Text>
-          <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
+          <Field label={t('publicExtraWorkPortal.emailLabel')} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder={t('publicExtraWorkPortal.emailPlaceholder')} />
           {checkError ? <Text style={styles.error}>{checkError}</Text> : null}
-          <Button title="Voir le document" onPress={handleVerify} loading={checking} disabled={!email.trim()} />
+          <Button title={t('publicExtraWorkPortal.viewDocument')} onPress={handleVerify} loading={checking} disabled={!email.trim()} />
         </Card>
       </View>
     );
@@ -112,12 +114,12 @@ export default function PublicExtraWorkScreen() {
       <ClientPortalHeader />
       <View style={styles.secureBadge}>
         <Feather name="shield" size={14} color={colors.success} />
-        <Text style={styles.secureBadgeText}>Connexion sécurisée — vos informations ne sortent pas de cette page</Text>
+        <Text style={styles.secureBadgeText}>{t('publicExtraWorkPortal.secureConnectionFull')}</Text>
       </View>
 
       <Card style={styles.headerCard}>
         <Text style={styles.orgName}>{organization.name}</Text>
-        <Text style={styles.workNumber}>Travaux supplémentaires {work.number ?? ''}</Text>
+        <Text style={styles.workNumber}>{t('publicExtraWorkPortal.workNumber', { number: work.number ?? '' })}</Text>
         <Text style={styles.workTitle}>{work.title}</Text>
         <View style={[styles.statusPill, isAccepted && styles.statusPillAccepted, isRefused && styles.statusPillRefused]}>
           <Text style={styles.statusPillText}>{STATUS_LABELS[work.status] ?? work.status}</Text>
@@ -125,12 +127,12 @@ export default function PublicExtraWorkScreen() {
       </Card>
 
       <Card>
-        <Text style={styles.sectionTitle}>Client</Text>
+        <Text style={styles.sectionTitle}>{t('publicExtraWorkPortal.clientLabel')}</Text>
         <Text style={styles.line}>{work.client_name}</Text>
       </Card>
 
       <Card>
-        <Text style={styles.sectionTitle}>Détail</Text>
+        <Text style={styles.sectionTitle}>{t('publicExtraWorkPortal.detailLabel')}</Text>
         {items.map((item) => (
           <View key={item.id} style={styles.itemRow}>
             <Text style={styles.itemDescription}>{item.description}</Text>
@@ -142,15 +144,15 @@ export default function PublicExtraWorkScreen() {
         ))}
         <View style={styles.divider} />
         <View style={styles.totalsRow}>
-          <Text style={styles.lineMuted}>Sous-total</Text>
+          <Text style={styles.lineMuted}>{t('publicExtraWorkPortal.subtotal')}</Text>
           <Text style={styles.line}>{chf(totals.subtotal)}</Text>
         </View>
         <View style={styles.totalsRow}>
-          <Text style={styles.lineMuted}>TVA ({work.vat_rate}%)</Text>
+          <Text style={styles.lineMuted}>{t('publicExtraWorkPortal.vat', { rate: work.vat_rate })}</Text>
           <Text style={styles.line}>{chf(totals.vat)}</Text>
         </View>
         <View style={styles.totalsRow}>
-          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalLabel}>{t('publicExtraWorkPortal.total')}</Text>
           <Text style={styles.totalAmount}>{chf(totals.total)}</Text>
         </View>
         {work.notes ? <Text style={[styles.lineMuted, { marginTop: spacing.md }]}>{work.notes}</Text> : null}
@@ -159,29 +161,29 @@ export default function PublicExtraWorkScreen() {
       {isAccepted ? (
         <Card style={styles.confirmCard}>
           <Feather name="check-circle" size={22} color={colors.success} />
-          <Text style={styles.confirmTitle}>Travaux supplémentaires acceptés</Text>
+          <Text style={styles.confirmTitle}>{t('publicExtraWorkPortal.acceptedTitle')}</Text>
           <Text style={styles.confirmSubtitle}>
-            {work.client_signer_name ? `Signé par ${work.client_signer_name}. ` : ''}
-            {organization.name} a été notifié et les facturera séparément.
+            {work.client_signer_name ? t('publicExtraWorkPortal.acceptedSignedBy', { name: work.client_signer_name }) : ''}
+            {t('publicExtraWorkPortal.acceptedNotified', { org: organization.name })}
           </Text>
         </Card>
       ) : isRefused ? (
         <Card>
-          <Text style={styles.line}>Ces travaux supplémentaires ont été refusés et ne sont plus disponibles à l'acceptation en ligne. Contactez {organization.name} pour toute question.</Text>
+          <Text style={styles.line}>{t('publicExtraWorkPortal.refusedText', { org: organization.name })}</Text>
         </Card>
       ) : (
         <Card>
-          <Text style={styles.sectionTitle}>Accepter ces travaux supplémentaires</Text>
-          <Field label="Prénom" value={firstName} onChangeText={setFirstName} />
-          <Field label="Nom" value={lastName} onChangeText={setLastName} />
+          <Text style={styles.sectionTitle}>{t('publicExtraWorkPortal.acceptTitle')}</Text>
+          <Field label={t('publicExtraWorkPortal.firstNameLabel')} value={firstName} onChangeText={setFirstName} />
+          <Field label={t('publicExtraWorkPortal.lastNameLabel')} value={lastName} onChangeText={setLastName} />
 
-          <Text style={styles.sectionTitle}>Signature</Text>
+          <Text style={styles.sectionTitle}>{t('publicExtraWorkPortal.signatureLabel')}</Text>
           <View style={styles.toggleRow}>
             <Text onPress={() => setSignatureMode('draw')} style={[styles.toggleOption, signatureMode === 'draw' && styles.toggleOptionActive]}>
-              Dessiner
+              {t('publicExtraWorkPortal.draw')}
             </Text>
             <Text onPress={() => setSignatureMode('upload')} style={[styles.toggleOption, signatureMode === 'upload' && styles.toggleOptionActive]}>
-              Importer une photo
+              {t('publicExtraWorkPortal.importPhoto')}
             </Text>
           </View>
 
@@ -189,13 +191,13 @@ export default function PublicExtraWorkScreen() {
             <SignaturePad onChange={setSignatureData} />
           ) : (
             <View>
-              <Button title={signatureData ? 'Changer la photo' : 'Choisir une photo'} variant="secondary" icon="camera" onPress={handlePickPhoto} />
-              {signatureData ? <Text style={styles.lineMuted}>Photo sélectionnée.</Text> : null}
+              <Button title={signatureData ? t('publicExtraWorkPortal.changePhoto') : t('publicExtraWorkPortal.choosePhoto')} variant="secondary" icon="camera" onPress={handlePickPhoto} />
+              {signatureData ? <Text style={styles.lineMuted}>{t('publicExtraWorkPortal.photoSelected')}</Text> : null}
             </View>
           )}
 
           {acceptError ? <Text style={styles.error}>{acceptError}</Text> : null}
-          <Button title="Accepter les travaux" onPress={handleAccept} loading={accepting} style={{ marginTop: spacing.md }} />
+          <Button title={t('publicExtraWorkPortal.acceptWork')} onPress={handleAccept} loading={accepting} style={{ marginTop: spacing.md }} />
         </Card>
       )}
     </ScrollView>
