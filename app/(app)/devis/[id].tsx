@@ -20,20 +20,22 @@ import { StatusDropdown } from '../../../components/StatusDropdown';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
 
 const STATUS_FLOW: DevisStatus[] = ['draft', 'ready', 'sent', 'accepted', 'refused'];
-const STATUS_LABELS: Record<DevisStatus, string> = {
-  draft: 'Brouillon',
-  ready: "Prêt à l'envoi",
-  sent: 'Envoyé',
-  accepted: 'Accepté',
-  refused: 'Refusé',
-};
 
 export default function DevisDetailScreen() {
+  const { t } = useTranslation();
+  const STATUS_LABELS: Record<DevisStatus, string> = {
+    draft: t('common.status.draft'),
+    ready: t('common.status.ready'),
+    sent: t('common.status.sent'),
+    accepted: t('common.status.accepted'),
+    refused: t('common.status.refused'),
+  };
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { organization, role } = useAuth();
@@ -167,7 +169,7 @@ export default function DevisDetailScreen() {
   }
 
   async function handleDelete() {
-    const ok = await confirm('Supprimer ce devis ?', `Le devis ${devis?.number ?? ''} sera définitivement supprimé.`);
+    const ok = await confirm(t('devisDetail.deleteConfirmTitle'), t('devisDetail.deleteConfirmBody', { number: devis?.number ?? '' }));
     if (!ok) return;
     setError(null);
     const { error: delError } = await supabase.from('devis').delete().eq('id', id);
@@ -200,7 +202,7 @@ export default function DevisDetailScreen() {
     const { sent, error: sendError } = await sendDevisEmail(id, emailMessage);
     setSendingEmail(false);
     if (sendError || !sent) {
-      setError(sendError ?? "Échec de l'envoi de l'e-mail.");
+      setError(sendError ?? t('devisDetail.emailSendFailed'));
       return;
     }
     setEmailModalVisible(false);
@@ -249,7 +251,7 @@ export default function DevisDetailScreen() {
   async function handleSaveTrame() {
     if (!organization) return;
     if (!trameName.trim()) {
-      setTrameError('Le nom de la trame est requis.');
+      setTrameError(t('devisDetail.trameNameRequired'));
       return;
     }
     setSavingTrame(true);
@@ -257,7 +259,7 @@ export default function DevisDetailScreen() {
     const { id: newId, error: createError } = await createTrameFromDevis(organization.id, trameName.trim(), id);
     setSavingTrame(false);
     if (createError || !newId) {
-      setTrameError(createError ?? 'Échec de la création.');
+      setTrameError(createError ?? t('devisDetail.createFailed'));
       return;
     }
     setTrameModalVisible(false);
@@ -288,11 +290,11 @@ export default function DevisDetailScreen() {
               <StatusDropdown status={devis.status} options={STATUS_FLOW} labels={STATUS_LABELS} onChange={changeStatus} />
               <RowActionMenu
                 actions={[
-                  { key: 'duplicate', icon: 'copy', label: 'Dupliquer', onPress: handleDuplicate },
+                  { key: 'duplicate', icon: 'copy', label: t('devisDetail.duplicate'), onPress: handleDuplicate },
                   {
                     key: 'save-trame',
                     icon: 'layout',
-                    label: 'Enregistrer comme trame',
+                    label: t('devisDetail.saveAsTrame'),
                     onPress: () => {
                       setTrameName('');
                       setTrameError(null);
@@ -300,7 +302,7 @@ export default function DevisDetailScreen() {
                     },
                   },
                   ...(isAdmin
-                    ? [{ key: 'delete', icon: 'trash-2' as const, label: 'Supprimer', danger: true, onPress: handleDelete }]
+                    ? [{ key: 'delete', icon: 'trash-2' as const, label: t('devisDetail.delete'), danger: true, onPress: handleDelete }]
                     : []),
                 ]}
               />
@@ -313,14 +315,14 @@ export default function DevisDetailScreen() {
             <View style={styles.bexioBadge}>
               <Feather name="check-circle" size={12} color={colors.success} />
               <Text style={styles.bexioBadgeText}>
-                {devis.bexio_document_nr ? `Bexio ${devis.bexio_document_nr}` : 'Synchronisé avec Bexio'}
-                {bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString('fr-CH')}` : ''}
+                {devis.bexio_document_nr ? t('devisDetail.bexioDocNr', { number: devis.bexio_document_nr }) : t('devisDetail.bexioSynced')}
+                {bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString(`${getAppLocale()}-CH`)}` : ''}
               </Text>
             </View>
           ) : null}
           {canPushToBexio ? (
             <Button
-              title={bexioExternalId ? 'Resynchroniser avec Bexio' : 'Envoyer vers Bexio'}
+              title={bexioExternalId ? t('devisDetail.resyncBexio') : t('devisDetail.sendToBexio')}
               variant="secondary"
               icon="refresh-cw"
               onPress={handlePushToBexio}
@@ -332,22 +334,22 @@ export default function DevisDetailScreen() {
             <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
           {!devis.client_email ? (
-            <Text style={styles.copyLinkHint}>Ajoutez l'email du client pour générer un lien de consultation/signature sécurisé.</Text>
+            <Text style={styles.copyLinkHint}>{t('devisDetail.emailRequiredForLink')}</Text>
           ) : devis.status === 'draft' ? (
             <Text style={styles.copyLinkHint}>
-              Passez le devis à "Prêt à l'envoi" (menu ci-dessus) pour pouvoir copier le lien client ou l'envoyer par e-mail.
+              {t('devisDetail.readyToSendHint')}
             </Text>
           ) : (
             <View style={styles.clientLinkRow}>
               <Button
-                title={linkCopied ? 'Lien copié !' : 'Copier le lien client'}
+                title={linkCopied ? t('devisDetail.linkCopied') : t('devisDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
                 onPress={handleCopyClientLink}
                 style={styles.clientLinkButton}
               />
               <Button
-                title={emailSent ? 'E-mail envoyé !' : 'Envoyer par e-mail'}
+                title={emailSent ? t('devisDetail.emailSent') : t('devisDetail.sendByEmail')}
                 variant="secondary"
                 icon={emailSent ? 'check' : 'mail'}
                 disabled={plan?.has_email_sending === false}
@@ -358,7 +360,7 @@ export default function DevisDetailScreen() {
           )}
           {plan?.has_email_sending === false ? (
             <Text style={styles.copyLinkHint}>
-              L'envoi par e-mail est réservé à un plan supérieur — copiez le lien client ci-dessus, ou passez à un plan payant pour l'activer.
+              {t('devisDetail.emailPaidPlanOnly')}
             </Text>
           ) : null}
         </Card>
@@ -367,11 +369,11 @@ export default function DevisDetailScreen() {
           <Card style={styles.signatureCard}>
             <View style={styles.signatureHeader}>
               <Feather name="check-circle" size={16} color={colors.success} />
-              <Text style={styles.signatureTitle}>Signé électroniquement</Text>
+              <Text style={styles.signatureTitle}>{t('devisDetail.signedElectronically')}</Text>
             </View>
             <Text style={styles.meta}>
-              {devis.client_signer_name ? `Par ${devis.client_signer_name} · ` : ''}
-              {new Date(devis.client_signed_at).toLocaleString('fr-CH', {
+              {devis.client_signer_name ? t('devisDetail.signedBy', { name: devis.client_signer_name }) : ''}
+              {new Date(devis.client_signed_at).toLocaleString(`${getAppLocale()}-CH`, {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
@@ -383,12 +385,12 @@ export default function DevisDetailScreen() {
               <Image source={{ uri: devis.client_signature_data }} style={styles.signatureImage} resizeMode="contain" />
             ) : null}
             <Text style={styles.signatureFootnote}>
-              Cette preuve (signature, nom, date et heure) est conservée définitivement et intégrée au PDF du devis.
+              {t('devisDetail.signatureFootnote')}
             </Text>
           </Card>
         ) : null}
 
-        <Text style={styles.sectionTitle}>Lignes</Text>
+        <Text style={styles.sectionTitle}>{t('devisDetail.linesTitle')}</Text>
         <Card>
           {items.map((it, idx) => (
             <View key={it.id} style={[styles.itemRow, idx > 0 && styles.itemRowBorder]}>
@@ -403,15 +405,15 @@ export default function DevisDetailScreen() {
           ))}
           <View style={styles.totalsBlock}>
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>Sous-total</Text>
+              <Text style={styles.meta}>{t('devisDetail.subtotal')}</Text>
               <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>TVA ({devis.vat_rate}%)</Text>
+              <Text style={styles.meta}>{t('devisDetail.vat', { rate: devis.vat_rate })}</Text>
               <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total TTC</Text>
+              <Text style={styles.totalLabel}>{t('devisDetail.totalInclVat')}</Text>
               <Text style={styles.totalLabel}>CHF {total.toFixed(2)}</Text>
             </View>
           </View>
@@ -422,7 +424,7 @@ export default function DevisDetailScreen() {
             <Text style={styles.error}>{error}</Text>
             {error.includes("n'est pas relié à un contact Bexio") ? (
               <Button
-                title="Lier le client à Bexio et réessayer"
+                title={t('devisDetail.linkClientToBexioRetry')}
                 variant="secondary"
                 icon="refresh-cw"
                 onPress={handleSyncClientsAndRetryPush}
@@ -434,7 +436,7 @@ export default function DevisDetailScreen() {
         ) : null}
         {error?.includes('plan payant') ? (
           <Button
-            title="Passer à un plan payant"
+            title={t('devisDetail.upgradeToPaidPlan')}
             icon="arrow-up-circle"
             variant="secondary"
             onPress={() => router.push('/(app)/compte/facturation')}
@@ -443,18 +445,18 @@ export default function DevisDetailScreen() {
         ) : null}
 
         <Button
-          title={devis.pdf_path ? 'Régénérer le PDF' : 'Générer le PDF'}
+          title={devis.pdf_path ? t('devisDetail.regeneratePdf') : t('devisDetail.generatePdf')}
           onPress={handleGeneratePdf}
           loading={generating}
           disabled={devis.status === 'draft'}
           style={{ marginTop: spacing.lg }}
         />
         {devis.status === 'draft' ? (
-          <Text style={styles.pdfHint}>Passez le devis à "Prêt à l'envoi" pour générer le PDF.</Text>
+          <Text style={styles.pdfHint}>{t('devisDetail.readyToGeneratePdfHint')}</Text>
         ) : null}
         {devis.pdf_path ? (
           <Button
-            title="Ouvrir le PDF"
+            title={t('devisDetail.openPdf')}
             icon="file-text"
             onPress={openPdf}
             variant="secondary"
@@ -464,7 +466,7 @@ export default function DevisDetailScreen() {
 
         {relatedFactures.length ? (
           <>
-            <Text style={styles.sectionTitle}>Factures liées</Text>
+            <Text style={styles.sectionTitle}>{t('devisDetail.linkedFacturesTitle')}</Text>
             <Card style={{ padding: 0, overflow: 'hidden' }}>
               {relatedFactures.map((f, idx) => (
                 <Pressable
@@ -474,7 +476,7 @@ export default function DevisDetailScreen() {
                 >
                   <View style={{ flex: 1 }}>
                     <Text style={styles.itemDesc}>{f.number}</Text>
-                    <Text style={styles.meta}>{f.is_deposit ? 'Acompte' : 'Facture finale'}</Text>
+                    <Text style={styles.meta}>{f.is_deposit ? t('devisDetail.deposit') : t('devisDetail.finalFacture')}</Text>
                   </View>
                   <StatusBadge status={f.status} />
                   <Feather name="chevron-right" size={16} color={colors.textMuted} />
@@ -490,13 +492,13 @@ export default function DevisDetailScreen() {
       <Modal visible={trameModalVisible} transparent animationType="fade" onRequestClose={() => setTrameModalVisible(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Enregistrer comme trame</Text>
-            <Text style={styles.meta}>Les lignes de ce devis seront enregistrées sous ce nom, réutilisables pour un futur devis.</Text>
-            <Field label="Nom de la trame" value={trameName} onChangeText={setTrameName} placeholder="Ex. Pose carrelage" />
+            <Text style={styles.modalTitle}>{t('devisDetail.saveAsTrameTitle')}</Text>
+            <Text style={styles.meta}>{t('devisDetail.saveAsTrameHint')}</Text>
+            <Field label={t('devisDetail.trameNameLabel')} value={trameName} onChangeText={setTrameName} placeholder={t('devisDetail.trameNamePlaceholder')} />
             {trameError ? <Text style={styles.error}>{trameError}</Text> : null}
             <View style={styles.modalActions}>
-              <Button title="Annuler" variant="secondary" onPress={() => setTrameModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Enregistrer" onPress={handleSaveTrame} loading={savingTrame} style={{ flex: 1 }} />
+              <Button title={t('devisDetail.cancel')} variant="secondary" onPress={() => setTrameModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('devisDetail.save')} onPress={handleSaveTrame} loading={savingTrame} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
@@ -505,12 +507,12 @@ export default function DevisDetailScreen() {
       <Modal visible={emailModalVisible} transparent animationType="fade" onRequestClose={() => setEmailModalVisible(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Envoyer par e-mail</Text>
+            <Text style={styles.modalTitle}>{t('devisDetail.sendEmailTitle')}</Text>
             <Text style={styles.meta}>
-              Modifiable pour cet envoi uniquement — le message par défaut se règle dans Compte → E-mails.
+              {t('devisDetail.sendEmailHint')}
             </Text>
             <Field
-              label="Message"
+              label={t('devisDetail.messageLabel')}
               value={emailMessage}
               onChangeText={setEmailMessage}
               multiline
@@ -518,13 +520,12 @@ export default function DevisDetailScreen() {
               style={{ minHeight: 90, textAlignVertical: 'top', paddingTop: spacing.sm }}
             />
             <Text style={styles.lockedNoticeText}>
-              Le PDF joint et le lien sécurisé « Consulter et accepter ce devis en ligne » sont toujours ajoutés
-              automatiquement à la suite — non modifiables.
+              {t('devisDetail.lockedNoticeText')}
             </Text>
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.modalActions}>
-              <Button title="Annuler" variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Envoyer" onPress={handleConfirmSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
+              <Button title={t('devisDetail.cancel')} variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('devisDetail.send')} onPress={handleConfirmSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
