@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -54,6 +55,23 @@ export async function setAppLocale(locale: AppLocale): Promise<void> {
 export function getAppLocale(): AppLocale {
   const current = i18next.language;
   return AVAILABLE_LOCALES.includes(current as AppLocale) ? (current as AppLocale) : DEFAULT_LOCALE;
+}
+
+// For the public client-portal pages (devis-client, travaux-supplémentaires-
+// client) — there's no signed-in member whose organization_members.locale
+// applies, and no account to persist a preference to, so the only signal
+// available is the visitor's own browser language. Session-only (no
+// AsyncStorage write): switches the in-memory i18next language without
+// touching the cached app locale, so a device also used to sign in as an
+// org member never has its own preference overwritten by someone else's
+// public devis/facture link. Called once at module load in those screens,
+// before first render, to avoid a language flash.
+export function detectAndApplyBrowserLocale(): void {
+  if (Platform.OS !== 'web' || typeof navigator === 'undefined') return;
+  const lang = navigator.language?.slice(0, 2).toLowerCase();
+  if (lang === 'de' && i18next.language !== 'de') {
+    i18next.changeLanguage('de');
+  }
 }
 
 // Replaces the many scattered `.toLocaleDateString('fr-CH')` calls across

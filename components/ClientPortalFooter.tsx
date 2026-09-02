@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { colors, fontSize, spacing } from '../lib/theme';
 import { portalFonts } from '../lib/clientPortalTheme';
+import { useTranslation } from '../lib/translations';
 import { SwissCross } from './SwissCross';
 
 // Closes every state of the client portal (gate, document view, accepted,
@@ -11,16 +12,17 @@ import { SwissCross } from './SwissCross';
 // — "propulsé par Cantia" with a link out is the whole sales channel the
 // brief asked for, kept to one quiet line rather than a banner.
 export function ClientPortalFooter() {
+  const { t } = useTranslation();
   return (
     <View style={styles.wrap}>
       <View style={styles.divider} />
       <View style={styles.row}>
         <SwissCross size={11} />
-        <Text style={styles.text}>Document généré par Cantia, logiciel suisse de gestion pour entreprises du bâtiment.</Text>
+        <Text style={styles.text}>{t('clientPortalFooter.generatedBy')}</Text>
       </View>
       <Link href="/" asChild>
         <Pressable>
-          <Text style={styles.link}>Découvrir Cantia pour votre entreprise →</Text>
+          <Text style={styles.link}>{t('clientPortalFooter.discoverLink')}</Text>
         </Pressable>
       </Link>
     </View>

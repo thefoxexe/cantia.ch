@@ -11,29 +11,31 @@ import { ClientPortalFooter } from '../../components/ClientPortalFooter';
 import { Button, Field } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { premiumCard, portalFonts, heroWash } from '../../lib/clientPortalTheme';
+import { detectAndApplyBrowserLocale, getAppLocale, useTranslation } from '../../lib/translations';
 import type { PublicDevisPayload } from '../../lib/types';
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Brouillon',
-  ready: "Prêt à l'envoi",
-  sent: 'Envoyé',
-  accepted: 'Accepté',
-  refused: 'Refusé',
-};
-
-const TRUST_POINTS: { icon: React.ComponentProps<typeof Feather>['name']; label: string }[] = [
-  { icon: 'lock', label: 'Lien chiffré et personnel' },
-  { icon: 'map-pin', label: 'Hébergé en Suisse' },
-  { icon: 'eye-off', label: 'Vos données ne sont pas partagées' },
-];
+detectAndApplyBrowserLocale();
 
 function chf(n: number): string {
-  return `${n.toLocaleString('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
+  return `${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF`;
 }
 
 type GateStage = 'email' | 'code';
 
 export default function PublicDevisScreen() {
+  const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    draft: t('common.status.draft'),
+    ready: t('common.status.ready'),
+    sent: t('common.status.sent'),
+    accepted: t('common.status.accepted'),
+    refused: t('common.status.refused'),
+  };
+  const TRUST_POINTS: { icon: React.ComponentProps<typeof Feather>['name']; label: string }[] = [
+    { icon: 'lock', label: t('publicDevisPortal.trustEncrypted') },
+    { icon: 'map-pin', label: t('publicDevisPortal.trustHostedSwitzerland') },
+    { icon: 'eye-off', label: t('publicDevisPortal.trustDataNotShared') },
+  ];
   const { token, email: emailParam, session: sessionParam } = useLocalSearchParams<{ token: string; email?: string; session?: string }>();
   const router = useRouter();
   const [stage, setStage] = useState<GateStage>('email');
@@ -85,7 +87,7 @@ export default function PublicDevisScreen() {
     const { ok, error } = await requestPortalCode(token, 'devis', email.trim());
     setSendingCode(false);
     if (!ok) {
-      setGateError(error ?? "Échec de l'envoi du code.");
+      setGateError(error ?? t('publicDevisPortal.codeSendFailed'));
       return;
     }
     setCode('');
@@ -99,10 +101,10 @@ export default function PublicDevisScreen() {
     const { ok, error } = await requestPortalCode(token, 'devis', email.trim());
     setSendingCode(false);
     if (!ok) {
-      setGateError(error ?? "Échec de l'envoi du code.");
+      setGateError(error ?? t('publicDevisPortal.codeSendFailed'));
       return;
     }
-    setResendHint('Un nouveau code a été envoyé.');
+    setResendHint(t('publicDevisPortal.newCodeSent'));
   }
 
   async function handleVerifyCode() {
@@ -112,13 +114,13 @@ export default function PublicDevisScreen() {
     const { session: newSession, error } = await verifyPortalCode(token, email.trim(), code.trim());
     if (error || !newSession) {
       setVerifyingCode(false);
-      setGateError(error ?? 'Code invalide.');
+      setGateError(error ?? t('publicDevisPortal.invalidCode'));
       return;
     }
     const { data, error: loadError } = await getPublicDevis(token, email.trim(), newSession);
     setVerifyingCode(false);
     if (loadError || !data) {
-      setGateError(loadError ?? "Impossible de charger le devis.");
+      setGateError(loadError ?? t('publicDevisPortal.loadFailed'));
       return;
     }
     setSession(newSession);
@@ -137,11 +139,11 @@ export default function PublicDevisScreen() {
   async function handleAccept() {
     if (!token || !session) return;
     if (!firstName.trim() || !lastName.trim()) {
-      setAcceptError('Merci de renseigner votre prénom et votre nom.');
+      setAcceptError(t('publicDevisPortal.nameRequired'));
       return;
     }
     if (!signatureData) {
-      setAcceptError('Merci de signer (dessin ou photo) avant de valider.');
+      setAcceptError(t('publicDevisPortal.signatureRequired'));
       return;
     }
     setAccepting(true);
@@ -149,7 +151,7 @@ export default function PublicDevisScreen() {
     const { status, error } = await acceptPublicDevis(token, email.trim(), `${firstName.trim()} ${lastName.trim()}`, signatureData, session);
     setAccepting(false);
     if (error || !status) {
-      setAcceptError(error ?? "Échec de l'acceptation.");
+      setAcceptError(error ?? t('publicDevisPortal.acceptFailed'));
       return;
     }
     setAccepted(true);
@@ -162,7 +164,7 @@ export default function PublicDevisScreen() {
     const { url, error } = await getPublicDocumentPdfUrl(token, 'devis', email.trim(), session);
     setDownloadingPdf(false);
     if (error || !url) {
-      setDownloadError(error ?? 'Échec du téléchargement.');
+      setDownloadError(error ?? t('publicDevisPortal.downloadFailed'));
       return;
     }
     await downloadFile(url, `Devis-${payload?.devis.number ?? token}.pdf`);
@@ -180,23 +182,22 @@ export default function PublicDevisScreen() {
           </View>
           {stage === 'email' ? (
             <>
-              <Text style={styles.gateTitle}>Consulter mon devis</Text>
+              <Text style={styles.gateTitle}>{t('publicDevisPortal.gateTitleEmail')}</Text>
               <Text style={styles.gateSubtitle}>
-                Pour votre sécurité, saisissez l'adresse email à laquelle ce devis vous a été adressé. Nous vous enverrons un code de
-                vérification à usage unique.
+                {t('publicDevisPortal.gateSubtitleEmail')}
               </Text>
-              <Field label="Adresse email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="vous@exemple.ch" />
+              <Field label={t('publicDevisPortal.emailLabel')} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder={t('publicDevisPortal.emailPlaceholder')} />
               {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
-              <Button title="Recevoir mon code" onPress={handleRequestCode} loading={sendingCode} disabled={!email.trim()} style={styles.pillButton} />
+              <Button title={t('publicDevisPortal.receiveCode')} onPress={handleRequestCode} loading={sendingCode} disabled={!email.trim()} style={styles.pillButton} />
             </>
           ) : (
             <>
-              <Text style={styles.gateTitle}>Entrez votre code</Text>
+              <Text style={styles.gateTitle}>{t('publicDevisPortal.gateTitleCode')}</Text>
               <Text style={styles.gateSubtitle}>
-                Un code à 6 chiffres a été envoyé à {email.trim()} s'il correspond à ce devis. Il expire dans 10 minutes.
+                {t('publicDevisPortal.gateSubtitleCode', { email: email.trim() })}
               </Text>
               <Field
-                label="Code de vérification"
+                label={t('publicDevisPortal.codeLabel')}
                 value={code}
                 onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
                 keyboardType="number-pad"
@@ -205,10 +206,10 @@ export default function PublicDevisScreen() {
               />
               {gateError ? <Text style={styles.error}>{gateError}</Text> : null}
               {resendHint ? <Text style={styles.hint}>{resendHint}</Text> : null}
-              <Button title="Vérifier" onPress={handleVerifyCode} loading={verifyingCode} disabled={code.trim().length !== 6} style={styles.pillButton} />
+              <Button title={t('publicDevisPortal.verify')} onPress={handleVerifyCode} loading={verifyingCode} disabled={code.trim().length !== 6} style={styles.pillButton} />
               <View style={styles.gateLinksRow}>
                 <Text onPress={handleResendCode} style={styles.gateLink}>
-                  Renvoyer le code
+                  {t('publicDevisPortal.resendCode')}
                 </Text>
                 <Text
                   onPress={() => {
@@ -218,7 +219,7 @@ export default function PublicDevisScreen() {
                   }}
                   style={styles.gateLink}
                 >
-                  Modifier l'adresse email
+                  {t('publicDevisPortal.changeEmail')}
                 </Text>
               </View>
             </>
@@ -246,7 +247,7 @@ export default function PublicDevisScreen() {
       <ClientPortalHeader onMenuPress={handleOpenHistory} />
 
       <View style={[premiumCard, styles.headerCard]}>
-        <Text style={styles.eyebrow}>Devis {devis.number ?? ''}</Text>
+        <Text style={styles.eyebrow}>{t('publicDevisPortal.devisNumber', { number: devis.number ?? '' })}</Text>
         <Text style={styles.orgName}>{organization.name}</Text>
         <View style={[styles.statusPill, isAccepted && styles.statusPillAccepted, isRefused && styles.statusPillRefused]}>
           <Text
@@ -261,7 +262,7 @@ export default function PublicDevisScreen() {
         </View>
         {devis.has_pdf ? (
           <Button
-            title="Télécharger le PDF"
+            title={t('publicDevisPortal.downloadPdf')}
             variant="secondary"
             icon="download"
             loading={downloadingPdf}
@@ -273,13 +274,13 @@ export default function PublicDevisScreen() {
       </View>
 
       <View style={[premiumCard, styles.card]}>
-        <Text style={styles.sectionTitle}>Client</Text>
+        <Text style={styles.sectionTitle}>{t('publicDevisPortal.clientLabel')}</Text>
         <Text style={styles.line}>{devis.client_name}</Text>
         {devis.client_address ? <Text style={styles.lineMuted}>{devis.client_address}</Text> : null}
       </View>
 
       <View style={[premiumCard, styles.card]}>
-        <Text style={styles.sectionTitle}>Détail</Text>
+        <Text style={styles.sectionTitle}>{t('publicDevisPortal.detailLabel')}</Text>
         {items.map((item) => (
           <View key={item.id} style={styles.itemRow}>
             <Text style={styles.itemDescription}>{item.description}</Text>
@@ -291,15 +292,15 @@ export default function PublicDevisScreen() {
         ))}
         <View style={styles.divider} />
         <View style={styles.totalsRow}>
-          <Text style={styles.lineMuted}>Sous-total</Text>
+          <Text style={styles.lineMuted}>{t('publicDevisPortal.subtotal')}</Text>
           <Text style={styles.line}>{chf(totals.subtotal)}</Text>
         </View>
         <View style={styles.totalsRow}>
-          <Text style={styles.lineMuted}>TVA ({devis.vat_rate}%)</Text>
+          <Text style={styles.lineMuted}>{t('publicDevisPortal.vat', { rate: devis.vat_rate })}</Text>
           <Text style={styles.line}>{chf(totals.vat)}</Text>
         </View>
         <View style={styles.totalsRow}>
-          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalLabel}>{t('publicDevisPortal.total')}</Text>
           <Text style={styles.totalAmount}>{chf(totals.total)}</Text>
         </View>
         {devis.notes ? <Text style={[styles.lineMuted, { marginTop: spacing.md }]}>{devis.notes}</Text> : null}
@@ -310,35 +311,35 @@ export default function PublicDevisScreen() {
           <View style={styles.confirmIcon}>
             <Feather name="check" size={22} color={colors.success} />
           </View>
-          <Text style={styles.confirmTitle}>Devis accepté</Text>
+          <Text style={styles.confirmTitle}>{t('publicDevisPortal.acceptedTitle')}</Text>
           <Text style={styles.confirmSubtitle}>
-            {devis.client_signer_name ? `Signé par ${devis.client_signer_name}. ` : ''}
-            {organization.name} a été notifié et prendra contact avec vous.
+            {devis.client_signer_name ? t('publicDevisPortal.acceptedSignedBy', { name: devis.client_signer_name }) : ''}
+            {t('publicDevisPortal.acceptedNotified', { org: organization.name })}
           </Text>
         </View>
       ) : isRefused ? (
         <View style={[premiumCard, styles.card]}>
-          <Text style={styles.line}>Ce devis a été refusé et n'est plus disponible à l'acceptation en ligne. Contactez {organization.name} pour toute question.</Text>
+          <Text style={styles.line}>{t('publicDevisPortal.refusedText', { org: organization.name })}</Text>
         </View>
       ) : (
         <View style={[premiumCard, styles.card]}>
-          <Text style={styles.sectionTitle}>Accepter ce devis</Text>
-          <Field label="Prénom" value={firstName} onChangeText={setFirstName} />
-          <Field label="Nom" value={lastName} onChangeText={setLastName} />
+          <Text style={styles.sectionTitle}>{t('publicDevisPortal.acceptTitle')}</Text>
+          <Field label={t('publicDevisPortal.firstNameLabel')} value={firstName} onChangeText={setFirstName} />
+          <Field label={t('publicDevisPortal.lastNameLabel')} value={lastName} onChangeText={setLastName} />
 
-          <Text style={[styles.sectionTitle, { marginTop: spacing.sm }]}>Signature</Text>
+          <Text style={[styles.sectionTitle, { marginTop: spacing.sm }]}>{t('publicDevisPortal.signatureLabel')}</Text>
           <View style={styles.toggleRow}>
             <Text
               onPress={() => setSignatureMode('draw')}
               style={[styles.toggleOption, signatureMode === 'draw' && styles.toggleOptionActive]}
             >
-              Dessiner
+              {t('publicDevisPortal.draw')}
             </Text>
             <Text
               onPress={() => setSignatureMode('upload')}
               style={[styles.toggleOption, signatureMode === 'upload' && styles.toggleOptionActive]}
             >
-              Importer une photo
+              {t('publicDevisPortal.importPhoto')}
             </Text>
           </View>
 
@@ -346,13 +347,13 @@ export default function PublicDevisScreen() {
             <SignaturePad onChange={setSignatureData} />
           ) : (
             <View>
-              <Button title={signatureData ? 'Changer la photo' : 'Choisir une photo'} variant="secondary" icon="camera" onPress={handlePickPhoto} />
-              {signatureData ? <Text style={styles.lineMuted}>Photo sélectionnée.</Text> : null}
+              <Button title={signatureData ? t('publicDevisPortal.changePhoto') : t('publicDevisPortal.choosePhoto')} variant="secondary" icon="camera" onPress={handlePickPhoto} />
+              {signatureData ? <Text style={styles.lineMuted}>{t('publicDevisPortal.photoSelected')}</Text> : null}
             </View>
           )}
 
           {acceptError ? <Text style={styles.error}>{acceptError}</Text> : null}
-          <Button title="Accepter le devis" onPress={handleAccept} loading={accepting} style={[styles.pillButton, { marginTop: spacing.md }]} />
+          <Button title={t('publicDevisPortal.acceptDevis')} onPress={handleAccept} loading={accepting} style={[styles.pillButton, { marginTop: spacing.md }]} />
         </View>
       )}
       <ClientPortalFooter />

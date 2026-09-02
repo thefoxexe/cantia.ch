@@ -2,6 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { portalFonts } from '../lib/clientPortalTheme';
+import { useTranslation } from '../lib/translations';
 import { SwissCross } from './SwissCross';
 
 // Shared brand header for the public client portal pages (devis-client,
@@ -12,6 +13,7 @@ import { SwissCross } from './SwissCross';
 // rather than as a separate banner below, so the brand and the promise of
 // security read as one unified statement instead of two stacked notices.
 export function ClientPortalHeader({ onMenuPress }: { onMenuPress?: () => void }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.row}>
       <View style={styles.brand}>
@@ -21,10 +23,10 @@ export function ClientPortalHeader({ onMenuPress }: { onMenuPress?: () => void }
       <View style={styles.right}>
         <View style={styles.trustChip}>
           <SwissCross size={14} />
-          <Text style={styles.trustChipText}>Sécurisé</Text>
+          <Text style={styles.trustChipText}>{t('clientPortalHeader.secure')}</Text>
         </View>
         {onMenuPress ? (
-          <Pressable onPress={onMenuPress} style={styles.menuButton} hitSlop={8} accessibilityLabel="Mes documents">
+          <Pressable onPress={onMenuPress} style={styles.menuButton} hitSlop={8} accessibilityLabel={t('clientPortalHeader.myDocuments')}>
             <Feather name="menu" size={18} color={colors.text} />
           </Pressable>
         ) : null}
