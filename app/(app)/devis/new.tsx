@@ -15,6 +15,7 @@ import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/the
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../lib/catalog';
 import { generateDevisLines } from '../../../lib/api/ai';
 import { useDictation } from '../../../lib/useDictation';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
 import type { DevisTrameItem, Project } from '../../../lib/types';
 
 interface PriceMismatch {
@@ -50,6 +51,7 @@ function emptyLine(): Line {
 }
 
 export default function NewDevisScreen() {
+  const { t } = useTranslation();
   const { organization, user } = useAuth();
   const { trameId } = useLocalSearchParams<{ trameId?: string }>();
   const { width } = useWindowDimensions();
@@ -191,9 +193,9 @@ export default function NewDevisScreen() {
     }
     dictationBaseRef.current = target.type === 'line' ? lines[target.index].description : '';
     setDictationTarget(target);
-    const started = await dictation.start('fr-FR');
+    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : 'fr-FR');
     if (!started) {
-      Alert.alert('Permission requise', 'Autorisez l’accès au microphone pour dicter.');
+      Alert.alert(t('devisNew.micPermissionTitle'), t('devisNew.micPermissionBody'));
     }
   }
 
@@ -210,7 +212,7 @@ export default function NewDevisScreen() {
   // button would otherwise look idle again during that gap.
   function dictationLabel(target: DictationTarget, idleLabel: string, listeningLabel: string): string {
     if (!isDictating(target)) return idleLabel;
-    return dictation.transcribing ? 'Transcription…' : listeningLabel;
+    return dictation.transcribing ? t('devisNew.transcribing') : listeningLabel;
   }
 
   // Turns the raw dictated transcript into structured devis lines via the
@@ -226,7 +228,7 @@ export default function NewDevisScreen() {
     const { lines: aiLines, error: err } = await generateDevisLines(transcript, catalogPayload, organization.id);
     setGeneratingLines(false);
     if (err || !aiLines || aiLines.length === 0) {
-      setLinesDictationError(err ?? "Aucune position n'a été comprise dans la dictée, réessayez.");
+      setLinesDictationError(err ?? t('devisNew.noLinesUnderstood'));
       return;
     }
     const newLines: Line[] = aiLines.map((l) => ({
@@ -276,12 +278,12 @@ export default function NewDevisScreen() {
   async function handleCreate() {
     if (!organization) return;
     if (!clientName.trim()) {
-      setError('Le nom du client est requis.');
+      setError(t('devisNew.clientNameRequired'));
       return;
     }
     const validLines = lines.filter((l) => l.description.trim());
     if (validLines.length === 0) {
-      setError('Ajoutez au moins une ligne de devis.');
+      setError(t('devisNew.lineRequired'));
       return;
     }
     setError(null);
@@ -318,7 +320,7 @@ export default function NewDevisScreen() {
       .single();
 
     if (devisError || !devis) {
-      setError(devisError?.message ?? 'Échec de la création du devis');
+      setError(devisError?.message ?? t('devisNew.createFailed'));
       setLoading(false);
       return;
     }
@@ -334,7 +336,7 @@ export default function NewDevisScreen() {
     if (discountAmount > 0) {
       itemsPayload.push({
         devis_id: devis.id,
-        description: `Remise (${Number(discountPercent)}%)`,
+        description: t('documentPreview.discountLine', { pct: Number(discountPercent) }),
         quantity: 1,
         unit: 'pce',
         unit_price: -Math.round(discountAmount * 100) / 100,
@@ -382,7 +384,7 @@ export default function NewDevisScreen() {
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
-          <Text style={styles.sectionTitle}>Client</Text>
+          <Text style={styles.sectionTitle}>{t('devisNew.clientTitle')}</Text>
           {organization ? (
             <ClientPicker
               organizationId={organization.id}
@@ -402,13 +404,13 @@ export default function NewDevisScreen() {
             </Card>
           ) : null}
 
-          <Text style={styles.sectionTitle}>Chantier</Text>
-          <Text style={styles.sectionHint}>Optionnel — permet de retrouver ce devis depuis la fiche du chantier et de suivre sa rentabilité.</Text>
+          <Text style={styles.sectionTitle}>{t('devisNew.chantierTitle')}</Text>
+          <Text style={styles.sectionHint}>{t('devisNew.chantierHint')}</Text>
           {organization ? (
             <ProjectPicker organizationId={organization.id} selectedProject={selectedProject} onSelect={setSelectedProject} />
           ) : null}
 
-          <Text style={styles.sectionTitle}>Lignes du devis</Text>
+          <Text style={styles.sectionTitle}>{t('devisNew.linesTitle')}</Text>
           {organization ? <TramePicker organizationId={organization.id} onSelect={applyTrameItems} /> : null}
           {dictation.supported ? (
             <View style={styles.dictateLinesCard}>
@@ -429,8 +431,8 @@ export default function NewDevisScreen() {
                   ]}
                 >
                   {generatingLines
-                    ? 'Analyse des positions…'
-                    : dictationLabel({ type: 'devisLines' }, 'Dicter les positions du devis', 'Écoute… (touchez pour arrêter)')}
+                    ? t('devisNew.analyzingPositions')
+                    : dictationLabel({ type: 'devisLines' }, t('devisNew.dictatePositions'), t('devisNew.listeningStop'))}
                 </Text>
               </Pressable>
               {isDictating({ type: 'devisLines' }) && devisLinesTranscript ? (
@@ -458,7 +460,7 @@ export default function NewDevisScreen() {
             return (
               <View key={i} style={styles.lineCard}>
                 <View style={styles.lineCardHeader}>
-                  <Text style={styles.lineIndex}>Ligne {i + 1}</Text>
+                  <Text style={styles.lineIndex}>{t('devisNew.lineIndex', { index: i + 1 })}</Text>
                   <View style={styles.lineCardHeaderActions}>
                     {dictation.supported ? (
                       <Pressable
@@ -479,7 +481,7 @@ export default function NewDevisScreen() {
                             isDictating({ type: 'line', index: i }) && styles.dictateButtonTextActive,
                           ]}
                         >
-                          {dictationLabel({ type: 'line', index: i }, 'Dicter', 'Écoute…')}
+                          {dictationLabel({ type: 'line', index: i }, t('devisNew.dictate'), t('devisNew.listening'))}
                         </Text>
                       </Pressable>
                     ) : null}
@@ -493,8 +495,8 @@ export default function NewDevisScreen() {
                 <TextInput
                   style={styles.lineDesc}
                   value={line.description}
-                  onChangeText={(t) => handleLineDescriptionChange(i, t)}
-                  placeholder="Description de la prestation"
+                  onChangeText={(v) => handleLineDescriptionChange(i, v)}
+                  placeholder={t('devisNew.descriptionPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   multiline
                 />
@@ -516,31 +518,31 @@ export default function NewDevisScreen() {
                 ) : null}
                 <View style={styles.lineFields}>
                   <View style={styles.lineFieldQty}>
-                    <Text style={styles.lineFieldLabel}>Qté</Text>
+                    <Text style={styles.lineFieldLabel}>{t('devisNew.qtyLabel')}</Text>
                     <TextInput
                       style={styles.lineInput}
                       value={line.quantity}
-                      onChangeText={(t) => updateLine(i, { quantity: t })}
+                      onChangeText={(v) => updateLine(i, { quantity: v })}
                       keyboardType="decimal-pad"
                       placeholderTextColor={colors.textMuted}
                     />
                   </View>
                   <View style={styles.lineFieldUnit}>
-                    <Text style={styles.lineFieldLabel}>Unité</Text>
+                    <Text style={styles.lineFieldLabel}>{t('devisNew.unitLabel')}</Text>
                     <TextInput
                       style={styles.lineInput}
                       value={line.unit}
-                      onChangeText={(t) => updateLine(i, { unit: t, unitAuto: false })}
-                      placeholder="pce, h, m²…"
+                      onChangeText={(v) => updateLine(i, { unit: v, unitAuto: false })}
+                      placeholder={t('devisNew.unitPlaceholder')}
                       placeholderTextColor={colors.textMuted}
                     />
                   </View>
                   <View style={styles.lineFieldPrice}>
-                    <Text style={styles.lineFieldLabel}>Prix unit. CHF</Text>
+                    <Text style={styles.lineFieldLabel}>{t('devisNew.unitPriceLabel')}</Text>
                     <TextInput
                       style={[styles.lineInput, line.needsPrice && styles.lineInputNeedsPrice]}
                       value={line.unitPrice}
-                      onChangeText={(t) => updateLine(i, { unitPrice: t, needsPrice: false })}
+                      onChangeText={(v) => updateLine(i, { unitPrice: v, needsPrice: false })}
                       keyboardType="decimal-pad"
                       placeholderTextColor={colors.textMuted}
                     />
@@ -549,7 +551,7 @@ export default function NewDevisScreen() {
                 {line.needsPrice ? (
                   <View style={styles.needsPriceBadge}>
                     <Feather name="alert-triangle" size={11} color={colors.warning} />
-                    <Text style={styles.needsPriceText}>Pas de prix connu pour cet article — à compléter</Text>
+                    <Text style={styles.needsPriceText}>{t('devisNew.needsPriceText')}</Text>
                   </View>
                 ) : null}
                 {priceCoherence !== null && priceCoherence < 97 && bestMatch ? (
@@ -563,21 +565,21 @@ export default function NewDevisScreen() {
                           : styles.priceCoherenceHigh,
                     ]}
                   >
-                    {priceCoherence}% cohérent avec l’historique (CHF {bestMatch.unitPrice.toFixed(2)} habituellement)
+                    {t('devisNew.priceCoherence', { percent: priceCoherence, price: bestMatch.unitPrice.toFixed(2) })}
                   </Text>
                 ) : null}
-                <Text style={styles.lineTotal}>Sous-total : CHF {lineTotal.toFixed(2)}</Text>
+                <Text style={styles.lineTotal}>{t('devisNew.lineSubtotal', { amount: lineTotal.toFixed(2) })}</Text>
               </View>
             );
           })}
 
           <Pressable style={styles.addLine} onPress={addLine}>
             <Feather name="plus" size={16} color={colors.primary} />
-            <Text style={styles.addLineText}>Ajouter une ligne</Text>
+            <Text style={styles.addLineText}>{t('devisNew.addLine')}</Text>
           </Pressable>
 
           <View style={styles.discountRow}>
-            <Text style={styles.discountLabel}>Remise globale (%)</Text>
+            <Text style={styles.discountLabel}>{t('devisNew.discountLabel')}</Text>
             <TextInput
               style={styles.discountInput}
               value={discountPercent}
@@ -590,16 +592,16 @@ export default function NewDevisScreen() {
 
           {discountAmount > 0 ? (
             <>
-              <Text style={styles.totalsSubline}>Sous-total : CHF {subtotal.toFixed(2)}</Text>
-              <Text style={styles.totalsSubline}>Remise : − CHF {discountAmount.toFixed(2)}</Text>
+              <Text style={styles.totalsSubline}>{t('devisNew.subtotalLine', { amount: subtotal.toFixed(2) })}</Text>
+              <Text style={styles.totalsSubline}>{t('devisNew.discountLine', { amount: discountAmount.toFixed(2) })}</Text>
             </>
           ) : null}
-          <Text style={styles.total}>Total HT estimé : CHF {total.toFixed(2)}</Text>
+          <Text style={styles.total}>{t('devisNew.totalEstimated', { amount: total.toFixed(2) })}</Text>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {error?.includes('plan payant') ? (
             <Button
-              title="Passer à un plan payant"
+              title={t('devisNew.upgradeToPaidPlan')}
               icon="arrow-up-circle"
               variant="secondary"
               onPress={() => router.push('/(app)/compte/facturation')}
@@ -607,7 +609,7 @@ export default function NewDevisScreen() {
             />
           ) : null}
 
-          <Button title="Créer le devis" onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+          <Button title={t('devisNew.createDevis')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>
         {isDesktop ? <View style={styles.previewColumn}>{previewNode}</View> : null}
         </View>
@@ -619,7 +621,7 @@ export default function NewDevisScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Aperçu du devis</Text>
+              <Text style={styles.modalTitle}>{t('devisNew.previewTitle')}</Text>
               <Pressable hitSlop={8} onPress={() => setPreviewVisible(false)}>
                 <Feather name="x" size={20} color={colors.textMuted} />
               </Pressable>
@@ -633,15 +635,14 @@ export default function NewDevisScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Prix différent du catalogue</Text>
+              <Text style={styles.modalTitle}>{t('devisNew.mismatchTitle')}</Text>
               <Pressable hitSlop={8} onPress={() => setPriceMismatches(null)}>
                 <Feather name="x" size={20} color={colors.textMuted} />
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={styles.modalBody}>
               <Text style={styles.mismatchIntro}>
-                Le prix saisi diffère de celui déjà connu pour {priceMismatches?.length === 1 ? 'cette position' : 'ces positions'}. Choisissez, pour
-                chacune, si le nouveau prix doit être enregistré dans le catalogue ou rester une exception pour ce devis.
+                {t('devisNew.mismatchIntro', { target: priceMismatches?.length === 1 ? t('devisNew.mismatchTargetSingle') : t('devisNew.mismatchTargetPlural') })}
               </Text>
               {(priceMismatches ?? []).map((m) => (
                 <View key={m.catalogItemId} style={styles.mismatchCard}>
@@ -649,9 +650,9 @@ export default function NewDevisScreen() {
                     {m.description}
                   </Text>
                   <View style={styles.mismatchPrices}>
-                    <Text style={styles.mismatchOldPrice}>Catalogue : CHF {m.catalogPrice.toFixed(2)}</Text>
+                    <Text style={styles.mismatchOldPrice}>{t('devisNew.catalogPrice', { price: m.catalogPrice.toFixed(2) })}</Text>
                     <Feather name="arrow-right" size={12} color={colors.textMuted} />
-                    <Text style={styles.mismatchNewPrice}>Saisi : CHF {m.enteredPrice.toFixed(2)}</Text>
+                    <Text style={styles.mismatchNewPrice}>{t('devisNew.enteredPrice', { price: m.enteredPrice.toFixed(2) })}</Text>
                   </View>
                   <View style={styles.mismatchChoices}>
                     <Pressable
@@ -659,19 +660,19 @@ export default function NewDevisScreen() {
                       onPress={() => m.updateCatalog && toggleMismatchUpdate(m.catalogItemId)}
                     >
                       <Text style={[styles.mismatchChoiceText, !m.updateCatalog && styles.mismatchChoiceTextActive]}>
-                        Garder l'écart pour ce devis
+                        {t('devisNew.keepException')}
                       </Text>
                     </Pressable>
                     <Pressable
                       style={[styles.mismatchChoice, m.updateCatalog && styles.mismatchChoiceActive]}
                       onPress={() => !m.updateCatalog && toggleMismatchUpdate(m.catalogItemId)}
                     >
-                      <Text style={[styles.mismatchChoiceText, m.updateCatalog && styles.mismatchChoiceTextActive]}>Mettre à jour le catalogue</Text>
+                      <Text style={[styles.mismatchChoiceText, m.updateCatalog && styles.mismatchChoiceTextActive]}>{t('devisNew.updateCatalog')}</Text>
                     </Pressable>
                   </View>
                 </View>
               ))}
-              <Button title="Confirmer et créer le devis" onPress={confirmMismatchesAndSubmit} loading={loading} style={{ marginTop: spacing.md }} />
+              <Button title={t('devisNew.confirmAndCreate')} onPress={confirmMismatchesAndSubmit} loading={loading} style={{ marginTop: spacing.md }} />
             </ScrollView>
           </View>
         </View>
