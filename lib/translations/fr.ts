@@ -1393,7 +1393,7 @@ export const fr = {
     subtitle: 'Votre espace {{name}} est créé. Choisissez la formule qui vous convient pour commencer.',
     checkoutStartError: 'Impossible de démarrer le paiement.',
     adminAccess: "Accéder à l'administration Cantia",
-    trialBanner: "14 jours d'essai complet inclus sur chaque plan. Une carte est demandée à l'inscription, mais rien n'est débité avant la fin de l'essai — résiliable à tout moment.",
+    trialBanner: "14 jours d'essai gratuit sur tous les plans, résiliable à tout moment.",
     billingYearly: 'Facturation annuelle',
     billingMonthly: 'Facturation mensuelle',
     recommended: 'Recommandé',
