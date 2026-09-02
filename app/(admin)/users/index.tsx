@@ -12,7 +12,7 @@ const PAGE_SIZE = 50;
 
 function formatDate(iso: string | null): string {
   if (!iso) return 'jamais';
-  return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 export default function AdminUsersList() {

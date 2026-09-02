@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
 import { openCheckoutUrl } from '../../lib/openUrl';
 import { Button, Card, Screen, Switch } from '../../components/ui';
-import { useTranslation } from '../../lib/translations';
+import { getAppLocale, useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 
@@ -120,7 +120,11 @@ export default function ChoosePlanScreen() {
           ))}
         </View>
 
-        <Pressable style={styles.contactCard} onPress={() => router.push('/sur-mesure')} hitSlop={8}>
+        <Pressable
+          style={styles.contactCard}
+          onPress={() => router.push((getAppLocale() === 'de' ? '/de/sur-mesure' : '/sur-mesure') as any)}
+          hitSlop={8}
+        >
           <Feather name="tool" size={16} color={colors.textMuted} />
           <Text style={styles.contactCardText}>
             {t('authChoosePlan.contactText')}{' '}

@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: membership } = await userClient
       .from('organization_members')
-      .select('organization_id, role, organizations(*)')
+      .select('organization_id, role, locale, organizations(*)')
       .eq('user_id', user.id)
       .limit(1)
       .maybeSingle();
@@ -48,6 +48,13 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Seul un propriétaire ou administrateur peut gérer l'abonnement." }, 403);
     }
     const org = membership.organizations as any;
+    // The member's own personal UI locale (organization_members.locale, set
+    // from raw_user_meta_data.locale at signup) — not organizations.locale,
+    // which is the org's separate outgoing-document language and defaults
+    // to 'fr' regardless of who's paying. Whoever is sitting at this
+    // checkout should see Stripe's hosted page in the language they've been
+    // using through onboarding, not the org's document language.
+    const stripeLocale = membership.locale === 'de' ? 'de' : 'fr';
 
     const { data: plan, error: planError } = await admin.from('plans').select('*').eq('id', plan_id).single();
     if (planError || !plan) return json({ error: 'Plan introuvable' }, 404);
@@ -94,6 +101,7 @@ Deno.serve(async (req: Request) => {
       success_url,
       cancel_url,
       allow_promotion_codes: true,
+      locale: stripeLocale,
       // The account has Managed Payments on by default, which requires every
       // line item's product to carry a Managed-Payments-eligible tax code.
       // Our products are intentionally "Nontaxable" (Bastien isn't VAT-

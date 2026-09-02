@@ -35,7 +35,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: membership } = await userClient
       .from('organization_members')
-      .select('role, organizations(*)')
+      .select('role, locale, organizations(*)')
       .eq('user_id', user.id)
       .limit(1)
       .maybeSingle();
@@ -52,6 +52,10 @@ Deno.serve(async (req: Request) => {
     const params: Stripe.BillingPortal.SessionCreateParams = {
       customer: org.stripe_customer_id,
       return_url,
+      // Same member-locale reasoning as stripe-checkout: this is whoever is
+      // currently looking at Stripe's hosted page, not the org's document
+      // language.
+      locale: membership.locale === 'de' ? 'de' : 'fr',
     };
     // "Résilier mon abonnement" skips the portal's own menu and drops the
     // user straight into Stripe's cancellation flow for their subscription.

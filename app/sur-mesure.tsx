@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { SolutionPage } from '../components/SolutionPage';
+import { SurMesureContactForm } from '../components/SurMesureContactForm';
+import { Container } from '../components/ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -63,6 +65,11 @@ export default function SurMesurePage() {
       title={t('surMesurePage.title')}
       subtitle={t('surMesurePage.subtitle')}
       visual={<SurMesureVisual />}
+      afterFeatures={
+        <Container style={styles.formSection}>
+          <SurMesureContactForm />
+        </Container>
+      }
       features={[
         { icon: 'sliders', title: t('surMesurePage.feature1Title'), text: t('surMesurePage.feature1Text') },
         { icon: 'link', title: t('surMesurePage.feature2Title'), text: t('surMesurePage.feature2Text') },
@@ -93,6 +100,9 @@ export default function SurMesurePage() {
 }
 
 const styles = StyleSheet.create({
+  formSection: {
+    paddingVertical: spacing.xl,
+  },
   visualFrame: {
     width: '100%',
     maxWidth: 380,

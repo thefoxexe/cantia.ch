@@ -7,7 +7,7 @@ import { breakpoints, colors, fontSize, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, toggleLocalePathname } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
-import { getAppLocale, useTranslation } from '../lib/translations';
+import { forceLocale, getAppLocale, useTranslation } from '../lib/translations';
 
 // FR/DE toggle for the marketing site's nav and footer — links to the same
 // page's other-language mirror (toggleLocalePathname), not just the
@@ -22,12 +22,15 @@ function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const deHref = toggleLocalePathname(pathname, 'de');
   return (
     <View style={[styles.langSwitcher, compact && styles.langSwitcherCompact]}>
-      <Link href={frHref as any}>
-        <Text style={[styles.langOption, locale === 'fr' && styles.langOptionActive]}>FR</Text>
+      <Link href={frHref as any} asChild>
+        <Pressable style={[styles.langPill, locale === 'fr' && styles.langPillActive]} hitSlop={4}>
+          <Text style={[styles.langPillText, locale === 'fr' && styles.langPillTextActive]}>FR</Text>
+        </Pressable>
       </Link>
-      <Text style={styles.langDivider}>/</Text>
-      <Link href={deHref as any}>
-        <Text style={[styles.langOption, locale === 'de' && styles.langOptionActive]}>DE</Text>
+      <Link href={deHref as any} asChild>
+        <Pressable style={[styles.langPill, locale === 'de' && styles.langPillActive]} hitSlop={4}>
+          <Text style={[styles.langPillText, locale === 'de' && styles.langPillTextActive]}>DE</Text>
+        </Pressable>
       </Link>
     </View>
   );
@@ -50,6 +53,20 @@ export function MarketingNav() {
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuAnim = useRef(new Animated.Value(0)).current;
+
+  // Each /de/* route module forces German at module-scope, but that only
+  // ever runs once, the first time that module is evaluated — a client-side
+  // <Link> navigation elsewhere (a bare French page, or right back to a /de
+  // page on a later visit) doesn't re-run it and doesn't remount this SPA,
+  // so i18next's in-memory language previously just stuck at whatever it
+  // last was. MarketingNav renders at the top of every marketing page, so
+  // syncing it here on every pathname change (not just first mount) keeps
+  // the site's language matching the URL in both directions, however many
+  // times a visitor toggles.
+  useEffect(() => {
+    const isDe = pathname === '/de' || pathname.startsWith('/de/');
+    forceLocale(isDe ? 'de' : 'fr');
+  }, [pathname]);
 
   useEffect(() => {
     Animated.timing(menuAnim, {
@@ -343,26 +360,41 @@ const styles = StyleSheet.create({
   navCta: {
     paddingHorizontal: spacing.lg,
   },
+  // A tiny two-segment pill, like an iOS-style toggle — reads as a single
+  // small control rather than two loose "FR / DE" text links sitting
+  // awkwardly among the nav's other (much larger) touch targets.
   langSwitcher: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: 999,
+    padding: 2,
+    gap: 1,
   },
   langSwitcherCompact: {
-    marginLeft: spacing.sm,
+    marginLeft: 0,
   },
-  langOption: {
+  langPill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  langPillActive: {
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  langPillText: {
     fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
+    fontSize: 11,
     fontWeight: '700',
     color: colors.textMuted,
+    letterSpacing: 0.2,
   },
-  langOptionActive: {
+  langPillTextActive: {
     color: colors.primary,
-  },
-  langDivider: {
-    fontSize: fontSize.sm,
-    color: colors.border,
   },
   hamburgerButton: {
     width: 40,

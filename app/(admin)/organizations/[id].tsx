@@ -18,6 +18,15 @@ function formatDate(iso: string | null): string {
   return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Signup/last-seen moments need the time, not just the day — the admin
+// dashboard is used to trace exactly when something happened, and "aujourd'hui"
+// alone doesn't answer that. Billing dates (trial end, next invoice) stay
+// date-only via formatDate above; those are just calendar deadlines.
+function formatDateTime(iso: string | null): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
 }
@@ -109,7 +118,7 @@ export default function AdminOrganizationDetailScreen() {
           </View>
           <View style={styles.infoCell}>
             <Text style={styles.infoLabel}>Créée le</Text>
-            <Text style={styles.infoValue}>{formatDate(org.created_at)}</Text>
+            <Text style={styles.infoValue}>{formatDateTime(org.created_at)}</Text>
           </View>
           <View style={styles.infoCell}>
             <Text style={styles.infoLabel}>Identifiant</Text>
@@ -173,7 +182,7 @@ export default function AdminOrganizationDetailScreen() {
                   {m.email} · {m.role}
                 </Text>
               </View>
-              <Text style={styles.memberMeta}>Dernière connexion : {m.last_sign_in_at ? formatDate(m.last_sign_in_at) : 'jamais'}</Text>
+              <Text style={styles.memberMeta}>Dernière connexion : {m.last_sign_in_at ? formatDateTime(m.last_sign_in_at) : 'jamais'}</Text>
             </View>
           ))}
         </View>
