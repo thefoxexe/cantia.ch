@@ -7,6 +7,11 @@ export interface HelpArticle {
   title: string;
   keywords: string[];
   body: string[]; // one string per paragraph
+  // Base filename (no extension) of a screenshot under public/aide/<screenshot>.png,
+  // rendered near the top of the article's dedicated page. Real Cantia UI
+  // captured against a "Cantia Démo SA" demo organization seeded with
+  // placeholder data — never a real customer's account.
+  screenshot?: string;
 }
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -24,6 +29,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'devis-creation',
+    screenshot: 'devis-creation',
     category: 'Devis',
     title: 'Créer et envoyer un devis',
     keywords: ['devis', 'création', 'dictée', 'lignes', 'client', 'chantier'],
@@ -47,6 +53,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'facturation-acomptes',
+    screenshot: 'facturation-acomptes',
     category: 'Facturation',
     title: 'Factures, acomptes et paiements partiels',
     keywords: ['facture', 'acompte', 'paiement', 'partiel', 'solde', 'déduction'],
@@ -72,6 +79,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'chantiers-rapports',
+    screenshot: 'chantiers-rapports',
     category: 'Chantiers & rapports',
     title: 'Fil de chantier et rapports PDF',
     keywords: ['chantier', 'rapport', 'photo', 'fil', 'actualité', 'pdf'],
@@ -94,6 +102,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'planning',
+    screenshot: 'planning',
     category: 'Planning',
     title: "Planning d'équipe",
     keywords: ['planning', 'équipe', 'affectation', 'calendrier'],
@@ -125,6 +134,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'equipe-modules',
+    screenshot: 'equipe-modules',
     category: 'Équipe & organisation',
     title: "Inviter l'équipe et activer des modules",
     keywords: ['équipe', 'invitation', 'rôle', 'module', 'admin'],
@@ -135,6 +145,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'personnalisation-abonnement',
+    screenshot: 'personnalisation-abonnement',
     category: 'Personnalisation & abonnement',
     title: 'Kit de marque, plans et abonnement',
     keywords: ['couleur', 'logo', 'marque', 'plan', 'abonnement', 'stripe', 'quota'],
@@ -146,6 +157,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'tableau-de-bord',
+    screenshot: 'tableau-de-bord',
     category: 'Démarrage',
     title: 'Comprendre le tableau de bord',
     keywords: ['tableau de bord', 'dashboard', 'accueil', 'kpi', 'raccourcis'],
@@ -217,6 +229,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'rh-heures-salaires',
+    screenshot: 'rh-heures-salaires',
     category: 'RH & salaires',
     title: 'Heures, frais et fiches de salaire',
     keywords: ['rh', 'heures', 'salaire', 'fiche de paie', 'avs', 'lpp', 'source'],
@@ -242,6 +255,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'clients',
+    screenshot: 'clients',
     category: 'Clients',
     title: 'La fiche client',
     keywords: ['client', 'historique', 'fiche', 'coordonnées', 'relance'],
@@ -332,6 +346,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
   {
     id: 'devis-creation',
+    screenshot: 'devis-creation',
     category: 'Offerten',
     title: 'Eine Offerte erstellen und versenden',
     keywords: ['offerte', 'erstellen', 'diktieren', 'positionen', 'kunde', 'baustelle'],
@@ -355,6 +370,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
   {
     id: 'facturation-acomptes',
+    screenshot: 'facturation-acomptes',
     category: 'Rechnungsstellung',
     title: 'Rechnungen, Anzahlungen und Teilzahlungen',
     keywords: ['rechnung', 'anzahlung', 'zahlung', 'teilzahlung', 'saldo', 'abzug'],
@@ -380,6 +396,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
   {
     id: 'chantiers-rapports',
+    screenshot: 'chantiers-rapports',
     category: 'Baustellen & Berichte',
     title: 'Baustellen-Feed und PDF-Berichte',
     keywords: ['baustelle', 'bericht', 'foto', 'feed', 'neuigkeiten', 'pdf'],
@@ -402,6 +419,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
   {
     id: 'planning',
+    screenshot: 'planning',
     category: 'Planung',
     title: 'Team-Planung',
     keywords: ['planung', 'team', 'zuweisung', 'kalender'],
@@ -433,6 +451,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
   {
     id: 'equipe-modules',
+    screenshot: 'equipe-modules',
     category: 'Team & Organisation',
     title: 'Team einladen und Module aktivieren',
     keywords: ['team', 'einladung', 'rolle', 'modul', 'admin'],
@@ -443,6 +462,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
   {
     id: 'personnalisation-abonnement',
+    screenshot: 'personnalisation-abonnement',
     category: 'Anpassung & Abonnement',
     title: 'Markenkit, Pläne und Abonnement',
     keywords: ['farbe', 'logo', 'marke', 'plan', 'abonnement', 'stripe', 'kontingent'],

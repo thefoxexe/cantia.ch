@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
@@ -44,6 +44,17 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
               <Text style={styles.categoryPillText}>{article.category}</Text>
             </View>
             <Heading level={1} style={styles.title}>{article.title}</Heading>
+
+            {article.screenshot ? (
+              <View style={styles.screenshotFrame}>
+                <Image
+                  source={{ uri: `/aide/${article.screenshot}.png` }}
+                  style={styles.screenshot}
+                  resizeMode="cover"
+                  accessibilityLabel={`${article.title} — capture d'écran de Cantia`}
+                />
+              </View>
+            ) : null}
 
             <View style={styles.body}>
               {article.body.map((paragraph, i) => (
@@ -152,6 +163,22 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     marginBottom: spacing.xl,
   } as any,
+  screenshotFrame: {
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+    marginBottom: spacing.xl,
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  screenshot: {
+    width: '100%',
+    aspectRatio: 1280 / 900,
+  },
   body: {
     gap: spacing.lg,
   },
