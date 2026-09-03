@@ -158,19 +158,17 @@ export const BLOG_POSTS: BlogPost[] = [
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));
 
 // Same 138 posts, same order, with each one swapped for its German
-// translation where one exists yet — used by the blog index/listing so a
-// German visitor sees the full catalog immediately rather than only the
-// slice already translated (an untranslated post shows in French until its
-// batch lands, rather than not showing at all).
+// translation — used by the blog index/listing so a German visitor sees the
+// full catalog. Falls back to the French post for any future slug added
+// here before its translation lands.
 export function getAllPosts(locale: 'fr' | 'de' = 'fr'): BlogPost[] {
   if (locale !== 'de') return BLOG_POSTS;
   return BLOG_POSTS.map((p) => BLOG_POSTS_DE.find((d) => d.slug === p.slug) ?? p);
 }
 
-// German translation is ongoing batch by batch (lib/blog/posts-de/), so
-// BLOG_POSTS_DE only covers a subset of BLOG_POSTS' 138 slugs so far — every
-// lookup here falls back to the French post for a slug not yet translated,
-// rather than a broken link or an empty page.
+// All 138 posts are translated (lib/blog/posts-de/); this still falls back
+// to the French post for any future slug added before its translation
+// lands, rather than a broken link or an empty page.
 export function getPostBySlug(slug: string, locale: 'fr' | 'de' = 'fr'): BlogPost | undefined {
   if (locale === 'de') {
     const de = BLOG_POSTS_DE.find((p) => p.slug === slug);
