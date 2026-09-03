@@ -611,13 +611,14 @@ function LandingContent() {
             </Pressable>
           </Link>
 
-          {/* ---- Product tour: a real ~30s screen-capture-style video
-              (rendered from the actual app UI with demo data, not a mockup)
-              walking through signup → create/join a company → the core
-              screens, followed by a grid of the same real screenshots. This
-              exists because prospects who only ever see the landing copy
-              have no way to picture what using Cantia actually looks like —
-              this section is the fix. ---- */}
+          {/* ---- Product tour: a real screen-capture-style video (rendered
+              from the actual app UI with demo data, not a mockup) walking
+              through signup → create/join a company → a full checklist tour
+              of every module. This exists because prospects who only ever
+              see the landing copy have no way to picture what using Cantia
+              actually looks like — this section is the fix. The video
+              itself already covers every screen, so no screenshot grid
+              is duplicated below it. ---- */}
           <Reveal id="tour" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>{t.tour.eyebrow}</Text>
             <Text style={[styles.sectionTitle, styles.centerText]}>{t.tour.title}</Text>
@@ -637,29 +638,6 @@ function LandingContent() {
                 style={styles.tourVideo}
                 accessibilityLabel={t.tour.videoLabel}
               />
-            </View>
-            <View style={styles.tourGrid}>
-              {[
-                { file: 'dashboard', shot: t.tour.shots[0] },
-                { file: 'devis-new', shot: t.tour.shots[1] },
-                { file: 'facture-detail', shot: t.tour.shots[2] },
-                { file: 'chantier-feed', shot: t.tour.shots[3] },
-                { file: 'planning', shot: t.tour.shots[4] },
-                { file: 'onboarding-create', shot: t.tour.shots[5] },
-              ].map(({ file, shot }) => (
-                <View key={file} style={styles.tourCard}>
-                  <View style={styles.tourCardFrame}>
-                    <Image
-                      source={{ uri: `/showcase/${file}.png` }}
-                      style={styles.tourCardImage}
-                      resizeMode="cover"
-                      accessibilityLabel={shot.title}
-                    />
-                  </View>
-                  <Text style={styles.tourCardTitle}>{shot.title}</Text>
-                  <Text style={styles.tourCardText}>{shot.text}</Text>
-                </View>
-              ))}
             </View>
           </Reveal>
 
@@ -3563,40 +3541,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F1E6',
     display: 'block',
   } as unknown as ViewStyle,
-  tourGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.xl,
-  },
-  tourCard: {
-    width: 260,
-    gap: spacing.xs,
-  },
-  tourCardFrame: {
-    width: '100%',
-    aspectRatio: 4 / 3,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: 'rgba(35,26,18,0.08)',
-  },
-  tourCardImage: {
-    width: '100%',
-    height: '100%',
-  },
-  tourCardTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: spacing.xs,
-  },
-  tourCardText: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 19,
-  },
   devicesHeroWrap: {
     width: '100%',
     maxWidth: 1100,
