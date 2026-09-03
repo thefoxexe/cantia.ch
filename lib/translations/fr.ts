@@ -2290,6 +2290,18 @@ export const fr = {
     emptyText: 'Aucun article ne correspond à cette recherche.',
     contactTitle: 'Pas trouvé de réponse ?',
     contactText: 'Écrivez-nous directement à info@cantia.ch.',
+    readMore: "Lire l'article",
+  },
+  helpArticlePage: {
+    relatedEyebrow: 'À lire aussi',
+    readArticle: "Lire l'article",
+    contactTitle: 'Pas trouvé de réponse ?',
+    contactText: 'Écrivez-nous directement à info@cantia.ch.',
+    closingTitle: 'Prêt à essayer Cantia ?',
+    closingCta: 'Essayer gratuitement',
+    notFoundTitle: 'Article introuvable',
+    notFoundText: "Cet article n'existe pas ou plus.",
+    backToAide: "Retour au Centre d'aide",
   },
   aideVideosPage: {
     backLink: "Centre d'aide",

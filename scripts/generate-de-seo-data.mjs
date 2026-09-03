@@ -56,6 +56,31 @@ const blogDatesFr = readdirSync(postsFrDir)
     return acc;
   }, {});
 
+// ---- Help articles (lib/helpArticles.ts, FR + DE in one file) ----
+// description is derived from the first paragraph (truncated to a clean
+// sentence boundary near 155 chars) since HelpArticle has no separate SEO
+// description field of its own — the body itself is already written as
+// plain, complete sentences, so the first one reads fine standalone.
+function descriptionFrom(paragraphs) {
+  const first = paragraphs[0] ?? '';
+  if (first.length <= 155) return first;
+  const cut = first.slice(0, 155);
+  const lastSentenceEnd = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf(' — '));
+  return lastSentenceEnd > 80 ? `${cut.slice(0, lastSentenceEnd + 1)}` : `${cut.slice(0, cut.lastIndexOf(' '))}…`;
+}
+
+const { HELP_ARTICLES, HELP_ARTICLES_DE } = loadTsModule(path.join(rootDir, 'lib/helpArticles.ts'));
+const helpRoutesFr = HELP_ARTICLES.map((a) => ({
+  path: `aide/${a.id}`,
+  title: `${a.title} | Centre d'aide Cantia`,
+  description: descriptionFrom(a.body),
+}));
+const helpRoutesDe = HELP_ARTICLES_DE.map((a) => ({
+  path: `de/aide/${a.id}`,
+  title: `${a.title} | Cantia Hilfe-Center`,
+  description: descriptionFrom(a.body),
+}));
+
 // ---- Trade pages (tradeLandingPagesDe.ts) ----
 const { TRADE_PAGES_DE } = loadTsModule(path.join(rootDir, 'lib/tradeLandingPagesDe.ts'));
 const tradeRoutes = Object.values(TRADE_PAGES_DE).map((trade) => ({
@@ -67,16 +92,20 @@ const tradeRoutes = Object.values(TRADE_PAGES_DE).map((trade) => ({
 
 const out = `// GENERATED FILE — do not hand-edit.
 // Regenerate with: node scripts/generate-de-seo-data.mjs
-// Source: lib/blog/posts-de/*.ts and lib/blog/posts/*.ts (blog) and
-// lib/tradeLandingPagesDe.ts (trades).
+// Source: lib/blog/posts-de/*.ts and lib/blog/posts/*.ts (blog),
+// lib/tradeLandingPagesDe.ts (trades), and lib/helpArticles.ts (help center).
 export const BLOG_SEO_DE = ${JSON.stringify(blogRoutes, null, 2)};
 
 export const TRADE_SEO_DE = ${JSON.stringify(tradeRoutes, null, 2)};
 
 export const BLOG_DATES_FR = ${JSON.stringify(blogDatesFr, null, 2)};
+
+export const HELP_SEO_FR = ${JSON.stringify(helpRoutesFr, null, 2)};
+
+export const HELP_SEO_DE = ${JSON.stringify(helpRoutesDe, null, 2)};
 `;
 
 writeFileSync(path.join(rootDir, 'scripts/de-seo-data.generated.mjs'), out);
 console.log(
-  `Generated ${blogRoutes.length} German blog routes, ${tradeRoutes.length} German trade routes, ${Object.keys(blogDatesFr).length} French blog dates.`,
+  `Generated ${blogRoutes.length} German blog routes, ${tradeRoutes.length} German trade routes, ${Object.keys(blogDatesFr).length} French blog dates, ${helpRoutesFr.length} FR + ${helpRoutesDe.length} DE help-article routes.`,
 );

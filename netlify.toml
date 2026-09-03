@@ -231,6 +231,136 @@
   status = 200
 
 [[redirects]]
+  from = "/aide/demarrage"
+  to = "/aide/demarrage/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/devis-creation"
+  to = "/aide/devis-creation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/devis-trames"
+  to = "/aide/devis-trames/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/facturation-acomptes"
+  to = "/aide/facturation-acomptes/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/facturation-email-lien"
+  to = "/aide/facturation-email-lien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/chantiers-rapports"
+  to = "/aide/chantiers-rapports/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/rentabilite"
+  to = "/aide/rentabilite/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/planning"
+  to = "/aide/planning/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/metre"
+  to = "/aide/metre/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/inventaire"
+  to = "/aide/inventaire/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/equipe-modules"
+  to = "/aide/equipe-modules/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/personnalisation-abonnement"
+  to = "/aide/personnalisation-abonnement/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/tableau-de-bord"
+  to = "/aide/tableau-de-bord/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/rejoindre-organisation"
+  to = "/aide/rejoindre-organisation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/dictee-vocale"
+  to = "/aide/dictee-vocale/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/chantiers-documents"
+  to = "/aide/chantiers-documents/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/chantiers-sous-traitants"
+  to = "/aide/chantiers-sous-traitants/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/travaux-supplementaires"
+  to = "/aide/travaux-supplementaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/rh-heures-salaires"
+  to = "/aide/rh-heures-salaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/tresorerie"
+  to = "/aide/tresorerie/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/clients"
+  to = "/aide/clients/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/sous-traitants"
+  to = "/aide/sous-traitants/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/integration-bexio"
+  to = "/aide/integration-bexio/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/relances-impayes"
+  to = "/aide/relances-impayes/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/import-releve-bancaire"
+  to = "/aide/import-releve-bancaire/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/portail-client"
+  to = "/aide/portail-client/index.html"
+  status = 200
+
+[[redirects]]
   from = "/de"
   to = "/de/index.html"
   status = 200
@@ -443,6 +573,66 @@
 [[redirects]]
   from = "/de/aide/videos"
   to = "/de/aide/videos/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/demarrage"
+  to = "/de/aide/demarrage/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/devis-creation"
+  to = "/de/aide/devis-creation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/devis-trames"
+  to = "/de/aide/devis-trames/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/facturation-acomptes"
+  to = "/de/aide/facturation-acomptes/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/facturation-email-lien"
+  to = "/de/aide/facturation-email-lien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/chantiers-rapports"
+  to = "/de/aide/chantiers-rapports/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/rentabilite"
+  to = "/de/aide/rentabilite/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/planning"
+  to = "/de/aide/planning/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/metre"
+  to = "/de/aide/metre/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/inventaire"
+  to = "/de/aide/inventaire/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/equipe-modules"
+  to = "/de/aide/equipe-modules/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/personnalisation-abonnement"
+  to = "/de/aide/personnalisation-abonnement/index.html"
   status = 200
 
 # Blog articles (French and German) are one dynamic route each

@@ -5,7 +5,7 @@
 //    separate "static" prerendered export that ships cantia.ch)
 // Keeping one array means the two builds can never describe a page
 // differently by accident.
-import { BLOG_DATES_FR, BLOG_SEO_DE, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
+import { BLOG_DATES_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 
 const TRADE_SLUGS = new Set([
   'charpentier', 'macon', 'electricien', 'plombier', 'peintre', 'menuisier', 'entreprise-generale',
@@ -2138,6 +2138,7 @@ export const ROUTES = [
     description:
       'Voir chaque module Cantia en action : devis, factures, chantiers, planning, RH — démonstrations vidéo module par module.',
   },
+  ...HELP_SEO_FR,
 
   // ==========================================================================
   // Allemand (/de/*) — mêmes pages que ci-dessus, en miroir. Les pages métier
@@ -2318,6 +2319,7 @@ export const ROUTES = [
     title: 'Video-Tutorials | Cantia Hilfe-Center',
     description: 'Sehen Sie jedes Cantia-Modul in Aktion: Offerten, Rechnungen, Baustellen, Planung, Personal — Video-Demonstrationen Modul für Modul.',
   },
+  ...HELP_SEO_DE,
   ...BLOG_SEO_DE,
 ];
 

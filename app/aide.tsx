@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Container, Screen } from '../components/ui';
+import { Heading } from '../components/Heading';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { HELP_ARTICLES, HELP_ARTICLES_DE } from '../lib/helpArticles';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
@@ -16,14 +17,19 @@ function normalize(text: string): string {
 // account (so a prospect, or a client who just wants to know how something
 // works, isn't forced through login), and linked to directly from inside the
 // app too (Compte, profile menu) — no separate in-app copy of this page.
+// Each article below is its own indexable page at /aide/<id> (see
+// app/aide/[id].tsx) rather than an accordion row expanding in place — a
+// prospect searching "comment créer un devis Cantia" lands directly on that
+// article instead of on this generic list.
 export default function PublicAideScreen() {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
-  const [openId, setOpenId] = useState<string | null>(null);
+  const locale = getAppLocale();
+  const aideHrefPrefix = locale === 'de' ? '/de/aide' : '/aide';
   // useTranslation() above already re-renders this component on locale
   // change (same mechanism every other marketing/app screen relies on for
   // getAppLocale()), so this stays in sync with the FR/DE toggle.
-  const articles = getAppLocale() === 'de' ? HELP_ARTICLES_DE : HELP_ARTICLES;
+  const articles = locale === 'de' ? HELP_ARTICLES_DE : HELP_ARTICLES;
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
@@ -50,10 +56,10 @@ export default function PublicAideScreen() {
         <MarketingNav />
 
         <Container style={styles.container}>
-          <Text style={styles.title}>{t('aidePage.title')}</Text>
+          <Heading level={1} style={styles.title}>{t('aidePage.title')}</Heading>
           <Text style={styles.lead}>{t('aidePage.lead')}</Text>
 
-          <Link href={(getAppLocale() === 'de' ? '/de/aide/videos' : '/aide/videos') as any} asChild>
+          <Link href={(locale === 'de' ? '/de/aide/videos' : '/aide/videos') as any} asChild>
             <Pressable style={styles.videosCard}>
               <Feather name="film" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
@@ -81,26 +87,16 @@ export default function PublicAideScreen() {
             grouped.map(([category, articles]) => (
               <View key={category} style={styles.categoryBlock}>
                 <Text style={styles.categoryTitle}>{category}</Text>
-                {articles.map((article) => {
-                  const open = openId === article.id;
-                  return (
-                    <View key={article.id} style={styles.articleCard}>
-                      <Pressable style={styles.articleHeader} onPress={() => setOpenId(open ? null : article.id)}>
+                {articles.map((article) => (
+                  <Link key={article.id} href={`${aideHrefPrefix}/${article.id}` as any} asChild>
+                    <Pressable style={styles.articleCard}>
+                      <View style={styles.articleHeader}>
                         <Text style={styles.articleTitle}>{article.title}</Text>
-                        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
-                      </Pressable>
-                      {open ? (
-                        <View style={styles.articleBody}>
-                          {article.body.map((paragraph, idx) => (
-                            <Text key={idx} style={styles.paragraph}>
-                              {paragraph}
-                            </Text>
-                          ))}
-                        </View>
-                      ) : null}
-                    </View>
-                  );
-                })}
+                        <Feather name="arrow-right" size={16} color={colors.textMuted} />
+                      </View>
+                    </Pressable>
+                  </Link>
+                ))}
               </View>
             ))
           )}
@@ -215,15 +211,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
-  },
-  articleBody: {
-    marginTop: spacing.md,
-    gap: spacing.sm,
-  },
-  paragraph: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
   },
   contactCard: {
     flexDirection: 'row',

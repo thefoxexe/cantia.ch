@@ -2304,6 +2304,18 @@ export const de: TranslationDict = {
     emptyText: 'Kein Artikel entspricht dieser Suche.',
     contactTitle: 'Keine Antwort gefunden?',
     contactText: 'Schreiben Sie uns direkt an info@cantia.ch.',
+    readMore: 'Artikel lesen',
+  },
+  helpArticlePage: {
+    relatedEyebrow: 'Das könnte Sie auch interessieren',
+    readArticle: 'Artikel lesen',
+    contactTitle: 'Keine Antwort gefunden?',
+    contactText: 'Schreiben Sie uns direkt an info@cantia.ch.',
+    closingTitle: 'Bereit, Cantia auszuprobieren?',
+    closingCta: 'Kostenlos testen',
+    notFoundTitle: 'Artikel nicht gefunden',
+    notFoundText: 'Dieser Artikel existiert nicht oder nicht mehr.',
+    backToAide: 'Zurück zum Hilfe-Center',
   },
   aideVideosPage: {
     backLink: 'Hilfe-Center',

@@ -1,7 +1,7 @@
 // GENERATED FILE — do not hand-edit.
 // Regenerate with: node scripts/generate-de-seo-data.mjs
-// Source: lib/blog/posts-de/*.ts and lib/blog/posts/*.ts (blog) and
-// lib/tradeLandingPagesDe.ts (trades).
+// Source: lib/blog/posts-de/*.ts and lib/blog/posts/*.ts (blog),
+// lib/tradeLandingPagesDe.ts (trades), and lib/helpArticles.ts (help center).
 export const BLOG_SEO_DE = [
   {
     "path": "de/blog/accident-travail-chantier-obligations-employeur-suva",
@@ -3560,3 +3560,199 @@ export const BLOG_DATES_FR = {
   "vitesse-reponse-devis-taux-conversion-batiment": "2026-09-05",
   "whatsapp-gestion-equipe-chantier-limites": "2026-04-13"
 };
+
+export const HELP_SEO_FR = [
+  {
+    "path": "aide/demarrage",
+    "title": "Premiers pas avec Cantia | Centre d'aide Cantia",
+    "description": "Tout tourne autour d'une organisation (votre entreprise) : vous l'avez créée à l'inscription, et toutes les personnes qui la rejoignent partagent les…"
+  },
+  {
+    "path": "aide/devis-creation",
+    "title": "Créer et envoyer un devis | Centre d'aide Cantia",
+    "description": "Un devis se crée avec un client (nom, adresse, e-mail) et des lignes (description, quantité, unité, prix unitaire)."
+  },
+  {
+    "path": "aide/devis-trames",
+    "title": "Gagner du temps avec les trames | Centre d'aide Cantia",
+    "description": "Une trame est un ensemble de lignes de devis réutilisables (par exemple toutes les positions habituelles d'une salle de bain) "
+  },
+  {
+    "path": "aide/facturation-acomptes",
+    "title": "Factures, acomptes et paiements partiels | Centre d'aide Cantia",
+    "description": "Depuis un devis accepté, vous pouvez facturer un acompte (un pourcentage du montant total) avant la facture finale."
+  },
+  {
+    "path": "aide/facturation-email-lien",
+    "title": "Envoyer un devis ou une facture, et le lien client public | Centre d'aide Cantia",
+    "description": "Le bouton \"Envoyer par e-mail\" sur un devis ou une facture envoie automatiquement le PDF en pièce jointe, accompagné du lien du portail client "
+  },
+  {
+    "path": "aide/chantiers-rapports",
+    "title": "Fil de chantier et rapports PDF | Centre d'aide Cantia",
+    "description": "Chaque chantier a un fil d'actualité façon discussion : vous y postez des photos géolocalisées et des messages (dictés à la voix si besoin) au fur et à…"
+  },
+  {
+    "path": "aide/rentabilite",
+    "title": "Rentabilité par chantier | Centre d'aide Cantia",
+    "description": "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies manuellement) et main d'œuvre (estimée à…"
+  },
+  {
+    "path": "aide/planning",
+    "title": "Planning d'équipe | Centre d'aide Cantia",
+    "description": "Le Planning affiche un vrai calendrier où chaque membre de l'équipe peut être affecté à un chantier sur une ou plusieurs journées."
+  },
+  {
+    "path": "aide/metre",
+    "title": "Le métré | Centre d'aide Cantia",
+    "description": "Le module Métré donne un tableau de mesures adapté au mobile, pour calculer des surfaces et quantités directement depuis le chantier."
+  },
+  {
+    "path": "aide/inventaire",
+    "title": "À quoi sert le Catalogue ? | Centre d'aide Cantia",
+    "description": "Ce n'est pas un suivi de stock ou de matériel physique : c'est une bibliothèque de vos positions (description, unité, prix) qui se remplit automatiquement…"
+  },
+  {
+    "path": "aide/equipe-modules",
+    "title": "Inviter l'équipe et activer des modules | Centre d'aide Cantia",
+    "description": "Depuis Compte → Équipe, un lien d'invitation permet à un collègue de rejoindre l'organisation ; les demandes d'adhésion en attente sont validées par un…"
+  },
+  {
+    "path": "aide/personnalisation-abonnement",
+    "title": "Kit de marque, plans et abonnement | Centre d'aide Cantia",
+    "description": "Dans Compte → Entreprise, vous pouvez définir la couleur de marque et le logo utilisés sur vos devis, factures et rapports PDF, dès le plan Essentiel "
+  },
+  {
+    "path": "aide/tableau-de-bord",
+    "title": "Comprendre le tableau de bord | Centre d'aide Cantia",
+    "description": "L'écran d'accueil affiche les indicateurs qui comptent au quotidien : devis en attente de réponse, factures impayées ou en retard, et chantiers…"
+  },
+  {
+    "path": "aide/rejoindre-organisation",
+    "title": "Rejoindre une organisation existante | Centre d'aide Cantia",
+    "description": "Si votre entreprise utilise déjà Cantia, inutile de créer une nouvelle organisation : un administrateur vous envoie un lien d'invitation (depuis Compte →…"
+  },
+  {
+    "path": "aide/dictee-vocale",
+    "title": "La dictée vocale, partout dans Cantia | Centre d'aide Cantia",
+    "description": "Le bouton micro apparaît à chaque endroit où vous écrivez dans Cantia : une ligne de devis, un message du fil de chantier, une note de rapport."
+  },
+  {
+    "path": "aide/chantiers-documents",
+    "title": "Photos et documents de chantier | Centre d'aide Cantia",
+    "description": "Chaque chantier a son propre espace Documents, organisé en dossiers (plans, autorisations, contrats, factures fournisseurs…) plutôt qu'un simple tas de…"
+  },
+  {
+    "path": "aide/chantiers-sous-traitants",
+    "title": "Sous-traitants sur un chantier | Centre d'aide Cantia",
+    "description": "Un sous-traitant peut être ajouté directement à un chantier précis, avec ses propres coordonnées et le suivi de ses factures liées à ce chantier."
+  },
+  {
+    "path": "aide/travaux-supplementaires",
+    "title": "Travaux supplémentaires (TS) | Centre d'aide Cantia",
+    "description": "Un Travaux supplémentaires (TS) est un document séparé pour tout ce qui est demandé en plus du devis initial en cours de chantier "
+  },
+  {
+    "path": "aide/rh-heures-salaires",
+    "title": "Heures, frais et fiches de salaire | Centre d'aide Cantia",
+    "description": "Chaque employé pointe ses heures directement depuis son téléphone, rattachées à un chantier précis "
+  },
+  {
+    "path": "aide/tresorerie",
+    "title": "Prévision de trésorerie | Centre d'aide Cantia",
+    "description": "Le module Trésorerie projette votre solde à venir sur 90 jours, à partir de ce que Cantia sait déjà de votre activité : factures clients non soldées,…"
+  },
+  {
+    "path": "aide/clients",
+    "title": "La fiche client | Centre d'aide Cantia",
+    "description": "Chaque client a sa propre fiche : coordonnées, historique complet de ses devis, factures et chantiers, et notes de suivi "
+  },
+  {
+    "path": "aide/sous-traitants",
+    "title": "Le répertoire des sous-traitants | Centre d'aide Cantia",
+    "description": "Le module Sous-traitants (activable dans Compte → Modules) centralise tous les sous-traitants avec qui vous travaillez, au-delà d'un seul chantier "
+  },
+  {
+    "path": "aide/integration-bexio",
+    "title": "Intégration Bexio | Centre d'aide Cantia",
+    "description": "L'intégration Bexio (disponible dès le plan Équipe) connecte Cantia à votre comptabilité via l'API officielle de Bexio, depuis Compte → Intégrations."
+  },
+  {
+    "path": "aide/relances-impayes",
+    "title": "Relancer une facture impayée | Centre d'aide Cantia",
+    "description": "Une facture en retard apparaît directement sur le tableau de bord et dans la liste des factures, sans avoir à comparer manuellement un relevé bancaire à…"
+  },
+  {
+    "path": "aide/import-releve-bancaire",
+    "title": "Importer un relevé bancaire | Centre d'aide Cantia",
+    "description": "Depuis Facturation → Import de relevé, un fichier de relevé bancaire (format CAMT.053 notamment) peut être importé pour rapprocher automatiquement les…"
+  },
+  {
+    "path": "aide/portail-client",
+    "title": "Ce que voit le client sur son portail | Centre d'aide Cantia",
+    "description": "Le lien envoyé à un client ouvre un portail sécurisé, sans qu'il ait besoin de créer de compte ni de mot de passe "
+  }
+];
+
+export const HELP_SEO_DE = [
+  {
+    "path": "de/aide/demarrage",
+    "title": "Erste Schritte mit Cantia | Cantia Hilfe-Center",
+    "description": "Alles dreht sich um eine Organisation (Ihr Unternehmen): Sie haben sie bei der Registrierung erstellt, und alle Personen, die ihr beitreten, teilen…"
+  },
+  {
+    "path": "de/aide/devis-creation",
+    "title": "Eine Offerte erstellen und versenden | Cantia Hilfe-Center",
+    "description": "Eine Offerte wird mit einem Kunden (Name, Adresse, E-Mail) und Positionen (Beschreibung, Menge, Einheit, Einzelpreis) erstellt."
+  },
+  {
+    "path": "de/aide/devis-trames",
+    "title": "Mit Vorlagen Zeit sparen | Cantia Hilfe-Center",
+    "description": "Eine Vorlage ist eine Sammlung wiederverwendbarer Offertpositionen (zum Beispiel alle üblichen Positionen für ein Badezimmer) "
+  },
+  {
+    "path": "de/aide/facturation-acomptes",
+    "title": "Rechnungen, Anzahlungen und Teilzahlungen | Cantia Hilfe-Center",
+    "description": "Ab einer angenommenen Offerte können Sie eine Anzahlung (einen Prozentsatz des Gesamtbetrags) vor der Schlussrechnung fakturieren."
+  },
+  {
+    "path": "de/aide/facturation-email-lien",
+    "title": "Eine Offerte oder Rechnung versenden, und der öffentliche Kundenlink | Cantia Hilfe-Center",
+    "description": "Die Schaltfläche \"Per E-Mail senden\" bei einer Offerte oder Rechnung versendet automatisch das PDF als Anhang, zusammen mit dem Link zum Kundenportal "
+  },
+  {
+    "path": "de/aide/chantiers-rapports",
+    "title": "Baustellen-Feed und PDF-Berichte | Cantia Hilfe-Center",
+    "description": "Jede Baustelle hat einen Feed im Chat-Stil: Sie posten dort laufend geolokalisierte Fotos und Nachrichten (bei Bedarf per Spracheingabe diktiert), während…"
+  },
+  {
+    "path": "de/aide/rentabilite",
+    "title": "Rentabilität pro Baustelle | Cantia Hilfe-Center",
+    "description": "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (manuell erfasste Ausgaben)…"
+  },
+  {
+    "path": "de/aide/planning",
+    "title": "Team-Planung | Cantia Hilfe-Center",
+    "description": "Die Planung zeigt einen echten Kalender, in dem jedes Teammitglied für einen oder mehrere Tage einer Baustelle zugewiesen werden kann."
+  },
+  {
+    "path": "de/aide/metre",
+    "title": "Das Aufmass | Cantia Hilfe-Center",
+    "description": "Das Aufmass-Modul bietet eine mobilgerechte Messtabelle, um Flächen und Mengen direkt auf der Baustelle zu berechnen."
+  },
+  {
+    "path": "de/aide/inventaire",
+    "title": "Wozu dient der Katalog? | Cantia Hilfe-Center",
+    "description": "Das ist keine Bestandsverwaltung für physisches Material: Es ist eine Bibliothek Ihrer Positionen (Beschreibung, Einheit, Preis), die sich bei jeder…"
+  },
+  {
+    "path": "de/aide/equipe-modules",
+    "title": "Team einladen und Module aktivieren | Cantia Hilfe-Center",
+    "description": "Unter Konto → Team ermöglicht ein Einladungslink einem Kollegen, der Organisation beizutreten; ausstehende Beitrittsanfragen werden von einem…"
+  },
+  {
+    "path": "de/aide/personnalisation-abonnement",
+    "title": "Markenkit, Pläne und Abonnement | Cantia Hilfe-Center",
+    "description": "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und…"
+  }
+];
