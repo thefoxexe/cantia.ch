@@ -34,6 +34,7 @@ interface Dict {
     paidCta: string;
   };
   swiss: { title: string; text: string };
+  tour: { eyebrow: string; title: string; subtitle: string; videoLabel: string; shots: { title: string; text: string }[] };
   devices: { title: string; text: string; benefits: { title: string; text: string }[] };
   mobile: { title: string; text: string; installCta: string; storeNote: string; comingSoon: string; appStore: string; googlePlay: string };
   finalCta: { title: string; subtitle: string; button: string; trust: string[] };
@@ -249,6 +250,20 @@ const fr: Dict = {
   swiss: {
     title: 'Pensé en Suisse, pas juste traduit pour la Suisse',
     text: 'Cantia a été développé pour le fonctionnement des entreprises du bâtiment suisse : CHF, TVA suisse, QR-facture et données hébergées en Suisse.',
+  },
+  tour: {
+    eyebrow: 'Visite guidée',
+    title: 'Cantia, de l’inscription au premier chantier',
+    subtitle: 'Trente secondes pour voir à quoi ressemble vraiment l’application : inscription, création de votre entreprise, puis toutes les fonctions au quotidien.',
+    videoLabel: 'Vidéo de présentation de Cantia',
+    shots: [
+      { title: 'Tableau de bord', text: 'Toute la vue d’ensemble de vos chantiers et devis en un coup d’œil.' },
+      { title: 'Devis', text: 'Créez un devis professionnel en quelques minutes.' },
+      { title: 'Facturation', text: 'QR-facture suisse générée automatiquement.' },
+      { title: 'Chantiers', text: 'Rapports et photos partagés avec toute l’équipe.' },
+      { title: 'Planning', text: 'Organisez vos équipes sans double-réservation.' },
+      { title: 'Votre image de marque', text: 'Logo et couleurs sur tous vos documents.' },
+    ],
   },
   devices: {
     title: 'Gérez vos chantiers, où que vous soyez',
@@ -485,6 +500,20 @@ const de: Dict = {
   swiss: {
     title: 'In der Schweiz entwickelt, nicht nur für die Schweiz übersetzt',
     text: 'Cantia wurde für die Funktionsweise Schweizer Bauunternehmen entwickelt: CHF, Schweizer MWST, QR-Rechnung und in der Schweiz gehostete Daten.',
+  },
+  tour: {
+    eyebrow: 'Rundgang',
+    title: 'Cantia, von der Anmeldung bis zur ersten Baustelle',
+    subtitle: 'Dreissig Sekunden, um zu sehen, wie die Anwendung wirklich aussieht: Anmeldung, Erstellung Ihres Unternehmens, dann alle Funktionen für den Alltag.',
+    videoLabel: 'Präsentationsvideo von Cantia',
+    shots: [
+      { title: 'Übersicht', text: 'Alle Ihre Baustellen und Offerten auf einen Blick.' },
+      { title: 'Offerten', text: 'Erstellen Sie eine professionelle Offerte in wenigen Minuten.' },
+      { title: 'Rechnungsstellung', text: 'Schweizer QR-Rechnung automatisch erstellt.' },
+      { title: 'Baustellen', text: 'Rapporte und Fotos, mit dem ganzen Team geteilt.' },
+      { title: 'Planung', text: 'Organisieren Sie Ihre Teams ohne Doppelbuchung.' },
+      { title: 'Ihr Erscheinungsbild', text: 'Logo und Farben auf allen Ihren Dokumenten.' },
+    ],
   },
   devices: {
     title: 'Verwalten Sie Ihre Baustellen, wo auch immer Sie sind',

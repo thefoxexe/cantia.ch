@@ -21,6 +21,7 @@ import { Link, Redirect, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, LangToggle, Screen, Switch } from '../components/ui';
 import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome';
+import { ShowcaseVideo } from '../components/ShowcaseVideo';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -609,6 +610,58 @@ function LandingContent() {
               </View>
             </Pressable>
           </Link>
+
+          {/* ---- Product tour: a real ~30s screen-capture-style video
+              (rendered from the actual app UI with demo data, not a mockup)
+              walking through signup → create/join a company → the core
+              screens, followed by a grid of the same real screenshots. This
+              exists because prospects who only ever see the landing copy
+              have no way to picture what using Cantia actually looks like —
+              this section is the fix. ---- */}
+          <Reveal id="tour" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
+            <Text style={[styles.sectionEyebrow, styles.centerText]}>{t.tour.eyebrow}</Text>
+            <Text style={[styles.sectionTitle, styles.centerText]}>{t.tour.title}</Text>
+            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.tour.subtitle}</Text>
+            <View style={styles.tourVideoOuter}>
+              <View style={styles.tourVideoChrome}>
+                <View style={[styles.tourDot, styles.tourDot1]} />
+                <View style={[styles.tourDot, styles.tourDot2]} />
+                <View style={[styles.tourDot, styles.tourDot3]} />
+              </View>
+              <ShowcaseVideo
+                sources={[
+                  { src: '/cantia-demo.webm', type: 'video/webm' },
+                  { src: '/cantia-demo.mp4', type: 'video/mp4' },
+                ]}
+                poster="/showcase/video-poster.jpg"
+                style={styles.tourVideo}
+                accessibilityLabel={t.tour.videoLabel}
+              />
+            </View>
+            <View style={styles.tourGrid}>
+              {[
+                { file: 'dashboard', shot: t.tour.shots[0] },
+                { file: 'devis-new', shot: t.tour.shots[1] },
+                { file: 'facture-detail', shot: t.tour.shots[2] },
+                { file: 'chantier-feed', shot: t.tour.shots[3] },
+                { file: 'planning', shot: t.tour.shots[4] },
+                { file: 'onboarding-create', shot: t.tour.shots[5] },
+              ].map(({ file, shot }) => (
+                <View key={file} style={styles.tourCard}>
+                  <View style={styles.tourCardFrame}>
+                    <Image
+                      source={{ uri: `/showcase/${file}.png` }}
+                      style={styles.tourCardImage}
+                      resizeMode="cover"
+                      accessibilityLabel={shot.title}
+                    />
+                  </View>
+                  <Text style={styles.tourCardTitle}>{shot.title}</Text>
+                  <Text style={styles.tourCardText}>{shot.text}</Text>
+                </View>
+              ))}
+            </View>
+          </Reveal>
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
           <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
@@ -3474,6 +3527,75 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     lineHeight: 22,
     marginBottom: spacing.xl,
+  },
+  tourVideoOuter: {
+    width: '100%',
+    maxWidth: 880,
+    alignSelf: 'center',
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(35,26,18,0.08)',
+    marginBottom: spacing.xxl,
+    ...Platform.select({
+      web: { boxShadow: '0 30px 70px -20px rgba(35,26,18,0.35), 0 10px 24px -10px rgba(35,26,18,0.2)' } as unknown as ViewStyle,
+      default: {},
+    }),
+  },
+  tourVideoChrome: {
+    height: 30,
+    backgroundColor: '#EFE7D8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(35,26,18,0.06)',
+  },
+  tourDot: { width: 9, height: 9, borderRadius: 5 },
+  tourDot1: { backgroundColor: '#E5A2A2' },
+  tourDot2: { backgroundColor: '#E8CB98' },
+  tourDot3: { backgroundColor: '#A8CBAE' },
+  tourVideo: {
+    width: '100%',
+    aspectRatio: 1280 / 720,
+    backgroundColor: '#F7F1E6',
+    display: 'block',
+  } as unknown as ViewStyle,
+  tourGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.xl,
+  },
+  tourCard: {
+    width: 260,
+    gap: spacing.xs,
+  },
+  tourCardFrame: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(35,26,18,0.08)',
+  },
+  tourCardImage: {
+    width: '100%',
+    height: '100%',
+  },
+  tourCardTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: spacing.xs,
+  },
+  tourCardText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 19,
   },
   devicesHeroWrap: {
     width: '100%',
