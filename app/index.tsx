@@ -630,11 +630,19 @@ function LandingContent() {
                 <View style={[styles.tourDot, styles.tourDot3]} />
               </View>
               <ShowcaseVideo
-                sources={[
-                  { src: '/cantia-demo.webm', type: 'video/webm' },
-                  { src: '/cantia-demo.mp4', type: 'video/mp4' },
-                ]}
-                poster="/showcase/video-poster.jpg"
+                key={appLocale}
+                sources={
+                  appLocale === 'de'
+                    ? [
+                        { src: '/cantia-demo-de.webm', type: 'video/webm' },
+                        { src: '/cantia-demo-de.mp4', type: 'video/mp4' },
+                      ]
+                    : [
+                        { src: '/cantia-demo.webm', type: 'video/webm' },
+                        { src: '/cantia-demo.mp4', type: 'video/mp4' },
+                      ]
+                }
+                poster={appLocale === 'de' ? '/showcase/video-poster-de.jpg' : '/showcase/video-poster.jpg'}
                 style={styles.tourVideo}
                 accessibilityLabel={t.tour.videoLabel}
               />
