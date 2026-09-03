@@ -5,6 +5,15 @@
 //    separate "static" prerendered export that ships cantia.ch)
 // Keeping one array means the two builds can never describe a page
 // differently by accident.
+import { BLOG_DATES_FR, BLOG_SEO_DE, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
+
+const TRADE_SLUGS = new Set([
+  'charpentier', 'macon', 'electricien', 'plombier', 'peintre', 'menuisier', 'entreprise-generale',
+  'paysagiste', 'couvreur', 'chauffagiste', 'carreleur', 'platrier', 'genie-civil', 'terrassier',
+  'entreprise-renovation', 'serrurier', 'ferblantier', 'facadier', 'etancheur', 'construction-bois',
+  'vitrier', 'parqueteur', 'echafaudeur', 'demolition',
+]);
+
 export const SITE = 'https://cantia.ch';
 export const OG_IMAGE = `${SITE}/og-image.jpg`;
 
@@ -2117,7 +2126,220 @@ export const ROUTES = [
     description:
       "Politique de confidentialité de Cantia : données collectées, hébergement en Suisse, droits des utilisateurs.",
   },
+  {
+    path: 'aide',
+    title: "Centre d'aide | Cantia",
+    description:
+      "Toutes les réponses aux questions fréquentes sur Cantia : devis, factures, chantiers, équipe, facturation. Guides et tutoriels vidéo.",
+  },
+  {
+    path: 'aide/videos',
+    title: "Tutoriels vidéo | Centre d'aide Cantia",
+    description:
+      'Voir chaque module Cantia en action : devis, factures, chantiers, planning, RH — démonstrations vidéo module par module.',
+  },
+
+  // ==========================================================================
+  // Allemand (/de/*) — mêmes pages que ci-dessus, en miroir. Les pages métier
+  // et les articles de blog sont générées depuis de-seo-data.generated.mjs
+  // (voir scripts/generate-de-seo-data.mjs) pour ne jamais désynchroniser ce
+  // fichier du contenu réellement traduit dans lib/tradeLandingPagesDe.ts et
+  // lib/blog/posts-de/*.ts ; le reste (accueil, solutions, pages légales…)
+  // est traduit ici à la main, comme le FR ci-dessus.
+  // ==========================================================================
+  {
+    path: 'de',
+    title: 'Software für Baustellenverwaltung in der Schweiz | Cantia',
+    description:
+      'Cantia zentralisiert Offerten, Rechnungen, Planung, Berichte, Stunden und Rentabilität für Handwerksbetriebe und KMU im Schweizer Bauwesen.',
+  },
+  {
+    path: 'de/solutions/devis',
+    title: 'Offerten online für Schweizer Handwerker | Cantia',
+    description:
+      'Diktieren Sie Ihre Offertpositionen direkt auf der Baustelle. Cantia wandelt sie mit Ihren gewohnten Preisen in bezifferte Positionen um, PDF versandbereit.',
+    faq: [
+      { q: 'Wie erstellt man als Handwerker schnell eine Offerte?', a: 'Diktieren Sie Ihre Positionen auf der Baustelle oder im Auto. Cantia wandelt sie mit Ihren gewohnten Preisen in bezifferte Positionen um, und das PDF ist fertig, bevor Sie den Kunden verlassen haben.' },
+      { q: 'Ist die Offerte konform mit den Schweizer Gepflogenheiten (MWST, Layout)?', a: 'Ja: Jede Offerte übernimmt Ihren MWST-Satz, Ihre Firmendaten und lässt sich mit Ihrer Markenfarbe und Ihrem Logo personalisieren.' },
+      { q: 'Kann eine akzeptierte Offerte automatisch in eine Rechnung umgewandelt werden?', a: 'Ja, eine unterzeichnete Offerte wird mit einem Klick zur Rechnung — inklusive Schweizer QR-Rechnung — ohne die Positionen neu zu erfassen.' },
+      { q: 'Ist Cantia für Offerten kostenlos?', a: 'Ja, ein monatliches Offerten-Kontingent steht kostenlos zur Verfügung, ohne Kreditkarte oder Verpflichtung.' },
+    ],
+  },
+  {
+    path: 'de/solutions/facturation',
+    title: 'Rechnungsstellung & QR-Rechnung Schweiz | Cantia',
+    description:
+      'Jede Cantia-Rechnung integriert automatisch die konforme Schweizer QR-Rechnung — IBAN, strukturierte Referenz und Betrag bereits codiert, scanbereit.',
+    faq: [
+      { q: 'Wie erstellt man eine Rechnung mit Schweizer QR-Rechnung?', a: 'Hinterlegen Sie Ihren IBAN einmalig in den Einstellungen: Jede Rechnung generiert danach automatisch den SIX-konformen QR-Einzahlungsschein, IBAN und strukturierte Referenz bereits codiert.' },
+      { q: 'Kann man vor Baustellenende eine Anzahlung in Rechnung stellen?', a: 'Ja, Cantia erlaubt die Ausstellung einer Anzahlungsrechnung für einen Prozentsatz der Offerte, die dann automatisch von der Schlussrechnung abgezogen wird.' },
+      { q: 'Wie erkennt man, ob eine Rechnung bezahlt wurde?', a: 'Suchen und gleichen Sie eine Zahlung direkt über ihre QR-Referenznummer ab — der Status wechselt auf «bezahlt», ohne Ihr Bankkonto manuell prüfen zu müssen.' },
+      { q: 'Was kostet die Rechnungsstellung mit QR-Code über Cantia?', a: 'Die Rechnungsstellung mit Schweizer QR-Rechnung ist in allen Cantia-Plänen enthalten, ausnahmslos, bereits ab dem Essentiel-Plan.' },
+    ],
+  },
+  {
+    path: 'de/solutions/rapports-chantier',
+    title: 'Baustellenberichte | Cantia',
+    description:
+      'Sprachnotizen, geolokalisierte Fotos und Team-Nachrichten: Cantia erstellt daraus einen verfassten, strukturierten Bericht, versandbereit.',
+    faq: [
+      { q: 'Wie verfasst man schnell einen Baustellenbericht?', a: 'Machen Sie Ihre Fotos und diktieren Sie Ihre Notizen vor Ort — Cantia fügt alles zu einem strukturierten PDF-Bericht zusammen, versandbereit, ohne abends alles neu tippen zu müssen.' },
+      { q: 'Werden die Fotos automatisch geolokalisiert?', a: 'Ja, jedes Foto wird ohne zusätzlichen Aufwand automatisch mit Zeitstempel und Standort versehen.' },
+      { q: 'Kann man den Bericht mit Logo und Unterschrift personalisieren?', a: 'Ja, jeder PDF-Bericht übernimmt Ihr Logo, Ihre Markenfarbe und die Unterschrift des Verfassers.' },
+      { q: 'Ersetzt der Baustellenbericht ein Papier-Bautagebuch?', a: 'Ja — Notizen, Fotos und Verlauf sind in einem jederzeit einsehbaren digitalen Dokument pro Baustelle zentralisiert.' },
+    ],
+  },
+  {
+    path: 'de/solutions/dictee-vocale',
+    title: 'Diktierfunktion für das Bauwesen | Cantia',
+    description: 'Offerten, Berichte, Team-Nachrichten: ein Diktier-Button ersetzt die Tastatureingabe, überall in Cantia.',
+    faq: [
+      { q: 'Funktioniert die Spracherkennung gut mit dem Baugewerbe-Vokabular?', a: 'Ja, die Erkennung ist auf das technische Vokabular des Bauwesens abgestimmt — Materialien, Einheiten, Berufe — nicht nur auf Alltagssprache.' },
+      { q: 'Braucht es eine Internetverbindung zum Diktieren?', a: 'Ja, das Diktieren benötigt eine Verbindung zur Transkription, aber die erstellten Offerten und Berichte bleiben nach der Erstellung abrufbar.' },
+      { q: 'Wo kann man die Diktierfunktion in Cantia nutzen?', a: 'Bei Offerten, Baustellenberichten und Team-Nachrichten im Aktivitätsstream — überall, wo Sie in Cantia schreiben.' },
+      { q: 'Ist Diktieren auf der Baustelle schneller als Tippen?', a: 'Für die meisten Handwerker auf der Baustelle, ja — Sprechen geht schneller als auf einem Telefon mit schmutzigen Händen oder Handschuhen zu tippen.' },
+    ],
+  },
+  {
+    path: 'de/solutions/planning',
+    title: 'Team-Einsatzplanung Baustelle | Cantia',
+    description: 'Ein echter Team-Kalender: jedes Mitglied, jede Baustelle, jeder Tag. Schluss mit Papierplänen oder WhatsApp.',
+    faq: [
+      { q: 'Wie organisiert man die Planung eines Baustellenteams?', a: 'Cantia zeigt einen geteilten Wochenkalender: jedes Mitglied sieht, wer an welchem Tag auf welcher Baustelle ist.' },
+      { q: 'Ersetzt die Planung eine Excel-Tabelle oder eine WhatsApp-Gruppe?', a: 'Ja, das ganze Team sieht dieselben Informationen in Echtzeit, ohne Datei oder Nachrichtenverlauf durchscrollen zu müssen.' },
+      { q: 'Kann man mehrere Baustellen parallel planen?', a: 'Ja, jede Zuteilung ist mit einer bestimmten Baustelle verknüpft und bleibt über die ganze Woche, Person für Person, sichtbar.' },
+      { q: 'Ist die Planung in allen Cantia-Plänen enthalten?', a: 'Sie ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
+    ],
+  },
+  {
+    path: 'de/solutions/rentabilite',
+    title: 'Rentabilität pro Baustelle | Cantia',
+    description:
+      'Vergleichen Sie die akzeptierte Offerte mit den tatsächlichen Kosten — Material und Arbeitszeit —, um zu wissen, ob jede Baustelle rentabel ist, knapp kalkuliert oder defizitär.',
+    faq: [
+      { q: 'Wie erkennt man, ob eine Baustelle rentabel ist?', a: 'Cantia vergleicht die akzeptierte Offerte (Ertrag) mit den tatsächlichen Kosten — erfasstes Material und Arbeitszeit aus der Planung — und zeigt die Marge in CHF und % in Echtzeit an.' },
+      { q: 'Woher stammt die Berechnung der Arbeitskosten?', a: 'Aus der Team-Planung: die einer Baustelle zugeteilten Tage werden mit dem Stundensatz Ihres Unternehmens multipliziert, ohne separate Zeiterfassung.' },
+      { q: 'Kann man mehrere Baustellen miteinander vergleichen?', a: 'Ja, jede Baustelle zeigt ihre eigene Marge, was es erlaubt, defizitäre Baustellen rasch zu erkennen.' },
+      { q: 'Ist die Rentabilität pro Baustelle in allen Cantia-Plänen enthalten?', a: 'Sie ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
+    ],
+  },
+  {
+    path: 'de/solutions/rh-salaires',
+    title: 'Personal, Stunden & Löhne im Bauwesen | Cantia',
+    description:
+      'Jeder Mitarbeitende erfasst seine Stunden pro Baustelle und seine Spesen; die Sekretärin oder der Administrator verwaltet die Lohnabrechnung des ganzen Teams, vom Brutto- zum Nettolohn.',
+    faq: [
+      { q: 'Wer kann die Löhne in Cantia einsehen?', a: 'Nur die Personalverantwortliche und die Administratoren, je nach den über Team vergebenen Berechtigungen. Ein Standard-Mitarbeitender sieht nur seine eigenen Stunden und Spesen.' },
+      { q: 'Berechnet Cantia automatisch die Schweizer Sozialabgaben?', a: 'Cantia berechnet den Nettolohn anhand von konfigurierbaren AHV-/ALV-/BVG-/UVG-Sätzen und einem Quellensteuersatz pro Mitarbeitendem — die Standardsätze sind indikativ und je nach Ausgleichskasse, BVG-Kasse und Kanton anzupassen.' },
+      { q: 'Wie exportiert ein Mitarbeitender seine Stundenerfassung?', a: 'Über das Modul Personal & Löhne, mit Wahl der Granularität — täglich, wöchentlich oder monatlich — und anschliessendem Download als CSV-Datei.' },
+      { q: 'Ist das Modul Personal & Löhne in allen Cantia-Plänen enthalten?', a: 'Es ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
+    ],
+  },
+  {
+    path: 'de/solutions/travaux-supplementaires',
+    title: 'Zusatzarbeiten für Schweizer Handwerker | Cantia',
+    description:
+      'Jeder während der Baustelle angeforderte Extra-Auftrag wird zu einem datierten Dokument, online vom Kunden unterzeichnet und automatisch in eine Rechnung umgewandelt — Schluss mit vergessenen oder bestrittenen Extras.',
+    faq: [
+      { q: 'Was ist eine Zusatzarbeit in Cantia?', a: 'Es ist ein eigenes Dokument für alles, was während der Baustelle zusätzlich zur ursprünglichen Offerte gewünscht wird — eine zu versetzende Wand, eine zusätzliche Steckdose. Es wird wie eine Offerte erstellt, versandt und unterzeichnet und verwandelt sich nach Annahme automatisch in eine Rechnung.' },
+      { q: 'Muss eine Zusatzarbeit an eine bestehende Offerte gekoppelt sein?', a: 'Nein, das ist optional. Sie können sie mit der ursprünglichen Offerte verknüpfen, um den Kontext zu behalten, oder sie eigenständig erstellen, falls die Baustelle keine Offerte in Cantia hat.' },
+      { q: 'Wie validiert der Kunde eine Zusatzarbeit?', a: 'Er erhält einen Link zu einem sicheren Portal, prüft die bezifferten Details und unterzeichnet online — die Annahme wird zeitgestempelt und löst automatisch die entsprechende Rechnung aus.' },
+      { q: 'Zählen Zusatzarbeiten in die Rentabilität pro Baustelle?', a: 'Ja: sobald eine Zusatzarbeit akzeptiert ist, wird ihr Betrag automatisch zum offerierten Gesamtbetrag der Baustelle im Modul Rentabilität hinzugefügt.' },
+    ],
+  },
+  {
+    path: 'de/solutions/tresorerie',
+    title: 'Liquiditätsplanung für das Bauwesen | Cantia',
+    description: 'Ausstehende Rechnungen, Löhne, Subunternehmer und wiederkehrende Kosten vereint in einer 90-Tage-Projektion — ohne Bankanbindung.',
+    faq: [
+      { q: 'Verbindet sich Cantia mit meinem Bankkonto?', a: 'Nein. Sie erfassen Ihren Kontostand manuell, wann Sie möchten — es wird kein Bankzugriff verlangt oder benötigt.' },
+      { q: 'Woher stammen die Beträge der Projektion?', a: 'Aus unbezahlten Kundenrechnungen, einer Schätzung der Lohnsumme (Personalprofile + erfasste Stunden), offenen Subunternehmer-Rechnungen und den von Ihnen erfassten wiederkehrenden Ausgaben — alles, was Cantia bereits über Ihre Tätigkeit weiss.' },
+      { q: 'Wie funktionieren die Erinnerungen an wiederkehrende Ausgaben?', a: 'Ein Banner auf der Startseite und der Seite Liquidität weist Sie auf aktive wiederkehrende Ausgaben hin, die in den nächsten 7 Tagen fällig werden, bevor sie abgebucht werden.' },
+      { q: 'Ist die Liquiditätsplanung in allen Cantia-Plänen enthalten?', a: 'Sie ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
+    ],
+  },
+  {
+    path: 'de/integrations',
+    title: 'Integrationen | Cantia',
+    description:
+      'Cantia verbindet sich direkt mit Ihrer Buchhaltung: Bexio schon heute, Kunden und Artikel importiert, Rechnungen mit einem Klick versendet, Zahlungsstatus synchronisiert.',
+    faq: [
+      { q: 'Welche Integrationen bietet Cantia heute an?', a: 'Bexio, nativ verfügbar ab dem Team-Plan. Weitere Integrationen folgen demselben Prinzip der offiziellen Anbindung.' },
+      { q: 'Ist die Bexio-Integration zusätzlich zum Abonnement kostenpflichtig?', a: 'Nein — sie ist automatisch ab dem Team-Plan enthalten, ohne zusätzliches Modul oder zusätzliche Kosten.' },
+      { q: 'Kann Cantia eine definitive Rechnung an meinen Kunden über Bexio senden?', a: 'Nein. Jede Rechnung kommt nur als Entwurf in Bexio an — die Finalisierung bleibt immer eine manuelle Aktion in Bexio.' },
+    ],
+  },
+  {
+    path: 'de/sur-mesure',
+    title: 'Massgeschneiderte Entwicklung | Cantia',
+    description:
+      'Über die Standardmodule hinaus kann Cantia einen Workflow, eine Automatisierung oder eine Integration speziell für Ihr Unternehmen entwickeln — ohne die Erfahrung anderer Kunden zu verändern.',
+    faq: [
+      { q: 'Ist ein massgeschneidertes Modul für andere Unternehmen sichtbar?', a: 'Nein. Ein für Sie entwickeltes Modul wird nur für Ihre Organisation aktiviert — andere Cantia-Kunden sehen es nie.' },
+      { q: 'Muss ich die Software wechseln oder etwas anderes installieren?', a: 'Nein — das Modul lebt im selben Cantia, das Sie bereits nutzen, mit denselben Zugängen und denselben Updates.' },
+      { q: 'Was kostet eine massgeschneiderte Entwicklung?', a: 'Das hängt vollständig vom Bedarf ab. Wir besprechen es zunächst gemeinsam, und Sie erhalten eine klare Offerte vor jeder Verpflichtung.' },
+    ],
+  },
+  {
+    path: 'de/blog',
+    title: 'Blog | Cantia — Konkrete Antworten für das Schweizer Bauwesen',
+    description:
+      'Offerten, Rechnungsstellung, Personal, Recht, Vergleiche: präzise Antworten auf die Fragen, die sich Handwerker und Bauunternehmen in der Schweiz stellen.',
+  },
+  ...TRADE_SEO_DE,
+  {
+    path: 'de/metiers',
+    title: 'Cantia für Ihr Gewerbe | Verwaltungssoftware nach Beruf',
+    description:
+      'Cantia zentralisiert Offerten, Baustellen, Teams und Rechnungsstellung. Entdecken Sie, wie es sich an den Alltag Ihres Baugewerbes in der Schweiz anpasst.',
+  },
+  {
+    path: 'de/telechargement',
+    title: 'Cantia herunterladen | Mobile & Web-App',
+    description: 'Cantia funktioniert als installierbare Web-App, auf dem Computer wie auf dem Telefon. Native iOS- und Android-Apps demnächst verfügbar.',
+  },
+  {
+    path: 'de/mentions-legales',
+    title: 'Impressum | Cantia',
+    description: 'Impressum von Cantia, Verwaltungssoftware für das Schweizer Bauwesen.',
+  },
+  {
+    path: 'de/confidentialite',
+    title: 'Datenschutzerklärung | Cantia',
+    description: 'Datenschutzerklärung von Cantia: erhobene Daten, Hosting in der Schweiz, Rechte der Nutzer.',
+  },
+  {
+    path: 'de/aide',
+    title: 'Hilfe-Center | Cantia',
+    description: 'Alle Antworten auf häufige Fragen zu Cantia: Offerten, Rechnungen, Baustellen, Team, Abrechnung. Anleitungen und Video-Tutorials.',
+  },
+  {
+    path: 'de/aide/videos',
+    title: 'Video-Tutorials | Cantia Hilfe-Center',
+    description: 'Sehen Sie jedes Cantia-Modul in Aktion: Offerten, Rechnungen, Baustellen, Planung, Personal — Video-Demonstrationen Modul für Modul.',
+  },
+  ...BLOG_SEO_DE,
 ];
+
+// The 138 hand-authored FR blog entries above predate generate-de-seo-data.mjs
+// and carry no publishedAt of their own — fill it in from the same generated
+// file so Article JSON-LD (see jsonLdFor below) can show a real date on the
+// French blog too, same as the German one.
+for (const route of ROUTES) {
+  if (route.publishedAt) continue;
+  const slug = route.path.startsWith('blog/') ? route.path.slice('blog/'.length) : null;
+  if (slug && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
+}
+
+// FR path "X" <-> DE path "de/X" (home: "" <-> "de") — same mapping as
+// toggleLocalePathname in lib/appHost.ts, used here so build scripts can
+// emit hreflang alternates without a second lookup table to keep in sync.
+export function alternatePathFor(routePath, targetLocale) {
+  const isDe = routePath === 'de' || routePath.startsWith('de/');
+  const bare = isDe ? routePath.slice(3) : routePath;
+  if (targetLocale === 'fr') return bare;
+  return bare === '' ? 'de' : `de/${bare}`;
+}
 
 // Turns "rapports-chantier" into "Rapports chantier" for a breadcrumb label
 // — not shown to visitors, just needs to be a reasonable name for the node.
@@ -2126,7 +2348,36 @@ function humanizeSegment(segment) {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-export function jsonLdFor(url, description, faq) {
+// What kind of page a route is, for jsonLdFor below — Google's structured
+// data guidelines require markup to reflect the page's real primary content,
+// so a blog article or a métier landing page must not carry the same
+// SoftwareApplication + pricing block as the homepage/solutions pages.
+function routeKind(routePath) {
+  const bare = routePath.startsWith('de/') ? routePath.slice(3) : routePath;
+  if (bare === '' || bare === 'blog') return bare.startsWith('blog') ? 'blog-index' : 'product';
+  if (bare.startsWith('blog/')) return 'article';
+  if (bare.startsWith('solutions/')) return 'product';
+  if (TRADE_SLUGS.has(bare) || bare === 'metiers') return 'page';
+  return 'page';
+}
+
+// route: { path, title, description, faq, publishedAt } — the same object
+// pulled straight out of ROUTES, so this can never describe a page
+// differently than its own title/description/faq say. url is the already
+// -resolved canonical URL (SITE + '/' + path). Page "kind" (routeKind above)
+// decides which schema.org type actually describes the page's own content:
+// SoftwareApplication + pricing only for the product-shaped pages (home,
+// /solutions/*), Article for blog posts (with a real datePublished when one
+// is known), plain WebPage for everything else (trade/métier pages, legal
+// pages, etc.) — never all three shoehorned onto every route regardless of
+// what the page actually is.
+export function jsonLdFor(url, route) {
+  const { path: routePath, title, description, faq, publishedAt } = route;
+  const isDe = routePath === 'de' || routePath.startsWith('de/');
+  const locale = isDe ? 'de-CH' : 'fr-CH';
+  const homeLabel = isDe ? 'Startseite' : 'Accueil';
+  const kind = routeKind(routePath);
+
   const graph = [
     {
       '@type': 'Organization',
@@ -2137,7 +2388,10 @@ export function jsonLdFor(url, description, faq) {
       email: 'info@cantia.ch',
       areaServed: { '@type': 'Country', name: 'Switzerland' },
     },
-    {
+  ];
+
+  if (kind === 'product') {
+    graph.push({
       '@type': 'SoftwareApplication',
       name: 'Cantia',
       operatingSystem: 'Android, iOS, Web',
@@ -2145,33 +2399,58 @@ export function jsonLdFor(url, description, faq) {
       description,
       url,
       image: OG_IMAGE,
+      inLanguage: locale,
       publisher: { '@id': `${SITE}/#organization` },
       // lowPrice/highPrice mirror the three self-serve plans (Essentiel 39,
       // Équipe 79, Entreprise 129 CHF/mois) — there is no free tier, so this
       // must never read '0' again (that told Google Cantia starts at CHF 0,
       // which stopped being true when the permanent free plan was retired).
       offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: '39', highPrice: '129', offerCount: '3' },
-    },
-  ];
-  if (url === `${SITE}/`) {
-    // Homepage only — lets Google understand the site as a whole (and is
-    // the prerequisite for a sitelinks search box, though that's Google's
-    // call, not something this markup can force).
+    });
+  } else if (kind === 'article') {
+    graph.push({
+      '@type': 'Article',
+      headline: title.replace(/\s*\|\s*Cantia$/, ''),
+      description,
+      url,
+      image: OG_IMAGE,
+      inLanguage: locale,
+      ...(publishedAt ? { datePublished: publishedAt, dateModified: publishedAt } : {}),
+      author: { '@id': `${SITE}/#organization` },
+      publisher: { '@id': `${SITE}/#organization` },
+      mainEntityOfPage: url,
+    });
+  } else {
+    graph.push({
+      '@type': 'WebPage',
+      name: title.replace(/\s*\|\s*Cantia$/, ''),
+      description,
+      url,
+      inLanguage: locale,
+      isPartOf: { '@id': `${SITE}/#organization` },
+    });
+  }
+
+  if (routePath === '' || routePath === 'de') {
+    // Homepage only (each language) — lets Google understand the site as a
+    // whole (and is the prerequisite for a sitelinks search box, though
+    // that's Google's call, not something this markup can force).
     graph.push({
       '@type': 'WebSite',
       '@id': `${SITE}/#website`,
       name: 'Cantia',
       url: `${SITE}/`,
-      inLanguage: 'fr-CH',
+      inLanguage: locale,
       publisher: { '@id': `${SITE}/#organization` },
     });
   } else {
-    // Every other page gets a breadcrumb back to the homepage — cheap,
+    // Every other page gets a breadcrumb back to its own homepage — cheap,
     // accurate (it's literally the URL structure), and one of the few
     // structured-data types safe to add without any real risk of a
     // manual-action penalty for fabricated content.
     const segments = url.replace(SITE, '').split('/').filter(Boolean);
-    const items = [{ '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE}/` }];
+    const homeUrl = isDe ? `${SITE}/de` : `${SITE}/`;
+    const items = [{ '@type': 'ListItem', position: 1, name: homeLabel, item: homeUrl }];
     let acc = '';
     segments.forEach((seg, i) => {
       acc += `/${seg}`;
@@ -2180,8 +2459,9 @@ export function jsonLdFor(url, description, faq) {
     graph.push({ '@type': 'BreadcrumbList', itemListElement: items });
   }
   // Matches the visible FAQ section rendered on the same page
-  // (components/SolutionPage.tsx) — Google requires structured data to
-  // reflect content actually shown to visitors, not hidden-only markup.
+  // (components/SolutionPage.tsx / TradePage.tsx / lib/blog) — Google
+  // requires structured data to reflect content actually shown to visitors,
+  // not hidden-only markup.
   if (faq?.length) {
     graph.push({
       '@type': 'FAQPage',

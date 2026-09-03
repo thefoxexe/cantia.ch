@@ -11,11 +11,15 @@
 # and the blanket "/* -> /index.html" catch-all at the bottom was winning for
 # every route, so every page served the *home* page's index.html and thus its
 # <title>/meta tags (see scripts/inject-seo-meta.mjs, which generates a
-# distinct dist/<route>/index.html per public page). Listing each known route
-# as its own explicit, higher-priority rule removes that ambiguity entirely:
-# these are matched top-to-bottom, first match wins, so each one is served
-# before the SPA catch-all ever gets a chance to apply. Keep this list in
-# sync with the ROUTES array in scripts/inject-seo-meta.mjs.
+# distinct dist/<route>/index.html per public page, one per entry in
+# scripts/seo-routes.mjs — French and German alike). Listing every known
+# route as its own explicit, higher-priority rule removes that ambiguity
+# entirely: these are matched top-to-bottom, first match wins, so each one is
+# served before the SPA catch-all ever gets a chance to apply. This block is
+# generated — do not hand-edit it, run
+# `node scripts/generate-netlify-redirects.mjs` after adding a route to
+# scripts/seo-routes.mjs instead.
+
 [[redirects]]
   from = "/solutions/devis"
   to = "/solutions/devis/index.html"
@@ -42,11 +46,6 @@
   status = 200
 
 [[redirects]]
-  from = "/solutions/leves-metre"
-  to = "/solutions/leves-metre/index.html"
-  status = 200
-
-[[redirects]]
   from = "/solutions/rentabilite"
   to = "/solutions/rentabilite/index.html"
   status = 200
@@ -67,17 +66,143 @@
   status = 200
 
 [[redirects]]
+  from = "/integrations"
+  to = "/integrations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/sur-mesure"
+  to = "/sur-mesure/index.html"
+  status = 200
+
+[[redirects]]
   from = "/blog"
   to = "/blog/index.html"
   status = 200
 
-# Blog articles are one dynamic route ([slug].tsx, see app/blog/[slug].tsx)
-# rather than one file per article like /solutions/*, so a splat rule covers
-# all of them instead of needing a new [[redirects]] entry per new post —
-# adding an article only means a new file under lib/blog/posts/.
 [[redirects]]
-  from = "/blog/*"
-  to = "/blog/:splat/index.html"
+  from = "/metiers"
+  to = "/metiers/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/charpentier"
+  to = "/charpentier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/macon"
+  to = "/macon/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/electricien"
+  to = "/electricien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/plombier"
+  to = "/plombier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/peintre"
+  to = "/peintre/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/menuisier"
+  to = "/menuisier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/entreprise-generale"
+  to = "/entreprise-generale/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/paysagiste"
+  to = "/paysagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/couvreur"
+  to = "/couvreur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/chauffagiste"
+  to = "/chauffagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/carreleur"
+  to = "/carreleur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/platrier"
+  to = "/platrier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/genie-civil"
+  to = "/genie-civil/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/terrassier"
+  to = "/terrassier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/entreprise-renovation"
+  to = "/entreprise-renovation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/serrurier"
+  to = "/serrurier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/ferblantier"
+  to = "/ferblantier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/facadier"
+  to = "/facadier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/etancheur"
+  to = "/etancheur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/construction-bois"
+  to = "/construction-bois/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/vitrier"
+  to = "/vitrier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/parqueteur"
+  to = "/parqueteur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/echafaudeur"
+  to = "/echafaudeur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demolition"
+  to = "/demolition/index.html"
   status = 200
 
 [[redirects]]
@@ -93,6 +218,247 @@
 [[redirects]]
   from = "/confidentialite"
   to = "/confidentialite/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide"
+  to = "/aide/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/aide/videos"
+  to = "/aide/videos/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de"
+  to = "/de/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/devis"
+  to = "/de/solutions/devis/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/facturation"
+  to = "/de/solutions/facturation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/rapports-chantier"
+  to = "/de/solutions/rapports-chantier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/dictee-vocale"
+  to = "/de/solutions/dictee-vocale/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/planning"
+  to = "/de/solutions/planning/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/rentabilite"
+  to = "/de/solutions/rentabilite/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/rh-salaires"
+  to = "/de/solutions/rh-salaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/travaux-supplementaires"
+  to = "/de/solutions/travaux-supplementaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/tresorerie"
+  to = "/de/solutions/tresorerie/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/integrations"
+  to = "/de/integrations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/sur-mesure"
+  to = "/de/sur-mesure/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/blog"
+  to = "/de/blog/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/charpentier"
+  to = "/de/charpentier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/macon"
+  to = "/de/macon/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/electricien"
+  to = "/de/electricien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/plombier"
+  to = "/de/plombier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/peintre"
+  to = "/de/peintre/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/menuisier"
+  to = "/de/menuisier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/entreprise-generale"
+  to = "/de/entreprise-generale/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/paysagiste"
+  to = "/de/paysagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/couvreur"
+  to = "/de/couvreur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/chauffagiste"
+  to = "/de/chauffagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/carreleur"
+  to = "/de/carreleur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/platrier"
+  to = "/de/platrier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/genie-civil"
+  to = "/de/genie-civil/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/terrassier"
+  to = "/de/terrassier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/entreprise-renovation"
+  to = "/de/entreprise-renovation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/serrurier"
+  to = "/de/serrurier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/ferblantier"
+  to = "/de/ferblantier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/facadier"
+  to = "/de/facadier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/etancheur"
+  to = "/de/etancheur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/construction-bois"
+  to = "/de/construction-bois/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/vitrier"
+  to = "/de/vitrier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/parqueteur"
+  to = "/de/parqueteur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/echafaudeur"
+  to = "/de/echafaudeur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/demolition"
+  to = "/de/demolition/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers"
+  to = "/de/metiers/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/telechargement"
+  to = "/de/telechargement/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/mentions-legales"
+  to = "/de/mentions-legales/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/confidentialite"
+  to = "/de/confidentialite/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide"
+  to = "/de/aide/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/videos"
+  to = "/de/aide/videos/index.html"
+  status = 200
+
+# Blog articles (French and German) are one dynamic route each
+# ([slug].tsx, see app/blog/[slug].tsx and app/de/blog/[slug].tsx) rather
+# than one file per article like the routes above, so a splat rule covers
+# all of them instead of needing a new [[redirects]] entry per new post —
+# adding an article only means a new file under lib/blog/posts/ (or
+# posts-de/).
+[[redirects]]
+  from = "/blog/*"
+  to = "/blog/:splat/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/blog/*"
+  to = "/de/blog/:splat/index.html"
   status = 200
 
 # SPA fallback for every other route (the actual app, auth screens, etc.) —

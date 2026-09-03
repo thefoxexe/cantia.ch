@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
+import { Heading } from './Heading';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { PricingSection } from './PricingSection';
 import { SwissSection } from './SwissSection';
@@ -70,7 +71,7 @@ export function TradePage({ slug }: { slug: string }) {
             <View style={styles.kickerPill}>
               <Text style={styles.kickerText}>{trade.hero.eyebrow}</Text>
             </View>
-            <Text style={styles.title}>{trade.hero.title}</Text>
+            <Heading level={1} style={styles.title}>{trade.hero.title}</Heading>
             <Text style={styles.subtitle}>{trade.hero.subtitle}</Text>
             <View style={styles.ctaRow}>
               <Link href={authHref('signup')} asChild>
@@ -87,7 +88,7 @@ export function TradePage({ slug }: { slug: string }) {
         {/* ---- Pain points ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.painEyebrow')}</Text>
-          <Text style={styles.sectionTitle}>{t('tradePage.painTitle')}</Text>
+          <Heading level={2} style={styles.sectionTitle}>{t('tradePage.painTitle')}</Heading>
           <View style={styles.painList}>
             {trade.painPoints.map((p) => (
               <View key={p.problem} style={styles.painCard}>
@@ -108,7 +109,7 @@ export function TradePage({ slug }: { slug: string }) {
         {/* ---- Usages ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.usagesEyebrow')}</Text>
-          <Text style={styles.sectionTitle}>{t('tradePage.usagesTitle', { trade: forTrade })}</Text>
+          <Heading level={2} style={styles.sectionTitle}>{t('tradePage.usagesTitle', { trade: forTrade })}</Heading>
           <View style={styles.usageGrid}>
             {trade.usages.map((u) => (
               <View key={u.title} style={styles.usageCard}>

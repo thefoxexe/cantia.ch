@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewSt
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
+import { Heading } from './Heading';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -66,7 +67,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               <Text style={styles.kickerText}>{t(`blogCategories.${post.category}`)}</Text>
             </View>
 
-            <Text style={styles.title}>{post.title}</Text>
+            <Heading level={1} style={styles.title}>{post.title}</Heading>
             <Text style={styles.question}>{post.question}</Text>
 
             <View style={styles.metaRow}>
@@ -149,7 +150,7 @@ function BlockRenderer({ block }: { block: BlogPost['blocks'][number] }) {
     case 'p':
       return <Text style={styles.paragraph}>{block.text}</Text>;
     case 'h2':
-      return <Text style={styles.h2}>{block.text}</Text>;
+      return <Heading level={2} style={styles.h2}>{block.text}</Heading>;
     case 'list':
       return (
         <View style={styles.list}>

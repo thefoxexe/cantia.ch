@@ -595,7 +595,7 @@ function LandingContent() {
               <View style={StyleSheet.flatten([styles.bexioRibbonInner, isCompactNav && styles.bexioRibbonInnerCompact])}>
                 <View style={styles.bexioRibbonLeft}>
                   <View style={styles.bexioRibbonLogoBadge}>
-                    <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioBannerLogoImage} resizeMode="contain" />
+                    <Image source={require('../assets/integrations/bexio-logo.png')} style={styles.bexioBannerLogoImage} resizeMode="contain" accessibilityLabel="Bexio" />
                   </View>
                   <Text style={styles.bexioRibbonText}>
                     <Text style={styles.bexioRibbonTextStrong}>{tr('landingPage.bexioRibbonNew')}</Text>
@@ -1014,7 +1014,12 @@ function LandingContent() {
                 viewports. An Image absolutely filling a pre-sized box
                 doesn't hit that. */}
             <View style={styles.devicesHeroWrap}>
-              <Image source={require('../assets/marketing/devices-hero.jpg')} style={styles.devicesHero} resizeMode="contain" />
+              <Image
+                source={require('../assets/marketing/devices-hero.jpg')}
+                style={styles.devicesHero}
+                resizeMode="contain"
+                accessibilityLabel="L'interface Cantia sur ordinateur, tablette et téléphone"
+              />
             </View>
             <View style={styles.devicesBenefits}>
               {t.devices.benefits.map((b) => (
@@ -1085,7 +1090,7 @@ function LandingContent() {
         <View style={[styles.navFixed, scrolled && styles.navFixedScrolled]}>
           <View style={styles.nav}>
             <View style={styles.navBrandRow}>
-              <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+              <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" accessibilityLabel="Cantia" />
               <Text style={styles.navBrand}>Cantia</Text>
             </View>
 
@@ -1143,7 +1148,7 @@ function LandingContent() {
             >
               <View style={styles.mobileMenuHeader}>
                 <View style={styles.navBrandRow}>
-                  <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+                  <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" accessibilityLabel="Cantia" />
                   <Text style={styles.navBrand}>Cantia</Text>
                 </View>
                 <View style={styles.mobileMenuHeaderRight}>

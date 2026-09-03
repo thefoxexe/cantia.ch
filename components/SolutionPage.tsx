@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewSt
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
+import { Heading } from './Heading';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -95,7 +96,7 @@ export function SolutionPage({
               <View style={styles.kickerPill}>
                 <Text style={styles.kickerText}>{kicker}</Text>
               </View>
-              <Text style={styles.title}>{title}</Text>
+              <Heading level={1} style={styles.title}>{title}</Heading>
               <Text style={styles.subtitle}>{subtitle}</Text>
               <View style={styles.ctaRow}>
                 <Link href={authHref('signup')} asChild>

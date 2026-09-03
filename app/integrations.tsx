@@ -57,7 +57,7 @@ const ARC_BADGE_SIZE = 26;
 function CantiaLogoBadge({ size }: { size: number }) {
   return (
     <View style={[styles.visualLogoBadgeCantia, { width: size, height: size, borderRadius: size / 2.6 }]}>
-      <Image source={require('../assets/logo-mark.png')} style={{ width: size * 0.6, height: size * 0.6 }} resizeMode="contain" />
+      <Image source={require('../assets/logo-mark.png')} style={{ width: size * 0.6, height: size * 0.6 }} resizeMode="contain" accessibilityLabel="Cantia" />
     </View>
   );
 }
@@ -65,7 +65,7 @@ function CantiaLogoBadge({ size }: { size: number }) {
 function BexioLogoBadge({ size }: { size: number }) {
   return (
     <View style={[styles.visualLogoBadge, { width: size, height: size, borderRadius: size / 2.6 }]}>
-      <Image source={require('../assets/integrations/bexio-logo.png')} style={{ width: size, height: size }} resizeMode="contain" />
+      <Image source={require('../assets/integrations/bexio-logo.png')} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Bexio" />
     </View>
   );
 }

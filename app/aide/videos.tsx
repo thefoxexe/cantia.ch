@@ -59,7 +59,7 @@ function VideoCard({ video }: { video: (typeof TUTORIAL_VIDEOS)[number] }) {
   return (
     <Pressable onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${video.youtubeId}`)} style={styles.card}>
       <View style={styles.thumb}>
-        <Image source={{ uri: thumbnail }} style={styles.thumbImage} resizeMode="cover" />
+        <Image source={{ uri: thumbnail }} style={styles.thumbImage} resizeMode="cover" accessibilityLabel={video.title} />
         <View style={styles.playBadge}>
           <Feather name="play" size={14} color="#fff" />
         </View>

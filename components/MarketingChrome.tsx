@@ -114,7 +114,7 @@ export function MarketingNav() {
           >
             <View style={styles.mobileMenuHeader}>
               <View style={styles.navBrandRow}>
-                <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" />
+                <Image source={require('../assets/logo-mark.png')} style={styles.navLogo} resizeMode="contain" accessibilityLabel="Cantia" />
                 <Text style={styles.navBrand}>Cantia</Text>
               </View>
               <View style={styles.mobileMenuHeaderRight}>
@@ -189,7 +189,7 @@ export function MarketingFooter({
       <View style={styles.footerGrid}>
         <View style={styles.footerBrandCol}>
           <View style={styles.footerBrandRow}>
-            <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" />
+            <Image source={require('../assets/logo-mark.png')} style={styles.footerLogo} resizeMode="contain" accessibilityLabel="Cantia" />
             <Text style={styles.footerBrand}>Cantia</Text>
           </View>
           <Text style={styles.footerText}>{t.footer.blurb}</Text>
