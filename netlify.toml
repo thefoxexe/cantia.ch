@@ -635,6 +635,18 @@
   to = "/de/aide/personnalisation-abonnement/index.html"
   status = 200
 
+# Static screenshots under public/aide/*.png share the "/aide/" prefix with
+# the dynamic /aide/[id] route above — without this explicit pass-through,
+# a request for /aide/devis-creation.png falls through every /aide/<id>
+# rule above (none of them match that literal string) and lands on the SPA
+# catch-all at the bottom, which serves index.html instead of the actual
+# image (same unreliable on-disk-file precedence this whole file works
+# around). This forces the real file to be served regardless.
+[[redirects]]
+  from = "/aide/*.png"
+  to = "/aide/:splat.png"
+  status = 200
+
 # Blog articles (French and German) are one dynamic route each
 # ([slug].tsx, see app/blog/[slug].tsx and app/de/blog/[slug].tsx) rather
 # than one file per article like the routes above, so a splat rule covers
