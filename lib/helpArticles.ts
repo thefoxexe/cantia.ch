@@ -306,7 +306,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     keywords: ['relevé bancaire', 'import', 'rapprochement', 'camt', 'paiement'],
     body: [
       "Depuis Facturation → Import de relevé, un fichier de relevé bancaire (format CAMT.053 notamment) peut être importé pour rapprocher automatiquement les paiements reçus avec les factures en attente.",
-      "Le rapprochement se fait via la référence QR de chaque paiement — les lignes du relevé qui ne correspondent à aucune facture connue sont signalées, pour être traitées manuellement si besoin.",
+      "Le rapprochement se fait en priorité via la référence QR de chaque paiement — un match exact et fiable à 100 %. Quand un client paie sans cette référence, Cantia tente ensuite un rapprochement par montant, puis, en dernier recours, par ressemblance de nom (même si l'ordre des mots diffère, comme un relevé qui inverse nom et prénom).",
+      "Les rapprochements par ressemblance de nom sont signalés à part et ne sont jamais cochés automatiquement — ils demandent une vérification avant confirmation, contrairement aux rapprochements exacts (référence ou montant unique) qui le sont déjà.",
       "Cet import ne remplace pas une connexion bancaire permanente : c'est un import ponctuel, à faire aussi souvent que vous le souhaitez, sans jamais donner à Cantia d'accès direct à votre compte.",
     ],
   },

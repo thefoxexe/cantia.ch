@@ -1599,10 +1599,12 @@ export const fr = {
     factureFallback: 'Facture',
     matchedByReference: 'Rapproché par référence QR',
     matchedByAmount: 'Rapproché par montant',
+    matchedByFuzzy: 'Nom et montant proches — à vérifier',
     confirmPayments_one: 'Confirmer {{count}} paiement',
     confirmPayments_other: 'Confirmer {{count}} paiements',
     unmatchedTitle: 'Non rapprochées ({{count}})',
     noReference: 'Sans référence',
+    fuzzyHint: "Rapprochements proposés sur la base du nom et d'un montant proche (arrondi bancaire possible) — cochez ceux qui sont corrects avant de confirmer.",
   },
   devisDetail: {
     duplicate: 'Dupliquer',

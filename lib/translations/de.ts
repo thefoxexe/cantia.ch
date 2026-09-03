@@ -1613,10 +1613,12 @@ export const de: TranslationDict = {
     factureFallback: 'Rechnung',
     matchedByReference: 'Abgeglichen über QR-Referenz',
     matchedByAmount: 'Abgeglichen über Betrag',
+    matchedByFuzzy: 'Ähnlicher Name und Betrag — bitte prüfen',
     confirmPayments_one: '{{count}} Zahlung bestätigen',
     confirmPayments_other: '{{count}} Zahlungen bestätigen',
     unmatchedTitle: 'Nicht abgeglichen ({{count}})',
     noReference: 'Ohne Referenz',
+    fuzzyHint: 'Vorschläge basierend auf ähnlichem Namen und einem nahen Betrag (Bankrundung möglich) — prüfen Sie diese vor der Bestätigung.',
   },
   devisDetail: {
     duplicate: 'Duplizieren',
