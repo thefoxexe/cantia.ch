@@ -14,6 +14,7 @@ const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyph
   { href: '/(admin)/users', label: 'Utilisateurs', icon: 'users' },
   { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
   { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card' },
+  { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
   { href: '/(admin)/logs', label: 'Logs', icon: 'list' },
 ];
 

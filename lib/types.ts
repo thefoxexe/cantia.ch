@@ -980,6 +980,22 @@ export interface AdminModuleSummary {
   created_at: string;
 }
 
+export type TutorialChapterStatus = 'a_faire' | 'tourne' | 'monte' | 'publie';
+
+export interface AdminTutorialChapter {
+  id: string;
+  order_index: number;
+  feature_area: string;
+  title: string;
+  talking_points: string;
+  status: TutorialChapterStatus;
+  youtube_url: string | null;
+  site_embed_done: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AdminUserSummary {
   user_id: string;
   email: string;

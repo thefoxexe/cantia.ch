@@ -9,8 +9,10 @@ import type {
   AdminOrganizationSummary,
   AdminRevenueOverview,
   AdminSiteTrafficOverview,
+  AdminTutorialChapter,
   AdminUserSummary,
   PlatformModule,
+  TutorialChapterStatus,
 } from '../types';
 
 // All admin_* RPCs re-check is_platform_admin() server-side and raise if the
@@ -144,6 +146,42 @@ export async function getOrgBillingStatuses(organizationIds: string[]): Promise<
 export async function getSiteTraffic(): Promise<{ overview: AdminSiteTrafficOverview | null; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_site_traffic_overview');
   return { overview: error ? null : (data as AdminSiteTrafficOverview), error: logRpcError('admin_site_traffic_overview', error) };
+}
+
+export async function listTutorialChapters(): Promise<{ rows: AdminTutorialChapter[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_list_tutorial_chapters');
+  const err = logRpcError('admin_list_tutorial_chapters', error);
+  return { rows: err || !data ? [] : (data as AdminTutorialChapter[]), error: err };
+}
+
+export async function upsertTutorialChapter(input: {
+  id?: string | null;
+  order_index: number;
+  feature_area: string;
+  title: string;
+  talking_points: string;
+  status: TutorialChapterStatus;
+  youtube_url?: string | null;
+  site_embed_done?: boolean;
+  notes?: string | null;
+}): Promise<{ chapter: AdminTutorialChapter | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_upsert_tutorial_chapter', {
+    chapter_id: input.id ?? null,
+    p_order_index: input.order_index,
+    p_feature_area: input.feature_area,
+    p_title: input.title,
+    p_talking_points: input.talking_points,
+    p_status: input.status,
+    p_youtube_url: input.youtube_url ?? null,
+    p_site_embed_done: input.site_embed_done ?? false,
+    p_notes: input.notes ?? null,
+  });
+  return { chapter: (data as AdminTutorialChapter) ?? null, error: logRpcError('admin_upsert_tutorial_chapter', error) };
+}
+
+export async function deleteTutorialChapter(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('admin_delete_tutorial_chapter', { chapter_id: id });
+  return { error: logRpcError('admin_delete_tutorial_chapter', error) };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the
