@@ -2000,13 +2000,6 @@ export const fr = {
     factHostingText: 'Données hébergées en Suisse.',
   },
   landingPage: {
-    heroCardTitle: 'Devis #2024-118',
-    heroCardStatusSent: 'Envoyé',
-    heroCardLineFacade: 'Crépi façade nord',
-    heroCardLineWindows: 'Fenêtres PVC (x3)',
-    heroCardLineLabor: 'Pose et main d’œuvre',
-    heroCardTotalLabel: 'Total TTC',
-    heroCardSignedBadge: 'Signé électroniquement',
     heroCardToastTitle: 'Facture #204 payée',
     heroCardToastTime: 'Il y a 2 minutes',
     trustLine: '+{{count}} entreprises du bâtiment nous font déjà confiance',

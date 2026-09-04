@@ -479,68 +479,56 @@ function LandingContent() {
                 </Animated.Text>
               </View>
 
-              {/* ---- The claim made concrete: a live-looking devis card,
-                  gently floating, and gently tilting toward the cursor on
-                  desktop, instead of an abstract illustration. ---- */}
+              {/* ---- The claim made concrete: the real product, not a
+                  mockup — the same demo video as the tour section further
+                  down, framed as a browser-chrome card and gently floating/
+                  tilting toward the cursor on desktop. Autoplay establishes
+                  in the first second what would otherwise take a paragraph
+                  to explain. ---- */}
               <Animated.View
                 ref={heroVisualRef}
                 style={[
-                  styles.heroVisual,
-                  isCompactHero && styles.heroVisualCompact,
+                  styles.heroVideoCard,
+                  isCompactHero && styles.heroVideoCardCompact,
                   {
                     opacity: heroAnim,
                     transform: [
                       { perspective: 800 },
                       { translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) },
-                      { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['-4deg', '-2deg'] }) },
-                      { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, -10] }) },
-                      { rotateY: heroTiltX.interpolate({ inputRange: [-1, 1], outputRange: ['7deg', '-7deg'] }) },
-                      { rotateX: heroTiltY.interpolate({ inputRange: [-1, 1], outputRange: ['-7deg', '7deg'] }) },
+                      { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, -8] }) },
+                      { rotateY: heroTiltX.interpolate({ inputRange: [-1, 1], outputRange: ['5deg', '-5deg'] }) },
+                      { rotateX: heroTiltY.interpolate({ inputRange: [-1, 1], outputRange: ['-5deg', '5deg'] }) },
                     ],
                   },
                 ]}
               >
-                <View style={styles.heroCardHeader}>
-                  <View style={styles.heroCardDot} />
-                  <Text style={styles.heroCardTitle}>{tr('landingPage.heroCardTitle')}</Text>
-                  <View style={styles.heroCardStatusPill}>
-                    <Text style={styles.heroCardStatusText}>{tr('landingPage.heroCardStatusSent')}</Text>
-                  </View>
+                <View style={styles.heroVideoChrome}>
+                  <View style={[styles.tourDot, styles.tourDot1]} />
+                  <View style={[styles.tourDot, styles.tourDot2]} />
+                  <View style={[styles.tourDot, styles.tourDot3]} />
                 </View>
-
-                <View style={styles.heroCardLines}>
-                  <View style={styles.heroCardLine}>
-                    <Feather name="edit-3" size={13} color={colors.textMuted} />
-                    <Text style={styles.heroCardLineText}>{tr('landingPage.heroCardLineFacade')}</Text>
-                    <Text style={styles.heroCardLinePrice}>CHF 1 240.–</Text>
-                  </View>
-                  <View style={styles.heroCardLine}>
-                    <Feather name="square" size={13} color={colors.textMuted} />
-                    <Text style={styles.heroCardLineText}>{tr('landingPage.heroCardLineWindows')}</Text>
-                    <Text style={styles.heroCardLinePrice}>CHF 2 850.–</Text>
-                  </View>
-                  <View style={styles.heroCardLine}>
-                    <Feather name="tool" size={13} color={colors.textMuted} />
-                    <Text style={styles.heroCardLineText}>{tr('landingPage.heroCardLineLabor')}</Text>
-                    <Text style={styles.heroCardLinePrice}>CHF 980.–</Text>
-                  </View>
-                </View>
-                <View style={styles.heroCardDivider} />
-                <View style={styles.heroCardTotalRow}>
-                  <Text style={styles.heroCardTotalLabel}>{tr('landingPage.heroCardTotalLabel')}</Text>
-                  <Text style={styles.heroCardTotalValue}>CHF 5 070.–</Text>
-                </View>
-                <View style={styles.heroCardBadge}>
-                  <Feather name="check" size={12} color="#fff" />
-                  <Text style={styles.heroCardBadgeText}>{tr('landingPage.heroCardSignedBadge')}</Text>
-                </View>
+                <ShowcaseVideo
+                  key={appLocale}
+                  sources={
+                    appLocale === 'de'
+                      ? [
+                          { src: '/cantia-demo-de.webm', type: 'video/webm' },
+                          { src: '/cantia-demo-de.mp4', type: 'video/mp4' },
+                        ]
+                      : [
+                          { src: '/cantia-demo.webm', type: 'video/webm' },
+                          { src: '/cantia-demo.mp4', type: 'video/mp4' },
+                        ]
+                  }
+                  poster={appLocale === 'de' ? '/showcase/video-poster-de.jpg' : '/showcase/video-poster.jpg'}
+                  style={styles.heroVideo}
+                  accessibilityLabel={t.tour.videoLabel}
+                />
 
                 {/* A second, shallower layer of depth — bobs opposite the
-                    card itself so the two never move in lockstep, reading
-                    as a live notification arriving rather than a sticker
-                    glued to the mockup. Visible at every width — tucked in
-                    closer to the card's edge on phones so it can't clip off
-                    the viewport the way the desktop offset would. */}
+                    card itself so it never moves in lockstep, reading as a
+                    live notification arriving rather than a sticker glued
+                    to the video. */}
                 <Animated.View
                   style={[
                     styles.heroCardToast,
@@ -610,44 +598,6 @@ function LandingContent() {
               </View>
             </Pressable>
           </Link>
-
-          {/* ---- Product tour: a real screen-capture-style video (rendered
-              from the actual app UI with demo data, not a mockup) walking
-              through signup → create/join a company → a full checklist tour
-              of every module. This exists because prospects who only ever
-              see the landing copy have no way to picture what using Cantia
-              actually looks like — this section is the fix. The video
-              itself already covers every screen, so no screenshot grid
-              is duplicated below it. ---- */}
-          <Reveal id="tour" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
-            <Text style={[styles.sectionEyebrow, styles.centerText]}>{t.tour.eyebrow}</Text>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.tour.title}</Text>
-            <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.tour.subtitle}</Text>
-            <View style={styles.tourVideoOuter}>
-              <View style={styles.tourVideoChrome}>
-                <View style={[styles.tourDot, styles.tourDot1]} />
-                <View style={[styles.tourDot, styles.tourDot2]} />
-                <View style={[styles.tourDot, styles.tourDot3]} />
-              </View>
-              <ShowcaseVideo
-                key={appLocale}
-                sources={
-                  appLocale === 'de'
-                    ? [
-                        { src: '/cantia-demo-de.webm', type: 'video/webm' },
-                        { src: '/cantia-demo-de.mp4', type: 'video/mp4' },
-                      ]
-                    : [
-                        { src: '/cantia-demo.webm', type: 'video/webm' },
-                        { src: '/cantia-demo.mp4', type: 'video/mp4' },
-                      ]
-                }
-                poster={appLocale === 'de' ? '/showcase/video-poster-de.jpg' : '/showcase/video-poster.jpg'}
-                style={styles.tourVideo}
-                accessibilityLabel={t.tour.videoLabel}
-              />
-            </View>
-          </Reveal>
 
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
           <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
@@ -2207,121 +2157,44 @@ const styles = StyleSheet.create({
   hoverLifted: {
     transform: [{ translateY: -3 }, { scale: 1.035 }],
   },
-  // The claim made concrete: a tilted, gently floating devis-card mockup
-  // standing in for a device screenshot (none of the app's real screens
-  // are photogenic enough at this scale) — built from the same primitives
-  // as the rest of the page rather than an imported illustration.
-  heroVisual: {
-    width: 330,
-    backgroundColor: colors.surface,
+  // The claim made concrete: the real product, gently floating and tilting
+  // toward the cursor on desktop — a browser-chrome-framed video instead of
+  // an abstract illustration or a static mockup.
+  heroVideoCard: {
+    width: 500,
     borderRadius: radius.xl,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.lg,
     shadowColor: colors.text,
     shadowOpacity: 0.16,
     shadowRadius: 48,
     shadowOffset: { width: 0, height: 28 },
   },
-  heroVisualCompact: {
+  heroVideoCardCompact: {
     width: '100%',
-    maxWidth: 360,
+    maxWidth: 500,
     alignSelf: 'center',
     marginTop: spacing.xxxl,
     transform: [{ rotate: '0deg' }],
   },
-  heroCardHeader: {
+  heroVideoChrome: {
+    height: 28,
+    backgroundColor: '#EFE7D8',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.md,
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  heroCardDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  heroCardTitle: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  heroCardStatusPill: {
-    backgroundColor: colors.successSoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  heroCardStatusText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.success,
-  },
-  heroCardLines: {
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  heroCardLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  heroCardLineText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  heroCardLinePrice: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.text,
-    fontVariant: ['tabular-nums'],
-  },
-  heroCardDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginBottom: spacing.md,
-  },
-  heroCardTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  heroCardTotalLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  heroCardTotalValue: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
-    color: colors.primary,
-    letterSpacing: -0.5,
-    fontVariant: ['tabular-nums'],
-  },
-  heroCardBadge: {
-    position: 'absolute',
-    left: -14,
-    bottom: -14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.success,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 7,
-    shadowColor: colors.success,
-    shadowOpacity: 0.32,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  heroCardBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#fff',
-  },
+  heroVideo: {
+    width: '100%',
+    aspectRatio: 1280 / 720,
+    backgroundColor: '#F7F1E6',
+    display: 'block',
+  } as unknown as ViewStyle,
   heroCardToast: {
     position: 'absolute',
     top: -22,
@@ -2340,8 +2213,8 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
   },
-  // On phones heroVisualCompact is centered with limited side margin — the
-  // desktop offset would push this past the viewport edge and get clipped.
+  // On phones heroVideoCardCompact is centered with limited side margin —
+  // the desktop offset would push this past the viewport edge and get clipped.
   heroCardToastCompact: {
     top: -14,
     right: -6,
@@ -3514,41 +3387,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: spacing.xl,
   },
-  tourVideoOuter: {
-    width: '100%',
-    maxWidth: 880,
-    alignSelf: 'center',
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: 'rgba(35,26,18,0.08)',
-    marginBottom: spacing.xxl,
-    ...Platform.select({
-      web: { boxShadow: '0 30px 70px -20px rgba(35,26,18,0.35), 0 10px 24px -10px rgba(35,26,18,0.2)' } as unknown as ViewStyle,
-      default: {},
-    }),
-  },
-  tourVideoChrome: {
-    height: 30,
-    backgroundColor: '#EFE7D8',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(35,26,18,0.06)',
-  },
   tourDot: { width: 9, height: 9, borderRadius: 5 },
   tourDot1: { backgroundColor: '#E5A2A2' },
   tourDot2: { backgroundColor: '#E8CB98' },
   tourDot3: { backgroundColor: '#A8CBAE' },
-  tourVideo: {
-    width: '100%',
-    aspectRatio: 1280 / 720,
-    backgroundColor: '#F7F1E6',
-    display: 'block',
-  } as unknown as ViewStyle,
   devicesHeroWrap: {
     width: '100%',
     maxWidth: 1100,

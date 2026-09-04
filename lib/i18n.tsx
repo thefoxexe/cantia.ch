@@ -34,7 +34,7 @@ interface Dict {
     paidCta: string;
   };
   swiss: { title: string; text: string };
-  tour: { eyebrow: string; title: string; subtitle: string; videoLabel: string };
+  tour: { videoLabel: string };
   devices: { title: string; text: string; benefits: { title: string; text: string }[] };
   mobile: { title: string; text: string; installCta: string; storeNote: string; comingSoon: string; appStore: string; googlePlay: string };
   finalCta: { title: string; subtitle: string; button: string; trust: string[] };
@@ -116,7 +116,7 @@ const fr: Dict = {
   },
   services: {
     title: 'Cantia relie le terrain et le bureau dans le même outil',
-    subtitle: 'Le premier tiers de la page montre le résultat, le reste prouve l’étendue du produit. Cliquez sur un service pour voir précisément ce qu’il fait.',
+    subtitle: 'Du premier rendez-vous à la facture payée : cliquez sur un service pour voir précisément ce qu’il fait.',
     items: [
       {
         title: 'Du rendez-vous au devis sans refaire le travail le soir',
@@ -252,9 +252,6 @@ const fr: Dict = {
     text: 'Cantia a été développé pour le fonctionnement des entreprises du bâtiment suisse : CHF, TVA suisse, QR-facture et données hébergées en Suisse.',
   },
   tour: {
-    eyebrow: 'Visite guidée',
-    title: 'Cantia, de l’inscription au tour complet des fonctionnalités',
-    subtitle: 'Inscription, création de votre entreprise, puis un tour complet, module par module, de tout ce que fait Cantia.',
     videoLabel: 'Vidéo de présentation de Cantia',
   },
   devices: {
@@ -358,7 +355,7 @@ const de: Dict = {
   },
   services: {
     title: 'Cantia verbindet Baustelle und Büro in einem einzigen Tool',
-    subtitle: 'Das erste Drittel der Seite zeigt das Ergebnis, der Rest beweist die Bandbreite des Produkts. Klicken Sie auf eine Leistung, um genau zu sehen, was sie tut.',
+    subtitle: 'Vom ersten Termin bis zur bezahlten Rechnung: Klicken Sie auf eine Leistung, um genau zu sehen, was sie tut.',
     items: [
       {
         title: 'Vom Termin zur Offerte, ohne die Arbeit am Abend zu wiederholen',
@@ -494,9 +491,6 @@ const de: Dict = {
     text: 'Cantia wurde für die Funktionsweise Schweizer Bauunternehmen entwickelt: CHF, Schweizer MWST, QR-Rechnung und in der Schweiz gehostete Daten.',
   },
   tour: {
-    eyebrow: 'Rundgang',
-    title: 'Cantia, von der Anmeldung bis zum kompletten Funktionsrundgang',
-    subtitle: 'Anmeldung, Erstellung Ihres Unternehmens, dann ein kompletter Rundgang durch jedes Modul von Cantia.',
     videoLabel: 'Präsentationsvideo von Cantia',
   },
   devices: {

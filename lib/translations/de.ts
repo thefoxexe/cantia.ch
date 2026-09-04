@@ -2014,13 +2014,6 @@ export const de: TranslationDict = {
     factHostingText: 'Daten werden in der Schweiz gehostet.',
   },
   landingPage: {
-    heroCardTitle: 'Offerte #2024-118',
-    heroCardStatusSent: 'Versendet',
-    heroCardLineFacade: 'Verputz Nordfassade',
-    heroCardLineWindows: 'PVC-Fenster (x3)',
-    heroCardLineLabor: 'Montage und Arbeitszeit',
-    heroCardTotalLabel: 'Total inkl. MWST',
-    heroCardSignedBadge: 'Elektronisch unterschrieben',
     heroCardToastTitle: 'Rechnung #204 bezahlt',
     heroCardToastTime: 'Vor 2 Minuten',
     trustLine: '+{{count}} Bauunternehmen vertrauen uns bereits',
