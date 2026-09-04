@@ -27,7 +27,7 @@ export function ShowcaseVideo({
     muted: true,
     loop: true,
     playsInline: true,
-    controls: true,
+    controls: false,
     'aria-label': accessibilityLabel,
     // Listed webm (VP9, royalty-free, universally decodable) before mp4
     // (H.264) so browsers whose Chromium build ships without proprietary

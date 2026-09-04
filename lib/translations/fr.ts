@@ -2000,8 +2000,6 @@ export const fr = {
     factHostingText: 'Données hébergées en Suisse.',
   },
   landingPage: {
-    heroCardToastTitle: 'Facture #204 payée',
-    heroCardToastTime: 'Il y a 2 minutes',
     trustLine: '+{{count}} entreprises du bâtiment nous font déjà confiance',
     trustSatisfaction: '{{rating}}/5 satisfaction clients',
     bexioRibbonNew: 'Nouveau — ',

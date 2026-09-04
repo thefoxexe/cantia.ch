@@ -2014,8 +2014,6 @@ export const de: TranslationDict = {
     factHostingText: 'Daten werden in der Schweiz gehostet.',
   },
   landingPage: {
-    heroCardToastTitle: 'Rechnung #204 bezahlt',
-    heroCardToastTime: 'Vor 2 Minuten',
     trustLine: '+{{count}} Bauunternehmen vertrauen uns bereits',
     trustSatisfaction: '{{rating}}/5 Kundenzufriedenheit',
     bexioRibbonNew: 'Neu — ',

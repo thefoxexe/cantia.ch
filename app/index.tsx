@@ -524,31 +524,6 @@ function LandingContent() {
                   style={styles.heroVideo}
                   accessibilityLabel={t.tour.videoLabel}
                 />
-
-                {/* A second, shallower layer of depth — bobs opposite the
-                    card itself so it never moves in lockstep, reading as a
-                    live notification arriving rather than a sticker glued
-                    to the video. */}
-                <Animated.View
-                  style={[
-                    styles.heroCardToast,
-                    isCompactHero && styles.heroCardToastCompact,
-                    {
-                      transform: [
-                        { translateY: blobPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }) },
-                        { rotate: blobPulse.interpolate({ inputRange: [0, 1], outputRange: ['3deg', '1deg'] }) },
-                      ],
-                    },
-                  ]}
-                >
-                  <View style={styles.heroCardToastIcon}>
-                    <Feather name="bell" size={11} color={colors.primary} />
-                  </View>
-                  <View>
-                    <Text style={styles.heroCardToastTitle}>{tr('landingPage.heroCardToastTitle')}</Text>
-                    <Text style={styles.heroCardToastText}>{tr('landingPage.heroCardToastTime')}</Text>
-                  </View>
-                </Animated.View>
               </Animated.View>
             </View>
           </View>
@@ -2195,50 +2170,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F1E6',
     display: 'block',
   } as unknown as ViewStyle,
-  heroCardToast: {
-    position: 'absolute',
-    top: -22,
-    right: -30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 7,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-  },
-  // On phones heroVideoCardCompact is centered with limited side margin —
-  // the desktop offset would push this past the viewport edge and get clipped.
-  heroCardToastCompact: {
-    top: -14,
-    right: -6,
-  },
-  heroCardToastIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  heroCardToastTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  heroCardToastText: {
-    fontFamily: marketingFonts.body,
-    fontSize: 10,
-    color: colors.textMuted,
-  },
   // Full-bleed hairline bar, same footprint as the old ticker, but a single
   // static line — no count-up, no realtime subscription.
   trustLineOuter: {
