@@ -549,10 +549,11 @@ function LandingContent() {
           {/* ---- Bexio ribbon — the "real, native OAuth integration" pitch,
               deliberately placed this high (right under the hero) rather
               than buried near pricing further down, since it's one of the
-              first things prospects already on Bexio ask about. Full-bleed
-              dark strip rather than an inset bordered card, so it reads as
-              an announcement banner instead of blending into the page's
-              other cream-on-cream cards — /integrations has the detail
+              first things prospects already on Bexio ask about. An inset,
+              cream-tinted bordered card (not the earlier full-bleed
+              near-black banner, which cut across the page's own palette and
+              read as a bolted-on ad) so it stays a callout without breaking
+              the page's visual language — /integrations has the detail
               (features, steps, FAQ). ---- */}
           <Link href={'/integrations' as any} asChild>
             <Pressable style={styles.bexioRibbon}>
@@ -568,7 +569,7 @@ function LandingContent() {
                 </View>
                 <View style={styles.bexioRibbonCta}>
                   <Text style={styles.bexioRibbonCtaText}>{tr('landingPage.bexioRibbonCta')}</Text>
-                  <Feather name="arrow-right" size={13} color={colors.text} />
+                  <Feather name="arrow-right" size={13} color="#fff" />
                 </View>
               </View>
             </Pressable>
@@ -2240,26 +2241,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
+  // A soft inset callout card (cream-tinted, bordered, rounded) instead of
+  // the previous full-bleed near-black banner — that dark edge-to-edge strip
+  // cut across the page's cream/serif palette right under the hero and read
+  // as a jarring, bolted-on ad rather than part of the same site.
   bexioRibbon: {
     width: '100%',
-    backgroundColor: colors.text,
-    marginTop: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.xxl,
+    marginBottom: spacing.xxl,
   },
   bexioRibbonInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: spacing.lg,
     maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
   },
   bexioRibbonInnerCompact: {
     justifyContent: 'flex-start',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   bexioRibbonLeft: {
     flexDirection: 'row',
@@ -2272,7 +2282,9 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#0A3A47',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -2286,36 +2298,34 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
-    color: colors.bg,
+    color: colors.text,
     lineHeight: 20,
-    opacity: 0.94,
   },
   bexioRibbonTextStrong: {
     fontFamily: marketingFonts.body,
     fontWeight: '800',
-    color: colors.bg,
-    opacity: 1,
+    color: colors.text,
   },
   bexioRibbonTextAccent: {
     fontFamily: marketingFonts.body,
     fontWeight: '800',
-    color: colors.accent,
+    color: colors.primary,
   },
   bexioRibbonCta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.primary,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
-    paddingVertical: 7,
+    paddingVertical: 9,
     flexShrink: 0,
   },
   bexioRibbonCtaText: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '700',
-    color: colors.text,
+    color: '#fff',
   },
   // Visual thread linking "le problème" to "ce qu'on apporte" — a short
   // gradient stem ending in an arrow badge, standing in for the connective
