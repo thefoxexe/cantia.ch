@@ -58,13 +58,11 @@ export default function AdminUsersList() {
                 style={styles.row}
                 onPress={() => router.push(`/(admin)/organizations/${u.organization_id}` as any)}
               >
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowTitle}>{u.full_name || u.email}</Text>
-                  <Text style={styles.rowSubtitle}>
-                    {u.email} · {u.organization_name} · {u.role}
-                  </Text>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
+                <Text style={styles.rowTitle} numberOfLines={1}>{u.full_name || u.email}</Text>
+                <Text style={styles.rowSubtitle} numberOfLines={1}>
+                  {u.email} · {u.organization_name} · {u.role}
+                </Text>
+                <View style={styles.rowFooter}>
                   <Text style={styles.rowMeta}>Inscrit le {formatDate(u.created_at)}</Text>
                   <Text style={styles.rowMeta}>Vu le {formatDate(u.last_sign_in_at)}</Text>
                 </View>
@@ -97,9 +95,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
@@ -116,6 +111,16 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  rowFooter: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    paddingTop: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   rowMeta: {
     fontSize: 11,

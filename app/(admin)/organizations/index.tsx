@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
@@ -10,9 +10,19 @@ import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
+import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import type { AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
 
 const PAGE_SIZE = 30;
+
+const STATUS_FILTERS: { key: OrgStatusBucket | null; label: string }[] = [
+  { key: null, label: 'Toutes' },
+  { key: 'paid', label: 'Payant' },
+  { key: 'trialing', label: 'Essai' },
+  { key: 'incomplete', label: 'Inscription incomplète' },
+  { key: 'plan_selected', label: 'Plan choisi' },
+  { key: 'past_due', label: 'Paiement en retard' },
+];
 
 function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing: AdminOrgBillingStatus | undefined; onPress: () => void }) {
   return (
@@ -36,7 +46,9 @@ function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing
 
 export default function AdminOrganizationsList() {
   const router = useRouter();
+  const { status: statusParam } = useLocalSearchParams<{ status?: string }>();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<OrgStatusBucket | null>((statusParam as OrgStatusBucket) ?? null);
   const [rows, setRows] = useState<AdminOrganizationSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -60,6 +72,15 @@ export default function AdminOrganizationsList() {
     return () => clearTimeout(timer);
   }, [search, load]);
 
+  // The status filter runs client-side over this single already-fetched page
+  // (PAGE_SIZE=30, comfortably above the real org count today) — it does not
+  // ask the server for a second page of a given status once totals grow past
+  // that.
+  const filteredRows = useMemo(
+    () => (statusFilter ? rows.filter((o) => getOrgStatus(o).bucket === statusFilter) : rows),
+    [rows, statusFilter],
+  );
+
   return (
     <ScrollView>
       <Container style={styles.container}>
@@ -68,14 +89,28 @@ export default function AdminOrganizationsList() {
           <AdminRefreshButton onPress={() => load(search)} loading={loading} />
         </View>
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+          {STATUS_FILTERS.map((f) => (
+            <Pressable
+              key={f.label}
+              style={[styles.filterChip, statusFilter === f.key && styles.filterChipActive]}
+              onPress={() => setStatusFilter(f.key)}
+            >
+              <Text style={[styles.filterChipText, statusFilter === f.key && styles.filterChipTextActive]}>{f.label}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
           <LoadingScreen label="Chargement…" />
-        ) : rows.length === 0 ? (
-          <EmptyState title="Aucune entreprise trouvée" subtitle={search ? 'Essayez une autre recherche.' : undefined} />
+        ) : filteredRows.length === 0 ? (
+          <EmptyState
+            title="Aucune entreprise trouvée"
+            subtitle={search ? 'Essayez une autre recherche.' : statusFilter ? 'Aucune entreprise dans ce statut.' : undefined}
+          />
         ) : (
           <FlatList
-            data={rows}
+            data={filteredRows}
             keyExtractor={(o) => o.id}
             renderItem={({ item }) => (
               <Row org={item} billing={billing[item.id]} onPress={() => router.push(`/(admin)/organizations/${item.id}` as any)} />
@@ -104,6 +139,31 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
+  },
+  filterRow: {
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  filterChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  filterChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  filterChipTextActive: {
+    color: '#fff',
   },
   row: {
     flexDirection: 'row',

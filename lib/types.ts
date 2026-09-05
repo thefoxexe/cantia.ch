@@ -1013,6 +1013,9 @@ export interface AdminDashboardStats {
   users_count: number;
   active_trials_count: number;
   paid_subscriptions_count: number;
+  // Signed up, never picked a plan, no trial, no Stripe status — same
+  // definition as lib/adminStatus.ts's "Inscription incomplète" bucket.
+  incomplete_signups_count: number;
   signups_today_count: number;
   organizations_created_today_count: number;
 }

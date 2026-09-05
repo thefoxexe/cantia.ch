@@ -11,9 +11,9 @@ import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme'
 const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { href: '/(admin)', label: 'Dashboard', icon: 'home' },
   { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase' },
-  { href: '/(admin)/users', label: 'Utilisateurs', icon: 'users' },
+  { href: '/(admin)/users', label: 'Comptes', icon: 'users' },
   { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
-  { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card' },
+  { href: '/(admin)/subscriptions', label: 'Abos', icon: 'credit-card' },
   { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
   { href: '/(admin)/logs', label: 'Logs', icon: 'list' },
 ];

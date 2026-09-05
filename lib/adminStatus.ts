@@ -12,20 +12,26 @@ import { colors } from './theme';
 // not just the two or three values seen in the data so far.
 export type OrgStatusTone = 'success' | 'warning' | 'danger' | 'muted';
 
+// A coarser grouping than the label — what the Entreprises list filter and
+// the dashboard funnel chips actually key off, so filtering never has to
+// match against display text (which can be reworded without breaking it).
+export type OrgStatusBucket = 'paid' | 'trialing' | 'past_due' | 'canceled' | 'plan_selected' | 'incomplete';
+
 export interface OrgStatus {
   label: string;
   tone: OrgStatusTone;
+  bucket: OrgStatusBucket;
 }
 
-const STRIPE_STATUS_LABELS: Record<string, OrgStatus> = {
-  active: { label: 'Payant', tone: 'success' },
-  trialing: { label: 'Essai', tone: 'warning' },
-  past_due: { label: 'Paiement en retard', tone: 'danger' },
-  unpaid: { label: 'Impayé', tone: 'danger' },
-  incomplete: { label: 'Paiement incomplet', tone: 'danger' },
-  incomplete_expired: { label: 'Paiement incomplet', tone: 'danger' },
-  canceled: { label: 'Résilié', tone: 'muted' },
-  paused: { label: 'En pause', tone: 'muted' },
+const STRIPE_STATUS_LABELS: Record<string, { label: string; tone: OrgStatusTone; bucket: OrgStatusBucket }> = {
+  active: { label: 'Payant', tone: 'success', bucket: 'paid' },
+  trialing: { label: 'Essai', tone: 'warning', bucket: 'trialing' },
+  past_due: { label: 'Paiement en retard', tone: 'danger', bucket: 'past_due' },
+  unpaid: { label: 'Impayé', tone: 'danger', bucket: 'past_due' },
+  incomplete: { label: 'Paiement incomplet', tone: 'danger', bucket: 'past_due' },
+  incomplete_expired: { label: 'Paiement incomplet', tone: 'danger', bucket: 'past_due' },
+  canceled: { label: 'Résilié', tone: 'muted', bucket: 'canceled' },
+  paused: { label: 'En pause', tone: 'muted', bucket: 'canceled' },
 };
 
 export function getOrgStatus(org: {
@@ -40,15 +46,15 @@ export function getOrgStatus(org: {
   // Stripe subscription_status (e.g. the 'découverte' plan's local trial,
   // which never touches Stripe at all).
   if (org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now()) {
-    return { label: 'Essai', tone: 'warning' };
+    return { label: 'Essai', tone: 'warning', bucket: 'trialing' };
   }
   if (org.plan_selected) {
-    return { label: 'Plan choisi', tone: 'muted' };
+    return { label: 'Plan choisi', tone: 'muted', bucket: 'plan_selected' };
   }
   // Never picked a plan, no trial, no Stripe status at all — an org record
   // exists (someone signed up) but onboarding was abandoned before the plan
   // step. Named for what actually happened, not a vague "no plan".
-  return { label: 'Inscription incomplète', tone: 'muted' };
+  return { label: 'Inscription incomplète', tone: 'muted', bucket: 'incomplete' };
 }
 
 export function orgStatusColor(tone: OrgStatusTone): string {

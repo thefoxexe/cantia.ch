@@ -6,6 +6,7 @@ import { Container, LoadingScreen } from '../../components/ui';
 import { AdminErrorBanner } from '../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../components/AdminRefreshButton';
 import { AdminOrgStatusPill } from '../../components/AdminOrgStatusPill';
+import { AdminSignupFunnel } from '../../components/AdminSignupFunnel';
 import { InternalTag } from '../../components/InternalTag';
 import { StatSparkline } from '../../components/StatSparkline';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -183,9 +184,10 @@ export default function AdminDashboard() {
         />
         <View style={styles.miniGrid}>
           <MiniTile label="Utilisateurs" value={stats?.users_count ?? 0} icon="users" />
-          <MiniTile label="Essais actifs" value={stats?.active_trials_count ?? 0} icon="clock" accent={colors.warning} />
-          <MiniTile label="Abonnements payants" value={stats?.paid_subscriptions_count ?? 0} icon="credit-card" accent={colors.success} />
         </View>
+
+        <SectionHeading title="Santé des inscriptions" subtitle="Qui a payé, qui est en essai, qui n'a jamais choisi de plan — tapez un segment pour voir la liste." />
+        {stats ? <AdminSignupFunnel stats={stats} /> : null}
 
         <SectionHeading title="Trafic du site" subtitle="cantia.ch — mesure interne, sans cookie tiers." />
         {!hasTrafficData ? (
