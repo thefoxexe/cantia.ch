@@ -65,17 +65,7 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 // Laid out in three honest tiers: money already in the bank, real recurring
 // revenue from paying customers, and money that either isn't confirmed yet
 // (trials) or will never come (complimentary accounts) — never blended.
-function RevenueOverview({
-  overview,
-  loading,
-  error,
-  scheduledCancellations,
-}: {
-  overview: AdminRevenueOverview | null;
-  loading: boolean;
-  error: string | null;
-  scheduledCancellations: number;
-}) {
+function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueOverview | null; loading: boolean; error: string | null }) {
   if (loading) return <Text style={styles.emptyText}>Calcul du CA et du MRR auprès de Stripe…</Text>;
   if (error) return <AdminErrorBanner message={error} />;
   if (!overview) return null;
@@ -139,10 +129,14 @@ function RevenueOverview({
         />
         <RevenueTile
           label="Résiliations programmées"
-          value={String(scheduledCancellations)}
+          value={String(overview.scheduled_cancellations_count)}
           icon="alert-triangle"
-          accent={scheduledCancellations > 0 ? colors.warning : colors.success}
-          meta={scheduledCancellations > 0 ? "actifs aujourd'hui, non reconduits à la fin de la période" : 'Aucune résiliation en attente'}
+          accent={overview.scheduled_cancellations_count > 0 ? colors.warning : colors.success}
+          meta={
+            overview.scheduled_cancellations_count > 0
+              ? "actifs aujourd'hui, non reconduits à la fin de la période"
+              : 'Aucune résiliation en attente'
+          }
         />
       </View>
 
@@ -253,10 +247,6 @@ export default function AdminSubscriptionsList() {
 
   const plans = useMemo(() => Array.from(new Map(rows.map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
   const filteredRows = useMemo(() => (planFilter ? rows.filter((o) => o.plan_id === planFilter) : rows), [rows, planFilter]);
-  // Real Stripe signal, not a guess: an active subscription Stripe has
-  // already flagged as cancel_at_period_end won't renew — an early warning
-  // for churn that hasn't happened yet, distinct from what already churned.
-  const scheduledCancellations = useMemo(() => Object.values(billing).filter((b) => b.cancel_at_period_end).length, [billing]);
 
   return (
     <ScrollView>
@@ -266,12 +256,12 @@ export default function AdminSubscriptionsList() {
           <AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />
         </View>
 
-        <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} scheduledCancellations={scheduledCancellations} />
+        <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} />
 
         <SectionHeading title="Entreprises" />
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
         {plans.length > 1 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.planFilterRow}>
+          <View style={styles.planFilterRow}>
             <Pressable style={[styles.planChip, !planFilter && styles.planChipActive]} onPress={() => setPlanFilter(null)}>
               <Text style={[styles.planChipText, !planFilter && styles.planChipTextActive]}>Tous les plans</Text>
             </Pressable>
@@ -280,7 +270,7 @@ export default function AdminSubscriptionsList() {
                 <Text style={[styles.planChipText, planFilter === id && styles.planChipTextActive]}>{name}</Text>
               </Pressable>
             ))}
-          </ScrollView>
+          </View>
         ) : null}
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
@@ -427,6 +417,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   planFilterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.sm,
     marginBottom: spacing.sm,

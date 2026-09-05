@@ -15,7 +15,7 @@ export type OrgStatusTone = 'success' | 'warning' | 'danger' | 'muted';
 // A coarser grouping than the label — what the Entreprises list filter and
 // the dashboard funnel chips actually key off, so filtering never has to
 // match against display text (which can be reworded without breaking it).
-export type OrgStatusBucket = 'paid' | 'trialing' | 'past_due' | 'canceled' | 'plan_selected' | 'incomplete';
+export type OrgStatusBucket = 'paid' | 'complimentary' | 'trialing' | 'past_due' | 'canceled' | 'plan_selected' | 'incomplete';
 
 export interface OrgStatus {
   label: string;
@@ -38,7 +38,14 @@ export function getOrgStatus(org: {
   subscription_status: string | null;
   trial_ends_at: string | null;
   plan_selected: boolean;
+  is_complimentary: boolean;
 }): OrgStatus {
+  // A 100%-off lifetime grant still carries subscription_status: 'active'
+  // in Stripe — checked before the Stripe-status branch below so it never
+  // gets mislabeled "Payant" (that label means real, ongoing revenue).
+  if (org.is_complimentary) {
+    return { label: 'Offert (gratuit à vie)', tone: 'muted', bucket: 'complimentary' };
+  }
   if (org.subscription_status && STRIPE_STATUS_LABELS[org.subscription_status]) {
     return STRIPE_STATUS_LABELS[org.subscription_status];
   }

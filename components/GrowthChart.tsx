@@ -4,8 +4,9 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { AdminRevenueTimeseriesPoint } from '../lib/types';
 
 type Period = 'today' | '7d' | 'month' | 'all';
-type SeriesKey = 'signups' | 'revenue' | 'paying';
+type SeriesKey = 'mrr' | 'signups' | 'revenue' | 'paying';
 const SERIES_FIELD: Record<SeriesKey, keyof AdminRevenueTimeseriesPoint> = {
+  mrr: 'mrr_chf',
   signups: 'signups',
   revenue: 'revenue_chf',
   paying: 'paying_cumulative',
@@ -19,7 +20,8 @@ const PERIODS: { key: Period; label: string }[] = [
 ];
 
 const SERIES: { key: SeriesKey; label: string; color: string }[] = [
-  { key: 'signups', label: 'Inscriptions', color: colors.primary },
+  { key: 'mrr', label: 'MRR', color: colors.primary },
+  { key: 'signups', label: 'Inscriptions', color: colors.accent },
   { key: 'revenue', label: 'CA encaissé', color: colors.success },
   { key: 'paying', label: 'Clients payants (cumulé)', color: colors.warning },
 ];
@@ -57,23 +59,27 @@ function Bars({ points, seriesKey, color }: { points: AdminRevenueTimeseriesPoin
 }
 
 export function GrowthChart({ points }: { points: AdminRevenueTimeseriesPoint[] }) {
-  const [period, setPeriod] = useState<Period>('month');
-  const [active, setActive] = useState<Record<SeriesKey, boolean>>({ signups: true, revenue: true, paying: false });
+  const [period, setPeriod] = useState<Period>('all');
+  const [active, setActive] = useState<Record<SeriesKey, boolean>>({ mrr: true, signups: false, revenue: false, paying: false });
 
   const filtered = useMemo(() => filterByPeriod(points, period), [points, period]);
   const activeSeries = SERIES.filter((s) => active[s.key]);
 
   return (
     <View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      {/* flexWrap rows, not horizontal ScrollViews — nested inside the
+          page's outer vertical ScrollView, a horizontal scroller captured
+          the touch/wheel gesture wherever it started over a chip and made
+          the page feel "stuck" mid-scroll on mobile. */}
+      <View style={styles.chipRow}>
         {PERIODS.map((p) => (
           <Pressable key={p.key} style={[styles.periodChip, period === p.key && styles.periodChipActive]} onPress={() => setPeriod(p.key)}>
             <Text style={[styles.periodChipText, period === p.key && styles.periodChipTextActive]}>{p.label}</Text>
           </Pressable>
         ))}
-      </ScrollView>
+      </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      <View style={styles.chipRow}>
         {SERIES.map((s) => {
           const on = active[s.key];
           return (
@@ -87,7 +93,7 @@ export function GrowthChart({ points }: { points: AdminRevenueTimeseriesPoint[] 
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
 
       {filtered.length === 0 ? (
         <Text style={styles.emptyText}>Pas encore de donnée sur cette période.</Text>
@@ -113,6 +119,8 @@ export function GrowthChart({ points }: { points: AdminRevenueTimeseriesPoint[] 
 
 const styles = StyleSheet.create({
   chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     paddingBottom: spacing.sm,
   },

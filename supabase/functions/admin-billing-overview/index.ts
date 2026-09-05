@@ -189,7 +189,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   const [{ data: orgs }, { data: plans }] = await Promise.all([
     admin
       .from('organizations')
-      .select('id, name, plan_id, subscription_status, stripe_customer_id, stripe_subscription_id, promo_code_used')
+      .select('id, name, plan_id, subscription_status, stripe_customer_id, stripe_subscription_id, promo_code_used, is_complimentary')
       .eq('is_internal', false)
       .not('stripe_subscription_id', 'is', null),
     admin.from('plans').select('id, name, stripe_price_id, stripe_price_id_yearly'),
@@ -212,61 +212,83 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   let activeCount = 0;
   let trialingCount = 0;
   let complimentaryCount = 0;
+  let scheduledCancellationsCount = 0;
   const complimentaryAccounts: { id: string; name: string; code: string }[] = [];
   const byPlan = new Map<string, { plan_id: string; plan_name: string; active_count: number; trialing_count: number; mrr_chf: number }>();
+  // Every day an active (non-trialing, non-complimentary) subscription
+  // started, +its monthly-equivalent price; every day one ended, the
+  // opposite. Walking these in date order and accumulating gives the real
+  // MRR on any given day — not an estimate, the actual Stripe price history.
+  const mrrEvents: { ts: number; delta: number }[] = [];
 
   await Promise.all(
-    (orgs ?? []).map(async (org: { id: string; name: string; plan_id: string; stripe_subscription_id: string; promo_code_used: string | null }) => {
-      let sub: Stripe.Subscription;
-      try {
-        sub = await stripe.subscriptions.retrieve(org.stripe_subscription_id, { expand: ['items.data.price', 'discounts'] });
-      } catch {
-        return;
-      }
-      if (!['active', 'trialing'].includes(sub.status)) return;
-
-      // Free-forever grant: never real revenue, excluded from MRR/ARR
-      // entirely and reported separately instead — never silently dropped.
-      const freeCoupon = findFreeForeverCoupon(sub);
-      if (freeCoupon) {
-        complimentaryCount += 1;
-        complimentaryAccounts.push({ id: org.id, name: org.name, code: freeCoupon });
-        if (!org.promo_code_used) {
-          await admin.from('organizations').update({ promo_code_used: freeCoupon }).eq('id', org.id);
+    (orgs ?? []).map(
+      async (org: { id: string; name: string; plan_id: string; stripe_subscription_id: string; promo_code_used: string | null; is_complimentary: boolean }) => {
+        let sub: Stripe.Subscription;
+        try {
+          sub = await stripe.subscriptions.retrieve(org.stripe_subscription_id, { expand: ['items.data.price', 'discounts'] });
+        } catch {
+          return;
         }
-        return;
-      }
+        if (!['active', 'trialing'].includes(sub.status)) return;
 
-      const item = sub.items.data[0];
-      if (!item?.price) return;
-      const price = item.price as Stripe.Price;
-      const unitAmount = (price.unit_amount ?? 0) / 100;
-      const monthlyEquivalent = price.recurring?.interval === 'year' ? unitAmount / 12 : unitAmount;
-      const discountFactor = sub.discount?.coupon
-        ? sub.discount.coupon.percent_off
-          ? 1 - sub.discount.coupon.percent_off / 100
-          : sub.discount.coupon.amount_off
-            ? Math.max(0, 1 - sub.discount.coupon.amount_off / 100 / unitAmount)
-            : 1
-        : 1;
-      const realMonthly = monthlyEquivalent * discountFactor;
+        // Free-forever grant: never real revenue, excluded from MRR/ARR
+        // (and from every "payant" count elsewhere) — reported separately
+        // instead of silently dropped. is_complimentary is the persisted
+        // version of this same live check, kept in sync here so every other
+        // admin screen agrees with this one without its own Stripe call.
+        const freeCoupon = findFreeForeverCoupon(sub);
+        if (freeCoupon) {
+          complimentaryCount += 1;
+          complimentaryAccounts.push({ id: org.id, name: org.name, code: freeCoupon });
+          if (!org.promo_code_used) {
+            await admin.from('organizations').update({ promo_code_used: freeCoupon }).eq('id', org.id);
+          }
+          if (!org.is_complimentary) {
+            await admin.from('organizations').update({ is_complimentary: true }).eq('id', org.id);
+          }
+          return;
+        }
+        if (org.is_complimentary) {
+          await admin.from('organizations').update({ is_complimentary: false }).eq('id', org.id);
+        }
 
-      const planInfo = priceToPlan.get(price.id) ?? { id: org.plan_id, name: org.plan_id };
-      if (!byPlan.has(planInfo.id)) byPlan.set(planInfo.id, { plan_id: planInfo.id, plan_name: planInfo.name, active_count: 0, trialing_count: 0, mrr_chf: 0 });
-      const bucket = byPlan.get(planInfo.id)!;
+        const item = sub.items.data[0];
+        if (!item?.price) return;
+        const price = item.price as Stripe.Price;
+        const unitAmount = (price.unit_amount ?? 0) / 100;
+        const monthlyEquivalent = price.recurring?.interval === 'year' ? unitAmount / 12 : unitAmount;
+        const discountFactor = sub.discount?.coupon
+          ? sub.discount.coupon.percent_off
+            ? 1 - sub.discount.coupon.percent_off / 100
+            : sub.discount.coupon.amount_off
+              ? Math.max(0, 1 - sub.discount.coupon.amount_off / 100 / unitAmount)
+              : 1
+          : 1;
+        const realMonthly = monthlyEquivalent * discountFactor;
 
-      if (sub.status === 'active') {
-        mrrActiveChf += realMonthly;
-        activeCount += 1;
-        bucket.active_count += 1;
-        bucket.mrr_chf += realMonthly;
-        if (sub.start_date && sub.start_date >= monthStartTs) newMrrThisMonthChf += realMonthly;
-      } else {
-        mrrTrialingChf += realMonthly;
-        trialingCount += 1;
-        bucket.trialing_count += 1;
-      }
-    }),
+        const planInfo = priceToPlan.get(price.id) ?? { id: org.plan_id, name: org.plan_id };
+        if (!byPlan.has(planInfo.id)) byPlan.set(planInfo.id, { plan_id: planInfo.id, plan_name: planInfo.name, active_count: 0, trialing_count: 0, mrr_chf: 0 });
+        const bucket = byPlan.get(planInfo.id)!;
+
+        if (sub.status === 'active') {
+          mrrActiveChf += realMonthly;
+          activeCount += 1;
+          bucket.active_count += 1;
+          bucket.mrr_chf += realMonthly;
+          if (sub.start_date && sub.start_date >= monthStartTs) newMrrThisMonthChf += realMonthly;
+          if (sub.start_date) mrrEvents.push({ ts: sub.start_date, delta: realMonthly });
+          // Real Stripe signal, already on the object we just fetched — an
+          // active sub Stripe has flagged as cancel_at_period_end won't
+          // renew. Early-warning churn, not yet counted as lost.
+          if (sub.cancel_at_period_end) scheduledCancellationsCount += 1;
+        } else {
+          mrrTrialingChf += realMonthly;
+          trialingCount += 1;
+          bucket.trialing_count += 1;
+        }
+      },
+    ),
   );
 
   // Lifetime + this-month revenue actually collected, from real (non-internal)
@@ -291,21 +313,28 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     (allRealOrgs ?? []).map(async (o: { stripe_customer_id: string }) => {
       let canceled: Stripe.ApiList<Stripe.Subscription>;
       try {
-        canceled = await stripe.subscriptions.list({ customer: o.stripe_customer_id, status: 'canceled', limit: 3, expand: ['data.items.data.price', 'data.discounts'] });
+        // limit 10, not just "this month" — every past cancellation feeds
+        // the MRR-history chart below, not only this month's churn number.
+        canceled = await stripe.subscriptions.list({ customer: o.stripe_customer_id, status: 'canceled', limit: 10, expand: ['data.items.data.price', 'data.discounts'] });
       } catch {
         return;
       }
       for (const sub of canceled.data) {
-        if (!sub.canceled_at || sub.canceled_at < monthStartTs) continue;
         if (findFreeForeverCoupon(sub)) continue; // never contributed real MRR — not a churn loss
         const price = sub.items.data[0]?.price as Stripe.Price | undefined;
-        if (!price) continue;
+        if (!price || !sub.canceled_at) continue;
         const unitAmount = (price.unit_amount ?? 0) / 100;
-        churnedMrrThisMonthChf += price.recurring?.interval === 'year' ? unitAmount / 12 : unitAmount;
-        churnedCountThisMonth += 1;
+        const realMonthly = price.recurring?.interval === 'year' ? unitAmount / 12 : unitAmount;
+        if (sub.canceled_at >= monthStartTs) {
+          churnedMrrThisMonthChf += realMonthly;
+          churnedCountThisMonth += 1;
+        }
+        if (sub.start_date) mrrEvents.push({ ts: sub.start_date, delta: realMonthly });
+        mrrEvents.push({ ts: sub.canceled_at, delta: -realMonthly });
       }
     }),
   );
+  mrrEvents.sort((a, b) => a.ts - b.ts);
 
   // Every real (non-internal) org's signup date feeds the growth chart's
   // "inscriptions" series — cheap since there are only ever a few dozen.
@@ -351,19 +380,26 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     return !min || day < min ? day : min;
   }, null as string | null);
   const rangeStart = earliestSignup ?? new Date().toISOString().slice(0, 10);
-  const points: { date: string; signups: number; revenue_chf: number; paying_cumulative: number }[] = [];
+  const points: { date: string; signups: number; revenue_chf: number; paying_cumulative: number; mrr_chf: number }[] = [];
   let cursor = new Date(`${rangeStart}T00:00:00Z`);
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
   let payingIdx = 0;
+  let mrrIdx = 0;
+  let runningMrr = 0;
   while (cursor <= today) {
     const day = cursor.toISOString().slice(0, 10);
     while (payingIdx < firstPaymentDays.length && firstPaymentDays[payingIdx] <= day) payingIdx += 1;
+    while (mrrIdx < mrrEvents.length && dayKey(mrrEvents[mrrIdx].ts) <= day) {
+      runningMrr += mrrEvents[mrrIdx].delta;
+      mrrIdx += 1;
+    }
     points.push({
       date: day,
       signups: signupsByDay.get(day) ?? 0,
       revenue_chf: round2(revenueByDay.get(day) ?? 0),
       paying_cumulative: payingIdx,
+      mrr_chf: round2(Math.max(0, runningMrr)),
     });
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
@@ -392,6 +428,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     ca_this_month_chf: round2(caThisMonthChf),
     active_count: activeCount,
     trialing_count: trialingCount,
+    scheduled_cancellations_count: scheduledCancellationsCount,
     complimentary_count: complimentaryCount,
     complimentary_accounts: complimentaryAccounts,
     by_plan: Array.from(byPlan.values())

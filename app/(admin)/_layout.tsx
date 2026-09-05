@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -107,23 +107,37 @@ export default function AdminLayout() {
           <Feather name="log-out" size={18} color={colors.textMuted} />
         </Pressable>
       </View>
+      {/* A top nav strip, not a bottom tab bar — 7 destinations crammed into
+          equal-width bottom tabs left every label either truncated or
+          unreadably tiny on a real phone. Chips size to their own label and
+          scroll horizontally instead, sitting right under the brand bar
+          where a menu is expected. This scroller is a sibling of
+          mobileContent (not nested inside it), so it never fights the
+          page's own vertical scroll the way a nested one would. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.mobileNavBar}
+        contentContainerStyle={styles.mobileNavBarContent}
+      >
+        {NAV_ITEMS.map((item) => {
+          const active = item.href === activeHref;
+          return (
+            <Pressable
+              key={item.href}
+              style={[styles.mobileNavItem, active && styles.mobileNavItemActive]}
+              onPress={() => router.replace(item.href as any)}
+            >
+              <Feather name={item.icon} size={15} color={active ? colors.primary : colors.textMuted} />
+              <Text style={[styles.mobileNavItemText, active && styles.mobileNavItemTextActive]}>{item.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
       <View style={styles.mobileContent}>
         <ErrorBoundary key={pathname}>
           <Slot />
         </ErrorBoundary>
-      </View>
-      <View style={[styles.mobileTabBar, { paddingBottom: insets.bottom || spacing.sm }]}>
-        {NAV_ITEMS.map((item) => {
-          const active = item.href === activeHref;
-          return (
-            <Pressable key={item.href} style={styles.mobileTab} onPress={() => router.replace(item.href as any)}>
-              <Feather name={item.icon} size={20} color={active ? colors.primary : colors.textMuted} />
-              <Text style={[styles.mobileTabLabel, active && styles.mobileTabLabelActive]} numberOfLines={1}>
-                {item.label}
-              </Text>
-            </Pressable>
-          );
-        })}
       </View>
     </View>
   );
@@ -235,25 +249,36 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
   },
-  mobileTabBar: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+  mobileNavBar: {
+    flexGrow: 0,
     backgroundColor: colors.surface,
-    paddingTop: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  mobileTab: {
-    flex: 1,
+  mobileNavBarContent: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  mobileNavItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 6,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.bg,
   },
-  mobileTabLabel: {
-    fontSize: 10,
+  mobileNavItemActive: {
+    backgroundColor: colors.primarySoft,
+  },
+  mobileNavItemText: {
+    fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.textMuted,
   },
-  mobileTabLabelActive: {
+  mobileNavItemTextActive: {
     color: colors.primary,
     fontWeight: '700',
   },

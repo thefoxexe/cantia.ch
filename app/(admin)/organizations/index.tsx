@@ -18,6 +18,7 @@ const PAGE_SIZE = 30;
 const STATUS_FILTERS: { key: OrgStatusBucket | null; label: string }[] = [
   { key: null, label: 'Toutes' },
   { key: 'paid', label: 'Payant' },
+  { key: 'complimentary', label: 'Offert' },
   { key: 'trialing', label: 'Essai' },
   { key: 'incomplete', label: 'Inscription incomplète' },
   { key: 'plan_selected', label: 'Plan choisi' },
@@ -102,7 +103,12 @@ export default function AdminOrganizationsList() {
           <AdminRefreshButton onPress={() => load(search)} loading={loading} />
         </View>
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+        {/* flexWrap, not a horizontal ScrollView — a horizontal scroller
+            nested inside this page's outer vertical ScrollView captured the
+            touch/wheel gesture wherever it started over a chip, making the
+            page "stuck" mid-scroll on mobile. Wrapping chips instead avoids
+            that entirely and loses nothing at this chip count. */}
+        <View style={styles.filterRow}>
           {STATUS_FILTERS.map((f) => (
             <Pressable
               key={f.label}
@@ -112,10 +118,10 @@ export default function AdminOrganizationsList() {
               <Text style={[styles.filterChipText, statusFilter === f.key && styles.filterChipTextActive]}>{f.label}</Text>
             </Pressable>
           ))}
-        </ScrollView>
+        </View>
         <View style={styles.sortRow}>
           <Text style={styles.sortLabel}>Trier :</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortChipRow}>
+          <View style={styles.sortChipRow}>
             {SORT_OPTIONS.map((s) => (
               <Pressable
                 key={s.key}
@@ -125,7 +131,7 @@ export default function AdminOrganizationsList() {
                 <Text style={[styles.filterChipText, sortBy === s.key && styles.filterChipTextActive]}>{s.label}</Text>
               </Pressable>
             ))}
-          </ScrollView>
+          </View>
         </View>
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
@@ -168,12 +174,15 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.md,
     marginBottom: spacing.lg,
   },
   sortRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.lg,
@@ -184,6 +193,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   sortChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   filterChip: {

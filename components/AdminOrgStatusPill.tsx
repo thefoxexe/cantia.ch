@@ -8,7 +8,7 @@ import { getOrgStatus, orgStatusColor } from '../lib/adminStatus';
 export function AdminOrgStatusPill({
   org,
 }: {
-  org: { subscription_status: string | null; trial_ends_at: string | null; plan_selected: boolean };
+  org: { subscription_status: string | null; trial_ends_at: string | null; plan_selected: boolean; is_complimentary: boolean };
 }) {
   const { label, tone } = getOrgStatus(org);
   const color = orgStatusColor(tone);

@@ -107,6 +107,9 @@ export interface Organization {
   subscription_status: string | null;
   enabled_modules: string[];
   plan_selected: boolean;
+  // Active Stripe sub carries a 100%-off lifetime coupon — kept in sync by
+  // admin-billing-overview, read by the admin org-status pill.
+  is_complimentary: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -857,6 +860,11 @@ export interface AdminOrganizationSummary {
   private_modules_count: number;
   is_internal: boolean;
   internal_label: string | null;
+  // Stripe subscription is genuinely 'active' but carries a 100%-off
+  // lifetime coupon — real customer, zero real revenue. Kept in sync with
+  // the live Stripe check by admin-billing-overview so every screen (not
+  // just the Stripe-sourced revenue view) can tell this apart from "Payant".
+  is_complimentary: boolean;
   total_count: number;
 }
 
@@ -900,6 +908,9 @@ export interface AdminRevenueTimeseriesPoint {
   signups: number;
   revenue_chf: number;
   paying_cumulative: number;
+  // Real MRR on that day, reconstructed from every subscription's actual
+  // start/cancel dates and price — not sampled/estimated.
+  mrr_chf: number;
 }
 
 export interface AdminRevenueOverview {
@@ -914,6 +925,9 @@ export interface AdminRevenueOverview {
   ca_this_month_chf: number;
   active_count: number;
   trialing_count: number;
+  // Active subs Stripe already flagged as cancel_at_period_end — churn
+  // that's coming but hasn't happened yet.
+  scheduled_cancellations_count: number;
   complimentary_count: number;
   complimentary_accounts: AdminComplimentaryAccount[];
   by_plan: AdminRevenuePlanBreakdown[];
@@ -1013,6 +1027,10 @@ export interface AdminDashboardStats {
   users_count: number;
   active_trials_count: number;
   paid_subscriptions_count: number;
+  // subscription_status = 'active' but is_complimentary = true (a 100%-off
+  // lifetime grant) — a real account, zero real revenue. Never folded into
+  // paid_subscriptions_count above.
+  complimentary_count: number;
   // Signed up, never picked a plan, no trial, no Stripe status — same
   // definition as lib/adminStatus.ts's "Inscription incomplète" bucket.
   incomplete_signups_count: number;

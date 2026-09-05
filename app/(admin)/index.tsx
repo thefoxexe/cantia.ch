@@ -5,13 +5,18 @@ import { Feather } from '@expo/vector-icons';
 import { Container, LoadingScreen } from '../../components/ui';
 import { AdminErrorBanner } from '../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../components/AdminRefreshButton';
-import { AdminOrgStatusPill } from '../../components/AdminOrgStatusPill';
 import { AdminSignupFunnel } from '../../components/AdminSignupFunnel';
-import { InternalTag } from '../../components/InternalTag';
 import { StatSparkline } from '../../components/StatSparkline';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { getDashboardStats, getRevenueOverview, getSiteTraffic, listOrganizations, subscribeToNewOrganizations } from '../../lib/api/admin';
-import type { AdminDashboardStats, AdminOrganizationSummary, AdminRevenueOverview, AdminSiteTrafficOverview } from '../../lib/types';
+import {
+  getDashboardStats,
+  getRevenueOverview,
+  getSiteTraffic,
+  listModules,
+  listTutorialChapters,
+  subscribeToNewOrganizations,
+} from '../../lib/api/admin';
+import type { AdminDashboardStats, AdminRevenueOverview, AdminSiteTrafficOverview } from '../../lib/types';
 
 function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 }).format(amount);
@@ -93,21 +98,23 @@ function MiniTile({ label, value, icon, accent }: { label: string; value: number
   );
 }
 
-function OrgRow({ org, onPress }: { org: AdminOrganizationSummary; onPress: () => void }) {
+// A shortcut card, not another list: "combien" + "va voir le détail", for
+// screens (Modules, Tutoriels) that already have their own dedicated tab —
+// the dashboard doesn't need to re-render their content, just point at it.
+function NavTile({ label, value, icon, href }: { label: string; value: string; icon: keyof typeof Feather.glyphMap; href: string }) {
   return (
-    <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
-      <View style={{ flex: 1 }}>
-        <View style={styles.rowTitleLine}>
-          <Text style={styles.rowTitle}>{org.name}</Text>
-          {org.is_internal && org.internal_label ? <InternalTag label={org.internal_label} /> : null}
+    <Link href={href as any} asChild>
+      <Pressable style={styles.miniTile}>
+        <View style={styles.miniIcon}>
+          <Feather name={icon} size={15} color={colors.textMuted} />
         </View>
-        <Text style={styles.rowSubtitle}>
-          {org.owner_email ?? 'Sans propriétaire'} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
-        </Text>
-      </View>
-      <AdminOrgStatusPill org={org} />
-      <Feather name="chevron-right" size={18} color={colors.textMuted} />
-    </Pressable>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.miniValue}>{value}</Text>
+          <Text style={styles.miniLabel}>{label}</Text>
+        </View>
+        <Feather name="chevron-right" size={16} color={colors.textMuted} />
+      </Pressable>
+    </Link>
   );
 }
 
@@ -116,19 +123,27 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [overview, setOverview] = useState<AdminRevenueOverview | null>(null);
   const [traffic, setTraffic] = useState<AdminSiteTrafficOverview | null>(null);
-  const [recent, setRecent] = useState<AdminOrganizationSummary[]>([]);
+  const [modulesSummary, setModulesSummary] = useState({ active: 0, total: 0 });
+  const [tutorialsSummary, setTutorialsSummary] = useState({ published: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [newSignal, setNewSignal] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [s, ov, tr, orgs] = await Promise.all([getDashboardStats(), getRevenueOverview(), getSiteTraffic(), listOrganizations('', 8, 0)]);
+    const [s, ov, tr, mods, tuts] = await Promise.all([
+      getDashboardStats(),
+      getRevenueOverview(),
+      getSiteTraffic(),
+      listModules(),
+      listTutorialChapters(),
+    ]);
     setStats(s.stats);
     setOverview(ov.overview);
     setTraffic(tr.overview);
-    setRecent(orgs.rows);
-    setError(s.error ?? ov.error ?? tr.error ?? orgs.error);
+    setModulesSummary({ active: mods.rows.filter((m) => m.status === 'active').length, total: mods.rows.length });
+    setTutorialsSummary({ published: tuts.rows.filter((c) => c.status === 'publie').length, total: tuts.rows.length });
+    setError(s.error ?? ov.error ?? tr.error ?? mods.error ?? tuts.error);
     setNewSignal(false);
   }, []);
 
@@ -157,13 +172,12 @@ export default function AdminDashboard() {
     return overview.timeseries.slice(-7).reduce((sum, p) => sum + p.signups, 0);
   }, [overview]);
 
-  // Logo churn = résiliations ce mois / (payants encore actifs + ceux qui
-  // sont partis ce mois) — la base des payants tels qu'ils étaient en début
-  // de mois, sans avoir besoin d'un instantané historique séparé.
-  const churnRatePct = useMemo(() => {
-    if (!overview) return null;
-    const base = overview.active_count + overview.churned_count_this_month;
-    return base > 0 ? (overview.churned_count_this_month / base) * 100 : 0;
+  // % of today's paying customers whose subscription Stripe already shows
+  // as cancel_at_period_end — real, already-decided churn that just hasn't
+  // landed yet, not a projection.
+  const scheduledCancelPct = useMemo(() => {
+    if (!overview || overview.active_count === 0) return null;
+    return (overview.scheduled_cancellations_count / overview.active_count) * 100;
   }, [overview]);
 
   const orgSparkline = useMemo(() => (overview ? overview.timeseries.slice(-14).map((p) => p.signups) : []), [overview]);
@@ -193,10 +207,27 @@ export default function AdminDashboard() {
         />
         <View style={styles.miniGrid}>
           <MiniTile label="Utilisateurs" value={stats?.users_count ?? 0} icon="users" />
+          <MiniTile label="Clients payants" value={stats?.paid_subscriptions_count ?? 0} icon="check-circle" accent={colors.success} />
         </View>
 
         <SectionHeading title="Santé des inscriptions" subtitle="Qui a payé, qui est en essai, qui n'a jamais choisi de plan — tapez un segment pour voir la liste." />
         {stats ? <AdminSignupFunnel stats={stats} /> : null}
+
+        <SectionHeading title="Outils" subtitle="Accès rapide — le détail complet reste sur son propre onglet." />
+        <View style={styles.miniGrid}>
+          <NavTile
+            label="Modules sur mesure"
+            value={`${modulesSummary.active} actif${modulesSummary.active > 1 ? 's' : ''} sur ${modulesSummary.total}`}
+            icon="grid"
+            href="/(admin)/modules"
+          />
+          <NavTile
+            label="Tutoriels vidéo"
+            value={`${tutorialsSummary.published} publié${tutorialsSummary.published > 1 ? 's' : ''} sur ${tutorialsSummary.total}`}
+            icon="video"
+            href="/(admin)/tutoriels"
+          />
+        </View>
 
         <SectionHeading title="Trafic du site" subtitle="cantia.ch — mesure interne, sans cookie tiers." />
         {!hasTrafficData ? (
@@ -231,7 +262,7 @@ export default function AdminDashboard() {
 
         {overview ? (
           <>
-            <SectionHeading title="Argent" action={{ label: 'Voir le détail', href: '/(admin)/subscriptions' }} />
+            <SectionHeading title="Argent" subtitle="Comptes gratuits à vie déjà exclus de tout ce qui suit." action={{ label: 'Voir le détail', href: '/(admin)/subscriptions' }} />
             {/* Money values need currency formatting, not the plain-number MiniTile — a small dedicated row instead. */}
             <View style={styles.moneyGrid}>
               <View style={styles.moneyTile}>
@@ -239,46 +270,40 @@ export default function AdminDashboard() {
                 <Text style={[styles.moneyValue, { color: colors.success }]}>{formatChf(overview.ca_this_month_chf)}</Text>
               </View>
               <View style={styles.moneyTile}>
-                <Text style={styles.moneyLabel}>MRR actif</Text>
+                <Text style={styles.moneyLabel}>Encaissé à vie</Text>
+                <Text style={[styles.moneyValue, { color: colors.success }]}>{formatChf(overview.ca_total_chf)}</Text>
+              </View>
+              <Pressable style={styles.moneyTile} onPress={() => router.push('/(admin)/subscriptions')}>
+                <View style={styles.moneyTileHeader}>
+                  <Text style={styles.moneyLabel}>MRR actif</Text>
+                  <Feather name="bar-chart-2" size={12} color={colors.textMuted} />
+                </View>
                 <Text style={styles.moneyValue}>{formatChf(overview.mrr_active_chf)}</Text>
-              </View>
+                <Text style={styles.moneyTapHint}>Voir l'évolution →</Text>
+              </Pressable>
               <View style={styles.moneyTile}>
-                <Text style={styles.moneyLabel}>ARR</Text>
-                <Text style={styles.moneyValue}>{formatChf(overview.arr_chf)}</Text>
-              </View>
-              <View style={styles.moneyTile}>
-                <Text style={styles.moneyLabel}>Taux de résiliation (ce mois)</Text>
-                <Text style={[styles.moneyValue, churnRatePct ? { color: colors.danger } : null]}>
-                  {churnRatePct !== null ? `${churnRatePct.toFixed(1)}%` : '—'}
+                <Text style={styles.moneyLabel}>Résiliations programmées</Text>
+                <Text style={[styles.moneyValue, scheduledCancelPct ? { color: colors.warning } : null]}>
+                  {scheduledCancelPct !== null ? `${scheduledCancelPct.toFixed(1)}%` : '—'}
                 </Text>
               </View>
             </View>
 
             {overview.by_plan.length > 0 ? (
-              <View style={styles.planList}>
+              <View style={styles.planGrid}>
                 {overview.by_plan.map((p) => (
-                  <View key={p.plan_id} style={styles.planRow}>
-                    <Text style={styles.planName}>{p.plan_name}</Text>
-                    <Text style={styles.planMeta}>
+                  <View key={p.plan_id} style={styles.planChip}>
+                    <Text style={styles.planChipName} numberOfLines={1}>{p.plan_name}</Text>
+                    <Text style={styles.planChipCount}>
                       {p.active_count} payant{p.active_count > 1 ? 's' : ''}
-                      {p.trialing_count > 0 ? ` · ${p.trialing_count} en essai` : ''}
+                      {p.trialing_count > 0 ? ` · ${p.trialing_count} essai` : ''}
                     </Text>
-                    <Text style={styles.planValue}>{formatChf(p.mrr_chf)}</Text>
                   </View>
                 ))}
               </View>
             ) : null}
           </>
         ) : null}
-
-        <SectionHeading title="Dernières inscriptions" action={{ label: 'Voir toutes les entreprises', href: '/(admin)/organizations' }} />
-        <View style={styles.list}>
-          {recent.length === 0 ? (
-            <Text style={styles.emptyText}>Aucune entreprise pour le moment.</Text>
-          ) : (
-            recent.map((org) => <OrgRow key={org.id} org={org} onPress={() => router.push(`/(admin)/organizations/${org.id}` as any)} />)
-          )}
-        </View>
       </Container>
     </ScrollView>
   );
@@ -477,72 +502,44 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontVariant: ['tabular-nums'],
   },
-  planList: {
+  moneyTileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  moneyTapHint: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  // A compact glance at "which plans, how many people" — not the full
+  // MRR-per-plan ledger (name + CHF + counts in a full-width row), which
+  // stays on Abonnements so this number isn't shown twice, worded two
+  // different ways, in two places.
+  planGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.md,
   },
-  planRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
+  planChip: {
+    minWidth: 130,
+    flexGrow: 1,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  planName: {
+  planChipName: {
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
-    minWidth: 90,
   },
-  planMeta: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  planValue: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primary,
-    fontVariant: ['tabular-nums'],
-  },
-  list: {
-    gap: spacing.sm,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  rowInternal: {
-    opacity: 0.55,
-  },
-  rowTitleLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  rowTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  rowSubtitle: {
+  planChipCount: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
   },
 });

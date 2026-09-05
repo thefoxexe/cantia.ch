@@ -13,14 +13,16 @@ export function AdminSignupFunnel({ stats }: { stats: AdminDashboardStats }) {
   const router = useRouter();
   const total = stats.organizations_count || 1;
   const paid = stats.paid_subscriptions_count;
+  const complimentary = stats.complimentary_count;
   const trialing = stats.active_trials_count;
   const incomplete = stats.incomplete_signups_count;
   // Whatever's left over (a plan chosen but no trial/Stripe status yet —
   // an edge case in practice) still has to add up to the full bar.
-  const other = Math.max(stats.organizations_count - paid - trialing - incomplete, 0);
+  const other = Math.max(stats.organizations_count - paid - complimentary - trialing - incomplete, 0);
 
   const segments = [
     { key: 'paid', label: 'Payant', count: paid, color: colors.success, status: 'paid' },
+    { key: 'complimentary', label: 'Offert (gratuit à vie)', count: complimentary, color: colors.accent, status: 'complimentary' },
     { key: 'trialing', label: 'Essai', count: trialing, color: colors.warning, status: 'trialing' },
     { key: 'incomplete', label: 'Inscription incomplète', count: incomplete, color: colors.textMuted, status: 'incomplete' },
     { key: 'other', label: 'Autre', count: other, color: colors.border, status: null },
