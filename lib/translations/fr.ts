@@ -2236,6 +2236,7 @@ export const fr = {
     emailLabel: 'E-mail',
     responseTimeLabel: 'Délai de réponse',
     responseTimeValue: 'Sous 24h ouvrées',
+    chatButton: 'Chat en direct',
   },
   contactForm: {
     title: 'Envoyez-nous un message',

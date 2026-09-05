@@ -2250,6 +2250,7 @@ export const de: TranslationDict = {
     emailLabel: 'E-Mail',
     responseTimeLabel: 'Antwortzeit',
     responseTimeValue: 'Innert 24 Werkstunden',
+    chatButton: 'Live-Chat',
   },
   contactForm: {
     title: 'Senden Sie uns eine Nachricht',

@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
@@ -6,6 +6,7 @@ import { ContactForm } from '../components/ContactForm';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { useTranslation } from '../lib/translations';
+import { openLiveChat } from '../lib/liveChat';
 
 // Real, dedicated support entry point — previously the only trace of a
 // way to reach Cantia was a small mailto link buried in the footer.
@@ -40,6 +41,11 @@ export default function ContactScreen() {
                   <Text style={styles.sideValue}>{t('contactPage.responseTimeValue')}</Text>
                 </View>
               </View>
+              <View style={styles.sideDivider} />
+              <Pressable style={styles.chatButton} onPress={openLiveChat}>
+                <Feather name="message-circle" size={16} color="#fff" />
+                <Text style={styles.chatButtonText}>{t('contactPage.chatButton')}</Text>
+              </Pressable>
             </View>
           </View>
         </Container>
@@ -112,5 +118,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
     marginTop: 2,
+  },
+  sideDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  chatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+  },
+  chatButtonText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: '#fff',
   },
 });
