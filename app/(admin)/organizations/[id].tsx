@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { Feather } from '@expo/vector-icons';
 import { getOrgBillingStatuses, getOrganizationDetail, listModules, setOrganizationModule } from '../../../lib/api/admin';
@@ -110,11 +111,13 @@ export default function AdminOrganizationDetailScreen() {
           </View>
           <View style={styles.infoCell}>
             <Text style={styles.infoLabel}>Statut abonnement</Text>
-            <Text style={styles.infoValue}>{org.subscription_status ?? '—'}</Text>
+            <AdminOrgStatusPill org={org} />
           </View>
           <View style={styles.infoCell}>
             <Text style={styles.infoLabel}>Essai jusqu'au</Text>
-            <Text style={styles.infoValue}>{formatDate(org.trial_ends_at)}</Text>
+            <Text style={styles.infoValue}>
+              {formatDate(org.trial_ends_at ?? (org.subscription_status === 'trialing' ? billing?.next_invoice_date ?? null : null))}
+            </Text>
           </View>
           <View style={styles.infoCell}>
             <Text style={styles.infoLabel}>Créée le</Text>

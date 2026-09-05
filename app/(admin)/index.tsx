@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { Container, LoadingScreen } from '../../components/ui';
 import { AdminErrorBanner } from '../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../components/AdminRefreshButton';
+import { AdminOrgStatusPill } from '../../components/AdminOrgStatusPill';
 import { InternalTag } from '../../components/InternalTag';
 import { StatSparkline } from '../../components/StatSparkline';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -92,9 +93,6 @@ function MiniTile({ label, value, icon, accent }: { label: string; value: number
 }
 
 function OrgRow({ org, onPress }: { org: AdminOrganizationSummary; onPress: () => void }) {
-  const isTrial = !!org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now();
-  const statusLabel = org.subscription_status === 'active' ? 'Payant' : isTrial ? 'Essai' : org.plan_selected ? 'Actif' : 'Sans plan';
-  const statusColor = org.subscription_status === 'active' ? colors.success : isTrial ? colors.warning : colors.textMuted;
   return (
     <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
       <View style={{ flex: 1 }}>
@@ -106,9 +104,7 @@ function OrgRow({ org, onPress }: { org: AdminOrganizationSummary; onPress: () =
           {org.owner_email ?? 'Sans propriétaire'} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
         </Text>
       </View>
-      <View style={[styles.statusPill, { backgroundColor: `${statusColor}22` }]}>
-        <Text style={[styles.statusPillText, { color: statusColor }]}>{statusLabel}</Text>
-      </View>
+      <AdminOrgStatusPill org={org} />
       <Feather name="chevron-right" size={18} color={colors.textMuted} />
     </Pressable>
   );
@@ -527,15 +523,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
-  },
-  statusPill: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-  },
-  statusPillText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
   },
   emptyText: {
     fontSize: fontSize.sm,

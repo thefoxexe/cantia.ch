@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
@@ -14,9 +15,6 @@ import type { AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../l
 const PAGE_SIZE = 30;
 
 function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing: AdminOrgBillingStatus | undefined; onPress: () => void }) {
-  const isTrial = !!org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now();
-  const statusLabel = org.subscription_status === 'active' ? 'Payant' : isTrial ? 'Essai' : org.plan_selected ? 'Actif' : 'Sans plan';
-  const statusColor = org.subscription_status === 'active' ? colors.success : isTrial ? colors.warning : colors.textMuted;
   return (
     <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
       <View style={{ flex: 1 }}>
@@ -30,9 +28,7 @@ function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing
         </Text>
       </View>
       <PaymentStatusIcon status={billing} />
-      <View style={[styles.statusPill, { backgroundColor: `${statusColor}22` }]}>
-        <Text style={[styles.statusPillText, { color: statusColor }]}>{statusLabel}</Text>
-      </View>
+      <AdminOrgStatusPill org={org} />
       <Feather name="chevron-right" size={18} color={colors.textMuted} />
     </Pressable>
   );
@@ -137,14 +133,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
-  },
-  statusPill: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-  },
-  statusPillText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
   },
 });

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
+import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
@@ -239,7 +240,11 @@ export default function AdminSubscriptionsList() {
         ) : (
           <View style={styles.list}>
             {filteredRows.map((org) => {
-              const isTrial = !!org.trial_ends_at && new Date(org.trial_ends_at).getTime() > Date.now();
+              const orgBilling = billing[org.id];
+              // Legacy trial_ends_at (the 'découverte' plan's own local
+              // countdown) vs. Stripe's real next-invoice date for an actual
+              // 'trialing' subscription — whichever one applies to this org.
+              const trialEndDate = org.trial_ends_at ?? (org.subscription_status === 'trialing' ? orgBilling?.next_invoice_date ?? null : null);
               return (
                 <Pressable
                   key={org.id}
@@ -253,10 +258,10 @@ export default function AdminSubscriptionsList() {
                     </View>
                     <Text style={styles.rowSubtitle}>{org.plan_name}</Text>
                   </View>
-                  <PaymentStatusIcon status={billing[org.id]} />
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.rowMeta}>{org.subscription_status ?? (isTrial ? 'Essai' : 'Sans abonnement')}</Text>
-                    {isTrial ? <Text style={styles.rowMeta}>Jusqu'au {formatDate(org.trial_ends_at)}</Text> : null}
+                  <PaymentStatusIcon status={orgBilling} />
+                  <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                    <AdminOrgStatusPill org={org} />
+                    {trialEndDate ? <Text style={styles.rowMeta}>Jusqu'au {formatDate(trialEndDate)}</Text> : null}
                   </View>
                 </Pressable>
               );
