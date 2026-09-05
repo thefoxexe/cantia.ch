@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { buildSmoothPath } from '../lib/chartPath';
 import type { AdminRevenueTimeseriesPoint } from '../lib/types';
 
 type Period = 'today' | '7d' | 'month' | 'all';
@@ -41,19 +43,54 @@ function formatDayLabel(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' });
 }
 
-function Bars({ points, seriesKey, color }: { points: AdminRevenueTimeseriesPoint[]; seriesKey: SeriesKey; color: string }) {
+// Fixed viewBox width — the real pixel width comes from the layout
+// (width="100%"); this is only the coordinate space the path math runs in.
+const VIEW_WIDTH = 300;
+const CHART_HEIGHT = 100;
+
+function LineSeries({ points, seriesKey, color }: { points: AdminRevenueTimeseriesPoint[]; seriesKey: SeriesKey; color: string }) {
   const field = SERIES_FIELD[seriesKey];
   const values = points.map((p) => Number(p[field]));
-  const max = Math.max(1, ...values);
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = Math.max(1, max - min);
+  const padY = 6;
+  const usableHeight = CHART_HEIGHT - padY * 2;
+  const stepX = points.length > 1 ? VIEW_WIDTH / (points.length - 1) : 0;
+
+  const coords = values.map((v, i) => ({
+    x: i * stepX,
+    y: padY + usableHeight - ((v - min) / range) * usableHeight,
+  }));
+  const last = coords[coords.length - 1];
+  const gradientId = `growth-${seriesKey}`;
+
+  if (coords.length < 2) {
+    return (
+      <View style={styles.chartRow}>
+        <Svg width="100%" height={CHART_HEIGHT} viewBox={`0 0 ${VIEW_WIDTH} ${CHART_HEIGHT}`}>
+          <Circle cx={last.x} cy={last.y} r={3.5} fill={color} />
+        </Svg>
+      </View>
+    );
+  }
+
+  const linePath = buildSmoothPath(coords);
+  const areaPath = `${linePath} L ${last.x} ${CHART_HEIGHT} L ${coords[0].x} ${CHART_HEIGHT} Z`;
+
   return (
     <View style={styles.chartRow}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.barsTrack}>
-        {points.map((p) => (
-          <View key={p.date} style={styles.barSlot}>
-            <View style={[styles.bar, { height: Math.max(2, (Number(p[field]) / max) * 100), backgroundColor: color }]} />
-          </View>
-        ))}
-      </ScrollView>
+      <Svg width="100%" height={CHART_HEIGHT} viewBox={`0 0 ${VIEW_WIDTH} ${CHART_HEIGHT}`} preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor={color} stopOpacity={0.2} />
+            <Stop offset="1" stopColor={color} stopOpacity={0} />
+          </LinearGradient>
+        </Defs>
+        <Path d={areaPath} fill={`url(#${gradientId})`} stroke="none" />
+        <Path d={linePath} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        <Circle cx={last.x} cy={last.y} r={3.5} fill={color} />
+      </Svg>
     </View>
   );
 }
@@ -104,7 +141,7 @@ export function GrowthChart({ points }: { points: AdminRevenueTimeseriesPoint[] 
           {activeSeries.map((s) => (
             <View key={s.key} style={{ marginBottom: spacing.md }}>
               <Text style={[styles.seriesLabel, { color: s.color }]}>{s.label}</Text>
-              <Bars points={filtered} seriesKey={s.key} color={s.color} />
+              <LineSeries points={filtered} seriesKey={s.key} color={s.color} />
             </View>
           ))}
           <View style={styles.axisRow}>
@@ -179,21 +216,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   chartRow: {
-    height: 100,
-  },
-  barsTrack: {
-    alignItems: 'flex-end',
-    gap: 3,
-    height: 100,
-  },
-  barSlot: {
-    width: 8,
-    height: 100,
-    justifyContent: 'flex-end',
-  },
-  bar: {
-    width: 8,
-    borderRadius: 2,
+    height: CHART_HEIGHT,
   },
   axisRow: {
     flexDirection: 'row',
