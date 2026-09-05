@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
@@ -15,6 +15,10 @@ export default function ChoosePlanScreen() {
   const { t } = useTranslation();
   const { organization, refreshOrganization, isPlatformAdmin } = useAuth();
   const router = useRouter();
+  // No visible field for this anywhere on the page — it only exists for
+  // whoever was personally handed a link like /choose-plan?promo=ESSAI30.
+  // Read once and applied silently; nothing on screen reveals it's there.
+  const { promo } = useLocalSearchParams<{ promo?: string }>();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
@@ -42,10 +46,9 @@ export default function ChoosePlanScreen() {
     // optimistically at this point used to let someone reach the app
     // without ever finishing (or even opening) the Stripe checkout tab.
     // The 14-day trial is automatic server-side (stripe-checkout grants it
-    // once per org) — no promo code needed here. A longer trial for a
-    // specific existing customer is granted directly on their Stripe
-    // subscription from the admin panel, never through this screen.
-    const { url, error: err } = await startCheckout(planId, billingInterval);
+    // once per org). `promo` (ESSAI30) is only ever present via a link
+    // someone was personally given — there's no on-screen way to enter one.
+    const { url, error: err } = await startCheckout(planId, billingInterval, promo);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? t('authChoosePlan.checkoutStartError'));
