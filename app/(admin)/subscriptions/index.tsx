@@ -65,10 +65,28 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 // Laid out in three honest tiers: money already in the bank, real recurring
 // revenue from paying customers, and money that either isn't confirmed yet
 // (trials) or will never come (complimentary accounts) — never blended.
-function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueOverview | null; loading: boolean; error: string | null }) {
+function RevenueOverview({
+  overview,
+  loading,
+  error,
+  scheduledCancellations,
+}: {
+  overview: AdminRevenueOverview | null;
+  loading: boolean;
+  error: string | null;
+  scheduledCancellations: number;
+}) {
   if (loading) return <Text style={styles.emptyText}>Calcul du CA et du MRR auprès de Stripe…</Text>;
   if (error) return <AdminErrorBanner message={error} />;
   if (!overview) return null;
+
+  // Logo/revenu churn du mois : résiliations / (payants restants + ceux
+  // partis ce mois), soit la base de payants telle qu'elle était en début
+  // de mois — pas besoin d'un instantané historique séparé pour ça.
+  const logoBase = overview.active_count + overview.churned_count_this_month;
+  const logoChurnPct = logoBase > 0 ? (overview.churned_count_this_month / logoBase) * 100 : 0;
+  const revenueBase = overview.mrr_active_chf + overview.churned_mrr_this_month_chf;
+  const revenueChurnPct = revenueBase > 0 ? (overview.churned_mrr_this_month_chf / revenueBase) * 100 : 0;
 
   return (
     <>
@@ -97,6 +115,34 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
           value={`${overview.net_mrr_this_month_chf >= 0 ? '+' : '−'}${formatChf(Math.abs(overview.net_mrr_this_month_chf))}`}
           icon={overview.net_mrr_this_month_chf >= 0 ? 'trending-up' : 'trending-down'}
           accent={overview.net_mrr_this_month_chf >= 0 ? colors.success : colors.danger}
+        />
+      </View>
+
+      <SectionHeading
+        title="Résiliations"
+        subtitle="Ce qui est déjà parti ce mois, en taux plutôt qu'en compte brut — et ce qui est déjà programmé pour bientôt."
+      />
+      <View style={styles.grid}>
+        <RevenueTile
+          label="Taux de résiliation (clients)"
+          value={`${logoChurnPct.toFixed(1)}%`}
+          icon="user-x"
+          accent={logoChurnPct > 0 ? colors.danger : colors.success}
+          meta={`sur ${logoBase} client${logoBase > 1 ? 's' : ''} payant${logoBase > 1 ? 's' : ''} en début de mois`}
+        />
+        <RevenueTile
+          label="Taux de résiliation (revenu)"
+          value={`${revenueChurnPct.toFixed(1)}%`}
+          icon="trending-down"
+          accent={revenueChurnPct > 0 ? colors.danger : colors.success}
+          meta="du MRR détenu en début de mois"
+        />
+        <RevenueTile
+          label="Résiliations programmées"
+          value={String(scheduledCancellations)}
+          icon="alert-triangle"
+          accent={scheduledCancellations > 0 ? colors.warning : colors.success}
+          meta={scheduledCancellations > 0 ? "actifs aujourd'hui, non reconduits à la fin de la période" : 'Aucune résiliation en attente'}
         />
       </View>
 
@@ -207,6 +253,10 @@ export default function AdminSubscriptionsList() {
 
   const plans = useMemo(() => Array.from(new Map(rows.map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
   const filteredRows = useMemo(() => (planFilter ? rows.filter((o) => o.plan_id === planFilter) : rows), [rows, planFilter]);
+  // Real Stripe signal, not a guess: an active subscription Stripe has
+  // already flagged as cancel_at_period_end won't renew — an early warning
+  // for churn that hasn't happened yet, distinct from what already churned.
+  const scheduledCancellations = useMemo(() => Object.values(billing).filter((b) => b.cancel_at_period_end).length, [billing]);
 
   return (
     <ScrollView>
@@ -216,7 +266,7 @@ export default function AdminSubscriptionsList() {
           <AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />
         </View>
 
-        <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} />
+        <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} scheduledCancellations={scheduledCancellations} />
 
         <SectionHeading title="Entreprises" />
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />

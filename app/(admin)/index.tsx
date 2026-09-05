@@ -157,6 +157,15 @@ export default function AdminDashboard() {
     return overview.timeseries.slice(-7).reduce((sum, p) => sum + p.signups, 0);
   }, [overview]);
 
+  // Logo churn = résiliations ce mois / (payants encore actifs + ceux qui
+  // sont partis ce mois) — la base des payants tels qu'ils étaient en début
+  // de mois, sans avoir besoin d'un instantané historique séparé.
+  const churnRatePct = useMemo(() => {
+    if (!overview) return null;
+    const base = overview.active_count + overview.churned_count_this_month;
+    return base > 0 ? (overview.churned_count_this_month / base) * 100 : 0;
+  }, [overview]);
+
   const orgSparkline = useMemo(() => (overview ? overview.timeseries.slice(-14).map((p) => p.signups) : []), [overview]);
   const trafficSparkline = useMemo(() => (traffic ? traffic.timeseries.slice(-14).map((p) => p.visits) : []), [traffic]);
   const hasTrafficData = !!traffic && traffic.visits_30d > 0;
@@ -236,6 +245,12 @@ export default function AdminDashboard() {
               <View style={styles.moneyTile}>
                 <Text style={styles.moneyLabel}>ARR</Text>
                 <Text style={styles.moneyValue}>{formatChf(overview.arr_chf)}</Text>
+              </View>
+              <View style={styles.moneyTile}>
+                <Text style={styles.moneyLabel}>Taux de résiliation (ce mois)</Text>
+                <Text style={[styles.moneyValue, churnRatePct ? { color: colors.danger } : null]}>
+                  {churnRatePct !== null ? `${churnRatePct.toFixed(1)}%` : '—'}
+                </Text>
               </View>
             </View>
 

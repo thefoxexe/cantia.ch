@@ -295,6 +295,12 @@ export function MarketingFooter({
             <Text style={styles.footerCopy}>@cantia.ch</Text>
           </Pressable>
         </Link>
+        <Link href="https://www.linkedin.com/company/cantiach/" target="_blank" asChild>
+          <Pressable style={styles.footerSocialLink}>
+            <Ionicons name="logo-linkedin" size={16} color="#0A66C2" />
+            <Text style={styles.footerCopy}>Cantia</Text>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

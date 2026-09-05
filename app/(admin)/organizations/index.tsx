@@ -24,6 +24,14 @@ const STATUS_FILTERS: { key: OrgStatusBucket | null; label: string }[] = [
   { key: 'past_due', label: 'Paiement en retard' },
 ];
 
+type SortKey = 'recent' | 'name' | 'members';
+
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: 'recent', label: 'Plus récentes' },
+  { key: 'name', label: 'Nom' },
+  { key: 'members', label: 'Plus de membres' },
+];
+
 function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing: AdminOrgBillingStatus | undefined; onPress: () => void }) {
   return (
     <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
@@ -49,6 +57,7 @@ export default function AdminOrganizationsList() {
   const { status: statusParam } = useLocalSearchParams<{ status?: string }>();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrgStatusBucket | null>((statusParam as OrgStatusBucket) ?? null);
+  const [sortBy, setSortBy] = useState<SortKey>('recent');
   const [rows, setRows] = useState<AdminOrganizationSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -76,10 +85,14 @@ export default function AdminOrganizationsList() {
   // (PAGE_SIZE=30, comfortably above the real org count today) — it does not
   // ask the server for a second page of a given status once totals grow past
   // that.
-  const filteredRows = useMemo(
-    () => (statusFilter ? rows.filter((o) => getOrgStatus(o).bucket === statusFilter) : rows),
-    [rows, statusFilter],
-  );
+  const filteredRows = useMemo(() => {
+    const base = statusFilter ? rows.filter((o) => getOrgStatus(o).bucket === statusFilter) : rows;
+    const sorted = [...base];
+    if (sortBy === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr-CH'));
+    else if (sortBy === 'members') sorted.sort((a, b) => b.member_count - a.member_count);
+    else sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return sorted;
+  }, [rows, statusFilter, sortBy]);
 
   return (
     <ScrollView>
@@ -100,6 +113,20 @@ export default function AdminOrganizationsList() {
             </Pressable>
           ))}
         </ScrollView>
+        <View style={styles.sortRow}>
+          <Text style={styles.sortLabel}>Trier :</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortChipRow}>
+            {SORT_OPTIONS.map((s) => (
+              <Pressable
+                key={s.key}
+                style={[styles.filterChip, sortBy === s.key && styles.filterChipActive]}
+                onPress={() => setSortBy(s.key)}
+              >
+                <Text style={[styles.filterChipText, sortBy === s.key && styles.filterChipTextActive]}>{s.label}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
         {error ? <AdminErrorBanner message={error} /> : null}
         {loading ? (
           <LoadingScreen label="Chargement…" />
@@ -144,6 +171,20 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.md,
     marginBottom: spacing.lg,
+  },
+  sortRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  sortLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  sortChipRow: {
+    gap: spacing.sm,
   },
   filterChip: {
     paddingHorizontal: spacing.md,
