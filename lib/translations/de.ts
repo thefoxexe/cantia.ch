@@ -1419,6 +1419,9 @@ export const de: TranslationDict = {
     choosePlanBtn: '{{name}} wählen',
     contactText: 'Mehr als 25 Mitglieder oder ein ganz eigenes Bedürfnis?',
     contactLink: 'Entdecken Sie Individuell →',
+    promoCodeToggle: 'Sie haben einen Promo-Code?',
+    promoCodeLabel: 'Promo-Code',
+    promoCodePlaceholder: 'Optional',
     planTaglines: {
       solo: 'Um allein oder zu wenigen zu starten, ohne beim Wesentlichen Abstriche zu machen.',
       equipe: 'Für Teams, die Baustellen, Personal und Liquidität an einem Ort verwalten.',

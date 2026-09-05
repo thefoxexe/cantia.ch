@@ -6,7 +6,7 @@ import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
 import { openCheckoutUrl } from '../../lib/openUrl';
-import { Button, Card, Screen, Switch } from '../../components/ui';
+import { Button, Card, Field, Screen, Switch } from '../../components/ui';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
@@ -19,6 +19,8 @@ export default function ChoosePlanScreen() {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPromoField, setShowPromoField] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
 
   useEffect(() => {
     supabase
@@ -42,8 +44,9 @@ export default function ChoosePlanScreen() {
     // optimistically at this point used to let someone reach the app
     // without ever finishing (or even opening) the Stripe checkout tab.
     // The 14-day trial is automatic server-side (stripe-checkout grants it
-    // once per org) — no promo code needed here.
-    const { url, error: err } = await startCheckout(planId, billingInterval);
+    // once per org) — the optional promo code below is only for a longer
+    // trial someone was specifically given, not for a discount.
+    const { url, error: err } = await startCheckout(planId, billingInterval, promoCode);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? t('authChoosePlan.checkoutStartError'));
@@ -119,6 +122,23 @@ export default function ChoosePlanScreen() {
             />
           ))}
         </View>
+
+        {showPromoField ? (
+          <View style={styles.promoField}>
+            <Field
+              label={t('authChoosePlan.promoCodeLabel')}
+              placeholder={t('authChoosePlan.promoCodePlaceholder')}
+              value={promoCode}
+              onChangeText={setPromoCode}
+              autoCapitalize="characters"
+              autoCorrect={false}
+            />
+          </View>
+        ) : (
+          <Pressable style={styles.promoToggle} onPress={() => setShowPromoField(true)} hitSlop={8}>
+            <Text style={styles.promoToggleText}>{t('authChoosePlan.promoCodeToggle')}</Text>
+          </Pressable>
+        )}
 
         <Pressable
           style={styles.contactCard}
@@ -376,6 +396,24 @@ const styles = StyleSheet.create({
   },
   featureTextMuted: {
     color: colors.textMuted,
+  },
+  promoToggle: {
+    alignSelf: 'center',
+    marginTop: spacing.lg,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  promoToggleText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  promoField: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 260,
+    marginTop: spacing.lg,
   },
   contactCard: {
     flexDirection: 'row',

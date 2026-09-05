@@ -82,9 +82,22 @@ Deno.serve(async (req: Request) => {
     // trial by hitting checkout again. Checkout's default
     // payment_method_collection ('always') still requires a card up front
     // even with a trial, so the trial doesn't charge now but does bill
-    // automatically in 14 days unless cancelled.
-    const grantTrial = org.trial_used !== true;
-    if (grantTrial) {
+    // automatically at trial end unless cancelled.
+    //
+    // ESSAI30 is a separate, manual 30-day trial for someone who was
+    // personally given extra time — it works even if trial_used is already
+    // true (that's the whole point: it's for people past their automatic
+    // trial). It's real Stripe trial time (subscription_data.trial_period_days),
+    // never a coupon/discount: a coupon can only discount money, so
+    // "100% off the first invoice" was the previous (wrong) way this was
+    // done — on a monthly plan that's roughly a free month, but on an
+    // annual plan it wipes out the entire year instead of ~30 days. A
+    // trial shifts the actual billing date by exactly 30 days regardless
+    // of the plan's price or interval, then charges the real price.
+    const promoCodeNormalized = typeof promo_code === 'string' ? promo_code.trim().toUpperCase() : '';
+    const useEssai30 = promoCodeNormalized === 'ESSAI30';
+    const trialDays = useEssai30 ? 30 : org.trial_used !== true ? 14 : null;
+    if (trialDays !== null && org.trial_used !== true) {
       await admin.from('organizations').update({ trial_used: true }).eq('id', org.id);
     }
 
@@ -96,7 +109,7 @@ Deno.serve(async (req: Request) => {
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
         metadata: { organization_id: org.id, plan_id: plan.id },
-        ...(grantTrial ? { trial_period_days: 14 } : {}),
+        ...(trialDays !== null ? { trial_period_days: trialDays } : {}),
       },
       success_url,
       cancel_url,
