@@ -37,7 +37,37 @@ Deno.serve(async (req: Request) => {
     const { data: isAdmin } = await userClient.rpc('is_platform_admin');
     if (!isAdmin) return json({ error: 'Accès refusé : réservé aux administrateurs de la plateforme.' }, 403);
 
-    const { action, organization_ids } = await req.json();
+    const { action, organization_ids, organization_id } = await req.json();
+
+    // A genuine 30-day trial granted directly on an existing customer's
+    // Stripe subscription — not a coupon, not a code typed anywhere. The
+    // previous "essai-30-jours" coupon (100% off the first invoice) looked
+    // like a 30-day trial on a monthly plan but wiped out an entire annual
+    // invoice instead, because a coupon discounts money, not time. Setting
+    // trial_end directly is the only mechanism that shifts the actual
+    // billing date by exactly 30 days regardless of the plan's price or
+    // interval, then bills the real price when it lapses.
+    if (action === 'grant_trial') {
+      if (!organization_id) return json({ error: 'organization_id requis' }, 400);
+      const { data: org } = await admin
+        .from('organizations')
+        .select('id, stripe_subscription_id')
+        .eq('id', organization_id)
+        .single();
+      if (!org?.stripe_subscription_id) {
+        return json({ error: "Cette entreprise n'a pas d'abonnement Stripe actif." }, 400);
+      }
+      const trialEndTs = Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
+      try {
+        await stripe.subscriptions.update(org.stripe_subscription_id, {
+          trial_end: trialEndTs,
+          proration_behavior: 'none',
+        });
+      } catch (err) {
+        return json({ error: String(err instanceof Error ? err.message : err) }, 500);
+      }
+      return json({ trial_end: new Date(trialEndTs * 1000).toISOString() });
+    }
 
     if (action === 'org_billing') {
       if (!Array.isArray(organization_ids) || organization_ids.length === 0) {

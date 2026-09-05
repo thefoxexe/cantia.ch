@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { Feather } from '@expo/vector-icons';
-import { getOrgBillingStatuses, getOrganizationDetail, listModules, setOrganizationModule } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
 import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
 
@@ -42,6 +42,8 @@ export default function AdminOrganizationDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<AdminOrgBillingStatus | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
+  const [confirmingTrial, setConfirmingTrial] = useState(false);
+  const [grantingTrial, setGrantingTrial] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -81,6 +83,32 @@ export default function AdminOrganizationDetailScreen() {
       setFeedback(`Erreur : ${error}`);
     } else {
       setFeedback(next ? `✓ ${moduleName} activé pour ${detail?.organization.name}` : `${moduleName} désactivé pour ${detail?.organization.name}`);
+      await load();
+    }
+    setTimeout(() => setFeedback(null), 4000);
+  }
+
+  // Sets trial_end 30 days out directly on the Stripe subscription — real
+  // trial time, never a discount. Ends the current billing period early
+  // and starts a fresh trial until then, so it's meant for someone who
+  // hasn't really started paying yet (e.g. their first period was
+  // accidentally waived), not for truncating an established customer's
+  // already-paid period — hence the confirm step.
+  async function handleGrantTrial() {
+    if (!id) return;
+    if (!confirmingTrial) {
+      setConfirmingTrial(true);
+      setTimeout(() => setConfirmingTrial(false), 5000);
+      return;
+    }
+    setConfirmingTrial(false);
+    setGrantingTrial(true);
+    const { trialEnd, error: err } = await grantTrial(id);
+    setGrantingTrial(false);
+    if (err || !trialEnd) {
+      setFeedback(`Erreur : ${err ?? 'échec inconnu'}`);
+    } else {
+      setFeedback(`✓ Essai de 30 jours accordé — prochain débit le ${formatDate(trialEnd)}`);
       await load();
     }
     setTimeout(() => setFeedback(null), 4000);
@@ -169,6 +197,22 @@ export default function AdminOrganizationDetailScreen() {
                     <Feather name="tag" size={16} color={colors.textMuted} />
                     <Text style={styles.billingText}>Code promo utilisé à l'inscription : {org.promo_code_used}</Text>
                   </View>
+                ) : null}
+                {org.stripe_subscription_id ? (
+                  <Pressable
+                    style={[styles.trialButton, confirmingTrial && styles.trialButtonConfirm]}
+                    onPress={handleGrantTrial}
+                    disabled={grantingTrial}
+                  >
+                    <Feather name="clock" size={14} color={confirmingTrial ? '#fff' : colors.primary} />
+                    <Text style={[styles.trialButtonText, confirmingTrial && styles.trialButtonTextConfirm]}>
+                      {grantingTrial
+                        ? 'Application…'
+                        : confirmingTrial
+                          ? 'Confirmer — décale le prochain débit à dans 30 jours'
+                          : 'Accorder un essai de 30 jours'}
+                    </Text>
+                  </Pressable>
                 ) : null}
               </View>
             )}
@@ -306,6 +350,28 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
+  },
+  trialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+  },
+  trialButtonConfirm: {
+    backgroundColor: colors.warning,
+  },
+  trialButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  trialButtonTextConfirm: {
+    color: '#fff',
   },
   list: {
     gap: spacing.sm,

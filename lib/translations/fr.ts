@@ -1405,9 +1405,6 @@ export const fr = {
     choosePlanBtn: 'Choisir {{name}}',
     contactText: 'Plus de 25 membres, ou un besoin métier bien à vous ?',
     contactLink: 'Découvrez Sur mesure →',
-    promoCodeToggle: 'Vous avez un code promo ?',
-    promoCodeLabel: 'Code promo',
-    promoCodePlaceholder: 'Optionnel',
     planTaglines: {
       solo: "Pour démarrer seul ou à quelques-uns, sans rien sacrifier sur l'essentiel.",
       equipe: 'Pour les équipes qui gèrent chantiers, RH et trésorerie au même endroit.',

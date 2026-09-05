@@ -139,6 +139,19 @@ export async function getOrgBillingStatuses(organizationIds: string[]): Promise<
   return { statuses: data?.statuses ?? {}, error };
 }
 
+// Sets trial_end 30 days out directly on the org's Stripe subscription —
+// real trial time, not a coupon. Only works on an org that already has a
+// Stripe subscription (stripe_subscription_id set); this is for extending
+// an existing customer, never for a brand-new self-serve signup.
+export async function grantTrial(organizationId: string): Promise<{ trialEnd: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ trial_end: string }>('admin-billing-overview', {
+    action: 'grant_trial',
+    organization_id: organizationId,
+  });
+  if (error) console.error('[admin] admin-billing-overview(grant_trial) failed:', error);
+  return { trialEnd: data?.trial_end ?? null, error };
+}
+
 // cantia.ch pageviews, logged client-side by lib/siteAnalytics.ts — see the
 // migration for why this table has no SELECT policy at all (read-only via
 // this security-definer RPC, same is_platform_admin() gate as every other
