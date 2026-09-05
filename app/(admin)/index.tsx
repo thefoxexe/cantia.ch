@@ -172,12 +172,16 @@ export default function AdminDashboard() {
     return overview.timeseries.slice(-7).reduce((sum, p) => sum + p.signups, 0);
   }, [overview]);
 
-  // % of today's paying customers whose subscription Stripe already shows
-  // as cancel_at_period_end — real, already-decided churn that just hasn't
-  // landed yet, not a projection.
+  // % of everyone still alive today (payants + essais réellement en cours)
+  // whose subscription Stripe already shows as cancel_at_period_end — real,
+  // already-decided churn that just hasn't landed yet, not a projection.
+  // Denominator: active_count already includes active-but-cancelling subs,
+  // so only trialing_cancelling_count needs adding back (trialing_count
+  // itself already excludes those) to avoid double-counting them.
   const scheduledCancelPct = useMemo(() => {
-    if (!overview || overview.active_count === 0) return null;
-    return (overview.scheduled_cancellations_count / overview.active_count) * 100;
+    if (!overview) return null;
+    const base = overview.active_count + overview.trialing_count + overview.trialing_cancelling_count;
+    return base > 0 ? (overview.scheduled_cancellations_count / base) * 100 : 0;
   }, [overview]);
 
   const orgSparkline = useMemo(() => (overview ? overview.timeseries.slice(-14).map((p) => p.signups) : []), [overview]);

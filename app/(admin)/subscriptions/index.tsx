@@ -134,7 +134,7 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
           accent={overview.scheduled_cancellations_count > 0 ? colors.warning : colors.success}
           meta={
             overview.scheduled_cancellations_count > 0
-              ? "actifs aujourd'hui, non reconduits à la fin de la période"
+              ? "actifs ou en essai, déjà annulés pour la fin de leur période"
               : 'Aucune résiliation en attente'
           }
         />

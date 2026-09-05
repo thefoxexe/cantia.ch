@@ -925,9 +925,15 @@ export interface AdminRevenueOverview {
   ca_this_month_chf: number;
   active_count: number;
   trialing_count: number;
-  // Active subs Stripe already flagged as cancel_at_period_end — churn
-  // that's coming but hasn't happened yet.
+  // Active OR trialing subs Stripe already flagged as cancel_at_period_end
+  // — churn that's coming but hasn't happened yet (a trialing one never
+  // even converts, so its price was never in mrr_trialing_chf to begin with).
   scheduled_cancellations_count: number;
+  // The trialing-only half of the above — not already inside active_count,
+  // so it's the piece to add back for an honest "% of everything still
+  // alive that's already leaving" denominator (active_count + trialing_count
+  // + trialing_cancelling_count).
+  trialing_cancelling_count: number;
   complimentary_count: number;
   complimentary_accounts: AdminComplimentaryAccount[];
   by_plan: AdminRevenuePlanBreakdown[];

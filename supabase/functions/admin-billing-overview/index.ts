@@ -242,7 +242,12 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   let activeCount = 0;
   let trialingCount = 0;
   let complimentaryCount = 0;
-  let scheduledCancellationsCount = 0;
+  // Split so the dashboard can compute an honest "% of everything still
+  // alive that's already leaving" without double-counting: an active org
+  // flagged cancel_at_period_end is already inside activeCount, so only
+  // the trialing half needs adding back to get the true alive population.
+  let activeCancellingCount = 0;
+  let trialingCancellingCount = 0;
   const complimentaryAccounts: { id: string; name: string; code: string }[] = [];
   const byPlan = new Map<string, { plan_id: string; plan_name: string; active_count: number; trialing_count: number; mrr_chf: number }>();
   // Every day an active (non-trialing, non-complimentary) subscription
@@ -311,7 +316,15 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
           // Real Stripe signal, already on the object we just fetched — an
           // active sub Stripe has flagged as cancel_at_period_end won't
           // renew. Early-warning churn, not yet counted as lost.
-          if (sub.cancel_at_period_end) scheduledCancellationsCount += 1;
+          if (sub.cancel_at_period_end) activeCancellingCount += 1;
+        } else if (sub.cancel_at_period_end) {
+          // Trialing, but the customer already clicked cancel before ever
+          // converting — Stripe will end this at trial_end with no charge.
+          // Counting its price in "MRR en attente (essais)" would project
+          // money that's already known not to come; it belongs in
+          // scheduled cancellations instead, same as an active sub that
+          // won't renew.
+          trialingCancellingCount += 1;
         } else {
           mrrTrialingChf += realMonthly;
           trialingCount += 1;
@@ -458,7 +471,13 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     ca_this_month_chf: round2(caThisMonthChf),
     active_count: activeCount,
     trialing_count: trialingCount,
-    scheduled_cancellations_count: scheduledCancellationsCount,
+    scheduled_cancellations_count: activeCancellingCount + trialingCancellingCount,
+    // The half of scheduled_cancellations_count NOT already inside
+    // active_count — the denominator for an honest "% of everything still
+    // alive that's already leaving" is active_count + trialing_count +
+    // trialing_cancelling_count (adding activeCancellingCount again would
+    // double-count subs already inside active_count).
+    trialing_cancelling_count: trialingCancellingCount,
     complimentary_count: complimentaryCount,
     complimentary_accounts: complimentaryAccounts,
     by_plan: Array.from(byPlan.values())
