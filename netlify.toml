@@ -226,6 +226,11 @@
   status = 200
 
 [[redirects]]
+  from = "/contact"
+  to = "/contact/index.html"
+  status = 200
+
+[[redirects]]
   from = "/aide/videos"
   to = "/aide/videos/index.html"
   status = 200
@@ -568,6 +573,11 @@
 [[redirects]]
   from = "/de/aide"
   to = "/de/aide/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/contact"
+  to = "/de/contact/index.html"
   status = 200
 
 [[redirects]]

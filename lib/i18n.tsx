@@ -7,7 +7,7 @@ interface FeatureItem {
 }
 
 interface Dict {
-  nav: { services: string; pricing: string; download: string; help: string; login: string; cta: string };
+  nav: { services: string; pricing: string; download: string; help: string; contact: string; login: string; cta: string };
   hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string; trust: string };
   spotlight: {
     title: string;
@@ -58,7 +58,7 @@ const fr: Dict = {
   // internationally-understood tech word, so this one nav label reads
   // identically for French and German visitors instead of needing its own
   // translation per locale.
-  nav: { services: 'Services', pricing: 'Tarifs', download: 'Download', help: 'Documentation', login: 'Se connecter', cta: 'Essayer Cantia' },
+  nav: { services: 'Services', pricing: 'Tarifs', download: 'Download', help: 'Documentation', contact: 'Contact', login: 'Se connecter', cta: 'Essayer Cantia' },
   hero: {
     kicker: 'Conçu pour le bâtiment suisse 🇨🇭',
     headlinePrefix: 'Gérez vos chantiers.',
@@ -297,7 +297,7 @@ const fr: Dict = {
 const de: Dict = {
   // "Download" left in English (not "Herunterladen") — see the fr dict's
   // comment above, same reasoning.
-  nav: { services: 'Leistungen', pricing: 'Preise', download: 'Download', help: 'Dokumentation', login: 'Anmelden', cta: 'Cantia testen' },
+  nav: { services: 'Leistungen', pricing: 'Preise', download: 'Download', help: 'Dokumentation', contact: 'Kontakt', login: 'Anmelden', cta: 'Cantia testen' },
   hero: {
     kicker: 'Für das Schweizer Baugewerbe entwickelt 🇨🇭',
     headlinePrefix: 'Verwalten Sie Ihre Baustellen.',

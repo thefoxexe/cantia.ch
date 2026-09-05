@@ -2133,6 +2133,11 @@ export const ROUTES = [
       "Toutes les réponses aux questions fréquentes sur Cantia : devis, factures, chantiers, équipe, facturation. Guides et tutoriels vidéo.",
   },
   {
+    path: 'contact',
+    title: 'Contact | Cantia',
+    description: 'Une question, un problème, une suggestion ? Contactez l’équipe Cantia — réponse sous 24h ouvrées.',
+  },
+  {
     path: 'aide/videos',
     title: "Tutoriels vidéo | Centre d'aide Cantia",
     description:
@@ -2313,6 +2318,11 @@ export const ROUTES = [
     path: 'de/aide',
     title: 'Hilfe-Center | Cantia',
     description: 'Alle Antworten auf häufige Fragen zu Cantia: Offerten, Rechnungen, Baustellen, Team, Abrechnung. Anleitungen und Video-Tutorials.',
+  },
+  {
+    path: 'de/contact',
+    title: 'Kontakt | Cantia',
+    description: 'Eine Frage, ein Problem, ein Vorschlag? Kontaktieren Sie das Cantia-Team — Antwort innert 24 Werkstunden.',
   },
   {
     path: 'de/aide/videos',

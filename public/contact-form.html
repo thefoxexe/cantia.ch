@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Netlify form registration</title></head>
+<body>
+<!--
+  Not a page anyone visits — its only job is to exist as static HTML in the
+  Netlify build output so Netlify's build-time form parser (which scans
+  rendered HTML, not the client-rendered React/Expo SPA) discovers and
+  registers this form. The real, visible form a visitor fills in lives in
+  components/ContactForm.tsx and submits to it via a plain fetch() POST
+  with a matching "form-name" field — see that file for why the two have
+  to stay in sync (every field name here must match one there). Same
+  pattern as public/sur-mesure-form.html.
+-->
+<form name="contact" data-netlify="true" netlify-honeypot="bot-field">
+  <input type="text" name="name" />
+  <input type="email" name="email" />
+  <input type="text" name="locale" />
+  <textarea name="message"></textarea>
+  <input type="text" name="bot-field" />
+</form>
+</body>
+</html>

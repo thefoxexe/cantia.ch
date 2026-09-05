@@ -45,6 +45,7 @@ export function MarketingNav() {
   const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : '/aide';
+  const contactHref = locale === 'de' ? '/de/contact' : '/contact';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -90,6 +91,9 @@ export function MarketingNav() {
           </Link>
           <Link href={aideHref as any}>
             <Text style={styles.navLink}>{t.nav.help}</Text>
+          </Link>
+          <Link href={contactHref as any}>
+            <Text style={styles.navLink}>{t.nav.contact}</Text>
           </Link>
           <LanguageSwitcher />
           <Link href={authHref('login')}>
@@ -142,8 +146,13 @@ export function MarketingNav() {
                   </Pressable>
                 </Link>
                 <Link href={aideHref as any} asChild>
-                  <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                     <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
+                  </Pressable>
+                </Link>
+                <Link href={contactHref as any} asChild>
+                  <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
+                    <Text style={styles.mobileMenuText}>{t.nav.contact}</Text>
                   </Pressable>
                 </Link>
               </View>
@@ -184,6 +193,7 @@ export function MarketingFooter({
   const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : '/aide';
+  const contactHref = locale === 'de' ? '/de/contact' : '/contact';
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -277,6 +287,9 @@ export function MarketingFooter({
           </Link>
           <Link href={aideHref as any}>
             <Text style={styles.footerLink}>{t.nav.help}</Text>
+          </Link>
+          <Link href={contactHref as any}>
+            <Text style={styles.footerLink}>{t.nav.contact}</Text>
           </Link>
           <Link href="/mentions-legales">
             <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
