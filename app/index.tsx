@@ -87,6 +87,7 @@ function LandingContent() {
   const appLocale = getAppLocale();
   const tradeHrefPrefix = appLocale === 'de' ? '/de/' : '/';
   const aideHref = `${tradeHrefPrefix}aide`;
+  const contactHref = `${tradeHrefPrefix}contact`;
   const scrollRef = useRef<ScrollView>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   // Starts true so the pricing grid renders skeleton cards instead of a bare
@@ -144,7 +145,7 @@ function LandingContent() {
   const heroTiltY = useRef(new Animated.Value(0)).current;
   const heroVisualRef = useRef<View>(null);
   const menuItemAnims = useRef(
-    Array.from({ length: 6 }, () => new Animated.Value(0)),
+    Array.from({ length: 7 }, () => new Animated.Value(0)),
   ).current;
   // The problem→solution connector's little "trailing" lag as you scroll:
   // each scroll tick nudges it away from rest by a fraction of that tick's
@@ -1082,6 +1083,9 @@ function LandingContent() {
                 <Link href={aideHref as any}>
                   <Text style={styles.navLink}>{t.nav.help}</Text>
                 </Link>
+                <Link href={contactHref as any}>
+                  <Text style={styles.navLink}>{t.nav.contact}</Text>
+                </Link>
                 <LanguageSwitcher />
                 <Link href={authHref('login')}>
                   <Text style={styles.navLink}>{t.nav.login}</Text>
@@ -1132,15 +1136,18 @@ function LandingContent() {
                     <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} label={t.nav.download} />
                   </Link>
                   <Link href={aideHref as any} asChild>
-                    <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} label={t.nav.help} last />
+                    <MenuItem anim={menuItemAnims[3]} onPress={() => setMenuOpen(false)} label={t.nav.help} />
+                  </Link>
+                  <Link href={contactHref as any} asChild>
+                    <MenuItem anim={menuItemAnims[4]} onPress={() => setMenuOpen(false)} label={t.nav.contact} last />
                   </Link>
                 </View>
 
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[4],
+                    opacity: menuItemAnims[5],
                     transform: [
-                      { translateY: menuItemAnims[4].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
@@ -1154,9 +1161,9 @@ function LandingContent() {
 
                 <Animated.View
                   style={{
-                    opacity: menuItemAnims[5],
+                    opacity: menuItemAnims[6],
                     transform: [
-                      { translateY: menuItemAnims[5].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+                      { translateY: menuItemAnims[6].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
                     ],
                   }}
                 >
