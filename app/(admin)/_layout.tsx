@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -109,17 +109,15 @@ export default function AdminLayout() {
       </View>
       {/* A top nav strip, not a bottom tab bar — 7 destinations crammed into
           equal-width bottom tabs left every label either truncated or
-          unreadably tiny on a real phone. Chips size to their own label and
-          scroll horizontally instead, sitting right under the brand bar
-          where a menu is expected. This scroller is a sibling of
-          mobileContent (not nested inside it), so it never fights the
-          page's own vertical scroll the way a nested one would. */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.mobileNavBar}
-        contentContainerStyle={styles.mobileNavBarContent}
-      >
+          unreadably tiny on a real phone. Chips size to their own label
+          instead. This is a flexWrap row, NOT a horizontal ScrollView: a
+          ScrollView here — even one that isn't nested inside the page's own
+          vertical scroller, just a sibling above it in the same flex
+          column — was still enough to break that page's vertical scroll on
+          real mobile browsers (confirmed live on Entreprises). Wrapping to
+          a second line on narrow phones costs a little height; it never
+          costs scroll. */}
+      <View style={styles.mobileNavBar}>
         {NAV_ITEMS.map((item) => {
           const active = item.href === activeHref;
           return (
@@ -133,7 +131,7 @@ export default function AdminLayout() {
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
       <View style={styles.mobileContent}>
         <ErrorBoundary key={pathname}>
           <Slot />
@@ -250,14 +248,12 @@ const styles = StyleSheet.create({
     minHeight: 0,
   },
   mobileNavBar: {
-    flexGrow: 0,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-  },
-  mobileNavBarContent: {
-    flexDirection: 'row',
-    gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
