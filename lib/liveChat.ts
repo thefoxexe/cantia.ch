@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { getAppLocale } from './translations';
 
 // Tidio's public embed key — safe to embed directly, not a secret.
 const TIDIO_SCRIPT_SRC = '//code.tidio.co/yi0kke4ku7gjiesaohhy0o3fdlh6c0hy.js';
@@ -18,6 +19,12 @@ let openRequested = false;
 function ensureTidioLoaded(): void {
   if (Platform.OS !== 'web' || scriptInjected) return;
   scriptInjected = true;
+
+  // Tidio reads this off `document` the moment its script initializes, so
+  // it must be set before the <script> tag below is inserted — that's what
+  // makes the widget open already in German on /de/contact instead of
+  // requiring a manual language switch inside the chat.
+  (document as unknown as { tidioChatLang?: string }).tidioChatLang = getAppLocale();
 
   document.addEventListener('tidioChat-ready', () => {
     apiReady = true;
