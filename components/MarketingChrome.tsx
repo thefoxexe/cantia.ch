@@ -215,6 +215,12 @@ export function MarketingFooter({
               <Text style={styles.footerContactText}>{tr('marketingChrome.contactSuffix')}</Text>
             </Pressable>
           </Link>
+          <Link href="tel:+41784501457" asChild>
+            <Pressable style={styles.footerContact}>
+              <Feather name="phone" size={13} color={colors.textMuted} />
+              <Text style={styles.footerContactText}>+41 78 450 14 57</Text>
+            </Pressable>
+          </Link>
         </View>
         <View style={styles.footerCol}>
           {/* Merged with the old standalone "Produit" column (just Services +

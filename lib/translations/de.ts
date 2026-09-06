@@ -2248,6 +2248,7 @@ export const de: TranslationDict = {
     title: 'Kontaktieren Sie uns',
     lead: 'Eine Frage, ein Problem, ein Vorschlag? Schreiben Sie uns, wir antworten Ihnen direkt per E-Mail.',
     emailLabel: 'E-Mail',
+    phoneLabel: 'Telefon',
     responseTimeLabel: 'Antwortzeit',
     responseTimeValue: 'Innert 24 Werkstunden',
     chatButton: 'Live-Chat',

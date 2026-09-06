@@ -35,6 +35,13 @@ export default function ContactScreen() {
                 </View>
               </View>
               <View style={styles.sideRow}>
+                <Feather name="phone" size={16} color={colors.primary} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sideLabel}>{t('contactPage.phoneLabel')}</Text>
+                  <Text style={styles.sideValue}>+41 78 450 14 57</Text>
+                </View>
+              </View>
+              <View style={styles.sideRow}>
                 <Feather name="clock" size={16} color={colors.primary} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.sideLabel}>{t('contactPage.responseTimeLabel')}</Text>

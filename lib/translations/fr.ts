@@ -2234,6 +2234,7 @@ export const fr = {
     title: 'Contactez-nous',
     lead: "Une question, un problème, une suggestion ? Écrivez-nous, on vous répond directement par e-mail.",
     emailLabel: 'E-mail',
+    phoneLabel: 'Téléphone',
     responseTimeLabel: 'Délai de réponse',
     responseTimeValue: 'Sous 24h ouvrées',
     chatButton: 'Chat en direct',
