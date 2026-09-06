@@ -89,6 +89,15 @@ export function helpHref(): string {
   return 'https://cantia.ch/aide';
 }
 
+// Same cross-host pattern as helpHref() above, for the support popup's
+// "contact form" option — the form itself only exists on the marketing
+// build's /contact page.
+export function contactHref(): string {
+  const path = getAppLocale() === 'de' ? '/de/contact' : '/contact';
+  if (isMarketingHost()) return path;
+  return `https://cantia.ch${path}`;
+}
+
 // Every /de/* route module calls forceLocale('de') at module scope, but
 // each of those web routes is code-split (dynamically imported the first
 // time it's actually navigated to) — so that call fires exactly once, the

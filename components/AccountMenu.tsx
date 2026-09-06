@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, Image, Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { getSignedUrl } from '../lib/api/storage';
 import { canPromptInstall, promptInstall } from '../lib/pwaInstall';
-import { helpHref } from '../lib/appHost';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
+import { SupportPopup } from './SupportPopup';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -175,40 +175,7 @@ export function AccountMenu() {
         </Pressable>
       </Modal>
 
-      <Modal visible={supportVisible} animationType="fade" transparent onRequestClose={() => setSupportVisible(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setSupportVisible(false)}>
-          <View style={styles.supportCard}>
-            <Text style={styles.supportTitle}>{t('accountMenu.supportTitle')}</Text>
-            <Text style={styles.supportSubtitle}>{t('accountMenu.supportSubtitle')}</Text>
-            <Pressable
-              style={styles.supportOption}
-              onPress={() => {
-                setSupportVisible(false);
-                Linking.openURL('mailto:info@cantia.ch').catch(() => {});
-              }}
-            >
-              <Feather name="mail" size={16} color={colors.primary} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.supportOptionTitle}>{t('accountMenu.sendEmail')}</Text>
-                <Text style={styles.supportOptionText}>{t('accountMenu.sendEmailHint')}</Text>
-              </View>
-            </Pressable>
-            <Pressable
-              style={styles.supportOption}
-              onPress={() => {
-                setSupportVisible(false);
-                Linking.openURL(helpHref()).catch(() => {});
-              }}
-            >
-              <Feather name="book-open" size={16} color={colors.primary} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.supportOptionTitle}>{t('accountMenu.viewDocs')}</Text>
-                <Text style={styles.supportOptionText}>{t('accountMenu.viewDocsHint')}</Text>
-              </View>
-            </Pressable>
-          </View>
-        </Pressable>
-      </Modal>
+      <SupportPopup visible={supportVisible} onClose={() => setSupportVisible(false)} />
     </>
   );
 }
@@ -304,53 +271,5 @@ const styles = StyleSheet.create({
   },
   rowLabelDanger: {
     color: colors.danger,
-  },
-  supportCard: {
-    position: 'absolute',
-    top: '35%',
-    left: spacing.lg,
-    right: spacing.lg,
-    maxWidth: 380,
-    alignSelf: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    gap: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  supportTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  supportSubtitle: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginBottom: spacing.xs,
-  },
-  supportOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  supportOptionTitle: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  supportOptionText: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
   },
 });

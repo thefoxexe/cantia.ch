@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +10,8 @@ import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme'
 import { AccountMenu } from '../../components/AccountMenu';
 import { NotificationBell } from '../../components/NotificationBell';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { NavDrawer, type NavSection } from '../../components/NavDrawer';
+import { NavDrawer, type NavLink, type NavSection } from '../../components/NavDrawer';
+import { SupportPopup } from '../../components/SupportPopup';
 import { useTranslation } from '../../lib/translations';
 
 // The bell renders in the top bar of every authenticated screen — a crash
@@ -164,11 +165,13 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
   const activeHref = activeHrefFor(pathname, sections);
   // Persisted so the choice sticks across reloads — mainly useful on iPad,
   // where the fixed 232px sidebar eats a noticeable chunk of a narrower
   // screen. Starts expanded (matches prior behavior) until storage resolves.
   const [collapsed, setCollapsed] = useState(false);
+  const [supportVisible, setSupportVisible] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(SIDEBAR_COLLAPSED_KEY).then((v) => {
@@ -183,6 +186,41 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
       return next;
     });
   }
+
+  function renderLink(link: NavLink) {
+    const active = link.href === activeHref;
+    return (
+      <Pressable
+        key={link.href}
+        style={StyleSheet.flatten([
+          styles.sidebarItem,
+          collapsed && styles.sidebarItemCollapsed,
+          active && styles.sidebarItemActive,
+        ])}
+        // Plain Pressable + router.push instead of <Link asChild> — the
+        // asChild/Slot combo can't take an array style on its child
+        // without crashing (see git history), so this sidesteps it.
+        onPress={() => router.push(link.href as any)}
+      >
+        <Feather name={link.icon} size={18} color={active ? colors.primary : colors.textMuted} />
+        {collapsed ? null : (
+          <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
+            {link.label}
+          </Text>
+        )}
+      </Pressable>
+    );
+  }
+
+  // The last section is always the standalone "Paramètres" entry (see
+  // buildSections) — kept out of the scrollable area below and pinned to
+  // the sidebar's bottom together with Support, so both stay reachable
+  // without scrolling no matter how many modules a plan enables (this is
+  // also what was missing entirely before: on a shorter viewport — an iPad
+  // in particular — the nav list simply overflowed past the bottom of the
+  // sidebar with no way to scroll down to the rest of it).
+  const scrollableSections = sections.slice(0, -1);
+  const pinnedSection = sections[sections.length - 1];
 
   return (
     <View style={styles.desktopRoot}>
@@ -211,35 +249,24 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
           </Pressable>
         ) : null}
         <View style={styles.sidebarNav}>
-          {sections.map((section, i) => (
-            <View key={section.title ?? `s${i}`} style={styles.sidebarSection}>
-              {section.title && !collapsed ? <Text style={styles.sidebarSectionTitle}>{section.title}</Text> : null}
-              {section.links.map((link) => {
-                const active = link.href === activeHref;
-                return (
-                  <Pressable
-                    key={link.href}
-                    style={StyleSheet.flatten([
-                      styles.sidebarItem,
-                      collapsed && styles.sidebarItemCollapsed,
-                      active && styles.sidebarItemActive,
-                    ])}
-                    // Plain Pressable + router.push instead of <Link asChild> — the
-                    // asChild/Slot combo can't take an array style on its child
-                    // without crashing (see git history), so this sidesteps it.
-                    onPress={() => router.push(link.href as any)}
-                  >
-                    <Feather name={link.icon} size={18} color={active ? colors.primary : colors.textMuted} />
-                    {collapsed ? null : (
-                      <Text style={StyleSheet.flatten([styles.sidebarItemText, active && styles.sidebarItemTextActive])}>
-                        {link.label}
-                      </Text>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          ))}
+          <ScrollView style={styles.sidebarScroll} contentContainerStyle={styles.sidebarScrollContent} showsVerticalScrollIndicator={false}>
+            {scrollableSections.map((section, i) => (
+              <View key={section.title ?? `s${i}`} style={styles.sidebarSection}>
+                {section.title && !collapsed ? <Text style={styles.sidebarSectionTitle}>{section.title}</Text> : null}
+                {section.links.map((link) => renderLink(link))}
+              </View>
+            ))}
+          </ScrollView>
+          <View style={styles.sidebarFooter}>
+            {pinnedSection.links.map((link) => renderLink(link))}
+            <Pressable
+              style={StyleSheet.flatten([styles.sidebarItem, collapsed && styles.sidebarItemCollapsed])}
+              onPress={() => setSupportVisible(true)}
+            >
+              <Feather name="life-buoy" size={18} color={colors.textMuted} />
+              {collapsed ? null : <Text style={styles.sidebarItemText}>{t('accountMenu.contactSupport')}</Text>}
+            </Pressable>
+          </View>
         </View>
       </View>
       <View style={styles.desktopContent}>
@@ -251,6 +278,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
           <Slot />
         </SafeAreaInsetsContext.Provider>
       </View>
+      <SupportPopup visible={supportVisible} onClose={() => setSupportVisible(false)} />
     </View>
   );
 }
@@ -344,7 +372,20 @@ const styles = StyleSheet.create({
   },
   sidebarNav: {
     flex: 1,
+  },
+  sidebarScroll: {
+    flex: 1,
+  },
+  sidebarScrollContent: {
     gap: spacing.lg,
+    paddingBottom: spacing.md,
+  },
+  sidebarFooter: {
+    gap: spacing.xs,
+    paddingTop: spacing.sm,
+    marginTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   sidebarSection: {
     gap: spacing.xs,
