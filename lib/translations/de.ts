@@ -1143,8 +1143,6 @@ export const de: TranslationDict = {
     supportSubtitle: 'Wie können wir Ihnen helfen?',
     formOption: 'Kontaktformular',
     formOptionHint: 'Wir antworten Ihnen direkt per E-Mail.',
-    chatOption: 'Live-Chat',
-    chatOptionHint: 'Chatten Sie direkt mit uns.',
     phoneOption: 'Telefon',
     sendEmail: 'E-Mail senden',
     sendEmailHint: 'info@cantia.ch — wir antworten Ihnen direkt.',

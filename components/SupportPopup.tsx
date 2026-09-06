@@ -1,7 +1,6 @@
 import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { contactHref } from '../lib/appHost';
-import { openLiveChat } from '../lib/liveChat';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
 
@@ -10,8 +9,11 @@ const SUPPORT_PHONE_DISPLAY = '+41 78 450 14 57';
 
 // Shared support entry point, rendered from two independent triggers — the
 // avatar menu (top right, every screen) and the desktop sidebar's own
-// bottom-left icon — so both open the exact same four channels rather than
-// drifting into two different popups over time.
+// bottom-left icon — so both open the exact same channels rather than
+// drifting into two different popups over time. No live-chat option here
+// on purpose: Tidio is only ever loaded on the marketing site's own
+// /contact page — this popup only ever renders inside the authenticated
+// app, and opening it here would load the widget there too.
 export function SupportPopup({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { t } = useTranslation();
 
@@ -32,14 +34,6 @@ export function SupportPopup({ visible, onClose }: { visible: boolean; onClose: 
             <View style={{ flex: 1 }}>
               <Text style={styles.optionTitle}>{t('accountMenu.formOption')}</Text>
               <Text style={styles.optionText}>{t('accountMenu.formOptionHint')}</Text>
-            </View>
-          </Pressable>
-
-          <Pressable style={styles.option} onPress={() => act(openLiveChat)}>
-            <Feather name="message-circle" size={16} color={colors.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.optionTitle}>{t('accountMenu.chatOption')}</Text>
-              <Text style={styles.optionText}>{t('accountMenu.chatOptionHint')}</Text>
             </View>
           </Pressable>
 

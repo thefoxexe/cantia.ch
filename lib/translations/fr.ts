@@ -1129,8 +1129,6 @@ export const fr = {
     supportSubtitle: 'Comment pouvons-nous vous aider ?',
     formOption: 'Formulaire de contact',
     formOptionHint: 'On vous répond directement par e-mail.',
-    chatOption: 'Chat en direct',
-    chatOptionHint: 'Discutez avec nous en direct.',
     phoneOption: 'Téléphone',
     sendEmail: 'Envoyer un e-mail',
     sendEmailHint: 'info@cantia.ch — on vous répond directement.',
