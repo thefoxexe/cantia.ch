@@ -30,7 +30,7 @@ export function SupportPopup({ visible, onClose }: { visible: boolean; onClose: 
           <Text style={styles.subtitle}>{t('accountMenu.supportSubtitle')}</Text>
 
           <Pressable style={styles.option} onPress={() => act(() => Linking.openURL(contactHref()).catch(() => {}))}>
-            <Feather name="file-text" size={16} color={colors.primary} />
+            <Feather name="external-link" size={16} color={colors.primary} />
             <View style={{ flex: 1 }}>
               <Text style={styles.optionTitle}>{t('accountMenu.formOption')}</Text>
               <Text style={styles.optionText}>{t('accountMenu.formOptionHint')}</Text>
