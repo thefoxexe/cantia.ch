@@ -236,6 +236,11 @@
   status = 200
 
 [[redirects]]
+  from = "/aide/ressources"
+  to = "/aide/ressources/index.html"
+  status = 200
+
+[[redirects]]
   from = "/aide/demarrage"
   to = "/aide/demarrage/index.html"
   status = 200
@@ -583,6 +588,11 @@
 [[redirects]]
   from = "/de/aide/videos"
   to = "/de/aide/videos/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/ressources"
+  to = "/de/aide/ressources/index.html"
   status = 200
 
 [[redirects]]

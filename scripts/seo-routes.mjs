@@ -2143,6 +2143,12 @@ export const ROUTES = [
     description:
       'Voir chaque module Cantia en action : devis, factures, chantiers, planning, RH — démonstrations vidéo module par module.',
   },
+  {
+    path: 'aide/ressources',
+    title: "Ressources à télécharger | Centre d'aide Cantia",
+    description:
+      'Téléchargez le dossier de présentation Cantia en PDF : fonctionnalités, tarifs et bénéfices pour les entreprises du bâtiment en Suisse.',
+  },
   ...HELP_SEO_FR,
 
   // ==========================================================================
@@ -2328,6 +2334,12 @@ export const ROUTES = [
     path: 'de/aide/videos',
     title: 'Video-Tutorials | Cantia Hilfe-Center',
     description: 'Sehen Sie jedes Cantia-Modul in Aktion: Offerten, Rechnungen, Baustellen, Planung, Personal — Video-Demonstrationen Modul für Modul.',
+  },
+  {
+    path: 'de/aide/ressources',
+    title: 'Downloads | Cantia Hilfe-Center',
+    description:
+      'Laden Sie die Cantia-Produktbroschüre als PDF herunter: Funktionen, Preise und Vorteile für Schweizer Bauunternehmen.',
   },
   ...HELP_SEO_DE,
   ...BLOG_SEO_DE,

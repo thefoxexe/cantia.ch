@@ -70,6 +70,17 @@ export default function PublicAideScreen() {
             </Pressable>
           </Link>
 
+          <Link href={(locale === 'de' ? '/de/aide/ressources' : '/aide/ressources') as any} asChild>
+            <Pressable style={styles.videosCard}>
+              <Feather name="download" size={18} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.videosCardTitle}>{t('aidePage.resourcesCardTitle')}</Text>
+                <Text style={styles.videosCardText}>{t('aidePage.resourcesCardText')}</Text>
+              </View>
+              <Feather name="chevron-right" size={16} color={colors.textMuted} />
+            </Pressable>
+          </Link>
+
           <View style={styles.searchRow}>
             <Feather name="search" size={16} color={colors.textMuted} />
             <TextInput
