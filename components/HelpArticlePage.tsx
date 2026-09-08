@@ -17,7 +17,7 @@ import { getAppLocale, useTranslation } from '../lib/translations';
 // add for a shot that isn't actually that shape.
 const STEP_ASPECT_RATIOS: Record<string, number> = {
   'heures-mobile-saisie': 390 / 844,
-  'heures-desktop-saisie': 1440 / 1000,
+  'heures-desktop-saisie': 1440 / 730,
   'heures-admin-facturation': 1200 / 347,
 };
 
