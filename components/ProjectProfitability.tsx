@@ -16,10 +16,11 @@ function chf(n: number): string {
   return `CHF ${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
-// Business days (Mon–Fri) in [start, end], inclusive — a simple stand-in
-// for real worked hours since the app doesn't have separate time-clock
-// entries: it reuses whatever's already in the Planning module instead of
-// asking the team to log hours twice.
+// Business days (Mon–Fri) in [start, end], inclusive — the fallback labor
+// estimate for a chantier that has no real logged hours yet (a brand new
+// project, or a team that hasn't started using the RH → heures module).
+// Once real payroll_time_entries exist for the project, those are used
+// instead — see laborBasis below.
 function businessDays(startIso: string, endIso: string): number {
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -39,6 +40,7 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
   const [devisedTotal, setDevisedTotal] = useState(0);
   const [extraWorksTotal, setExtraWorksTotal] = useState(0);
   const [laborDays, setLaborDays] = useState(0);
+  const [realHours, setRealHours] = useState(0);
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -48,15 +50,21 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [expensesList, { data: devisList }, { data: extraWorksList }, { data: assignments }, { data: planRow }] = await Promise.all([
-      listProjectExpenses(projectId),
-      supabase.from('devis').select('id').eq('project_id', projectId).eq('status', 'accepted'),
-      supabase.from('extra_works').select('id').eq('project_id', projectId).eq('status', 'accepted'),
-      supabase.from('planning_assignments').select('starts_on, ends_on').eq('project_id', projectId),
-      organization ? supabase.from('plans').select('*').eq('id', organization.plan_id).single() : Promise.resolve({ data: null }),
-    ]);
+    const [expensesList, { data: devisList }, { data: extraWorksList }, { data: assignments }, { data: totalRealHours }, { data: planRow }] =
+      await Promise.all([
+        listProjectExpenses(projectId),
+        supabase.from('devis').select('id').eq('project_id', projectId).eq('status', 'accepted'),
+        supabase.from('extra_works').select('id').eq('project_id', projectId).eq('status', 'accepted'),
+        supabase.from('planning_assignments').select('starts_on, ends_on').eq('project_id', projectId),
+        // Aggregate-only RPC, not a direct table select — payroll_time_entries'
+        // RLS restricts SELECT to a member's own rows unless they can manage
+        // payroll, which would silently undercount the total for anyone else.
+        supabase.rpc('project_total_real_hours', { p_project_id: projectId }),
+        organization ? supabase.from('plans').select('*').eq('id', organization.plan_id).single() : Promise.resolve({ data: null }),
+      ]);
     setExpenses(expensesList);
     setPlan(planRow ?? null);
+    setRealHours(Number(totalRealHours ?? 0));
 
     const devisIds = (devisList ?? []).map((d) => d.id);
     if (devisIds.length) {
@@ -86,7 +94,13 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
   const hourlyCost = organization?.hourly_cost ?? 0;
   const materialCost = useMemo(() => expenses.reduce((sum, e) => sum + Number(e.amount), 0), [expenses]);
-  const laborCost = laborDays * HOURS_PER_DAY * hourlyCost;
+  // Real hours logged against this chantier (RH → heures) win the moment
+  // any exist — that's what actually happened. Falls back to the planning
+  // estimate only while nobody has logged real time yet, so a brand new
+  // project still shows a sane number instead of a hard 0.
+  const laborBasis: 'real' | 'estimate' = realHours > 0 ? 'real' : 'estimate';
+  const laborHours = laborBasis === 'real' ? realHours : laborDays * HOURS_PER_DAY;
+  const laborCost = laborHours * hourlyCost;
   const totalCost = materialCost + laborCost;
   const totalRevenue = devisedTotal + extraWorksTotal;
   const margin = totalRevenue - totalCost;
@@ -169,7 +183,9 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>
-            {t('projectProfitability.laborCost', { days: laborDays, hours: HOURS_PER_DAY, rate: chf(hourlyCost) })}
+            {laborBasis === 'real'
+              ? t('projectProfitability.laborCostReal', { hours: laborHours, rate: chf(hourlyCost) })
+              : t('projectProfitability.laborCostEstimate', { days: laborDays, hours: HOURS_PER_DAY, rate: chf(hourlyCost) })}
           </Text>
           <Text style={styles.summaryValueMuted}>− {chf(laborCost)}</Text>
         </View>
