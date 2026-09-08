@@ -281,7 +281,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     steps: [
       {
         screenshot: 'heures-mobile-saisie',
-        caption: "Sur le téléphone, un employé choisit le chantier concerné, indique ses heures et ce qu'il a fait — rien d'autre à installer, ça se fait directement dans le navigateur du téléphone.",
+        caption: "Sur le téléphone, un employé choisit le chantier concerné, indique ses heures et ce qu'il a fait — rien d'autre à installer, ça se fait directement dans le navigateur du téléphone. Le bouton \"Dicter une entrée\" permet aussi de tout dire à voix haute (\"chantier rénovation villa, de 7h à 15h, coffrage\") : Cantia reconnaît le chantier, calcule les heures et enregistre l'entrée tout seul.",
       },
       {
         screenshot: 'heures-desktop-saisie',
@@ -536,7 +536,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
     steps: [
       {
         screenshot: 'heures-mobile-saisie',
-        caption: 'Auf dem Smartphone wählt ein Mitarbeiter die betreffende Baustelle, trägt seine Stunden ein und was er gemacht hat — keine Installation nötig, alles läuft direkt im mobilen Browser.',
+        caption: 'Auf dem Smartphone wählt ein Mitarbeiter die betreffende Baustelle, trägt seine Stunden ein und was er gemacht hat — keine Installation nötig, alles läuft direkt im mobilen Browser. Mit der Schaltfläche „Eintrag diktieren" geht es auch per Sprache („Baustelle Renovation Villa, von 7 bis 15 Uhr, Schalung"): Cantia erkennt die Baustelle, berechnet die Stunden und speichert den Eintrag von selbst.',
       },
       {
         screenshot: 'heures-desktop-saisie',
