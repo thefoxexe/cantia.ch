@@ -254,38 +254,22 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "La feuille d'heures s'exporte en CSV à la granularité de votre choix (journalière, hebdomadaire, mensuelle) pour l'envoyer à une fiduciaire si besoin.",
     ],
   },
-  // Screenshots not yet captured (public/aide/heures-mobile-saisie.png,
-  // heures-desktop-saisie.png, heures-admin-facturation.png don't exist on
-  // disk yet) — this session's sandbox has its browser's egress to
-  // Supabase blocked by policy (confirmed via
-  // http://127.0.0.1:40771/__agentproxy/status → connect_rejected on
-  // krijilwxhdlzflvnvrtl.supabase.co), so it can't sign in and drive the
-  // real app to capture them. To finish this from a session with normal
-  // network access:
-  //  1. Sign up a fresh account through the real /signup flow (append
-  //     ?locale=fr to the very first URL you visit — a brand-new browser
-  //     profile in this project has rendered German by default for
-  //     reasons never fully root-caused; the query param forces French
-  //     and it sticks in localStorage after that).
-  //  2. Confirm its e-mail via SQL (email confirmation is required before
-  //     login): update auth.users set email_confirmed_at = now() where
-  //     email = '...'.
-  //  3. Create the org through onboarding ("Cantia Démo SA" or similar),
-  //     then grant it a real plan + modules directly via SQL — no need to
-  //     go through actual Stripe checkout: update organizations set
-  //     plan_id = 'equipe', is_internal = true, internal_label = 'Démo
-  //     aide', enabled_modules = array['devis','planning','payroll'],
-  //     hourly_cost = <something realistic> where id = '<org id>'.
-  //  4. Seed a project (chantier) and a couple of payroll_time_entries
-  //     rows directly via SQL for a believable demo.
-  //  5. For the mobile self-entry shot, sign up a SECOND account the same
-  //     way and insert it straight into organization_members with role
-  //     'member' (skip onboarding entirely) — an owner/admin always has
-  //     canManagePayroll=true and never sees the plain self-only screen a
-  //     regular employee gets on RH → Heures.
-  //  6. Capture: (a) member account, mobile viewport, RH → Heures; (b)
-  //     owner account, desktop viewport, RH → Heures with "Moi" selected;
-  //     (c) owner account, desktop, RH → Heures → tab "Facturation".
+  // These three screenshots are real Cantia UI (actual PayrollEntryPanel /
+  // RH → Heures components, not mockups), but with entirely fictional
+  // data (org "Cantia Démo SA", "Marco Ferreira"/"Julien Moret") — this
+  // sandbox's browser has its egress to the real Supabase backend blocked
+  // by policy, so instead of a real signed-up account, the Supabase REST/
+  // auth calls were intercepted at the browser level (Playwright
+  // page.route on **/krijilwxhdlzflvnvrtl.supabase.co/**, fulfilled with
+  // canned JSON matching each query's exact shape) and a fake but
+  // long-lived session was seeded straight into localStorage
+  // (sb-krijilwxhdlzflvnvrtl-auth-token) before first load — the request
+  // never actually leaves the browser, so the network policy never comes
+  // into play. Re-run the same technique to refresh these after a UI
+  // change: mobile shot from a 'member' identity (self-only screen — an
+  // owner/admin always has canManagePayroll=true and never sees it),
+  // desktop shot same identity with the calendar, admin shot from an
+  // 'owner' identity on the "Facturation" tab.
   {
     id: 'rh-heures-guide',
     category: 'RH & salaires',

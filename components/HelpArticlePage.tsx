@@ -11,6 +11,16 @@ import { authHref } from '../lib/appHost';
 import { HelpArticle } from '../lib/helpArticles';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
+// Real pixel dimensions of each step screenshot captured so far — falls
+// back to a generic desktop ratio (1280/900) for any not listed here, but
+// an exact real ratio avoids the letterboxing "contain" would otherwise
+// add for a shot that isn't actually that shape.
+const STEP_ASPECT_RATIOS: Record<string, number> = {
+  'heures-mobile-saisie': 390 / 844,
+  'heures-desktop-saisie': 1440 / 1000,
+  'heures-admin-facturation': 1200 / 347,
+};
+
 // Full standalone page for one help article — reachable at /aide/<id> (and
 // /de/aide/<id>), one URL per feature instead of only an accordion row
 // buried inside /aide. Same content (lib/helpArticles.ts), rendered as a
@@ -67,11 +77,12 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
             {article.steps?.length ? (
               <View style={styles.steps}>
                 {article.steps.map((step, i) => {
-                  // A step's own filename says whether it's a phone capture
-                  // (portrait) or a desktop one (landscape) — sized
-                  // accordingly rather than force-cropping a phone
-                  // screenshot into the desktop-shaped frame above.
-                  const isMobileShot = step.screenshot.includes('mobile');
+                  // Each step's screenshot keeps its own real aspect ratio
+                  // (a phone capture, a full desktop view, a cropped-tight
+                  // card) — resizeMode="contain" so nothing gets cropped
+                  // when it doesn't match the others' shape.
+                  const ratio = STEP_ASPECT_RATIOS[step.screenshot] ?? 1280 / 900;
+                  const isMobileShot = ratio < 1;
                   return (
                     <View key={step.screenshot} style={styles.step}>
                       <View style={styles.stepNumber}>
@@ -80,8 +91,8 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
                       <View style={[styles.screenshotFrame, isMobileShot && styles.screenshotFrameMobile]}>
                         <Image
                           source={{ uri: `/aide/${step.screenshot}.png` }}
-                          style={[styles.screenshot, { aspectRatio: isMobileShot ? 9 / 18 : 1280 / 900 }]}
-                          resizeMode="cover"
+                          style={[styles.screenshot, { aspectRatio: ratio }]}
+                          resizeMode="contain"
                           accessibilityLabel={`${article.title} — étape ${i + 1}`}
                         />
                       </View>
