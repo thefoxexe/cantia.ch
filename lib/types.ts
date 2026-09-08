@@ -865,6 +865,16 @@ export interface AdminOrganizationSummary {
   // the live Stripe check by admin-billing-overview so every screen (not
   // just the Stripe-sourced revenue view) can tell this apart from "Payant".
   is_complimentary: boolean;
+  // The org's own address/contact fields (organizations.street etc.) — not
+  // the owner's login e-mail above, which stays the identity used for
+  // signing in. These exist for CSV export/outreach targeting, so they're
+  // pass-through nullable strings, same as they are on the organizations
+  // table itself.
+  street: string | null;
+  postal_code: string | null;
+  locality: string | null;
+  email: string | null;
+  phone: string | null;
   total_count: number;
 }
 

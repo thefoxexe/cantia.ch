@@ -11,7 +11,69 @@ import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
+import { downloadTextFile } from '../../../lib/downloadFile';
 import type { AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
+
+function formatDateShort(iso: string | null): string {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatChfShort(amount: number): string {
+  return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
+}
+
+// The one line under a row's subtitle that answers "when, and how much" —
+// the actual gap this was built for: the org list showed a bare payment
+// icon with no date, so telling a trial about to convert apart from one
+// that already got cancelled meant opening every org one by one.
+function billingLine(billing: AdminOrgBillingStatus | undefined): string | null {
+  if (!billing?.subscription_status) return null;
+  if (billing.subscription_status === 'trialing' && billing.next_invoice_date) {
+    const amount = billing.next_invoice_amount_chf != null ? ` · ${formatChfShort(billing.next_invoice_amount_chf)}` : '';
+    return `Essai jusqu'au ${formatDateShort(billing.next_invoice_date)}${amount}`;
+  }
+  if (billing.cancel_at_period_end && billing.next_invoice_date) {
+    return `Résilié — accès jusqu'au ${formatDateShort(billing.next_invoice_date)}`;
+  }
+  if (billing.will_be_charged && billing.next_invoice_date && billing.next_invoice_amount_chf != null) {
+    return `Prochain paiement : ${formatChfShort(billing.next_invoice_amount_chf)} le ${formatDateShort(billing.next_invoice_date)}`;
+  }
+  return null;
+}
+
+function escapeCsv(value: string): string {
+  return /[;"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function buildOrganizationsCsv(orgs: AdminOrganizationSummary[], billing: Record<string, AdminOrgBillingStatus>): string {
+  const header = [
+    'Nom', 'Adresse', 'NPA', 'Localité', 'E-mail', 'Téléphone', 'Propriétaire',
+    'Plan', 'Statut', "Essai jusqu'au", 'Prochain paiement', 'Montant (CHF)', 'Membres', 'Créée le',
+  ];
+  const rows = orgs.map((org) => {
+    const b = billing[org.id];
+    return [
+      org.name,
+      org.street ?? '',
+      org.postal_code ?? '',
+      org.locality ?? '',
+      org.email ?? '',
+      org.phone ?? '',
+      org.owner_email ?? '',
+      org.plan_name ?? '',
+      getOrgStatus(org).label,
+      formatDateShort(org.trial_ends_at),
+      formatDateShort(b?.next_invoice_date ?? null),
+      b?.next_invoice_amount_chf != null ? b.next_invoice_amount_chf.toFixed(2) : '',
+      String(org.member_count),
+      formatDateShort(org.created_at),
+    ]
+      .map((v) => escapeCsv(v))
+      .join(';');
+  });
+  return [header.join(';'), ...rows].join('\n');
+}
 
 const PAGE_SIZE = 30;
 
@@ -34,6 +96,7 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 ];
 
 function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing: AdminOrgBillingStatus | undefined; onPress: () => void }) {
+  const line = billingLine(billing);
   return (
     <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
       <View style={{ flex: 1 }}>
@@ -45,6 +108,7 @@ function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing
           {org.owner_email ?? 'Sans propriétaire'} · {org.plan_name} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
           {org.private_modules_count > 0 ? ` · ${org.private_modules_count} module${org.private_modules_count > 1 ? 's' : ''} privé${org.private_modules_count > 1 ? 's' : ''}` : ''}
         </Text>
+        {line ? <Text style={styles.rowBillingLine}>{line}</Text> : null}
       </View>
       <PaymentStatusIcon status={billing} />
       <AdminOrgStatusPill org={org} />
@@ -95,12 +159,34 @@ export default function AdminOrganizationsList() {
     return sorted;
   }, [rows, statusFilter, sortBy]);
 
+  // Exports exactly what's currently on screen — the search box and status
+  // chips above act as the targeting step (e.g. "Inscription incomplète" or
+  // "Essai" only) before pulling the list out for outreach.
+  const [exporting, setExporting] = useState(false);
+  async function handleExport() {
+    setExporting(true);
+    const csv = buildOrganizationsCsv(filteredRows, billing);
+    const { error: err } = await downloadTextFile(`cantia-entreprises-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    if (err) setError(err);
+    setExporting(false);
+  }
+
   return (
     <ScrollView>
       <Container style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Entreprises {total > 0 ? `(${total})` : ''}</Text>
-          <AdminRefreshButton onPress={() => load(search)} loading={loading} />
+          <View style={styles.headerActions}>
+            <Pressable
+              style={styles.exportButton}
+              onPress={handleExport}
+              disabled={exporting || filteredRows.length === 0}
+            >
+              <Feather name="download" size={14} color={colors.text} />
+              <Text style={styles.exportButtonText}>{exporting ? 'Export…' : 'Exporter CSV'}</Text>
+            </Pressable>
+            <AdminRefreshButton onPress={() => load(search)} loading={loading} />
+          </View>
         </View>
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
         {/* flexWrap, not a horizontal ScrollView — a horizontal scroller
@@ -166,11 +252,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     marginBottom: spacing.lg,
   },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
+    color: colors.text,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  exportButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
     color: colors.text,
   },
   filterRow: {
@@ -244,6 +353,12 @@ const styles = StyleSheet.create({
   rowSubtitle: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+    marginTop: 2,
+  },
+  rowBillingLine: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
     marginTop: 2,
   },
 });
