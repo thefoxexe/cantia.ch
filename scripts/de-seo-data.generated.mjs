@@ -3658,6 +3658,11 @@ export const HELP_SEO_FR = [
     "description": "Chaque employé pointe ses heures directement depuis son téléphone, rattachées à un chantier précis "
   },
   {
+    "path": "aide/rh-heures-guide",
+    "title": "Saisir ses heures et les refacturer par chantier — le guide pas à pas | Centre d'aide Cantia",
+    "description": "Concrètement, à quoi ça ressemble d'utiliser Cantia pour les heures — du téléphone d'un employé sur le chantier jusqu'au bureau qui refacture et sort les…"
+  },
+  {
     "path": "aide/tresorerie",
     "title": "Prévision de trésorerie | Centre d'aide Cantia",
     "description": "Le module Trésorerie projette votre solde à venir sur 90 jours, à partir de ce que Cantia sait déjà de votre activité : factures clients non soldées,…"
@@ -3754,5 +3759,10 @@ export const HELP_SEO_DE = [
     "path": "de/aide/personnalisation-abonnement",
     "title": "Markenkit, Pläne und Abonnement | Cantia Hilfe-Center",
     "description": "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und…"
+  },
+  {
+    "path": "de/aide/rh-heures-guide",
+    "title": "Arbeitszeit erfassen und pro Baustelle verrechnen — Schritt für Schritt | Cantia Hilfe-Center",
+    "description": "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt — vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen…"
   }
 ];

@@ -336,6 +336,11 @@
   status = 200
 
 [[redirects]]
+  from = "/aide/rh-heures-guide"
+  to = "/aide/rh-heures-guide/index.html"
+  status = 200
+
+[[redirects]]
   from = "/aide/tresorerie"
   to = "/aide/tresorerie/index.html"
   status = 200
@@ -653,6 +658,11 @@
 [[redirects]]
   from = "/de/aide/personnalisation-abonnement"
   to = "/de/aide/personnalisation-abonnement/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/rh-heures-guide"
+  to = "/de/aide/rh-heures-guide/index.html"
   status = 200
 
 # Static screenshots under public/aide/*.png share the "/aide/" prefix with

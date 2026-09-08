@@ -63,6 +63,34 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
                 </Text>
               ))}
             </View>
+
+            {article.steps?.length ? (
+              <View style={styles.steps}>
+                {article.steps.map((step, i) => {
+                  // A step's own filename says whether it's a phone capture
+                  // (portrait) or a desktop one (landscape) — sized
+                  // accordingly rather than force-cropping a phone
+                  // screenshot into the desktop-shaped frame above.
+                  const isMobileShot = step.screenshot.includes('mobile');
+                  return (
+                    <View key={step.screenshot} style={styles.step}>
+                      <View style={styles.stepNumber}>
+                        <Text style={styles.stepNumberText}>{i + 1}</Text>
+                      </View>
+                      <View style={[styles.screenshotFrame, isMobileShot && styles.screenshotFrameMobile]}>
+                        <Image
+                          source={{ uri: `/aide/${step.screenshot}.png` }}
+                          style={[styles.screenshot, { aspectRatio: isMobileShot ? 9 / 18 : 1280 / 900 }]}
+                          resizeMode="cover"
+                          accessibilityLabel={`${article.title} — étape ${i + 1}`}
+                        />
+                      </View>
+                      <Text style={styles.stepCaption}>{step.caption}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : null}
           </Animated.View>
 
           {related.length ? (
@@ -179,8 +207,38 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1280 / 900,
   },
+  screenshotFrameMobile: {
+    maxWidth: 320,
+    alignSelf: 'center',
+  },
   body: {
     gap: spacing.lg,
+  },
+  steps: {
+    gap: spacing.xxl,
+    marginTop: spacing.xl,
+  },
+  step: {
+    gap: spacing.md,
+  },
+  stepNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumberText: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  stepCaption: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    lineHeight: 24,
   },
   paragraph: {
     fontFamily: marketingFonts.body,

@@ -1,6 +1,14 @@
 // Static content for the in-app help library (Compte → Aide) — bundled with
 // the app rather than stored per-organization in the DB, since it explains
 // how Cantia itself works and doesn't vary between organizations.
+export interface HelpArticleStep {
+  // Base filename (no extension) of a screenshot under public/aide/<screenshot>.png.
+  screenshot: string;
+  // Short label under the screenshot — what this exact step shows, not a
+  // restatement of the article's own intro paragraphs above it.
+  caption: string;
+}
+
 export interface HelpArticle {
   id: string;
   category: string;
@@ -12,6 +20,11 @@ export interface HelpArticle {
   // captured against a "Cantia Démo SA" demo organization seeded with
   // placeholder data — never a real customer's account.
   screenshot?: string;
+  // An ordered, numbered walkthrough (mobile view, desktop view, admin
+  // view…) rendered below the intro paragraphs instead of — not in
+  // addition to — the single `screenshot` above. Same demo-org sourcing
+  // rule applies to every step's screenshot.
+  steps?: HelpArticleStep[];
 }
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -239,6 +252,61 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Depuis Compte → RH, la secrétaire RH ou l'administrateur génère la fiche de salaire de chaque employé, du brut au net, à partir de taux AVS/AC/LPP/LAA et d'un taux d'impôt à la source configurables par personne — les valeurs par défaut sont indicatives, à ajuster selon votre caisse de compensation et votre canton.",
       "Un employé standard ne voit jamais que ses propres heures, frais et fiches de salaire — jamais ceux du reste de l'équipe, sauf s'il a lui-même un rôle RH ou administrateur.",
       "La feuille d'heures s'exporte en CSV à la granularité de votre choix (journalière, hebdomadaire, mensuelle) pour l'envoyer à une fiduciaire si besoin.",
+    ],
+  },
+  // Screenshots not yet captured (public/aide/heures-mobile-saisie.png,
+  // heures-desktop-saisie.png, heures-admin-facturation.png don't exist on
+  // disk yet) — this session's sandbox has its browser's egress to
+  // Supabase blocked by policy (confirmed via
+  // http://127.0.0.1:40771/__agentproxy/status → connect_rejected on
+  // krijilwxhdlzflvnvrtl.supabase.co), so it can't sign in and drive the
+  // real app to capture them. To finish this from a session with normal
+  // network access:
+  //  1. Sign up a fresh account through the real /signup flow (append
+  //     ?locale=fr to the very first URL you visit — a brand-new browser
+  //     profile in this project has rendered German by default for
+  //     reasons never fully root-caused; the query param forces French
+  //     and it sticks in localStorage after that).
+  //  2. Confirm its e-mail via SQL (email confirmation is required before
+  //     login): update auth.users set email_confirmed_at = now() where
+  //     email = '...'.
+  //  3. Create the org through onboarding ("Cantia Démo SA" or similar),
+  //     then grant it a real plan + modules directly via SQL — no need to
+  //     go through actual Stripe checkout: update organizations set
+  //     plan_id = 'equipe', is_internal = true, internal_label = 'Démo
+  //     aide', enabled_modules = array['devis','planning','payroll'],
+  //     hourly_cost = <something realistic> where id = '<org id>'.
+  //  4. Seed a project (chantier) and a couple of payroll_time_entries
+  //     rows directly via SQL for a believable demo.
+  //  5. For the mobile self-entry shot, sign up a SECOND account the same
+  //     way and insert it straight into organization_members with role
+  //     'member' (skip onboarding entirely) — an owner/admin always has
+  //     canManagePayroll=true and never sees the plain self-only screen a
+  //     regular employee gets on RH → Heures.
+  //  6. Capture: (a) member account, mobile viewport, RH → Heures; (b)
+  //     owner account, desktop viewport, RH → Heures with "Moi" selected;
+  //     (c) owner account, desktop, RH → Heures → tab "Facturation".
+  {
+    id: 'rh-heures-guide',
+    category: 'RH & salaires',
+    title: 'Saisir ses heures et les refacturer par chantier — le guide pas à pas',
+    keywords: ['heures', 'pointage', 'mobile', 'refacturer', 'facturer chantier', 'export csv', 'monteur', 'employé'],
+    body: [
+      "Concrètement, à quoi ça ressemble d'utiliser Cantia pour les heures — du téléphone d'un employé sur le chantier jusqu'au bureau qui refacture et sort les chiffres. Les trois écrans ci-dessous sont la même fonctionnalité vue de trois côtés différents.",
+    ],
+    steps: [
+      {
+        screenshot: 'heures-mobile-saisie',
+        caption: "Sur le téléphone, un employé choisit le chantier concerné, indique ses heures et ce qu'il a fait — rien d'autre à installer, ça se fait directement dans le navigateur du téléphone.",
+      },
+      {
+        screenshot: 'heures-desktop-saisie',
+        caption: "Sur ordinateur, le même formulaire s'utilise avec un calendrier pour naviguer entre les jours — pratique pour rattraper plusieurs journées d'un coup en fin de semaine. Le bouton \"Exporter CSV\" en bas de la feuille sort les heures de la période affichée.",
+      },
+      {
+        screenshot: 'heures-admin-facturation',
+        caption: "Côté bureau, l'onglet Facturation de RH → Heures regroupe les heures non encore facturées par chantier et par type de travail. Un clic sur \"Facturer ce chantier\" crée directement la facture correspondante — les heures utilisées sont marquées comme facturées et n'apparaissent plus dans ce qui reste à facturer.",
+      },
     ],
   },
   {
@@ -471,6 +539,29 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
       "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und PDF-Berichten verwendet werden — eine Farbe wird sogar automatisch anhand Ihres Logos oder Ihrer Website vorgeschlagen.",
       "Offerten und Rechnungen sind bei allen Cantia-Plänen unbegrenzt. Was sich von Plan zu Plan unterscheidet, sind der Speicherplatz, die Anzahl der Mitglieder und der Zugriff auf bestimmte Module (Planung, Personal & Löhne, Liquidität, ab Équipe). Die Abonnementverwaltung erfolgt unter Konto → Abonnement (Stripe-Abrechnung).",
       "Konto → Speicherplatz zeigt den genutzten Speicherplatz nach Kategorie im Detail an (Fotos, PDFs, weitere Dateien) mit einer Schaltfläche für ein Upgrade auf einen höheren Plan, falls nötig.",
+    ],
+  },
+  {
+    id: 'rh-heures-guide',
+    category: 'Personal & Löhne',
+    title: 'Arbeitszeit erfassen und pro Baustelle verrechnen — Schritt für Schritt',
+    keywords: ['arbeitszeit', 'stunden', 'mobil', 'verrechnen', 'baustelle abrechnen', 'csv export', 'mitarbeiter'],
+    body: [
+      "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt — vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen exportiert. Die drei folgenden Ansichten zeigen dieselbe Funktion aus drei verschiedenen Blickwinkeln.",
+    ],
+    steps: [
+      {
+        screenshot: 'heures-mobile-saisie',
+        caption: 'Auf dem Smartphone wählt ein Mitarbeiter die betreffende Baustelle, trägt seine Stunden ein und was er gemacht hat — keine Installation nötig, alles läuft direkt im mobilen Browser.',
+      },
+      {
+        screenshot: 'heures-desktop-saisie',
+        caption: 'Am Computer wird dasselbe Formular mit einem Kalender bedient, um zwischen den Tagen zu navigieren — praktisch, um mehrere Tage am Ende der Woche gesammelt nachzutragen. Die Schaltfläche „CSV exportieren" unten auf dem Blatt exportiert die Stunden des angezeigten Zeitraums.',
+      },
+      {
+        screenshot: 'heures-admin-facturation',
+        caption: 'Im Büro fasst der Tab „Abrechnung" unter Personal → Arbeitszeit die noch nicht verrechneten Stunden pro Baustelle und Arbeitstyp zusammen. Ein Klick auf „Diese Baustelle verrechnen" erstellt direkt die entsprechende Rechnung — die verwendeten Stunden werden als verrechnet markiert und erscheinen nicht mehr in den offenen Posten.',
+      },
     ],
   },
 ];
