@@ -51,6 +51,24 @@ export async function generatePayrollEntry(
   return { entry: data?.entry ?? null, error };
 }
 
+export interface ScannedReceipt {
+  label: string;
+  amount: number;
+}
+
+export async function scanReceipt(
+  organizationId: string,
+  imageBase64: string,
+  mediaType: string,
+): Promise<{ receipt: ScannedReceipt | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ receipt: ScannedReceipt }>('scan-receipt', {
+    organization_id: organizationId,
+    image_base64: imageBase64,
+    media_type: mediaType,
+  });
+  return { receipt: data?.receipt ?? null, error };
+}
+
 // Translates a devis/facture/travaux-supplémentaires send-email message on
 // demand — for when the message text doesn't match the document's own
 // resolved locale (e.g. an org-saved default message in French, sent

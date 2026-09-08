@@ -175,6 +175,13 @@ export const fr = {
     save: 'Enregistrer',
     emptyTitle: 'Aucune dépense saisie',
     emptySubtitle: 'Ajoutez vos achats de matériel au fur et à mesure du chantier.',
+    scanCamera: 'Photographier un ticket',
+    scanGallery: 'Depuis une photo',
+    scanHint: 'Le fournisseur et le montant sont remplis automatiquement — vérifiez avant d’enregistrer.',
+    scanFailed: "Le ticket n'a pas pu être lu, réessayez avec une photo plus nette.",
+    cameraPermissionTitle: 'Permission requise',
+    cameraPermissionBody: "Autorisez l'accès à l'appareil photo pour photographier un ticket.",
+    galleryPermissionBody: 'Autorisez l’accès à vos photos pour en importer un.',
   },
   projectSubcontractors: {
     addSubcontractor: 'Ajouter un sous-traitant',

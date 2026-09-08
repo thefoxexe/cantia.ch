@@ -194,6 +194,13 @@ export const de: TranslationDict = {
     save: 'Speichern',
     emptyTitle: 'Keine Ausgabe erfasst',
     emptySubtitle: 'Fügen Sie Ihre Materialkäufe im Laufe der Baustelle hinzu.',
+    scanCamera: 'Beleg fotografieren',
+    scanGallery: 'Aus einem Foto',
+    scanHint: 'Lieferant und Betrag werden automatisch ausgefüllt — bitte vor dem Speichern prüfen.',
+    scanFailed: 'Der Beleg konnte nicht gelesen werden, versuchen Sie es mit einem schärferen Foto erneut.',
+    cameraPermissionTitle: 'Berechtigung erforderlich',
+    cameraPermissionBody: 'Erlauben Sie den Zugriff auf die Kamera, um einen Beleg zu fotografieren.',
+    galleryPermissionBody: 'Erlauben Sie den Zugriff auf Ihre Fotos, um eines zu importieren.',
   },
   projectSubcontractors: {
     addSubcontractor: 'Subunternehmer hinzufügen',

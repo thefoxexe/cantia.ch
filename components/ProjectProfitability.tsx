@@ -1,10 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { listProjectExpenses, createProjectExpense, deleteProjectExpense } from '../lib/api/expenses';
+import { scanReceipt } from '../lib/api/ai';
 import { Button, Card, EmptyState, Field } from './ui';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
@@ -47,6 +50,8 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
   const [label, setLabel] = useState('');
   const [amount, setAmount] = useState('');
   const [saving, setSaving] = useState(false);
+  const [scanningReceipt, setScanningReceipt] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,6 +119,56 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
         : marginPct < 15
           ? { fg: colors.warning, bg: colors.warningSoft, label: t('projectProfitability.toneTight') }
           : { fg: colors.success, bg: colors.successSoft, label: t('projectProfitability.toneProfitable') };
+
+  // Receipt scan: a photo of a ticket de caisse/facture goes straight to
+  // Claude's vision, comes back as {label, amount}, and pre-fills the same
+  // add-expense form a manual entry uses — the user still reviews and taps
+  // Enregistrer themselves rather than this silently creating an expense
+  // from a possibly-misread photo.
+  async function processReceiptImage(uri: string) {
+    setScanningReceipt(true);
+    setScanError(null);
+    try {
+      const manipulated = await ImageManipulator.ImageManipulator.manipulate(uri).resize({ width: 1400 }).renderAsync();
+      const saved = await manipulated.saveAsync({ compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true });
+      if (!saved.base64) {
+        setScanError(t('projectProfitability.scanFailed'));
+        return;
+      }
+      const { receipt, error: err } = await scanReceipt(organizationId, saved.base64, 'image/jpeg');
+      if (err || !receipt) {
+        setScanError(err ?? t('projectProfitability.scanFailed'));
+        return;
+      }
+      setLabel(receipt.label);
+      setAmount(receipt.amount > 0 ? String(receipt.amount) : '');
+      setAddOpen(true);
+    } finally {
+      setScanningReceipt(false);
+    }
+  }
+
+  async function scanFromCamera() {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(t('projectProfitability.cameraPermissionTitle'), t('projectProfitability.cameraPermissionBody'));
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+    if (result.canceled || !result.assets?.length) return;
+    await processReceiptImage(result.assets[0].uri);
+  }
+
+  async function scanFromGallery() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(t('projectProfitability.cameraPermissionTitle'), t('projectProfitability.galleryPermissionBody'));
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+    if (result.canceled || !result.assets?.length) return;
+    await processReceiptImage(result.assets[0].uri);
+  }
 
   async function handleAddExpense() {
     if (!label.trim() || !amount.trim()) return;
@@ -210,6 +265,19 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
         {addOpen ? (
           <Card style={styles.addCard}>
+            <View style={styles.scanRow}>
+              <Pressable onPress={scanFromCamera} disabled={scanningReceipt} style={styles.scanButton}>
+                {scanningReceipt ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="camera" size={16} color={colors.primary} />}
+                <Text style={styles.scanButtonText}>{t('projectProfitability.scanCamera')}</Text>
+              </Pressable>
+              <Pressable onPress={scanFromGallery} disabled={scanningReceipt} style={styles.scanButton}>
+                <Feather name="image" size={16} color={colors.primary} />
+                <Text style={styles.scanButtonText}>{t('projectProfitability.scanGallery')}</Text>
+              </Pressable>
+            </View>
+            {scanError ? <Text style={styles.scanError}>{scanError}</Text> : null}
+            <Text style={styles.scanHint}>{t('projectProfitability.scanHint')}</Text>
+
             <Field label={t('projectProfitability.descriptionLabel')} value={label} onChangeText={setLabel} placeholder={t('projectProfitability.descriptionPlaceholder')} />
             <Field label={t('projectProfitability.amountLabel')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
             <Button title={t('projectProfitability.save')} icon="check" onPress={handleAddExpense} loading={saving} style={{ marginTop: spacing.sm }} />
@@ -341,6 +409,35 @@ const styles = StyleSheet.create({
   addCard: {
     gap: spacing.md,
     marginBottom: spacing.md,
+  },
+  scanRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  scanButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  scanButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  scanError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+  },
+  scanHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
   },
   expenseRow: {
     flexDirection: 'row',
