@@ -26,6 +26,31 @@ export async function generateDevisLines(
   return { lines: data?.lines ?? null, error };
 }
 
+export interface DictatedPayrollEntry {
+  projectId: string | null;
+  workTypeId: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  hours: number | null;
+  note: string;
+}
+
+export async function generatePayrollEntry(
+  transcript: string,
+  organizationId: string,
+  projects: { id: string; name: string }[],
+  workTypes: { id: string; label: string }[],
+): Promise<{ entry: DictatedPayrollEntry | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ entry: DictatedPayrollEntry }>('generate-payroll-entry', {
+    transcript,
+    organization_id: organizationId,
+    projects,
+    work_types: workTypes,
+    today: new Date().toISOString().slice(0, 10),
+  });
+  return { entry: data?.entry ?? null, error };
+}
+
 // Translates a devis/facture/travaux-supplémentaires send-email message on
 // demand — for when the message text doesn't match the document's own
 // resolved locale (e.g. an org-saved default message in French, sent

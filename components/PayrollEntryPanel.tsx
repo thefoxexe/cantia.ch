@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import {
@@ -20,6 +20,8 @@ import {
   type PayrollExpenseWithNames,
   type PayrollTimeEntryWithNames,
 } from '../lib/api/payroll';
+import { generatePayrollEntry } from '../lib/api/ai';
+import { useDictation } from '../lib/useDictation';
 import { downloadTextFile } from '../lib/downloadFile';
 import { Button, Card } from './ui';
 import { DateField } from './DateField';
@@ -308,21 +310,33 @@ export function PayrollEntryPanel({
 
   const workTypeOptions: PickItem[] = workTypes.map((w) => ({ id: w.id, label: w.label }));
 
-  async function commitDraftWith(hours: number, startTime: string | null, endTime: string | null) {
-    if (savingDraft || !draft.projectPicked) return;
+  // `overrides` lets the voice-dictation path (below) create an entry from
+  // AI-parsed values directly, without first writing them into `draft` and
+  // re-reading that state back — a setDraft() followed immediately by
+  // commitDraftWith() in the same handler would still see the *old* draft
+  // (React batches the update), so the dictation flow bypasses draft state
+  // entirely instead of racing it.
+  async function commitDraftWith(
+    hours: number,
+    startTime: string | null,
+    endTime: string | null,
+    overrides?: { projectId: string | null; workTypeId: string | null; note: string },
+  ) {
+    if (savingDraft) return;
+    if (!overrides && !draft.projectPicked) return;
     if (!hours || hours <= 0 || hours > 24) return;
     setSavingDraft(true);
     setDraftError(null);
     const { error } = await createTimeEntry({
       organizationId,
-      projectId: draft.projectId,
-      workTypeId: draft.workTypeId,
+      projectId: overrides ? overrides.projectId : draft.projectId,
+      workTypeId: overrides ? overrides.workTypeId : draft.workTypeId,
       userId: targetUserId,
       entryDate: draftEntryDate(range),
       hours,
       startTime,
       endTime,
-      note: draft.note,
+      note: overrides ? overrides.note : draft.note,
       createdBy: currentUserId,
     });
     setSavingDraft(false);
@@ -330,7 +344,7 @@ export function PayrollEntryPanel({
       setDraftError(error);
       return;
     }
-    setDraft(BLANK_DRAFT);
+    if (!overrides) setDraft(BLANK_DRAFT);
     load();
   }
 
@@ -356,6 +370,73 @@ export function PayrollEntryPanel({
     const hours = hoursFromRange(start, end);
     setDraft((d) => ({ ...d, hoursText: formatHoursForInput(hours) }));
     commitDraftWith(hours, start, end);
+  }
+
+  // Voice entry: "chantier rénovation villa, de 7h à 15h, coffrage" ->
+  // recorded, transcribed (useDictation), then handed to an AI edge
+  // function that matches the chantier/type de travail against this org's
+  // own lists (never invents an id) and extracts a time range or a plain
+  // duration. Saves straight away via commitDraftWith's overrides path —
+  // the result lands as a normal entry, editable/deletable like any other,
+  // rather than sitting in an extra confirmation step.
+  const [generatingEntry, setGeneratingEntry] = useState(false);
+  const [dictationError, setDictationError] = useState<string | null>(null);
+  const dictationTranscriptRef = useRef('');
+  const dictation = useDictation((sessionTranscript) => {
+    dictationTranscriptRef.current = sessionTranscript;
+  });
+
+  async function toggleDictation() {
+    if (dictation.listening) {
+      await dictation.stop();
+      await generateEntryFromDictation();
+      return;
+    }
+    dictationTranscriptRef.current = '';
+    setDictationError(null);
+    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : 'fr-FR');
+    if (!started) {
+      Alert.alert(t('payrollEntry.micPermissionTitle'), t('payrollEntry.micPermissionBody'));
+    }
+  }
+
+  async function generateEntryFromDictation() {
+    const transcript = dictationTranscriptRef.current.trim();
+    if (!transcript) return;
+    setGeneratingEntry(true);
+    setDictationError(null);
+    const projectsPayload = projects.map((p) => ({ id: p.id, name: p.label }));
+    const workTypesPayload = workTypeOptions.map((w) => ({ id: w.id, label: w.label }));
+    const { entry, error: err } = await generatePayrollEntry(transcript, organizationId, projectsPayload, workTypesPayload);
+    setGeneratingEntry(false);
+    if (err || !entry) {
+      setDictationError(err ?? t('payrollEntry.dictationFailed'));
+      return;
+    }
+    if (!entry.projectId) {
+      setDictationError(t('payrollEntry.dictationNoProject'));
+      return;
+    }
+    const hours = entry.hours ?? (entry.startTime && entry.endTime ? hoursFromRange(entry.startTime, entry.endTime) : null);
+    if (!hours) {
+      setDictationError(t('payrollEntry.dictationNoHours'));
+      return;
+    }
+    await commitDraftWith(hours, entry.startTime, entry.endTime, {
+      projectId: entry.projectId,
+      workTypeId: entry.workTypeId,
+      note: entry.note,
+    });
+  }
+
+  // "Écoute…" while recording, "Analyse…" for the few seconds after stop()
+  // while the clip uploads, Whisper transcribes, and the AI structures it —
+  // dictation.listening alone flips off well before that's done, so relying
+  // on it alone would make the button look idle again mid-analysis.
+  function dictationLabel(): string {
+    if (dictation.listening) return t('payrollEntry.listeningStop');
+    if (dictation.transcribing || generatingEntry) return t('payrollEntry.dictationAnalyzing');
+    return t('payrollEntry.dictateEntry');
   }
 
   // Optimistic local patch first (so typing/picking feels instant), then
@@ -533,6 +614,22 @@ export function PayrollEntryPanel({
         <View style={styles.desktopHintRow}>
           <Feather name="monitor" size={12} color={colors.textMuted} />
           <Text style={styles.desktopHintText}>{t('payrollEntry.desktopHint')}</Text>
+        </View>
+
+        <View style={styles.dictateCard}>
+          <Pressable
+            onPress={toggleDictation}
+            disabled={generatingEntry}
+            style={[styles.dictateButton, (dictation.listening || dictation.transcribing) && styles.dictateButtonActive]}
+          >
+            {generatingEntry || dictation.transcribing ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Feather name="mic" size={16} color={dictation.listening ? '#fff' : colors.primary} />
+            )}
+            <Text style={[styles.dictateButtonText, dictation.listening && styles.dictateButtonTextActive]}>{dictationLabel()}</Text>
+          </Pressable>
+          {dictationError ? <Text style={styles.dictateError}>{dictationError}</Text> : null}
         </View>
 
         {isMobile ? (
@@ -963,6 +1060,42 @@ const styles = StyleSheet.create({
   desktopHintText: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  dictateCard: {
+    borderWidth: 1,
+    borderColor: colors.primarySoft,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+  dictateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
+  },
+  dictateButtonActive: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
+  },
+  dictateButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  dictateButtonTextActive: {
+    color: '#fff',
+  },
+  dictateError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
   },
   grid: {
     borderWidth: 1,
