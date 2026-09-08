@@ -292,6 +292,28 @@ export default function PayrollScreen() {
   const summaryInvoicedHours = Math.round(summaryLines.reduce((s, l) => s + l.invoicedHours, 0) * 100) / 100;
   const summaryGrandTotalHours = Math.round(summaryLines.reduce((s, l) => s + l.totalHours, 0) * 100) / 100;
 
+  const invoicingSummaryCard = (
+    <SummaryCard
+      open={summaryOpen}
+      onToggle={toggleSummary}
+      loading={summaryLoading}
+      lines={summaryLines}
+      entries={summaryEntries}
+      totalHours={summaryTotalHours}
+      totalChf={summaryTotalChf}
+      invoicedHours={summaryInvoicedHours}
+      grandTotalHours={summaryGrandTotalHours}
+      canInvoice={canViewFinances}
+      projectFactures={projectFactures}
+      onInvoiceProject={(id) => {
+        setInvoiceProjectId(id);
+        setShowInvoiceModal(true);
+      }}
+      onLinkExisting={linkLineToFacture}
+      collapsible={false}
+    />
+  );
+
   const employeeList = (
     <View style={styles.employeeList}>
       <Text style={styles.employeeListTitle}>{t('payrollHub.teamTitle')}</Text>
@@ -368,27 +390,25 @@ export default function PayrollScreen() {
             </View>
           </ScrollView>
         ) : mode === 'invoicing' ? (
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.lg }}>
-            <PayrollDateFilter range={range} onChange={setRange} />
-            <SummaryCard
-              open={summaryOpen}
-              onToggle={toggleSummary}
-              loading={summaryLoading}
-              lines={summaryLines}
-              entries={summaryEntries}
-              totalHours={summaryTotalHours}
-              totalChf={summaryTotalChf}
-              invoicedHours={summaryInvoicedHours}
-              grandTotalHours={summaryGrandTotalHours}
-              canInvoice={canViewFinances}
-              projectFactures={projectFactures}
-              onInvoiceProject={(id) => {
-                setInvoiceProjectId(id);
-                setShowInvoiceModal(true);
-              }}
-              onLinkExisting={linkLineToFacture}
-              collapsible={false}
-            />
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+            {/* Desktop: calendar in the same narrow side column as every
+                other tab, invoicing summary alongside it — previously
+                stacked full-width above the summary, which meant three
+                months of calendar (~900px) before the actual "reste à
+                facturer" figures a manager opens this tab for. */}
+            {isDesktop ? (
+              <View style={styles.desktopLayout}>
+                <View style={styles.calendarCol}>
+                  <PayrollDateFilter range={range} onChange={setRange} />
+                </View>
+                <View style={[styles.panelCol, { gap: spacing.lg }]}>{invoicingSummaryCard}</View>
+              </View>
+            ) : (
+              <View style={{ gap: spacing.lg }}>
+                <PayrollDateFilter range={range} onChange={setRange} />
+                {invoicingSummaryCard}
+              </View>
+            )}
           </ScrollView>
         ) : isDesktop ? (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>

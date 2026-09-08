@@ -18,7 +18,7 @@ import { getAppLocale, useTranslation } from '../lib/translations';
 const STEP_ASPECT_RATIOS: Record<string, number> = {
   'heures-mobile-saisie': 390 / 844,
   'heures-desktop-saisie': 1440 / 730,
-  'heures-admin-facturation': 1200 / 347,
+  'heures-admin-facturation': 1440 / 613,
 };
 
 // Full standalone page for one help article — reachable at /aide/<id> (and
