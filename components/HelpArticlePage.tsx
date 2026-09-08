@@ -219,6 +219,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1280 / 900,
   },
   screenshotFrameMobile: {
+    width: '100%',
     maxWidth: 320,
     alignSelf: 'center',
   },
