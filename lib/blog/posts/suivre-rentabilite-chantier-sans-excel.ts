@@ -42,7 +42,7 @@ export const post: BlogPost = {
       type: 'list',
       items: [
         'Chaque devis accepté devient la référence « budget » du chantier (heures et matériel prévus, prix de vente)',
-        'Chaque heure travaillée et chaque achat matériel s’enregistrent directement sur le chantier, au fil de l’eau (pas reconstitués en fin de mois)',
+        'Chaque heure travaillée et chaque achat matériel s’enregistrent directement sur le chantier, au fil de l’eau (pas reconstitués en fin de mois) — une photo du ticket de caisse suffit, le fournisseur et le montant se remplissent seuls',
         'Les factures de sous-traitants liées au chantier s’additionnent automatiquement au coût réel',
         'Le solde (vendu moins coût réel) reste visible en continu, pas seulement à la clôture',
       ],
@@ -73,6 +73,11 @@ export const post: BlogPost = {
       question: 'À quel moment du chantier faut-il suivre la rentabilité ?',
       answer:
         'Idéalement en continu, dès le démarrage. Un suivi fait seulement à la clôture du chantier arrive trop tard pour corriger un dépassement d’heures ou de budget matériel en cours de route.',
+    },
+    {
+      question: 'Faut-il ressaisir chaque ticket de caisse à la main ?',
+      answer:
+        'Non : une photo du ticket ou de la facture fournisseur suffit, le fournisseur et le montant sont lus automatiquement et pré-remplissent la dépense — il ne reste qu’à vérifier avant d’enregistrer.',
     },
   ],
   relatedSlugs: [

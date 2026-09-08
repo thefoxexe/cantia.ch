@@ -2623,6 +2623,10 @@ export const BLOG_SEO_DE = [
       {
         "q": "Zu welchem Zeitpunkt der Baustelle sollte man die Rentabilität verfolgen?",
         "a": "Idealerweise durchgehend, ab Baubeginn. Eine Verfolgung erst beim Baustellenabschluss kommt zu spät, um eine Überschreitung bei Stunden oder Materialbudget noch während der Ausführung zu korrigieren."
+      },
+      {
+        "q": "Muss jeder Kassenbon von Hand neu erfasst werden?",
+        "a": "Nein: Ein Foto des Kassenbons oder der Lieferantenrechnung genügt, Lieferant und Betrag werden automatisch gelesen und füllen die Ausgabe vorab aus — es bleibt nur noch, vor dem Speichern zu prüfen."
       }
     ],
     "publishedAt": "2026-02-05"
@@ -3595,7 +3599,7 @@ export const HELP_SEO_FR = [
   {
     "path": "aide/rentabilite",
     "title": "Rentabilité par chantier | Centre d'aide Cantia",
-    "description": "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies manuellement) et main d'œuvre (estimée à…"
+    "description": "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies sur le chantier) et main d'œuvre (calculée…"
   },
   {
     "path": "aide/planning",
@@ -3733,7 +3737,7 @@ export const HELP_SEO_DE = [
   {
     "path": "de/aide/rentabilite",
     "title": "Rentabilität pro Baustelle | Cantia Hilfe-Center",
-    "description": "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (manuell erfasste Ausgaben)…"
+    "description": "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (auf der Baustelle erfasste…"
   },
   {
     "path": "de/aide/planning",

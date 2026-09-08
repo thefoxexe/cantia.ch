@@ -15,14 +15,14 @@ export default function RentabiliteSolutionPage() {
           text: "Le montant du devis accepté comparé au coût réel du chantier — matériel et main d'œuvre — avec une marge affichée en CHF et en %.",
         },
         {
-          icon: 'shopping-bag',
-          title: 'Dépenses matériel en un tap',
-          text: "Ajoutez vos achats au fil du chantier — libellé et montant, sans ressaisir votre catalogue.",
+          icon: 'camera',
+          title: 'Un ticket photographié, une dépense enregistrée',
+          text: "Prenez en photo un ticket de caisse ou une facture fournisseur : le fournisseur et le montant sont lus automatiquement, il ne reste qu'à vérifier et enregistrer.",
         },
         {
           icon: 'calendar',
           title: "Main d'œuvre sans double saisie",
-          text: "Le coût de la main d'œuvre est calculé depuis les affectations déjà saisies dans le Planning — aucun pointage d'heures séparé à faire.",
+          text: "Le coût de la main d'œuvre est calculé depuis les heures réellement pointées dans RH & Salaires (ou une estimation depuis le planning tant qu'aucune heure n'est encore saisie) — aucun pointage séparé à faire.",
         },
         {
           icon: 'alert-triangle',
@@ -39,12 +39,12 @@ export default function RentabiliteSolutionPage() {
         {
           question: 'Comment savoir si un chantier est rentable ?',
           answer:
-            "Cantia compare le devis accepté (revenu) au coût réel — matériel saisi et main d'œuvre issue du planning — et affiche la marge en CHF et en % en temps réel.",
+            "Cantia compare le devis accepté (revenu) au coût réel — matériel saisi et main d'œuvre issue des heures pointées — et affiche la marge en CHF et en % en temps réel.",
         },
         {
           question: "D'où vient le calcul du coût de main d'œuvre ?",
           answer:
-            "Du planning d'équipe : les jours affectés à un chantier sont multipliés par le coût horaire de votre entreprise, sans pointage séparé.",
+            "Des heures réellement saisies pour ce chantier dans RH & Salaires, multipliées par le coût horaire de votre entreprise. Tant qu'aucune heure n'est encore pointée, Cantia affiche une estimation basée sur le planning d'équipe.",
         },
         {
           question: 'Peut-on comparer plusieurs chantiers entre eux ?',

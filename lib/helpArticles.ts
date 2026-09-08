@@ -107,9 +107,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
     id: 'rentabilite',
     category: 'Chantiers & rapports',
     title: 'Rentabilité par chantier',
-    keywords: ['rentabilité', 'coût', 'dépense', 'main d\'œuvre', 'marge'],
+    keywords: ['rentabilité', 'coût', 'dépense', 'main d\'œuvre', 'marge', 'ticket', 'scan'],
     body: [
-      "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies manuellement) et main d'œuvre (estimée à partir des affectations Planning et du coût horaire moyen défini dans Compte → Facturation).",
+      "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies sur le chantier) et main d'œuvre (calculée à partir des heures réellement pointées dans RH & Salaires, ou à défaut estimée depuis les affectations Planning et le coût horaire moyen défini dans Compte → Facturation).",
+      "Pour saisir une dépense matériel, une photo du ticket de caisse ou de la facture fournisseur suffit — le fournisseur et le montant sont lus automatiquement, il ne reste qu'à vérifier avant d'enregistrer. La saisie manuelle reste possible pour les cas où la photo n'est pas pratique.",
       "Un badge indique en un coup d'œil si le chantier est en dessous, autour ou au-dessus du seuil de rentabilité, pour repérer vite un chantier qui dérape avant la fin.",
     ],
   },
@@ -121,7 +122,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     keywords: ['planning', 'équipe', 'affectation', 'calendrier'],
     body: [
       "Le Planning affiche un vrai calendrier où chaque membre de l'équipe peut être affecté à un chantier sur une ou plusieurs journées.",
-      "Ces affectations alimentent directement l'estimation de main-d'œuvre de l'onglet Rentabilité — pas besoin de pointeuse séparée pour avoir une estimation raisonnable des heures passées sur un chantier.",
+      "Ces affectations alimentent l'estimation de main-d'œuvre de l'onglet Rentabilité tant qu'aucune heure réelle n'a encore été pointée sur le chantier — dès que l'équipe utilise RH & Salaires, ce sont les heures réelles qui prennent le relais automatiquement.",
     ],
   },
   {
@@ -464,9 +465,10 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
     id: 'rentabilite',
     category: 'Baustellen & Berichte',
     title: 'Rentabilität pro Baustelle',
-    keywords: ['rentabilität', 'kosten', 'ausgabe', 'arbeitskraft', 'marge'],
+    keywords: ['rentabilität', 'kosten', 'ausgabe', 'arbeitskraft', 'marge', 'beleg', 'scan'],
     body: [
-      "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (manuell erfasste Ausgaben) und Arbeitskraft (geschätzt anhand der Planungs-Zuweisungen und des unter Konto → Rechnungsstellung festgelegten durchschnittlichen Stundenkostensatzes).",
+      "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (auf der Baustelle erfasste Ausgaben) und Arbeitskraft (berechnet aus den tatsächlich in Personal & Löhne erfassten Stunden, oder ersatzweise geschätzt anhand der Planungs-Zuweisungen und des unter Konto → Rechnungsstellung festgelegten durchschnittlichen Stundenkostensatzes).",
+      "Für eine Materialausgabe genügt ein Foto des Kassenbons oder der Lieferantenrechnung — Lieferant und Betrag werden automatisch gelesen, es bleibt nur noch, vor dem Speichern zu prüfen. Die manuelle Erfassung bleibt weiterhin möglich, wenn ein Foto nicht praktisch ist.",
       "Ein Badge zeigt auf einen Blick, ob die Baustelle unter, um oder über der Rentabilitätsschwelle liegt, damit eine aus dem Ruder laufende Baustelle frühzeitig erkannt wird.",
     ],
   },
@@ -478,7 +480,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
     keywords: ['planung', 'team', 'zuweisung', 'kalender'],
     body: [
       "Die Planung zeigt einen echten Kalender, in dem jedes Teammitglied für einen oder mehrere Tage einer Baustelle zugewiesen werden kann.",
-      "Diese Zuweisungen fliessen direkt in die Arbeitskraft-Schätzung des Rentabilitäts-Reiters ein — für eine vernünftige Schätzung der auf einer Baustelle verbrachten Stunden ist keine separate Stempeluhr nötig.",
+      "Diese Zuweisungen fliessen in die Arbeitskraft-Schätzung des Rentabilitäts-Reiters ein, solange noch keine realen Stunden auf der Baustelle erfasst wurden — sobald das Team Personal & Löhne nutzt, übernehmen automatisch die realen Stunden.",
     ],
   },
   {

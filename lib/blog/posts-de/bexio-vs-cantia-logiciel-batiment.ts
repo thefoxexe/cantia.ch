@@ -49,6 +49,7 @@ export const post: BlogPost = {
         ['Geolokalisierter Foto-Baustellenrapport', 'Nein', 'Ja'],
         ['Teamplanung pro Baustelle', 'Nein', 'Ja'],
         ['Kundenportal (Online-Unterschrift der Offerte)', 'Nein', 'Ja'],
+        ['Beleg fotografieren → Ausgabe automatisch erfasst', 'Ja (allgemeine Buchhaltung)', 'Ja, direkt in der Rentabilität der betroffenen Baustelle'],
         ['Allgemeine doppelte Buchhaltung', 'Ja', 'Nein (nicht ihr Ziel)'],
       ],
     },

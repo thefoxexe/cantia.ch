@@ -18,14 +18,14 @@ export default function RentabiliteSolutionPageDe() {
           text: 'Der Betrag der akzeptierten Offerte verglichen mit den tatsächlichen Kosten der Baustelle — Material und Arbeit — mit einer Marge in CHF und %.',
         },
         {
-          icon: 'shopping-bag',
-          title: 'Materialausgaben mit einem Tipp',
-          text: 'Fügen Sie Ihre Einkäufe im Verlauf der Baustelle hinzu — Bezeichnung und Betrag, ohne Ihren Katalog neu zu erfassen.',
+          icon: 'camera',
+          title: 'Ein fotografierter Beleg, eine erfasste Ausgabe',
+          text: 'Fotografieren Sie einen Kassenbon oder eine Lieferantenrechnung: Lieferant und Betrag werden automatisch gelesen, Sie müssen nur noch prüfen und speichern.',
         },
         {
           icon: 'calendar',
           title: 'Arbeitszeit ohne Doppelerfassung',
-          text: 'Die Arbeitskosten werden aus den bereits in der Planung erfassten Zuteilungen berechnet — keine separate Stundenerfassung nötig.',
+          text: 'Die Arbeitskosten werden aus den tatsächlich in Personal & Löhne erfassten Stunden berechnet (oder einer Schätzung aus der Planung, solange noch keine Stunden erfasst wurden) — keine separate Zeiterfassung nötig.',
         },
         {
           icon: 'alert-triangle',
@@ -42,12 +42,12 @@ export default function RentabiliteSolutionPageDe() {
         {
           question: 'Wie erfährt man, ob eine Baustelle rentabel ist?',
           answer:
-            'Cantia vergleicht die akzeptierte Offerte (Einnahme) mit den tatsächlichen Kosten — erfasstes Material und Arbeit aus der Planung — und zeigt die Marge in CHF und % in Echtzeit.',
+            'Cantia vergleicht die akzeptierte Offerte (Einnahme) mit den tatsächlichen Kosten — erfasstes Material und Arbeit aus den erfassten Stunden — und zeigt die Marge in CHF und % in Echtzeit.',
         },
         {
           question: 'Woher stammt die Berechnung der Arbeitskosten?',
           answer:
-            'Aus der Teamplanung: Die einer Baustelle zugeteilten Tage werden mit dem Stundensatz Ihres Unternehmens multipliziert, ohne separate Zeiterfassung.',
+            'Aus den für diese Baustelle tatsächlich in Personal & Löhne erfassten Stunden, multipliziert mit dem Stundensatz Ihres Unternehmens. Solange noch keine Stunden erfasst wurden, zeigt Cantia eine Schätzung basierend auf der Teamplanung.',
         },
         {
           question: 'Kann man mehrere Baustellen miteinander vergleichen?',

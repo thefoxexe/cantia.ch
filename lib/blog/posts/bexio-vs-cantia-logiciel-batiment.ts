@@ -49,6 +49,7 @@ export const post: BlogPost = {
         ['Rapport de chantier photo géolocalisé', 'Non', 'Oui'],
         ['Planning d’équipe par chantier', 'Non', 'Oui'],
         ['Portail client (signature devis en ligne)', 'Non', 'Oui'],
+        ['Photo de ticket → dépense enregistrée automatiquement', 'Oui (comptabilité générale)', 'Oui, directement dans la rentabilité du chantier concerné'],
         ['Comptabilité générale en partie double', 'Oui', 'Non (pas son objectif)'],
       ],
     },

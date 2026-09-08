@@ -42,7 +42,7 @@ export const post: BlogPost = {
       type: 'list',
       items: [
         'Jede akzeptierte Offerte wird zur «Budget»-Referenz der Baustelle (geplante Stunden und Material, Verkaufspreis)',
-        'Jede geleistete Arbeitsstunde und jeder Materialeinkauf werden direkt und laufend auf der Baustelle erfasst (nicht am Monatsende rekonstruiert)',
+        'Jede geleistete Arbeitsstunde und jeder Materialeinkauf werden direkt und laufend auf der Baustelle erfasst (nicht am Monatsende rekonstruiert) — ein Foto des Kassenbons genügt, Lieferant und Betrag füllen sich von selbst',
         'Die mit der Baustelle verknüpften Subunternehmer-Rechnungen addieren sich automatisch zu den realen Kosten',
         'Der Saldo (verkauft minus reale Kosten) bleibt durchgehend sichtbar, nicht nur beim Abschluss',
       ],
@@ -73,6 +73,11 @@ export const post: BlogPost = {
       question: 'Zu welchem Zeitpunkt der Baustelle sollte man die Rentabilität verfolgen?',
       answer:
         'Idealerweise durchgehend, ab Baubeginn. Eine Verfolgung erst beim Baustellenabschluss kommt zu spät, um eine Überschreitung bei Stunden oder Materialbudget noch während der Ausführung zu korrigieren.',
+    },
+    {
+      question: 'Muss jeder Kassenbon von Hand neu erfasst werden?',
+      answer:
+        'Nein: Ein Foto des Kassenbons oder der Lieferantenrechnung genügt, Lieferant und Betrag werden automatisch gelesen und füllen die Ausgabe vorab aus — es bleibt nur noch, vor dem Speichern zu prüfen.',
     },
   ],
   relatedSlugs: [
