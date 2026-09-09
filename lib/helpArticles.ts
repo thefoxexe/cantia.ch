@@ -110,8 +110,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
     keywords: ['rentabilité', 'coût', 'dépense', 'main d\'œuvre', 'marge', 'ticket', 'scan'],
     body: [
       "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies sur le chantier) et main d'œuvre (calculée à partir des heures réellement pointées dans RH & Salaires, ou à défaut estimée depuis les affectations Planning et le coût horaire moyen défini dans Compte → Facturation).",
-      "Pour saisir une dépense matériel, une photo du ticket de caisse ou de la facture fournisseur suffit — le fournisseur et le montant sont lus automatiquement, il ne reste qu'à vérifier avant d'enregistrer. La saisie manuelle reste possible pour les cas où la photo n'est pas pratique.",
+      "Pour saisir une dépense matériel, une photo du ticket de caisse ou de la facture fournisseur suffit — le fournisseur et le montant sont lus automatiquement, il ne reste qu'à vérifier avant d'enregistrer. La saisie manuelle reste possible pour les cas où la photo n'est pas pratique, et l'assistant vocal (bouton micro en bas de l'écran) permet aussi d'ajouter une dépense en la dictant.",
       "Un badge indique en un coup d'œil si le chantier est en dessous, autour ou au-dessus du seuil de rentabilité, pour repérer vite un chantier qui dérape avant la fin.",
+      "Toutes les dépenses de tous les chantiers, ainsi que les dépenses générales de l'entreprise, sont aussi visibles regroupées dans la section Dépenses de la navigation — voir l'article dédié.",
     ],
   },
   {
@@ -203,6 +204,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Le bouton micro apparaît à chaque endroit où vous écrivez dans Cantia : une ligne de devis, un message du fil de chantier, une note de rapport. Il transforme votre voix en texte structuré, pas juste en texte brut.",
       "Sur une ligne de devis par exemple, dicter « pose de dix mètres carrés de carrelage à septante francs le mètre » suffit à remplir la description, la quantité, l'unité et le prix unitaire en une seule fois.",
       "La reconnaissance est adaptée au vocabulaire du bâtiment (matériaux, unités, corps de métier) — elle comprend aussi bien le jargon technique que le langage courant.",
+      "Un second bouton micro, celui en bas de l'écran (accessible depuis n'importe quelle page de l'application), fonctionne différemment : c'est un assistant complet, pas juste une dictée. Dites par exemple « chantier villa, de 7h à 15h, coffrage » ou « achat de vis chez Bauhaus, 45 francs », et il comprend seul s'il s'agit d'heures ou d'une dépense, à quel chantier ça se rapporte, puis affiche un récapitulatif à confirmer (modifiable à la main ou en redictant) avant d'enregistrer quoi que ce soit.",
       "Une connexion internet est nécessaire au moment de dicter (la transcription se fait sur des serveurs sécurisés), mais tout ce qui a déjà été créé reste consultable hors ligne ensuite.",
     ],
   },
@@ -303,7 +305,20 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Le module Trésorerie projette votre solde à venir sur 90 jours, à partir de ce que Cantia sait déjà de votre activité : factures clients non soldées, estimation de la masse salariale, factures sous-traitants impayées et dépenses récurrentes que vous enregistrez.",
       "Aucune connexion bancaire n'est demandée ni nécessaire : vous saisissez votre solde de départ manuellement, quand vous le souhaitez.",
       "Une dépense récurrente (loyer, leasing, assurance…) se configure une seule fois avec sa fréquence — elle réapparaît ensuite automatiquement dans la projection, avec un rappel avant chaque échéance.",
+      "L'onglet Dépenses ponctuelles sert lui à enregistrer les achats réels, hors chantier (fournitures, outillage, frais divers) : une photo du ticket remplit le libellé et le montant automatiquement, ou l'assistant vocal (bouton micro) peut aussi les ajouter en les dictant.",
       "L'intérêt principal n'est pas de prédire l'avenir au franc près, mais de repérer un creux plusieurs semaines à l'avance : assez tôt pour relancer une facture en retard ou décaler un achat non urgent.",
+    ],
+  },
+  {
+    id: 'depenses',
+    category: 'Trésorerie',
+    title: 'Dépenses : la vue d’ensemble',
+    keywords: ['dépenses', 'liste', 'filtre', 'chantier', 'général', 'total'],
+    body: [
+      "La section Dépenses (dans la navigation, à côté de Trésorerie) regroupe en une seule liste toutes les dépenses de l'entreprise : celles liées à un chantier précis (saisies depuis l'onglet Rentabilité de ce chantier) et les dépenses générales, hors chantier (saisies depuis Trésorerie → Dépenses ponctuelles).",
+      "Rien ne se crée depuis cet écran — c'est une vue de lecture pour retrouver et vérifier ce qui a déjà été enregistré ailleurs, avec un total et des filtres par période (ce mois-ci, 30 derniers jours, tout) et par chantier.",
+      "Toucher une ligne liée à un chantier ouvre directement l'onglet Rentabilité de ce chantier — pratique pour vérifier qu'une dépense ajoutée à la voix ou par scan est bien arrivée au bon endroit.",
+      "Disponible dès que Trésorerie l'est (plan Équipe), que vous ayez ou non activé la Rentabilité par chantier.",
     ],
   },
   {
@@ -468,7 +483,7 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
     keywords: ['rentabilität', 'kosten', 'ausgabe', 'arbeitskraft', 'marge', 'beleg', 'scan'],
     body: [
       "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (auf der Baustelle erfasste Ausgaben) und Arbeitskraft (berechnet aus den tatsächlich in Personal & Löhne erfassten Stunden, oder ersatzweise geschätzt anhand der Planungs-Zuweisungen und des unter Konto → Rechnungsstellung festgelegten durchschnittlichen Stundenkostensatzes).",
-      "Für eine Materialausgabe genügt ein Foto des Kassenbons oder der Lieferantenrechnung — Lieferant und Betrag werden automatisch gelesen, es bleibt nur noch, vor dem Speichern zu prüfen. Die manuelle Erfassung bleibt weiterhin möglich, wenn ein Foto nicht praktisch ist.",
+      "Für eine Materialausgabe genügt ein Foto des Kassenbons oder der Lieferantenrechnung — Lieferant und Betrag werden automatisch gelesen, es bleibt nur noch, vor dem Speichern zu prüfen. Die manuelle Erfassung bleibt weiterhin möglich, wenn ein Foto nicht praktisch ist, und auch der Sprachassistent (Mikrofon-Schaltfläche unten am Bildschirm) kann eine Ausgabe per Diktat hinzufügen.",
       "Ein Badge zeigt auf einen Blick, ob die Baustelle unter, um oder über der Rentabilitätsschwelle liegt, damit eine aus dem Ruder laufende Baustelle frühzeitig erkannt wird.",
     ],
   },

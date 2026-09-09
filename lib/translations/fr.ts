@@ -2128,6 +2128,7 @@ export const fr = {
     featureHrPayroll: 'RH, heures & salaires',
     featureProfitability: 'Rentabilité par chantier',
     featureTreasury: 'Trésorerie prévisionnelle',
+    featureExpenseTools: 'Dépenses par scan de ticket ou à la voix',
     featureBexio: 'Intégration Bexio',
     quotaPerMonth: '{{count}} devis/factures par mois',
     trameLibraryEmpty: 'Bibliothèque de trames',

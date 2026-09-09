@@ -17,7 +17,7 @@ export default function RentabiliteSolutionPage() {
         {
           icon: 'camera',
           title: 'Un ticket photographié, une dépense enregistrée',
-          text: "Prenez en photo un ticket de caisse ou une facture fournisseur : le fournisseur et le montant sont lus automatiquement, il ne reste qu'à vérifier et enregistrer.",
+          text: "Prenez en photo un ticket de caisse ou une facture fournisseur : le fournisseur et le montant sont lus automatiquement. Ou dites-le simplement à voix haute — l'assistant vocal, accessible depuis toute l'application, comprend le chantier et le montant et vous fait confirmer avant d'enregistrer.",
         },
         {
           icon: 'calendar',
@@ -33,6 +33,11 @@ export default function RentabiliteSolutionPage() {
           icon: 'bar-chart-2',
           title: 'Chantier par chantier',
           text: "Comparez la marge de plusieurs chantiers pour repérer vite ceux qui tirent votre rentabilité vers le bas.",
+        },
+        {
+          icon: 'shopping-bag',
+          title: 'Toutes les dépenses au même endroit',
+          text: "La section Dépenses regroupe en une liste filtrable les achats de tous vos chantiers et vos dépenses générales, avec un lien direct vers le chantier concerné.",
         },
       ]}
       faq={[

@@ -346,6 +346,11 @@
   status = 200
 
 [[redirects]]
+  from = "/aide/depenses"
+  to = "/aide/depenses/index.html"
+  status = 200
+
+[[redirects]]
   from = "/aide/clients"
   to = "/aide/clients/index.html"
   status = 200

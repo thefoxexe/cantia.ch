@@ -3672,6 +3672,11 @@ export const HELP_SEO_FR = [
     "description": "Le module Trésorerie projette votre solde à venir sur 90 jours, à partir de ce que Cantia sait déjà de votre activité : factures clients non soldées,…"
   },
   {
+    "path": "aide/depenses",
+    "title": "Dépenses : la vue d’ensemble | Centre d'aide Cantia",
+    "description": "La section Dépenses (dans la navigation, à côté de Trésorerie) regroupe en une seule liste toutes les dépenses de l'entreprise : celles liées à un…"
+  },
+  {
     "path": "aide/clients",
     "title": "La fiche client | Centre d'aide Cantia",
     "description": "Chaque client a sa propre fiche : coordonnées, historique complet de ses devis, factures et chantiers, et notes de suivi "

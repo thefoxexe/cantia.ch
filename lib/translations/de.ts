@@ -2142,6 +2142,7 @@ export const de: TranslationDict = {
     featureHrPayroll: 'HR, Stunden & Löhne',
     featureProfitability: 'Rentabilität pro Baustelle',
     featureTreasury: 'Liquiditätsplanung',
+    featureExpenseTools: 'Ausgaben per Beleg-Scan oder Sprache',
     featureBexio: 'Bexio-Integration',
     quotaPerMonth: '{{count}} Offerten/Rechnungen pro Monat',
     trameLibraryEmpty: 'Vorlagenbibliothek',

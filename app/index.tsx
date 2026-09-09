@@ -915,6 +915,12 @@ function LandingContent() {
                         <PriceFeature dark={dark} text={tr('landingPage.featureHrPayroll')} muted={!p.has_payroll} included={p.has_payroll} />
                         <PriceFeature dark={dark} text={tr('landingPage.featureProfitability')} muted={!p.has_profitability} included={p.has_profitability} />
                         <PriceFeature dark={dark} text={tr('landingPage.featureTreasury')} muted={!p.has_treasury} included={p.has_treasury} />
+                        <PriceFeature
+                          dark={dark}
+                          text={tr('landingPage.featureExpenseTools')}
+                          muted={!p.has_profitability && !p.has_treasury}
+                          included={p.has_profitability || p.has_treasury}
+                        />
                         <PriceFeature dark={dark} text={tr('landingPage.featureBexio')} muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
                         <PriceFeature
                           dark={dark}

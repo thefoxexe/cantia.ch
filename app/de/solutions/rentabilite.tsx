@@ -20,7 +20,7 @@ export default function RentabiliteSolutionPageDe() {
         {
           icon: 'camera',
           title: 'Ein fotografierter Beleg, eine erfasste Ausgabe',
-          text: 'Fotografieren Sie einen Kassenbon oder eine Lieferantenrechnung: Lieferant und Betrag werden automatisch gelesen, Sie müssen nur noch prüfen und speichern.',
+          text: 'Fotografieren Sie einen Kassenbon oder eine Lieferantenrechnung: Lieferant und Betrag werden automatisch gelesen. Oder sagen Sie es einfach laut — der Sprachassistent, von überall in der App erreichbar, versteht die Baustelle und den Betrag und lässt Sie vor dem Speichern bestätigen.',
         },
         {
           icon: 'calendar',
@@ -36,6 +36,11 @@ export default function RentabiliteSolutionPageDe() {
           icon: 'bar-chart-2',
           title: 'Baustelle für Baustelle',
           text: 'Vergleichen Sie die Marge mehrerer Baustellen, um schnell diejenigen zu erkennen, die Ihre Rentabilität nach unten ziehen.',
+        },
+        {
+          icon: 'shopping-bag',
+          title: 'Alle Ausgaben an einem Ort',
+          text: 'Der Bereich Ausgaben fasst die Einkäufe aller Baustellen und Ihre allgemeinen Ausgaben in einer filterbaren Liste zusammen, mit direktem Link zur betroffenen Baustelle.',
         },
       ]}
       faq={[
