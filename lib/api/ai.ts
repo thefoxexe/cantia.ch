@@ -69,6 +69,43 @@ export async function scanReceipt(
   return { receipt: data?.receipt ?? null, error };
 }
 
+export interface VoiceCommand {
+  action: 'payroll_entry' | 'expense' | 'unknown';
+  projectId: string | null;
+  workTypeId: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  hours: number | null;
+  label: string | null;
+  amount: number | null;
+  note: string;
+  summary: string;
+}
+
+// The global voice assistant's router: a single free-form dictation (not
+// tied to any one screen) gets classified into one of the org's allowed
+// actions and extracted into structured fields, alongside a human-readable
+// "summary" the caller shows for confirmation before writing anything.
+export async function routeVoiceCommand(
+  transcript: string,
+  organizationId: string,
+  projects: { id: string; name: string }[],
+  workTypes: { id: string; label: string }[],
+  allowedActions: ('payroll_entry' | 'expense')[],
+  locale: 'fr' | 'de',
+): Promise<{ command: VoiceCommand | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ command: VoiceCommand }>('route-voice-command', {
+    transcript,
+    organization_id: organizationId,
+    projects,
+    work_types: workTypes,
+    allowed_actions: allowedActions,
+    locale,
+    today: new Date().toISOString().slice(0, 10),
+  });
+  return { command: data?.command ?? null, error };
+}
+
 // Translates a devis/facture/travaux-supplémentaires send-email message on
 // demand — for when the message text doesn't match the document's own
 // resolved locale (e.g. an org-saved default message in French, sent

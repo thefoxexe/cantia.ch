@@ -12,6 +12,7 @@ import { NotificationBell } from '../../components/NotificationBell';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { NavDrawer, type NavLink, type NavSection } from '../../components/NavDrawer';
 import { SupportPopup } from '../../components/SupportPopup';
+import { VoiceAssistant } from '../../components/VoiceAssistant';
 import { useTranslation } from '../../lib/translations';
 
 // The bell renders in the top bar of every authenticated screen — a crash
@@ -155,6 +156,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <Slot />
       </SafeAreaInsetsContext.Provider>
       <NavDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} sections={sections} activeHref={activeHref} />
+      <VoiceAssistant />
     </View>
   );
 }
@@ -279,6 +281,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
         </SafeAreaInsetsContext.Provider>
       </View>
       <SupportPopup visible={supportVisible} onClose={() => setSupportVisible(false)} />
+      <VoiceAssistant />
     </View>
   );
 }
