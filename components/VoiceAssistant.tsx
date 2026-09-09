@@ -9,6 +9,7 @@ import { useDictation } from '../lib/useDictation';
 import { routeVoiceCommand, type VoiceCommand } from '../lib/api/ai';
 import { listWorkTypes, createTimeEntry, hoursFromRange } from '../lib/api/payroll';
 import { createProjectExpense } from '../lib/api/expenses';
+import { createExpense } from '../lib/api/treasury';
 import { Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -30,9 +31,10 @@ type Stage = 'idle' | 'routing' | 'confirm' | 'saving' | 'saved' | 'error';
 // by re-dictating.
 export function VoiceAssistant() {
   const { t } = useTranslation();
-  const { organization, user } = useAuth();
+  const { organization, user, canViewFinances } = useAuth();
   const insets = useSafeAreaInsets();
   const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
+  const treasuryModuleOk = isModuleEnabled(organization?.enabled_modules, 'treasury') && canViewFinances;
 
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState<Stage>('idle');
@@ -43,6 +45,7 @@ export function VoiceAssistant() {
   const [projects, setProjects] = useState<PickItem[]>([]);
   const [workTypes, setWorkTypes] = useState<PickItem[]>([]);
   const [profitabilityEnabled, setProfitabilityEnabled] = useState(false);
+  const [treasuryEnabled, setTreasuryEnabled] = useState(false);
 
   const [projectId, setProjectId] = useState<string | null>(null);
   const [workTypeId, setWorkTypeId] = useState<string | null>(null);
@@ -57,10 +60,16 @@ export function VoiceAssistant() {
     transcriptRef.current = sessionTranscript;
   });
 
+  // "expense" covers two destinations: a chantier-linked material cost
+  // (needs profitabilityEnabled, feeds that chantier's Rentabilité) or a
+  // general/overhead outflow (needs treasuryEnabled, feeds Trésorerie's
+  // Dépenses ponctuelles) — see handleConfirm and ConfirmForm below for how
+  // the split is decided once a chantier is or isn't picked.
   const allowedActions: ('payroll_entry' | 'expense')[] = [
     ...(payrollEnabled ? (['payroll_entry'] as const) : []),
-    ...(profitabilityEnabled ? (['expense'] as const) : []),
+    ...(profitabilityEnabled || treasuryEnabled ? (['expense'] as const) : []),
   ];
+  const showProjectPickerForExpense = profitabilityEnabled && projects.length > 0;
 
   if (!organization) return null;
 
@@ -70,12 +79,13 @@ export function VoiceAssistant() {
       supabase.from('projects').select('id, name').eq('organization_id', organization.id).order('name'),
       payrollEnabled ? listWorkTypes(organization.id) : Promise.resolve([]),
       organization.plan_id
-        ? supabase.from('plans').select('has_profitability').eq('id', organization.plan_id).single()
-        : Promise.resolve({ data: null as { has_profitability: boolean } | null }),
+        ? supabase.from('plans').select('has_profitability, has_treasury').eq('id', organization.plan_id).single()
+        : Promise.resolve({ data: null as { has_profitability: boolean; has_treasury: boolean } | null }),
     ]);
     setProjects(((projectsRes.data ?? []) as { id: string; name: string }[]).map((p) => ({ id: p.id, label: p.name })));
     setWorkTypes(workTypeRows.map((w) => ({ id: w.id, label: w.label })));
     setProfitabilityEnabled(!!planRes.data?.has_profitability);
+    setTreasuryEnabled(treasuryModuleOk && !!planRes.data?.has_treasury);
     setListsLoaded(true);
   }
 
@@ -147,11 +157,11 @@ export function VoiceAssistant() {
 
   async function handleConfirm() {
     if (!command || !organization || !user) return;
-    if (!projectId) {
-      setSaveError(t('voiceAssistant.missingProject'));
-      return;
-    }
     if (command.action === 'payroll_entry') {
+      if (!projectId) {
+        setSaveError(t('voiceAssistant.missingProject'));
+        return;
+      }
       const hours = Number(hoursText.replace(',', '.'));
       if (!hours || hours <= 0) {
         setSaveError(t('voiceAssistant.missingHours'));
@@ -186,9 +196,23 @@ export function VoiceAssistant() {
         setSaveError(t('voiceAssistant.missingLabel'));
         return;
       }
+      if (!projectId && !treasuryEnabled) {
+        setSaveError(t('voiceAssistant.missingProject'));
+        return;
+      }
       setSaveError(null);
       setStage('saving');
-      const { error } = await createProjectExpense(organization.id, projectId, expenseLabel.trim(), amount, user.id);
+      const error = projectId
+        ? (await createProjectExpense(organization.id, projectId, expenseLabel.trim(), amount, user.id)).error
+        : (
+            await createExpense(organization.id, user.id, {
+              label: expenseLabel.trim(),
+              category: null,
+              amountChf: amount,
+              expenseDate: new Date().toISOString().slice(0, 10),
+              notes: null,
+            })
+          ).error;
       if (error) {
         setStage('confirm');
         setSaveError(error);
@@ -236,6 +260,8 @@ export function VoiceAssistant() {
                 command={command}
                 projects={projects}
                 workTypes={workTypes}
+                showProjectPickerForExpense={showProjectPickerForExpense}
+                allowGeneralExpense={treasuryEnabled}
                 projectId={projectId}
                 setProjectId={setProjectId}
                 workTypeId={workTypeId}
@@ -344,6 +370,8 @@ function ConfirmForm({
   command,
   projects,
   workTypes,
+  showProjectPickerForExpense,
+  allowGeneralExpense,
   projectId,
   setProjectId,
   workTypeId,
@@ -363,6 +391,8 @@ function ConfirmForm({
   command: VoiceCommand;
   projects: PickItem[];
   workTypes: PickItem[];
+  showProjectPickerForExpense: boolean;
+  allowGeneralExpense: boolean;
   projectId: string | null;
   setProjectId: (id: string | null) => void;
   workTypeId: string | null;
@@ -384,10 +414,9 @@ function ConfirmForm({
     <View style={{ gap: spacing.md }}>
       {command.summary ? <Text style={styles.summaryBanner}>{command.summary}</Text> : null}
 
-      <SelectRow label={t('voiceAssistant.projectLabel')} options={projects} value={projectId} onChange={setProjectId} />
-
       {command.action === 'payroll_entry' ? (
         <>
+          <SelectRow label={t('voiceAssistant.projectLabel')} options={projects} value={projectId} onChange={setProjectId} />
           <SelectRow
             label={t('voiceAssistant.workTypeLabel')}
             options={workTypes}
@@ -400,6 +429,15 @@ function ConfirmForm({
         </>
       ) : (
         <>
+          {showProjectPickerForExpense ? (
+            <SelectRow
+              label={t('voiceAssistant.projectLabel')}
+              options={projects}
+              value={projectId}
+              noneLabel={allowGeneralExpense ? t('voiceAssistant.generalExpenseOption') : undefined}
+              onChange={setProjectId}
+            />
+          ) : null}
           <Field label={t('voiceAssistant.expenseLabelLabel')} value={expenseLabel} onChangeText={setExpenseLabel} />
           <Field label={t('voiceAssistant.amountLabel')} value={amountText} onChangeText={setAmountText} keyboardType="decimal-pad" placeholder="0" />
         </>

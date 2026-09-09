@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import {
@@ -20,6 +22,7 @@ import {
   type ExpenseInput,
   type RecurringExpenseInput,
 } from '../../../lib/api/treasury';
+import { scanReceipt } from '../../../lib/api/ai';
 import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
@@ -599,6 +602,7 @@ function OneOffExpenseModal({
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scanningReceipt, setScanningReceipt] = useState(false);
 
   const initKey = `${visible}-${editing?.id ?? 'new'}`;
   const [lastInitKey, setLastInitKey] = useState('');
@@ -610,6 +614,54 @@ function OneOffExpenseModal({
     setExpenseDate(editing?.expense_date ?? isoToday());
     setNotes(editing?.notes ?? '');
     setError(null);
+  }
+
+  // Same scan-a-receipt flow as Rentabilité's per-chantier Dépenses — a
+  // photo of the ticket fills fournisseur + montant, the rest (date,
+  // catégorie, notes) stays a manual touch since a receipt photo doesn't
+  // carry those reliably.
+  async function processReceiptImage(uri: string) {
+    setScanningReceipt(true);
+    setError(null);
+    try {
+      const manipulated = await ImageManipulator.ImageManipulator.manipulate(uri).resize({ width: 1400 }).renderAsync();
+      const saved = await manipulated.saveAsync({ compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true });
+      if (!saved.base64) {
+        setError(t('treasury.scanFailed'));
+        return;
+      }
+      const { receipt, error: err } = await scanReceipt(organizationId, saved.base64, 'image/jpeg');
+      if (err || !receipt) {
+        setError(err ?? t('treasury.scanFailed'));
+        return;
+      }
+      setLabel(receipt.label);
+      if (receipt.amount > 0) setAmount(String(receipt.amount));
+    } finally {
+      setScanningReceipt(false);
+    }
+  }
+
+  async function scanFromCamera() {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.cameraPermissionBody'));
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+    if (result.canceled || !result.assets?.length) return;
+    await processReceiptImage(result.assets[0].uri);
+  }
+
+  async function scanFromGallery() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.galleryPermissionBody'));
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+    if (result.canceled || !result.assets?.length) return;
+    await processReceiptImage(result.assets[0].uri);
   }
 
   async function handleSave() {
@@ -657,6 +709,19 @@ function OneOffExpenseModal({
           <ScrollView>
             <Text style={styles.sheetTitle}>{editing ? t('treasury.editOneOffTitle') : t('treasury.newOneOffTitle')}</Text>
 
+            {editing ? null : (
+              <View style={styles.scanRow}>
+                <Pressable onPress={scanFromCamera} disabled={scanningReceipt} style={styles.scanButton}>
+                  {scanningReceipt ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="camera" size={16} color={colors.primary} />}
+                  <Text style={styles.scanButtonText}>{t('treasury.scanCamera')}</Text>
+                </Pressable>
+                <Pressable onPress={scanFromGallery} disabled={scanningReceipt} style={styles.scanButton}>
+                  <Feather name="image" size={16} color={colors.primary} />
+                  <Text style={styles.scanButtonText}>{t('treasury.scanGallery')}</Text>
+                </Pressable>
+              </View>
+            )}
+
             <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderOneOff')} />
             <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderOneOff')} />
             <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
@@ -678,6 +743,28 @@ function OneOffExpenseModal({
 }
 
 const styles = StyleSheet.create({
+  scanRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  scanButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  scanButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
   upsell: {
     alignItems: 'flex-start',
     gap: spacing.xs,
