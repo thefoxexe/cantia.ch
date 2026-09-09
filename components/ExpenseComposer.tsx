@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useAuth } from '../lib/auth-context';
 import { createProjectExpense } from '../lib/api/expenses';
 import { scanReceipt } from '../lib/api/ai';
 import { Button, Card, Field } from './ui';
+import { ReceiptScanTiles } from './ReceiptScanTiles';
 import { useTranslation } from '../lib/translations';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { colors, fontSize, spacing } from '../lib/theme';
 
 // The material-expense form used in a chantier's Rentabilité tab: scan a
 // receipt photo (fills fournisseur + montant automatically) or type it in by
@@ -112,41 +112,29 @@ export function ExpenseComposer({
     }
   }
 
+  const scanStatus = scanningReceipt ? 'scanning' : scanError ? 'error' : scanSuccess ? 'success' : 'idle';
+  const scanStatusMessage = scanningReceipt ? t('projectProfitability.scanInProgress') : scanError || scanSuccess || t('projectProfitability.scanHint');
+
   return (
     <Card style={styles.addCard}>
-      <View style={styles.scanRow}>
-        <Pressable onPress={scanFromCamera} disabled={scanningReceipt} style={styles.scanButton}>
-          {scanningReceipt ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="camera" size={16} color={colors.primary} />}
-          <Text style={styles.scanButtonText}>{t('projectProfitability.scanCamera')}</Text>
-        </Pressable>
-        <Pressable onPress={scanFromGallery} disabled={scanningReceipt} style={styles.scanButton}>
-          <Feather name="image" size={16} color={colors.primary} />
-          <Text style={styles.scanButtonText}>{t('projectProfitability.scanGallery')}</Text>
-        </Pressable>
-      </View>
+      <ReceiptScanTiles
+        onCamera={scanFromCamera}
+        onGallery={scanFromGallery}
+        status={scanStatus}
+        statusMessage={scanStatusMessage}
+        cameraLabel={t('projectProfitability.scanCamera')}
+        galleryLabel={t('projectProfitability.scanGallery')}
+      />
 
-      {scanningReceipt ? (
-        <View style={styles.scanStatusRow}>
-          <ActivityIndicator size="small" color={colors.accent} />
-          <Text style={styles.scanStatusText}>{t('projectProfitability.scanInProgress')}</Text>
-        </View>
-      ) : scanError ? (
-        <View style={[styles.scanStatusRow, styles.scanStatusRowError]}>
-          <Feather name="alert-circle" size={14} color={colors.danger} />
-          <Text style={styles.scanError}>{scanError}</Text>
-        </View>
-      ) : scanSuccess ? (
-        <View style={[styles.scanStatusRow, styles.scanStatusRowSuccess]}>
-          <Feather name="check-circle" size={14} color={colors.success} />
-          <Text style={styles.scanSuccessText}>{scanSuccess}</Text>
-        </View>
-      ) : (
-        <Text style={styles.scanHint}>{t('projectProfitability.scanHint')}</Text>
-      )}
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>{t('projectProfitability.orManual')}</Text>
+        <View style={styles.dividerLine} />
+      </View>
 
       <Field label={t('projectProfitability.descriptionLabel')} value={label} onChangeText={setLabel} placeholder={t('projectProfitability.descriptionPlaceholder')} />
       <Field label={t('projectProfitability.amountLabel')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
-      <Button title={t('projectProfitability.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+      <Button title={t('projectProfitability.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.xs }} />
     </Card>
   );
 }
@@ -156,61 +144,21 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginBottom: spacing.md,
   },
-  scanRow: {
+  dividerRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
-  scanButton: {
+  dividerLine: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    height: 1,
+    backgroundColor: colors.border,
   },
-  scanButtonText: {
-    fontSize: fontSize.sm,
+  dividerText: {
+    fontSize: fontSize.xs,
     fontWeight: '700',
-    color: colors.primary,
-  },
-  scanStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-  },
-  scanStatusRowError: {
-    backgroundColor: colors.dangerSoft,
-  },
-  scanStatusRowSuccess: {
-    backgroundColor: colors.successSoft,
-  },
-  scanStatusText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  scanSuccessText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.success,
-  },
-  scanError: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.danger,
-  },
-  scanHint: {
-    fontSize: fontSize.xs,
     color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
 });

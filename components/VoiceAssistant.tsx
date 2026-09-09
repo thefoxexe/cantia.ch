@@ -262,7 +262,12 @@ export function VoiceAssistant() {
         <Pressable style={styles.backdrop} onPress={() => (stage === 'saving' ? null : resetAndClose())}>
           <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{t('voiceAssistant.title')}</Text>
+              <View style={styles.cardHeaderTitleRow}>
+                <View style={styles.cardHeaderIcon}>
+                  <Feather name="mic" size={16} color={colors.primary} />
+                </View>
+                <Text style={styles.cardTitle}>{t('voiceAssistant.title')}</Text>
+              </View>
               <Pressable onPress={resetAndClose} hitSlop={8}>
                 <Feather name="x" size={20} color={colors.textMuted} />
               </Pressable>
@@ -369,8 +374,16 @@ export function VoiceAssistant() {
             ) : (
               <View style={styles.centerBlock}>
                 <Text style={styles.hintText}>{t('voiceAssistant.idleHint')}</Text>
-                <Text style={styles.exampleText}>{t('voiceAssistant.example1')}</Text>
-                <Text style={styles.exampleText}>{t('voiceAssistant.example2')}</Text>
+                <View style={styles.exampleCard}>
+                  <View style={styles.exampleRow}>
+                    <Feather name="clock" size={13} color={colors.textMuted} />
+                    <Text style={styles.exampleText}>{t('voiceAssistant.example1')}</Text>
+                  </View>
+                  <View style={styles.exampleRow}>
+                    <Feather name="shopping-bag" size={13} color={colors.textMuted} />
+                    <Text style={styles.exampleText}>{t('voiceAssistant.example2')}</Text>
+                  </View>
+                </View>
                 <Pressable
                   onPress={toggleRecording}
                   accessibilityLabel={recording ? t('voiceAssistant.listeningStop') : t('voiceAssistant.tapToSpeak')}
@@ -552,6 +565,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  cardHeaderTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  cardHeaderIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cardTitle: {
     fontSize: fontSize.lg,
     fontWeight: '800',
@@ -567,11 +593,25 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
   },
+  exampleCard: {
+    width: '100%',
+    gap: spacing.xs,
+    padding: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  exampleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   exampleText: {
+    flex: 1,
     fontSize: fontSize.xs,
     color: colors.textMuted,
     fontStyle: 'italic',
-    textAlign: 'center',
   },
   micButtonLarge: {
     width: 76,

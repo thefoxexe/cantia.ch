@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -25,6 +25,7 @@ import {
 import { scanReceipt } from '../../../lib/api/ai';
 import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
+import { ReceiptScanTiles } from '../../../components/ReceiptScanTiles';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Expense, Plan, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
@@ -740,32 +741,19 @@ function OneOffExpenseModal({
 
             {editing ? null : (
               <>
-                <View style={styles.scanRow}>
-                  <Pressable onPress={scanFromCamera} disabled={scanningReceipt} style={styles.scanButton}>
-                    {scanningReceipt ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="camera" size={16} color={colors.primary} />}
-                    <Text style={styles.scanButtonText}>{t('treasury.scanCamera')}</Text>
-                  </Pressable>
-                  <Pressable onPress={scanFromGallery} disabled={scanningReceipt} style={styles.scanButton}>
-                    <Feather name="image" size={16} color={colors.primary} />
-                    <Text style={styles.scanButtonText}>{t('treasury.scanGallery')}</Text>
-                  </Pressable>
+                <ReceiptScanTiles
+                  onCamera={scanFromCamera}
+                  onGallery={scanFromGallery}
+                  status={scanningReceipt ? 'scanning' : scanError ? 'error' : scanSuccess ? 'success' : 'idle'}
+                  statusMessage={scanningReceipt ? t('treasury.scanInProgress') : scanError || scanSuccess || t('treasury.scanHint')}
+                  cameraLabel={t('treasury.scanCamera')}
+                  galleryLabel={t('treasury.scanGallery')}
+                />
+                <View style={styles.dividerRow}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>{t('treasury.orManual')}</Text>
+                  <View style={styles.dividerLine} />
                 </View>
-                {scanningReceipt ? (
-                  <View style={styles.scanStatusRow}>
-                    <ActivityIndicator size="small" color={colors.accent} />
-                    <Text style={styles.scanStatusText}>{t('treasury.scanInProgress')}</Text>
-                  </View>
-                ) : scanError ? (
-                  <View style={[styles.scanStatusRow, styles.scanStatusRowError]}>
-                    <Feather name="alert-circle" size={14} color={colors.danger} />
-                    <Text style={styles.scanStatusErrorText}>{scanError}</Text>
-                  </View>
-                ) : scanSuccess ? (
-                  <View style={[styles.scanStatusRow, styles.scanStatusRowSuccess]}>
-                    <Feather name="check-circle" size={14} color={colors.success} />
-                    <Text style={styles.scanStatusSuccessText}>{scanSuccess}</Text>
-                  </View>
-                ) : null}
               </>
             )}
 
@@ -790,60 +778,23 @@ function OneOffExpenseModal({
 }
 
 const styles = StyleSheet.create({
-  scanRow: {
+  dividerRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
-    marginBottom: spacing.sm,
+    marginVertical: spacing.sm,
   },
-  scanButton: {
+  dividerLine: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    height: 1,
+    backgroundColor: colors.border,
   },
-  scanButtonText: {
-    fontSize: fontSize.sm,
+  dividerText: {
+    fontSize: fontSize.xs,
     fontWeight: '700',
-    color: colors.primary,
-  },
-  scanStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    marginBottom: spacing.sm,
-  },
-  scanStatusRowError: {
-    backgroundColor: colors.dangerSoft,
-  },
-  scanStatusRowSuccess: {
-    backgroundColor: colors.successSoft,
-  },
-  scanStatusText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  scanStatusErrorText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.danger,
-  },
-  scanStatusSuccessText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.success,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   upsell: {
     alignItems: 'flex-start',
