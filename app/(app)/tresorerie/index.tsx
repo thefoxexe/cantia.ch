@@ -1,34 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import {
-  addCashSnapshot,
-  buildForecast,
-  createExpense,
-  createRecurringExpense,
-  deleteExpense,
-  deleteRecurringExpense,
-  listExpenses,
-  listRecurringExpenses,
-  setRecurringExpenseActive,
-  updateExpense,
-  updateRecurringExpense,
-  upcomingRecurringCount,
-  type ExpenseInput,
-  type RecurringExpenseInput,
-} from '../../../lib/api/treasury';
-import { scanReceipt } from '../../../lib/api/ai';
-import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
-import { DateField } from '../../../components/DateField';
-import { ReceiptScanTiles } from '../../../components/ReceiptScanTiles';
+import { addCashSnapshot, buildForecast, listRecurringExpenses, upcomingRecurringCount } from '../../../lib/api/treasury';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Expense, Plan, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
+import type { Plan, RecurringExpense, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -87,39 +67,32 @@ export default function TreasuryScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
   const router = useRouter();
-  const [mode, setMode] = useState<'forecast' | 'recurring' | 'oneoff'>('forecast');
   const [loading, setLoading] = useState(true);
   const [forecast, setForecast] = useState<TreasuryForecast | null>(null);
   const [expenses, setExpenses] = useState<RecurringExpense[]>([]);
-  const [oneOffExpenses, setOneOffExpenses] = useState<Expense[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
 
   const [editingBalance, setEditingBalance] = useState(false);
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingExpense, setEditingExpense] = useState<RecurringExpense | null>(null);
-
-  const [expenseModalOpen, setExpenseModalOpen] = useState(false);
-  const [editingOneOff, setEditingOneOff] = useState<Expense | null>(null);
-
   // enabled_modules alone isn't a reliable gate here — an org that had
   // 'treasury' toggled on while on a plan that included it keeps that entry
   // if it later downgrades, and nothing else in this screen checked the
   // plan itself. Mirrors the same check on planning/index.tsx and rh/index.tsx.
+  // Recurring expenses are still fetched here (for the "upcoming" banner)
+  // but managed — created, edited, deleted — from the Dépenses screen now,
+  // same as one-off expenses; this screen is forecast-only.
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [fc, exp, oneOff, { data: planRow }] = await Promise.all([
+    const [fc, exp, { data: planRow }] = await Promise.all([
       buildForecast(organization),
       listRecurringExpenses(organization.id),
-      listExpenses(organization.id),
       supabase.from('plans').select('*').eq('id', organization.plan_id).single(),
     ]);
     setForecast(fc);
     setExpenses(exp);
-    setOneOffExpenses(oneOff);
     setPlan(planRow ?? null);
     setLoading(false);
   }, [organization]);
@@ -141,31 +114,7 @@ export default function TreasuryScreen() {
     load();
   }
 
-  function openAddExpense() {
-    setEditingExpense(null);
-    setModalOpen(true);
-  }
-
-  function openEditExpense(expense: RecurringExpense) {
-    setEditingExpense(expense);
-    setModalOpen(true);
-  }
-
-  function openAddOneOff() {
-    setEditingOneOff(null);
-    setExpenseModalOpen(true);
-  }
-
-  function openEditOneOff(expense: Expense) {
-    setEditingOneOff(expense);
-    setExpenseModalOpen(true);
-  }
-
   const upcoming = useMemo(() => upcomingRecurringCount(expenses), [expenses]);
-  const oneOffThisMonth = useMemo(() => {
-    const currentMonth = isoToday().slice(0, 7);
-    return oneOffExpenses.filter((e) => e.expense_date.slice(0, 7) === currentMonth).reduce((sum, e) => sum + Number(e.amount_chf), 0);
-  }, [oneOffExpenses]);
   const projected30 = useMemo(() => (forecast ? projectedBalanceAt(forecast, addDaysIso(isoToday(), 30)) : 0), [forecast]);
   const projected90 = useMemo(() => (forecast ? projectedBalanceAt(forecast, addDaysIso(isoToday(), 90)) : 0), [forecast]);
 
@@ -195,22 +144,7 @@ export default function TreasuryScreen() {
         <PageHeader title={t('treasury.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('treasury.subtitle')}</Text>
 
-        <View style={styles.modeSwitch}>
-          <Pressable onPress={() => setMode('forecast')} style={[styles.modeTab, mode === 'forecast' && styles.modeTabActive]}>
-            <Feather name="trending-up" size={14} color={mode === 'forecast' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'forecast' && styles.modeTabTextActive]}>{t('treasury.tabForecast')}</Text>
-          </Pressable>
-          <Pressable onPress={() => setMode('recurring')} style={[styles.modeTab, mode === 'recurring' && styles.modeTabActive]}>
-            <Feather name="repeat" size={14} color={mode === 'recurring' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'recurring' && styles.modeTabTextActive]}>{t('treasury.tabRecurring')}</Text>
-          </Pressable>
-          <Pressable onPress={() => setMode('oneoff')} style={[styles.modeTab, mode === 'oneoff' && styles.modeTabActive]}>
-            <Feather name="shopping-bag" size={14} color={mode === 'oneoff' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'oneoff' && styles.modeTabTextActive]}>{t('treasury.tabOneoff')}</Text>
-          </Pressable>
-        </View>
-
-        {mode === 'forecast' && forecast ? (
+        {forecast ? (
           <View style={{ gap: spacing.lg }}>
             <Card style={styles.balanceCard}>
               <View style={styles.balanceTop}>
@@ -267,7 +201,7 @@ export default function TreasuryScreen() {
             </View>
 
             {upcoming > 0 ? (
-              <Pressable onPress={() => setMode('recurring')} style={styles.banner}>
+              <Pressable onPress={() => router.push('/(app)/depenses' as any)} style={styles.banner}>
                 <Feather name="bell" size={16} color={colors.warning} />
                 <Text style={styles.bannerText}>{t('treasury.upcomingBanner', { count: upcoming })}</Text>
                 <Feather name="chevron-right" size={16} color={colors.warning} />
@@ -304,95 +238,7 @@ export default function TreasuryScreen() {
             <Text style={styles.disclaimer}>{t('treasury.salaryDisclaimer')}</Text>
           </View>
         ) : null}
-
-        {mode === 'recurring' ? (
-          <View style={{ gap: spacing.lg }}>
-            <Button title={t('treasury.newRecurringExpense')} icon="plus" onPress={openAddExpense} />
-            {expenses.length === 0 ? (
-              <Card>
-                <EmptyState
-                  title={t('treasury.emptyRecurringTitle')}
-                  subtitle={t('treasury.emptyRecurringSubtitle')}
-                />
-              </Card>
-            ) : (
-              <View style={{ gap: spacing.sm }}>
-                {expenses.map((exp) => (
-                  <RecurringExpenseRow
-                    key={exp.id}
-                    expense={exp}
-                    onPress={() => openEditExpense(exp)}
-                    onToggleActive={async (active) => {
-                      await setRecurringExpenseActive(exp.id, active);
-                      load();
-                    }}
-                  />
-                ))}
-              </View>
-            )}
-          </View>
-        ) : null}
-
-        {mode === 'oneoff' ? (
-          <View style={{ gap: spacing.lg }}>
-            <Card style={styles.kpiTile}>
-              <Text style={styles.kpiLabel}>{t('treasury.spentThisMonth')}</Text>
-              <Text style={styles.kpiValue}>CHF {oneOffThisMonth.toFixed(0)}</Text>
-            </Card>
-            <Button title={t('treasury.newExpense')} icon="plus" onPress={openAddOneOff} />
-            {oneOffExpenses.length === 0 ? (
-              <Card>
-                <EmptyState
-                  title={t('treasury.emptyOneOffTitle')}
-                  subtitle={t('treasury.emptyOneOffSubtitle')}
-                />
-              </Card>
-            ) : (
-              <View style={{ gap: spacing.sm }}>
-                {oneOffExpenses.map((exp) => (
-                  <Pressable key={exp.id} onPress={() => openEditOneOff(exp)}>
-                    <Card style={styles.expenseRow}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.itemLabel} numberOfLines={1}>
-                          {exp.label}
-                        </Text>
-                        <Text style={styles.itemMeta}>
-                          {[exp.category, formatDateFr(exp.expense_date)].filter(Boolean).join(' · ')}
-                        </Text>
-                      </View>
-                      <Text style={styles.itemAmount}>CHF {Number(exp.amount_chf).toFixed(0)}</Text>
-                    </Card>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </View>
-        ) : null}
       </ScrollView>
-
-      <RecurringExpenseModal
-        visible={modalOpen}
-        onClose={() => setModalOpen(false)}
-        organizationId={organization.id}
-        userId={user?.id}
-        editing={editingExpense}
-        onSaved={() => {
-          setModalOpen(false);
-          load();
-        }}
-      />
-
-      <OneOffExpenseModal
-        visible={expenseModalOpen}
-        onClose={() => setExpenseModalOpen(false)}
-        organizationId={organization.id}
-        userId={user?.id}
-        editing={editingOneOff}
-        onSaved={() => {
-          setExpenseModalOpen(false);
-          load();
-        }}
-      />
     </Screen>
   );
 }
@@ -422,380 +268,7 @@ function ForecastItemRow({ item }: { item: TreasuryForecastItem }) {
   );
 }
 
-function RecurringExpenseRow({
-  expense,
-  onPress,
-  onToggleActive,
-}: {
-  expense: RecurringExpense;
-  onPress: () => void;
-  onToggleActive: (active: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const days = daysUntil(expense.next_due_date);
-  let dueLabel = formatDateFr(expense.next_due_date);
-  if (expense.active) {
-    if (days < 0) dueLabel = t('treasury.overdue');
-    else if (days === 0) dueLabel = t('treasury.today');
-    else if (days <= 14) dueLabel = t('treasury.inDays', { days });
-  }
-  return (
-    <Pressable onPress={onPress}>
-      <Card style={[styles.expenseRow, !expense.active && styles.expenseRowInactive]}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.itemLabel} numberOfLines={1}>
-            {expense.label}
-          </Text>
-          <Text style={styles.itemMeta}>
-            {[expense.category, t('treasury.perFrequency', { amount: expense.amount_chf.toFixed(0), unit: expense.frequency === 'monthly' ? t('treasury.perMonth') : t('treasury.perYear') })]
-              .filter(Boolean)
-              .join(' · ')}
-          </Text>
-        </View>
-        <View style={styles.expenseRight}>
-          <Text style={[styles.dueTag, days < 0 && expense.active && styles.dueTagOverdue]}>{dueLabel}</Text>
-          <Switch value={expense.active} onChange={onToggleActive} />
-        </View>
-      </Card>
-    </Pressable>
-  );
-}
-
-function RecurringExpenseModal({
-  visible,
-  onClose,
-  organizationId,
-  userId,
-  editing,
-  onSaved,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  organizationId: string;
-  userId: string | undefined;
-  editing: RecurringExpense | null;
-  onSaved: () => void;
-}) {
-  const { t } = useTranslation();
-  const [label, setLabel] = useState('');
-  const [category, setCategory] = useState('');
-  const [amount, setAmount] = useState('');
-  const [frequency, setFrequency] = useState<RecurringExpenseFrequency>('monthly');
-  const [nextDueDate, setNextDueDate] = useState<string | null>(null);
-  const [reminderDays, setReminderDays] = useState('3');
-  const [notes, setNotes] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const initKey = `${visible}-${editing?.id ?? 'new'}`;
-  const [lastInitKey, setLastInitKey] = useState('');
-  if (visible && initKey !== lastInitKey) {
-    setLastInitKey(initKey);
-    setLabel(editing?.label ?? '');
-    setCategory(editing?.category ?? '');
-    setAmount(editing ? String(editing.amount_chf) : '');
-    setFrequency(editing?.frequency ?? 'monthly');
-    setNextDueDate(editing?.next_due_date ?? isoToday());
-    setReminderDays(editing ? String(editing.reminder_days_before) : '3');
-    setNotes(editing?.notes ?? '');
-    setError(null);
-  }
-
-  async function handleSave() {
-    const amountChf = Number(amount.replace(',', '.'));
-    if (!label.trim()) return setError(t('treasury.labelRequired'));
-    if (!nextDueDate) return setError(t('treasury.dueDateRequired'));
-    if (Number.isNaN(amountChf) || amountChf <= 0) return setError(t('treasury.invalidAmount'));
-
-    setSaving(true);
-    setError(null);
-    const input: RecurringExpenseInput = {
-      label: label.trim(),
-      category: category.trim() || null,
-      amountChf,
-      frequency,
-      nextDueDate,
-      reminderDaysBefore: Number(reminderDays) || 3,
-      notes: notes.trim() || null,
-    };
-    const { error: err } = editing ? await updateRecurringExpense(editing.id, input) : await createRecurringExpense(organizationId, userId, input);
-    setSaving(false);
-    if (err) return setError(err);
-    onSaved();
-  }
-
-  function handleDelete() {
-    if (!editing) return;
-    Alert.alert(t('treasury.deleteRecurringConfirmTitle'), t('treasury.deleteRecurringConfirmBody', { label: editing.label }), [
-      { text: t('treasury.cancel'), style: 'cancel' },
-      {
-        text: t('treasury.delete'),
-        style: 'destructive',
-        onPress: async () => {
-          setSaving(true);
-          await deleteRecurringExpense(editing.id);
-          setSaving(false);
-          onSaved();
-        },
-      },
-    ]);
-  }
-
-  return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.sheet}>
-          <ScrollView>
-            <Text style={styles.sheetTitle}>{editing ? t('treasury.editRecurringTitle') : t('treasury.newRecurringTitle')}</Text>
-
-            <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderRecurring')} />
-            <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderRecurring')} />
-            <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
-
-            <Text style={styles.fieldLabel}>{t('treasury.frequencyField')}</Text>
-            <View style={styles.freqRow}>
-              <Pressable onPress={() => setFrequency('monthly')} style={[styles.freqChip, frequency === 'monthly' && styles.freqChipActive]}>
-                <Text style={[styles.freqChipText, frequency === 'monthly' && styles.freqChipTextActive]}>{t('treasury.monthlyOption')}</Text>
-              </Pressable>
-              <Pressable onPress={() => setFrequency('yearly')} style={[styles.freqChip, frequency === 'yearly' && styles.freqChipActive]}>
-                <Text style={[styles.freqChipText, frequency === 'yearly' && styles.freqChipTextActive]}>{t('treasury.yearlyOption')}</Text>
-              </Pressable>
-            </View>
-
-            <DateField label={t('treasury.nextDueDateField')} value={nextDueDate} onChange={setNextDueDate} />
-            <Field label={t('treasury.reminderDaysField')} value={reminderDays} onChangeText={setReminderDays} keyboardType="number-pad" placeholder="3" />
-            <Field label={t('treasury.notesFieldOptional')} value={notes} onChangeText={setNotes} placeholder={t('treasury.notesPlaceholderRecurring')} multiline />
-
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-
-            <Button title={t('treasury.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
-            {editing ? (
-              <Button title={t('treasury.delete')} icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
-            ) : null}
-            <Button title={t('treasury.cancel')} variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
-function OneOffExpenseModal({
-  visible,
-  onClose,
-  organizationId,
-  userId,
-  editing,
-  onSaved,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  organizationId: string;
-  userId: string | undefined;
-  editing: Expense | null;
-  onSaved: () => void;
-}) {
-  const { t } = useTranslation();
-  const [label, setLabel] = useState('');
-  const [category, setCategory] = useState('');
-  const [amount, setAmount] = useState('');
-  const [expenseDate, setExpenseDate] = useState<string | null>(null);
-  const [notes, setNotes] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [scanningReceipt, setScanningReceipt] = useState(false);
-  const [scanError, setScanError] = useState<string | null>(null);
-  const [scanSuccess, setScanSuccess] = useState<string | null>(null);
-
-  const initKey = `${visible}-${editing?.id ?? 'new'}`;
-  const [lastInitKey, setLastInitKey] = useState('');
-  if (visible && initKey !== lastInitKey) {
-    setLastInitKey(initKey);
-    setLabel(editing?.label ?? '');
-    setCategory(editing?.category ?? '');
-    setAmount(editing ? String(editing.amount_chf) : '');
-    setExpenseDate(editing?.expense_date ?? isoToday());
-    setNotes(editing?.notes ?? '');
-    setError(null);
-    setScanError(null);
-    setScanSuccess(null);
-  }
-
-  // Same scan-a-receipt flow as Rentabilité's per-chantier Dépenses — a
-  // photo of the ticket fills fournisseur + montant, the rest (date,
-  // catégorie, notes) stays a manual touch since a receipt photo doesn't
-  // carry those reliably. Uses its own scanError, separate from the
-  // save-validation `error` below, so a scan result and a "libellé requis"
-  // message never end up competing for the same line.
-  async function processReceiptImage(uri: string) {
-    setScanningReceipt(true);
-    setScanError(null);
-    setScanSuccess(null);
-    try {
-      const manipulated = await ImageManipulator.ImageManipulator.manipulate(uri).resize({ width: 1400 }).renderAsync();
-      const saved = await manipulated.saveAsync({ compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true });
-      if (!saved.base64) {
-        setScanError(t('treasury.scanFailed'));
-        return;
-      }
-      const { receipt, error: err } = await scanReceipt(organizationId, saved.base64, 'image/jpeg');
-      if (err || !receipt) {
-        setScanError(err ?? t('treasury.scanFailed'));
-        return;
-      }
-      setLabel(receipt.label);
-      if (receipt.amount > 0) setAmount(String(receipt.amount));
-      setScanSuccess(
-        receipt.label && receipt.amount > 0
-          ? t('treasury.scanSuccess', { label: receipt.label, amount: receipt.amount })
-          : t('treasury.scanPartial'),
-      );
-    } catch (e) {
-      // A thrown error (image processing, network) must still show up —
-      // silently eating it here is exactly what made a failed scan look
-      // like the app just did nothing.
-      setScanError(e instanceof Error ? e.message : t('treasury.scanFailed'));
-    } finally {
-      setScanningReceipt(false);
-    }
-  }
-
-  async function scanFromCamera() {
-    setScanError(null);
-    setScanSuccess(null);
-    try {
-      const perm = await ImagePicker.requestCameraPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.cameraPermissionBody'));
-        return;
-      }
-      const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
-      if (result.canceled || !result.assets?.length) return;
-      await processReceiptImage(result.assets[0].uri);
-    } catch (e) {
-      setScanError(e instanceof Error ? e.message : t('treasury.scanFailed'));
-    }
-  }
-
-  async function scanFromGallery() {
-    setScanError(null);
-    setScanSuccess(null);
-    try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.galleryPermissionBody'));
-        return;
-      }
-      const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
-      if (result.canceled || !result.assets?.length) return;
-      await processReceiptImage(result.assets[0].uri);
-    } catch (e) {
-      setScanError(e instanceof Error ? e.message : t('treasury.scanFailed'));
-    }
-  }
-
-  async function handleSave() {
-    const amountChf = Number(amount.replace(',', '.'));
-    if (!label.trim()) return setError(t('treasury.labelRequired'));
-    if (!expenseDate) return setError(t('treasury.dateRequired'));
-    if (Number.isNaN(amountChf) || amountChf <= 0) return setError(t('treasury.invalidAmount'));
-
-    setSaving(true);
-    setError(null);
-    const input: ExpenseInput = {
-      label: label.trim(),
-      category: category.trim() || null,
-      amountChf,
-      expenseDate,
-      notes: notes.trim() || null,
-    };
-    const { error: err } = editing ? await updateExpense(editing.id, input) : await createExpense(organizationId, userId, input);
-    setSaving(false);
-    if (err) return setError(err);
-    onSaved();
-  }
-
-  function handleDelete() {
-    if (!editing) return;
-    Alert.alert(t('treasury.deleteOneOffConfirmTitle'), t('treasury.deleteOneOffConfirmBody', { label: editing.label }), [
-      { text: t('treasury.cancel'), style: 'cancel' },
-      {
-        text: t('treasury.delete'),
-        style: 'destructive',
-        onPress: async () => {
-          setSaving(true);
-          await deleteExpense(editing.id);
-          setSaving(false);
-          onSaved();
-        },
-      },
-    ]);
-  }
-
-  return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.sheet}>
-          <ScrollView>
-            <Text style={styles.sheetTitle}>{editing ? t('treasury.editOneOffTitle') : t('treasury.newOneOffTitle')}</Text>
-
-            {editing ? null : (
-              <>
-                <ReceiptScanTiles
-                  onCamera={scanFromCamera}
-                  onGallery={scanFromGallery}
-                  status={scanningReceipt ? 'scanning' : scanError ? 'error' : scanSuccess ? 'success' : 'idle'}
-                  statusMessage={scanningReceipt ? t('treasury.scanInProgress') : scanError || scanSuccess || t('treasury.scanHint')}
-                  cameraLabel={t('treasury.scanCamera')}
-                  galleryLabel={t('treasury.scanGallery')}
-                />
-                <View style={styles.dividerRow}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>{t('treasury.orManual')}</Text>
-                  <View style={styles.dividerLine} />
-                </View>
-              </>
-            )}
-
-            <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderOneOff')} />
-            <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderOneOff')} />
-            <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
-            <DateField label={t('treasury.dateField')} value={expenseDate} onChange={setExpenseDate} />
-            <Field label={t('treasury.notesFieldOptional')} value={notes} onChangeText={setNotes} placeholder={t('treasury.notesPlaceholderOneOff')} multiline />
-
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-
-            <Button title={t('treasury.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
-            {editing ? (
-              <Button title={t('treasury.delete')} icon="trash-2" variant="danger" onPress={handleDelete} loading={saving} style={{ marginTop: spacing.sm }} />
-            ) : null}
-            <Button title={t('treasury.cancel')} variant="secondary" onPress={onClose} style={{ marginTop: spacing.sm }} />
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
 const styles = StyleSheet.create({
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginVertical: spacing.sm,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
   upsell: {
     alignItems: 'flex-start',
     gap: spacing.xs,
@@ -816,39 +289,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginBottom: spacing.lg,
-  },
-  modeSwitch: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-    padding: 3,
-    alignSelf: 'flex-start',
-    marginBottom: spacing.lg,
-  },
-  modeTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 7,
-    borderRadius: radius.sm,
-  },
-  modeTabActive: {
-    backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  modeTabText: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.textMuted,
-  },
-  modeTabTextActive: {
-    color: colors.primary,
   },
   balanceCard: {
     gap: spacing.sm,
@@ -997,83 +437,5 @@ const styles = StyleSheet.create({
   },
   itemAmountNegative: {
     color: colors.danger,
-  },
-  expenseRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  expenseRowInactive: {
-    opacity: 0.5,
-  },
-  expenseRight: {
-    alignItems: 'flex-end',
-    gap: spacing.xs,
-  },
-  dueTag: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.textMuted,
-  },
-  dueTagOverdue: {
-    color: colors.danger,
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 20, 18, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  sheet: {
-    width: '100%',
-    maxWidth: 480,
-    maxHeight: '90%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-  },
-  sheetTitle: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  fieldLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginBottom: spacing.sm,
-    fontWeight: '500',
-  },
-  freqRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  freqChip: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  freqChipActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  freqChipText: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.textMuted,
-  },
-  freqChipTextActive: {
-    color: colors.primary,
-  },
-  error: {
-    fontSize: fontSize.sm,
-    color: colors.danger,
-    marginTop: spacing.sm,
   },
 });
