@@ -43,6 +43,10 @@ function buildSections(
     // entries visually indistinguishable in the sidebar.
     ...(payrollEnabled ? [{ href: '/(app)/rh', label: t('nav.payroll'), icon: 'clock' as const }] : []),
     ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: t('nav.treasury'), icon: 'archive' as const }] : []),
+    // Same gate as Trésorerie itself — a read-only view over the same two
+    // expense sources (chantier-linked Rentabilité purchases + Trésorerie's
+    // Dépenses ponctuelles), not a third place to create one.
+    ...(treasuryEnabled ? [{ href: '/(app)/depenses', label: t('nav.depenses'), icon: 'shopping-bag' as const }] : []),
   ];
   return [
     {

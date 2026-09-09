@@ -10,6 +10,22 @@ export async function listProjectExpenses(projectId: string): Promise<ProjectExp
   return data ?? [];
 }
 
+export interface OrganizationExpenseRow extends ProjectExpense {
+  projects: { name: string } | null;
+}
+
+// Every chantier-linked expense across the org, with the chantier's name
+// joined in — the "Dépenses" module's read-only view over the same rows
+// each chantier's own Rentabilité tab already shows individually.
+export async function listOrganizationProjectExpenses(organizationId: string): Promise<OrganizationExpenseRow[]> {
+  const { data } = await supabase
+    .from('project_expenses')
+    .select('*, projects(name)')
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false });
+  return (data ?? []) as OrganizationExpenseRow[];
+}
+
 export async function createProjectExpense(
   organizationId: string,
   projectId: string,

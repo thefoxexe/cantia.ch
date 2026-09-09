@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../lib/auth-context';
@@ -19,7 +20,7 @@ interface PickItem {
   label: string;
 }
 
-type Stage = 'idle' | 'routing' | 'confirm' | 'saving' | 'saved' | 'error';
+type Stage = 'idle' | 'routing' | 'confirm' | 'saving' | 'saved' | 'error' | 'unavailable';
 
 // A single floating mic button, mounted once at the shell level (mobile and
 // desktop alike) so it's reachable from anywhere in the app — unlike the
@@ -32,6 +33,7 @@ type Stage = 'idle' | 'routing' | 'confirm' | 'saving' | 'saved' | 'error';
 export function VoiceAssistant() {
   const { t } = useTranslation();
   const { organization, user, canViewFinances } = useAuth();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
   const treasuryModuleOk = isModuleEnabled(organization?.enabled_modules, 'treasury') && canViewFinances;
@@ -60,16 +62,24 @@ export function VoiceAssistant() {
     transcriptRef.current = sessionTranscript;
   });
 
+  // The AI always tries to classify between both action types, regardless of
+  // whether this org can actually use them — that's what lets it recognize
+  // "j'ai acheté du bois pour 60 francs" as an expense even on a plan
+  // without Rentabilité/Trésorerie, so the assistant can say "this exists,
+  // but isn't on your plan" instead of a vague "didn't understand".
+  // Usability is decided client-side, after routing, in actionUsable below.
+  const classificationActions: ('payroll_entry' | 'expense')[] = ['payroll_entry', 'expense'];
   // "expense" covers two destinations: a chantier-linked material cost
   // (needs profitabilityEnabled, feeds that chantier's Rentabilité) or a
   // general/overhead outflow (needs treasuryEnabled, feeds Trésorerie's
   // Dépenses ponctuelles) — see handleConfirm and ConfirmForm below for how
   // the split is decided once a chantier is or isn't picked.
-  const allowedActions: ('payroll_entry' | 'expense')[] = [
-    ...(payrollEnabled ? (['payroll_entry'] as const) : []),
-    ...(profitabilityEnabled || treasuryEnabled ? (['expense'] as const) : []),
-  ];
   const showProjectPickerForExpense = profitabilityEnabled && projects.length > 0;
+
+  function actionUsable(action: 'payroll_entry' | 'expense'): boolean {
+    if (action === 'payroll_entry') return payrollEnabled;
+    return profitabilityEnabled || treasuryEnabled;
+  }
 
   if (!organization) return null;
 
@@ -135,12 +145,17 @@ export function VoiceAssistant() {
       organization.id,
       projectsPayload,
       workTypesPayload,
-      allowedActions,
+      classificationActions,
       locale,
     );
     if (err || !cmd || cmd.action === 'unknown') {
       setStage('error');
       setErrorMessage((cmd?.summary || err) ?? t('voiceAssistant.errorGeneric'));
+      return;
+    }
+    if (!actionUsable(cmd.action)) {
+      setCommand(cmd);
+      setStage('unavailable');
       return;
     }
     setCommand(cmd);
@@ -253,9 +268,7 @@ export function VoiceAssistant() {
               </Pressable>
             </View>
 
-            {allowedActions.length === 0 ? (
-              <Text style={styles.hintText}>{t('voiceAssistant.noActionsAvailable')}</Text>
-            ) : stage === 'confirm' && command ? (
+            {stage === 'confirm' && command ? (
               <ConfirmForm
                 command={command}
                 projects={projects}
@@ -288,12 +301,55 @@ export function VoiceAssistant() {
                 <Text style={styles.savedText}>
                   {command.action === 'payroll_entry' ? t('voiceAssistant.savedPayroll') : t('voiceAssistant.savedExpense')}
                 </Text>
+                {/* Exactly where it landed — the whole point being that
+                    confirming shouldn't leave you wondering. */}
+                <Text style={styles.savedDestination}>
+                  {command.action === 'payroll_entry'
+                    ? t('voiceAssistant.savedPayrollProject', { project: projects.find((p) => p.id === projectId)?.label ?? '' })
+                    : projectId
+                      ? t('voiceAssistant.savedExpenseProject', { project: projects.find((p) => p.id === projectId)?.label ?? '' })
+                      : t('voiceAssistant.savedExpenseGeneral')}
+                </Text>
                 <View style={styles.savedActions}>
                   <Pressable style={styles.secondaryButton} onPress={resetAndClose}>
                     <Text style={styles.secondaryButtonText}>{t('voiceAssistant.close')}</Text>
                   </Pressable>
-                  <Pressable style={styles.primaryButton} onPress={openAssistant}>
-                    <Text style={styles.primaryButtonText}>{t('voiceAssistant.addAnother')}</Text>
+                  {command.action === 'expense' ? (
+                    <Pressable
+                      style={styles.primaryButton}
+                      onPress={() => {
+                        const target = projectId ? (`/(app)/chantiers/${projectId}/profitability` as any) : ('/(app)/depenses' as any);
+                        resetAndClose();
+                        router.push(target);
+                      }}
+                    >
+                      <Text style={styles.primaryButtonText}>{projectId ? t('voiceAssistant.viewChantier') : t('voiceAssistant.viewExpenses')}</Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable style={styles.primaryButton} onPress={openAssistant}>
+                      <Text style={styles.primaryButtonText}>{t('voiceAssistant.addAnother')}</Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
+            ) : stage === 'unavailable' && command ? (
+              <View style={styles.centerBlock}>
+                <Feather name="lock" size={26} color={colors.accent} />
+                <Text style={styles.hintText}>
+                  {command.action === 'payroll_entry' ? t('voiceAssistant.unavailablePayroll') : t('voiceAssistant.unavailableExpense')}
+                </Text>
+                <View style={styles.savedActions}>
+                  <Pressable style={styles.secondaryButton} onPress={resetAndClose}>
+                    <Text style={styles.secondaryButtonText}>{t('voiceAssistant.close')}</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.primaryButton}
+                    onPress={() => {
+                      resetAndClose();
+                      router.push('/(app)/compte' as any);
+                    }}
+                  >
+                    <Text style={styles.primaryButtonText}>{t('voiceAssistant.seePlans')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -618,6 +674,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
+  },
+  savedDestination: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
   },
   savedActions: {
     flexDirection: 'row',
