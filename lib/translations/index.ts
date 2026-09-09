@@ -4,9 +4,10 @@ import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fr } from './fr';
 import { de } from './de';
+import { it } from './it';
 
-export type AppLocale = 'fr' | 'de';
-export const AVAILABLE_LOCALES: AppLocale[] = ['fr', 'de'];
+export type AppLocale = 'fr' | 'de' | 'it';
+export const AVAILABLE_LOCALES: AppLocale[] = ['fr', 'de', 'it'];
 export const DEFAULT_LOCALE: AppLocale = 'fr';
 
 const LOCALE_CACHE_KEY = 'cantia:locale';
@@ -15,6 +16,7 @@ i18next.use(initReactI18next).init({
   resources: {
     fr: { translation: fr },
     de: { translation: de },
+    it: { translation: it },
   },
   lng: DEFAULT_LOCALE,
   fallbackLng: DEFAULT_LOCALE,
