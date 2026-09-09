@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
@@ -79,6 +79,21 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
+  // Every screen's own data-loading effect is typically
+  // `useCallback(..., [organization])` + `useFocusEffect` — and
+  // useFocusEffect re-runs its callback immediately whenever that callback's
+  // *reference* changes while the screen is already focused, not just on an
+  // actual navigation focus event (see expo-router's useFocusEffect: its
+  // outer useEffect depends on `[effect, navigation]`). loadOrganization()
+  // refetches on every app-foreground (e.g. returning from the native
+  // camera to take a receipt photo) — without this guard, that refetch
+  // handed out a brand-new `organization` object every time even when
+  // nothing about it had changed, which cascaded into every open screen's
+  // load() re-running, flipping its `loading` flag, and unmounting (then
+  // remounting fresh) anything gated behind `if (loading) return
+  // <LoadingScreen/>` — including open modals, silently wiping whatever the
+  // user was mid-typing or mid-scanning right as a photo finished uploading.
+  const lastOrgSnapshotRef = useRef<string | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
   const [canViewFinances, setCanViewFinances] = useState(false);
   const [canCreateProjects, setCanCreateProjects] = useState(false);
@@ -100,7 +115,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .maybeSingle();
 
       if (membership?.organizations) {
-        setOrganization(membership.organizations as unknown as Organization);
+        const orgData = membership.organizations as unknown as Organization;
+        // Keep the same object reference when nothing actually changed —
+        // see lastOrgSnapshotRef above for why this matters far beyond a
+        // wasted render.
+        const snapshot = JSON.stringify(orgData);
+        if (snapshot !== lastOrgSnapshotRef.current) {
+          lastOrgSnapshotRef.current = snapshot;
+          setOrganization(orgData);
+        }
         setRole(membership.role as OrgRole);
         // organization_members.locale is the source of truth — reconcile
         // it against whatever the AsyncStorage cache guessed at boot.
@@ -133,6 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               },
         );
       } else {
+        lastOrgSnapshotRef.current = null;
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
@@ -142,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       console.error('Failed to load organization', err);
+      lastOrgSnapshotRef.current = null;
       setOrganization(null);
       setRole(null);
       setCanViewFinances(false);
