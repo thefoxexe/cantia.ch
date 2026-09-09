@@ -44,11 +44,12 @@ export async function deleteFromOrgBucket(path: string): Promise<{ error: string
   return { error: error?.message ?? null };
 }
 
-// French uses octet-based units (o/Ko/Mo/Go), German uses byte-based
-// units (B/KB/MB/GB) — same magnitudes, different abbreviations.
-const BYTE_UNITS: Record<'fr' | 'de', { base: string; units: string[] }> = {
+// French uses octet-based units (o/Ko/Mo/Go); German and Italian both use
+// byte-based units (B/KB/MB/GB) — same magnitudes, different abbreviations.
+const BYTE_UNITS: Record<'fr' | 'de' | 'it', { base: string; units: string[] }> = {
   fr: { base: 'o', units: ['Ko', 'Mo', 'Go'] },
   de: { base: 'B', units: ['KB', 'MB', 'GB'] },
+  it: { base: 'B', units: ['KB', 'MB', 'GB'] },
 };
 
 export function formatBytes(bytes: number): string {

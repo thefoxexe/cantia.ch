@@ -26,7 +26,7 @@ export default function EntrepriseScreen() {
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
-  const [docLocale, setDocLocale] = useState<'fr' | 'de'>(organization?.locale ?? 'fr');
+  const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
   const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
@@ -188,7 +188,7 @@ export default function EntrepriseScreen() {
           <Text style={styles.sectionTitle}>{t('entreprise.documentLocaleTitle')}</Text>
           <Text style={styles.hint}>{t('entreprise.documentLocaleHint')}</Text>
           <View style={styles.chips}>
-            {(['fr', 'de'] as const).map((loc) => (
+            {(['fr', 'de', 'it'] as const).map((loc) => (
               <Pressable
                 key={loc}
                 onPress={() => isAdmin && setDocLocale(loc)}
@@ -196,7 +196,7 @@ export default function EntrepriseScreen() {
                 style={[styles.chip, docLocale === loc && styles.chipActive, !isAdmin && styles.chipDisabled]}
               >
                 <Text style={[styles.chipText, docLocale === loc && styles.chipTextActive]}>
-                  {loc === 'fr' ? t('entreprise.localeFr') : t('entreprise.localeDe')}
+                  {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('entreprise.localeIt')}
                 </Text>
               </Pressable>
             ))}

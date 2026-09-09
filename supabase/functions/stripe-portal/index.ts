@@ -55,7 +55,7 @@ Deno.serve(async (req: Request) => {
       // Same member-locale reasoning as stripe-checkout: this is whoever is
       // currently looking at Stripe's hosted page, not the org's document
       // language.
-      locale: membership.locale === 'de' ? 'de' : 'fr',
+      locale: membership.locale === 'de' ? 'de' : membership.locale === 'it' ? 'it' : 'fr',
     };
     // "Résilier mon abonnement" skips the portal's own menu and drops the
     // user straight into Stripe's cancellation flow for their subscription.

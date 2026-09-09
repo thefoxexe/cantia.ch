@@ -25,23 +25,23 @@ function withClientToken(text: string): string {
 // whatever language the sender happens to be browsing the app in right now.
 // Compte → E-mails (editing the org-wide saved template) omits it and keeps
 // using the member's current language, which is correct there.
-export function defaultDevisEmailMessage(locale?: 'fr' | 'de'): string {
+export function defaultDevisEmailMessage(locale?: 'fr' | 'de' | 'it'): string {
   return withClientToken(i18next.t('emailDefaults.devisMessage', locale ? { lng: locale } : undefined));
 }
 
-export function defaultFactureEmailMessage(locale?: 'fr' | 'de'): string {
+export function defaultFactureEmailMessage(locale?: 'fr' | 'de' | 'it'): string {
   return withClientToken(i18next.t('emailDefaults.factureMessage', locale ? { lng: locale } : undefined));
 }
 
-export function defaultExtraWorkEmailMessage(locale?: 'fr' | 'de'): string {
+export function defaultExtraWorkEmailMessage(locale?: 'fr' | 'de' | 'it'): string {
   return withClientToken(i18next.t('emailDefaults.extraWorkMessage', locale ? { lng: locale } : undefined));
 }
 
-export function defaultFactureReminderMessageUpcoming(locale?: 'fr' | 'de'): string {
+export function defaultFactureReminderMessageUpcoming(locale?: 'fr' | 'de' | 'it'): string {
   return withClientToken(i18next.t('emailDefaults.reminderUpcoming', locale ? { lng: locale } : undefined));
 }
 
-export function defaultFactureReminderMessageOverdue(locale?: 'fr' | 'de'): string {
+export function defaultFactureReminderMessageOverdue(locale?: 'fr' | 'de' | 'it'): string {
   return withClientToken(i18next.t('emailDefaults.reminderOverdue', locale ? { lng: locale } : undefined));
 }
 

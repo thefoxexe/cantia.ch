@@ -178,7 +178,7 @@ export default function NewFactureScreen() {
     }
     dictationBaseRef.current = target.type === 'line' ? lines[target.index].description : '';
     setDictationTarget(target);
-    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : 'fr-FR');
+    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : getAppLocale() === 'it' ? 'it-IT' : 'fr-FR');
     if (!started) {
       Alert.alert(t('devisNew.micPermissionTitle'), t('devisNew.micPermissionBody'));
     }

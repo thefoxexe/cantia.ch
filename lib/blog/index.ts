@@ -161,7 +161,7 @@ export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.catego
 // translation — used by the blog index/listing so a German visitor sees the
 // full catalog. Falls back to the French post for any future slug added
 // here before its translation lands.
-export function getAllPosts(locale: 'fr' | 'de' = 'fr'): BlogPost[] {
+export function getAllPosts(locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost[] {
   if (locale !== 'de') return BLOG_POSTS;
   return BLOG_POSTS.map((p) => BLOG_POSTS_DE.find((d) => d.slug === p.slug) ?? p);
 }
@@ -169,7 +169,7 @@ export function getAllPosts(locale: 'fr' | 'de' = 'fr'): BlogPost[] {
 // All 138 posts are translated (lib/blog/posts-de/); this still falls back
 // to the French post for any future slug added before its translation
 // lands, rather than a broken link or an empty page.
-export function getPostBySlug(slug: string, locale: 'fr' | 'de' = 'fr'): BlogPost | undefined {
+export function getPostBySlug(slug: string, locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost | undefined {
   if (locale === 'de') {
     const de = BLOG_POSTS_DE.find((p) => p.slug === slug);
     if (de) return de;
@@ -177,7 +177,7 @@ export function getPostBySlug(slug: string, locale: 'fr' | 'de' = 'fr'): BlogPos
   return BLOG_POSTS.find((p) => p.slug === slug);
 }
 
-export function getRelatedPosts(post: BlogPost, max = 3, locale: 'fr' | 'de' = 'fr'): BlogPost[] {
+export function getRelatedPosts(post: BlogPost, max = 3, locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost[] {
   const bySlug = post.relatedSlugs?.map((s) => getPostBySlug(s, locale)).filter((p): p is BlogPost => !!p) ?? [];
   if (bySlug.length >= max) return bySlug.slice(0, max);
   const pool = locale === 'de' ? BLOG_POSTS_DE : BLOG_POSTS;

@@ -85,7 +85,7 @@ export default function FactureDetailScreen() {
   const [pushingBexio, setPushingBexio] = useState(false);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
-  const [orgLocale, setOrgLocale] = useState<'fr' | 'de'>('fr');
+  const [orgLocale, setOrgLocale] = useState<'fr' | 'de' | 'it'>('fr');
   const [translatingMessage, setTranslatingMessage] = useState(false);
   const [translateError, setTranslateError] = useState<string | null>(null);
   // Which language the message box currently reads as being in — drives the
@@ -95,7 +95,7 @@ export default function FactureDetailScreen() {
   // message was already French and they wanted German, but the old button
   // only ever offered French, following the org's default document locale
   // rather than the member's actual choice).
-  const [messageLocale, setMessageLocale] = useState<'fr' | 'de'>('fr');
+  const [messageLocale, setMessageLocale] = useState<'fr' | 'de' | 'it'>('fr');
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [depositPercent, setDepositPercent] = useState('30');
@@ -126,7 +126,7 @@ export default function FactureDetailScreen() {
       // own resolved locale (its override, or else the org's default) — not
       // necessarily whatever language the sender is currently browsing the
       // app in — same reasoning as resolveDocLocale server-side.
-      const resolvedOrgLocale: 'fr' | 'de' = org?.locale === 'de' ? 'de' : 'fr';
+      const resolvedOrgLocale: 'fr' | 'de' | 'it' = org?.locale === 'de' ? 'de' : org?.locale === 'it' ? 'it' : 'fr';
       setOrgLocale(resolvedOrgLocale);
       const docLocale = f.locale ?? resolvedOrgLocale;
       setDefaultEmailMessage(org?.facture_email_message ?? defaultFactureEmailMessage(docLocale));
@@ -173,7 +173,7 @@ export default function FactureDetailScreen() {
   // compte/entreprise.tsx's own fr/de picker) — for the occasional client who
   // needs this one facture in the other language without changing the whole
   // org's default. null clears the override back to "inherit the org's".
-  async function handleSetDocLocale(locale: 'fr' | 'de' | null) {
+  async function handleSetDocLocale(locale: 'fr' | 'de' | 'it' | null) {
     if (!facture) return;
     const { error: updateError } = await supabase.from('factures').update({ locale }).eq('id', facture.id);
     if (updateError) {
@@ -196,7 +196,7 @@ export default function FactureDetailScreen() {
   // Translates the current message text into whichever language the member
   // taps on the toggle — a free choice either way, not dictated by this
   // facture's resolved locale or the member's own current UI language.
-  async function handleTranslateMessage(target: 'fr' | 'de') {
+  async function handleTranslateMessage(target: 'fr' | 'de' | 'it') {
     if (!facture || !emailMessage.trim() || translatingMessage || target === messageLocale) return;
     setTranslatingMessage(true);
     setTranslateError(null);
@@ -573,14 +573,14 @@ export default function FactureDetailScreen() {
               <Text style={styles.docLocaleLabel}>{t('factureDetail.documentLocaleLabel')}</Text>
               <Text style={styles.copyLinkHint}>{t('factureDetail.documentLocaleHint')}</Text>
               <View style={styles.docLocaleChips}>
-                {([null, 'fr', 'de'] as const).map((loc) => (
+                {([null, 'fr', 'de', 'it'] as const).map((loc) => (
                   <Pressable
                     key={loc ?? 'auto'}
                     onPress={() => handleSetDocLocale(loc)}
                     style={[styles.docLocaleChip, facture.locale === loc && styles.docLocaleChipActive]}
                   >
                     <Text style={[styles.docLocaleChipText, facture.locale === loc && styles.docLocaleChipTextActive]}>
-                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('factureDetail.documentLocaleAuto')}
+                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : loc === 'it' ? t('entreprise.localeIt') : t('factureDetail.documentLocaleAuto')}
                     </Text>
                   </Pressable>
                 ))}

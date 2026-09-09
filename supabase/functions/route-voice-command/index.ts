@@ -39,10 +39,10 @@ const ACTION_LABELS: Record<string, string> = {
 
 function buildSystemPrompt(allowedActions: string[], locale: string): string {
   const actionsList = allowedActions.map((a) => ACTION_LABELS[a] ?? `"${a}"`).join(' ou ');
-  const lang = locale === 'de' ? 'allemand' : 'français';
+  const lang = locale === 'de' ? 'allemand' : locale === 'it' ? 'italien' : 'français';
 
   return `Tu aides des artisans et entreprises du bâtiment en Suisse à comprendre une commande dictée à l'oral (assistant vocal global de l'app, pas lié à un écran précis) et à la transformer en une action structurée.
-On te donne le texte dicté (souvent informel, parfois mal transcrit, en français ou en allemand suisse), la date du jour, la liste des chantiers de cette entreprise (id + nom) et la liste des types de travail (id + libellé).
+On te donne le texte dicté (souvent informel, parfois mal transcrit, en français, en allemand suisse ou en italien), la date du jour, la liste des chantiers de cette entreprise (id + nom) et la liste des types de travail (id + libellé).
 
 Actions possibles pour cette organisation : ${actionsList || 'aucune'}.
 - "payroll_entry" : la personne rapporte des heures travaillées sur un chantier (ex. "chantier villa, de 7h à 15h, coffrage", "j'ai fait 6 heures aujourd'hui sur le chantier Dubois").
@@ -109,7 +109,7 @@ Deno.serve(async (req: Request) => {
     const workTypesText = workTypeList.length
       ? workTypeList.map((w) => `- id="${w.id}" — ${w.label ?? ''}`).join('\n')
       : '(aucun type de travail configuré)';
-    const resolvedLocale = locale === 'de' ? 'de' : 'fr';
+    const resolvedLocale = locale === 'de' ? 'de' : locale === 'it' ? 'it' : 'fr';
 
     const userPrompt = [
       `Date du jour : ${typeof today === 'string' && today ? today : new Date().toISOString().slice(0, 10)}`,

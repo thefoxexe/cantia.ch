@@ -672,6 +672,7 @@ export const de: TranslationDict = {
     documentLocaleHint: 'Sprache der Offerten, Rechnungen und Kundenportal-Links, die an Ihre Kunden gesendet werden — unabhängig von der Sprache Ihrer eigenen Oberfläche.',
     localeFr: 'Französisch',
     localeDe: 'Deutsch',
+    localeIt: 'Italienisch',
     emailsSectionTitle: 'E-Mails',
     emailsLinkText: 'Die Texte der E-Mails (Offerten, Rechnungen, Mahnungen, Zusatzarbeiten, Signatur) werden unter Konto → E-Mails verwaltet.',
   },
@@ -1172,6 +1173,7 @@ export const de: TranslationDict = {
     languageHint: 'Die Sprache der App, nur für Sie persönlich — betrifft Ihre Kolleginnen und Kollegen nicht.',
     languageFrench: 'Französisch',
     languageGerman: 'Deutsch',
+    languageItalian: 'Italienisch',
   },
   accountMenu: {
     myAccount: 'Mein Konto',

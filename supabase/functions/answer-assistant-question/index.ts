@@ -42,7 +42,7 @@ interface AssistantContext {
 // that — it must never invent figures. Mirrors generate-devis-lines' split
 // of "classify cheaply" vs "generate expensively" into two calls.
 function buildSystemPrompt(locale: string): string {
-  const lang = locale === 'de' ? 'allemand' : 'français';
+  const lang = locale === 'de' ? 'allemand' : locale === 'it' ? 'italien' : 'français';
   return `Tu es l'assistant intégré à Cantia, une application suisse de gestion pour les entreprises du bâtiment (devis, factures, chantiers, RH, trésorerie). Un artisan ou un responsable d'entreprise te pose une question à l'oral depuis n'importe quel écran de l'application.
 
 On te donne un instantané de données réelles de son entreprise (tâches en cours, factures en retard, informations de l'entreprise). Réponds à sa question UNIQUEMENT à partir de ces données.
@@ -121,7 +121,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
 
     const ctx = sanitizeContext(context);
-    const resolvedLocale = locale === 'de' ? 'de' : 'fr';
+    const resolvedLocale = locale === 'de' ? 'de' : locale === 'it' ? 'it' : 'fr';
 
     const userPrompt = [formatContext(ctx), '', 'Question posée à voix haute :', transcript].join('\n');
 

@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
 
-const TARGET_LABEL: Record<'fr' | 'de', string> = { fr: 'français', de: 'allemand (suisse)' };
+const TARGET_LABEL: Record<'fr' | 'de' | 'it', string> = { fr: 'français', de: 'allemand (suisse)', it: 'italien (suisse)' };
 
 // One-off translation of the message a member is about to send alongside a
 // devis/facture/travaux supplémentaires — for the case a document's own
@@ -18,7 +18,7 @@ const TARGET_LABEL: Record<'fr' | 'de', string> = { fr: 'français', de: 'allema
 // particular document is set to German). Deliberately scoped to just this
 // text box, not a general-purpose translator: {{variable}} tokens must
 // survive untouched since the send functions substitute them afterwards.
-function buildSystemPrompt(target: 'fr' | 'de'): string {
+function buildSystemPrompt(target: 'fr' | 'de' | 'it'): string {
   return [
     `Tu traduis un message d'accompagnement (devis, facture ou travaux supplémentaires) envoyé par une entreprise du bâtiment suisse à l'un de ses clients.`,
     `Traduis le texte fourni en ${TARGET_LABEL[target]}, dans un registre professionnel et chaleureux adapté à ce contexte.`,
@@ -36,7 +36,7 @@ Deno.serve(async (req: Request) => {
   try {
     const { organization_id, text, target_locale } = await req.json();
     if (!organization_id || !text?.trim()) return json({ error: 'organization_id et text requis' }, 400);
-    if (target_locale !== 'fr' && target_locale !== 'de') return json({ error: 'target_locale invalide' }, 400);
+    if (target_locale !== 'fr' && target_locale !== 'de' && target_locale !== 'it') return json({ error: 'target_locale invalide' }, 400);
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!apiKey) return json({ error: 'Traduction IA non configurée (clé Anthropic manquante)' }, 500);

@@ -15,7 +15,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from '../lib/translations';
+import { useTranslation, AVAILABLE_LOCALES, type AppLocale } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -221,69 +221,74 @@ const switchStyles = StyleSheet.create({
   },
 });
 
-const LANG_TOGGLE_WIDTH = 104;
+const LANG_TOGGLE_SEGMENT_WIDTH = 38;
 const LANG_TOGGLE_HEIGHT = 36;
 const LANG_TOGGLE_PAD = 3;
-const LANG_TOGGLE_HALF = (LANG_TOGGLE_WIDTH - LANG_TOGGLE_PAD * 2) / 2;
 
-// A small sliding FR/DE toggle — same animated-thumb pattern as Switch
-// above, but with two labeled halves instead of a boolean knob. `value` is
-// which side currently reads as "selected" (e.g. the language the shown
-// text is currently in); tapping the OTHER side calls onChange with that
-// locale and the thumb slides under it. Tapping the already-active side is
-// a no-op — there's nothing to do, it's already that language. Used both
-// as a real toggle (site language switcher) and as a one-shot action
-// trigger (translate this text into the tapped language) — either way the
-// slide affordance is the same "pick a side" gesture.
+const LANG_TOGGLE_LABELS: Record<AppLocale, string> = { fr: 'FR', de: 'DE', it: 'IT' };
+const LANG_TOGGLE_FULL_NAMES: Record<AppLocale, string> = { fr: 'Français', de: 'Deutsch', it: 'Italiano' };
+
+// A small sliding language toggle — same animated-thumb pattern as Switch
+// above, but with one labeled segment per available locale instead of a
+// boolean knob. `value` is which segment currently reads as "selected"
+// (e.g. the language the shown text is currently in); tapping another
+// segment calls onChange with that locale and the thumb slides under it.
+// Tapping the already-active segment is a no-op. Used both as a real
+// toggle (site language switcher) and as a one-shot action trigger
+// (translate this text into the tapped language) — either way the slide
+// affordance is the same "pick a side" gesture. Defaults to every locale
+// the app ships (AVAILABLE_LOCALES) so adding a language never requires
+// touching call sites — only pass `locales` to show a narrower subset.
 export function LangToggle({
   value,
   onChange,
+  locales = AVAILABLE_LOCALES,
   disabled,
   loading,
 }: {
-  value: 'fr' | 'de';
-  onChange: (next: 'fr' | 'de') => void;
+  value: AppLocale;
+  onChange: (next: AppLocale) => void;
+  locales?: AppLocale[];
   disabled?: boolean;
   loading?: boolean;
 }) {
-  const anim = useRef(new Animated.Value(value === 'de' ? 1 : 0)).current;
+  const activeIndex = Math.max(0, locales.indexOf(value));
+  const anim = useRef(new Animated.Value(activeIndex)).current;
 
   useEffect(() => {
     Animated.timing(anim, {
-      toValue: value === 'de' ? 1 : 0,
+      toValue: Math.max(0, locales.indexOf(value)),
       duration: 200,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: false,
     }).start();
-  }, [value, anim]);
+  }, [value, anim, locales]);
 
-  const thumbTranslate = anim.interpolate({ inputRange: [0, 1], outputRange: [0, LANG_TOGGLE_HALF] });
+  const thumbTranslate = anim.interpolate({
+    inputRange: locales.map((_, i) => i),
+    outputRange: locales.map((_, i) => i * LANG_TOGGLE_SEGMENT_WIDTH),
+  });
   const isBusy = !!disabled || !!loading;
+  const trackWidth = LANG_TOGGLE_PAD * 2 + LANG_TOGGLE_SEGMENT_WIDTH * locales.length;
 
   return (
-    <View style={[langToggleStyles.track, isBusy && langToggleStyles.trackBusy]}>
+    <View style={[langToggleStyles.track, { width: trackWidth }, isBusy && langToggleStyles.trackBusy]}>
       <Animated.View
         pointerEvents="none"
-        style={[langToggleStyles.thumb, { transform: [{ translateX: thumbTranslate }] }]}
+        style={[langToggleStyles.thumb, { width: LANG_TOGGLE_SEGMENT_WIDTH - LANG_TOGGLE_PAD, transform: [{ translateX: thumbTranslate }] }]}
       />
-      <Pressable
-        style={langToggleStyles.half}
-        onPress={() => !isBusy && value !== 'fr' && onChange('fr')}
-        disabled={isBusy}
-        accessibilityRole="button"
-        accessibilityLabel="Français"
-      >
-        <Text style={[langToggleStyles.text, value === 'fr' && langToggleStyles.textActive]}>FR</Text>
-      </Pressable>
-      <Pressable
-        style={langToggleStyles.half}
-        onPress={() => !isBusy && value !== 'de' && onChange('de')}
-        disabled={isBusy}
-        accessibilityRole="button"
-        accessibilityLabel="Deutsch"
-      >
-        <Text style={[langToggleStyles.text, value === 'de' && langToggleStyles.textActive]}>DE</Text>
-      </Pressable>
+      {locales.map((loc) => (
+        <Pressable
+          key={loc}
+          style={[langToggleStyles.half, { width: LANG_TOGGLE_SEGMENT_WIDTH }]}
+          onPress={() => !isBusy && value !== loc && onChange(loc)}
+          disabled={isBusy}
+          accessibilityRole="button"
+          accessibilityLabel={LANG_TOGGLE_FULL_NAMES[loc]}
+        >
+          <Text style={[langToggleStyles.text, value === loc && langToggleStyles.textActive]}>{LANG_TOGGLE_LABELS[loc]}</Text>
+        </Pressable>
+      ))}
       {loading ? (
         <View style={langToggleStyles.spinnerOverlay}>
           <ActivityIndicator size="small" color={colors.primary} />
@@ -295,7 +300,6 @@ export function LangToggle({
 
 const langToggleStyles = StyleSheet.create({
   track: {
-    width: LANG_TOGGLE_WIDTH,
     height: LANG_TOGGLE_HEIGHT,
     borderRadius: LANG_TOGGLE_HEIGHT / 2,
     backgroundColor: colors.surfaceAlt,
@@ -309,7 +313,6 @@ const langToggleStyles = StyleSheet.create({
     position: 'absolute',
     top: LANG_TOGGLE_PAD,
     left: LANG_TOGGLE_PAD,
-    width: LANG_TOGGLE_HALF,
     height: LANG_TOGGLE_HEIGHT - LANG_TOGGLE_PAD * 2,
     borderRadius: (LANG_TOGGLE_HEIGHT - LANG_TOGGLE_PAD * 2) / 2,
     backgroundColor: colors.surface,
@@ -320,7 +323,6 @@ const langToggleStyles = StyleSheet.create({
     elevation: 2,
   },
   half: {
-    width: LANG_TOGGLE_HALF,
     alignItems: 'center',
     justifyContent: 'center',
   },

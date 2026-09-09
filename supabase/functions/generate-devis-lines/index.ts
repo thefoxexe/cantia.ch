@@ -10,7 +10,7 @@ const ANTHROPIC_MODEL = 'claude-sonnet-5';
 const MAX_CATALOG_ITEMS = 150;
 
 const SYSTEM_PROMPT = `Tu aides des artisans et entreprises du bâtiment en Suisse à transformer une description de devis dictée à l'oral en lignes structurées.
-On te donne le texte dicté (souvent informel, parfois mal transcrit, en français ou en allemand suisse) et le catalogue de prix habituels de cette entreprise (les articles qu'elle a déjà facturés par le passé, avec leur prix).
+On te donne le texte dicté (souvent informel, parfois mal transcrit, en français, en allemand suisse ou en italien) et le catalogue de prix habituels de cette entreprise (les articles qu'elle a déjà facturés par le passé, avec leur prix).
 
 Règles strictes :
 - Découpe le texte en positions distinctes : une ligne par élément ou prestation mentionné. Ne fusionne jamais deux prestations différentes dans une même ligne.
@@ -71,7 +71,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
 
     const { data: org } = await userClient.from('organizations').select('trade').eq('id', organization_id).maybeSingle();
-    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique, les unités et les tournures usuelles de ce métier en Suisse (romande ou alémanique selon la langue de la dictée) pour interpréter la dictée et rédiger les descriptions.` : SYSTEM_PROMPT;
+    const systemPrompt = org?.trade ? `${SYSTEM_PROMPT}\n\nCette entreprise a pour corps de métier principal : ${org.trade}. Utilise le vocabulaire technique, les unités et les tournures usuelles de ce métier en Suisse (romande, alémanique ou italophone selon la langue de la dictée) pour interpréter la dictée et rédiger les descriptions.` : SYSTEM_PROMPT;
 
     const catalogItems: CatalogInput[] = Array.isArray(catalog) ? catalog.slice(0, MAX_CATALOG_ITEMS) : [];
     const catalogText = catalogItems.length

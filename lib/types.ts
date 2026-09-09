@@ -93,7 +93,7 @@ export interface Organization {
   // The org's own document/client-facing language — devis/facture PDFs and
   // client-portal links default to this, independent of any individual
   // member's personal UI locale (organization_members.locale).
-  locale: 'fr' | 'de';
+  locale: 'fr' | 'de' | 'it';
   // Null until stripe-webhook confirms a real Checkout — see
   // app/_layout.tsx's redirect-to-choose-plan gate, which checks this
   // directly. Only ever written by the webhook (service-role-only column).
@@ -296,7 +296,7 @@ export interface Devis {
   // Per-document override of the org's default document locale (see
   // organizations.locale) — null inherits the org's setting. Plan-gated,
   // see Plan.has_document_locale_override.
-  locale: 'fr' | 'de' | null;
+  locale: 'fr' | 'de' | 'it' | null;
   bexio_network_link: string | null;
 }
 
@@ -350,7 +350,7 @@ export interface ExtraWork {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-  locale: 'fr' | 'de' | null;
+  locale: 'fr' | 'de' | 'it' | null;
 }
 
 export interface ExtraWorkItem {
@@ -375,7 +375,7 @@ export interface PublicExtraWorkPayload {
     created_at: string;
     client_signed_at: string | null;
     client_signer_name: string | null;
-    locale: 'fr' | 'de' | null;
+    locale: 'fr' | 'de' | 'it' | null;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -407,7 +407,7 @@ export interface Facture {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-  locale: 'fr' | 'de' | null;
+  locale: 'fr' | 'de' | 'it' | null;
 }
 
 // Shapes returned by the anonymous public-portal RPCs (get_public_devis,
@@ -431,7 +431,7 @@ export interface PublicPortalOrganization {
   locality: string | null;
   address: string | null;
   ide_number: string | null;
-  locale: 'fr' | 'de';
+  locale: 'fr' | 'de' | 'it';
 }
 
 export interface PublicPortalTotals {
@@ -453,7 +453,7 @@ export interface PublicDevisPayload {
     client_signed_at: string | null;
     client_signer_name: string | null;
     has_pdf: boolean;
-    locale: 'fr' | 'de' | null;
+    locale: 'fr' | 'de' | 'it' | null;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -474,7 +474,7 @@ export interface PublicFacturePayload {
     paid_at: string | null;
     created_at: string;
     has_pdf: boolean;
-    locale: 'fr' | 'de' | null;
+    locale: 'fr' | 'de' | 'it' | null;
   };
   items: PublicPortalItem[];
   totals: PublicPortalTotals;
@@ -495,7 +495,7 @@ export interface ClientDocumentSummary {
 
 export interface ClientDocumentsPayload {
   organization_name: string;
-  organization_locale: 'fr' | 'de';
+  organization_locale: 'fr' | 'de' | 'it';
   devis: ClientDocumentSummary[];
   factures: ClientDocumentSummary[];
 }

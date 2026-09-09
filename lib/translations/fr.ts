@@ -658,6 +658,7 @@ export const fr = {
     documentLocaleHint: 'Langue des devis, factures et liens du portail client envoyés à vos clients — indépendante de la langue de votre propre interface.',
     localeFr: 'Français',
     localeDe: 'Allemand',
+    localeIt: 'Italien',
     emailsSectionTitle: 'E-mails',
     emailsLinkText: 'Les textes des e-mails (devis, factures, relances, travaux supplémentaires, signature) se gèrent dans Compte → E-mails.',
   },
@@ -1158,6 +1159,7 @@ export const fr = {
     languageHint: "La langue de l'application, pour vous seul — n'affecte pas vos collègues.",
     languageFrench: 'Français',
     languageGerman: 'Allemand',
+    languageItalian: 'Italien',
   },
   accountMenu: {
     myAccount: 'Mon compte',

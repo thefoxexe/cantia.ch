@@ -68,7 +68,7 @@ export default function DevisDetailScreen() {
   // translates into. Deliberately independent of the member's own current
   // UI language — translating is a free choice in either direction, not
   // something the platform's own current locale should constrain.
-  const [messageLocale, setMessageLocale] = useState<'fr' | 'de'>('fr');
+  const [messageLocale, setMessageLocale] = useState<'fr' | 'de' | 'it'>('fr');
   const [bexioConnected, setBexioConnected] = useState(false);
   const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
   const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
@@ -196,7 +196,7 @@ export default function DevisDetailScreen() {
   // compte/entreprise.tsx's own fr/de picker) — for the occasional client who
   // needs this one devis in the other language without changing the whole
   // org's default. null clears the override back to "inherit the org's".
-  async function handleSetDocLocale(locale: 'fr' | 'de' | null) {
+  async function handleSetDocLocale(locale: 'fr' | 'de' | 'it' | null) {
     if (!devis) return;
     const { error: updateError } = await supabase.from('devis').update({ locale }).eq('id', devis.id);
     if (updateError) {
@@ -223,7 +223,7 @@ export default function DevisDetailScreen() {
     // in — same reasoning as resolveDocLocale server-side. Only a starting
     // guess for the toggle though (see messageLocale above), never a
     // constraint on which direction the member can translate afterwards.
-    const docLocale = devis?.locale ?? (organization?.locale === 'de' ? 'de' : 'fr');
+    const docLocale = devis?.locale ?? (organization?.locale === 'de' ? 'de' : organization?.locale === 'it' ? 'it' : 'fr');
     setEmailMessage(organization?.devis_email_message ?? defaultDevisEmailMessage(docLocale));
     setMessageLocale(docLocale);
     setTranslateError(null);
@@ -239,7 +239,7 @@ export default function DevisDetailScreen() {
   // German, but the button only ever offered French — following whatever
   // the org's default document locale happened to be, regardless of what
   // language the member was actually working in or wanted.)
-  async function handleTranslateMessage(target: 'fr' | 'de') {
+  async function handleTranslateMessage(target: 'fr' | 'de' | 'it') {
     if (!organization || !emailMessage.trim() || translatingMessage || target === messageLocale) return;
     setTranslatingMessage(true);
     setTranslateError(null);
@@ -426,14 +426,14 @@ export default function DevisDetailScreen() {
               <Text style={styles.docLocaleLabel}>{t('devisDetail.documentLocaleLabel')}</Text>
               <Text style={styles.copyLinkHint}>{t('devisDetail.documentLocaleHint')}</Text>
               <View style={styles.docLocaleChips}>
-                {([null, 'fr', 'de'] as const).map((loc) => (
+                {([null, 'fr', 'de', 'it'] as const).map((loc) => (
                   <Pressable
                     key={loc ?? 'auto'}
                     onPress={() => handleSetDocLocale(loc)}
                     style={[styles.docLocaleChip, devis.locale === loc && styles.docLocaleChipActive]}
                   >
                     <Text style={[styles.docLocaleChipText, devis.locale === loc && styles.docLocaleChipTextActive]}>
-                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('devisDetail.documentLocaleAuto')}
+                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : loc === 'it' ? t('entreprise.localeIt') : t('devisDetail.documentLocaleAuto')}
                     </Text>
                   </Pressable>
                 ))}

@@ -54,7 +54,7 @@ Deno.serve(async (req: Request) => {
     // to 'fr' regardless of who's paying. Whoever is sitting at this
     // checkout should see Stripe's hosted page in the language they've been
     // using through onboarding, not the org's document language.
-    const stripeLocale = membership.locale === 'de' ? 'de' : 'fr';
+    const stripeLocale = membership.locale === 'de' ? 'de' : membership.locale === 'it' ? 'it' : 'fr';
 
     const { data: plan, error: planError } = await admin.from('plans').select('*').eq('id', plan_id).single();
     if (planError || !plan) return json({ error: 'Plan introuvable' }, 404);

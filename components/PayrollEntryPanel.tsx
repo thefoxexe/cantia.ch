@@ -394,7 +394,7 @@ export function PayrollEntryPanel({
     }
     dictationTranscriptRef.current = '';
     setDictationError(null);
-    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : 'fr-FR');
+    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : getAppLocale() === 'it' ? 'it-IT' : 'fr-FR');
     if (!started) {
       Alert.alert(t('payrollEntry.micPermissionTitle'), t('payrollEntry.micPermissionBody'));
     }

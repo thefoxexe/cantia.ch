@@ -10,7 +10,7 @@ const ANTHROPIC_MODEL = 'claude-sonnet-5';
 const MAX_LIST_ITEMS = 300;
 
 const SYSTEM_PROMPT = `Tu aides des artisans et entreprises du bâtiment en Suisse à transformer une saisie d'heures dictée à l'oral en une entrée structurée.
-On te donne le texte dicté (souvent informel, parfois mal transcrit, en français ou en allemand suisse), la date du jour, la liste des chantiers de cette entreprise (id + nom) et la liste des types de travail (id + libellé).
+On te donne le texte dicté (souvent informel, parfois mal transcrit, en français, en allemand suisse ou en italien), la date du jour, la liste des chantiers de cette entreprise (id + nom) et la liste des types de travail (id + libellé).
 
 Règles strictes :
 - Identifie le chantier mentionné et fais correspondre EXACTEMENT son id parmi la liste fournie (même si le nom dicté est approximatif, incomplet ou mal transcrit — ex. "route du lac" pour "Rénovation villa – Route du Lac 12"). N'invente jamais un id qui n'est pas dans la liste. Si aucun chantier ne correspond clairement, mets "projectId": null.

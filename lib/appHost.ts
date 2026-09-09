@@ -67,14 +67,17 @@ export function authHref(kind: 'login' | 'signup'): string {
 }
 
 // Maps the current marketing pathname onto its other-language equivalent —
-// every /de/* route is a straight mirror of its French counterpart at the
-// same path minus the prefix (see app/de/**), so toggling is just adding or
-// stripping "/de" rather than a per-page lookup table.
-export function toggleLocalePathname(pathname: string, targetLocale: 'fr' | 'de'): string {
-  const isDe = pathname === '/de' || pathname.startsWith('/de/');
-  const bare = isDe ? pathname.slice(3) || '/' : pathname;
-  if (targetLocale === 'fr') return bare;
-  return bare === '/' ? '/de' : `/de${bare}`;
+// every /de/* or /it/* route is a straight mirror of its French counterpart
+// at the same path minus the prefix (see app/de/**, app/it/**), so toggling
+// is just swapping the prefix rather than a per-page lookup table.
+const LOCALE_PATH_PREFIXES: Record<'fr' | 'de' | 'it', string> = { fr: '', de: '/de', it: '/it' };
+
+export function toggleLocalePathname(pathname: string, targetLocale: 'fr' | 'de' | 'it'): string {
+  const prefixed = (['de', 'it'] as const).find((loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`));
+  const bare = prefixed ? pathname.slice(1 + prefixed.length) || '/' : pathname;
+  const targetPrefix = LOCALE_PATH_PREFIXES[targetLocale];
+  if (!targetPrefix) return bare;
+  return bare === '/' ? targetPrefix : `${targetPrefix}${bare}`;
 }
 
 // The in-app "Aide" screen used to duplicate the marketing site's Centre
@@ -93,7 +96,8 @@ export function helpHref(): string {
 // "contact form" option — the form itself only exists on the marketing
 // build's /contact page.
 export function contactHref(): string {
-  const path = getAppLocale() === 'de' ? '/de/contact' : '/contact';
+  const locale = getAppLocale();
+  const path = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   if (isMarketingHost()) return path;
   return `https://cantia.ch${path}`;
 }

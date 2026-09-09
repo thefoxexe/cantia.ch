@@ -13,9 +13,10 @@ import { Button, Card, Container, Field, PageHeader, Screen } from '../../../com
 import { AVAILABLE_LOCALES, useTranslation, type AppLocale } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
-const LOCALE_LABEL_KEY: Record<AppLocale, 'languageFrench' | 'languageGerman'> = {
+const LOCALE_LABEL_KEY: Record<AppLocale, 'languageFrench' | 'languageGerman' | 'languageItalian'> = {
   fr: 'languageFrench',
   de: 'languageGerman',
+  it: 'languageItalian',
 };
 
 // Personal, not company: name/photo/language belong to the person, not the

@@ -102,7 +102,7 @@ export async function routeVoiceCommand(
   projects: { id: string; name: string }[],
   workTypes: { id: string; label: string }[],
   allowedActions: Exclude<VoiceCommandAction, 'unknown'>[],
-  locale: 'fr' | 'de',
+  locale: 'fr' | 'de' | 'it',
 ): Promise<{ command: VoiceCommand | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ command: VoiceCommand }>('route-voice-command', {
     transcript,
@@ -151,7 +151,7 @@ export async function answerAssistantQuestion(
   transcript: string,
   organizationId: string,
   context: AssistantContext,
-  locale: 'fr' | 'de',
+  locale: 'fr' | 'de' | 'it',
 ): Promise<{ answer: string | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ answer: string }>('answer-assistant-question', {
     transcript,
@@ -170,7 +170,7 @@ export async function answerAssistantQuestion(
 export async function translateEmailMessage(
   organizationId: string,
   text: string,
-  targetLocale: 'fr' | 'de',
+  targetLocale: 'fr' | 'de' | 'it',
 ): Promise<{ text: string | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ text: string }>('translate-email-message', {
     organization_id: organizationId,

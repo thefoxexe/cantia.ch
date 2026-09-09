@@ -157,7 +157,7 @@ export function VoiceAssistant() {
     }
     transcriptRef.current = '';
     setErrorMessage(null);
-    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : 'fr-FR');
+    const started = await dictation.start(getAppLocale() === 'de' ? 'de-DE' : getAppLocale() === 'it' ? 'it-IT' : 'fr-FR');
     if (!started) {
       setStage('error');
       setErrorMessage(t('voiceAssistant.micPermissionBody'));
@@ -173,7 +173,7 @@ export function VoiceAssistant() {
     setStage('routing');
     const projectsPayload = projects.map((p) => ({ id: p.id, name: p.label }));
     const workTypesPayload = workTypes.map((w) => ({ id: w.id, label: w.label }));
-    const locale = getAppLocale() === 'de' ? 'de' : 'fr';
+    const locale = getAppLocale() === 'de' ? 'de' : getAppLocale() === 'it' ? 'it' : 'fr';
     const { command: cmd, error: err } = await routeVoiceCommand(
       transcript,
       organization.id,
