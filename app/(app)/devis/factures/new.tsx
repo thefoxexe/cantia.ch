@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
@@ -47,6 +47,7 @@ function emptyLine(): Line {
 export default function NewFactureScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
+  const { voiceClientName, voiceLines } = useLocalSearchParams<{ voiceClientName?: string; voiceLines?: string }>();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.desktop;
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -112,6 +113,40 @@ export default function NewFactureScreen() {
       return isBlankStarter ? newLines : [...prev, ...newLines];
     });
   }
+
+  // Arriving here from the global voice assistant's "create_facture" action
+  // (?voiceClientName=...&voiceLines=...) — same prefill-only pattern as
+  // devis/new.tsx: seeds the client name and any dictated line items once,
+  // nothing is saved automatically.
+  const appliedVoiceRef = useRef(false);
+  useEffect(() => {
+    if (appliedVoiceRef.current || (!voiceClientName && !voiceLines)) return;
+    appliedVoiceRef.current = true;
+    if (voiceClientName) setClientName(voiceClientName);
+    if (voiceLines) {
+      try {
+        const parsed = JSON.parse(voiceLines) as { description: string; quantity: number; unit: string; unitPrice: number | null }[];
+        const newLines: Line[] = parsed
+          .filter((l) => l && typeof l.description === 'string' && l.description.trim())
+          .map((l) => ({
+            description: l.description,
+            quantity: String(l.quantity || 1),
+            unit: l.unit || 'pce',
+            unitPrice: l.unitPrice != null ? String(l.unitPrice) : '0',
+            unitAuto: false,
+            needsPrice: l.unitPrice == null,
+          }));
+        if (newLines.length) {
+          setLines((prev) => {
+            const isBlankStarter = prev.length === 1 && !prev[0].description.trim();
+            return isBlankStarter ? newLines : [...prev, ...newLines];
+          });
+        }
+      } catch {
+        // Malformed param — ignore, the form just falls back to its blank starter line.
+      }
+    }
+  }, [voiceClientName, voiceLines]);
 
   const [dictationTarget, setDictationTarget] = useState<DictationTarget | null>(null);
   const dictationBaseRef = useRef('');

@@ -53,7 +53,7 @@ function emptyLine(): Line {
 export default function NewDevisScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { trameId } = useLocalSearchParams<{ trameId?: string }>();
+  const { trameId, voiceClientName, voiceLines } = useLocalSearchParams<{ trameId?: string; voiceClientName?: string; voiceLines?: string }>();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.desktop;
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -155,6 +155,42 @@ export default function NewDevisScreen() {
     appliedTrameRef.current = true;
     fetchTrame(trameId).then(({ items }) => applyTrameItems(items));
   }, [trameId]);
+
+  // Arriving here from the global voice assistant's "create_devis" action
+  // (?voiceClientName=...&voiceLines=...) — the client name and any
+  // dictated line items are prefilled once, exactly as if the user had
+  // typed the client and used "Dicter les positions du devis" themselves.
+  // Nothing is saved automatically: this only seeds the form, same trust
+  // level as every other field here.
+  const appliedVoiceRef = useRef(false);
+  useEffect(() => {
+    if (appliedVoiceRef.current || (!voiceClientName && !voiceLines)) return;
+    appliedVoiceRef.current = true;
+    if (voiceClientName) setClientName(voiceClientName);
+    if (voiceLines) {
+      try {
+        const parsed = JSON.parse(voiceLines) as { description: string; quantity: number; unit: string; unitPrice: number | null }[];
+        const newLines: Line[] = parsed
+          .filter((l) => l && typeof l.description === 'string' && l.description.trim())
+          .map((l) => ({
+            description: l.description,
+            quantity: String(l.quantity || 1),
+            unit: l.unit || 'pce',
+            unitPrice: l.unitPrice != null ? String(l.unitPrice) : '0',
+            unitAuto: false,
+            needsPrice: l.unitPrice == null,
+          }));
+        if (newLines.length) {
+          setLines((prev) => {
+            const isBlankStarter = prev.length === 1 && !prev[0].description.trim();
+            return isBlankStarter ? newLines : [...prev, ...newLines];
+          });
+        }
+      } catch {
+        // Malformed param — ignore, the form just falls back to its blank starter line.
+      }
+    }
+  }, [voiceClientName, voiceLines]);
 
   // Which field a dictation session is currently feeding, and that field's
   // text as it stood before the session started — the live transcript is

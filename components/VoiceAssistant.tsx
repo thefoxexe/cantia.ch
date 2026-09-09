@@ -7,10 +7,12 @@ import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { isModuleEnabled } from '../lib/modules';
 import { useDictation } from '../lib/useDictation';
-import { routeVoiceCommand, type VoiceCommand } from '../lib/api/ai';
+import { routeVoiceCommand, generateDevisLines, answerAssistantQuestion, type VoiceCommand, type VoiceCommandAction, type DictatedDevisLine } from '../lib/api/ai';
 import { listWorkTypes, createTimeEntry, hoursFromRange } from '../lib/api/payroll';
 import { createProjectExpense } from '../lib/api/expenses';
 import { createExpense } from '../lib/api/treasury';
+import { buildAssistantContext } from '../lib/api/assistantContext';
+import { fetchCatalog, type CatalogEntry } from '../lib/catalog';
 import { Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -20,7 +22,9 @@ interface PickItem {
   label: string;
 }
 
-type Stage = 'idle' | 'routing' | 'confirm' | 'saving' | 'saved' | 'error' | 'unavailable';
+type Stage = 'idle' | 'routing' | 'confirm' | 'saving' | 'saved' | 'answered' | 'error' | 'unavailable';
+
+const ALL_ACTIONS: Exclude<VoiceCommandAction, 'unknown'>[] = ['payroll_entry', 'expense', 'create_devis', 'create_facture', 'question'];
 
 // A single floating mic button, mounted once at the shell level (mobile and
 // desktop alike) so it's reachable from anywhere in the app — unlike the
@@ -48,6 +52,8 @@ export function VoiceAssistant() {
   const [workTypes, setWorkTypes] = useState<PickItem[]>([]);
   const [profitabilityEnabled, setProfitabilityEnabled] = useState(false);
   const [treasuryEnabled, setTreasuryEnabled] = useState(false);
+  const [planName, setPlanName] = useState<string | null>(null);
+  const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
 
   const [projectId, setProjectId] = useState<string | null>(null);
   const [workTypeId, setWorkTypeId] = useState<string | null>(null);
@@ -57,18 +63,33 @@ export function VoiceAssistant() {
   const [amountText, setAmountText] = useState('');
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // create_devis / create_facture: the client name comes straight from the
+  // router, editable before handing off; the lines come from a second AI
+  // call (generateDevisLines, same one the devis/facture editors already
+  // use for their own "Dicter les positions" button) fired on the same
+  // transcript once the router confirms which document type it is.
+  const [devisClientName, setDevisClientName] = useState('');
+  const [devisLines, setDevisLines] = useState<DictatedDevisLine[]>([]);
+
+  // question: the natural-language answer from answerAssistantQuestion,
+  // generated from a context bundle this component fetches itself — never
+  // navigated to, just shown in place.
+  const [answerText, setAnswerText] = useState<string | null>(null);
+
   const transcriptRef = useRef('');
   const dictation = useDictation((sessionTranscript) => {
     transcriptRef.current = sessionTranscript;
   });
 
-  // The AI always tries to classify between both action types, regardless of
-  // whether this org can actually use them — that's what lets it recognize
+  // The AI always tries to classify between every action type, regardless
+  // of whether this org can actually use it — that's what lets it recognize
   // "j'ai acheté du bois pour 60 francs" as an expense even on a plan
   // without Rentabilité/Trésorerie, so the assistant can say "this exists,
-  // but isn't on your plan" instead of a vague "didn't understand".
-  // Usability is decided client-side, after routing, in actionUsable below.
-  const classificationActions: ('payroll_entry' | 'expense')[] = ['payroll_entry', 'expense'];
+  // but isn't on your plan" instead of a vague "didn't understand". Devis,
+  // factures and questions have no plan gate (every plan can create
+  // documents and ask questions), so only payroll_entry/expense go through
+  // actionUsable below.
+  const classificationActions = ALL_ACTIONS;
   // "expense" covers two destinations: a chantier-linked material cost
   // (needs profitabilityEnabled, feeds that chantier's Rentabilité) or a
   // general/overhead outflow (needs treasuryEnabled, feeds the general
@@ -77,26 +98,34 @@ export function VoiceAssistant() {
   // isn't picked.
   const showProjectPickerForExpense = profitabilityEnabled && projects.length > 0;
 
-  function actionUsable(action: 'payroll_entry' | 'expense'): boolean {
+  function actionUsable(action: VoiceCommandAction): boolean {
     if (action === 'payroll_entry') return payrollEnabled;
-    return profitabilityEnabled || treasuryEnabled;
+    if (action === 'expense') return profitabilityEnabled || treasuryEnabled;
+    return true;
+  }
+
+  function taskCategoryLabel(category: string): string {
+    return t(`taskCategory.${category}`) || category;
   }
 
   if (!organization) return null;
 
   async function ensureListsLoaded() {
     if (listsLoaded || !organization) return;
-    const [projectsRes, workTypeRows, planRes] = await Promise.all([
+    const [projectsRes, workTypeRows, planRes, catalogRows] = await Promise.all([
       supabase.from('projects').select('id, name').eq('organization_id', organization.id).order('name'),
       payrollEnabled ? listWorkTypes(organization.id) : Promise.resolve([]),
       organization.plan_id
-        ? supabase.from('plans').select('has_profitability, has_treasury').eq('id', organization.plan_id).single()
-        : Promise.resolve({ data: null as { has_profitability: boolean; has_treasury: boolean } | null }),
+        ? supabase.from('plans').select('name, has_profitability, has_treasury').eq('id', organization.plan_id).single()
+        : Promise.resolve({ data: null as { name: string; has_profitability: boolean; has_treasury: boolean } | null }),
+      fetchCatalog(organization.id),
     ]);
     setProjects(((projectsRes.data ?? []) as { id: string; name: string }[]).map((p) => ({ id: p.id, label: p.name })));
     setWorkTypes(workTypeRows.map((w) => ({ id: w.id, label: w.label })));
     setProfitabilityEnabled(!!planRes.data?.has_profitability);
     setTreasuryEnabled(treasuryModuleOk && !!planRes.data?.has_treasury);
+    setPlanName(planRes.data?.name ?? null);
+    setCatalog(catalogRows);
     setListsLoaded(true);
   }
 
@@ -106,6 +135,9 @@ export function VoiceAssistant() {
     setErrorMessage(null);
     setCommand(null);
     setSaveError(null);
+    setDevisClientName('');
+    setDevisLines([]);
+    setAnswerText(null);
   }
 
   async function openAssistant() {
@@ -113,6 +145,7 @@ export function VoiceAssistant() {
     setStage('idle');
     setErrorMessage(null);
     setCommand(null);
+    setAnswerText(null);
     await ensureListsLoaded();
   }
 
@@ -159,6 +192,32 @@ export function VoiceAssistant() {
       setStage('unavailable');
       return;
     }
+
+    if (cmd.action === 'question') {
+      setCommand(cmd);
+      const context = await buildAssistantContext(organization, planName, treasuryEnabled, taskCategoryLabel);
+      const { answer, error: ansErr } = await answerAssistantQuestion(transcript, organization.id, context, locale);
+      if (ansErr || !answer) {
+        setStage('error');
+        setErrorMessage(ansErr ?? t('voiceAssistant.errorGeneric'));
+        return;
+      }
+      setAnswerText(answer);
+      setStage('answered');
+      return;
+    }
+
+    if (cmd.action === 'create_devis' || cmd.action === 'create_facture') {
+      setCommand(cmd);
+      setDevisClientName(cmd.clientName ?? '');
+      const catalogPayload = catalog.slice(0, 150).map((c) => ({ description: c.description, unit: c.unit, unitPrice: c.unitPrice }));
+      const { lines } = await generateDevisLines(transcript, catalogPayload, organization.id);
+      setDevisLines(lines ?? []);
+      setSaveError(null);
+      setStage('confirm');
+      return;
+    }
+
     setCommand(cmd);
     setProjectId(cmd.projectId);
     setWorkTypeId(cmd.workTypeId);
@@ -169,6 +228,21 @@ export function VoiceAssistant() {
     setAmountText(cmd.amount ? String(cmd.amount) : '');
     setSaveError(null);
     setStage('confirm');
+  }
+
+  // Navigates to the devis/facture creation screen with whatever was
+  // dictated pre-filled — nothing is written to the database from here;
+  // the destination screen's own "Enregistrer" is still the one save point,
+  // same as if the user had typed everything by hand.
+  function handleCreateDocument() {
+    if (!command || (command.action !== 'create_devis' && command.action !== 'create_facture')) return;
+    const params = new URLSearchParams();
+    if (devisClientName.trim()) params.set('voiceClientName', devisClientName.trim());
+    if (devisLines.length) params.set('voiceLines', JSON.stringify(devisLines));
+    const base = command.action === 'create_devis' ? '/(app)/devis/new' : '/(app)/devis/factures/new';
+    const target = params.toString() ? `${base}?${params.toString()}` : base;
+    resetAndClose();
+    router.push(target as any);
   }
 
   async function handleConfirm() {
@@ -274,7 +348,16 @@ export function VoiceAssistant() {
               </Pressable>
             </View>
 
-            {stage === 'confirm' && command ? (
+            {stage === 'confirm' && command && (command.action === 'create_devis' || command.action === 'create_facture') ? (
+              <DevisFactureConfirm
+                command={command}
+                clientName={devisClientName}
+                setClientName={setDevisClientName}
+                lines={devisLines}
+                onConfirm={handleCreateDocument}
+                onRetryVoice={startOver}
+              />
+            ) : stage === 'confirm' && command ? (
               <ConfirmForm
                 command={command}
                 projects={projects}
@@ -297,6 +380,22 @@ export function VoiceAssistant() {
                 onConfirm={handleConfirm}
                 onRetryVoice={startOver}
               />
+            ) : stage === 'answered' && answerText ? (
+              <View style={styles.centerBlock}>
+                <View style={styles.cardHeaderIcon}>
+                  <Feather name="message-circle" size={16} color={colors.primary} />
+                </View>
+                <Text style={styles.answerText}>{answerText}</Text>
+                <View style={styles.savedActions}>
+                  <Pressable style={styles.secondaryButton} onPress={resetAndClose}>
+                    <Text style={styles.secondaryButtonText}>{t('voiceAssistant.close')}</Text>
+                  </Pressable>
+                  <Pressable style={styles.primaryButton} onPress={openAssistant}>
+                    <Feather name="mic" size={14} color="#fff" />
+                    <Text style={styles.primaryButtonText}>{t('voiceAssistant.askAnother')}</Text>
+                  </Pressable>
+                </View>
+              </View>
             ) : stage === 'saving' ? (
               <View style={styles.centerBlock}>
                 <ActivityIndicator color={colors.primary} />
@@ -383,6 +482,14 @@ export function VoiceAssistant() {
                   <View style={styles.exampleRow}>
                     <Feather name="shopping-bag" size={13} color={colors.textMuted} />
                     <Text style={styles.exampleText}>{t('voiceAssistant.example2')}</Text>
+                  </View>
+                  <View style={styles.exampleRow}>
+                    <Feather name="file-text" size={13} color={colors.textMuted} />
+                    <Text style={styles.exampleText}>{t('voiceAssistant.example3')}</Text>
+                  </View>
+                  <View style={styles.exampleRow}>
+                    <Feather name="help-circle" size={13} color={colors.textMuted} />
+                    <Text style={styles.exampleText}>{t('voiceAssistant.example4')}</Text>
                   </View>
                 </View>
                 <Pressable
@@ -523,6 +630,78 @@ function ConfirmForm({
         <Pressable style={styles.primaryButton} onPress={onConfirm}>
           <Feather name="check" size={14} color="#fff" />
           <Text style={styles.primaryButtonText}>{t('voiceAssistant.confirmButton')}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+function chf(n: number): string {
+  return `CHF ${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
+// Preview-and-redirect step for create_devis/create_facture: the client
+// name is editable here (a quick voice-recognition fix before navigating),
+// but the dictated lines are shown read-only — they're meant to be
+// reviewed and adjusted on the devis/facture editor itself, which is where
+// they land pre-filled. Nothing is written to the database from this modal.
+function DevisFactureConfirm({
+  command,
+  clientName,
+  setClientName,
+  lines,
+  onConfirm,
+  onRetryVoice,
+}: {
+  command: VoiceCommand;
+  clientName: string;
+  setClientName: (v: string) => void;
+  lines: DictatedDevisLine[];
+  onConfirm: () => void;
+  onRetryVoice: () => void;
+}) {
+  const { t } = useTranslation();
+  const total = lines.reduce((sum, l) => sum + l.quantity * (l.unitPrice ?? 0), 0);
+  const hasUnpriced = lines.some((l) => l.unitPrice == null);
+  const isDevis = command.action === 'create_devis';
+
+  return (
+    <View style={{ gap: spacing.md }}>
+      {command.summary ? <Text style={styles.summaryBanner}>{command.summary}</Text> : null}
+
+      <Field label={t('voiceAssistant.clientNameLabel')} value={clientName} onChangeText={setClientName} placeholder={t('voiceAssistant.clientNamePlaceholder')} />
+
+      <View style={{ gap: spacing.xs }}>
+        <Text style={styles.fieldLabel}>{t('voiceAssistant.linesPreviewLabel')}</Text>
+        {lines.length === 0 ? (
+          <Text style={styles.hintText}>{t('voiceAssistant.noLinesDictated')}</Text>
+        ) : (
+          <View style={styles.linesPreview}>
+            {lines.map((l, i) => (
+              <View key={i} style={styles.linePreviewRow}>
+                <Text style={styles.linePreviewDescription} numberOfLines={2}>
+                  {l.quantity} {l.unit} — {l.description}
+                </Text>
+                <Text style={styles.linePreviewPrice}>{l.unitPrice != null ? chf(l.quantity * l.unitPrice) : t('voiceAssistant.needsPriceTag')}</Text>
+              </View>
+            ))}
+            <View style={styles.linePreviewTotalRow}>
+              <Text style={styles.linePreviewTotalLabel}>{t('voiceAssistant.totalEstimateLabel')}</Text>
+              <Text style={styles.linePreviewTotalValue}>{chf(total)}</Text>
+            </View>
+            {hasUnpriced ? <Text style={styles.hintText}>{t('voiceAssistant.someLinesNeedPrice')}</Text> : null}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.confirmActions}>
+        <Pressable style={styles.secondaryButton} onPress={onRetryVoice}>
+          <Feather name="mic" size={14} color={colors.primary} />
+          <Text style={styles.secondaryButtonText}>{t('voiceAssistant.retryVoice')}</Text>
+        </Pressable>
+        <Pressable style={styles.primaryButton} onPress={onConfirm}>
+          <Feather name="arrow-right" size={14} color="#fff" />
+          <Text style={styles.primaryButtonText}>{isDevis ? t('voiceAssistant.createDevisButton') : t('voiceAssistant.createFactureButton')}</Text>
         </Pressable>
       </View>
     </View>
@@ -726,5 +905,53 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     width: '100%',
     marginTop: spacing.sm,
+  },
+  answerText: {
+    fontSize: fontSize.md,
+    color: colors.text,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  linesPreview: {
+    gap: spacing.xs,
+    padding: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  linePreviewRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  linePreviewDescription: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  linePreviewPrice: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  linePreviewTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: spacing.xs,
+    paddingTop: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  linePreviewTotalLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  linePreviewTotalValue: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: colors.primary,
   },
 });

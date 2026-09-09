@@ -16,7 +16,7 @@ interface ListItem {
 }
 
 interface RoutedCommand {
-  action: 'payroll_entry' | 'expense' | 'unknown';
+  action: 'payroll_entry' | 'expense' | 'create_devis' | 'create_facture' | 'question' | 'unknown';
   projectId: string | null;
   workTypeId: string | null;
   startTime: string | null;
@@ -24,14 +24,21 @@ interface RoutedCommand {
   hours: number | null;
   label: string | null;
   amount: number | null;
+  clientName: string | null;
   note: string;
   summary: string;
 }
 
+const ACTION_LABELS: Record<string, string> = {
+  payroll_entry: '"payroll_entry" (heures travaillées)',
+  expense: '"expense" (dépense/achat matériel)',
+  create_devis: '"create_devis" (créer un nouveau devis)',
+  create_facture: '"create_facture" (créer une nouvelle facture)',
+  question: '"question" (question générale ou demande de résumé, pas une action à enregistrer)',
+};
+
 function buildSystemPrompt(allowedActions: string[], locale: string): string {
-  const actionsList = allowedActions
-    .map((a) => (a === 'payroll_entry' ? '"payroll_entry" (heures travaillées)' : '"expense" (dépense/achat matériel)'))
-    .join(' ou ');
+  const actionsList = allowedActions.map((a) => ACTION_LABELS[a] ?? `"${a}"`).join(' ou ');
   const lang = locale === 'de' ? 'allemand' : 'français';
 
   return `Tu aides des artisans et entreprises du bâtiment en Suisse à comprendre une commande dictée à l'oral (assistant vocal global de l'app, pas lié à un écran précis) et à la transformer en une action structurée.
@@ -40,17 +47,22 @@ On te donne le texte dicté (souvent informel, parfois mal transcrit, en frança
 Actions possibles pour cette organisation : ${actionsList || 'aucune'}.
 - "payroll_entry" : la personne rapporte des heures travaillées sur un chantier (ex. "chantier villa, de 7h à 15h, coffrage", "j'ai fait 6 heures aujourd'hui sur le chantier Dubois").
 - "expense" : la personne rapporte un achat ou une dépense de matériel pour un chantier (ex. "chantier villa, achat de vis chez Bauhaus, 45 francs", "j'ai payé 120 francs de carrelage pour le chantier Dubois").
-- "unknown" : le texte ne décrit clairement ni l'un ni l'autre, ou est incompréhensible, ou ne correspond à aucune action disponible pour cette organisation.
+- "create_devis" : la personne veut créer un nouveau devis, généralement en dictant le nom du client et les prestations/quantités (ex. "crée un devis pour Marc Dupont, 20 mètres carrés de carrelage à 85 francs le mètre carré", "fais-moi une offre pour Madame Keller").
+- "create_facture" : comme "create_devis" mais pour une facture directe, sans devis préalable (ex. "fais une facture pour l'entreprise Rossi, 10 heures de maçonnerie à 75 francs").
+- "question" : la personne pose une question générale sur son entreprise ou l'application, ou demande un résumé/état des lieux (ex. "quelles factures sont en retard ?", "fais-moi un résumé de mes tâches", "quelle est l'adresse de mon entreprise ?", "qu'est-ce que je dois faire aujourd'hui ?"). Ne cherche jamais à répondre toi-même à la question ici — classe-la seulement comme "question", la réponse sera générée séparément avec les vraies données de l'entreprise.
+- "unknown" : le texte ne décrit clairement aucune des actions ci-dessus, ou est incompréhensible.
 
 Règles strictes :
 - Choisis l'action la plus probable parmi celles listées ci-dessus, ou "unknown" si aucune ne correspond clairement.
 - Identifie le chantier mentionné et fais correspondre EXACTEMENT son id parmi la liste fournie (fuzzy match accepté — nom approximatif, incomplet ou mal transcrit). N'invente jamais un id absent de la liste. Si aucun chantier ne correspond clairement, mets "projectId": null (ne mets PAS action à "unknown" pour cette seule raison — l'utilisateur pourra choisir le chantier lui-même avant de confirmer).
 - Pour "payroll_entry" : identifie le type de travail (id de la liste, ou null si aucun ne correspond). Si une heure de début ET de fin sont mentionnées, extrais-les au format 24h "HH:MM" dans startTime/endTime et laisse hours à null. Si seulement une durée est mentionnée, mets le nombre décimal dans hours (ex. 7.5) et laisse startTime/endTime à null. Résume ce qui a été fait en quelques mots dans "note" (chaîne vide si rien de précis).
 - Pour "expense" : "label" = fournisseur + résumé très court de l'achat (ex. "Bauhaus — vis"), "amount" = montant total en nombre décimal (ex. 45 ou 84.50). Ne convertis jamais de devise.
+- Pour "create_devis" et "create_facture" : "clientName" = le nom du client tel que dicté (personne ou entreprise), nettoyé et correctement capitalisé, ou null si aucun nom n'est mentionné. Ne cherche PAS à extraire les lignes/prestations ici — laisse "label" et "amount" à null, elles seront traitées séparément à partir du même texte dicté.
+- Pour "question" : laisse tous les champs structurés (projectId, workTypeId, hours, label, amount, clientName, etc.) à null — seul "summary" compte, et il doit reformuler la question posée, pas y répondre.
 - Laisse à null tout champ non pertinent pour l'action choisie.
-- Rédige "summary" : une phrase courte et naturelle en ${lang}, à afficher à l'utilisateur pour confirmation avant tout enregistrement. Si action="unknown", explique brièvement pourquoi en une phrase (ex. "Je n'ai pas compris s'il s'agit d'heures ou d'une dépense.").
+- Rédige "summary" : une phrase courte et naturelle en ${lang}. Pour les actions qui enregistrent quelque chose (payroll_entry, expense, create_devis, create_facture), c'est ce qui sera affiché à l'utilisateur pour confirmation avant tout enregistrement. Si action="unknown", explique brièvement pourquoi en une phrase (ex. "Je n'ai pas compris s'il s'agit d'heures ou d'une dépense.").
 - Réponds UNIQUEMENT avec un objet JSON valide, sans texte autour, sans balises markdown, au format exact :
-{"action": "payroll_entry" | "expense" | "unknown", "projectId": string | null, "workTypeId": string | null, "startTime": string | null, "endTime": string | null, "hours": number | null, "label": string | null, "amount": number | null, "note": string, "summary": string}`;
+{"action": "payroll_entry" | "expense" | "create_devis" | "create_facture" | "question" | "unknown", "projectId": string | null, "workTypeId": string | null, "startTime": string | null, "endTime": string | null, "hours": number | null, "label": string | null, "amount": number | null, "clientName": string | null, "note": string, "summary": string}`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -64,7 +76,7 @@ Deno.serve(async (req: Request) => {
     if (!organization_id) return json({ error: 'organization_id requis' }, 400);
 
     const allowedActions: string[] = Array.isArray(allowed_actions)
-      ? allowed_actions.filter((a) => a === 'payroll_entry' || a === 'expense')
+      ? allowed_actions.filter((a) => Object.prototype.hasOwnProperty.call(ACTION_LABELS, a))
       : [];
     if (allowedActions.length === 0) return json({ error: 'Aucune action disponible' }, 400);
 
@@ -177,8 +189,11 @@ function parseCommand(raw: string, projects: ListItem[], workTypes: ListItem[], 
   const workTypeIds = new Set(workTypes.map((w) => w.id));
 
   const rawAction = obj.action;
+  const validActions = new Set(['payroll_entry', 'expense', 'create_devis', 'create_facture', 'question']);
   const action: RoutedCommand['action'] =
-    (rawAction === 'payroll_entry' || rawAction === 'expense') && allowedActions.includes(rawAction) ? rawAction : 'unknown';
+    typeof rawAction === 'string' && validActions.has(rawAction) && allowedActions.includes(rawAction)
+      ? (rawAction as RoutedCommand['action'])
+      : 'unknown';
 
   const projectId = typeof obj.projectId === 'string' && projectIds.has(obj.projectId) ? obj.projectId : null;
   const workTypeId = typeof obj.workTypeId === 'string' && workTypeIds.has(obj.workTypeId) ? obj.workTypeId : null;
@@ -193,6 +208,7 @@ function parseCommand(raw: string, projects: ListItem[], workTypes: ListItem[], 
   const label = typeof obj.label === 'string' ? obj.label.trim() : null;
   const amountRaw = obj.amount;
   const amount = typeof amountRaw === 'number' && Number.isFinite(amountRaw) && amountRaw > 0 ? Math.round(amountRaw * 100) / 100 : null;
+  const clientName = typeof obj.clientName === 'string' && obj.clientName.trim() ? obj.clientName.trim() : null;
 
   const summary = typeof obj.summary === 'string' && obj.summary.trim() ? obj.summary.trim() : '';
 
@@ -205,6 +221,7 @@ function parseCommand(raw: string, projects: ListItem[], workTypes: ListItem[], 
     hours,
     label,
     amount,
+    clientName,
     note,
     summary,
   };
