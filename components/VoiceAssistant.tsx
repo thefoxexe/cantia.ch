@@ -71,9 +71,10 @@ export function VoiceAssistant() {
   const classificationActions: ('payroll_entry' | 'expense')[] = ['payroll_entry', 'expense'];
   // "expense" covers two destinations: a chantier-linked material cost
   // (needs profitabilityEnabled, feeds that chantier's Rentabilité) or a
-  // general/overhead outflow (needs treasuryEnabled, feeds Trésorerie's
-  // Dépenses ponctuelles) — see handleConfirm and ConfirmForm below for how
-  // the split is decided once a chantier is or isn't picked.
+  // general/overhead outflow (needs treasuryEnabled, feeds the general
+  // expenses list managed from Dépenses) — see handleConfirm and
+  // ConfirmForm below for how the split is decided once a chantier is or
+  // isn't picked.
   const showProjectPickerForExpense = profitabilityEnabled && projects.length > 0;
 
   function actionUsable(action: 'payroll_entry' | 'expense'): boolean {

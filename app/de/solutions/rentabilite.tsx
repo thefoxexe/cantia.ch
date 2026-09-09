@@ -40,7 +40,7 @@ export default function RentabiliteSolutionPageDe() {
         {
           icon: 'shopping-bag',
           title: 'Alle Ausgaben an einem Ort',
-          text: 'Der Bereich Ausgaben fasst die Einkäufe aller Baustellen und Ihre allgemeinen Ausgaben in einer filterbaren Liste zusammen, mit direktem Link zur betroffenen Baustelle.',
+          text: 'Der Bereich Ausgaben fasst die Einkäufe aller Baustellen und Ihre allgemeinen Ausgaben in einer filterbaren Liste zusammen — Letztere erfassen, bearbeiten oder löschen Sie direkt hier, mit direktem Link zur betroffenen Baustelle für die anderen.',
         },
       ]}
       faq={[

@@ -37,7 +37,7 @@ export default function RentabiliteSolutionPage() {
         {
           icon: 'shopping-bag',
           title: 'Toutes les dépenses au même endroit',
-          text: "La section Dépenses regroupe en une liste filtrable les achats de tous vos chantiers et vos dépenses générales, avec un lien direct vers le chantier concerné.",
+          text: "La section Dépenses regroupe en une liste filtrable les achats de tous vos chantiers et vos dépenses générales — créez, modifiez ou supprimez ces dernières directement ici, avec un lien direct vers le chantier concerné pour les autres.",
         },
       ]}
       faq={[
