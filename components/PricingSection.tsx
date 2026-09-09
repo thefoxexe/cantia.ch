@@ -88,6 +88,9 @@ export function PricingSection({ compact }: { compact?: boolean }) {
                       <PriceFeature dark={dark} text={tr('pricingSection.unlimitedDevisFactures')} />
                       <PriceFeature dark={dark} text={tr('pricingSection.planningRhTresorerie')} muted={!p.has_planning} included={p.has_planning} />
                       <PriceFeature dark={dark} text={tr('pricingSection.bexioIntegration')} muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
+                      {p.max_ai_uses_per_month ? (
+                        <PriceFeature dark={dark} text={tr('pricingSection.aiAssistantQuota', { count: p.max_ai_uses_per_month })} />
+                      ) : null}
                     </View>
                     <Link href={authHref('signup')} asChild>
                       <Button title={t.pricing.paidCta} onPress={() => {}} variant={dark ? 'primary' : 'secondary'} style={{ marginTop: spacing.lg }} />

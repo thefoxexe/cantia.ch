@@ -42,12 +42,22 @@ export default function DicteeVocaleSolutionPageDe() {
           title: 'Fachvokabular des Baugewerbes erkannt',
           text: 'Einheiten, Materialien und Fachausdrücke werden zuverlässig erkannt, nicht nur allgemeines Vokabular.',
         },
+        {
+          icon: 'message-circle',
+          title: 'Ein globaler Sprachassistent, nicht nur ein diktiertes Feld',
+          text: 'Über die schwebende Mikrofon-Taste sagen Sie: «Erstelle eine Offerte für Marc Dupont, 20m² Plättli à 85 Franken» — der Assistent versteht, bereitet die Offerte mit Kunde und Positionen bereits ausgefüllt vor und lässt Sie bestätigen. Funktioniert auch für direkte Rechnungen oder für Fragen — «Welche Rechnungen sind überfällig?», «Fasse meine Aufgaben zusammen» — mit einer echten Antwort basierend auf den Daten Ihres Unternehmens.',
+        },
       ]}
       faq={[
         {
           question: 'Funktioniert das Sprachdiktat gut mit dem Fachvokabular des Baugewerbes?',
           answer:
             'Ja, die Erkennung ist auf das technische Vokabular des Baugewerbes abgestimmt — Materialien, Einheiten, Berufe — nicht nur auf Umgangssprache.',
+        },
+        {
+          question: 'Kann der Sprachassistent eine Offerte oder Rechnung ganz allein erstellen?',
+          answer:
+            'Er bereitet das Dokument vor — Kunde und diktierte Leistungen bereits ausgefüllt — und bringt Sie zum Erstellungsbildschirm, wo Sie selbst prüfen und speichern. Ohne diese Bestätigung wird nie etwas erstellt.',
         },
         {
           question: 'Braucht man eine Internetverbindung zum Diktieren?',

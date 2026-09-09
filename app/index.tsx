@@ -928,6 +928,9 @@ function LandingContent() {
                           muted={p.max_trames === 0}
                           included={p.max_trames !== 0}
                         />
+                        {p.max_ai_uses_per_month ? (
+                          <PriceFeature dark={dark} text={tr('landingPage.aiAssistantQuota', { count: p.max_ai_uses_per_month })} />
+                        ) : null}
                       </View>
                       <Link href={authHref('signup')} asChild>
                         <Button

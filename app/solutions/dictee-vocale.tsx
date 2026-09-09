@@ -39,12 +39,22 @@ export default function DicteeVocaleSolutionPage() {
           title: 'Vocabulaire du bâtiment reconnu',
           text: "Unités, matériaux et tournures du métier sont bien reconnus, pas seulement du vocabulaire générique.",
         },
+        {
+          icon: 'message-circle',
+          title: 'Un assistant vocal global, pas juste un champ dicté',
+          text: "Depuis le bouton micro flottant, dites « crée un devis pour Marc Dupont, 20m² de carrelage à 85 francs » : l'assistant comprend, prépare le devis avec le client et les lignes déjà remplis, et vous laisse le confirmer. Marche aussi pour créer une facture directement, ou pour poser une question — « quelles factures sont en retard ? », « résume mes tâches » — avec une vraie réponse basée sur les données de votre entreprise.",
+        },
       ]}
       faq={[
         {
           question: 'La dictée vocale fonctionne-t-elle bien avec le vocabulaire du bâtiment ?',
           answer:
             "Oui, la reconnaissance est adaptée au vocabulaire technique du bâtiment — matériaux, unités, métiers — pas seulement à du langage courant.",
+        },
+        {
+          question: "L'assistant vocal peut-il créer un devis ou une facture tout seul ?",
+          answer:
+            "Il prépare le document — client et prestations dictées déjà remplis — et vous emmène sur l'écran de création pour vérifier et enregistrer vous-même. Rien n'est jamais créé sans cette validation.",
         },
         {
           question: 'Faut-il une connexion internet pour dicter ?',

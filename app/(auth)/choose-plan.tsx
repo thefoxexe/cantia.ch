@@ -185,6 +185,7 @@ function PlanCard({
         {(PLAN_HIGHLIGHTS[plan.id] ?? []).map((text) => (
           <Feature key={text} text={text} />
         ))}
+        {plan.max_ai_uses_per_month ? <Feature text={t('authChoosePlan.aiAssistantQuota', { count: plan.max_ai_uses_per_month })} /> : null}
       </View>
       <Button
         title={t('authChoosePlan.choosePlanBtn', { name: plan.name })}

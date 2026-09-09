@@ -1516,10 +1516,11 @@ export const fr = {
       pro: 'Pour les structures établies qui ont besoin de plus de marge de manœuvre.',
     },
     planHighlights: {
-      solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', "2 rôles d'équipe modifiables", 'IA généreuse (150 usages/mois)'],
+      solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', "2 rôles d'équipe modifiables"],
       equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', "Rôles d'équipe personnalisés illimités"],
       pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire', '200 Go de stockage'],
     },
+    aiAssistantQuota: 'Assistant vocal IA — devis, factures, dépenses, questions : {{count}}/mois',
   },
   authOnboardingHub: {
     requestSentTitle: 'Demande envoyée',
@@ -2089,6 +2090,7 @@ export const fr = {
     unlimitedDevisFactures: 'Devis & factures illimités',
     planningRhTresorerie: 'Planning, RH & trésorerie',
     bexioIntegration: 'Intégration Bexio',
+    aiAssistantQuota: 'Assistant vocal IA (devis, factures, questions) : {{count}}/mois',
     contactText: 'Plus de 25 membres, ou un besoin métier bien à vous ?',
     contactLink: 'Découvrez Sur mesure →',
   },
@@ -2139,6 +2141,7 @@ export const fr = {
     featureExpenseTools: 'Dépenses par scan de ticket ou à la voix',
     featureBexio: 'Intégration Bexio',
     quotaPerMonth: '{{count}} devis/factures par mois',
+    aiAssistantQuota: 'Assistant vocal IA — devis, factures, dépenses, questions : {{count}}/mois',
     trameLibraryEmpty: 'Bibliothèque de trames',
     trameLibraryCount: '{{count}} trames enregistrées',
     trameLibraryUnlimited: 'Bibliothèque de trames illimitée',

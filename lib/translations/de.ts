@@ -1530,10 +1530,11 @@ export const de: TranslationDict = {
       pro: 'Für etablierte Unternehmen, die mehr Handlungsspielraum brauchen.',
     },
     planHighlights: {
-      solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', '2 anpassbare Teamrollen', 'Grosszügige KI (150 Nutzungen/Monat)'],
+      solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', '2 anpassbare Teamrollen'],
       equipe: ['Alles aus Basis, ohne Limiten', 'Personal, Planung, Rentabilität & Liquidität', 'Bexio-Integration', 'Unbegrenzte individuelle Teamrollen'],
       pro: ['Alles aus Team inklusive', 'Unbegrenzte erweiterte Rollen', 'Priority-Support', '200 GB Speicher'],
     },
+    aiAssistantQuota: 'KI-Sprachassistent — Offerten, Rechnungen, Ausgaben, Fragen: {{count}}/Monat',
   },
   authOnboardingHub: {
     requestSentTitle: 'Anfrage gesendet',
@@ -2103,6 +2104,7 @@ export const de: TranslationDict = {
     unlimitedDevisFactures: 'Unbegrenzte Offerten & Rechnungen',
     planningRhTresorerie: 'Planung, HR & Liquidität',
     bexioIntegration: 'Bexio-Integration',
+    aiAssistantQuota: 'KI-Sprachassistent (Offerten, Rechnungen, Fragen): {{count}}/Monat',
     contactText: 'Mehr als 25 Mitglieder, oder ein ganz eigenes Bedürfnis?',
     contactLink: 'Massgeschneidert entdecken →',
   },
@@ -2153,6 +2155,7 @@ export const de: TranslationDict = {
     featureExpenseTools: 'Ausgaben per Beleg-Scan oder Sprache',
     featureBexio: 'Bexio-Integration',
     quotaPerMonth: '{{count}} Offerten/Rechnungen pro Monat',
+    aiAssistantQuota: 'KI-Sprachassistent — Offerten, Rechnungen, Ausgaben, Fragen: {{count}}/Monat',
     trameLibraryEmpty: 'Vorlagenbibliothek',
     trameLibraryCount: '{{count}} gespeicherte Vorlagen',
     trameLibraryUnlimited: 'Unbegrenzte Vorlagenbibliothek',
