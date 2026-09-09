@@ -603,6 +603,8 @@ function OneOffExpenseModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanningReceipt, setScanningReceipt] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanSuccess, setScanSuccess] = useState<string | null>(null);
 
   const initKey = `${visible}-${editing?.id ?? 'new'}`;
   const [lastInitKey, setLastInitKey] = useState('');
@@ -614,54 +616,81 @@ function OneOffExpenseModal({
     setExpenseDate(editing?.expense_date ?? isoToday());
     setNotes(editing?.notes ?? '');
     setError(null);
+    setScanError(null);
+    setScanSuccess(null);
   }
 
   // Same scan-a-receipt flow as Rentabilité's per-chantier Dépenses — a
   // photo of the ticket fills fournisseur + montant, the rest (date,
   // catégorie, notes) stays a manual touch since a receipt photo doesn't
-  // carry those reliably.
+  // carry those reliably. Uses its own scanError, separate from the
+  // save-validation `error` below, so a scan result and a "libellé requis"
+  // message never end up competing for the same line.
   async function processReceiptImage(uri: string) {
     setScanningReceipt(true);
-    setError(null);
+    setScanError(null);
+    setScanSuccess(null);
     try {
       const manipulated = await ImageManipulator.ImageManipulator.manipulate(uri).resize({ width: 1400 }).renderAsync();
       const saved = await manipulated.saveAsync({ compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true });
       if (!saved.base64) {
-        setError(t('treasury.scanFailed'));
+        setScanError(t('treasury.scanFailed'));
         return;
       }
       const { receipt, error: err } = await scanReceipt(organizationId, saved.base64, 'image/jpeg');
       if (err || !receipt) {
-        setError(err ?? t('treasury.scanFailed'));
+        setScanError(err ?? t('treasury.scanFailed'));
         return;
       }
       setLabel(receipt.label);
       if (receipt.amount > 0) setAmount(String(receipt.amount));
+      setScanSuccess(
+        receipt.label && receipt.amount > 0
+          ? t('treasury.scanSuccess', { label: receipt.label, amount: receipt.amount })
+          : t('treasury.scanPartial'),
+      );
+    } catch (e) {
+      // A thrown error (image processing, network) must still show up —
+      // silently eating it here is exactly what made a failed scan look
+      // like the app just did nothing.
+      setScanError(e instanceof Error ? e.message : t('treasury.scanFailed'));
     } finally {
       setScanningReceipt(false);
     }
   }
 
   async function scanFromCamera() {
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.cameraPermissionBody'));
-      return;
+    setScanError(null);
+    setScanSuccess(null);
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.cameraPermissionBody'));
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+      if (result.canceled || !result.assets?.length) return;
+      await processReceiptImage(result.assets[0].uri);
+    } catch (e) {
+      setScanError(e instanceof Error ? e.message : t('treasury.scanFailed'));
     }
-    const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
-    if (result.canceled || !result.assets?.length) return;
-    await processReceiptImage(result.assets[0].uri);
   }
 
   async function scanFromGallery() {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.galleryPermissionBody'));
-      return;
+    setScanError(null);
+    setScanSuccess(null);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('treasury.cameraPermissionTitle'), t('treasury.galleryPermissionBody'));
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+      if (result.canceled || !result.assets?.length) return;
+      await processReceiptImage(result.assets[0].uri);
+    } catch (e) {
+      setScanError(e instanceof Error ? e.message : t('treasury.scanFailed'));
     }
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
-    if (result.canceled || !result.assets?.length) return;
-    await processReceiptImage(result.assets[0].uri);
   }
 
   async function handleSave() {
@@ -710,16 +739,34 @@ function OneOffExpenseModal({
             <Text style={styles.sheetTitle}>{editing ? t('treasury.editOneOffTitle') : t('treasury.newOneOffTitle')}</Text>
 
             {editing ? null : (
-              <View style={styles.scanRow}>
-                <Pressable onPress={scanFromCamera} disabled={scanningReceipt} style={styles.scanButton}>
-                  {scanningReceipt ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="camera" size={16} color={colors.primary} />}
-                  <Text style={styles.scanButtonText}>{t('treasury.scanCamera')}</Text>
-                </Pressable>
-                <Pressable onPress={scanFromGallery} disabled={scanningReceipt} style={styles.scanButton}>
-                  <Feather name="image" size={16} color={colors.primary} />
-                  <Text style={styles.scanButtonText}>{t('treasury.scanGallery')}</Text>
-                </Pressable>
-              </View>
+              <>
+                <View style={styles.scanRow}>
+                  <Pressable onPress={scanFromCamera} disabled={scanningReceipt} style={styles.scanButton}>
+                    {scanningReceipt ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name="camera" size={16} color={colors.primary} />}
+                    <Text style={styles.scanButtonText}>{t('treasury.scanCamera')}</Text>
+                  </Pressable>
+                  <Pressable onPress={scanFromGallery} disabled={scanningReceipt} style={styles.scanButton}>
+                    <Feather name="image" size={16} color={colors.primary} />
+                    <Text style={styles.scanButtonText}>{t('treasury.scanGallery')}</Text>
+                  </Pressable>
+                </View>
+                {scanningReceipt ? (
+                  <View style={styles.scanStatusRow}>
+                    <ActivityIndicator size="small" color={colors.accent} />
+                    <Text style={styles.scanStatusText}>{t('treasury.scanInProgress')}</Text>
+                  </View>
+                ) : scanError ? (
+                  <View style={[styles.scanStatusRow, styles.scanStatusRowError]}>
+                    <Feather name="alert-circle" size={14} color={colors.danger} />
+                    <Text style={styles.scanStatusErrorText}>{scanError}</Text>
+                  </View>
+                ) : scanSuccess ? (
+                  <View style={[styles.scanStatusRow, styles.scanStatusRowSuccess]}>
+                    <Feather name="check-circle" size={14} color={colors.success} />
+                    <Text style={styles.scanStatusSuccessText}>{scanSuccess}</Text>
+                  </View>
+                ) : null}
+              </>
             )}
 
             <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderOneOff')} />
@@ -764,6 +811,39 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.primary,
+  },
+  scanStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+    marginBottom: spacing.sm,
+  },
+  scanStatusRowError: {
+    backgroundColor: colors.dangerSoft,
+  },
+  scanStatusRowSuccess: {
+    backgroundColor: colors.successSoft,
+  },
+  scanStatusText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  scanStatusErrorText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.danger,
+  },
+  scanStatusSuccessText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.success,
   },
   upsell: {
     alignItems: 'flex-start',

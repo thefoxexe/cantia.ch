@@ -31,10 +31,12 @@ export function ExpenseComposer({
   const [saving, setSaving] = useState(false);
   const [scanningReceipt, setScanningReceipt] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [scanSuccess, setScanSuccess] = useState<string | null>(null);
 
   async function processReceiptImage(uri: string) {
     setScanningReceipt(true);
     setScanError(null);
+    setScanSuccess(null);
     try {
       const manipulated = await ImageManipulator.ImageManipulator.manipulate(uri).resize({ width: 1400 }).renderAsync();
       const saved = await manipulated.saveAsync({ compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true });
@@ -49,31 +51,53 @@ export function ExpenseComposer({
       }
       setLabel(receipt.label);
       setAmount(receipt.amount > 0 ? String(receipt.amount) : '');
+      setScanSuccess(
+        receipt.label && receipt.amount > 0
+          ? t('projectProfitability.scanSuccess', { label: receipt.label, amount: receipt.amount })
+          : t('projectProfitability.scanPartial'),
+      );
+    } catch (e) {
+      // Anything unexpected (image processing, network, a thrown error deep
+      // in an SDK call) must still surface — silently swallowing it here is
+      // exactly what made a failed scan look like "nothing happened".
+      setScanError(e instanceof Error ? e.message : t('projectProfitability.scanFailed'));
     } finally {
       setScanningReceipt(false);
     }
   }
 
   async function scanFromCamera() {
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert(t('projectProfitability.cameraPermissionTitle'), t('projectProfitability.cameraPermissionBody'));
-      return;
+    setScanError(null);
+    setScanSuccess(null);
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('projectProfitability.cameraPermissionTitle'), t('projectProfitability.cameraPermissionBody'));
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+      if (result.canceled || !result.assets?.length) return;
+      await processReceiptImage(result.assets[0].uri);
+    } catch (e) {
+      setScanError(e instanceof Error ? e.message : t('projectProfitability.scanFailed'));
     }
-    const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
-    if (result.canceled || !result.assets?.length) return;
-    await processReceiptImage(result.assets[0].uri);
   }
 
   async function scanFromGallery() {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert(t('projectProfitability.cameraPermissionTitle'), t('projectProfitability.galleryPermissionBody'));
-      return;
+    setScanError(null);
+    setScanSuccess(null);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('projectProfitability.cameraPermissionTitle'), t('projectProfitability.galleryPermissionBody'));
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+      if (result.canceled || !result.assets?.length) return;
+      await processReceiptImage(result.assets[0].uri);
+    } catch (e) {
+      setScanError(e instanceof Error ? e.message : t('projectProfitability.scanFailed'));
     }
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
-    if (result.canceled || !result.assets?.length) return;
-    await processReceiptImage(result.assets[0].uri);
   }
 
   async function handleSave() {
@@ -100,8 +124,25 @@ export function ExpenseComposer({
           <Text style={styles.scanButtonText}>{t('projectProfitability.scanGallery')}</Text>
         </Pressable>
       </View>
-      {scanError ? <Text style={styles.scanError}>{scanError}</Text> : null}
-      <Text style={styles.scanHint}>{t('projectProfitability.scanHint')}</Text>
+
+      {scanningReceipt ? (
+        <View style={styles.scanStatusRow}>
+          <ActivityIndicator size="small" color={colors.accent} />
+          <Text style={styles.scanStatusText}>{t('projectProfitability.scanInProgress')}</Text>
+        </View>
+      ) : scanError ? (
+        <View style={[styles.scanStatusRow, styles.scanStatusRowError]}>
+          <Feather name="alert-circle" size={14} color={colors.danger} />
+          <Text style={styles.scanError}>{scanError}</Text>
+        </View>
+      ) : scanSuccess ? (
+        <View style={[styles.scanStatusRow, styles.scanStatusRowSuccess]}>
+          <Feather name="check-circle" size={14} color={colors.success} />
+          <Text style={styles.scanSuccessText}>{scanSuccess}</Text>
+        </View>
+      ) : (
+        <Text style={styles.scanHint}>{t('projectProfitability.scanHint')}</Text>
+      )}
 
       <Field label={t('projectProfitability.descriptionLabel')} value={label} onChangeText={setLabel} placeholder={t('projectProfitability.descriptionPlaceholder')} />
       <Field label={t('projectProfitability.amountLabel')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
@@ -136,7 +177,35 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
+  scanStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+  },
+  scanStatusRowError: {
+    backgroundColor: colors.dangerSoft,
+  },
+  scanStatusRowSuccess: {
+    backgroundColor: colors.successSoft,
+  },
+  scanStatusText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  scanSuccessText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.success,
+  },
   scanError: {
+    flex: 1,
     fontSize: fontSize.xs,
     color: colors.danger,
   },
