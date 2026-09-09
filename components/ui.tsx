@@ -428,11 +428,12 @@ const styles = StyleSheet.create({
   },
   button: {
     flexDirection: 'row',
-    height: 48,
+    minHeight: 48,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   container: {
     maxWidth: 880,
@@ -476,6 +477,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: fontSize.md,
     fontWeight: '600',
+    flexShrink: 1,
+    textAlign: 'center',
   },
   buttonTextSecondary: {
     color: colors.text,

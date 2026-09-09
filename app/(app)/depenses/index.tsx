@@ -220,11 +220,15 @@ export default function DepensesScreen() {
           <View style={styles.tabSwitch}>
             <Pressable onPress={() => setTab('list')} style={[styles.tabItem, tab === 'list' && styles.tabItemActive]}>
               <Feather name="list" size={14} color={tab === 'list' ? colors.primary : colors.textMuted} />
-              <Text style={[styles.tabItemText, tab === 'list' && styles.tabItemTextActive]}>{t('depensesList.tabAll')}</Text>
+              <Text style={[styles.tabItemText, tab === 'list' && styles.tabItemTextActive]} numberOfLines={1} ellipsizeMode="tail">
+                {t('depensesList.tabAll')}
+              </Text>
             </Pressable>
             <Pressable onPress={() => setTab('recurring')} style={[styles.tabItem, tab === 'recurring' && styles.tabItemActive]}>
               <Feather name="repeat" size={14} color={tab === 'recurring' ? colors.primary : colors.textMuted} />
-              <Text style={[styles.tabItemText, tab === 'recurring' && styles.tabItemTextActive]}>{t('treasury.tabRecurring')}</Text>
+              <Text style={[styles.tabItemText, tab === 'recurring' && styles.tabItemTextActive]} numberOfLines={1} ellipsizeMode="tail">
+                {t('depensesList.tabRecurring')}
+              </Text>
             </Pressable>
           </View>
         ) : null}
@@ -750,13 +754,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.md,
     padding: 3,
-    alignSelf: 'flex-start',
+    width: '100%',
   },
   tabItem: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 7,
     borderRadius: radius.sm,
   },
@@ -768,6 +775,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
   },
   tabItemText: {
+    flexShrink: 1,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.textMuted,
