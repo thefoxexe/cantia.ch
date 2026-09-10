@@ -82,7 +82,7 @@ export default function FacturationSolutionPageIt() {
       related={[
         { href: '/it/solutions/devis', label: 'Preventivi online' },
         { href: '/it/solutions/rentabilite', label: 'Redditività per cantiere' },
-        { href: '/it/solutions/tresorerie', label: 'Tesoreria previsionale' },
+        { href: '/it/solutions/tresorerie', label: 'Liquidità previsionale' },
       ]}
       closingTitle="La fatturazione svizzera, senza destreggiarsi tra due strumenti"
       closingText="Preventivi e fatture illimitati su tutti i piani Cantia. Provi per 14 giorni, senza codice promozionale."

@@ -68,7 +68,7 @@ export default function RhSalairesSolutionPageIt() {
         { href: '/it/solutions/planning', label: "Pianificazione di squadra" },
         { href: '/it/solutions/rentabilite', label: 'Redditività per cantiere' },
         { href: '/it/solutions/facturation', label: 'Fatturazione & fattura QR' },
-        { href: '/it/solutions/tresorerie', label: 'Tesoreria previsionale' },
+        { href: '/it/solutions/tresorerie', label: 'Liquidità previsionale' },
       ]}
       closingTitle="Basta con i fogli ore sparsi"
       closingText="Il modulo HR & Salari si attiva dalle impostazioni della Sua organizzazione, a partire dal piano Team."

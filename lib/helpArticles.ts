@@ -749,8 +749,359 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
   },
 ];
 
-// Italian help center — empty for now, filled in once the Italian help
-// article translation pass runs (same staged-rollout pattern as
-// HELP_ARTICLES_DE was before it reached parity: routes and UI already
-// branch on 'it', they just render zero articles until this fills in).
-export const HELP_ARTICLES_IT: HelpArticle[] = [];
+// Italian mirror of HELP_ARTICLES — same ids/order (app/aide.tsx groups and
+// filters by these), full body text translated rather than machine-run
+// through the UI dict, since these are long explanatory paragraphs rather
+// than short interface labels. Terminology kept consistent with the rest
+// of the Italian UI (Preventivo, Cantiere, Fattura, Acconto, Modello,
+// Computo metrico, Catalogo, Team, Modulo, Redditività, Personale e
+// salari, Liquidità, Archiviazione, Account — see lib/translations/it.ts).
+export const HELP_ARTICLES_IT: HelpArticle[] = [
+  {
+    id: 'demarrage',
+    category: 'Per iniziare',
+    title: 'Primi passi con Cantia',
+    keywords: ['inizio', 'organizzazione', 'team', 'azienda', 'account', 'onboarding'],
+    body: [
+      "Tutto ruota attorno a un'organizzazione (la Sua azienda): l'ha creata all'iscrizione, e tutte le persone che vi aderiscono condividono gli stessi cantieri, preventivi, fatture e documenti.",
+      "I moduli (Redditività, Pianificazione, Computo metrico, Catalogo, Modelli…) si attivano uno per uno in Account → Moduli — un nuovo modulo non compare mai da solo nella barra in basso, va attivato una volta.",
+      "La barra di navigazione in basso (o la barra laterale su tablet/desktop) scorre orizzontalmente se ci sono più schede dello spazio disponibile — scorra con il dito per vedere i moduli attivati.",
+      "In alto a destra, il menu account dà accesso alle impostazioni, all'installazione dell'applicazione e alla disconnessione.",
+    ],
+  },
+  {
+    id: 'devis-creation',
+    screenshot: 'devis-creation',
+    category: 'Preventivi',
+    title: 'Creare e inviare un preventivo',
+    keywords: ['preventivo', 'creazione', 'dettatura', 'voci', 'cliente', 'cantiere'],
+    body: [
+      "Un preventivo si crea con un cliente (nome, indirizzo, e-mail) e delle voci (descrizione, quantità, unità, prezzo unitario). Il pulsante \"Detta\" permette di dettare le note o un'intera voce a voce — l'IA struttura automaticamente la descrizione, la quantità e il prezzo.",
+      "Può collegare un preventivo a un cantiere esistente già al momento della creazione (o più tardi dal preventivo) — questo permette poi di monitorare la redditività del cantiere e di ritrovare tutte le fatture collegate.",
+      "Lo stato di un preventivo segue questo percorso: Bozza → Pronto per l'invio → Inviato → Accettato (o Rifiutato). Il PDF può essere generato/scaricato solo una volta uscito dallo stato di bozza.",
+      "Una volta accettato il preventivo (manualmente o dal cliente stesso tramite il link pubblico — vedi l'articolo \"Link cliente pubblico\"), la fattura corrispondente viene creata automaticamente.",
+    ],
+  },
+  {
+    id: 'devis-trames',
+    category: 'Preventivi',
+    title: 'Risparmiare tempo con i modelli',
+    keywords: ['modello', 'modelli', 'libreria', 'voci'],
+    body: [
+      "Un modello è un insieme di voci di preventivo riutilizzabili (per esempio tutte le posizioni abituali di un bagno) — lo inserisce con un clic in un nuovo preventivo invece di riscrivere le stesse voci ogni volta.",
+      "Può creare un modello a partire da un preventivo esistente (\"Salva come modello\" nel menu del preventivo), oppure direttamente dalla libreria dei modelli.",
+      "Il catalogo rileva anche automaticamente l'unità più probabile per un articolo (per esempio \"metro lineare\" per il PVC) e La avvisa se il prezzo inserito si discosta molto dal prezzo di catalogo abituale.",
+    ],
+  },
+  {
+    id: 'facturation-acomptes',
+    screenshot: 'facturation-acomptes',
+    category: 'Fatturazione',
+    title: 'Fatture, acconti e pagamenti parziali',
+    keywords: ['fattura', 'acconto', 'pagamento', 'parziale', 'saldo', 'deduzione'],
+    body: [
+      "A partire da un preventivo accettato, può fatturare un acconto (una percentuale dell'importo totale) prima della fattura finale. La fattura finale deduce automaticamente tutti gli acconti già fatturati su questo preventivo — non deve mai fare il calcolo Lei stesso.",
+      "Se un acconto viene annullato o eliminato, la deduzione sulla fattura finale viene ricalcolata automaticamente nell'altro senso, affinché il saldo resti sempre corretto.",
+      "Un pagamento può essere registrato parzialmente: la fattura passa allora allo stato \"Parzialmente pagata\" e mostra il saldo residuo dovuto, finché non viene raggiunto il totale.",
+      "Come i preventivi, anche le fatture possono essere collegate a un cantiere — l'elenco delle fatture si ordina e si filtra per data di emissione, data di scadenza, stato o cantiere.",
+    ],
+  },
+  {
+    id: 'facturation-email-lien',
+    category: 'Fatturazione',
+    title: 'Inviare un preventivo o una fattura, e il link cliente pubblico',
+    keywords: ['e-mail', 'invio', 'link', 'firma', 'portale', 'cliente', 'fattura qr'],
+    body: [
+      "Il pulsante \"Invia per e-mail\" su un preventivo o una fattura invia automaticamente il PDF in allegato, insieme al link del portale cliente — è necessario aver prima generato il PDF.",
+      "Il pulsante \"Copia il link cliente\" genera un link unico e impossibile da indovinare, da inviare Lei stesso (WhatsApp, e-mail manuale…) se preferisce. Questo link funziona solo con l'indirizzo e-mail del cliente indicato sul documento — una sicurezza aggiuntiva prima di mostrare qualsiasi cosa.",
+      "Su un preventivo, il cliente può consultare il dettaglio e accettarlo online, firmando con il mouse/il dito oppure caricando una foto della propria firma — l'accettazione fa scattare automaticamente il passaggio allo stato \"Accettato\" e la creazione della fattura, esattamente come se l'avesse fatto Lei dall'applicazione.",
+      "Su una fattura, il link è in sola lettura (dettaglio e saldo residuo dovuto) — il cliente non può mai segnare da solo una fattura come pagata, questa constatazione resta sempre un'azione interna dell'azienda.",
+      "Le fatture mostrano anche un riferimento QR svizzero (fattura QR): il pagamento può essere riconciliato automaticamente cercando questo numero di riferimento nell'applicazione.",
+    ],
+  },
+  {
+    id: 'chantiers-rapports',
+    screenshot: 'chantiers-rapports',
+    category: 'Cantieri e rapporti',
+    title: 'Diario di cantiere e rapporti PDF',
+    keywords: ['cantiere', 'rapporto', 'foto', 'diario', 'novità', 'pdf'],
+    body: [
+      "Ogni cantiere ha un diario in stile conversazione: vi pubblica foto geolocalizzate e messaggi (dettati a voce se necessario) man mano che avanzano i lavori.",
+      "Dal diario, un pulsante genera un rapporto di cantiere in PDF a partire dalle voci selezionate — l'IA può anche redigere un testo di sintesi a partire dalle Sue note.",
+      "Il rapporto PDF include una griglia di foto con didascalie, coordinate GPS, orario, e una mappa che situa le foto sparse sul cantiere.",
+      "La modalità offline permette di scattare foto senza rete sul cantiere — si sincronizzano automaticamente non appena torna la connessione.",
+    ],
+  },
+  {
+    id: 'rentabilite',
+    category: 'Cantieri e rapporti',
+    title: 'Redditività per cantiere',
+    keywords: ['redditività', 'costo', 'spesa', 'manodopera', 'margine', 'scontrino', 'scansione'],
+    body: [
+      "La scheda Redditività di un cantiere confronta l'importo preventivato/fatturato con il costo reale: materiale (spese registrate sul cantiere) e manodopera (calcolata a partire dalle ore effettivamente registrate in Personale e salari, oppure in mancanza di queste stimata a partire dalle assegnazioni di Pianificazione e dal costo orario medio definito in Account → Fatturazione).",
+      "Per registrare una spesa di materiale, basta una foto dello scontrino di cassa o della fattura del fornitore — il fornitore e l'importo vengono letti automaticamente, resta solo da verificare prima di salvare. La registrazione manuale resta possibile per i casi in cui la foto non è pratica, e l'assistente vocale (pulsante microfono in basso sullo schermo) permette anche di aggiungere una spesa dettandola.",
+      "Un badge indica a colpo d'occhio se il cantiere è sotto, intorno o sopra la soglia di redditività, per individuare rapidamente un cantiere che sta sforando prima della fine.",
+      "Tutte le spese di tutti i cantieri, così come le spese generali dell'azienda, sono visibili anche raggruppate nella sezione Spese della navigazione — vedi l'articolo dedicato.",
+    ],
+  },
+  {
+    id: 'planning',
+    screenshot: 'planning',
+    category: 'Pianificazione',
+    title: 'Pianificazione del team',
+    keywords: ['pianificazione', 'team', 'assegnazione', 'calendario'],
+    body: [
+      "La Pianificazione mostra un vero calendario in cui ogni membro del team può essere assegnato a un cantiere per una o più giornate.",
+      "Queste assegnazioni alimentano la stima della manodopera nella scheda Redditività finché non è ancora stata registrata alcuna ora reale sul cantiere — non appena il team utilizza Personale e salari, sono le ore reali a prendere automaticamente il sopravvento.",
+    ],
+  },
+  {
+    id: 'metre',
+    category: 'Computo metrico',
+    title: 'Il computo metrico',
+    keywords: ['computo metrico', 'quantità', 'misura'],
+    body: [
+      "Il modulo Computo metrico offre una tabella di misure adatta al cellulare, per calcolare superfici e quantità direttamente dal cantiere.",
+      "Ogni voce di computo può essere trasformata in una voce di preventivo con prezzo in un clic.",
+    ],
+  },
+  {
+    id: 'inventaire',
+    category: 'Catalogo',
+    title: 'A cosa serve il Catalogo?',
+    keywords: ['inventario', 'catalogo', 'prezzo', 'posizioni', 'csv', 'importazione', 'esportazione'],
+    body: [
+      "Non è un controllo di magazzino o di materiale fisico: è una libreria delle Sue posizioni (descrizione, unità, prezzo) che si riempie automaticamente a ogni preventivo — non appena una descrizione viene usata per la prima volta, vi viene registrata.",
+      "Serve poi ad andare più veloci sui preventivi successivi: digitando una descrizione già nota, Cantia Le propone la voce completa con la sua unità e il suo ultimo prezzo, pronta da riutilizzare o modificare.",
+      "Può anche creare, modificare o eliminare posizioni direttamente dal Catalogo, importare un elenco esistente tramite CSV (colonne riconosciute automaticamente) ed esportare tutto in qualsiasi momento.",
+    ],
+  },
+  {
+    id: 'equipe-modules',
+    screenshot: 'equipe-modules',
+    category: 'Team e organizzazione',
+    title: 'Invitare il team e attivare i moduli',
+    keywords: ['team', 'invito', 'ruolo', 'modulo', 'amministratore'],
+    body: [
+      "Da Account → Team, un link d'invito permette a un collega di aderire all'organizzazione; le richieste di adesione in sospeso vengono convalidate da un amministratore.",
+      "Account → Moduli attiva o disattiva le funzionalità opzionali (Pianificazione, Redditività, Computo metrico, Catalogo, Modelli…) organizzazione per organizzazione — un modulo spento scompare semplicemente dalla barra di navigazione, nessun dato viene perso se lo riattiva più tardi.",
+    ],
+  },
+  {
+    id: 'personnalisation-abonnement',
+    screenshot: 'personnalisation-abonnement',
+    category: 'Personalizzazione e abbonamento',
+    title: 'Kit del marchio, piani e abbonamento',
+    keywords: ['colore', 'logo', 'marchio', 'piano', 'abbonamento', 'stripe', 'quota'],
+    body: [
+      "In Account → Azienda, può definire il colore del marchio e il logo utilizzati sui Suoi preventivi, fatture e rapporti PDF, già a partire dal piano Essenziale — un colore viene persino suggerito automaticamente a partire dal Suo logo o dal Suo sito web.",
+      "Preventivi e fatture sono illimitati su tutti i piani Cantia. Ciò che varia da un piano all'altro è lo spazio di archiviazione, il numero di membri e l'accesso a certi moduli (pianificazione, personale, liquidità, a partire dal piano Team). La gestione dell'abbonamento avviene da Account → Abbonamento (fatturazione Stripe).",
+      "Account → Archiviazione dettaglia lo spazio utilizzato per categoria (foto, PDF, altri file) con un pulsante per passare a un piano superiore se necessario.",
+    ],
+  },
+  {
+    id: 'tableau-de-bord',
+    screenshot: 'tableau-de-bord',
+    category: 'Per iniziare',
+    title: 'Capire la Dashboard',
+    keywords: ['dashboard', 'cruscotto', 'home', 'kpi', 'scorciatoie'],
+    body: [
+      "La schermata iniziale mostra gli indicatori che contano ogni giorno: preventivi in attesa di risposta, fatture non pagate o in ritardo, e cantieri attualmente attivi — a colpo d'occhio, senza dover aprire ogni modulo.",
+      "Le scorciatoie rapide (nuovo preventivo, nuova fattura, nuovo cantiere) permettono di creare un documento senza passare dal menu completo — utile da telefono, tra un appuntamento e l'altro.",
+      "Un banner segnala le spese ricorrenti in scadenza nei prossimi 7 giorni (modulo Liquidità) prima che vengano addebitate, per non essere mai colti di sorpresa.",
+      "La Dashboard mostra solo ciò che è pertinente per il Suo ruolo: un dipendente standard vedrà le proprie attività e i propri cantieri, un amministratore vede l'intera organizzazione.",
+    ],
+  },
+  {
+    id: 'rejoindre-organisation',
+    category: 'Per iniziare',
+    title: "Aderire a un'organizzazione esistente",
+    keywords: ['aderire', 'invito', 'link', 'team', 'organizzazione esistente'],
+    body: [
+      "Se la Sua azienda utilizza già Cantia, non serve creare una nuova organizzazione: un amministratore Le invia un link d'invito (da Account → Team) che La collega direttamente all'organizzazione esistente al momento dell'iscrizione.",
+      "Senza link d'invito, può anche richiedere di aderire a un'organizzazione tramite il suo nome — la richiesta resta allora in sospeso finché un amministratore non la convalida.",
+      "Una volta collegato, vede immediatamente i cantieri, i clienti e i documenti dell'organizzazione, secondo i permessi del Suo ruolo (amministratore, segretaria RU o dipendente standard).",
+      "Non è possibile appartenere a due organizzazioni contemporaneamente con lo stesso account — se necessario, deve lasciare un'organizzazione prima di aderire a un'altra.",
+    ],
+  },
+  {
+    id: 'dictee-vocale',
+    category: 'Per iniziare',
+    title: 'La dettatura vocale, ovunque in Cantia',
+    keywords: ['dettatura', 'voce', 'microfono', 'trascrizione', 'vocale'],
+    body: [
+      "Il pulsante microfono compare ovunque scriva in Cantia: una voce di preventivo, un messaggio nel diario di cantiere, una nota di rapporto. Trasforma la Sua voce in testo strutturato, non solo in testo grezzo.",
+      "Su una voce di preventivo, per esempio, dettare «posa di dieci metri quadrati di piastrelle a settanta franchi al metro» basta a compilare in una sola volta la descrizione, la quantità, l'unità e il prezzo unitario.",
+      "Il riconoscimento è adattato al vocabolario dell'edilizia (materiali, unità, mestieri) — comprende sia il gergo tecnico sia il linguaggio comune.",
+      "Un secondo pulsante microfono, quello in basso sullo schermo (accessibile da qualsiasi pagina dell'applicazione), funziona in modo diverso: è un assistente completo, non solo una dettatura. Dica per esempio «cantiere villa, dalle 7 alle 15, casseratura» oppure «acquisto di viti da Bauhaus, 45 franchi», e capisce da solo se si tratta di ore o di una spesa, a quale cantiere si riferisce, poi mostra un riepilogo da confermare (modificabile a mano o dettando di nuovo) prima di salvare qualsiasi cosa.",
+      "È necessaria una connessione internet al momento di dettare (la trascrizione avviene su server sicuri), ma tutto ciò che è già stato creato resta consultabile offline in seguito.",
+    ],
+  },
+  {
+    id: 'chantiers-documents',
+    category: 'Cantieri e rapporti',
+    title: 'Foto e documenti di cantiere',
+    keywords: ['foto', 'documenti', 'struttura a cartelle', 'piani', 'archiviazione', 'cartella'],
+    body: [
+      "Ogni cantiere ha il proprio spazio Documenti, organizzato in cartelle (piani, autorizzazioni, contratti, fatture fornitori…) invece di un semplice mucchio di file alla rinfusa.",
+      "Le foto scattate dal diario di cantiere vengono geolocalizzate e datate automaticamente — utile come prova in caso di contestazione successiva sullo stato di un elemento.",
+      "Un documento può essere rinominato, spostato in un'altra cartella o eliminato in qualsiasi momento; i tipi comuni (PDF, immagini, file Office) si aprono direttamente in anteprima, senza download preliminare.",
+      "Lo spazio occupato dai documenti e dalle foto di cantiere conta nella quota di archiviazione dell'organizzazione, visibile in Account → Archiviazione.",
+    ],
+  },
+  {
+    id: 'chantiers-sous-traitants',
+    category: 'Cantieri e rapporti',
+    title: 'Subappaltatori su un cantiere',
+    keywords: ['subappaltatore', 'cantiere', 'fattura fornitore', 'responsabilità'],
+    body: [
+      "Un subappaltatore può essere aggiunto direttamente a un cantiere specifico, con i propri recapiti e il monitoraggio delle sue fatture collegate a quel cantiere.",
+      "Le fatture ricevute da un subappaltatore vengono registrate con il loro stato di pagamento, il che alimenta anche il calcolo di redditività del cantiere (il costo subappaltato si aggiunge al costo reale).",
+      "La rubrica globale dei subappaltatori (modulo Subappaltatori, nella navigazione principale) centralizza tutti quelli con cui lavora, oltre un singolo cantiere — vedi l'articolo dedicato.",
+    ],
+  },
+  {
+    id: 'travaux-supplementaires',
+    category: 'Cantieri e rapporti',
+    title: 'Lavori supplementari (LS)',
+    keywords: ['lavori supplementari', 'ls', 'atto aggiuntivo', 'extra', 'plusvalore'],
+    body: [
+      "Un Lavoro supplementare (LS) è un documento separato per tutto ciò che viene richiesto in più rispetto al preventivo iniziale durante il cantiere — un muro da spostare, una presa da aggiungere. Si crea da un cantiere, con o senza collegamento al preventivo d'origine.",
+      "Si redige, si invia e si firma esattamente come un preventivo (dettatura vocale inclusa), poi si trasforma automaticamente in fattura una volta accettato dal cliente.",
+      "Un LS accettato si aggiunge automaticamente all'importo preventivato totale del cantiere nella scheda Redditività — non serve ricalcolarlo a mano perché il margine resti corretto.",
+      "Documentare ogni extra con un LS, anche minore, evita la situazione più frequente a fine cantiere: un lavoro realmente svolto ma mai fatturato per mancanza di traccia scritta.",
+    ],
+  },
+  {
+    id: 'rh-heures-salaires',
+    screenshot: 'rh-heures-salaires',
+    category: 'Personale e salari',
+    title: 'Ore, spese e buste paga',
+    keywords: ['personale', 'ore', 'salario', 'busta paga', 'avs', 'lpp', 'imposta alla fonte'],
+    body: [
+      "Ogni dipendente registra le proprie ore direttamente dal telefono, collegate a un cantiere specifico — questo permette poi di confrontare il tempo previsto con quello effettivamente trascorso, cantiere per cantiere.",
+      "Le spese professionali (indennità chilometriche, pasti…) si aggiungono allo stesso modo, con l'aliquota forfettaria in vigore preconfigurata.",
+      "Da Account → Personale e salari, la segretaria RU o l'amministratore genera la busta paga di ogni dipendente, dal lordo al netto, a partire da aliquote AVS/AD/LPP/LAINF e da un'aliquota d'imposta alla fonte configurabili per persona — i valori predefiniti sono indicativi, da adattare secondo la Sua cassa di compensazione e il Suo cantone.",
+      "Un dipendente standard non vede mai altro che le proprie ore, spese e buste paga — mai quelle del resto del team, a meno che non abbia lui stesso un ruolo di personale o amministratore.",
+      "Il foglio ore si esporta in CSV con la granularità desiderata (giornaliera, settimanale, mensile) per inviarlo a una fiduciaria se necessario.",
+    ],
+  },
+  {
+    id: 'rh-heures-guide',
+    category: 'Personale e salari',
+    title: 'Registrare le proprie ore e rifatturarle per cantiere — la guida passo passo',
+    keywords: ['ore', 'registrazione ore', 'mobile', 'rifatturare', 'fatturare cantiere', 'esportazione csv', 'operaio', 'dipendente'],
+    body: [
+      "Concretamente, a cosa assomiglia usare Cantia per le ore — dal telefono di un dipendente sul cantiere fino all'ufficio che rifattura ed esporta i numeri. Le tre schermate qui sotto sono la stessa funzionalità vista da tre angolazioni diverse.",
+    ],
+    steps: [
+      {
+        screenshot: 'heures-mobile-saisie',
+        caption: "Sul telefono, un dipendente sceglie il cantiere interessato, indica le proprie ore e cosa ha fatto — nient'altro da installare, avviene direttamente nel browser del telefono. Il pulsante \"Detta una voce\" permette anche di dire tutto a voce alta (\"cantiere ristrutturazione villa, dalle 7 alle 15, casseratura\"): Cantia riconosce il cantiere, calcola le ore e registra la voce da solo.",
+      },
+      {
+        screenshot: 'heures-desktop-saisie',
+        caption: "Su computer, lo stesso modulo si usa con un calendario per navigare tra i giorni — pratico per recuperare più giornate insieme a fine settimana. Il pulsante \"Esporta CSV\" in fondo al foglio esporta le ore del periodo visualizzato.",
+      },
+      {
+        screenshot: 'heures-admin-facturation',
+        caption: "Lato ufficio, la scheda Fatturazione di Personale → Ore raggruppa le ore non ancora fatturate per cantiere e per tipo di lavoro. Un clic su \"Fattura questo cantiere\" crea direttamente la fattura corrispondente — le ore utilizzate vengono contrassegnate come fatturate e non compaiono più tra quelle ancora da fatturare.",
+      },
+    ],
+  },
+  {
+    id: 'tresorerie',
+    category: 'Liquidità',
+    title: 'Previsione di liquidità',
+    keywords: ['liquidità', 'previsione', 'cashflow', 'banca'],
+    body: [
+      "Il modulo Liquidità proietta il Suo saldo futuro su 90 giorni, a partire da ciò che Cantia sa già della Sua attività: fatture clienti non saldate, stima della massa salariale, fatture di subappaltatori non pagate e spese ricorrenti che registra.",
+      "Non è richiesto né necessario alcun collegamento bancario: inserisce il Suo saldo di partenza manualmente, quando lo desidera.",
+      "Una spesa ricorrente (affitto, leasing, assicurazione…) si configura una sola volta con la sua frequenza, da Spese — riappare poi automaticamente nella proiezione qui sotto, con un promemoria prima di ogni scadenza.",
+      "Gli acquisti occasionali fuori cantiere (forniture, attrezzatura, spese varie) si creano anch'essi da Spese, mai qui: una foto dello scontrino compila automaticamente la descrizione e l'importo, oppure l'assistente vocale (pulsante microfono) può aggiungerli dettandoli. Non compaiono nella proiezione qui sotto, che considera solo i movimenti ricorrenti e prevedibili.",
+      "L'interesse principale non è predire il futuro al franco esatto, ma individuare un calo con diverse settimane di anticipo: abbastanza presto per sollecitare una fattura in ritardo o rinviare un acquisto non urgente.",
+    ],
+  },
+  {
+    id: 'depenses',
+    category: 'Liquidità',
+    title: 'Spese: creare, monitorare e filtrare',
+    keywords: ['spese', 'elenco', 'filtro', 'cantiere', 'generale', 'totale', 'ricorrente', 'occasionale'],
+    body: [
+      "La sezione Spese (nella navigazione, accanto a Liquidità) raggruppa in un unico elenco tutte le spese dell'azienda: quelle collegate a un cantiere specifico (sempre registrate dalla scheda Redditività di quel cantiere) e le spese generali, fuori cantiere — che crea, modifica ed elimina direttamente qui, con un totale e filtri per periodo (questo mese, ultimi 30 giorni, tutto) e per cantiere.",
+      "Il pulsante «Nuova spesa» apre lo stesso modulo della nota vocale: una foto dello scontrino compila automaticamente la descrizione e l'importo, da verificare prima di salvare. Una scheda «Ricorrenti» a parte gestisce gli oneri che si ripetono (affitto, abbonamenti, assicurazioni…), con un promemoria prima di ogni scadenza — è anche da lì che alimentano la previsione di Liquidità.",
+      "Toccare una riga collegata a un cantiere apre la scheda Redditività di quel cantiere; toccare una spesa generale la apre in modifica, proprio qui — pratico per verificare che una spesa aggiunta a voce o tramite scansione sia arrivata al posto giusto, o per correggerla.",
+      "Disponibile non appena Redditività o Liquidità lo sono (piano Team): l'elenco si adatta a ciò che copre il Suo piano, ma creare spese generali o ricorrenti richiede Liquidità.",
+    ],
+  },
+  {
+    id: 'clients',
+    screenshot: 'clients',
+    category: 'Clienti',
+    title: 'La scheda cliente',
+    keywords: ['cliente', 'storico', 'scheda', 'recapiti', 'sollecito'],
+    body: [
+      "Ogni cliente ha la propria scheda: recapiti, storico completo dei suoi preventivi, fatture e cantieri, e note di monitoraggio — un unico posto invece di una ricerca nelle e-mail a ogni nuovo contatto.",
+      "Un cliente si crea automaticamente al momento di un primo preventivo, oppure manualmente dal modulo Clienti se vuole preparare una scheda ancora prima del primo documento.",
+      "Lo storico centralizzato permette di individuare facilmente i clienti ricorrenti (spesso i più redditizi da fidelizzare) e di sapere a colpo d'occhio chi ricontattare, e per quale motivo.",
+    ],
+  },
+  {
+    id: 'sous-traitants',
+    category: 'Subappaltatori',
+    title: 'La rubrica dei subappaltatori',
+    keywords: ['subappaltatore', 'rubrica', 'elenco', 'fattura'],
+    body: [
+      "Il modulo Subappaltatori (attivabile in Account → Moduli) centralizza tutti i subappaltatori con cui lavora, oltre un singolo cantiere — recapiti, mestiere e storico delle fatture ricevute.",
+      "Un subappaltatore della rubrica può essere aggiunto a qualsiasi cantiere in pochi clic, senza reinserire i suoi recapiti ogni volta.",
+      "Il monitoraggio delle fatture dei subappaltatori (pagate, in sospeso) offre una visione chiara di ciò che resta dovuto, utile sia per la liquidità sia per la redditività per cantiere.",
+    ],
+  },
+  {
+    id: 'integration-bexio',
+    category: 'Integrazioni',
+    title: 'Integrazione Bexio',
+    keywords: ['bexio', 'integrazione', 'contabilità', 'sincronizzazione'],
+    body: [
+      "L'integrazione Bexio (disponibile a partire dal piano Team) collega Cantia alla Sua contabilità tramite l'API ufficiale di Bexio, da Account → Integrazioni.",
+      "Una volta collegata, i clienti e le posizioni del catalogo si importano automaticamente, e ogni fattura Cantia può essere inviata a Bexio con un clic.",
+      "Ogni fattura arriva in Bexio solo come bozza — la finalizzazione resta sempre un'azione manuale lato Bexio, per mantenere il controllo su ciò che passa realmente in contabilità.",
+      "Disconnettere l'integrazione revoca immediatamente gli accessi: nessun dato continua a essere scambiato tra i due strumenti in seguito.",
+    ],
+  },
+  {
+    id: 'relances-impayes',
+    category: 'Fatturazione',
+    title: 'Sollecitare una fattura non pagata',
+    keywords: ['sollecito', 'non pagata', 'ritardo', 'promemoria', 'interesse di mora'],
+    body: [
+      "Una fattura in ritardo compare direttamente sulla Dashboard e nell'elenco delle fatture, senza dover confrontare manualmente un estratto conto bancario con un elenco di documenti inviati.",
+      "Un primo sollecito neutro, inviato già il giorno dopo la scadenza superata, basta nella maggior parte dei casi — il tono può inasprirsi in un secondo sollecito se necessario.",
+      "Il riferimento QR di ogni fattura permette di riconciliare un pagamento ricevuto in pochi secondi, il che evita di sollecitare per errore un cliente che ha già pagato.",
+    ],
+  },
+  {
+    id: 'import-releve-bancaire',
+    category: 'Fatturazione',
+    title: 'Importare un estratto conto bancario',
+    keywords: ['estratto conto', 'importazione', 'riconciliazione', 'camt', 'pagamento'],
+    body: [
+      "Da Fatturazione → Importa estratto conto, un file di estratto conto bancario (in particolare in formato CAMT.053) può essere importato per riconciliare automaticamente i pagamenti ricevuti con le fatture in sospeso.",
+      "La riconciliazione avviene in via prioritaria tramite il riferimento QR di ogni pagamento — una corrispondenza esatta e affidabile al 100%. Quando un cliente paga senza questo riferimento, Cantia tenta poi una riconciliazione per importo, quindi, come ultima risorsa, per somiglianza di nome (anche se l'ordine delle parole differisce, come in un estratto conto che inverte nome e cognome).",
+      "Le riconciliazioni per somiglianza di nome vengono segnalate a parte e non sono mai spuntate automaticamente — richiedono una verifica prima della conferma, a differenza delle riconciliazioni esatte (riferimento o importo univoco) che lo sono già.",
+      "Questa importazione non sostituisce un collegamento bancario permanente: è un'importazione occasionale, da effettuare tutte le volte che desidera, senza mai dare a Cantia un accesso diretto al Suo conto.",
+    ],
+  },
+  {
+    id: 'portail-client',
+    category: 'Fatturazione',
+    title: 'Cosa vede il cliente sul suo portale',
+    keywords: ['portale cliente', 'link cliente', 'firma online', 'sicurezza'],
+    body: [
+      "Il link inviato a un cliente apre un portale sicuro, senza che debba creare un account né una password — solo il suo indirizzo e-mail, già noto a Cantia.",
+      "Una doppia verifica protegge l'accesso: un codice ricevuto per e-mail deve essere inserito prima di poter consultare il documento, affinché un link smarrito da solo non basti.",
+      "Su un preventivo o un Lavoro supplementare, il cliente consulta il dettaglio con i prezzi e firma online (mouse, dito, o caricamento di una foto della firma) — l'accettazione viene datata e fa scattare automaticamente le fasi successive lato Cantia.",
+      "Su una fattura, il portale resta in sola lettura: il cliente vede il dettaglio e il saldo residuo dovuto, ma non può mai segnare lui stesso un pagamento come ricevuto.",
+    ],
+  },
+];

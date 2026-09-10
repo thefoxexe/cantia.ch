@@ -7,7 +7,7 @@ forceLocale('it');
 export default function TresorerieSolutionPageIt() {
   return (
     <SolutionPage
-      kicker="Tesoreria"
+      kicker="Liquidità"
       title="Riuscirà a pagare i salari tra tre settimane?"
       subtitle="Fatture da incassare, salari da versare, subappaltatori da pagare, abbonamenti che partono da soli — Cantia riunisce tutto ciò che si muove sul Suo conto in un'unica proiezione a 90 giorni."
       visual={<ModuleMockup kind="tresorerie" />}
@@ -66,10 +66,10 @@ export default function TresorerieSolutionPageIt() {
         {
           question: 'Come funzionano i promemoria delle spese ricorrenti?',
           answer:
-            "Un banner sulla home e sulla pagina Tesoreria Le segnala le spese ricorrenti attive in scadenza nei prossimi 7 giorni, prima che vengano addebitate.",
+            "Un banner sulla home e sulla pagina Liquidità Le segnala le spese ricorrenti attive in scadenza nei prossimi 7 giorni, prima che vengano addebitate.",
         },
         {
-          question: 'La Tesoreria previsionale è inclusa in tutti i piani Cantia?',
+          question: 'La Liquidità previsionale è inclusa in tutti i piani Cantia?',
           answer: 'È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione.',
         },
       ]}
@@ -79,7 +79,7 @@ export default function TresorerieSolutionPageIt() {
         { href: '/it/solutions/rentabilite', label: 'Redditività per cantiere' },
       ]}
       closingTitle="Non scopra più un buco di tesoreria a posteriori"
-      closingText="Tesoreria previsionale è disponibile a partire dal piano Team — senza connessione bancaria, senza configurazioni complicate."
+      closingText="Liquidità previsionale è disponibile a partire dal piano Team — senza connessione bancaria, senza configurazioni complicate."
     />
   );
 }

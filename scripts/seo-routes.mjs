@@ -2457,14 +2457,14 @@ export const ROUTES = [
   },
   {
     path: 'it/solutions/tresorerie',
-    title: "Tesoreria previsionale per l'edilizia | Cantia",
+    title: "Liquidità previsionale per l'edilizia | Cantia",
     description:
       "Fatture da incassare, salari, subappaltatori e spese ricorrenti riuniti in una proiezione a 90 giorni — senza connessione bancaria.",
     faq: [
       { q: 'Cantia si collega al mio conto bancario?', a: 'No. Inserisce il Suo saldo manualmente quando lo desidera — non viene richiesto né è necessario alcun accesso bancario.' },
       { q: 'Da dove provengono gli importi della proiezione?', a: "Dalle fatture clienti non saldate, da una stima della massa salariale (profili HR + ore inserite), dalle fatture subappaltatori non pagate e dalle spese ricorrenti che Lei registra — tutto ciò che Cantia sa già sulla Sua attività." },
-      { q: 'Come funzionano i promemoria delle spese ricorrenti?', a: "Un banner sulla home e sulla pagina Tesoreria Le segnala le spese ricorrenti attive in scadenza nei prossimi 7 giorni, prima che vengano addebitate." },
-      { q: 'La Tesoreria previsionale è inclusa in tutti i piani Cantia?', a: 'È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione.' },
+      { q: 'Come funzionano i promemoria delle spese ricorrenti?', a: "Un banner sulla home e sulla pagina Liquidità Le segnala le spese ricorrenti attive in scadenza nei prossimi 7 giorni, prima che vengano addebitate." },
+      { q: 'La Liquidità previsionale è inclusa in tutti i piani Cantia?', a: 'È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione.' },
     ],
   },
   {
