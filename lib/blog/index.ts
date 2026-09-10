@@ -1,5 +1,6 @@
 import { BlogPost } from './types';
 import { BLOG_POSTS_DE } from './index-de';
+import { BLOG_POSTS_IT } from './index-it';
 import { post as p1 } from './posts/calculer-prix-devis-renovation-suisse';
 import { post as p2 } from './posts/norme-sia-118-devis-obligatoire';
 import { post as p3 } from './posts/qr-facture-obligatoire-2026';
@@ -157,22 +158,27 @@ export const BLOG_POSTS: BlogPost[] = [
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));
 
-// Same 138 posts, same order, with each one swapped for its German
-// translation — used by the blog index/listing so a German visitor sees the
-// full catalog. Falls back to the French post for any future slug added
-// here before its translation lands.
+// Same 138 posts, same order, with each one swapped for its German or
+// Italian translation — used by the blog index/listing so a visitor in
+// either language sees the full catalog. Falls back to the French post for
+// any future slug added here before its translation lands.
 export function getAllPosts(locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost[] {
-  if (locale !== 'de') return BLOG_POSTS;
-  return BLOG_POSTS.map((p) => BLOG_POSTS_DE.find((d) => d.slug === p.slug) ?? p);
+  if (locale === 'de') return BLOG_POSTS.map((p) => BLOG_POSTS_DE.find((d) => d.slug === p.slug) ?? p);
+  if (locale === 'it') return BLOG_POSTS.map((p) => BLOG_POSTS_IT.find((d) => d.slug === p.slug) ?? p);
+  return BLOG_POSTS;
 }
 
-// All 138 posts are translated (lib/blog/posts-de/); this still falls back
-// to the French post for any future slug added before its translation
-// lands, rather than a broken link or an empty page.
+// All 138 posts are translated (lib/blog/posts-de/, lib/blog/posts-it/);
+// this still falls back to the French post for any future slug added before
+// its translation lands, rather than a broken link or an empty page.
 export function getPostBySlug(slug: string, locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost | undefined {
   if (locale === 'de') {
     const de = BLOG_POSTS_DE.find((p) => p.slug === slug);
     if (de) return de;
+  }
+  if (locale === 'it') {
+    const it = BLOG_POSTS_IT.find((p) => p.slug === slug);
+    if (it) return it;
   }
   return BLOG_POSTS.find((p) => p.slug === slug);
 }
@@ -180,7 +186,7 @@ export function getPostBySlug(slug: string, locale: 'fr' | 'de' | 'it' = 'fr'): 
 export function getRelatedPosts(post: BlogPost, max = 3, locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost[] {
   const bySlug = post.relatedSlugs?.map((s) => getPostBySlug(s, locale)).filter((p): p is BlogPost => !!p) ?? [];
   if (bySlug.length >= max) return bySlug.slice(0, max);
-  const pool = locale === 'de' ? BLOG_POSTS_DE : BLOG_POSTS;
+  const pool = locale === 'de' ? BLOG_POSTS_DE : locale === 'it' ? BLOG_POSTS_IT : BLOG_POSTS;
   const fallback = pool.filter((p) => p.slug !== post.slug && p.category === post.category && !bySlug.includes(p));
   return [...bySlug, ...fallback].slice(0, max);
 }

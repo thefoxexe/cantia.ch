@@ -184,6 +184,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-08-21"
   },
   {
+    "path": "it/blog/automatiser-suivi-administratif-entreprise-artisanale",
+    "title": "Automatizzare il monitoraggio amministrativo, non solo la fatturazione | Cantia",
+    "description": "L’automazione si limita spesso, nella mente, all’invio delle fatture. Cosa può anche essere automatizzato nel monitoraggio amministrativo più ampio di un’impresa artigianale.",
+    "faq": [
+      {
+        "q": "L’automazione nell’edilizia si limita alla fatturazione?",
+        "a": "No: anche il monitoraggio amministrativo più ampio (rapporti di cantiere, classificazione di documenti, avvisi di scadenza) può essere ampiamente automatizzato."
+      },
+      {
+        "q": "Quale tipo di automazione fa generalmente risparmiare più tempo nella quotidianità?",
+        "a": "Le automazioni discrete, in sottofondo (generazione di rapporti, classificazione automatica), piuttosto che funzioni più visibili ma raramente usate."
+      },
+      {
+        "q": "L’automazione del monitoraggio amministrativo giova anche ai clienti?",
+        "a": "Sì, poiché un rapporto di cantiere generato rapidamente e in modo pulito, senza tempi di impaginazione manuale, rafforza direttamente l’immagine professionale percepita dal cliente."
+      }
+    ],
+    "publishedAt": "2026-08-27"
+  },
+  {
     "path": "it/blog/automatiser-taches-repetitives-entreprise-sans-developpeur",
     "title": "Automatizzare senza programmare: cosa è possibile per un’impresa edile | Cantia",
     "description": "L’automazione non è più riservata alle imprese con un servizio informatico. Cosa si può oggi automatizzare in una piccola impresa edile, senza scrivere una riga di codice.",
@@ -744,6 +764,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-01-22"
   },
   {
+    "path": "it/blog/demander-fonctionnalite-sur-mesure-editeur-logiciel",
+    "title": "Richiedere una funzionalità su misura: come muoversi concretamente | Cantia",
+    "description": "Molte imprese non osano mai chiedere una funzionalità su misura, pensando che sia riservata solo ai grandi clienti. La realtà, e il modo giusto di formulare la richiesta.",
+    "faq": [
+      {
+        "q": "Una funzionalità su misura è riservata alle grandi imprese?",
+        "a": "Non necessariamente: dipende soprattutto dalla chiarezza dell’esigenza espressa e dall’editore contattato, alcuni lavorando direttamente con piccole strutture su richieste specifiche."
+      },
+      {
+        "q": "Come formulare bene una richiesta di funzionalità su misura?",
+        "a": "Descrivendo il problema concreto riscontrato, con un esempio reale, piuttosto che elencando una soluzione astratta già immaginata: l’editore può talvolta proporre un approccio migliore."
+      },
+      {
+        "q": "Cosa succede dopo aver formulato una richiesta su misura?",
+        "a": "Generalmente uno scambio per definire con precisione l’esigenza, seguito da una proposta concreta su tempi e portata, senza obbligo di impegnarsi prima di avere questa visione chiara."
+      }
+    ],
+    "publishedAt": "2026-08-25"
+  },
+  {
     "path": "it/blog/demarrer-entreprise-batiment-outils-indispensables",
     "title": "Avviare la propria impresa edile: gli strumenti realmente indispensabili | Cantia",
     "description": "Tra ciò che è indispensabile e ciò che può aspettare, l’elenco degli strumenti da avere fin dal primo giorno di attività di un’impresa edile, senza superfluo.",
@@ -942,6 +982,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-07-07"
+  },
+  {
+    "path": "it/blog/devis-gratuit-ou-payant-que-dit-la-loi",
+    "title": "Preventivo gratuito o a pagamento: cosa impone davvero la legge svizzera (nulla) | Cantia",
+    "description": "Nessuna legge svizzera obbliga un artigiano a stilare un preventivo gratuito. È semplicemente la prassi di mercato che ne ha fatto la norma. Ecco quando fatturare un preventivo è giustificato, e come proporlo senza perdere il cliente.",
+    "faq": [
+      {
+        "q": "La legge svizzera obbliga a fare preventivi gratuiti?",
+        "a": "No, nessuna legge lo impone. La gratuità è un uso di mercato, non un obbligo legale. Un preventivo può peraltro essere fatturato se annunciato chiaramente in anticipo."
+      },
+      {
+        "q": "Si può dedurre il prezzo di un preventivo fatturato dall’importo finale dei lavori?",
+        "a": "Sì, è una prassi diffusa e ben accettata dai clienti: l’importo dello studio viene dedotto dalla fattura finale se il cantiere viene affidato all’azienda."
+      },
+      {
+        "q": "Bisogna avvisare il cliente prima di fatturare un preventivo?",
+        "a": "Sì, di fatto è indispensabile: fatturare un preventivo senza averlo annunciato in anticipo crea una controversia commerciale evitabile, anche se nulla lo vieta legalmente."
+      }
+    ],
+    "publishedAt": "2026-08-12"
   },
   {
     "path": "it/blog/devis-menuisier-sur-mesure-facturation-suisse",
@@ -1548,6 +1608,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-06-24"
   },
   {
+    "path": "it/blog/logiciel-construit-avec-vous-sur-mesure",
+    "title": "Un software costruito con Lei, non solo venduto a tutti | Cantia",
+    "description": "Un editore che vende un prodotto rigido e un editore che costruisce con i propri clienti non offrono la stessa esperienza: ecco cosa cambia concretamente per un’impresa edile.",
+    "faq": [
+      {
+        "q": "Cosa differenzia un software \"costruito con i propri clienti\" da un software classico?",
+        "a": "Le nuove funzionalità nascono spesso da esigenze reali segnalate direttamente dai clienti, piuttosto che da una tabella di marcia decisa unicamente internamente."
+      },
+      {
+        "q": "Un software costruito con i propri clienti sviluppa una versione diversa per ciascuno?",
+        "a": "No, il nucleo standard resta comune a tutti: la differenza riguarda la capacità di regolarlo realmente secondo i feedback del campo, piuttosto che restare rigido."
+      },
+      {
+        "q": "Come può un feedback cliente influenzare concretamente l’evoluzione dello strumento?",
+        "a": "Un problema riscontrato nella quotidianità, segnalato direttamente, può dare origine a una nuova funzionalità che giova poi a tutti gli utenti dello strumento."
+      }
+    ],
+    "publishedAt": "2026-08-28"
+  },
+  {
     "path": "it/blog/logiciel-devis-facture-maconnerie-suisse",
     "title": "Preventivi e fatture per un’impresa di muratura: il metodo che evita le brutte sorprese | Cantia",
     "description": "Un preventivo di muratura mal strutturato nasconde spesso una perdita: materiali sottovalutati, ore del team mal contate, imprevisti non accantonati. Metodo concreto per calcolare correttamente.",
@@ -1928,6 +2008,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-07-23"
   },
   {
+    "path": "it/blog/mentions-obligatoires-facture-suisse-tva",
+    "title": "Fattura svizzera: le indicazioni obbligatorie per essere valida ai fini IVA | Cantia",
+    "description": "Numero IVA, aliquota applicabile, data della prestazione, riferimento QR: una fattura incompleta può essere rifiutata in contabilità o contestata da un cliente. Ecco l’elenco esatto da verificare.",
+    "faq": [
+      {
+        "q": "Il numero IDI è obbligatorio su ogni fattura svizzera?",
+        "a": "Sì, non appena un’azienda è assoggettata all’IVA, il suo numero IDI/IVA deve figurare sulla fattura per permettere la deduzione dell’imposta precedente lato cliente."
+      },
+      {
+        "q": "Quale aliquota IVA si applica ai lavori edili in Svizzera?",
+        "a": "L’aliquota normale dell’8,1 % si applica alla maggioranza delle prestazioni edili dal 2024, salvo casi particolari soggetti a un’aliquota ridotta o a un’esenzione specifica."
+      },
+      {
+        "q": "Una fattura senza IVA dettagliata è valida?",
+        "a": "Per gli importi superiori a CHF 400.-, l’aliquota e l’importo dell’IVA devono apparire chiaramente, perché la loro assenza può far rifiutare la deduzione dell’imposta precedente al destinatario."
+      }
+    ],
+    "publishedAt": "2026-08-15"
+  },
+  {
     "path": "it/blog/norme-sia-118-devis-obligatoire",
     "title": "La norma SIA 118 è obbligatoria su un preventivo? | Cantia",
     "description": "La norma SIA 118 non è mai automatica: si applica solo se il contratto o il preventivo la menziona esplicitamente. Spiegazioni e buone pratiche.",
@@ -2186,6 +2286,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-08-24"
+  },
+  {
+    "path": "it/blog/poursuite-facture-impayee-procedure-suisse",
+    "title": "Fattura non pagata: la procedura esecutiva in Svizzera, passo dopo passo | Cantia",
+    "description": "Domanda d’esecuzione, precetto esecutivo, opposizione, rigetto: ecco come funziona realmente un’esecuzione per fattura non pagata, e in quale momento diventa utile.",
+    "faq": [
+      {
+        "q": "Serve un avvocato per avviare un’esecuzione in Svizzera?",
+        "a": "No, per un credito semplice e documentato, la domanda d’esecuzione si deposita direttamente presso l’ufficio d’esecuzione, senza rappresentanza obbligatoria."
+      },
+      {
+        "q": "Cosa succede se il debitore fa opposizione al precetto esecutivo?",
+        "a": "Bisogna chiedere il rigetto al tribunale per far annullare l’opposizione: una procedura nettamente più rapida se il credito si basa su un titolo firmato dal debitore."
+      },
+      {
+        "q": "Un’esecuzione garantisce di essere pagati?",
+        "a": "No. Se il debitore è insolvente, l’esecuzione può concludersi con un attestato di carenza di beni senza recupero, ma resta iscritta nel registro delle esecuzioni del debitore."
+      }
+    ],
+    "publishedAt": "2026-08-18"
   },
   {
     "path": "it/blog/prescription-facture-impayee-delai-10-ans",
