@@ -26,18 +26,28 @@ export async function listOrganizationProjectExpenses(organizationId: string): P
   return (data ?? []) as OrganizationExpenseRow[];
 }
 
+export interface ProjectExpenseInput {
+  label: string;
+  category: string | null;
+  amount: number;
+  expenseDate: string | null;
+  notes: string | null;
+}
+
 export async function createProjectExpense(
   organizationId: string,
   projectId: string,
-  label: string,
-  amount: number,
+  input: ProjectExpenseInput,
   createdBy: string | null,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase.from('project_expenses').insert({
     organization_id: organizationId,
     project_id: projectId,
-    label,
-    amount,
+    label: input.label,
+    category: input.category,
+    amount: input.amount,
+    expense_date: input.expenseDate,
+    notes: input.notes,
     created_by: createdBy,
   });
   return { error: error?.message ?? null };

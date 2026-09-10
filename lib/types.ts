@@ -250,6 +250,8 @@ export interface ProjectExpense {
   label: string;
   amount: number;
   category: string | null;
+  expense_date: string | null;
+  notes: string | null;
   created_by: string | null;
   created_at: string;
 }

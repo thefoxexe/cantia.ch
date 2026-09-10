@@ -103,7 +103,12 @@ export function ExpenseComposer({
   async function handleSave() {
     if (!label.trim() || !amount.trim()) return;
     setSaving(true);
-    const { error } = await createProjectExpense(organizationId, projectId, label.trim(), Number(amount) || 0, user?.id ?? null);
+    const { error } = await createProjectExpense(
+      organizationId,
+      projectId,
+      { label: label.trim(), category: null, amount: Number(amount) || 0, expenseDate: null, notes: null },
+      user?.id ?? null,
+    );
     setSaving(false);
     if (!error) {
       setLabel('');

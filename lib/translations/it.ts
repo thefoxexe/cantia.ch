@@ -1008,6 +1008,8 @@ export const it: TranslationDict = {
     notesPlaceholderRecurring: "Numero di contratto, disdicibile entro il...",
     notesPlaceholderOneOff: 'Fornitore, riferimento...',
     dateField: 'Data',
+    projectField: 'Cantiere (opzionale)',
+    projectFieldHint: 'Classifica la spesa su un cantiere invece che come spesa generale.',
     save: 'Salva',
     delete: 'Elimina',
     cancel: 'Annulla',

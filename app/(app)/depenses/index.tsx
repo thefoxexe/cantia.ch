@@ -6,7 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { listOrganizationProjectExpenses } from '../../../lib/api/expenses';
+import { createProjectExpense, listOrganizationProjectExpenses } from '../../../lib/api/expenses';
 import {
   listExpenses,
   createExpense,
@@ -85,6 +85,7 @@ export default function DepensesScreen() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [chantierExpenses, setChantierExpenses] = useState<UnifiedExpense[]>([]);
   const [generalExpensesRaw, setGeneralExpensesRaw] = useState<Expense[]>([]);
+  const [allProjects, setAllProjects] = useState<{ id: string; name: string }[]>([]);
   const [recurring, setRecurring] = useState<RecurringExpense[]>([]);
   const [period, setPeriod] = useState<Period>('month');
   const [projectFilter, setProjectFilter] = useState<'all' | 'general' | string>('all');
@@ -103,23 +104,27 @@ export default function DepensesScreen() {
     setPlan((planRow as Plan) ?? null);
 
     const p = planRow as Plan | null;
-    const [projectRows, generalRows, recurringRows] = await Promise.all([
+    const [projectRows, generalRows, recurringRows, projectsRows] = await Promise.all([
       p?.has_profitability ? listOrganizationProjectExpenses(organization.id) : Promise.resolve([]),
       p?.has_treasury ? listExpenses(organization.id) : Promise.resolve([]),
       p?.has_treasury ? listRecurringExpenses(organization.id) : Promise.resolve([]),
+      p?.has_profitability
+        ? supabase.from('projects').select('id, name').eq('organization_id', organization.id).order('name')
+        : Promise.resolve({ data: [] }),
     ]);
     setChantierExpenses(
       projectRows.map((e) => ({
         id: `p-${e.id}`,
         label: e.label,
         amount: Number(e.amount),
-        date: e.created_at,
+        date: e.expense_date ?? e.created_at,
         projectId: e.project_id,
         projectName: e.projects?.name ?? null,
       })),
     );
     setGeneralExpensesRaw(generalRows);
     setRecurring(recurringRows);
+    setAllProjects((projectsRows.data as { id: string; name: string }[] | null) ?? []);
     setLoading(false);
   }, [organization]);
 
@@ -352,6 +357,7 @@ export default function DepensesScreen() {
         organizationId={organization?.id ?? ''}
         userId={user?.id}
         editing={editingOneOff}
+        projects={plan.has_profitability ? allProjects : []}
         onSaved={() => {
           setOneOffModalOpen(false);
           load();
@@ -543,6 +549,7 @@ function OneOffExpenseModal({
   organizationId,
   userId,
   editing,
+  projects,
   onSaved,
 }: {
   visible: boolean;
@@ -550,6 +557,7 @@ function OneOffExpenseModal({
   organizationId: string;
   userId: string | undefined;
   editing: Expense | null;
+  projects: { id: string; name: string }[];
   onSaved: () => void;
 }) {
   const { t } = useTranslation();
@@ -558,6 +566,7 @@ function OneOffExpenseModal({
   const [amount, setAmount] = useState('');
   const [expenseDate, setExpenseDate] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanningReceipt, setScanningReceipt] = useState(false);
@@ -573,6 +582,7 @@ function OneOffExpenseModal({
     setAmount(editing ? String(editing.amount_chf) : '');
     setExpenseDate(editing?.expense_date ?? isoToday());
     setNotes(editing?.notes ?? '');
+    setSelectedProjectId(null);
     setError(null);
     setScanError(null);
     setScanSuccess(null);
@@ -659,6 +669,20 @@ function OneOffExpenseModal({
 
     setSaving(true);
     setError(null);
+
+    if (!editing && selectedProjectId) {
+      const { error: err } = await createProjectExpense(
+        organizationId,
+        selectedProjectId,
+        { label: label.trim(), category: category.trim() || null, amount: amountChf, expenseDate, notes: notes.trim() || null },
+        userId ?? null,
+      );
+      setSaving(false);
+      if (err) return setError(err);
+      onSaved();
+      return;
+    }
+
     const input: ExpenseInput = {
       label: label.trim(),
       category: category.trim() || null,
@@ -718,6 +742,32 @@ function OneOffExpenseModal({
             <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderOneOff')} />
             <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
             <DateField label={t('treasury.dateField')} value={expenseDate} onChange={setExpenseDate} />
+
+            {!editing && projects.length > 0 ? (
+              <View style={{ marginBottom: spacing.lg }}>
+                <Text style={styles.fieldLabel}>{t('treasury.projectField')}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+                  <Pressable
+                    onPress={() => setSelectedProjectId(null)}
+                    style={[styles.freqChip, { flex: 0, paddingHorizontal: spacing.md }, selectedProjectId === null && styles.freqChipActive]}
+                  >
+                    <Text style={[styles.freqChipText, selectedProjectId === null && styles.freqChipTextActive]}>{t('depensesList.filterGeneral')}</Text>
+                  </Pressable>
+                  {projects.map((p) => (
+                    <Pressable
+                      key={p.id}
+                      onPress={() => setSelectedProjectId(p.id)}
+                      style={[styles.freqChip, { flex: 0, paddingHorizontal: spacing.md }, selectedProjectId === p.id && styles.freqChipActive]}
+                    >
+                      <Text style={[styles.freqChipText, selectedProjectId === p.id && styles.freqChipTextActive]} numberOfLines={1}>
+                        {p.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+                <Text style={styles.rowDate}>{t('treasury.projectFieldHint')}</Text>
+              </View>
+            ) : null}
             <Field label={t('treasury.notesFieldOptional')} value={notes} onChangeText={setNotes} placeholder={t('treasury.notesPlaceholderOneOff')} multiline />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}

@@ -1000,6 +1000,8 @@ export const de: TranslationDict = {
     notesPlaceholderRecurring: 'Vertragsnummer, kündbar bis...',
     notesPlaceholderOneOff: 'Lieferant, Referenz...',
     dateField: 'Datum',
+    projectField: 'Baustelle (optional)',
+    projectFieldHint: 'Ordnen Sie die Ausgabe einer Baustelle statt einer allgemeinen Ausgabe zu.',
     save: 'Speichern',
     delete: 'Löschen',
     cancel: 'Abbrechen',

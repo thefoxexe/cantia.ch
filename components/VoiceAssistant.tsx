@@ -293,7 +293,20 @@ export function VoiceAssistant() {
       setSaveError(null);
       setStage('saving');
       const error = projectId
-        ? (await createProjectExpense(organization.id, projectId, expenseLabel.trim(), amount, user.id)).error
+        ? (
+            await createProjectExpense(
+              organization.id,
+              projectId,
+              {
+                label: expenseLabel.trim(),
+                category: null,
+                amount,
+                expenseDate: new Date().toISOString().slice(0, 10),
+                notes: null,
+              },
+              user.id,
+            )
+          ).error
         : (
             await createExpense(organization.id, user.id, {
               label: expenseLabel.trim(),

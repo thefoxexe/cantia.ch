@@ -986,6 +986,8 @@ export const fr = {
     notesPlaceholderRecurring: "Numéro de contrat, résiliable jusqu'au...",
     notesPlaceholderOneOff: 'Fournisseur, référence...',
     dateField: 'Date',
+    projectField: 'Chantier (optionnel)',
+    projectFieldHint: "Classez la dépense sur un chantier plutôt qu'en dépense générale.",
     save: 'Enregistrer',
     delete: 'Supprimer',
     cancel: 'Annuler',
