@@ -17,6 +17,12 @@ const TRADE_SLUGS = new Set([
 
 export const SITE = 'https://cantia.ch';
 export const OG_IMAGE = `${SITE}/og-image.jpg`;
+// Organization.logo wants a roughly-square mark (Google's guidance favors a
+// 1:1 image, and flags a wide social-share banner as not actually a logo) —
+// OG_IMAGE above is 1200x630, correct for og:image/twitter:image but wrong
+// here. pwa-icon-512.png is the real square app icon already shipped for
+// the PWA manifest.
+export const ORG_LOGO = `${SITE}/pwa-icon-512.png`;
 
 const HOME = {
   path: '',
@@ -2633,7 +2639,7 @@ export function jsonLdFor(url, route) {
       '@id': `${SITE}/#organization`,
       name: 'Cantia',
       url: `${SITE}/`,
-      logo: OG_IMAGE,
+      logo: ORG_LOGO,
       email: 'info@cantia.ch',
       areaServed: { '@type': 'Country', name: 'Switzerland' },
     },
