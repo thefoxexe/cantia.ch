@@ -68,7 +68,7 @@ export function SolutionPage({
   closingText: string;
 }) {
   const { t } = useTranslation();
-  const pricingHref = getAppLocale() === 'de' ? '/de/#pricing' : '/#pricing';
+  const pricingHref = getAppLocale() === 'de' ? '/de/#pricing' : getAppLocale() === 'it' ? '/it/#pricing' : '/#pricing';
   // A single mount-in beat for the hero (fade + rise) — no scroll tracking
   // needed since it's the first thing visible on load, unlike index.tsx's
   // scroll-scrubbed reveals further down the page.

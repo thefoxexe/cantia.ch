@@ -85,7 +85,7 @@ function LandingContent() {
   const pathname = usePathname();
   const router = useRouter();
   const appLocale = getAppLocale();
-  const tradeHrefPrefix = appLocale === 'de' ? '/de/' : '/';
+  const tradeHrefPrefix = appLocale === 'de' ? '/de/' : appLocale === 'it' ? '/it/' : '/';
   const aideHref = `${tradeHrefPrefix}aide`;
   const contactHref = `${tradeHrefPrefix}contact`;
   const scrollRef = useRef<ScrollView>(null);
@@ -796,12 +796,12 @@ function LandingContent() {
                 return (
                   <Link key={slug} href={`${tradeHrefPrefix}${slug}` as any} asChild>
                     <Pressable style={styles.tradeLinkChip}>
-                      <Text style={styles.tradeLinkChipText}>{appLocale === 'de' ? tradePage.tradeName : pluralTradeName(tradePage.tradeName)}</Text>
+                      <Text style={styles.tradeLinkChipText}>{appLocale === 'fr' ? pluralTradeName(tradePage.tradeName) : tradePage.tradeName}</Text>
                     </Pressable>
                   </Link>
                 );
               })}
-              <Link href={appLocale === 'de' ? '/de/metiers' : '/metiers'} asChild>
+              <Link href={(tradeHrefPrefix + 'metiers') as any} asChild>
                 <Pressable style={styles.tradeLinkChipAll}>
                   <Text style={styles.tradeLinkChipAllText}>{tr('landingPage.seeAllTrades')}</Text>
                   <Feather name="arrow-right" size={13} color={colors.primary} />

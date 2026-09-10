@@ -127,7 +127,7 @@ export default function ChoosePlanScreen() {
 
         <Pressable
           style={styles.contactCard}
-          onPress={() => router.push((getAppLocale() === 'de' ? '/de/sur-mesure' : '/sur-mesure') as any)}
+          onPress={() => router.push((getAppLocale() === 'de' ? '/de/sur-mesure' : getAppLocale() === 'it' ? '/it/sur-mesure' : '/sur-mesure') as any)}
           hitSlop={8}
         >
           <Feather name="tool" size={16} color={colors.textMuted} />

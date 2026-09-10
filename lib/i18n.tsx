@@ -532,9 +532,248 @@ const de: Dict = {
   },
 };
 
+const it: Dict = {
+  // "Download" lasciato in inglese (non "Scaricare") — stessa scelta fatta
+  // per fr/de: una parola tecnica capita internazionalmente, così questa
+  // voce di navigazione resta identica in tutte le lingue.
+  nav: { services: 'Servizi', pricing: 'Prezzi', download: 'Download', help: 'Documentazione', contact: 'Contatto', login: 'Accedi', cta: 'Prova Cantia' },
+  hero: {
+    kicker: 'Pensato per l’edilizia svizzera 🇨🇭',
+    headlinePrefix: 'Gestisca i suoi cantieri.',
+    headlineHighlight: 'Non la sua amministrazione.',
+    subheadline:
+      'Cantia è il software di gestione pensato per le imprese edili svizzere. Preventivi, fatture, pianificazione, rapporti e redditività riuniti in un unico strumento, in ufficio come in cantiere.',
+    cta1: 'Inizi la prova gratuita di 14 giorni',
+    cta2: 'Scopra Cantia',
+    trust: '14 giorni di prova · Nessun codice necessario · Ospitato in Svizzera',
+  },
+  spotlight: {
+    title: 'Automatismi pensati per il quotidiano dell’edilizia',
+    subtitle: 'Dalla dettatura del preventivo alla fattura QR, Cantia automatizza i compiti che le fanno perdere tempo tra il cantiere e l’ufficio.',
+    voice: {
+      label: 'Dettatura vocale',
+      listening: 'Ascolto in corso…',
+      transcript: 'Facciata nord, 12 metri quadrati di intonaco da rifare, più fornitura e posa di 3 finestre in PVC…',
+      resultTitle: 'Preventivo generato automaticamente',
+      resultLines: ['Intonaco facciata nord — 12 m²', 'Finestra PVC (fornitura + posa) — 3 pz', 'Totale calcolato con IVA'],
+      caption: 'Lei parla, Cantia scrive. Il suo preventivo è pronto ancora prima di lasciare il cantiere.',
+    },
+    qrbill: {
+      label: 'Fattura QR svizzera',
+      title: 'Pagabile con una scansione',
+      text: 'Ogni fattura include la polizza di versamento QR svizzera, scansionabile da qualsiasi app bancaria.',
+      badge: 'Conforme allo standard SIX',
+    },
+    catalog: {
+      label: 'Catalogo intelligente',
+      title: 'I suoi prezzi, memorizzati',
+      text: 'Ogni preventivo arricchisce il suo catalogo. La prossima volta, Cantia riconosce le sue prestazioni e propone già il prezzo corretto.',
+      items: [
+        { name: 'Finestra PVC doppio vetro', match: 96 },
+        { name: 'Posa e impermeabilizzazione perimetrale', match: 91 },
+        { name: 'Tapparella in alluminio su misura', match: 88 },
+      ],
+    },
+  },
+  pain: {
+    title: 'L’amministrazione non le costa solo tempo. Le costa denaro.',
+    items: [
+      {
+        title: 'I suoi preventivi aspettano la sera. I suoi clienti, invece, non aspettano.',
+        text: 'Dopo una giornata di cantiere, restano ancora le offerte da scrivere. Cantia permette di preparare un preventivo direttamente dal campo e di riutilizzare le prestazioni abituali.',
+      },
+      {
+        title: 'Foto, note e decisioni finiscono ovunque tranne che nel posto giusto.',
+        text: 'WhatsApp, galleria del telefono, carta, email: Cantia raccoglie lo storico direttamente nel cantiere interessato.',
+      },
+      {
+        title: 'Un cantiere può perdere denaro molto prima che lei se ne accorga.',
+        text: 'Confronti ore, spese e importi fatturati durante il cantiere per individuare gli scostamenti prima della fine dei lavori.',
+      },
+    ],
+  },
+  services: {
+    title: 'Cantia collega il campo e l’ufficio in un unico strumento',
+    subtitle: 'Dal primo appuntamento alla fattura pagata: clicchi su un servizio per vedere esattamente cosa fa.',
+    items: [
+      {
+        title: 'Dall’appuntamento al preventivo senza rifare il lavoro la sera',
+        text: 'Detti le righe del preventivo a voce dal cantiere e lasci che l’IA le quantifichi con il suo catalogo, IVA e totali calcolati, pronto per l’invio.',
+        detail: [
+          'Dettatura vocale, catalogo di prestazioni riutilizzabili e prezzi memorizzati',
+          'Calcolo automatico dell’IVA e dei totali, PDF nel suo colore aziendale',
+          'Invio al cliente e trasformazione in fattura con un clic, senza reinserimento',
+        ],
+      },
+      {
+        title: 'Tutto ciò che succede in cantiere resta con il cantiere',
+        text: 'Le sue note e foto, geolocalizzate automaticamente, diventano un rapporto PDF pronto per l’invio con il suo logo e la sua firma.',
+        detail: [
+          'Foto con data e geolocalizzazione automatiche',
+          'Osservazioni, documenti e storico classificati per cantiere',
+          'PDF generato con un clic, consultabile in qualsiasi momento',
+        ],
+      },
+      {
+        title: 'Tutta la squadra sa dove deve essere',
+        text: 'Una pianificazione centrale per dipendente e per cantiere, per non dover più chiamare il titolare per sapere dove andare domani.',
+        detail: [
+          'Vista per membro e per giorno, consultabile da tutta la squadra',
+          'Ogni assegnazione collegata a un cantiere preciso',
+          'Più cantieri in parallelo senza conflitti di risorse',
+        ],
+      },
+      {
+        title: 'Il cantiere è terminato. La fattura non dovrebbe aspettare.',
+        text: 'Trasformi un preventivo accettato in fattura QR svizzera con un clic, con monitoraggio dello stato fino al pagamento.',
+        detail: [
+          'Fattura generata dal preventivo, senza reinserimento',
+          'Fattura QR conforme, pagabile con una scansione',
+          'Stato del pagamento seguito in diretta, solleciti facilitati',
+        ],
+      },
+      {
+        title: 'Sappia cosa le rende davvero ogni cantiere',
+        text: 'Confronti in diretta ore, spese, importo preventivato e importo fatturato per individuare un margine che si assottiglia prima della fine dei lavori.',
+        detail: [
+          'Confronto preventivato vs. costo reale (materiale e manodopera)',
+          'Avviso visivo non appena un cantiere si scosta dal margine previsto',
+          'Vista cantiere per cantiere, non solo a fine mese',
+        ],
+      },
+      {
+        title: 'Documenti ad albero',
+        text: 'Ogni cantiere ha il proprio raccoglitore digitale, con cartelle e sottocartelle per i suoi piani e capitolati.',
+        detail: [
+          'Cartelle e sottocartelle illimitate, per cantiere',
+          'Qualsiasi tipo di file: piani, PDF, foto, contratti',
+          'Ritrova un documento in pochi secondi',
+        ],
+      },
+      {
+        title: 'Galleria fotografica intelligente',
+        text: 'Tutte le foto di un cantiere si trovano nello stesso posto. Le filtri per data e individui dove sono state scattate sulla mappa.',
+        detail: [
+          'Tutte le foto di un cantiere raggruppate automaticamente',
+          'Filtri per data: 7 giorni, 30 giorni o tutto lo storico',
+          'Apertura diretta della posizione sulla mappa',
+        ],
+      },
+      {
+        title: 'Uno spazio cliente sicuro',
+        text: 'Ogni preventivo e ogni fattura è accessibile tramite un link unico e privato: il suo cliente consulta, firma e segue il pagamento senza mai creare un account.',
+        detail: [
+          'Firma elettronica con data e ora, conservata come prova',
+          'Stato del pagamento visibile in diretta, ancora prima del suo sollecito',
+          'Storico completo di preventivi e fatture, classificato per cantiere',
+        ],
+      },
+      {
+        title: 'Documenti a sua immagine',
+        text: 'Scelga il colore aziendale, il posizionamento del logo, e crei più modelli per i suoi preventivi e rapporti PDF.',
+        detail: [
+          'Colore aziendale e posizionamento del logo personalizzabili',
+          'Più modelli per tipo di documento, da scegliere alla creazione',
+          'Disponibile già dal piano Essenziale',
+        ],
+      },
+      {
+        title: 'Computo metrico voce per voce',
+        text: 'Dettagli le sue quantità voce per voce, con totali calcolati automaticamente, poi trasformi tutto in preventivo con un clic.',
+        detail: [
+          'Tabella di voci con riferimento, quantità e unità',
+          'Totali automatici per unità (m², m³, ml…)',
+          'Trasferimento con un clic verso un preventivo pre-compilato',
+        ],
+      },
+      {
+        title: 'Pensato per la squadra',
+        text: 'Crei ruoli su misura e decida esattamente chi vede cosa — preventivi, fatture, pianificazione — senza dare tutto a tutti.',
+        detail: [
+          'Ruoli personalizzabili con accessi selezionabili per ambito',
+          'Finanza, computo metrico, pianificazione e documenti gestiti separatamente',
+          'Aggiunta di collaboratori secondo il suo piano',
+        ],
+      },
+      {
+        title: 'Coordinamento dei subappaltatori',
+        text: 'Aggiunga le imprese subappaltate a ogni cantiere, segua i loro interventi e tenga a portata di mano i loro attestati assicurativi.',
+        detail: [
+          'Rubrica di subappaltatori riutilizzabile da un cantiere all’altro',
+          'Stato dell’intervento e date di passaggio per cantiere',
+          'Attestato di assicurazione RC memorizzato e datato, niente più dimenticanze',
+        ],
+      },
+    ],
+  },
+  trades: {
+    title: 'Pensato per il suo mestiere',
+    note: 'Ogni account si adatta al suo mestiere, con modelli di rapporto, aliquota IVA e impaginazione dei preventivi già configurati.',
+    list: ['Genio civile', 'Muratura', 'Serramenteria metallica', 'Elettricità', 'Idraulica', 'Falegnameria', 'Pittura', 'Piastrellatura'],
+  },
+  pricing: {
+    title: 'Scelga la formula adatta alla sua impresa',
+    subtitle: 'Tutti i nuovi account iniziano con 14 giorni di prova completa, senza codice promozionale.',
+    monthly: 'Fatturazione mensile',
+    yearly: 'Fatturazione annuale',
+    yearlySavings: '-20%',
+    billedYearly: 'Fatturato {amount}/anno',
+    storageSuffix: 'GB di spazio',
+    memberSingular: 'membro',
+    memberPlural: 'membri',
+    unlimited: 'Rapporti & preventivi illimitati',
+    badge: 'Il più scelto',
+    paidCta: 'Inizi la prova di 14 giorni',
+  },
+  swiss: {
+    title: 'Pensato in Svizzera, non solo tradotto per la Svizzera',
+    text: 'Cantia è stato sviluppato per il funzionamento delle imprese edili svizzere: CHF, IVA svizzera, fattura QR e dati ospitati in Svizzera.',
+  },
+  tour: {
+    videoLabel: 'Video di presentazione di Cantia',
+  },
+  devices: {
+    title: 'Gestisca i suoi cantieri, ovunque si trovi',
+    text: 'In ufficio, in cantiere o in trasferta, ritrovi Cantia su computer, tablet e smartphone.',
+    benefits: [
+      { title: 'In ufficio', text: 'Prepari preventivi, fatture e analisi.' },
+      { title: 'In cantiere', text: 'Aggiunga rapporti, foto e ore.' },
+      { title: 'In trasferta', text: 'Acceda alle sue informazioni dal telefono.' },
+    ],
+  },
+  mobile: {
+    title: 'Cantia la segue anche sul campo',
+    text: 'Apra Cantia dal telefono o dal tablet e lo aggiunga alla schermata principale per accedervi rapidamente, a schermo intero, come alle sue altre app, già da oggi e senza passare da uno store.',
+    installCta: 'Come installarlo',
+    storeNote: 'Arrivano anche le versioni ufficiali:',
+    comingSoon: 'In sviluppo',
+    appStore: 'App Store',
+    googlePlay: 'Google Play',
+  },
+  finalCta: {
+    title: 'Provi Cantia sul suo prossimo cantiere',
+    subtitle: 'Crei il suo account e scopra per 14 giorni come Cantia riunisce preventivi, cantieri, rapporti e fatture in un unico posto.',
+    button: 'Inizi i miei 14 giorni di prova',
+    trust: ['14 giorni di prova · Nessun codice necessario', 'Disdicibile in qualsiasi momento', 'Ospitato in Svizzera'],
+  },
+  footer: {
+    blurb: 'L’app di gestione cantieri per l’edilizia svizzera. Rapporti, documenti, preventivi, fatture e computo metrico, tutto in un unico posto.',
+    product: 'Prodotto',
+    account: 'Account',
+    legal: 'Legale',
+    servicesLink: 'Servizi',
+    pricingLink: 'Prezzi',
+    login: 'Accedi',
+    signup: 'Crea un account',
+    legalLink: 'Note legali',
+    privacyLink: 'Privacy',
+    copyright: '© {year} Cantia. Pensato per l’edilizia svizzera.',
+  },
+};
+
 export function useMarketingDict(): Dict {
   const { i18n } = useTranslation();
-  return i18n.language === 'de' ? de : fr;
+  return i18n.language === 'de' ? de : i18n.language === 'it' ? it : fr;
 }
 
 export const t: Dict = fr;

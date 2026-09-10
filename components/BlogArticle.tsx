@@ -41,7 +41,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   }, [heroAnim]);
 
   const related = getRelatedPosts(post, 3, locale);
-  const tradeHrefPrefix = locale === 'de' ? '/de/' : '/';
+  const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
 
   return (
     <Screen>

@@ -41,11 +41,11 @@ export function MarketingNav() {
   const locale = getAppLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const homeHref = locale === 'de' ? '/de' : '/';
-  const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
-  const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
-  const aideHref = locale === 'de' ? '/de/aide' : '/aide';
-  const contactHref = locale === 'de' ? '/de/contact' : '/contact';
+  const homeHref = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '/';
+  const servicesHref = locale === 'de' ? '/de/#services' : locale === 'it' ? '/it/#services' : '/#services';
+  const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
+  const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
+  const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -190,10 +190,10 @@ export function MarketingFooter({
   const t = useMarketingDict();
   const { t: tr } = useTranslation();
   const locale = getAppLocale();
-  const servicesHref = locale === 'de' ? '/de/#services' : '/#services';
-  const pricingHref = locale === 'de' ? '/de/#pricing' : '/#pricing';
-  const aideHref = locale === 'de' ? '/de/aide' : '/aide';
-  const contactHref = locale === 'de' ? '/de/contact' : '/contact';
+  const servicesHref = locale === 'de' ? '/de/#services' : locale === 'it' ? '/it/#services' : '/#services';
+  const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
+  const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
+  const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -279,7 +279,7 @@ export function MarketingFooter({
           <Link href="/sur-mesure">
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsSurMesure')}</Text>
           </Link>
-          <Link href={locale === 'de' ? '/de/blog' : '/blog'}>
+          <Link href={locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog'}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsBlog')}</Text>
           </Link>
         </View>

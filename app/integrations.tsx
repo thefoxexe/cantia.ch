@@ -204,8 +204,8 @@ function IntegrationsFlowBand() {
 export default function IntegrationsPage() {
   const { t } = useTranslation();
   const locale = getAppLocale();
-  const blogPrefix = locale === 'de' ? '/de/blog' : '/blog';
-  const solutionsPrefix = locale === 'de' ? '/de/solutions' : '/solutions';
+  const blogPrefix = locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog';
+  const solutionsPrefix = locale === 'de' ? '/de/solutions' : locale === 'it' ? '/it/solutions' : '/solutions';
   return (
     <SolutionPage
       kicker={t('integrationsPage.kicker')}

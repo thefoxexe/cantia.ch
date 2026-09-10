@@ -3,7 +3,7 @@ import { Link, useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../components/ui';
 import { HelpArticlePage } from '../../components/HelpArticlePage';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
-import { HELP_ARTICLES, HELP_ARTICLES_DE } from '../../lib/helpArticles';
+import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../../lib/helpArticles';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
@@ -19,7 +19,8 @@ export function generateStaticParams() {
 export default function HelpArticleScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const articles = getAppLocale() === 'de' ? HELP_ARTICLES_DE : HELP_ARTICLES;
+  const locale = getAppLocale();
+  const articles = locale === 'de' ? HELP_ARTICLES_DE : locale === 'it' && HELP_ARTICLES_IT.length ? HELP_ARTICLES_IT : HELP_ARTICLES;
   const article = articles.find((a) => a.id === id);
 
   if (!article) {

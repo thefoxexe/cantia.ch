@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { TRADE_PAGES_DE } from './tradeLandingPagesDe';
+import { TRADE_PAGES_IT } from './tradeLandingPagesIt';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -1882,6 +1883,7 @@ export const TRADE_PAGE_SLUGS = Object.keys(TRADE_PAGES);
 // German is free to be added trade-by-trade without touching this file.
 export function getTradePage(slug: string, locale: string): TradeLandingPage | undefined {
   if (locale === 'de' && TRADE_PAGES_DE[slug]) return TRADE_PAGES_DE[slug];
+  if (locale === 'it' && TRADE_PAGES_IT[slug]) return TRADE_PAGES_IT[slug];
   return TRADE_PAGES[slug];
 }
 

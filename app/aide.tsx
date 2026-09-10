@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 import { Container, Screen } from '../components/ui';
 import { Heading } from '../components/Heading';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
-import { HELP_ARTICLES, HELP_ARTICLES_DE } from '../lib/helpArticles';
+import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../lib/helpArticles';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
@@ -25,11 +25,13 @@ export default function PublicAideScreen() {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const locale = getAppLocale();
-  const aideHrefPrefix = locale === 'de' ? '/de/aide' : '/aide';
+  const aideHrefPrefix = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   // useTranslation() above already re-renders this component on locale
   // change (same mechanism every other marketing/app screen relies on for
-  // getAppLocale()), so this stays in sync with the FR/DE toggle.
-  const articles = locale === 'de' ? HELP_ARTICLES_DE : HELP_ARTICLES;
+  // getAppLocale()), so this stays in sync with the FR/DE/IT toggle. Italian
+  // falls back to French articles until HELP_ARTICLES_IT is filled in,
+  // rather than showing an empty help center.
+  const articles = locale === 'de' ? HELP_ARTICLES_DE : locale === 'it' && HELP_ARTICLES_IT.length ? HELP_ARTICLES_IT : HELP_ARTICLES;
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
@@ -59,7 +61,7 @@ export default function PublicAideScreen() {
           <Heading level={1} style={styles.title}>{t('aidePage.title')}</Heading>
           <Text style={styles.lead}>{t('aidePage.lead')}</Text>
 
-          <Link href={(locale === 'de' ? '/de/aide/videos' : '/aide/videos') as any} asChild>
+          <Link href={(`${aideHrefPrefix}/videos`) as any} asChild>
             <Pressable style={styles.videosCard}>
               <Feather name="film" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
@@ -70,7 +72,7 @@ export default function PublicAideScreen() {
             </Pressable>
           </Link>
 
-          <Link href={(locale === 'de' ? '/de/aide/ressources' : '/aide/ressources') as any} asChild>
+          <Link href={(`${aideHrefPrefix}/ressources`) as any} asChild>
             <Pressable style={styles.videosCard}>
               <Feather name="download" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>

@@ -7,7 +7,7 @@ import { getAppLocale, useTranslation } from '../lib/translations';
 
 export default function MentionsLegalesScreen() {
   const { t } = useTranslation();
-  const homeHref = getAppLocale() === 'de' ? '/de' : '/';
+  const homeHref = getAppLocale() === 'de' ? '/de' : getAppLocale() === 'it' ? '/it' : '/';
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>

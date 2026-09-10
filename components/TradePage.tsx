@@ -39,11 +39,11 @@ export function TradePage({ slug }: { slug: string }) {
   // French needs a gendered/pluralized prefix ("les charpentiers"); German
   // tradeName values are already authored as the natural plural/generic noun
   // (e.g. "Zimmerleute"), so they're used as-is.
-  const forTrade = locale === 'de' ? trade.tradeName : genderedFor(trade.tradeName);
+  const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;
 
   const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
   const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostBySlug(s)).filter((p) => !!p);
-  const hrefPrefix = locale === 'de' ? '/de/' : '/';
+  const hrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
 
   return (
     <Screen>
@@ -52,7 +52,7 @@ export function TradePage({ slug }: { slug: string }) {
 
         <Container style={styles.breadcrumbOuter}>
           <View style={styles.breadcrumb}>
-            <Link href={locale === 'de' ? '/de' : '/'}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbHome')}</Text></Link>
+            <Link href={locale === 'de' ? '/de' : locale === 'it' ? '/it' : '/'}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbHome')}</Text></Link>
             <Text style={styles.breadcrumbSep}>›</Text>
             <Link href={`${hrefPrefix}metiers` as any}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbTrades')}</Text></Link>
             <Text style={styles.breadcrumbSep}>›</Text>

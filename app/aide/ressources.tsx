@@ -13,7 +13,7 @@ import { getAppLocale, useTranslation } from '../../lib/translations';
 // (a business partner, a decision-maker) who may need the other language.
 export default function AideRessourcesScreen() {
   const { t } = useTranslation();
-  const aideHref = getAppLocale() === 'de' ? '/de/aide' : '/aide';
+  const aideHref = getAppLocale() === 'de' ? '/de/aide' : getAppLocale() === 'it' ? '/it/aide' : '/aide';
 
   return (
     <Screen>

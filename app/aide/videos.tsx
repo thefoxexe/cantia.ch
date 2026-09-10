@@ -15,7 +15,7 @@ import { getAppLocale, useTranslation } from '../../lib/translations';
 export default function TutorialVideosScreen() {
   const { t } = useTranslation();
   const available = TUTORIAL_VIDEOS.filter((v) => v.youtubeId);
-  const aideHref = getAppLocale() === 'de' ? '/de/aide' : '/aide';
+  const aideHref = getAppLocale() === 'de' ? '/de/aide' : getAppLocale() === 'it' ? '/it/aide' : '/aide';
 
   return (
     <Screen>

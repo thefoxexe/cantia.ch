@@ -38,7 +38,7 @@ const TRADE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
 export default function MetiersScreen() {
   const { t } = useTranslation();
   const locale = getAppLocale();
-  const tradeHrefPrefix = locale === 'de' ? '/de/' : '/';
+  const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -68,7 +68,7 @@ export default function MetiersScreen() {
                         <View style={[styles.cardIcon, hovered && styles.cardIconHovered]}>
                           <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={18} color={hovered ? '#fff' : colors.primary} />
                         </View>
-                        <Text style={styles.cardTitle}>{locale === 'de' ? trade.tradeName : pluralTradeName(trade.tradeName)}</Text>
+                        <Text style={styles.cardTitle}>{locale === 'fr' ? pluralTradeName(trade.tradeName) : trade.tradeName}</Text>
                         <Text style={styles.cardText} numberOfLines={3}>
                           {trade.hero.subtitle}
                         </Text>

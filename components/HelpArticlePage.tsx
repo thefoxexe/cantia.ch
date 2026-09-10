@@ -30,7 +30,7 @@ const STEP_ASPECT_RATIOS: Record<string, number> = {
 export function HelpArticlePage({ article, related }: { article: HelpArticle; related: HelpArticle[] }) {
   const { t } = useTranslation();
   const locale = getAppLocale();
-  const aideHref = locale === 'de' ? '/de/aide' : '/aide';
+  const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

@@ -748,3 +748,9 @@ export const HELP_ARTICLES_DE: HelpArticle[] = [
     ],
   },
 ];
+
+// Italian help center — empty for now, filled in once the Italian help
+// article translation pass runs (same staged-rollout pattern as
+// HELP_ARTICLES_DE was before it reached parity: routes and UI already
+// branch on 'it', they just render zero articles until this fills in).
+export const HELP_ARTICLES_IT: HelpArticle[] = [];

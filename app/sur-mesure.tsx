@@ -57,8 +57,8 @@ function SurMesureVisual() {
 export default function SurMesurePage() {
   const { t } = useTranslation();
   const locale = getAppLocale();
-  const integrationsHref = locale === 'de' ? '/de/integrations' : '/integrations';
-  const solutionsPrefix = locale === 'de' ? '/de/solutions' : '/solutions';
+  const integrationsHref = locale === 'de' ? '/de/integrations' : locale === 'it' ? '/it/integrations' : '/integrations';
+  const solutionsPrefix = locale === 'de' ? '/de/solutions' : locale === 'it' ? '/it/solutions' : '/solutions';
   return (
     <SolutionPage
       kicker={t('surMesurePage.kicker')}
