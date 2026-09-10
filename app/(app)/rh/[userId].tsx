@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -6,14 +6,16 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import {
   computeSalaryBreakdown,
+  getAnnualSalarySummary,
   getPayrollProfile,
   listDeductionTypes,
   listProfileDeductions,
   listTimeEntries,
   upsertPayrollProfile,
   upsertProfileDeduction,
+  type AnnualSalarySummary,
 } from '../../../lib/api/payroll';
-import { generatePayslipPdf } from '../../../lib/api/pdf';
+import { generatePayslipPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 import { downloadFile } from '../../../lib/downloadFile';
@@ -54,6 +56,11 @@ export default function PayrollProfileScreen() {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [yearAnchor, setYearAnchor] = useState(() => new Date().getFullYear());
+  const [annualSummary, setAnnualSummary] = useState<AnnualSalarySummary | null>(null);
+  const [loadingAnnual, setLoadingAnnual] = useState(false);
+  const [exportingAnnual, setExportingAnnual] = useState(false);
 
   const [salaryType, setSalaryType] = useState<SalaryType>('hourly');
   const [hourlyRate, setHourlyRate] = useState('');
@@ -120,6 +127,40 @@ export default function PayrollProfileScreen() {
       load();
     }, [load]),
   );
+
+  // Reflects the last *saved* profile/deductions, not the live drafts being
+  // edited above — the annual card is a record of what's actually been in
+  // effect this year, not a preview of an unsaved edit.
+  useEffect(() => {
+    if (!organization || !userId || !profile) {
+      setAnnualSummary(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingAnnual(true);
+    getAnnualSalarySummary(organization.id, String(userId), yearAnchor, profile, deductionTypes, overrides).then((summary) => {
+      if (!cancelled) {
+        setAnnualSummary(summary);
+        setLoadingAnnual(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [organization, userId, yearAnchor, profile, deductionTypes, overrides]);
+
+  async function exportSalaryCertificate() {
+    setExportingAnnual(true);
+    setError(null);
+    const { url, error: genError } = await generateSalaryCertificatePdf(String(userId), yearAnchor);
+    setExportingAnnual(false);
+    if (genError || !url) {
+      setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
+      return;
+    }
+    const { error: dlError } = await downloadFile(url, `${t('payrollProfile.salaryCertificateFilename', { name: memberName, year: yearAnchor })}.pdf`);
+    if (dlError) setError(dlError);
+  }
 
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
   const gross = salaryType === 'hourly' ? Math.round(num(hourlyRate) * totalHours * 100) / 100 : num(monthlySalary);
@@ -336,6 +377,45 @@ export default function PayrollProfileScreen() {
               loading={exporting}
               style={{ marginTop: spacing.md }}
             />
+          </Card>
+
+          <Card>
+            <View style={styles.monthNav}>
+              <Pressable onPress={() => setYearAnchor((y) => y - 1)} hitSlop={8} style={styles.monthNavBtn}>
+                <Feather name="chevron-left" size={18} color={colors.textMuted} />
+              </Pressable>
+              <Text style={styles.sectionTitle}>{t('payrollProfile.annualTitle')} — {yearAnchor}</Text>
+              <Pressable onPress={() => setYearAnchor((y) => y + 1)} hitSlop={8} style={styles.monthNavBtn}>
+                <Feather name="chevron-right" size={18} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <Text style={styles.hint}>{t('payrollProfile.annualHint')}</Text>
+
+            {loadingAnnual || !annualSummary ? (
+              <LoadingScreen />
+            ) : (
+              <>
+                {salaryType === 'hourly' ? (
+                  <Text style={[styles.hint, { marginTop: spacing.sm }]}>{t('payrollProfile.annualHours', { year: yearAnchor })}: {annualSummary.totalHours} h</Text>
+                ) : null}
+                <View style={styles.breakdownRows}>
+                  <BreakdownRow label={t('payrollProfile.grossSalary')} value={annualSummary.gross} bold />
+                  {annualSummary.lines.map((l, i) => (
+                    <BreakdownRow key={i} label={`− ${l.label}`} value={-l.amount} />
+                  ))}
+                  <View style={styles.breakdownDivider} />
+                  <BreakdownRow label={t('payrollProfile.netSalary')} value={annualSummary.net} bold accent />
+                </View>
+                <Button
+                  title={t('payrollProfile.exportAnnualPdf')}
+                  icon="download"
+                  variant="secondary"
+                  onPress={exportSalaryCertificate}
+                  loading={exportingAnnual}
+                  style={{ marginTop: spacing.md }}
+                />
+              </>
+            )}
           </Card>
         </ScrollView>
       </View>

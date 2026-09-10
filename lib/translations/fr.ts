@@ -896,6 +896,11 @@ export const fr = {
     accessDeniedTitle: 'Accès non autorisé',
     accessDeniedText: 'Seuls la secrétaire RH et les administrateurs gèrent les fiches de salaire.',
     employeeSheetTitle: 'Fiche employé',
+    annualTitle: 'Récapitulatif annuel',
+    annualHint: "Somme des 12 fiches de salaire mensuelles de l'année — pratique pour préparer la déclaration d'impôt ou le certificat de salaire avec votre fiduciaire. Ce n'est pas un certificat de salaire officiel.",
+    annualHours: 'Heures {{year}}',
+    exportAnnualPdf: 'Exporter le récapitulatif annuel',
+    salaryCertificateFilename: 'Salaire {{name}} - {{year}}',
   },
   planning: {
     title: 'Planning',

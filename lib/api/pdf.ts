@@ -25,3 +25,14 @@ export async function generatePayslipPdf(userId: string, periodStart: string): P
   });
   return { url: data?.url ?? null, error };
 }
+
+// Sums the same monthly décompte math across a full calendar year — see
+// generate-salary-certificate-pdf's own comment for why this is a
+// récapitulatif, not an official certificat de salaire (Swissdec ce-27).
+export async function generateSalaryCertificatePdf(userId: string, year: number): Promise<{ url: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ url: string }>('generate-salary-certificate-pdf', {
+    user_id: userId,
+    year,
+  });
+  return { url: data?.url ?? null, error };
+}

@@ -436,6 +436,49 @@ export function computeSalaryBreakdown(
   return { gross: round2(gross), lines, totalDeductions, net: round2(gross - totalDeductions) };
 }
 
+export interface AnnualSalarySummary extends SalaryBreakdown {
+  totalHours: number;
+}
+
+// On-screen preview for the "Récapitulatif annuel" — same per-month math as
+// generate-salary-certificate-pdf (12 separate computeSalaryBreakdown calls,
+// summed), so what's shown here always matches what the PDF export produces.
+export async function getAnnualSalarySummary(
+  organizationId: string,
+  userId: string,
+  year: number,
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  deductionTypes: PayrollDeductionType[],
+  overrides: PayrollProfileDeduction[],
+): Promise<AnnualSalarySummary> {
+  const isHourly = profile.salary_type === 'hourly';
+  const entries = isHourly ? await listTimeEntries(organizationId, userId, `${year}-01-01`, `${year}-12-31`) : [];
+
+  let totalHours = 0;
+  let gross = 0;
+  const lineTotals = new Map<string, number>();
+
+  for (let month = 0; month < 12; month++) {
+    const monthHours = isHourly
+      ? entries.filter((e) => new Date(`${e.entry_date}T00:00:00`).getMonth() === month).reduce((sum, e) => sum + Number(e.hours), 0)
+      : 0;
+    const monthGross = isHourly ? round2(monthHours * (profile.hourly_rate_chf ?? 0)) : (profile.monthly_salary_chf ?? 0);
+    totalHours += monthHours;
+    gross += monthGross;
+
+    const breakdown = computeSalaryBreakdown(monthGross, deductionTypes, overrides);
+    for (const l of breakdown.lines) {
+      lineTotals.set(l.label, round2((lineTotals.get(l.label) ?? 0) + l.amount));
+    }
+  }
+
+  totalHours = round2(totalHours);
+  gross = round2(gross);
+  const lines: DeductionLine[] = Array.from(lineTotals.entries()).map(([label, amount]) => ({ label, amount }));
+  const totalDeductions = round2(lines.reduce((sum, l) => sum + l.amount, 0));
+  return { totalHours, gross, lines, totalDeductions, net: round2(gross - totalDeductions) };
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }

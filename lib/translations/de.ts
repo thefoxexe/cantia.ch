@@ -910,6 +910,11 @@ export const de: TranslationDict = {
     accessDeniedTitle: 'Zugriff verweigert',
     accessDeniedText: 'Nur die Personalsekretärin und Administratoren verwalten Lohnabrechnungen.',
     employeeSheetTitle: 'Mitarbeiterblatt',
+    annualTitle: 'Jährliche Zusammenfassung',
+    annualHint: 'Summe der 12 monatlichen Lohnabrechnungen des Jahres — praktisch für die Steuererklärung oder den Lohnausweis mit Ihrer Treuhandstelle. Dies ist kein offizieller Lohnausweis.',
+    annualHours: 'Stunden {{year}}',
+    exportAnnualPdf: 'Jährliche Zusammenfassung exportieren',
+    salaryCertificateFilename: 'Lohn {{name}} - {{year}}',
   },
   planning: {
     title: 'Planung',

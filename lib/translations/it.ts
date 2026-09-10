@@ -918,6 +918,11 @@ export const it: TranslationDict = {
     accessDeniedTitle: 'Accesso non autorizzato',
     accessDeniedText: 'Solo la segretaria RU e gli amministratori gestiscono le buste paga.',
     employeeSheetTitle: 'Scheda dipendente',
+    annualTitle: 'Riepilogo annuale',
+    annualHint: "Somma delle 12 buste paga mensili dell'anno — utile per preparare la dichiarazione fiscale o il certificato di salario con il suo fiduciario. Non è un certificato di salario ufficiale.",
+    annualHours: 'Ore {{year}}',
+    exportAnnualPdf: 'Esporta il riepilogo annuale',
+    salaryCertificateFilename: 'Salario {{name}} - {{year}}',
   },
   planning: {
     title: 'Pianificazione',
