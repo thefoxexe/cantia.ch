@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import { usePathname } from 'expo-router';
-import { forceLocale, getAppLocale } from './translations';
+import { usePathname, useRouter } from 'expo-router';
+import { forceLocale, getAppLocale, type AppLocale } from './translations';
 
 // The marketing site (cantia.ch) and the authenticated app (app.cantia.ch)
 // are the same Expo Router web build, deployed once and reachable under two
@@ -102,23 +102,63 @@ export function contactHref(): string {
   return `https://cantia.ch${path}`;
 }
 
-// Every /de/* route module calls forceLocale('de') at module scope, but
-// each of those web routes is code-split (dynamically imported the first
-// time it's actually navigated to) — so that call fires exactly once, the
-// first time a visitor's session ever loads that particular module, and
+// Every /de/* or /it/* route module calls forceLocale(...) at module scope,
+// but each of those web routes is code-split (dynamically imported the
+// first time it's actually navigated to) — so that call fires exactly once,
+// the first time a visitor's session ever loads that particular module, and
 // never again. A client-side <Link> transition later back to a bare French
 // page doesn't re-run it (the module's already loaded) and, critically, the
 // French pages themselves never called the equivalent forceLocale('fr') at
 // all — there was nothing to reset i18next's in-memory language back to
-// French after a visit to a German page, so it just stayed German. Call this
-// hook from the top of every marketing page/chrome component (not just
-// MarketingNav — the homepage has its own separate nav and needs it too) to
-// keep the visible language matching the current URL on every navigation,
-// however many times a visitor toggles between French and German.
+// French after a visit to a German/Italian page, so it just stayed German/
+// Italian. Call this hook from the top of every marketing page/chrome
+// component (not just MarketingNav — the homepage has its own separate nav
+// and needs it too) to keep the visible language matching the current URL
+// on every navigation, however many times a visitor toggles between
+// languages. Determines the target locale from the same prefix map
+// toggleLocalePathname uses, so a 3rd (or Nth) language only needs adding
+// there — this derives itself instead of hand-rolling its own binary check
+// (the bug that made /it silently fall back to French: this used to check
+// only for a "/de" prefix and force French for anything else, /it included).
 export function useSyncMarketingLocaleFromPath(): void {
   const pathname = usePathname();
+  const router = useRouter();
   useEffect(() => {
-    const isDe = pathname === '/de' || pathname.startsWith('/de/');
-    forceLocale(isDe ? 'de' : 'fr');
+    const prefixed = (['de', 'it'] as const).find((loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`));
+    forceLocale(prefixed ?? 'fr');
   }, [pathname]);
+  useRedirectToBrowserLocaleOnce(pathname, router);
+}
+
+// Runs once per page-load session (not on every navigation — a module-level
+// flag, not per-pathname, so it never re-fires just because a visitor's
+// later, deliberate LangToggle click happens to land back on "/"): if a
+// fresh visit's very first marketing page is the bare French homepage and
+// the browser's own language is German or Italian, replace it with that
+// language's mirror before the visitor even sees the French version. Any
+// other landing page (a deep link, a /de or /it URL, a French page the
+// visitor navigated back to) leaves the flag set without redirecting, so a
+// visitor who explicitly switches back to French is never yanked away
+// again. No match (or anything other than fr/de/it) keeps French, same as
+// the site's existing default.
+let hasCheckedBrowserLocale = false;
+
+function detectBrowserLocale(): AppLocale | null {
+  if (typeof navigator === 'undefined') return null;
+  const lang = navigator.language?.slice(0, 2).toLowerCase();
+  return lang === 'de' || lang === 'it' ? lang : null;
+}
+
+function useRedirectToBrowserLocaleOnce(pathname: string, router: ReturnType<typeof useRouter>): void {
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    if (hasCheckedBrowserLocale) return;
+    hasCheckedBrowserLocale = true;
+    if (pathname !== '/') return;
+    if (new URLSearchParams(window.location.search).has('locale')) return;
+    const detected = detectBrowserLocale();
+    if (!detected) return;
+    router.replace(toggleLocalePathname(pathname, detected) as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
