@@ -191,7 +191,11 @@ export default function AdminDashboard() {
   if (loading) return <LoadingScreen label="Chargement du tableau de bord…" />;
 
   return (
-    <ScrollView contentContainerStyle={styles.scroll}>
+    // style={{ flex: 1 }} in addition to contentContainerStyle — the latter
+    // alone only sizes the inner content wrapper, not the ScrollView's own
+    // box within this layout's flex:1/minHeight:0 content column, so
+    // without it the page can end up with no constrained scroll viewport.
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
       <Container style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Dashboard</Text>

@@ -211,7 +211,17 @@ export default function DepensesScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <Screen>
+      {/* The body (header through the expense list/recurring list) was a
+          plain View with no scroll container of its own — only the two
+          horizontal chip-row ScrollViews existed, and the add/edit modals'
+          own ScrollViews, neither of which scrolls the page itself. Once
+          the list grew past one screenful there was no way to reach the
+          rest of it. padding moves from Screen to the ScrollView's
+          contentContainerStyle so it scrolls with the content instead of
+          staying fixed to the viewport edge, matching the pattern used
+          elsewhere (e.g. tresorerie/index.tsx). */}
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader title={t('depensesList.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('depensesList.subtitle')}</Text>
@@ -334,6 +344,7 @@ export default function DepensesScreen() {
           </View>
         )}
       </View>
+      </ScrollView>
 
       <OneOffExpenseModal
         visible={oneOffModalOpen}
@@ -491,7 +502,7 @@ function RecurringExpenseModal({
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          <ScrollView>
+          <ScrollView style={{ flex: 1 }}>
             <Text style={styles.sheetTitle}>{editing ? t('treasury.editRecurringTitle') : t('treasury.newRecurringTitle')}</Text>
 
             <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderRecurring')} />
@@ -682,7 +693,7 @@ function OneOffExpenseModal({
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          <ScrollView>
+          <ScrollView style={{ flex: 1 }}>
             <Text style={styles.sheetTitle}>{editing ? t('treasury.editOneOffTitle') : t('treasury.newOneOffTitle')}</Text>
 
             {editing ? null : (

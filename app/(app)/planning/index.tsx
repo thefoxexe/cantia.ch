@@ -348,7 +348,7 @@ export default function PlanningScreen() {
       <Modal visible={showForm} animationType="fade" transparent onRequestClose={() => setShowForm(false)}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
-            <ScrollView>
+            <ScrollView style={{ flex: 1 }}>
               <Text style={styles.sheetTitle}>{editingId ? t('planning.editAssignmentTitle') : t('planning.newAssignmentTitle')}</Text>
 
               <Text style={styles.fieldLabel}>{t('planning.projectOptional')}</Text>

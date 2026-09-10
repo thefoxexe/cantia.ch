@@ -146,7 +146,7 @@ export function PayrollInvoiceModal({
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          <ScrollView>
+          <ScrollView style={{ flex: 1 }}>
             <Text style={styles.sheetTitle}>{t('payrollInvoiceModal.title', { project: project?.name ?? t('payrollInvoiceModal.thisProjectFallback') })}</Text>
 
             <Text style={styles.fieldLabel}>{t('payrollInvoiceModal.clientLabel')}</Text>

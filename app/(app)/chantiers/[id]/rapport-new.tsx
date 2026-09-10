@@ -207,7 +207,7 @@ export default function NewReportScreen() {
 
   return (
     <Screen style={{ padding: spacing.xl }}>
-      <ScrollView>
+      <ScrollView style={{ flex: 1 }}>
         <PageHeader title={t('newReport.title')} backTo={`/(app)/chantiers/${projectId}/reports`} />
 
         <Field label={t('newReport.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('newReport.titlePlaceholder')} />

@@ -82,7 +82,7 @@ export default function NewChantierScreen() {
 
   return (
     <Screen style={{ padding: spacing.xl }}>
-      <ScrollView>
+      <ScrollView style={{ flex: 1 }}>
         <PageHeader title={t('newChantier.title')} backTo="/(app)/chantiers" />
 
         <Field label={t('newChantier.nameLabel')} value={name} onChangeText={setName} placeholder={t('newChantier.namePlaceholder')} />

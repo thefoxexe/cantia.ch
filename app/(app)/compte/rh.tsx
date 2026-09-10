@@ -211,7 +211,7 @@ export default function PayrollSettingsScreen() {
       <Modal visible={editKind !== null} animationType="fade" transparent onRequestClose={() => setEditKind(null)}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
-            <ScrollView>
+            <ScrollView style={{ flex: 1 }}>
               <Text style={styles.sheetTitle}>
                 {editId
                   ? editKind === 'work'

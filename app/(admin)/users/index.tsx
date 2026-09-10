@@ -62,7 +62,11 @@ export default function AdminUsersList() {
   const neverSignedIn = useMemo(() => rows.filter((u) => !u.last_sign_in_at).length, [rows]);
 
   return (
-    <ScrollView>
+    // style={{ flex: 1 }} is required here: a bare <ScrollView> inside this
+    // layout's flex:1/minHeight:0 content column doesn't reliably get a
+    // constrained height on web, so it never gets a scrollable viewport —
+    // the page just silently doesn't scroll once content overflows.
+    <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Utilisateurs {total > 0 ? `(${total})` : ''}</Text>

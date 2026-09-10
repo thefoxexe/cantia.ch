@@ -960,7 +960,7 @@ export function PayrollEntryPanel({
       <Modal visible={showExpenseForm} animationType="fade" transparent onRequestClose={() => setShowExpenseForm(false)}>
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
-            <ScrollView>
+            <ScrollView style={{ flex: 1 }}>
               <Text style={styles.sheetTitle}>{t('payrollEntry.addExpenseTitle')}</Text>
 
               <Text style={styles.fieldLabel}>{t('payrollEntry.expenseTypeStep')}</Text>
