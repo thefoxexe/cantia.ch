@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 import { useAuth } from './auth-context';
 import type { Plan } from './types';
 
-export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury';
+export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury' | 'accounting';
 
 interface ModuleDef {
   key: ModuleKey;
@@ -18,6 +18,7 @@ export const ORG_MODULES: ModuleDef[] = [
   { key: 'planning', label: 'Planning', description: "Qui va sur quel chantier, et quand." },
   { key: 'payroll', label: 'RH & Salaires', description: 'Heures, frais professionnels et fiches de salaire par employé.' },
   { key: 'treasury', label: 'Trésorerie', description: 'Projection de trésorerie sur 90 jours : factures, salaires, sous-traitants, dépenses récurrentes.' },
+  { key: 'accounting', label: 'Comptabilité', description: 'Compte de résultat et grand livre générés automatiquement depuis devis, factures, dépenses et salaires.' },
 ];
 
 // Per-chantier: shown as a hub inside each chantier, toggled independently

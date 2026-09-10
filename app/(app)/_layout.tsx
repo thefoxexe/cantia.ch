@@ -35,6 +35,7 @@ function buildSections(
   subcontractorsVisible: boolean,
   payrollEnabled: boolean,
   treasuryEnabled: boolean,
+  accountingEnabled: boolean,
 ): NavSection[] {
   const teamLinks = [
     ...(planningEnabled ? [{ href: '/(app)/planning', label: t('nav.planning'), icon: 'calendar' as const }] : []),
@@ -48,6 +49,7 @@ function buildSections(
     // Rentabilité tab) plus general/overhead spend and recurring charges,
     // which are created, edited and deleted here rather than in Trésorerie.
     ...(treasuryEnabled ? [{ href: '/(app)/depenses', label: t('nav.depenses'), icon: 'shopping-bag' as const }] : []),
+    ...(accountingEnabled ? [{ href: '/(app)/compta', label: t('nav.accounting'), icon: 'book' as const }] : []),
   ];
   return [
     {
@@ -116,6 +118,12 @@ export default function AppLayout() {
   // (that only controls what they see once inside it).
   const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
   const treasuryEnabled = isModuleEnabled(organization?.enabled_modules, 'treasury') && canViewFinances;
+  // Independent toggle from Trésorerie (see compte/modules.tsx) — the
+  // auto-generated ledger pulls from devis, dépenses and salaires too, so
+  // it isn't naturally "owned" by any single existing module. Still gated
+  // on canViewFinances like Trésorerie: it's the same class of sensitive
+  // data.
+  const accountingEnabled = isModuleEnabled(organization?.enabled_modules, 'accounting') && canViewFinances;
   // A standard member without the "voir devis & factures" permission (see
   // équipe screen) doesn't get the FACTURATION section at all — Trames and
   // Inventaire live under the same /devis route subtree and only make sense
@@ -123,7 +131,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(t, financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, treasuryEnabled);
+  const sections = buildSections(t, financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, treasuryEnabled, accountingEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;
