@@ -74,6 +74,7 @@ function buildSections(
               { href: '/(app)/devis', label: t('nav.devis'), icon: 'file-text' as const },
               { href: '/(app)/devis/trames', label: t('nav.trames'), icon: 'layout' as const },
               { href: '/(app)/devis/factures', label: t('nav.factures'), icon: 'dollar-sign' as const },
+              { href: '/(app)/devis/tva', label: t('nav.vatReport'), icon: 'percent' as const },
               { href: '/(app)/devis/inventaire', label: t('nav.catalogue'), icon: 'box' as const },
             ],
           },

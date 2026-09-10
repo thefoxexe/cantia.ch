@@ -252,6 +252,7 @@ export interface ProjectExpense {
   category: string | null;
   expense_date: string | null;
   notes: string | null;
+  vat_rate: number | null;
   created_by: string | null;
   created_at: string;
 }
@@ -758,6 +759,7 @@ export interface Expense {
   amount_chf: number;
   expense_date: string;
   notes: string | null;
+  vat_rate: number | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

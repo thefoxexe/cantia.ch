@@ -279,6 +279,7 @@ export interface ExpenseInput {
   amountChf: number;
   expenseDate: string;
   notes: string | null;
+  vatRate: number | null;
 }
 
 export async function createExpense(
@@ -295,6 +296,7 @@ export async function createExpense(
       amount_chf: input.amountChf,
       expense_date: input.expenseDate,
       notes: input.notes,
+      vat_rate: input.vatRate,
       created_by: userId,
     })
     .select('id')
@@ -311,6 +313,7 @@ export async function updateExpense(id: string, input: ExpenseInput): Promise<{ 
       amount_chf: input.amountChf,
       expense_date: input.expenseDate,
       notes: input.notes,
+      vat_rate: input.vatRate,
     })
     .eq('id', id);
   return { error: error?.message ?? null };

@@ -170,13 +170,19 @@ export interface VatReport {
   totalExclVat: number;
   totalVat: number;
   totalInclVat: number;
+  // TVA préalable (déductible), sur les dépenses générales et de chantier
+  // portant un taux de TVA — même période, indépendamment de la méthode
+  // (aucune notion d'encaissement séparée n'existe côté dépenses).
+  deductibleRows: VatReportRow[];
+  totalDeductibleBase: number;
+  totalDeductibleVat: number;
+  // Ce que l'entreprise doit réellement à l'AFC : TVA collectée moins TVA
+  // préalable déductible. Peut être négatif (crédit d'impôt) si les achats
+  // dépassent le chiffre d'affaires de la période.
+  netVatDue: number;
 }
 
-function emptyVatReport(basis: VatReportBasis): VatReport {
-  return { basis, rows: [], totalExclVat: 0, totalVat: 0, totalInclVat: 0 };
-}
-
-function summarizeVatRows(byRate: Map<number, number>): VatReport['rows'] {
+function summarizeVatRows(byRate: Map<number, number>): VatReportRow[] {
   return Array.from(byRate.entries())
     .map(([vatRate, turnoverExclVat]) => ({
       vatRate,
@@ -186,11 +192,7 @@ function summarizeVatRows(byRate: Map<number, number>): VatReport['rows'] {
     .sort((a, b) => b.vatRate - a.vatRate);
 }
 
-// Décompte TVA par taux, sur une période — deux méthodes possibles côté AFC :
-// "convenues" (par défaut, sur les factures émises dans la période, peu
-// importe si elles sont payées) ou "reçues" (sur option, sur les montants
-// effectivement encaissés). periodEnd est exclusif.
-export async function getVatReport(organizationId: string, periodStart: string, periodEnd: string, basis: VatReportBasis): Promise<VatReport> {
+async function getSalesVatRows(organizationId: string, periodStart: string, periodEnd: string, basis: VatReportBasis): Promise<Map<number, number>> {
   const byRate = new Map<number, number>();
 
   if (basis === 'invoiced') {
@@ -201,7 +203,7 @@ export async function getVatReport(organizationId: string, periodStart: string, 
       .not('status', 'in', '(draft,cancelled)')
       .gte('created_at', periodStart)
       .lt('created_at', periodEnd);
-    if (!factures?.length) return emptyVatReport(basis);
+    if (!factures?.length) return byRate;
 
     const vatRateByFacture = new Map(factures.map((f) => [f.id, Number(f.vat_rate)]));
     const { data: items } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', factures.map((f) => f.id));
@@ -216,7 +218,7 @@ export async function getVatReport(organizationId: string, periodStart: string, 
       .eq('factures.organization_id', organizationId)
       .gte('paid_at', periodStart)
       .lt('paid_at', periodEnd);
-    if (!payments?.length) return emptyVatReport(basis);
+    if (!payments?.length) return byRate;
 
     for (const p of payments) {
       const rate = Number((p as any).factures?.vat_rate ?? 0);
@@ -226,10 +228,74 @@ export async function getVatReport(organizationId: string, periodStart: string, 
     }
   }
 
-  const rows = summarizeVatRows(byRate);
+  return byRate;
+}
+
+// TVA préalable : dépenses générales (Trésorerie) et de chantier (Rentabilité)
+// portant un taux de TVA renseigné, sur la période — filtrées sur
+// expense_date, avec repli sur created_at pour les lignes de chantier plus
+// anciennes qui n'ont pas encore cette colonne renseignée.
+async function getDeductibleVatRows(organizationId: string, periodStart: string, periodEnd: string): Promise<Map<number, number>> {
+  const byRate = new Map<number, number>();
+
+  const { data: generalRows } = await supabase
+    .from('expenses')
+    .select('amount_chf, vat_rate')
+    .eq('organization_id', organizationId)
+    .not('vat_rate', 'is', null)
+    .gte('expense_date', periodStart)
+    .lt('expense_date', periodEnd);
+  for (const e of generalRows ?? []) {
+    const rate = Number(e.vat_rate);
+    // Les dépenses sont enregistrées TTC — on retire la TVA pour retrouver la base HT.
+    byRate.set(rate, (byRate.get(rate) ?? 0) + Number(e.amount_chf) / (1 + rate / 100));
+  }
+
+  const { data: projectRows } = await supabase
+    .from('project_expenses')
+    .select('amount, vat_rate')
+    .eq('organization_id', organizationId)
+    .not('vat_rate', 'is', null)
+    .or(`and(expense_date.gte.${periodStart},expense_date.lt.${periodEnd}),and(expense_date.is.null,created_at.gte.${periodStart},created_at.lt.${periodEnd})`);
+  for (const e of projectRows ?? []) {
+    const rate = Number(e.vat_rate);
+    byRate.set(rate, (byRate.get(rate) ?? 0) + Number(e.amount) / (1 + rate / 100));
+  }
+
+  return byRate;
+}
+
+// Décompte TVA par taux, sur une période — deux méthodes possibles côté AFC :
+// "convenues" (par défaut, sur les factures émises dans la période, peu
+// importe si elles sont payées) ou "reçues" (sur option, sur les montants
+// effectivement encaissés). periodEnd est exclusif. La TVA préalable
+// (dépenses déductibles) est toujours calculée sur la même période, quelle
+// que soit la méthode — les dépenses n'ont pas de date d'encaissement propre.
+export async function getVatReport(organizationId: string, periodStart: string, periodEnd: string, basis: VatReportBasis): Promise<VatReport> {
+  const [salesByRate, deductibleByRate] = await Promise.all([
+    getSalesVatRows(organizationId, periodStart, periodEnd, basis),
+    getDeductibleVatRows(organizationId, periodStart, periodEnd),
+  ]);
+
+  const rows = summarizeVatRows(salesByRate);
   const totalExclVat = Math.round(rows.reduce((s, r) => s + r.turnoverExclVat, 0) * 100) / 100;
   const totalVat = Math.round(rows.reduce((s, r) => s + r.vatAmount, 0) * 100) / 100;
-  return { basis, rows, totalExclVat, totalVat, totalInclVat: Math.round((totalExclVat + totalVat) * 100) / 100 };
+
+  const deductibleRows = summarizeVatRows(deductibleByRate);
+  const totalDeductibleBase = Math.round(deductibleRows.reduce((s, r) => s + r.turnoverExclVat, 0) * 100) / 100;
+  const totalDeductibleVat = Math.round(deductibleRows.reduce((s, r) => s + r.vatAmount, 0) * 100) / 100;
+
+  return {
+    basis,
+    rows,
+    totalExclVat,
+    totalVat,
+    totalInclVat: Math.round((totalExclVat + totalVat) * 100) / 100,
+    deductibleRows,
+    totalDeductibleBase,
+    totalDeductibleVat,
+    netVatDue: Math.round((totalVat - totalDeductibleVat) * 100) / 100,
+  };
 }
 
 export interface ProjectFactureSummary {

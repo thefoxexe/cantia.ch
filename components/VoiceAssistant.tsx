@@ -303,6 +303,7 @@ export function VoiceAssistant() {
                 amount,
                 expenseDate: new Date().toISOString().slice(0, 10),
                 notes: null,
+                vatRate: null,
               },
               user.id,
             )
@@ -314,6 +315,7 @@ export function VoiceAssistant() {
               amountChf: amount,
               expenseDate: new Date().toISOString().slice(0, 10),
               notes: null,
+              vatRate: null,
             })
           ).error;
       if (error) {

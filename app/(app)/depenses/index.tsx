@@ -566,6 +566,7 @@ function OneOffExpenseModal({
   const [amount, setAmount] = useState('');
   const [expenseDate, setExpenseDate] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
+  const [vatRate, setVatRate] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -582,6 +583,7 @@ function OneOffExpenseModal({
     setAmount(editing ? String(editing.amount_chf) : '');
     setExpenseDate(editing?.expense_date ?? isoToday());
     setNotes(editing?.notes ?? '');
+    setVatRate(editing?.vat_rate != null ? String(editing.vat_rate) : '');
     setSelectedProjectId(null);
     setError(null);
     setScanError(null);
@@ -666,6 +668,11 @@ function OneOffExpenseModal({
     if (!label.trim()) return setError(t('treasury.labelRequired'));
     if (!expenseDate) return setError(t('treasury.dateRequired'));
     if (Number.isNaN(amountChf) || amountChf <= 0) return setError(t('treasury.invalidAmount'));
+    const vatRateTrimmed = vatRate.trim();
+    const vatRateNum = vatRateTrimmed ? Number(vatRateTrimmed.replace(',', '.')) : null;
+    if (vatRateNum != null && (Number.isNaN(vatRateNum) || vatRateNum < 0 || vatRateNum > 100)) {
+      return setError(t('treasury.invalidVatRate'));
+    }
 
     setSaving(true);
     setError(null);
@@ -674,7 +681,7 @@ function OneOffExpenseModal({
       const { error: err } = await createProjectExpense(
         organizationId,
         selectedProjectId,
-        { label: label.trim(), category: category.trim() || null, amount: amountChf, expenseDate, notes: notes.trim() || null },
+        { label: label.trim(), category: category.trim() || null, amount: amountChf, expenseDate, notes: notes.trim() || null, vatRate: vatRateNum },
         userId ?? null,
       );
       setSaving(false);
@@ -689,6 +696,7 @@ function OneOffExpenseModal({
       amountChf,
       expenseDate,
       notes: notes.trim() || null,
+      vatRate: vatRateNum,
     };
     const { error: err } = editing ? await updateExpense(editing.id, input) : await createExpense(organizationId, userId, input);
     setSaving(false);
@@ -741,6 +749,7 @@ function OneOffExpenseModal({
             <Field label={t('treasury.labelField')} value={label} onChangeText={setLabel} placeholder={t('treasury.labelPlaceholderOneOff')} />
             <Field label={t('treasury.categoryField')} value={category} onChangeText={setCategory} placeholder={t('treasury.categoryPlaceholderOneOff')} />
             <Field label={t('treasury.amountField')} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0.00" />
+            <Field label={t('treasury.vatRateFieldOptional')} value={vatRate} onChangeText={setVatRate} keyboardType="decimal-pad" placeholder="8.1" />
             <DateField label={t('treasury.dateField')} value={expenseDate} onChange={setExpenseDate} />
 
             {!editing && projects.length > 0 ? (

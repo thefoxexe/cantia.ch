@@ -4,9 +4,36 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { getVatReport, type VatReport, type VatReportBasis } from '../../../lib/api/factures';
-import { Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { downloadTextFile } from '../../../lib/downloadFile';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+
+function escapeCsv(value: string): string {
+  return /[;"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function buildVatReportCsv(report: VatReport, periodLabel: string, labels: {
+  rate: string; turnover: string; vat: string; totalTurnover: string; totalVat: string; deductibleBase: string; deductibleVat: string; net: string;
+}): string {
+  const lines: string[] = [];
+  lines.push(escapeCsv(periodLabel));
+  lines.push('');
+  lines.push([labels.rate, labels.turnover, labels.vat].map(escapeCsv).join(';'));
+  for (const row of report.rows) {
+    lines.push([`${row.vatRate}%`, row.turnoverExclVat.toFixed(2), row.vatAmount.toFixed(2)].map(escapeCsv).join(';'));
+  }
+  lines.push([labels.totalTurnover, report.totalExclVat.toFixed(2), report.totalVat.toFixed(2)].map(escapeCsv).join(';'));
+  lines.push('');
+  lines.push([labels.rate, labels.deductibleBase, labels.deductibleVat].map(escapeCsv).join(';'));
+  for (const row of report.deductibleRows) {
+    lines.push([`${row.vatRate}%`, row.turnoverExclVat.toFixed(2), row.vatAmount.toFixed(2)].map(escapeCsv).join(';'));
+  }
+  lines.push(['', labels.deductibleBase, report.totalDeductibleVat.toFixed(2)].map(escapeCsv).join(';'));
+  lines.push('');
+  lines.push([labels.net, '', report.netVatDue.toFixed(2)].map(escapeCsv).join(';'));
+  return lines.join('\n');
+}
 
 function quarterOf(date: Date): number {
   return Math.floor(date.getUTCMonth() / 3) + 1;
@@ -59,6 +86,22 @@ export default function VatReportScreen() {
     setYear(y);
   }
 
+  function handleExport() {
+    if (!report) return;
+    const periodLabel = t('vatReport.quarterLabel', { quarter, year });
+    const csv = buildVatReportCsv(report, periodLabel, {
+      rate: t('vatReport.csvRate'),
+      turnover: t('vatReport.csvTurnover'),
+      vat: t('vatReport.csvVat'),
+      totalTurnover: t('vatReport.totalTurnover'),
+      totalVat: t('vatReport.totalVatDue'),
+      deductibleBase: t('vatReport.csvDeductibleBase'),
+      deductibleVat: t('vatReport.totalDeductibleVat'),
+      net: t('vatReport.netVatDue'),
+    });
+    downloadTextFile(`tva-${year}-t${quarter}.csv`, csv);
+  }
+
   if (!organization) return <LoadingScreen />;
 
   return (
@@ -93,27 +136,54 @@ export default function VatReportScreen() {
 
         {loading ? (
           <LoadingScreen />
-        ) : !report || report.rows.length === 0 ? (
+        ) : !report || (report.rows.length === 0 && report.deductibleRows.length === 0) ? (
           <Card style={{ marginTop: spacing.lg }}>
             <EmptyState title={t('vatReport.emptyTitle')} subtitle={t('vatReport.emptySubtitle')} />
           </Card>
         ) : (
           <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
-            {report.rows.map((row) => (
-              <Card key={row.vatRate} style={styles.rateRow}>
-                <View style={styles.rateBadge}>
-                  <Text style={styles.rateBadgeText}>{row.vatRate}%</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
-                  <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.rateLabel}>{t('vatReport.vatDue')}</Text>
-                  <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
-                </View>
-              </Card>
-            ))}
+            <Text style={styles.sectionLabel}>{t('vatReport.collectedSectionTitle')}</Text>
+            {report.rows.length === 0 ? (
+              <Card><EmptyState title={t('vatReport.emptyTitle')} subtitle={t('vatReport.emptySubtitle')} /></Card>
+            ) : (
+              report.rows.map((row) => (
+                <Card key={row.vatRate} style={styles.rateRow}>
+                  <View style={styles.rateBadge}>
+                    <Text style={styles.rateBadgeText}>{row.vatRate}%</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
+                    <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.rateLabel}>{t('vatReport.vatDue')}</Text>
+                    <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
+                  </View>
+                </Card>
+              ))
+            )}
+
+            <Text style={styles.sectionLabel}>{t('vatReport.deductibleSectionTitle')}</Text>
+            <Text style={styles.basisHint}>{t('vatReport.deductibleHint')}</Text>
+            {report.deductibleRows.length === 0 ? (
+              <Card><EmptyState title={t('vatReport.deductibleEmptyTitle')} subtitle={t('vatReport.deductibleEmptySubtitle')} /></Card>
+            ) : (
+              report.deductibleRows.map((row) => (
+                <Card key={row.vatRate} style={styles.rateRow}>
+                  <View style={styles.rateBadge}>
+                    <Text style={styles.rateBadgeText}>{row.vatRate}%</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
+                    <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.rateLabel}>{t('vatReport.vatDeductible')}</Text>
+                    <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
+                  </View>
+                </Card>
+              ))
+            )}
 
             <Card style={styles.totalCard}>
               <View style={styles.totalRow}>
@@ -124,11 +194,20 @@ export default function VatReportScreen() {
                 <Text style={styles.totalLabel}>{t('vatReport.totalVatDue')}</Text>
                 <Text style={styles.totalValue}>CHF {report.totalVat.toFixed(2)}</Text>
               </View>
-              <View style={[styles.totalRow, styles.totalRowFinal]}>
-                <Text style={styles.totalLabelFinal}>{t('vatReport.totalInclVat')}</Text>
-                <Text style={styles.totalValueFinal}>CHF {report.totalInclVat.toFixed(2)}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>{t('vatReport.totalDeductibleVat')}</Text>
+                <Text style={styles.totalValue}>− CHF {report.totalDeductibleVat.toFixed(2)}</Text>
               </View>
+              <View style={[styles.totalRow, styles.totalRowFinal]}>
+                <Text style={styles.totalLabelFinal}>{t('vatReport.netVatDue')}</Text>
+                <Text style={[styles.totalValueFinal, report.netVatDue < 0 && styles.totalValueCredit]}>
+                  CHF {report.netVatDue.toFixed(2)}
+                </Text>
+              </View>
+              {report.netVatDue < 0 ? <Text style={styles.creditHint}>{t('vatReport.creditHint')}</Text> : null}
             </Card>
+
+            <Button title={t('vatReport.exportCsv')} icon="download" variant="secondary" onPress={handleExport} />
           </View>
         )}
       </ScrollView>
@@ -200,6 +279,14 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     lineHeight: 17,
   },
+  sectionLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: spacing.sm,
+  },
   rateRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -269,5 +356,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
     fontVariant: ['tabular-nums'],
+  },
+  totalValueCredit: {
+    color: colors.success,
+  },
+  creditHint: {
+    fontSize: fontSize.xs,
+    color: colors.success,
+    lineHeight: 16,
   },
 });

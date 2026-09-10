@@ -32,6 +32,7 @@ export interface ProjectExpenseInput {
   amount: number;
   expenseDate: string | null;
   notes: string | null;
+  vatRate: number | null;
 }
 
 export async function createProjectExpense(
@@ -48,6 +49,7 @@ export async function createProjectExpense(
     amount: input.amount,
     expense_date: input.expenseDate,
     notes: input.notes,
+    vat_rate: input.vatRate,
     created_by: createdBy,
   });
   return { error: error?.message ?? null };

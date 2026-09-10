@@ -106,7 +106,7 @@ export function ExpenseComposer({
     const { error } = await createProjectExpense(
       organizationId,
       projectId,
-      { label: label.trim(), category: null, amount: Number(amount) || 0, expenseDate: null, notes: null },
+      { label: label.trim(), category: null, amount: Number(amount) || 0, expenseDate: null, notes: null, vatRate: null },
       user?.id ?? null,
     );
     setSaving(false);
