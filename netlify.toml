@@ -736,6 +736,126 @@
   status = 200
 
 [[redirects]]
+  from = "/it/charpentier"
+  to = "/it/charpentier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/macon"
+  to = "/it/macon/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/electricien"
+  to = "/it/electricien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/plombier"
+  to = "/it/plombier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/peintre"
+  to = "/it/peintre/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/menuisier"
+  to = "/it/menuisier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/entreprise-generale"
+  to = "/it/entreprise-generale/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/paysagiste"
+  to = "/it/paysagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/couvreur"
+  to = "/it/couvreur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/chauffagiste"
+  to = "/it/chauffagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/carreleur"
+  to = "/it/carreleur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/platrier"
+  to = "/it/platrier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/genie-civil"
+  to = "/it/genie-civil/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/terrassier"
+  to = "/it/terrassier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/entreprise-renovation"
+  to = "/it/entreprise-renovation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/serrurier"
+  to = "/it/serrurier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/ferblantier"
+  to = "/it/ferblantier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/facadier"
+  to = "/it/facadier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/etancheur"
+  to = "/it/etancheur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/construction-bois"
+  to = "/it/construction-bois/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/vitrier"
+  to = "/it/vitrier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/parqueteur"
+  to = "/it/parqueteur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/echafaudeur"
+  to = "/it/echafaudeur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/demolition"
+  to = "/it/demolition/index.html"
+  status = 200
+
+[[redirects]]
   from = "/it/metiers"
   to = "/it/metiers/index.html"
   status = 200
