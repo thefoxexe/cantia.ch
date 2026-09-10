@@ -64,6 +64,7 @@ export function MarketingNav() {
   const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
+  const telechargementHref = locale === 'de' ? '/de/telechargement' : locale === 'it' ? '/it/telechargement' : '/telechargement';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -104,7 +105,7 @@ export function MarketingNav() {
           <Link href={pricingHref as any}>
             <Text style={styles.navLink}>{t.nav.pricing}</Text>
           </Link>
-          <Link href="/telechargement">
+          <Link href={telechargementHref as any}>
             <Text style={styles.navLink}>{t.nav.download}</Text>
           </Link>
           <Link href={aideHref as any}>
@@ -140,7 +141,7 @@ export function MarketingNav() {
                 <Text style={styles.navBrand}>Cantia</Text>
               </View>
               <View style={styles.mobileMenuHeaderRight}>
-                <LangToggle value={locale} onChange={(next) => router.push(toggleLocalePathname(pathname, next) as any)} />
+                <LanguageSwitcher />
                 <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
                   <Feather name="x" size={22} color={colors.text} />
                 </Pressable>
@@ -158,7 +159,7 @@ export function MarketingNav() {
                     <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
                   </Pressable>
                 </Link>
-                <Link href="/telechargement" asChild>
+                <Link href={telechargementHref as any} asChild>
                   <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                     <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
                   </Pressable>
@@ -212,6 +213,13 @@ export function MarketingFooter({
   const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
+  // The 12 solutions/integrations/sur-mesure/legal links below were all
+  // hardcoded to their French path regardless of locale — since this footer
+  // renders on almost every marketing page, a German or Italian visitor
+  // clicking any of them landed on the French version. localePrefix is ''
+  // for French (paths below already start with '/'), '/de' or '/it'
+  // otherwise.
+  const localePrefix = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '';
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -264,37 +272,37 @@ export function MarketingFooter({
               <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
             </Link>
           )}
-          <Link href="/solutions/devis">
+          <Link href={`${localePrefix}/solutions/devis` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsDevis')}</Text>
           </Link>
-          <Link href="/solutions/facturation">
+          <Link href={`${localePrefix}/solutions/facturation` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsFacturation')}</Text>
           </Link>
-          <Link href="/solutions/rapports-chantier">
+          <Link href={`${localePrefix}/solutions/rapports-chantier` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRapports')}</Text>
           </Link>
-          <Link href="/solutions/dictee-vocale">
+          <Link href={`${localePrefix}/solutions/dictee-vocale` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsDictee')}</Text>
           </Link>
-          <Link href="/solutions/planning">
+          <Link href={`${localePrefix}/solutions/planning` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsPlanning')}</Text>
           </Link>
-          <Link href="/solutions/rentabilite">
+          <Link href={`${localePrefix}/solutions/rentabilite` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRentabilite')}</Text>
           </Link>
-          <Link href="/solutions/rh-salaires">
+          <Link href={`${localePrefix}/solutions/rh-salaires` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRh')}</Text>
           </Link>
-          <Link href="/solutions/travaux-supplementaires">
+          <Link href={`${localePrefix}/solutions/travaux-supplementaires` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsTravauxSupp')}</Text>
           </Link>
-          <Link href="/solutions/tresorerie">
+          <Link href={`${localePrefix}/solutions/tresorerie` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsTresorerie')}</Text>
           </Link>
-          <Link href="/integrations">
+          <Link href={`${localePrefix}/integrations` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsIntegrations')}</Text>
           </Link>
-          <Link href="/sur-mesure">
+          <Link href={`${localePrefix}/sur-mesure` as any}>
             <Text style={styles.footerLink}>{tr('marketingChrome.solutionsSurMesure')}</Text>
           </Link>
           <Link href={locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog'}>
@@ -315,10 +323,10 @@ export function MarketingFooter({
           <Link href={contactHref as any}>
             <Text style={styles.footerLink}>{t.nav.contact}</Text>
           </Link>
-          <Link href="/mentions-legales">
+          <Link href={`${localePrefix}/mentions-legales` as any}>
             <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
           </Link>
-          <Link href="/confidentialite">
+          <Link href={`${localePrefix}/confidentialite` as any}>
             <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
           </Link>
         </View>

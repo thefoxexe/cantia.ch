@@ -30,7 +30,7 @@ export default function HelpArticleScreen() {
         <View style={{ maxWidth: 480, alignSelf: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxxl, alignItems: 'center', gap: spacing.md }}>
           <Text style={{ fontSize: fontSize.xxl, fontWeight: '800', color: colors.text }}>{t('helpArticlePage.notFoundTitle')}</Text>
           <Text style={{ fontSize: fontSize.md, color: colors.textMuted, textAlign: 'center' }}>{t('helpArticlePage.notFoundText')}</Text>
-          <Link href="/aide">
+          <Link href={(locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide') as any}>
             <Text style={{ fontSize: fontSize.md, color: colors.primary, fontWeight: '700' }}>{t('helpArticlePage.backToAide')}</Text>
           </Link>
         </View>

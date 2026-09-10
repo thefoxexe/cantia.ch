@@ -43,6 +43,11 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
   const related = getRelatedPosts(post, 3, locale);
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
+  // "Back to blog" and related-article links were hardcoded to /blog/...
+  // regardless of locale — a German or Italian reader following either
+  // link landed on a French page. See app/blog/index.tsx for the same bug
+  // on the blog index's own cards, fixed the same way.
+  const blogHrefPrefix = `${tradeHrefPrefix}blog`;
 
   return (
     <Screen>
@@ -57,7 +62,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }],
             }}
           >
-            <Link href="/blog" asChild>
+            <Link href={blogHrefPrefix as any} asChild>
               <Pressable style={styles.backLink}>
                 <Feather name="arrow-left" size={13} color={colors.primary} />
                 <Text style={styles.backLinkText}>{t('blogArticlePage.allArticles')}</Text>
@@ -116,7 +121,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <Text style={styles.sectionEyebrow}>{t('blogArticlePage.seeAlsoEyebrow')}</Text>
             <View style={styles.relatedGrid}>
               {related.map((r) => (
-                <Link key={r.slug} href={`/blog/${r.slug}` as any} asChild>
+                <Link key={r.slug} href={`${blogHrefPrefix}/${r.slug}` as any} asChild>
                   <Pressable style={styles.relatedCard}>
                     <Text style={styles.relatedCategory}>{t(`blogCategories.${r.category}`)}</Text>
                     <Text style={styles.relatedTitle}>{r.title}</Text>

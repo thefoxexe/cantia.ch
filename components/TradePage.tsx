@@ -43,7 +43,10 @@ export function TradePage({ slug }: { slug: string }) {
   const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;
 
   const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
-  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostBySlug(s)).filter((p) => !!p);
+  // getPostBySlug(s) without a locale defaults to French — the related-post
+  // title shown here (and the link below) was always French regardless of
+  // the trade page's own language.
+  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostBySlug(s, locale)).filter((p) => !!p);
   const hrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
 
   return (
@@ -179,7 +182,7 @@ export function TradePage({ slug }: { slug: string }) {
             <Text style={styles.eyebrow}>{t('tradePage.furtherReadingEyebrow')}</Text>
             <View style={styles.relatedRow}>
               {relatedPosts.map((post) => (
-                <Link key={post!.slug} href={`/blog/${post!.slug}` as any} asChild>
+                <Link key={post!.slug} href={`${hrefPrefix}blog/${post!.slug}` as any} asChild>
                   <Pressable style={styles.relatedChip}>
                     <Text style={styles.relatedChipText}>{post!.title}</Text>
                     <Feather name="arrow-right" size={13} color={colors.primary} />

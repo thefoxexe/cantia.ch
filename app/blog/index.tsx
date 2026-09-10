@@ -35,6 +35,13 @@ export default function BlogIndexScreen() {
   const { t } = useTranslation();
   const locale = getAppLocale();
   const posts = useMemo(() => getAllPosts(locale), [locale]);
+  // Every card below linked to /blog/<slug> unconditionally, so a visitor
+  // reading the German or Italian blog index (getAllPosts already returns
+  // the correctly translated posts here) landed on the FRENCH version of
+  // whichever article they clicked — confirmed via a static-export crawl:
+  // dist-marketing/de/blog/index.html and .../it/blog/index.html both
+  // linked to bare /blog/<slug> URLs, 138 wrong links on each page.
+  const blogHrefPrefix = locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog';
   const formatDate = (iso: string) => {
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString(`${locale}-CH`, { day: 'numeric', month: 'short', year: 'numeric' });
@@ -101,7 +108,7 @@ export default function BlogIndexScreen() {
           ) : (
             <>
               {featured ? (
-                <Link href={`/blog/${featured.slug}` as any} asChild>
+                <Link href={`${blogHrefPrefix}/${featured.slug}` as any} asChild>
                   <Pressable style={styles.featuredCard}>
                     <View style={styles.featuredTop}>
                       <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[featured.category].soft }]}>
@@ -132,7 +139,7 @@ export default function BlogIndexScreen() {
 
               <View style={styles.grid}>
                 {rest.map((p) => (
-                  <Link key={p.slug} href={`/blog/${p.slug}` as any} asChild>
+                  <Link key={p.slug} href={`${blogHrefPrefix}/${p.slug}` as any} asChild>
                     <Pressable style={styles.card}>
                       <View style={[styles.cardMedallion, { backgroundColor: CATEGORY_STYLE[p.category].soft }]}>
                         <Feather name={CATEGORY_STYLE[p.category].icon} size={18} color={CATEGORY_STYLE[p.category].color} />

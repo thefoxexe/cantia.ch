@@ -19,7 +19,8 @@ export function generateStaticParams() {
 export default function BlogPostScreen() {
   const { t } = useTranslation();
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const post = getPostBySlug(typeof slug === 'string' ? slug : '', getAppLocale());
+  const locale = getAppLocale();
+  const post = getPostBySlug(typeof slug === 'string' ? slug : '', locale);
 
   if (!post) {
     return (
@@ -30,7 +31,7 @@ export default function BlogPostScreen() {
           <Text style={{ fontSize: fontSize.md, color: colors.textMuted, textAlign: 'center' }}>
             {t('blogArticlePage.notFoundText')}
           </Text>
-          <Link href="/blog">
+          <Link href={(locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog') as any}>
             <Text style={{ fontSize: fontSize.md, color: colors.primary, fontWeight: '700' }}>{t('blogArticlePage.backToBlog')}</Text>
           </Link>
         </View>

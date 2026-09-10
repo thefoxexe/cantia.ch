@@ -566,7 +566,7 @@ function LandingContent() {
               read as a bolted-on ad) so it stays a callout without breaking
               the page's visual language — /integrations has the detail
               (features, steps, FAQ). ---- */}
-          <Link href={'/integrations' as any} asChild>
+          <Link href={(`${tradeHrefPrefix}integrations`) as any} asChild>
             <Pressable style={styles.bexioRibbon}>
               <View style={StyleSheet.flatten([styles.bexioRibbonInner, isCompactNav && styles.bexioRibbonInnerCompact])}>
                 <View style={styles.bexioRibbonLeft}>
@@ -1024,7 +1024,7 @@ function LandingContent() {
           <Reveal id="mobile" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
             <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.mobile.title}</Heading>
             <Text style={styles.mobileText}>{t.mobile.text}</Text>
-            <Link href="/telechargement" asChild>
+            <Link href={`${tradeHrefPrefix}telechargement` as any} asChild>
               <Button title={t.mobile.installCta} onPress={() => {}} icon="download" style={styles.mobileInstallCta} />
             </Link>
             <Text style={styles.mobileStoreNote}>{t.mobile.storeNote}</Text>
@@ -1096,7 +1096,7 @@ function LandingContent() {
                 <Pressable onPress={scrollToPricing}>
                   <Text style={styles.navLink}>{t.nav.pricing}</Text>
                 </Pressable>
-                <Link href="/telechargement">
+                <Link href={`${tradeHrefPrefix}telechargement` as any}>
                   <Text style={styles.navLink}>{t.nav.download}</Text>
                 </Link>
                 <Link href={aideHref as any}>
@@ -1151,7 +1151,7 @@ function LandingContent() {
                 <View style={styles.mobileMenuGroup}>
                   <MenuItem anim={menuItemAnims[0]} onPress={scrollToServices} label={t.nav.services} />
                   <MenuItem anim={menuItemAnims[1]} onPress={scrollToPricing} label={t.nav.pricing} />
-                  <Link href="/telechargement" asChild>
+                  <Link href={`${tradeHrefPrefix}telechargement` as any} asChild>
                     <MenuItem anim={menuItemAnims[2]} onPress={() => setMenuOpen(false)} label={t.nav.download} />
                   </Link>
                   <Link href={aideHref as any} asChild>

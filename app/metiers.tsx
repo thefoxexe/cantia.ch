@@ -91,7 +91,7 @@ export default function MetiersScreen() {
         <Container style={styles.noteOuter}>
           <Text style={styles.note}>
             {t('metiersPage.noteBefore')}
-            <Link href="/sur-mesure"><Text style={styles.noteLink}>{t('metiersPage.noteLink')}</Text></Link>.
+            <Link href={(locale === 'de' ? '/de/sur-mesure' : locale === 'it' ? '/it/sur-mesure' : '/sur-mesure') as any}><Text style={styles.noteLink}>{t('metiersPage.noteLink')}</Text></Link>.
           </Text>
         </Container>
 

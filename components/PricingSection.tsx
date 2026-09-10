@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 import { Button, Container, Switch } from './ui';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
-import { useTranslation } from '../lib/translations';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
@@ -100,7 +100,7 @@ export function PricingSection({ compact }: { compact?: boolean }) {
               })}
       </View>
 
-      <Link href="/sur-mesure" asChild>
+      <Link href={(getAppLocale() === 'de' ? '/de/sur-mesure' : getAppLocale() === 'it' ? '/it/sur-mesure' : '/sur-mesure') as any} asChild>
         <Pressable style={StyleSheet.flatten([styles.contactCard, styles.contactCardInner])} hitSlop={8}>
           <Feather name="tool" size={16} color={colors.textMuted} />
           <Text style={styles.contactCardText}>
