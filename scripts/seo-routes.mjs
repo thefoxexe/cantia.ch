@@ -6,6 +6,7 @@
 // Keeping one array means the two builds can never describe a page
 // differently by accident.
 import { BLOG_DATES_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
+import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 
 const TRADE_SLUGS = new Set([
   'charpentier', 'macon', 'electricien', 'plombier', 'peintre', 'menuisier', 'entreprise-generale',
@@ -2343,6 +2344,205 @@ export const ROUTES = [
   },
   ...HELP_SEO_DE,
   ...BLOG_SEO_DE,
+
+  // ==========================================================================
+  // Italiano (/it/*) — mêmes pages que ci-dessus, en miroir. Les pages métier,
+  // les articles de blog et le centre d'aide sont générées depuis
+  // it-seo-data.generated.mjs (voir scripts/generate-it-seo-data.mjs) pour ne
+  // jamais désynchroniser ce fichier du contenu réellement traduit dans
+  // lib/tradeLandingPagesIt.ts, lib/helpArticles.ts et lib/blog/posts-it/*.ts ;
+  // le reste (accueil, solutions, pages légales…) est traduit ici à la main,
+  // comme le FR/DE ci-dessus. HELP_SEO_IT et BLOG_SEO_IT sont vides tant que
+  // ces phases de traduction n'ont pas encore eu lieu.
+  // ==========================================================================
+  {
+    path: 'it',
+    title: 'Software di gestione cantieri in Svizzera | Cantia',
+    description:
+      'Cantia centralizza preventivi, fatture, pianificazione, rapporti, ore e redditività per artigiani e PMI edili in Svizzera.',
+  },
+  {
+    path: 'it/solutions/devis',
+    title: 'Preventivi online per artigiani svizzeri | Cantia',
+    description:
+      "Detti le voci del preventivo a voce alta in cantiere. Cantia le trasforma in posizioni con prezzo, con i Suoi prezzi abituali, PDF pronto per l'invio.",
+    faq: [
+      { q: 'Come si fa un preventivo velocemente da artigiano?', a: "Detti le Sue righe a voce alta in cantiere o in auto. Cantia le trasforma in posizioni con prezzo usando i Suoi prezzi abituali, e il PDF è pronto ancora prima di aver lasciato il cliente." },
+      { q: 'Il preventivo è conforme agli usi svizzeri (IVA, impaginazione)?', a: "Sì: ogni preventivo riprende la Sua aliquota IVA, i Suoi dati aziendali e può essere personalizzato con il colore del Suo marchio e il Suo logo." },
+      { q: 'Si può trasformare automaticamente un preventivo accettato in fattura?', a: "Sì, un preventivo accettato si converte in fattura — con fattura QR svizzera — con un clic, senza reinserire le righe." },
+      { q: 'Cantia è gratuito per fare i preventivi?', a: "Sì, è disponibile gratuitamente una quota mensile di preventivi, senza carta di credito né impegno." },
+    ],
+  },
+  {
+    path: 'it/solutions/facturation',
+    title: 'Fatturazione & fattura QR svizzera | Cantia',
+    description:
+      "Ogni fattura Cantia integra automaticamente la fattura QR svizzera conforme — IBAN, riferimento strutturato e importo già codificati, pronta per essere scansionata.",
+    faq: [
+      { q: 'Come si crea una fattura con fattura QR svizzera?', a: "Inserisca il Suo IBAN una sola volta nelle impostazioni: ogni fattura genera poi automaticamente la polizza QR conforme alla norma SIX, con IBAN e riferimento strutturato già codificati." },
+      { q: 'Si può fatturare un acconto prima della fine del cantiere?', a: "Sì, Cantia consente di emettere una fattura d'acconto per una percentuale del preventivo, poi deduce automaticamente questo importo dalla fattura finale." },
+      { q: 'Come si sa se una fattura è stata pagata?', a: "Cerchi e riconcili un pagamento direttamente dal suo numero di riferimento QR — lo stato passa a «pagata» senza dover verificare manualmente il Suo conto bancario." },
+      { q: 'Quanto costa la fatturazione con QR-code tramite Cantia?', a: "La fatturazione con fattura QR svizzera è inclusa in tutti i piani Cantia, senza eccezioni, già a partire dal piano Essentiel." },
+    ],
+  },
+  {
+    path: 'it/solutions/rapports-chantier',
+    title: 'Rapporti di cantiere | Cantia',
+    description:
+      "Note vocali, foto geolocalizzate e messaggi di squadra: Cantia ne ricava un rapporto redatto e strutturato, pronto per l'invio.",
+    faq: [
+      { q: 'Come si redige rapidamente un rapporto di cantiere?', a: "Scatti le Sue foto e detti le Sue note sul momento — Cantia assembla tutto in un rapporto PDF strutturato e pronto per l'invio, senza dover riscrivere tutto la sera." },
+      { q: 'Le foto vengono geolocalizzate automaticamente?', a: "Sì, ogni foto viene marcata temporalmente e geolocalizzata senza alcuna azione aggiuntiva da parte Sua." },
+      { q: 'Si può personalizzare il rapporto con logo e firma?', a: "Sì, ogni rapporto PDF riprende il Suo logo, il colore del Suo marchio e la firma di chi lo ha redatto." },
+      { q: 'Il rapporto di cantiere sostituisce un diario di cantiere cartaceo?', a: "Sì — note, foto e monitoraggio sono centralizzati in un documento digitale consultabile in qualsiasi momento, per cantiere." },
+    ],
+  },
+  {
+    path: 'it/solutions/dictee-vocale',
+    title: "Dettatura vocale per l'edilizia | Cantia",
+    description: "Preventivi, rapporti, messaggi di squadra: un pulsante per dettare sostituisce la digitazione, ovunque in Cantia.",
+    faq: [
+      { q: 'La dettatura vocale funziona bene con il vocabolario edile?', a: "Sì, il riconoscimento è adattato al vocabolario tecnico dell'edilizia — materiali, unità, mestieri — non solo al linguaggio comune." },
+      { q: 'Serve una connessione internet per dettare?', a: "Sì, la dettatura richiede una connessione per la trascrizione, ma i preventivi e i rapporti generati restano consultabili una volta creati." },
+      { q: 'Dove si può usare la dettatura vocale in Cantia?', a: "Sui preventivi, sui rapporti di cantiere e sui messaggi di squadra del feed — ovunque Lei scriva." },
+      { q: 'La dettatura vocale è più veloce della tastiera sul campo?', a: "Per la maggior parte degli artigiani in cantiere, sì — parlare è più veloce che digitare su un telefono con le mani sporche o i guanti." },
+    ],
+  },
+  {
+    path: 'it/solutions/planning',
+    title: 'Pianificazione di squadra cantiere | Cantia',
+    description: "Un vero calendario di squadra: ogni membro, ogni cantiere, ogni giorno. Basta con i planning su carta o WhatsApp.",
+    faq: [
+      { q: 'Come organizzare la pianificazione di una squadra di cantiere?', a: 'Cantia mostra un calendario settimanale condiviso: ogni membro vede chi è su quale cantiere, ogni giorno.' },
+      { q: 'La pianificazione sostituisce un foglio Excel o un gruppo WhatsApp?', a: "Sì, tutta la squadra consulta le stesse informazioni in tempo reale, senza file né messaggi da scorrere." },
+      { q: 'Si possono pianificare più cantieri in parallelo?', a: "Sì, ogni assegnazione è collegata a un cantiere preciso e resta visibile per tutta la settimana, membro per membro." },
+      { q: 'La pianificazione è inclusa in tutti i piani Cantia?', a: "È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione." },
+    ],
+  },
+  {
+    path: 'it/solutions/rentabilite',
+    title: 'Redditività per cantiere | Cantia',
+    description:
+      "Confronti il preventivo accettato con il costo reale — materiale e manodopera — per sapere se ogni cantiere è redditizio, in margine ristretto o in perdita.",
+    faq: [
+      { q: 'Come si sa se un cantiere è redditizio?', a: "Cantia confronta il preventivo accettato (ricavo) con il costo reale — materiale registrato e manodopera derivata dalle ore inserite — e mostra il margine in CHF e in % in tempo reale." },
+      { q: 'Da dove viene il calcolo del costo della manodopera?', a: "Dalla pianificazione di squadra: i giorni assegnati a un cantiere vengono moltiplicati per il costo orario della Sua azienda, senza registrazione separata." },
+      { q: 'Si possono confrontare più cantieri tra loro?', a: "Sì, ogni cantiere mostra il proprio margine, il che permette di individuare rapidamente i cantieri in perdita." },
+      { q: 'La redditività per cantiere è inclusa in tutti i piani Cantia?', a: "È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione." },
+    ],
+  },
+  {
+    path: 'it/solutions/rh-salaires',
+    title: "HR, ore & salari per l'edilizia | Cantia",
+    description:
+      "Ogni dipendente registra le proprie ore per cantiere e le proprie spese professionali; la segretaria o l'amministratore gestisce la busta paga di tutta la squadra, dal lordo al netto.",
+    faq: [
+      { q: 'Chi può vedere i salari in Cantia?', a: "Solo la segretaria HR e gli amministratori, secondo i permessi assegnati da Squadra. Un dipendente standard vede solo le proprie ore e spese." },
+      { q: 'Cantia calcola automaticamente i contributi sociali svizzeri?', a: "Cantia calcola il salario netto a partire da aliquote AVS/AD/LPP/LAINF configurabili e da un'aliquota d'imposta alla fonte per dipendente — le aliquote predefinite sono indicative, da adattare secondo la Sua cassa di compensazione, la Sua cassa LPP e il cantone." },
+      { q: 'Come esporta un dipendente il proprio foglio ore?', a: "Dal modulo HR & Salari, scegliendo la granularità — giornaliera, settimanale o mensile — poi scaricando un file CSV." },
+      { q: 'Il modulo HR & Salari è incluso in tutti i piani Cantia?', a: "È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione." },
+    ],
+  },
+  {
+    path: 'it/solutions/travaux-supplementaires',
+    title: 'Lavori supplementari (LS) per artigiani svizzeri | Cantia',
+    description:
+      "Ogni extra richiesto durante il cantiere diventa un documento datato, firmato online dal cliente e trasformato automaticamente in fattura — basta con gli extra dimenticati o contestati.",
+    faq: [
+      { q: "Che cos'è un Lavoro supplementare (LS) in Cantia?", a: "È un documento dedicato per tutto ciò che viene richiesto durante il cantiere in aggiunta al preventivo iniziale — un muro da spostare, una presa da aggiungere. Si crea, si invia e si firma come un preventivo, poi si trasforma automaticamente in fattura una volta accettato." },
+      { q: 'Un LS deve essere collegato a un preventivo esistente?', a: "No, è facoltativo. Può collegarlo al preventivo d'origine per mantenere il contesto, oppure crearlo da solo se il cantiere non ha un preventivo iniziale in Cantia." },
+      { q: 'Come approva il cliente un Lavoro supplementare?', a: "Riceve un link a un portale sicuro, consulta il dettaglio con i prezzi e firma online — l'accettazione è marcata temporalmente e attiva automaticamente la fattura corrispondente." },
+      { q: 'I lavori supplementari contano nella Redditività per cantiere?', a: "Sì: non appena un LS viene accettato, il suo importo si aggiunge automaticamente al totale preventivato del cantiere nel modulo Redditività." },
+    ],
+  },
+  {
+    path: 'it/solutions/tresorerie',
+    title: "Tesoreria previsionale per l'edilizia | Cantia",
+    description:
+      "Fatture da incassare, salari, subappaltatori e spese ricorrenti riuniti in una proiezione a 90 giorni — senza connessione bancaria.",
+    faq: [
+      { q: 'Cantia si collega al mio conto bancario?', a: 'No. Inserisce il Suo saldo manualmente quando lo desidera — non viene richiesto né è necessario alcun accesso bancario.' },
+      { q: 'Da dove provengono gli importi della proiezione?', a: "Dalle fatture clienti non saldate, da una stima della massa salariale (profili HR + ore inserite), dalle fatture subappaltatori non pagate e dalle spese ricorrenti che Lei registra — tutto ciò che Cantia sa già sulla Sua attività." },
+      { q: 'Come funzionano i promemoria delle spese ricorrenti?', a: "Un banner sulla home e sulla pagina Tesoreria Le segnala le spese ricorrenti attive in scadenza nei prossimi 7 giorni, prima che vengano addebitate." },
+      { q: 'La Tesoreria previsionale è inclusa in tutti i piani Cantia?', a: 'È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione.' },
+    ],
+  },
+  {
+    path: 'it/integrations',
+    title: 'Integrazioni | Cantia',
+    description:
+      "Cantia si collega direttamente alla Sua contabilità: Bexio già da oggi, clienti e articoli importati, fatture inviate con un clic, stati di pagamento sincronizzati.",
+    faq: [
+      { q: 'Quali integrazioni offre Cantia oggi?', a: 'Bexio, disponibile nativamente a partire dal piano Team. Altre integrazioni seguiranno lo stesso principio di connessione ufficiale.' },
+      { q: "L'integrazione Bexio è a pagamento oltre all'abbonamento?", a: 'No — è inclusa automaticamente a partire dal piano Team, senza modulo né costo aggiuntivo.' },
+      { q: 'Cantia può inviare una fattura definitiva al mio cliente tramite Bexio?', a: 'No. Ogni fattura arriva in Bexio solo come bozza — la finalizzazione resta sempre un’azione manuale lato Bexio.' },
+    ],
+  },
+  {
+    path: 'it/sur-mesure',
+    title: 'Sviluppo su misura | Cantia',
+    description:
+      "Oltre ai moduli standard, Cantia può sviluppare un flusso di lavoro, un'automazione o un'integrazione appositamente per la Sua azienda — senza cambiare l'esperienza degli altri clienti.",
+    faq: [
+      { q: 'Un modulo su misura è visibile ad altre aziende?', a: 'No. Un modulo sviluppato per Lei viene attivato solo per la Sua organizzazione — gli altri clienti Cantia non lo vedono mai.' },
+      { q: 'Devo cambiare software o installare qualcos’altro?', a: 'No — il modulo vive nello stesso Cantia che già usa, con gli stessi accessi e gli stessi aggiornamenti.' },
+      { q: 'Quanto costa uno sviluppo su misura?', a: 'Dipende interamente dalla necessità. Ne discutiamo prima insieme, e riceve un preventivo chiaro prima di ogni impegno.' },
+    ],
+  },
+  {
+    path: 'it/blog',
+    title: "Blog | Cantia — Risposte concrete per l'edilizia svizzera",
+    description:
+      "Preventivi, fatturazione, HR, aspetti legali, confronti: risposte precise alle domande che si pongono gli artigiani e le imprese edili in Svizzera.",
+  },
+  ...TRADE_SEO_IT,
+  {
+    path: 'it/metiers',
+    title: 'Cantia per il Suo mestiere | Software di gestione per mestiere',
+    description:
+      'Cantia centralizza preventivi, cantieri, squadra e fatturazione. Scopra come si adatta al quotidiano del Suo mestiere edile in Svizzera.',
+  },
+  {
+    path: 'it/telechargement',
+    title: 'Scaricare Cantia | App mobile & web',
+    description: "Cantia funziona come un'applicazione web installabile, su computer come su telefono. App native iOS e Android disponibili a breve.",
+  },
+  {
+    path: 'it/mentions-legales',
+    title: 'Note legali | Cantia',
+    description: "Note legali di Cantia, software di gestione cantieri per l'edilizia svizzera.",
+  },
+  {
+    path: 'it/confidentialite',
+    title: 'Informativa sulla privacy | Cantia',
+    description:
+      "Informativa sulla privacy di Cantia: dati raccolti, hosting in Svizzera, diritti degli utenti.",
+  },
+  {
+    path: 'it/aide',
+    title: 'Centro assistenza | Cantia',
+    description:
+      "Tutte le risposte alle domande frequenti su Cantia: preventivi, fatture, cantieri, squadra, fatturazione. Guide e tutorial video.",
+  },
+  {
+    path: 'it/contact',
+    title: 'Contatto | Cantia',
+    description: 'Una domanda, un problema, un suggerimento? Contatti il team Cantia — risposta entro 24 ore lavorative.',
+  },
+  {
+    path: 'it/aide/videos',
+    title: 'Tutorial video | Centro assistenza Cantia',
+    description:
+      'Veda ogni modulo Cantia in azione: preventivi, fatture, cantieri, pianificazione, HR — dimostrazioni video modulo per modulo.',
+  },
+  {
+    path: 'it/aide/ressources',
+    title: 'Risorse da scaricare | Centro assistenza Cantia',
+    description:
+      'Scarichi la brochure di presentazione Cantia in PDF: funzionalità, tariffe e vantaggi per le imprese edili in Svizzera.',
+  },
+  ...HELP_SEO_IT,
+  ...BLOG_SEO_IT,
 ];
 
 // The 138 hand-authored FR blog entries above predate generate-de-seo-data.mjs

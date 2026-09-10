@@ -14,10 +14,12 @@ import { ROUTES } from './seo-routes.mjs';
 const rootDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tomlPath = path.join(rootDir, 'netlify.toml');
 
-// The blog *index* pages ("blog", "de/blog") still need their own explicit
-// rule — only individual articles ("blog/<slug>", "de/blog/<slug>") are
-// covered by the splat rules below.
-const nonBlog = ROUTES.filter((r) => r.path && !r.path.startsWith('blog/') && !r.path.startsWith('de/blog/'));
+// The blog *index* pages ("blog", "de/blog", "it/blog") still need their own
+// explicit rule — only individual articles ("blog/<slug>", "de/blog/<slug>",
+// "it/blog/<slug>") are covered by the splat rules below.
+const nonBlog = ROUTES.filter(
+  (r) => r.path && !r.path.startsWith('blog/') && !r.path.startsWith('de/blog/') && !r.path.startsWith('it/blog/')
+);
 
 const blocks = nonBlog
   .map((r) => `[[redirects]]\n  from = "/${r.path}"\n  to = "/${r.path}/index.html"\n  status = 200`)
@@ -75,6 +77,11 @@ ${blocks}
   to = "/de/blog/:splat/index.html"
   status = 200
 
+[[redirects]]
+  from = "/it/blog/*"
+  to = "/it/blog/:splat/index.html"
+  status = 200
+
 # SPA fallback for every other route (the actual app, auth screens, etc.) —
 # stays last so none of the explicit rules above are shadowed by it.
 [[redirects]]
@@ -84,4 +91,4 @@ ${blocks}
 `;
 
 writeFileSync(tomlPath, header);
-console.log(`netlify.toml regenerated with ${nonBlog.length} explicit route redirects + 2 blog splat rules.`);
+console.log(`netlify.toml regenerated with ${nonBlog.length} explicit route redirects + 3 blog splat rules.`);
