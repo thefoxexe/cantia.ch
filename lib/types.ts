@@ -630,6 +630,8 @@ export interface PayrollExpenseType {
   created_at: string;
 }
 
+export type CertificateBox = 'box9' | 'box10_1' | 'box10_2' | 'box12';
+
 export interface PayrollDeductionType {
   id: string;
   organization_id: string;
@@ -638,6 +640,7 @@ export interface PayrollDeductionType {
   sort_order: number;
   active: boolean;
   created_at: string;
+  certificate_box: CertificateBox | null;
 }
 
 export interface PayrollProfileDeduction {
@@ -696,6 +699,8 @@ export interface PayrollProfile {
   postal_code: string | null;
   locality: string | null;
   notes: string | null;
+  avs_number: string | null;
+  birth_date: string | null;
   updated_by: string | null;
   updated_at: string;
 }

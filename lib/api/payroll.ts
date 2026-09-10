@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import type {
+  CertificateBox,
   PayrollDeductionType,
   PayrollExpense,
   PayrollExpenseType,
@@ -105,20 +106,30 @@ export async function createDeductionType(
   label: string,
   defaultRatePercent: number | null,
   sortOrder: number,
+  certificateBox: CertificateBox | null = null,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
-    .from('payroll_deduction_types')
-    .insert({ organization_id: organizationId, label: label.trim(), default_rate_percent: defaultRatePercent, sort_order: sortOrder });
+  const { error } = await supabase.from('payroll_deduction_types').insert({
+    organization_id: organizationId,
+    label: label.trim(),
+    default_rate_percent: defaultRatePercent,
+    sort_order: sortOrder,
+    certificate_box: certificateBox,
+  });
   return { error: error?.message ?? null };
 }
 
 export async function updateDeductionType(
   id: string,
-  updates: { label: string; defaultRatePercent: number | null; active: boolean },
+  updates: { label: string; defaultRatePercent: number | null; active: boolean; certificateBox: CertificateBox | null },
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('payroll_deduction_types')
-    .update({ label: updates.label.trim(), default_rate_percent: updates.defaultRatePercent, active: updates.active })
+    .update({
+      label: updates.label.trim(),
+      default_rate_percent: updates.defaultRatePercent,
+      active: updates.active,
+      certificate_box: updates.certificateBox,
+    })
     .eq('id', id);
   return { error: error?.message ?? null };
 }
@@ -348,7 +359,10 @@ export async function upsertPayrollProfile(
   organizationId: string,
   userId: string,
   updates: Partial<
-    Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'street' | 'postal_code' | 'locality' | 'notes'>
+    Pick<
+      PayrollProfile,
+      'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'street' | 'postal_code' | 'locality' | 'notes' | 'avs_number' | 'birth_date'
+    >
   >,
   updatedBy: string | undefined,
 ): Promise<{ error: string | null }> {

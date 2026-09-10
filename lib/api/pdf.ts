@@ -36,3 +36,15 @@ export async function generateSalaryCertificatePdf(userId: string, year: number)
   });
   return { url: data?.url ?? null, error };
 }
+
+// The real, official federal Lohnausweis (Form. 11, ESTV) — filled onto its
+// actual AcroForm fields, not a recreation. See generate-lohnausweis-pdf's
+// own comments for why every non-zero deduction type must have a
+// certificate_box mapping before this succeeds.
+export async function generateLohnausweisPdf(userId: string, year: number): Promise<{ url: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ url: string }>('generate-lohnausweis-pdf', {
+    user_id: userId,
+    year,
+  });
+  return { url: data?.url ?? null, error };
+}

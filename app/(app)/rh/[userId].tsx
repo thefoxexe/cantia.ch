@@ -15,9 +15,10 @@ import {
   upsertProfileDeduction,
   type AnnualSalarySummary,
 } from '../../../lib/api/payroll';
-import { generatePayslipPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
+import { generateLohnausweisPdf, generatePayslipPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
+import { DateField } from '../../../components/DateField';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
@@ -61,6 +62,7 @@ export default function PayrollProfileScreen() {
   const [annualSummary, setAnnualSummary] = useState<AnnualSalarySummary | null>(null);
   const [loadingAnnual, setLoadingAnnual] = useState(false);
   const [exportingAnnual, setExportingAnnual] = useState(false);
+  const [exportingLohnausweis, setExportingLohnausweis] = useState(false);
 
   const [salaryType, setSalaryType] = useState<SalaryType>('hourly');
   const [hourlyRate, setHourlyRate] = useState('');
@@ -69,6 +71,8 @@ export default function PayrollProfileScreen() {
   const [postalCode, setPostalCode] = useState('');
   const [locality, setLocality] = useState('');
   const [notes, setNotes] = useState('');
+  const [avsNumber, setAvsNumber] = useState('');
+  const [birthDate, setBirthDate] = useState<string | null>(null);
 
   function handlePostalCodeChange(value: string) {
     setPostalCode(value);
@@ -109,6 +113,8 @@ export default function PayrollProfileScreen() {
       setPostalCode(profileRow.postal_code ?? '');
       setLocality(profileRow.locality ?? '');
       setNotes(profileRow.notes ?? '');
+      setAvsNumber(profileRow.avs_number ?? '');
+      setBirthDate(profileRow.birth_date);
     }
     const rates: Record<string, string> = {};
     const enabled: Record<string, boolean> = {};
@@ -162,6 +168,19 @@ export default function PayrollProfileScreen() {
     if (dlError) setError(dlError);
   }
 
+  async function exportLohnausweis() {
+    setExportingLohnausweis(true);
+    setError(null);
+    const { url, error: genError } = await generateLohnausweisPdf(String(userId), yearAnchor);
+    setExportingLohnausweis(false);
+    if (genError || !url) {
+      setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
+      return;
+    }
+    const { error: dlError } = await downloadFile(url, `${t('payrollProfile.lohnausweisFilename', { name: memberName, year: yearAnchor })}.pdf`);
+    if (dlError) setError(dlError);
+  }
+
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
   const gross = salaryType === 'hourly' ? Math.round(num(hourlyRate) * totalHours * 100) / 100 : num(monthlySalary);
 
@@ -196,6 +215,8 @@ export default function PayrollProfileScreen() {
         postal_code: postalCode.trim() || null,
         locality: locality.trim() || null,
         notes: notes.trim() || null,
+        avs_number: avsNumber.trim() || null,
+        birth_date: birthDate,
       },
       user.id,
     );
@@ -318,6 +339,12 @@ export default function PayrollProfileScreen() {
               <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={handlePostalCodeChange} placeholder={t('payrollProfile.npaPlaceholder')} placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
               <TextInput style={[styles.addressInput, { flex: 1, minWidth: 0 }]} value={locality} onChangeText={setLocality} placeholder={t('payrollProfile.localityPlaceholder')} placeholderTextColor={colors.textMuted} />
             </View>
+
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.avsNumberLabel')}</Text>
+            <TextInput style={styles.addressInput} value={avsNumber} onChangeText={setAvsNumber} placeholder="756.XXXX.XXXX.XX" placeholderTextColor={colors.textMuted} />
+            <View style={{ marginTop: spacing.md }}>
+              <DateField label={t('payrollProfile.birthDateLabel')} value={birthDate} onChange={setBirthDate} />
+            </View>
           </Card>
 
           <Card>
@@ -412,6 +439,17 @@ export default function PayrollProfileScreen() {
                   variant="secondary"
                   onPress={exportSalaryCertificate}
                   loading={exportingAnnual}
+                  style={{ marginTop: spacing.md }}
+                />
+
+                <View style={styles.lohnausweisDivider} />
+                <Text style={styles.sectionTitle}>{t('payrollProfile.lohnausweisTitle')}</Text>
+                <Text style={styles.hint}>{t('payrollProfile.lohnausweisHint')}</Text>
+                <Button
+                  title={t('payrollProfile.lohnausweisExport')}
+                  icon="file-text"
+                  onPress={exportLohnausweis}
+                  loading={exportingLohnausweis}
                   style={{ marginTop: spacing.md }}
                 />
               </>
@@ -661,5 +699,11 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: spacing.sm,
+  },
+  lohnausweisDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
   },
 });

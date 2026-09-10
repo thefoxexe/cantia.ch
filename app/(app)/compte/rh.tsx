@@ -21,7 +21,15 @@ import { Button, Card, Container, PageHeader, Screen, Switch } from '../../../co
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { PayrollDeductionType, PayrollExpenseType, PayrollWorkType } from '../../../lib/types';
+import type { CertificateBox, PayrollDeductionType, PayrollExpenseType, PayrollWorkType } from '../../../lib/types';
+
+const CERTIFICATE_BOX_OPTIONS: { value: CertificateBox | null; labelKey: string }[] = [
+  { value: null, labelKey: 'payrollSettings.certificateBoxNone' },
+  { value: 'box9', labelKey: 'payrollSettings.certificateBox9' },
+  { value: 'box10_1', labelKey: 'payrollSettings.certificateBox10_1' },
+  { value: 'box10_2', labelKey: 'payrollSettings.certificateBox10_2' },
+  { value: 'box12', labelKey: 'payrollSettings.certificateBox12' },
+];
 
 type Kind = 'work' | 'expense' | 'deduction';
 
@@ -38,6 +46,7 @@ export default function PayrollSettingsScreen() {
   const [label, setLabel] = useState('');
   const [rate, setRate] = useState('');
   const [unit, setUnit] = useState<'km' | 'forfait'>('forfait');
+  const [certificateBox, setCertificateBox] = useState<CertificateBox | null>(null);
   const [active, setActive] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +77,7 @@ export default function PayrollSettingsScreen() {
     setLabel('');
     setRate('');
     setUnit('forfait');
+    setCertificateBox(null);
     setActive(true);
     setError(null);
   }
@@ -96,6 +106,7 @@ export default function PayrollSettingsScreen() {
     setEditId(d.id);
     setLabel(d.label);
     setRate(d.default_rate_percent != null ? String(d.default_rate_percent) : '');
+    setCertificateBox(d.certificate_box);
     setActive(d.active);
     setError(null);
   }
@@ -121,8 +132,8 @@ export default function PayrollSettingsScreen() {
         : (await createExpenseType(organization.id, label, unit, rateNum, expenseTypes.length)).error;
     } else {
       err = editId
-        ? (await updateDeductionType(editId, { label, defaultRatePercent: rateNum, active })).error
-        : (await createDeductionType(organization.id, label, rateNum, deductionTypes.length)).error;
+        ? (await updateDeductionType(editId, { label, defaultRatePercent: rateNum, active, certificateBox })).error
+        : (await createDeductionType(organization.id, label, rateNum, deductionTypes.length, certificateBox)).error;
     }
 
     setSaving(false);
@@ -272,6 +283,24 @@ export default function PayrollSettingsScreen() {
                     placeholder={t('payrollSettings.ratePlaceholder')}
                     placeholderTextColor={colors.textMuted}
                   />
+                </>
+              ) : null}
+
+              {editKind === 'deduction' ? (
+                <>
+                  <Text style={styles.fieldLabel}>{t('payrollSettings.certificateBoxLabel')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('payrollSettings.certificateBoxHint')}</Text>
+                  <View style={[styles.chips, { flexWrap: 'wrap', marginTop: spacing.sm }]}>
+                    {CERTIFICATE_BOX_OPTIONS.map((opt) => (
+                      <Pressable
+                        key={opt.value ?? 'none'}
+                        onPress={() => setCertificateBox(opt.value)}
+                        style={[styles.chip, certificateBox === opt.value && styles.chipActive]}
+                      >
+                        <Text style={[styles.chipText, certificateBox === opt.value && styles.chipTextActive]}>{t(opt.labelKey as any)}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
                 </>
               ) : null}
 
