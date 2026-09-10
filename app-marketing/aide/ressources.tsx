@@ -1,5 +1,5 @@
 import { forceLocale } from '../../lib/translations';
-import PageComponent from '../../app/blog/index';
+import PageComponent from '../../app/aide/ressources';
 
 forceLocale('fr');
 

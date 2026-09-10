@@ -35,7 +35,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { SITE, OG_IMAGE, ROUTES, alternatePathFor, jsonLdFor } from './seo-routes.mjs';
+import { SITE, OG_IMAGE, ROUTES, alternatePathFor, jsonLdFor, localeAndBareOf } from './seo-routes.mjs';
 
 const distDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist');
 const distIndex = path.join(distDir, 'index.html');
@@ -55,15 +55,23 @@ const FONT_LINKS = `
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />
     <style>html, body { background-color: #F7F1E6; overscroll-behavior-y: none; }</style>`;
 
+const OG_LOCALES = { fr: 'fr_CH', de: 'de_CH', it: 'it_CH' };
+
 function patch(baseHtml, route) {
   const { path: routePath, title, description } = route;
-  const isDe = routePath === 'de' || routePath.startsWith('de/');
-  const locale = isDe ? 'de_CH' : 'fr_CH';
+  const { locale: routeLocale } = localeAndBareOf(routePath);
+  const locale = OG_LOCALES[routeLocale];
   const canonicalUrl = routePath ? `${SITE}/${routePath}` : `${SITE}/`;
   const frPath = alternatePathFor(routePath, 'fr');
   const dePath = alternatePathFor(routePath, 'de');
+  const itPath = alternatePathFor(routePath, 'it');
   const frUrl = frPath ? `${SITE}/${frPath}` : `${SITE}/`;
   const deUrl = `${SITE}/${dePath}`;
+  const itUrl = `${SITE}/${itPath}`;
+  const alternateLocales = Object.entries(OG_LOCALES)
+    .filter(([loc]) => loc !== routeLocale)
+    .map(([, tag]) => `\n    <meta property="og:locale:alternate" content="${tag}" />`)
+    .join('');
   const metaTags = `
     <meta name="google-site-verification" content="ICyYP8Ky3MHHG3HsDL3rbEYb6Vy_2yy95uHmnLI74Sw" />
     <meta name="description" content="${description}" />
@@ -71,6 +79,7 @@ function patch(baseHtml, route) {
     <link rel="canonical" href="${canonicalUrl}" />
     <link rel="alternate" hreflang="fr-CH" href="${frUrl}" />
     <link rel="alternate" hreflang="de-CH" href="${deUrl}" />
+    <link rel="alternate" hreflang="it-CH" href="${itUrl}" />
     <link rel="alternate" hreflang="x-default" href="${frUrl}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cantia" />
@@ -80,15 +89,14 @@ function patch(baseHtml, route) {
     <meta property="og:image" content="${OG_IMAGE}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="${locale}" />
-    <meta property="og:locale:alternate" content="${isDe ? 'fr_CH' : 'de_CH'}" />
+    <meta property="og:locale" content="${locale}" />${alternateLocales}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${OG_IMAGE}" />
     <script type="application/ld+json">${JSON.stringify(jsonLdFor(canonicalUrl, route))}</script>`;
 
-  let html = baseHtml.replace('<html lang="en">', `<html lang="${isDe ? 'de' : 'fr'}">`);
+  let html = baseHtml.replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}"`);
   html = html.replace('<head>', `<head>${FONT_LINKS}`);
   html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>${metaTags}`);
   return html;

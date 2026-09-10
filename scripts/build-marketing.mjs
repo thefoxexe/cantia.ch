@@ -9,7 +9,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { SITE, OG_IMAGE, ROUTES, alternatePathFor, jsonLdFor } from './seo-routes.mjs';
+import { SITE, OG_IMAGE, ROUTES, alternatePathFor, jsonLdFor, localeAndBareOf } from './seo-routes.mjs';
 
 const rootDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputDir = path.join(rootDir, 'dist-marketing');
@@ -41,15 +41,23 @@ function findRouteFile(routePath) {
   return candidates.find(existsSync) ?? null;
 }
 
+const OG_LOCALES = { fr: 'fr_CH', de: 'de_CH', it: 'it_CH' };
+
 function patchHead(html, route) {
   const { path: routePath, title, description } = route;
-  const isDe = routePath === 'de' || routePath.startsWith('de/');
-  const locale = isDe ? 'de_CH' : 'fr_CH';
+  const { locale: routeLocale } = localeAndBareOf(routePath);
+  const locale = OG_LOCALES[routeLocale];
   const canonicalUrl = routePath ? `${SITE}/${routePath}` : `${SITE}/`;
   const frPath = alternatePathFor(routePath, 'fr');
   const dePath = alternatePathFor(routePath, 'de');
+  const itPath = alternatePathFor(routePath, 'it');
   const frUrl = frPath ? `${SITE}/${frPath}` : `${SITE}/`;
   const deUrl = `${SITE}/${dePath}`;
+  const itUrl = `${SITE}/${itPath}`;
+  const alternateLocales = Object.entries(OG_LOCALES)
+    .filter(([loc]) => loc !== routeLocale)
+    .map(([, tag]) => `\n    <meta property="og:locale:alternate" content="${tag}" />`)
+    .join('');
   const metaTags = `
     <meta name="google-site-verification" content="ICyYP8Ky3MHHG3HsDL3rbEYb6Vy_2yy95uHmnLI74Sw" />
     <meta name="description" content="${description}" />
@@ -57,6 +65,7 @@ function patchHead(html, route) {
     <link rel="canonical" href="${canonicalUrl}" />
     <link rel="alternate" hreflang="fr-CH" href="${frUrl}" />
     <link rel="alternate" hreflang="de-CH" href="${deUrl}" />
+    <link rel="alternate" hreflang="it-CH" href="${itUrl}" />
     <link rel="alternate" hreflang="x-default" href="${frUrl}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cantia" />
@@ -66,15 +75,18 @@ function patchHead(html, route) {
     <meta property="og:image" content="${OG_IMAGE}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="${locale}" />
-    <meta property="og:locale:alternate" content="${isDe ? 'fr_CH' : 'de_CH'}" />
+    <meta property="og:locale" content="${locale}" />${alternateLocales}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${OG_IMAGE}" />
     <script type="application/ld+json">${JSON.stringify(jsonLdFor(canonicalUrl, route))}</script>`;
 
-  let patched = html.replace('<html lang="fr">', `<html lang="${isDe ? 'de' : 'fr'}">`);
+  // Replace whatever lang the prerendered shell happens to carry — app/+html.tsx
+  // hardcodes lang="fr" for every route (it has no per-route awareness at
+  // all), so this must not assume the source is always "fr": a regex on the
+  // opening <html ...> tag handles that regardless of what's actually there.
+  let patched = html.replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}"`);
   patched = patched.replace('<head>', `<head>${metaTags}`);
   if (/<title>.*?<\/title>/.test(patched)) {
     patched = patched.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);

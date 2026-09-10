@@ -22,10 +22,13 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, LangToggle, Screen, Switch } from '../components/ui';
 import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome';
 import { ShowcaseVideo } from '../components/ShowcaseVideo';
+import { Heading } from '../components/Heading';
+import { MarketingHead } from '../components/MarketingHead';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
+import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
@@ -376,6 +379,7 @@ function LandingContent() {
 
   return (
     <Screen>
+      <MarketingHead title={marketingPageTitle('home', appLocale)} />
       <View style={styles.stage}>
         <ScrollView
           ref={scrollRef}
@@ -413,19 +417,25 @@ function LandingContent() {
                   <View style={styles.kickerDot} />
                   <Text style={styles.kickerText}>{t.hero.kicker}</Text>
                 </Animated.View>
-                <Animated.Text
-                  style={[
-                    styles.headline,
-                    isCompactHero && styles.headlineCompact,
-                    {
-                      opacity: heroHeadlineAnim,
-                      transform: [{ translateY: heroHeadlineAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
-                    },
-                  ]}
+                <Animated.View
+                  style={{
+                    opacity: heroHeadlineAnim,
+                    transform: [{ translateY: heroHeadlineAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+                  }}
                 >
-                  {t.hero.headlinePrefix}{' '}
-                  <Text style={styles.headlineHighlight}>{t.hero.headlineHighlight}</Text>
-                </Animated.Text>
+                  {/* The site's single most important heading (the whole
+                      page's thesis statement) was a plain styled <Text>,
+                      which react-native-web renders as a generic <div> —
+                      the rendered homepage had zero <h1>-<h3> tags at all.
+                      <Heading> (see components/Heading.web.tsx) renders a
+                      real semantic element on web via unstable_createElement;
+                      the entrance animation moves to this wrapping View
+                      since Heading itself isn't Animated-wrapped. */}
+                  <Heading level={1} style={[styles.headline, isCompactHero && styles.headlineCompact]}>
+                    {t.hero.headlinePrefix}{' '}
+                    <Text style={styles.headlineHighlight}>{t.hero.headlineHighlight}</Text>
+                  </Heading>
+                </Animated.View>
                 <Animated.Text
                   style={[
                     styles.subheadline,
@@ -579,7 +589,7 @@ function LandingContent() {
           {/* ---- Spotlight: voice dictation + Swiss QR-bill demos ---- */}
           <Reveal id="spotlight" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.automationsEyebrow')}</Text>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.spotlight.title}</Text>
+            <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.spotlight.title}</Heading>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.spotlight.subtitle}</Text>
             <View style={styles.spotlightGrid}>
               <VoiceDemo copy={t.spotlight.voice} />
@@ -600,7 +610,7 @@ function LandingContent() {
             <View style={[styles.chaosLayer, showChaosChipsCompact && styles.chaosLayerCompact]}>
               <View>
                 <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.problemEyebrow')}</Text>
-                <Text style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Text>
+                <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.pain.title}</Heading>
                 {/* A rule-separated diagnostic list, not boxed cards — reads
                     as a short, scannable list of symptoms rather than three
                     identical tiles, and stays visually distinct from the
@@ -701,7 +711,7 @@ function LandingContent() {
               behavior as before, just a completely different container. ---- */}
           <Reveal id="services" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={styles.sectionEyebrow}>{tr('landingPage.servicesEyebrow')}</Text>
-            <Text style={styles.sectionTitle}>{t.services.title}</Text>
+            <Heading level={2} style={styles.sectionTitle}>{t.services.title}</Heading>
             <Text style={styles.sectionSubtitle}>{t.services.subtitle}</Text>
 
             <View style={styles.journeyOuter}>
@@ -787,7 +797,7 @@ function LandingContent() {
           {/* ---- Trades ---- */}
           <Reveal id="trades" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.tradesEyebrow')}</Text>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Text>
+            <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.trades.title}</Heading>
             <TradesMarquee trades={t.trades.list} compact={isCompactNav} />
             <Text style={styles.tradeNote}>{t.trades.note}</Text>
             <View style={styles.tradeLinksRow}>
@@ -813,7 +823,7 @@ function LandingContent() {
           {/* ---- Pricing ---- */}
           <Reveal id="pricing" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section}>
             <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.pricingEyebrow')}</Text>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Text>
+            <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Heading>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.pricing.subtitle}</Text>
             <Pressable
               onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
@@ -1012,7 +1022,7 @@ function LandingContent() {
               apps as a secondary "also coming" note rather than implying
               nothing works on mobile yet. ---- */}
           <Reveal id="mobile" getAnim={getSectionAnim} onRegister={registerSection} style={styles.section} from={18}>
-            <Text style={[styles.sectionTitle, styles.centerText]}>{t.mobile.title}</Text>
+            <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.mobile.title}</Heading>
             <Text style={styles.mobileText}>{t.mobile.text}</Text>
             <Link href="/telechargement" asChild>
               <Button title={t.mobile.installCta} onPress={() => {}} icon="download" style={styles.mobileInstallCta} />
@@ -1130,7 +1140,7 @@ function LandingContent() {
                   <Text style={styles.navBrand}>Cantia</Text>
                 </View>
                 <View style={styles.mobileMenuHeaderRight}>
-                  <LangToggle value={appLocale} onChange={(next) => router.push(toggleLocalePathname(pathname, next) as any)} />
+                  <LanguageSwitcher />
                   <Pressable onPress={() => setMenuOpen(false)} style={styles.hamburgerButton} hitSlop={8} accessibilityLabel={tr('marketingChrome.close')}>
                     <Feather name="x" size={22} color={colors.text} />
                   </Pressable>

@@ -1,1 +1,6 @@
-export { default } from '../../app/solutions/dictee-vocale';
+import { forceLocale } from '../../lib/translations';
+import PageComponent from '../../app/solutions/dictee-vocale';
+
+forceLocale('fr');
+
+export default PageComponent;

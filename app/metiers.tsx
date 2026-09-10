@@ -2,11 +2,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
+import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { marketingPageTitle } from '../lib/marketingSeoTitles';
 
 const TRADE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   charpentier: 'layout',
@@ -41,6 +43,7 @@ export default function MetiersScreen() {
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
   return (
     <Screen>
+      <MarketingHead title={marketingPageTitle('metiers', locale)} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 

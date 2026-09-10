@@ -2,14 +2,18 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
+import { MarketingHead } from '../components/MarketingHead';
 import { colors, fontSize, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { marketingPageTitle } from '../lib/marketingSeoTitles';
 
 export default function ConfidentialiteScreen() {
   const { t } = useTranslation();
-  const homeHref = getAppLocale() === 'de' ? '/de' : getAppLocale() === 'it' ? '/it' : '/';
+  const locale = getAppLocale();
+  const homeHref = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '/';
   return (
     <Screen>
+      <MarketingHead title={marketingPageTitle('confidentialite', locale)} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <Container style={styles.container}>
           <Link href={homeHref as any} asChild>

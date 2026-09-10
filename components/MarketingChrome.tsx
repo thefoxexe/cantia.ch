@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, LangToggle } from './ui';
@@ -9,23 +9,41 @@ import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
-// FR/DE toggle for the marketing site's nav, footer and mobile menu — an
-// animated sliding pill (LangToggle, see components/ui.tsx) rather than two
+// FR/DE/IT toggle for the marketing site's nav, footer and mobile menu — an
+// animated sliding pill (LangToggle, see components/ui.tsx) rather than
 // separate text links, so switching language reads as one small physical
-// gesture (the active side slides across) instead of picking between two
-// static labels. Navigates to the same page's other-language mirror
+// gesture (the active side slides across) instead of picking between static
+// labels. Navigates to the same page's other-language mirror
 // (toggleLocalePathname), not just the homepage, so switching from a trade
-// or solution page keeps the visitor on that same page. router.push rather
-// than <Link> — LangToggle's onChange is a plain callback, and a real
-// client-side navigation here still runs through the same pathname-change
-// effect (useSyncMarketingLocaleFromPath) a <Link> click would.
+// or solution page keeps the visitor on that same page.
+//
+// On web this is a real `window.location` navigation, not router.push: a
+// client-side (SPA) transition never updates document.title, <link
+// rel="canonical">, the hreflang <link> tags or <html lang> — nothing in
+// this codebase does that on navigation — so a visitor (or an SEO audit)
+// clicking FR → IT would keep seeing French metadata indefinitely despite
+// the page content itself being correctly Italian. A full navigation hits
+// the actual prerendered HTML file for the target route, which carries its
+// own correct title/description/canonical/hreflang/lang baked in at build
+// time (see scripts/build-marketing.mjs) — the same thing a fresh direct
+// visit to that URL would show. Slightly heavier than an SPA transition,
+// but this is the marketing site, not the app, and a language switch is
+// infrequent enough that the difference isn't felt.
 export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = getAppLocale();
+  const goToLocale = (next: 'fr' | 'de' | 'it') => {
+    const target = toggleLocalePathname(pathname, next);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.assign(target);
+    } else {
+      router.push(target as any);
+    }
+  };
   return (
     <View style={compact ? styles.langSwitcherCompact : undefined}>
-      <LangToggle value={locale} onChange={(next) => router.push(toggleLocalePathname(pathname, next) as any)} />
+      <LangToggle value={locale} onChange={goToLocale} />
     </View>
   );
 }

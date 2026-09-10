@@ -1,1 +1,6 @@
-export { default } from '../../app/solutions/planning';
+import { forceLocale } from '../../lib/translations';
+import PageComponent from '../../app/solutions/planning';
+
+forceLocale('fr');
+
+export default PageComponent;

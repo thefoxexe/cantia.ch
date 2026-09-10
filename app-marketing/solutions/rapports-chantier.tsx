@@ -1,1 +1,6 @@
-export { default } from '../../app/solutions/rapports-chantier';
+import { forceLocale } from '../../lib/translations';
+import PageComponent from '../../app/solutions/rapports-chantier';
+
+forceLocale('fr');
+
+export default PageComponent;

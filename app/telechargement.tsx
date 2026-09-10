@@ -3,11 +3,13 @@ import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewSt
 import { Link } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button, Container, Screen } from '../components/ui';
+import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
-import { useTranslation } from '../lib/translations';
+import { getAppLocale, useTranslation } from '../lib/translations';
+import { marketingPageTitle } from '../lib/marketingSeoTitles';
 
 type InstallIcon = 'share' | 'more-vertical' | 'download';
 
@@ -52,6 +54,7 @@ export default function TelechargementScreen() {
 
   return (
     <Screen>
+      <MarketingHead title={marketingPageTitle('telechargement', getAppLocale())} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 

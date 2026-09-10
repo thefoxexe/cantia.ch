@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
 import { Heading } from './Heading';
+import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -45,6 +46,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
   return (
     <Screen>
+      <MarketingHead title={`${post.title} | Cantia`} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 

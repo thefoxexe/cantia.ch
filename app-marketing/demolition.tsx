@@ -1,1 +1,6 @@
-export { default } from '../app/demolition';
+import { forceLocale } from '../lib/translations';
+import PageComponent from '../app/demolition';
+
+forceLocale('fr');
+
+export default PageComponent;

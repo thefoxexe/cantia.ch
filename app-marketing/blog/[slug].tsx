@@ -1,1 +1,7 @@
-export { default, generateStaticParams } from '../../app/blog/[slug]';
+import { forceLocale } from '../../lib/translations';
+import PageComponent, { generateStaticParams } from '../../app/blog/[slug]';
+
+forceLocale('fr');
+
+export default PageComponent;
+export { generateStaticParams };

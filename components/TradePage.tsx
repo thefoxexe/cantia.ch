@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
 import { Heading } from './Heading';
+import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { PricingSection } from './PricingSection';
 import { SwissSection } from './SwissSection';
@@ -47,6 +48,7 @@ export function TradePage({ slug }: { slug: string }) {
 
   return (
     <Screen>
+      <MarketingHead title={trade.seo.title} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 

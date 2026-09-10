@@ -1,5 +1,5 @@
 import { forceLocale } from '../lib/translations';
-import PageComponent from '../app/platrier';
+import PageComponent from '../app/contact';
 
 forceLocale('fr');
 

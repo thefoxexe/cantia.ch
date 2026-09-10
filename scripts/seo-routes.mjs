@@ -2555,14 +2555,36 @@ for (const route of ROUTES) {
   if (slug && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
 }
 
-// FR path "X" <-> DE path "de/X" (home: "" <-> "de") — same mapping as
-// toggleLocalePathname in lib/appHost.ts, used here so build scripts can
-// emit hreflang alternates without a second lookup table to keep in sync.
+// Locale prefix map — same one lib/appHost.ts's toggleLocalePathname uses
+// client-side, duplicated here because these build scripts run under plain
+// `node` (no bundler, no access to the app's own TS modules). Every route
+// path in ROUTES either has no prefix (French), or starts with "de/"/"it/"
+// (or is exactly "de"/"it" for that language's homepage). Every locale-aware
+// helper below goes through this one function instead of hand-rolling its
+// own "isDe" check, so adding a language means editing this map once — the
+// bug this replaces (fr-CH hreflang pointing AT the Italian page, de-CH
+// pointing at "/de/it/peintre") existed because alternatePathFor/jsonLdFor
+// each had their own copy of the old isDe-only check, silently treating any
+// "it/..." path as if it were already bare French.
+const LOCALE_PREFIXES = { de: 'de', it: 'it' };
+
+export function localeAndBareOf(routePath) {
+  for (const [locale, prefix] of Object.entries(LOCALE_PREFIXES)) {
+    if (routePath === prefix) return { locale, bare: '' };
+    if (routePath.startsWith(`${prefix}/`)) return { locale, bare: routePath.slice(prefix.length + 1) };
+  }
+  return { locale: 'fr', bare: routePath };
+}
+
+// FR path "X" <-> DE path "de/X" <-> IT path "it/X" (home: "" <-> "de" <-> "it")
+// — same mapping as toggleLocalePathname in lib/appHost.ts, used here so
+// build scripts can emit hreflang alternates without a second lookup table
+// to keep in sync.
 export function alternatePathFor(routePath, targetLocale) {
-  const isDe = routePath === 'de' || routePath.startsWith('de/');
-  const bare = isDe ? routePath.slice(3) : routePath;
+  const { bare } = localeAndBareOf(routePath);
   if (targetLocale === 'fr') return bare;
-  return bare === '' ? 'de' : `de/${bare}`;
+  const prefix = LOCALE_PREFIXES[targetLocale];
+  return bare === '' ? prefix : `${prefix}/${bare}`;
 }
 
 // Turns "rapports-chantier" into "Rapports chantier" for a breadcrumb label
@@ -2577,7 +2599,7 @@ function humanizeSegment(segment) {
 // so a blog article or a métier landing page must not carry the same
 // SoftwareApplication + pricing block as the homepage/solutions pages.
 function routeKind(routePath) {
-  const bare = routePath.startsWith('de/') ? routePath.slice(3) : routePath;
+  const { bare } = localeAndBareOf(routePath);
   if (bare === '' || bare === 'blog') return bare.startsWith('blog') ? 'blog-index' : 'product';
   if (bare.startsWith('blog/')) return 'article';
   if (bare.startsWith('solutions/')) return 'product';
@@ -2595,11 +2617,14 @@ function routeKind(routePath) {
 // is known), plain WebPage for everything else (trade/métier pages, legal
 // pages, etc.) — never all three shoehorned onto every route regardless of
 // what the page actually is.
+const LOCALE_TAGS = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
+const HOME_LABELS = { fr: 'Accueil', de: 'Startseite', it: 'Home' };
+
 export function jsonLdFor(url, route) {
   const { path: routePath, title, description, faq, publishedAt } = route;
-  const isDe = routePath === 'de' || routePath.startsWith('de/');
-  const locale = isDe ? 'de-CH' : 'fr-CH';
-  const homeLabel = isDe ? 'Startseite' : 'Accueil';
+  const { locale: routeLocale } = localeAndBareOf(routePath);
+  const locale = LOCALE_TAGS[routeLocale];
+  const homeLabel = HOME_LABELS[routeLocale];
   const kind = routeKind(routePath);
 
   const graph = [
@@ -2655,7 +2680,7 @@ export function jsonLdFor(url, route) {
     });
   }
 
-  if (routePath === '' || routePath === 'de') {
+  if (routePath === '' || routePath === 'de' || routePath === 'it') {
     // Homepage only (each language) — lets Google understand the site as a
     // whole (and is the prerequisite for a sitelinks search box, though
     // that's Google's call, not something this markup can force).
@@ -2671,14 +2696,19 @@ export function jsonLdFor(url, route) {
     // Every other page gets a breadcrumb back to its own homepage — cheap,
     // accurate (it's literally the URL structure), and one of the few
     // structured-data types safe to add without any real risk of a
-    // manual-action penalty for fabricated content.
-    const segments = url.replace(SITE, '').split('/').filter(Boolean);
-    const homeUrl = isDe ? `${SITE}/de` : `${SITE}/`;
+    // manual-action penalty for fabricated content. Segments come from the
+    // locale-bare path, not the raw URL, so a "de/" or "it/" prefix never
+    // shows up as its own bogus breadcrumb item (the old code walked every
+    // "/"-separated segment of the full URL, so /it/peintre produced
+    // "Accueil > It > Peintre" — a fabricated "It" crumb).
+    const { bare } = localeAndBareOf(routePath);
+    const segments = bare.split('/').filter(Boolean);
+    const homeUrl = routeLocale === 'fr' ? `${SITE}/` : `${SITE}/${LOCALE_PREFIXES[routeLocale]}`;
     const items = [{ '@type': 'ListItem', position: 1, name: homeLabel, item: homeUrl }];
-    let acc = '';
+    let acc = homeUrl.endsWith('/') ? homeUrl.slice(0, -1) : homeUrl;
     segments.forEach((seg, i) => {
       acc += `/${seg}`;
-      items.push({ '@type': 'ListItem', position: i + 2, name: humanizeSegment(seg), item: `${SITE}${acc}` });
+      items.push({ '@type': 'ListItem', position: i + 2, name: humanizeSegment(seg), item: acc });
     });
     graph.push({ '@type': 'BreadcrumbList', itemListElement: items });
   }

@@ -4,10 +4,12 @@ import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Container, Screen } from '../components/ui';
 import { Heading } from '../components/Heading';
+import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../lib/helpArticles';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { marketingPageTitle } from '../lib/marketingSeoTitles';
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
@@ -54,6 +56,7 @@ export default function PublicAideScreen() {
 
   return (
     <Screen>
+      <MarketingHead title={marketingPageTitle('aide', locale)} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 

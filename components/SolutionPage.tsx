@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen } from './ui';
 import { Heading } from './Heading';
+import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -79,6 +80,12 @@ export function SolutionPage({
 
   return (
     <Screen>
+      {/* Not the exact hand-crafted SEO title from scripts/seo-routes.mjs
+          (that string lives in a Node-only build script, not importable
+          here) — the page's own H1 headline plus the site suffix, which is
+          still a real, relevant, page-specific title instead of the blank
+          one Expo Router's head management leaves after hydration. */}
+      <MarketingHead title={`${title} | Cantia`} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 

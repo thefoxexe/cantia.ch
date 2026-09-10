@@ -1,12 +1,14 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
+import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { ContactForm } from '../components/ContactForm';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-import { useTranslation } from '../lib/translations';
+import { getAppLocale, useTranslation } from '../lib/translations';
 import { openLiveChat } from '../lib/liveChat';
+import { marketingPageTitle } from '../lib/marketingSeoTitles';
 
 // Real, dedicated support entry point — previously the only trace of a
 // way to reach Cantia was a small mailto link buried in the footer.
@@ -15,6 +17,7 @@ export default function ContactScreen() {
 
   return (
     <Screen>
+      <MarketingHead title={marketingPageTitle('contact', getAppLocale())} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
