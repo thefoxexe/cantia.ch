@@ -30,6 +30,7 @@ type Draft = {
   youtube_url: string;
   site_embed_done: boolean;
   notes: string;
+  public_description: string;
 };
 
 function draftFrom(c: AdminTutorialChapter): Draft {
@@ -41,6 +42,7 @@ function draftFrom(c: AdminTutorialChapter): Draft {
     youtube_url: c.youtube_url ?? '',
     site_embed_done: c.site_embed_done,
     notes: c.notes ?? '',
+    public_description: c.public_description ?? '',
   };
 }
 
@@ -52,6 +54,7 @@ const BLANK_DRAFT: Draft = {
   youtube_url: '',
   site_embed_done: false,
   notes: '',
+  public_description: '',
 };
 
 // Suivi de production des tutoriels vidéo Cantia — un chapitre par
@@ -122,6 +125,7 @@ export default function AdminTutorialsScreen() {
       youtube_url: draft.youtube_url.trim() || null,
       site_embed_done: draft.site_embed_done,
       notes: draft.notes.trim() || null,
+      public_description: draft.public_description.trim() || null,
     });
     if (!err && chapter) {
       setChapters((prev) => {
@@ -329,6 +333,17 @@ function ChapterEditor({
           <Switch value={draft.site_embed_done} onChange={(v) => setDraft({ ...draft, site_embed_done: v })} />
         </View>
       </View>
+
+      <Text style={styles.fieldLabel}>Description publique (visible sur /aide/videos)</Text>
+      <TextInput
+        value={draft.public_description}
+        onChangeText={(v) => setDraft({ ...draft, public_description: v })}
+        style={[styles.input, styles.textareaSmall]}
+        multiline
+        numberOfLines={2}
+        placeholder="Ce que le visiteur lit sous le titre — pas le script de tournage"
+        placeholderTextColor={colors.textMuted}
+      />
 
       <Text style={styles.fieldLabel}>Notes</Text>
       <TextInput

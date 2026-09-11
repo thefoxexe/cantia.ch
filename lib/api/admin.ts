@@ -192,6 +192,7 @@ export async function upsertTutorialChapter(input: {
   youtube_url?: string | null;
   site_embed_done?: boolean;
   notes?: string | null;
+  public_description?: string | null;
 }): Promise<{ chapter: AdminTutorialChapter | null; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_upsert_tutorial_chapter', {
     chapter_id: input.id ?? null,
@@ -203,6 +204,7 @@ export async function upsertTutorialChapter(input: {
     p_youtube_url: input.youtube_url ?? null,
     p_site_embed_done: input.site_embed_done ?? false,
     p_notes: input.notes ?? null,
+    p_public_description: input.public_description ?? null,
   });
   return { chapter: (data as AdminTutorialChapter) ?? null, error: logRpcError('admin_upsert_tutorial_chapter', error) };
 }

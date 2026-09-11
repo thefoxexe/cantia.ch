@@ -1055,6 +1055,9 @@ export interface AdminTutorialChapter {
   youtube_url: string | null;
   site_embed_done: boolean;
   notes: string | null;
+  // Shown on the public /aide/videos page once site_embed_done is true —
+  // distinct from talking_points, which is the internal recording script.
+  public_description: string | null;
   created_at: string;
   updated_at: string;
 }

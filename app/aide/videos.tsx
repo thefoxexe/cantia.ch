@@ -1,21 +1,52 @@
+import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../../components/ui';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
-import { TUTORIAL_VIDEOS } from '../../lib/tutorialVideos';
+import { supabase } from '../../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
+interface PublicTutorialVideo {
+  id: string;
+  title: string;
+  public_description: string | null;
+  youtube_url: string;
+}
+
+// Pulls straight from the same tutorial_chapters table the admin Tutoriels
+// page manages (public_list_tutorial_videos, RLS-free RPC) — a chapter
+// shows up here the moment its YouTube link is set and "Intégré sur le
+// site" is flipped on, nothing else to wire.
+function extractYoutubeId(url: string): string | null {
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
 // Public tutorial/demo library, one card per module — reachable from the
-// Centre d'aide. Only videos with a youtubeId filled in (see
-// lib/tutorialVideos.ts) ever render as a card; until at least one exists,
-// the page shows a single "in production" notice instead of a grid of
-// individually-pending placeholders.
+// Centre d'aide. Only chapters with a YouTube link AND "Intégré sur le
+// site" checked in the admin panel ever render as a card; until at least
+// one exists, the page shows a single "in production" notice instead of a
+// grid of individually-pending placeholders.
 export default function TutorialVideosScreen() {
   const { t } = useTranslation();
-  const available = TUTORIAL_VIDEOS.filter((v) => v.youtubeId);
+  const [videos, setVideos] = useState<PublicTutorialVideo[]>([]);
+  const [loading, setLoading] = useState(true);
   const aideHref = getAppLocale() === 'de' ? '/de/aide' : getAppLocale() === 'it' ? '/it/aide' : '/aide';
+
+  useEffect(() => {
+    supabase
+      .rpc('public_list_tutorial_videos')
+      .then(({ data }) => {
+        setVideos((data ?? []) as PublicTutorialVideo[]);
+        setLoading(false);
+      });
+  }, []);
+
+  const available = videos
+    .map((v) => ({ ...v, youtubeId: extractYoutubeId(v.youtube_url) }))
+    .filter((v): v is PublicTutorialVideo & { youtubeId: string } => !!v.youtubeId);
 
   return (
     <Screen>
@@ -30,7 +61,7 @@ export default function TutorialVideosScreen() {
           <Text style={styles.title}>{t('aideVideosPage.title')}</Text>
           <Text style={styles.lead}>{t('aideVideosPage.lead')}</Text>
 
-          {available.length === 0 ? (
+          {loading ? null : available.length === 0 ? (
             <View style={styles.notice}>
               <Feather name="film" size={22} color={colors.primary} />
               <View style={{ flex: 1 }}>
@@ -53,7 +84,7 @@ export default function TutorialVideosScreen() {
   );
 }
 
-function VideoCard({ video }: { video: (typeof TUTORIAL_VIDEOS)[number] }) {
+function VideoCard({ video }: { video: PublicTutorialVideo & { youtubeId: string } }) {
   const thumbnail = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
 
   return (
@@ -65,7 +96,7 @@ function VideoCard({ video }: { video: (typeof TUTORIAL_VIDEOS)[number] }) {
         </View>
       </View>
       <Text style={styles.cardTitle}>{video.title}</Text>
-      <Text style={styles.cardText}>{video.description}</Text>
+      {video.public_description ? <Text style={styles.cardText}>{video.public_description}</Text> : null}
     </Pressable>
   );
 }
