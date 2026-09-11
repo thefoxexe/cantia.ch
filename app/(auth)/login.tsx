@@ -4,9 +4,10 @@ import { Link, router } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
-import { Button, Field, Screen } from '../../components/ui';
+import { BackToSiteButton, Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
+import { siteHomeHref } from '../../lib/appHost';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ export default function LoginScreen() {
 
   return (
     <Screen>
+      <BackToSiteButton href={siteHomeHref()} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />

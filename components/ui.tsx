@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
+  Platform,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -12,7 +13,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, AVAILABLE_LOCALES, type AppLocale } from '../lib/translations';
@@ -89,6 +90,28 @@ export function PageHeader({
       </Text>
       {right ? <View style={styles.pageHeaderRight}>{right}</View> : null}
     </View>
+  );
+}
+
+// Small top-left arrow on login/signup back to the marketing site — those
+// screens can be reached directly (a bookmark, a shared link) with no
+// in-app history to go "back" to, so this is a real navigation (possibly
+// cross-origin, app.cantia.ch -> cantia.ch) via <Link>, not router.back().
+// Native has no marketing site to return to, so it renders nothing there.
+export function BackToSiteButton({ href, style }: { href: string; style?: StyleProp<ViewStyle> }) {
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  if (Platform.OS !== 'web') return null;
+  return (
+    <Link href={href as any} asChild>
+      <Pressable
+        hitSlop={8}
+        style={[styles.pageHeaderBack, styles.backToSiteButton, { top: insets.top + spacing.md }, style]}
+        accessibilityLabel={t('ui.back')}
+      >
+        <Feather name="arrow-left" size={20} color={colors.text} />
+      </Pressable>
+    </Link>
   );
 }
 
@@ -431,6 +454,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+  },
+  backToSiteButton: {
+    position: 'absolute',
+    left: spacing.lg,
+    zIndex: 10,
   },
   pageHeaderTitle: {
     flex: 1,

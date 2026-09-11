@@ -102,6 +102,18 @@ export function contactHref(): string {
   return `https://cantia.ch${path}`;
 }
 
+// Same cross-host pattern as helpHref()/contactHref() above, for the small
+// "back to the site" arrow on login/signup — those screens are reachable
+// directly (a bookmark, a shared link) without ever having come from the
+// marketing site in this browser tab, so there's no in-app history to just
+// go "back" to.
+export function siteHomeHref(): string {
+  const locale = getAppLocale();
+  const path = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '/';
+  if (isMarketingHost()) return path;
+  return `https://cantia.ch${path}`;
+}
+
 // Slugs for the dedicated per-plan marketing pages (app/plans/*.tsx),
 // keyed by the `plans.id` value from Supabase — kept here rather than in
 // the `plans` table itself since it's purely a URL concern, not data.

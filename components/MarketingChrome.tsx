@@ -41,8 +41,8 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const router = useRouter();
   const locale = getAppLocale();
   const [open, setOpen] = useState(false);
-  const [anchor, setAnchor] = useState<{ x: number; y: number; width: number } | null>(null);
-  const { width: winWidth } = useWindowDimensions();
+  const [anchor, setAnchor] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const { width: winWidth, height: winHeight } = useWindowDimensions();
   const triggerRef = useRef<View>(null);
 
   const goToLocale = (next: AppLocale) => {
@@ -57,8 +57,8 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   };
 
   function openDropdown() {
-    triggerRef.current?.measure((_x, _y, width, _height, pageX, pageY) => {
-      setAnchor({ x: pageX, y: pageY, width });
+    triggerRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
+      setAnchor({ x: pageX, y: pageY, width, height });
       setOpen(true);
     });
   }
@@ -66,6 +66,18 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const dropdownLeft = anchor
     ? Math.min(Math.max(12, anchor.x + anchor.width - LANG_DROPDOWN_WIDTH), winWidth - LANG_DROPDOWN_WIDTH - 12)
     : 0;
+
+  // Flips to open upward when the trigger is low enough on the page (the
+  // footer's own picker, mainly) that opening downward would push the panel
+  // past the bottom of the screen — it only ever showed as a sliver you had
+  // to scroll to reach. Estimated rather than measured (the panel doesn't
+  // exist to measure until it's already positioned), from a fixed row
+  // height that comfortably covers this component's own langOption style.
+  const DROPDOWN_ROW_HEIGHT = 40;
+  const dropdownHeight = AVAILABLE_LOCALES.length * DROPDOWN_ROW_HEIGHT + spacing.xs * 2;
+  const gap = 6;
+  const openUpward = !!anchor && winHeight - (anchor.y + anchor.height) < dropdownHeight + gap && anchor.y > dropdownHeight + gap;
+  const dropdownTop = anchor ? (openUpward ? anchor.y - dropdownHeight - gap : anchor.y + anchor.height + gap) : 0;
 
   return (
     <View ref={triggerRef} collapsable={false} style={compact ? styles.langSwitcherCompact : undefined}>
@@ -78,7 +90,7 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
         {anchor ? (
-          <View style={[styles.langDropdown, { top: anchor.y + 34, left: dropdownLeft, width: LANG_DROPDOWN_WIDTH }]}>
+          <View style={[styles.langDropdown, { top: dropdownTop, left: dropdownLeft, width: LANG_DROPDOWN_WIDTH }]}>
             {AVAILABLE_LOCALES.map((loc) => (
               <Pressable
                 key={loc}
