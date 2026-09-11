@@ -2,13 +2,21 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument } from 'npm:pdf-lib@1.17.1';
 
 const BUCKET = 'opus-storage';
-// Cached once into storage on first use rather than re-fetched from ESTV on
-// every call — this is the real, official federal template (Form. 11,
-// Eidgenössische Steuerverwaltung), not a recreation of it. Its 44 AcroForm
-// fields (named things like DezZahlNull_9, TextMehrzeiligLinks_Empfaenger)
-// are filled by name below rather than by drawing text at guessed
+// The real, official federal template (Form. 11, Eidgenössische
+// Steuerverwaltung) — not a recreation of it. Its 44 AcroForm fields
+// (named things like DezZahlNull_9, TextMehrzeiligLinks_Empfaenger) are
+// filled by name below rather than by drawing text at guessed
 // coordinates, so the output lines up with the printed boxes exactly the
 // way the form itself defines them.
+//
+// Source of truth: this path in storage, seeded and replaceable from the
+// app (Compte → RH & Salaires, platform-owner only — see rh.tsx) by
+// uploading the exact PDF file to keep. Every generation — for every
+// employee, every organization — reads this same cached copy, so
+// replacing it once updates every future certificate. If nothing has been
+// uploaded yet, this falls back to fetching ESTV's current published copy
+// and caches that instead, so generation still works before the first
+// manual upload.
 const TEMPLATE_CACHE_PATH = '_shared/lohnausweis-form11.pdf';
 const TEMPLATE_URL = 'https://www.estv.admin.ch/dam/de/sd-web/Nq1zXu8XwlCY/dbst-form-11lohna-rechts-dfi-de.pdf';
 
@@ -48,9 +56,14 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { user_id, year } = await req.json();
-    if (!user_id || !year) return json({ error: 'user_id et year requis' }, 400);
+    const { user_id, ghost_employee_id, year } = await req.json();
+    if ((!user_id && !ghost_employee_id) || !year) return json({ error: 'user_id (ou ghost_employee_id) et year requis' }, 400);
     const yearNum = Number(year);
+    // A ghost employee (payroll-only, no app account — see
+    // payroll_ghost_employees) is identified by ghost_employee_id instead
+    // of user_id. Every query below picks whichever column applies.
+    const ownerColumn: 'user_id' | 'ghost_employee_id' = user_id ? 'user_id' : 'ghost_employee_id';
+    const ownerId: string = user_id ?? ghost_employee_id;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -64,7 +77,7 @@ Deno.serve(async (req: Request) => {
     const { data: profile, error: profileError } = await userClient
       .from('payroll_profiles')
       .select('*')
-      .eq('user_id', user_id)
+      .eq(ownerColumn, ownerId)
       .maybeSingle();
     if (profileError) return json({ error: 'Accès refusé' }, 403);
     if (!profile) return json({ error: "Aucune fiche de salaire configurée pour cet employé." }, 404);
@@ -73,16 +86,21 @@ Deno.serve(async (req: Request) => {
 
     const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }] = await Promise.all([
       admin.from('organizations').select('*').eq('id', organizationId).single(),
-      admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle(),
+      user_id
+        ? admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle()
+        : admin.from('payroll_ghost_employees').select('full_name').eq('id', ghost_employee_id).maybeSingle(),
       admin.from('payroll_deduction_types').select('*').eq('organization_id', organizationId).eq('active', true).order('sort_order', { ascending: true }),
-      admin.from('payroll_profile_deductions').select('*').eq('organization_id', organizationId).eq('user_id', user_id),
-      admin
-        .from('payroll_time_entries')
-        .select('hours, entry_date')
-        .eq('organization_id', organizationId)
-        .eq('user_id', user_id)
-        .gte('entry_date', `${yearNum}-01-01`)
-        .lte('entry_date', `${yearNum}-12-31`),
+      admin.from('payroll_profile_deductions').select('*').eq('organization_id', organizationId).eq(ownerColumn, ownerId),
+      // Ghost employees have no app account, so no hours were ever logged.
+      user_id
+        ? admin
+            .from('payroll_time_entries')
+            .select('hours, entry_date')
+            .eq('organization_id', organizationId)
+            .eq('user_id', user_id)
+            .gte('entry_date', `${yearNum}-01-01`)
+            .lte('entry_date', `${yearNum}-12-31`)
+        : Promise.resolve({ data: [] as { hours: number; entry_date: string }[] }),
     ]);
 
     const isHourly = profile.salary_type === 'hourly';
@@ -123,6 +141,22 @@ Deno.serve(async (req: Request) => {
       return json(
         {
           error: `Ces cotisations n'ont pas de case du certificat de salaire assignée : ${unmapped.map((d: any) => d.label).join(', ')}. Complétez-les dans Compte → RH & Salaires avant de générer le Lohnausweis.`,
+        },
+        422,
+      );
+    }
+
+    // The official form has a dedicated box for the AVS number and the
+    // birth date (case C) — both required on every Lohnausweis. Rather
+    // than generate a certificate with a blank official box, this blocks
+    // and names exactly what's missing on the employee's payroll profile.
+    const missingFields: string[] = [];
+    if (!profile.avs_number) missingFields.push('numéro AVS');
+    if (!profile.birth_date) missingFields.push('date de naissance');
+    if (missingFields.length > 0) {
+      return json(
+        {
+          error: `Informations manquantes sur la fiche de l'employé : ${missingFields.join(', ')}. Complétez-les dans sa fiche RH avant de générer le Lohnausweis.`,
         },
         422,
       );
@@ -182,12 +216,19 @@ Deno.serve(async (req: Request) => {
     );
     form.getTextField('TextMehrzeiligLinks_Bestaetigung').setText(employerLines.join('\n'));
 
+    // No 2D barcode (PDF417) is drawn on the form. That barcode is a
+    // Swissdec-standardized payload and can only be legitimately produced
+    // by payroll software formally certified by Swissdec — printing one
+    // without that certification would misrepresent an official tax
+    // document, so this deliberately leaves the barcode zone blank rather
+    // than fabricate a non-compliant code.
+
     // Flattened, not left as an editable form — this is meant to be handed
     // over as final, not silently altered after the fact.
     form.flatten();
 
     const pdfBytes = await pdfDoc.save();
-    const path = `${organizationId}/lohnausweis/${user_id}/${yearNum}-${Date.now()}.pdf`;
+    const path = `${organizationId}/lohnausweis/${ownerId}/${yearNum}-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage.from(BUCKET).upload(path, pdfBytes, { contentType: 'application/pdf', upsert: true });
     if (uploadError) return json({ error: `Échec de l'enregistrement du PDF: ${uploadError.message}` }, 500);
 

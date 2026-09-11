@@ -14,6 +14,7 @@ import {
   upsertPayrollProfile,
   upsertProfileDeduction,
   type AnnualSalarySummary,
+  type EmployeeRef,
 } from '../../../lib/api/payroll';
 import { generateLohnausweisPdf, generatePayslipPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
@@ -44,9 +45,12 @@ function monthLabel(d: Date): string {
 
 export default function PayrollProfileScreen() {
   const { t } = useTranslation();
-  const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { userId: routeId, kind } = useLocalSearchParams<{ userId: string; kind?: string }>();
   const { organization, user, canManagePayroll } = useAuth();
   const router = useRouter();
+  const isGhost = kind === 'ghost';
+  const employeeId = String(routeId);
+  const employeeRef: EmployeeRef = isGhost ? { ghostEmployeeId: employeeId } : { userId: employeeId };
   const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(new Date()));
   const [memberName, setMemberName] = useState(t('payrollProfile.memberFallback'));
   const [profile, setProfile] = useState<PayrollProfile | null>(null);
@@ -90,16 +94,19 @@ export default function PayrollProfileScreen() {
   const rangeEnd = useMemo(() => toIso(endOfMonth(monthAnchor)), [monthAnchor]);
 
   const load = useCallback(async () => {
-    if (!organization || !userId) return;
+    if (!organization || !employeeId) return;
     setLoading(true);
-    const [{ data: memberRow }, profileRow, types, overrideRows, entryRows] = await Promise.all([
-      supabase.from('organization_members').select('full_name').eq('organization_id', organization.id).eq('user_id', userId).maybeSingle(),
-      getPayrollProfile(organization.id, userId),
+    const [nameResult, profileRow, types, overrideRows, entryRows] = await Promise.all([
+      isGhost
+        ? supabase.from('payroll_ghost_employees').select('full_name').eq('id', employeeId).maybeSingle()
+        : supabase.from('organization_members').select('full_name').eq('organization_id', organization.id).eq('user_id', employeeId).maybeSingle(),
+      getPayrollProfile(organization.id, employeeRef),
       listDeductionTypes(organization.id),
-      listProfileDeductions(organization.id, userId),
-      listTimeEntries(organization.id, userId, rangeStart, rangeEnd),
+      listProfileDeductions(organization.id, employeeRef),
+      // Ghost employees have no app account, so no hours to fetch.
+      isGhost ? Promise.resolve([]) : listTimeEntries(organization.id, employeeId, rangeStart, rangeEnd),
     ]);
-    setMemberName(memberRow?.full_name || t('payrollProfile.memberFallback'));
+    setMemberName(nameResult.data?.full_name || t('payrollProfile.memberFallback'));
     setProfile(profileRow);
     setDeductionTypes(types.filter((t) => t.active));
     setOverrides(overrideRows);
@@ -126,7 +133,7 @@ export default function PayrollProfileScreen() {
     setDraftRates(rates);
     setDraftEnabled(enabled);
     setLoading(false);
-  }, [organization, userId, rangeStart, rangeEnd]);
+  }, [organization, employeeId, isGhost, rangeStart, rangeEnd]);
 
   useFocusEffect(
     useCallback(() => {
@@ -138,13 +145,13 @@ export default function PayrollProfileScreen() {
   // edited above — the annual card is a record of what's actually been in
   // effect this year, not a preview of an unsaved edit.
   useEffect(() => {
-    if (!organization || !userId || !profile) {
+    if (!organization || !employeeId || !profile) {
       setAnnualSummary(null);
       return;
     }
     let cancelled = false;
     setLoadingAnnual(true);
-    getAnnualSalarySummary(organization.id, String(userId), yearAnchor, profile, deductionTypes, overrides).then((summary) => {
+    getAnnualSalarySummary(organization.id, employeeRef, yearAnchor, profile, deductionTypes, overrides).then((summary) => {
       if (!cancelled) {
         setAnnualSummary(summary);
         setLoadingAnnual(false);
@@ -153,12 +160,12 @@ export default function PayrollProfileScreen() {
     return () => {
       cancelled = true;
     };
-  }, [organization, userId, yearAnchor, profile, deductionTypes, overrides]);
+  }, [organization, employeeId, isGhost, yearAnchor, profile, deductionTypes, overrides]);
 
   async function exportSalaryCertificate() {
     setExportingAnnual(true);
     setError(null);
-    const { url, error: genError } = await generateSalaryCertificatePdf(String(userId), yearAnchor);
+    const { url, error: genError } = await generateSalaryCertificatePdf(employeeRef, yearAnchor);
     setExportingAnnual(false);
     if (genError || !url) {
       setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
@@ -171,7 +178,7 @@ export default function PayrollProfileScreen() {
   async function exportLohnausweis() {
     setExportingLohnausweis(true);
     setError(null);
-    const { url, error: genError } = await generateLohnausweisPdf(String(userId), yearAnchor);
+    const { url, error: genError } = await generateLohnausweisPdf(employeeRef, yearAnchor);
     setExportingLohnausweis(false);
     if (genError || !url) {
       setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
@@ -190,7 +197,8 @@ export default function PayrollProfileScreen() {
   const previewOverrides: PayrollProfileDeduction[] = deductionTypes.map((t) => ({
     id: t.id,
     organization_id: organization?.id ?? '',
-    user_id: String(userId),
+    user_id: isGhost ? null : employeeId,
+    ghost_employee_id: isGhost ? employeeId : null,
     deduction_type_id: t.id,
     rate_percent: draftRates[t.id]?.trim() ? num(draftRates[t.id]) : null,
     fixed_amount_chf: null,
@@ -201,12 +209,12 @@ export default function PayrollProfileScreen() {
   const breakdown = computeSalaryBreakdown(gross, deductionTypes, previewOverrides);
 
   async function handleSave() {
-    if (!organization || !userId || !user) return;
+    if (!organization || !employeeId || !user) return;
     setSaving(true);
     setError(null);
     const { error: err } = await upsertPayrollProfile(
       organization.id,
-      userId,
+      employeeRef,
       {
         salary_type: salaryType,
         hourly_rate_chf: salaryType === 'hourly' ? num(hourlyRate) : null,
@@ -229,7 +237,7 @@ export default function PayrollProfileScreen() {
       const raw = draftRates[t.id]?.trim();
       await upsertProfileDeduction(
         organization.id,
-        userId,
+        employeeRef,
         t.id,
         { ratePercent: raw ? num(draftRates[t.id]) : null, fixedAmountChf: null, enabled: draftEnabled[t.id] ?? true },
         user.id,
@@ -242,7 +250,7 @@ export default function PayrollProfileScreen() {
   async function exportPayslip() {
     setExporting(true);
     setError(null);
-    const { url, error: genError } = await generatePayslipPdf(String(userId), rangeStart);
+    const { url, error: genError } = await generatePayslipPdf(employeeRef, rangeStart);
     setExporting(false);
     if (genError || !url) {
       setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
@@ -296,15 +304,23 @@ export default function PayrollProfileScreen() {
         </View>
 
         <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
-          <Card style={styles.statsRow}>
-            <View style={styles.stat}>
-              <Text style={styles.statValue}>{totalHours} h</Text>
-              <Text style={styles.statLabel}>{t('payrollProfile.hoursThisMonth')}</Text>
-            </View>
-          </Card>
+          {isGhost ? (
+            <Card style={styles.ghostBanner}>
+              <Feather name="user-x" size={16} color={colors.textMuted} />
+              <Text style={styles.ghostBannerText}>{t('payrollProfile.ghostBanner')}</Text>
+            </Card>
+          ) : (
+            <Card style={styles.statsRow}>
+              <View style={styles.stat}>
+                <Text style={styles.statValue}>{totalHours} h</Text>
+                <Text style={styles.statLabel}>{t('payrollProfile.hoursThisMonth')}</Text>
+              </View>
+            </Card>
+          )}
 
           <Card>
             <Text style={styles.sectionTitle}>{t('payrollProfile.salaryTitle')}</Text>
+            {isGhost ? null : (
             <View style={styles.chips}>
               <Pressable onPress={() => setSalaryType('hourly')} style={[styles.chip, salaryType === 'hourly' && styles.chipActive]}>
                 <Text style={[styles.chipText, salaryType === 'hourly' && styles.chipTextActive]}>{t('payrollProfile.hourly')}</Text>
@@ -313,6 +329,7 @@ export default function PayrollProfileScreen() {
                 <Text style={[styles.chipText, salaryType === 'monthly' && styles.chipTextActive]}>{t('payrollProfile.monthly')}</Text>
               </Pressable>
             </View>
+            )}
 
             {salaryType === 'hourly' ? (
               <RateField label={t('payrollProfile.hourlyRateLabel')} value={hourlyRate} onChange={setHourlyRate} suffix="CHF/h" />
@@ -521,6 +538,17 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: spacing.xl,
+  },
+  ghostBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  ghostBannerText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 16,
   },
   stat: {
     flex: 1,

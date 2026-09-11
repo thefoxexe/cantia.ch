@@ -2,7 +2,9 @@ import { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import { useAuth } from '../../../lib/auth-context';
+import { supabase, STORAGE_BUCKET } from '../../../lib/supabase';
 import {
   createDeductionType,
   createExpenseType,
@@ -23,6 +25,14 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { CertificateBox, PayrollDeductionType, PayrollExpenseType, PayrollWorkType } from '../../../lib/types';
 
+// The Lohnausweis AcroForm template is shared platform-wide (it's the
+// federal form, not tenant data) — one cached file read by the edge
+// function, not something every organization's admin should be able to
+// replace. Gated to the platform owner's own account; also enforced at the
+// storage RLS layer so this is defense in depth, not the only check.
+const TEMPLATE_ADMIN_EMAIL = 'bastienryser20004@gmail.com';
+const TEMPLATE_PATH = '_shared/lohnausweis-form11.pdf';
+
 const CERTIFICATE_BOX_OPTIONS: { value: CertificateBox | null; labelKey: string }[] = [
   { value: null, labelKey: 'payrollSettings.certificateBoxNone' },
   { value: 'box9', labelKey: 'payrollSettings.certificateBox9' },
@@ -35,11 +45,15 @@ type Kind = 'work' | 'expense' | 'deduction';
 
 export default function PayrollSettingsScreen() {
   const { t } = useTranslation();
-  const { organization, canManagePayroll } = useAuth();
+  const { organization, user, canManagePayroll } = useAuth();
   const [workTypes, setWorkTypes] = useState<PayrollWorkType[]>([]);
   const [expenseTypes, setExpenseTypes] = useState<PayrollExpenseType[]>([]);
   const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
   const [loading, setLoading] = useState(true);
+  const isTemplateAdmin = user?.email === TEMPLATE_ADMIN_EMAIL;
+  const [templateUpdatedAt, setTemplateUpdatedAt] = useState<string | null>(null);
+  const [templateUploading, setTemplateUploading] = useState(false);
+  const [templateError, setTemplateError] = useState<string | null>(null);
 
   const [editKind, setEditKind] = useState<Kind | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
@@ -65,11 +79,50 @@ export default function PayrollSettingsScreen() {
     setLoading(false);
   }, [organization]);
 
+  const loadTemplateInfo = useCallback(async () => {
+    if (!isTemplateAdmin) return;
+    const { data } = await supabase.storage.from(STORAGE_BUCKET).list('_shared', { search: 'lohnausweis-form11.pdf' });
+    const file = data?.find((f) => f.name === 'lohnausweis-form11.pdf');
+    setTemplateUpdatedAt(file?.updated_at ?? null);
+  }, [isTemplateAdmin]);
+
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [load]),
+      loadTemplateInfo();
+    }, [load, loadTemplateInfo]),
   );
+
+  async function handleUploadTemplate() {
+    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
+    if (result.canceled || !result.assets?.length) return;
+    const asset = result.assets[0];
+    if (asset.mimeType && asset.mimeType !== 'application/pdf') {
+      setTemplateError(t('payrollSettings.templateInvalidFile'));
+      return;
+    }
+
+    setTemplateUploading(true);
+    setTemplateError(null);
+    try {
+      const response = await fetch(asset.uri);
+      const blob = await response.blob();
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(TEMPLATE_PATH, blob, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
+      if (error) {
+        setTemplateError(error.message);
+      } else {
+        showSavedCheckmark();
+        await loadTemplateInfo();
+      }
+    } catch (err) {
+      setTemplateError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setTemplateUploading(false);
+    }
+  }
 
   function openAdd(kind: Kind) {
     setEditKind(kind);
@@ -174,6 +227,27 @@ export default function PayrollSettingsScreen() {
         <Container>
           <PageHeader title={t('payrollSettings.title')} backTo="/(app)/compte" />
           <Text style={styles.hint}>{t('payrollSettings.intro')}</Text>
+
+          {isTemplateAdmin ? (
+            <Card style={{ marginBottom: spacing.lg }}>
+              <Text style={styles.sectionTitle}>{t('payrollSettings.templateTitle')}</Text>
+              <Text style={styles.sectionSubtitle}>{t('payrollSettings.templateSubtitle')}</Text>
+              <Text style={styles.templateStatus}>
+                {templateUpdatedAt
+                  ? t('payrollSettings.templateCurrentFile', { date: new Date(templateUpdatedAt).toLocaleString() })
+                  : t('payrollSettings.templateNoFile')}
+              </Text>
+              {templateError ? <Text style={styles.error}>{templateError}</Text> : null}
+              <Button
+                title={t('payrollSettings.templateUploadButton')}
+                icon="upload"
+                variant="secondary"
+                onPress={handleUploadTemplate}
+                loading={templateUploading}
+                style={{ marginTop: spacing.md }}
+              />
+            </Card>
+          ) : null}
 
           <TypeSection
             title={t('payrollSettings.workTypesTitle')}
@@ -376,6 +450,11 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
     lineHeight: 16,
+  },
+  templateStatus: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
   },
   emptyText: {
     fontSize: fontSize.sm,

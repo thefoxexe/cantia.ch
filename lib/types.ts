@@ -646,7 +646,8 @@ export interface PayrollDeductionType {
 export interface PayrollProfileDeduction {
   id: string;
   organization_id: string;
-  user_id: string;
+  user_id: string | null;
+  ghost_employee_id: string | null;
   deduction_type_id: string;
   rate_percent: number | null;
   fixed_amount_chf: number | null;
@@ -691,7 +692,8 @@ export type SalaryType = 'hourly' | 'monthly';
 export interface PayrollProfile {
   id: string;
   organization_id: string;
-  user_id: string;
+  user_id: string | null;
+  ghost_employee_id: string | null;
   salary_type: SalaryType;
   hourly_rate_chf: number | null;
   monthly_salary_chf: number | null;
@@ -703,6 +705,22 @@ export interface PayrollProfile {
   birth_date: string | null;
   updated_by: string | null;
   updated_at: string;
+}
+
+// A payroll-only "employee" — no auth account, no organization_members
+// row, never logs into the app. Exists purely so a fiduciary/accounting
+// use case can track someone's salary and generate their Lohnausweis
+// without requiring every payroll-relevant person to be a real app user.
+export interface PayrollGhostEmployee {
+  id: string;
+  organization_id: string;
+  full_name: string;
+  street: string | null;
+  postal_code: string | null;
+  locality: string | null;
+  active: boolean;
+  created_by: string | null;
+  created_at: string;
 }
 
 // Trésorerie prévisionnelle — un solde de référence saisi à la main (pas de

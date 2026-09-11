@@ -14,10 +14,13 @@ import {
   type JournalEntry,
   type LedgerLine,
 } from '../../../lib/api/accounting';
+import { getVatReport, type VatReport, type VatReportBasis } from '../../../lib/api/factures';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+
+type Tab = 'overview' | 'vat';
 
 function quarterOf(date: Date): number {
   return Math.floor(date.getUTCMonth() / 3) + 1;
@@ -34,14 +37,43 @@ function chf(n: number): string {
   return `CHF ${n.toLocaleString(`${getAppLocale()}-CH`, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function escapeCsv(value: string): string {
+  return /[;"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function buildVatReportCsv(report: VatReport, periodLabel: string, labels: {
+  rate: string; turnover: string; vat: string; totalTurnover: string; totalVat: string; deductibleBase: string; deductibleVat: string; net: string;
+}): string {
+  const lines: string[] = [];
+  lines.push(escapeCsv(periodLabel));
+  lines.push('');
+  lines.push([labels.rate, labels.turnover, labels.vat].map(escapeCsv).join(';'));
+  for (const row of report.rows) {
+    lines.push([`${row.vatRate}%`, row.turnoverExclVat.toFixed(2), row.vatAmount.toFixed(2)].map(escapeCsv).join(';'));
+  }
+  lines.push([labels.totalTurnover, report.totalExclVat.toFixed(2), report.totalVat.toFixed(2)].map(escapeCsv).join(';'));
+  lines.push('');
+  lines.push([labels.rate, labels.deductibleBase, labels.deductibleVat].map(escapeCsv).join(';'));
+  for (const row of report.deductibleRows) {
+    lines.push([`${row.vatRate}%`, row.turnoverExclVat.toFixed(2), row.vatAmount.toFixed(2)].map(escapeCsv).join(';'));
+  }
+  lines.push(['', labels.deductibleBase, report.totalDeductibleVat.toFixed(2)].map(escapeCsv).join(';'));
+  lines.push('');
+  lines.push([labels.net, '', report.netVatDue.toFixed(2)].map(escapeCsv).join(';'));
+  return lines.join('\n');
+}
+
 export default function AccountingScreen() {
   const { t } = useTranslation();
   const { organization } = useAuth();
   const now = useMemo(() => new Date(), []);
+  const [tab, setTab] = useState<Tab>('overview');
   const [year, setYear] = useState(now.getUTCFullYear());
   const [quarter, setQuarter] = useState(quarterOf(now));
+  const [basis, setBasis] = useState<VatReportBasis>('invoiced');
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [snapshot, setSnapshot] = useState<FinancialSnapshot | null>(null);
+  const [report, setReport] = useState<VatReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLedger, setShowLedger] = useState(false);
 
@@ -49,14 +81,16 @@ export default function AccountingScreen() {
     if (!organization) return;
     setLoading(true);
     const { start, end } = quarterBounds(year, quarter);
-    const [entryRows, snap] = await Promise.all([
+    const [entryRows, snap, vatReport] = await Promise.all([
       getJournalEntries(organization.id, start, end),
       getFinancialSnapshot(organization.id),
+      getVatReport(organization.id, start, end, basis),
     ]);
     setEntries(entryRows);
     setSnapshot(snap);
+    setReport(vatReport);
     setLoading(false);
-  }, [organization, year, quarter]);
+  }, [organization, year, quarter, basis]);
 
   useFocusEffect(
     useCallback(() => {
@@ -78,9 +112,25 @@ export default function AccountingScreen() {
     setYear(y);
   }
 
-  function handleExport() {
+  function handleExportLedger() {
     if (!entries.length) return;
     downloadTextFile(`journal-comptable-${year}-t${quarter}.csv`, journalEntriesToCsv(entries));
+  }
+
+  function handleExportVat() {
+    if (!report) return;
+    const periodLabel = t('vatReport.quarterLabel', { quarter, year });
+    const csv = buildVatReportCsv(report, periodLabel, {
+      rate: t('vatReport.csvRate'),
+      turnover: t('vatReport.csvTurnover'),
+      vat: t('vatReport.csvVat'),
+      totalTurnover: t('vatReport.totalTurnover'),
+      totalVat: t('vatReport.totalVatDue'),
+      deductibleBase: t('vatReport.csvDeductibleBase'),
+      deductibleVat: t('vatReport.totalDeductibleVat'),
+      net: t('vatReport.netVatDue'),
+    });
+    downloadTextFile(`tva-${year}-t${quarter}.csv`, csv);
   }
 
   if (!organization) return <LoadingScreen />;
@@ -99,6 +149,15 @@ export default function AccountingScreen() {
           <Text style={styles.disclaimerText}>{t('accounting.disclaimer')}</Text>
         </Card>
 
+        <View style={styles.tabRow}>
+          <Pressable onPress={() => setTab('overview')} style={[styles.tabChip, tab === 'overview' && styles.tabChipActive]}>
+            <Text style={[styles.tabChipText, tab === 'overview' && styles.tabChipTextActive]}>{t('accounting.tabOverview')}</Text>
+          </Pressable>
+          <Pressable onPress={() => setTab('vat')} style={[styles.tabChip, tab === 'vat' && styles.tabChipActive]}>
+            <Text style={[styles.tabChipText, tab === 'vat' && styles.tabChipTextActive]}>{t('accounting.tabVat')}</Text>
+          </Pressable>
+        </View>
+
         <View style={styles.periodRow}>
           <Pressable onPress={() => changeQuarter(-1)} hitSlop={8} style={styles.periodArrow}>
             <Feather name="chevron-left" size={18} color={colors.text} />
@@ -111,7 +170,7 @@ export default function AccountingScreen() {
 
         {loading ? (
           <LoadingScreen />
-        ) : (
+        ) : tab === 'overview' ? (
           <View style={{ gap: spacing.lg, marginTop: spacing.lg }}>
             <Card>
               <Text style={styles.sectionTitle}>{t('accounting.snapshotTitle')}</Text>
@@ -179,8 +238,97 @@ export default function AccountingScreen() {
                 )
               ) : null}
 
-              <Button title={t('accounting.exportCsv')} icon="download" variant="secondary" onPress={handleExport} style={{ marginTop: spacing.md }} />
+              <Button title={t('accounting.exportCsv')} icon="download" variant="secondary" onPress={handleExportLedger} style={{ marginTop: spacing.md }} />
             </Card>
+          </View>
+        ) : (
+          <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
+            <View style={styles.basisRow}>
+              <Pressable onPress={() => setBasis('invoiced')} style={[styles.basisChip, basis === 'invoiced' && styles.basisChipActive]}>
+                <Text style={[styles.basisChipText, basis === 'invoiced' && styles.basisChipTextActive]}>{t('vatReport.basisInvoiced')}</Text>
+              </Pressable>
+              <Pressable onPress={() => setBasis('collected')} style={[styles.basisChip, basis === 'collected' && styles.basisChipActive]}>
+                <Text style={[styles.basisChipText, basis === 'collected' && styles.basisChipTextActive]}>{t('vatReport.basisCollected')}</Text>
+              </Pressable>
+            </View>
+            <Text style={styles.basisHint}>
+              {basis === 'invoiced' ? t('vatReport.basisHintInvoiced') : t('vatReport.basisHintCollected')}
+            </Text>
+
+            {!report || (report.rows.length === 0 && report.deductibleRows.length === 0) ? (
+              <Card>
+                <EmptyState title={t('vatReport.emptyTitle')} subtitle={t('vatReport.emptySubtitle')} />
+              </Card>
+            ) : (
+              <>
+                <Text style={styles.sectionLabel}>{t('vatReport.collectedSectionTitle')}</Text>
+                {report.rows.length === 0 ? (
+                  <Card><EmptyState title={t('vatReport.emptyTitle')} subtitle={t('vatReport.emptySubtitle')} /></Card>
+                ) : (
+                  report.rows.map((row) => (
+                    <Card key={row.vatRate} style={styles.rateRow}>
+                      <View style={styles.rateBadge}>
+                        <Text style={styles.rateBadgeText}>{row.vatRate}%</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
+                        <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.rateLabel}>{t('vatReport.vatDue')}</Text>
+                        <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
+                      </View>
+                    </Card>
+                  ))
+                )}
+
+                <Text style={styles.sectionLabel}>{t('vatReport.deductibleSectionTitle')}</Text>
+                <Text style={styles.basisHint}>{t('vatReport.deductibleHint')}</Text>
+                {report.deductibleRows.length === 0 ? (
+                  <Card><EmptyState title={t('vatReport.deductibleEmptyTitle')} subtitle={t('vatReport.deductibleEmptySubtitle')} /></Card>
+                ) : (
+                  report.deductibleRows.map((row) => (
+                    <Card key={row.vatRate} style={styles.rateRow}>
+                      <View style={styles.rateBadge}>
+                        <Text style={styles.rateBadgeText}>{row.vatRate}%</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
+                        <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.rateLabel}>{t('vatReport.vatDeductible')}</Text>
+                        <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
+                      </View>
+                    </Card>
+                  ))
+                )}
+
+                <Card style={styles.totalCard}>
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>{t('vatReport.totalTurnover')}</Text>
+                    <Text style={styles.totalValue}>CHF {report.totalExclVat.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>{t('vatReport.totalVatDue')}</Text>
+                    <Text style={styles.totalValue}>CHF {report.totalVat.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>{t('vatReport.totalDeductibleVat')}</Text>
+                    <Text style={styles.totalValue}>− CHF {report.totalDeductibleVat.toFixed(2)}</Text>
+                  </View>
+                  <View style={[styles.totalRow, styles.totalRowFinal]}>
+                    <Text style={styles.totalLabelFinal}>{t('vatReport.netVatDue')}</Text>
+                    <Text style={[styles.totalValueFinal, report.netVatDue < 0 && styles.totalValueCredit]}>
+                      CHF {report.netVatDue.toFixed(2)}
+                    </Text>
+                  </View>
+                  {report.netVatDue < 0 ? <Text style={styles.creditHint}>{t('vatReport.creditHint')}</Text> : null}
+                </Card>
+
+                <Button title={t('vatReport.exportCsv')} icon="download" variant="secondary" onPress={handleExportVat} />
+              </>
+            )}
           </View>
         )}
       </ScrollView>
@@ -207,6 +355,32 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.text,
     lineHeight: 17,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  tabChip: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  tabChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  tabChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  tabChipTextActive: {
+    color: colors.primary,
   },
   periodRow: {
     flexDirection: 'row',
@@ -344,5 +518,125 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     fontVariant: ['tabular-nums'],
+  },
+  basisRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  basisChip: {
+    flex: 1,
+    minWidth: 150,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  basisChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  basisChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  basisChipTextActive: {
+    color: colors.primary,
+  },
+  basisHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    lineHeight: 17,
+  },
+  sectionLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: spacing.sm,
+  },
+  rateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  rateBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rateBadgeText: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  rateLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  rateValue: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: 2,
+    fontVariant: ['tabular-nums'],
+  },
+  rateValueVat: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.accent,
+    marginTop: 2,
+    fontVariant: ['tabular-nums'],
+  },
+  totalCard: {
+    gap: spacing.sm,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  totalRowFinal: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  totalLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+  },
+  totalValue: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  totalLabelFinal: {
+    fontSize: fontSize.md,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  totalValueFinal: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  totalValueCredit: {
+    color: colors.success,
+  },
+  creditHint: {
+    fontSize: fontSize.xs,
+    color: colors.success,
+    lineHeight: 16,
   },
 });

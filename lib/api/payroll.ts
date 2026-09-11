@@ -4,11 +4,79 @@ import type {
   PayrollDeductionType,
   PayrollExpense,
   PayrollExpenseType,
+  PayrollGhostEmployee,
   PayrollProfile,
   PayrollProfileDeduction,
   PayrollTimeEntry,
   PayrollWorkType,
 } from '../types';
+
+// Identifies who a payroll profile/deduction/PDF belongs to — either a
+// real app user or a payroll-only "ghost employee" (see
+// payroll_ghost_employees: someone tracked for salary/accounting purposes
+// only, with no app login). Every payroll_profiles-derived RLS policy
+// gates purely on organization_id, never on which of these two a row
+// belongs to, so both kinds flow through the exact same functions below.
+export type EmployeeRef = { userId: string; ghostEmployeeId?: undefined } | { userId?: undefined; ghostEmployeeId: string };
+
+function ownerColumn(ref: EmployeeRef): { column: 'user_id' | 'ghost_employee_id'; id: string } {
+  return ref.userId ? { column: 'user_id', id: ref.userId } : { column: 'ghost_employee_id', id: ref.ghostEmployeeId! };
+}
+
+// ==========================================================================
+// Ghost employees — payroll-only "employees" with no app account. Created
+// for people a fiduciary/accountant needs on the books (salary, deduction
+// overrides, Lohnausweis) without them ever logging into Cantia.
+// ==========================================================================
+
+export async function listGhostEmployees(organizationId: string): Promise<PayrollGhostEmployee[]> {
+  const { data } = await supabase
+    .from('payroll_ghost_employees')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .eq('active', true)
+    .order('full_name', { ascending: true });
+  return data ?? [];
+}
+
+// Creates the ghost employee and its (monthly-salary) payroll profile in
+// one step — a ghost employee only ever exists for payroll purposes, so
+// there's no reason to split "create the person" from "set their salary
+// terms" the way the real-user flow does (a real user already exists as
+// an app account before payroll ever touches them).
+export async function createGhostEmployee(
+  organizationId: string,
+  fullName: string,
+  createdBy: string | undefined,
+): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from('payroll_ghost_employees')
+    .insert({ organization_id: organizationId, full_name: fullName.trim(), created_by: createdBy })
+    .select('id')
+    .single();
+  if (error) return { id: null, error: error.message };
+  const { error: profileError } = await supabase
+    .from('payroll_profiles')
+    .insert({ organization_id: organizationId, ghost_employee_id: data.id, salary_type: 'monthly', updated_by: createdBy });
+  if (profileError) return { id: null, error: profileError.message };
+  return { id: data.id, error: null };
+}
+
+export async function updateGhostEmployee(
+  id: string,
+  updates: { fullName: string; street: string | null; postalCode: string | null; locality: string | null },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_ghost_employees')
+    .update({ full_name: updates.fullName.trim(), street: updates.street, postal_code: updates.postalCode, locality: updates.locality })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deactivateGhostEmployee(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_ghost_employees').update({ active: false }).eq('id', id);
+  return { error: error?.message ?? null };
+}
 
 // ==========================================================================
 // Company catalogs — "types de travail", "types de frais", "types de
@@ -345,19 +413,20 @@ export async function deleteExpense(id: string): Promise<{ error: string | null 
 // enforced by RLS.
 // ==========================================================================
 
-export async function getPayrollProfile(organizationId: string, userId: string): Promise<PayrollProfile | null> {
+export async function getPayrollProfile(organizationId: string, ref: EmployeeRef): Promise<PayrollProfile | null> {
+  const owner = ownerColumn(ref);
   const { data } = await supabase
     .from('payroll_profiles')
     .select('*')
     .eq('organization_id', organizationId)
-    .eq('user_id', userId)
+    .eq(owner.column, owner.id)
     .maybeSingle();
   return data ?? null;
 }
 
 export async function upsertPayrollProfile(
   organizationId: string,
-  userId: string,
+  ref: EmployeeRef,
   updates: Partial<
     Pick<
       PayrollProfile,
@@ -366,21 +435,23 @@ export async function upsertPayrollProfile(
   >,
   updatedBy: string | undefined,
 ): Promise<{ error: string | null }> {
+  const owner = ownerColumn(ref);
   const { error } = await supabase
     .from('payroll_profiles')
     .upsert(
-      { organization_id: organizationId, user_id: userId, ...updates, updated_by: updatedBy },
-      { onConflict: 'organization_id,user_id' },
+      { organization_id: organizationId, [owner.column]: owner.id, ...updates, updated_by: updatedBy },
+      { onConflict: 'organization_id,owner_key' },
     );
   return { error: error?.message ?? null };
 }
 
-export async function listProfileDeductions(organizationId: string, userId: string): Promise<PayrollProfileDeduction[]> {
+export async function listProfileDeductions(organizationId: string, ref: EmployeeRef): Promise<PayrollProfileDeduction[]> {
+  const owner = ownerColumn(ref);
   const { data } = await supabase
     .from('payroll_profile_deductions')
     .select('*')
     .eq('organization_id', organizationId)
-    .eq('user_id', userId);
+    .eq(owner.column, owner.id);
   return data ?? [];
 }
 
@@ -390,22 +461,23 @@ export async function listProfileDeductions(organizationId: string, userId: stri
 // types never touched for this employee simply use their org default.
 export async function upsertProfileDeduction(
   organizationId: string,
-  userId: string,
+  ref: EmployeeRef,
   deductionTypeId: string,
   updates: { ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean },
   updatedBy: string | undefined,
 ): Promise<{ error: string | null }> {
+  const owner = ownerColumn(ref);
   const { error } = await supabase.from('payroll_profile_deductions').upsert(
     {
       organization_id: organizationId,
-      user_id: userId,
+      [owner.column]: owner.id,
       deduction_type_id: deductionTypeId,
       rate_percent: updates.ratePercent,
       fixed_amount_chf: updates.fixedAmountChf,
       enabled: updates.enabled,
       updated_by: updatedBy,
     },
-    { onConflict: 'organization_id,user_id,deduction_type_id' },
+    { onConflict: 'organization_id,owner_key,deduction_type_id' },
   );
   return { error: error?.message ?? null };
 }
@@ -459,14 +531,18 @@ export interface AnnualSalarySummary extends SalaryBreakdown {
 // summed), so what's shown here always matches what the PDF export produces.
 export async function getAnnualSalarySummary(
   organizationId: string,
-  userId: string,
+  ref: EmployeeRef,
   year: number,
   profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
   deductionTypes: PayrollDeductionType[],
   overrides: PayrollProfileDeduction[],
 ): Promise<AnnualSalarySummary> {
-  const isHourly = profile.salary_type === 'hourly';
-  const entries = isHourly ? await listTimeEntries(organizationId, userId, `${year}-01-01`, `${year}-12-31`) : [];
+  // Ghost employees never log hours (no app account to log them from) —
+  // hourly salary_type is only meaningful for real users, so this simply
+  // yields zero hours for a ghost rather than needing listTimeEntries to
+  // understand ghost ids too.
+  const isHourly = profile.salary_type === 'hourly' && !!ref.userId;
+  const entries = isHourly ? await listTimeEntries(organizationId, ref.userId!, `${year}-01-01`, `${year}-12-31`) : [];
 
   let totalHours = 0;
   let gross = 0;

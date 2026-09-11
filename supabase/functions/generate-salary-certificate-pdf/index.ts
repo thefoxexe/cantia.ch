@@ -176,8 +176,13 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { user_id, year } = await req.json();
-    if (!user_id || !year) return json({ error: 'user_id et year requis' }, 400);
+    const { user_id, ghost_employee_id, year } = await req.json();
+    if ((!user_id && !ghost_employee_id) || !year) return json({ error: 'user_id (ou ghost_employee_id) et year requis' }, 400);
+    // A ghost employee (payroll-only, no app account) is identified by
+    // ghost_employee_id instead of user_id — every query below picks
+    // whichever column applies.
+    const ownerColumn: 'user_id' | 'ghost_employee_id' = user_id ? 'user_id' : 'ghost_employee_id';
+    const ownerId: string = user_id ?? ghost_employee_id;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -194,7 +199,7 @@ Deno.serve(async (req: Request) => {
     const { data: profile, error: profileError } = await userClient
       .from('payroll_profiles')
       .select('*')
-      .eq('user_id', user_id)
+      .eq(ownerColumn, ownerId)
       .maybeSingle();
     if (profileError) return json({ error: 'Accès refusé' }, 403);
     if (!profile) return json({ error: "Aucune fiche de salaire configurée pour cet employé." }, 404);
@@ -204,16 +209,20 @@ Deno.serve(async (req: Request) => {
 
     const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }] = await Promise.all([
       admin.from('organizations').select('*').eq('id', organizationId).single(),
-      admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle(),
+      user_id
+        ? admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle()
+        : admin.from('payroll_ghost_employees').select('full_name').eq('id', ghost_employee_id).maybeSingle(),
       admin.from('payroll_deduction_types').select('*').eq('organization_id', organizationId).eq('active', true).order('sort_order', { ascending: true }),
-      admin.from('payroll_profile_deductions').select('*').eq('organization_id', organizationId).eq('user_id', user_id),
-      admin
-        .from('payroll_time_entries')
-        .select('hours, entry_date')
-        .eq('organization_id', organizationId)
-        .eq('user_id', user_id)
-        .gte('entry_date', `${yearNum}-01-01`)
-        .lte('entry_date', `${yearNum}-12-31`),
+      admin.from('payroll_profile_deductions').select('*').eq('organization_id', organizationId).eq(ownerColumn, ownerId),
+      user_id
+        ? admin
+            .from('payroll_time_entries')
+            .select('hours, entry_date')
+            .eq('organization_id', organizationId)
+            .eq('user_id', user_id)
+            .gte('entry_date', `${yearNum}-01-01`)
+            .lte('entry_date', `${yearNum}-12-31`)
+        : Promise.resolve({ data: [] as { hours: number; entry_date: string }[] }),
     ]);
 
     const locale = resolvePdfLocale(org);
@@ -359,7 +368,7 @@ Deno.serve(async (req: Request) => {
     drawFooter(page, font, 1, org?.name ?? 'Cantia', locale);
 
     const pdfBytes = await pdfDoc.save();
-    const path = `${organizationId}/salary-certificates/${user_id}/${yearNum}-${Date.now()}.pdf`;
+    const path = `${organizationId}/salary-certificates/${ownerId}/${yearNum}-${Date.now()}.pdf`;
     const { error: uploadError } = await admin.storage.from(BUCKET).upload(path, pdfBytes, { contentType: 'application/pdf', upsert: true });
     if (uploadError) return json({ error: `Échec de l'enregistrement du PDF: ${uploadError.message}` }, 500);
 

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { listWorkTypes } from '../../../lib/api/payroll';
+import { createGhostEmployee, listGhostEmployees, listWorkTypes } from '../../../lib/api/payroll';
 import { listFacturesForProjects, markTimeEntriesInvoiced, type ProjectFactureSummary } from '../../../lib/api/factures';
 import { PayrollEntryPanel, defaultTodayRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
@@ -17,6 +17,7 @@ import type { Plan, PayrollWorkType } from '../../../lib/types';
 interface MemberItem {
   id: string;
   label: string;
+  kind: 'user' | 'ghost';
 }
 
 interface ProjectItem {
@@ -77,6 +78,9 @@ export default function PayrollScreen() {
   const [hasWorkTypes, setHasWorkTypes] = useState(true);
   const [projectFactures, setProjectFactures] = useState<Record<string, ProjectFactureSummary[]>>({});
   const [summaryEntries, setSummaryEntries] = useState<SummaryEntryDetail[]>([]);
+  const [addingGhost, setAddingGhost] = useState(false);
+  const [ghostName, setGhostName] = useState('');
+  const [savingGhost, setSavingGhost] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -85,16 +89,32 @@ export default function PayrollScreen() {
     setPlan(planRow ?? null);
 
     if (canManagePayroll) {
-      const [{ data: memberRows }, workTypes] = await Promise.all([
+      const [{ data: memberRows }, ghostRows, workTypes] = await Promise.all([
         supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
+        listGhostEmployees(organization.id),
         listWorkTypes(organization.id),
       ]);
-      setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || t('payrollHub.memberFallback') })));
+      setMembers([
+        ...(memberRows ?? []).map((m): MemberItem => ({ id: m.user_id, label: m.full_name || t('payrollHub.memberFallback'), kind: 'user' })),
+        ...ghostRows.map((g): MemberItem => ({ id: g.id, label: g.full_name, kind: 'ghost' })),
+      ]);
       setHasWorkTypes(workTypes.length > 0);
     }
     setSelectedUserId((prev) => prev ?? user.id);
     setLoading(false);
   }, [organization, user, canManagePayroll]);
+
+  async function handleCreateGhost() {
+    if (!organization || !user || !ghostName.trim()) return;
+    setSavingGhost(true);
+    const { id, error } = await createGhostEmployee(organization.id, ghostName, user.id);
+    setSavingGhost(false);
+    if (error || !id) return;
+    setGhostName('');
+    setAddingGhost(false);
+    await load();
+    router.push({ pathname: '/(app)/rh/[userId]', params: { userId: id, kind: 'ghost' } });
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -314,17 +334,49 @@ export default function PayrollScreen() {
     />
   );
 
+  // Ghost employees (payroll-only, no app account) have no hours or
+  // invoicing to speak of — they only ever show up in the salaries tab.
+  const visibleMembers = mode === 'salaries' ? members : members.filter((m) => m.kind === 'user');
+
   const employeeList = (
     <View style={styles.employeeList}>
-      <Text style={styles.employeeListTitle}>{t('payrollHub.teamTitle')}</Text>
-      {members.map((m) => (
+      <View style={styles.employeeListHeader}>
+        <Text style={styles.employeeListTitle}>{t('payrollHub.teamTitle')}</Text>
+        {mode === 'salaries' ? (
+          <Pressable onPress={() => setAddingGhost((v) => !v)} hitSlop={8}>
+            <Feather name={addingGhost ? 'x' : 'user-plus'} size={15} color={colors.primary} />
+          </Pressable>
+        ) : null}
+      </View>
+      {mode === 'salaries' && addingGhost ? (
+        <View style={styles.addGhostRow}>
+          <TextInput
+            style={styles.addGhostInput}
+            value={ghostName}
+            onChangeText={setGhostName}
+            placeholder={t('payrollHub.ghostNamePlaceholder')}
+            placeholderTextColor={colors.textMuted}
+            autoFocus
+          />
+          <Button title={t('payrollHub.ghostCreate')} onPress={handleCreateGhost} loading={savingGhost} disabled={!ghostName.trim()} />
+        </View>
+      ) : null}
+      {visibleMembers.map((m) => (
         <Pressable
           key={m.id}
-          onPress={() => (mode === 'salaries' ? router.push(`/(app)/rh/${m.id}`) : setSelectedUserId(m.id))}
+          onPress={() =>
+            mode === 'salaries'
+              ? router.push({ pathname: '/(app)/rh/[userId]', params: m.kind === 'ghost' ? { userId: m.id, kind: 'ghost' } : { userId: m.id } })
+              : setSelectedUserId(m.id)
+          }
           style={[styles.memberRow, mode === 'hours' && selectedUserId === m.id && styles.memberRowActive]}
         >
           <View style={styles.memberAvatar}>
-            <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
+            {m.kind === 'ghost' ? (
+              <Feather name="user-x" size={12} color={colors.primary} />
+            ) : (
+              <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
+            )}
           </View>
           <Text style={[styles.memberName, mode === 'hours' && selectedUserId === m.id && styles.memberNameActive]} numberOfLines={1}>
             {m.id === user.id ? t('payrollHub.meSuffix', { name: m.label }) : m.label}
@@ -818,13 +870,34 @@ const styles = StyleSheet.create({
   employeeList: {
     gap: spacing.xs,
   },
+  employeeListHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xs,
+  },
   employeeListTitle: {
     fontSize: 11,
     fontWeight: '800',
     color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
-    marginBottom: spacing.xs,
+  },
+  addGhostRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  addGhostInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
   },
   memberRow: {
     flexDirection: 'row',

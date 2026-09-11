@@ -386,7 +386,7 @@ export default function FacturesListScreen() {
                     <Pressable onPress={() => router.push('/(app)/devis/factures/import-releve')} hitSlop={8}>
                       <Feather name="upload-cloud" size={18} color={colors.textMuted} />
                     </Pressable>
-                    <Pressable onPress={() => router.push('/(app)/devis/tva')} hitSlop={8}>
+                    <Pressable onPress={() => router.push('/(app)/compta')} hitSlop={8}>
                       <Feather name="percent" size={18} color={colors.textMuted} />
                     </Pressable>
                     <Pressable onPress={() => router.push('/(app)/compte/devis')} hitSlop={8}>
