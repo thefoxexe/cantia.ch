@@ -14,6 +14,8 @@ import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import type { AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
 
+const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
+
 function formatDateShort(iso: string | null): string {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -95,25 +97,75 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'members', label: 'Plus de membres' },
 ];
 
-function Row({ org, billing, onPress }: { org: AdminOrganizationSummary; billing: AdminOrgBillingStatus | undefined; onPress: () => void }) {
-  const line = billingLine(billing);
+function DetailField({ icon, label, value }: { icon: keyof typeof Feather.glyphMap; label: string; value: string }) {
   return (
-    <Pressable style={[styles.row, org.is_internal && styles.rowInternal]} onPress={onPress}>
+    <View style={styles.detailField}>
+      <Feather name={icon} size={13} color={colors.textMuted} style={{ marginTop: 1 }} />
       <View style={{ flex: 1 }}>
-        <View style={styles.rowTitleLine}>
-          <Text style={styles.rowTitle}>{org.name}</Text>
-          {org.is_internal && org.internal_label ? <InternalTag label={org.internal_label} /> : null}
-        </View>
-        <Text style={styles.rowSubtitle}>
-          {org.owner_email ?? 'Sans propriétaire'} · {org.plan_name} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
-          {org.private_modules_count > 0 ? ` · ${org.private_modules_count} module${org.private_modules_count > 1 ? 's' : ''} privé${org.private_modules_count > 1 ? 's' : ''}` : ''}
-        </Text>
-        {line ? <Text style={styles.rowBillingLine}>{line}</Text> : null}
+        <Text style={styles.detailFieldLabel}>{label}</Text>
+        <Text style={styles.detailFieldValue}>{value}</Text>
       </View>
-      <PaymentStatusIcon status={billing} />
-      <AdminOrgStatusPill org={org} />
-      <Feather name="chevron-right" size={18} color={colors.textMuted} />
-    </Pressable>
+    </View>
+  );
+}
+
+// The card expands in place (address, contact, card on file, when it was
+// created) instead of every glance requiring a trip to the full detail
+// page — that page still exists for actions (grant a trial, toggle
+// modules), reached via "Voir le détail complet" at the bottom of the panel.
+function OrgCard({
+  org,
+  billing,
+  expanded,
+  onToggle,
+  onOpenDetail,
+}: {
+  org: AdminOrganizationSummary;
+  billing: AdminOrgBillingStatus | undefined;
+  expanded: boolean;
+  onToggle: () => void;
+  onOpenDetail: () => void;
+}) {
+  const line = billingLine(billing);
+  const address = [org.street, [org.postal_code, org.locality].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const card = billing?.card_brand && billing.card_last4 ? `${CARD_BRAND_LABEL[billing.card_brand] ?? billing.card_brand} •••• ${billing.card_last4}` : null;
+
+  return (
+    <View style={[styles.card, org.is_internal && styles.rowInternal]}>
+      <Pressable style={styles.row} onPress={onToggle}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.rowTitleLine}>
+            <Text style={styles.rowTitle}>{org.name}</Text>
+            {org.is_internal && org.internal_label ? <InternalTag label={org.internal_label} /> : null}
+          </View>
+          <Text style={styles.rowSubtitle}>
+            {org.owner_email ?? 'Sans propriétaire'} · {org.plan_name} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
+            {org.private_modules_count > 0 ? ` · ${org.private_modules_count} module${org.private_modules_count > 1 ? 's' : ''} privé${org.private_modules_count > 1 ? 's' : ''}` : ''}
+          </Text>
+          {line ? <Text style={styles.rowBillingLine}>{line}</Text> : null}
+        </View>
+        <PaymentStatusIcon status={billing} />
+        <AdminOrgStatusPill org={org} />
+        <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+      </Pressable>
+
+      {expanded ? (
+        <View style={styles.detailPanel}>
+          <View style={styles.detailGrid}>
+            <DetailField icon="map-pin" label="Adresse" value={address || '—'} />
+            <DetailField icon="mail" label="E-mail entreprise" value={org.email ?? '—'} />
+            <DetailField icon="phone" label="Téléphone" value={org.phone ?? '—'} />
+            <DetailField icon="credit-card" label="Carte enregistrée" value={card ?? 'Aucune'} />
+            <DetailField icon="calendar" label="Créée le" value={formatDateShort(org.created_at)} />
+            <DetailField icon="hash" label="Identifiant" value={org.id} />
+          </View>
+          <Pressable style={styles.openDetailLink} onPress={onOpenDetail}>
+            <Text style={styles.openDetailLinkText}>Voir le détail complet</Text>
+            <Feather name="arrow-right" size={14} color={colors.primary} />
+          </Pressable>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -128,6 +180,16 @@ export default function AdminOrganizationsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Record<string, AdminOrgBillingStatus>>({});
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  function toggleExpanded(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const load = useCallback(async (query: string) => {
     setLoading(true);
@@ -236,7 +298,13 @@ export default function AdminOrganizationsList() {
             data={filteredRows}
             keyExtractor={(o) => o.id}
             renderItem={({ item }) => (
-              <Row org={item} billing={billing[item.id]} onPress={() => router.push(`/(admin)/organizations/${item.id}` as any)} />
+              <OrgCard
+                org={item}
+                billing={billing[item.id]}
+                expanded={expandedIds.has(item.id)}
+                onToggle={() => toggleExpanded(item.id)}
+                onOpenDetail={() => router.push(`/(admin)/organizations/${item.id}` as any)}
+              />
             )}
             ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
             scrollEnabled={false}
@@ -330,19 +398,69 @@ const styles = StyleSheet.create({
   filterChipTextActive: {
     color: '#fff',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
+  card: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
+    overflow: 'hidden',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
   rowInternal: {
     opacity: 0.55,
+  },
+  detailPanel: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  detailGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+  },
+  detailField: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    minWidth: 180,
+    flexGrow: 1,
+    flexBasis: '45%',
+  },
+  detailFieldLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  detailFieldValue: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    marginTop: 1,
+  },
+  openDetailLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  openDetailLinkText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
   },
   rowTitleLine: {
     flexDirection: 'row',
