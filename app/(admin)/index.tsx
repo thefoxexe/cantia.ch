@@ -6,6 +6,7 @@ import { AdminErrorBanner } from '../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../components/AdminRefreshButton';
 import { GrowthChart } from '../../components/GrowthChart';
 import { CashCollectedChart } from '../../components/CashCollectedChart';
+import { TrialForecast } from '../../components/TrialForecast';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { useAdminData } from '../../lib/adminDataContext';
 import type { AdminRevenueOverview } from '../../lib/types';
@@ -68,7 +69,7 @@ function StatTile({ label, value, icon, accent, hint }: { label: string; value: 
 // Abonnements, traffic and shortcuts were cut: this screen answers one
 // question only, "is the business growing," at a glance.
 export default function AdminDashboard() {
-  const { stats, overview, refreshing, error, newSignal, refresh } = useAdminData();
+  const { stats, overview, trialForecast, refreshing, error, newSignal, refresh } = useAdminData();
 
   // Real, not estimated: the sum of actual daily signups over the last 7
   // timeseries points — never a percentage derived from small counts (a
@@ -124,6 +125,9 @@ export default function AdminDashboard() {
             </>
           ) : null}
         </View>
+
+        <SectionHeading title="Prévisions" subtitle="Essais en cours, triés par date de fin, avec le montant réel qui sera facturé à la conversion." />
+        <TrialForecast rows={trialForecast} />
 
         {overview ? (
           <>
