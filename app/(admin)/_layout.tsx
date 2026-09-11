@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../../lib/auth-context';
 import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { AdminDataProvider, useAdminData } from '../../lib/adminDataContext';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 
 // "Comptes" (individual users) is deliberately not a top-level destination —
@@ -41,11 +42,6 @@ function activeHrefFor(pathname: string): string | null {
 export default function AdminLayout() {
   const { session, isPlatformAdmin, loading, signOut } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
-  const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  const isDesktop = width >= breakpoints.tablet;
-  const activeHref = activeHrefFor(pathname);
 
   useEffect(() => {
     if (loading) return;
@@ -58,6 +54,30 @@ export default function AdminLayout() {
 
   if (loading || !session || !isPlatformAdmin) {
     return <LoadingScreen label="Vérification des accès…" />;
+  }
+
+  // The dashboard's own numbers (MRR, ARR, growth…) are prefetched here,
+  // once per login/app-resume, behind one full-platform loading screen —
+  // see AdminNavShell below — instead of the dashboard popping its own
+  // spinner every time you land back on it.
+  return (
+    <AdminDataProvider>
+      <AdminNavShell signOut={signOut} />
+    </AdminDataProvider>
+  );
+}
+
+function AdminNavShell({ signOut }: { signOut: () => void }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isDesktop = width >= breakpoints.tablet;
+  const activeHref = activeHrefFor(pathname);
+  const { loading: dataLoading } = useAdminData();
+
+  if (dataLoading) {
+    return <LoadingScreen label="Calcul en cours… récupération des données" />;
   }
 
   if (isDesktop) {

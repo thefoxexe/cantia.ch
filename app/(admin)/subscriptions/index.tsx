@@ -8,10 +8,10 @@ import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
-import { GrowthChart } from '../../../components/GrowthChart';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { getOrgBillingStatuses, getRevenueOverview, listOrganizations } from '../../../lib/api/admin';
-import type { AdminOrgBillingStatus, AdminOrganizationSummary, AdminRevenueOverview } from '../../../lib/types';
+import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
+import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
+import type { AdminOrgBillingStatus, AdminOrganizationSummary } from '../../../lib/types';
 
 const PAGE_SIZE = 50;
 
@@ -20,210 +20,27 @@ function formatDate(iso: string | null): string {
   return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function formatChf(amount: number): string {
-  return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 }).format(amount);
-}
+// Deliberately just lists + counts — the money (MRR, ARR, cash collected,
+// growth) all lives on the Dashboard now, one place, so this screen never
+// repeats the same figure worded a second way. This page answers one
+// question only: "who's on what, and how many."
+const STATUS_FILTERS: { key: OrgStatusBucket | null; label: string }[] = [
+  { key: null, label: 'Toutes' },
+  { key: 'paid', label: 'Payant' },
+  { key: 'trialing', label: 'Essai' },
+  { key: 'canceled', label: 'Résiliées / archivées' },
+  { key: 'past_due', label: 'Paiement en retard' },
+  { key: 'complimentary', label: 'Offert' },
+  { key: 'plan_selected', label: 'Plan choisi' },
+  { key: 'incomplete', label: 'Inscription incomplète' },
+];
 
-function RevenueTile({
-  label,
-  value,
-  icon,
-  accent,
-  meta,
-}: {
-  label: string;
-  value: string;
-  icon: keyof typeof Feather.glyphMap;
-  accent?: string;
-  meta?: string;
-}) {
+function StatusCountTile({ label, count, active, onPress }: { label: string; count: number; active: boolean; onPress: () => void }) {
   return (
-    <View style={styles.tile}>
-      <View style={[styles.tileIcon, accent ? { backgroundColor: `${accent}22` } : null]}>
-        <Feather name={icon} size={16} color={accent ?? colors.primary} />
-      </View>
-      <Text style={[styles.tileValue, accent ? { color: accent } : null]}>{value}</Text>
-      <Text style={styles.tileLabel}>{label}</Text>
-      {meta ? <Text style={styles.tileMeta}>{meta}</Text> : null}
-    </View>
-  );
-}
-
-function SectionHeading({ title, subtitle }: { title: string; subtitle?: string }) {
-  return (
-    <View style={{ marginTop: spacing.xxl, marginBottom: spacing.md }}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {subtitle ? <Text style={styles.sectionSubtitle}>{subtitle}</Text> : null}
-    </View>
-  );
-}
-
-// The one number a founder actually opens this page to check, promoted out
-// of the tile grid entirely — everything else on this screen explains or
-// qualifies this figure, so it reads as the headline, not as one card among
-// a dozen identical ones (the previous "wall of same-size tiles" is what
-// made this screen hard to parse at a glance).
-function MrrHero({ overview }: { overview: AdminRevenueOverview }) {
-  const netUp = overview.net_mrr_this_month_chf >= 0;
-  return (
-    <View style={styles.hero}>
-      <Text style={styles.heroLabel}>Revenu récurrent mensuel (MRR)</Text>
-      <Text style={styles.heroValue}>{formatChf(overview.mrr_active_chf)}</Text>
-      <View style={styles.heroMetaRow}>
-        <View style={[styles.heroDelta, netUp ? styles.heroDeltaUp : styles.heroDeltaDown]}>
-          <Feather name={netUp ? 'arrow-up-right' : 'arrow-down-right'} size={12} color={netUp ? colors.success : colors.danger} />
-          <Text style={[styles.heroDeltaText, { color: netUp ? colors.success : colors.danger }]}>
-            {netUp ? '+' : '−'}
-            {formatChf(Math.abs(overview.net_mrr_this_month_chf))} ce mois
-          </Text>
-        </View>
-        <Text style={styles.heroSub}>
-          ARR {formatChf(overview.arr_chf)} · {overview.active_count} client{overview.active_count > 1 ? 's' : ''} payant{overview.active_count > 1 ? 's' : ''}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-// Aggregate numbers come straight from Stripe (via admin-billing-overview),
-// not guessed from local plan prices — a trialing sub, a complimentary
-// lifetime-free grant, or an org that never converted all show up correctly
-// rather than as full list-price revenue that was never actually collected.
-// Laid out in three honest tiers: money already in the bank, real recurring
-// revenue from paying customers, and money that either isn't confirmed yet
-// (trials) or will never come (complimentary accounts) — never blended.
-function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueOverview | null; loading: boolean; error: string | null }) {
-  const [showDetails, setShowDetails] = useState(false);
-
-  if (loading) return <Text style={styles.emptyText}>Calcul du CA et du MRR auprès de Stripe…</Text>;
-  if (error) return <AdminErrorBanner message={error} />;
-  if (!overview) return null;
-
-  // Logo/revenu churn du mois : résiliations / (payants restants + ceux
-  // partis ce mois), soit la base de payants telle qu'elle était en début
-  // de mois — pas besoin d'un instantané historique séparé pour ça.
-  const logoBase = overview.active_count + overview.churned_count_this_month;
-  const logoChurnPct = logoBase > 0 ? (overview.churned_count_this_month / logoBase) * 100 : 0;
-  const revenueBase = overview.mrr_active_chf + overview.churned_mrr_this_month_chf;
-  const revenueChurnPct = revenueBase > 0 ? (overview.churned_mrr_this_month_chf / revenueBase) * 100 : 0;
-
-  return (
-    <>
-      <MrrHero overview={overview} />
-
-      <SectionHeading title="Argent réellement encaissé" subtitle="Factures Stripe effectivement payées — pas une projection." />
-      <View style={styles.grid}>
-        <RevenueTile label="Encaissé ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" accent={colors.success} />
-        <RevenueTile label="Encaissé au total" value={formatChf(overview.ca_total_chf)} icon="dollar-sign" accent={colors.success} />
-      </View>
-
-      <SectionHeading title="Mouvement du MRR ce mois" />
-      <View style={styles.grid}>
-        <RevenueTile label="Nouveau MRR" value={`+${formatChf(overview.new_mrr_this_month_chf)}`} icon="arrow-up-right" accent={colors.success} />
-        <RevenueTile
-          label="MRR perdu (résiliations)"
-          value={overview.churned_mrr_this_month_chf > 0 ? `−${formatChf(overview.churned_mrr_this_month_chf)}` : formatChf(0)}
-          icon="arrow-down-right"
-          accent={overview.churned_mrr_this_month_chf > 0 ? colors.danger : undefined}
-          meta={overview.churned_count_this_month > 0 ? `${overview.churned_count_this_month} résiliation${overview.churned_count_this_month > 1 ? 's' : ''}` : undefined}
-        />
-      </View>
-
-      <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés — filtrable par période." />
-      <GrowthChart points={overview.timeseries} />
-
-      <Pressable style={styles.detailsToggle} onPress={() => setShowDetails((v) => !v)}>
-        <Text style={styles.detailsToggleText}>{showDetails ? 'Masquer les détails' : 'Afficher plus de détails'}</Text>
-        <Feather name={showDetails ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
-      </Pressable>
-
-      {showDetails ? (
-        <>
-          <SectionHeading
-            title="Résiliations"
-            subtitle="Ce qui est déjà parti ce mois, en taux plutôt qu'en compte brut — et ce qui est déjà programmé pour bientôt."
-          />
-          <View style={styles.grid}>
-            <RevenueTile
-              label="Taux de résiliation (clients)"
-              value={`${logoChurnPct.toFixed(1)}%`}
-              icon="user-x"
-              accent={logoChurnPct > 0 ? colors.danger : colors.success}
-              meta={`sur ${logoBase} client${logoBase > 1 ? 's' : ''} payant${logoBase > 1 ? 's' : ''} en début de mois`}
-            />
-            <RevenueTile
-              label="Taux de résiliation (revenu)"
-              value={`${revenueChurnPct.toFixed(1)}%`}
-              icon="trending-down"
-              accent={revenueChurnPct > 0 ? colors.danger : colors.success}
-              meta="du MRR détenu en début de mois"
-            />
-            <RevenueTile
-              label="Résiliations programmées"
-              value={String(overview.scheduled_cancellations_count)}
-              icon="alert-triangle"
-              accent={overview.scheduled_cancellations_count > 0 ? colors.warning : colors.success}
-              meta={
-                overview.scheduled_cancellations_count > 0
-                  ? "actifs ou en essai, déjà annulés pour la fin de leur période"
-                  : 'Aucune résiliation en attente'
-              }
-            />
-          </View>
-
-          <SectionHeading title="Pas encore de l'argent" subtitle="Essais en cours et comptes gratuits à vie — pour savoir ce qui pourrait rentrer, et ce qui ne rentrera jamais." />
-          <View style={styles.grid}>
-            <RevenueTile label="MRR en attente (essais)" value={formatChf(overview.mrr_trialing_chf)} icon="clock" accent={colors.warning} meta={`${overview.trialing_count} en essai`} />
-            <RevenueTile label="Gratuit à vie (code promo)" value={String(overview.complimentary_count)} icon="gift" accent={colors.textMuted} meta="Jamais compté dans le MRR" />
-          </View>
-          {overview.complimentary_accounts.length > 0 ? (
-            <View style={styles.list}>
-              {overview.complimentary_accounts.map((acc) => (
-                <View key={acc.id} style={[styles.breakdownRow, styles.complimentaryRow]}>
-                  <Text style={styles.breakdownName}>{acc.name}</Text>
-                  <Text style={styles.breakdownMeta}>Code « {acc.code} » — 100% offert</Text>
-                </View>
-              ))}
-            </View>
-          ) : null}
-
-          {overview.by_plan.length > 0 ? (
-            <>
-              <SectionHeading title="MRR par plan" />
-              <View style={styles.list}>
-                {overview.by_plan.map((p) => (
-                  <View key={p.plan_id} style={styles.breakdownRow}>
-                    <Text style={styles.breakdownName}>{p.plan_name}</Text>
-                    <Text style={styles.breakdownMeta}>
-                      {p.active_count} payant{p.active_count > 1 ? 's' : ''}
-                      {p.trialing_count > 0 ? ` · ${p.trialing_count} en essai` : ''}
-                    </Text>
-                    <Text style={styles.breakdownValue}>{formatChf(p.mrr_chf)}</Text>
-                  </View>
-                ))}
-              </View>
-            </>
-          ) : null}
-
-          <SectionHeading title="Codes promo" subtitle="Qui les a utilisés, converti ou non — indépendamment du calcul de MRR ci-dessus." />
-          <View style={styles.list}>
-            {overview.promo_codes.length === 0 ? (
-              <Text style={styles.emptyText}>Aucun code promo utilisé à ce jour.</Text>
-            ) : (
-              overview.promo_codes.map((code) => (
-                <View key={code.code} style={styles.breakdownRow}>
-                  <Text style={styles.breakdownName}>{code.code}</Text>
-                  <Text style={styles.breakdownMeta}>
-                    {code.org_count} entreprise{code.org_count > 1 ? 's' : ''} · {code.active_count} payant{code.active_count > 1 ? 's' : ''}
-                    {code.trialing_count > 0 ? ` · ${code.trialing_count} en essai` : ''}
-                  </Text>
-                </View>
-              ))
-            )}
-          </View>
-        </>
-      ) : null}
-    </>
+    <Pressable style={[styles.countTile, active && styles.countTileActive]} onPress={onPress}>
+      <Text style={[styles.countValue, active && styles.countValueActive]}>{count}</Text>
+      <Text style={[styles.countLabel, active && styles.countLabelActive]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -233,15 +50,13 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
 export default function AdminSubscriptionsList() {
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<OrgStatusBucket | null>(null);
   const [planFilter, setPlanFilter] = useState<string | null>(null);
   const [rows, setRows] = useState<AdminOrganizationSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Record<string, AdminOrgBillingStatus>>({});
-  const [overview, setOverview] = useState<AdminRevenueOverview | null>(null);
-  const [overviewLoading, setOverviewLoading] = useState(true);
-  const [overviewError, setOverviewError] = useState<string | null>(null);
 
   const load = useCallback(async (query: string) => {
     setLoading(true);
@@ -253,30 +68,29 @@ export default function AdminSubscriptionsList() {
     getOrgBillingStatuses(r.map((o) => o.id)).then(({ statuses }) => setBilling(statuses));
   }, []);
 
-  const loadOverview = useCallback(async () => {
-    setOverviewLoading(true);
-    const { overview: o, error: err } = await getRevenueOverview();
-    setOverview(o);
-    setOverviewError(err);
-    setOverviewLoading(false);
-  }, []);
-
   useEffect(() => {
     const timer = setTimeout(() => load(search), 250);
     return () => clearTimeout(timer);
   }, [search, load]);
 
-  useEffect(() => {
-    loadOverview();
-  }, [loadOverview]);
-
-  function refreshAll() {
-    load(search);
-    loadOverview();
-  }
+  // Computed over the currently loaded page (search-filtered, up to
+  // PAGE_SIZE) — same honest-count caveat as the Entreprises list.
+  const countsByBucket = useMemo(() => {
+    const counts = new Map<OrgStatusBucket, number>();
+    for (const o of rows) {
+      const bucket = getOrgStatus(o).bucket;
+      counts.set(bucket, (counts.get(bucket) ?? 0) + 1);
+    }
+    return counts;
+  }, [rows]);
 
   const plans = useMemo(() => Array.from(new Map(rows.map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
-  const filteredRows = useMemo(() => (planFilter ? rows.filter((o) => o.plan_id === planFilter) : rows), [rows, planFilter]);
+  const filteredRows = useMemo(() => {
+    let base = rows;
+    if (statusFilter) base = base.filter((o) => getOrgStatus(o).bucket === statusFilter);
+    if (planFilter) base = base.filter((o) => o.plan_id === planFilter);
+    return base;
+  }, [rows, statusFilter, planFilter]);
 
   return (
     // style={{ flex: 1 }} is required here: a bare <ScrollView> inside this
@@ -287,12 +101,25 @@ export default function AdminSubscriptionsList() {
       <Container style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Abonnements {total > 0 ? `(${total})` : ''}</Text>
-          <AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />
+          <AdminRefreshButton onPress={() => load(search)} loading={loading} />
         </View>
 
-        <RevenueOverview overview={overview} loading={overviewLoading} error={overviewError} />
+        {/* flexWrap, not a horizontal ScrollView — a horizontal scroller
+            nested inside this page's outer vertical ScrollView captured the
+            touch/wheel gesture wherever it started, locking the page
+            mid-scroll (the same bug the Entreprises list had). */}
+        <View style={styles.countRow}>
+          {STATUS_FILTERS.map((f) => (
+            <StatusCountTile
+              key={f.label}
+              label={f.label}
+              count={f.key ? countsByBucket.get(f.key) ?? 0 : total}
+              active={statusFilter === f.key}
+              onPress={() => setStatusFilter(f.key)}
+            />
+          ))}
+        </View>
 
-        <SectionHeading title="Entreprises" />
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
         {plans.length > 1 ? (
           <View style={styles.planFilterRow}>
@@ -363,155 +190,42 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
-  hero: {
-    backgroundColor: colors.text,
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  heroLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: 'rgba(255,255,255,0.65)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  heroValue: {
-    fontSize: 44,
-    fontWeight: '800',
-    color: '#fff',
-    fontVariant: ['tabular-nums'],
-    marginTop: spacing.xs,
-  },
-  heroMetaRow: {
+  countRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginTop: spacing.md,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
-  heroDelta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-  },
-  heroDeltaUp: {
-    backgroundColor: 'rgba(76, 175, 80, 0.18)',
-  },
-  heroDeltaDown: {
-    backgroundColor: 'rgba(220, 76, 76, 0.18)',
-  },
-  heroDeltaText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-  },
-  heroSub: {
-    fontSize: fontSize.xs,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-  },
-  detailsToggle: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    marginTop: spacing.xl,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  detailsToggleText: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  tile: {
-    minWidth: 160,
+  countTile: {
+    minWidth: 96,
     flexGrow: 1,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  tileIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
+  countTileActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
-  tileValue: {
-    fontSize: fontSize.xxl,
+  countValue: {
+    fontSize: fontSize.lg,
     fontWeight: '800',
     color: colors.text,
     fontVariant: ['tabular-nums'],
   },
-  tileLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    fontWeight: '500',
+  countValueActive: {
+    color: '#fff',
   },
-  tileMeta: {
+  countLabel: {
     fontSize: 11,
     color: colors.textMuted,
     fontWeight: '600',
   },
-  sectionTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  sectionSubtitle: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
-    maxWidth: 560,
-  },
-  breakdownRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  complimentaryRow: {
-    opacity: 0.7,
-  },
-  breakdownName: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    minWidth: 100,
-  },
-  breakdownMeta: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
-  breakdownValue: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primary,
-    fontVariant: ['tabular-nums'],
+  countLabelActive: {
+    color: 'rgba(255,255,255,0.85)',
   },
   list: {
     gap: spacing.sm,
@@ -577,10 +291,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
     fontWeight: '600',
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginBottom: spacing.lg,
   },
 });
