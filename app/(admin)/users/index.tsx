@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
+import { Container, EmptyState, Field, LoadingScreen, PageHeader } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -32,7 +32,11 @@ function MiniStat({ label, value, icon, accent }: { label: string; value: number
 
 export default function AdminUsersList() {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  // Reached from an org detail page's member row ("Voir dans Comptes"),
+  // not from the main nav anymore — q pre-fills the search so the one
+  // member you clicked through for is right there on arrival.
+  const { q } = useLocalSearchParams<{ q?: string }>();
+  const [search, setSearch] = useState(q ?? '');
   const [rows, setRows] = useState<AdminUserSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -68,10 +72,12 @@ export default function AdminUsersList() {
     // the page just silently doesn't scroll once content overflows.
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Utilisateurs {total > 0 ? `(${total})` : ''}</Text>
-          <AdminRefreshButton onPress={() => load(search)} loading={loading} />
-        </View>
+        <PageHeader
+          title={`Comptes ${total > 0 ? `(${total})` : ''}`}
+          backTo="/(admin)/organizations"
+          right={<AdminRefreshButton onPress={() => load(search)} loading={loading} />}
+        />
+        <View style={{ height: spacing.md }} />
         {!loading && rows.length > 0 ? (
           <View style={styles.miniGrid}>
             <MiniStat label="Actifs (7 derniers jours)" value={activeLast7d} icon="activity" accent={colors.success} />
@@ -113,17 +119,6 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
   },
   miniGrid: {
     flexDirection: 'row',

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
+import * as Linking from 'expo-linking';
 import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
@@ -51,6 +53,7 @@ function formatChf(amount: number): string {
 
 export default function AdminOrganizationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const [detail, setDetail] = useState<AdminOrganizationDetail | null>(null);
   const [allModules, setAllModules] = useState<AdminModuleSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,6 +142,14 @@ export default function AdminOrganizationDetailScreen() {
   if (!detail) return <EmptyState title="Entreprise introuvable" />;
 
   const org = detail.organization;
+  const owner = detail.members.find((m) => m.role === 'owner');
+  const contactEmail = owner?.email ?? org.email;
+
+  async function copyOrgId() {
+    await Clipboard.setStringAsync(org.id);
+    setFeedback('✓ Identifiant copié');
+    setTimeout(() => setFeedback(null), 2000);
+  }
 
   return (
     // style={{ flex: 1 }} is required here: a bare <ScrollView> inside this
@@ -148,6 +159,31 @@ export default function AdminOrganizationDetailScreen() {
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
         <PageHeader title={org.name} backTo="/(admin)/organizations" />
+
+        <View style={styles.actionsRow}>
+          <Pressable style={styles.actionButton} onPress={copyOrgId}>
+            <Feather name="hash" size={13} color={colors.text} />
+            <Text style={styles.actionButtonText}>Copier l'ID</Text>
+          </Pressable>
+          {contactEmail ? (
+            <Pressable
+              style={styles.actionButton}
+              onPress={() => Linking.openURL(`mailto:${contactEmail}`).catch(() => {})}
+            >
+              <Feather name="mail" size={13} color={colors.text} />
+              <Text style={styles.actionButtonText}>Contacter le propriétaire</Text>
+            </Pressable>
+          ) : null}
+          {org.stripe_customer_id ? (
+            <Pressable
+              style={styles.actionButton}
+              onPress={() => Linking.openURL(`https://dashboard.stripe.com/customers/${org.stripe_customer_id}`).catch(() => {})}
+            >
+              <Feather name="external-link" size={13} color={colors.text} />
+              <Text style={styles.actionButtonText}>Voir dans Stripe</Text>
+            </Pressable>
+          ) : null}
+        </View>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -273,7 +309,11 @@ export default function AdminOrganizationDetailScreen() {
         <Text style={styles.sectionTitle}>Membres ({detail.members.length})</Text>
         <View style={styles.list}>
           {detail.members.map((m) => (
-            <View key={m.user_id} style={styles.memberRow}>
+            <Pressable
+              key={m.user_id}
+              style={styles.memberRow}
+              onPress={() => router.push(`/(admin)/users?q=${encodeURIComponent(m.email)}` as any)}
+            >
               <View style={{ flex: 1 }}>
                 <Text style={styles.memberName}>{m.full_name || m.email}</Text>
                 <Text style={styles.memberSubtitle}>
@@ -281,7 +321,8 @@ export default function AdminOrganizationDetailScreen() {
                 </Text>
               </View>
               <Text style={styles.memberMeta}>Dernière connexion : {m.last_sign_in_at ? formatDateTime(m.last_sign_in_at) : 'jamais'}</Text>
-            </View>
+              <Feather name="chevron-right" size={16} color={colors.textMuted} />
+            </Pressable>
           ))}
         </View>
 
@@ -332,6 +373,29 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  actionButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
   },
   feedback: {
     backgroundColor: colors.successSoft,

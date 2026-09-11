@@ -8,13 +8,16 @@ import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 
+// "Comptes" (individual users) is deliberately not a top-level destination —
+// entreprises are what matters day to day, a member is reached from its
+// org's detail page instead (see the "Membres" row there). The route itself
+// still exists and still works, just not in this nav.
 const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { href: '/(admin)', label: 'Dashboard', icon: 'home' },
   { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase' },
-  { href: '/(admin)/users', label: 'Comptes', icon: 'users' },
   { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
   { href: '/(admin)/subscriptions', label: 'Abos', icon: 'credit-card' },
-  { href: '/(admin)/newsletter', label: 'Newsletter', icon: 'mail' },
+  { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail' },
   { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
   { href: '/(admin)/logs', label: 'Logs', icon: 'list' },
 ];

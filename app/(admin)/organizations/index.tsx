@@ -25,6 +25,18 @@ function formatChfShort(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
 }
 
+// Age of the org record at a glance — apart a brand-new signup from an
+// account that's been around for two years, without opening every card to
+// check created_at.
+function formatTenure(iso: string): string {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / (24 * 3600 * 1000));
+  if (days < 1) return "Aujourd'hui";
+  if (days < 30) return `${days} j`;
+  if (days < 365) return `${Math.round(days / 30)} mois`;
+  const years = days / 365;
+  return `${years.toFixed(years < 2 ? 1 : 0)} an${years >= 2 ? 's' : ''}`;
+}
+
 // The one line under a row's subtitle that answers "when, and how much" —
 // the actual gap this was built for: the org list showed a bare payment
 // icon with no date, so telling a trial about to convert apart from one
@@ -141,6 +153,7 @@ function OrgCard({
           <Text style={styles.rowSubtitle}>
             {org.owner_email ?? 'Sans propriétaire'} · {org.plan_name} · {org.member_count} membre{org.member_count > 1 ? 's' : ''}
             {org.private_modules_count > 0 ? ` · ${org.private_modules_count} module${org.private_modules_count > 1 ? 's' : ''} privé${org.private_modules_count > 1 ? 's' : ''}` : ''}
+            {' · '}Créée il y a {formatTenure(org.created_at)}
           </Text>
           {line ? <Text style={styles.rowBillingLine}>{line}</Text> : null}
         </View>
