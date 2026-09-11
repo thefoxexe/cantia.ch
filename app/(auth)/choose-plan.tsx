@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
@@ -8,6 +8,7 @@ import { startCheckout } from '../../lib/api/billing';
 import { openCheckoutUrl } from '../../lib/openUrl';
 import { Button, Card, Screen, Switch } from '../../components/ui';
 import { getAppLocale, useTranslation } from '../../lib/translations';
+import { planHref } from '../../lib/appHost';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 
@@ -172,6 +173,13 @@ function PlanCard({
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
       {PLAN_TAGLINE[plan.id] ? <Text style={styles.tagline}>{PLAN_TAGLINE[plan.id]}</Text> : null}
+      <Pressable
+        onPress={() => Linking.openURL(planHref(plan.id)).catch(() => {})}
+        hitSlop={6}
+        style={styles.learnMoreLink}
+      >
+        <Text style={styles.learnMoreLinkText}>{t('authChoosePlan.learnMore')}</Text>
+      </Pressable>
       <View style={styles.priceRow}>
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
@@ -351,6 +359,15 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginTop: 2,
     marginBottom: spacing.xs,
+  },
+  learnMoreLink: {
+    alignSelf: 'flex-start',
+    marginBottom: spacing.sm,
+  },
+  learnMoreLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
   },
   priceRow: {
     flexDirection: 'row',

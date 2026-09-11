@@ -102,6 +102,23 @@ export function contactHref(): string {
   return `https://cantia.ch${path}`;
 }
 
+// Slugs for the dedicated per-plan marketing pages (app/plans/*.tsx),
+// keyed by the `plans.id` value from Supabase — kept here rather than in
+// the `plans` table itself since it's purely a URL concern, not data.
+const PLAN_SLUGS: Record<string, string> = { solo: 'essentiel', equipe: 'equipe', pro: 'entreprise' };
+
+// Href for a plan's dedicated marketing page ("En savoir plus" from a
+// pricing card), cross-host the same way contactHref() is: from inside the
+// app (choose-plan) this must reach the marketing build, since that's the
+// only place these pages are served from.
+export function planHref(planId: string): string {
+  const slug = PLAN_SLUGS[planId] ?? planId;
+  const locale = getAppLocale();
+  const path = locale === 'de' ? `/de/plans/${slug}` : locale === 'it' ? `/it/plans/${slug}` : `/plans/${slug}`;
+  if (isMarketingHost()) return path;
+  return `https://cantia.ch${path}`;
+}
+
 // Every /de/* or /it/* route module calls forceLocale(...) at module scope,
 // but each of those web routes is code-split (dynamically imported the
 // first time it's actually navigated to) — so that call fires exactly once,

@@ -8,7 +8,7 @@ import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
-import { authHref } from '../lib/appHost';
+import { authHref, planHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
 // The single pricing block reused by the homepage's /#pricing anchor and
@@ -19,6 +19,7 @@ import type { Plan } from '../lib/types';
 export function PricingSection({ compact }: { compact?: boolean }) {
   const t = useMarketingDict();
   const { t: tr } = useTranslation();
+  const PLAN_HIGHLIGHTS = tr('authChoosePlan.planHighlights', { returnObjects: true }) as Record<string, string[]>;
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
@@ -83,17 +84,19 @@ export function PricingSection({ compact }: { compact?: boolean }) {
                       </Text>
                     ) : null}
                     <View style={styles.features}>
-                      <PriceFeature dark={dark} text={tr('pricingSection.storage', { amount: (p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0) })} />
+                      {(PLAN_HIGHLIGHTS[p.id] ?? []).map((text) => (
+                        <PriceFeature key={text} dark={dark} text={text} />
+                      ))}
                       <PriceFeature dark={dark} text={tr('pricingSection.membersUpTo', { count: p.max_members })} />
-                      <PriceFeature dark={dark} text={tr('pricingSection.unlimitedDevisFactures')} />
-                      <PriceFeature dark={dark} text={tr('pricingSection.planningRhTresorerie')} muted={!p.has_planning} included={p.has_planning} />
-                      <PriceFeature dark={dark} text={tr('pricingSection.bexioIntegration')} muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
-                      {p.max_ai_uses_per_month ? (
-                        <PriceFeature dark={dark} text={tr('pricingSection.aiAssistantQuota', { count: p.max_ai_uses_per_month })} />
-                      ) : null}
+                      <PriceFeature dark={dark} text={tr('pricingSection.storage', { amount: (p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0) })} />
                     </View>
+                    <Link href={planHref(p.id) as any} asChild>
+                      <Pressable style={styles.learnMoreLink} hitSlop={6}>
+                        <Text style={[styles.learnMoreLinkText, dark && styles.textOnDark]}>{tr('pricingSection.learnMore')}</Text>
+                      </Pressable>
+                    </Link>
                     <Link href={authHref('signup')} asChild>
-                      <Button title={t.pricing.paidCta} onPress={() => {}} variant={dark ? 'primary' : 'secondary'} style={{ marginTop: spacing.lg }} />
+                      <Button title={t.pricing.paidCta} onPress={() => {}} variant={dark ? 'primary' : 'secondary'} style={{ marginTop: spacing.sm }} />
                     </Link>
                   </View>
                 );
@@ -217,6 +220,8 @@ const styles = StyleSheet.create({
   period: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: 4 },
   yearlyNote: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: -spacing.xs },
   features: { gap: spacing.xs, marginTop: spacing.xs },
+  learnMoreLink: { marginTop: spacing.sm, alignSelf: 'flex-start' },
+  learnMoreLinkText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.primary },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   featureText: { fontSize: fontSize.sm, color: colors.text },
   featureTextMuted: { color: colors.textMuted },
