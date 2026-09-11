@@ -1,6 +1,19 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import Stripe from 'npm:stripe@17.5.0';
 
+// Same shared secret as dispatch-notification/bexio-cron-sync — see
+// 20260828140000_dispatch_secret_vault.sql. Calls the sibling edge function
+// directly rather than duplicating its email logic here.
+async function notifyTrialEnded(organizationId: string): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const dispatchSecret = Deno.env.get('DISPATCH_SECRET') ?? '';
+  await fetch(`${supabaseUrl}/functions/v1/send-trial-ended-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Dispatch-Secret': dispatchSecret },
+    body: JSON.stringify({ organization_id: organizationId }),
+  });
+}
+
 Deno.serve(async (req: Request) => {
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
@@ -85,6 +98,16 @@ Deno.serve(async (req: Request) => {
         const subscription = event.data.object as Stripe.Subscription;
         const organizationId = subscription.metadata?.organization_id;
         if (organizationId) {
+          // Was it a trial that never converted, or a real paying customer
+          // who churned? Only the former gets the trial-ended e-mail — read
+          // the status BEFORE overwriting it below.
+          const { data: orgBefore } = await admin
+            .from('organizations')
+            .select('subscription_status')
+            .eq('id', organizationId)
+            .maybeSingle();
+          const wasTrialing = orgBefore?.subscription_status === 'trialing';
+
           // No free plan to fall back to — cancelling locks the org out.
           // plan_id is cleared (not just plan_selected) so app/_layout.tsx's
           // gate, which now checks plan_id directly, sends them straight
@@ -99,6 +122,18 @@ Deno.serve(async (req: Request) => {
               subscription_status: 'canceled',
             })
             .eq('id', organizationId);
+
+          if (wasTrialing) {
+            // Awaited (the edge runtime can cut off unawaited work once the
+            // response is sent) but caught locally: a failure here must
+            // never make Stripe retry the whole webhook, which already
+            // succeeded.
+            try {
+              await notifyTrialEnded(organizationId);
+            } catch (err) {
+              console.error('notifyTrialEnded failed', err);
+            }
+          }
         }
         break;
       }
