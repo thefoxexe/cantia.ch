@@ -845,18 +845,6 @@ export interface NotificationPreference {
 export type ModuleVisibility = 'standard' | 'private' | 'experimental';
 export type ModuleStatus = 'active' | 'beta' | 'disabled';
 
-export interface PlatformModule {
-  id: string;
-  key: string;
-  name: string;
-  description: string | null;
-  category: string | null;
-  visibility: ModuleVisibility;
-  status: ModuleStatus;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface OrganizationModule {
   id: string;
   organization_id: string;
@@ -982,27 +970,6 @@ export interface AdminRevenueOverview {
   by_plan: AdminRevenuePlanBreakdown[];
   promo_codes: AdminRevenuePromoCode[];
   timeseries: AdminRevenueTimeseriesPoint[];
-}
-
-export interface AdminSiteTrafficTopPage {
-  path: string;
-  visits: number;
-}
-
-export interface AdminSiteTrafficPoint {
-  date: string;
-  visits: number;
-  unique_visitors: number;
-}
-
-export interface AdminSiteTrafficOverview {
-  visits_today: number;
-  visits_7d: number;
-  visits_30d: number;
-  unique_visitors_today: number;
-  unique_visitors_7d: number;
-  top_pages: AdminSiteTrafficTopPage[];
-  timeseries: AdminSiteTrafficPoint[];
 }
 
 export interface AdminOrganizationMember {

@@ -62,22 +62,6 @@ export async function createGhostEmployee(
   return { id: data.id, error: null };
 }
 
-export async function updateGhostEmployee(
-  id: string,
-  updates: { fullName: string; street: string | null; postalCode: string | null; locality: string | null },
-): Promise<{ error: string | null }> {
-  const { error } = await supabase
-    .from('payroll_ghost_employees')
-    .update({ full_name: updates.fullName.trim(), street: updates.street, postal_code: updates.postalCode, locality: updates.locality })
-    .eq('id', id);
-  return { error: error?.message ?? null };
-}
-
-export async function deactivateGhostEmployee(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from('payroll_ghost_employees').update({ active: false }).eq('id', id);
-  return { error: error?.message ?? null };
-}
-
 // ==========================================================================
 // Company catalogs — "types de travail", "types de frais", "types de
 // cotisation". Every org member can read the first two (they pick from

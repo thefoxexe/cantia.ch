@@ -6,8 +6,7 @@ export interface ChartPoint {
 // Catmull-Rom-to-Bezier smoothing (tension 1/6, the standard conversion) —
 // turns a jagged point-to-point polyline into a natural-looking curve
 // through every real data point (never approximated away, unlike a fitted
-// spline that can drift from the actual values). Shared by StatSparkline
-// and GrowthChart so every admin chart curves the same way.
+// spline that can drift from the actual values). Used by GrowthChart.
 export function buildSmoothPath(points: ChartPoint[]): string {
   if (points.length === 0) return '';
   if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;

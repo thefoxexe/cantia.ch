@@ -110,11 +110,6 @@ export async function addVoiceEntry(params: {
   return { error: error?.message ?? null, entry: data ?? null };
 }
 
-export async function deleteFeedEntry(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from('feed_entries').delete().eq('id', id);
-  return { error: error?.message ?? null };
-}
-
 export async function generateReportFromFeed(params: {
   organizationId: string;
   projectId: string;

@@ -8,10 +8,8 @@ import type {
   AdminOrganizationDetail,
   AdminOrganizationSummary,
   AdminRevenueOverview,
-  AdminSiteTrafficOverview,
   AdminTutorialChapter,
   AdminUserSummary,
-  PlatformModule,
   TutorialChapterStatus,
 } from '../types';
 
@@ -92,25 +90,6 @@ export async function listModules(): Promise<{ rows: AdminModuleSummary[]; error
   return { rows: err || !data ? [] : (data as AdminModuleSummary[]), error: err };
 }
 
-export async function upsertModule(input: {
-  key: string;
-  name: string;
-  description?: string | null;
-  category?: string | null;
-  visibility?: 'standard' | 'private' | 'experimental';
-  status?: 'active' | 'beta' | 'disabled';
-}): Promise<{ module: PlatformModule | null; error: string | null }> {
-  const { data, error } = await supabase.rpc('admin_upsert_module', {
-    module_key: input.key,
-    module_name: input.name,
-    module_description: input.description ?? null,
-    module_category: input.category ?? null,
-    module_visibility: input.visibility ?? 'private',
-    module_status: input.status ?? 'active',
-  });
-  return { module: (data as PlatformModule) ?? null, error: logRpcError('admin_upsert_module', error) };
-}
-
 export async function listUsers(
   search: string,
   limit = 50,
@@ -165,15 +144,6 @@ export async function grantTrial(organizationId: string): Promise<{ trialEnd: st
   });
   if (error) console.error('[admin] admin-billing-overview(grant_trial) failed:', error);
   return { trialEnd: data?.trial_end ?? null, error };
-}
-
-// cantia.ch pageviews, logged client-side by lib/siteAnalytics.ts — see the
-// migration for why this table has no SELECT policy at all (read-only via
-// this security-definer RPC, same is_platform_admin() gate as every other
-// admin_* call).
-export async function getSiteTraffic(): Promise<{ overview: AdminSiteTrafficOverview | null; error: string | null }> {
-  const { data, error } = await supabase.rpc('admin_site_traffic_overview');
-  return { overview: error ? null : (data as AdminSiteTrafficOverview), error: logRpcError('admin_site_traffic_overview', error) };
 }
 
 export async function listTutorialChapters(): Promise<{ rows: AdminTutorialChapter[]; error: string | null }> {

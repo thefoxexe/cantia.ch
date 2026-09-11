@@ -45,11 +45,6 @@ export async function updateClient(id: string, input: ClientInput): Promise<{ er
   return { error: error?.message ?? null };
 }
 
-export async function getClient(id: string): Promise<Client | null> {
-  const { data } = await supabase.from('clients').select('*').eq('id', id).maybeSingle();
-  return data ?? null;
-}
-
 // Journal de notes horodaté — remplace le champ clients.notes unique, qui
 // perdait l'historique à chaque écrasement.
 export async function listClientNotes(clientId: string): Promise<ClientNote[]> {
