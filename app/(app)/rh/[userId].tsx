@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -61,6 +61,16 @@ export default function PayrollProfileScreen() {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The error banner only ever renders in one place (near the deductions
+  // card, close to the top) but every export action on this long page —
+  // payslip, annual certificate, Lohnausweis — can set it too. Without this,
+  // hitting "Générer" from a button near the bottom of the page produces a
+  // failure with no visible feedback until scrolling all the way back up.
+  const scrollRef = useRef<ScrollView>(null);
+  const showError = useCallback((message: string) => {
+    setError(message);
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
 
   const [yearAnchor, setYearAnchor] = useState(() => new Date().getFullYear());
   const [annualSummary, setAnnualSummary] = useState<AnnualSalarySummary | null>(null);
@@ -168,11 +178,11 @@ export default function PayrollProfileScreen() {
     const { url, error: genError } = await generateSalaryCertificatePdf(employeeRef, yearAnchor);
     setExportingAnnual(false);
     if (genError || !url) {
-      setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
+      showError(genError ?? t('payrollProfile.pdfGenerationFailed'));
       return;
     }
     const { error: dlError } = await downloadFile(url, `${t('payrollProfile.salaryCertificateFilename', { name: memberName, year: yearAnchor })}.pdf`);
-    if (dlError) setError(dlError);
+    if (dlError) showError(dlError);
   }
 
   async function exportLohnausweis() {
@@ -181,11 +191,11 @@ export default function PayrollProfileScreen() {
     const { url, error: genError } = await generateLohnausweisPdf(employeeRef, yearAnchor);
     setExportingLohnausweis(false);
     if (genError || !url) {
-      setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
+      showError(genError ?? t('payrollProfile.pdfGenerationFailed'));
       return;
     }
     const { error: dlError } = await downloadFile(url, `${t('payrollProfile.lohnausweisFilename', { name: memberName, year: yearAnchor })}.pdf`);
-    if (dlError) setError(dlError);
+    if (dlError) showError(dlError);
   }
 
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
@@ -230,7 +240,7 @@ export default function PayrollProfileScreen() {
     );
     if (err) {
       setSaving(false);
-      setError(err);
+      showError(err);
       return;
     }
     for (const t of deductionTypes) {
@@ -253,11 +263,11 @@ export default function PayrollProfileScreen() {
     const { url, error: genError } = await generatePayslipPdf(employeeRef, rangeStart);
     setExporting(false);
     if (genError || !url) {
-      setError(genError ?? t('payrollProfile.pdfGenerationFailed'));
+      showError(genError ?? t('payrollProfile.pdfGenerationFailed'));
       return;
     }
     const { error: dlError } = await downloadFile(url, `${t('payrollProfile.payslipFilename', { name: memberName, month: monthLabel(monthAnchor) })}.pdf`);
-    if (dlError) setError(dlError);
+    if (dlError) showError(dlError);
   }
 
   if (loading) {
@@ -303,7 +313,7 @@ export default function PayrollProfileScreen() {
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
+        <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
           {isGhost ? (
             <Card style={styles.ghostBanner}>
               <Feather name="user-x" size={16} color={colors.textMuted} />
@@ -392,7 +402,12 @@ export default function PayrollProfileScreen() {
               </View>
             )}
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? (
+              <View style={styles.errorBanner}>
+                <Feather name="alert-triangle" size={15} color={colors.danger} />
+                <Text style={styles.errorBannerText}>{error}</Text>
+              </View>
+            ) : null}
             {error && error.includes('case du certificat') ? (
               <Button
                 title={t('payrollProfile.configureDeductionsButton')}
@@ -703,10 +718,20 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     width: 12,
   },
-  error: {
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  errorBannerText: {
+    flex: 1,
     color: colors.danger,
     fontSize: fontSize.sm,
-    marginTop: spacing.sm,
+    lineHeight: 19,
   },
   breakdownRows: {
     marginTop: spacing.sm,
