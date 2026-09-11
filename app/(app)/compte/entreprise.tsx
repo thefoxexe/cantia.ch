@@ -5,8 +5,9 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { isValidSwissIban } from '../../../lib/iban';
-import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES, TRADE_KEYS } from '../../../lib/trades';
@@ -27,9 +28,20 @@ export default function EntrepriseScreen() {
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
   const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
-  const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
+
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(handleSave);
+
+  // Wraps a setter so every keystroke also flags the form dirty — the
+  // load() effect below uses the bare setters directly, so restoring
+  // saved values on focus never falsely marks the form as edited.
+  function withDirty<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setter(v);
+      markDirty();
+    };
+  }
 
   // Best-effort autofill: only kicks in while the locality field is still
   // empty, so it never overwrites something the user already typed.
@@ -37,6 +49,7 @@ export default function EntrepriseScreen() {
     setPostalCode(value);
     const match = localityForNpa(value);
     if (match && !locality.trim()) setLocality(match);
+    markDirty();
   }
 
   const load = useCallback(async () => {
@@ -61,8 +74,7 @@ export default function EntrepriseScreen() {
   );
 
   async function handleSave() {
-    if (!organization) return;
-    setSaving(true);
+    if (!organization) return false;
     const ibanTrimmed = iban.trim();
     const validIban = !ibanTrimmed || isValidSwissIban(ibanTrimmed);
     await supabase
@@ -81,25 +93,23 @@ export default function EntrepriseScreen() {
         locale: docLocale,
       })
       .eq('id', organization.id);
-    setSaving(false);
     refreshOrganization();
-    showSavedCheckmark();
   }
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title={t('entreprise.title')} backTo="/(app)/compte" />
+          <PageHeader title={t('entreprise.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 
-          <Field label={t('entreprise.nameLabel')} value={name} onChangeText={setName} editable={isAdmin} />
+          <Field label={t('entreprise.nameLabel')} value={name} onChangeText={withDirty(setName)} editable={isAdmin} />
 
           <Text style={styles.fieldLabel}>{t('entreprise.tradeLabel')}</Text>
           <View style={styles.chips}>
             {TRADES.map((tr) => (
               <Pressable
                 key={tr}
-                onPress={() => isAdmin && setTrade(tr)}
+                onPress={() => isAdmin && withDirty(setTrade)(tr)}
                 disabled={!isAdmin}
                 style={[styles.chip, trade === tr && styles.chipActive, !isAdmin && styles.chipDisabled]}
               >
@@ -114,11 +124,12 @@ export default function EntrepriseScreen() {
           <SwissAddressField
             label={t('entreprise.streetLabel')}
             value={street}
-            onChangeText={setStreet}
+            onChangeText={withDirty(setStreet)}
             onSelectAddress={(addr) => {
               setStreet(addr.street);
               setPostalCode(addr.postalCode);
               setLocality(addr.locality);
+              markDirty();
             }}
             editable={isAdmin}
             placeholder={t('entreprise.streetPlaceholder')}
@@ -128,7 +139,7 @@ export default function EntrepriseScreen() {
               <Field label={t('entreprise.npaLabel')} value={postalCode} onChangeText={handlePostalCodeChange} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
             </View>
             <View style={styles.row2Item}>
-              <Field label={t('entreprise.localityLabel')} value={locality} onChangeText={setLocality} editable={isAdmin} placeholder="Lausanne" />
+              <Field label={t('entreprise.localityLabel')} value={locality} onChangeText={withDirty(setLocality)} editable={isAdmin} placeholder="Lausanne" />
             </View>
           </View>
           {organization?.address && !street.trim() ? (
@@ -140,13 +151,13 @@ export default function EntrepriseScreen() {
               <Text style={styles.warningText}>{t('entreprise.qrAddressWarning')}</Text>
             </View>
           ) : null}
-          <Field label={t('entreprise.ideLabel')} value={ideNumber} onChangeText={setIdeNumber} editable={isAdmin} />
+          <Field label={t('entreprise.ideLabel')} value={ideNumber} onChangeText={withDirty(setIdeNumber)} editable={isAdmin} />
           <View style={styles.row2}>
             <View style={styles.row2Item}>
               <Field
                 label={t('entreprise.phoneLabel')}
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={withDirty(setPhone)}
                 editable={isAdmin}
                 keyboardType="phone-pad"
                 placeholder="+41 79 000 00 00"
@@ -156,7 +167,7 @@ export default function EntrepriseScreen() {
               <Field
                 label={t('entreprise.companyEmailLabel')}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={withDirty(setEmail)}
                 editable={isAdmin}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -167,7 +178,7 @@ export default function EntrepriseScreen() {
           <Field
             label={t('entreprise.websiteLabel')}
             value={website}
-            onChangeText={setWebsite}
+            onChangeText={withDirty(setWebsite)}
             editable={isAdmin}
             autoCapitalize="none"
             placeholder="www.entreprise.ch"
@@ -175,7 +186,7 @@ export default function EntrepriseScreen() {
           <Field
             label={t('entreprise.ibanLabel')}
             value={iban}
-            onChangeText={setIban}
+            onChangeText={withDirty(setIban)}
             editable={isAdmin}
             autoCapitalize="characters"
             placeholder="CH00 0000 0000 0000 0000 0"
@@ -191,7 +202,7 @@ export default function EntrepriseScreen() {
             {(['fr', 'de', 'it'] as const).map((loc) => (
               <Pressable
                 key={loc}
-                onPress={() => isAdmin && setDocLocale(loc)}
+                onPress={() => isAdmin && withDirty(setDocLocale)(loc)}
                 disabled={!isAdmin}
                 style={[styles.chip, docLocale === loc && styles.chipActive, !isAdmin && styles.chipDisabled]}
               >
@@ -209,11 +220,9 @@ export default function EntrepriseScreen() {
             <Feather name="chevron-right" size={16} color={colors.textMuted} />
           </Pressable>
 
-          {isAdmin ? (
-            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
-          ) : null}
         </Container>
       </ScrollView>
+      {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
     </Screen>
   );
 }

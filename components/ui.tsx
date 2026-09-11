@@ -53,18 +53,31 @@ export function PageHeader({
   backTo,
   right,
   style,
+  onBeforeBack,
 }: {
   title: string;
   backTo?: string;
   right?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  // Called before actually navigating back — return (or resolve) false to
+  // cancel the navigation. Used by settings screens to confirm unsaved
+  // changes instead of silently discarding them; see useUnsavedChanges's
+  // confirmBeforeBack.
+  onBeforeBack?: () => boolean | Promise<boolean>;
 }) {
   const router = useRouter();
   const { t } = useTranslation();
+  async function handleBack() {
+    if (onBeforeBack) {
+      const canLeave = await onBeforeBack();
+      if (!canLeave) return;
+    }
+    backTo ? router.replace(backTo as any) : router.back();
+  }
   return (
     <View style={[styles.pageHeader, style]}>
       <Pressable
-        onPress={() => (backTo ? router.replace(backTo as any) : router.back())}
+        onPress={handleBack}
         hitSlop={8}
         style={styles.pageHeaderBack}
         accessibilityLabel={t('ui.back')}

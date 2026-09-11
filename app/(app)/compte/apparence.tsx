@@ -11,6 +11,8 @@ import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -24,10 +26,18 @@ export default function ApparenceScreen() {
   const [logoPlacement, setLogoPlacement] = useState<'left' | 'center' | 'right'>(organization?.logo_placement ?? 'right');
   const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
-  const [saving, setSaving] = useState(false);
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
+
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(handleSave);
+
+  function withDirty<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setter(v);
+      markDirty();
+    };
+  }
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -47,8 +57,7 @@ export default function ApparenceScreen() {
   );
 
   async function handleSave() {
-    if (!organization) return;
-    setSaving(true);
+    if (!organization) return false;
     const validHex = HEX_COLOR_RE.test(brandColor.trim());
     await supabase
       .from('organizations')
@@ -58,9 +67,7 @@ export default function ApparenceScreen() {
         footer_text: footerText.trim() || null,
       })
       .eq('id', organization.id);
-    setSaving(false);
     refreshOrganization();
-    showSavedCheckmark();
   }
 
   async function pickLogo() {
@@ -99,7 +106,7 @@ export default function ApparenceScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title={t('apparence.title')} backTo="/(app)/compte" />
+          <PageHeader title={t('apparence.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 
           <Text style={styles.hint}>{t('apparence.intro')}</Text>
 
@@ -166,7 +173,7 @@ export default function ApparenceScreen() {
                 {BRAND_COLOR_PRESETS.map((hex) => (
                   <Pressable
                     key={hex}
-                    onPress={() => isAdmin && setBrandColor(hex)}
+                    onPress={() => isAdmin && withDirty(setBrandColor)(hex)}
                     disabled={!isAdmin}
                     style={[
                       styles.colorSwatch,
@@ -184,7 +191,7 @@ export default function ApparenceScreen() {
                   <Field
                     label={t('apparence.customColorLabel')}
                     value={brandColor}
-                    onChangeText={setBrandColor}
+                    onChangeText={withDirty(setBrandColor)}
                     editable={isAdmin}
                     autoCapitalize="none"
                     placeholder="#1F3D3A"
@@ -200,7 +207,7 @@ export default function ApparenceScreen() {
                 {LOGO_PLACEMENTS.map((p) => (
                   <Pressable
                     key={p.id}
-                    onPress={() => isAdmin && setLogoPlacement(p.id)}
+                    onPress={() => isAdmin && withDirty(setLogoPlacement)(p.id)}
                     disabled={!isAdmin}
                     style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
                   >
@@ -214,19 +221,16 @@ export default function ApparenceScreen() {
               <Field
                 label={t('apparence.footerLabel')}
                 value={footerText}
-                onChangeText={setFooterText}
+                onChangeText={withDirty(setFooterText)}
                 editable={isAdmin}
                 placeholder={t('apparence.footerPlaceholder')}
               />
               <Text style={styles.hint}>{t('apparence.footerHint')}</Text>
             </>
           )}
-
-          {isAdmin ? (
-            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
-          ) : null}
         </Container>
       </ScrollView>
+      {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
     </Screen>
   );
 }
