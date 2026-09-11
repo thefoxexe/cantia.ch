@@ -1650,7 +1650,7 @@ export const de: TranslationDict = {
     planHighlights: {
       solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', '2 anpassbare Teamrollen'],
       equipe: ['Alles aus Basis, ohne Limiten', 'Personal, Planung, Rentabilität & Liquidität', 'Bexio-Integration', 'Unbegrenzte individuelle Teamrollen'],
-      pro: ['Alles aus Team inklusive', 'Unbegrenzte erweiterte Rollen', 'Priority-Support', '200 GB Speicher'],
+      pro: ['Alles aus Team inklusive', 'Unbegrenzte erweiterte Rollen', 'Priority-Support'],
     },
     aiAssistantQuota: 'KI-Sprachassistent — Offerten, Rechnungen, Ausgaben, Fragen: {{count}}/Monat',
   },

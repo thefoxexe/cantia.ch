@@ -1636,7 +1636,7 @@ export const fr = {
     planHighlights: {
       solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', "2 rôles d'équipe modifiables"],
       equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', "Rôles d'équipe personnalisés illimités"],
-      pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire', '200 Go de stockage'],
+      pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire'],
     },
     aiAssistantQuota: 'Assistant vocal IA — devis, factures, dépenses, questions : {{count}}/mois',
   },

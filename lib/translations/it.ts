@@ -1658,7 +1658,7 @@ export const it: TranslationDict = {
     planHighlights: {
       solo: ['Preventivi, fatture e rapporti illimitati', 'QR-fattura e personalizzazione del marchio', "2 ruoli di team modificabili"],
       equipe: ['Tutto Essenziale, senza limiti', 'Personale, pianificazione, redditività e liquidità', 'Integrazione Bexio', "Ruoli di team personalizzati illimitati"],
-      pro: ['Tutto Team incluso', 'Ruoli avanzati illimitati', 'Supporto prioritario', '200 GB di archiviazione'],
+      pro: ['Tutto Team incluso', 'Ruoli avanzati illimitati', 'Supporto prioritario'],
     },
     aiAssistantQuota: 'Assistente vocale IA — preventivi, fatture, spese, domande: {{count}}/mese',
   },
