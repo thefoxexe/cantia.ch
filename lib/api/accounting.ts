@@ -575,3 +575,238 @@ export async function postPayrollMonth(organizationId: string, year: number, mon
   if (error || !data) return { posted: 0, skipped: 0, errors: [], error: error ?? 'Échec de la comptabilisation des salaires' };
   return { posted: data.posted ?? 0, skipped: data.skipped ?? 0, errors: data.errors ?? [], error: null };
 }
+
+// ==========================================================================
+// TVA — Lot 2 (§5.1-5.3). Mode de décompte (convenues/reçues) and méthode
+// de décompte (effective/TDFN) are two independent settings, never
+// conflated. VAT codes are versioned by validity period (rates changed
+// 01.01.2024: 7.7/2.5/3.7% -> 8.1/2.6/3.8%), and every auto-posted entry's
+// TVA line now carries its vat_code/vat_base/vat_amount, so the per-code
+// report below reads real ledger data instead of re-deriving it.
+//
+// No eCH-0217 XML export exists here — that standard's official domains
+// (ech.ch, estv.admin.ch) were unreachable from this environment to
+// verify the exact XSD/schema, and shipping an unverified "compliance"
+// export would be worse than not having one. getVatWorksheet below
+// produces a correctly-computed, clearly-labeled worksheet for manual
+// entry into the AFC's "Décompte TVA pro" portal instead.
+// ==========================================================================
+
+export interface VatSettings {
+  vatLiable: boolean;
+  vatMethod: 'effective' | 'tdfn';
+  vatBasisDefault: 'invoiced' | 'collected';
+  vatPeriodicity: 'mensuelle' | 'trimestrielle' | 'semestrielle' | 'annuelle';
+  vatLiableSince: string | null;
+  vatRounding: 'aucun' | 'cinq_centimes';
+  ideNumber: string | null;
+}
+
+export async function getVatSettings(organizationId: string): Promise<VatSettings | null> {
+  const { data } = await supabase
+    .from('organizations')
+    .select('vat_liable, vat_method, vat_basis_default, vat_periodicity, vat_liable_since, vat_rounding, ide_number')
+    .eq('id', organizationId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    vatLiable: data.vat_liable,
+    vatMethod: data.vat_method,
+    vatBasisDefault: data.vat_basis_default,
+    vatPeriodicity: data.vat_periodicity,
+    vatLiableSince: data.vat_liable_since,
+    vatRounding: data.vat_rounding,
+    ideNumber: data.ide_number,
+  };
+}
+
+export async function updateVatSettings(organizationId: string, updates: Partial<Omit<VatSettings, 'ideNumber'>> & { ideNumber?: string | null }): Promise<{ error: string | null }> {
+  const payload: Record<string, unknown> = {};
+  if (updates.vatLiable !== undefined) payload.vat_liable = updates.vatLiable;
+  if (updates.vatMethod !== undefined) payload.vat_method = updates.vatMethod;
+  if (updates.vatBasisDefault !== undefined) payload.vat_basis_default = updates.vatBasisDefault;
+  if (updates.vatPeriodicity !== undefined) payload.vat_periodicity = updates.vatPeriodicity;
+  if (updates.vatLiableSince !== undefined) payload.vat_liable_since = updates.vatLiableSince;
+  if (updates.vatRounding !== undefined) payload.vat_rounding = updates.vatRounding;
+  if (updates.ideNumber !== undefined) payload.ide_number = updates.ideNumber;
+  const { error } = await supabase.from('organizations').update(payload).eq('id', organizationId);
+  return { error: error?.message ?? null };
+}
+
+export interface VatCode {
+  id: string;
+  code: string;
+  label: string;
+  category: string;
+  rate: number;
+  valid_from: string;
+  valid_to: string | null;
+  is_active: boolean;
+  is_system: boolean;
+}
+
+export async function listVatCodes(organizationId: string, includeInactive = false): Promise<VatCode[]> {
+  let query = supabase.from('vat_codes').select('*').eq('organization_id', organizationId).order('category').order('valid_from', { ascending: false });
+  if (!includeInactive) query = query.eq('is_active', true);
+  const { data } = await query;
+  return (data ?? []) as VatCode[];
+}
+
+export async function createVatCode(
+  organizationId: string,
+  input: { code: string; label: string; category: string; rate: number; validFrom: string; validTo: string | null },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('vat_codes').insert({
+    organization_id: organizationId,
+    code: input.code.trim().toUpperCase(),
+    label: input.label.trim(),
+    category: input.category,
+    rate: input.rate,
+    valid_from: input.validFrom,
+    valid_to: input.validTo,
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function setVatCodeActive(id: string, isActive: boolean): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('vat_codes').update({ is_active: isActive }).eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export interface VatCodeReportRow {
+  code: string;
+  label: string;
+  category: string;
+  rate: number;
+  base: number;
+  amount: number;
+  entryCount: number;
+}
+
+export interface VatLedgerReport {
+  salesRows: VatCodeReportRow[];
+  totalSalesBase: number;
+  totalSalesVat: number;
+  deductibleRows: VatCodeReportRow[];
+  totalDeductibleBase: number;
+  totalDeductibleVat: number;
+  netVatDue: number;
+  roundedNetVatDue: number;
+}
+
+function roundToFiveCents(n: number): number {
+  return Math.round(n * 20) / 20;
+}
+
+// Reads real posted lines carrying a vat_code (set by the auto-posting
+// triggers and the historical backfill) — grouped by code, split into
+// sales (collected) vs deductible (préalable) by category prefix.
+export async function getVatReportByCode(organizationId: string, periodStart: string, periodEnd: string, rounding: VatSettings['vatRounding'] = 'aucun'): Promise<VatLedgerReport> {
+  const [{ data: lines }, codes] = await Promise.all([
+    supabase
+      .from('accounting_entry_lines')
+      .select('vat_code, vat_base, vat_amount, accounting_entries!inner(organization_id, entry_date, status)')
+      .eq('accounting_entries.organization_id', organizationId)
+      .eq('accounting_entries.status', 'comptabilisee')
+      .gte('accounting_entries.entry_date', periodStart)
+      .lt('accounting_entries.entry_date', periodEnd)
+      .not('vat_code', 'is', null),
+    listVatCodes(organizationId, true),
+  ]);
+
+  const codeByCode = new Map(codes.map((c) => [c.code, c]));
+  const totalsByCode = new Map<string, { base: number; amount: number; count: number }>();
+  for (const l of lines ?? []) {
+    const code = (l as any).vat_code as string;
+    const cur = totalsByCode.get(code) ?? { base: 0, amount: 0, count: 0 };
+    cur.base += Number(l.vat_base ?? 0);
+    cur.amount += Number(l.vat_amount ?? 0);
+    cur.count += 1;
+    totalsByCode.set(code, cur);
+  }
+
+  const salesRows: VatCodeReportRow[] = [];
+  const deductibleRows: VatCodeReportRow[] = [];
+  for (const [code, totals] of totalsByCode.entries()) {
+    const meta = codeByCode.get(code);
+    const row: VatCodeReportRow = {
+      code,
+      label: meta?.label ?? code,
+      category: meta?.category ?? '',
+      rate: meta?.rate ?? 0,
+      base: round2(totals.base),
+      amount: round2(totals.amount),
+      entryCount: totals.count,
+    };
+    if (meta?.category.startsWith('achat')) deductibleRows.push(row);
+    else salesRows.push(row);
+  }
+  salesRows.sort((a, b) => b.rate - a.rate);
+  deductibleRows.sort((a, b) => b.rate - a.rate);
+
+  const totalSalesBase = round2(salesRows.reduce((s, r) => s + r.base, 0));
+  const totalSalesVat = round2(salesRows.reduce((s, r) => s + r.amount, 0));
+  const totalDeductibleBase = round2(deductibleRows.reduce((s, r) => s + r.base, 0));
+  const totalDeductibleVat = round2(deductibleRows.reduce((s, r) => s + r.amount, 0));
+  const netVatDue = round2(totalSalesVat - totalDeductibleVat);
+  const roundedNetVatDue = rounding === 'cinq_centimes' ? roundToFiveCents(netVatDue) : netVatDue;
+
+  return { salesRows, totalSalesBase, totalSalesVat, deductibleRows, totalDeductibleBase, totalDeductibleVat, netVatDue, roundedNetVatDue };
+}
+
+export interface VatDrilldownRow {
+  entryId: string;
+  entryNumber: number | null;
+  entryDate: string;
+  label: string;
+  base: number;
+  amount: number;
+}
+
+export async function getVatCodeDrilldown(organizationId: string, vatCode: string, periodStart: string, periodEnd: string): Promise<VatDrilldownRow[]> {
+  const { data } = await supabase
+    .from('accounting_entry_lines')
+    .select('vat_base, vat_amount, accounting_entries!inner(id, entry_number, entry_date, label, organization_id, status)')
+    .eq('accounting_entries.organization_id', organizationId)
+    .eq('accounting_entries.status', 'comptabilisee')
+    .eq('vat_code', vatCode)
+    .gte('accounting_entries.entry_date', periodStart)
+    .lt('accounting_entries.entry_date', periodEnd)
+    .order('entry_date', { referencedTable: 'accounting_entries', ascending: false });
+  return (data ?? []).map((l: any) => ({
+    entryId: l.accounting_entries.id,
+    entryNumber: l.accounting_entries.entry_number,
+    entryDate: l.accounting_entries.entry_date,
+    label: l.accounting_entries.label,
+    base: Number(l.vat_base ?? 0),
+    amount: Number(l.vat_amount ?? 0),
+  }));
+}
+
+// A worksheet to fill the AFC "Décompte TVA pro" portal form by hand —
+// not an eCH-0217 file (see module comment above). Every figure here is
+// real, computed from posted entries; nothing claims official submission
+// format compliance.
+export function vatWorksheetToCsv(report: VatLedgerReport, periodLabel: string, settings: VatSettings | null): string {
+  const escape = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const lines: string[] = [];
+  lines.push(escape(`Feuille de travail TVA (à reporter manuellement dans le portail AFC — Décompte TVA pro) — ${periodLabel}`));
+  lines.push('');
+  if (settings) {
+    lines.push(escape(`Méthode : ${settings.vatMethod === 'tdfn' ? 'Taux de la dette fiscale nette' : 'Méthode effective'} · Mode : ${settings.vatBasisDefault === 'collected' ? 'Contre-prestations reçues' : 'Contre-prestations convenues'}`));
+    lines.push('');
+  }
+  lines.push(['Chiffre d\'affaires', 'Code', 'Taux', 'Base HT (CHF)', 'TVA (CHF)'].map(escape).join(';'));
+  for (const r of report.salesRows) lines.push(['', r.code, `${r.rate}%`, r.base.toFixed(2), r.amount.toFixed(2)].map(escape).join(';'));
+  lines.push(['Total chiffre d\'affaires imposable', '', '', report.totalSalesBase.toFixed(2), report.totalSalesVat.toFixed(2)].map(escape).join(';'));
+  lines.push('');
+  lines.push(['TVA préalable déductible', 'Code', 'Taux', 'Base HT (CHF)', 'TVA (CHF)'].map(escape).join(';'));
+  for (const r of report.deductibleRows) lines.push(['', r.code, `${r.rate}%`, r.base.toFixed(2), r.amount.toFixed(2)].map(escape).join(';'));
+  lines.push(['Total TVA préalable', '', '', report.totalDeductibleBase.toFixed(2), report.totalDeductibleVat.toFixed(2)].map(escape).join(';'));
+  lines.push('');
+  lines.push(['Montant TVA net dû (ou crédit si négatif)', '', '', '', report.netVatDue.toFixed(2)].map(escape).join(';'));
+  if (settings?.vatRounding === 'cinq_centimes' && report.roundedNetVatDue !== report.netVatDue) {
+    lines.push(['Arrondi aux 5 centimes', '', '', '', report.roundedNetVatDue.toFixed(2)].map(escape).join(';'));
+  }
+  return lines.join('\n');
+}

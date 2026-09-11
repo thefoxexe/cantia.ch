@@ -19,6 +19,11 @@ import {
   getFinancialSnapshot,
   entriesToCsv,
   postPayrollMonth,
+  getVatSettings,
+  updateVatSettings,
+  getVatReportByCode,
+  getVatCodeDrilldown,
+  vatWorksheetToCsv,
   type AccountingAccount,
   type AccountingJournal,
   type AccountingEntryWithLines,
@@ -27,6 +32,9 @@ import {
   type TrialBalanceRow,
   type LedgerEntryRow,
   type FinancialSnapshot,
+  type VatSettings,
+  type VatLedgerReport,
+  type VatDrilldownRow,
 } from '../../../lib/api/accounting';
 import { getVatReport, type VatReport, type VatReportBasis } from '../../../lib/api/factures';
 import { downloadTextFile } from '../../../lib/downloadFile';
@@ -100,6 +108,12 @@ export default function AccountingScreen() {
   const [trialBalance, setTrialBalance] = useState<TrialBalanceRow[]>([]);
   const [snapshot, setSnapshot] = useState<FinancialSnapshot | null>(null);
   const [vatReport, setVatReport] = useState<VatReport | null>(null);
+  const [vatSettings, setVatSettings] = useState<VatSettings | null>(null);
+  const [vatLedgerReport, setVatLedgerReport] = useState<VatLedgerReport | null>(null);
+  const [expandedVatCode, setExpandedVatCode] = useState<string | null>(null);
+  const [vatDrilldown, setVatDrilldown] = useState<VatDrilldownRow[]>([]);
+  const [vatSettingsOpen, setVatSettingsOpen] = useState(false);
+  const [vatSettingsSaving, setVatSettingsSaving] = useState(false);
 
   const [ledgerAccountId, setLedgerAccountId] = useState<string | null>(null);
   const [ledgerRows, setLedgerRows] = useState<LedgerEntryRow[]>([]);
@@ -127,7 +141,7 @@ export default function AccountingScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [accountRows, journalRows, entryRows, incomeStmt, snap, vat, trial] = await Promise.all([
+    const [accountRows, journalRows, entryRows, incomeStmt, snap, vat, trial, vSettings] = await Promise.all([
       listAccounts(organization.id),
       listJournals(organization.id),
       listEntries(organization.id, { periodStart, periodEnd: quarterBounds(year, quarter).end }),
@@ -135,6 +149,7 @@ export default function AccountingScreen() {
       getFinancialSnapshot(organization.id),
       getVatReport(organization.id, `${periodStart}T00:00:00Z`, `${periodEnd}T00:00:00Z`, basis),
       getTrialBalance(organization.id, periodStart, periodEnd),
+      getVatSettings(organization.id),
     ]);
     setAccounts(accountRows);
     setJournals(journalRows);
@@ -143,6 +158,11 @@ export default function AccountingScreen() {
     setSnapshot(snap);
     setVatReport(vat);
     setTrialBalance(trial);
+    setVatSettings(vSettings);
+    const vatLedger = await getVatReportByCode(organization.id, periodStart, periodEnd, vSettings?.vatRounding ?? 'aucun');
+    setVatLedgerReport(vatLedger);
+    setExpandedVatCode(null);
+    setVatDrilldown([]);
     const bilan = await getBalanceSheet(organization.id, `${year}-01-01`, periodEnd < today() ? periodEnd : today());
     setBalanceSheet(bilan);
     if (!entryJournalId && journalRows.length) setEntryJournalId(journalRows.find((j) => j.code === 'OD')?.id ?? journalRows[0].id);
@@ -188,6 +208,36 @@ export default function AccountingScreen() {
       deductibleBase: t('vatReport.csvDeductibleBase'), deductibleVat: t('vatReport.totalDeductibleVat'), net: t('vatReport.netVatDue'),
     });
     downloadTextFile(`tva-${year}-t${quarter}.csv`, csv);
+  }
+
+  function handleExportVatWorksheet() {
+    if (!vatLedgerReport) return;
+    const periodLabel = t('vatReport.quarterLabel', { quarter, year });
+    const csv = vatWorksheetToCsv(vatLedgerReport, periodLabel, vatSettings);
+    downloadTextFile(`feuille-de-travail-tva-${year}-t${quarter}.csv`, csv);
+  }
+
+  async function toggleVatCodeDrilldown(code: string) {
+    if (!organization) return;
+    if (expandedVatCode === code) {
+      setExpandedVatCode(null);
+      setVatDrilldown([]);
+      return;
+    }
+    setExpandedVatCode(code);
+    const rows = await getVatCodeDrilldown(organization.id, code, periodStart, periodEnd);
+    setVatDrilldown(rows);
+  }
+
+  async function handleSaveVatSettings(updates: Partial<VatSettings>) {
+    if (!organization) return;
+    setVatSettingsSaving(true);
+    const { error } = await updateVatSettings(organization.id, updates);
+    setVatSettingsSaving(false);
+    if (!error) {
+      setVatSettings((prev) => (prev ? { ...prev, ...updates } : prev));
+      load();
+    }
   }
 
   function openNewEntry() {
@@ -526,6 +576,72 @@ export default function AccountingScreen() {
           </View>
         ) : (
           <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
+            <Card>
+              <Pressable style={styles.ledgerToggle} onPress={() => setVatSettingsOpen((v) => !v)}>
+                <Text style={styles.sectionTitle}>{t('accounting.vatSettingsTitle')}</Text>
+                <Feather name={vatSettingsOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+              </Pressable>
+              {!vatSettingsOpen ? (
+                <Text style={styles.snapshotFootnote}>
+                  {vatSettings?.vatLiable
+                    ? t('accounting.vatSettingsSummary', {
+                        method: vatSettings.vatMethod === 'tdfn' ? t('accounting.vatMethodTdfn') : t('accounting.vatMethodEffective'),
+                        periodicity: t(`accounting.vatPeriodicity_${vatSettings.vatPeriodicity}` as any),
+                      })
+                    : t('accounting.vatNotLiable')}
+                </Text>
+              ) : (
+                <View style={{ gap: spacing.md, marginTop: spacing.md }}>
+                  <View style={styles.vatSettingRow}>
+                    <Text style={styles.rowLabelBold}>{t('accounting.vatLiable')}</Text>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatLiable: !vatSettings?.vatLiable })} style={[styles.toggleBox, vatSettings?.vatLiable && styles.toggleBoxActive]}>
+                      <Text style={styles.toggleBoxText}>{vatSettings?.vatLiable ? t('accounting.yes') : t('accounting.no')}</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>{t('accounting.vatMethod')}</Text>
+                  <View style={styles.chips}>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatMethod: 'effective' })} style={[styles.chip, vatSettings?.vatMethod === 'effective' && styles.chipActive]}>
+                      <Text style={[styles.chipText, vatSettings?.vatMethod === 'effective' && styles.chipTextActive]}>{t('accounting.vatMethodEffective')}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatMethod: 'tdfn' })} style={[styles.chip, vatSettings?.vatMethod === 'tdfn' && styles.chipActive]}>
+                      <Text style={[styles.chipText, vatSettings?.vatMethod === 'tdfn' && styles.chipTextActive]}>{t('accounting.vatMethodTdfn')}</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>{t('accounting.vatBasisDefault')}</Text>
+                  <View style={styles.chips}>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatBasisDefault: 'invoiced' })} style={[styles.chip, vatSettings?.vatBasisDefault === 'invoiced' && styles.chipActive]}>
+                      <Text style={[styles.chipText, vatSettings?.vatBasisDefault === 'invoiced' && styles.chipTextActive]}>{t('vatReport.basisInvoiced')}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatBasisDefault: 'collected' })} style={[styles.chip, vatSettings?.vatBasisDefault === 'collected' && styles.chipActive]}>
+                      <Text style={[styles.chipText, vatSettings?.vatBasisDefault === 'collected' && styles.chipTextActive]}>{t('vatReport.basisCollected')}</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>{t('accounting.vatPeriodicity')}</Text>
+                  <View style={[styles.chips, { flexWrap: 'wrap' }]}>
+                    {(['mensuelle', 'trimestrielle', 'semestrielle', 'annuelle'] as const).map((p) => (
+                      <Pressable key={p} onPress={() => handleSaveVatSettings({ vatPeriodicity: p })} style={[styles.chip, vatSettings?.vatPeriodicity === p && styles.chipActive]}>
+                        <Text style={[styles.chipText, vatSettings?.vatPeriodicity === p && styles.chipTextActive]}>{t(`accounting.vatPeriodicity_${p}` as any)}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <Text style={styles.fieldLabel}>{t('accounting.vatRounding')}</Text>
+                  <View style={styles.chips}>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatRounding: 'aucun' })} style={[styles.chip, vatSettings?.vatRounding === 'aucun' && styles.chipActive]}>
+                      <Text style={[styles.chipText, vatSettings?.vatRounding === 'aucun' && styles.chipTextActive]}>{t('accounting.vatRoundingNone')}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => handleSaveVatSettings({ vatRounding: 'cinq_centimes' })} style={[styles.chip, vatSettings?.vatRounding === 'cinq_centimes' && styles.chipActive]}>
+                      <Text style={[styles.chipText, vatSettings?.vatRounding === 'cinq_centimes' && styles.chipTextActive]}>{t('accounting.vatRoundingFiveCents')}</Text>
+                    </Pressable>
+                  </View>
+                  {vatSettingsSaving ? <Text style={styles.snapshotFootnote}>{t('accounting.saving')}</Text> : null}
+                </View>
+              )}
+            </Card>
+
             <View style={styles.basisRow}>
               <Pressable onPress={() => setBasis('invoiced')} style={[styles.basisChip, basis === 'invoiced' && styles.basisChipActive]}>
                 <Text style={[styles.basisChipText, basis === 'invoiced' && styles.basisChipTextActive]}>{t('vatReport.basisInvoiced')}</Text>
@@ -580,6 +696,84 @@ export default function AccountingScreen() {
                   </View>
                 </Card>
                 <Button title={t('vatReport.exportCsv')} icon="download" variant="secondary" onPress={handleExportVat} />
+              </>
+            )}
+
+            <View style={styles.divider} />
+            <Text style={styles.sectionTitle}>{t('accounting.vatLedgerTitle')}</Text>
+            <Text style={styles.basisHint}>{t('accounting.vatLedgerHint')}</Text>
+
+            {!vatLedgerReport || (vatLedgerReport.salesRows.length === 0 && vatLedgerReport.deductibleRows.length === 0) ? (
+              <Card><EmptyState title={t('vatReport.emptyTitle')} subtitle={t('vatReport.emptySubtitle')} /></Card>
+            ) : (
+              <>
+                <Text style={styles.sectionLabel}>{t('vatReport.collectedSectionTitle')}</Text>
+                {vatLedgerReport.salesRows.map((row) => (
+                  <Card key={row.code} style={{ padding: 0, overflow: 'hidden' }}>
+                    <Pressable style={styles.vatCodeRow} onPress={() => toggleVatCodeDrilldown(row.code)}>
+                      <View style={styles.vatCodeBadge}><Text style={styles.vatCodeBadgeText}>{row.code}</Text></View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.rateLabel}>{row.label}</Text>
+                        <Text style={styles.rateValue}>{chf(row.base)} · {row.rate}%</Text>
+                      </View>
+                      <Text style={styles.rateValueVat}>{chf(row.amount)}</Text>
+                      <Feather name={expandedVatCode === row.code ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    </Pressable>
+                    {expandedVatCode === row.code ? (
+                      <View style={styles.vatDrilldownBox}>
+                        {vatDrilldown.length === 0 ? (
+                          <Text style={styles.snapshotFootnote}>{t('accounting.loading')}</Text>
+                        ) : (
+                          vatDrilldown.map((d) => (
+                            <View key={d.entryId} style={styles.vatDrilldownRow}>
+                              <Text style={styles.ledgerLabel} numberOfLines={1}>{d.entryNumber != null ? `N°${d.entryNumber} — ` : ''}{d.label}</Text>
+                              <Text style={styles.ledgerMeta}>{chf(d.amount)}</Text>
+                            </View>
+                          ))
+                        )}
+                      </View>
+                    ) : null}
+                  </Card>
+                ))}
+
+                <Text style={styles.sectionLabel}>{t('vatReport.deductibleSectionTitle')}</Text>
+                {vatLedgerReport.deductibleRows.map((row) => (
+                  <Card key={row.code} style={{ padding: 0, overflow: 'hidden' }}>
+                    <Pressable style={styles.vatCodeRow} onPress={() => toggleVatCodeDrilldown(row.code)}>
+                      <View style={styles.vatCodeBadge}><Text style={styles.vatCodeBadgeText}>{row.code}</Text></View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.rateLabel}>{row.label}</Text>
+                        <Text style={styles.rateValue}>{chf(row.base)} · {row.rate}%</Text>
+                      </View>
+                      <Text style={styles.rateValueVat}>{chf(row.amount)}</Text>
+                      <Feather name={expandedVatCode === row.code ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    </Pressable>
+                    {expandedVatCode === row.code ? (
+                      <View style={styles.vatDrilldownBox}>
+                        {vatDrilldown.map((d) => (
+                          <View key={d.entryId} style={styles.vatDrilldownRow}>
+                            <Text style={styles.ledgerLabel} numberOfLines={1}>{d.entryNumber != null ? `N°${d.entryNumber} — ` : ''}{d.label}</Text>
+                            <Text style={styles.ledgerMeta}>{chf(d.amount)}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
+                  </Card>
+                ))}
+
+                <Card style={styles.totalCard}>
+                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalVatDue')}</Text><Text style={styles.totalValue}>{chf(vatLedgerReport.totalSalesVat)}</Text></View>
+                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalDeductibleVat')}</Text><Text style={styles.totalValue}>− {chf(vatLedgerReport.totalDeductibleVat)}</Text></View>
+                  <View style={[styles.totalRow, styles.totalRowFinal]}>
+                    <Text style={styles.totalLabelFinal}>{t('vatReport.netVatDue')}</Text>
+                    <Text style={[styles.totalValueFinal, vatLedgerReport.netVatDue < 0 && styles.totalValueCredit]}>{chf(vatLedgerReport.netVatDue)}</Text>
+                  </View>
+                  {vatSettings?.vatRounding === 'cinq_centimes' && vatLedgerReport.roundedNetVatDue !== vatLedgerReport.netVatDue ? (
+                    <Text style={styles.snapshotFootnote}>{t('accounting.vatRoundedTo', { amount: vatLedgerReport.roundedNetVatDue.toFixed(2) })}</Text>
+                  ) : null}
+                </Card>
+                <Button title={t('accounting.vatWorksheetExport')} icon="download" variant="secondary" onPress={handleExportVatWorksheet} />
+                <Text style={styles.snapshotFootnote}>{t('accounting.vatWorksheetDisclaimer')}</Text>
               </>
             )}
           </View>
@@ -807,4 +1001,14 @@ const styles = StyleSheet.create({
   totalsStatusOk: { color: colors.success },
   totalsStatusBad: { color: colors.danger },
   error: { fontSize: fontSize.sm, color: colors.danger, marginTop: spacing.sm },
+  ledgerToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  vatSettingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  toggleBox: { paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border },
+  toggleBoxActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
+  toggleBoxText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.text },
+  vatCodeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md },
+  vatCodeBadge: { width: 56, paddingVertical: 4, borderRadius: radius.sm, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  vatCodeBadgeText: { fontSize: 10, fontWeight: '800', color: colors.primary },
+  vatDrilldownBox: { borderTopWidth: 1, borderTopColor: colors.border, padding: spacing.md, gap: 4 },
+  vatDrilldownRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm },
 });
