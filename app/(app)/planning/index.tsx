@@ -13,9 +13,10 @@ import {
 } from '../../../lib/api/planning';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
+import { ProjectPicker } from '../../../components/ProjectPicker';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Plan } from '../../../lib/types';
+import type { Plan, Project } from '../../../lib/types';
 
 interface PickItem {
   id: string;
@@ -75,14 +76,14 @@ export default function PlanningScreen() {
   const router = useRouter();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [assignments, setAssignments] = useState<PlanningAssignmentWithNames[]>([]);
-  const [projects, setProjects] = useState<PickItem[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<PickItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<Plan | null>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formProjectId, setFormProjectId] = useState<string | null>(null);
+  const [formProject, setFormProject] = useState<Project | null>(null);
   const [formMemberId, setFormMemberId] = useState<string | null>(null);
   const [formStart, setFormStart] = useState('');
   const [formEnd, setFormEnd] = useState('');
@@ -99,12 +100,12 @@ export default function PlanningScreen() {
     setLoading(true);
     const [list, { data: projectRows }, { data: memberRows }, { data: planRow }] = await Promise.all([
       listPlanningAssignments(organization.id, toIso(weekStart), toIso(weekEnd)),
-      supabase.from('projects').select('id, name').eq('organization_id', organization.id).order('name'),
+      supabase.from('projects').select('*').eq('organization_id', organization.id).order('name'),
       supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
       supabase.from('plans').select('*').eq('id', organization.plan_id).single(),
     ]);
     setAssignments(list);
-    setProjects((projectRows ?? []).map((p) => ({ id: p.id, label: p.name })));
+    setProjects(projectRows ?? []);
     setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || t('planning.memberFallback') })));
     setPlan(planRow ?? null);
     setLoading(false);
@@ -123,7 +124,7 @@ export default function PlanningScreen() {
 
   function openCreateForm(day?: Date, memberId?: string) {
     setEditingId(null);
-    setFormProjectId(projects[0]?.id ?? null);
+    setFormProject(projects[0] ?? null);
     setFormMemberId(memberId ?? user?.id ?? members[0]?.id ?? null);
     const iso = toIso(day ?? new Date());
     setFormStart(iso);
@@ -135,7 +136,7 @@ export default function PlanningScreen() {
 
   function openEditForm(a: PlanningAssignmentWithNames) {
     setEditingId(a.id);
-    setFormProjectId(a.project_id);
+    setFormProject(projects.find((p) => p.id === a.project_id) ?? null);
     setFormMemberId(a.member_user_id);
     setFormStart(a.starts_on);
     setFormEnd(a.ends_on);
@@ -159,7 +160,7 @@ export default function PlanningScreen() {
       ? await updatePlanningAssignment(editingId, { startsOn: formStart, endsOn: formEnd, note: formNote })
       : await createPlanningAssignment({
           organizationId: organization.id,
-          projectId: formProjectId,
+          projectId: formProject?.id ?? null,
           memberUserId: formMemberId,
           startsOn: formStart,
           endsOn: formEnd,
@@ -331,7 +332,7 @@ export default function PlanningScreen() {
               {projects.map((p) => (
                 <View key={p.id} style={styles.legendItem}>
                   <View style={[styles.legendDot, { backgroundColor: colorForProject(p.id) }]} />
-                  <Text style={styles.legendText}>{p.label}</Text>
+                  <Text style={styles.legendText}>{p.name}</Text>
                 </View>
               ))}
               {assignments.some((a) => !a.project_id) ? (
@@ -352,23 +353,7 @@ export default function PlanningScreen() {
               <Text style={styles.sheetTitle}>{editingId ? t('planning.editAssignmentTitle') : t('planning.newAssignmentTitle')}</Text>
 
               <Text style={styles.fieldLabel}>{t('planning.projectOptional')}</Text>
-              <View style={styles.chips}>
-                <Pressable
-                  onPress={() => setFormProjectId(null)}
-                  style={[styles.chip, formProjectId === null && styles.chipActive]}
-                >
-                  <Text style={[styles.chipText, formProjectId === null && styles.chipTextActive]}>{t('planning.noProject')}</Text>
-                </Pressable>
-                {projects.map((p) => (
-                  <Pressable
-                    key={p.id}
-                    onPress={() => setFormProjectId(p.id)}
-                    style={[styles.chip, formProjectId === p.id && styles.chipActive]}
-                  >
-                    <Text style={[styles.chipText, formProjectId === p.id && styles.chipTextActive]}>{p.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
+              <ProjectPicker organizationId={organization?.id ?? ''} selectedProject={formProject} onSelect={setFormProject} />
 
               <Text style={styles.fieldLabel}>{t('planning.memberLabel')}</Text>
               <View style={styles.chips}>

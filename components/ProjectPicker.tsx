@@ -10,13 +10,21 @@ import type { Project } from '../lib/types';
 // lets the Rentabilité tab know which accepted devis count as revenue for
 // which chantier). Leaving it unset doesn't block anything else about the
 // devis, so this is a lightweight picker, not a required field.
+// selectedProject only needs to be a full Project for callers that already
+// have one on hand (the common case); callers that only track a bare
+// project id/name pair (e.g. VoiceAssistant's transcript-derived project
+// list) can pass that instead — this component only ever reads id/name/
+// client_name off it, and always hands back a full Project through
+// onSelect once something is actually picked from its own fetched list.
+type SelectableProject = Pick<Project, 'id' | 'name'> & Partial<Pick<Project, 'client_name'>>;
+
 export function ProjectPicker({
   organizationId,
   selectedProject,
   onSelect,
 }: {
   organizationId: string;
-  selectedProject: Project | null;
+  selectedProject: SelectableProject | null;
   onSelect: (project: Project | null) => void;
 }) {
   const { t } = useTranslation();

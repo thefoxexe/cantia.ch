@@ -14,6 +14,7 @@ import { createExpense } from '../lib/api/treasury';
 import { buildAssistantContext } from '../lib/api/assistantContext';
 import { fetchCatalog, type CatalogEntry } from '../lib/catalog';
 import { Field } from './ui';
+import { ProjectPicker } from './ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
@@ -375,6 +376,7 @@ export function VoiceAssistant() {
             ) : stage === 'confirm' && command ? (
               <ConfirmForm
                 command={command}
+                organizationId={organization.id}
                 projects={projects}
                 workTypes={workTypes}
                 showProjectPickerForExpense={showProjectPickerForExpense}
@@ -560,6 +562,7 @@ function SelectRow({
 
 function ConfirmForm({
   command,
+  organizationId,
   projects,
   workTypes,
   showProjectPickerForExpense,
@@ -581,6 +584,7 @@ function ConfirmForm({
   onRetryVoice,
 }: {
   command: VoiceCommand;
+  organizationId: string;
   projects: PickItem[];
   workTypes: PickItem[];
   showProjectPickerForExpense: boolean;
@@ -602,13 +606,18 @@ function ConfirmForm({
   onRetryVoice: () => void;
 }) {
   const { t } = useTranslation();
+  const selectedProjectOption = projectId ? projects.find((p) => p.id === projectId) : null;
+  const selectedProject = selectedProjectOption ? { id: selectedProjectOption.id, name: selectedProjectOption.label } : null;
   return (
     <View style={{ gap: spacing.md }}>
       {command.summary ? <Text style={styles.summaryBanner}>{command.summary}</Text> : null}
 
       {command.action === 'payroll_entry' ? (
         <>
-          <SelectRow label={t('voiceAssistant.projectLabel')} options={projects} value={projectId} onChange={setProjectId} />
+          <View style={{ gap: spacing.xs }}>
+            <Text style={styles.fieldLabel}>{t('voiceAssistant.projectLabel')}</Text>
+            <ProjectPicker organizationId={organizationId} selectedProject={selectedProject} onSelect={(p) => setProjectId(p?.id ?? null)} />
+          </View>
           <SelectRow
             label={t('voiceAssistant.workTypeLabel')}
             options={workTypes}
@@ -622,13 +631,10 @@ function ConfirmForm({
       ) : (
         <>
           {showProjectPickerForExpense ? (
-            <SelectRow
-              label={t('voiceAssistant.projectLabel')}
-              options={projects}
-              value={projectId}
-              noneLabel={allowGeneralExpense ? t('voiceAssistant.generalExpenseOption') : undefined}
-              onChange={setProjectId}
-            />
+            <View style={{ gap: spacing.xs }}>
+              <Text style={styles.fieldLabel}>{t('voiceAssistant.projectLabel')}</Text>
+              <ProjectPicker organizationId={organizationId} selectedProject={selectedProject} onSelect={(p) => setProjectId(p?.id ?? null)} />
+            </View>
           ) : null}
           <Field label={t('voiceAssistant.expenseLabelLabel')} value={expenseLabel} onChangeText={setExpenseLabel} />
           <Field label={t('voiceAssistant.amountLabel')} value={amountText} onChangeText={setAmountText} keyboardType="decimal-pad" placeholder="0" />

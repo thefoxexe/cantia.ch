@@ -26,9 +26,10 @@ import { downloadTextFile } from '../lib/downloadFile';
 import { Button, Card } from './ui';
 import { DateField } from './DateField';
 import { PayrollDateFilter, type DateRange } from './PayrollDateFilter';
+import { ProjectPicker } from './ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
-import type { PayrollExpenseType, PayrollWorkType } from '../lib/types';
+import type { PayrollExpenseType, PayrollWorkType, Project } from '../lib/types';
 
 interface PickItem {
   id: string;
@@ -279,7 +280,7 @@ export function PayrollEntryPanel({
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [expenseTypePicked, setExpenseTypePicked] = useState(false);
   const [expenseTypeId, setExpenseTypeId] = useState<string | null>(null);
-  const [expenseProjectId, setExpenseProjectId] = useState<string | null>(null);
+  const [expenseProject, setExpenseProject] = useState<Project | null>(null);
   const [expenseDate, setExpenseDate] = useState('');
   const [expenseQuantity, setExpenseQuantity] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
@@ -534,7 +535,7 @@ export function PayrollEntryPanel({
   function openExpenseCreate() {
     setExpenseTypePicked(false);
     setExpenseTypeId(null);
-    setExpenseProjectId(null);
+    setExpenseProject(null);
     setExpenseDate(range.start);
     setExpenseQuantity('');
     setExpenseAmount('');
@@ -570,7 +571,7 @@ export function PayrollEntryPanel({
     setExpenseError(null);
     const { error } = await createExpense({
       organizationId,
-      projectId: expenseProjectId,
+      projectId: expenseProject?.id ?? null,
       expenseTypeId,
       userId: targetUserId,
       expenseDate,
@@ -982,16 +983,7 @@ export function PayrollEntryPanel({
               {expenseTypePicked ? (
                 <>
                   <Text style={styles.fieldLabel}>{t('payrollEntry.expenseProjectStep')}</Text>
-                  <View style={styles.chips}>
-                    <Pressable onPress={() => setExpenseProjectId(null)} style={[styles.chip, expenseProjectId === null && styles.chipActive]}>
-                      <Text style={[styles.chipText, expenseProjectId === null && styles.chipTextActive]}>{t('payrollEntry.noProject')}</Text>
-                    </Pressable>
-                    {projects.map((p) => (
-                      <Pressable key={p.id} onPress={() => setExpenseProjectId(p.id)} style={[styles.chip, expenseProjectId === p.id && styles.chipActive]}>
-                        <Text style={[styles.chipText, expenseProjectId === p.id && styles.chipTextActive]}>{p.label}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
+                  <ProjectPicker organizationId={organizationId} selectedProject={expenseProject} onSelect={setExpenseProject} />
 
                   <View style={styles.row2}>
                     <View style={styles.row2Item}>
