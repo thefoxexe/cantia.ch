@@ -31,9 +31,17 @@ export default function ProfilScreen() {
   // changeLocale() below calls i18next.changeLanguage() — no local state
   // to keep in sync by hand.
   const locale = i18n.language as AppLocale;
-  const { user, organization, refreshOrganization, changeLocale } = useAuth();
+  const { user, organization, refreshOrganization, changeLocale, signIn, updateEmail, updatePassword } = useAuth();
   const [changingLocale, setChangingLocale] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [securityMode, setSecurityMode] = useState<'none' | 'email' | 'password'>('none');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [securityError, setSecurityError] = useState<string | null>(null);
+  const [securitySuccess, setSecuritySuccess] = useState<string | null>(null);
+  const [securitySaving, setSecuritySaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
@@ -130,6 +138,91 @@ export default function ProfilScreen() {
     if (!error) showSavedCheckmark();
   }
 
+  function openSecurityMode(mode: 'email' | 'password') {
+    setSecurityMode(mode);
+    setCurrentPassword('');
+    setNewEmail('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setSecurityError(null);
+    setSecuritySuccess(null);
+  }
+
+  function closeSecurityMode() {
+    setSecurityMode('none');
+    setSecurityError(null);
+  }
+
+  // Supabase's JS SDK has no lightweight "verify this password without
+  // changing anything" call — re-running signInWithPassword against the
+  // account's own current email is the standard workaround, and since it's
+  // the same account it just refreshes the existing session rather than
+  // starting a new one. Guards both email and password changes so a
+  // hijacked open session (shared computer, unlocked phone) can't silently
+  // take over the account without knowing the current password.
+  async function verifyCurrentPassword(): Promise<boolean> {
+    if (!user?.email) return false;
+    const { error } = await signIn(user.email, currentPassword);
+    if (error) {
+      setSecurityError(t('profil.wrongCurrentPassword'));
+      return false;
+    }
+    return true;
+  }
+
+  async function handleChangeEmail() {
+    setSecurityError(null);
+    const trimmed = newEmail.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      setSecurityError(t('profil.invalidEmail'));
+      return;
+    }
+    if (user?.email && trimmed.toLowerCase() === user.email.toLowerCase()) {
+      setSecurityError(t('profil.sameEmail'));
+      return;
+    }
+    setSecuritySaving(true);
+    const verified = await verifyCurrentPassword();
+    if (!verified) {
+      setSecuritySaving(false);
+      return;
+    }
+    const { error } = await updateEmail(trimmed);
+    setSecuritySaving(false);
+    if (error) {
+      setSecurityError(error);
+      return;
+    }
+    setSecuritySuccess(t('profil.emailChangeSuccess', { email: trimmed }));
+    setSecurityMode('none');
+  }
+
+  async function handleChangePassword() {
+    setSecurityError(null);
+    if (newPassword.length < 6) {
+      setSecurityError(t('profil.passwordTooShort'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setSecurityError(t('profil.passwordMismatch'));
+      return;
+    }
+    setSecuritySaving(true);
+    const verified = await verifyCurrentPassword();
+    if (!verified) {
+      setSecuritySaving(false);
+      return;
+    }
+    const { error } = await updatePassword(newPassword);
+    setSecuritySaving(false);
+    if (error) {
+      setSecurityError(error);
+      return;
+    }
+    setSecurityMode('none');
+    showSavedCheckmark();
+  }
+
   async function saveDrawnSignature() {
     if (!organization || !user || !drawnSignature) return;
     setUploadingSignature(true);
@@ -182,6 +275,100 @@ export default function ProfilScreen() {
             }}
             placeholder={t('profil.displayNamePlaceholder')}
           />
+
+          <Text style={styles.sectionTitle}>{t('profil.securityTitle')}</Text>
+          <Text style={styles.sectionHint}>{t('profil.securityHint')}</Text>
+          <Card style={styles.securityCard}>
+            {securitySuccess ? (
+              <View style={styles.securityBanner}>
+                <Feather name="mail" size={16} color={colors.primary} />
+                <Text style={styles.securityBannerText}>{securitySuccess}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.securityRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.securityRowLabel}>{t('profil.currentEmailLabel')}</Text>
+                <Text style={styles.securityRowValue}>{user?.email}</Text>
+              </View>
+              {securityMode !== 'email' ? (
+                <Pressable onPress={() => openSecurityMode('email')} style={styles.securityLinkBtn}>
+                  <Text style={styles.securityLinkBtnText}>{t('profil.changeEmailButton')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+
+            {securityMode === 'email' ? (
+              <View style={styles.securityForm}>
+                <Field
+                  label={t('profil.newEmailLabel')}
+                  value={newEmail}
+                  onChangeText={setNewEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  placeholder="nouveau@email.ch"
+                />
+                <Field
+                  label={t('profil.currentPasswordLabel')}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  secureTextEntry
+                  placeholder={t('profil.currentPasswordPlaceholder')}
+                />
+                {securityError ? <Text style={styles.securityError}>{securityError}</Text> : null}
+                <View style={styles.securityFormActions}>
+                  <Button title={t('profil.cancelButton')} variant="secondary" onPress={closeSecurityMode} style={{ flex: 1 }} disabled={securitySaving} />
+                  <Button title={t('profil.confirmEmailButton')} onPress={handleChangeEmail} loading={securitySaving} style={{ flex: 1 }} />
+                </View>
+              </View>
+            ) : (
+              <>
+                <View style={styles.securityDivider} />
+                <View style={styles.securityRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.securityRowLabel}>{t('profil.passwordLabel')}</Text>
+                    <Text style={styles.securityRowValue}>••••••••</Text>
+                  </View>
+                  {securityMode !== 'password' ? (
+                    <Pressable onPress={() => openSecurityMode('password')} style={styles.securityLinkBtn}>
+                      <Text style={styles.securityLinkBtnText}>{t('profil.changePasswordButton')}</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              </>
+            )}
+
+            {securityMode === 'password' ? (
+              <View style={styles.securityForm}>
+                <Field
+                  label={t('profil.currentPasswordLabel')}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  secureTextEntry
+                  placeholder={t('profil.currentPasswordPlaceholder')}
+                />
+                <Field
+                  label={t('profil.newPasswordLabel')}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                  placeholder={t('profil.newPasswordPlaceholder')}
+                />
+                <Field
+                  label={t('profil.confirmPasswordLabel')}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  placeholder={t('profil.newPasswordPlaceholder')}
+                />
+                {securityError ? <Text style={styles.securityError}>{securityError}</Text> : null}
+                <View style={styles.securityFormActions}>
+                  <Button title={t('profil.cancelButton')} variant="secondary" onPress={closeSecurityMode} style={{ flex: 1 }} disabled={securitySaving} />
+                  <Button title={t('profil.confirmPasswordButton')} onPress={handleChangePassword} loading={securitySaving} style={{ flex: 1 }} />
+                </View>
+              </View>
+            ) : null}
+          </Card>
 
           <Text style={styles.sectionTitle}>{t('profil.languageTitle')}</Text>
           <Text style={styles.sectionHint}>{t('profil.languageHint')}</Text>
@@ -253,6 +440,65 @@ export default function ProfilScreen() {
 }
 
 const styles = StyleSheet.create({
+  securityCard: {
+    gap: spacing.sm,
+  },
+  securityBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  securityBannerText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.primaryDark,
+    lineHeight: 17,
+  },
+  securityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  securityRowLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  securityRowValue: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: 1,
+  },
+  securityLinkBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+  },
+  securityLinkBtnText: {
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  securityDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  securityForm: {
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  securityFormActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  securityError: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+  },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',

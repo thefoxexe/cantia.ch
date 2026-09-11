@@ -72,6 +72,12 @@ interface AuthContextValue {
   createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
+  // Supabase sends a confirmation link to the NEW address before the
+  // change actually takes effect (and, with "Secure email change" on in
+  // the dashboard, one to the old address too) — the account's email
+  // doesn't change until that link is followed, so callers must not treat
+  // a successful call here as "done", only as "check your inbox".
+  updateEmail: (newEmail: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -372,6 +378,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error?.message ?? null };
   }, []);
 
+  const updateEmail = useCallback(async (newEmail: string) => {
+    const redirectTo = Platform.OS === 'web' ? (typeof window !== 'undefined' ? window.location.origin : undefined) : Linking.createURL('/');
+    const { error } = await supabase.auth.updateUser({ email: newEmail }, { emailRedirectTo: redirectTo });
+    return { error: error?.message ?? null };
+  }, []);
+
   const createOrganization = useCallback(
     async (name: string, trade: string | null) => {
       const { error } = await supabase.rpc('create_organization', { org_name: name, org_trade: trade });
@@ -407,6 +419,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createOrganization,
       resetPassword,
       updatePassword,
+      updateEmail,
     }),
     [
       session,
@@ -431,6 +444,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createOrganization,
       resetPassword,
       updatePassword,
+      updateEmail,
     ],
   );
 
