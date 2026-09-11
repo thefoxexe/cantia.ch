@@ -10,11 +10,15 @@
   supabase/functions/_shared/resend.ts's buildBrandedEmailShell), so the
   two are recognizably the same product mid-flow.
 
-  In English on purpose — Cantia's signup base spans both French- and
-  German-speaking Swiss cantons, and this avoids picking one over the
-  other. The client-portal code email (request-portal-code) stays in
-  French: that one goes to an org's own end clients, not to Cantia
-  signups, so it should match the language of the document itself.
+  Localized via {{ .Data.locale }} — Supabase exposes auth.users'
+  raw_user_meta_data as {{ .Data }} in email templates (see "Customizing
+  Emails by Language" in the Supabase docs), and the app's signUp() call
+  already passes { data: { full_name, locale } }, so .Data.locale is
+  always the same 'fr' | 'de' | 'it' value AVAILABLE_LOCALES uses
+  everywhere else in the app (see lib/translations/index.ts). Falls back
+  to English for any account signed up before this locale was captured,
+  or if the metadata is ever missing for another reason — never silently
+  breaks the email.
 
   Requires the logo to be reachable at https://cantia.ch/logo-email.png
   (already copied into public/logo-email.png in this repo — deploys
@@ -27,6 +31,46 @@
       <span style="font-size: 18px; font-weight: 700; color: #231A12; margin-left: 10px; vertical-align: middle;">Cantia</span>
     </div>
     <div style="padding: 32px;">
+      {{if eq .Data.locale "fr"}}
+      <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Bienvenue</p>
+      <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Confirmez votre adresse e-mail</p>
+      <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
+        Voici votre code pour activer votre compte Cantia :
+      </p>
+      <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
+        <span style="font-size: 28px; font-weight: 700; letter-spacing: 4px; color: #7C3B21; word-break: break-all;">{{ .Token }}</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
+        Ce code expire dans 24 heures et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de
+        cette demande, vous pouvez ignorer cet e-mail.
+      </p>
+      {{else if eq .Data.locale "de"}}
+      <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Willkommen</p>
+      <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Bestätigen Sie Ihre E-Mail-Adresse</p>
+      <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
+        Hier ist Ihr Code, um Ihr Cantia-Konto zu aktivieren:
+      </p>
+      <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
+        <span style="font-size: 28px; font-weight: 700; letter-spacing: 4px; color: #7C3B21; word-break: break-all;">{{ .Token }}</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
+        Dieser Code läuft in 24 Stunden ab und kann nur einmal verwendet werden. Falls Sie diese Anfrage nicht
+        gestellt haben, können Sie diese E-Mail ignorieren.
+      </p>
+      {{else if eq .Data.locale "it"}}
+      <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Benvenuto</p>
+      <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Confermi il suo indirizzo e-mail</p>
+      <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
+        Ecco il suo codice per attivare il suo account Cantia:
+      </p>
+      <div style="margin: 0 0 24px; padding: 20px; background: #F5DECB; border-radius: 12px; text-align: center;">
+        <span style="font-size: 28px; font-weight: 700; letter-spacing: 4px; color: #7C3B21; word-break: break-all;">{{ .Token }}</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6E6151;">
+        Questo codice scade tra 24 ore e può essere utilizzato una sola volta. Se non è lei all'origine di questa
+        richiesta, può ignorare questa e-mail.
+      </p>
+      {{else}}
       <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Welcome</p>
       <p style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #231A12;">Confirm your email address</p>
       <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #231A12;">
@@ -39,10 +83,14 @@
         This code expires in 24 hours and can only be used once. If you didn't request this, you can safely ignore
         this email.
       </p>
+      {{end}}
     </div>
   </div>
   <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">
-    Cantia — Swiss management software for construction businesses<br/>
+    {{if eq .Data.locale "fr"}}Cantia — logiciel suisse de gestion pour entreprises du bâtiment
+    {{else if eq .Data.locale "de"}}Cantia — Schweizer Verwaltungssoftware für Bauunternehmen
+    {{else if eq .Data.locale "it"}}Cantia — software svizzero di gestione per aziende edili
+    {{else}}Cantia — Swiss management software for construction businesses{{end}}<br/>
     <a href="https://cantia.ch" style="color: #BC5A31; text-decoration: none; font-weight: 600;">cantia.ch</a>
   </p>
 </div>
