@@ -143,7 +143,12 @@ Deno.serve(async (req: Request) => {
 
     if (kind === 'confirm') {
       if (!toEmail) return json({ error: 'Adresse e-mail du destinataire introuvable.' }, 500);
-      const confirmUrl = `${APP_URL}/transfer-ownership/${token}`;
+      // ?locale=, not a /de/ or /it/ path prefix — those only exist for the
+      // crawlable marketing routes, the authenticated app has none; this is
+      // the same mechanism authHref uses (lib/appHost.ts) to carry a
+      // language choice into app.cantia.ch before any account locale is
+      // known — see applyLocaleFromUrlParam in lib/translations.
+      const confirmUrl = `${APP_URL}/transfer-ownership/${token}?locale=${locale}`;
       const html = buildBrandedEmailShell(
         `
         <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #BC5A31; text-transform: uppercase; letter-spacing: 0.6px;">Cantia</p>

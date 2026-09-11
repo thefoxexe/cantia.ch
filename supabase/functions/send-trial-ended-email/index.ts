@@ -8,6 +8,14 @@ const corsHeaders = {
 
 const APP_URL = 'https://app.cantia.ch';
 
+// The CTA link carries ?locale=<locale> rather than a /de/ or /it/ path prefix —
+// those prefixes only exist for the crawlable marketing routes (app/de/**,
+// app/it/**); the authenticated app has no locale-prefixed routes at all,
+// it renders in whatever organization_members.locale says once signed in.
+// ?locale= is the same mechanism lib/appHost.ts's authHref already uses to
+// carry a language choice across a fresh, not-yet-authenticated navigation
+// into app.cantia.ch — see applyLocaleFromUrlParam in lib/translations.
+
 // Internal-only — invoked either by pg_net from downgrade_expired_trials()
 // (legacy no-card trials) or directly by stripe-webhook's
 // customer.subscription.deleted handler (current card-required flow), never
@@ -148,7 +156,7 @@ Deno.serve(async (req: Request) => {
       <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(t(locale, 'title'))}</p>
       <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #231A12;">${escapeHtml(t(locale, 'intro', { org: org.name }))}</p>
       <p style="margin: 0 0 32px; text-align: center;">
-        <a href="${APP_URL}/choose-plan" style="display: inline-block; background: #BC5A31; color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">${escapeHtml(t(locale, 'cta'))}</a>
+        <a href="${APP_URL}/choose-plan?locale=${locale}" style="display: inline-block; background: #BC5A31; color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">${escapeHtml(t(locale, 'cta'))}</a>
       </p>
       <div style="border-top: 1px solid #E6D8C2; padding-top: 20px;">
         <p style="margin: 0 0 8px; font-size: 14px; font-weight: 700; color: #231A12;">${escapeHtml(t(locale, 'feedbackTitle'))}</p>
