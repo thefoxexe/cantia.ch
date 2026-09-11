@@ -58,6 +58,33 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
   );
 }
 
+// The one number a founder actually opens this page to check, promoted out
+// of the tile grid entirely — everything else on this screen explains or
+// qualifies this figure, so it reads as the headline, not as one card among
+// a dozen identical ones (the previous "wall of same-size tiles" is what
+// made this screen hard to parse at a glance).
+function MrrHero({ overview }: { overview: AdminRevenueOverview }) {
+  const netUp = overview.net_mrr_this_month_chf >= 0;
+  return (
+    <View style={styles.hero}>
+      <Text style={styles.heroLabel}>Revenu récurrent mensuel (MRR)</Text>
+      <Text style={styles.heroValue}>{formatChf(overview.mrr_active_chf)}</Text>
+      <View style={styles.heroMetaRow}>
+        <View style={[styles.heroDelta, netUp ? styles.heroDeltaUp : styles.heroDeltaDown]}>
+          <Feather name={netUp ? 'arrow-up-right' : 'arrow-down-right'} size={12} color={netUp ? colors.success : colors.danger} />
+          <Text style={[styles.heroDeltaText, { color: netUp ? colors.success : colors.danger }]}>
+            {netUp ? '+' : '−'}
+            {formatChf(Math.abs(overview.net_mrr_this_month_chf))} ce mois
+          </Text>
+        </View>
+        <Text style={styles.heroSub}>
+          ARR {formatChf(overview.arr_chf)} · {overview.active_count} client{overview.active_count > 1 ? 's' : ''} payant{overview.active_count > 1 ? 's' : ''}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 // Aggregate numbers come straight from Stripe (via admin-billing-overview),
 // not guessed from local plan prices — a trialing sub, a complimentary
 // lifetime-free grant, or an org that never converted all show up correctly
@@ -66,6 +93,8 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 // revenue from paying customers, and money that either isn't confirmed yet
 // (trials) or will never come (complimentary accounts) — never blended.
 function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueOverview | null; loading: boolean; error: string | null }) {
+  const [showDetails, setShowDetails] = useState(false);
+
   if (loading) return <Text style={styles.emptyText}>Calcul du CA et du MRR auprès de Stripe…</Text>;
   if (error) return <AdminErrorBanner message={error} />;
   if (!overview) return null;
@@ -80,19 +109,17 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
 
   return (
     <>
+      <MrrHero overview={overview} />
+
       <SectionHeading title="Argent réellement encaissé" subtitle="Factures Stripe effectivement payées — pas une projection." />
       <View style={styles.grid}>
         <RevenueTile label="Encaissé ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" accent={colors.success} />
         <RevenueTile label="Encaissé au total" value={formatChf(overview.ca_total_chf)} icon="dollar-sign" accent={colors.success} />
       </View>
 
-      <SectionHeading title="Revenu récurrent réel" subtitle={`${overview.active_count} client${overview.active_count > 1 ? 's' : ''} payant${overview.active_count > 1 ? 's' : ''} — comptes gratuits exclus.`} />
+      <SectionHeading title="Mouvement du MRR ce mois" />
       <View style={styles.grid}>
-        <RevenueTile label="MRR actif" value={formatChf(overview.mrr_active_chf)} icon="trending-up" />
-        <RevenueTile label="ARR (MRR × 12)" value={formatChf(overview.arr_chf)} icon="bar-chart-2" />
-      </View>
-      <View style={styles.grid}>
-        <RevenueTile label="Nouveau MRR ce mois" value={`+${formatChf(overview.new_mrr_this_month_chf)}`} icon="arrow-up-right" accent={colors.success} />
+        <RevenueTile label="Nouveau MRR" value={`+${formatChf(overview.new_mrr_this_month_chf)}`} icon="arrow-up-right" accent={colors.success} />
         <RevenueTile
           label="MRR perdu (résiliations)"
           value={overview.churned_mrr_this_month_chf > 0 ? `−${formatChf(overview.churned_mrr_this_month_chf)}` : formatChf(0)}
@@ -100,99 +127,102 @@ function RevenueOverview({ overview, loading, error }: { overview: AdminRevenueO
           accent={overview.churned_mrr_this_month_chf > 0 ? colors.danger : undefined}
           meta={overview.churned_count_this_month > 0 ? `${overview.churned_count_this_month} résiliation${overview.churned_count_this_month > 1 ? 's' : ''}` : undefined}
         />
-        <RevenueTile
-          label="MRR net ce mois"
-          value={`${overview.net_mrr_this_month_chf >= 0 ? '+' : '−'}${formatChf(Math.abs(overview.net_mrr_this_month_chf))}`}
-          icon={overview.net_mrr_this_month_chf >= 0 ? 'trending-up' : 'trending-down'}
-          accent={overview.net_mrr_this_month_chf >= 0 ? colors.success : colors.danger}
-        />
       </View>
-
-      <SectionHeading
-        title="Résiliations"
-        subtitle="Ce qui est déjà parti ce mois, en taux plutôt qu'en compte brut — et ce qui est déjà programmé pour bientôt."
-      />
-      <View style={styles.grid}>
-        <RevenueTile
-          label="Taux de résiliation (clients)"
-          value={`${logoChurnPct.toFixed(1)}%`}
-          icon="user-x"
-          accent={logoChurnPct > 0 ? colors.danger : colors.success}
-          meta={`sur ${logoBase} client${logoBase > 1 ? 's' : ''} payant${logoBase > 1 ? 's' : ''} en début de mois`}
-        />
-        <RevenueTile
-          label="Taux de résiliation (revenu)"
-          value={`${revenueChurnPct.toFixed(1)}%`}
-          icon="trending-down"
-          accent={revenueChurnPct > 0 ? colors.danger : colors.success}
-          meta="du MRR détenu en début de mois"
-        />
-        <RevenueTile
-          label="Résiliations programmées"
-          value={String(overview.scheduled_cancellations_count)}
-          icon="alert-triangle"
-          accent={overview.scheduled_cancellations_count > 0 ? colors.warning : colors.success}
-          meta={
-            overview.scheduled_cancellations_count > 0
-              ? "actifs ou en essai, déjà annulés pour la fin de leur période"
-              : 'Aucune résiliation en attente'
-          }
-        />
-      </View>
-
-      <SectionHeading title="Pas encore de l'argent" subtitle="Essais en cours et comptes gratuits à vie — pour savoir ce qui pourrait rentrer, et ce qui ne rentrera jamais." />
-      <View style={styles.grid}>
-        <RevenueTile label="MRR en attente (essais)" value={formatChf(overview.mrr_trialing_chf)} icon="clock" accent={colors.warning} meta={`${overview.trialing_count} en essai`} />
-        <RevenueTile label="Gratuit à vie (code promo)" value={String(overview.complimentary_count)} icon="gift" accent={colors.textMuted} meta="Jamais compté dans le MRR" />
-      </View>
-      {overview.complimentary_accounts.length > 0 ? (
-        <View style={styles.list}>
-          {overview.complimentary_accounts.map((acc) => (
-            <View key={acc.id} style={[styles.breakdownRow, styles.complimentaryRow]}>
-              <Text style={styles.breakdownName}>{acc.name}</Text>
-              <Text style={styles.breakdownMeta}>Code « {acc.code} » — 100% offert</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
 
       <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés — filtrable par période." />
       <GrowthChart points={overview.timeseries} />
 
-      {overview.by_plan.length > 0 ? (
+      <Pressable style={styles.detailsToggle} onPress={() => setShowDetails((v) => !v)}>
+        <Text style={styles.detailsToggleText}>{showDetails ? 'Masquer les détails' : 'Afficher plus de détails'}</Text>
+        <Feather name={showDetails ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+      </Pressable>
+
+      {showDetails ? (
         <>
-          <SectionHeading title="MRR par plan" />
-          <View style={styles.list}>
-            {overview.by_plan.map((p) => (
-              <View key={p.plan_id} style={styles.breakdownRow}>
-                <Text style={styles.breakdownName}>{p.plan_name}</Text>
-                <Text style={styles.breakdownMeta}>
-                  {p.active_count} payant{p.active_count > 1 ? 's' : ''}
-                  {p.trialing_count > 0 ? ` · ${p.trialing_count} en essai` : ''}
-                </Text>
-                <Text style={styles.breakdownValue}>{formatChf(p.mrr_chf)}</Text>
+          <SectionHeading
+            title="Résiliations"
+            subtitle="Ce qui est déjà parti ce mois, en taux plutôt qu'en compte brut — et ce qui est déjà programmé pour bientôt."
+          />
+          <View style={styles.grid}>
+            <RevenueTile
+              label="Taux de résiliation (clients)"
+              value={`${logoChurnPct.toFixed(1)}%`}
+              icon="user-x"
+              accent={logoChurnPct > 0 ? colors.danger : colors.success}
+              meta={`sur ${logoBase} client${logoBase > 1 ? 's' : ''} payant${logoBase > 1 ? 's' : ''} en début de mois`}
+            />
+            <RevenueTile
+              label="Taux de résiliation (revenu)"
+              value={`${revenueChurnPct.toFixed(1)}%`}
+              icon="trending-down"
+              accent={revenueChurnPct > 0 ? colors.danger : colors.success}
+              meta="du MRR détenu en début de mois"
+            />
+            <RevenueTile
+              label="Résiliations programmées"
+              value={String(overview.scheduled_cancellations_count)}
+              icon="alert-triangle"
+              accent={overview.scheduled_cancellations_count > 0 ? colors.warning : colors.success}
+              meta={
+                overview.scheduled_cancellations_count > 0
+                  ? "actifs ou en essai, déjà annulés pour la fin de leur période"
+                  : 'Aucune résiliation en attente'
+              }
+            />
+          </View>
+
+          <SectionHeading title="Pas encore de l'argent" subtitle="Essais en cours et comptes gratuits à vie — pour savoir ce qui pourrait rentrer, et ce qui ne rentrera jamais." />
+          <View style={styles.grid}>
+            <RevenueTile label="MRR en attente (essais)" value={formatChf(overview.mrr_trialing_chf)} icon="clock" accent={colors.warning} meta={`${overview.trialing_count} en essai`} />
+            <RevenueTile label="Gratuit à vie (code promo)" value={String(overview.complimentary_count)} icon="gift" accent={colors.textMuted} meta="Jamais compté dans le MRR" />
+          </View>
+          {overview.complimentary_accounts.length > 0 ? (
+            <View style={styles.list}>
+              {overview.complimentary_accounts.map((acc) => (
+                <View key={acc.id} style={[styles.breakdownRow, styles.complimentaryRow]}>
+                  <Text style={styles.breakdownName}>{acc.name}</Text>
+                  <Text style={styles.breakdownMeta}>Code « {acc.code} » — 100% offert</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {overview.by_plan.length > 0 ? (
+            <>
+              <SectionHeading title="MRR par plan" />
+              <View style={styles.list}>
+                {overview.by_plan.map((p) => (
+                  <View key={p.plan_id} style={styles.breakdownRow}>
+                    <Text style={styles.breakdownName}>{p.plan_name}</Text>
+                    <Text style={styles.breakdownMeta}>
+                      {p.active_count} payant{p.active_count > 1 ? 's' : ''}
+                      {p.trialing_count > 0 ? ` · ${p.trialing_count} en essai` : ''}
+                    </Text>
+                    <Text style={styles.breakdownValue}>{formatChf(p.mrr_chf)}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
+            </>
+          ) : null}
+
+          <SectionHeading title="Codes promo" subtitle="Qui les a utilisés, converti ou non — indépendamment du calcul de MRR ci-dessus." />
+          <View style={styles.list}>
+            {overview.promo_codes.length === 0 ? (
+              <Text style={styles.emptyText}>Aucun code promo utilisé à ce jour.</Text>
+            ) : (
+              overview.promo_codes.map((code) => (
+                <View key={code.code} style={styles.breakdownRow}>
+                  <Text style={styles.breakdownName}>{code.code}</Text>
+                  <Text style={styles.breakdownMeta}>
+                    {code.org_count} entreprise{code.org_count > 1 ? 's' : ''} · {code.active_count} payant{code.active_count > 1 ? 's' : ''}
+                    {code.trialing_count > 0 ? ` · ${code.trialing_count} en essai` : ''}
+                  </Text>
+                </View>
+              ))
+            )}
           </View>
         </>
       ) : null}
-
-      <SectionHeading title="Codes promo" subtitle="Qui les a utilisés, converti ou non — indépendamment du calcul de MRR ci-dessus." />
-      <View style={styles.list}>
-        {overview.promo_codes.length === 0 ? (
-          <Text style={styles.emptyText}>Aucun code promo utilisé à ce jour.</Text>
-        ) : (
-          overview.promo_codes.map((code) => (
-            <View key={code.code} style={styles.breakdownRow}>
-              <Text style={styles.breakdownName}>{code.code}</Text>
-              <Text style={styles.breakdownMeta}>
-                {code.org_count} entreprise{code.org_count > 1 ? 's' : ''} · {code.active_count} payant{code.active_count > 1 ? 's' : ''}
-                {code.trialing_count > 0 ? ` · ${code.trialing_count} en essai` : ''}
-              </Text>
-            </View>
-          ))
-        )}
-      </View>
     </>
   );
 }
@@ -332,6 +362,73 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
+  },
+  hero: {
+    backgroundColor: colors.text,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  heroLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.65)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  heroValue: {
+    fontSize: 44,
+    fontWeight: '800',
+    color: '#fff',
+    fontVariant: ['tabular-nums'],
+    marginTop: spacing.xs,
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
+  heroDelta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+  },
+  heroDeltaUp: {
+    backgroundColor: 'rgba(76, 175, 80, 0.18)',
+  },
+  heroDeltaDown: {
+    backgroundColor: 'rgba(220, 76, 76, 0.18)',
+  },
+  heroDeltaText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+  },
+  heroSub: {
+    fontSize: fontSize.xs,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+  detailsToggle: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xl,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  detailsToggleText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
   },
   grid: {
     flexDirection: 'row',
