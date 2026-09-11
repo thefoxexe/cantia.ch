@@ -222,6 +222,13 @@ export default function EntrepriseScreen() {
             <Feather name="chevron-right" size={16} color={colors.textMuted} />
           </Pressable>
 
+          <Text style={styles.sectionTitle}>{t('compteMenu.facturation.label')}</Text>
+          <Pressable onPress={() => router.push('/(app)/compte/facturation')} style={styles.emailsLink}>
+            <Feather name="credit-card" size={16} color={colors.primary} />
+            <Text style={styles.emailsLinkText}>{t('compteMenu.facturation.description')}</Text>
+            <Feather name="chevron-right" size={16} color={colors.textMuted} />
+          </Pressable>
+
           <Text style={styles.sectionTitle}>{t('compteMenu.entrepriseDanger.label')}</Text>
           <Pressable onPress={() => router.push('/(app)/compte/entreprise-danger')} style={styles.dangerLink}>
             <Feather name="alert-triangle" size={16} color={colors.danger} />

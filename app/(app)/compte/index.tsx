@@ -45,10 +45,10 @@ interface MenuGroup {
 
 // Grouped instead of one long flat list — each group is a real theme
 // ("everything about how the company presents itself", "which parts of
-// the app are turned on"), not an alphabetical dump. Two entries
-// (Équipe, Abonnement) stand on their own outside any group: they're each
-// a single, self-contained concern that doesn't share a theme with
-// anything else, so folding them into a group would just be padding.
+// the app are turned on"), not an alphabetical dump. Équipe stands on its
+// own outside any group: team members is a single, self-contained concern
+// that doesn't share a theme with anything else, so folding it into a
+// group would just be padding.
 // Each group also carries its own icon/color so the collapsed list reads
 // at a glance instead of as a wall of identical uppercase labels.
 const GROUPS: MenuGroup[] = [
@@ -76,6 +76,7 @@ const GROUPS: MenuGroup[] = [
       { href: '/(app)/compte/apparence', icon: 'droplet', key: 'apparence' },
       { href: '/(app)/compte/devis', icon: 'file-text', key: 'devis' },
       { href: '/(app)/compte/emails', icon: 'mail', key: 'emails' },
+      { href: '/(app)/compte/facturation', icon: 'credit-card', key: 'facturation' },
       { href: '/(app)/compte/stockage', icon: 'hard-drive', key: 'stockage' },
       { href: '/(app)/compte/entreprise-danger', icon: 'alert-triangle', key: 'entrepriseDanger' },
     ],
@@ -101,8 +102,9 @@ const GROUP_COLORS: Record<MenuGroup['color'], { bg: string; fg: string }> = {
 
 const RH_ITEM: MenuItem = { href: '/(app)/compte/rh', icon: 'dollar-sign', key: 'rh' };
 
+// Facturation moved into the "Entreprise" group (see GROUPS above) — it's
+// the company's subscription, not a standalone concern like Équipe.
 const EQUIPE_ITEM: MenuItem = { href: '/(app)/compte/equipe', icon: 'users', key: 'equipe' };
-const FACTURATION_ITEM: MenuItem = { href: '/(app)/compte/facturation', icon: 'credit-card', key: 'facturation' };
 
 export default function CompteIndexScreen() {
   const { t } = useTranslation();
@@ -129,7 +131,7 @@ export default function CompteIndexScreen() {
   }, [canManagePayroll, organization?.enabled_modules, t]);
 
   const standaloneItems = useMemo(
-    () => [EQUIPE_ITEM, FACTURATION_ITEM].map((item) => ({ ...item, label: t(`compteMenu.${item.key}.label`), description: t(`compteMenu.${item.key}.description`) })),
+    () => [EQUIPE_ITEM].map((item) => ({ ...item, label: t(`compteMenu.${item.key}.label`), description: t(`compteMenu.${item.key}.description`) })),
     [t],
   );
 
