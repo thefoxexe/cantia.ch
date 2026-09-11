@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
 import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
-import { colors, fontSize, spacing } from '../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 export default function SignupScreen() {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ export default function SignupScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -29,7 +31,7 @@ export default function SignupScreen() {
       return;
     }
     setLoading(true);
-    const { error, needsVerification } = await signUp(email.trim(), password, fullName.trim());
+    const { error, needsVerification } = await signUp(email.trim(), password, fullName.trim(), newsletterOptIn);
     setLoading(false);
     if (error) {
       setError(error);
@@ -84,6 +86,13 @@ export default function SignupScreen() {
               onChangeText={setPassword}
               placeholder={t('authSignup.passwordPlaceholderMin')}
             />
+            <Pressable onPress={() => setNewsletterOptIn((v) => !v)} style={styles.checkboxRow} hitSlop={4}>
+              <View style={[styles.checkbox, newsletterOptIn && styles.checkboxChecked]}>
+                {newsletterOptIn ? <Feather name="check" size={12} color="#fff" /> : null}
+              </View>
+              <Text style={styles.checkboxLabel}>{t('authSignup.newsletterOptIn')}</Text>
+            </Pressable>
+
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Button title={t('authSignup.submit')} onPress={handleSubmit} loading={loading} />
           </View>
@@ -138,6 +147,33 @@ const styles = StyleSheet.create({
   },
   form: {
     marginTop: spacing.md,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: radius.sm,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  checkboxLabel: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 17,
   },
   dividerRow: {
     flexDirection: 'row',

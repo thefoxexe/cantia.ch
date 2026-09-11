@@ -765,6 +765,8 @@ export const de: TranslationDict = {
   notificationSettings: {
     title: 'Benachrichtigungen',
     hint: 'Wählen Sie für jede Ereignisart, wie Sie benachrichtigt werden möchten — in der App, per E-Mail und auf Ihrem Telefon.',
+    newsletterLabel: 'Cantia-Newsletter',
+    newsletterDescription: 'Erhalten Sie gelegentlich eine E-Mail zu grösseren Neuigkeiten — kein Spam, höchstens ein paar E-Mails pro Jahr.',
     colInApp: 'In-App',
     colEmail: 'E-Mail',
     colPush: 'Push',
@@ -1589,6 +1591,7 @@ export const de: TranslationDict = {
     emailPlaceholder: 'sie@unternehmen.ch',
     passwordLabel: 'Passwort',
     passwordPlaceholderMin: 'Mindestens 6 Zeichen',
+    newsletterOptIn: 'Ich möchte Cantia-Neuigkeiten per E-Mail erhalten (selten, nur bei grösseren Updates).',
     submit: 'Konto erstellen',
     or: 'oder',
     haveAccount: 'Bereits ein Konto? Anmelden',

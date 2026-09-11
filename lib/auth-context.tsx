@@ -60,7 +60,7 @@ interface AuthContextValue {
   // needsVerification is true when Supabase's "Confirm email" setting is on
   // and the account isn't confirmed yet — signUp() then returns no session
   // (nothing to sign in with) until verifySignupCode() succeeds.
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null; needsVerification: boolean }>;
+  signUp: (email: string, password: string, fullName: string, newsletterOptIn?: boolean) => Promise<{ error: string | null; needsVerification: boolean }>;
   verifySignupCode: (email: string, code: string) => Promise<{ error: string | null }>;
   resendSignupCode: (email: string) => Promise<{ error: string | null }>;
   // Updates organization_members.locale (the source of truth) for the
@@ -276,13 +276,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error?.message ?? null };
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string, newsletterOptIn: boolean = true) => {
     // Whatever language the marketing site was showing when they signed up
     // (French by default, German on /de/... pages) — create_organization()
     // reads this back out of raw_user_meta_data and seeds
     // organization_members.locale with it, same mechanism as full_name.
+    // newsletter_opt_in travels the same way, read by
+    // handle_new_user_newsletter_pref() the moment the auth.users row is
+    // created — there's no session yet to write newsletter_subscriptions
+    // directly while "Confirm email" is still pending.
     const locale = getAppLocale();
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName, locale } } });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName, locale, newsletter_opt_in: newsletterOptIn } },
+    });
     // Supabase returns a user with no session when "Confirm email" is
     // enabled and this account isn't confirmed yet — that's the only
     // reliable signal here, since the call itself still succeeds either way.

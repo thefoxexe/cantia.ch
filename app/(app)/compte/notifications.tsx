@@ -3,6 +3,7 @@ import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { NOTIFICATION_TYPES, listPreferences, upsertPreference } from '../../../lib/api/notifications';
+import { getMyNewsletterSubscription, setMyNewsletterSubscription } from '../../../lib/api/newsletter';
 import { registerForPushNotificationsAsync } from '../../../lib/notifications/registerPush';
 import { Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
@@ -28,11 +29,13 @@ export default function NotificationSettingsScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(true);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
     const raw = await listPreferences(organization.id, user.id);
     setPrefs(toPrefs(raw));
+    setNewsletterSubscribed(await getMyNewsletterSubscription(user.id));
   }, [organization, user]);
 
   useFocusEffect(
@@ -40,6 +43,12 @@ export default function NotificationSettingsScreen() {
       load();
     }, [load]),
   );
+
+  async function toggleNewsletter(value: boolean) {
+    if (!user) return;
+    setNewsletterSubscribed(value);
+    await setMyNewsletterSubscription(user.id, value);
+  }
 
   async function toggle(type: NotificationType, field: 'in_app' | 'email' | 'push', value: boolean) {
     if (!organization || !user || !prefs) return;
@@ -59,6 +68,14 @@ export default function NotificationSettingsScreen() {
         <Container>
           <PageHeader title={t('notificationSettings.title')} backTo="/(app)/compte" />
           <Text style={styles.hint}>{t('notificationSettings.hint')}</Text>
+
+          <Card style={styles.newsletterRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>{t('notificationSettings.newsletterLabel')}</Text>
+              <Text style={styles.description}>{t('notificationSettings.newsletterDescription')}</Text>
+            </View>
+            <Switch value={newsletterSubscribed} onChange={toggleNewsletter} />
+          </Card>
 
           <View style={styles.columnHeader}>
             <View style={{ flex: 1 }} />
@@ -98,6 +115,12 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
     lineHeight: 18,
+  },
+  newsletterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   columnHeader: {
     flexDirection: 'row',

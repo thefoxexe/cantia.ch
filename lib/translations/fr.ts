@@ -751,6 +751,8 @@ export const fr = {
   notificationSettings: {
     title: 'Notifications',
     hint: "Pour chaque type d'événement, choisissez comment vous voulez être prévenu — dans l'application, par e-mail, et sur votre téléphone.",
+    newsletterLabel: 'Newsletter Cantia',
+    newsletterDescription: 'Recevez un e-mail occasionnel pour les grandes nouveautés — pas de spam, quelques e-mails par an tout au plus.',
     colInApp: 'In-app',
     colEmail: 'E-mail',
     colPush: 'Push',
@@ -1575,6 +1577,7 @@ export const fr = {
     emailPlaceholder: 'vous@entreprise.ch',
     passwordLabel: 'Mot de passe',
     passwordPlaceholderMin: 'Au moins 6 caractères',
+    newsletterOptIn: "Je souhaite recevoir les nouveautés Cantia par e-mail (rare, uniquement pour les grandes mises à jour).",
     submit: 'Créer mon compte',
     or: 'ou',
     haveAccount: 'Déjà un compte ? Se connecter',
