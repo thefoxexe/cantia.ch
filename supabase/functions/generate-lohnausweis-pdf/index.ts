@@ -9,15 +9,22 @@ const BUCKET = 'opus-storage';
 // coordinates, so the output lines up with the printed boxes exactly the
 // way the form itself defines them.
 //
-// Source of truth: this path in storage, seeded and replaceable from the
-// app (Compte → RH & Salaires, platform-owner only — see rh.tsx) by
-// uploading the exact PDF file to keep. Every generation — for every
-// employee, every organization — reads this same cached copy, so
-// replacing it once updates every future certificate. If nothing has been
-// uploaded yet, this falls back to fetching ESTV's current published copy
-// and caches that instead, so generation still works before the first
-// manual upload.
+// Source of truth, tried in order:
+//  1. This path in storage — already cached from a previous run, from
+//     either of the two paths below.
+//  2. This exact file, committed to the GitHub repo (see TEMPLATE_GITHUB_URL
+//     below) and fetched with a repo-scoped token (GITHUB_TEMPLATE_TOKEN
+//     secret) — lets whoever maintains the repo drop in the exact PDF to
+//     use by committing it, no app interaction needed.
+//  3. The app's own upload control (Compte → RH & Salaires, platform-owner
+//     only — see rh.tsx), which uploads straight to this same storage path.
+//  4. ESTV's current published copy, as a last resort so generation still
+//     works before either of the above has ever been set up.
+// Whichever source succeeds gets cached at TEMPLATE_CACHE_PATH, so every
+// generation after the first — for every employee, every organization —
+// reads the same cached copy without re-fetching it.
 const TEMPLATE_CACHE_PATH = '_shared/lohnausweis-form11.pdf';
+const TEMPLATE_GITHUB_URL = 'https://raw.githubusercontent.com/thefoxexe/cantia.ch/cantia.ch/supabase/functions/_shared/assets/lohnausweis-form11.pdf';
 const TEMPLATE_URL = 'https://www.estv.admin.ch/dam/de/sd-web/Nq1zXu8XwlCY/dbst-form-11lohna-rechts-dfi-de.pdf';
 
 const corsHeaders = {
@@ -29,6 +36,21 @@ const corsHeaders = {
 async function loadTemplate(admin: ReturnType<typeof createClient>): Promise<Uint8Array> {
   const { data: cached } = await admin.storage.from(BUCKET).download(TEMPLATE_CACHE_PATH);
   if (cached) return new Uint8Array(await cached.arrayBuffer());
+
+  const githubToken = Deno.env.get('GITHUB_TEMPLATE_TOKEN');
+  if (githubToken) {
+    try {
+      const ghRes = await fetch(TEMPLATE_GITHUB_URL, { headers: { Authorization: `token ${githubToken}` } });
+      if (ghRes.ok) {
+        const bytes = new Uint8Array(await ghRes.arrayBuffer());
+        await admin.storage.from(BUCKET).upload(TEMPLATE_CACHE_PATH, bytes, { contentType: 'application/pdf', upsert: true });
+        return bytes;
+      }
+    } catch {
+      // Falls through to the ESTV fetch below — a broken/misconfigured
+      // GitHub source should never be the reason generation fails outright.
+    }
+  }
 
   const res = await fetch(TEMPLATE_URL);
   if (!res.ok) throw new Error("Impossible de récupérer le modèle officiel du certificat de salaire (ESTV).");

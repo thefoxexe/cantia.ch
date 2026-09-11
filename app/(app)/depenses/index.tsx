@@ -25,9 +25,10 @@ import { scanReceipt } from '../../../lib/api/ai';
 import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { ReceiptScanTiles } from '../../../components/ReceiptScanTiles';
+import { ProjectPicker } from '../../../components/ProjectPicker';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Expense, Plan, RecurringExpense, RecurringExpenseFrequency } from '../../../lib/types';
+import type { Expense, Plan, Project, RecurringExpense, RecurringExpenseFrequency } from '../../../lib/types';
 
 type Period = 'all' | 'month' | '30d';
 type Tab = 'list' | 'recurring';
@@ -567,7 +568,7 @@ function OneOffExpenseModal({
   const [expenseDate, setExpenseDate] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [vatRate, setVatRate] = useState('');
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanningReceipt, setScanningReceipt] = useState(false);
@@ -584,7 +585,7 @@ function OneOffExpenseModal({
     setExpenseDate(editing?.expense_date ?? isoToday());
     setNotes(editing?.notes ?? '');
     setVatRate(editing?.vat_rate != null ? String(editing.vat_rate) : '');
-    setSelectedProjectId(null);
+    setSelectedProject(null);
     setError(null);
     setScanError(null);
     setScanSuccess(null);
@@ -677,10 +678,10 @@ function OneOffExpenseModal({
     setSaving(true);
     setError(null);
 
-    if (!editing && selectedProjectId) {
+    if (!editing && selectedProject) {
       const { error: err } = await createProjectExpense(
         organizationId,
-        selectedProjectId,
+        selectedProject.id,
         { label: label.trim(), category: category.trim() || null, amount: amountChf, expenseDate, notes: notes.trim() || null, vatRate: vatRateNum },
         userId ?? null,
       );
@@ -755,25 +756,7 @@ function OneOffExpenseModal({
             {!editing && projects.length > 0 ? (
               <View style={{ marginBottom: spacing.lg }}>
                 <Text style={styles.fieldLabel}>{t('treasury.projectField')}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                  <Pressable
-                    onPress={() => setSelectedProjectId(null)}
-                    style={[styles.freqChip, { flex: 0, paddingHorizontal: spacing.md }, selectedProjectId === null && styles.freqChipActive]}
-                  >
-                    <Text style={[styles.freqChipText, selectedProjectId === null && styles.freqChipTextActive]}>{t('depensesList.filterGeneral')}</Text>
-                  </Pressable>
-                  {projects.map((p) => (
-                    <Pressable
-                      key={p.id}
-                      onPress={() => setSelectedProjectId(p.id)}
-                      style={[styles.freqChip, { flex: 0, paddingHorizontal: spacing.md }, selectedProjectId === p.id && styles.freqChipActive]}
-                    >
-                      <Text style={[styles.freqChipText, selectedProjectId === p.id && styles.freqChipTextActive]} numberOfLines={1}>
-                        {p.name}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                <ProjectPicker organizationId={organizationId} selectedProject={selectedProject} onSelect={setSelectedProject} />
                 <Text style={styles.rowDate}>{t('treasury.projectFieldHint')}</Text>
               </View>
             ) : null}
