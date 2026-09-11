@@ -2,20 +2,27 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { Button, LangToggle } from './ui';
+import { Button } from './ui';
 import { breakpoints, colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
-import { getAppLocale, useTranslation } from '../lib/translations';
+import { AVAILABLE_LOCALES, getAppLocale, useTranslation, type AppLocale } from '../lib/translations';
 
-// FR/DE/IT toggle for the marketing site's nav, footer and mobile menu — an
-// animated sliding pill (LangToggle, see components/ui.tsx) rather than
-// separate text links, so switching language reads as one small physical
-// gesture (the active side slides across) instead of picking between static
-// labels. Navigates to the same page's other-language mirror
-// (toggleLocalePathname), not just the homepage, so switching from a trade
-// or solution page keeps the visitor on that same page.
+const LOCALE_META: Record<AppLocale, { flag: string; label: string }> = {
+  fr: { flag: '🇫🇷', label: 'Français' },
+  de: { flag: '🇩🇪', label: 'Deutsch' },
+  it: { flag: '🇮🇹', label: 'Italiano' },
+};
+const LANG_DROPDOWN_WIDTH = 168;
+
+// FR/DE/IT picker for the marketing site's nav, footer and mobile menu — a
+// small anchored dropdown (flag + code, tap to reveal the 3 options) rather
+// than the previous sliding-pill toggle, which read as a segmented control
+// rather than a language picker. Navigates to the same page's
+// other-language mirror (toggleLocalePathname), not just the homepage, so
+// switching from a trade or solution page keeps the visitor on that same
+// page.
 //
 // On web this is a real `window.location` navigation, not router.push: a
 // client-side (SPA) transition never updates document.title, <link
@@ -33,7 +40,14 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = getAppLocale();
-  const goToLocale = (next: 'fr' | 'de' | 'it') => {
+  const [open, setOpen] = useState(false);
+  const [anchor, setAnchor] = useState<{ x: number; y: number; width: number } | null>(null);
+  const { width: winWidth } = useWindowDimensions();
+  const triggerRef = useRef<View>(null);
+
+  const goToLocale = (next: AppLocale) => {
+    setOpen(false);
+    if (next === locale) return;
     const target = toggleLocalePathname(pathname, next);
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       window.location.assign(target);
@@ -41,9 +55,44 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
       router.push(target as any);
     }
   };
+
+  function openDropdown() {
+    triggerRef.current?.measure((_x, _y, width, _height, pageX, pageY) => {
+      setAnchor({ x: pageX, y: pageY, width });
+      setOpen(true);
+    });
+  }
+
+  const dropdownLeft = anchor
+    ? Math.min(Math.max(12, anchor.x + anchor.width - LANG_DROPDOWN_WIDTH), winWidth - LANG_DROPDOWN_WIDTH - 12)
+    : 0;
+
   return (
-    <View style={compact ? styles.langSwitcherCompact : undefined}>
-      <LangToggle value={locale} onChange={goToLocale} />
+    <View ref={triggerRef} collapsable={false} style={compact ? styles.langSwitcherCompact : undefined}>
+      <Pressable onPress={openDropdown} style={({ hovered }: any) => [styles.langTrigger, hovered && styles.langTriggerHovered]}>
+        <Text style={styles.langTriggerFlag}>{LOCALE_META[locale].flag}</Text>
+        <Text style={styles.langTriggerCode}>{locale.toUpperCase()}</Text>
+        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={13} color={colors.textMuted} />
+      </Pressable>
+
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
+        {anchor ? (
+          <View style={[styles.langDropdown, { top: anchor.y + 34, left: dropdownLeft, width: LANG_DROPDOWN_WIDTH }]}>
+            {AVAILABLE_LOCALES.map((loc) => (
+              <Pressable
+                key={loc}
+                onPress={() => goToLocale(loc)}
+                style={({ hovered }: any) => [styles.langOption, hovered && styles.langOptionHovered]}
+              >
+                <Text style={styles.langOptionFlag}>{LOCALE_META[loc].flag}</Text>
+                <Text style={[styles.langOptionText, loc === locale && styles.langOptionTextActive]}>{LOCALE_META[loc].label}</Text>
+                {loc === locale ? <Feather name="check" size={14} color={colors.primary} /> : null}
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
+      </Modal>
     </View>
   );
 }
@@ -399,6 +448,68 @@ const styles = StyleSheet.create({
   },
   langSwitcherCompact: {
     marginLeft: 0,
+  },
+  langTrigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 7,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  langTriggerHovered: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  langTriggerFlag: {
+    fontSize: 15,
+  },
+  langTriggerCode: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.xs,
+    fontWeight: '800',
+    color: colors.text,
+    letterSpacing: 0.4,
+  },
+  langDropdown: {
+    position: 'absolute',
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.xs,
+    shadowColor: '#000',
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  langOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  langOptionHovered: {
+    backgroundColor: colors.surfaceAlt,
+  },
+  langOptionFlag: {
+    fontSize: 16,
+  },
+  langOptionText: {
+    flex: 1,
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  langOptionTextActive: {
+    color: colors.primary,
+    fontWeight: '800',
   },
   hamburgerButton: {
     width: 40,

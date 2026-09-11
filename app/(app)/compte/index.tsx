@@ -22,6 +22,9 @@ interface MenuItem {
 interface MenuGroup {
   id: string;
   titleKey: string;
+  descriptionKey: string;
+  icon: IconName;
+  color: 'primary' | 'accent' | 'success';
   items: MenuItem[];
 }
 
@@ -31,10 +34,15 @@ interface MenuGroup {
 // (Équipe, Abonnement) stand on their own outside any group: they're each
 // a single, self-contained concern that doesn't share a theme with
 // anything else, so folding them into a group would just be padding.
+// Each group also carries its own icon/color so the collapsed list reads
+// at a glance instead of as a wall of identical uppercase labels.
 const GROUPS: MenuGroup[] = [
   {
     id: 'general',
     titleKey: 'compteMenu.groupGeneral',
+    descriptionKey: 'compteMenu.groupGeneralDesc',
+    icon: 'sliders',
+    color: 'primary',
     items: [
       { href: '/(app)/compte/profil', icon: 'user', key: 'profil' },
       { href: '/(app)/compte/notifications', icon: 'bell', key: 'notifications' },
@@ -45,8 +53,11 @@ const GROUPS: MenuGroup[] = [
   {
     id: 'entreprise',
     titleKey: 'compteMenu.groupEntreprise',
+    descriptionKey: 'compteMenu.groupEntrepriseDesc',
+    icon: 'briefcase',
+    color: 'accent',
     items: [
-      { href: '/(app)/compte/entreprise', icon: 'briefcase', key: 'entreprise' },
+      { href: '/(app)/compte/entreprise', icon: 'home', key: 'entreprise' },
       { href: '/(app)/compte/apparence', icon: 'droplet', key: 'apparence' },
       { href: '/(app)/compte/devis', icon: 'file-text', key: 'devis' },
       { href: '/(app)/compte/emails', icon: 'mail', key: 'emails' },
@@ -56,12 +67,21 @@ const GROUPS: MenuGroup[] = [
   {
     id: 'modules',
     titleKey: 'compteMenu.groupModules',
+    descriptionKey: 'compteMenu.groupModulesDesc',
+    icon: 'grid',
+    color: 'success',
     items: [
-      { href: '/(app)/compte/modules', icon: 'grid', key: 'modules' },
+      { href: '/(app)/compte/modules', icon: 'toggle-right', key: 'modules' },
       { href: '/(app)/compte/integrations', icon: 'link', key: 'integrations' },
     ],
   },
 ];
+
+const GROUP_COLORS: Record<MenuGroup['color'], { bg: string; fg: string }> = {
+  primary: { bg: colors.primarySoft, fg: colors.primary },
+  accent: { bg: colors.accentSoft, fg: colors.accent },
+  success: { bg: colors.successSoft, fg: colors.success },
+};
 
 const RH_ITEM: MenuItem = { href: '/(app)/compte/rh', icon: 'dollar-sign', key: 'rh' };
 
@@ -148,21 +168,33 @@ export default function CompteIndexScreen() {
             <View style={styles.list}>
               {filteredGroups.map((group) => {
                 const open = isOpen(group.id);
+                const groupColor = GROUP_COLORS[group.color];
                 return (
-                  <View key={group.id} style={styles.groupCard}>
+                  <View key={group.id} style={[styles.groupCard, open && styles.groupCardOpen]}>
                     <Pressable onPress={() => toggleGroup(group.id)} style={styles.groupHeader}>
-                      <Text style={styles.groupTitle}>{group.title}</Text>
-                      <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+                      <View style={[styles.groupIconBadge, { backgroundColor: groupColor.bg }]}>
+                        <Feather name={group.icon} size={19} color={groupColor.fg} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.groupTitle}>{group.title}</Text>
+                        <Text style={styles.groupDescription} numberOfLines={1}>
+                          {t(group.descriptionKey as any)}
+                        </Text>
+                      </View>
+                      <View style={[styles.chevronBadge, open && styles.chevronBadgeOpen]}>
+                        <Feather name="chevron-down" size={16} color={open ? colors.primary : colors.textMuted} />
+                      </View>
                     </Pressable>
-                    {open
-                      ? group.items.map((item, i) => (
+                    {open ? (
+                      <View style={styles.groupBody}>
+                        {group.items.map((item) => (
                           <Pressable
                             key={item.href}
                             onPress={() => openItem(item)}
-                            style={({ hovered }: any) => [styles.row, i === 0 && styles.rowFirst, hovered && styles.rowHovered]}
+                            style={({ hovered }: any) => [styles.row, hovered && styles.rowHovered]}
                           >
                             <View style={styles.iconBadge}>
-                              <Feather name={item.icon} size={16} color={colors.primary} />
+                              <Feather name={item.icon} size={15} color={colors.primary} />
                             </View>
                             <View style={{ flex: 1 }}>
                               <Text style={styles.label}>{item.label}</Text>
@@ -170,8 +202,9 @@ export default function CompteIndexScreen() {
                             </View>
                             <Feather name="chevron-right" size={16} color={colors.textMuted} />
                           </Pressable>
-                        ))
-                      : null}
+                        ))}
+                      </View>
+                    ) : null}
                   </View>
                 );
               })}
@@ -235,34 +268,60 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
   },
+  groupCardOpen: {
+    borderColor: colors.primary,
+  },
   groupHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.lg,
+    gap: spacing.md,
+    padding: spacing.md,
+  },
+  groupIconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   groupTitle: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.md,
     fontWeight: '800',
     color: colors.text,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
+  },
+  groupDescription: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  chevronBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceAlt,
+    transform: [{ rotate: '-90deg' }],
+  },
+  chevronBadgeOpen: {
+    backgroundColor: colors.primarySoft,
+    transform: [{ rotate: '0deg' }],
+  },
+  groupBody: {
+    backgroundColor: colors.surfaceAlt,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingVertical: spacing.xs,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  rowFirst: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   rowHovered: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
   },
   standaloneRow: {
     flexDirection: 'row',
