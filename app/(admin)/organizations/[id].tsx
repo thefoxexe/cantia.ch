@@ -6,13 +6,30 @@ import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { Feather } from '@expo/vector-icons';
-import { getOrgBillingStatuses, getOrganizationDetail, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, getOrganizationEvents, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
+import type { AdminOrgEvent } from '../../../lib/api/admin';
 import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
 
 const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJECT_MODULES].map((m) => [m.key, m.label]));
 
 const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
+
+const EVENT_META: Record<AdminOrgEvent['event_type'], { label: string; icon: keyof typeof Feather.glyphMap; color: string }> = {
+  activated: { label: 'Abonnement activé', icon: 'check-circle', color: colors.success },
+  trial_started: { label: "Période d'essai démarrée", icon: 'clock', color: colors.primary },
+  plan_changed: { label: 'Changement de plan', icon: 'repeat', color: colors.warning },
+  canceled: { label: 'Abonnement résilié', icon: 'x-circle', color: colors.danger },
+};
+
+function describeEvent(event: AdminOrgEvent): string | null {
+  const d = event.detail ?? {};
+  if (event.event_type === 'plan_changed' && d.from && d.to) return `${d.from} → ${d.to}`;
+  if (event.event_type === 'canceled' && d.was_trialing) return "Résilié pendant la période d'essai";
+  if (event.event_type === 'trial_started' && typeof d.trial_end === 'string') return `Jusqu'au ${formatDate(d.trial_end)}`;
+  if ((event.event_type === 'activated' || event.event_type === 'trial_started') && typeof d.plan_id === 'string') return `Plan : ${d.plan_id}`;
+  return null;
+}
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
@@ -44,12 +61,16 @@ export default function AdminOrganizationDetailScreen() {
   const [billingLoading, setBillingLoading] = useState(true);
   const [confirmingTrial, setConfirmingTrial] = useState(false);
   const [grantingTrial, setGrantingTrial] = useState(false);
+  const [events, setEvents] = useState<AdminOrgEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!id) return;
-    const [d, mods] = await Promise.all([getOrganizationDetail(id), listModules()]);
+    const [d, mods, ev] = await Promise.all([getOrganizationDetail(id), listModules(), getOrganizationEvents(id)]);
     setDetail(d.detail);
     setAllModules(mods.rows);
+    setEvents(ev.rows);
+    setEventsLoading(false);
     setError(d.error ?? mods.error);
     setLoading(false);
     setBillingLoading(true);
@@ -222,6 +243,32 @@ export default function AdminOrganizationDetailScreen() {
             )}
           </>
         ) : null}
+
+        <Text style={styles.sectionTitle}>Historique de l'abonnement</Text>
+        {eventsLoading ? (
+          <Text style={styles.emptyText}>Chargement…</Text>
+        ) : events.length === 0 ? (
+          <Text style={[styles.emptyText, { marginBottom: spacing.xl }]}>Aucun événement enregistré pour l'instant.</Text>
+        ) : (
+          <View style={styles.list}>
+            {events.map((ev) => {
+              const meta = EVENT_META[ev.event_type];
+              const sub = describeEvent(ev);
+              return (
+                <View key={ev.id} style={styles.eventRow}>
+                  <View style={[styles.eventIcon, { backgroundColor: `${meta.color}1a` }]}>
+                    <Feather name={meta.icon} size={14} color={meta.color} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.memberName}>{meta.label}</Text>
+                    {sub ? <Text style={styles.memberSubtitle}>{sub}</Text> : null}
+                  </View>
+                  <Text style={styles.memberMeta}>{formatDateTime(ev.created_at)}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
 
         <Text style={styles.sectionTitle}>Membres ({detail.members.length})</Text>
         <View style={styles.list}>
@@ -405,6 +452,24 @@ const styles = StyleSheet.create({
   memberMeta: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  eventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  eventIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipRow: {
     flexDirection: 'row',
