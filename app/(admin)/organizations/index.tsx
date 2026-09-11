@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
@@ -294,21 +294,23 @@ export default function AdminOrganizationsList() {
             subtitle={search ? 'Essayez une autre recherche.' : statusFilter ? 'Aucune entreprise dans ce statut.' : undefined}
           />
         ) : (
-          <FlatList
-            data={filteredRows}
-            keyExtractor={(o) => o.id}
-            renderItem={({ item }) => (
+          // A plain mapped View, not a nested FlatList/ScrollView — even with
+          // scrollEnabled={false}, a nested scrollable on web/mobile fights
+          // the page's own ScrollView for wheel/touch gestures and can lock
+          // scrolling solid the moment the gesture direction reverses (the
+          // same class of bug the horizontal filter-chip scroller had).
+          <View style={styles.list}>
+            {filteredRows.map((item) => (
               <OrgCard
+                key={item.id}
                 org={item}
                 billing={billing[item.id]}
                 expanded={expandedIds.has(item.id)}
                 onToggle={() => toggleExpanded(item.id)}
                 onOpenDetail={() => router.push(`/(admin)/organizations/${item.id}` as any)}
               />
-            )}
-            ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
-            scrollEnabled={false}
-          />
+            ))}
+          </View>
         )}
       </Container>
     </ScrollView>
@@ -397,6 +399,9 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: '#fff',
+  },
+  list: {
+    gap: spacing.sm,
   },
   card: {
     backgroundColor: colors.surface,
