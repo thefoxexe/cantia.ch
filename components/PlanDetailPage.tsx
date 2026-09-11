@@ -54,7 +54,10 @@ function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): Compar
     {
       label: t('planPage.comparePrice'),
       cells: cellFor(
-        (p) => p.price_chf_monthly,
+        // numeric column, arrives as a string ("39.00") from PostgREST —
+        // Number(...) it before ever calling .toFixed, or a string with no
+        // .toFixed method crashes this row on every /plans/* page load.
+        (p) => (p.price_chf_monthly != null ? Number(p.price_chf_monthly) : null),
         (v) => ({ text: v != null ? t('planPage.comparePerMonth', { count: `CHF ${Number.isInteger(v) ? v : v.toFixed(2)}` }) : '—' }),
       ),
     },

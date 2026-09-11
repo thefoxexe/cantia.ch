@@ -62,7 +62,15 @@ export function PricingSection({ compact }: { compact?: boolean }) {
               .filter((p) => !p.is_contact_only)
               .map((p) => {
                 const isYearly = billingInterval === 'year';
-                const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly ?? 0;
+                // PostgREST serializes numeric columns as JSON strings (to
+                // avoid float precision loss), so price_chf_monthly/_yearly
+                // arrive as e.g. "39.00", not a number — Number(...) here,
+                // once, rather than relying on `/ 12` to coerce it only in
+                // the yearly branch and crashing .toFixed() in the monthly
+                // one (confirmed live: this crashed the whole section).
+                const monthlyPrice = Number(p.price_chf_monthly ?? 0);
+                const yearlyPrice = p.price_chf_yearly != null ? Number(p.price_chf_yearly) : null;
+                const displayMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;
                 const dark = p.id === 'equipe';
                 return (
                   <View key={p.id} style={[styles.card, dark && styles.cardDark]}>
@@ -78,9 +86,9 @@ export function PricingSection({ compact }: { compact?: boolean }) {
                       </Text>
                       <Text style={[styles.period, dark && styles.textMutedOnDark]}>{tr('pricingSection.perMonth')}</Text>
                     </View>
-                    {isYearly && p.price_chf_yearly != null ? (
+                    {isYearly && yearlyPrice != null ? (
                       <Text style={[styles.yearlyNote, dark && styles.textMutedOnDark]}>
-                        {tr('pricingSection.billedYearlyAmount', { amount: p.price_chf_yearly.toFixed(2) })}
+                        {tr('pricingSection.billedYearlyAmount', { amount: yearlyPrice.toFixed(2) })}
                       </Text>
                     ) : null}
                     <View style={styles.features}>

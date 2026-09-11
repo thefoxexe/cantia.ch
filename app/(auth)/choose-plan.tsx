@@ -163,7 +163,12 @@ function PlanCard({
   const isYearly = billingInterval === 'year';
   // is_contact_only plans are filtered out of the query this screen loads
   // from (self-serve checkout only), so price_chf_monthly is always set here.
-  const displayMonthly = (isYearly && plan.price_chf_yearly != null ? plan.price_chf_yearly / 12 : plan.price_chf_monthly) ?? 0;
+  // Both columns are numeric in Postgres — PostgREST serializes those as
+  // JSON strings (e.g. "39.00"), so Number(...) them before any arithmetic
+  // or .toFixed() call, or the monthly branch/yearlyNote below crashes.
+  const monthlyPrice = Number(plan.price_chf_monthly ?? 0);
+  const yearlyPrice = plan.price_chf_yearly != null ? Number(plan.price_chf_yearly) : null;
+  const displayMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;
   return (
     <Card style={[styles.card, highlight && styles.cardHighlight]}>
       {highlight ? (
@@ -184,8 +189,8 @@ function PlanCard({
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
       </View>
-      {isYearly && plan.price_chf_yearly != null ? (
-        <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: plan.price_chf_yearly.toFixed(2) })}</Text>
+      {isYearly && yearlyPrice != null ? (
+        <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: yearlyPrice.toFixed(2) })}</Text>
       ) : null}
       <View style={styles.features}>
         <Feature text={t('authChoosePlan.storageFeature', { gb: (plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0) })} />

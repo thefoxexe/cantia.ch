@@ -19,11 +19,12 @@ import {
 } from 'react-native';
 import { Link, Redirect, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Button, LangToggle, Screen, Switch } from '../components/ui';
+import { Button, LangToggle, Screen } from '../components/ui';
 import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome';
 import { ShowcaseVideo } from '../components/ShowcaseVideo';
 import { Heading } from '../components/Heading';
 import { MarketingHead } from '../components/MarketingHead';
+import { PricingSection } from '../components/PricingSection';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -32,12 +33,10 @@ import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { colors, fontSize, radius, spacing, breakpoints } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
-import type { Plan } from '../lib/types';
 
 type IconName = keyof typeof Feather.glyphMap;
 type TradeIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
-const NEON_GREEN = '#39FF6A';
 // Manually maintained, not fetched. Bumped to 30 on Bastien's explicit
 // instruction (2.09.2026) ahead of an outreach campaign expected to land at
 // least 10 more real signups on top of the 20 non-demo organizations at the
@@ -92,13 +91,6 @@ function LandingContent() {
   const aideHref = `${tradeHrefPrefix}aide`;
   const contactHref = `${tradeHrefPrefix}contact`;
   const scrollRef = useRef<ScrollView>(null);
-  const [plans, setPlans] = useState<Plan[]>([]);
-  // Starts true so the pricing grid renders skeleton cards instead of a bare
-  // gap on first paint — the fetch below is usually fast, but on a slow
-  // chantier connection that gap could sit empty for a second or two, right
-  // on the section carrying the site's main commercial argument.
-  const [plansLoading, setPlansLoading] = useState(true);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   // Starts on the first item (not null) so the accordion's payoff — the
   // checklist detail — is visible on arrival instead of requiring a click
   // to discover the section does anything beyond a static icon list.
@@ -135,7 +127,6 @@ function LandingContent() {
   const heroHeadlineAnim = useRef(new Animated.Value(0)).current;
   const heroSubAnim = useRef(new Animated.Value(0)).current;
   const heroCtaAnim = useRef(new Animated.Value(0)).current;
-  const skeletonPulse = useRef(new Animated.Value(0.5)).current;
   // Continuous, subtle motion so the hero doesn't read as a static screenshot:
   // the phone mockup gently floats, and the two background blobs breathe out
   // of phase with each other. Neither ties to scroll/reveal state — they run
@@ -281,25 +272,6 @@ function LandingContent() {
   );
 
   useEffect(() => {
-    supabase
-      .from('plans')
-      .select('*')
-      // "decouverte" is the auto-assigned 14-day trial, not something to pick
-      // or pay for — never shown as a plan option. "free" is a retired
-      // legacy plan (no permanent free tier anymore, see
-      // 20260901000000_repricing_no_free_plan_and_role_limits.sql) — kept
-      // in the table only because a few pre-existing organizations still
-      // technically reference the row, but never marketed or offered again.
-      .neq('id', 'decouverte')
-      .neq('id', 'free')
-      .order('price_chf_monthly', { ascending: true })
-      .then(({ data }) => {
-        setPlans(data ?? []);
-        setPlansLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
     Animated.stagger(110, [
       Animated.timing(heroKickerAnim, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
       Animated.timing(heroHeadlineAnim, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
@@ -317,20 +289,6 @@ function LandingContent() {
   // blobPulse stay declared (still wired into the transforms below) but are
   // never driven, so every interpolation simply resolves to its resting
   // value: a fixed slight lean on the cards, no pulsing glow.
-
-  useEffect(() => {
-    if (!plansLoading) return;
-    const skeletonLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(skeletonPulse, { toValue: 1, duration: 700, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(skeletonPulse, { toValue: 0.5, duration: 700, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
-    skeletonLoop.start();
-    return () => {
-      skeletonLoop.stop();
-    };
-  }, [plansLoading, skeletonPulse]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -825,136 +783,14 @@ function LandingContent() {
             <Text style={[styles.sectionEyebrow, styles.centerText]}>{tr('landingPage.pricingEyebrow')}</Text>
             <Heading level={2} style={[styles.sectionTitle, styles.centerText]}>{t.pricing.title}</Heading>
             <Text style={[styles.sectionSubtitle, styles.centerText]}>{t.pricing.subtitle}</Text>
-            <Pressable
-              onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
-              style={styles.billingToggle}
-            >
-              <Text style={styles.billingToggleLabel}>
-                {billingInterval === 'year' ? t.pricing.yearly : t.pricing.monthly}
-              </Text>
-              <View style={styles.billingToggleSaveBadge}>
-                <Text style={styles.billingToggleSaveText}>{t.pricing.yearlySavings}</Text>
-              </View>
-              <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
-            </Pressable>
-            <View style={styles.pricingGrid}>
-              {plansLoading
-                ? [0, 1, 2].map((i) => <PriceCardSkeleton key={i} pulse={skeletonPulse} highlight={i === 1} />)
-                : plans.filter((p) => !p.is_contact_only).map((p) => {
-                const isYearly = billingInterval === 'year';
-                const displayMonthly = isYearly && p.price_chf_yearly != null ? p.price_chf_yearly / 12 : p.price_chf_monthly;
-                const dark = p.id === 'equipe';
-                // "Sur mesure" is priced from a starting point, not a flat
-                // rate — and since it's negotiated per project, annual
-                // billing carries no -20% (price_chf_yearly is just 12x the
-                // monthly amount, no discount baked in), so the strike-
-                // through only makes sense when there's a real reduction.
-                const isFromPrice = p.id === 'illimite';
-                const hasRealYearlyDiscount = p.price_chf_monthly != null && p.price_chf_yearly != null && p.price_chf_yearly < p.price_chf_monthly * 12;
-                return (
-                <Pressable
-                  key={p.id}
-                  style={({ hovered }: any) => [
-                    styles.priceCard,
-                    dark && styles.priceCardHighlight,
-                    hovered && (dark ? styles.priceCardHighlightHovered : styles.priceCardHovered),
-                  ]}
-                >
-                  {dark ? (
-                    <View style={styles.priceBadge}>
-                      <Text style={styles.priceBadgeText}>{t.pricing.badge}</Text>
-                    </View>
-                  ) : null}
-                  <Text style={[styles.priceName, dark && styles.priceNameOnDark]}>{p.name}</Text>
-                  <View style={styles.priceAmountRow}>
-                    {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && hasRealYearlyDiscount ? (
-                      <Text style={[styles.priceAmountStrike, dark && styles.priceAmountStrikeOnDark]}>
-                        CHF {formatChf(p.price_chf_monthly)}
-                      </Text>
-                    ) : null}
-                    {isFromPrice ? (
-                      <Text style={[styles.priceFromLabel, dark && styles.priceFromLabelOnDark]}>{tr('landingPage.priceFromLabel')}</Text>
-                    ) : null}
-                    <Text style={[styles.priceAmount, dark && styles.priceAmountOnDark]}>
-                      {p.price_chf_monthly === 0 ? 'CHF 0' : `CHF ${formatChf(displayMonthly ?? 0)}`}
-                    </Text>
-                    <Text style={[styles.pricePeriod, dark && styles.pricePeriodOnDark]}>{tr('landingPage.pricePerMonth')}</Text>
-                  </View>
-                  {isYearly && p.price_chf_monthly != null && p.price_chf_monthly > 0 && p.price_chf_yearly != null && !isFromPrice ? (
-                    <Text style={[styles.priceYearlyNote, dark && styles.priceYearlyNoteOnDark]}>
-                      {t.pricing.billedYearly.replace('{amount}', `CHF ${formatChf(p.price_chf_yearly)}`)}
-                    </Text>
-                  ) : null}
-                  {isFromPrice ? (
-                    // "Sur mesure" isn't a fixed self-serve tier — showing its
-                    // raw numeric limits (e.g. a 9999-member cap meant purely
-                    // as "no real ceiling") reads as an arbitrary, oddly
-                    // specific stat rather than what it actually is. A
-                    // feasibility pitch + direct contact fits a negotiated
-                    // "dès CHF 149" price better than a checkout button.
-                    <>
-                      <Text style={styles.priceFromPitch}>
-                        {tr('landingPage.surMesurePitch')}
-                      </Text>
-                      <Button
-                        title={tr('landingPage.contactUs')}
-                        onPress={() => Linking.openURL('mailto:info@cantia.ch?subject=Plan Sur mesure Cantia').catch(() => {})}
-                        variant="secondary"
-                        style={{ marginTop: spacing.md }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <View style={styles.priceFeatures}>
-                        <PriceFeature
-                          dark={dark}
-                          text={tr('pricingSection.storage', { amount: (p.storage_quota_mb / 1024).toFixed(p.storage_quota_mb < 1024 ? 1 : 0) })}
-                        />
-                        <PriceFeature dark={dark} text={`${p.max_members} ${p.max_members > 1 ? t.pricing.memberPlural : t.pricing.memberSingular}`} />
-                        <PriceFeature
-                          dark={dark}
-                          text={
-                            p.max_devis_factures_per_month
-                              ? tr('landingPage.quotaPerMonth', { count: p.max_devis_factures_per_month })
-                              : t.pricing.unlimited
-                          }
-                          muted={!!p.max_devis_factures_per_month}
-                        />
-                        <PriceFeature dark={dark} text={tr('landingPage.featureEmailSending')} muted={!p.has_email_sending} included={p.has_email_sending} />
-                        <PriceFeature dark={dark} text={tr('landingPage.featureTeamPlanning')} muted={!p.has_planning} included={p.has_planning} />
-                        <PriceFeature dark={dark} text={tr('landingPage.featureHrPayroll')} muted={!p.has_payroll} included={p.has_payroll} />
-                        <PriceFeature dark={dark} text={tr('landingPage.featureProfitability')} muted={!p.has_profitability} included={p.has_profitability} />
-                        <PriceFeature dark={dark} text={tr('landingPage.featureTreasury')} muted={!p.has_treasury} included={p.has_treasury} />
-                        <PriceFeature
-                          dark={dark}
-                          text={tr('landingPage.featureExpenseTools')}
-                          muted={!p.has_profitability && !p.has_treasury}
-                          included={p.has_profitability || p.has_treasury}
-                        />
-                        <PriceFeature dark={dark} text={tr('landingPage.featureBexio')} muted={!p.has_bexio_integration} included={p.has_bexio_integration} />
-                        <PriceFeature
-                          dark={dark}
-                          text={p.max_trames === 0 ? tr('landingPage.trameLibraryEmpty') : p.max_trames != null ? tr('landingPage.trameLibraryCount', { count: p.max_trames }) : tr('landingPage.trameLibraryUnlimited')}
-                          muted={p.max_trames === 0}
-                          included={p.max_trames !== 0}
-                        />
-                        {p.max_ai_uses_per_month ? (
-                          <PriceFeature dark={dark} text={tr('landingPage.aiAssistantQuota', { count: p.max_ai_uses_per_month })} />
-                        ) : null}
-                      </View>
-                      <Link href={authHref('signup')} asChild>
-                        <Button
-                          title={t.pricing.paidCta}
-                          onPress={() => {}}
-                          variant={dark ? 'primary' : 'secondary'}
-                        />
-                      </Link>
-                    </>
-                  )}
-                </Pressable>
-                );
-              })}
-            </View>
+            {/* Same PricingSection used on every /[metier] trade page and
+                choose-plan's "learn more" trail — this used to be its own,
+                never-updated copy of the pricing grid (full feature list,
+                no "En savoir plus" link), which is why fixes made to
+                PricingSection.tsx never showed up on the homepage. One
+                component now, so a price or feature list can only ever be
+                wrong in one place. */}
+            <PricingSection compact />
           </Reveal>
 
           {/* ---- Swiss positioning ---- */}
@@ -1322,63 +1158,6 @@ function MenuItem({
         <Text style={styles.mobileMenuText}>{label}</Text>
       </Pressable>
     </Animated.View>
-  );
-}
-
-function formatChf(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toFixed(2);
-}
-
-// Placeholder shown in the pricing grid while `plans` is still loading — same
-// footprint as a real priceCard (same style, same 7 feature rows + CTA bar)
-// so the section never collapses to a bare gap between the toggle and the
-// "sur mesure" note below it, which is exactly what a real visitor sees on a
-// slow connection until the fix here.
-function PriceCardSkeleton({ pulse, highlight }: { pulse: Animated.Value; highlight?: boolean }) {
-  const opacity = pulse;
-  return (
-    <View style={[styles.priceCard, highlight && styles.priceCardHighlight]}>
-      <Animated.View style={[styles.skeletonBar, styles.skeletonName, { opacity }]} />
-      <Animated.View style={[styles.skeletonBar, styles.skeletonAmount, { opacity }]} />
-      <View style={styles.priceFeatures}>
-        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-          <Animated.View key={i} style={[styles.skeletonBar, styles.skeletonFeature, { opacity, width: `${72 - i * 4}%` }]} />
-        ))}
-      </View>
-      <Animated.View style={[styles.skeletonBar, styles.skeletonButton, { opacity }]} />
-    </View>
-  );
-}
-
-function PriceFeature({
-  text,
-  muted,
-  included,
-  dark,
-}: {
-  text: string;
-  muted?: boolean;
-  included?: boolean;
-  dark?: boolean;
-}) {
-  const mutedColor = dark ? 'rgba(255,255,255,0.35)' : colors.textMuted;
-  return (
-    <View style={styles.priceFeatureRow}>
-      <Feather
-        name={muted ? 'x' : 'check'}
-        size={14}
-        color={muted ? mutedColor : included === false ? mutedColor : dark ? NEON_GREEN : colors.success}
-      />
-      <Text
-        style={[
-          styles.priceFeatureText,
-          dark && styles.priceFeatureTextOnDark,
-          muted && (dark ? styles.priceFeatureTextMutedOnDark : styles.priceFeatureTextMuted),
-        ]}
-      >
-        {text}
-      </Text>
-    </View>
   );
 }
 
@@ -3011,198 +2790,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.primary,
-  },
-  billingToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.xl,
-  },
-  billingToggleLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  billingToggleSaveBadge: {
-    backgroundColor: colors.successSoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-  },
-  billingToggleSaveText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.success,
-  },
-  priceYearlyNote: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: -spacing.sm,
-  },
-  pricingGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    gap: spacing.lg,
-  },
-  priceCard: {
-    flex: 1,
-    minWidth: 250,
-    maxWidth: 280,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.md,
-    transitionProperty: 'transform, box-shadow, border-color',
-    transitionDuration: '0.25s',
-    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  } as unknown as ViewStyle,
-  priceCardHovered: {
-    borderColor: colors.primary,
-    transform: [{ translateY: -6 }],
-  },
-  // Inverted (dark) instead of white-with-a-border — breaks the
-  // otherwise all-white-card monotony of the grid and reads as "this one
-  // is different" without needing a bigger badge or a louder border.
-  priceCardHighlight: {
-    backgroundImage: `linear-gradient(160deg, ${colors.text}, #150f0a)`,
-    borderWidth: 0,
-    shadowColor: '#000',
-    shadowOpacity: 0.35,
-    shadowRadius: 36,
-    shadowOffset: { width: 0, height: 20 },
-    // Physically lifted above the other plans — the "recommended" card
-    // isn't just outlined, it visibly floats a step closer to the reader.
-    transform: [{ translateY: -10 }],
-  } as unknown as ViewStyle,
-  // Same lift as priceCardHighlight's base transform, just pushed a
-  // little further on hover (-14 total) so the recommended card still
-  // reads as "further forward" than the others' -6.
-  priceCardHighlightHovered: {
-    shadowOpacity: 0.45,
-    transform: [{ translateY: -14 }],
-  } as unknown as ViewStyle,
-  priceBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  priceBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  priceName: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  priceNameOnDark: {
-    color: 'rgba(255,255,255,0.72)',
-  },
-  priceAmountRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 4,
-  },
-  priceAmount: {
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  priceAmountOnDark: {
-    color: '#fff',
-  },
-  priceFromLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-    marginBottom: 5,
-  },
-  priceFromLabelOnDark: {
-    color: 'rgba(255,255,255,0.6)',
-  },
-  priceAmountStrike: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.textMuted,
-    textDecorationLine: 'line-through',
-    marginBottom: 3,
-  },
-  priceAmountStrikeOnDark: {
-    color: 'rgba(255,255,255,0.45)',
-  },
-  pricePeriod: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginBottom: 4,
-  },
-  pricePeriodOnDark: {
-    color: 'rgba(255,255,255,0.5)',
-  },
-  priceYearlyNoteOnDark: {
-    color: 'rgba(255,255,255,0.5)',
-  },
-  priceFeatures: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  priceFromPitch: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-  },
-  skeletonBar: {
-    backgroundColor: colors.border,
-    borderRadius: radius.sm,
-  },
-  skeletonName: {
-    width: '55%',
-    height: 15,
-  },
-  skeletonAmount: {
-    width: '70%',
-    height: 30,
-    marginTop: spacing.xs,
-  },
-  skeletonFeature: {
-    height: 12,
-  },
-  skeletonButton: {
-    height: 40,
-    borderRadius: radius.md,
-    marginTop: spacing.xs,
-  },
-  priceFeatureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  priceFeatureText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  priceFeatureTextOnDark: {
-    color: 'rgba(255,255,255,0.85)',
-  },
-  priceFeatureTextMuted: {
-    color: colors.textMuted,
-  },
-  priceFeatureTextMutedOnDark: {
-    color: 'rgba(255,255,255,0.35)',
   },
   // Full-bleed, hairline-bordered band — same "info bar" family as the
   // stats ticker — instead of a padded rounded gradient card floating in
