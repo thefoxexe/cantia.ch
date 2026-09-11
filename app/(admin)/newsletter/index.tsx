@@ -3,8 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listUsers } from '../../../lib/api/admin';
-import { getSubscribedCount, getUnsubscribedUserIds, filterUserIds } from '../../../lib/api/newsletter';
-import { sendNewsletterCampaign, sendNewsletterTest } from '../../../lib/api/newsletterCampaign';
+import { getSubscribedCount, getUnsubscribedUserIds, filterUserIds, filterOwnerIds, listCampaigns, type NewsletterCampaign } from '../../../lib/api/newsletter';
+import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -16,25 +16,49 @@ const PLAN_FILTERS: { id: string; label: string }[] = [
   { id: 'pro', label: 'Entreprise' },
 ];
 
-// Paste-in HTML composer for the newsletter/announcement emails the user
-// wants to send to their own customers — trial-ended nudges, big feature
-// announcements, requests for feedback. Deliberately doesn't wrap or
-// re-render the pasted HTML (see send-newsletter-campaign's own comment):
-// "Envoyer un test" is the preview, since RN has no built-in HTML renderer
-// to show one live.
+// Account-lifecycle segments — resolve to the org OWNER only (see
+// lib/api/newsletter.ts's filterOwnerIds), not every member: these are
+// about the account's billing state, not a per-member newsletter
+// preference. "Toujours abonnés" (subscribed:true) still applies, same
+// default-safe rule as every other quick filter.
+const ORG_STATUS_FILTERS: { status: string; label: string }[] = [
+  { status: 'canceled', label: 'Résiliés' },
+  { status: 'trialing', label: 'En essai' },
+  { status: 'decouverte', label: 'Plan découverte (sans carte)' },
+  { status: 'incomplete', label: 'Inscription incomplète' },
+];
+
+const PERSONAS: { key: SenderPersona; label: string; from: string }[] = [
+  { key: 'newsletter', label: 'Newsletter', from: 'newsletter@cantia.ch' },
+  { key: 'info', label: 'Info (support)', from: 'info@cantia.ch' },
+];
+
+function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+// General-purpose targeted e-mail composer — not strictly "newsletters":
+// trial-ended follow-ups, one-off outreach to a handful of cancelled
+// accounts, big feature announcements, requests for feedback. Deliberately
+// doesn't wrap or re-render the pasted HTML (see send-newsletter-campaign's
+// own comment): "Envoyer un test" is the preview, since RN has no built-in
+// HTML renderer to show one live.
 //
 // Targeting is a single running selection (selectedIds) built up by quick
 // filters and/or the manual search picker, rather than a single mode —
-// "tous les abonnés" and "plan Essentiel" are just buttons that add
-// matching ids to it. Every quick filter defaults to subscribed-only;
-// the one exception is the explicit "+ Non-abonnés" button, the only path
-// that can add someone who opted out, and doing so requires checking a
-// confirmation box before sending (includeUnsubscribedConfirmed) — this
-// screen can't accidentally mail someone who opted out.
+// each quick filter is just a button that adds matching ids to it. Plan/
+// newsletter-preference filters add every consenting member; account-
+// lifecycle filters (résiliés, essai, découverte, incomplet) add only the
+// org owner. Every quick filter defaults to subscribed-only; the one
+// exception is the explicit "+ Non-abonnés" button, the only path that can
+// add someone who opted out, and doing so requires checking a confirmation
+// box before sending — this screen can't accidentally mail someone who
+// opted out.
 export default function AdminNewsletterScreen() {
   const { user } = useAuth();
   const [subject, setSubject] = useState('');
   const [html, setHtml] = useState('');
+  const [fromPersona, setFromPersona] = useState<SenderPersona>('newsletter');
   const [subscribedCount, setSubscribedCount] = useState<number | null>(null);
 
   const [search, setSearch] = useState('');
@@ -55,6 +79,10 @@ export default function AdminNewsletterScreen() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; skipped: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState<NewsletterCampaign[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     getSubscribedCount().then(setSubscribedCount);
@@ -77,6 +105,18 @@ export default function AdminNewsletterScreen() {
     return () => clearTimeout(timer);
   }, [search, loadUsers]);
 
+  async function loadHistory() {
+    setHistoryLoading(true);
+    setHistory(await listCampaigns());
+    setHistoryLoading(false);
+  }
+
+  function toggleHistory() {
+    const next = !showHistory;
+    setShowHistory(next);
+    if (next && history.length === 0) loadHistory();
+  }
+
   function addIds(ids: string[], unsubscribed: boolean) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -86,10 +126,17 @@ export default function AdminNewsletterScreen() {
     if (unsubscribed && ids.length > 0) setIncludesUnsubscribed(true);
   }
 
-  async function handleQuickFilter(key: string, planIds: string[] | undefined, subscribed: boolean | undefined) {
+  async function handlePlanFilter(key: string, planIds: string[] | undefined, subscribed: boolean | undefined) {
     setFilterBusy(key);
     const ids = await filterUserIds({ planIds, subscribed });
     addIds(ids, subscribed === false);
+    setFilterBusy(null);
+  }
+
+  async function handleOrgStatusFilter(status: string) {
+    setFilterBusy(status);
+    const ids = await filterOwnerIds({ orgStatus: status, subscribed: true });
+    addIds(ids, false);
     setFilterBusy(null);
   }
 
@@ -115,7 +162,7 @@ export default function AdminNewsletterScreen() {
     if (!subject.trim() || !html.trim() || !testEmail.trim()) return;
     setSendingTest(true);
     setError(null);
-    const { error: err } = await sendNewsletterTest(subject.trim(), html, testEmail.trim());
+    const { error: err } = await sendNewsletterTest(subject.trim(), html, testEmail.trim(), fromPersona);
     setSendingTest(false);
     if (err) setError(err);
   }
@@ -134,6 +181,7 @@ export default function AdminNewsletterScreen() {
       html,
       userIds: Array.from(selectedIds),
       includeUnsubscribed: includesUnsubscribed && confirmUnsubscribed,
+      fromPersona,
     });
     setSending(false);
     if (err) {
@@ -141,6 +189,7 @@ export default function AdminNewsletterScreen() {
       return;
     }
     setResult({ sent, skipped, total });
+    if (showHistory) loadHistory();
   }
 
   const canSend = subject.trim().length > 0 && html.trim().length > 0 && selectedIds.size > 0 && (!includesUnsubscribed || confirmUnsubscribed);
@@ -149,14 +198,28 @@ export default function AdminNewsletterScreen() {
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Newsletter</Text>
+          <Text style={styles.title}>E-mails</Text>
         </View>
         <Text style={styles.hint}>
-          Envoyez un e-mail à vos clients — grandes nouveautés, demande de retours, etc. Le HTML collé ci-dessous est envoyé tel quel. Répondu
-          depuis newsletter@cantia.ch, les réponses arrivent sur info@cantia.ch.
+          Envoyez un e-mail ciblé à vos clients — newsletter, grandes nouveautés, ou un mot ponctuel à quelques comptes précis (ex. ceux qui ont
+          résilié). Le HTML collé ci-dessous est envoyé tel quel.
         </Text>
 
         {error ? <AdminErrorBanner message={error} /> : null}
+
+        <Text style={styles.filterLabel}>Envoyer depuis</Text>
+        <View style={styles.personaRow}>
+          {PERSONAS.map((p) => {
+            const active = fromPersona === p.key;
+            return (
+              <Pressable key={p.key} onPress={() => setFromPersona(p.key)} style={[styles.personaChip, active && styles.personaChipActive]}>
+                <Text style={[styles.personaChipText, active && styles.personaChipTextActive]}>{p.label}</Text>
+                <Text style={[styles.personaChipSub, active && styles.personaChipSubActive]}>{p.from}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <Text style={styles.hint}>Les réponses arrivent toujours sur info@cantia.ch.</Text>
 
         <Field label="Sujet" value={subject} onChangeText={setSubject} placeholder="Quoi de neuf chez Cantia ?" />
 
@@ -179,22 +242,29 @@ export default function AdminNewsletterScreen() {
           ) : null}
         </View>
 
-        <Text style={styles.filterLabel}>Ajouter à la sélection</Text>
+        <Text style={styles.filterLabel}>Par abonnement newsletter / plan</Text>
         <View style={styles.filterRow}>
           <FilterChip
             label={`Tous les abonnés${subscribedCount != null ? ` (${subscribedCount})` : ''}`}
             busy={filterBusy === 'all'}
-            onPress={() => handleQuickFilter('all', undefined, true)}
+            onPress={() => handlePlanFilter('all', undefined, true)}
           />
           {PLAN_FILTERS.map((p) => (
-            <FilterChip key={p.id} label={p.label} busy={filterBusy === p.id} onPress={() => handleQuickFilter(p.id, [p.id], true)} />
+            <FilterChip key={p.id} label={p.label} busy={filterBusy === p.id} onPress={() => handlePlanFilter(p.id, [p.id], true)} />
           ))}
           <FilterChip
             label="Non-abonnés"
             warning
             busy={filterBusy === 'unsub'}
-            onPress={() => handleQuickFilter('unsub', undefined, false)}
+            onPress={() => handlePlanFilter('unsub', undefined, false)}
           />
+        </View>
+
+        <Text style={styles.filterLabel}>Par situation d'abonnement (au propriétaire de l'entreprise)</Text>
+        <View style={styles.filterRow}>
+          {ORG_STATUS_FILTERS.map((f) => (
+            <FilterChip key={f.status} label={f.label} busy={filterBusy === f.status} onPress={() => handleOrgStatusFilter(f.status)} />
+          ))}
         </View>
 
         <View style={styles.pickerBox}>
@@ -267,6 +337,38 @@ export default function AdminNewsletterScreen() {
           disabled={!canSend}
           style={{ marginTop: spacing.md }}
         />
+
+        <Pressable style={styles.historyToggle} onPress={toggleHistory}>
+          <Text style={styles.historyToggleText}>{showHistory ? 'Masquer l’historique' : 'Voir l’historique des envois'}</Text>
+          <Feather name={showHistory ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+        </Pressable>
+
+        {showHistory ? (
+          historyLoading ? (
+            <Text style={styles.hint}>Chargement…</Text>
+          ) : history.length === 0 ? (
+            <Text style={styles.hint}>Aucun envoi pour le moment.</Text>
+          ) : (
+            <View style={styles.historyList}>
+              {history.map((c) => (
+                <View key={c.id} style={styles.historyRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.historySubject} numberOfLines={1}>
+                      {c.subject}
+                    </Text>
+                    <Text style={styles.historyMeta}>
+                      {formatDateTime(c.created_at)} · depuis {c.from_persona === 'info' ? 'info@cantia.ch' : 'newsletter@cantia.ch'}
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.historyCount}>{c.sent_count} envoyé{c.sent_count > 1 ? 's' : ''}</Text>
+                    {c.skipped_count > 0 ? <Text style={styles.historyMeta}>{c.skipped_count} ignoré{c.skipped_count > 1 ? 's' : ''}</Text> : null}
+                  </View>
+                </View>
+              ))}
+            </View>
+          )
+        ) : null}
       </Container>
     </ScrollView>
   );
@@ -303,6 +405,41 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 17,
     marginBottom: spacing.lg,
+  },
+  personaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  personaChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    minWidth: 160,
+  },
+  personaChipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  personaChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  personaChipTextActive: {
+    color: colors.primary,
+  },
+  personaChipSub: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  personaChipSubActive: {
+    color: colors.primary,
   },
   htmlInput: {
     minHeight: 220,
@@ -461,5 +598,52 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
     fontWeight: '600',
+  },
+  historyToggle: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xl,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  historyToggleText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  historyList: {
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  historySubject: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  historyMeta: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  historyCount: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.success,
   },
 });

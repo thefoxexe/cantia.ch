@@ -17,13 +17,17 @@ const corsHeaders = {
 // unsubscribed is silently skipped, UNLESS the caller explicitly passes
 // includeUnsubscribed (only ever true when the composer's own confirmation
 // checkbox was checked — see app/(admin)/newsletter/index.tsx).
-// Sent as "Cantia Newsletter <newsletter@cantia.ch>" rather than noreply@ —
-// newsletter@ doesn't need to be a real receiving mailbox (Resend only
-// needs the sending domain verified, which cantia.ch already is), it's
-// just a friendlier from name. reply_to routes any reply to info@cantia.ch,
-// which IS a real inbox, so Bastien still sees replies even though nothing
-// reads newsletter@.
-const FROM = 'Cantia Newsletter <newsletter@cantia.ch>';
+// Two sender personas the composer can pick between — "newsletter" for
+// broadcast-style sends (newsletter@ doesn't need to be a real receiving
+// mailbox, Resend only needs the sending domain verified), "info" for a
+// message the admin wants to look like it's genuinely coming from support
+// (e.g. reaching out to someone who cancelled). Replies always land on
+// info@cantia.ch, the one real inbox — redundant when persona is already
+// "info", harmless either way.
+const FROM_BY_PERSONA: Record<string, string> = {
+  newsletter: 'Cantia Newsletter <newsletter@cantia.ch>',
+  info: 'Cantia <info@cantia.ch>',
+};
 const REPLY_TO = 'info@cantia.ch';
 
 async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean }> {
@@ -71,14 +75,17 @@ Deno.serve(async (req: Request) => {
     const { data: isAdmin } = await userClient.rpc('is_platform_admin');
     if (!isAdmin) return json({ error: 'Accès refusé : réservé aux administrateurs de la plateforme.' }, 403);
 
-    const { subject, html, userIds, includeUnsubscribed, testEmail } = await req.json();
+    const { subject, html, userIds, includeUnsubscribed, testEmail, fromPersona } = await req.json();
     if (!subject || !html) return json({ error: 'Sujet et contenu requis.' }, 400);
+
+    const persona = fromPersona === 'info' ? 'info' : 'newsletter';
+    const from = FROM_BY_PERSONA[persona];
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
     if (!apiKey) return json({ error: 'Service mail non configuré.' }, 500);
 
     if (testEmail) {
-      const { ok } = await sendResendEmail({ apiKey, from: FROM, replyTo: REPLY_TO, to: [testEmail], subject: `[TEST] ${subject}`, html });
+      const { ok } = await sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [testEmail], subject: `[TEST] ${subject}`, html });
       if (!ok) return json({ error: "Échec de l'envoi du test." }, 500);
       return json({ sent: 1, skipped: 0, total: 1 });
     }
@@ -108,10 +115,34 @@ Deno.serve(async (req: Request) => {
 
     const CHUNK = 20;
     let sent = 0;
+    const sentEmails: string[] = [];
     for (let i = 0; i < emails.length; i += CHUNK) {
       const chunk = emails.slice(i, i + CHUNK);
-      const results = await Promise.all(chunk.map((to) => sendResendEmail({ apiKey, from: FROM, replyTo: REPLY_TO, to: [to], subject, html })));
-      sent += results.filter((r) => r.ok).length;
+      const results = await Promise.all(chunk.map((to) => sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [to], subject, html })));
+      results.forEach((r, idx) => {
+        if (r.ok) {
+          sent += 1;
+          sentEmails.push(chunk[idx]);
+        }
+      });
+    }
+
+    // Best-effort — "qui a reçu quoi, quand" history shown at the bottom
+    // of the composer (app/(admin)/newsletter). Never blocks the response:
+    // the e-mails have already gone out by this point.
+    try {
+      await admin.from('newsletter_campaigns').insert({
+        subject,
+        html,
+        from_persona: persona,
+        sent_by: user.id,
+        recipient_emails: sentEmails,
+        sent_count: sent,
+        skipped_count: skipped,
+        total_count: targetIds.length,
+      });
+    } catch (err) {
+      console.error('newsletter_campaigns insert failed', err);
     }
 
     return json({ sent, skipped, total: targetIds.length });

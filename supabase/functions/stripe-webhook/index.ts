@@ -14,6 +14,22 @@ async function notifyTrialEnded(organizationId: string): Promise<void> {
   });
 }
 
+// Powers the "log per organization" timeline on the admin org detail
+// screen — best-effort: a logging failure must never fail the webhook
+// itself (Stripe already got its confirmation via the row update above).
+async function logOrgEvent(
+  admin: ReturnType<typeof createClient>,
+  organizationId: string,
+  eventType: 'activated' | 'trial_started' | 'plan_changed' | 'canceled',
+  detail: Record<string, unknown> = {},
+): Promise<void> {
+  try {
+    await admin.from('organization_subscription_events').insert({ organization_id: organizationId, event_type: eventType, detail });
+  } catch (err) {
+    console.error('logOrgEvent failed', eventType, err);
+  }
+}
+
 Deno.serve(async (req: Request) => {
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
@@ -60,6 +76,7 @@ Deno.serve(async (req: Request) => {
               plan_selected: true,
             })
             .eq('id', organizationId);
+          await logOrgEvent(admin, organizationId, 'activated', { plan_id: planId ?? null });
         }
         break;
       }
@@ -78,6 +95,11 @@ Deno.serve(async (req: Request) => {
               .maybeSingle();
             if (plan) planId = plan.id;
           }
+          // Read before overwriting — needed to tell a genuinely new trial
+          // (created, currently trialing) from a routine update, and to
+          // notice a plan change, for the org's event timeline below.
+          const { data: orgBefore } = await admin.from('organizations').select('plan_id').eq('id', organizationId).maybeSingle();
+
           // The real trial end, straight from Stripe, replaces the old
           // naive "+14 days from org creation" default — reflects any
           // Stripe-side adjustment and stays null once the trial's over.
@@ -91,6 +113,12 @@ Deno.serve(async (req: Request) => {
               trial_ends_at: trialEndsAt,
             })
             .eq('id', organizationId);
+
+          if (event.type === 'customer.subscription.created' && subscription.status === 'trialing') {
+            await logOrgEvent(admin, organizationId, 'trial_started', { plan_id: planId ?? null, trial_end: trialEndsAt });
+          } else if (planId && orgBefore?.plan_id && orgBefore.plan_id !== planId) {
+            await logOrgEvent(admin, organizationId, 'plan_changed', { from: orgBefore.plan_id, to: planId });
+          }
         }
         break;
       }
@@ -107,6 +135,8 @@ Deno.serve(async (req: Request) => {
             .eq('id', organizationId)
             .maybeSingle();
           const wasTrialing = orgBefore?.subscription_status === 'trialing';
+
+          await logOrgEvent(admin, organizationId, 'canceled', { was_trialing: wasTrialing });
 
           // No free plan to fall back to — cancelling locks the org out.
           // plan_id is cleared (not just plan_selected) so app/_layout.tsx's

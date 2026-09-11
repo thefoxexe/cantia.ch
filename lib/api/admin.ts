@@ -62,6 +62,21 @@ export async function getOrganizationDetail(orgId: string): Promise<{ detail: Ad
   return { detail: error ? null : (data as AdminOrganizationDetail), error: logRpcError('admin_get_organization_detail', error) };
 }
 
+export interface AdminOrgEvent {
+  id: string;
+  event_type: 'activated' | 'trial_started' | 'plan_changed' | 'canceled';
+  detail: Record<string, unknown>;
+  created_at: string;
+}
+
+// The subscription lifecycle timeline shown on the org detail screen —
+// written by stripe-webhook as the real Stripe events happen (see that
+// function's logOrgEvent helper).
+export async function getOrganizationEvents(orgId: string): Promise<{ rows: AdminOrgEvent[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_get_organization_events', { p_organization_id: orgId });
+  return { rows: error ? [] : ((data ?? []) as AdminOrgEvent[]), error: logRpcError('admin_get_organization_events', error) };
+}
+
 export async function setOrganizationModule(orgId: string, moduleKey: string, enabled: boolean): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('admin_set_organization_module', {
     org_id: orgId,
