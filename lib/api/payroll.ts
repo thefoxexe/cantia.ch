@@ -1,6 +1,7 @@
 import { supabase } from '../supabase';
 import type {
   CertificateBox,
+  CertificateSubbox,
   PayrollDeductionType,
   PayrollExpense,
   PayrollExpenseType,
@@ -9,6 +10,7 @@ import type {
   PayrollProfileDeduction,
   PayrollTimeEntry,
   PayrollWorkType,
+  SwissSocialInsuranceRates,
 } from '../types';
 
 // Identifies who a payroll profile/deduction/PDF belongs to — either a
@@ -121,20 +123,47 @@ export async function createExpenseType(
   unit: 'km' | 'forfait',
   rateChf: number | null,
   sortOrder: number,
+  certificateSubbox: CertificateSubbox | null = null,
+  certificateSubboxArt: string | null = null,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
-    .from('payroll_expense_types')
-    .insert({ organization_id: organizationId, label: label.trim(), unit, rate_chf: rateChf, sort_order: sortOrder });
+  const { error } = await supabase.from('payroll_expense_types').insert({
+    organization_id: organizationId,
+    label: label.trim(),
+    unit,
+    rate_chf: rateChf,
+    sort_order: sortOrder,
+    certificate_subbox: certificateSubbox,
+    certificate_subbox_art: certificateSubboxArt,
+    // Same reasoning as createDeductionType: the settings modal always
+    // shows the box chips (including "Aucune"), so this is an explicit,
+    // reviewed choice even when left unassigned.
+    certificate_subbox_reviewed: true,
+  });
   return { error: error?.message ?? null };
 }
 
 export async function updateExpenseType(
   id: string,
-  updates: { label: string; unit: 'km' | 'forfait'; rateChf: number | null; active: boolean },
+  updates: {
+    label: string;
+    unit: 'km' | 'forfait';
+    rateChf: number | null;
+    active: boolean;
+    certificateSubbox: CertificateSubbox | null;
+    certificateSubboxArt: string | null;
+  },
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('payroll_expense_types')
-    .update({ label: updates.label.trim(), unit: updates.unit, rate_chf: updates.rateChf, active: updates.active })
+    .update({
+      label: updates.label.trim(),
+      unit: updates.unit,
+      rate_chf: updates.rateChf,
+      active: updates.active,
+      certificate_subbox: updates.certificateSubbox,
+      certificate_subbox_art: updates.certificateSubboxArt,
+      certificate_subbox_reviewed: true,
+    })
     .eq('id', id);
   return { error: error?.message ?? null };
 }
@@ -195,6 +224,116 @@ export async function deleteDeductionType(id: string): Promise<{ error: string |
   const { error } = await supabase.from('payroll_deduction_types').delete().eq('id', id);
   return { error: error?.message ?? null };
 }
+
+// ==========================================================================
+// Swiss social-insurance reference rates + the standard payroll catalog —
+// "point 4" (barèmes officiels à jour) and "point 1" (cotisations
+// standards préconfigurées) from the RH & Salaires roadmap. Every new
+// organization gets the standard catalog automatically (DB trigger, see
+// 20260911232000_standard_payroll_catalog.sql) — restoreStandardPayrollCatalog
+// below is only for an org that predates that trigger or deleted its
+// defaults.
+// ==========================================================================
+
+// Public reference table (no RLS restriction beyond "select using true") —
+// falls back to the latest known year client-side too, same logic as the
+// seeding function, in case the current year's row isn't in yet.
+export async function getSwissSocialInsuranceRates(year: number = new Date().getFullYear()): Promise<SwissSocialInsuranceRates | null> {
+  const { data: exact } = await supabase.from('swiss_social_insurance_rates').select('*').eq('year', year).maybeSingle();
+  if (exact) return exact as SwissSocialInsuranceRates;
+  const { data: latest } = await supabase.from('swiss_social_insurance_rates').select('*').order('year', { ascending: false }).limit(1).maybeSingle();
+  return (latest as SwissSocialInsuranceRates) ?? null;
+}
+
+// Re-inserts the 6 standard deduction types + Kilométrage for an org
+// missing some or all of them (idempotent server-side — see
+// seed_standard_payroll_catalog, skips any label already present).
+export async function restoreStandardPayrollCatalog(organizationId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('rpc_seed_standard_payroll_catalog', { p_organization_id: organizationId });
+  return { error: error?.message ?? null };
+}
+
+export interface StandardDeductionCatalogItem {
+  key: string;
+  label: string;
+  defaultRatePercent: number | null;
+  certificateBox: CertificateBox | null;
+  hint: string;
+}
+
+// The extra, opt-in items beyond the base 6 every org already gets — each
+// depends on the employer's own pension fund/canton/insurer, so unlike
+// AVS/AC there's no single real percentage to preconfigure. Shown as
+// checkboxes in the "Ajouter des cotisations suisses" picker with an
+// editable rate, not silently auto-created for everyone.
+export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates | null): StandardDeductionCatalogItem[] {
+  return [
+    {
+      key: 'lpp',
+      label: 'Cotisation LPP (2e pilier)',
+      defaultRatePercent: null,
+      certificateBox: 'box10_1',
+      hint: rates
+        ? `Dépend de votre caisse de pension et de l'âge de l'employé — reportez le taux depuis son certificat de prévoyance. Déduction de coordination ${rates.year} : CHF ${rates.lpp_coordination_deduction_chf.toLocaleString('fr-CH')}/an.`
+        : "Dépend de votre caisse de pension et de l'âge de l'employé — reportez le taux depuis son certificat de prévoyance.",
+    },
+    {
+      key: 'impot_source',
+      label: 'Impôt à la source',
+      defaultRatePercent: null,
+      certificateBox: 'box12',
+      hint: "Dépend du barème cantonal de l'employé — reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations).",
+    },
+    {
+      key: 'ac_solidarite',
+      label: 'Cotisation AC solidarité',
+      defaultRatePercent: rates?.ac_solidarity_employee_percent ?? null,
+      certificateBox: 'box9',
+      hint: rates
+        ? `Uniquement sur la part du salaire annuel dépassant CHF ${rates.ac_cap_chf.toLocaleString('fr-CH')} — rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil.`
+        : "Uniquement sur la part du salaire annuel dépassant le plafond AC — rarissime en PME.",
+    },
+  ];
+}
+
+export interface StandardExpenseCatalogItem {
+  key: string;
+  label: string;
+  unit: 'km' | 'forfait';
+  rateChf: number | null;
+  certificateSubbox: CertificateSubbox;
+  hint: string;
+}
+
+// Kilométrage is already part of the automatic base catalog — these are
+// the other common expense types an org can opt into from the same
+// picker, each pre-mapped to its real case-13 sub-box.
+export const OPTIONAL_EXPENSE_CATALOG: StandardExpenseCatalogItem[] = [
+  {
+    key: 'repas',
+    label: 'Repas / représentation',
+    unit: 'forfait',
+    rateChf: null,
+    certificateSubbox: '13_2_1',
+    hint: 'Indemnité forfaitaire de représentation (repas d\'affaires, invitations) — case 13.2.1.',
+  },
+  {
+    key: 'deplacement_justificatif',
+    label: 'Frais de déplacement / logement (sur justificatifs)',
+    unit: 'forfait',
+    rateChf: null,
+    certificateSubbox: '13_1_1',
+    hint: 'Remboursement de frais réels sur présentation de justificatifs (billets, hôtel) — case 13.1.1.',
+  },
+  {
+    key: 'formation',
+    label: 'Formation continue',
+    unit: 'forfait',
+    rateChf: null,
+    certificateSubbox: '13_3',
+    hint: "Contribution de l'employeur au perfectionnement professionnel de l'employé — case 13.3.",
+  },
+];
 
 // ==========================================================================
 // Time entries — chantier + type de travail + either a plain hours figure

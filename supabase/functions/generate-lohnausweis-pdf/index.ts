@@ -106,7 +106,7 @@ Deno.serve(async (req: Request) => {
 
     const organizationId = profile.organization_id as string;
 
-    const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }] = await Promise.all([
+    const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }, { data: expenseEntries }] = await Promise.all([
       admin.from('organizations').select('*').eq('id', organizationId).single(),
       user_id
         ? admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle()
@@ -123,6 +123,17 @@ Deno.serve(async (req: Request) => {
             .gte('entry_date', `${yearNum}-01-01`)
             .lte('entry_date', `${yearNum}-12-31`)
         : Promise.resolve({ data: [] as { hours: number; entry_date: string }[] }),
+      // Same limitation as time entries — payroll_expenses only ever
+      // belongs to a real app user, ghost employees never log expenses.
+      user_id
+        ? admin
+            .from('payroll_expenses')
+            .select('amount_chf, expense_type_id, payroll_expense_types(label, certificate_subbox, certificate_subbox_art, certificate_subbox_reviewed, active)')
+            .eq('organization_id', organizationId)
+            .eq('user_id', user_id)
+            .gte('expense_date', `${yearNum}-01-01`)
+            .lte('expense_date', `${yearNum}-12-31`)
+        : Promise.resolve({ data: [] as any[] }),
     ]);
 
     const isHourly = profile.salary_type === 'hourly';
@@ -166,6 +177,39 @@ Deno.serve(async (req: Request) => {
       return json(
         {
           error: `Ces cotisations n'ont pas de case du certificat de salaire assignée : ${unmapped.map((d: any) => d.label).join(', ')}. Complétez-les dans Compte → RH & Salaires avant de générer le Lohnausweis.`,
+        },
+        422,
+      );
+    }
+
+    // Same "reviewed, not just non-null" gate as deduction types, applied
+    // to case 13 (frais) — an expense TYPE with a real amount this year but
+    // no explicit sub-box choice (see certificate_subbox_reviewed) can't be
+    // silently left off or silently mis-boxed on an official tax document.
+    const expenseTotalsBySubbox = new Map<string, number>();
+    const expenseArtLabelsBySubbox = new Map<string, Set<string>>();
+    const unmappedExpenseTypeLabels = new Set<string>();
+    for (const row of expenseEntries ?? []) {
+      const et = (row as any).payroll_expense_types;
+      if (!et || et.active === false) continue;
+      const amount = Number((row as any).amount_chf ?? 0);
+      if (amount === 0) continue;
+      if (!et.certificate_subbox_reviewed) {
+        unmappedExpenseTypeLabels.add(et.label);
+        continue;
+      }
+      if (!et.certificate_subbox) continue;
+      expenseTotalsBySubbox.set(et.certificate_subbox, (expenseTotalsBySubbox.get(et.certificate_subbox) ?? 0) + amount);
+      if (et.certificate_subbox === '13_1_2' || et.certificate_subbox === '13_2_3') {
+        const set = expenseArtLabelsBySubbox.get(et.certificate_subbox) ?? new Set<string>();
+        set.add(et.certificate_subbox_art || et.label);
+        expenseArtLabelsBySubbox.set(et.certificate_subbox, set);
+      }
+    }
+    if (unmappedExpenseTypeLabels.size > 0) {
+      return json(
+        {
+          error: `Ces types de frais n'ont pas de case du certificat de salaire assignée : ${[...unmappedExpenseTypeLabels].join(', ')}. Complétez-les dans Compte → RH & Salaires avant de générer le Lohnausweis.`,
         },
         422,
       );
@@ -215,6 +259,16 @@ Deno.serve(async (req: Request) => {
     box12 = Math.round(box12);
     const net = gross - box9 - box10_1 - box10_2 - box12;
 
+    // Case 13 (frais) is informational too, same as case 15 — expense
+    // reimbursements are never part of the salary these boxes derive from,
+    // so nothing here touches gross/net.
+    const box13_1_1 = Math.round(expenseTotalsBySubbox.get('13_1_1') ?? 0);
+    const box13_1_2 = Math.round(expenseTotalsBySubbox.get('13_1_2') ?? 0);
+    const box13_2_1 = Math.round(expenseTotalsBySubbox.get('13_2_1') ?? 0);
+    const box13_2_2 = Math.round(expenseTotalsBySubbox.get('13_2_2') ?? 0);
+    const box13_2_3 = Math.round(expenseTotalsBySubbox.get('13_2_3') ?? 0);
+    const box13_3 = Math.round(expenseTotalsBySubbox.get('13_3') ?? 0);
+
     const templateBytes = await loadTemplate(admin);
     const pdfDoc = await PDFDocument.load(templateBytes);
     const form = pdfDoc.getForm();
@@ -239,6 +293,21 @@ Deno.serve(async (req: Request) => {
     if (box10_2 > 0) form.getTextField('DezZahlNull_10_2').setText(String(box10_2));
     if (box12 > 0) form.getTextField('DezZahlNull_12').setText(String(box12));
     form.getTextField('DezZahlNull_11').setText(String(net));
+
+    if (box13_1_1 > 0) form.getTextField('DezZahlNull_13_1_1').setText(String(box13_1_1));
+    if (box13_1_2 > 0) {
+      form.getTextField('DezZahlNull_13_1_2').setText(String(box13_1_2));
+      const art = [...(expenseArtLabelsBySubbox.get('13_1_2') ?? [])].join(', ');
+      if (art) form.getTextField('TextLinks_13_1_2-Art').setText(art);
+    }
+    if (box13_2_1 > 0) form.getTextField('DezZahlNull_13_2_1').setText(String(box13_2_1));
+    if (box13_2_2 > 0) form.getTextField('DezZahlNull_13_2_2').setText(String(box13_2_2));
+    if (box13_2_3 > 0) {
+      form.getTextField('DezZahlNull_13_2_3').setText(String(box13_2_3));
+      const art = [...(expenseArtLabelsBySubbox.get('13_2_3') ?? [])].join(', ');
+      if (art) form.getTextField('TextLinks_13_2_3-Art').setText(art);
+    }
+    if (box13_3 > 0) form.getTextField('DezZahlNull_13_3').setText(String(box13_3));
 
     // Only two remark lines exist on the official form — combine overflow
     // onto the second line rather than silently dropping a third+ remark.

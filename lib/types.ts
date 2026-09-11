@@ -619,6 +619,13 @@ export interface PayrollWorkType {
 
 export type PayrollExpenseUnit = 'km' | 'forfait';
 
+// Case 13 of the official Lohnausweis — 13.1.1/13.1.2 are "effectifs" (real
+// receipts reimbursed), 13.2.1/13.2.2/13.2.3 are "forfaitaires" (a flat
+// allowance), 13.3 is contributions to further training. 13.1.2 and 13.2.3
+// are catch-all "Übrige/Autres" lines with their own free-text "Art/Genre"
+// field (certificate_subbox_art on PayrollExpenseType).
+export type CertificateSubbox = '13_1_1' | '13_1_2' | '13_2_1' | '13_2_2' | '13_2_3' | '13_3';
+
 export interface PayrollExpenseType {
   id: string;
   organization_id: string;
@@ -628,6 +635,11 @@ export interface PayrollExpenseType {
   sort_order: number;
   active: boolean;
   created_at: string;
+  certificate_subbox: CertificateSubbox | null;
+  certificate_subbox_art: string | null;
+  // Same "explicitly reviewed, even if left as Aucune" pattern as
+  // PayrollDeductionType.certificate_box_reviewed.
+  certificate_subbox_reviewed: boolean;
 }
 
 export type CertificateBox = 'box9' | 'box10_1' | 'box10_2' | 'box12' | 'box15';
@@ -647,6 +659,24 @@ export interface PayrollDeductionType {
   // tell "reviewed, intentionally not on the certificate" apart from
   // "never configured", both of which store certificate_box: null.
   certificate_box_reviewed: boolean;
+}
+
+// Public read-only reference row — the handful of Swiss social-insurance
+// figures that genuinely are a single fixed national percentage/amount
+// each year (AVS/AI/APG, AC, the LPP coordination deduction & entry
+// threshold). LPP's actual contribution rate, LAA/LAAC/IJM premiums and
+// source-tax withholding depend on the employer's own pension fund,
+// insurer and canton and are never derived from this table.
+export interface SwissSocialInsuranceRates {
+  year: number;
+  avs_ai_apg_employee_percent: number;
+  ac_employee_percent: number;
+  ac_cap_chf: number;
+  ac_solidarity_employee_percent: number;
+  lpp_entry_threshold_chf: number;
+  lpp_coordination_deduction_chf: number;
+  lpp_max_insured_salary_chf: number;
+  notes: string | null;
 }
 
 export interface PayrollProfileDeduction {
