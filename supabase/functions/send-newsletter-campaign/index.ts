@@ -101,9 +101,14 @@ Deno.serve(async (req: Request) => {
     // client built the list — the ONE thing it can't get wrong. Skipped
     // only when includeUnsubscribed is explicitly set, which the composer
     // only does after the admin has checked a confirmation box acknowledging
-    // the selection includes people who opted out.
+    // the selection includes people who opted out — UNLESS the persona is
+    // "info": that's a one-off message, not the newsletter someone
+    // unsubscribed from, so the unsubscribe preference simply doesn't apply
+    // and this is enforced here too, not just left to the client's own UI
+    // gating.
+    const skipUnsubscribeFilter = includeUnsubscribed || persona === 'info';
     let finalIds = targetIds;
-    if (!includeUnsubscribed) {
+    if (!skipUnsubscribeFilter) {
       const { data: subRows2 } = await admin.from('newsletter_subscriptions').select('user_id, subscribed').in('user_id', targetIds);
       const subMap = new Map((subRows2 ?? []).map((r: any) => [r.user_id, r.subscribed]));
       finalIds = targetIds.filter((id) => subMap.get(id) !== false);

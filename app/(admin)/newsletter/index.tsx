@@ -169,7 +169,12 @@ export default function AdminNewsletterScreen() {
 
   async function handleSend() {
     if (!subject.trim() || !html.trim() || selectedIds.size === 0) return;
-    if (includesUnsubscribed && !confirmUnsubscribed) {
+    // The "confirm before mailing someone who opted out" friction only
+    // makes sense for the newsletter persona — a one-off "info" message
+    // (e.g. reaching out to a churned account) isn't the newsletter the
+    // person unsubscribed from, so it always goes out regardless.
+    const requiresConfirmation = fromPersona === 'newsletter';
+    if (requiresConfirmation && includesUnsubscribed && !confirmUnsubscribed) {
       setError('Cochez la confirmation pour envoyer à des personnes désabonnées.');
       return;
     }
@@ -180,7 +185,7 @@ export default function AdminNewsletterScreen() {
       subject: subject.trim(),
       html,
       userIds: Array.from(selectedIds),
-      includeUnsubscribed: includesUnsubscribed && confirmUnsubscribed,
+      includeUnsubscribed: fromPersona === 'info' || (includesUnsubscribed && confirmUnsubscribed),
       fromPersona,
     });
     setSending(false);
@@ -192,7 +197,11 @@ export default function AdminNewsletterScreen() {
     if (showHistory) loadHistory();
   }
 
-  const canSend = subject.trim().length > 0 && html.trim().length > 0 && selectedIds.size > 0 && (!includesUnsubscribed || confirmUnsubscribed);
+  const canSend =
+    subject.trim().length > 0 &&
+    html.trim().length > 0 &&
+    selectedIds.size > 0 &&
+    (fromPersona === 'info' || !includesUnsubscribed || confirmUnsubscribed);
 
   return (
     <ScrollView style={{ flex: 1 }}>
@@ -301,7 +310,7 @@ export default function AdminNewsletterScreen() {
           )}
         </View>
 
-        {includesUnsubscribed ? (
+        {includesUnsubscribed && fromPersona === 'newsletter' ? (
           <Pressable style={styles.confirmRow} onPress={() => setConfirmUnsubscribed((v) => !v)}>
             <View style={[styles.checkbox, confirmUnsubscribed && styles.checkboxCheckedWarning]}>
               {confirmUnsubscribed ? <Feather name="check" size={12} color="#fff" /> : null}
@@ -311,6 +320,14 @@ export default function AdminNewsletterScreen() {
               exceptionnel, ex. fermeture de la plateforme).
             </Text>
           </Pressable>
+        ) : includesUnsubscribed && fromPersona === 'info' ? (
+          <View style={styles.infoUnsubNote}>
+            <Feather name="info" size={13} color={colors.textMuted} />
+            <Text style={styles.infoUnsubNoteText}>
+              La sélection inclut des personnes désabonnées de la newsletter — ça n'a pas d'importance pour un envoi Info, elles le recevront quand
+              même.
+            </Text>
+          </View>
         ) : null}
 
         <View style={styles.testRow}>
@@ -576,6 +593,21 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: fontSize.xs,
     color: colors.text,
+    lineHeight: 17,
+  },
+  infoUnsubNote: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  infoUnsubNoteText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
     lineHeight: 17,
   },
   testRow: {
