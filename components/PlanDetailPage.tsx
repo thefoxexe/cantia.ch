@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import type { TFunction } from 'i18next';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Container, Screen, Switch } from './ui';
@@ -18,6 +19,68 @@ type IconName = keyof typeof Feather.glyphMap;
 
 const PLAN_ORDER: PlanId[] = ['solo', 'equipe', 'pro'];
 const NEXT_PLAN: Record<PlanId, PlanId | null> = { solo: 'equipe', equipe: 'pro', pro: null };
+// Not backed by a `plans` column — priority support is a support-process
+// promise, not a feature flag, so it's kept here rather than invented in
+// the database. Matches the existing "Support prioritaire" claim in
+// authChoosePlan.planHighlights.pro.
+const PRIORITY_SUPPORT: Record<PlanId, boolean> = { solo: false, equipe: false, pro: true };
+
+type CompareCell = { text: string } | { bool: boolean };
+
+interface CompareRow {
+  label: string;
+  cells: Record<PlanId, CompareCell>;
+}
+
+function formatStorage(mb: number): string {
+  return `${(mb / 1024).toFixed(mb < 1024 ? 1 : 0)} Go`;
+}
+
+// Builds the full side-by-side comparison table from the live `plans` rows
+// — every number here comes straight from Supabase, never retyped, so a
+// price or quota can only ever be wrong in one place (the `plans` table
+// itself, same principle as PricingSection.tsx).
+function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): CompareRow[] {
+  const cellFor = <T,>(get: (p: Plan) => T, format: (v: T) => CompareCell): Record<PlanId, CompareCell> => {
+    const out = {} as Record<PlanId, CompareCell>;
+    for (const id of PLAN_ORDER) {
+      const p = plansById[id];
+      out[id] = p ? format(get(p)) : { text: '—' };
+    }
+    return out;
+  };
+
+  return [
+    {
+      label: t('planPage.comparePrice'),
+      cells: cellFor(
+        (p) => p.price_chf_monthly,
+        (v) => ({ text: v != null ? t('planPage.comparePerMonth', { count: `CHF ${Number.isInteger(v) ? v : v.toFixed(2)}` }) : '—' }),
+      ),
+    },
+    { label: t('planPage.compareDevisFactures'), cells: cellFor(() => true, () => ({ text: t('planPage.compareUnlimited') })) },
+    { label: t('planPage.compareStorage'), cells: cellFor((p) => p.storage_quota_mb, (v) => ({ text: formatStorage(v) })) },
+    { label: t('planPage.compareMembers'), cells: cellFor((p) => p.max_members, (v) => ({ text: t('planPage.compareUpTo', { count: v }) })) },
+    {
+      label: t('planPage.compareAi'),
+      cells: cellFor(
+        (p) => p.max_ai_uses_per_month,
+        (v) => ({ text: v != null ? t('planPage.comparePerMonth', { count: v }) : t('planPage.compareUnlimited') }),
+      ),
+    },
+    { label: t('planPage.comparePlanning'), cells: cellFor((p) => p.has_planning, (v) => ({ bool: v })) },
+    { label: t('planPage.compareBexio'), cells: cellFor((p) => p.has_bexio_integration, (v) => ({ bool: v })) },
+    { label: t('planPage.compareDocLocale'), cells: cellFor((p) => p.has_document_locale_override, (v) => ({ bool: v })) },
+    {
+      label: t('planPage.comparePrioritySupport'),
+      cells: (() => {
+        const out = {} as Record<PlanId, CompareCell>;
+        for (const id of PLAN_ORDER) out[id] = { bool: PRIORITY_SUPPORT[id] };
+        return out;
+      })(),
+    },
+  ];
+}
 
 // The dedicated, highly-converting per-plan page opened from "En savoir
 // plus" on both the marketing pricing cards (PricingSection) and the
@@ -109,16 +172,6 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
           </View>
         </Container>
 
-        {plan ? (
-          <Container style={styles.section}>
-            <View style={styles.statsRow}>
-              <StatCard value={`${(plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0)}`} label={t('planPage.statStorage')} />
-              <StatCard value={`${plan.max_members}`} label={t('planPage.statMembers')} />
-              {plan.max_ai_uses_per_month ? <StatCard value={`${plan.max_ai_uses_per_month}`} label={t('planPage.statAi')} /> : null}
-            </View>
-          </Container>
-        ) : null}
-
         <Container style={styles.section}>
           <Text style={styles.sectionEyebrow}>{t('planPage.everyPlanTitle')}</Text>
           <View style={styles.checklistGrid}>
@@ -161,6 +214,52 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
             </View>
           )}
         </Container>
+
+        {Object.keys(plans).length === PLAN_ORDER.length ? (
+          <Container style={styles.section}>
+            <Text style={styles.sectionEyebrow}>{t('planPage.compareTitle')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.compareScroll}>
+              <View style={styles.compareTable}>
+                <View style={styles.compareRow}>
+                  <View style={styles.compareLabelCol} />
+                  {PLAN_ORDER.map((id) => (
+                    <View key={id} style={[styles.compareCol, id === planId && styles.compareColActive]}>
+                      {id === planId ? (
+                        <View style={styles.compareBadge}>
+                          <Text style={styles.compareBadgeText}>{t('planPage.compareCurrentBadge')}</Text>
+                        </View>
+                      ) : null}
+                      <Link href={planHref(id) as any} asChild>
+                        <Pressable disabled={id === planId}>
+                          <Text style={[styles.comparePlanName, id === planId && styles.comparePlanNameActive]}>{plans[id]?.name}</Text>
+                        </Pressable>
+                      </Link>
+                    </View>
+                  ))}
+                </View>
+                {buildCompareRows(t, plans).map((row, i, arr) => (
+                  <View key={row.label} style={[styles.compareRow, i === arr.length - 1 && styles.compareRowLast]}>
+                    <View style={styles.compareLabelCol}>
+                      <Text style={styles.compareLabel}>{row.label}</Text>
+                    </View>
+                    {PLAN_ORDER.map((id) => {
+                      const cell = row.cells[id];
+                      return (
+                        <View key={id} style={[styles.compareCol, id === planId && styles.compareColActive]}>
+                          {'bool' in cell ? (
+                            <Feather name={cell.bool ? 'check' : 'x'} size={16} color={cell.bool ? colors.success : colors.border} />
+                          ) : (
+                            <Text style={[styles.compareCellText, id === planId && styles.compareCellTextActive]}>{cell.text}</Text>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+          </Container>
+        ) : null}
 
         <Container style={styles.section}>
           <Text style={styles.sectionEyebrow}>{t('planPage.faqEyebrow')}</Text>
@@ -205,15 +304,6 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
         <MarketingFooter />
       </ScrollView>
     </Screen>
-  );
-}
-
-function StatCard({ value, label }: { value: string; label: string }) {
-  return (
-    <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
   );
 }
 
@@ -318,17 +408,79 @@ const styles = StyleSheet.create({
   featureIndex: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, fontWeight: '700', color: colors.border },
   featureTitle: { fontFamily: marketingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
   featureText: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },
-  statsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  statCard: {
-    flex: 1,
-    minWidth: 150,
-    padding: spacing.lg,
+  compareScroll: { width: '100%' },
+  compareTable: {
+    minWidth: 560,
     borderRadius: radius.lg,
-    backgroundColor: colors.primaryDark,
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
   },
-  statValue: { fontFamily: marketingFonts.body, fontSize: 28, fontWeight: '800', color: '#fff' },
-  statLabel: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, color: 'rgba(255,255,255,0.78)', marginTop: 2, textAlign: 'center' },
+  compareRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  compareRowLast: { borderBottomWidth: 0 },
+  compareLabelCol: {
+    width: 220,
+    flexShrink: 0,
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  compareLabel: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  compareCol: {
+    width: 140,
+    flexShrink: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.border,
+    gap: 4,
+  },
+  compareColActive: {
+    backgroundColor: colors.primarySoft,
+  },
+  compareBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  compareBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  comparePlanName: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  comparePlanNameActive: {
+    color: colors.primaryDark,
+  },
+  compareCellText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  compareCellTextActive: {
+    color: colors.primaryDark,
+    fontWeight: '800',
+  },
   checklistGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   checklistRow: {
     flexDirection: 'row',
