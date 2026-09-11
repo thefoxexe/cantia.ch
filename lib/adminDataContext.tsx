@@ -1,20 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  getDashboardStats,
-  getRevenueOverview,
-  getSiteTraffic,
-  listModules,
-  listTutorialChapters,
-  subscribeToNewOrganizations,
-} from './api/admin';
-import type { AdminDashboardStats, AdminRevenueOverview, AdminSiteTrafficOverview } from './types';
+import { getDashboardStats, getRevenueOverview, subscribeToNewOrganizations } from './api/admin';
+import type { AdminDashboardStats, AdminRevenueOverview } from './types';
 
 interface AdminData {
   stats: AdminDashboardStats | null;
   overview: AdminRevenueOverview | null;
-  traffic: AdminSiteTrafficOverview | null;
-  modulesSummary: { active: number; total: number };
-  tutorialsSummary: { published: number; total: number };
   // True only for the very first fetch, since login/app-resume — the admin
   // layout blocks the whole platform behind a "Calcul en cours…" screen
   // until this flips false, so the money numbers are already sitting there
@@ -31,28 +21,16 @@ const AdminDataContext = createContext<AdminData | null>(null);
 export function AdminDataProvider({ children }: { children: ReactNode }) {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [overview, setOverview] = useState<AdminRevenueOverview | null>(null);
-  const [traffic, setTraffic] = useState<AdminSiteTrafficOverview | null>(null);
-  const [modulesSummary, setModulesSummary] = useState({ active: 0, total: 0 });
-  const [tutorialsSummary, setTutorialsSummary] = useState({ published: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newSignal, setNewSignal] = useState(false);
 
   const load = useCallback(async () => {
-    const [s, ov, tr, mods, tuts] = await Promise.all([
-      getDashboardStats(),
-      getRevenueOverview(),
-      getSiteTraffic(),
-      listModules(),
-      listTutorialChapters(),
-    ]);
+    const [s, ov] = await Promise.all([getDashboardStats(), getRevenueOverview()]);
     setStats(s.stats);
     setOverview(ov.overview);
-    setTraffic(tr.overview);
-    setModulesSummary({ active: mods.rows.filter((m) => m.status === 'active').length, total: mods.rows.length });
-    setTutorialsSummary({ published: tuts.rows.filter((c) => c.status === 'publie').length, total: tuts.rows.length });
-    setError(s.error ?? ov.error ?? tr.error ?? mods.error ?? tuts.error);
+    setError(s.error ?? ov.error);
     setNewSignal(false);
   }, []);
 
@@ -74,8 +52,8 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const value = useMemo<AdminData>(
-    () => ({ stats, overview, traffic, modulesSummary, tutorialsSummary, loading, refreshing, error, newSignal, refresh }),
-    [stats, overview, traffic, modulesSummary, tutorialsSummary, loading, refreshing, error, newSignal, refresh],
+    () => ({ stats, overview, loading, refreshing, error, newSignal, refresh }),
+    [stats, overview, loading, refreshing, error, newSignal, refresh],
   );
 
   return <AdminDataContext.Provider value={value}>{children}</AdminDataContext.Provider>;
