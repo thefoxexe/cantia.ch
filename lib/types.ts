@@ -641,6 +641,12 @@ export interface PayrollDeductionType {
   active: boolean;
   created_at: string;
   certificate_box: CertificateBox | null;
+  // True once an admin has explicitly saved this type's certificate-box
+  // choice at least once (including deliberately choosing "Aucune") — kept
+  // separate from certificate_box itself so generate-lohnausweis-pdf can
+  // tell "reviewed, intentionally not on the certificate" apart from
+  // "never configured", both of which store certificate_box: null.
+  certificate_box_reviewed: boolean;
 }
 
 export interface PayrollProfileDeduction {

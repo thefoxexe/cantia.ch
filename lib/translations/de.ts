@@ -949,6 +949,7 @@ export const de: TranslationDict = {
     lohnausweisTitle: 'Offizieller Lohnausweis',
     lohnausweisHint: 'Das echte eidgenössische Formular (ESTV, Form. 11), automatisch ausgefüllt. Enthält nicht den 2D-Barcode, den einige Kantone für die elektronische Übermittlung verlangen — dieser erfordert Swissdec-zertifizierte Software. Prüfen Sie unter "Abzüge & Steuern" jedes Mitarbeiters (Konto → Löhne), dass jeder Abzug einer Ziffer des Lohnausweises zugeordnet ist, bevor Sie das Dokument erstellen.',
     lohnausweisExport: 'Lohnausweis erstellen',
+    configureDeductionsButton: 'Abzüge konfigurieren',
     lohnausweisFilename: 'Lohnausweis {{name}} - {{year}}',
   },
   planning: {

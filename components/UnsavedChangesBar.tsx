@@ -1,14 +1,17 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
-// Floating bar that appears above the tab bar / bottom edge whenever a
-// settings screen has unsaved edits — the replacement for a lone
-// "Enregistrer" button buried at the bottom of a long form. Mount once per
-// screen (absolute-positioned, so it needs a non-static ancestor — Screen's
-// root View already is one) and drive it from useUnsavedChanges.
+// Floating bar that appears at the top of the screen whenever a settings
+// form has unsaved edits — the replacement for a lone "Enregistrer" button
+// buried at the bottom of a long form. Deliberately anchored to the TOP of
+// the content area (not the bottom): the bottom edge is already owned by
+// the voice-assistant mic FAB (see VoiceAssistant.tsx, mounted once in
+// app/(app)/_layout.tsx above every screen), and the two were overlapping.
+// <Screen>'s content already starts below the app's top navbar (its own
+// root View is the positioned ancestor this is absolute against), so
+// top:0 here lands right under the navbar, not over it.
 export function UnsavedChangesBar({
   visible,
   saving,
@@ -21,11 +24,10 @@ export function UnsavedChangesBar({
   onDiscard: () => void;
 }) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   if (!visible) return null;
 
   return (
-    <View style={[styles.wrap, { paddingBottom: insets.bottom + spacing.sm }]} pointerEvents="box-none">
+    <View style={styles.wrap} pointerEvents="box-none">
       <View style={styles.bar}>
         <Feather name="alert-circle" size={16} color={colors.warning} />
         <Text style={styles.text} numberOfLines={1}>
@@ -47,9 +49,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 0,
+    top: 0,
+    paddingTop: spacing.sm,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',
+    zIndex: 20,
   },
   bar: {
     flexDirection: 'row',

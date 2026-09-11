@@ -935,6 +935,7 @@ export const fr = {
     lohnausweisTitle: 'Certificat de salaire officiel',
     lohnausweisHint: "Le vrai formulaire fédéral (ESTV, form. 11), rempli automatiquement. N'inclut pas le code-barres 2D exigé par certains cantons pour la transmission électronique — celui-ci nécessite un logiciel certifié Swissdec. Vérifiez la case 'Cotisations & taxes' de chaque employé (Compte → RH & Salaires) : chaque cotisation doit être associée à une case du certificat avant de pouvoir générer le document.",
     lohnausweisExport: 'Générer le certificat de salaire',
+    configureDeductionsButton: 'Configurer les cotisations',
     lohnausweisFilename: 'Certificat de salaire {{name}} - {{year}}',
   },
   planning: {

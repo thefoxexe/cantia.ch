@@ -154,11 +154,14 @@ Deno.serve(async (req: Request) => {
     }
 
     // Every deduction that actually amounted to something this year must be
-    // tagged to a box before this document can be generated — an untagged
-    // amount can't be silently dropped or silently guessed onto a box on an
-    // official tax form, so this blocks with a precise, actionable list
-    // instead.
-    const unmapped = (deductionTypes ?? []).filter((dt: any) => (deductionTotals.get(dt.id) ?? 0) > 0 && !dt.certificate_box);
+    // reviewed (a box explicitly chosen, or explicitly left as "Aucune")
+    // before this document can be generated — an unreviewed amount can't be
+    // silently dropped or silently guessed onto a box on an official tax
+    // form, so this blocks with a precise, actionable list instead.
+    // certificate_box_reviewed (not certificate_box itself) is the check:
+    // both "never configured" and "deliberately not on the certificate"
+    // store certificate_box: null, and only the flag tells them apart.
+    const unmapped = (deductionTypes ?? []).filter((dt: any) => (deductionTotals.get(dt.id) ?? 0) > 0 && !dt.certificate_box_reviewed);
     if (unmapped.length > 0) {
       return json(
         {

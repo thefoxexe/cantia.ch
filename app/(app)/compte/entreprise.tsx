@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase';
 import { isValidSwissIban } from '../../../lib/iban';
 import { Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -31,7 +32,8 @@ export default function EntrepriseScreen() {
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
 
-  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(handleSave);
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
+    useUnsavedChanges(handleSave);
 
   // Wraps a setter so every keystroke also flags the form dirty — the
   // load() effect below uses the bare setters directly, so restoring
@@ -223,6 +225,7 @@ export default function EntrepriseScreen() {
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
+      <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </Screen>
   );
 }

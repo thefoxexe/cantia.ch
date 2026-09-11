@@ -10,6 +10,7 @@ import { assetFileInfo } from '../../../lib/imageAsset';
 import { SignaturePad } from '../../../components/SignaturePad';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { AVAILABLE_LOCALES, useTranslation, type AppLocale } from '../../../lib/translations';
@@ -41,7 +42,8 @@ export default function ProfilScreen() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingSignature, setUploadingSignature] = useState(false);
 
-  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(saveName);
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
+    useUnsavedChanges(saveName);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -245,6 +247,7 @@ export default function ProfilScreen() {
         </Container>
       </ScrollView>
       <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} />
+      <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </Screen>
   );
 }

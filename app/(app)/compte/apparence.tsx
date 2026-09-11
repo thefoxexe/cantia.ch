@@ -12,6 +12,7 @@ import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
@@ -30,7 +31,8 @@ export default function ApparenceScreen() {
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
 
-  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(handleSave);
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
+    useUnsavedChanges(handleSave);
 
   function withDirty<T>(setter: (v: T) => void) {
     return (v: T) => {
@@ -231,6 +233,7 @@ export default function ApparenceScreen() {
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
+      <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </Screen>
   );
 }

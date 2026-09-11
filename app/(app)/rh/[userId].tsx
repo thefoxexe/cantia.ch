@@ -393,6 +393,15 @@ export default function PayrollProfileScreen() {
             )}
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error && error.includes('case du certificat') ? (
+              <Button
+                title={t('payrollProfile.configureDeductionsButton')}
+                icon="settings"
+                variant="secondary"
+                onPress={() => router.push('/(app)/compte/rh')}
+                style={{ marginTop: spacing.sm }}
+              />
+            ) : null}
             <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
           </Card>
 

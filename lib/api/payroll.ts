@@ -182,6 +182,10 @@ export async function createDeductionType(
     default_rate_percent: defaultRatePercent,
     sort_order: sortOrder,
     certificate_box: certificateBox,
+    // Saved via the settings modal, which always shows the box chips
+    // (including "Aucune") — this is an explicit, reviewed choice even
+    // when it's left at "no box".
+    certificate_box_reviewed: true,
   });
   return { error: error?.message ?? null };
 }
@@ -197,6 +201,7 @@ export async function updateDeductionType(
       default_rate_percent: updates.defaultRatePercent,
       active: updates.active,
       certificate_box: updates.certificateBox,
+      certificate_box_reviewed: true,
     })
     .eq('id', id);
   return { error: error?.message ?? null };

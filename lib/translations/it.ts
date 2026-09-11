@@ -957,6 +957,7 @@ export const it: TranslationDict = {
     lohnausweisTitle: 'Certificato di salario ufficiale',
     lohnausweisHint: "Il vero modulo federale (AFC, mod. 11), compilato automaticamente. Non include il codice a barre 2D richiesto da alcuni cantoni per la trasmissione elettronica — questo richiede un software certificato Swissdec. Verifichi in \"Contributi e imposte\" di ogni dipendente (Conto → RU e salari) che ogni trattenuta sia associata a una cifra del certificato prima di generare il documento.",
     lohnausweisExport: 'Genera il certificato di salario',
+    configureDeductionsButton: 'Configuri le trattenute',
     lohnausweisFilename: 'Certificato di salario {{name}} - {{year}}',
   },
   planning: {
