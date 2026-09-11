@@ -579,6 +579,7 @@ export const de: TranslationDict = {
     certificateBox10_1: 'Ziffer 10.1 — BVG ordentlich',
     certificateBox10_2: 'Ziffer 10.2 — BVG Einkauf',
     certificateBox12: 'Ziffer 12 — Quellensteuer',
+    certificateBox15: 'Ziffer 15 — Bemerkung (z.B. Krankentaggeld/EO)',
     activeLabel: 'Aktiv',
     save: 'Speichern',
     delete: 'Löschen',

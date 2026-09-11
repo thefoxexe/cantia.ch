@@ -29,6 +29,7 @@ const CERTIFICATE_BOX_OPTIONS: { value: CertificateBox | null; labelKey: string 
   { value: 'box10_1', labelKey: 'payrollSettings.certificateBox10_1' },
   { value: 'box10_2', labelKey: 'payrollSettings.certificateBox10_2' },
   { value: 'box12', labelKey: 'payrollSettings.certificateBox12' },
+  { value: 'box15', labelKey: 'payrollSettings.certificateBox15' },
 ];
 
 type Kind = 'work' | 'expense' | 'deduction';

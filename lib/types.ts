@@ -630,7 +630,7 @@ export interface PayrollExpenseType {
   created_at: string;
 }
 
-export type CertificateBox = 'box9' | 'box10_1' | 'box10_2' | 'box12';
+export type CertificateBox = 'box9' | 'box10_1' | 'box10_2' | 'box12' | 'box15';
 
 export interface PayrollDeductionType {
   id: string;

@@ -191,6 +191,13 @@ Deno.serve(async (req: Request) => {
     let box10_1 = 0;
     let box10_2 = 0;
     let box12 = 0;
+    // Case 15 (Bemerkungen/Observations/Osservazioni) is informational only
+    // — unlike 9/10/12 it is never subtracted to derive the official net
+    // (case 11). This is where a private loss-of-earnings-insurance premium
+    // (IJM/APG maladie, Krankentaggeld) belongs: real payslips deduct it
+    // from take-home pay, but the ESTV form doesn't fold it into the
+    // standardized net figure, only discloses it as a remark line.
+    const box15Remarks: string[] = [];
     for (const dt of deductionTypes ?? []) {
       const amount = deductionTotals.get(dt.id) ?? 0;
       if (amount === 0) continue;
@@ -198,6 +205,7 @@ Deno.serve(async (req: Request) => {
       else if (dt.certificate_box === 'box10_1') box10_1 += amount;
       else if (dt.certificate_box === 'box10_2') box10_2 += amount;
       else if (dt.certificate_box === 'box12') box12 += amount;
+      else if (dt.certificate_box === 'box15') box15Remarks.push(`${dt.label} : Fr. ${Math.round(amount * 100) / 100}`);
     }
 
     const gross = Math.round(totalGross);
@@ -231,6 +239,11 @@ Deno.serve(async (req: Request) => {
     if (box10_2 > 0) form.getTextField('DezZahlNull_10_2').setText(String(box10_2));
     if (box12 > 0) form.getTextField('DezZahlNull_12').setText(String(box12));
     form.getTextField('DezZahlNull_11').setText(String(net));
+
+    // Only two remark lines exist on the official form — combine overflow
+    // onto the second line rather than silently dropping a third+ remark.
+    if (box15Remarks.length > 0) form.getTextField('TextLinks_15_1').setText(box15Remarks[0]);
+    if (box15Remarks.length > 1) form.getTextField('TextLinks_15_2').setText(box15Remarks.slice(1).join('; '));
 
     const today = new Date();
     const todayStr = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;

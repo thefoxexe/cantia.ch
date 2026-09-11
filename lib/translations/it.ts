@@ -587,6 +587,7 @@ export const it: TranslationDict = {
     certificateBox10_1: 'Cifra 10.1 — LPP ordinaria',
     certificateBox10_2: 'Cifra 10.2 — LPP riscatto',
     certificateBox12: "Cifra 12 — Imposta alla fonte",
+    certificateBox15: "Cifra 15 — Osservazione (es. IPG malattia)",
     activeLabel: 'Attivo',
     save: 'Salva',
     delete: 'Elimina',

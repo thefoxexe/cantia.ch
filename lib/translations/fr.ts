@@ -565,6 +565,7 @@ export const fr = {
     certificateBox10_1: 'Case 10.1 — LPP ordinaire',
     certificateBox10_2: 'Case 10.2 — LPP rachat',
     certificateBox12: "Case 12 — Impôt à la source",
+    certificateBox15: "Case 15 — Remarque (ex. IJM/APG maladie)",
     activeLabel: 'Actif',
     save: 'Enregistrer',
     delete: 'Supprimer',
