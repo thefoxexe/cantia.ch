@@ -3,8 +3,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
@@ -15,8 +16,16 @@ export default function DevisSettingsScreen() {
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
   const [hourlyCost, setHourlyCost] = useState(String(organization?.hourly_cost ?? 0));
-  const [saving, setSaving] = useState(false);
   const isAdmin = role === 'owner' || role === 'admin';
+
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(handleSave);
+
+  function withDirty(setter: (v: string) => void) {
+    return (v: string) => {
+      setter(v);
+      markDirty();
+    };
+  }
 
   const load = useCallback(() => {
     if (!organization) return;
@@ -33,8 +42,7 @@ export default function DevisSettingsScreen() {
   );
 
   async function handleSave() {
-    if (!organization) return;
-    setSaving(true);
+    if (!organization) return false;
     await supabase
       .from('organizations')
       .update({
@@ -44,26 +52,24 @@ export default function DevisSettingsScreen() {
         hourly_cost: Number(hourlyCost) || 0,
       })
       .eq('id', organization.id);
-    setSaving(false);
     refreshOrganization();
-    showSavedCheckmark();
   }
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title={t('devisSettings.title')} backTo="/(app)/compte" />
+          <PageHeader title={t('devisSettings.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 
           <View style={styles.row2}>
             <View style={styles.row2Item}>
-              <Field label={t('devisSettings.vatRateLabel')} value={vatRate} onChangeText={setVatRate} editable={isAdmin} keyboardType="decimal-pad" />
+              <Field label={t('devisSettings.vatRateLabel')} value={vatRate} onChangeText={withDirty(setVatRate)} editable={isAdmin} keyboardType="decimal-pad" />
             </View>
             <View style={styles.row2Item}>
               <Field
                 label={t('devisSettings.validityLabel')}
                 value={validityDays}
-                onChangeText={setValidityDays}
+                onChangeText={withDirty(setValidityDays)}
                 editable={isAdmin}
                 keyboardType="number-pad"
               />
@@ -72,7 +78,7 @@ export default function DevisSettingsScreen() {
           <Field
             label={t('devisSettings.termsLabel')}
             value={devisTerms}
-            onChangeText={setDevisTerms}
+            onChangeText={withDirty(setDevisTerms)}
             editable={isAdmin}
             placeholder={t('devisSettings.termsPlaceholder')}
             multiline
@@ -81,19 +87,17 @@ export default function DevisSettingsScreen() {
           <Field
             label={t('devisSettings.hourlyCostLabel')}
             value={hourlyCost}
-            onChangeText={setHourlyCost}
+            onChangeText={withDirty(setHourlyCost)}
             editable={isAdmin}
             keyboardType="decimal-pad"
             placeholder={t('devisSettings.hourlyCostPlaceholder')}
           />
           <Text style={styles.hint}>{t('devisSettings.hourlyCostHint')}</Text>
-          {isAdmin ? (
-            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
-          ) : null}
 
           <Text style={styles.hint}>{t('devisSettings.layoutHint')}</Text>
         </Container>
       </ScrollView>
+      {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
     </Screen>
   );
 }

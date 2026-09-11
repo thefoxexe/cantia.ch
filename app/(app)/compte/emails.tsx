@@ -4,8 +4,9 @@ import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
-import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import {
@@ -106,7 +107,15 @@ export default function EmailsSettingsScreen() {
   const [reminderUpcoming, setReminderUpcoming] = useState('');
   const [reminderOverdue, setReminderOverdue] = useState('');
   const [signature, setSignature] = useState('');
-  const [saving, setSaving] = useState(false);
+
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(handleSave);
+
+  function withDirty(setter: (v: string) => void) {
+    return (v: string) => {
+      setter(v);
+      markDirty();
+    };
+  }
 
   const load = useCallback(() => {
     if (!organization) return;
@@ -125,8 +134,7 @@ export default function EmailsSettingsScreen() {
   );
 
   async function handleSave() {
-    if (!organization) return;
-    setSaving(true);
+    if (!organization) return false;
     await supabase
       .from('organizations')
       .update({
@@ -138,16 +146,14 @@ export default function EmailsSettingsScreen() {
         email_signature: signature.trim() || null,
       })
       .eq('id', organization.id);
-    setSaving(false);
     refreshOrganization();
-    showSavedCheckmark();
   }
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title={t('emailsSettings.title')} backTo="/(app)/compte" />
+          <PageHeader title={t('emailsSettings.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
           <Text style={styles.intro}>{t('emailsSettings.intro')}</Text>
           {!isAdmin ? (
             <Text style={styles.readOnlyHint}>{t('emailsSettings.readOnlyHint')}</Text>
@@ -157,7 +163,7 @@ export default function EmailsSettingsScreen() {
             <EmailTemplateField
               label={t('emailsSettings.devisLabel')}
               value={devisMessage}
-              onChangeText={setDevisMessage}
+              onChangeText={withDirty(setDevisMessage)}
               editable={isAdmin}
               numberOfLines={4}
               variables={emailVariablesFor('devis')}
@@ -168,7 +174,7 @@ export default function EmailsSettingsScreen() {
             <EmailTemplateField
               label={t('emailsSettings.factureLabel')}
               value={factureMessage}
-              onChangeText={setFactureMessage}
+              onChangeText={withDirty(setFactureMessage)}
               editable={isAdmin}
               numberOfLines={4}
               variables={emailVariablesFor('facture')}
@@ -179,7 +185,7 @@ export default function EmailsSettingsScreen() {
             <EmailTemplateField
               label={t('emailsSettings.reminderUpcomingLabel')}
               value={reminderUpcoming}
-              onChangeText={setReminderUpcoming}
+              onChangeText={withDirty(setReminderUpcoming)}
               editable={isAdmin}
               numberOfLines={3}
               variables={emailVariablesFor('reminder')}
@@ -190,7 +196,7 @@ export default function EmailsSettingsScreen() {
             <EmailTemplateField
               label={t('emailsSettings.reminderOverdueLabel')}
               value={reminderOverdue}
-              onChangeText={setReminderOverdue}
+              onChangeText={withDirty(setReminderOverdue)}
               editable={isAdmin}
               numberOfLines={3}
               variables={emailVariablesFor('reminder')}
@@ -201,7 +207,7 @@ export default function EmailsSettingsScreen() {
             <EmailTemplateField
               label={t('emailsSettings.extraWorkLabel')}
               value={extraWorkMessage}
-              onChangeText={setExtraWorkMessage}
+              onChangeText={withDirty(setExtraWorkMessage)}
               editable={isAdmin}
               numberOfLines={3}
               variables={emailVariablesFor('extraWork')}
@@ -212,7 +218,7 @@ export default function EmailsSettingsScreen() {
             <EmailTemplateField
               label={t('emailsSettings.signatureLabel')}
               value={signature}
-              onChangeText={setSignature}
+              onChangeText={withDirty(setSignature)}
               editable={isAdmin}
               numberOfLines={3}
               variables={emailVariablesFor('signature')}
@@ -225,11 +231,9 @@ export default function EmailsSettingsScreen() {
             <Text style={styles.lockedNoticeText}>{t('emailsSettings.lockedNotice')}</Text>
           </View>
 
-          {isAdmin ? (
-            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
-          ) : null}
         </Container>
       </ScrollView>
+      {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
     </Screen>
   );
 }

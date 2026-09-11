@@ -9,6 +9,8 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
 import { SignaturePad } from '../../../components/SignaturePad';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
 import { AVAILABLE_LOCALES, useTranslation, type AppLocale } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -36,9 +38,10 @@ export default function ProfilScreen() {
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [signatureMode, setSignatureMode] = useState<'draw' | 'photo'>('draw');
   const [drawnSignature, setDrawnSignature] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingSignature, setUploadingSignature] = useState(false);
+
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack } = useUnsavedChanges(saveName);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -61,16 +64,13 @@ export default function ProfilScreen() {
   );
 
   async function saveName() {
-    if (!organization || !user || !fullName.trim()) return;
-    setSaving(true);
+    if (!organization || !user || !fullName.trim()) return false;
     await supabase
       .from('organization_members')
       .update({ full_name: fullName.trim() })
       .eq('organization_id', organization.id)
       .eq('user_id', user.id);
-    setSaving(false);
     refreshOrganization();
-    showSavedCheckmark();
   }
 
   async function pickAvatar() {
@@ -153,7 +153,7 @@ export default function ProfilScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title={t('profil.title')} backTo="/(app)/compte" />
+          <PageHeader title={t('profil.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 
           <Card style={styles.avatarCard}>
             <Pressable onPress={pickAvatar} style={styles.avatarWrap}>
@@ -171,8 +171,15 @@ export default function ProfilScreen() {
             <Text style={styles.avatarHint}>{uploadingAvatar ? t('profil.uploading') : t('profil.changePhoto')}</Text>
           </Card>
 
-          <Field label={t('profil.displayName')} value={fullName} onChangeText={setFullName} placeholder={t('profil.displayNamePlaceholder')} />
-          <Button title={t('common.save')} icon="check" onPress={saveName} loading={saving} style={{ marginTop: spacing.sm }} />
+          <Field
+            label={t('profil.displayName')}
+            value={fullName}
+            onChangeText={(v) => {
+              setFullName(v);
+              markDirty();
+            }}
+            placeholder={t('profil.displayNamePlaceholder')}
+          />
 
           <Text style={styles.sectionTitle}>{t('profil.languageTitle')}</Text>
           <Text style={styles.sectionHint}>{t('profil.languageHint')}</Text>
@@ -237,6 +244,7 @@ export default function ProfilScreen() {
           )}
         </Container>
       </ScrollView>
+      <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} />
     </Screen>
   );
 }
