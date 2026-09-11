@@ -269,13 +269,23 @@ export interface StandardDeductionCatalogItem {
 export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates | null): StandardDeductionCatalogItem[] {
   return [
     {
+      // No single percentage is preconfigured on purpose — genuinely no
+      // one rate exists: the LPP employee share depends on the employee's
+      // AGE (legal minimum bonification, art. 16 LPP: 7% du salaire
+      // coordonné à 25-34 ans, 10% à 35-44, 15% à 45-54, 18% à 55-65 —
+      // dont l'employeur paie au moins la moitié, donc part salarié dès
+      // 3.5%/5%/7.5%/9% au minimum légal) AND on the pension fund's own
+      // règlement, which is often above that legal floor. A single
+      // org-wide default here would be actively wrong for at least some
+      // employees — set the real rate per employee instead (fiche de
+      // l'employé → Cotisations), this entry is only a starting point.
       key: 'lpp',
       label: 'Cotisation LPP (2e pilier)',
       defaultRatePercent: null,
       certificateBox: 'box10_1',
       hint: rates
-        ? `Dépend de votre caisse de pension et de l'âge de l'employé — reportez le taux depuis son certificat de prévoyance. Déduction de coordination ${rates.year} : CHF ${rates.lpp_coordination_deduction_chf.toLocaleString('fr-CH')}/an.`
-        : "Dépend de votre caisse de pension et de l'âge de l'employé — reportez le taux depuis son certificat de prévoyance.",
+        ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans — dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${rates.year} : CHF ${rates.lpp_coordination_deduction_chf.toLocaleString('fr-CH')}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations).`
+        : "Dépend de l'âge de l'employé et de votre caisse de pension — ajustez le taux par employé (fiche de l'employé → Cotisations).",
     },
     {
       key: 'impot_source',
