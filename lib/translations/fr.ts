@@ -2675,6 +2675,8 @@ export const fr = {
     lead: "De courtes vidéos pour voir chaque module en action — prise en main, formation d'une nouvelle recrue, ou juste un aperçu avant de s'inscrire.",
     noticeTitle: 'Vidéos en préparation',
     noticeText: 'Une vidéo de présentation par module est en cours de tournage. Elles seront disponibles ici courant septembre.',
+    searchPlaceholder: 'Rechercher une vidéo…',
+    noResults: 'Aucune vidéo ne correspond à « {{query}} ».',
   },
   aideRessourcesPage: {
     backLink: "Centre d'aide",
