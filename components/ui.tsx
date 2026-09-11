@@ -104,9 +104,16 @@ export function BackToSiteButton({ href, style }: { href: string; style?: StyleP
   if (Platform.OS !== 'web') return null;
   return (
     <Link href={href as any} asChild>
+      {/* StyleSheet.flatten, not a bare array — <Link asChild> clones this
+          Pressable through react-native-web's Slot, which crashes on web
+          ("Failed to set an indexed property [0] on 'CSSStyleDeclaration'")
+          the moment its direct child's own style prop is an array rather
+          than a single merged object. Still needs a real <Link> (not
+          router.push) since href here is a cross-origin URL
+          (app.cantia.ch -> cantia.ch) that only a genuine <a> navigates. */}
       <Pressable
         hitSlop={8}
-        style={[styles.pageHeaderBack, styles.backToSiteButton, { top: insets.top + spacing.md }, style]}
+        style={StyleSheet.flatten([styles.pageHeaderBack, styles.backToSiteButton, { top: insets.top + spacing.md }, style])}
         accessibilityLabel={t('ui.back')}
       >
         <Feather name="arrow-left" size={20} color={colors.text} />
