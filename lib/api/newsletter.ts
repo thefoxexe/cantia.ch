@@ -30,3 +30,16 @@ export async function getUnsubscribedUserIds(userIds: string[]): Promise<Set<str
   const { data } = await supabase.from('newsletter_subscriptions').select('user_id').eq('subscribed', false).in('user_id', userIds);
   return new Set((data ?? []).map((r: any) => r.user_id));
 }
+
+// Powers the newsletter composer's quick-add filter buttons — returns
+// every matching user_id in one call (not paginated, since the caller adds
+// the whole batch to a selection rather than rendering a list of them).
+// Platform-admin only (RLS-equivalent check inside the RPC itself).
+export async function filterUserIds(params: { planIds?: string[]; subscribed?: boolean }): Promise<string[]> {
+  const { data, error } = await supabase.rpc('admin_filter_user_ids', {
+    p_plan_ids: params.planIds ?? null,
+    p_subscribed: params.subscribed ?? null,
+  });
+  if (error) return [];
+  return (data ?? []).map((r: any) => r.user_id);
+}

@@ -13,15 +13,24 @@ const corsHeaders = {
 // editor is "sends exactly what I put in".
 //
 // Every recipient is re-checked against newsletter_subscriptions right
-// before sending, regardless of how they were selected (the "all
-// subscribed" segment or a manual pick): someone who has unsubscribed, or
-// never subscribed, is silently skipped rather than blocking the send —
-// this is the one invariant the caller can't override from the client.
-async function sendResendEmail(params: { apiKey: string; from: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean }> {
+// before sending, regardless of how the client built the list: someone who
+// unsubscribed is silently skipped, UNLESS the caller explicitly passes
+// includeUnsubscribed (only ever true when the composer's own confirmation
+// checkbox was checked — see app/(admin)/newsletter/index.tsx).
+// Sent as "Cantia Newsletter <newsletter@cantia.ch>" rather than noreply@ —
+// newsletter@ doesn't need to be a real receiving mailbox (Resend only
+// needs the sending domain verified, which cantia.ch already is), it's
+// just a friendlier from name. reply_to routes any reply to info@cantia.ch,
+// which IS a real inbox, so Bastien still sees replies even though nothing
+// reads newsletter@.
+const FROM = 'Cantia Newsletter <newsletter@cantia.ch>';
+const REPLY_TO = 'info@cantia.ch';
+
+async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean }> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${params.apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: params.from, to: params.to, subject: params.subject, html: params.html }),
+    body: JSON.stringify({ from: params.from, to: params.to, reply_to: params.replyTo, subject: params.subject, html: params.html }),
   });
   if (!res.ok) console.error('Resend error', res.status, await res.text());
   return { ok: res.ok };
@@ -62,37 +71,36 @@ Deno.serve(async (req: Request) => {
     const { data: isAdmin } = await userClient.rpc('is_platform_admin');
     if (!isAdmin) return json({ error: 'Accès refusé : réservé aux administrateurs de la plateforme.' }, 403);
 
-    const { subject, html, mode, userIds, testEmail } = await req.json();
+    const { subject, html, userIds, includeUnsubscribed, testEmail } = await req.json();
     if (!subject || !html) return json({ error: 'Sujet et contenu requis.' }, 400);
 
     const apiKey = Deno.env.get('RESEND_API_KEY');
     if (!apiKey) return json({ error: 'Service mail non configuré.' }, 500);
 
     if (testEmail) {
-      const { ok } = await sendResendEmail({ apiKey, from: 'Cantia <noreply@cantia.ch>', to: [testEmail], subject: `[TEST] ${subject}`, html });
+      const { ok } = await sendResendEmail({ apiKey, from: FROM, replyTo: REPLY_TO, to: [testEmail], subject: `[TEST] ${subject}`, html });
       if (!ok) return json({ error: "Échec de l'envoi du test." }, 500);
       return json({ sent: 1, skipped: 0, total: 1 });
     }
 
-    if (mode !== 'all_subscribed' && mode !== 'manual') return json({ error: 'Mode de ciblage invalide.' }, 400);
+    // The client always sends an explicit list now — every targeting
+    // decision (all-subscribed, by-plan, manual, deliberately including
+    // unsubscribed people) happens client-side via admin_filter_user_ids
+    // and the manual picker, and lands here as one flat array.
+    if (!Array.isArray(userIds) || userIds.length === 0) return json({ error: 'Aucun destinataire sélectionné.' }, 400);
+    const targetIds: string[] = userIds;
 
-    let targetIds: string[];
-    if (mode === 'manual') {
-      if (!Array.isArray(userIds) || userIds.length === 0) return json({ error: 'Aucun destinataire sélectionné.' }, 400);
-      targetIds = userIds;
-    } else {
-      const { data: subRows } = await admin.from('newsletter_subscriptions').select('user_id').eq('subscribed', true);
-      targetIds = (subRows ?? []).map((r: any) => r.user_id);
+    // Re-verify subscription status server-side regardless of how the
+    // client built the list — the ONE thing it can't get wrong. Skipped
+    // only when includeUnsubscribed is explicitly set, which the composer
+    // only does after the admin has checked a confirmation box acknowledging
+    // the selection includes people who opted out.
+    let finalIds = targetIds;
+    if (!includeUnsubscribed) {
+      const { data: subRows2 } = await admin.from('newsletter_subscriptions').select('user_id, subscribed').in('user_id', targetIds);
+      const subMap = new Map((subRows2 ?? []).map((r: any) => [r.user_id, r.subscribed]));
+      finalIds = targetIds.filter((id) => subMap.get(id) !== false);
     }
-
-    // Re-verify subscription status for the actual target set (covers both
-    // modes uniformly, and catches a manual pick of someone who isn't
-    // subscribed) — absence of a row defaults to subscribed, matching the
-    // signup checkbox's own default, though every real user has one via
-    // the signup trigger and the original backfill.
-    const { data: subRows2 } = await admin.from('newsletter_subscriptions').select('user_id, subscribed').in('user_id', targetIds);
-    const subMap = new Map((subRows2 ?? []).map((r: any) => [r.user_id, r.subscribed]));
-    const finalIds = targetIds.filter((id) => subMap.get(id) !== false);
 
     const emailMap = await listAllAuthUserEmails(admin);
     const emails = finalIds.map((id) => emailMap.get(id)).filter((e): e is string => !!e);
@@ -102,7 +110,7 @@ Deno.serve(async (req: Request) => {
     let sent = 0;
     for (let i = 0; i < emails.length; i += CHUNK) {
       const chunk = emails.slice(i, i + CHUNK);
-      const results = await Promise.all(chunk.map((to) => sendResendEmail({ apiKey, from: 'Cantia <noreply@cantia.ch>', to: [to], subject, html })));
+      const results = await Promise.all(chunk.map((to) => sendResendEmail({ apiKey, from: FROM, replyTo: REPLY_TO, to: [to], subject, html })));
       sent += results.filter((r) => r.ok).length;
     }
 

@@ -1066,6 +1066,7 @@ export interface AdminUserSummary {
   organization_id: string;
   organization_name: string;
   role: OrgRole;
+  plan_id: string | null;
   created_at: string;
   last_sign_in_at: string | null;
   total_count: number;

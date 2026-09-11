@@ -3,28 +3,38 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listUsers } from '../../../lib/api/admin';
-import { getSubscribedCount, getUnsubscribedUserIds } from '../../../lib/api/newsletter';
+import { getSubscribedCount, getUnsubscribedUserIds, filterUserIds } from '../../../lib/api/newsletter';
 import { sendNewsletterCampaign, sendNewsletterTest } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { AdminUserSummary } from '../../../lib/types';
 
-type Mode = 'all_subscribed' | 'manual';
+const PLAN_FILTERS: { id: string; label: string }[] = [
+  { id: 'solo', label: 'Essentiel' },
+  { id: 'equipe', label: 'Équipe' },
+  { id: 'pro', label: 'Entreprise' },
+];
 
 // Paste-in HTML composer for the newsletter/announcement emails the user
 // wants to send to their own customers — trial-ended nudges, big feature
 // announcements, requests for feedback. Deliberately doesn't wrap or
 // re-render the pasted HTML (see send-newsletter-campaign's own comment):
 // "Envoyer un test" is the preview, since RN has no built-in HTML renderer
-// to show one live. Every send — whichever mode picked the recipients —
-// is re-filtered server-side against newsletter_subscriptions, so this
+// to show one live.
+//
+// Targeting is a single running selection (selectedIds) built up by quick
+// filters and/or the manual search picker, rather than a single mode —
+// "tous les abonnés" and "plan Essentiel" are just buttons that add
+// matching ids to it. Every quick filter defaults to subscribed-only;
+// the one exception is the explicit "+ Non-abonnés" button, the only path
+// that can add someone who opted out, and doing so requires checking a
+// confirmation box before sending (includeUnsubscribedConfirmed) — this
 // screen can't accidentally mail someone who opted out.
 export default function AdminNewsletterScreen() {
   const { user } = useAuth();
   const [subject, setSubject] = useState('');
   const [html, setHtml] = useState('');
-  const [mode, setMode] = useState<Mode>('all_subscribed');
   const [subscribedCount, setSubscribedCount] = useState<number | null>(null);
 
   const [search, setSearch] = useState('');
@@ -32,6 +42,13 @@ export default function AdminNewsletterScreen() {
   const [unsubscribedIds, setUnsubscribedIds] = useState<Set<string>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [filterBusy, setFilterBusy] = useState<string | null>(null);
+
+  // True once a selected id is known (from the manual list or the
+  // "+ Non-abonnés" filter) to be unsubscribed — gates the confirmation
+  // checkbox required to send to it.
+  const [includesUnsubscribed, setIncludesUnsubscribed] = useState(false);
+  const [confirmUnsubscribed, setConfirmUnsubscribed] = useState(false);
 
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
@@ -56,18 +73,42 @@ export default function AdminNewsletterScreen() {
   }, []);
 
   useEffect(() => {
-    if (mode !== 'manual') return;
     const timer = setTimeout(() => loadUsers(search), 250);
     return () => clearTimeout(timer);
-  }, [mode, search, loadUsers]);
+  }, [search, loadUsers]);
+
+  function addIds(ids: string[], unsubscribed: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) next.add(id);
+      return next;
+    });
+    if (unsubscribed && ids.length > 0) setIncludesUnsubscribed(true);
+  }
+
+  async function handleQuickFilter(key: string, planIds: string[] | undefined, subscribed: boolean | undefined) {
+    setFilterBusy(key);
+    const ids = await filterUserIds({ planIds, subscribed });
+    addIds(ids, subscribed === false);
+    setFilterBusy(null);
+  }
 
   function toggleSelected(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
-      else next.add(id);
+      else {
+        next.add(id);
+        if (unsubscribedIds.has(id)) setIncludesUnsubscribed(true);
+      }
       return next;
     });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setIncludesUnsubscribed(false);
+    setConfirmUnsubscribed(false);
   }
 
   async function handleSendTest() {
@@ -80,9 +121,9 @@ export default function AdminNewsletterScreen() {
   }
 
   async function handleSend() {
-    if (!subject.trim() || !html.trim()) return;
-    if (mode === 'manual' && selectedIds.size === 0) {
-      setError('Sélectionnez au moins un destinataire.');
+    if (!subject.trim() || !html.trim() || selectedIds.size === 0) return;
+    if (includesUnsubscribed && !confirmUnsubscribed) {
+      setError('Cochez la confirmation pour envoyer à des personnes désabonnées.');
       return;
     }
     setSending(true);
@@ -91,8 +132,8 @@ export default function AdminNewsletterScreen() {
     const { sent, skipped, total, error: err } = await sendNewsletterCampaign({
       subject: subject.trim(),
       html,
-      mode,
-      userIds: mode === 'manual' ? Array.from(selectedIds) : undefined,
+      userIds: Array.from(selectedIds),
+      includeUnsubscribed: includesUnsubscribed && confirmUnsubscribed,
     });
     setSending(false);
     if (err) {
@@ -102,7 +143,7 @@ export default function AdminNewsletterScreen() {
     setResult({ sent, skipped, total });
   }
 
-  const canSend = subject.trim().length > 0 && html.trim().length > 0 && (mode === 'all_subscribed' || selectedIds.size > 0);
+  const canSend = subject.trim().length > 0 && html.trim().length > 0 && selectedIds.size > 0 && (!includesUnsubscribed || confirmUnsubscribed);
 
   return (
     <ScrollView style={{ flex: 1 }}>
@@ -111,8 +152,8 @@ export default function AdminNewsletterScreen() {
           <Text style={styles.title}>Newsletter</Text>
         </View>
         <Text style={styles.hint}>
-          Envoyez un e-mail à vos clients — grandes nouveautés, demande de retours, etc. Le HTML collé ci-dessous est envoyé tel quel. Les
-          personnes désabonnées de la newsletter ne reçoivent jamais rien, quel que soit le ciblage choisi.
+          Envoyez un e-mail à vos clients — grandes nouveautés, demande de retours, etc. Le HTML collé ci-dessous est envoyé tel quel. Répondu
+          depuis newsletter@cantia.ch, les réponses arrivent sur info@cantia.ch.
         </Text>
 
         {error ? <AdminErrorBanner message={error} /> : null}
@@ -129,55 +170,77 @@ export default function AdminNewsletterScreen() {
           style={styles.htmlInput}
         />
 
-        <Text style={styles.sectionTitle}>Destinataires</Text>
-        <View style={styles.modeRow}>
-          <Pressable onPress={() => setMode('all_subscribed')} style={[styles.modeChip, mode === 'all_subscribed' && styles.modeChipActive]}>
-            <Text style={[styles.modeChipText, mode === 'all_subscribed' && styles.modeChipTextActive]}>
-              Tous les abonnés{subscribedCount != null ? ` (${subscribedCount})` : ''}
-            </Text>
-          </Pressable>
-          <Pressable onPress={() => setMode('manual')} style={[styles.modeChip, mode === 'manual' && styles.modeChipActive]}>
-            <Text style={[styles.modeChipText, mode === 'manual' && styles.modeChipTextActive]}>
-              Sélection manuelle{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
-            </Text>
-          </Pressable>
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>Destinataires</Text>
+          {selectedIds.size > 0 ? (
+            <Pressable onPress={clearSelection} hitSlop={6}>
+              <Text style={styles.clearLink}>Tout désélectionner ({selectedIds.size})</Text>
+            </Pressable>
+          ) : null}
         </View>
 
-        {mode === 'manual' ? (
-          <View style={styles.pickerBox}>
-            <Field label="Rechercher" placeholder="Nom, e-mail ou entreprise…" value={search} onChangeText={setSearch} />
-            {loadingUsers ? (
-              <Text style={styles.hint}>Chargement…</Text>
-            ) : (
-              <View style={styles.userList}>
-                {rows.map((u) => {
-                  const isUnsub = unsubscribedIds.has(u.user_id);
-                  const isSelected = selectedIds.has(u.user_id);
-                  return (
-                    <Pressable
-                      key={`${u.user_id}-${u.organization_id}`}
-                      onPress={() => !isUnsub && toggleSelected(u.user_id)}
-                      disabled={isUnsub}
-                      style={[styles.userRow, isSelected && styles.userRowSelected, isUnsub && styles.userRowDisabled]}
-                    >
-                      <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
-                        {isSelected ? <Feather name="check" size={12} color="#fff" /> : null}
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.userName} numberOfLines={1}>
-                          {u.full_name || u.email}
-                        </Text>
-                        <Text style={styles.userMeta} numberOfLines={1}>
-                          {u.email} · {u.organization_name}
-                        </Text>
-                      </View>
-                      {isUnsub ? <Text style={styles.unsubTag}>désabonné</Text> : null}
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-          </View>
+        <Text style={styles.filterLabel}>Ajouter à la sélection</Text>
+        <View style={styles.filterRow}>
+          <FilterChip
+            label={`Tous les abonnés${subscribedCount != null ? ` (${subscribedCount})` : ''}`}
+            busy={filterBusy === 'all'}
+            onPress={() => handleQuickFilter('all', undefined, true)}
+          />
+          {PLAN_FILTERS.map((p) => (
+            <FilterChip key={p.id} label={p.label} busy={filterBusy === p.id} onPress={() => handleQuickFilter(p.id, [p.id], true)} />
+          ))}
+          <FilterChip
+            label="Non-abonnés"
+            warning
+            busy={filterBusy === 'unsub'}
+            onPress={() => handleQuickFilter('unsub', undefined, false)}
+          />
+        </View>
+
+        <View style={styles.pickerBox}>
+          <Field label="Rechercher pour ajouter individuellement" placeholder="Nom, e-mail ou entreprise…" value={search} onChangeText={setSearch} />
+          {loadingUsers ? (
+            <Text style={styles.hint}>Chargement…</Text>
+          ) : (
+            <View style={styles.userList}>
+              {rows.map((u) => {
+                const isUnsub = unsubscribedIds.has(u.user_id);
+                const isSelected = selectedIds.has(u.user_id);
+                return (
+                  <Pressable
+                    key={`${u.user_id}-${u.organization_id}`}
+                    onPress={() => toggleSelected(u.user_id)}
+                    style={[styles.userRow, isSelected && styles.userRowSelected]}
+                  >
+                    <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
+                      {isSelected ? <Feather name="check" size={12} color="#fff" /> : null}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.userName} numberOfLines={1}>
+                        {u.full_name || u.email}
+                      </Text>
+                      <Text style={styles.userMeta} numberOfLines={1}>
+                        {u.email} · {u.organization_name}
+                      </Text>
+                    </View>
+                    {isUnsub ? <Text style={styles.unsubTag}>désabonné</Text> : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </View>
+
+        {includesUnsubscribed ? (
+          <Pressable style={styles.confirmRow} onPress={() => setConfirmUnsubscribed((v) => !v)}>
+            <View style={[styles.checkbox, confirmUnsubscribed && styles.checkboxCheckedWarning]}>
+              {confirmUnsubscribed ? <Feather name="check" size={12} color="#fff" /> : null}
+            </View>
+            <Text style={styles.confirmText}>
+              La sélection inclut des personnes désabonnées de la newsletter — je confirme vouloir quand même leur envoyer cet e-mail (cas
+              exceptionnel, ex. fermeture de la plateforme).
+            </Text>
+          </Pressable>
         ) : null}
 
         <View style={styles.testRow}>
@@ -197,9 +260,24 @@ export default function AdminNewsletterScreen() {
           </View>
         ) : null}
 
-        <Button title="Envoyer à tous les destinataires ciblés" onPress={handleSend} loading={sending} disabled={!canSend} style={{ marginTop: spacing.md }} />
+        <Button
+          title={`Envoyer à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`}
+          onPress={handleSend}
+          loading={sending}
+          disabled={!canSend}
+          style={{ marginTop: spacing.md }}
+        />
       </Container>
     </ScrollView>
+  );
+}
+
+function FilterChip({ label, onPress, busy, warning }: { label: string; onPress: () => void; busy?: boolean; warning?: boolean }) {
+  return (
+    <Pressable onPress={onPress} disabled={busy} style={[styles.filterChip, warning && styles.filterChipWarning]}>
+      <Feather name="plus" size={12} color={warning ? colors.danger : colors.primary} />
+      <Text style={[styles.filterChipText, warning && styles.filterChipTextWarning]}>{busy ? '…' : label}</Text>
+    </Pressable>
   );
 }
 
@@ -232,38 +310,56 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
     fontSize: fontSize.xs,
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.xl,
+  },
   sectionTitle: {
     fontSize: fontSize.md,
     fontWeight: '800',
     color: colors.text,
-    marginTop: spacing.xl,
-    marginBottom: spacing.sm,
   },
-  modeRow: {
+  clearLink: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  filterLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
     marginBottom: spacing.md,
   },
-  modeChip: {
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  modeChipActive: {
-    backgroundColor: colors.primarySoft,
     borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
-  modeChipText: {
+  filterChipWarning: {
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft,
+  },
+  filterChipText: {
     fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  modeChipTextActive: {
-    color: colors.primary,
     fontWeight: '700',
+    color: colors.primary,
+  },
+  filterChipTextWarning: {
+    color: colors.danger,
   },
   pickerBox: {
     backgroundColor: colors.surface,
@@ -292,9 +388,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
     borderColor: colors.primary,
   },
-  userRowDisabled: {
-    opacity: 0.5,
-  },
   checkbox: {
     width: 18,
     height: 18,
@@ -307,6 +400,10 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
+  },
+  checkboxCheckedWarning: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
   },
   userName: {
     fontSize: fontSize.sm,
@@ -326,6 +423,21 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  confirmText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
+    lineHeight: 17,
   },
   testRow: {
     flexDirection: 'row',
