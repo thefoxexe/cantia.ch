@@ -1,14 +1,27 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listUsers } from '../../../lib/api/admin';
-import { getSubscribedCount, getUnsubscribedUserIds, filterUserIds, filterOwnerIds, listCampaigns, type NewsletterCampaign } from '../../../lib/api/newsletter';
+import {
+  getSubscribedCount,
+  getUnsubscribedUserIds,
+  filterUserIds,
+  filterOwnerIds,
+  listCampaigns,
+  scheduleNewsletterSend,
+  listScheduledSends,
+  cancelScheduledSend,
+  type NewsletterCampaign,
+  type ScheduledCampaign,
+} from '../../../lib/api/newsletter';
 import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { AdminUserSummary } from '../../../lib/types';
+
+type SendMode = 'now' | 'schedule';
 
 const PLAN_FILTERS: { id: string; label: string }[] = [
   { id: 'solo', label: 'Essentiel' },
@@ -78,11 +91,26 @@ export default function AdminNewsletterScreen() {
   const [sendingTest, setSendingTest] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; skipped: number; total: number } | null>(null);
+  const [scheduleConfirmed, setScheduleConfirmed] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<NewsletterCampaign[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  // "Maintenant" sends straight through send-newsletter-campaign like
+  // before; "Programmer" freezes the current recipient list into a pending
+  // scheduled_newsletter_sends row instead, picked up by a cron every 5
+  // minutes once scheduledAt passes (see 20260911210000_scheduled_
+  // newsletter_sends.sql). scheduledAt is a plain <input type="datetime-
+  // local"> value ("2026-09-15T08:00") — `new Date(...)` parses that as
+  // local time, exactly what "lundi à 8h" means to the admin typing it.
+  const [sendMode, setSendMode] = useState<SendMode>('now');
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [showScheduled, setShowScheduled] = useState(false);
+  const [scheduled, setScheduled] = useState<ScheduledCampaign[]>([]);
+  const [scheduledLoading, setScheduledLoading] = useState(false);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     getSubscribedCount().then(setSubscribedCount);
@@ -115,6 +143,26 @@ export default function AdminNewsletterScreen() {
     const next = !showHistory;
     setShowHistory(next);
     if (next && history.length === 0) loadHistory();
+  }
+
+  async function loadScheduled() {
+    setScheduledLoading(true);
+    setScheduled(await listScheduledSends());
+    setScheduledLoading(false);
+  }
+
+  function toggleScheduled() {
+    const next = !showScheduled;
+    setShowScheduled(next);
+    if (next) loadScheduled();
+  }
+
+  async function handleCancelScheduled(id: string) {
+    setCancelingId(id);
+    const { error: err } = await cancelScheduledSend(id);
+    if (err) setError(err);
+    else setScheduled((prev) => prev.filter((s) => s.id !== id));
+    setCancelingId(null);
   }
 
   function addIds(ids: string[], unsubscribed: boolean) {
@@ -178,14 +226,49 @@ export default function AdminNewsletterScreen() {
       setError('Cochez la confirmation pour envoyer à des personnes désabonnées.');
       return;
     }
+    const effectiveIncludeUnsubscribed = fromPersona === 'info' || (includesUnsubscribed && confirmUnsubscribed);
+
+    if (sendMode === 'schedule') {
+      if (!scheduledAt) {
+        setError("Choisissez une date et une heure d'envoi.");
+        return;
+      }
+      const iso = new Date(scheduledAt).toISOString();
+      if (new Date(iso).getTime() <= Date.now()) {
+        setError("La date d'envoi doit être dans le futur.");
+        return;
+      }
+      setSending(true);
+      setError(null);
+      setScheduleConfirmed(null);
+      const { error: err } = await scheduleNewsletterSend({
+        subject: subject.trim(),
+        html,
+        userIds: Array.from(selectedIds),
+        fromPersona,
+        includeUnsubscribed: effectiveIncludeUnsubscribed,
+        scheduledAt: iso,
+      });
+      setSending(false);
+      if (err) {
+        setError(err);
+        return;
+      }
+      setScheduleConfirmed(`Envoi programmé pour le ${formatDateTime(iso)} — ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}.`);
+      setScheduledAt('');
+      if (showScheduled) loadScheduled();
+      return;
+    }
+
     setSending(true);
     setError(null);
     setResult(null);
+    setScheduleConfirmed(null);
     const { sent, skipped, total, error: err } = await sendNewsletterCampaign({
       subject: subject.trim(),
       html,
       userIds: Array.from(selectedIds),
-      includeUnsubscribed: fromPersona === 'info' || (includesUnsubscribed && confirmUnsubscribed),
+      includeUnsubscribed: effectiveIncludeUnsubscribed,
       fromPersona,
     });
     setSending(false);
@@ -201,7 +284,8 @@ export default function AdminNewsletterScreen() {
     subject.trim().length > 0 &&
     html.trim().length > 0 &&
     selectedIds.size > 0 &&
-    (fromPersona === 'info' || !includesUnsubscribed || confirmUnsubscribed);
+    (fromPersona === 'info' || !includesUnsubscribed || confirmUnsubscribed) &&
+    (sendMode === 'now' || !!scheduledAt);
 
   return (
     <ScrollView style={{ flex: 1 }}>
@@ -330,6 +414,48 @@ export default function AdminNewsletterScreen() {
           </View>
         ) : null}
 
+        <Text style={styles.filterLabel}>Quand</Text>
+        <View style={styles.sendModeRow}>
+          <Pressable
+            onPress={() => setSendMode('now')}
+            style={[styles.sendModeChip, sendMode === 'now' && styles.sendModeChipActive]}
+          >
+            <Text style={[styles.sendModeChipText, sendMode === 'now' && styles.sendModeChipTextActive]}>Maintenant</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setSendMode('schedule')}
+            style={[styles.sendModeChip, sendMode === 'schedule' && styles.sendModeChipActive]}
+          >
+            <Text style={[styles.sendModeChipText, sendMode === 'schedule' && styles.sendModeChipTextActive]}>Programmer</Text>
+          </Pressable>
+        </View>
+        {sendMode === 'schedule' ? (
+          <View style={styles.scheduleRow}>
+            {Platform.OS === 'web' ? (
+              // A raw DOM datetime-local input — same reasoning as the video
+              // player's iframe: RN Web renders it as-is, no cross-platform
+              // date+time picker exists in this codebase yet, and this
+              // screen is only ever used from a desktop/web browser anyway.
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                min={new Date(Date.now() + 5 * 60000).toISOString().slice(0, 16)}
+                onChange={(e: any) => setScheduledAt(e.target.value)}
+                style={styles.scheduleInput as any}
+              />
+            ) : (
+              <Field
+                label="Date et heure d'envoi"
+                value={scheduledAt}
+                onChangeText={setScheduledAt}
+                placeholder="AAAA-MM-JJTHH:MM"
+                style={{ flex: 1 }}
+              />
+            )}
+            <Text style={styles.hint}>Heure de votre navigateur — l'envoi part pile à ce moment-là.</Text>
+          </View>
+        ) : null}
+
         <View style={styles.testRow}>
           <View style={{ flex: 1 }}>
             <Field label="Envoyer un test à" value={testEmail} onChangeText={setTestEmail} autoCapitalize="none" keyboardType="email-address" />
@@ -347,18 +473,62 @@ export default function AdminNewsletterScreen() {
           </View>
         ) : null}
 
+        {scheduleConfirmed ? (
+          <View style={styles.resultBanner}>
+            <Feather name="clock" size={16} color={colors.success} />
+            <Text style={styles.resultText}>{scheduleConfirmed}</Text>
+          </View>
+        ) : null}
+
         <Button
-          title={`Envoyer à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`}
+          title={
+            sendMode === 'schedule'
+              ? `Programmer l'envoi à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`
+              : `Envoyer à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`
+          }
           onPress={handleSend}
           loading={sending}
           disabled={!canSend}
           style={{ marginTop: spacing.md }}
         />
 
-        <Pressable style={styles.historyToggle} onPress={toggleHistory}>
-          <Text style={styles.historyToggleText}>{showHistory ? 'Masquer l’historique' : 'Voir l’historique des envois'}</Text>
-          <Feather name={showHistory ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
-        </Pressable>
+        <View style={styles.toggleRow}>
+          <Pressable style={styles.historyToggle} onPress={toggleScheduled}>
+            <Text style={styles.historyToggleText}>{showScheduled ? 'Masquer les envois programmés' : 'Voir les envois programmés'}</Text>
+            <Feather name={showScheduled ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+          </Pressable>
+          <Pressable style={styles.historyToggle} onPress={toggleHistory}>
+            <Text style={styles.historyToggleText}>{showHistory ? 'Masquer l’historique' : 'Voir l’historique des envois'}</Text>
+            <Feather name={showHistory ? 'chevron-up' : 'chevron-down'} size={16} color={colors.primary} />
+          </Pressable>
+        </View>
+
+        {showScheduled ? (
+          scheduledLoading ? (
+            <Text style={styles.hint}>Chargement…</Text>
+          ) : scheduled.length === 0 ? (
+            <Text style={styles.hint}>Aucun envoi programmé pour le moment.</Text>
+          ) : (
+            <View style={styles.historyList}>
+              {scheduled.map((s) => (
+                <View key={s.id} style={styles.historyRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.historySubject} numberOfLines={1}>
+                      {s.subject}
+                    </Text>
+                    <Text style={styles.historyMeta}>
+                      Prévu le {formatDateTime(s.scheduled_at)} · depuis {s.from_persona === 'info' ? 'info@cantia.ch' : 'newsletter@cantia.ch'} ·{' '}
+                      {s.user_ids.length} destinataire{s.user_ids.length > 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                  <Pressable onPress={() => handleCancelScheduled(s.id)} disabled={cancelingId === s.id} hitSlop={6}>
+                    <Text style={styles.cancelScheduledText}>{cancelingId === s.id ? '…' : 'Annuler'}</Text>
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          )
+        ) : null}
 
         {showHistory ? (
           historyLoading ? (
@@ -457,6 +627,58 @@ const styles = StyleSheet.create({
   },
   personaChipSubActive: {
     color: colors.primary,
+  },
+  sendModeRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  sendModeChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  sendModeChipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  sendModeChipText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  sendModeChipTextActive: {
+    color: colors.primary,
+  },
+  scheduleRow: {
+    marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  scheduleInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.bg,
+    fontFamily: 'inherit',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+  },
+  cancelScheduledText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.danger,
   },
   htmlInput: {
     minHeight: 220,

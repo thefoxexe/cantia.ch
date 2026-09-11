@@ -81,3 +81,49 @@ export async function listCampaigns(limit = 20): Promise<NewsletterCampaign[]> {
     .limit(limit);
   return (data ?? []) as NewsletterCampaign[];
 }
+
+export interface ScheduledCampaign {
+  id: string;
+  subject: string;
+  from_persona: 'newsletter' | 'info';
+  user_ids: string[];
+  include_unsubscribed: boolean;
+  scheduled_at: string;
+  status: 'pending' | 'sent' | 'failed' | 'canceled';
+  created_at: string;
+}
+
+// Freezes the recipient list at scheduling time — the same array the
+// immediate-send path already builds client-side, just handed to a pending
+// row instead of straight to send-newsletter-campaign. Picked up by the
+// dispatch_scheduled_newsletter_sends() cron (every 5 minutes) once
+// scheduled_at passes.
+export async function scheduleNewsletterSend(params: {
+  subject: string;
+  html: string;
+  userIds: string[];
+  fromPersona: 'newsletter' | 'info';
+  includeUnsubscribed: boolean;
+  scheduledAt: string;
+}): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_schedule_newsletter_send', {
+    p_subject: params.subject,
+    p_html: params.html,
+    p_user_ids: params.userIds,
+    p_from_persona: params.fromPersona,
+    p_include_unsubscribed: params.includeUnsubscribed,
+    p_scheduled_at: params.scheduledAt,
+  });
+  return { id: error ? null : (data as string), error: error?.message ?? null };
+}
+
+export async function listScheduledSends(): Promise<ScheduledCampaign[]> {
+  const { data, error } = await supabase.rpc('admin_list_scheduled_newsletter_sends');
+  if (error) return [];
+  return (data ?? []) as ScheduledCampaign[];
+}
+
+export async function cancelScheduledSend(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('admin_cancel_scheduled_newsletter_send', { p_id: id });
+  return { error: error?.message ?? null };
+}
