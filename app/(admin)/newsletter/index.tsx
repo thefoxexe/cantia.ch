@@ -202,7 +202,7 @@ export default function AdminNewsletterScreen() {
           {loadingUsers ? (
             <Text style={styles.hint}>Chargement…</Text>
           ) : (
-            <View style={styles.userList}>
+            <ScrollView style={styles.userList} contentContainerStyle={styles.userListContent} nestedScrollEnabled>
               {rows.map((u) => {
                 const isUnsub = unsubscribedIds.has(u.user_id);
                 const isSelected = selectedIds.has(u.user_id);
@@ -227,7 +227,7 @@ export default function AdminNewsletterScreen() {
                   </Pressable>
                 );
               })}
-            </View>
+            </ScrollView>
           )}
         </View>
 
@@ -370,9 +370,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   userList: {
-    gap: spacing.xs,
     marginTop: spacing.sm,
     maxHeight: 340,
+  },
+  userListContent: {
+    gap: spacing.xs,
   },
   userRow: {
     flexDirection: 'row',
