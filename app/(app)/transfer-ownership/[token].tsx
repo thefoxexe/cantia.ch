@@ -129,7 +129,7 @@ export default function TransferOwnershipScreen() {
             </View>
             <Text style={styles.title}>{t('ownershipTransferConfirm.successTitle')}</Text>
             <Text style={styles.subtitle}>{t('ownershipTransferConfirm.successText', { org: transfer.organizationName })}</Text>
-            <Button title={t('ownershipTransferConfirm.backToApp')} onPress={() => router.replace('/(app)/compte/danger')} style={{ marginTop: spacing.xl }} />
+            <Button title={t('ownershipTransferConfirm.backToApp')} onPress={() => router.replace('/(app)/compte/entreprise-danger')} style={{ marginTop: spacing.xl }} />
           </View>
         </ScrollView>
       </Screen>

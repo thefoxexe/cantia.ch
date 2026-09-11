@@ -860,8 +860,9 @@ export const it: TranslationDict = {
     stockage: { label: 'Archiviazione', description: 'Spazio utilizzato dai suoi cantieri.' },
     profil: { label: 'Il mio profilo', description: 'Nome, foto e password.' },
     aide: { label: 'Aiuto', description: 'Domande frequenti e assistenza.' },
-    danger: { label: 'Zona pericolosa', description: "Elimina l'azienda o il suo account." },
-    rh: { label: 'Personale e salari', description: 'Tipi di lavoro, spese e trattenute utilizzati dal modulo RU.' },
+    danger: { label: 'Zona pericolosa', description: 'Elimini il suo account personale.' },
+    entrepriseDanger: { label: 'Zona pericolosa', description: "Trasferisca la proprietà o elimini l'azienda." },
+    rh: { label: 'Personale e salari', description: 'Cataloghi usati dal modulo Personale: tipi di lavoro, spese rimborsabili e trattenute applicate ai salari.' },
   },
   unsavedChanges: {
     detected: 'Sono state rilevate delle modifiche.',

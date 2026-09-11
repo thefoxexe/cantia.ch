@@ -838,8 +838,9 @@ export const fr = {
     stockage: { label: 'Stockage', description: 'Espace utilisé par vos chantiers.' },
     profil: { label: 'Mon profil', description: 'Nom, photo et mot de passe.' },
     aide: { label: 'Aide', description: 'Questions fréquentes et assistance.' },
-    danger: { label: 'Zone dangereuse', description: "Supprimer l'entreprise ou votre compte." },
-    rh: { label: 'RH & Salaires', description: 'Types de travail, frais et cotisations utilisés par le module RH.' },
+    danger: { label: 'Zone dangereuse', description: 'Supprimer votre compte personnel.' },
+    entrepriseDanger: { label: 'Zone dangereuse', description: "Transférer la propriété ou supprimer l'entreprise." },
+    rh: { label: 'RH & Salaires', description: 'Catalogues utilisés par le module RH : types de travail, frais remboursables et cotisations appliquées aux salaires.' },
   },
   unsavedChanges: {
     detected: 'Des modifications ont été détectées.',

@@ -852,8 +852,9 @@ export const de: TranslationDict = {
     stockage: { label: 'Speicher', description: 'Von Ihren Baustellen belegter Speicherplatz.' },
     profil: { label: 'Mein Profil', description: 'Name, Foto und Passwort.' },
     aide: { label: 'Hilfe', description: 'Häufige Fragen und Unterstützung.' },
-    danger: { label: 'Gefahrenzone', description: 'Unternehmen oder Konto löschen.' },
-    rh: { label: 'Personal & Löhne', description: 'Arbeitsarten, Spesen und Abzüge, die vom Personalmodul verwendet werden.' },
+    danger: { label: 'Gefahrenzone', description: 'Ihr persönliches Konto löschen.' },
+    entrepriseDanger: { label: 'Gefahrenzone', description: 'Eigentümerschaft übertragen oder das Unternehmen löschen.' },
+    rh: { label: 'Personal & Löhne', description: 'Kataloge des Personalmoduls: Arbeitsarten, erstattungsfähige Spesen und Lohnabzüge.' },
   },
   unsavedChanges: {
     detected: 'Es wurden Änderungen festgestellt.',

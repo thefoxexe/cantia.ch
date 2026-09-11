@@ -222,6 +222,13 @@ export default function EntrepriseScreen() {
             <Feather name="chevron-right" size={16} color={colors.textMuted} />
           </Pressable>
 
+          <Text style={styles.sectionTitle}>{t('compteMenu.entrepriseDanger.label')}</Text>
+          <Pressable onPress={() => router.push('/(app)/compte/entreprise-danger')} style={styles.dangerLink}>
+            <Feather name="alert-triangle" size={16} color={colors.danger} />
+            <Text style={styles.dangerLinkText}>{t('compteMenu.entrepriseDanger.description')}</Text>
+            <Feather name="chevron-right" size={16} color={colors.textMuted} />
+          </Pressable>
+
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
@@ -247,6 +254,20 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   emailsLinkText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
+    lineHeight: 16,
+  },
+  dangerLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  dangerLinkText: {
     flex: 1,
     fontSize: fontSize.xs,
     color: colors.text,

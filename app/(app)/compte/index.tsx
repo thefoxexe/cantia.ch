@@ -10,7 +10,22 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
-type MenuKey = 'entreprise' | 'devis' | 'emails' | 'equipe' | 'facturation' | 'integrations' | 'modules' | 'notifications' | 'apparence' | 'stockage' | 'profil' | 'aide' | 'danger' | 'rh';
+type MenuKey =
+  | 'entreprise'
+  | 'devis'
+  | 'emails'
+  | 'equipe'
+  | 'facturation'
+  | 'integrations'
+  | 'modules'
+  | 'notifications'
+  | 'apparence'
+  | 'stockage'
+  | 'profil'
+  | 'aide'
+  | 'danger'
+  | 'entrepriseDanger'
+  | 'rh';
 
 interface MenuItem {
   href: string;
@@ -62,6 +77,7 @@ const GROUPS: MenuGroup[] = [
       { href: '/(app)/compte/devis', icon: 'file-text', key: 'devis' },
       { href: '/(app)/compte/emails', icon: 'mail', key: 'emails' },
       { href: '/(app)/compte/stockage', icon: 'hard-drive', key: 'stockage' },
+      { href: '/(app)/compte/entreprise-danger', icon: 'alert-triangle', key: 'entrepriseDanger' },
     ],
   },
   {
