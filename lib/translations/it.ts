@@ -2055,7 +2055,7 @@ export const it: TranslationDict = {
     report_grandLivre: 'Libro mastro',
     report_bilan: 'Bilancio',
     payrollPostingTitle: 'Registra i salari',
-    payrollPostingHint: 'Genera una registrazione per dipendente per il mese scelto (lordo, oneri sociali, netto da pagare). Senza effetto sui cedolini già generati.',
+    payrollPostingHint: 'Genera una registrazione per dipendente per il mese scelto (lordo, oneri sociali, netto da pagare), ricalcolata da ore e trattenute — senza effetto sui cedolini già generati. Attenzione: questo calcolo non riprende le voci aggiunte in Fogli paga (tredicesima, straordinari, anticipo, indennità vacanze) — se le ha utilizzate, verifichi che l\'importo registrato corrisponda al cedolino pagato prima di confermare.',
     payrollPostButton: 'Registra',
     payrollPostedSummary: '{{posted}} registrazione/i creata/e, {{skipped}} già registrata/e.',
     vatSettingsTitle: 'Impostazioni IVA',

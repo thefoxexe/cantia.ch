@@ -2033,7 +2033,7 @@ export const fr = {
     report_grandLivre: 'Grand livre',
     report_bilan: 'Bilan',
     payrollPostingTitle: 'Comptabiliser les salaires',
-    payrollPostingHint: 'Génère une pièce comptable par employé pour le mois choisi (brut, charges sociales, net à payer). Sans incidence sur les fiches de salaire déjà générées.',
+    payrollPostingHint: "Génère une pièce comptable par employé pour le mois choisi (brut, charges sociales, net à payer), recalculée à partir des heures et cotisations — sans incidence sur les fiches de salaire déjà générées. Attention : ce calcul ne reprend pas les rubriques ajoutées dans Fiches de salaire (13e, heures sup, avance, indemnité vacances) — si vous en avez utilisé, vérifiez que le montant posté correspond bien à la fiche payée avant de valider.",
     payrollPostButton: 'Comptabiliser',
     payrollPostedSummary: '{{posted}} écriture(s) créée(s), {{skipped}} déjà comptabilisée(s).',
     vatSettingsTitle: 'Paramètres TVA',

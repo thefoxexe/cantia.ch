@@ -2047,7 +2047,7 @@ export const de: TranslationDict = {
     report_grandLivre: 'Hauptbuch',
     report_bilan: 'Bilanz',
     payrollPostingTitle: 'Löhne verbuchen',
-    payrollPostingHint: 'Erstellt einen Buchungsbeleg pro Mitarbeiter für den gewählten Monat (Brutto, Sozialabgaben, Nettolohn). Ohne Auswirkung auf bereits erstellte Lohnabrechnungen.',
+    payrollPostingHint: 'Erstellt einen Buchungsbeleg pro Mitarbeiter für den gewählten Monat (Brutto, Sozialabgaben, Nettolohn), neu berechnet aus Stunden und Abzügen — ohne Auswirkung auf bereits erstellte Lohnabrechnungen. Achtung: Diese Berechnung berücksichtigt keine in Lohnabrechnungen hinzugefügten Positionen (13. Monatslohn, Überstunden, Vorschuss, Ferienentschädigung) — falls Sie solche verwendet haben, prüfen Sie vor dem Verbuchen, ob der Betrag mit der bezahlten Abrechnung übereinstimmt.',
     payrollPostButton: 'Verbuchen',
     payrollPostedSummary: '{{posted}} Buchung(en) erstellt, {{skipped}} bereits verbucht.',
     vatSettingsTitle: 'MWST-Einstellungen',
