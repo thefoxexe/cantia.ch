@@ -1960,6 +1960,8 @@ export const de: TranslationDict = {
     paymentsReconciled_other: '{{count}} Zahlungen abgeglichen',
     failuresText_one: '{{count}} Fehler — versuchen Sie es erneut über die Rechnungsseite.',
     failuresText_other: '{{count}} Fehler — versuchen Sie es erneut über die Rechnungsseite.',
+    unlinkedWarning_one: '{{count}} Zahlung erfasst, aber nicht mit einer Buchung verknüpft (Buchhaltungskonfiguration unter Buchhaltung > Einstellungen prüfen) — diese Buchung manuell kontrollieren.',
+    unlinkedWarning_other: '{{count}} Zahlungen erfasst, aber nicht mit einer Buchung verknüpft (Buchhaltungskonfiguration unter Buchhaltung > Einstellungen prüfen) — diese Buchungen manuell kontrollieren.',
     backToFactures: 'Zurück zu den Rechnungen',
     summaryCredits_one: '{{count}} Gutschrift gelesen',
     summaryCredits_other: '{{count}} Gutschriften gelesen',

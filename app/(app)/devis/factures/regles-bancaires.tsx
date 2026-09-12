@@ -8,9 +8,12 @@ import {
   createBankRule,
   setBankRuleActive,
   deleteBankRule,
+  bankListChargeAccounts,
+  bankListDeductibleVatCodes,
   type BankRule,
+  type BankRuleAccountOption,
+  type BankRuleVatCodeOption,
 } from '../../../../lib/api/bank';
-import { listAccounts, listVatCodes, type AccountingAccount, type VatCode } from '../../../../lib/api/accounting';
 import { listAssignableProjects } from '../../../../lib/api/subcontractors';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
@@ -23,8 +26,8 @@ export default function BankRulesScreen() {
   const { organization, user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [rules, setRules] = useState<BankRule[]>([]);
-  const [accounts, setAccounts] = useState<AccountingAccount[]>([]);
-  const [vatCodes, setVatCodes] = useState<VatCode[]>([]);
+  const [accounts, setAccounts] = useState<BankRuleAccountOption[]>([]);
+  const [vatCodes, setVatCodes] = useState<BankRuleVatCodeOption[]>([]);
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
 
   const [formOpen, setFormOpen] = useState(false);
@@ -49,13 +52,13 @@ export default function BankRulesScreen() {
     setLoading(true);
     const [ruleRows, accountRows, vatRows, projectRows] = await Promise.all([
       listBankRules(organization.id),
-      listAccounts(organization.id),
-      listVatCodes(organization.id),
+      bankListChargeAccounts(organization.id),
+      bankListDeductibleVatCodes(organization.id),
       listAssignableProjects(organization.id, []),
     ]);
     setRules(ruleRows);
-    setAccounts(accountRows.filter((a) => a.type === 'charge'));
-    setVatCodes(vatRows.filter((c) => c.category.startsWith('achat')));
+    setAccounts(accountRows);
+    setVatCodes(vatRows);
     setProjects(projectRows);
     setLoading(false);
   }, [organization]);

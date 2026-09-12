@@ -213,9 +213,10 @@ export default function ImportReleveScreen() {
   const [bankAccountId, setBankAccountId] = useState<string | null>(null);
   const [bankAccountingAccountId, setBankAccountingAccountId] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
-  const [result, setResult] = useState<{ applied: number; failed: number } | null>(null);
+  const [result, setResult] = useState<{ applied: number; failed: number; unlinked: number } | null>(null);
   const [alreadyImportedNotice, setAlreadyImportedNotice] = useState(false);
   const [autoPostedCount, setAutoPostedCount] = useState(0);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<EntryLineCandidate[]>([]);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
@@ -265,6 +266,7 @@ export default function ImportReleveScreen() {
       setBankAccountingAccountId(acct?.accountingAccountId ?? null);
       setAlreadyImportedNotice(imported.alreadyImported);
       setAutoPostedCount(imported.autoPosted ?? 0);
+      setImportWarnings(imported.warnings ?? []);
       await loadPersistedState(imported.bankAccountId);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('importReleve.readError'));
@@ -283,6 +285,7 @@ export default function ImportReleveScreen() {
     setApplying(true);
     let applied = 0;
     let failed = 0;
+    let unlinked = 0;
     for (const row of toApply) {
       const { id: paymentId, error: err } = await addFacturePayment(row.candidate.id, row.entry.amount, row.entry.date, row.candidate.total);
       if (err || !paymentId) {
@@ -290,13 +293,30 @@ export default function ImportReleveScreen() {
         continue;
       }
       applied += 1;
+      // The payment itself always succeeds independently of bank
+      // reconciliation — but if there's no posted line to link to (a
+      // missing account mapping, most likely), the transaction MUST NOT
+      // be left "unmatched": a still-open (partial) facture stays a
+      // valid reference-match candidate, so on a future import the exact
+      // same transaction could be matched — and paid — a second time.
+      // Falling back to "ignored" here takes it out of that pool; the
+      // payment itself is never lost, only its link to a ledger line,
+      // surfaced as a count to check manually.
+      let linked = false;
       if (bankAccountingAccountId) {
         const lineId = await findAutoPostedEntryLine(organization.id, 'encaissement_client', paymentId, bankAccountingAccountId);
-        if (lineId) await linkBankTransactionToEntryLine(row.entry.transactionId, lineId);
+        if (lineId) {
+          await linkBankTransactionToEntryLine(row.entry.transactionId, lineId);
+          linked = true;
+        }
+      }
+      if (!linked) {
+        unlinked += 1;
+        await ignoreBankTransaction(row.entry.transactionId);
       }
     }
     setApplying(false);
-    setResult({ applied, failed });
+    setResult({ applied, failed, unlinked });
     setRows([]);
   }
 
@@ -378,6 +398,7 @@ export default function ImportReleveScreen() {
               {t('importReleve.paymentsReconciled', { count: result.applied })}
             </Text>
             {result.failed > 0 ? <Text style={styles.error}>{t('importReleve.failuresText', { count: result.failed })}</Text> : null}
+            {result.unlinked > 0 ? <Text style={styles.matchMetaFuzzy}>{t('importReleve.unlinkedWarning', { count: result.unlinked })}</Text> : null}
             <Button title={t('importReleve.backToFactures')} variant="secondary" onPress={() => router.replace('/(app)/devis/factures')} style={{ marginTop: spacing.sm }} />
           </Card>
         ) : (
@@ -392,6 +413,16 @@ export default function ImportReleveScreen() {
               <View style={[styles.fuzzyBanner, { backgroundColor: colors.successSoft }]}>
                 <Feather name="zap" size={14} color={colors.success} />
                 <Text style={[styles.fuzzyBannerText, { color: colors.success }]}>{t('importReleve.autoPosted', { count: autoPostedCount })}</Text>
+              </View>
+            ) : null}
+            {importWarnings.length > 0 ? (
+              <View style={styles.fuzzyBanner}>
+                <Feather name="alert-triangle" size={14} color={colors.warning} />
+                <View style={{ flex: 1, gap: 2 }}>
+                  {importWarnings.map((w, i) => (
+                    <Text key={i} style={styles.fuzzyBannerText}>{w}</Text>
+                  ))}
+                </View>
               </View>
             ) : null}
             <Text style={styles.summary}>

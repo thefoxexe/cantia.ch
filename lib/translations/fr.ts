@@ -1946,6 +1946,8 @@ export const fr = {
     paymentsReconciled_other: '{{count}} paiements rapprochés',
     failuresText_one: '{{count}} échec — réessayez depuis la fiche facture.',
     failuresText_other: '{{count}} échecs — réessayez depuis la fiche facture.',
+    unlinkedWarning_one: "{{count}} paiement enregistré, mais pas relié à une écriture comptable (configuration comptable à vérifier dans Comptabilité > Paramètres) — vérifiez cette écriture manuellement.",
+    unlinkedWarning_other: "{{count}} paiements enregistrés, mais pas reliés à une écriture comptable (configuration comptable à vérifier dans Comptabilité > Paramètres) — vérifiez ces écritures manuellement.",
     backToFactures: 'Retour aux factures',
     summaryCredits_one: '{{count}} entrée créditrice lue',
     summaryCredits_other: '{{count}} entrées créditrices lues',

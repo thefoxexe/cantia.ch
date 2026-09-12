@@ -108,6 +108,7 @@ export interface ImportResult {
   duplicates: number;
   alreadyImported: boolean;
   autoPosted?: number;
+  warnings?: string[];
   error: string | null;
 }
 
@@ -183,6 +184,7 @@ export async function importCamtStatement(
   }
 
   let autoPosted = 0;
+  const warnings: string[] = [];
   if (account.accountingAccountId && inserted?.length) {
     const rules = await listBankRules(organizationId, false);
     const autoRules = rules.filter((r) => r.autoPost);
@@ -192,12 +194,13 @@ export async function importCamtStatement(
         const rule = matchRuleForTransaction(autoRules, row);
         if (!rule) continue;
         const { error: applyError } = await applyAutoPostRule(organizationId, row, rule, userId, account.accountingAccountId);
-        if (!applyError) autoPosted += 1;
+        if (applyError) warnings.push(applyError);
+        else autoPosted += 1;
       }
     }
   }
 
-  return { bankAccountId: account.id, imported: importedCount, duplicates: rows.length - importedCount, alreadyImported: false, autoPosted, error: null };
+  return { bankAccountId: account.id, imported: importedCount, duplicates: rows.length - importedCount, alreadyImported: false, autoPosted, warnings, error: null };
 }
 
 export interface BankTransactionRow {
@@ -251,43 +254,25 @@ export interface EntryLineCandidate {
 // posted entry" fallback (§6.3's dépenses/écritures/virement cases — the
 // facture-payment side has its own tuned reference/amount/fuzzy matcher in
 // app/(app)/devis/factures/import-releve.tsx and doesn't need this).
+//
+// Goes through a SECURITY DEFINER RPC rather than a direct table read:
+// accounting_entry_lines/accounting_entries are gated by
+// can_view_org_accounting, a narrower, dedicated permission the bank
+// permissions deliberately don't grant (a member with only bank access
+// must not thereby gain read access to the full ledger) — the RPC itself
+// checks the bank permissions instead, scoped to exactly this lookup.
 export async function findEntryLineCandidates(organizationId: string, transaction: BankTransactionRow): Promise<EntryLineCandidate[]> {
-  const { data: account } = await supabase.from('bank_accounts').select('accounting_account_id').eq('id', transaction.bankAccountId).maybeSingle();
-  if (!account?.accounting_account_id) return [];
-
-  const from = new Date(transaction.bookingDate);
-  from.setDate(from.getDate() - 45);
-  const to = new Date(transaction.bookingDate);
-  to.setDate(to.getDate() + 45);
-
-  const { data: lines } = await supabase
-    .from('accounting_entry_lines')
-    .select('id, debit, credit, label, entry_id, accounting_entries!inner(id, entry_number, entry_date, label, source, organization_id, status)')
-    .eq('account_id', account.accounting_account_id)
-    .eq('accounting_entries.organization_id', organizationId)
-    .eq('accounting_entries.status', 'comptabilisee')
-    .gte('accounting_entries.entry_date', from.toISOString().slice(0, 10))
-    .lte('accounting_entries.entry_date', to.toISOString().slice(0, 10));
-  if (!lines?.length) return [];
-
-  const { data: alreadyMatched } = await supabase.from('bank_transactions').select('matched_entry_line_id').eq('organization_id', organizationId).not('matched_entry_line_id', 'is', null);
-  const matchedIds = new Set((alreadyMatched ?? []).map((r: any) => r.matched_entry_line_id));
-
-  const wantDebit = transaction.amount > 0;
-  return (lines as any[])
-    .filter((l) => !matchedIds.has(l.id))
-    .filter((l) => (wantDebit ? Number(l.debit) > 0 && Math.abs(Number(l.debit) - transaction.amount) < 0.01 : Number(l.credit) > 0 && Math.abs(Number(l.credit) - Math.abs(transaction.amount)) < 0.01))
-    .map((l) => ({
-      entryLineId: l.id,
-      entryId: l.accounting_entries.id,
-      entryNumber: l.accounting_entries.entry_number,
-      entryDate: l.accounting_entries.entry_date,
-      label: l.label || l.accounting_entries.label,
-      source: l.accounting_entries.source,
-      debit: Number(l.debit),
-      credit: Number(l.credit),
-    }))
-    .sort((a, b) => Math.abs(new Date(a.entryDate).getTime() - new Date(transaction.bookingDate).getTime()) - Math.abs(new Date(b.entryDate).getTime() - new Date(transaction.bookingDate).getTime()));
+  const { data } = await supabase.rpc('bank_find_entry_line_candidates', { p_transaction_id: transaction.id });
+  return (data ?? []).map((l: any) => ({
+    entryLineId: l.entry_line_id,
+    entryId: l.entry_id,
+    entryNumber: l.entry_number,
+    entryDate: l.entry_date,
+    label: l.label,
+    source: l.source,
+    debit: Number(l.debit),
+    credit: Number(l.credit),
+  }));
 }
 
 export async function linkBankTransactionToEntryLine(transactionId: string, entryLineId: string): Promise<{ error: string | null }> {
@@ -310,17 +295,16 @@ export async function unmatchBankTransaction(transactionId: string): Promise<{ e
 // on the given bank account's mapped accounting_account — so a confirmed
 // facture match can be linked to its real posted line right after
 // addFacturePayment succeeds, with no new posting logic of its own.
+// Same rationale as findEntryLineCandidates for going through an RPC
+// instead of a direct table read — see its comment.
 export async function findAutoPostedEntryLine(organizationId: string, source: string, sourceId: string, accountingAccountId: string): Promise<string | null> {
-  const { data } = await supabase
-    .from('accounting_entry_lines')
-    .select('id, accounting_entries!inner(organization_id, source, source_id, status)')
-    .eq('account_id', accountingAccountId)
-    .eq('accounting_entries.organization_id', organizationId)
-    .eq('accounting_entries.source', source)
-    .eq('accounting_entries.source_id', sourceId)
-    .eq('accounting_entries.status', 'comptabilisee')
-    .maybeSingle();
-  return (data as any)?.id ?? null;
+  const { data } = await supabase.rpc('bank_find_auto_posted_entry_line', {
+    p_organization_id: organizationId,
+    p_source: source,
+    p_source_id: sourceId,
+    p_accounting_account_id: accountingAccountId,
+  });
+  return data ?? null;
 }
 
 // ==========================================================================
@@ -431,16 +415,40 @@ export function matchRuleForTransaction(rules: BankRule[], transaction: BankTran
   return null;
 }
 
+// Same rationale as findEntryLineCandidates — vat_codes is gated by
+// can_view_org_accounting, which bank permissions deliberately don't grant.
+export interface BankRuleAccountOption {
+  id: string;
+  code: string;
+  label: string;
+}
+
+export interface BankRuleVatCodeOption {
+  id: string;
+  code: string;
+  label: string;
+  rate: number;
+}
+
+// Narrow reads for the bank-rules screen's own pickers — same rationale
+// as findEntryLineCandidates: accounting_accounts/vat_codes are gated by
+// can_view_org_accounting, which bank permissions deliberately don't
+// include, so a member who can only manage bank rules still needs a
+// dedicated, narrowly-scoped way to see charge accounts and VAT codes to
+// configure one.
+export async function bankListChargeAccounts(organizationId: string): Promise<BankRuleAccountOption[]> {
+  const { data } = await supabase.rpc('bank_list_charge_accounts', { p_organization_id: organizationId });
+  return data ?? [];
+}
+
+export async function bankListDeductibleVatCodes(organizationId: string): Promise<BankRuleVatCodeOption[]> {
+  const { data } = await supabase.rpc('bank_list_deductible_vat_codes', { p_organization_id: organizationId });
+  return (data ?? []).map((c: any) => ({ ...c, rate: Number(c.rate) }));
+}
+
 async function vatRateForCode(organizationId: string, code: string, atDate: string): Promise<number | null> {
-  const { data } = await supabase
-    .from('vat_codes')
-    .select('rate')
-    .eq('organization_id', organizationId)
-    .eq('code', code)
-    .lte('valid_from', atDate)
-    .or(`valid_to.is.null,valid_to.gte.${atDate}`)
-    .maybeSingle();
-  return data ? Number(data.rate) : null;
+  const { data } = await supabase.rpc('bank_vat_rate_for_code', { p_organization_id: organizationId, p_code: code, p_at_date: atDate });
+  return data != null ? Number(data) : null;
 }
 
 // Creates the dépense a matched auto_post rule proposes, then links the
@@ -479,10 +487,17 @@ export async function applyAutoPostRule(
   const { data: expenseRow, error: expenseError } = await supabase.from(table).insert(payload).select('id').single();
   if (expenseError || !expenseRow) return { error: expenseError?.message ?? 'Dépense non créée' };
 
+  // The posting trigger can skip posting silently (missing fiscal year or
+  // account mapping — it logs a warning, not an error, so the INSERT
+  // above always succeeds either way). If no posted line shows up, this
+  // must NOT be reported as a successful auto-post: the dépense row now
+  // exists but is unaccounted for, and the transaction has to stay
+  // unmatched so a human notices instead of assuming the rule handled it.
   const lineId = await findAutoPostedEntryLine(organizationId, 'facture_fournisseur', expenseRow.id, bankAccountingAccountId);
-  if (lineId) {
-    await linkBankTransactionToEntryLine(transaction.id, lineId);
-    await supabase.rpc('record_bank_rule_application', { p_transaction_id: transaction.id, p_rule_id: rule.id, p_expense_id: expenseRow.id });
+  if (!lineId) {
+    return { error: `Dépense créée pour "${label}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant) — à vérifier manuellement dans Comptabilité.` };
   }
+  await linkBankTransactionToEntryLine(transaction.id, lineId);
+  await supabase.rpc('record_bank_rule_application', { p_transaction_id: transaction.id, p_rule_id: rule.id, p_expense_id: expenseRow.id });
   return { error: null };
 }

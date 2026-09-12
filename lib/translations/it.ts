@@ -1968,6 +1968,8 @@ export const it: TranslationDict = {
     paymentsReconciled_other: '{{count}} pagamenti riconciliati',
     failuresText_one: '{{count}} fallimento — riprovi dalla scheda fattura.',
     failuresText_other: '{{count}} fallimenti — riprovi dalla scheda fattura.',
+    unlinkedWarning_one: '{{count}} pagamento registrato, ma non collegato a una registrazione contabile (verifichi la configurazione in Contabilità > Impostazioni) — controlli questa registrazione manualmente.',
+    unlinkedWarning_other: '{{count}} pagamenti registrati, ma non collegati a una registrazione contabile (verifichi la configurazione in Contabilità > Impostazioni) — controlli queste registrazioni manualmente.',
     backToFactures: 'Torna alle fatture',
     summaryCredits_one: '{{count}} voce creditrice letta',
     summaryCredits_other: '{{count}} voci creditrici lette',

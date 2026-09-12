@@ -51,84 +51,56 @@ export interface PayableItem {
   employeeUserId?: string;
 }
 
-// Unpaid subcontractor invoices not already sitting in another batch —
-// the unique index on payment_batch_items (organization_id, source_type,
-// source_id) is the real backstop; this filter just keeps the picker list
-// honest before that constraint would ever be hit.
+// Unpaid subcontractor invoices not already sitting in another batch.
+//
+// Goes through a SECURITY DEFINER RPC rather than direct table reads:
+// subcontractor_invoices/subcontractors are gated by
+// can_view_org_subcontractors, payroll_expenses/payroll_profiles by
+// can_manage_org_payroll — neither of which can_generate_org_payments
+// implies (it was deliberately kept admin-only, see the schema
+// migration's comment). A custom role granted only can_generate_payments
+// needs its own narrow read path to the same rows.
 export async function listPayableSubcontractorInvoices(organizationId: string): Promise<PayableItem[]> {
-  const [{ data: invoices }, { data: batched }] = await Promise.all([
-    supabase
-      .from('subcontractor_invoices')
-      .select('id, amount, invoice_date, due_date, project_subcontractor:project_subcontractors(subcontractor:subcontractors(company_name, iban))')
-      .eq('organization_id', organizationId)
-      .eq('paid', false),
-    supabase.from('payment_batch_items').select('source_id').eq('organization_id', organizationId).eq('source_type', 'subcontractor_invoice'),
-  ]);
-  const batchedIds = new Set((batched ?? []).map((b) => b.source_id));
-
-  return (invoices ?? [])
-    .filter((inv: any) => !batchedIds.has(inv.id))
-    .map((inv: any) => {
-      const sub = inv.project_subcontractor?.subcontractor;
-      const iban = sub?.iban ?? null;
-      return {
-        sourceType: 'subcontractor_invoice' as const,
-        sourceId: inv.id,
-        creditorName: sub?.company_name ?? 'Sous-traitant',
-        creditorIban: iban,
-        amount: Number(inv.amount),
-        remittanceInfo: `Facture du ${inv.invoice_date ?? ''}`.trim(),
-        ibanValid: !!iban && isValidIban(iban),
-      };
-    });
+  const { data } = await supabase.rpc('payments_list_payable_subcontractor_invoices', { p_organization_id: organizationId });
+  return (data ?? []).map((inv: any) => ({
+    sourceType: 'subcontractor_invoice' as const,
+    sourceId: inv.id,
+    creditorName: inv.company_name ?? 'Sous-traitant',
+    creditorIban: inv.iban,
+    amount: Number(inv.amount),
+    remittanceInfo: `Facture du ${inv.invoice_date ?? ''}`.trim(),
+    ibanValid: !!inv.iban && isValidIban(inv.iban),
+  }));
 }
 
 // Unpaid expense reimbursements (real users only — ghost employees have
 // no app account to log an expense claim from).
 export async function listPayableExpenseReimbursements(organizationId: string): Promise<PayableItem[]> {
-  const [{ data: expenses }, { data: batched }] = await Promise.all([
-    supabase
-      .from('payroll_expenses')
-      .select('id, amount_chf, expense_date, note, user_id')
-      .eq('organization_id', organizationId)
-      .eq('paid', false),
-    supabase.from('payment_batch_items').select('source_id').eq('organization_id', organizationId).eq('source_type', 'payroll_expense'),
-  ]);
-  const batchedIds = new Set((batched ?? []).map((b) => b.source_id));
-  const pending = (expenses ?? []).filter((e: any) => !batchedIds.has(e.id));
-  if (!pending.length) return [];
-
-  const userIds = [...new Set(pending.map((e: any) => e.user_id).filter(Boolean))];
-  const [{ data: members }, { data: profiles }] = await Promise.all([
-    supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organizationId).in('user_id', userIds),
-    supabase.from('payroll_profiles').select('user_id, iban').eq('organization_id', organizationId).in('user_id', userIds),
-  ]);
-  const nameByUser = new Map((members ?? []).map((m: any) => [m.user_id, m.full_name as string | null]));
-  const ibanByUser = new Map((profiles ?? []).map((p: any) => [p.user_id, p.iban as string | null]));
-
-  return pending.map((e: any) => {
-    const iban = ibanByUser.get(e.user_id) ?? null;
-    return {
-      sourceType: 'payroll_expense' as const,
-      sourceId: e.id,
-      creditorName: nameByUser.get(e.user_id) ?? 'Employé',
-      creditorIban: iban,
-      amount: Number(e.amount_chf),
-      remittanceInfo: e.note || `Note de frais du ${e.expense_date ?? ''}`.trim(),
-      ibanValid: !!iban && isValidIban(iban),
-      employeeUserId: e.user_id,
-    };
-  });
+  const { data } = await supabase.rpc('payments_list_payable_expense_reimbursements', { p_organization_id: organizationId });
+  return (data ?? []).map((e: any) => ({
+    sourceType: 'payroll_expense' as const,
+    sourceId: e.id,
+    creditorName: e.employee_name ?? 'Employé',
+    creditorIban: e.iban,
+    amount: Number(e.amount_chf),
+    remittanceInfo: e.note || `Note de frais du ${e.expense_date ?? ''}`.trim(),
+    ibanValid: !!e.iban && isValidIban(e.iban),
+    employeeUserId: e.user_id,
+  }));
 }
 
-export async function setSubcontractorIban(subcontractorId: string, iban: string | null): Promise<{ error: string | null }> {
-  const { error } = await supabase.from('subcontractors').update({ iban }).eq('id', subcontractorId);
+export async function setSubcontractorIban(organizationId: string, subcontractorId: string, iban: string | null): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('payments_set_subcontractor_iban', { p_organization_id: organizationId, p_subcontractor_id: subcontractorId, p_iban: iban });
   return { error: error?.message ?? null };
 }
 
 export async function setEmployeeIban(organizationId: string, userId: string, iban: string | null): Promise<{ error: string | null }> {
-  const { error } = await supabase.from('payroll_profiles').update({ iban }).eq('organization_id', organizationId).eq('user_id', userId);
+  const { error } = await supabase.rpc('payments_set_employee_iban', { p_organization_id: organizationId, p_user_id: userId, p_iban: iban });
   return { error: error?.message ?? null };
+}
+
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function xmlEscape(s: string): string {
@@ -251,6 +223,12 @@ export async function createPaymentBatch(
   if (invalid) return { batchId: null, xml: null, error: `IBAN manquant ou invalide pour ${invalid.creditorName}` };
   if (!isValidIban(debtorIban)) return { batchId: null, xml: null, error: "IBAN de l'entreprise manquant ou invalide (Compte > Entreprise)" };
   if (!items.length) return { batchId: null, xml: null, error: 'Sélectionnez au moins un paiement' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(executionDate) || Number.isNaN(Date.parse(executionDate))) {
+    return { batchId: null, xml: null, error: "Date d'exécution invalide (format attendu : AAAA-MM-JJ)" };
+  }
+  if (executionDate < today()) {
+    return { batchId: null, xml: null, error: "La date d'exécution ne peut pas être dans le passé" };
+  }
 
   const itemsWithRef = items.map((i, idx) => ({ ...i, endToEndId: `${i.sourceType.slice(0, 4).toUpperCase()}-${i.sourceId.slice(0, 8)}-${idx}` }));
   const { xml, messageId, controlSum } = buildPain001Xml(debtorName, debtorIban, executionDate, itemsWithRef);
@@ -276,7 +254,13 @@ export async function createPaymentBatch(
       sort_order: idx,
     })),
   );
-  if (itemsError) return { batchId: batch.id, xml: null, error: itemsError.message };
+  if (itemsError) {
+    // Don't leave a batch row with a control sum and no items behind —
+    // clean it back up so the source invoices/expenses stay available
+    // for the next attempt instead of looking permanently claimed.
+    await supabase.from('payment_batches').delete().eq('id', batch.id);
+    return { batchId: null, xml: null, error: itemsError.message };
+  }
 
   return { batchId: batch.id, xml, error: null };
 }

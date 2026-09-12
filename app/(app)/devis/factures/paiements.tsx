@@ -75,7 +75,7 @@ export default function PaymentsScreen() {
     const iban = ibanDrafts[item.sourceId];
     if (!iban || !organization) return;
     if (item.sourceType === 'subcontractor_invoice') {
-      await setSubcontractorIban(item.sourceId, iban);
+      await setSubcontractorIban(organization.id, item.sourceId, iban);
     } else if (item.employeeUserId) {
       await setEmployeeIban(organization.id, item.employeeUserId, iban);
     }
