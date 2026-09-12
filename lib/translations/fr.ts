@@ -557,6 +557,8 @@ export const fr = {
     hourlyRateLabel: 'Tarif horaire (CHF/h, optionnel)',
     kmRateLabel: 'Taux (CHF/km)',
     defaultRateLabel: 'Taux par défaut (%, optionnel)',
+    employerRateLabel: 'Part employeur (%, optionnel)',
+    employerRateHint: "Coût pour l'entreprise, en plus du salaire brut — n'apparaît jamais sur le salaire net de l'employé. Laissez vide si vous ne connaissez pas encore ce taux.",
     ratePlaceholder: 'Ex : 0.70',
     certificateBoxLabel: 'Case du certificat de salaire officiel',
     certificateBoxHint: "Indiquez à quelle case cette cotisation correspond, pour que le Lohnausweis officiel se remplisse correctement. Laissez sur \"Aucune\" si elle ne doit pas y figurer.",
@@ -1198,6 +1200,8 @@ export const fr = {
     status_validee: 'Validée',
     status_payee: 'Payée',
     status_extournee: 'Extournée',
+    netAmount: 'Net {{amount}}',
+    employerCostAmount: 'Coût employeur {{amount}}',
   },
   subcontractorsList: {
     title: 'Sous-traitants',

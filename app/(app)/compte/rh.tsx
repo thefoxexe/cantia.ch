@@ -72,6 +72,7 @@ export default function PayrollSettingsScreen() {
   const [editId, setEditId] = useState<string | null>(null);
   const [label, setLabel] = useState('');
   const [rate, setRate] = useState('');
+  const [employerRate, setEmployerRate] = useState('');
   const [unit, setUnit] = useState<'km' | 'forfait'>('forfait');
   const [certificateBox, setCertificateBox] = useState<CertificateBox | null>(null);
   const [certificateSubbox, setCertificateSubbox] = useState<CertificateSubbox | null>(null);
@@ -114,6 +115,7 @@ export default function PayrollSettingsScreen() {
     setEditId(null);
     setLabel('');
     setRate('');
+    setEmployerRate('');
     setUnit('forfait');
     setCertificateBox(null);
     setCertificateSubbox(null);
@@ -148,6 +150,7 @@ export default function PayrollSettingsScreen() {
     setEditId(d.id);
     setLabel(d.label);
     setRate(d.default_rate_percent != null ? String(d.default_rate_percent) : '');
+    setEmployerRate(d.employer_rate_percent != null ? String(d.employer_rate_percent) : '');
     setCertificateBox(d.certificate_box);
     setActive(d.active);
     setError(null);
@@ -174,9 +177,10 @@ export default function PayrollSettingsScreen() {
         ? (await updateExpenseType(editId, { label, unit, rateChf: rateNum, active, certificateSubbox, certificateSubboxArt: art })).error
         : (await createExpenseType(organization.id, label, unit, rateNum, expenseTypes.length, certificateSubbox, art)).error;
     } else {
+      const employerRateNum = employerRate.trim() ? Number(employerRate.replace(',', '.')) : null;
       err = editId
-        ? (await updateDeductionType(editId, { label, defaultRatePercent: rateNum, active, certificateBox })).error
-        : (await createDeductionType(organization.id, label, rateNum, deductionTypes.length, certificateBox)).error;
+        ? (await updateDeductionType(editId, { label, defaultRatePercent: rateNum, active, certificateBox, employerRatePercent: employerRateNum })).error
+        : (await createDeductionType(organization.id, label, rateNum, deductionTypes.length, certificateBox, employerRateNum)).error;
     }
 
     setSaving(false);
@@ -215,7 +219,14 @@ export default function PayrollSettingsScreen() {
     setCatalogDeductions(new Set());
     setCatalogExpenses(new Set());
     const initialRates: Record<string, string> = {};
-    for (const item of optionalDeductionCatalog) initialRates[item.key] = item.defaultRatePercent != null ? String(item.defaultRatePercent) : '';
+    for (const item of optionalDeductionCatalog) {
+      // For the two employer-only items (defaultRatePercent fixed at 0,
+      // employerRatePercent null), the single field maps to the employer
+      // rate — leave it blank rather than pre-filling "0", which would
+      // read as "no cost" instead of "not yet configured".
+      const employerOnly = item.defaultRatePercent === 0 && item.employerRatePercent == null;
+      initialRates[item.key] = employerOnly ? '' : item.defaultRatePercent != null ? String(item.defaultRatePercent) : '';
+    }
     setCatalogRates(initialRates);
     setCatalogOpen(true);
   }
@@ -251,7 +262,21 @@ export default function PayrollSettingsScreen() {
       if (!catalogDeductions.has(item.key)) continue;
       const rateRaw = catalogRates[item.key];
       const rateNum = rateRaw && rateRaw.trim() ? Number(rateRaw.replace(',', '.')) : null;
-      await createDeductionType(organization.id, item.label, rateNum, sortD, item.certificateBox);
+      // AAP and "CAF (charge employeur)" have no employee side at all
+      // (100% employeur par la loi) — their single rate field is the
+      // employer rate, not the employee one. Every other item keeps the
+      // field mapped to the employee side, with whatever employer default
+      // the catalog itself knows (AC solidarité, legally mirrored) —
+      // adjustable afterward from the type's own "Modifier".
+      const employerOnly = item.defaultRatePercent === 0 && item.employerRatePercent == null;
+      await createDeductionType(
+        organization.id,
+        item.label,
+        employerOnly ? 0 : rateNum,
+        sortD,
+        item.certificateBox,
+        employerOnly ? rateNum : item.employerRatePercent,
+      );
       sortD += 1;
     }
 
@@ -396,6 +421,21 @@ export default function PayrollSettingsScreen() {
                     style={styles.input}
                     value={rate}
                     onChangeText={setRate}
+                    keyboardType="decimal-pad"
+                    placeholder={t('payrollSettings.ratePlaceholder')}
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </>
+              ) : null}
+
+              {editKind === 'deduction' ? (
+                <>
+                  <Text style={styles.fieldLabel}>{t('payrollSettings.employerRateLabel')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('payrollSettings.employerRateHint')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={employerRate}
+                    onChangeText={setEmployerRate}
                     keyboardType="decimal-pad"
                     placeholder={t('payrollSettings.ratePlaceholder')}
                     placeholderTextColor={colors.textMuted}

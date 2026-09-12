@@ -188,11 +188,13 @@ export async function createDeductionType(
   defaultRatePercent: number | null,
   sortOrder: number,
   certificateBox: CertificateBox | null = null,
+  employerRatePercent: number | null = null,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase.from('payroll_deduction_types').insert({
     organization_id: organizationId,
     label: label.trim(),
     default_rate_percent: defaultRatePercent,
+    employer_rate_percent: employerRatePercent,
     sort_order: sortOrder,
     certificate_box: certificateBox,
     // Saved via the settings modal, which always shows the box chips
@@ -205,18 +207,17 @@ export async function createDeductionType(
 
 export async function updateDeductionType(
   id: string,
-  updates: { label: string; defaultRatePercent: number | null; active: boolean; certificateBox: CertificateBox | null },
+  updates: { label: string; defaultRatePercent: number | null; active: boolean; certificateBox: CertificateBox | null; employerRatePercent?: number | null },
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
-    .from('payroll_deduction_types')
-    .update({
-      label: updates.label.trim(),
-      default_rate_percent: updates.defaultRatePercent,
-      active: updates.active,
-      certificate_box: updates.certificateBox,
-      certificate_box_reviewed: true,
-    })
-    .eq('id', id);
+  const payload: Record<string, unknown> = {
+    label: updates.label.trim(),
+    default_rate_percent: updates.defaultRatePercent,
+    active: updates.active,
+    certificate_box: updates.certificateBox,
+    certificate_box_reviewed: true,
+  };
+  if (updates.employerRatePercent !== undefined) payload.employer_rate_percent = updates.employerRatePercent;
+  const { error } = await supabase.from('payroll_deduction_types').update(payload).eq('id', id);
   return { error: error?.message ?? null };
 }
 
@@ -257,6 +258,7 @@ export interface StandardDeductionCatalogItem {
   key: string;
   label: string;
   defaultRatePercent: number | null;
+  employerRatePercent: number | null;
   certificateBox: CertificateBox | null;
   hint: string;
 }
@@ -282,26 +284,55 @@ export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates |
       key: 'lpp',
       label: 'Cotisation LPP (2e pilier)',
       defaultRatePercent: null,
+      employerRatePercent: null,
       certificateBox: 'box10_1',
       hint: rates
-        ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans — dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${rates.year} : CHF ${rates.lpp_coordination_deduction_chf.toLocaleString('fr-CH')}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations).`
+        ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans — dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${rates.year} : CHF ${rates.lpp_coordination_deduction_chf.toLocaleString('fr-CH')}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations). La part employeur (au moins égale à la part salarié, souvent plus) dépend du règlement de votre caisse — à définir ci-dessous.`
         : "Dépend de l'âge de l'employé et de votre caisse de pension — ajustez le taux par employé (fiche de l'employé → Cotisations).",
     },
     {
       key: 'impot_source',
       label: 'Impôt à la source',
       defaultRatePercent: null,
+      employerRatePercent: null,
       certificateBox: 'box12',
-      hint: "Dépend du barème cantonal de l'employé — reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations).",
+      hint: "Dépend du barème cantonal de l'employé — reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations). Aucune part employeur : il ne s'agit que d'une retenue reversée au fisc.",
     },
     {
       key: 'ac_solidarite',
       label: 'Cotisation AC solidarité',
       defaultRatePercent: rates?.ac_solidarity_employee_percent ?? null,
+      employerRatePercent: rates?.ac_solidarity_employee_percent ?? null,
       certificateBox: 'box9',
       hint: rates
-        ? `Uniquement sur la part du salaire annuel dépassant CHF ${rates.ac_cap_chf.toLocaleString('fr-CH')} — rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil.`
+        ? `Uniquement sur la part du salaire annuel dépassant CHF ${rates.ac_cap_chf.toLocaleString('fr-CH')} — rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil. Part employeur égale à la part salarié (paritaire, comme l'AC de base).`
         : "Uniquement sur la part du salaire annuel dépassant le plafond AC — rarissime en PME.",
+    },
+    {
+      // Accident professionnel (LAA de base) : 100% à la charge de
+      // l'employeur par la loi (art. 91 al. 1 LAA), jamais de part
+      // salarié — le taux exact dépend de votre assureur et de la classe
+      // de risque de votre branche, aucune valeur nationale unique
+      // n'existe. Ne crée donc que la ligne, sans deviner de taux.
+      key: 'aap',
+      label: 'Cotisation AAP (accident professionnel)',
+      defaultRatePercent: 0,
+      employerRatePercent: null,
+      certificateBox: null,
+      hint: "100% à la charge de l'employeur par la loi (LAA) — aucune retenue sur le salaire. Le taux dépend de votre assureur-accidents et de la classe de risque de votre branche : reportez-le depuis votre police d'assurance.",
+    },
+    {
+      // Allocations familiales : 100% employeur par la loi (LAFam) — la
+      // ligne "Cotisation CAF" à charge salarié a été retirée du
+      // catalogue de base (voir la migration payroll_v4_caf_legal_fix)
+      // précisément parce qu'aucune base légale ne la justifiait. Elle ne
+      // réapparaît ici que côté employeur, jamais côté salarié.
+      key: 'caf_employeur',
+      label: 'Cotisation CAF (charge employeur)',
+      defaultRatePercent: 0,
+      employerRatePercent: null,
+      certificateBox: null,
+      hint: "100% à la charge de l'employeur par la loi (LAFam) — aucune retenue sur le salaire. Le taux dépend de votre caisse de compensation cantonale : reportez-le depuis votre décompte de cotisations.",
     },
   ];
 }
@@ -601,22 +632,28 @@ export async function upsertProfileDeduction(
   organizationId: string,
   ref: EmployeeRef,
   deductionTypeId: string,
-  updates: { ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean },
+  updates: { ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean; employerRatePercent?: number | null; employerFixedAmountChf?: number | null },
   updatedBy: string | undefined,
 ): Promise<{ error: string | null }> {
   const owner = ownerColumn(ref);
-  const { error } = await supabase.from('payroll_profile_deductions').upsert(
-    {
-      organization_id: organizationId,
-      [owner.column]: owner.id,
-      deduction_type_id: deductionTypeId,
-      rate_percent: updates.ratePercent,
-      fixed_amount_chf: updates.fixedAmountChf,
-      enabled: updates.enabled,
-      updated_by: updatedBy,
-    },
-    { onConflict: 'organization_id,owner_key,deduction_type_id' },
-  );
+  // employerRatePercent/employerFixedAmountChf are only included in the
+  // upsert payload when explicitly provided — upsert issues a real SQL
+  // UPDATE SET for every key present in the body, so unconditionally
+  // sending null here would silently wipe any employer-side override a
+  // future caller (not built yet — see calculateEmployerCost's own
+  // comment) had already set, every time this employee-side-only form saves.
+  const payload: Record<string, unknown> = {
+    organization_id: organizationId,
+    [owner.column]: owner.id,
+    deduction_type_id: deductionTypeId,
+    rate_percent: updates.ratePercent,
+    fixed_amount_chf: updates.fixedAmountChf,
+    enabled: updates.enabled,
+    updated_by: updatedBy,
+  };
+  if (updates.employerRatePercent !== undefined) payload.employer_rate_percent = updates.employerRatePercent;
+  if (updates.employerFixedAmountChf !== undefined) payload.employer_fixed_amount_chf = updates.employerFixedAmountChf;
+  const { error } = await supabase.from('payroll_profile_deductions').upsert(payload, { onConflict: 'organization_id,owner_key,deduction_type_id' });
   return { error: error?.message ?? null };
 }
 
@@ -658,6 +695,41 @@ export function computeSalaryBreakdown(
 
   const totalDeductions = round2(lines.reduce((sum, l) => sum + l.amount, 0));
   return { gross: round2(gross), lines, totalDeductions, net: round2(gross - totalDeductions) };
+}
+
+export interface EmployerCost {
+  lines: DeductionLine[];
+  total: number;
+}
+
+// §7.8 "Coût employeur" — same shape and same per-type enable/override
+// logic as computeSalaryBreakdown, just reading the employer-side fields
+// instead of the employee-side ones. A type with no employer rate/amount
+// configured (the common case for LAAC/IJM/LPP/CAF until the organization
+// sets its own real figure — see the schema migration's comment for why
+// none of those get a guessed default) simply contributes nothing rather
+// than being reported as zero cost, which would be misleading.
+export function computeEmployerCost(
+  gross: number,
+  deductionTypes: PayrollDeductionType[],
+  overrides: PayrollProfileDeduction[],
+): EmployerCost {
+  const overrideByType = new Map(overrides.map((o) => [o.deduction_type_id, o]));
+  const lines: DeductionLine[] = [];
+
+  for (const dt of deductionTypes) {
+    if (!dt.active) continue;
+    const override = overrideByType.get(dt.id);
+    if (override && !override.enabled) continue;
+
+    const ratePercent = override?.employer_rate_percent ?? dt.employer_rate_percent;
+    const fixedAmount = override?.employer_fixed_amount_chf ?? dt.employer_fixed_amount_chf;
+    if (ratePercent == null && fixedAmount == null) continue;
+    const amount = fixedAmount != null ? fixedAmount : round2((gross * (ratePercent as number)) / 100);
+    lines.push({ label: dt.label, amount });
+  }
+
+  return { lines, total: round2(lines.reduce((sum, l) => sum + l.amount, 0)) };
 }
 
 export interface AnnualSalarySummary extends SalaryBreakdown {
@@ -733,9 +805,10 @@ export function computeMonthlyGross(
 // ==========================================================================
 
 export interface PayrollSlipSnapshot {
-  deductionTypes: { id: string; label: string; defaultRatePercent: number | null }[];
+  deductionTypes: { id: string; label: string; defaultRatePercent: number | null; employerRatePercent: number | null }[];
   overrides: { deductionTypeId: string; ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean }[];
   lines: DeductionLine[];
+  employerLines: DeductionLine[];
 }
 
 export interface PayrollSlip {
@@ -827,11 +900,13 @@ export async function calculateAndSavePayrollSlip(
 
   const gross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, totalHours);
   const breakdown = computeSalaryBreakdown(gross, deductionTypes, overrides);
+  const employerCost = computeEmployerCost(gross, deductionTypes, overrides);
 
   const snapshot: PayrollSlipSnapshot = {
-    deductionTypes: deductionTypes.map((d) => ({ id: d.id, label: d.label, defaultRatePercent: d.default_rate_percent })),
+    deductionTypes: deductionTypes.map((d) => ({ id: d.id, label: d.label, defaultRatePercent: d.default_rate_percent, employerRatePercent: d.employer_rate_percent })),
     overrides: overrides.map((o) => ({ deductionTypeId: o.deduction_type_id, ratePercent: o.rate_percent, fixedAmountChf: o.fixed_amount_chf, enabled: o.enabled })),
     lines: breakdown.lines,
+    employerLines: employerCost.lines,
   };
 
   try {
@@ -847,6 +922,7 @@ export async function calculateAndSavePayrollSlip(
       p_total_deductions_chf: breakdown.totalDeductions,
       p_net_chf: breakdown.net,
       p_snapshot: snapshot,
+      p_employer_cost_chf: employerCost.total,
     });
     if (error) return { id: null, error: error.message };
     return { id: data, error: null };

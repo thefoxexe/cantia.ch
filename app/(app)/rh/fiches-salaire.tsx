@@ -183,7 +183,10 @@ export default function PayrollSlipsScreen() {
                       <View style={styles.statusRow}>
                         <View style={[styles.statusDot, { backgroundColor: STATUS_COLORS[slip.status] }]} />
                         <Text style={styles.statusText}>{t(`payrollSlips.status_${slip.status}` as any)}</Text>
-                        <Text style={styles.amount}>{chf(slip.net)}</Text>
+                        <Text style={styles.amount}>{t('payrollSlips.netAmount', { amount: chf(slip.net) })}</Text>
+                        {slip.employerCost != null ? (
+                          <Text style={styles.employerCost}>{t('payrollSlips.employerCostAmount', { amount: chf(slip.employerCost) })}</Text>
+                        ) : null}
                       </View>
                     ) : (
                       <Text style={styles.notCalculated}>{t('payrollSlips.notCalculated')}</Text>
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
   statusDot: { width: 8, height: 8, borderRadius: 4 },
   statusText: { fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600' },
   amount: { fontSize: fontSize.xs, color: colors.textMuted, fontVariant: ['tabular-nums'] },
+  employerCost: { fontSize: fontSize.xs, color: colors.textMuted, fontVariant: ['tabular-nums'] },
   notCalculated: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 4, fontStyle: 'italic' },
   actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   reverseBtn: { padding: spacing.xs },

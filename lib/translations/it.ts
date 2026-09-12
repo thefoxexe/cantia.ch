@@ -579,6 +579,8 @@ export const it: TranslationDict = {
     hourlyRateLabel: 'Tariffa oraria (CHF/h, facoltativo)',
     kmRateLabel: 'Tariffa (CHF/km)',
     defaultRateLabel: 'Aliquota predefinita (%, facoltativo)',
+    employerRateLabel: 'Quota datore di lavoro (%, facoltativo)',
+    employerRateHint: "Costo per l'azienda, in aggiunta al salario lordo — non appare mai sul salario netto del dipendente. Lasci vuoto se non conosce ancora questa aliquota.",
     ratePlaceholder: 'Es.: 0.70',
     certificateBoxLabel: 'Cifra del certificato di salario ufficiale',
     certificateBoxHint: 'Indichi a quale cifra corrisponde questa trattenuta, affinché il certificato di salario ufficiale venga compilato correttamente. Lasci su "Nessuna" se non deve comparire.',
@@ -1220,6 +1222,8 @@ export const it: TranslationDict = {
     status_validee: 'Convalidato',
     status_payee: 'Pagato',
     status_extournee: 'Stornato',
+    netAmount: 'Netto {{amount}}',
+    employerCostAmount: 'Costo datore di lavoro {{amount}}',
   },
   subcontractorsList: {
     title: 'Subappaltatori',

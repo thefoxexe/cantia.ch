@@ -649,6 +649,11 @@ export interface PayrollDeductionType {
   organization_id: string;
   label: string;
   default_rate_percent: number | null;
+  // Employer-side counterpart, org-level default (§7.3/§7.8) — null means
+  // "not configured", not "zero"; see buildOptionalDeductionCatalog's own
+  // comment for why most of these can't be safely defaulted.
+  employer_rate_percent: number | null;
+  employer_fixed_amount_chf: number | null;
   sort_order: number;
   active: boolean;
   created_at: string;
@@ -687,6 +692,8 @@ export interface PayrollProfileDeduction {
   deduction_type_id: string;
   rate_percent: number | null;
   fixed_amount_chf: number | null;
+  employer_rate_percent: number | null;
+  employer_fixed_amount_chf: number | null;
   enabled: boolean;
   updated_by: string | null;
   updated_at: string;

@@ -571,6 +571,8 @@ export const de: TranslationDict = {
     hourlyRateLabel: 'Stundensatz (CHF/h, optional)',
     kmRateLabel: 'Satz (CHF/km)',
     defaultRateLabel: 'Standardsatz (%, optional)',
+    employerRateLabel: 'Arbeitgeberanteil (%, optional)',
+    employerRateHint: 'Kosten für das Unternehmen, zusätzlich zum Bruttolohn — erscheint nie auf dem Nettolohn des Mitarbeiters. Leer lassen, wenn Ihnen dieser Satz noch nicht bekannt ist.',
     ratePlaceholder: 'Z. B.: 0.70',
     certificateBoxLabel: 'Ziffer im offiziellen Lohnausweis',
     certificateBoxHint: 'Geben Sie an, welcher Ziffer dieser Abzug entspricht, damit der offizielle Lohnausweis korrekt ausgefüllt wird. Lassen Sie "Keine", wenn er dort nicht erscheinen soll.',
@@ -1212,6 +1214,8 @@ export const de: TranslationDict = {
     status_validee: 'Validiert',
     status_payee: 'Bezahlt',
     status_extournee: 'Storniert',
+    netAmount: 'Netto {{amount}}',
+    employerCostAmount: 'Arbeitgeberkosten {{amount}}',
   },
   subcontractorsList: {
     title: 'Subunternehmer',

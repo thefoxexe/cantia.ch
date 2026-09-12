@@ -213,6 +213,8 @@ export default function PayrollProfileScreen() {
     deduction_type_id: t.id,
     rate_percent: draftRates[t.id]?.trim() ? num(draftRates[t.id]) : null,
     fixed_amount_chf: null,
+    employer_rate_percent: null,
+    employer_fixed_amount_chf: null,
     enabled: draftEnabled[t.id] ?? true,
     updated_by: null,
     updated_at: '',
