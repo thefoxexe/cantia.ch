@@ -1101,6 +1101,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.xs,
+    gap: 4,
   },
   gridHeaderCell: {
     fontSize: 10,

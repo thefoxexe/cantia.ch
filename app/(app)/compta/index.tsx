@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -39,6 +39,7 @@ import {
 } from '../../../lib/api/accounting';
 import { getVatReport, type VatReport, type VatReportBasis } from '../../../lib/api/factures';
 import { downloadTextFile } from '../../../lib/downloadFile';
+import { confirm } from '../../../lib/confirm';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
@@ -114,6 +115,7 @@ export default function AccountingScreen() {
   const [expandedVatCode, setExpandedVatCode] = useState<string | null>(null);
   const [vatDrilldown, setVatDrilldown] = useState<VatDrilldownRow[]>([]);
   const [vatSettingsOpen, setVatSettingsOpen] = useState(false);
+  const vatSettingsAutoOpened = useRef(false);
   const [vatSettingsSaving, setVatSettingsSaving] = useState(false);
   const [ech0217Warnings, setEch0217Warnings] = useState<string[] | null>(null);
 
@@ -132,6 +134,7 @@ export default function AccountingScreen() {
   ]);
   const [entrySaving, setEntrySaving] = useState(false);
   const [entryError, setEntryError] = useState<string | null>(null);
+  const [entryActionError, setEntryActionError] = useState<string | null>(null);
 
   const [payrollMonth, setPayrollMonth] = useState(String(now.getUTCMonth() + 1).padStart(2, '0'));
   const [payrollYear, setPayrollYear] = useState(String(now.getUTCFullYear()));
@@ -161,6 +164,13 @@ export default function AccountingScreen() {
     setVatReport(vat);
     setTrialBalance(trial);
     setVatSettings(vSettings);
+    // Auto-expand the VAT settings accordion the first time we learn the
+    // org isn't liable yet — the eCH-0217 export footnote tells the user
+    // to "activate it above", which is only true if this card is open.
+    if (!vSettings?.vatLiable && !vatSettingsAutoOpened.current) {
+      vatSettingsAutoOpened.current = true;
+      setVatSettingsOpen(true);
+    }
     const vatLedger = await getVatReportByCode(organization.id, periodStart, periodEnd, vSettings?.vatRounding ?? 'aucun');
     setVatLedgerReport(vatLedger);
     setExpandedVatCode(null);
@@ -347,12 +357,18 @@ export default function AccountingScreen() {
   }
 
   async function handlePost(id: string) {
+    setEntryActionError(null);
     const { error } = await postEntry(id);
-    if (!error) load();
+    if (error) setEntryActionError(error);
+    else load();
   }
   async function handleReverse(id: string) {
+    const ok = await confirm(t('accounting.reverseConfirmTitle'), t('accounting.reverseConfirmBody'));
+    if (!ok) return;
+    setEntryActionError(null);
     const { error } = await reverseEntry(id);
-    if (!error) load();
+    if (error) setEntryActionError(error);
+    else load();
   }
 
   async function handlePostPayroll() {
@@ -479,16 +495,29 @@ export default function AccountingScreen() {
           <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
             <Button title={t('accounting.newEntry')} icon="plus" onPress={openNewEntry} />
             <Button title={t('accounting.exportCsv')} icon="download" variant="secondary" onPress={handleExportEntries} />
+            {entryActionError ? <Text style={styles.error}>{entryActionError}</Text> : null}
             {entries.length === 0 ? (
               <Card><EmptyState title={t('accounting.emptyTitle')} subtitle={t('accounting.emptySubtitle')} /></Card>
             ) : (
-              entries.map((e) => (
+              entries.map((e) => {
+                // A reversal entry (created by "Extourner") is itself posted
+                // as comptabilisée so it stays visible in reports — but it
+                // must never be re-reversible, or a confused user chains
+                // reversal-of-reversal indefinitely (each individually valid,
+                // since only the ORIGINAL entry's own status is checked).
+                const isReversal = e.source === 'extourne';
+                return (
                 <Card key={e.id} style={styles.entryCard}>
                   <View style={styles.entryHeader}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.entryLabel}>{e.entry_number != null ? `N°${e.entry_number} — ` : ''}{e.label}</Text>
                       <Text style={styles.entryMeta}>{new Date(e.entry_date).toLocaleDateString(`${getAppLocale()}-CH`)} · {e.journal_label}</Text>
                     </View>
+                    {isReversal ? (
+                      <View style={[styles.statusBadge, styles.reversalBadge]}>
+                        <Text style={styles.statusBadgeText}>{t('accounting.reversalBadge')}</Text>
+                      </View>
+                    ) : null}
                     <View style={[styles.statusBadge, statusStyle(e.status)]}>
                       <Text style={styles.statusBadgeText}>{t(`accounting.status_${e.status}` as any)}</Text>
                     </View>
@@ -504,10 +533,11 @@ export default function AccountingScreen() {
                   </View>
                   <View style={styles.entryActions}>
                     {e.status === 'brouillon' ? <Button title={t('accounting.post')} onPress={() => handlePost(e.id)} variant="secondary" /> : null}
-                    {e.status === 'comptabilisee' ? <Button title={t('accounting.reverse')} onPress={() => handleReverse(e.id)} variant="danger" /> : null}
+                    {e.status === 'comptabilisee' && !isReversal ? <Button title={t('accounting.reverse')} onPress={() => handleReverse(e.id)} variant="danger" /> : null}
                   </View>
                 </Card>
-              ))
+                );
+              })
             )}
           </View>
         ) : tab === 'rapports' ? (
@@ -816,7 +846,18 @@ export default function AccountingScreen() {
                 <Text style={styles.sectionTitle}>{t('accounting.ech0217Title')}</Text>
                 <Text style={styles.basisHint}>{t('accounting.ech0217Hint')}</Text>
                 {ech0217BlockedReason ? (
-                  <Text style={styles.snapshotFootnote}>{ech0217BlockedReason}</Text>
+                  <View style={{ gap: spacing.sm }}>
+                    <Text style={styles.snapshotFootnote}>{ech0217BlockedReason}</Text>
+                    {!vatSettings?.vatLiable ? (
+                      <Button
+                        title={t('accounting.openVatSettings')}
+                        icon="settings"
+                        variant="secondary"
+                        onPress={() => setVatSettingsOpen(true)}
+                        style={{ alignSelf: 'flex-start' }}
+                      />
+                    ) : null}
+                  </View>
                 ) : (
                   <Button title={t('accounting.ech0217Export')} icon="file-text" variant="secondary" onPress={handleExportEch0217} />
                 )}
@@ -989,6 +1030,7 @@ const styles = StyleSheet.create({
   entryMeta: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
   statusBadgeText: { fontSize: 10, fontWeight: '700', color: colors.text },
+  reversalBadge: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border },
   entryLines: { gap: 4, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.sm },
   entryLineRow: { flexDirection: 'row', gap: spacing.sm },
   entryLineAccount: { flex: 2, fontSize: fontSize.xs, color: colors.textMuted },
