@@ -213,7 +213,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   drawTotalsLine(page, fontBold, y, pdfT(locale, 'totalIncl'), chf(total), 12);
   y -= 30;
 
-  y = drawTerms(page, font, org, y, docKind, locale);
+  y = drawTerms(page, font, org, y, docKind, locale, docKind === 'devis' ? devis.valid_until : null);
 
   if (showSignatures) {
     const h = 50;
@@ -272,10 +272,17 @@ function drawTotalsLine(page: PDFPage, font: PDFFont, y: number, label: string, 
 // (byte-identical to the pre-facture behavior). For a facture: a payment
 // reminder instead — the actual due date is already shown as metaLine near
 // the title, this is just the closing courtesy line.
-function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture', locale: PdfLocale): number {
+function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture', locale: PdfLocale, validUntil?: string | null): number {
   const validityDays = org?.devis_validity_days ?? 30;
   const baseText =
-    docKind === 'facture' ? pdfT(locale, 'paymentReminder') : pdfT(locale, 'quoteValidity', { days: validityDays });
+    docKind === 'facture'
+      ? pdfT(locale, 'paymentReminder')
+      : validUntil
+      // An explicit per-devis date (chosen at creation) always wins over
+      // the generic "valable X jours" org default — it's the actual date
+      // the creator committed to, not a computed approximation of it.
+      ? pdfT(locale, 'quoteValidUntil', { date: new Date(`${validUntil}T00:00:00`).toLocaleDateString(`${locale}-CH`) })
+      : pdfT(locale, 'quoteValidity', { days: validityDays });
   const pricesLine = pdfT(locale, 'pricesInChf');
   const termsLines = wrapText(
     org?.devis_terms?.trim() ? `${org.devis_terms.trim()} ${baseText} ${pricesLine}` : `${baseText} ${pricesLine}`,

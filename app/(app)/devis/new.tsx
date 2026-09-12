@@ -9,6 +9,7 @@ import { ClientPicker } from '../../../components/ClientPicker';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { TramePicker } from '../../../components/TramePicker';
 import { SignaturePromptModal } from '../../../components/SignaturePromptModal';
+import { DateField } from '../../../components/DateField';
 import { DocumentPreview, LivePreviewBar } from '../../../components/DocumentPreview';
 import { fetchTrame } from '../../../lib/api/trames';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
@@ -65,6 +66,13 @@ export default function NewDevisScreen() {
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Validity: a preset (20/30/60 days from today) or an exact date, chosen
+  // at creation instead of silently inheriting the org-wide default days
+  // later at PDF time. 'org_default' keeps the old behavior (valid_until
+  // stays null, computed from devis_validity_days whenever the PDF renders).
+  const [validityChoice, setValidityChoice] = useState<'org_default' | 20 | 30 | 60 | 'custom'>('org_default');
+  const [customValidUntil, setCustomValidUntil] = useState<string | null>(null);
 
   // The org's catalog (catalog_items table) — fetched once per visit; a
   // session that creates several devis in a row won't see items added
@@ -332,6 +340,14 @@ export default function NewDevisScreen() {
     await submitDevis(validLines, []);
   }
 
+  function resolveValidUntil(): string | null {
+    if (validityChoice === 'org_default') return null;
+    if (validityChoice === 'custom') return customValidUntil;
+    const d = new Date();
+    d.setDate(d.getDate() + validityChoice);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
   async function submitDevis(validLines: Line[], mismatches: PriceMismatch[]) {
     if (!organization) return;
     setLoading(true);
@@ -349,6 +365,7 @@ export default function NewDevisScreen() {
         client_email: clientEmail.trim() || null,
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
+        valid_until: resolveValidUntil(),
         vat_rate: organization.default_vat_rate,
         created_by: user?.id,
       })
@@ -444,6 +461,40 @@ export default function NewDevisScreen() {
           <Text style={styles.sectionHint}>{t('devisNew.chantierHint')}</Text>
           {organization ? (
             <ProjectPicker organizationId={organization.id} selectedProject={selectedProject} onSelect={setSelectedProject} />
+          ) : null}
+
+          <Text style={styles.sectionTitle}>{t('devisNew.validityTitle')}</Text>
+          <View style={styles.validityChips}>
+            {([20, 30, 60] as const).map((days) => (
+              <Pressable
+                key={days}
+                onPress={() => setValidityChoice(days)}
+                style={[styles.validityChip, validityChoice === days && styles.validityChipActive]}
+              >
+                <Text style={[styles.validityChipText, validityChoice === days && styles.validityChipTextActive]}>
+                  {t('devisNew.validityDays', { days })}
+                </Text>
+              </Pressable>
+            ))}
+            <Pressable
+              onPress={() => setValidityChoice('org_default')}
+              style={[styles.validityChip, validityChoice === 'org_default' && styles.validityChipActive]}
+            >
+              <Text style={[styles.validityChipText, validityChoice === 'org_default' && styles.validityChipTextActive]}>
+                {t('devisNew.validityOrgDefault', { days: organization?.devis_validity_days ?? 30 })}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setValidityChoice('custom')}
+              style={[styles.validityChip, validityChoice === 'custom' && styles.validityChipActive]}
+            >
+              <Text style={[styles.validityChipText, validityChoice === 'custom' && styles.validityChipTextActive]}>
+                {t('devisNew.validityCustom')}
+              </Text>
+            </Pressable>
+          </View>
+          {validityChoice === 'custom' ? (
+            <DateField label={t('devisNew.validityCustomLabel')} value={customValidUntil} onChange={setCustomValidUntil} />
           ) : null}
 
           <Text style={styles.sectionTitle}>{t('devisNew.linesTitle')}</Text>
@@ -875,6 +926,32 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: -spacing.sm,
     marginBottom: spacing.sm,
+  },
+  validityChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  validityChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  validityChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  validityChipText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  validityChipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   selectedClientCard: {
     marginTop: spacing.xs,

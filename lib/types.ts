@@ -282,6 +282,10 @@ export interface Devis {
   notes: string | null;
   status: DevisStatus;
   vat_rate: number;
+  // Explicit per-devis override of when it stops being valid — null means
+  // "compute it from the org's devis_validity_days default", exactly how
+  // every devis behaved before this column existed.
+  valid_until: string | null;
   pdf_path: string | null;
   public_token: string;
   client_signed_at: string | null;

@@ -47,6 +47,7 @@ const LABELS = {
   paidOn: { fr: 'Payée le {date}', de: 'Bezahlt am {date}', it: 'Pagata il {date}' },
   dueDate: { fr: 'Échéance : {date}', de: 'Fällig am: {date}', it: 'Scadenza: {date}' },
   quoteValidity: { fr: 'Devis valable {days} jours.', de: 'Angebot gültig während {days} Tagen.', it: 'Preventivo valido {days} giorni.' },
+  quoteValidUntil: { fr: 'Devis valable jusqu\'au {date}.', de: 'Angebot gültig bis {date}.', it: 'Preventivo valido fino al {date}.' },
   paymentReminder: {
     fr: "Merci de régler cette facture avant l'échéance indiquée ci-dessus.",
     de: 'Bitte begleichen Sie diese Rechnung bis zum oben angegebenen Fälligkeitsdatum.',

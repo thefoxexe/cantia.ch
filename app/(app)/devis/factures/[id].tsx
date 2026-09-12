@@ -23,6 +23,7 @@ import { confirm } from '../../../../lib/confirm';
 import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
+import { DateField } from '../../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
 import { defaultFactureEmailMessage } from '../../../../lib/emailDefaults';
@@ -160,6 +161,17 @@ export default function FactureDetailScreen() {
   async function handleProjectChange(project: Project | null) {
     setLinkedProject(project);
     await supabase.from('factures').update({ project_id: project?.id ?? null }).eq('id', id);
+  }
+
+  async function handleChangeDueDate(dueDate: string) {
+    setFacture((prev) => (prev ? { ...prev, due_date: dueDate } : prev));
+    await supabase.from('factures').update({ due_date: dueDate }).eq('id', id);
+  }
+
+  function addDaysIso(days: number): string {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   async function handleCopyClientLink() {
@@ -503,9 +515,23 @@ export default function FactureDetailScreen() {
           <Text style={styles.client}>{facture.client_name}</Text>
           {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
           {facture.client_email ? <Text style={styles.meta}>{facture.client_email}</Text> : null}
-          <Text style={[styles.meta, overdue && styles.overdue]}>
-            {overdue ? t('factureDetail.overduePrefix') : ''}{t('factureDetail.dueDate', { date: new Date(facture.due_date).toLocaleDateString(`${getAppLocale()}-CH`) })}
-          </Text>
+          {facture.status === 'draft' ? (
+            <View style={styles.dueDateEditor}>
+              <Text style={styles.fieldLabel}>{t('factureDetail.dueDateEditLabel')}</Text>
+              <View style={styles.validityChips}>
+                {([20, 30, 60] as const).map((days) => (
+                  <Pressable key={days} onPress={() => handleChangeDueDate(addDaysIso(days))} style={styles.validityChip}>
+                    <Text style={styles.validityChipText}>{t('devisNew.validityDays', { days })}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <DateField label={t('devisNew.validityCustomLabel')} value={facture.due_date} onChange={(iso) => iso && handleChangeDueDate(iso)} />
+            </View>
+          ) : (
+            <Text style={[styles.meta, overdue && styles.overdue]}>
+              {overdue ? t('factureDetail.overduePrefix') : ''}{t('factureDetail.dueDate', { date: new Date(facture.due_date).toLocaleDateString(`${getAppLocale()}-CH`) })}
+            </Text>
+          )}
           {bexioExternalId ? (
             <View style={styles.bexioBadge}>
               <Feather name="check-circle" size={12} color={colors.success} />
@@ -832,6 +858,33 @@ const styles = StyleSheet.create({
   overdue: {
     color: colors.danger,
     fontWeight: '600',
+  },
+  dueDateEditor: {
+    marginTop: spacing.sm,
+  },
+  fieldLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    marginBottom: spacing.xs,
+  },
+  validityChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  validityChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  validityChipText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
   },
   projectPickerRow: {
     marginTop: spacing.sm,
