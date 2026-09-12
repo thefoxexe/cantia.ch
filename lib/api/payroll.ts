@@ -715,6 +715,7 @@ export async function upsertPayrollProfile(
       | 'hire_date'
       | 'vacation_days_per_year'
       | 'weekly_contract_hours'
+      | 'overtime_hourly_rate_chf'
     >
   >,
   updatedBy: string | undefined,

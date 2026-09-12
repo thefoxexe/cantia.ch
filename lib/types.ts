@@ -758,6 +758,10 @@ export interface PayrollProfile {
   hire_date: string | null;
   vacation_days_per_year: number | null;
   weekly_contract_hours: number | null;
+  // CHF/heure pour les heures supplémentaires — permet à Fiches de salaire
+  // de calculer le montant à partir d'un nombre d'heures plutôt que de le
+  // faire taper à la main par le gestionnaire.
+  overtime_hourly_rate_chf: number | null;
   updated_by: string | null;
   updated_at: string;
 }
@@ -778,6 +782,11 @@ export interface PayrollWageType {
   sort_order: number;
   active: boolean;
   created_at: string;
+  // Stable machine key for the 5 standard seeded types (e.g. 'heures_sup')
+  // — null for anything an org added itself. Lets the app hook automation
+  // (like the hours->CHF calculator) to a specific type without matching
+  // on its (renameable) label.
+  code: string | null;
 }
 
 export interface PayrollProfileWageRate {

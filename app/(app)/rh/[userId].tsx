@@ -74,6 +74,7 @@ export default function PayrollProfileScreen() {
   const [hireDate, setHireDate] = useState<string | null>(null);
   const [vacationDaysPerYear, setVacationDaysPerYear] = useState('');
   const [weeklyContractHours, setWeeklyContractHours] = useState('');
+  const [overtimeHourlyRate, setOvertimeHourlyRate] = useState('');
   const [vacationBalance, setVacationBalance] = useState<VacationBalance | null>(null);
   const [hoursBalance, setHoursBalance] = useState<HoursBalance | null>(null);
 
@@ -118,6 +119,7 @@ export default function PayrollProfileScreen() {
       setHireDate(profileRow.hire_date);
       setVacationDaysPerYear(profileRow.vacation_days_per_year != null ? String(profileRow.vacation_days_per_year) : '');
       setWeeklyContractHours(profileRow.weekly_contract_hours != null ? String(profileRow.weekly_contract_hours) : '');
+      setOvertimeHourlyRate(profileRow.overtime_hourly_rate_chf != null ? String(profileRow.overtime_hourly_rate_chf) : '');
     }
     const rates: Record<string, string> = {};
     const enabled: Record<string, boolean> = {};
@@ -228,6 +230,7 @@ export default function PayrollProfileScreen() {
         hire_date: hireDate,
         vacation_days_per_year: vacationDaysPerYear.trim() ? num(vacationDaysPerYear) : null,
         weekly_contract_hours: weeklyContractHours.trim() ? num(weeklyContractHours) : null,
+        overtime_hourly_rate_chf: overtimeHourlyRate.trim() ? num(overtimeHourlyRate) : null,
       },
       user.id,
     );
@@ -366,6 +369,17 @@ export default function PayrollProfileScreen() {
                   onChangeText={setWeeklyContractHours}
                   keyboardType="decimal-pad"
                   placeholder="42"
+                  placeholderTextColor={colors.textMuted}
+                />
+
+                <Text style={[styles.fieldLabel, { marginTop: spacing.sm }]}>{t('payrollProfile.overtimeRateLabel')}</Text>
+                <Text style={styles.hint}>{t('payrollProfile.overtimeRateHint')}</Text>
+                <TextInput
+                  style={styles.addressInput}
+                  value={overtimeHourlyRate}
+                  onChangeText={setOvertimeHourlyRate}
+                  keyboardType="decimal-pad"
+                  placeholder="0.00"
                   placeholderTextColor={colors.textMuted}
                 />
               </>

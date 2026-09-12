@@ -72,9 +72,11 @@ export default function PayrollSlipsScreen() {
   const [linesLoading, setLinesLoading] = useState(false);
   const [newWageTypeId, setNewWageTypeId] = useState<string | null>(null);
   const [newAmount, setNewAmount] = useState('');
+  const [newHours, setNewHours] = useState('');
   const [newNote, setNewNote] = useState('');
   const [lineSaving, setLineSaving] = useState(false);
   const [lineError, setLineError] = useState<string | null>(null);
+  const [linesOvertimeRate, setLinesOvertimeRate] = useState<number | null>(null);
 
   function ownerKeyOf(ref: EmployeeRef): string {
     return ref.userId ?? ref.ghostEmployeeId!;
@@ -221,19 +223,38 @@ export default function PayrollSlipsScreen() {
     setLineError(null);
     setNewWageTypeId(manualWageTypes[0]?.id ?? null);
     setNewAmount('');
+    setNewHours('');
     setNewNote('');
     setLinesLoading(true);
-    const rows = await listSlipWageLines(organization.id, item.ref, year, month);
+    const [rows, profile] = await Promise.all([
+      listSlipWageLines(organization.id, item.ref, year, month),
+      getPayrollProfile(organization.id, item.ref),
+    ]);
     setLines(rows);
+    setLinesOvertimeRate(profile?.overtime_hourly_rate_chf ?? null);
     setLinesLoading(false);
   }
 
+  const selectedNewWageType = manualWageTypes.find((w) => w.id === newWageTypeId) ?? null;
+  const isOvertimeLine = selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate != null;
+  const overtimeAmountPreview = isOvertimeLine ? (Number(newHours.replace(',', '.')) || 0) * (linesOvertimeRate ?? 0) : null;
+
   async function handleAddLine() {
     if (!organization || !linesFor || !newWageTypeId) return;
-    const amountNum = Number(newAmount.replace(',', '.'));
-    if (!newAmount.trim() || Number.isNaN(amountNum) || amountNum === 0) {
-      setLineError(t('payrollSlips.lineAmountRequired'));
-      return;
+    let amountNum: number;
+    if (isOvertimeLine) {
+      const hoursNum = Number(newHours.replace(',', '.'));
+      if (!newHours.trim() || Number.isNaN(hoursNum) || hoursNum <= 0) {
+        setLineError(t('payrollSlips.lineHoursRequired'));
+        return;
+      }
+      amountNum = Math.round(hoursNum * (linesOvertimeRate ?? 0) * 100) / 100;
+    } else {
+      amountNum = Number(newAmount.replace(',', '.'));
+      if (!newAmount.trim() || Number.isNaN(amountNum) || amountNum === 0) {
+        setLineError(t('payrollSlips.lineAmountRequired'));
+        return;
+      }
     }
     setLineSaving(true);
     setLineError(null);
@@ -244,7 +265,7 @@ export default function PayrollSlipsScreen() {
       month,
       wageTypeId: newWageTypeId,
       amountChf: amountNum,
-      note: newNote,
+      note: isOvertimeLine ? [t('payrollSlips.lineHoursNote', { hours: newHours }), newNote].filter(Boolean).join(' — ') : newNote,
       createdBy: user?.id,
     });
     setLineSaving(false);
@@ -253,6 +274,7 @@ export default function PayrollSlipsScreen() {
       return;
     }
     setNewAmount('');
+    setNewHours('');
     setNewNote('');
     const rows = await listSlipWageLines(organization.id, linesFor.ref, year, month);
     setLines(rows);
@@ -432,16 +454,38 @@ export default function PayrollSlipsScreen() {
               </View>
               {manualWageTypes.length === 0 ? <Text style={styles.emptyText}>{t('payrollSlips.noWageTypes')}</Text> : null}
 
-              <Text style={styles.fieldLabel}>{t('payrollSlips.lineAmountLabel')}</Text>
-              <Text style={styles.sectionSubtitle}>{t('payrollSlips.lineAmountHint')}</Text>
-              <TextInput
-                style={styles.input}
-                value={newAmount}
-                onChangeText={setNewAmount}
-                keyboardType="numbers-and-punctuation"
-                placeholder={t('payrollSlips.lineAmountPlaceholder')}
-                placeholderTextColor={colors.textMuted}
-              />
+              {selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate == null ? (
+                <Text style={styles.error}>{t('payrollSlips.overtimeRateMissing')}</Text>
+              ) : isOvertimeLine ? (
+                <>
+                  <Text style={styles.fieldLabel}>{t('payrollSlips.lineHoursLabel')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('payrollSlips.lineHoursHint', { rate: chf(linesOvertimeRate ?? 0) })}</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={newHours}
+                    onChangeText={setNewHours}
+                    keyboardType="numbers-and-punctuation"
+                    placeholder="8"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  {overtimeAmountPreview != null && overtimeAmountPreview > 0 ? (
+                    <Text style={styles.sectionSubtitle}>{t('payrollSlips.lineHoursPreview', { amount: chf(overtimeAmountPreview) })}</Text>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <Text style={styles.fieldLabel}>{t('payrollSlips.lineAmountLabel')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('payrollSlips.lineAmountHint')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={newAmount}
+                    onChangeText={setNewAmount}
+                    keyboardType="numbers-and-punctuation"
+                    placeholder={t('payrollSlips.lineAmountPlaceholder')}
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </>
+              )}
 
               <Text style={styles.fieldLabel}>{t('payrollSlips.lineNoteLabel')}</Text>
               <TextInput
@@ -459,7 +503,7 @@ export default function PayrollSlipsScreen() {
                 icon="plus"
                 onPress={handleAddLine}
                 loading={lineSaving}
-                disabled={manualWageTypes.length === 0}
+                disabled={manualWageTypes.length === 0 || (selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate == null)}
                 style={{ marginTop: spacing.sm }}
               />
               <Button title={t('payrollSlips.close')} variant="secondary" onPress={() => { setLinesFor(null); load(); }} style={{ marginTop: spacing.sm }} />
