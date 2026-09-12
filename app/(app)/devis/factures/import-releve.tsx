@@ -215,6 +215,7 @@ export default function ImportReleveScreen() {
   const [applying, setApplying] = useState(false);
   const [result, setResult] = useState<{ applied: number; failed: number } | null>(null);
   const [alreadyImportedNotice, setAlreadyImportedNotice] = useState(false);
+  const [autoPostedCount, setAutoPostedCount] = useState(0);
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<EntryLineCandidate[]>([]);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
@@ -263,6 +264,7 @@ export default function ImportReleveScreen() {
       const acct = await getBankAccount(imported.bankAccountId);
       setBankAccountingAccountId(acct?.accountingAccountId ?? null);
       setAlreadyImportedNotice(imported.alreadyImported);
+      setAutoPostedCount(imported.autoPosted ?? 0);
       await loadPersistedState(imported.bankAccountId);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('importReleve.readError'));
@@ -347,7 +349,16 @@ export default function ImportReleveScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
-        <PageHeader title={t('importReleve.title')} backTo="/(app)/devis/factures" />
+        <PageHeader
+          title={t('importReleve.title')}
+          backTo="/(app)/devis/factures"
+          right={
+            <Pressable onPress={() => router.push('/(app)/devis/factures/regles-bancaires' as any)} hitSlop={8} style={styles.rulesLink}>
+              <Feather name="sliders" size={14} color={colors.primary} />
+              <Text style={styles.rulesLinkText}>{t('importReleve.manageRules')}</Text>
+            </Pressable>
+          }
+        />
         <Text style={styles.pageSubtitle}>
           {t('importReleve.subtitle')}
         </Text>
@@ -375,6 +386,12 @@ export default function ImportReleveScreen() {
               <View style={styles.fuzzyBanner}>
                 <Feather name="info" size={14} color={colors.warning} />
                 <Text style={styles.fuzzyBannerText}>{t('importReleve.alreadyImported')}</Text>
+              </View>
+            ) : null}
+            {autoPostedCount > 0 ? (
+              <View style={[styles.fuzzyBanner, { backgroundColor: colors.successSoft }]}>
+                <Feather name="zap" size={14} color={colors.success} />
+                <Text style={[styles.fuzzyBannerText, { color: colors.success }]}>{t('importReleve.autoPosted', { count: autoPostedCount })}</Text>
               </View>
             ) : null}
             <Text style={styles.summary}>
@@ -497,6 +514,16 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 19,
     marginBottom: spacing.lg,
+  },
+  rulesLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  rulesLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
   },
   pickTitle: {
     fontSize: fontSize.md,

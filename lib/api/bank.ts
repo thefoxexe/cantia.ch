@@ -107,6 +107,7 @@ export interface ImportResult {
   imported: number;
   duplicates: number;
   alreadyImported: boolean;
+  autoPosted?: number;
   error: string | null;
 }
 
@@ -173,7 +174,7 @@ export async function importCamtStatement(
   const { data: inserted, error: insertError } = await supabase
     .from('bank_transactions')
     .upsert(rows, { onConflict: 'bank_account_id,dedupe_key', ignoreDuplicates: true })
-    .select('id');
+    .select('*');
   if (insertError) return { bankAccountId: account.id, imported: 0, duplicates: 0, alreadyImported: false, error: insertError.message };
 
   const importedCount = inserted?.length ?? 0;
@@ -181,7 +182,22 @@ export async function importCamtStatement(
     await supabase.from('bank_accounts').update({ last_imported_balance: parsed.closingBalance, last_imported_at: new Date().toISOString() }).eq('id', account.id);
   }
 
-  return { bankAccountId: account.id, imported: importedCount, duplicates: rows.length - importedCount, alreadyImported: false, error: null };
+  let autoPosted = 0;
+  if (account.accountingAccountId && inserted?.length) {
+    const rules = await listBankRules(organizationId, false);
+    const autoRules = rules.filter((r) => r.autoPost);
+    if (autoRules.length) {
+      for (const row of inserted.map(mapTransaction)) {
+        if (row.amount >= 0 || row.status !== 'unmatched') continue;
+        const rule = matchRuleForTransaction(autoRules, row);
+        if (!rule) continue;
+        const { error: applyError } = await applyAutoPostRule(organizationId, row, rule, userId, account.accountingAccountId);
+        if (!applyError) autoPosted += 1;
+      }
+    }
+  }
+
+  return { bankAccountId: account.id, imported: importedCount, duplicates: rows.length - importedCount, alreadyImported: false, autoPosted, error: null };
 }
 
 export interface BankTransactionRow {
@@ -305,4 +321,168 @@ export async function findAutoPostedEntryLine(organizationId: string, source: st
     .eq('accounting_entries.status', 'comptabilisee')
     .maybeSingle();
   return (data as any)?.id ?? null;
+}
+
+// ==========================================================================
+// §6.4 "Règles automatiques" — recognizes a beneficiary/label pattern and
+// proposes an account, a code TVA, a chantier and a supplier label for the
+// dépense a matching debit transaction probably represents. A rule only
+// proposes by default; auto_post is the explicit, per-rule opt-in the
+// cahier requires, and its execution is always paired with a dedicated
+// audit event (record_bank_rule_application) naming the rule that acted.
+// ==========================================================================
+
+export interface BankRule {
+  id: string;
+  name: string;
+  matchField: 'counterparty_name' | 'counterparty_iban' | 'remittance_info';
+  matchPattern: string;
+  proposedAccountId: string | null;
+  proposedVatCode: string | null;
+  proposedProjectId: string | null;
+  proposedTiers: string | null;
+  proposedLabel: string | null;
+  autoPost: boolean;
+  isActive: boolean;
+}
+
+function mapRule(row: any): BankRule {
+  return {
+    id: row.id,
+    name: row.name,
+    matchField: row.match_field,
+    matchPattern: row.match_pattern,
+    proposedAccountId: row.proposed_account_id,
+    proposedVatCode: row.proposed_vat_code,
+    proposedProjectId: row.proposed_project_id,
+    proposedTiers: row.proposed_tiers,
+    proposedLabel: row.proposed_label,
+    autoPost: row.auto_post,
+    isActive: row.is_active,
+  };
+}
+
+export async function listBankRules(organizationId: string, includeInactive = true): Promise<BankRule[]> {
+  let query = supabase.from('bank_rules').select('*').eq('organization_id', organizationId).order('created_at');
+  if (!includeInactive) query = query.eq('is_active', true);
+  const { data } = await query;
+  return (data ?? []).map(mapRule);
+}
+
+export async function createBankRule(
+  organizationId: string,
+  input: {
+    name: string;
+    matchField: BankRule['matchField'];
+    matchPattern: string;
+    proposedAccountId: string | null;
+    proposedVatCode: string | null;
+    proposedProjectId: string | null;
+    proposedTiers: string | null;
+    proposedLabel: string | null;
+    autoPost: boolean;
+  },
+  userId: string | undefined,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('bank_rules').insert({
+    organization_id: organizationId,
+    name: input.name.trim(),
+    match_field: input.matchField,
+    match_pattern: input.matchPattern.trim(),
+    proposed_account_id: input.proposedAccountId,
+    proposed_vat_code: input.proposedVatCode,
+    proposed_project_id: input.proposedProjectId,
+    proposed_tiers: input.proposedTiers,
+    proposed_label: input.proposedLabel,
+    auto_post: input.autoPost,
+    created_by: userId,
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function setBankRuleActive(id: string, isActive: boolean): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('bank_rules').update({ is_active: isActive }).eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteBankRule(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('bank_rules').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+// Case-insensitive substring match, first active rule wins (rules are
+// listed oldest-first, so an org's earlier, more specific rules take
+// priority over later broad ones it might add). Only ever applied to
+// outgoing (debit) transactions — rules exist to recognize recurring
+// suppliers/expenses, not incoming client payments (which already have
+// their own tuned matcher in import-releve.tsx).
+export function matchRuleForTransaction(rules: BankRule[], transaction: BankTransactionRow): BankRule | null {
+  const fieldValue: Record<BankRule['matchField'], string | null> = {
+    counterparty_name: transaction.counterpartyName,
+    counterparty_iban: transaction.counterpartyIban,
+    remittance_info: transaction.remittanceInfo,
+  };
+  const needle = (s: string) => s.trim().toLowerCase();
+  for (const rule of rules) {
+    if (!rule.isActive) continue;
+    const value = fieldValue[rule.matchField];
+    if (value && needle(value).includes(needle(rule.matchPattern))) return rule;
+  }
+  return null;
+}
+
+async function vatRateForCode(organizationId: string, code: string, atDate: string): Promise<number | null> {
+  const { data } = await supabase
+    .from('vat_codes')
+    .select('rate')
+    .eq('organization_id', organizationId)
+    .eq('code', code)
+    .lte('valid_from', atDate)
+    .or(`valid_to.is.null,valid_to.gte.${atDate}`)
+    .maybeSingle();
+  return data ? Number(data.rate) : null;
+}
+
+// Creates the dépense a matched auto_post rule proposes, then links the
+// bank transaction to the entry line the existing posting trigger creates
+// for it — no new posting logic, same mechanism as a manually-confirmed
+// facture/dépense match, just without a human clicking "confirmer".
+export async function applyAutoPostRule(
+  organizationId: string,
+  transaction: BankTransactionRow,
+  rule: BankRule,
+  userId: string | undefined,
+  bankAccountingAccountId: string,
+): Promise<{ error: string | null }> {
+  const amount = Math.abs(transaction.amount);
+  const label = rule.proposedLabel || transaction.counterpartyName || transaction.remittanceInfo || 'Dépense (règle bancaire)';
+  const vatRate = rule.proposedVatCode ? await vatRateForCode(organizationId, rule.proposedVatCode, transaction.bookingDate) : null;
+  const tiers = rule.proposedTiers || transaction.counterpartyName;
+
+  const table = rule.proposedProjectId ? 'project_expenses' : 'expenses';
+  const payload: Record<string, unknown> = {
+    organization_id: organizationId,
+    label,
+    expense_date: transaction.bookingDate,
+    vat_rate: vatRate,
+    accounting_account_id: rule.proposedAccountId,
+    tiers,
+    created_by: userId,
+  };
+  if (rule.proposedProjectId) {
+    payload.project_id = rule.proposedProjectId;
+    payload.amount = amount;
+  } else {
+    payload.amount_chf = amount;
+  }
+
+  const { data: expenseRow, error: expenseError } = await supabase.from(table).insert(payload).select('id').single();
+  if (expenseError || !expenseRow) return { error: expenseError?.message ?? 'Dépense non créée' };
+
+  const lineId = await findAutoPostedEntryLine(organizationId, 'facture_fournisseur', expenseRow.id, bankAccountingAccountId);
+  if (lineId) {
+    await linkBankTransactionToEntryLine(transaction.id, lineId);
+    await supabase.rpc('record_bank_rule_application', { p_transaction_id: transaction.id, p_rule_id: rule.id, p_expense_id: expenseRow.id });
+  }
+  return { error: null };
 }
