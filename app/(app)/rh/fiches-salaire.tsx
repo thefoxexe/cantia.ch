@@ -23,6 +23,8 @@ import {
   type EmployeeRef,
   type PayrollSlipWageLineWithType,
 } from '../../../lib/api/payroll';
+import { generatePayslipPdf } from '../../../lib/api/pdf';
+import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -61,6 +63,8 @@ export default function PayrollSlipsScreen() {
   const [slips, setSlips] = useState<Map<string, PayrollSlip>>(new Map());
   const [wageTypes, setWageTypes] = useState<PayrollWageType[]>([]);
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [exportingKey, setExportingKey] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState<'calculate' | 'validate' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [linesFor, setLinesFor] = useState<EmployeeItem | null>(null);
@@ -105,23 +109,16 @@ export default function PayrollSlipsScreen() {
     setYear(y);
   }
 
-  async function handleCalculate(item: EmployeeItem) {
-    if (!organization) return;
-    const key = ownerKeyOf(item.ref);
-    setBusyKey(key);
-    setError(null);
+  async function calculateOne(item: EmployeeItem): Promise<{ error: string | null }> {
+    if (!organization) return { error: null };
     const profile = await getPayrollProfile(organization.id, item.ref);
-    if (!profile) {
-      setBusyKey(null);
-      setError(t('payrollSlips.noProfile', { name: item.name }));
-      return;
-    }
+    if (!profile) return { error: t('payrollSlips.noProfile', { name: item.name }) };
     const [deductionTypes, overrides, wageRateOverrides] = await Promise.all([
       listDeductionTypes(organization.id),
       listProfileDeductions(organization.id, item.ref),
       listProfileWageRates(organization.id, item.ref),
     ]);
-    const { error: err } = await calculateAndSavePayrollSlip(
+    return calculateAndSavePayrollSlip(
       organization.id,
       item.ref,
       year,
@@ -132,6 +129,13 @@ export default function PayrollSlipsScreen() {
       wageTypes,
       wageRateOverrides,
     );
+  }
+
+  async function handleCalculate(item: EmployeeItem) {
+    const key = ownerKeyOf(item.ref);
+    setBusyKey(key);
+    setError(null);
+    const { error: err } = await calculateOne(item);
     setBusyKey(null);
     if (err) setError(err);
     else load();
@@ -159,6 +163,54 @@ export default function PayrollSlipsScreen() {
     setBusyKey(null);
     if (err) setError(err);
     else load();
+  }
+
+  // "Calculer/Valider tout" — the user's explicit request to generate the
+  // whole team's slips at once instead of clicking through every row.
+  // Sequential (not Promise.all) so one failure doesn't cut off the rest,
+  // and so `error` reliably reflects the last failure if several occur.
+  async function handleCalculateAll() {
+    setBulkBusy('calculate');
+    setError(null);
+    let lastError: string | null = null;
+    for (const item of employees) {
+      const slip = slips.get(ownerKeyOf(item.ref));
+      if (slip && slip.status !== 'brouillon' && slip.status !== 'calculee') continue;
+      const { error: err } = await calculateOne(item);
+      if (err) lastError = err;
+    }
+    setBulkBusy(null);
+    if (lastError) setError(lastError);
+    load();
+  }
+
+  async function handleValidateAll() {
+    setBulkBusy('validate');
+    setError(null);
+    let lastError: string | null = null;
+    for (const slip of slips.values()) {
+      if (slip.status !== 'calculee') continue;
+      const { error: err } = await validatePayrollSlip(slip.id);
+      if (err) lastError = err;
+    }
+    setBulkBusy(null);
+    if (lastError) setError(lastError);
+    load();
+  }
+
+  async function handleExportPdf(item: EmployeeItem, key: string) {
+    setExportingKey(key);
+    setError(null);
+    const periodStart = `${year}-${String(month).padStart(2, '0')}-01`;
+    const { url, error: genError } = await generatePayslipPdf(item.ref, periodStart);
+    if (genError || !url) {
+      setExportingKey(null);
+      setError(genError ?? t('payrollSlips.pdfGenerationFailed'));
+      return;
+    }
+    const { error: dlError } = await downloadFile(url, `${t('payrollSlips.payslipFilename', { name: item.name, month: monthLabel(year, month) })}.pdf`);
+    setExportingKey(null);
+    if (dlError) setError(dlError);
   }
 
   const manualWageTypes = wageTypes.filter((w) => w.mode === 'manual_entry' && w.active);
@@ -231,7 +283,7 @@ export default function PayrollSlipsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
-        <PageHeader title={t('payrollSlips.title')} backTo="/(app)/rh" />
+        <PageHeader title={t('payrollSlips.title')} backTo="/(app)/rh/salaires" />
         <Text style={styles.pageSubtitle}>{t('payrollSlips.subtitle')}</Text>
 
         <View style={styles.periodRow}>
@@ -242,6 +294,32 @@ export default function PayrollSlipsScreen() {
           <Pressable onPress={() => changeMonth(1)} hitSlop={8} style={styles.periodArrow}>
             <Feather name="chevron-right" size={18} color={colors.text} />
           </Pressable>
+        </View>
+
+        {employees.length > 0 ? (
+          <View style={styles.bulkRow}>
+            <Button
+              title={t('payrollSlips.calculateAll')}
+              icon="zap"
+              variant="secondary"
+              onPress={handleCalculateAll}
+              loading={bulkBusy === 'calculate'}
+              disabled={bulkBusy !== null}
+            />
+            <Button
+              title={t('payrollSlips.validateAll')}
+              icon="check-circle"
+              variant="secondary"
+              onPress={handleValidateAll}
+              loading={bulkBusy === 'validate'}
+              disabled={bulkBusy !== null}
+            />
+          </View>
+        ) : null}
+
+        <View style={styles.rubriquesHint}>
+          <Feather name="info" size={13} color={colors.textMuted} />
+          <Text style={styles.rubriquesHintText}>{t('payrollSlips.rubriquesHint')}</Text>
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -256,11 +334,12 @@ export default function PayrollSlipsScreen() {
               const key = ownerKeyOf(item.ref);
               const slip = slips.get(key);
               const busy = busyKey === key;
+              const exporting = exportingKey === key;
               const editable = !slip || slip.status === 'brouillon' || slip.status === 'calculee';
+              const canDownload = !!slip && slip.status !== 'brouillon';
               return (
-                <Card key={key} style={styles.row}>
+                <Card key={key} style={styles.card}>
                   <Pressable
-                    style={{ flex: 1 }}
                     onPress={() => router.push({ pathname: '/(app)/rh/[userId]', params: item.ref.ghostEmployeeId ? { userId: item.ref.ghostEmployeeId, kind: 'ghost' } : { userId: item.ref.userId! } })}
                   >
                     <Text style={styles.name}>{item.name}</Text>
@@ -279,7 +358,7 @@ export default function PayrollSlipsScreen() {
                   </Pressable>
                   <View style={styles.actions}>
                     <Pressable onPress={() => openLines(item)} hitSlop={8} style={styles.linesBtn}>
-                      <Feather name="list" size={14} color={colors.text} />
+                      <Feather name="plus-circle" size={15} color={colors.primary} />
                       <Text style={styles.linesBtnText}>{t('payrollSlips.lines')}</Text>
                     </Pressable>
                     {editable ? (
@@ -290,6 +369,11 @@ export default function PayrollSlipsScreen() {
                     ) : null}
                     {slip?.status === 'validee' ? (
                       <Button title={t('payrollSlips.markPaid')} onPress={() => handleMarkPaid(slip, key)} loading={busy} />
+                    ) : null}
+                    {canDownload ? (
+                      <Pressable onPress={() => handleExportPdf(item, key)} disabled={exporting} hitSlop={8} style={styles.pdfBtn}>
+                        <Feather name="download" size={14} color={colors.text} />
+                      </Pressable>
                     ) : null}
                     {slip && (slip.status === 'validee' || slip.status === 'payee') ? (
                       <Pressable onPress={() => handleReverse(slip, key)} hitSlop={8} style={styles.reverseBtn}>
@@ -392,8 +476,11 @@ const styles = StyleSheet.create({
   periodRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
   periodArrow: { padding: spacing.xs },
   periodLabel: { fontSize: fontSize.md, fontWeight: '800', color: colors.text, textTransform: 'capitalize' },
+  bulkRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginTop: spacing.lg },
+  rubriquesHint: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.md, paddingHorizontal: spacing.sm },
+  rubriquesHintText: { flex: 1, fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 16 },
   error: { fontSize: fontSize.sm, color: colors.danger, marginTop: spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  card: { gap: spacing.md },
   name: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: 4 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
@@ -401,10 +488,11 @@ const styles = StyleSheet.create({
   amount: { fontSize: fontSize.xs, color: colors.textMuted, fontVariant: ['tabular-nums'] },
   employerCost: { fontSize: fontSize.xs, color: colors.textMuted, fontVariant: ['tabular-nums'] },
   notCalculated: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 4, fontStyle: 'italic' },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
   reverseBtn: { padding: spacing.xs },
-  linesBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
-  linesBtnText: { fontSize: fontSize.xs, fontWeight: '600', color: colors.text },
+  pdfBtn: { padding: spacing.xs, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
+  linesBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.md, backgroundColor: colors.primarySoft },
+  linesBtnText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.primary },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 20, 18, 0.5)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
   sheet: { width: '100%', maxWidth: 460, maxHeight: '88%', backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.xl },
   sheetTitle: { fontSize: fontSize.xl, fontWeight: '800', color: colors.text },

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -6,15 +6,12 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import {
   computeHoursBalance,
-  computeMonthlyGross,
-  computeSalaryBreakdown,
   computeVacationBalance,
   getAnnualSalarySummary,
   getPayrollProfile,
   listAbsences,
   listDeductionTypes,
   listProfileDeductions,
-  listTimeEntries,
   suggestVacationDaysPerYear,
   upsertPayrollProfile,
   upsertProfileDeduction,
@@ -23,32 +20,15 @@ import {
   type HoursBalance,
   type VacationBalance,
 } from '../../../lib/api/payroll';
-import { generateLohnausweisPdf, generatePayslipPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
+import { generateLohnausweisPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 import { DateField } from '../../../components/DateField';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
-import { getAppLocale, useTranslation } from '../../../lib/translations';
+import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, SalaryType } from '../../../lib/types';
-
-function startOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
-function endOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
-}
-function addMonths(d: Date, n: number): Date {
-  return new Date(d.getFullYear(), d.getMonth() + n, 1);
-}
-function toIso(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-function monthLabel(d: Date): string {
-  const label = d.toLocaleDateString(`${getAppLocale()}-CH`, { month: 'long', year: 'numeric' });
-  return label.charAt(0).toUpperCase() + label.slice(1);
-}
 
 export default function PayrollProfileScreen() {
   const { t } = useTranslation();
@@ -58,15 +38,12 @@ export default function PayrollProfileScreen() {
   const isGhost = kind === 'ghost';
   const employeeId = String(routeId);
   const employeeRef: EmployeeRef = isGhost ? { ghostEmployeeId: employeeId } : { userId: employeeId };
-  const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(new Date()));
   const [memberName, setMemberName] = useState(t('payrollProfile.memberFallback'));
   const [profile, setProfile] = useState<PayrollProfile | null>(null);
   const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
   const [overrides, setOverrides] = useState<PayrollProfileDeduction[]>([]);
-  const [totalHours, setTotalHours] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // The error banner only ever renders in one place (near the deductions
   // card, close to the top) but every export action on this long page —
@@ -112,27 +89,21 @@ export default function PayrollProfileScreen() {
   const [draftRates, setDraftRates] = useState<Record<string, string>>({});
   const [draftEnabled, setDraftEnabled] = useState<Record<string, boolean>>({});
 
-  const rangeStart = useMemo(() => toIso(monthAnchor), [monthAnchor]);
-  const rangeEnd = useMemo(() => toIso(endOfMonth(monthAnchor)), [monthAnchor]);
-
   const load = useCallback(async () => {
     if (!organization || !employeeId) return;
     setLoading(true);
-    const [nameResult, profileRow, types, overrideRows, entryRows] = await Promise.all([
+    const [nameResult, profileRow, types, overrideRows] = await Promise.all([
       isGhost
         ? supabase.from('payroll_ghost_employees').select('full_name').eq('id', employeeId).maybeSingle()
         : supabase.from('organization_members').select('full_name').eq('organization_id', organization.id).eq('user_id', employeeId).maybeSingle(),
       getPayrollProfile(organization.id, employeeRef),
       listDeductionTypes(organization.id),
       listProfileDeductions(organization.id, employeeRef),
-      // Ghost employees have no app account, so no hours to fetch.
-      isGhost ? Promise.resolve([]) : listTimeEntries(organization.id, employeeId, rangeStart, rangeEnd),
     ]);
     setMemberName(nameResult.data?.full_name || t('payrollProfile.memberFallback'));
     setProfile(profileRow);
     setDeductionTypes(types.filter((t) => t.active));
     setOverrides(overrideRows);
-    setTotalHours(Math.round(entryRows.reduce((sum, e) => sum + Number(e.hours), 0) * 100) / 100);
 
     if (profileRow) {
       setSalaryType(profileRow.salary_type);
@@ -158,7 +129,7 @@ export default function PayrollProfileScreen() {
     setDraftRates(rates);
     setDraftEnabled(enabled);
     setLoading(false);
-  }, [organization, employeeId, isGhost, rangeStart, rangeEnd]);
+  }, [organization, employeeId, isGhost]);
 
   useFocusEffect(
     useCallback(() => {
@@ -236,26 +207,6 @@ export default function PayrollProfileScreen() {
   }
 
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
-  const gross = computeMonthlyGross(salaryType, num(hourlyRate), num(monthlySalary), totalHours);
-
-  // Effective overrides for the live preview reflect the drafts on screen,
-  // not what's saved in the DB yet — so toggling a checkbox or typing a
-  // rate updates the net total immediately, before hitting "Enregistrer".
-  const previewOverrides: PayrollProfileDeduction[] = deductionTypes.map((t) => ({
-    id: t.id,
-    organization_id: organization?.id ?? '',
-    user_id: isGhost ? null : employeeId,
-    ghost_employee_id: isGhost ? employeeId : null,
-    deduction_type_id: t.id,
-    rate_percent: draftRates[t.id]?.trim() ? num(draftRates[t.id]) : null,
-    fixed_amount_chf: null,
-    employer_rate_percent: null,
-    employer_fixed_amount_chf: null,
-    enabled: draftEnabled[t.id] ?? true,
-    updated_by: null,
-    updated_at: '',
-  }));
-  const breakdown = computeSalaryBreakdown(gross, deductionTypes, previewOverrides);
 
   async function handleSave() {
     if (!organization || !employeeId || !user) return;
@@ -299,19 +250,6 @@ export default function PayrollProfileScreen() {
     load();
   }
 
-  async function exportPayslip() {
-    setExporting(true);
-    setError(null);
-    const { url, error: genError } = await generatePayslipPdf(employeeRef, rangeStart);
-    setExporting(false);
-    if (genError || !url) {
-      showError(genError ?? t('payrollProfile.pdfGenerationFailed'));
-      return;
-    }
-    const { error: dlError } = await downloadFile(url, `${t('payrollProfile.payslipFilename', { name: memberName, month: monthLabel(monthAnchor) })}.pdf`);
-    if (dlError) showError(dlError);
-  }
-
   if (loading) {
     return (
       <Screen>
@@ -323,7 +261,7 @@ export default function PayrollProfileScreen() {
   if (!canManagePayroll) {
     return (
       <Screen style={{ padding: spacing.xl }}>
-        <PageHeader title={t('payrollProfile.employeeSheetTitle')} backTo="/(app)/rh" />
+        <PageHeader title={t('payrollProfile.employeeSheetTitle')} backTo="/(app)/rh/salaires/employes" />
         <Card style={styles.upsell}>
           <Feather name="lock" size={22} color={colors.textMuted} />
           <Text style={styles.upsellTitle}>{t('payrollProfile.accessDeniedTitle')}</Text>
@@ -338,22 +276,14 @@ export default function PayrollProfileScreen() {
       <View style={styles.container}>
         <PageHeader
           title={memberName}
-          backTo="/(app)/rh"
+          backTo="/(app)/rh/salaires/employes"
           right={
-            <Pressable onPress={() => router.push('/(app)/rh')} hitSlop={8}>
-              <Feather name="clock" size={18} color={colors.textMuted} />
+            <Pressable onPress={() => router.push('/(app)/rh/fiches-salaire' as any)} hitSlop={8} style={styles.slipsLink}>
+              <Feather name="file-text" size={15} color={colors.primary} />
+              <Text style={styles.slipsLinkText}>{t('payrollProfile.generateSlipLink')}</Text>
             </Pressable>
           }
         />
-        <View style={styles.monthNav}>
-          <Pressable onPress={() => setMonthAnchor((m) => addMonths(m, -1))} hitSlop={8} style={styles.monthNavBtn}>
-            <Feather name="chevron-left" size={18} color={colors.textMuted} />
-          </Pressable>
-          <Text style={styles.pageSubtitle}>{t('payrollProfile.monthSuffix', { month: monthLabel(monthAnchor) })}</Text>
-          <Pressable onPress={() => setMonthAnchor((m) => addMonths(m, 1))} hitSlop={8} style={styles.monthNavBtn}>
-            <Feather name="chevron-right" size={18} color={colors.textMuted} />
-          </Pressable>
-        </View>
 
         <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
           {isGhost ? (
@@ -361,14 +291,7 @@ export default function PayrollProfileScreen() {
               <Feather name="user-x" size={16} color={colors.textMuted} />
               <Text style={styles.ghostBannerText}>{t('payrollProfile.ghostBanner')}</Text>
             </Card>
-          ) : (
-            <Card style={styles.statsRow}>
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>{totalHours} h</Text>
-                <Text style={styles.statLabel}>{t('payrollProfile.hoursThisMonth')}</Text>
-              </View>
-            </Card>
-          )}
+          ) : null}
 
           <Card>
             <Text style={styles.sectionTitle}>{t('payrollProfile.salaryTitle')}</Text>
@@ -523,33 +446,6 @@ export default function PayrollProfileScreen() {
           </Card>
 
           <Card>
-            <Text style={styles.sectionTitle}>
-              {salaryType === 'hourly'
-                ? t('payrollProfile.grossEstimated', { month: monthLabel(monthAnchor) })
-                : t('payrollProfile.grossFixed', { month: monthLabel(monthAnchor) })}
-            </Text>
-            {salaryType === 'hourly' ? (
-              <Text style={styles.hint}>{t('payrollProfile.hoursTimesRate', { hours: totalHours, rate: num(hourlyRate).toFixed(2) })}</Text>
-            ) : null}
-            <View style={styles.breakdownRows}>
-              <BreakdownRow label={t('payrollProfile.grossSalary')} value={breakdown.gross} bold />
-              {breakdown.lines.map((l, i) => (
-                <BreakdownRow key={i} label={`− ${l.label}`} value={-l.amount} />
-              ))}
-              <View style={styles.breakdownDivider} />
-              <BreakdownRow label={t('payrollProfile.netSalary')} value={breakdown.net} bold accent />
-            </View>
-            <Button
-              title={t('payrollProfile.exportPdf')}
-              icon="download"
-              variant="secondary"
-              onPress={exportPayslip}
-              loading={exporting}
-              style={{ marginTop: spacing.md }}
-            />
-          </Card>
-
-          <Card>
             <View style={styles.monthNav}>
               <Pressable onPress={() => setYearAnchor((y) => y - 1)} hitSlop={8} style={styles.monthNavBtn}>
                 <Feather name="chevron-left" size={18} color={colors.textMuted} />
@@ -649,9 +545,15 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 20,
   },
-  pageSubtitle: {
+  slipsLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  slipsLinkText: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    fontWeight: '700',
+    color: colors.primary,
   },
   monthNav: {
     flexDirection: 'row',
@@ -661,10 +563,6 @@ const styles = StyleSheet.create({
   },
   monthNavBtn: {
     padding: spacing.xs,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.xl,
   },
   ghostBanner: {
     flexDirection: 'row',
@@ -676,19 +574,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 16,
-  },
-  stat: {
-    flex: 1,
-  },
-  statValue: {
-    fontSize: fontSize.xl,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  statLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
   },
   sectionTitle: {
     fontSize: fontSize.md,

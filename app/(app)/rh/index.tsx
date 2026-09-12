@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { createGhostEmployee, listGhostEmployees, listWorkTypes } from '../../../lib/api/payroll';
+import { listWorkTypes } from '../../../lib/api/payroll';
 import { listFacturesForProjects, markTimeEntriesInvoiced, type ProjectFactureSummary } from '../../../lib/api/factures';
 import { PayrollEntryPanel, defaultTodayRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
@@ -63,7 +63,7 @@ export default function PayrollScreen() {
   const isDesktop = width >= breakpoints.tablet;
 
   const [plan, setPlan] = useState<Plan | null>(null);
-  const [mode, setMode] = useState<'hours' | 'invoicing' | 'salaries'>('hours');
+  const [mode, setMode] = useState<'hours' | 'invoicing'>('hours');
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [range, setRange] = useState<DateRange>(defaultTodayRange);
@@ -78,9 +78,6 @@ export default function PayrollScreen() {
   const [hasWorkTypes, setHasWorkTypes] = useState(true);
   const [projectFactures, setProjectFactures] = useState<Record<string, ProjectFactureSummary[]>>({});
   const [summaryEntries, setSummaryEntries] = useState<SummaryEntryDetail[]>([]);
-  const [addingGhost, setAddingGhost] = useState(false);
-  const [ghostName, setGhostName] = useState('');
-  const [savingGhost, setSavingGhost] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -89,32 +86,20 @@ export default function PayrollScreen() {
     setPlan(planRow ?? null);
 
     if (canManagePayroll) {
-      const [{ data: memberRows }, ghostRows, workTypes] = await Promise.all([
+      // Real members only — this screen is purely about logging/reviewing
+      // hours and billing them, and a ghost employee (payroll-only, no app
+      // account) never logs hours. Managing ghost employees lives in the
+      // separate "Salaires" area, alongside everything else payroll.
+      const [{ data: memberRows }, workTypes] = await Promise.all([
         supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
-        listGhostEmployees(organization.id),
         listWorkTypes(organization.id),
       ]);
-      setMembers([
-        ...(memberRows ?? []).map((m): MemberItem => ({ id: m.user_id, label: m.full_name || t('payrollHub.memberFallback'), kind: 'user' })),
-        ...ghostRows.map((g): MemberItem => ({ id: g.id, label: g.full_name, kind: 'ghost' })),
-      ]);
+      setMembers((memberRows ?? []).map((m): MemberItem => ({ id: m.user_id, label: m.full_name || t('payrollHub.memberFallback'), kind: 'user' })));
       setHasWorkTypes(workTypes.length > 0);
     }
     setSelectedUserId((prev) => prev ?? user.id);
     setLoading(false);
   }, [organization, user, canManagePayroll]);
-
-  async function handleCreateGhost() {
-    if (!organization || !user || !ghostName.trim()) return;
-    setSavingGhost(true);
-    const { id, error } = await createGhostEmployee(organization.id, ghostName, user.id);
-    setSavingGhost(false);
-    if (error || !id) return;
-    setGhostName('');
-    setAddingGhost(false);
-    await load();
-    router.push({ pathname: '/(app)/rh/[userId]', params: { userId: id, kind: 'ghost' } });
-  }
 
   useFocusEffect(
     useCallback(() => {
@@ -271,7 +256,16 @@ export default function PayrollScreen() {
     return (
       <Screen style={{ padding: spacing.xl }}>
         <View style={isDesktop ? styles.adminContainer : styles.selfContainer}>
-          <PageHeader title={t('payrollHub.title')} backTo="/(app)" />
+          <PageHeader
+            title={t('payrollHub.title')}
+            backTo="/(app)"
+            right={
+              <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
+                <Feather name="calendar" size={15} color={colors.primary} />
+                <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfAbsencesLink')}</Text>
+              </Pressable>
+            }
+          />
           <Text style={styles.pageSubtitle}>{t('payrollHub.selfSubtitle')}</Text>
           {isDesktop ? (
             <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
@@ -334,54 +328,21 @@ export default function PayrollScreen() {
     />
   );
 
-  // Ghost employees (payroll-only, no app account) have no hours or
-  // invoicing to speak of — they only ever show up in the salaries tab.
-  const visibleMembers = mode === 'salaries' ? members : members.filter((m) => m.kind === 'user');
-
   const employeeList = (
     <View style={styles.employeeList}>
-      <View style={styles.employeeListHeader}>
-        <Text style={styles.employeeListTitle}>{t('payrollHub.teamTitle')}</Text>
-        {mode === 'salaries' ? (
-          <Pressable onPress={() => setAddingGhost((v) => !v)} hitSlop={8}>
-            <Feather name={addingGhost ? 'x' : 'user-plus'} size={15} color={colors.primary} />
-          </Pressable>
-        ) : null}
-      </View>
-      {mode === 'salaries' && addingGhost ? (
-        <View style={styles.addGhostRow}>
-          <TextInput
-            style={styles.addGhostInput}
-            value={ghostName}
-            onChangeText={setGhostName}
-            placeholder={t('payrollHub.ghostNamePlaceholder')}
-            placeholderTextColor={colors.textMuted}
-            autoFocus
-          />
-          <Button title={t('payrollHub.ghostCreate')} onPress={handleCreateGhost} loading={savingGhost} disabled={!ghostName.trim()} />
-        </View>
-      ) : null}
-      {visibleMembers.map((m) => (
+      <Text style={styles.employeeListTitle}>{t('payrollHub.teamTitle')}</Text>
+      {members.map((m) => (
         <Pressable
           key={m.id}
-          onPress={() =>
-            mode === 'salaries'
-              ? router.push({ pathname: '/(app)/rh/[userId]', params: m.kind === 'ghost' ? { userId: m.id, kind: 'ghost' } : { userId: m.id } })
-              : setSelectedUserId(m.id)
-          }
-          style={[styles.memberRow, mode === 'hours' && selectedUserId === m.id && styles.memberRowActive]}
+          onPress={() => setSelectedUserId(m.id)}
+          style={[styles.memberRow, selectedUserId === m.id && styles.memberRowActive]}
         >
           <View style={styles.memberAvatar}>
-            {m.kind === 'ghost' ? (
-              <Feather name="user-x" size={12} color={colors.primary} />
-            ) : (
-              <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
-            )}
+            <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
           </View>
-          <Text style={[styles.memberName, mode === 'hours' && selectedUserId === m.id && styles.memberNameActive]} numberOfLines={1}>
+          <Text style={[styles.memberName, selectedUserId === m.id && styles.memberNameActive]} numberOfLines={1}>
             {m.id === user.id ? t('payrollHub.meSuffix', { name: m.label }) : m.label}
           </Text>
-          {mode === 'salaries' ? <Feather name="chevron-right" size={16} color={colors.textMuted} /> : null}
         </Pressable>
       ))}
     </View>
@@ -394,43 +355,26 @@ export default function PayrollScreen() {
           title={t('payrollHub.title')}
           backTo="/(app)"
           right={
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-              <Pressable onPress={() => router.push('/(app)/rh/fiches-salaire' as any)} hitSlop={8}>
-                <Feather name="file-text" size={18} color={colors.textMuted} />
-              </Pressable>
-              <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8}>
-                <Feather name="calendar" size={18} color={colors.textMuted} />
-              </Pressable>
-              <Pressable onPress={() => router.push('/(app)/rh/corrections' as any)} hitSlop={8}>
-                <Feather name="rotate-ccw" size={18} color={colors.textMuted} />
-              </Pressable>
-              <Pressable onPress={() => router.push('/(app)/rh/declarations' as any)} hitSlop={8}>
-                <Feather name="archive" size={18} color={colors.textMuted} />
-              </Pressable>
-              <Pressable onPress={() => router.push('/(app)/compte/rh')} hitSlop={8}>
-                <Feather name="settings" size={18} color={colors.textMuted} />
-              </Pressable>
-            </View>
+            <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
+              <Feather name="calendar" size={15} color={colors.primary} />
+              <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfAbsencesLink')}</Text>
+            </Pressable>
           }
         />
         <Text style={styles.pageSubtitle}>{t('payrollHub.adminSubtitle')}</Text>
 
-        <View style={styles.modeSwitch}>
-          <Pressable onPress={() => setMode('hours')} style={[styles.modeTab, mode === 'hours' && styles.modeTabActive]}>
-            <Feather name="clock" size={14} color={mode === 'hours' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'hours' && styles.modeTabTextActive]}>{t('payrollHub.tabHours')}</Text>
-          </Pressable>
-          {canViewFinances ? (
+        {canViewFinances ? (
+          <View style={styles.modeSwitch}>
+            <Pressable onPress={() => setMode('hours')} style={[styles.modeTab, mode === 'hours' && styles.modeTabActive]}>
+              <Feather name="clock" size={14} color={mode === 'hours' ? colors.primary : colors.textMuted} />
+              <Text style={[styles.modeTabText, mode === 'hours' && styles.modeTabTextActive]}>{t('payrollHub.tabHours')}</Text>
+            </Pressable>
             <Pressable onPress={() => setMode('invoicing')} style={[styles.modeTab, mode === 'invoicing' && styles.modeTabActive]}>
               <Feather name="file-plus" size={14} color={mode === 'invoicing' ? colors.primary : colors.textMuted} />
               <Text style={[styles.modeTabText, mode === 'invoicing' && styles.modeTabTextActive]}>{t('payrollHub.tabInvoicing')}</Text>
             </Pressable>
-          ) : null}
-          <Pressable onPress={() => setMode('salaries')} style={[styles.modeTab, mode === 'salaries' && styles.modeTabActive]}>
-            <Feather name="dollar-sign" size={14} color={mode === 'salaries' ? colors.primary : colors.textMuted} />
-            <Text style={[styles.modeTabText, mode === 'salaries' && styles.modeTabTextActive]}>{t('payrollHub.tabSalaries')}</Text>
-          </Pressable>
-        </View>
+          </View>
+        ) : null}
 
         {mode === 'hours' && !hasWorkTypes ? (
           <Pressable onPress={() => router.push('/(app)/compte/rh')} style={styles.setupBanner}>
@@ -443,19 +387,7 @@ export default function PayrollScreen() {
           </Pressable>
         ) : null}
 
-        {mode === 'salaries' ? (
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
-            <View style={isDesktop ? styles.salariesLayout : undefined}>
-              <View style={isDesktop ? styles.salariesCol : undefined}>{employeeList}</View>
-              {isDesktop ? (
-                <View style={styles.salariesHint}>
-                  <Feather name="dollar-sign" size={22} color={colors.textMuted} />
-                  <Text style={styles.salariesHintText}>{t('payrollHub.salariesHint')}</Text>
-                </View>
-              ) : null}
-            </View>
-          </ScrollView>
-        ) : mode === 'invoicing' ? (
+        {mode === 'invoicing' ? (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
             {/* Desktop: calendar in the same narrow side column as every
                 other tab, invoicing summary alongside it — previously
@@ -824,28 +756,15 @@ const styles = StyleSheet.create({
   modeTabTextActive: {
     color: colors.primary,
   },
-  salariesLayout: {
+  selfAbsencesLink: {
     flexDirection: 'row',
-    gap: spacing.xl,
-    alignItems: 'flex-start',
-  },
-  salariesCol: {
-    width: 280,
-  },
-  salariesHint: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xxl,
-    paddingHorizontal: spacing.xl,
+    gap: 6,
   },
-  salariesHintText: {
+  selfAbsencesLinkText: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
-    textAlign: 'center',
-    maxWidth: 360,
-    lineHeight: 20,
+    fontWeight: '700',
+    color: colors.primary,
   },
   setupBanner: {
     flexDirection: 'row',
@@ -884,34 +803,13 @@ const styles = StyleSheet.create({
   employeeList: {
     gap: spacing.xs,
   },
-  employeeListHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xs,
-  },
   employeeListTitle: {
     fontSize: 11,
     fontWeight: '800',
     color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
-  },
-  addGhostRow: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
-  },
-  addGhostInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    fontSize: fontSize.sm,
-    color: colors.text,
-    backgroundColor: colors.surface,
+    marginBottom: spacing.xs,
   },
   memberRow: {
     flexDirection: 'row',

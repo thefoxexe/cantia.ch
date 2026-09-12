@@ -34,6 +34,7 @@ function buildSections(
   planningEnabled: boolean,
   subcontractorsVisible: boolean,
   payrollEnabled: boolean,
+  canManagePayroll: boolean,
   treasuryEnabled: boolean,
   accountingEnabled: boolean,
 ): NavSection[] {
@@ -41,8 +42,15 @@ function buildSections(
     ...(planningEnabled ? [{ href: '/(app)/planning', label: t('nav.planning'), icon: 'calendar' as const }] : []),
     // "clock", not "dollar-sign" — Factures already owns the money icon in
     // the FACTURATION section just above; sharing it here made the two
-    // entries visually indistinguishable in the sidebar.
-    ...(payrollEnabled ? [{ href: '/(app)/rh', label: t('nav.payroll'), icon: 'clock' as const }] : []),
+    // entries visually indistinguishable in the sidebar. Open to every
+    // member (they log their own hours here) — the payroll-manager-only
+    // side (employee records, salary generation, cotisations) lives behind
+    // its own separate "Salaires" entry below, never mixed into this one.
+    ...(payrollEnabled ? [{ href: '/(app)/rh', label: t('nav.hoursExpenses'), icon: 'clock' as const }] : []),
+    // Deliberately a second, separate nav entry rather than a tab inside
+    // "Heures & frais" — a plain member should never even see that a
+    // payroll section exists, let alone land on a locked screen for it.
+    ...(payrollEnabled && canManagePayroll ? [{ href: '/(app)/rh/salaires', label: t('nav.salaries'), icon: 'user-check' as const }] : []),
     ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: t('nav.treasury'), icon: 'archive' as const }] : []),
     // Same gate as Trésorerie itself — the one place to see and manage every
     // expense: chantier-linked purchases (still created from each chantier's
@@ -109,7 +117,7 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 export default function AppLayout() {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
-  const { organization, canViewFinances, permissions } = useAuth();
+  const { organization, canViewFinances, canManagePayroll, permissions } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
   // Unlike Planning, RH & Salaires has no view permission gate: every member
@@ -130,7 +138,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(t, financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, treasuryEnabled, accountingEnabled);
+  const sections = buildSections(t, financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;
