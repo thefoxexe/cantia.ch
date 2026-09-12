@@ -43,6 +43,7 @@ const LABELS = {
   },
   hoursWorked: { fr: 'Heures effectuées', de: 'Geleistete Stunden', it: 'Ore lavorate' },
   grossSalary: { fr: 'Salaire brut', de: 'Bruttolohn', it: 'Salario lordo' },
+  netAdjustments: { fr: 'Ajustements nets (avances, régularisations)', de: 'Netto-Anpassungen (Vorschüsse, Korrekturen)', it: 'Rettifiche nette (anticipi, regolarizzazioni)' },
   netSalary: { fr: 'Salaire net', de: 'Nettolohn', it: 'Salario netto' },
   dateLabel: { fr: '{place}, le {date}', de: '{place}, den {date}', it: '{place}, il {date}' },
   dateLabelNoPlace: { fr: 'Le {date}', de: 'Den {date}', it: 'Il {date}' },
@@ -207,7 +208,7 @@ Deno.serve(async (req: Request) => {
     const organizationId = profile.organization_id as string;
     const yearNum = Number(year);
 
-    const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }] = await Promise.all([
+    const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }, { data: wageTypes }, { data: wageRateOverrides }, { data: wageLines }] = await Promise.all([
       admin.from('organizations').select('*').eq('id', organizationId).single(),
       user_id
         ? admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle()
@@ -223,17 +224,31 @@ Deno.serve(async (req: Request) => {
             .gte('entry_date', `${yearNum}-01-01`)
             .lte('entry_date', `${yearNum}-12-31`)
         : Promise.resolve({ data: [] as { hours: number; entry_date: string }[] }),
+      // §7.1 rubriques de salaire — same fold-into-gross logic as
+      // generate-lohnausweis-pdf, minus the Ziffer 1/3 split (this is an
+      // internal récapitulatif, not the official form).
+      admin.from('payroll_wage_types').select('*').eq('organization_id', organizationId),
+      admin.from('payroll_profile_wage_rates').select('*').eq('organization_id', organizationId).eq(ownerColumn, ownerId),
+      admin.from('payroll_slip_wage_lines').select('*').eq('organization_id', organizationId).eq(ownerColumn, ownerId).eq('year', yearNum),
     ]);
 
     const locale = resolvePdfLocale(org);
     const isHourly = profile.salary_type === 'hourly';
     const overrideByType = new Map((overrides ?? []).map((o: any) => [o.deduction_type_id, o]));
+    const wageTypeById = new Map((wageTypes ?? []).map((w: any) => [w.id, w]));
+    const wageRateOverrideByType = new Map((wageRateOverrides ?? []).map((o: any) => [o.wage_type_id, o]));
 
     // One gross figure per calendar month present in the org (hourly: that
     // month's logged hours × rate; monthly: the flat salary every month —
-    // there's no hire/leave date on payroll_profiles to prorate against).
+    // there's no leave date on payroll_profiles to prorate against), plus
+    // that month's wage-type additions (13e, heures sup, bonus, indemnité
+    // vacances) and net adjustments (avances, régularisations — applied
+    // after cotisations, never part of gross).
     let totalHours = 0;
     let totalGross = 0;
+    let totalWageAdditions = 0;
+    let totalNetAdjustments = 0;
+    const wageAdditionTotals = new Map<string, number>();
     const deductionTotals = new Map<string, number>();
 
     for (let month = 0; month < 12; month++) {
@@ -242,30 +257,66 @@ Deno.serve(async (req: Request) => {
             .filter((e: any) => new Date(`${e.entry_date}T00:00:00`).getUTCMonth() === month)
             .reduce((sum: number, e: any) => sum + Number(e.hours), 0)
         : 0;
-      const monthGross = isHourly
+      const baseGross = isHourly
         ? Math.round(monthHours * Number(profile.hourly_rate_chf ?? 0) * 100) / 100
         : Number(profile.monthly_salary_chf ?? 0);
       totalHours += monthHours;
-      totalGross += monthGross;
+
+      const monthWageLines = (wageLines ?? []).filter((l: any) => l.month === month + 1);
+      let manualAdditionsTotal = 0;
+      for (const line of monthWageLines) {
+        const wt = wageTypeById.get(line.wage_type_id);
+        if (!wt) continue;
+        const amount = Number(line.amount_chf);
+        if (wt.kind === 'addition') {
+          manualAdditionsTotal += amount;
+          wageAdditionTotals.set(wt.label, (wageAdditionTotals.get(wt.label) ?? 0) + amount);
+        } else {
+          totalNetAdjustments += amount;
+        }
+      }
+
+      const grossBeforeRecurring = baseGross + manualAdditionsTotal;
+      let recurringAdditions = 0;
+      for (const wt of wageTypes ?? []) {
+        if (!wt.active || wt.mode !== 'recurring_rate' || wt.kind !== 'addition') continue;
+        const override: any = wageRateOverrideByType.get(wt.id);
+        if (override && !override.enabled) continue;
+        const ratePercent = override?.rate_percent ?? wt.default_rate_percent;
+        const fixedAmount = override?.fixed_amount_chf ?? wt.default_fixed_amount_chf;
+        if (ratePercent == null && fixedAmount == null) continue;
+        const amount = fixedAmount != null ? Number(fixedAmount) : (grossBeforeRecurring * Number(ratePercent)) / 100;
+        recurringAdditions += amount;
+        wageAdditionTotals.set(wt.label, (wageAdditionTotals.get(wt.label) ?? 0) + amount);
+      }
+
+      const monthTotalGross = grossBeforeRecurring + recurringAdditions;
+      totalGross += monthTotalGross;
+      totalWageAdditions += manualAdditionsTotal + recurringAdditions;
 
       for (const dt of deductionTypes ?? []) {
         const override: any = overrideByType.get(dt.id);
         if (override && !override.enabled) continue;
         const ratePercent = override?.rate_percent ?? dt.default_rate_percent;
         const fixedAmount = override?.fixed_amount_chf;
-        const amount = fixedAmount != null ? Number(fixedAmount) : ratePercent != null ? (monthGross * Number(ratePercent)) / 100 : 0;
+        const amount = fixedAmount != null ? Number(fixedAmount) : ratePercent != null ? (monthTotalGross * Number(ratePercent)) / 100 : 0;
         if (amount === 0 && ratePercent == null && fixedAmount == null) continue;
         deductionTotals.set(dt.id, (deductionTotals.get(dt.id) ?? 0) + amount);
       }
     }
     totalHours = Math.round(totalHours * 100) / 100;
     totalGross = Math.round(totalGross * 100) / 100;
+    totalWageAdditions = Math.round(totalWageAdditions * 100) / 100;
+    totalNetAdjustments = Math.round(totalNetAdjustments * 100) / 100;
 
+    const wageAdditionLines = Array.from(wageAdditionTotals.entries())
+      .map(([label, amount]) => ({ label, amount: Math.round(amount * 100) / 100 }))
+      .filter((l) => l.amount !== 0);
     const lines = (deductionTypes ?? [])
       .filter((dt: any) => deductionTotals.has(dt.id))
       .map((dt: any) => ({ label: dt.label, amount: Math.round((deductionTotals.get(dt.id) ?? 0) * 100) / 100 }));
     const totalDeductions = Math.round(lines.reduce((sum: number, l: any) => sum + l.amount, 0) * 100) / 100;
-    const net = Math.round((totalGross - totalDeductions) * 100) / 100;
+    const net = Math.round((totalGross - totalDeductions + totalNetAdjustments) * 100) / 100;
 
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -350,6 +401,12 @@ Deno.serve(async (req: Request) => {
       row(pdfT(locale, 'hoursWorked'), `${totalHours.toFixed(2).replace(/\.00$/, '')} h`);
     }
     row(pdfT(locale, 'grossSalary'), formatChf(totalGross), { bold: true });
+    // Itemizes what's already folded into the total above — 13e, heures
+    // sup, bonus, indemnité vacances — so the recipient can see how the
+    // brut was made up, not just its final figure.
+    for (const l of wageAdditionLines) {
+      row(l.label, `+ ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
+    }
 
     y -= 6;
     page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 0.5, color: MUTED });
@@ -357,6 +414,13 @@ Deno.serve(async (req: Request) => {
 
     for (const l of lines) {
       row(l.label, `- ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
+    }
+
+    if (totalNetAdjustments !== 0) {
+      y -= 6;
+      page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 0.5, color: MUTED });
+      y -= 10;
+      row(pdfT(locale, 'netAdjustments'), `${totalNetAdjustments > 0 ? '+' : ''}${formatChf(totalNetAdjustments)}`, { size: 9.5, color: MUTED });
     }
 
     y -= 6;

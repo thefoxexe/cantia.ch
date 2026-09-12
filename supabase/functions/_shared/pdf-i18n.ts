@@ -72,6 +72,7 @@ const LABELS = {
   hoursWorked: { fr: 'Heures effectuées', de: 'Geleistete Stunden', it: 'Ore lavorate' },
   hourlyRate: { fr: 'Taux horaire', de: 'Stundenlohn', it: 'Tariffa oraria' },
   grossSalary: { fr: 'Salaire brut', de: 'Bruttolohn', it: 'Salario lordo' },
+  netAdjustments: { fr: 'Ajustements nets (avances, régularisations)', de: 'Netto-Anpassungen (Vorschüsse, Korrekturen)', it: 'Rettifiche nette (anticipi, regolarizzazioni)' },
   netSalary: { fr: 'Salaire net', de: 'Nettolohn', it: 'Salario netto' },
   employeeFallback: { fr: 'Employé', de: 'Mitarbeiter', it: 'Dipendente' },
   dateLabel: { fr: '{place}, le {date}', de: '{place}, den {date}', it: '{place}, il {date}' },

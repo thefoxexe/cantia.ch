@@ -106,7 +106,7 @@ Deno.serve(async (req: Request) => {
 
     const organizationId = profile.organization_id as string;
 
-    const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }, { data: expenseEntries }] = await Promise.all([
+    const [{ data: org }, { data: member }, { data: deductionTypes }, { data: overrides }, { data: entries }, { data: expenseEntries }, { data: wageTypes }, { data: wageRateOverrides }, { data: wageLines }] = await Promise.all([
       admin.from('organizations').select('*').eq('id', organizationId).single(),
       user_id
         ? admin.from('organization_members').select('full_name').eq('organization_id', organizationId).eq('user_id', user_id).maybeSingle()
@@ -134,12 +134,36 @@ Deno.serve(async (req: Request) => {
             .gte('expense_date', `${yearNum}-01-01`)
             .lte('expense_date', `${yearNum}-12-31`)
         : Promise.resolve({ data: [] as any[] }),
+      // §7.1 rubriques de salaire — see the wage-additions block below for
+      // how these fold into gross and split across Ziffer 1 / Ziffer 3.
+      admin.from('payroll_wage_types').select('*').eq('organization_id', organizationId),
+      admin.from('payroll_profile_wage_rates').select('*').eq('organization_id', organizationId).eq(ownerColumn, ownerId),
+      admin.from('payroll_slip_wage_lines').select('*').eq('organization_id', organizationId).eq(ownerColumn, ownerId).eq('year', yearNum),
     ]);
 
     const isHourly = profile.salary_type === 'hourly';
     const overrideByType = new Map((overrides ?? []).map((o: any) => [o.deduction_type_id, o]));
+    const wageTypeById = new Map((wageTypes ?? []).map((w: any) => [w.id, w]));
+    const wageRateOverrideByType = new Map((wageRateOverrides ?? []).map((o: any) => [o.wage_type_id, o]));
 
-    let totalGross = 0;
+    // A hire date within the reporting year is the one signal this app has
+    // for "part-year employment" (no departure date is tracked yet — see
+    // this block's own comment further down). Per the ESTV Wegleitung, a
+    // fixed 13e/14e salaire and a recurring rate-based addition (indemnité
+    // vacances) always belong in Ziffer 1 regardless of employment length,
+    // but a genuinely variable/irregular addition (bonus, heures
+    // supplémentaires, or any other custom manual-entry type) must be
+    // itemized separately in Ziffer 3 for a part-year employee — otherwise
+    // the tax administration would incorrectly annualize that one-off
+    // amount as if it recurred every month, inflating the withholding
+    // rate. For a full-year employee both end up in the same total, so
+    // this only changes anything for the part-year case.
+    const hireDate: string | null = profile.hire_date ?? null;
+    const isPartYearFromStart = !!hireDate && new Date(`${hireDate}T00:00:00`).getUTCFullYear() === yearNum;
+
+    let ziffer1Total = 0;
+    let ziffer3Total = 0;
+    const ziffer3Labels = new Set<string>();
     const deductionTotals = new Map<string, number>();
 
     for (const m of monthsInYear(yearNum)) {
@@ -148,17 +172,49 @@ Deno.serve(async (req: Request) => {
             .filter((e: any) => new Date(`${e.entry_date}T00:00:00`).getUTCMonth() === m.month)
             .reduce((sum: number, e: any) => sum + Number(e.hours), 0)
         : 0;
-      const monthGross = isHourly
+      const baseGross = isHourly
         ? Math.round(monthHours * Number(profile.hourly_rate_chf ?? 0) * 100) / 100
         : Number(profile.monthly_salary_chf ?? 0);
-      totalGross += monthGross;
+
+      const monthWageLines = (wageLines ?? []).filter((l: any) => l.month === m.month + 1);
+      let manualAdditionsTotal = 0;
+      let thirteenthSalary = 0;
+      let irregularAdditions = 0;
+      for (const line of monthWageLines) {
+        const wt = wageTypeById.get(line.wage_type_id);
+        if (!wt || wt.kind !== 'addition') continue; // net_adjustment (avances, régularisations) never touches gross/Ziffer1/3.
+        const amount = Number(line.amount_chf);
+        manualAdditionsTotal += amount;
+        if (wt.label === '13e salaire') thirteenthSalary += amount;
+        else {
+          irregularAdditions += amount;
+          ziffer3Labels.add(wt.label);
+        }
+      }
+
+      const grossBeforeRecurring = baseGross + manualAdditionsTotal;
+      let recurringAdditions = 0;
+      for (const wt of wageTypes ?? []) {
+        if (!wt.active || wt.mode !== 'recurring_rate' || wt.kind !== 'addition') continue;
+        const override: any = wageRateOverrideByType.get(wt.id);
+        if (override && !override.enabled) continue;
+        const ratePercent = override?.rate_percent ?? wt.default_rate_percent;
+        const fixedAmount = override?.fixed_amount_chf ?? wt.default_fixed_amount_chf;
+        if (ratePercent == null && fixedAmount == null) continue;
+        recurringAdditions += fixedAmount != null ? Number(fixedAmount) : (grossBeforeRecurring * Number(ratePercent)) / 100;
+      }
+
+      const monthTotalGross = grossBeforeRecurring + recurringAdditions;
+      ziffer1Total += baseGross + thirteenthSalary + recurringAdditions;
+      if (isPartYearFromStart) ziffer3Total += irregularAdditions;
+      else ziffer1Total += irregularAdditions;
 
       for (const dt of deductionTypes ?? []) {
         const override: any = overrideByType.get(dt.id);
         if (override && !override.enabled) continue;
         const ratePercent = override?.rate_percent ?? dt.default_rate_percent;
         const fixedAmount = override?.fixed_amount_chf;
-        const amount = fixedAmount != null ? Number(fixedAmount) : ratePercent != null ? (monthGross * Number(ratePercent)) / 100 : 0;
+        const amount = fixedAmount != null ? Number(fixedAmount) : ratePercent != null ? (monthTotalGross * Number(ratePercent)) / 100 : 0;
         if (amount === 0 && ratePercent == null && fixedAmount == null) continue;
         deductionTotals.set(dt.id, (deductionTotals.get(dt.id) ?? 0) + amount);
       }
@@ -252,12 +308,16 @@ Deno.serve(async (req: Request) => {
       else if (dt.certificate_box === 'box15') box15Remarks.push(`${dt.label} : Fr. ${Math.round(amount * 100) / 100}`);
     }
 
-    const gross = Math.round(totalGross);
+    const gross = Math.round(ziffer1Total);
+    const ziffer3 = Math.round(ziffer3Total);
+    // Ziffer 8 "Total Bruttolohn" per the Wegleitung is the sum of Ziffern
+    // 1-7 — this app only ever populates 1 and 3, so it's just their sum.
+    const totalBrutto = gross + ziffer3;
     box9 = Math.round(box9);
     box10_1 = Math.round(box10_1);
     box10_2 = Math.round(box10_2);
     box12 = Math.round(box12);
-    const net = gross - box9 - box10_1 - box10_2 - box12;
+    const net = totalBrutto - box9 - box10_1 - box10_2 - box12;
 
     // Case 13 (frais) is informational too, same as case 15 — expense
     // reimbursements are never part of the salary these boxes derive from,
@@ -287,7 +347,18 @@ Deno.serve(async (req: Request) => {
     form.getTextField('TextMehrzeiligLinks_Empfaenger').setText(employeeAddressLines.join('\n'));
 
     form.getTextField('DezZahlNull_1').setText(String(gross));
-    form.getTextField('DezZahlNull_8').setText(String(gross));
+    if (ziffer3 > 0) {
+      form.getTextField('DezZahlNull_3').setText(String(ziffer3));
+      form.getTextField('TextLinks_3-Art').setText([...ziffer3Labels].join(', '));
+    }
+    form.getTextField('DezZahlNull_8').setText(String(totalBrutto));
+    // Case E "Durée des rapports de travail" — only the start date is ever
+    // known here (no date de départ tracked on the payroll profile yet),
+    // so this is filled only for the one part-year case this app can
+    // actually detect (hired during the reporting year) rather than
+    // guessing a departure date or always filling it with January 1st for
+    // every employee.
+    if (isPartYearFromStart && hireDate) form.getTextField('TextLinks_E-von').setText(formatSwissDate(hireDate));
     if (box9 > 0) form.getTextField('DezZahlNull_9').setText(String(box9));
     if (box10_1 > 0) form.getTextField('DezZahlNull_10_1').setText(String(box10_1));
     if (box10_2 > 0) form.getTextField('DezZahlNull_10_2').setText(String(box10_2));
