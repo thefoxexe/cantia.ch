@@ -690,7 +690,7 @@ export async function getAnnualSalarySummary(
     const monthHours = isHourly
       ? entries.filter((e) => new Date(`${e.entry_date}T00:00:00`).getMonth() === month).reduce((sum, e) => sum + Number(e.hours), 0)
       : 0;
-    const monthGross = isHourly ? round2(monthHours * (profile.hourly_rate_chf ?? 0)) : (profile.monthly_salary_chf ?? 0);
+    const monthGross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, monthHours);
     totalHours += monthHours;
     gross += monthGross;
 
@@ -709,6 +709,169 @@ export async function getAnnualSalarySummary(
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+// The one formula every gross computation in the app must agree on —
+// previously duplicated inline in app/(app)/rh/[userId].tsx.
+export function computeMonthlyGross(
+  salaryType: 'hourly' | 'monthly',
+  hourlyRateChf: number | null,
+  monthlySalaryChf: number | null,
+  totalHours: number,
+): number {
+  return salaryType === 'hourly' ? round2((hourlyRateChf ?? 0) * totalHours) : round2(monthlySalaryChf ?? 0);
+}
+
+// ==========================================================================
+// Cahier des charges V2, Lot 4 §7.6 "Moteur de paie et snapshot" — persists
+// what the RH payslip screen used to only ever compute live. See
+// supabase/migrations/20260912170000-170100 for the schema and lifecycle
+// functions this wraps. The calculation itself (computeMonthlyGross +
+// computeSalaryBreakdown, both above) stays the single source of truth;
+// these functions only add persistence and the brouillon -> calculée ->
+// validée -> payée -> extournée lifecycle around it.
+// ==========================================================================
+
+export interface PayrollSlipSnapshot {
+  deductionTypes: { id: string; label: string; defaultRatePercent: number | null }[];
+  overrides: { deductionTypeId: string; ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean }[];
+  lines: DeductionLine[];
+}
+
+export interface PayrollSlip {
+  id: string;
+  runId: string;
+  ownerKey: string;
+  year: number;
+  month: number;
+  status: 'brouillon' | 'calculee' | 'validee' | 'payee' | 'extournee';
+  salaryType: 'hourly' | 'monthly';
+  hourlyRateChf: number | null;
+  monthlySalaryChf: number | null;
+  totalHours: number | null;
+  gross: number;
+  totalDeductions: number;
+  net: number;
+  employerCost: number | null;
+  snapshot: PayrollSlipSnapshot;
+  calculatedAt: string | null;
+  validatedAt: string | null;
+  paidAt: string | null;
+  reversedSlipId: string | null;
+}
+
+function mapPayrollSlip(row: any): PayrollSlip {
+  return {
+    id: row.id,
+    runId: row.run_id,
+    ownerKey: row.owner_key,
+    year: row.year,
+    month: row.month,
+    status: row.status,
+    salaryType: row.salary_type,
+    hourlyRateChf: row.hourly_rate_chf != null ? Number(row.hourly_rate_chf) : null,
+    monthlySalaryChf: row.monthly_salary_chf != null ? Number(row.monthly_salary_chf) : null,
+    totalHours: row.total_hours != null ? Number(row.total_hours) : null,
+    gross: Number(row.gross_chf),
+    totalDeductions: Number(row.total_deductions_chf),
+    net: Number(row.net_chf),
+    employerCost: row.employer_cost_chf != null ? Number(row.employer_cost_chf) : null,
+    snapshot: row.snapshot,
+    calculatedAt: row.calculated_at,
+    validatedAt: row.validated_at,
+    paidAt: row.paid_at,
+    reversedSlipId: row.reversed_slip_id,
+  };
+}
+
+export async function findOrCreatePayrollRun(organizationId: string, year: number, month: number): Promise<string> {
+  const { data, error } = await supabase.rpc('find_or_create_payroll_run', { p_organization_id: organizationId, p_year: year, p_month: month });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function listPayrollSlips(organizationId: string, year: number, month: number): Promise<PayrollSlip[]> {
+  const { data } = await supabase
+    .from('payroll_slips')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .eq('year', year)
+    .eq('month', month)
+    .neq('status', 'extournee')
+    .order('created_at');
+  return (data ?? []).map(mapPayrollSlip);
+}
+
+// Fetches hours (if hourly) and computes gross/deductions/net exactly as
+// the RH payslip preview does, then persists the result as one slip for
+// this employee/period — this is the ONLY place that saves a payroll_slip,
+// so both the ad-hoc RH preview and this saved snapshot are guaranteed to
+// use the same numbers.
+export async function calculateAndSavePayrollSlip(
+  organizationId: string,
+  ref: EmployeeRef,
+  year: number,
+  month: number,
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  deductionTypes: PayrollDeductionType[],
+  overrides: PayrollProfileDeduction[],
+): Promise<{ id: string | null; error: string | null }> {
+  const runId = await findOrCreatePayrollRun(organizationId, year, month);
+  const isHourly = profile.salary_type === 'hourly' && !!ref.userId;
+  const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
+  // listTimeEntries's rangeEnd is inclusive (lte) — day 0 of the next
+  // month is the last day of this one, not the first day after it.
+  const monthEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+  const entries = isHourly ? await listTimeEntries(organizationId, ref.userId!, monthStart, monthEnd) : [];
+  const totalHours = round2(entries.reduce((sum, e) => sum + Number(e.hours), 0));
+
+  const gross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, totalHours);
+  const breakdown = computeSalaryBreakdown(gross, deductionTypes, overrides);
+
+  const snapshot: PayrollSlipSnapshot = {
+    deductionTypes: deductionTypes.map((d) => ({ id: d.id, label: d.label, defaultRatePercent: d.default_rate_percent })),
+    overrides: overrides.map((o) => ({ deductionTypeId: o.deduction_type_id, ratePercent: o.rate_percent, fixedAmountChf: o.fixed_amount_chf, enabled: o.enabled })),
+    lines: breakdown.lines,
+  };
+
+  try {
+    const { data, error } = await supabase.rpc('upsert_payroll_slip', {
+      p_run_id: runId,
+      p_user_id: ref.userId ?? null,
+      p_ghost_employee_id: ref.ghostEmployeeId ?? null,
+      p_salary_type: profile.salary_type,
+      p_hourly_rate_chf: profile.hourly_rate_chf,
+      p_monthly_salary_chf: profile.monthly_salary_chf,
+      p_total_hours: isHourly ? totalHours : null,
+      p_gross_chf: breakdown.gross,
+      p_total_deductions_chf: breakdown.totalDeductions,
+      p_net_chf: breakdown.net,
+      p_snapshot: snapshot,
+    });
+    if (error) return { id: null, error: error.message };
+    return { id: data, error: null };
+  } catch (err) {
+    return { id: null, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export async function validatePayrollSlip(slipId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('validate_payroll_slip', { p_slip_id: slipId });
+  return { error: error?.message ?? null };
+}
+
+export async function markPayrollSlipPaid(slipId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('mark_payroll_slip_paid', { p_slip_id: slipId });
+  return { error: error?.message ?? null };
+}
+
+// Reopens a validated/payée slip for correction — marks it extournée and
+// creates a fresh brouillon for the same employee/period (see the
+// migration's comment: this is a narrow "undo and redo", not the full
+// §7.7 retroactive-correction workflow).
+export async function reversePayrollSlip(slipId: string): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('reverse_payroll_slip', { p_slip_id: slipId });
+  return { id: data ?? null, error: error?.message ?? null };
 }
 
 export type ExportGranularity = 'day' | 'week' | 'month';

@@ -394,9 +394,14 @@ export default function PayrollScreen() {
           title={t('payrollHub.title')}
           backTo="/(app)"
           right={
-            <Pressable onPress={() => router.push('/(app)/compte/rh')} hitSlop={8}>
-              <Feather name="settings" size={18} color={colors.textMuted} />
-            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+              <Pressable onPress={() => router.push('/(app)/rh/fiches-salaire' as any)} hitSlop={8}>
+                <Feather name="file-text" size={18} color={colors.textMuted} />
+              </Pressable>
+              <Pressable onPress={() => router.push('/(app)/compte/rh')} hitSlop={8}>
+                <Feather name="settings" size={18} color={colors.textMuted} />
+              </Pressable>
+            </View>
           }
         />
         <Text style={styles.pageSubtitle}>{t('payrollHub.adminSubtitle')}</Text>

@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import {
+  computeMonthlyGross,
   computeSalaryBreakdown,
   getAnnualSalarySummary,
   getPayrollProfile,
@@ -199,7 +200,7 @@ export default function PayrollProfileScreen() {
   }
 
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
-  const gross = salaryType === 'hourly' ? Math.round(num(hourlyRate) * totalHours * 100) / 100 : num(monthlySalary);
+  const gross = computeMonthlyGross(salaryType, num(hourlyRate), num(monthlySalary), totalHours);
 
   // Effective overrides for the live preview reflect the drafts on screen,
   // not what's saved in the DB yet — so toggling a checkbox or typing a
