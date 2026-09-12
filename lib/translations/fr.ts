@@ -1962,6 +1962,13 @@ export const fr = {
     unmatchedTitle: 'Non rapprochées ({{count}})',
     noReference: 'Sans référence',
     fuzzyHint: "Rapprochements proposés sur la base du nom et d'un montant proche (arrondi bancaire possible) — cochez ceux qui sont corrects avant de confirmer.",
+    alreadyImported: 'Ce fichier avait déjà été importé — les transactions déjà connues ne sont pas comptées deux fois.',
+    otherTransactionsTitle_one: 'Autre transaction bancaire ({{count}})',
+    otherTransactionsTitle_other: 'Autres transactions bancaires ({{count}})',
+    otherTransactionsHint: "Paiements sortants et entrées non liées à une facture — rapprochez-les d'une écriture déjà comptabilisée (dépense, salaire, virement) ou ignorez-les.",
+    candidatesLoading: 'Recherche des écritures correspondantes…',
+    candidatesEmpty: 'Aucune écriture comptabilisée ne correspond à ce montant sur ce compte.',
+    ignoreTransaction: 'Ignorer cette transaction',
   },
   devisDetail: {
     duplicate: 'Dupliquer',

@@ -1984,6 +1984,13 @@ export const it: TranslationDict = {
     unmatchedTitle: 'Non riconciliate ({{count}})',
     noReference: 'Senza riferimento',
     fuzzyHint: "Riconciliazioni proposte in base al nome e a un importo simile (arrotondamento bancario possibile) — spunti quelle corrette prima di confermare.",
+    alreadyImported: 'Questo file era già stato importato — le transazioni già note non vengono conteggiate due volte.',
+    otherTransactionsTitle_one: 'Altra transazione bancaria ({{count}})',
+    otherTransactionsTitle_other: 'Altre transazioni bancarie ({{count}})',
+    otherTransactionsHint: 'Pagamenti in uscita e entrate non collegate a una fattura — le riconcili con una registrazione già contabilizzata (spesa, salario, bonifico) oppure le ignori.',
+    candidatesLoading: 'Ricerca delle registrazioni corrispondenti…',
+    candidatesEmpty: 'Nessuna registrazione contabilizzata corrisponde a questo importo su questo conto.',
+    ignoreTransaction: 'Ignora questa transazione',
   },
   devisDetail: {
     duplicate: 'Duplica',

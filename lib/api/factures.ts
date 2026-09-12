@@ -437,11 +437,11 @@ export async function addFacturePayment(
   amount: number,
   paidAt: string,
   total: number,
-): Promise<{ error: string | null }> {
-  const { error } = await supabase.from('facture_payments').insert({ facture_id: factureId, amount, paid_at: paidAt });
-  if (error) return { error: error.message };
+): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase.from('facture_payments').insert({ facture_id: factureId, amount, paid_at: paidAt }).select('id').single();
+  if (error) return { id: null, error: error.message };
   await syncFactureStatus(factureId, total);
-  return { error: null };
+  return { id: data.id, error: null };
 }
 
 export async function deleteFacturePayment(paymentId: string, factureId: string, total: number): Promise<{ error: string | null }> {

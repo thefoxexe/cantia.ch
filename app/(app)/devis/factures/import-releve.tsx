@@ -6,13 +6,48 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { addFacturePayment, listReconciliationCandidates, type ReconciliationCandidate } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
-import { parseCamt053, type BankStatementEntry } from '../../../../lib/bankStatement';
+import { parseCamtStatement, type BankStatementEntry } from '../../../../lib/bankStatement';
+import {
+  importCamtStatement,
+  listBankTransactions,
+  findEntryLineCandidates,
+  linkBankTransactionToEntryLine,
+  ignoreBankTransaction,
+  findAutoPostedEntryLine,
+  getBankAccount,
+  type BankTransactionRow,
+  type EntryLineCandidate,
+} from '../../../../lib/api/bank';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
+// A transaction from the persisted bank_transactions table, reshaped back
+// into the BankStatementEntry the existing reference/amount/fuzzy matcher
+// (matchEntries, below) already knows how to score — carrying its row id
+// so a confirmed match can be linked back to it.
+type TxEntry = BankStatementEntry & { transactionId: string };
+
+function toTxEntry(row: BankTransactionRow): TxEntry {
+  return {
+    date: row.bookingDate,
+    valueDate: null,
+    amount: Math.abs(row.amount),
+    currency: row.currency,
+    direction: row.amount >= 0 ? 'credit' : 'debit',
+    reference: row.qrReference,
+    bankReference: null,
+    endToEndId: null,
+    debtorName: row.counterpartyName,
+    creditorName: row.counterpartyName,
+    counterpartyIban: row.counterpartyIban,
+    info: row.remittanceInfo,
+    transactionId: row.id,
+  };
+}
+
 interface MatchedRow {
-  entry: BankStatementEntry;
+  entry: TxEntry;
   candidate: ReconciliationCandidate;
   confidence: 'reference' | 'amount' | 'fuzzy';
   checked: boolean;
@@ -95,10 +130,10 @@ function nameSimilarity(a: string, b: string): number {
 // entry is left unmatched rather than guessed. Unlike the first two tiers,
 // these start unchecked: worth surfacing, not worth trusting blindly.
 function matchEntries(
-  entries: BankStatementEntry[],
+  entries: TxEntry[],
   candidates: ReconciliationCandidate[],
   referenceByFacture: Map<string, string>,
-): { matched: MatchedRow[]; unmatched: BankStatementEntry[] } {
+): { matched: MatchedRow[]; unmatched: TxEntry[] } {
   const credits = entries.filter((e) => e.direction === 'credit');
   const candidateByReference = new Map<string, ReconciliationCandidate>();
   for (const c of candidates) {
@@ -108,7 +143,7 @@ function matchEntries(
 
   const matched: MatchedRow[] = [];
   const usedCandidateIds = new Set<string>();
-  let remainingEntries: BankStatementEntry[] = [];
+  let remainingEntries: TxEntry[] = [];
 
   for (const entry of credits) {
     const byRef = entry.reference ? candidateByReference.get(entry.reference) : undefined;
@@ -120,7 +155,7 @@ function matchEntries(
     remainingEntries.push(entry);
   }
 
-  const stillRemaining: BankStatementEntry[] = [];
+  const stillRemaining: TxEntry[] = [];
   for (const entry of remainingEntries) {
     const amountMatches = candidates.filter((c) => !usedCandidateIds.has(c.id) && Math.abs(c.remaining - entry.amount) < 0.01);
     if (amountMatches.length === 1) {
@@ -134,7 +169,7 @@ function matchEntries(
 
   const FUZZY_NAME_THRESHOLD = 0.55;
   const FUZZY_SCORE_MARGIN = 0.15; // winner must clearly beat the runner-up
-  const finalRemaining: BankStatementEntry[] = [];
+  const finalRemaining: TxEntry[] = [];
   for (const entry of remainingEntries) {
     const label = entry.debtorName ?? entry.info ?? '';
     if (!label) {
@@ -167,41 +202,68 @@ function matchEntries(
 
 export default function ImportReleveScreen() {
   const { t } = useTranslation();
-  const { organization } = useAuth();
+  const { organization, user } = useAuth();
   const router = useRouter();
   const [picking, setPicking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [entries, setEntries] = useState<BankStatementEntry[] | null>(null);
+  const [entries, setEntries] = useState<TxEntry[] | null>(null);
   const [rows, setRows] = useState<MatchedRow[]>([]);
-  const [unmatched, setUnmatched] = useState<BankStatementEntry[]>([]);
+  const [unmatchedCredits, setUnmatchedCredits] = useState<TxEntry[]>([]);
+  const [otherTransactions, setOtherTransactions] = useState<TxEntry[]>([]);
+  const [bankAccountId, setBankAccountId] = useState<string | null>(null);
+  const [bankAccountingAccountId, setBankAccountingAccountId] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
   const [result, setResult] = useState<{ applied: number; failed: number } | null>(null);
+  const [alreadyImportedNotice, setAlreadyImportedNotice] = useState(false);
+  const [expandedTxId, setExpandedTxId] = useState<string | null>(null);
+  const [candidates, setCandidates] = useState<EntryLineCandidate[]>([]);
+  const [candidatesLoading, setCandidatesLoading] = useState(false);
+  const [linkedTxIds, setLinkedTxIds] = useState<Set<string>>(new Set());
+
+  async function loadPersistedState(accountId: string) {
+    const unmatched = await listBankTransactions(organization!.id, 'unmatched', accountId);
+    const txEntries = unmatched.map(toTxEntry);
+
+    const cands = await listReconciliationCandidates(organization!.id);
+    const refs = new Map<string, string>();
+    for (const c of cands) {
+      const ref = generatePaymentReference(organization!.iban, c.id);
+      if (ref) refs.set(c.id, ref.reference);
+    }
+    const { matched, unmatched: restCredits } = matchEntries(txEntries, cands, refs);
+    const debits = txEntries.filter((e) => e.direction === 'debit');
+    setEntries(txEntries);
+    setRows(matched);
+    setUnmatchedCredits(restCredits);
+    setOtherTransactions(debits);
+  }
 
   async function handlePick() {
     if (!organization) return;
     setError(null);
     setResult(null);
+    setAlreadyImportedNotice(false);
     const picked = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
     if (picked.canceled || !picked.assets?.length) return;
 
     setPicking(true);
     try {
       const xml = await fetch(picked.assets[0].uri).then((r) => r.text());
-      const parsed = parseCamt053(xml);
+      const parsed = parseCamtStatement(xml);
       if (parsed.error) {
         setError(parsed.error);
         return;
       }
-      const cands = await listReconciliationCandidates(organization.id);
-      const refs = new Map<string, string>();
-      for (const c of cands) {
-        const ref = generatePaymentReference(organization.iban, c.id);
-        if (ref) refs.set(c.id, ref.reference);
+      const imported = await importCamtStatement(organization.id, picked.assets[0].name ?? 'releve.xml', xml, parsed, user?.id);
+      if (imported.error || !imported.bankAccountId) {
+        setError(imported.error ?? t('importReleve.readError'));
+        return;
       }
-      const { matched, unmatched: rest } = matchEntries(parsed.entries, cands, refs);
-      setEntries(parsed.entries);
-      setRows(matched);
-      setUnmatched(rest);
+      setBankAccountId(imported.bankAccountId);
+      const acct = await getBankAccount(imported.bankAccountId);
+      setBankAccountingAccountId(acct?.accountingAccountId ?? null);
+      setAlreadyImportedNotice(imported.alreadyImported);
+      await loadPersistedState(imported.bankAccountId);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('importReleve.readError'));
     } finally {
@@ -215,21 +277,72 @@ export default function ImportReleveScreen() {
 
   async function handleApply() {
     const toApply = rows.filter((r) => r.checked);
-    if (toApply.length === 0) return;
+    if (toApply.length === 0 || !organization) return;
     setApplying(true);
     let applied = 0;
     let failed = 0;
     for (const row of toApply) {
-      const { error: err } = await addFacturePayment(row.candidate.id, row.entry.amount, row.entry.date, row.candidate.total);
-      if (err) failed += 1;
-      else applied += 1;
+      const { id: paymentId, error: err } = await addFacturePayment(row.candidate.id, row.entry.amount, row.entry.date, row.candidate.total);
+      if (err || !paymentId) {
+        failed += 1;
+        continue;
+      }
+      applied += 1;
+      if (bankAccountingAccountId) {
+        const lineId = await findAutoPostedEntryLine(organization.id, 'encaissement_client', paymentId, bankAccountingAccountId);
+        if (lineId) await linkBankTransactionToEntryLine(row.entry.transactionId, lineId);
+      }
     }
     setApplying(false);
     setResult({ applied, failed });
     setRows([]);
   }
 
+  async function toggleExpandTransaction(entry: TxEntry) {
+    if (expandedTxId === entry.transactionId) {
+      setExpandedTxId(null);
+      setCandidates([]);
+      return;
+    }
+    setExpandedTxId(entry.transactionId);
+    setCandidatesLoading(true);
+    const list = await findEntryLineCandidates(organization!.id, {
+      id: entry.transactionId,
+      bankAccountId: bankAccountId!,
+      bookingDate: entry.date,
+      amount: entry.direction === 'credit' ? entry.amount : -entry.amount,
+      currency: entry.currency,
+      counterpartyName: entry.debtorName,
+      counterpartyIban: entry.counterpartyIban,
+      qrReference: entry.reference,
+      remittanceInfo: entry.info,
+      status: 'unmatched',
+    });
+    setCandidates(list);
+    setCandidatesLoading(false);
+  }
+
+  async function handleLinkCandidate(transactionId: string, entryLineId: string) {
+    const { error: err } = await linkBankTransactionToEntryLine(transactionId, entryLineId);
+    if (!err) {
+      setLinkedTxIds((prev) => new Set(prev).add(transactionId));
+      setExpandedTxId(null);
+      setCandidates([]);
+    }
+  }
+
+  async function handleIgnoreTransaction(transactionId: string) {
+    const { error: err } = await ignoreBankTransaction(transactionId);
+    if (!err) {
+      setLinkedTxIds((prev) => new Set(prev).add(transactionId));
+      setExpandedTxId(null);
+      setCandidates([]);
+    }
+  }
+
   const creditCount = entries?.filter((e) => e.direction === 'credit').length ?? 0;
+  const visibleOtherTransactions = otherTransactions.filter((e) => !linkedTxIds.has(e.transactionId));
+  const visibleUnmatchedCredits = unmatchedCredits.filter((e) => !linkedTxIds.has(e.transactionId));
 
   return (
     <Screen>
@@ -258,6 +371,12 @@ export default function ImportReleveScreen() {
           </Card>
         ) : (
           <View style={{ gap: spacing.lg }}>
+            {alreadyImportedNotice ? (
+              <View style={styles.fuzzyBanner}>
+                <Feather name="info" size={14} color={colors.warning} />
+                <Text style={styles.fuzzyBannerText}>{t('importReleve.alreadyImported')}</Text>
+              </View>
+            ) : null}
             <Text style={styles.summary}>
               {t('importReleve.summaryCredits', { count: creditCount })} · {t('importReleve.summaryMatches', { count: rows.length })}
             </Text>
@@ -275,7 +394,7 @@ export default function ImportReleveScreen() {
                   </View>
                 ) : null}
                 {rows.map((row, i) => (
-                  <Pressable key={`${row.entry.reference}-${row.entry.date}-${i}`} onPress={() => toggleRow(i)}>
+                  <Pressable key={row.entry.transactionId} onPress={() => toggleRow(i)}>
                     <Card style={[styles.matchRow, !row.checked && styles.matchRowOff, row.confidence === 'fuzzy' && styles.matchRowFuzzy]}>
                       <View style={[styles.checkbox, row.checked && styles.checkboxOn]}>
                         {row.checked ? <Feather name="check" size={13} color="#fff" /> : null}
@@ -307,18 +426,59 @@ export default function ImportReleveScreen() {
               </View>
             )}
 
-            {unmatched.length > 0 ? (
+            {visibleUnmatchedCredits.length > 0 ? (
               <>
-                <Text style={styles.sectionTitle}>{t('importReleve.unmatchedTitle', { count: unmatched.length })}</Text>
+                <Text style={styles.sectionTitle}>{t('importReleve.unmatchedTitle', { count: visibleUnmatchedCredits.length })}</Text>
                 <View style={{ gap: spacing.xs }}>
-                  {unmatched.map((entry, i) => (
-                    <Card key={`u-${i}`} style={styles.unmatchedRow}>
+                  {visibleUnmatchedCredits.map((entry) => (
+                    <Card key={entry.transactionId} style={styles.unmatchedRow}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.matchMeta} numberOfLines={1}>
                           {formatDateFr(entry.date)} · {entry.debtorName ?? entry.info ?? t('importReleve.noReference')}
                         </Text>
                       </View>
                       <Text style={styles.matchMetaAmount}>CHF {entry.amount.toFixed(2)}</Text>
+                    </Card>
+                  ))}
+                </View>
+              </>
+            ) : null}
+
+            {visibleOtherTransactions.length > 0 ? (
+              <>
+                <Text style={styles.sectionTitle}>{t('importReleve.otherTransactionsTitle', { count: visibleOtherTransactions.length })}</Text>
+                <Text style={styles.pickHintLeft}>{t('importReleve.otherTransactionsHint')}</Text>
+                <View style={{ gap: spacing.xs }}>
+                  {visibleOtherTransactions.map((entry) => (
+                    <Card key={entry.transactionId} style={{ padding: 0, overflow: 'hidden' }}>
+                      <Pressable style={styles.unmatchedRow} onPress={() => toggleExpandTransaction(entry)}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.matchMeta} numberOfLines={1}>
+                            {formatDateFr(entry.date)} · {entry.debtorName ?? entry.info ?? t('importReleve.noReference')}
+                          </Text>
+                        </View>
+                        <Text style={styles.matchMetaAmount}>− CHF {entry.amount.toFixed(2)}</Text>
+                        <Feather name={expandedTxId === entry.transactionId ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                      </Pressable>
+                      {expandedTxId === entry.transactionId ? (
+                        <View style={styles.candidateBox}>
+                          {candidatesLoading ? (
+                            <Text style={styles.matchMeta}>{t('importReleve.candidatesLoading')}</Text>
+                          ) : candidates.length === 0 ? (
+                            <Text style={styles.matchMeta}>{t('importReleve.candidatesEmpty')}</Text>
+                          ) : (
+                            candidates.map((c) => (
+                              <Pressable key={c.entryLineId} style={styles.candidateRow} onPress={() => handleLinkCandidate(entry.transactionId, c.entryLineId)}>
+                                <Text style={styles.matchMeta} numberOfLines={1}>
+                                  {c.entryNumber != null ? `N°${c.entryNumber} — ` : ''}{c.label}
+                                </Text>
+                                <Feather name="link" size={14} color={colors.primary} />
+                              </Pressable>
+                            ))
+                          )}
+                          <Button title={t('importReleve.ignoreTransaction')} variant="secondary" onPress={() => handleIgnoreTransaction(entry.transactionId)} style={{ marginTop: spacing.sm }} />
+                        </View>
+                      ) : null}
                     </Card>
                   ))}
                 </View>
@@ -347,6 +507,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     textAlign: 'center',
+  },
+  pickHintLeft: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.xs,
   },
   error: {
     fontSize: fontSize.sm,
@@ -428,11 +593,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   matchMetaAmount: {
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.textMuted,
     fontVariant: ['tabular-nums'],
+  },
+  candidateBox: {
+    padding: spacing.md,
+    paddingTop: 0,
+    gap: spacing.xs,
+  },
+  candidateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
 });

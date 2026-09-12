@@ -1976,6 +1976,13 @@ export const de: TranslationDict = {
     unmatchedTitle: 'Nicht abgeglichen ({{count}})',
     noReference: 'Ohne Referenz',
     fuzzyHint: 'Vorschläge basierend auf ähnlichem Namen und einem nahen Betrag (Bankrundung möglich) — prüfen Sie diese vor der Bestätigung.',
+    alreadyImported: 'Diese Datei wurde bereits importiert — bereits bekannte Transaktionen werden nicht doppelt gezählt.',
+    otherTransactionsTitle_one: 'Weitere Banktransaktion ({{count}})',
+    otherTransactionsTitle_other: 'Weitere Banktransaktionen ({{count}})',
+    otherTransactionsHint: 'Ausgehende Zahlungen und Eingänge ohne Rechnungsbezug — mit einem bereits verbuchten Beleg (Ausgabe, Lohn, Überweisung) abgleichen oder ignorieren.',
+    candidatesLoading: 'Suche nach passenden Buchungen…',
+    candidatesEmpty: 'Keine verbuchte Buchung auf diesem Konto entspricht diesem Betrag.',
+    ignoreTransaction: 'Diese Transaktion ignorieren',
   },
   devisDetail: {
     duplicate: 'Duplizieren',
