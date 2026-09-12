@@ -5,17 +5,23 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import {
+  computeHoursBalance,
   computeMonthlyGross,
   computeSalaryBreakdown,
+  computeVacationBalance,
   getAnnualSalarySummary,
   getPayrollProfile,
+  listAbsences,
   listDeductionTypes,
   listProfileDeductions,
   listTimeEntries,
+  suggestVacationDaysPerYear,
   upsertPayrollProfile,
   upsertProfileDeduction,
   type AnnualSalarySummary,
   type EmployeeRef,
+  type HoursBalance,
+  type VacationBalance,
 } from '../../../lib/api/payroll';
 import { generateLohnausweisPdf, generatePayslipPdf, generateSalaryCertificatePdf } from '../../../lib/api/pdf';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
@@ -88,6 +94,11 @@ export default function PayrollProfileScreen() {
   const [notes, setNotes] = useState('');
   const [avsNumber, setAvsNumber] = useState('');
   const [birthDate, setBirthDate] = useState<string | null>(null);
+  const [hireDate, setHireDate] = useState<string | null>(null);
+  const [vacationDaysPerYear, setVacationDaysPerYear] = useState('');
+  const [weeklyContractHours, setWeeklyContractHours] = useState('');
+  const [vacationBalance, setVacationBalance] = useState<VacationBalance | null>(null);
+  const [hoursBalance, setHoursBalance] = useState<HoursBalance | null>(null);
 
   function handlePostalCodeChange(value: string) {
     setPostalCode(value);
@@ -133,6 +144,9 @@ export default function PayrollProfileScreen() {
       setNotes(profileRow.notes ?? '');
       setAvsNumber(profileRow.avs_number ?? '');
       setBirthDate(profileRow.birth_date);
+      setHireDate(profileRow.hire_date);
+      setVacationDaysPerYear(profileRow.vacation_days_per_year != null ? String(profileRow.vacation_days_per_year) : '');
+      setWeeklyContractHours(profileRow.weekly_contract_hours != null ? String(profileRow.weekly_contract_hours) : '');
     }
     const rates: Record<string, string> = {};
     const enabled: Record<string, boolean> = {};
@@ -172,6 +186,28 @@ export default function PayrollProfileScreen() {
       cancelled = true;
     };
   }, [organization, employeeId, isGhost, yearAnchor, profile, deductionTypes, overrides]);
+
+  // §7.5 "Soldes horaires" — vacation balance always computable once
+  // vacation_days_per_year is set; hours balance only for a real user with
+  // weekly_contract_hours set (see computeHoursBalance's own comment).
+  useEffect(() => {
+    if (!organization || !employeeId || !profile) {
+      setVacationBalance(null);
+      setHoursBalance(null);
+      return;
+    }
+    let cancelled = false;
+    listAbsences(organization.id, employeeRef).then((absences) => {
+      if (cancelled) return;
+      setVacationBalance(computeVacationBalance(profile.vacation_days_per_year, profile.hire_date, yearAnchor, absences));
+    });
+    computeHoursBalance(organization.id, employeeRef, profile.weekly_contract_hours, `${yearAnchor}-01-01`, `${yearAnchor}-12-31`).then((balance) => {
+      if (!cancelled) setHoursBalance(balance);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [organization, employeeId, isGhost, yearAnchor, profile]);
 
   async function exportSalaryCertificate() {
     setExportingAnnual(true);
@@ -238,6 +274,9 @@ export default function PayrollProfileScreen() {
         notes: notes.trim() || null,
         avs_number: avsNumber.trim() || null,
         birth_date: birthDate,
+        hire_date: hireDate,
+        vacation_days_per_year: vacationDaysPerYear.trim() ? num(vacationDaysPerYear) : null,
+        weekly_contract_hours: weeklyContractHours.trim() ? num(weeklyContractHours) : null,
       },
       user.id,
     );
@@ -375,6 +414,66 @@ export default function PayrollProfileScreen() {
             <View style={{ marginTop: spacing.md }}>
               <DateField label={t('payrollProfile.birthDateLabel')} value={birthDate} onChange={setBirthDate} />
             </View>
+            {!isGhost ? (
+              <View style={{ marginTop: spacing.md }}>
+                <DateField label={t('payrollProfile.hireDateLabel')} value={hireDate} onChange={setHireDate} />
+              </View>
+            ) : null}
+
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.vacationDaysLabel')}</Text>
+            <Text style={styles.hint}>
+              {t('payrollProfile.vacationDaysHint', { suggested: suggestVacationDaysPerYear(birthDate, yearAnchor) })}
+            </Text>
+            <TextInput
+              style={styles.addressInput}
+              value={vacationDaysPerYear}
+              onChangeText={setVacationDaysPerYear}
+              keyboardType="decimal-pad"
+              placeholder={String(suggestVacationDaysPerYear(birthDate, yearAnchor))}
+              placeholderTextColor={colors.textMuted}
+            />
+
+            {!isGhost ? (
+              <>
+                <Text style={[styles.fieldLabel, { marginTop: spacing.sm }]}>{t('payrollProfile.weeklyHoursLabel')}</Text>
+                <Text style={styles.hint}>{t('payrollProfile.weeklyHoursHint')}</Text>
+                <TextInput
+                  style={styles.addressInput}
+                  value={weeklyContractHours}
+                  onChangeText={setWeeklyContractHours}
+                  keyboardType="decimal-pad"
+                  placeholder="42"
+                  placeholderTextColor={colors.textMuted}
+                />
+              </>
+            ) : null}
+          </Card>
+
+          <Card>
+            <Text style={styles.sectionTitle}>{t('payrollProfile.balancesTitle', { year: yearAnchor })}</Text>
+            {vacationBalance ? (
+              <View style={styles.breakdownRows}>
+                <BreakdownRow label={t('payrollProfile.vacationEntitlement')} value={vacationBalance.entitlementDays} unit="j" />
+                <BreakdownRow label={t('payrollProfile.vacationTaken')} value={-vacationBalance.takenDays} unit="j" />
+                <View style={styles.breakdownDivider} />
+                <BreakdownRow label={t('payrollProfile.vacationRemaining')} value={vacationBalance.remainingDays} unit="j" bold accent />
+              </View>
+            ) : (
+              <Text style={styles.hint}>{t('payrollProfile.vacationBalanceNeedsDays')}</Text>
+            )}
+            {hoursBalance ? (
+              <View style={[styles.breakdownRows, { marginTop: spacing.md }]}>
+                <View style={styles.breakdownDivider} />
+                <BreakdownRow label={t('payrollProfile.hoursExpected')} value={hoursBalance.expectedHours} unit="h" />
+                <BreakdownRow label={t('payrollProfile.hoursLogged')} value={hoursBalance.loggedHours} unit="h" />
+                <BreakdownRow label={t('payrollProfile.hoursBalance')} value={hoursBalance.balanceHours} unit="h" bold accent />
+              </View>
+            ) : !isGhost ? (
+              <Text style={styles.hint}>{t('payrollProfile.hoursBalanceNeedsContract')}</Text>
+            ) : null}
+            <Pressable onPress={() => router.push('/(app)/rh/absences')} hitSlop={8} style={{ marginTop: spacing.sm }}>
+              <Text style={styles.linkText}>{t('payrollProfile.manageAbsencesLink')}</Text>
+            </Pressable>
           </Card>
 
           <Card>
@@ -517,11 +616,12 @@ function RateField({ label, value, onChange, suffix }: { label: string; value: s
   );
 }
 
-function BreakdownRow({ label, value, bold, accent }: { label: string; value: number; bold?: boolean; accent?: boolean }) {
+function BreakdownRow({ label, value, bold, accent, unit }: { label: string; value: number; bold?: boolean; accent?: boolean; unit?: 'CHF' | 'j' | 'h' }) {
+  const formatted = unit && unit !== 'CHF' ? `${value.toFixed(2)} ${unit}` : `CHF ${value.toFixed(2)}`;
   return (
     <View style={styles.breakdownRow}>
       <Text style={[styles.breakdownLabel, bold && styles.breakdownLabelBold]}>{label}</Text>
-      <Text style={[styles.breakdownValue, bold && styles.breakdownLabelBold, accent && styles.breakdownValueAccent]}>CHF {value.toFixed(2)}</Text>
+      <Text style={[styles.breakdownValue, bold && styles.breakdownLabelBold, accent && styles.breakdownValueAccent]}>{formatted}</Text>
     </View>
   );
 }
@@ -764,6 +864,11 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: spacing.sm,
+  },
+  linkText: {
+    fontSize: fontSize.sm,
+    color: colors.primary,
+    fontWeight: '600',
   },
   lohnausweisDivider: {
     height: 1,

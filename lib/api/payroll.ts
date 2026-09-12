@@ -2,13 +2,22 @@ import { supabase } from '../supabase';
 import type {
   CertificateBox,
   CertificateSubbox,
+  PayrollAbsence,
+  PayrollAbsenceStatus,
+  PayrollAbsenceType,
+  PayrollCorrection,
   PayrollDeductionType,
   PayrollExpense,
   PayrollExpenseType,
   PayrollGhostEmployee,
   PayrollProfile,
   PayrollProfileDeduction,
+  PayrollProfileWageRate,
+  PayrollSlipWageLine,
   PayrollTimeEntry,
+  PayrollWageKind,
+  PayrollWageMode,
+  PayrollWageType,
   PayrollWorkType,
   SwissSocialInsuranceRates,
 } from '../types';
@@ -227,6 +236,94 @@ export async function deleteDeductionType(id: string): Promise<{ error: string |
 }
 
 // ==========================================================================
+// §7.1 "Rubriques de salaire" — earnings beyond base salary/hours: the
+// wage-type catalog mirrors payroll_deduction_types exactly (see its own
+// comment for the kind/mode split). Every org gets 13e salaire, heures
+// supplémentaires, bonus/prime, avance sur salaire and régularisation
+// rétroactive automatically; indemnité vacances is opt-in (see
+// buildOptionalWageCatalog below), like LPP on the deduction side.
+// ==========================================================================
+
+export async function listWageTypes(organizationId: string): Promise<PayrollWageType[]> {
+  const { data } = await supabase
+    .from('payroll_wage_types')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .order('sort_order', { ascending: true });
+  return data ?? [];
+}
+
+export async function createWageType(
+  organizationId: string,
+  label: string,
+  kind: PayrollWageKind,
+  mode: PayrollWageMode,
+  defaultRatePercent: number | null,
+  defaultFixedAmountChf: number | null,
+  sortOrder: number,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_wage_types').insert({
+    organization_id: organizationId,
+    label: label.trim(),
+    kind,
+    mode,
+    default_rate_percent: defaultRatePercent,
+    default_fixed_amount_chf: defaultFixedAmountChf,
+    sort_order: sortOrder,
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function updateWageType(
+  id: string,
+  updates: { label: string; defaultRatePercent: number | null; defaultFixedAmountChf: number | null; active: boolean },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('payroll_wage_types')
+    .update({
+      label: updates.label.trim(),
+      default_rate_percent: updates.defaultRatePercent,
+      default_fixed_amount_chf: updates.defaultFixedAmountChf,
+      active: updates.active,
+    })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteWageType(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_wage_types').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export interface StandardWageCatalogItem {
+  key: string;
+  label: string;
+  kind: PayrollWageKind;
+  defaultRatePercent: number | null;
+  hint: string;
+}
+
+// Indemnité vacances : pour un salarié payé à l'heure sans jours de
+// vacances fixes, le CO (art. 329d + jurisprudence du Tribunal fédéral)
+// exige que la part vacances soit versée en supplément du salaire horaire
+// ET indiquée séparément — jamais noyée silencieusement dans le taux
+// horaire. Les deux pourcentages proposés sont les seuls valeurs
+// légalement standard (4 semaines -> 8.33%, 5 semaines -> 10.64%) ; lequel
+// s'applique dépend du droit aux vacances réel de l'employé (contrat/âge),
+// donc aucun n'est présélectionné par défaut.
+export function buildOptionalWageCatalog(): StandardWageCatalogItem[] {
+  return [
+    {
+      key: 'indemnite_vacances',
+      label: 'Indemnité vacances (salaire horaire)',
+      kind: 'addition',
+      defaultRatePercent: null,
+      hint: "Pour un salaire horaire sans jours de vacances fixes : 8.33% pour 4 semaines de vacances (minimum légal adulte, art. 329a CO), 10.64% pour 5 semaines (minimum légal < 20 ans, ou accordé contractuellement). Doit figurer séparément sur le décompte de salaire — jamais inclus silencieusement dans le taux horaire.",
+    },
+  ];
+}
+
+// ==========================================================================
 // Swiss social-insurance reference rates + the standard payroll catalog —
 // "point 4" (barèmes officiels à jour) and "point 1" (cotisations
 // standards préconfigurées) from the RH & Salaires roadmap. Every new
@@ -251,6 +348,13 @@ export async function getSwissSocialInsuranceRates(year: number = new Date().get
 // seed_standard_payroll_catalog, skips any label already present).
 export async function restoreStandardPayrollCatalog(organizationId: string): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('rpc_seed_standard_payroll_catalog', { p_organization_id: organizationId });
+  return { error: error?.message ?? null };
+}
+
+// Same idempotent restore for the §7.1 wage-type catalog (13e salaire,
+// heures sup, bonus, avance, régularisation rétroactive).
+export async function restoreStandardWageTypes(organizationId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('rpc_seed_standard_payroll_wage_types', { p_organization_id: organizationId });
   return { error: error?.message ?? null };
 }
 
@@ -599,7 +703,18 @@ export async function upsertPayrollProfile(
   updates: Partial<
     Pick<
       PayrollProfile,
-      'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'street' | 'postal_code' | 'locality' | 'notes' | 'avs_number' | 'birth_date'
+      | 'salary_type'
+      | 'hourly_rate_chf'
+      | 'monthly_salary_chf'
+      | 'street'
+      | 'postal_code'
+      | 'locality'
+      | 'notes'
+      | 'avs_number'
+      | 'birth_date'
+      | 'hire_date'
+      | 'vacation_days_per_year'
+      | 'weekly_contract_hours'
     >
   >,
   updatedBy: string | undefined,
@@ -654,6 +769,44 @@ export async function upsertProfileDeduction(
   if (updates.employerRatePercent !== undefined) payload.employer_rate_percent = updates.employerRatePercent;
   if (updates.employerFixedAmountChf !== undefined) payload.employer_fixed_amount_chf = updates.employerFixedAmountChf;
   const { error } = await supabase.from('payroll_profile_deductions').upsert(payload, { onConflict: 'organization_id,owner_key,deduction_type_id' });
+  return { error: error?.message ?? null };
+}
+
+// Per-employee override of a recurring_rate wage type (e.g. this
+// employee's real indemnité vacances %) — same "absent row = org default
+// applies, enabled" rule as upsertProfileDeduction. Meaningless for a
+// manual_entry wage type, but not prevented here, same restraint as the
+// deduction side.
+export async function listProfileWageRates(organizationId: string, ref: EmployeeRef): Promise<PayrollProfileWageRate[]> {
+  const owner = ownerColumn(ref);
+  const { data } = await supabase
+    .from('payroll_profile_wage_rates')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .eq(owner.column, owner.id);
+  return data ?? [];
+}
+
+export async function upsertProfileWageRate(
+  organizationId: string,
+  ref: EmployeeRef,
+  wageTypeId: string,
+  updates: { ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean },
+  updatedBy: string | undefined,
+): Promise<{ error: string | null }> {
+  const owner = ownerColumn(ref);
+  const { error } = await supabase.from('payroll_profile_wage_rates').upsert(
+    {
+      organization_id: organizationId,
+      [owner.column]: owner.id,
+      wage_type_id: wageTypeId,
+      rate_percent: updates.ratePercent,
+      fixed_amount_chf: updates.fixedAmountChf,
+      enabled: updates.enabled,
+      updated_by: updatedBy,
+    },
+    { onConflict: 'organization_id,owner_key,wage_type_id' },
+  );
   return { error: error?.message ?? null };
 }
 
@@ -727,6 +880,40 @@ export function computeEmployerCost(
     if (ratePercent == null && fixedAmount == null) continue;
     const amount = fixedAmount != null ? fixedAmount : round2((gross * (ratePercent as number)) / 100);
     lines.push({ label: dt.label, amount });
+  }
+
+  return { lines, total: round2(lines.reduce((sum, l) => sum + l.amount, 0)) };
+}
+
+export interface WageAdditions {
+  lines: DeductionLine[];
+  total: number;
+}
+
+// §7.1 "Rubriques de salaire" — recurring_rate 'addition' wage types only
+// (indemnité vacances): computed on the gross ALREADY including this
+// period's manual addition lines (13e/heures sup/bonus), since Swiss
+// vacation-pay case law treats it as a percentage of the total salary
+// actually paid, bonuses included — but never on itself, to avoid
+// circularity. Same per-type enable/override gating as computeSalaryBreakdown.
+export function computeWageAdditions(
+  grossBeforeRecurring: number,
+  wageTypes: PayrollWageType[],
+  overrides: PayrollProfileWageRate[],
+): WageAdditions {
+  const overrideByType = new Map(overrides.map((o) => [o.wage_type_id, o]));
+  const lines: DeductionLine[] = [];
+
+  for (const wt of wageTypes) {
+    if (!wt.active || wt.mode !== 'recurring_rate' || wt.kind !== 'addition') continue;
+    const override = overrideByType.get(wt.id);
+    if (override && !override.enabled) continue;
+
+    const ratePercent = override?.rate_percent ?? wt.default_rate_percent;
+    const fixedAmount = override?.fixed_amount_chf ?? wt.default_fixed_amount_chf;
+    if (ratePercent == null && fixedAmount == null) continue;
+    const amount = fixedAmount != null ? fixedAmount : round2((grossBeforeRecurring * (ratePercent as number)) / 100);
+    lines.push({ label: wt.label, amount });
   }
 
   return { lines, total: round2(lines.reduce((sum, l) => sum + l.amount, 0)) };
@@ -809,6 +996,12 @@ export interface PayrollSlipSnapshot {
   overrides: { deductionTypeId: string; ratePercent: number | null; fixedAmountChf: number | null; enabled: boolean }[];
   lines: DeductionLine[];
   employerLines: DeductionLine[];
+  // §7.1 — wageAdditionLines are the recurring_rate additions computed
+  // automatically (indemnité vacances); manualLines are this period's
+  // one-off entries (13e, heures sup, bonus, avances, régularisations),
+  // both kinds together, exactly as entered.
+  wageAdditionLines: DeductionLine[];
+  manualLines: { label: string; kind: PayrollWageKind; amount: number }[];
 }
 
 export interface PayrollSlip {
@@ -826,6 +1019,8 @@ export interface PayrollSlip {
   totalDeductions: number;
   net: number;
   employerCost: number | null;
+  wageAdditions: number;
+  netAdjustments: number;
   snapshot: PayrollSlipSnapshot;
   calculatedAt: string | null;
   validatedAt: string | null;
@@ -849,12 +1044,74 @@ function mapPayrollSlip(row: any): PayrollSlip {
     totalDeductions: Number(row.total_deductions_chf),
     net: Number(row.net_chf),
     employerCost: row.employer_cost_chf != null ? Number(row.employer_cost_chf) : null,
+    wageAdditions: Number(row.wage_additions_chf ?? 0),
+    netAdjustments: Number(row.net_adjustments_chf ?? 0),
     snapshot: row.snapshot,
     calculatedAt: row.calculated_at,
     validatedAt: row.validated_at,
     paidAt: row.paid_at,
     reversedSlipId: row.reversed_slip_id,
   };
+}
+
+// One-off manual wage lines for a specific employee's specific period
+// (13e, heures sup, bonus, avance) — entered before calculating that
+// period's slip. See payroll_slip_wage_lines_guard (schema migration) for
+// why these become read-only once the period's slip is validée/payée.
+export interface PayrollSlipWageLineWithType extends PayrollSlipWageLine {
+  wage_type_label: string;
+  wage_type_kind: PayrollWageKind;
+}
+
+export async function listSlipWageLines(
+  organizationId: string,
+  ref: EmployeeRef,
+  year: number,
+  month: number,
+): Promise<PayrollSlipWageLineWithType[]> {
+  const owner = ownerColumn(ref);
+  const { data } = await supabase
+    .from('payroll_slip_wage_lines')
+    .select('*, payroll_wage_types(label, kind)')
+    .eq('organization_id', organizationId)
+    .eq(owner.column, owner.id)
+    .eq('year', year)
+    .eq('month', month)
+    .order('created_at', { ascending: true });
+  return (data ?? []).map((r: any) => ({
+    ...r,
+    wage_type_label: r.payroll_wage_types?.label ?? '',
+    wage_type_kind: r.payroll_wage_types?.kind ?? 'addition',
+  }));
+}
+
+export async function addSlipWageLine(params: {
+  organizationId: string;
+  ref: EmployeeRef;
+  year: number;
+  month: number;
+  wageTypeId: string;
+  amountChf: number;
+  note: string;
+  createdBy: string | undefined;
+}): Promise<{ error: string | null }> {
+  const owner = ownerColumn(params.ref);
+  const { error } = await supabase.from('payroll_slip_wage_lines').insert({
+    organization_id: params.organizationId,
+    [owner.column]: owner.id,
+    year: params.year,
+    month: params.month,
+    wage_type_id: params.wageTypeId,
+    amount_chf: params.amountChf,
+    note: params.note.trim() || null,
+    created_by: params.createdBy,
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function deleteSlipWageLine(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_slip_wage_lines').delete().eq('id', id);
+  return { error: error?.message ?? null };
 }
 
 export async function findOrCreatePayrollRun(organizationId: string, year: number, month: number): Promise<string> {
@@ -880,6 +1137,79 @@ export async function listPayrollSlips(organizationId: string, year: number, mon
 // this employee/period — this is the ONLY place that saves a payroll_slip,
 // so both the ad-hoc RH preview and this saved snapshot are guaranteed to
 // use the same numbers.
+// Pure calculation — no I/O, no persistence — shared by
+// calculateAndSavePayrollSlip and the §7.7 retroactive-correction
+// simulation below, so both are guaranteed to compute a period exactly
+// the same way.
+export interface PayrollPeriodCalculation {
+  totalHours: number;
+  baseGross: number;
+  totalGross: number;
+  wageAdditions: WageAdditions;
+  manualAdditionsTotal: number;
+  netAdjustmentsTotal: number;
+  breakdown: SalaryBreakdown;
+  employerCost: EmployerCost;
+  finalNet: number;
+  manualLines: { label: string; kind: PayrollWageKind; amount: number }[];
+}
+
+export function computePayrollPeriod(
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  totalHours: number,
+  deductionTypes: PayrollDeductionType[],
+  deductionOverrides: PayrollProfileDeduction[],
+  wageTypes: PayrollWageType[],
+  wageRateOverrides: PayrollProfileWageRate[],
+  manualLines: PayrollSlipWageLineWithType[],
+): PayrollPeriodCalculation {
+  const baseGross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, totalHours);
+
+  const manualAdditionsTotal = round2(
+    manualLines.filter((l) => l.wage_type_kind === 'addition').reduce((sum, l) => sum + Number(l.amount_chf), 0),
+  );
+  const netAdjustmentsTotal = round2(
+    manualLines.filter((l) => l.wage_type_kind === 'net_adjustment').reduce((sum, l) => sum + Number(l.amount_chf), 0),
+  );
+
+  const grossBeforeRecurring = round2(baseGross + manualAdditionsTotal);
+  const wageAdditions = computeWageAdditions(grossBeforeRecurring, wageTypes, wageRateOverrides);
+  const totalGross = round2(grossBeforeRecurring + wageAdditions.total);
+
+  const breakdown = computeSalaryBreakdown(totalGross, deductionTypes, deductionOverrides);
+  const employerCost = computeEmployerCost(totalGross, deductionTypes, deductionOverrides);
+  const finalNet = round2(breakdown.net + netAdjustmentsTotal);
+
+  return {
+    totalHours,
+    baseGross,
+    totalGross,
+    wageAdditions,
+    manualAdditionsTotal,
+    netAdjustmentsTotal,
+    breakdown,
+    employerCost,
+    finalNet,
+    manualLines: manualLines.map((l) => ({ label: l.wage_type_label, kind: l.wage_type_kind, amount: Number(l.amount_chf) })),
+  };
+}
+
+async function totalHoursForPeriod(organizationId: string, ref: EmployeeRef, salaryType: 'hourly' | 'monthly', year: number, month: number): Promise<number> {
+  const isHourly = salaryType === 'hourly' && !!ref.userId;
+  if (!isHourly) return 0;
+  const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
+  // listTimeEntries's rangeEnd is inclusive (lte) — day 0 of the next
+  // month is the last day of this one, not the first day after it.
+  const monthEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+  const entries = await listTimeEntries(organizationId, ref.userId!, monthStart, monthEnd);
+  return round2(entries.reduce((sum, e) => sum + Number(e.hours), 0));
+}
+
+// Fetches hours (if hourly) and this period's manual wage lines, computes
+// gross/deductions/net exactly as the RH payslip preview does, then
+// persists the result as one slip for this employee/period — this is the
+// ONLY place that saves a payroll_slip, so both the ad-hoc RH preview and
+// this saved snapshot are guaranteed to use the same numbers.
 export async function calculateAndSavePayrollSlip(
   organizationId: string,
   ref: EmployeeRef,
@@ -888,25 +1218,23 @@ export async function calculateAndSavePayrollSlip(
   profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
   deductionTypes: PayrollDeductionType[],
   overrides: PayrollProfileDeduction[],
+  wageTypes: PayrollWageType[] = [],
+  wageRateOverrides: PayrollProfileWageRate[] = [],
 ): Promise<{ id: string | null; error: string | null }> {
   const runId = await findOrCreatePayrollRun(organizationId, year, month);
   const isHourly = profile.salary_type === 'hourly' && !!ref.userId;
-  const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
-  // listTimeEntries's rangeEnd is inclusive (lte) — day 0 of the next
-  // month is the last day of this one, not the first day after it.
-  const monthEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
-  const entries = isHourly ? await listTimeEntries(organizationId, ref.userId!, monthStart, monthEnd) : [];
-  const totalHours = round2(entries.reduce((sum, e) => sum + Number(e.hours), 0));
+  const totalHours = await totalHoursForPeriod(organizationId, ref, profile.salary_type, year, month);
+  const manualLines = await listSlipWageLines(organizationId, ref, year, month);
 
-  const gross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, totalHours);
-  const breakdown = computeSalaryBreakdown(gross, deductionTypes, overrides);
-  const employerCost = computeEmployerCost(gross, deductionTypes, overrides);
+  const calc = computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines);
 
   const snapshot: PayrollSlipSnapshot = {
     deductionTypes: deductionTypes.map((d) => ({ id: d.id, label: d.label, defaultRatePercent: d.default_rate_percent, employerRatePercent: d.employer_rate_percent })),
     overrides: overrides.map((o) => ({ deductionTypeId: o.deduction_type_id, ratePercent: o.rate_percent, fixedAmountChf: o.fixed_amount_chf, enabled: o.enabled })),
-    lines: breakdown.lines,
-    employerLines: employerCost.lines,
+    lines: calc.breakdown.lines,
+    employerLines: calc.employerCost.lines,
+    wageAdditionLines: calc.wageAdditions.lines,
+    manualLines: calc.manualLines,
   };
 
   try {
@@ -918,11 +1246,13 @@ export async function calculateAndSavePayrollSlip(
       p_hourly_rate_chf: profile.hourly_rate_chf,
       p_monthly_salary_chf: profile.monthly_salary_chf,
       p_total_hours: isHourly ? totalHours : null,
-      p_gross_chf: breakdown.gross,
-      p_total_deductions_chf: breakdown.totalDeductions,
-      p_net_chf: breakdown.net,
+      p_gross_chf: calc.totalGross,
+      p_total_deductions_chf: calc.breakdown.totalDeductions,
+      p_net_chf: calc.finalNet,
       p_snapshot: snapshot,
-      p_employer_cost_chf: employerCost.total,
+      p_employer_cost_chf: calc.employerCost.total,
+      p_wage_additions_chf: round2(calc.totalGross - calc.baseGross),
+      p_net_adjustments_chf: calc.netAdjustmentsTotal,
     });
     if (error) return { id: null, error: error.message };
     return { id: data, error: null };
@@ -948,6 +1278,281 @@ export async function markPayrollSlipPaid(slipId: string): Promise<{ error: stri
 export async function reversePayrollSlip(slipId: string): Promise<{ id: string | null; error: string | null }> {
   const { data, error } = await supabase.rpc('reverse_payroll_slip', { p_slip_id: slipId });
   return { id: data ?? null, error: error?.message ?? null };
+}
+
+// §7.9 "Déclarations préparatoires" — every non-extournée slip for the
+// whole year, across every employee, used to build the annual social
+// insurance summary. Includes brouillon/calculée slips too (not just
+// validée/payée) so the summary reflects what's on the books even for a
+// period nobody has finalized yet — the screen labels each row's status
+// so a manager knows which figures are still provisional.
+export async function listPayrollSlipsForYear(organizationId: string, year: number): Promise<PayrollSlip[]> {
+  const { data } = await supabase
+    .from('payroll_slips')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .eq('year', year)
+    .neq('status', 'extournee')
+    .order('month');
+  return (data ?? []).map(mapPayrollSlip);
+}
+
+export async function getPayrollSlip(organizationId: string, ref: EmployeeRef, year: number, month: number): Promise<PayrollSlip | null> {
+  const owner = ownerColumn(ref);
+  const { data } = await supabase
+    .from('payroll_slips')
+    .select('*')
+    .eq('organization_id', organizationId)
+    .eq(owner.column, owner.id)
+    .eq('year', year)
+    .eq('month', month)
+    .neq('status', 'extournee')
+    .maybeSingle();
+  return data ? mapPayrollSlip(data) : null;
+}
+
+// ==========================================================================
+// Cahier des charges V2, Lot 4 §7.7 "Correction rétroactive" — simulate a
+// past, already-validée/payée period with today's catalog/profile/hours,
+// diff it against what was actually paid, and post the difference into a
+// currently open period. See the schema migration's own comment for why
+// only the net difference (a single lump-sum "régularisation" line) is
+// posted, never a silent rewrite of the closed period.
+// ==========================================================================
+
+export async function simulatePayrollPeriod(
+  organizationId: string,
+  ref: EmployeeRef,
+  year: number,
+  month: number,
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  deductionTypes: PayrollDeductionType[],
+  overrides: PayrollProfileDeduction[],
+  wageTypes: PayrollWageType[],
+  wageRateOverrides: PayrollProfileWageRate[],
+): Promise<PayrollPeriodCalculation> {
+  const totalHours = await totalHoursForPeriod(organizationId, ref, profile.salary_type, year, month);
+  const manualLines = await listSlipWageLines(organizationId, ref, year, month);
+  return computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines);
+}
+
+export interface PayrollCorrectionDiff {
+  grossOld: number;
+  grossNew: number;
+  totalDeductionsOld: number;
+  totalDeductionsNew: number;
+  netOld: number;
+  netNew: number;
+  employerCostOld: number | null;
+  employerCostNew: number;
+}
+
+export interface PayrollCorrectionPreview {
+  netDiff: number;
+  diff: PayrollCorrectionDiff;
+}
+
+// Nothing here is persisted — a pure comparison the UI shows before the
+// payroll manager decides to apply it.
+export function buildPayrollCorrectionPreview(original: PayrollSlip, recalculated: PayrollPeriodCalculation): PayrollCorrectionPreview {
+  return {
+    netDiff: round2(recalculated.finalNet - original.net),
+    diff: {
+      grossOld: original.gross,
+      grossNew: recalculated.totalGross,
+      totalDeductionsOld: original.totalDeductions,
+      totalDeductionsNew: recalculated.breakdown.totalDeductions,
+      netOld: original.net,
+      netNew: recalculated.finalNet,
+      employerCostOld: original.employerCost,
+      employerCostNew: recalculated.employerCost.total,
+    },
+  };
+}
+
+export async function applyPayrollCorrection(
+  organizationId: string,
+  ref: EmployeeRef,
+  sourceSlip: PayrollSlip,
+  preview: PayrollCorrectionPreview,
+  targetYear: number,
+  targetMonth: number,
+): Promise<{ id: string | null; error: string | null }> {
+  const note = `Régularisation ${String(sourceSlip.month).padStart(2, '0')}.${sourceSlip.year}`;
+  const { data, error } = await supabase.rpc('apply_payroll_correction', {
+    p_organization_id: organizationId,
+    p_user_id: ref.userId ?? null,
+    p_ghost_employee_id: ref.ghostEmployeeId ?? null,
+    p_source_slip_id: sourceSlip.id,
+    p_target_year: targetYear,
+    p_target_month: targetMonth,
+    p_net_diff_chf: preview.netDiff,
+    p_diff: preview.diff,
+    p_note: note,
+  });
+  return { id: data ?? null, error: error?.message ?? null };
+}
+
+export async function listPayrollCorrections(organizationId: string, ref?: EmployeeRef): Promise<PayrollCorrection[]> {
+  let query = supabase.from('payroll_corrections').select('*').eq('organization_id', organizationId);
+  if (ref) {
+    const owner = ownerColumn(ref);
+    query = query.eq(owner.column, owner.id);
+  }
+  const { data } = await query.order('applied_at', { ascending: false });
+  return data ?? [];
+}
+
+// ==========================================================================
+// Cahier des charges V2, Lot 4 §7.4 "Absences" + §7.5 "Soldes horaires" —
+// self-service leave requests (see the schema migration for the
+// request/approve RLS split) and the two balances they feed: solde de
+// vacances (every organization) and solde d'heures (only when
+// weekly_contract_hours is set on the employee's profile).
+// ==========================================================================
+
+export async function listAbsences(organizationId: string, ref?: EmployeeRef): Promise<PayrollAbsence[]> {
+  let query = supabase.from('payroll_absences').select('*').eq('organization_id', organizationId);
+  if (ref) {
+    const owner = ownerColumn(ref);
+    query = query.eq(owner.column, owner.id);
+  }
+  const { data } = await query.order('start_date', { ascending: false });
+  return data ?? [];
+}
+
+export async function createAbsence(params: {
+  organizationId: string;
+  ref: EmployeeRef;
+  absenceType: PayrollAbsenceType;
+  startDate: string;
+  endDate: string;
+  days: number;
+  paid: boolean;
+  note: string;
+  status: PayrollAbsenceStatus;
+  createdBy: string | undefined;
+}): Promise<{ error: string | null }> {
+  const owner = ownerColumn(params.ref);
+  const payload: Record<string, unknown> = {
+    organization_id: params.organizationId,
+    [owner.column]: owner.id,
+    absence_type: params.absenceType,
+    start_date: params.startDate,
+    end_date: params.endDate,
+    days: params.days,
+    paid: params.paid,
+    note: params.note.trim() || null,
+    status: params.status,
+    created_by: params.createdBy,
+  };
+  if (params.status !== 'demandee') {
+    payload.validated_by = params.createdBy;
+    payload.validated_at = new Date().toISOString();
+  }
+  const { error } = await supabase.from('payroll_absences').insert(payload);
+  return { error: error?.message ?? null };
+}
+
+export async function updateAbsenceStatus(
+  id: string,
+  status: PayrollAbsenceStatus,
+  validatedBy: string | undefined,
+): Promise<{ error: string | null }> {
+  const payload: Record<string, unknown> = { status };
+  if (status !== 'demandee') {
+    payload.validated_by = validatedBy;
+    payload.validated_at = new Date().toISOString();
+  }
+  const { error } = await supabase.from('payroll_absences').update(payload).eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteAbsence(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('payroll_absences').delete().eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export interface VacationBalance {
+  entitlementDays: number;
+  takenDays: number;
+  remainingDays: number;
+}
+
+// Art. 329a CO minimum : 5 semaines (25 jours) pour les employés de moins
+// de 20 ans au 31 décembre de l'année de référence, 4 semaines (20 jours)
+// pour les adultes — un contrat peut accorder davantage, jamais moins.
+// Une SUGGESTION pré-remplie côté client uniquement (fiche employé) :
+// jamais écrite automatiquement en base, l'organisation confirme ou
+// ajuste toujours elle-même avant que vacation_days_per_year existe.
+export function suggestVacationDaysPerYear(birthDate: string | null, referenceYear: number): number {
+  if (!birthDate) return 20;
+  const age = referenceYear - new Date(`${birthDate}T00:00:00`).getUTCFullYear();
+  return age < 20 ? 25 : 20;
+}
+
+// Prorata simple par mois d'entrée dans l'année de référence — un départ
+// en cours d'année n'est PAS proraté ici (le solde final au départ est un
+// calcul de décompte de sortie distinct, hors périmètre de cet écran).
+export function computeVacationBalance(
+  vacationDaysPerYear: number | null,
+  hireDate: string | null,
+  year: number,
+  absences: PayrollAbsence[],
+): VacationBalance {
+  const entitlementFull = vacationDaysPerYear ?? 0;
+  let monthsEmployed = 12;
+  if (hireDate) {
+    const hire = new Date(`${hireDate}T00:00:00`);
+    if (hire.getUTCFullYear() === year) monthsEmployed = 12 - hire.getUTCMonth();
+    else if (hire.getUTCFullYear() > year) monthsEmployed = 0;
+  }
+  const entitlementDays = round2((entitlementFull * monthsEmployed) / 12);
+  const takenDays = round2(
+    absences
+      .filter((a) => a.absence_type === 'vacances' && a.status === 'validee' && new Date(`${a.start_date}T00:00:00`).getUTCFullYear() === year)
+      .reduce((sum, a) => sum + Number(a.days), 0),
+  );
+  return { entitlementDays, takenDays, remainingDays: round2(entitlementDays - takenDays) };
+}
+
+export interface HoursBalance {
+  expectedHours: number;
+  loggedHours: number;
+  balanceHours: number;
+}
+
+export function countBusinessDays(rangeStart: string, rangeEnd: string): number {
+  let count = 0;
+  const cur = new Date(`${rangeStart}T00:00:00Z`);
+  const end = new Date(`${rangeEnd}T00:00:00Z`);
+  while (cur.getTime() <= end.getTime()) {
+    const day = cur.getUTCDay();
+    if (day !== 0 && day !== 6) count++;
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  return count;
+}
+
+// Solde d'heures : suppose une semaine contractuelle de 5 jours ouvrables
+// (lundi-vendredi) — l'immense majorité des contrats mensualisés — pour
+// répartir weekly_contract_hours en heures attendues par jour ouvré sur
+// la période. Retourne null tant que weekly_contract_hours n'est pas
+// renseigné plutôt que de deviner un 40h/semaine par défaut, qui serait
+// faux pour un temps partiel.
+export async function computeHoursBalance(
+  organizationId: string,
+  ref: EmployeeRef,
+  weeklyContractHours: number | null,
+  rangeStart: string,
+  rangeEnd: string,
+): Promise<HoursBalance | null> {
+  if (weeklyContractHours == null || !ref.userId) return null;
+  const entries = await listTimeEntries(organizationId, ref.userId, rangeStart, rangeEnd);
+  const loggedHours = round2(entries.reduce((sum, e) => sum + Number(e.hours), 0));
+  const businessDays = countBusinessDays(rangeStart, rangeEnd);
+  const expectedHours = round2((weeklyContractHours / 5) * businessDays);
+  return { expectedHours, loggedHours, balanceHours: round2(loggedHours - expectedHours) };
 }
 
 export type ExportGranularity = 'day' | 'week' | 'month';

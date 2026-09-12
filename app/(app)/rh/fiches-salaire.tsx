@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -8,6 +8,11 @@ import {
   listGhostEmployees,
   listDeductionTypes,
   listProfileDeductions,
+  listWageTypes,
+  listProfileWageRates,
+  listSlipWageLines,
+  addSlipWageLine,
+  deleteSlipWageLine,
   getPayrollProfile,
   listPayrollSlips,
   calculateAndSavePayrollSlip,
@@ -16,10 +21,12 @@ import {
   reversePayrollSlip,
   type PayrollSlip,
   type EmployeeRef,
+  type PayrollSlipWageLineWithType,
 } from '../../../lib/api/payroll';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import type { PayrollWageType } from '../../../lib/types';
 
 interface EmployeeItem {
   ref: EmployeeRef;
@@ -44,7 +51,7 @@ const STATUS_COLORS: Record<PayrollSlip['status'], string> = {
 
 export default function PayrollSlipsScreen() {
   const { t } = useTranslation();
-  const { organization, canManagePayroll } = useAuth();
+  const { organization, canManagePayroll, user } = useAuth();
   const router = useRouter();
   const now = new Date();
   const [year, setYear] = useState(now.getUTCFullYear());
@@ -52,8 +59,18 @@ export default function PayrollSlipsScreen() {
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState<EmployeeItem[]>([]);
   const [slips, setSlips] = useState<Map<string, PayrollSlip>>(new Map());
+  const [wageTypes, setWageTypes] = useState<PayrollWageType[]>([]);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [linesFor, setLinesFor] = useState<EmployeeItem | null>(null);
+  const [lines, setLines] = useState<PayrollSlipWageLineWithType[]>([]);
+  const [linesLoading, setLinesLoading] = useState(false);
+  const [newWageTypeId, setNewWageTypeId] = useState<string | null>(null);
+  const [newAmount, setNewAmount] = useState('');
+  const [newNote, setNewNote] = useState('');
+  const [lineSaving, setLineSaving] = useState(false);
+  const [lineError, setLineError] = useState<string | null>(null);
 
   function ownerKeyOf(ref: EmployeeRef): string {
     return ref.userId ?? ref.ghostEmployeeId!;
@@ -63,16 +80,18 @@ export default function PayrollSlipsScreen() {
     if (!organization || !canManagePayroll) return;
     setLoading(true);
     setError(null);
-    const [{ data: memberRows }, ghostRows, slipRows] = await Promise.all([
+    const [{ data: memberRows }, ghostRows, slipRows, wageRows] = await Promise.all([
       supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
       listGhostEmployees(organization.id),
       listPayrollSlips(organization.id, year, month),
+      listWageTypes(organization.id),
     ]);
     setEmployees([
       ...(memberRows ?? []).map((m): EmployeeItem => ({ ref: { userId: m.user_id }, name: m.full_name || t('payrollHub.memberFallback') })),
       ...ghostRows.map((g): EmployeeItem => ({ ref: { ghostEmployeeId: g.id }, name: g.full_name })),
     ]);
     setSlips(new Map(slipRows.map((s) => [s.ownerKey, s])));
+    setWageTypes(wageRows);
     setLoading(false);
   }, [organization, canManagePayroll, year, month, t]);
 
@@ -97,11 +116,22 @@ export default function PayrollSlipsScreen() {
       setError(t('payrollSlips.noProfile', { name: item.name }));
       return;
     }
-    const [deductionTypes, overrides] = await Promise.all([
+    const [deductionTypes, overrides, wageRateOverrides] = await Promise.all([
       listDeductionTypes(organization.id),
       listProfileDeductions(organization.id, item.ref),
+      listProfileWageRates(organization.id, item.ref),
     ]);
-    const { error: err } = await calculateAndSavePayrollSlip(organization.id, item.ref, year, month, profile, deductionTypes, overrides);
+    const { error: err } = await calculateAndSavePayrollSlip(
+      organization.id,
+      item.ref,
+      year,
+      month,
+      profile,
+      deductionTypes,
+      overrides,
+      wageTypes,
+      wageRateOverrides,
+    );
     setBusyKey(null);
     if (err) setError(err);
     else load();
@@ -129,6 +159,60 @@ export default function PayrollSlipsScreen() {
     setBusyKey(null);
     if (err) setError(err);
     else load();
+  }
+
+  const manualWageTypes = wageTypes.filter((w) => w.mode === 'manual_entry' && w.active);
+
+  async function openLines(item: EmployeeItem) {
+    if (!organization) return;
+    setLinesFor(item);
+    setLineError(null);
+    setNewWageTypeId(manualWageTypes[0]?.id ?? null);
+    setNewAmount('');
+    setNewNote('');
+    setLinesLoading(true);
+    const rows = await listSlipWageLines(organization.id, item.ref, year, month);
+    setLines(rows);
+    setLinesLoading(false);
+  }
+
+  async function handleAddLine() {
+    if (!organization || !linesFor || !newWageTypeId) return;
+    const amountNum = Number(newAmount.replace(',', '.'));
+    if (!newAmount.trim() || Number.isNaN(amountNum) || amountNum === 0) {
+      setLineError(t('payrollSlips.lineAmountRequired'));
+      return;
+    }
+    setLineSaving(true);
+    setLineError(null);
+    const { error: err } = await addSlipWageLine({
+      organizationId: organization.id,
+      ref: linesFor.ref,
+      year,
+      month,
+      wageTypeId: newWageTypeId,
+      amountChf: amountNum,
+      note: newNote,
+      createdBy: user?.id,
+    });
+    setLineSaving(false);
+    if (err) {
+      setLineError(err);
+      return;
+    }
+    setNewAmount('');
+    setNewNote('');
+    const rows = await listSlipWageLines(organization.id, linesFor.ref, year, month);
+    setLines(rows);
+  }
+
+  async function handleDeleteLine(id: string) {
+    if (!organization || !linesFor) return;
+    setLineSaving(true);
+    await deleteSlipWageLine(id);
+    const rows = await listSlipWageLines(organization.id, linesFor.ref, year, month);
+    setLines(rows);
+    setLineSaving(false);
   }
 
   if (!organization) return <LoadingScreen />;
@@ -172,6 +256,7 @@ export default function PayrollSlipsScreen() {
               const key = ownerKeyOf(item.ref);
               const slip = slips.get(key);
               const busy = busyKey === key;
+              const editable = !slip || slip.status === 'brouillon' || slip.status === 'calculee';
               return (
                 <Card key={key} style={styles.row}>
                   <Pressable
@@ -193,7 +278,11 @@ export default function PayrollSlipsScreen() {
                     )}
                   </Pressable>
                   <View style={styles.actions}>
-                    {!slip || slip.status === 'brouillon' || slip.status === 'calculee' ? (
+                    <Pressable onPress={() => openLines(item)} hitSlop={8} style={styles.linesBtn}>
+                      <Feather name="list" size={14} color={colors.text} />
+                      <Text style={styles.linesBtnText}>{t('payrollSlips.lines')}</Text>
+                    </Pressable>
+                    {editable ? (
                       <Button title={t('payrollSlips.calculate')} variant="secondary" onPress={() => handleCalculate(item)} loading={busy} />
                     ) : null}
                     {slip?.status === 'calculee' ? (
@@ -214,6 +303,86 @@ export default function PayrollSlipsScreen() {
           </View>
         )}
       </ScrollView>
+
+      <Modal visible={linesFor !== null} animationType="fade" transparent onRequestClose={() => setLinesFor(null)}>
+        <View style={styles.backdrop}>
+          <View style={styles.sheet}>
+            <ScrollView style={{ flex: 1 }}>
+              <Text style={styles.sheetTitle}>{t('payrollSlips.linesModalTitle', { name: linesFor?.name ?? '' })}</Text>
+              <Text style={styles.sectionSubtitle}>{monthLabel(year, month)}</Text>
+
+              {linesLoading ? (
+                <LoadingScreen />
+              ) : lines.length === 0 ? (
+                <Text style={styles.emptyText}>{t('payrollSlips.linesEmpty')}</Text>
+              ) : (
+                <View style={{ gap: spacing.xs, marginTop: spacing.md }}>
+                  {lines.map((l) => (
+                    <View key={l.id} style={styles.lineRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.lineLabel}>{l.wage_type_label}</Text>
+                        {l.note ? <Text style={styles.lineNote}>{l.note}</Text> : null}
+                      </View>
+                      <Text style={[styles.lineAmount, l.wage_type_kind === 'net_adjustment' && Number(l.amount_chf) < 0 ? styles.lineAmountNegative : null]}>
+                        {chf(Number(l.amount_chf))}
+                      </Text>
+                      <Pressable onPress={() => handleDeleteLine(l.id)} hitSlop={8} disabled={lineSaving}>
+                        <Feather name="x" size={16} color={colors.textMuted} />
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              <Text style={[styles.fieldLabel, { marginTop: spacing.lg }]}>{t('payrollSlips.lineTypeLabel')}</Text>
+              <View style={[styles.chips, { flexWrap: 'wrap' }]}>
+                {manualWageTypes.map((w) => (
+                  <Pressable
+                    key={w.id}
+                    onPress={() => setNewWageTypeId(w.id)}
+                    style={[styles.chip, newWageTypeId === w.id && styles.chipActive]}
+                  >
+                    <Text style={[styles.chipText, newWageTypeId === w.id && styles.chipTextActive]}>{w.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              {manualWageTypes.length === 0 ? <Text style={styles.emptyText}>{t('payrollSlips.noWageTypes')}</Text> : null}
+
+              <Text style={styles.fieldLabel}>{t('payrollSlips.lineAmountLabel')}</Text>
+              <Text style={styles.sectionSubtitle}>{t('payrollSlips.lineAmountHint')}</Text>
+              <TextInput
+                style={styles.input}
+                value={newAmount}
+                onChangeText={setNewAmount}
+                keyboardType="numbers-and-punctuation"
+                placeholder={t('payrollSlips.lineAmountPlaceholder')}
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.fieldLabel}>{t('payrollSlips.lineNoteLabel')}</Text>
+              <TextInput
+                style={styles.input}
+                value={newNote}
+                onChangeText={setNewNote}
+                placeholder={t('payrollSlips.lineNotePlaceholder')}
+                placeholderTextColor={colors.textMuted}
+              />
+
+              {lineError ? <Text style={styles.error}>{lineError}</Text> : null}
+
+              <Button
+                title={t('payrollSlips.lineAdd')}
+                icon="plus"
+                onPress={handleAddLine}
+                loading={lineSaving}
+                disabled={manualWageTypes.length === 0}
+                style={{ marginTop: spacing.sm }}
+              />
+              <Button title={t('payrollSlips.close')} variant="secondary" onPress={() => { setLinesFor(null); load(); }} style={{ marginTop: spacing.sm }} />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -234,4 +403,23 @@ const styles = StyleSheet.create({
   notCalculated: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 4, fontStyle: 'italic' },
   actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   reverseBtn: { padding: spacing.xs },
+  linesBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
+  linesBtnText: { fontSize: fontSize.xs, fontWeight: '600', color: colors.text },
+  backdrop: { flex: 1, backgroundColor: 'rgba(15, 20, 18, 0.5)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
+  sheet: { width: '100%', maxWidth: 460, maxHeight: '88%', backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.xl },
+  sheetTitle: { fontSize: fontSize.xl, fontWeight: '800', color: colors.text },
+  sectionSubtitle: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 2, lineHeight: 16 },
+  emptyText: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: spacing.md },
+  lineRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
+  lineLabel: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
+  lineNote: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 2 },
+  lineAmount: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text, fontVariant: ['tabular-nums'] },
+  lineAmountNegative: { color: colors.danger },
+  fieldLabel: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.sm, fontWeight: '500', marginTop: spacing.md },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontSize: fontSize.md, color: colors.text, backgroundColor: colors.surface, marginTop: spacing.xs },
+  chips: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+  chip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, marginBottom: spacing.xs },
+  chipActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
+  chipText: { fontSize: fontSize.sm, color: colors.text },
+  chipTextActive: { color: colors.primary, fontWeight: '600' },
 });

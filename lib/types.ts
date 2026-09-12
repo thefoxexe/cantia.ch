@@ -746,8 +746,111 @@ export interface PayrollProfile {
   notes: string | null;
   avs_number: string | null;
   birth_date: string | null;
+  // §7.5 "Soldes horaires" groundwork — all three stay null until the
+  // organization sets them: hire_date is real contract data, and while
+  // vacation_days_per_year has a legally-fixed minimum (Art. 329a CO), a
+  // contract can grant more, so the app only ever suggests that minimum
+  // client-side rather than writing it here automatically.
+  hire_date: string | null;
+  vacation_days_per_year: number | null;
+  weekly_contract_hours: number | null;
   updated_by: string | null;
   updated_at: string;
+}
+
+// §7.1 "Rubriques de salaire" — earnings beyond base salary/hours. See
+// the schema migration's own comment for the kind/mode split.
+export type PayrollWageKind = 'addition' | 'net_adjustment';
+export type PayrollWageMode = 'recurring_rate' | 'manual_entry';
+
+export interface PayrollWageType {
+  id: string;
+  organization_id: string;
+  label: string;
+  kind: PayrollWageKind;
+  mode: PayrollWageMode;
+  default_rate_percent: number | null;
+  default_fixed_amount_chf: number | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+}
+
+export interface PayrollProfileWageRate {
+  id: string;
+  organization_id: string;
+  user_id: string | null;
+  ghost_employee_id: string | null;
+  wage_type_id: string;
+  rate_percent: number | null;
+  fixed_amount_chf: number | null;
+  enabled: boolean;
+  updated_by: string | null;
+  updated_at: string;
+}
+
+export interface PayrollSlipWageLine {
+  id: string;
+  organization_id: string;
+  user_id: string | null;
+  ghost_employee_id: string | null;
+  year: number;
+  month: number;
+  wage_type_id: string;
+  amount_chf: number;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+// §7.4 "Absences" — a real employee-facing leave request/record.
+export type PayrollAbsenceType =
+  | 'vacances'
+  | 'maladie'
+  | 'accident'
+  | 'conge_paye'
+  | 'conge_non_paye'
+  | 'jour_ferie'
+  | 'militaire'
+  | 'maternite_paternite'
+  | 'autre';
+export type PayrollAbsenceStatus = 'demandee' | 'validee' | 'refusee';
+
+export interface PayrollAbsence {
+  id: string;
+  organization_id: string;
+  user_id: string | null;
+  ghost_employee_id: string | null;
+  absence_type: PayrollAbsenceType;
+  start_date: string;
+  end_date: string;
+  days: number;
+  paid: boolean;
+  note: string | null;
+  status: PayrollAbsenceStatus;
+  created_by: string | null;
+  created_at: string;
+  validated_by: string | null;
+  validated_at: string | null;
+}
+
+// §7.7 "Correction rétroactive" — immutable audit trail of a posted
+// correction (see apply_payroll_correction).
+export interface PayrollCorrection {
+  id: string;
+  organization_id: string;
+  user_id: string | null;
+  ghost_employee_id: string | null;
+  source_slip_id: string;
+  source_year: number;
+  source_month: number;
+  target_year: number;
+  target_month: number;
+  net_diff_chf: number;
+  diff: unknown;
+  wage_line_id: string | null;
+  applied_by: string | null;
+  applied_at: string;
 }
 
 // A payroll-only "employee" — no auth account, no organization_members

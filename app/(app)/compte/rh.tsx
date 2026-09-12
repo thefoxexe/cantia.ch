@@ -5,20 +5,26 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import {
   buildOptionalDeductionCatalog,
+  buildOptionalWageCatalog,
   createDeductionType,
   createExpenseType,
+  createWageType,
   createWorkType,
   deleteDeductionType,
   deleteExpenseType,
+  deleteWageType,
   deleteWorkType,
   getSwissSocialInsuranceRates,
   listDeductionTypes,
   listExpenseTypes,
+  listWageTypes,
   listWorkTypes,
   OPTIONAL_EXPENSE_CATALOG,
   restoreStandardPayrollCatalog,
+  restoreStandardWageTypes,
   updateDeductionType,
   updateExpenseType,
+  updateWageType,
   updateWorkType,
 } from '../../../lib/api/payroll';
 import { Button, Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
@@ -30,6 +36,9 @@ import type {
   CertificateSubbox,
   PayrollDeductionType,
   PayrollExpenseType,
+  PayrollWageKind,
+  PayrollWageMode,
+  PayrollWageType,
   PayrollWorkType,
   SwissSocialInsuranceRates,
 } from '../../../lib/types';
@@ -58,7 +67,7 @@ const CERTIFICATE_SUBBOX_OPTIONS: { value: CertificateSubbox | null; labelKey: s
 // self-explanatory category and needs no extra text.
 const SUBBOX_NEEDS_ART: CertificateSubbox[] = ['13_1_2', '13_2_3'];
 
-type Kind = 'work' | 'expense' | 'deduction';
+type Kind = 'work' | 'expense' | 'deduction' | 'wage';
 
 export default function PayrollSettingsScreen() {
   const { t } = useTranslation();
@@ -66,6 +75,7 @@ export default function PayrollSettingsScreen() {
   const [workTypes, setWorkTypes] = useState<PayrollWorkType[]>([]);
   const [expenseTypes, setExpenseTypes] = useState<PayrollExpenseType[]>([]);
   const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
+  const [wageTypes, setWageTypes] = useState<PayrollWageType[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [editKind, setEditKind] = useState<Kind | null>(null);
@@ -74,6 +84,8 @@ export default function PayrollSettingsScreen() {
   const [rate, setRate] = useState('');
   const [employerRate, setEmployerRate] = useState('');
   const [unit, setUnit] = useState<'km' | 'forfait'>('forfait');
+  const [wageKind, setWageKind] = useState<PayrollWageKind>('addition');
+  const [wageMode, setWageMode] = useState<PayrollWageMode>('manual_entry');
   const [certificateBox, setCertificateBox] = useState<CertificateBox | null>(null);
   const [certificateSubbox, setCertificateSubbox] = useState<CertificateSubbox | null>(null);
   const [certificateSubboxArt, setCertificateSubboxArt] = useState('');
@@ -85,21 +97,24 @@ export default function PayrollSettingsScreen() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogDeductions, setCatalogDeductions] = useState<Set<string>>(new Set());
   const [catalogExpenses, setCatalogExpenses] = useState<Set<string>>(new Set());
+  const [catalogWages, setCatalogWages] = useState<Set<string>>(new Set());
   const [catalogRates, setCatalogRates] = useState<Record<string, string>>({});
   const [catalogSaving, setCatalogSaving] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [work, expense, deduction, socialRates] = await Promise.all([
+    const [work, expense, deduction, wage, socialRates] = await Promise.all([
       listWorkTypes(organization.id),
       listExpenseTypes(organization.id),
       listDeductionTypes(organization.id),
+      listWageTypes(organization.id),
       getSwissSocialInsuranceRates(),
     ]);
     setWorkTypes(work);
     setExpenseTypes(expense);
     setDeductionTypes(deduction);
+    setWageTypes(wage);
     setRates(socialRates);
     setLoading(false);
   }, [organization]);
@@ -117,6 +132,8 @@ export default function PayrollSettingsScreen() {
     setRate('');
     setEmployerRate('');
     setUnit('forfait');
+    setWageKind('addition');
+    setWageMode('manual_entry');
     setCertificateBox(null);
     setCertificateSubbox(null);
     setCertificateSubboxArt('');
@@ -156,6 +173,17 @@ export default function PayrollSettingsScreen() {
     setError(null);
   }
 
+  function openEditWage(w: PayrollWageType) {
+    setEditKind('wage');
+    setEditId(w.id);
+    setLabel(w.label);
+    setRate(w.default_rate_percent != null ? String(w.default_rate_percent) : '');
+    setWageKind(w.kind);
+    setWageMode(w.mode);
+    setActive(w.active);
+    setError(null);
+  }
+
   async function handleSave() {
     if (!organization || !editKind) return;
     if (!label.trim()) {
@@ -176,11 +204,18 @@ export default function PayrollSettingsScreen() {
       err = editId
         ? (await updateExpenseType(editId, { label, unit, rateChf: rateNum, active, certificateSubbox, certificateSubboxArt: art })).error
         : (await createExpenseType(organization.id, label, unit, rateNum, expenseTypes.length, certificateSubbox, art)).error;
-    } else {
+    } else if (editKind === 'deduction') {
       const employerRateNum = employerRate.trim() ? Number(employerRate.replace(',', '.')) : null;
       err = editId
         ? (await updateDeductionType(editId, { label, defaultRatePercent: rateNum, active, certificateBox, employerRatePercent: employerRateNum })).error
         : (await createDeductionType(organization.id, label, rateNum, deductionTypes.length, certificateBox, employerRateNum)).error;
+    } else {
+      // manual_entry types never carry a default rate/amount — entered
+      // per period instead (see the "Rubriques" section of a payslip).
+      const rateForWage = wageMode === 'recurring_rate' ? rateNum : null;
+      err = editId
+        ? (await updateWageType(editId, { label, defaultRatePercent: rateForWage, defaultFixedAmountChf: null, active })).error
+        : (await createWageType(organization.id, label, wageKind, wageMode, rateForWage, null, wageTypes.length)).error;
     }
 
     setSaving(false);
@@ -198,7 +233,8 @@ export default function PayrollSettingsScreen() {
     setSaving(true);
     if (editKind === 'work') await deleteWorkType(editId);
     else if (editKind === 'expense') await deleteExpenseType(editId);
-    else await deleteDeductionType(editId);
+    else if (editKind === 'deduction') await deleteDeductionType(editId);
+    else await deleteWageType(editId);
     setSaving(false);
     setEditKind(null);
     load();
@@ -214,10 +250,14 @@ export default function PayrollSettingsScreen() {
   const optionalExpenseCatalog = OPTIONAL_EXPENSE_CATALOG.filter(
     (item) => !expenseTypes.some((e) => e.label.toLowerCase() === item.label.toLowerCase()),
   );
+  const optionalWageCatalog = buildOptionalWageCatalog().filter(
+    (item) => !wageTypes.some((w) => w.label.toLowerCase() === item.label.toLowerCase()),
+  );
 
   function openCatalog() {
     setCatalogDeductions(new Set());
     setCatalogExpenses(new Set());
+    setCatalogWages(new Set());
     const initialRates: Record<string, string> = {};
     for (const item of optionalDeductionCatalog) {
       // For the two employer-only items (defaultRatePercent fixed at 0,
@@ -226,6 +266,9 @@ export default function PayrollSettingsScreen() {
       // read as "no cost" instead of "not yet configured".
       const employerOnly = item.defaultRatePercent === 0 && item.employerRatePercent == null;
       initialRates[item.key] = employerOnly ? '' : item.defaultRatePercent != null ? String(item.defaultRatePercent) : '';
+    }
+    for (const item of optionalWageCatalog) {
+      initialRates[item.key] = item.defaultRatePercent != null ? String(item.defaultRatePercent) : '';
     }
     setCatalogRates(initialRates);
     setCatalogOpen(true);
@@ -249,6 +292,15 @@ export default function PayrollSettingsScreen() {
     });
   }
 
+  function toggleCatalogWage(key: string) {
+    setCatalogWages((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
   async function handleAddCatalogSelection() {
     if (!organization) return;
     setCatalogSaving(true);
@@ -256,6 +308,7 @@ export default function PayrollSettingsScreen() {
     // is missing (a pre-trigger org, or one that deleted some) without
     // duplicating what's already there.
     await restoreStandardPayrollCatalog(organization.id);
+    await restoreStandardWageTypes(organization.id);
 
     let sortD = deductionTypes.length;
     for (const item of optionalDeductionCatalog) {
@@ -285,6 +338,15 @@ export default function PayrollSettingsScreen() {
       if (!catalogExpenses.has(item.key)) continue;
       await createExpenseType(organization.id, item.label, item.unit, item.rateChf, sortE, item.certificateSubbox, null);
       sortE += 1;
+    }
+
+    let sortW = wageTypes.length;
+    for (const item of optionalWageCatalog) {
+      if (!catalogWages.has(item.key)) continue;
+      const rateRaw = catalogRates[item.key];
+      const rateNum = rateRaw && rateRaw.trim() ? Number(rateRaw.replace(',', '.')) : null;
+      await createWageType(organization.id, item.label, item.kind, 'recurring_rate', rateNum, null, sortW);
+      sortW += 1;
     }
 
     setCatalogSaving(false);
@@ -358,6 +420,23 @@ export default function PayrollSettingsScreen() {
             }))}
             onAdd={() => openAdd('deduction')}
           />
+
+          <TypeSection
+            title={t('payrollSettings.wageTypesTitle')}
+            subtitle={t('payrollSettings.wageTypesSubtitle')}
+            loading={loading}
+            rows={wageTypes.map((w) => ({
+              id: w.id,
+              label: w.label,
+              meta:
+                w.mode === 'recurring_rate' && w.default_rate_percent != null
+                  ? `${w.default_rate_percent}%`
+                  : t(w.mode === 'recurring_rate' ? 'payrollSettings.wageModeRecurring' : 'payrollSettings.wageModeManual'),
+              active: w.active,
+              onPress: () => openEditWage(w),
+            }))}
+            onAdd={() => openAdd('wage')}
+          />
         </Container>
       </ScrollView>
 
@@ -371,12 +450,16 @@ export default function PayrollSettingsScreen() {
                     ? t('payrollSettings.modalTitleWorkEdit')
                     : editKind === 'expense'
                       ? t('payrollSettings.modalTitleExpenseEdit')
-                      : t('payrollSettings.modalTitleDeductionEdit')
+                      : editKind === 'deduction'
+                        ? t('payrollSettings.modalTitleDeductionEdit')
+                        : t('payrollSettings.modalTitleWageEdit')
                   : editKind === 'work'
                     ? t('payrollSettings.modalTitleWorkAdd')
                     : editKind === 'expense'
                       ? t('payrollSettings.modalTitleExpenseAdd')
-                      : t('payrollSettings.modalTitleDeductionAdd')}
+                      : editKind === 'deduction'
+                        ? t('payrollSettings.modalTitleDeductionAdd')
+                        : t('payrollSettings.modalTitleWageAdd')}
               </Text>
 
               <Text style={styles.fieldLabel}>{t('payrollSettings.nameLabel')}</Text>
@@ -389,10 +472,37 @@ export default function PayrollSettingsScreen() {
                     ? t('payrollSettings.deductionNamePlaceholder')
                     : editKind === 'expense'
                       ? t('payrollSettings.expenseNamePlaceholder')
-                      : t('payrollSettings.workNamePlaceholder')
+                      : editKind === 'wage'
+                        ? t('payrollSettings.wageNamePlaceholder')
+                        : t('payrollSettings.workNamePlaceholder')
                 }
                 placeholderTextColor={colors.textMuted}
               />
+
+              {editKind === 'wage' ? (
+                <>
+                  <Text style={styles.fieldLabel}>{t('payrollSettings.wageKindLabel')}</Text>
+                  <View style={styles.chips}>
+                    <Pressable onPress={() => setWageKind('addition')} style={[styles.chip, wageKind === 'addition' && styles.chipActive]}>
+                      <Text style={[styles.chipText, wageKind === 'addition' && styles.chipTextActive]}>{t('payrollSettings.wageKindAddition')}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setWageKind('net_adjustment')} style={[styles.chip, wageKind === 'net_adjustment' && styles.chipActive]}>
+                      <Text style={[styles.chipText, wageKind === 'net_adjustment' && styles.chipTextActive]}>{t('payrollSettings.wageKindNetAdjustment')}</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>{t('payrollSettings.wageModeLabel')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('payrollSettings.wageModeHint')}</Text>
+                  <View style={[styles.chips, { marginTop: spacing.sm }]}>
+                    <Pressable onPress={() => setWageMode('manual_entry')} style={[styles.chip, wageMode === 'manual_entry' && styles.chipActive]}>
+                      <Text style={[styles.chipText, wageMode === 'manual_entry' && styles.chipTextActive]}>{t('payrollSettings.wageModeManual')}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setWageMode('recurring_rate')} style={[styles.chip, wageMode === 'recurring_rate' && styles.chipActive]}>
+                      <Text style={[styles.chipText, wageMode === 'recurring_rate' && styles.chipTextActive]}>{t('payrollSettings.wageModeRecurring')}</Text>
+                    </Pressable>
+                  </View>
+                </>
+              ) : null}
 
               {editKind === 'expense' ? (
                 <>
@@ -408,7 +518,7 @@ export default function PayrollSettingsScreen() {
                 </>
               ) : null}
 
-              {editKind !== 'expense' || unit === 'km' ? (
+              {(editKind !== 'expense' || unit === 'km') && (editKind !== 'wage' || wageMode === 'recurring_rate') ? (
                 <>
                   <Text style={styles.fieldLabel}>
                     {editKind === 'work'
@@ -548,7 +658,24 @@ export default function PayrollSettingsScreen() {
                 </>
               ) : null}
 
-              {optionalDeductionCatalog.length === 0 && optionalExpenseCatalog.length === 0 ? (
+              {optionalWageCatalog.length > 0 ? (
+                <>
+                  <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollSettings.catalogWagesLabel')}</Text>
+                  {optionalWageCatalog.map((item) => (
+                    <CatalogRow
+                      key={item.key}
+                      item={item}
+                      checked={catalogWages.has(item.key)}
+                      onToggle={() => toggleCatalogWage(item.key)}
+                      rateValue={catalogRates[item.key] ?? ''}
+                      onRateChange={(v) => setCatalogRates((prev) => ({ ...prev, [item.key]: v }))}
+                      rateSuffix="%"
+                    />
+                  ))}
+                </>
+              ) : null}
+
+              {optionalDeductionCatalog.length === 0 && optionalExpenseCatalog.length === 0 && optionalWageCatalog.length === 0 ? (
                 <Text style={styles.emptyText}>{t('payrollSettings.catalogAllAdded')}</Text>
               ) : null}
 

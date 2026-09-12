@@ -398,6 +398,15 @@ export default function PayrollScreen() {
               <Pressable onPress={() => router.push('/(app)/rh/fiches-salaire' as any)} hitSlop={8}>
                 <Feather name="file-text" size={18} color={colors.textMuted} />
               </Pressable>
+              <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8}>
+                <Feather name="calendar" size={18} color={colors.textMuted} />
+              </Pressable>
+              <Pressable onPress={() => router.push('/(app)/rh/corrections' as any)} hitSlop={8}>
+                <Feather name="rotate-ccw" size={18} color={colors.textMuted} />
+              </Pressable>
+              <Pressable onPress={() => router.push('/(app)/rh/declarations' as any)} hitSlop={8}>
+                <Feather name="archive" size={18} color={colors.textMuted} />
+              </Pressable>
               <Pressable onPress={() => router.push('/(app)/compte/rh')} hitSlop={8}>
                 <Feather name="settings" size={18} color={colors.textMuted} />
               </Pressable>
