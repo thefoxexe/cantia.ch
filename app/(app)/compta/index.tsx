@@ -24,6 +24,7 @@ import {
   getVatReportByCode,
   getVatCodeDrilldown,
   vatWorksheetToCsv,
+  buildEch0217Xml,
   type AccountingAccount,
   type AccountingJournal,
   type AccountingEntryWithLines,
@@ -114,6 +115,7 @@ export default function AccountingScreen() {
   const [vatDrilldown, setVatDrilldown] = useState<VatDrilldownRow[]>([]);
   const [vatSettingsOpen, setVatSettingsOpen] = useState(false);
   const [vatSettingsSaving, setVatSettingsSaving] = useState(false);
+  const [ech0217Warnings, setEch0217Warnings] = useState<string[] | null>(null);
 
   const [ledgerAccountId, setLedgerAccountId] = useState<string | null>(null);
   const [ledgerRows, setLedgerRows] = useState<LedgerEntryRow[]>([]);
@@ -215,6 +217,41 @@ export default function AccountingScreen() {
     const periodLabel = t('vatReport.quarterLabel', { quarter, year });
     const csv = vatWorksheetToCsv(vatLedgerReport, periodLabel, vatSettings);
     downloadTextFile(`feuille-de-travail-tva-${year}-t${quarter}.csv`, csv);
+  }
+
+  function hasValidSwissIde(ide: string | null | undefined): boolean {
+    if (!ide) return false;
+    return /CHE/i.test(ide) && ide.replace(/[^0-9]/g, '').length === 9;
+  }
+
+  const ech0217BlockedReason: string | null = !vatSettings || !vatSettings.vatLiable
+    ? t('accounting.ech0217NotLiable')
+    : vatSettings.vatMethod !== 'effective'
+    ? t('accounting.ech0217NeedsEffective')
+    : vatSettings.vatBasisDefault !== 'invoiced'
+    ? t('accounting.ech0217NeedsInvoiced')
+    : !hasValidSwissIde(organization?.ide_number)
+    ? t('accounting.ech0217NeedsIde')
+    : null;
+
+  function handleExportEch0217() {
+    if (!vatLedgerReport || !vatSettings || !organization) return;
+    setEch0217Warnings(null);
+    try {
+      const { xml, warnings } = buildEch0217Xml(
+        { name: organization.name, ide_number: organization.ide_number },
+        periodStart,
+        periodEnd,
+        `TVA-${year}-T${quarter}`,
+        vatSettings,
+        vatLedgerReport,
+      );
+      downloadTextFile(`ech0217-tva-${year}-t${quarter}.xml`, xml, 'application/xml');
+      if (warnings.length) setEch0217Warnings(warnings);
+      else showSavedCheckmark();
+    } catch (err) {
+      setEch0217Warnings([err instanceof Error ? err.message : String(err)]);
+    }
   }
 
   async function toggleVatCodeDrilldown(code: string) {
@@ -774,6 +811,23 @@ export default function AccountingScreen() {
                 </Card>
                 <Button title={t('accounting.vatWorksheetExport')} icon="download" variant="secondary" onPress={handleExportVatWorksheet} />
                 <Text style={styles.snapshotFootnote}>{t('accounting.vatWorksheetDisclaimer')}</Text>
+
+                <View style={styles.divider} />
+                <Text style={styles.sectionTitle}>{t('accounting.ech0217Title')}</Text>
+                <Text style={styles.basisHint}>{t('accounting.ech0217Hint')}</Text>
+                {ech0217BlockedReason ? (
+                  <Text style={styles.snapshotFootnote}>{ech0217BlockedReason}</Text>
+                ) : (
+                  <Button title={t('accounting.ech0217Export')} icon="file-text" variant="secondary" onPress={handleExportEch0217} />
+                )}
+                {ech0217Warnings ? (
+                  <View style={styles.ech0217WarningBox}>
+                    {ech0217Warnings.map((w, i) => (
+                      <Text key={i} style={styles.ech0217WarningText}>⚠ {w}</Text>
+                    ))}
+                  </View>
+                ) : null}
+                <Text style={styles.snapshotFootnote}>{t('accounting.ech0217Disclaimer')}</Text>
               </>
             )}
           </View>
@@ -922,6 +976,8 @@ const styles = StyleSheet.create({
   rowValueFinal: { fontSize: fontSize.lg, fontWeight: '800', color: colors.success, fontVariant: ['tabular-nums'] },
   rowValueNegative: { color: colors.danger },
   ecartWarning: { fontSize: fontSize.xs, color: colors.danger, marginTop: spacing.xs },
+  ech0217WarningBox: { backgroundColor: colors.warningSoft, borderRadius: radius.md, padding: spacing.md, gap: spacing.xs },
+  ech0217WarningText: { fontSize: fontSize.xs, color: colors.warning },
   totalActifs: {},
   payrollRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.md },
   payrollInput: { width: 50, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: 6, textAlign: 'center', fontSize: fontSize.sm, color: colors.text },
