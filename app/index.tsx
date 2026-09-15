@@ -95,9 +95,11 @@ function LandingContent() {
 
       <View style={[styles.nav, scrolled && styles.navScrolled, { height: NAV_HEIGHT }]}>
         <View style={styles.navInner}>
-          <Link href="/" style={styles.brand}>
-            <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
-            <Text style={styles.brandText}>Cantia</Text>
+          <Link href="/" asChild>
+            <Pressable style={styles.brand}>
+              <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
+              <Text style={styles.brandText}>Cantia</Text>
+            </Pressable>
           </Link>
           {!isTablet ? <View style={styles.navLinks}>{navLinks}</View> : null}
           <View style={styles.navActions}>

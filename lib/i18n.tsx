@@ -172,13 +172,24 @@ interface Dict {
   };
   footer: {
     blurb: string;
-    product: string;
-    account: string;
-    legal: string;
-    servicesLink: string;
-    pricingLink: string;
-    login: string;
-    signup: string;
+    platformTitle: string;
+    platformDevis: string;
+    platformFactures: string;
+    platformChantiers: string;
+    platformRh: string;
+    platformRentabilite: string;
+    discoverTitle: string;
+    discoverFeatures: string;
+    discoverPricing: string;
+    discoverMetier: string;
+    discoverIntegrations: string;
+    discoverSurMesure: string;
+    resourcesTitle: string;
+    resourcesHelp: string;
+    resourcesMobile: string;
+    resourcesBlog: string;
+    resourcesContact: string;
+    resourcesLogin: string;
     legalLink: string;
     privacyLink: string;
     copyright: string;
@@ -525,14 +536,25 @@ const fr: Dict = {
     paidCta: 'Essayer 14 jours',
   },
   footer: {
-    blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures et métré, tous au même endroit.',
-    product: 'Produit',
-    account: 'Compte',
-    legal: 'Légal',
-    servicesLink: 'Services',
-    pricingLink: 'Tarifs',
-    login: 'Se connecter',
-    signup: 'Créer un compte',
+    blurb: 'La plateforme de gestion du bâtiment suisse.',
+    platformTitle: 'La plateforme',
+    platformDevis: 'Devis & offres',
+    platformFactures: 'Factures & paiements',
+    platformChantiers: 'Chantiers & rapports',
+    platformRh: 'RH & salaires',
+    platformRentabilite: 'Rentabilité',
+    discoverTitle: 'Découvrir Cantia',
+    discoverFeatures: 'Toutes les fonctionnalités',
+    discoverPricing: 'Tarifs',
+    discoverMetier: 'Votre métier',
+    discoverIntegrations: 'Intégrations',
+    discoverSurMesure: 'Sur mesure',
+    resourcesTitle: 'Ressources',
+    resourcesHelp: 'Centre d’aide',
+    resourcesMobile: 'Application mobile',
+    resourcesBlog: 'Blog',
+    resourcesContact: 'Contact',
+    resourcesLogin: 'Connexion',
     legalLink: 'Mentions légales',
     privacyLink: 'Confidentialité',
     copyright: '© {year} Cantia. Conçu pour le bâtiment suisse.',
@@ -876,14 +898,25 @@ const de: Dict = {
     paidCta: '14 Tage testen',
   },
   footer: {
-    blurb: 'Die Baustellenverwaltungs-App für das Schweizer Baugewerbe. Rapporte, Dokumente, Offerten, Rechnungen und Aufmass, alles an einem Ort.',
-    product: 'Produkt',
-    account: 'Konto',
-    legal: 'Rechtliches',
-    servicesLink: 'Leistungen',
-    pricingLink: 'Preise',
-    login: 'Anmelden',
-    signup: 'Konto erstellen',
+    blurb: 'Die Plattform für das Schweizer Baugewerbe.',
+    platformTitle: 'Die Plattform',
+    platformDevis: 'Offerten & Angebote',
+    platformFactures: 'Rechnungen & Zahlungen',
+    platformChantiers: 'Baustellen & Rapporte',
+    platformRh: 'Personal & Lohn',
+    platformRentabilite: 'Rentabilität',
+    discoverTitle: 'Cantia entdecken',
+    discoverFeatures: 'Alle Funktionen',
+    discoverPricing: 'Preise',
+    discoverMetier: 'Ihr Gewerbe',
+    discoverIntegrations: 'Integrationen',
+    discoverSurMesure: 'Massgeschneidert',
+    resourcesTitle: 'Ressourcen',
+    resourcesHelp: 'Hilfe-Center',
+    resourcesMobile: 'Mobile App',
+    resourcesBlog: 'Blog',
+    resourcesContact: 'Kontakt',
+    resourcesLogin: 'Anmelden',
     legalLink: 'Impressum',
     privacyLink: 'Datenschutz',
     copyright: '© {year} Cantia. Entwickelt für das Schweizer Baugewerbe.',
@@ -1227,14 +1260,25 @@ const it: Dict = {
     paidCta: 'Provi 14 giorni',
   },
   footer: {
-    blurb: 'L’app di gestione cantieri per l’edilizia svizzera. Rapporti, documenti, preventivi, fatture e computo metrico, tutto in un unico posto.',
-    product: 'Prodotto',
-    account: 'Account',
-    legal: 'Legale',
-    servicesLink: 'Servizi',
-    pricingLink: 'Prezzi',
-    login: 'Accedi',
-    signup: 'Crea un account',
+    blurb: 'La piattaforma per l’edilizia svizzera.',
+    platformTitle: 'La piattaforma',
+    platformDevis: 'Preventivi & offerte',
+    platformFactures: 'Fatture & pagamenti',
+    platformChantiers: 'Cantieri & rapporti',
+    platformRh: 'Personale & salari',
+    platformRentabilite: 'Redditività',
+    discoverTitle: 'Scopri Cantia',
+    discoverFeatures: 'Tutte le funzionalità',
+    discoverPricing: 'Prezzi',
+    discoverMetier: 'Il suo mestiere',
+    discoverIntegrations: 'Integrazioni',
+    discoverSurMesure: 'Su misura',
+    resourcesTitle: 'Risorse',
+    resourcesHelp: 'Centro assistenza',
+    resourcesMobile: 'App mobile',
+    resourcesBlog: 'Blog',
+    resourcesContact: 'Contatto',
+    resourcesLogin: 'Accedi',
     legalLink: 'Note legali',
     privacyLink: 'Privacy',
     copyright: '© {year} Cantia. Pensato per l’edilizia svizzera.',

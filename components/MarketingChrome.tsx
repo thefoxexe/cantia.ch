@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, usePathname, useRouter } from 'expo-router';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -281,6 +281,11 @@ export function MarketingFooter({
   // for French (paths below already start with '/'), '/de' or '/it'
   // otherwise.
   const localePrefix = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '';
+  // Rebuilt to match the validated Cantia_Landing reference's footer
+  // exactly: brand column + three link columns (La plateforme / Découvrir
+  // Cantia / Ressources), plain copyright + two legal links in the bottom
+  // bar — no help pill, no social icons, no language switcher down here
+  // (the top nav already offers one on every page that renders this footer).
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -290,123 +295,94 @@ export function MarketingFooter({
             <Text style={styles.footerBrand}>Cantia</Text>
           </View>
           <Text style={styles.footerText}>{t.footer.blurb}</Text>
-          <Link href={aideHref as any} asChild>
-            <Pressable style={styles.footerHelpPill}>
-              <Feather name="life-buoy" size={14} color={colors.primaryDark} />
-              <Text style={styles.footerHelpPillText}>{tr('marketingChrome.helpCenter')}</Text>
-            </Pressable>
-          </Link>
           <Link href="mailto:info@cantia.ch" target="_blank" asChild>
             <Pressable style={styles.footerContact}>
-              <Feather name="mail" size={13} color={colors.textMuted} />
-              <Text style={styles.footerContactText}>{tr('marketingChrome.contactSuffix')}</Text>
+              <Text style={styles.footerContactText}>info@cantia.ch</Text>
             </Pressable>
           </Link>
           <Link href="tel:+41784501457" asChild>
             <Pressable style={styles.footerContact}>
-              <Feather name="phone" size={13} color={colors.textMuted} />
               <Text style={styles.footerContactText}>+41 78 450 14 57</Text>
             </Pressable>
           </Link>
         </View>
         <View style={styles.footerCol}>
-          {/* Merged with the old standalone "Produit" column (just Services +
-              Tarifs) — as two separate columns, Produit looked nearly empty
-              next to Solutions' long list. Grouped under one "Produit"
-              heading instead, so no column reads as an afterthought. */}
-          <Text style={styles.footerColTitle}>{t.footer.product}</Text>
+          <Text style={styles.footerColTitle}>{t.footer.platformTitle}</Text>
+          <Link href={`${localePrefix}/solutions/devis` as any}>
+            <Text style={styles.footerLink}>{t.footer.platformDevis}</Text>
+          </Link>
+          <Link href={`${localePrefix}/solutions/facturation` as any}>
+            <Text style={styles.footerLink}>{t.footer.platformFactures}</Text>
+          </Link>
+          <Link href={`${localePrefix}/solutions/rapports-chantier` as any}>
+            <Text style={styles.footerLink}>{t.footer.platformChantiers}</Text>
+          </Link>
+          <Link href={`${localePrefix}/solutions/rh-salaires` as any}>
+            <Text style={styles.footerLink}>{t.footer.platformRh}</Text>
+          </Link>
+          <Link href={`${localePrefix}/solutions/rentabilite` as any}>
+            <Text style={styles.footerLink}>{t.footer.platformRentabilite}</Text>
+          </Link>
+        </View>
+        <View style={styles.footerCol}>
+          <Text style={styles.footerColTitle}>{t.footer.discoverTitle}</Text>
           {onServicesPress ? (
             <Pressable onPress={onServicesPress}>
-              <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
+              <Text style={styles.footerLink}>{t.footer.discoverFeatures}</Text>
             </Pressable>
           ) : (
             <Link href={servicesHref as any}>
-              <Text style={styles.footerLink}>{t.footer.servicesLink}</Text>
+              <Text style={styles.footerLink}>{t.footer.discoverFeatures}</Text>
             </Link>
           )}
           {onPricingPress ? (
             <Pressable onPress={onPricingPress}>
-              <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
+              <Text style={styles.footerLink}>{t.footer.discoverPricing}</Text>
             </Pressable>
           ) : (
             <Link href={pricingHref as any}>
-              <Text style={styles.footerLink}>{t.footer.pricingLink}</Text>
+              <Text style={styles.footerLink}>{t.footer.discoverPricing}</Text>
             </Link>
           )}
-          <Link href={`${localePrefix}/solutions/devis` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsDevis')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/facturation` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsFacturation')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/rapports-chantier` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRapports')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/dictee-vocale` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsDictee')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/planning` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsPlanning')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/rentabilite` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRentabilite')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/rh-salaires` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsRh')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/travaux-supplementaires` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsTravauxSupp')}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/tresorerie` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsTresorerie')}</Text>
+          <Link href={`${localePrefix}/metiers` as any}>
+            <Text style={styles.footerLink}>{t.footer.discoverMetier}</Text>
           </Link>
           <Link href={`${localePrefix}/integrations` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsIntegrations')}</Text>
+            <Text style={styles.footerLink}>{t.footer.discoverIntegrations}</Text>
           </Link>
           <Link href={`${localePrefix}/sur-mesure` as any}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsSurMesure')}</Text>
-          </Link>
-          <Link href={locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog'}>
-            <Text style={styles.footerLink}>{tr('marketingChrome.solutionsBlog')}</Text>
+            <Text style={styles.footerLink}>{t.footer.discoverSurMesure}</Text>
           </Link>
         </View>
         <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>{t.footer.account}</Text>
-          <Link href={authHref('login')}>
-            <Text style={styles.footerLink}>{t.footer.login}</Text>
-          </Link>
-          <Link href={authHref('signup')}>
-            <Text style={styles.footerLink}>{t.footer.signup}</Text>
-          </Link>
+          <Text style={styles.footerColTitle}>{t.footer.resourcesTitle}</Text>
           <Link href={aideHref as any}>
-            <Text style={styles.footerLink}>{t.nav.help}</Text>
+            <Text style={styles.footerLink}>{t.footer.resourcesHelp}</Text>
+          </Link>
+          <Link href={`${localePrefix}/telechargement` as any}>
+            <Text style={styles.footerLink}>{t.footer.resourcesMobile}</Text>
+          </Link>
+          <Link href={locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog'}>
+            <Text style={styles.footerLink}>{t.footer.resourcesBlog}</Text>
           </Link>
           <Link href={contactHref as any}>
-            <Text style={styles.footerLink}>{t.nav.contact}</Text>
+            <Text style={styles.footerLink}>{t.footer.resourcesContact}</Text>
           </Link>
-          <Link href={`${localePrefix}/mentions-legales` as any}>
-            <Text style={styles.footerLink}>{t.footer.legalLink}</Text>
-          </Link>
-          <Link href={`${localePrefix}/confidentialite` as any}>
-            <Text style={styles.footerLink}>{t.footer.privacyLink}</Text>
+          <Link href={authHref('login')}>
+            <Text style={styles.footerLink}>{t.footer.resourcesLogin}</Text>
           </Link>
         </View>
       </View>
       <View style={styles.footerBottom}>
         <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
-        <LanguageSwitcher compact />
-        <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
-          <Pressable style={styles.footerSocialLink}>
-            <Ionicons name="logo-instagram" size={16} color="#E1306C" />
-            <Text style={styles.footerCopy}>@cantia.ch</Text>
-          </Pressable>
-        </Link>
-        <Link href="https://www.linkedin.com/company/cantiach/" target="_blank" asChild>
-          <Pressable style={styles.footerSocialLink}>
-            <Ionicons name="logo-linkedin" size={16} color="#0A66C2" />
-            <Text style={styles.footerCopy}>Cantia</Text>
-          </Pressable>
-        </Link>
+        <View style={styles.footerLegalLinks}>
+          <Link href={`${localePrefix}/mentions-legales` as any}>
+            <Text style={styles.footerCopy}>{t.footer.legalLink}</Text>
+          </Link>
+          <Link href={`${localePrefix}/confidentialite` as any}>
+            <Text style={styles.footerCopy}>{t.footer.privacyLink}</Text>
+          </Link>
+        </View>
       </View>
     </View>
   );
@@ -618,13 +594,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   footerLogo: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
   },
   footerBrand: {
     fontFamily: marketingFonts.display,
-    fontSize: fontSize.lg,
+    fontSize: fontSize.xxl,
     fontWeight: '700',
+    letterSpacing: -0.5,
     color: colors.text,
   },
   footerText: {
@@ -633,22 +610,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 18,
     maxWidth: 280,
-  },
-  footerHelpPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 999,
     marginTop: spacing.xs,
-  },
-  footerHelpPillText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primaryDark,
   },
   footerContact: {
     flexDirection: 'row',
@@ -699,10 +661,10 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
   },
-  footerSocialLink: {
+  footerLegalLinks: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: spacing.lg,
   },
 });
 
