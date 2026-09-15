@@ -7,6 +7,7 @@ import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome
 import { MarketingHead } from '../components/MarketingHead';
 import { PricingSection } from '../components/PricingSection';
 import { HeroCross } from '../components/landing/HeroCross';
+import { ScrollReveal } from '../components/landing/ScrollReveal';
 import { SwissCross } from '../components/SwissCross';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
@@ -176,7 +177,7 @@ function LandingContent() {
         </View>
 
         {/* ---------------------------------------------------------------- Trust */}
-        <View style={styles.wrap}>
+        <ScrollReveal style={styles.wrap}>
           <View style={[styles.trustLayout, isTablet && styles.trustLayoutCompact]}>
             <View style={[styles.trustOrigin, !isTablet && { flex: 0.9 }]}>
               <View style={styles.trustLocationRow}>
@@ -203,10 +204,10 @@ function LandingContent() {
               ))}
             </View>
           </View>
-        </View>
+        </ScrollReveal>
 
         {/* ---------------------------------------------------------------- Profession */}
-        <View style={styles.wrap}>
+        <ScrollReveal style={styles.wrap}>
           <View style={[styles.professionLayout, isTablet && styles.professionLayoutCompact]}>
             <View style={[styles.professionCopy, !isTablet && { flex: 1 }]}>
               <Text style={styles.eyebrow}>{t.profession.eyebrow}</Text>
@@ -238,20 +239,23 @@ function LandingContent() {
               </View>
             </View>
           </View>
-        </View>
+        </ScrollReveal>
 
         {/* ---------------------------------------------------------------- Stories + catalog */}
         <View style={styles.wrap} ref={storiesRef}>
-          <View style={styles.sectionHeadingCentered}>
-            <Text style={styles.h2}>{t.stories.title}</Text>
-            <Text style={styles.bodyText}>{t.stories.subtitle}</Text>
-          </View>
-          <StoryShowcase dict={t.stories} hrefFor={solutionHref} />
-          <FeatureCatalog dict={t.catalog} hrefFor={(slug) => (slug === 'sur-mesure' ? pageHref('sur-mesure') : solutionHref(slug))} />
+          <ScrollReveal>
+            <View style={styles.sectionHeadingCentered}>
+              <Text style={styles.h2}>{t.stories.title}</Text>
+              <Text style={styles.bodyText}>{t.stories.subtitle}</Text>
+            </View>
+            <StoryShowcase dict={t.stories} hrefFor={solutionHref} />
+            <FeatureCatalog dict={t.catalog} hrefFor={(slug) => (slug === 'sur-mesure' ? pageHref('sur-mesure') : solutionHref(slug))} />
+          </ScrollReveal>
         </View>
 
         {/* ---------------------------------------------------------------- Team */}
         <View style={[styles.wrap, styles.section]} ref={teamRef}>
+          <ScrollReveal>
           <View style={styles.sectionHeadingCentered}>
             <Text style={styles.eyebrow}>{t.team.eyebrow}</Text>
             <Text style={styles.h2}>
@@ -288,10 +292,11 @@ function LandingContent() {
               <Text style={styles.textLink}>{t.team.permLink} ↗</Text>
             </Link>
           </View>
+          </ScrollReveal>
         </View>
 
         {/* ---------------------------------------------------------------- Automation / voice */}
-        <View style={[styles.wrap, styles.section]}>
+        <ScrollReveal style={[styles.wrap, styles.section]}>
           <View style={[styles.sectionHeadingRow, isTablet && styles.sectionHeadingRowCompact]}>
             <View style={!isTablet ? { flex: 1 } : undefined}>
               <Text style={styles.eyebrow}>{t.automation.eyebrow}</Text>
@@ -312,11 +317,11 @@ function LandingContent() {
               <VoiceDemo dict={t.automation} />
             </View>
           </View>
-        </View>
+        </ScrollReveal>
 
         {/* ---------------------------------------------------------------- Terrain */}
         <View style={styles.terrainOuter}>
-          <View style={styles.wrap}>
+          <ScrollReveal style={styles.wrap}>
             <Text style={styles.eyebrow}>{t.terrain.eyebrow}</Text>
             <Text style={styles.h2}>{t.terrain.title}</Text>
             <Text style={[styles.bodyText, { maxWidth: 480 }]}>{t.terrain.text}</Text>
@@ -332,11 +337,11 @@ function LandingContent() {
               <Button title={t.terrain.installCta} onPress={() => {}} icon="arrow-right" style={{ alignSelf: 'flex-start', marginTop: spacing.lg }} />
             </Link>
             <Text style={styles.installNote}>{t.terrain.installNote}</Text>
-          </View>
+          </ScrollReveal>
         </View>
 
         {/* ---------------------------------------------------------------- Tailored */}
-        <View style={[styles.wrap, styles.section, styles.tailored, isTablet && styles.tailoredCompact]}>
+        <ScrollReveal style={[styles.wrap, styles.section, styles.tailored, isTablet && styles.tailoredCompact]}>
           <View style={[styles.tailoredHeading, !isTablet && { flex: 1 }]}>
             <Text style={styles.eyebrow}>{t.tailored.eyebrow}</Text>
             <Text style={styles.h2}>{t.tailored.title}</Text>
@@ -359,10 +364,10 @@ function LandingContent() {
               <Text style={[styles.textLink, { marginTop: spacing.md }]}>{t.tailored.link} →</Text>
             </Link>
           </View>
-        </View>
+        </ScrollReveal>
 
         {/* ---------------------------------------------------------------- Bexio */}
-        <View style={styles.wrap}>
+        <ScrollReveal style={styles.wrap}>
           <View style={[styles.bexioBanner, isMobile && styles.bexioBannerCompact]}>
             <View style={styles.bexioIcon}>
               <Image source={require('../assets/logo-mark.png')} style={styles.bexioLogo} resizeMode="contain" accessibilityLabel="Cantia" />
@@ -378,15 +383,17 @@ function LandingContent() {
               <Text style={styles.textLink}>{t.bexio.link} ↗</Text>
             </Link>
           </View>
-        </View>
+        </ScrollReveal>
 
         {/* ---------------------------------------------------------------- Pricing */}
         <View ref={pricingRef}>
-          <PricingSection />
+          <ScrollReveal>
+            <PricingSection />
+          </ScrollReveal>
         </View>
 
         {/* ---------------------------------------------------------------- FAQ */}
-        <View style={[styles.wrap, styles.section, styles.faqLayout, isTablet && styles.faqLayoutCompact]}>
+        <ScrollReveal style={[styles.wrap, styles.section, styles.faqLayout, isTablet && styles.faqLayoutCompact]}>
           <View style={[styles.faqHeading, !isTablet && { flex: 0.8 }]}>
             <Text style={styles.eyebrow}>{t.faq.eyebrow}</Text>
             <Text style={styles.h2}>{t.faq.title}</Text>
@@ -401,11 +408,11 @@ function LandingContent() {
               </Disclosure>
             ))}
           </View>
-        </View>
+        </ScrollReveal>
 
         {/* ---------------------------------------------------------------- Closing */}
         <View style={styles.closing}>
-          <View style={styles.wrap}>
+          <ScrollReveal style={styles.wrap}>
             <Text style={styles.closingEyebrow}>{t.closing.eyebrow}</Text>
             <Text style={styles.closingTitle}>
               {t.closing.titlePrefix}
@@ -421,7 +428,7 @@ function LandingContent() {
                 <Text style={styles.closingContact}>{t.closing.contact}</Text>
               </Link>
             </View>
-          </View>
+          </ScrollReveal>
         </View>
 
         <MarketingFooter onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
@@ -497,7 +504,7 @@ const styles = StyleSheet.create({
   h1: { fontFamily: landingFonts.body, fontSize: 62, fontWeight: '700', letterSpacing: -3, lineHeight: 66, color: colors.text },
   h1Highlight: { color: colors.primary },
   crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
-  crossedText: { fontFamily: landingFonts.body, fontSize: 30, fontWeight: '500', letterSpacing: -1, color: '#786653', textDecorationLine: 'line-through', textDecorationColor: '#b54a40' },
+  crossedText: { fontFamily: landingFonts.body, fontSize: 30, fontWeight: '500', letterSpacing: -1, color: '#786653' },
   heroAside: { gap: spacing.sm },
   heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
   heroAsideP1: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text, lineHeight: 25, marginTop: spacing.xs },

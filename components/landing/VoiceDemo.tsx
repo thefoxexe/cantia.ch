@@ -113,11 +113,16 @@ const styles = StyleSheet.create({
   choiceTextActive: { color: '#fff' },
   messageCard: { backgroundColor: '#ffffff0a', borderWidth: 1, borderColor: '#ffffff1a', borderRadius: radius.md, padding: spacing.lg, gap: spacing.md },
   transcript: { fontFamily: landingFonts.body, fontSize: 14, color: '#f2ece3', lineHeight: 21, fontStyle: 'italic' },
-  audioLine: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  voiceToggle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  waveform: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 2, height: 28 },
-  bar: { width: 3, height: 28, borderRadius: 2, backgroundColor: '#e9a27c' },
-  voiceStatus: { fontFamily: landingFonts.body, fontSize: 11, color: '#bfb1a0', width: 60 },
+  audioLine: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  voiceToggle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  // flex:1 bars (rather than a fixed width:3) let the whole waveform
+  // compress on narrow screens instead of overflowing past its allotted
+  // space and painting over voiceStatus next to it (confirmed live: on a
+  // narrow phone the fixed-width bars spilled straight through the
+  // "Animer" label).
+  waveform: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 2, height: 28, minWidth: 0, overflow: 'hidden' },
+  bar: { flex: 1, minWidth: 1.5, maxWidth: 3, height: 28, borderRadius: 2, backgroundColor: '#e9a27c' },
+  voiceStatus: { fontFamily: landingFonts.body, fontSize: 11, color: '#bfb1a0', width: 60, flexShrink: 0, textAlign: 'right' },
   resultRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg, alignItems: 'flex-start' },
   resultArrow: { fontFamily: landingFonts.body, fontSize: 16, color: '#e9c9b3' },
   resultLabel: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', color: '#cbbfb0', letterSpacing: 0.8, marginBottom: 4 },
