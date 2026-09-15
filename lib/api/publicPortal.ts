@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
 import type { ClientDocumentsPayload, PublicDevisPayload, PublicFacturePayload, PublicPayslipsPayload } from '../types';
 
 export function publicDevisUrl(token: string): string {
@@ -32,10 +33,8 @@ export function publicPayslipsUrl(token: string): string {
 // what the UI does, since these RPCs are the actual trust boundary.
 
 export async function requestPortalCode(token: string, kind: 'devis' | 'facture' | 'payslip', email: string): Promise<{ ok: boolean; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('request-portal-code', { body: { token, kind, email } });
-  if (error) return { ok: false, error: error.message };
-  if (data?.error) return { ok: false, error: String(data.error) };
-  return { ok: true, error: null };
+  const { error } = await invokeFunction('request-portal-code', { token, kind, email });
+  return { ok: !error, error };
 }
 
 export async function verifyPortalCode(
@@ -103,10 +102,8 @@ export async function getPublicDocumentPdfUrl(
   email: string,
   session: string,
 ): Promise<{ url: string | null; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('public-document-pdf', { body: { token, kind, email, session } });
-  if (error) return { url: null, error: error.message };
-  if (data?.error) return { url: null, error: String(data.error) };
-  return { url: data?.url ?? null, error: null };
+  const { data, error } = await invokeFunction<{ url: string }>('public-document-pdf', { token, kind, email, session });
+  return { url: data?.url ?? null, error };
 }
 
 // The payslip portal has its own pair of endpoints (not the devis/facture
@@ -118,10 +115,8 @@ export async function getPublicPayslips(
   email: string,
   session: string,
 ): Promise<{ data: PublicPayslipsPayload | null; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('public-payslip-portal', { body: { token, email, session } });
-  if (error) return { data: null, error: error.message };
-  if (data?.error) return { data: null, error: String(data.error) };
-  return { data: (data as PublicPayslipsPayload) ?? null, error: null };
+  const { data, error } = await invokeFunction<PublicPayslipsPayload>('public-payslip-portal', { token, email, session });
+  return { data, error };
 }
 
 export async function getPublicPayslipPdfUrl(
@@ -130,8 +125,6 @@ export async function getPublicPayslipPdfUrl(
   session: string,
   slipId: string,
 ): Promise<{ url: string | null; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('public-payslip-pdf', { body: { token, email, session, slip_id: slipId } });
-  if (error) return { url: null, error: error.message };
-  if (data?.error) return { url: null, error: String(data.error) };
-  return { url: data?.url ?? null, error: null };
+  const { data, error } = await invokeFunction<{ url: string }>('public-payslip-pdf', { token, email, session, slip_id: slipId });
+  return { url: data?.url ?? null, error };
 }

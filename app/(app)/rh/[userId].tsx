@@ -26,6 +26,9 @@ import { SwissAddressField } from '../../../components/SwissAddressField';
 import { DateField } from '../../../components/DateField';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
+import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, PayrollTreiziemeMode, SalaryType } from '../../../lib/types';
@@ -43,7 +46,6 @@ export default function PayrollProfileScreen() {
   const [deductionTypes, setDeductionTypes] = useState<PayrollDeductionType[]>([]);
   const [overrides, setOverrides] = useState<PayrollProfileDeduction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // The error banner only ever renders in one place (near the deductions
   // card, close to the top) but every export action on this long page —
@@ -85,10 +87,24 @@ export default function PayrollProfileScreen() {
   const [vacationBalance, setVacationBalance] = useState<VacationBalance | null>(null);
   const [hoursBalance, setHoursBalance] = useState<HoursBalance | null>(null);
 
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
+    useUnsavedChanges(handleSave);
+
+  // Wraps a setter so every keystroke also flags the form dirty — load()
+  // below uses the bare setters directly, so restoring saved values on
+  // focus never falsely marks the form as edited.
+  function withDirty<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setter(v);
+      markDirty();
+    };
+  }
+
   function handlePostalCodeChange(value: string) {
     setPostalCode(value);
     const match = localityForNpa(value);
     if (match && !locality.trim()) setLocality(match);
+    markDirty();
   }
 
   // Draft overrides keyed by deduction type id — lets the admin type a rate
@@ -222,12 +238,15 @@ export default function PayrollProfileScreen() {
   const num = (s: string) => Number(s.replace(',', '.')) || 0;
 
   async function handleSave() {
-    if (!organization || !employeeId || !user) return;
-    if (personalEmail.trim() && !personalEmail.includes('@')) {
-      setError(t('payrollProfile.personalEmailInvalid'));
-      return;
+    if (!organization || !employeeId || !user) return false;
+    if (!personalEmail.trim()) {
+      showError(t('payrollProfile.personalEmailRequired'));
+      return false;
     }
-    setSaving(true);
+    if (!personalEmail.includes('@')) {
+      showError(t('payrollProfile.personalEmailInvalid'));
+      return false;
+    }
     setError(null);
     const { error: err } = await upsertPayrollProfile(
       organization.id,
@@ -254,9 +273,8 @@ export default function PayrollProfileScreen() {
       user.id,
     );
     if (err) {
-      setSaving(false);
       showError(err);
-      return;
+      return false;
     }
     for (const t of deductionTypes) {
       const raw = draftRates[t.id]?.trim();
@@ -268,7 +286,6 @@ export default function PayrollProfileScreen() {
         user.id,
       );
     }
-    setSaving(false);
     load();
   }
 
@@ -299,6 +316,7 @@ export default function PayrollProfileScreen() {
         <PageHeader
           title={memberName}
           backTo="/(app)/rh/salaires/employes"
+          onBeforeBack={confirmBeforeBack}
           right={
             <Pressable onPress={() => router.push('/(app)/rh/fiches-salaire' as any)} hitSlop={8} style={styles.slipsLink}>
               <Feather name="file-text" size={15} color={colors.primary} />
@@ -319,50 +337,51 @@ export default function PayrollProfileScreen() {
             <Text style={styles.sectionTitle}>{t('payrollProfile.salaryTitle')}</Text>
             {isGhost ? null : (
             <View style={styles.chips}>
-              <Pressable onPress={() => setSalaryType('hourly')} style={[styles.chip, salaryType === 'hourly' && styles.chipActive]}>
+              <Pressable onPress={() => { setSalaryType('hourly'); markDirty(); }} style={[styles.chip, salaryType === 'hourly' && styles.chipActive]}>
                 <Text style={[styles.chipText, salaryType === 'hourly' && styles.chipTextActive]}>{t('payrollProfile.hourly')}</Text>
               </Pressable>
-              <Pressable onPress={() => setSalaryType('monthly')} style={[styles.chip, salaryType === 'monthly' && styles.chipActive]}>
+              <Pressable onPress={() => { setSalaryType('monthly'); markDirty(); }} style={[styles.chip, salaryType === 'monthly' && styles.chipActive]}>
                 <Text style={[styles.chipText, salaryType === 'monthly' && styles.chipTextActive]}>{t('payrollProfile.monthly')}</Text>
               </Pressable>
             </View>
             )}
 
             {salaryType === 'hourly' ? (
-              <RateField label={t('payrollProfile.hourlyRateLabel')} value={hourlyRate} onChange={setHourlyRate} suffix="CHF/h" />
+              <RateField label={t('payrollProfile.hourlyRateLabel')} value={hourlyRate} onChange={withDirty(setHourlyRate)} suffix="CHF/h" />
             ) : (
-              <RateField label={t('payrollProfile.monthlySalaryLabel')} value={monthlySalary} onChange={setMonthlySalary} suffix="CHF" />
+              <RateField label={t('payrollProfile.monthlySalaryLabel')} value={monthlySalary} onChange={withDirty(setMonthlySalary)} suffix="CHF" />
             )}
 
             <Text style={styles.fieldLabel}>{t('payrollProfile.notesLabel')}</Text>
-            <TextInput style={styles.noteInput} value={notes} onChangeText={setNotes} placeholder={t('payrollProfile.notesPlaceholder')} placeholderTextColor={colors.textMuted} multiline />
+            <TextInput style={styles.noteInput} value={notes} onChangeText={withDirty(setNotes)} placeholder={t('payrollProfile.notesPlaceholder')} placeholderTextColor={colors.textMuted} multiline />
 
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.addressLabel')}</Text>
             <SwissAddressField
               value={street}
-              onChangeText={setStreet}
+              onChangeText={withDirty(setStreet)}
               onSelectAddress={(addr) => {
                 setStreet(addr.street);
                 setPostalCode(addr.postalCode);
                 setLocality(addr.locality);
+                markDirty();
               }}
               placeholder={t('payrollProfile.streetPlaceholder')}
               inputStyle={styles.addressInput}
             />
             <View style={styles.addressRow}>
               <TextInput style={[styles.addressInput, styles.addressInputSmall]} value={postalCode} onChangeText={handlePostalCodeChange} placeholder={t('payrollProfile.npaPlaceholder')} placeholderTextColor={colors.textMuted} keyboardType="number-pad" />
-              <TextInput style={[styles.addressInput, { flex: 1, minWidth: 0 }]} value={locality} onChangeText={setLocality} placeholder={t('payrollProfile.localityPlaceholder')} placeholderTextColor={colors.textMuted} />
+              <TextInput style={[styles.addressInput, { flex: 1, minWidth: 0 }]} value={locality} onChangeText={withDirty(setLocality)} placeholder={t('payrollProfile.localityPlaceholder')} placeholderTextColor={colors.textMuted} />
             </View>
 
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.avsNumberLabel')}</Text>
-            <TextInput style={styles.addressInput} value={avsNumber} onChangeText={setAvsNumber} placeholder="756.XXXX.XXXX.XX" placeholderTextColor={colors.textMuted} />
+            <TextInput style={styles.addressInput} value={avsNumber} onChangeText={withDirty(setAvsNumber)} placeholder="756.XXXX.XXXX.XX" placeholderTextColor={colors.textMuted} />
 
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.ibanLabel')}</Text>
             <Text style={styles.hint}>{t('payrollProfile.ibanHint')}</Text>
             <TextInput
               style={styles.addressInput}
               value={iban}
-              onChangeText={setIban}
+              onChangeText={withDirty(setIban)}
               placeholder="CH00 0000 0000 0000 0000 0"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="characters"
@@ -373,7 +392,7 @@ export default function PayrollProfileScreen() {
             <TextInput
               style={styles.addressInput}
               value={personalEmail}
-              onChangeText={setPersonalEmail}
+              onChangeText={withDirty(setPersonalEmail)}
               placeholder="prenom.nom@exemple.ch"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
@@ -381,11 +400,11 @@ export default function PayrollProfileScreen() {
             />
 
             <View style={{ marginTop: spacing.md }}>
-              <DateField label={t('payrollProfile.birthDateLabel')} value={birthDate} onChange={setBirthDate} />
+              <DateField label={t('payrollProfile.birthDateLabel')} value={birthDate} onChange={withDirty(setBirthDate)} />
             </View>
             {!isGhost ? (
               <View style={{ marginTop: spacing.md }}>
-                <DateField label={t('payrollProfile.hireDateLabel')} value={hireDate} onChange={setHireDate} />
+                <DateField label={t('payrollProfile.hireDateLabel')} value={hireDate} onChange={withDirty(setHireDate)} />
               </View>
             ) : null}
 
@@ -396,7 +415,7 @@ export default function PayrollProfileScreen() {
             <TextInput
               style={styles.addressInput}
               value={vacationDaysPerYear}
-              onChangeText={setVacationDaysPerYear}
+              onChangeText={withDirty(setVacationDaysPerYear)}
               keyboardType="decimal-pad"
               placeholder={String(suggestVacationDaysPerYear(birthDate, yearAnchor))}
               placeholderTextColor={colors.textMuted}
@@ -409,7 +428,7 @@ export default function PayrollProfileScreen() {
                 <TextInput
                   style={styles.addressInput}
                   value={weeklyContractHours}
-                  onChangeText={setWeeklyContractHours}
+                  onChangeText={withDirty(setWeeklyContractHours)}
                   keyboardType="decimal-pad"
                   placeholder="42"
                   placeholderTextColor={colors.textMuted}
@@ -420,7 +439,7 @@ export default function PayrollProfileScreen() {
                 <TextInput
                   style={styles.addressInput}
                   value={overtimeHourlyRate}
-                  onChangeText={setOvertimeHourlyRate}
+                  onChangeText={withDirty(setOvertimeHourlyRate)}
                   keyboardType="decimal-pad"
                   placeholder="0.00"
                   placeholderTextColor={colors.textMuted}
@@ -432,19 +451,19 @@ export default function PayrollProfileScreen() {
             <Text style={styles.hint}>{t('payrollProfile.treiziemeHint')}</Text>
             <View style={styles.chips}>
               <Pressable
-                onPress={() => setTreiziemeMode('inclus_taux_horaire')}
+                onPress={() => { setTreiziemeMode('inclus_taux_horaire'); markDirty(); }}
                 style={[styles.chip, treiziemeMode === 'inclus_taux_horaire' && styles.chipActive]}
               >
                 <Text style={[styles.chipText, treiziemeMode === 'inclus_taux_horaire' && styles.chipTextActive]}>{t('payrollProfile.treiziemeInclus')}</Text>
               </Pressable>
               <Pressable
-                onPress={() => setTreiziemeMode('reparti_mensuel')}
+                onPress={() => { setTreiziemeMode('reparti_mensuel'); markDirty(); }}
                 style={[styles.chip, treiziemeMode === 'reparti_mensuel' && styles.chipActive]}
               >
                 <Text style={[styles.chipText, treiziemeMode === 'reparti_mensuel' && styles.chipTextActive]}>{t('payrollProfile.treiziemeReparti')}</Text>
               </Pressable>
               <Pressable
-                onPress={() => setTreiziemeMode('lump_sum_month')}
+                onPress={() => { setTreiziemeMode('lump_sum_month'); markDirty(); }}
                 style={[styles.chip, treiziemeMode === 'lump_sum_month' && styles.chipActive]}
               >
                 <Text style={[styles.chipText, treiziemeMode === 'lump_sum_month' && styles.chipTextActive]}>{t('payrollProfile.treiziemeLumpSum')}</Text>
@@ -455,7 +474,7 @@ export default function PayrollProfileScreen() {
                 <Text style={styles.hint}>{t('payrollProfile.treiziemeMonthHint')}</Text>
                 <View style={[styles.chips, { flexWrap: 'wrap' }]}>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                    <Pressable key={m} onPress={() => setTreiziemeMois(m)} style={[styles.monthChip, treiziemeMois === m && styles.chipActive]}>
+                    <Pressable key={m} onPress={() => { setTreiziemeMois(m); markDirty(); }} style={[styles.monthChip, treiziemeMois === m && styles.chipActive]}>
                       <Text style={[styles.chipText, treiziemeMois === m && styles.chipTextActive]}>{m}</Text>
                     </Pressable>
                   ))}
@@ -500,14 +519,14 @@ export default function PayrollProfileScreen() {
               <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
                 {deductionTypes.map((t) => (
                   <View key={t.id} style={styles.deductionRow}>
-                    <Switch value={draftEnabled[t.id] ?? true} onChange={(v) => setDraftEnabled((prev) => ({ ...prev, [t.id]: v }))} />
+                    <Switch value={draftEnabled[t.id] ?? true} onChange={(v) => { setDraftEnabled((prev) => ({ ...prev, [t.id]: v })); markDirty(); }} />
                     <Text style={[styles.deductionLabel, !(draftEnabled[t.id] ?? true) && styles.deductionLabelDisabled]} numberOfLines={1}>
                       {t.label}
                     </Text>
                     <TextInput
                       style={styles.deductionInput}
                       value={draftRates[t.id] ?? ''}
-                      onChangeText={(v) => setDraftRates((prev) => ({ ...prev, [t.id]: v }))}
+                      onChangeText={(v) => { setDraftRates((prev) => ({ ...prev, [t.id]: v })); markDirty(); }}
                       keyboardType="decimal-pad"
                       editable={draftEnabled[t.id] ?? true}
                       placeholder="0"
@@ -534,7 +553,6 @@ export default function PayrollProfileScreen() {
                 style={{ marginTop: spacing.sm }}
               />
             ) : null}
-            <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.md }} />
           </Card>
 
           <Card>
@@ -588,6 +606,8 @@ export default function PayrollProfileScreen() {
           </Card>
         </ScrollView>
       </View>
+      <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} />
+      <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </Screen>
   );
 }

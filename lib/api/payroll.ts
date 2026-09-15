@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
 import type {
   CertificateBox,
   CertificateSubbox,
@@ -1323,10 +1324,8 @@ export async function reversePayrollSlip(slipId: string): Promise<{ id: string |
 // the in-app notifications system, since payroll (especially fixed-salary
 // or ghost employees) can't assume the recipient ever opens the app.
 export async function sendPayslipEmail(slipId: string): Promise<{ error: string | null }> {
-  const { data, error } = await supabase.functions.invoke('send-payslip-email', { body: { slip_id: slipId } });
-  if (error) return { error: error.message };
-  if (data?.error) return { error: String(data.error) };
-  return { error: null };
+  const { error } = await invokeFunction('send-payslip-email', { slip_id: slipId });
+  return { error };
 }
 
 // §7.9 "Déclarations préparatoires" — every non-extournée slip for the

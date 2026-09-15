@@ -421,15 +421,14 @@ export default function PayrollSlipsScreen() {
                       </Pressable>
                     ) : null}
                     {slip && (slip.status === 'validee' || slip.status === 'payee') ? (
-                      <Pressable
+                      <Button
+                        title={notifiedKeys.has(key) ? t('payrollSlips.emailSent') : t('payrollSlips.sendEmail')}
+                        icon={notifiedKeys.has(key) ? 'check' : 'mail'}
+                        variant="secondary"
                         onPress={() => handleSendEmail(slip, key)}
-                        disabled={notifyingKey === key || notifiedKeys.has(key)}
-                        hitSlop={8}
-                        style={styles.pdfBtn}
-                        accessibilityLabel={t('payrollSlips.sendEmail')}
-                      >
-                        <Feather name={notifiedKeys.has(key) ? 'check' : 'mail'} size={14} color={notifiedKeys.has(key) ? colors.success : colors.text} />
-                      </Pressable>
+                        loading={notifyingKey === key}
+                        disabled={notifiedKeys.has(key)}
+                      />
                     ) : null}
                     {slip && (slip.status === 'validee' || slip.status === 'payee') ? (
                       <Pressable onPress={() => handleReverse(slip, key)} hitSlop={8} style={styles.reverseBtn}>
