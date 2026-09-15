@@ -99,6 +99,14 @@ function RootNavigation() {
     // ever actually contacted.
     if (session && organization && !organization.plan_id) {
       if (subroute !== 'choose-plan') router.replace('/(auth)/choose-plan');
+    } else if (session && organization && !organization.onboarding_completed) {
+      // Runs once, right after Stripe confirms payment: a short step-by-step
+      // wizard collects the company profile (logo, address, contact info)
+      // and which modules to switch on, instead of dumping everyone straight
+      // into an empty dashboard. Existing orgs are backfilled to true (see
+      // the onboarding_completed migration) so this never re-triggers for
+      // already-active customers.
+      if (subroute !== 'onboarding' || segmentList[2] !== 'setup') router.replace('/(auth)/onboarding/setup');
     } else if (session && organization) {
       if (inAuthGroup || isLanding) router.replace('/(app)');
     } else if (session && !organization) {

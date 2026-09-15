@@ -107,6 +107,11 @@ export interface Organization {
   subscription_status: string | null;
   enabled_modules: string[];
   plan_selected: boolean;
+  // True once the post-payment setup wizard (company profile + module
+  // picks, app/(auth)/onboarding/setup.tsx) has been completed or skipped —
+  // gates entry into /(app), see app/_layout.tsx. Backfilled true for every
+  // org that already had a plan_id before this flow existed.
+  onboarding_completed: boolean;
   // Active Stripe sub carries a 100%-off lifetime coupon — kept in sync by
   // admin-billing-overview, read by the admin org-status pill.
   is_complimentary: boolean;
