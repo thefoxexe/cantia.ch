@@ -12,6 +12,7 @@ export const NOTIFICATION_ICON: Record<NotificationType, IconName> = {
   recurring_expense_due: 'repeat',
   extra_work_accepted: 'plus-circle',
   feed_message: 'message-circle',
+  payslip_ready: 'bell',
 };
 
 // Fallback for a `type` that doesn't match any known key — e.g. a client
@@ -30,4 +31,5 @@ export const NOTIFICATION_TONE: Record<NotificationType, { fg: string; bg: strin
   recurring_expense_due: { fg: colors.warning, bg: colors.warningSoft },
   extra_work_accepted: { fg: colors.success, bg: colors.successSoft },
   feed_message: { fg: colors.primary, bg: colors.primarySoft },
+  payslip_ready: { fg: colors.success, bg: colors.successSoft },
 };

@@ -19,6 +19,7 @@ import {
   validatePayrollSlip,
   markPayrollSlipPaid,
   reversePayrollSlip,
+  notifyPayslipReady,
   type PayrollSlip,
   type EmployeeRef,
   type PayrollSlipWageLineWithType,
@@ -64,6 +65,8 @@ export default function PayrollSlipsScreen() {
   const [wageTypes, setWageTypes] = useState<PayrollWageType[]>([]);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [exportingKey, setExportingKey] = useState<string | null>(null);
+  const [notifyingKey, setNotifyingKey] = useState<string | null>(null);
+  const [notifiedKeys, setNotifiedKeys] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState<'calculate' | 'validate' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -169,6 +172,15 @@ export default function PayrollSlipsScreen() {
     setBusyKey(null);
     if (err) setError(err);
     else load();
+  }
+
+  async function handleNotify(slip: PayrollSlip, key: string) {
+    setNotifyingKey(key);
+    setError(null);
+    const { error: err } = await notifyPayslipReady(slip.id);
+    setNotifyingKey(null);
+    if (err) setError(err);
+    else setNotifiedKeys((prev) => new Set(prev).add(key));
   }
 
   // "Calculer/Valider tout" — the user's explicit request to generate the
@@ -406,6 +418,16 @@ export default function PayrollSlipsScreen() {
                     {canDownload ? (
                       <Pressable onPress={() => handleExportPdf(item, key)} disabled={exporting} hitSlop={8} style={styles.pdfBtn}>
                         <Feather name="download" size={14} color={colors.text} />
+                      </Pressable>
+                    ) : null}
+                    {item.ref.userId && slip && (slip.status === 'validee' || slip.status === 'payee') ? (
+                      <Pressable
+                        onPress={() => handleNotify(slip, key)}
+                        disabled={notifyingKey === key || notifiedKeys.has(key)}
+                        hitSlop={8}
+                        style={styles.pdfBtn}
+                      >
+                        <Feather name={notifiedKeys.has(key) ? 'check' : 'bell'} size={14} color={notifiedKeys.has(key) ? colors.success : colors.text} />
                       </Pressable>
                     ) : null}
                     {slip && (slip.status === 'validee' || slip.status === 'payee') ? (

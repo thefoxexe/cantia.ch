@@ -1315,6 +1315,15 @@ export async function reversePayrollSlip(slipId: string): Promise<{ id: string |
   return { id: data ?? null, error: error?.message ?? null };
 }
 
+// Sends the employee an in-app + e-mail notification (title/link only, no
+// amounts) pointing them to the "Mes fiches de salaire" self-service
+// screen — the secure-link equivalent of the client portal, reusing the
+// existing generic notifications system instead of a bespoke channel.
+export async function notifyPayslipReady(slipId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('notify_payslip_ready', { p_slip_id: slipId });
+  return { error: error?.message ?? null };
+}
+
 // §7.9 "Déclarations préparatoires" — every non-extournée slip for the
 // whole year, across every employee, used to build the annual social
 // insurance summary. Includes brouillon/calculée slips too (not just

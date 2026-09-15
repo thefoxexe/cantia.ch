@@ -1,5 +1,61 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
+
+// Self-contained on purpose (not importing ../_shared/*.ts) — the MCP
+// deploy path for this function has repeatedly failed to resolve relative
+// imports to _shared files ("Module not found ... _shared/resend.ts") even
+// though other functions in this repo supposedly deploy that way. Every
+// payroll PDF function and send-facture-reminder hit the same wall and
+// were made self-contained for the same reason; this one follows that
+// precedent. Keep escapeHtml/textToHtmlLines/buildDocumentEmailHtml/
+// sendResendEmail in sync with _shared/resend.ts by hand if those change.
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function textToHtmlLines(text: string): string {
+  return escapeHtml(text).split('\n').join('<br/>');
+}
+function buildDocumentEmailHtml(params: {
+  clientName: string | null;
+  bodyMessage: string;
+  linkUrl: string;
+  linkLabel: string;
+  linkHint: string;
+  signature: string;
+}): string {
+  const { clientName, bodyMessage, linkUrl, linkLabel, linkHint, signature } = params;
+  const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  return `
+    <div style="font-family: ${font}; font-size: 15px; line-height: 1.6; color: #1a1f1c; max-width: 560px;">
+      <p style="margin: 0 0 16px;">Bonjour${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>
+      <p style="margin: 0 0 20px;">${textToHtmlLines(bodyMessage)}</p>
+      <p style="margin: 0 0 24px;">
+        <a href="${linkUrl}" style="color: #1f3d3a; font-weight: 700; text-decoration: underline;">${escapeHtml(linkLabel)}</a>
+        ${linkHint ? ` — ${escapeHtml(linkHint)}` : ''}
+      </p>
+      <p style="margin: 0; padding-top: 16px; border-top: 1px solid #e5e2da; color: #1a1f1c;">${textToHtmlLines(signature)}</p>
+    </div>
+  `.trim();
+}
+async function sendResendEmail(params: {
+  apiKey: string;
+  from: string;
+  to: string[];
+  subject: string;
+  html: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${params.apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: params.from, to: params.to, subject: params.subject, html: params.html }),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('Resend error', res.status, errText);
+    return { ok: false, error: `Échec de l'envoi de l'e-mail (${res.status})` };
+  }
+  return { ok: true };
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,17 +65,16 @@ const corsHeaders = {
 
 // Not the project's service-role key (this function has no way to obtain
 // that from this environment) — an internal secret whose only purpose is to
-// stop an outsider from invoking this endpoint at random. Read from Vault
-// (name 'dispatch_secret') by the migration's dispatch_notification_http()
-// trigger, and set here as an edge function env var — never hardcoded, see
-// 20260828140000_dispatch_secret_vault.sql. verify_jwt is off for this
-// function since the caller is a DB trigger, not a signed-in user.
-const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
+// stop an outsider from invoking this endpoint at random. Duplicated as-is
+// in the migration's dispatch_notification_http() trigger. verify_jwt is
+// off for this function since the caller is a DB trigger, not a signed-in
+// user.
+const DISPATCH_SECRET = '3cafd1059f6e75930c7c09c4e9af5de9e435fbb49cbe5fdcb4964d7512d7bc1b';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
-  if (!DISPATCH_SECRET || req.headers.get('x-dispatch-secret') !== DISPATCH_SECRET) {
+  if (req.headers.get('x-dispatch-secret') !== DISPATCH_SECRET) {
     return json({ error: 'unauthorized' }, 401);
   }
 
@@ -40,7 +95,11 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', notif.user_id)
       .eq('type', notif.type)
       .maybeSingle();
-    const emailEnabled = pref?.email_enabled ?? false;
+    // Every other type defaults email off (opt-in) — but payslip_ready IS
+    // the notification: it exists specifically so an employee learns their
+    // payslip is ready without having to think to open the app, so it
+    // defaults to on like in-app/push do for every type.
+    const emailEnabled = pref?.email_enabled ?? (notif.type === 'payslip_ready');
     const pushEnabled = pref?.push_enabled ?? true;
 
     const results: { push?: unknown; email?: unknown } = {};

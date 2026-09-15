@@ -976,7 +976,8 @@ export type NotificationType =
   | 'facture_overdue'
   | 'recurring_expense_due'
   | 'extra_work_accepted'
-  | 'feed_message';
+  | 'feed_message'
+  | 'payslip_ready';
 
 export interface Notification {
   id: string;
