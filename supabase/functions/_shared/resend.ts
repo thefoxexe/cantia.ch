@@ -108,22 +108,22 @@ export function buildDocumentEmailHtml(params: {
   `.trim();
 }
 
-// Shared branded shell (logo header, cream background, footer) used by
+// Shared branded shell (wordmark header, cream background, footer) used by
 // emails that are less "business document" and more "product moment" —
 // currently the client-portal verification code. The document emails
 // (devis/facture/relance) stay on buildDocumentEmailHtml's plainer layout
 // on purpose: those carry an org's own message and PDF, this one is pure
-// Cantia product chrome. Colors match lib/theme.ts; the logo is served from
-// the public/ folder (not the hashed assets/ bundle) specifically so it has
-// a stable URL an email client can fetch: https://cantia.ch/logo-email.png.
+// Cantia product chrome. Colors match lib/theme.ts. The header is a plain
+// text wordmark, not an <img> — an external logo fetch is one more thing
+// that can fail (host hiccup, Gmail's image proxy caching a miss) and shows
+// as a broken-image glyph when it does; text always renders.
 export function buildBrandedEmailShell(bodyHtml: string, locale: PdfLocale = 'fr'): string {
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
   return `
     <div style="background: #F7F1E6; padding: 40px 20px; font-family: ${font};">
       <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6D8C2; overflow: hidden;">
         <div style="padding: 28px 32px 20px; border-bottom: 1px solid #E6D8C2;">
-          <img src="https://cantia.ch/logo-email.png" width="32" height="32" alt="Cantia" style="vertical-align: middle; border-radius: 7px; border: 0; display: inline-block;" />
-          <span style="font-size: 18px; font-weight: 700; color: #231A12; margin-left: 10px; vertical-align: middle;">Cantia</span>
+          <span style="font-size: 20px; font-weight: 800; letter-spacing: 0.2px; color: #231A12;">Cantia</span>
         </div>
         <div style="padding: 32px;">
           ${bodyHtml}

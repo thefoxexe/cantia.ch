@@ -58,6 +58,7 @@ export default function VerifyEmailScreen() {
           <Text style={styles.hint}>
             {email ? t('authVerifyEmail.hintWithEmail', { email }) : t('authVerifyEmail.hintNoEmail')}
           </Text>
+          <Text style={styles.spamHint}>{t('authVerifyEmail.spamHint')}</Text>
 
           <View style={styles.form}>
             {/* Not capped to a fixed length: Supabase generates this code,
@@ -121,7 +122,14 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.xs,
+  },
+  spamHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.sm,
     marginBottom: spacing.xxl,
+    fontStyle: 'italic',
   },
   form: {
     marginTop: spacing.md,

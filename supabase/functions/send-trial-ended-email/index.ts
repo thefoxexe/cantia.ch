@@ -75,8 +75,7 @@ function buildBrandedEmailShell(bodyHtml: string, locale: Locale): string {
     <div style="background: #F7F1E6; padding: 40px 20px; font-family: ${font};">
       <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6D8C2; overflow: hidden;">
         <div style="padding: 28px 32px 20px; border-bottom: 1px solid #E6D8C2;">
-          <img src="https://cantia.ch/logo-email.png" width="32" height="32" alt="Cantia" style="vertical-align: middle; border-radius: 7px; border: 0; display: inline-block;" />
-          <span style="font-size: 18px; font-weight: 700; color: #231A12; margin-left: 10px; vertical-align: middle;">Cantia</span>
+          <span style="font-size: 20px; font-weight: 800; letter-spacing: 0.2px; color: #231A12;">Cantia</span>
         </div>
         <div style="padding: 32px;">
           ${bodyHtml}

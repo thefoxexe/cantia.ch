@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -14,6 +15,7 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
+import { isValidSwissIban, formatIban } from '../../../lib/iban';
 import { ORG_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import type { Plan } from '../../../lib/types';
 
@@ -27,14 +29,29 @@ const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   payroll: 'has_payroll',
   treasury: 'has_treasury',
 };
+const MODULE_ICONS: Record<ModuleKey, keyof typeof Feather.glyphMap> = {
+  devis: 'file-text',
+  planning: 'calendar',
+  payroll: 'users',
+  treasury: 'trending-up',
+  accounting: 'book-open',
+  documents: 'folder',
+  photos: 'camera',
+  metre: 'list',
+  subcontractors: 'briefcase',
+  profitability: 'bar-chart-2',
+};
 
 const STEP_COUNT = 3;
+const STEP_ICONS: (keyof typeof Feather.glyphMap)[] = ['briefcase', 'sliders', 'check-circle'];
 
 export default function OnboardingSetupScreen() {
   const { t } = useTranslation();
   const { organization, refreshOrganization } = useAuth();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [finishing, setFinishing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Step 1 — company profile
   const [website, setWebsite] = useState(organization?.website ?? '');
@@ -44,6 +61,7 @@ export default function OnboardingSetupScreen() {
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
+  const [iban, setIban] = useState(organization?.iban ?? '');
   const [logoAsset, setLogoAsset] = useState<{ uri: string; mimeType?: string | null } | null>(null);
   const [brandColor, setBrandColor] = useState(organization?.brand_color ?? DEFAULT_BRAND_COLOR);
   const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
@@ -72,7 +90,7 @@ export default function OnboardingSetupScreen() {
   }
 
   function toggleModule(key: ModuleKey) {
-    if (isPlanGated(key)) return;
+    if (plan === undefined || isPlanGated(key)) return;
     setEnabledModules((prev) => (isModuleEnabled(prev, key) ? prev.filter((m) => m !== key) : [...prev, key]));
   }
 
@@ -107,41 +125,72 @@ export default function OnboardingSetupScreen() {
     addSuggestions(found);
   }
 
-  async function persistProfile() {
-    if (!organization) return;
-    const updates: Record<string, string | null> = {};
+  function validateProfile(): string | null {
+    if (!street.trim() || !postalCode.trim() || !locality.trim()) return t('authOnboardingSetup.addressRequired');
+    if (!phone.trim()) return t('authOnboardingSetup.phoneRequired');
+    if (!email.trim()) return t('authOnboardingSetup.emailRequired');
+    if (!ideNumber.trim()) return t('authOnboardingSetup.ideRequired');
+    if (iban.trim() && !isValidSwissIban(iban.trim())) return t('authOnboardingSetup.ibanInvalid');
+    return null;
+  }
+
+  // Returns false (and sets `error`) on failure so callers can stop the
+  // wizard from silently moving on past a write that never actually landed.
+  async function persistProfile(): Promise<boolean> {
+    if (!organization) return false;
+    const updates: Record<string, string | null> = {
+      street: street.trim(),
+      postal_code: postalCode.trim(),
+      locality: locality.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      ide_number: ideNumber.trim(),
+    };
     if (website.trim()) updates.website = website.trim();
-    if (street.trim()) updates.street = street.trim();
-    if (postalCode.trim()) updates.postal_code = postalCode.trim();
-    if (locality.trim()) updates.locality = locality.trim();
-    if (phone.trim()) updates.phone = phone.trim();
-    if (email.trim()) updates.email = email.trim();
-    if (ideNumber.trim()) updates.ide_number = ideNumber.trim();
+    if (iban.trim()) updates.iban = iban.trim().replace(/\s+/g, '').toUpperCase();
     if (HEX_COLOR_RE.test(brandColor) && brandColor.toLowerCase() !== DEFAULT_BRAND_COLOR.toLowerCase()) {
       updates.brand_color = brandColor;
     }
     if (logoAsset) {
       const raw = assetFileInfo(logoAsset);
       const { uri, ext, contentType } = await normalizeImageOrientation(logoAsset.uri, raw.contentType);
-      const { path, error } = await uploadToOrgBucket(organization.id, `branding/logo-${Date.now()}.${ext}`, uri, contentType);
+      const { path, error: uploadError } = await uploadToOrgBucket(organization.id, `branding/logo-${Date.now()}.${ext}`, uri, contentType);
       if (path) updates.logo_url = path;
-      else if (error) console.error('Logo upload failed:', error);
+      else if (uploadError) console.error('Logo upload failed:', uploadError);
     }
-    if (Object.keys(updates).length) {
-      await supabase.from('organizations').update(updates).eq('id', organization.id);
+    const { error: dbError } = await supabase.from('organizations').update(updates).eq('id', organization.id);
+    if (dbError) {
+      setError(dbError.message);
+      return false;
     }
+    return true;
   }
 
   async function handleNext() {
+    setError(null);
     if (step === 1) {
-      await persistProfile();
+      const validationError = validateProfile();
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+      setFinishing(true);
+      const ok = await persistProfile();
+      setFinishing(false);
+      if (!ok) return;
       setStep(2);
       loadPlanOnce();
       return;
     }
     if (step === 2) {
       if (!organization) return;
-      await supabase.from('organizations').update({ enabled_modules: enabledModules }).eq('id', organization.id);
+      setFinishing(true);
+      const { error: dbError } = await supabase.from('organizations').update({ enabled_modules: enabledModules }).eq('id', organization.id);
+      setFinishing(false);
+      if (dbError) {
+        setError(dbError.message);
+        return;
+      }
       setStep(3);
       return;
     }
@@ -150,37 +199,54 @@ export default function OnboardingSetupScreen() {
 
   async function handleFinish() {
     if (!organization || finishing) return;
+    setError(null);
     setFinishing(true);
-    await supabase.from('organizations').update({ onboarding_completed: true }).eq('id', organization.id);
+    const { error: dbError } = await supabase.from('organizations').update({ onboarding_completed: true }).eq('id', organization.id);
+    if (dbError) {
+      setFinishing(false);
+      setError(dbError.message);
+      return;
+    }
     await refreshOrganization();
-    // The root layout takes it from here — organization.onboarding_completed
-    // being true is what lets it through into /(app).
+    setFinishing(false);
+    // Belt-and-suspenders: the root layout's own redirect effect also
+    // reacts to organization.onboarding_completed flipping true, but
+    // navigating explicitly here means this screen never sits there doing
+    // nothing if that effect is ever slow to re-fire.
+    router.replace('/(app)');
   }
 
-  async function handleSkip() {
+  async function handleSkipModules() {
     if (!organization || finishing) return;
+    setError(null);
     setFinishing(true);
-    if (step === 1) {
-      // Keep whatever was already filled in on this step even when skipping
-      // the rest — no reason to throw away a logo/address someone just set.
-      await persistProfile();
-      await supabase.from('organizations').update({ enabled_modules: DEFAULT_ACTIVE_MODULES }).eq('id', organization.id);
-    } else if (step === 2) {
-      await supabase.from('organizations').update({ enabled_modules: enabledModules }).eq('id', organization.id);
+    const { error: dbError } = await supabase.from('organizations').update({ enabled_modules: DEFAULT_ACTIVE_MODULES, onboarding_completed: true }).eq('id', organization.id);
+    if (dbError) {
+      setFinishing(false);
+      setError(dbError.message);
+      return;
     }
-    await supabase.from('organizations').update({ onboarding_completed: true }).eq('id', organization.id);
     await refreshOrganization();
+    setFinishing(false);
+    router.replace('/(app)');
   }
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.stepIconWrap}>
+          <Feather name={STEP_ICONS[step - 1]} size={22} color={colors.primary} />
+        </View>
         <View style={styles.progressRow}>
           {Array.from({ length: STEP_COUNT }, (_, i) => i + 1).map((n) => (
-            <View key={n} style={[styles.progressDot, n <= step && styles.progressDotActive]} />
+            <View key={n} style={styles.progressSegment}>
+              <View style={[styles.progressDot, n < step && styles.progressDotDone, n === step && styles.progressDotActive]}>
+                {n < step ? <Feather name="check" size={11} color="#fff" /> : <Text style={[styles.progressDotText, n === step && styles.progressDotTextActive]}>{n}</Text>}
+              </View>
+              {n < STEP_COUNT ? <View style={[styles.progressLine, n < step && styles.progressLineDone]} /> : null}
+            </View>
           ))}
         </View>
-        <Text style={styles.stepLabel}>{t('authOnboardingSetup.stepLabel', { current: step, total: STEP_COUNT })}</Text>
 
         {step === 1 ? (
           <StepProfile
@@ -199,6 +265,8 @@ export default function OnboardingSetupScreen() {
             setEmail={setEmail}
             ideNumber={ideNumber}
             setIdeNumber={setIdeNumber}
+            iban={iban}
+            setIban={setIban}
             logoAsset={logoAsset}
             onPickLogo={pickLogo}
             brandColor={brandColor}
@@ -226,24 +294,29 @@ export default function OnboardingSetupScreen() {
             street={street}
             postalCode={postalCode}
             locality={locality}
+            iban={iban}
             enabledModules={enabledModules}
             onEditProfile={() => setStep(1)}
             onEditModules={() => setStep(2)}
           />
         ) : null}
 
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <View style={styles.footer}>
           {step > 1 ? (
-            <Pressable onPress={() => setStep((s) => s - 1)} style={styles.backBtn} hitSlop={8}>
+            <Pressable onPress={() => { setError(null); setStep((s) => s - 1); }} style={styles.backBtn} hitSlop={8}>
               <Feather name="arrow-left" size={15} color={colors.textMuted} />
               <Text style={styles.backBtnText}>{t('authOnboardingSetup.previous')}</Text>
             </Pressable>
           ) : (
             <View />
           )}
-          <Pressable onPress={handleSkip} hitSlop={8} disabled={finishing}>
-            <Text style={styles.skipText}>{t('authOnboardingSetup.skip')}</Text>
-          </Pressable>
+          {step === 2 ? (
+            <Pressable onPress={handleSkipModules} hitSlop={8} disabled={finishing}>
+              <Text style={styles.skipText}>{t('authOnboardingSetup.skip')}</Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <Button
@@ -273,6 +346,8 @@ function StepProfile({
   setEmail,
   ideNumber,
   setIdeNumber,
+  iban,
+  setIban,
   logoAsset,
   onPickLogo,
   brandColor,
@@ -296,6 +371,8 @@ function StepProfile({
   setEmail: (v: string) => void;
   ideNumber: string;
   setIdeNumber: (v: string) => void;
+  iban: string;
+  setIban: (v: string) => void;
   logoAsset: { uri: string } | null;
   onPickLogo: () => void;
   brandColor: string;
@@ -305,6 +382,7 @@ function StepProfile({
   onAnalyzeWebsite: () => void;
 }) {
   const { t } = useTranslation();
+  const validIban = !iban.trim() || isValidSwissIban(iban.trim());
   return (
     <View>
       <Text style={styles.title}>{t('authOnboardingSetup.profileTitle', { name: organization?.name ?? '' })}</Text>
@@ -352,6 +430,10 @@ function StepProfile({
         </Pressable>
       ) : null}
 
+      <View style={styles.sectionDivider}>
+        <Text style={styles.sectionDividerText}>{t('authOnboardingSetup.requiredSectionTitle')}</Text>
+      </View>
+
       <SwissAddressField
         label={t('authOnboardingSetup.streetLabel')}
         value={street}
@@ -382,7 +464,22 @@ function StepProfile({
       </View>
 
       <Field label={t('authOnboardingSetup.ideLabel')} value={ideNumber} onChangeText={setIdeNumber} placeholder="CHE-123.456.789" />
-      <Text style={styles.hint}>{t('authOnboardingSetup.allOptionalHint')}</Text>
+
+      <View style={styles.sectionDivider}>
+        <Text style={styles.sectionDividerText}>{t('authOnboardingSetup.optionalSectionTitle')}</Text>
+      </View>
+      <Field
+        label={t('authOnboardingSetup.ibanLabel')}
+        value={iban}
+        onChangeText={setIban}
+        autoCapitalize="characters"
+        placeholder="CH93 0076 2011 6238 5295 7"
+      />
+      {iban.trim() && !validIban ? (
+        <Text style={styles.errorHint}>{t('authOnboardingSetup.ibanInvalid')}</Text>
+      ) : (
+        <Text style={styles.hint}>{t('authOnboardingSetup.ibanHint')}</Text>
+      )}
     </View>
   );
 }
@@ -420,6 +517,9 @@ function StepModules({
               disabled={gated}
               style={[styles.moduleCard, active && styles.moduleCardActive, gated && styles.moduleCardGated]}
             >
+              <View style={[styles.moduleIcon, active && styles.moduleIconActive]}>
+                <Feather name={MODULE_ICONS[m.key]} size={18} color={active ? '#fff' : colors.primary} />
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.moduleLabel}>{t(`modules.${m.key}.label` as any)}</Text>
                 <Text style={styles.moduleDesc}>{t(`modules.${m.key}.description` as any)}</Text>
@@ -443,6 +543,7 @@ function StepRecap({
   street,
   postalCode,
   locality,
+  iban,
   enabledModules,
   onEditProfile,
   onEditModules,
@@ -452,6 +553,7 @@ function StepRecap({
   street: string;
   postalCode: string;
   locality: string;
+  iban: string;
   enabledModules: ModuleKey[];
   onEditProfile: () => void;
   onEditModules: () => void;
@@ -461,7 +563,6 @@ function StepRecap({
   const addressLine = [street, [postalCode, locality].filter(Boolean).join(' ')].filter(Boolean).join(', ');
   return (
     <View>
-      <Feather name="check-circle" size={32} color={colors.success} style={styles.recapIcon} />
       <Text style={[styles.title, { textAlign: 'center' }]}>{t('authOnboardingSetup.recapTitle')}</Text>
       <Text style={[styles.subtitle, { textAlign: 'center' }]}>{t('authOnboardingSetup.recapSubtitle')}</Text>
 
@@ -475,6 +576,7 @@ function StepRecap({
         <Text style={styles.recapValue}>{organization?.name}</Text>
         {addressLine ? <Text style={styles.recapValueMuted}>{addressLine}</Text> : null}
         {website.trim() ? <Text style={styles.recapValueMuted}>{website.trim()}</Text> : null}
+        {iban.trim() ? <Text style={styles.recapValueMuted}>{formatIban(iban.trim())}</Text> : null}
       </View>
 
       <View style={styles.recapCard}>
@@ -503,34 +605,66 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
   },
+  stepIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: spacing.lg,
+  },
   progressRow: {
     flexDirection: 'row',
-    gap: spacing.xs,
+    alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  progressSegment: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   progressDot: {
-    width: 28,
-    height: 4,
+    width: 26,
+    height: 26,
     borderRadius: radius.pill,
-    backgroundColor: colors.border,
+    borderWidth: 2,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressDotActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  progressDotDone: {
+    borderColor: colors.primary,
     backgroundColor: colors.primary,
   },
-  stepLabel: {
-    fontSize: fontSize.xs,
+  progressDotText: {
+    fontSize: 11,
     fontWeight: '700',
     color: colors.textMuted,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginBottom: spacing.lg,
+  },
+  progressDotTextActive: {
+    color: colors.primary,
+  },
+  progressLine: {
+    width: 32,
+    height: 2,
+    backgroundColor: colors.border,
+    marginHorizontal: 2,
+  },
+  progressLineDone: {
+    backgroundColor: colors.primary,
   },
   title: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: fontSize.md,
@@ -538,6 +672,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
     lineHeight: 21,
+    textAlign: 'center',
   },
   fieldLabel: {
     fontSize: fontSize.sm,
@@ -549,6 +684,26 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginBottom: spacing.sm,
+  },
+  errorHint: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+    fontWeight: '600',
+    marginBottom: spacing.sm,
+  },
+  sectionDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.lg,
+    marginTop: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  sectionDividerText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   row2: {
     flexDirection: 'row',
@@ -638,6 +793,17 @@ const styles = StyleSheet.create({
   moduleCardGated: {
     opacity: 0.55,
   },
+  moduleIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moduleIconActive: {
+    backgroundColor: colors.primary,
+  },
   moduleLabel: {
     fontSize: fontSize.md,
     fontWeight: '700',
@@ -667,10 +833,6 @@ const styles = StyleSheet.create({
   moduleCheckActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
-  },
-  recapIcon: {
-    alignSelf: 'center',
-    marginBottom: spacing.md,
   },
   recapCard: {
     backgroundColor: colors.surface,
@@ -707,6 +869,13 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: spacing.md,
   },
   footer: {
     flexDirection: 'row',
