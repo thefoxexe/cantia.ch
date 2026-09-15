@@ -7,6 +7,7 @@ import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome
 import { MarketingHead } from '../components/MarketingHead';
 import { PricingSection } from '../components/PricingSection';
 import { HeroCross } from '../components/landing/HeroCross';
+import { SwissCross } from '../components/SwissCross';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
 import { VoiceDemo } from '../components/landing/VoiceDemo';
@@ -129,7 +130,7 @@ function LandingContent() {
           <View style={[styles.wrap, styles.heroCopy]}>
             <View style={styles.heroKicker}>
               <View style={styles.originSymbol}>
-                <Feather name="plus" size={13} color={colors.primary} />
+                <SwissCross size={15} />
               </View>
               <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
             </View>
@@ -180,7 +181,7 @@ function LandingContent() {
             <View style={[styles.trustOrigin, !isTablet && { flex: 0.9 }]}>
               <View style={styles.trustLocationRow}>
                 <View style={styles.originSymbolSmall}>
-                  <Feather name="plus" size={11} color={colors.primary} />
+                  <SwissCross size={13} />
                 </View>
                 <Text style={styles.trustLocationText}>{t.trust.locationLabel}</Text>
               </View>
@@ -487,8 +488,8 @@ const styles = StyleSheet.create({
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl },
   heroCopy: { paddingTop: spacing.xl },
   heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
-  originSymbol: { width: 27, height: 27, borderRadius: 7, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
-  originSymbolSmall: { width: 20, height: 20, borderRadius: 5, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  originSymbol: { alignItems: 'center', justifyContent: 'center' },
+  originSymbolSmall: { alignItems: 'center', justifyContent: 'center' },
   heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
   heroMain: { flexDirection: 'row', gap: 60, paddingVertical: spacing.xl, alignItems: 'center' },
   heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },

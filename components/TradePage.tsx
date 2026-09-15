@@ -180,12 +180,12 @@ export function TradePage({ slug }: { slug: string }) {
         {relatedPosts.length ? (
           <Container style={styles.section}>
             <Text style={styles.eyebrow}>{t('tradePage.furtherReadingEyebrow')}</Text>
-            <View style={styles.relatedRow}>
+            <View style={styles.articleColumn}>
               {relatedPosts.map((post) => (
                 <Link key={post!.slug} href={`${hrefPrefix}blog/${post!.slug}` as any} asChild>
-                  <Pressable style={styles.relatedChip}>
-                    <Text style={styles.relatedChipText}>{post!.title}</Text>
-                    <Feather name="arrow-right" size={13} color={colors.primary} />
+                  <Pressable style={styles.articleCard}>
+                    <Text style={styles.articleCardText}>{post!.title}</Text>
+                    <Feather name="arrow-right" size={15} color={colors.primary} />
                   </Pressable>
                 </Link>
               ))}
@@ -434,6 +434,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   relatedChipText: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
+  // Blog post titles are full sentences (unlike the short trade names in
+  // relatedChip above), so they get a full-width row that wraps instead of
+  // a pill that would either overflow on mobile or truncate silently.
+  articleColumn: { gap: spacing.sm },
+  articleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  articleCardText: { flex: 1, fontFamily: marketingFonts.body, fontSize: fontSize.sm, fontWeight: '600', color: colors.text, lineHeight: 19 },
   closingOuter: {
     maxWidth: 1040,
     width: '100%',

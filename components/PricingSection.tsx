@@ -32,10 +32,18 @@ export function PricingSection({ compact }: { compact?: boolean }) {
       .neq('id', 'decouverte')
       .eq('is_contact_only', false)
       .order('price_chf_monthly', { ascending: true })
-      .then(({ data }) => {
-        setPlans(data ?? []);
-        setLoading(false);
-      });
+      .then(
+        ({ data }) => {
+          setPlans(data ?? []);
+          setLoading(false);
+        },
+        (err: unknown) => {
+          // Without this, a network hiccup leaves the section stuck on its
+          // skeleton forever — the single biggest conversion block on the page.
+          console.error('PricingSection: failed to load plans', err);
+          setLoading(false);
+        },
+      );
   }, []);
 
   return (

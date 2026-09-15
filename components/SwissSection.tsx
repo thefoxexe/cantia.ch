@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Container } from './ui';
+import { SwissCross } from './SwissCross';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { useTranslation } from '../lib/translations';
@@ -10,21 +11,24 @@ import { useTranslation } from '../lib/translations';
 // never drifts or gets watered down on a page built later than the others.
 export function SwissSection() {
   const { t } = useTranslation();
-  const FACTS: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
+  const FACTS: { icon: keyof typeof Feather.glyphMap | 'hosting'; title: string; text: string }[] = [
     { icon: 'dollar-sign', title: t('swissSection.factChfTitle'), text: t('swissSection.factChfText') },
     { icon: 'percent', title: t('swissSection.factVatTitle'), text: t('swissSection.factVatText') },
     { icon: 'credit-card', title: t('swissSection.factQrTitle'), text: t('swissSection.factQrText') },
-    { icon: 'lock', title: t('swissSection.factHostingTitle'), text: t('swissSection.factHostingText') },
+    { icon: 'hosting', title: t('swissSection.factHostingTitle'), text: t('swissSection.factHostingText') },
   ];
   return (
     <Container style={styles.outer}>
+      <View style={styles.flagBadge}>
+        <SwissCross size={16} />
+      </View>
       <Text style={styles.title}>{t('swissSection.title')}</Text>
       <Text style={styles.text}>{t('swissSection.text')}</Text>
       <View style={styles.grid}>
         {FACTS.map((f) => (
           <View key={f.title} style={styles.card}>
             <View style={styles.iconBadge}>
-              <Feather name={f.icon} size={16} color={colors.primary} />
+              {f.icon === 'hosting' ? <SwissCross size={16} /> : <Feather name={f.icon} size={16} color={colors.primary} />}
             </View>
             <Text style={styles.cardTitle}>{f.title}</Text>
             <Text style={styles.cardText}>{f.text}</Text>
@@ -44,6 +48,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
     alignItems: 'center',
   },
+  flagBadge: { marginBottom: spacing.sm },
   title: {
     fontFamily: marketingFonts.display,
     fontSize: 28,
