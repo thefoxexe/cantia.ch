@@ -4,21 +4,22 @@ import Svg, { Path } from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-// A hand-scribbled cross-out over "Pas votre administratif." — two quick,
-// slightly wavy pen strokes (real handwriting never draws a perfectly
-// straight line) that draw themselves on stroke-by-stroke, the way a hand
-// actually moves a pen, rather than a shape wiped in behind a mask. This
-// replaces the old approach entirely: no more CSS line-through underneath
-// (see crossedText in app/index.tsx) and no more filled "paint blob" path —
-// just two stroked lines revealed via the standard SVG
-// stroke-dasharray/-dashoffset "line draws itself" technique. Each path's
-// dash length is the sum of its straight segments (a safe upper bound on
-// actual length for a polyline), so the reveal lands exactly at the
-// stroke's end with no visible jump.
-const STROKE_ONE = 'M14,30 L180,16 L360,34 L520,18 L588,32';
-const STROKE_ONE_LENGTH = 585;
-const STROKE_TWO = 'M20,86 L200,70 L380,92 L540,68 L582,88';
-const STROKE_TWO_LENGTH = 578;
+// A hand-scribbled cross-out over "Pas votre administratif." — an actual
+// X: one stroke trending top-left to bottom-right, the other trending
+// bottom-left to top-right, so they visibly intersect over the text (the
+// first version had both strokes trend the same direction — two stacked
+// wavy underlines, never crossing, which read as anything but a "croix").
+// Both are slightly wavy polylines (real handwriting never draws a
+// perfectly straight line) that draw themselves on stroke-by-stroke via
+// the standard SVG stroke-dasharray/-dashoffset "line draws itself"
+// technique — no CSS line-through, no static filled shape wiped in behind
+// a mask. Each path's dash length is the sum of its straight segments (a
+// safe upper bound on actual length for a polyline), so the reveal lands
+// exactly at the stroke's end with no visible jump.
+const STROKE_ONE = 'M14,20 L200,28 L380,46 L588,86';
+const STROKE_ONE_LENGTH = 582;
+const STROKE_TWO = 'M20,92 L220,66 L400,40 L582,18';
+const STROKE_TWO_LENGTH = 570;
 
 function Stroke({
   d,
