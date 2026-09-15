@@ -16,7 +16,7 @@ import { Disclosure } from '../components/landing/Disclosure';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
-import { colors, breakpoints, radius, spacing } from '../lib/theme';
+import { colors, breakpoints, fontSize, radius, spacing } from '../lib/theme';
 import { landingFonts } from '../lib/landingTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 
@@ -480,16 +480,31 @@ const styles = StyleSheet.create({
   textLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.primary, marginTop: spacing.sm },
 
   // Nav
-  nav: { position: Platform.OS === 'web' ? ('fixed' as any) : 'absolute', top: 0, left: 0, right: 0, backgroundColor: '#fffffff2', borderBottomWidth: 1, borderBottomColor: 'transparent', zIndex: 20 },
-  navScrolled: { borderBottomColor: colors.border },
-  navInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: '100%', paddingHorizontal: spacing.xl, maxWidth: 1200, width: '100%', alignSelf: 'center', gap: spacing.lg },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  brandLogo: { width: 28, height: 28 },
-  brandText: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', letterSpacing: -0.5, color: colors.text },
-  navLinks: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
-  navLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '500', color: colors.text },
-  navActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
-  navCta: { paddingVertical: 11, paddingHorizontal: 18 },
+  // Back to the pre-rebuild nav's frosted-glass treatment (same
+  // rgba(247, 241, 230, 0.7) — that's colors.bg '#F7F1E6' — over a blur,
+  // rather than the near-opaque white bar the Cantia_Landing rebuild used)
+  // per explicit feedback: the old navbar, not this one.
+  nav: {
+    position: Platform.OS === 'web' ? ('fixed' as any) : 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(247, 241, 230, 0.7)',
+    backdropFilter: 'saturate(180%) blur(20px)',
+    WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+    zIndex: 20,
+  } as any,
+  navScrolled: { borderBottomColor: colors.border, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
+  navInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: '100%', paddingHorizontal: spacing.xl, maxWidth: 1080, width: '100%', alignSelf: 'center', gap: spacing.md },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  brandLogo: { width: 24, height: 24 },
+  brandText: { fontFamily: landingFonts.body, fontSize: fontSize.md, fontWeight: '800', letterSpacing: 0.3, color: colors.text },
+  navLinks: { flexDirection: 'row', flexWrap: 'wrap', flexShrink: 1, minWidth: 0, alignItems: 'center', justifyContent: 'flex-end', gap: spacing.md },
+  navLink: { fontFamily: landingFonts.body, fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
+  navActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  navCta: { height: 38, paddingHorizontal: spacing.lg },
 
   // Hero
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl },
