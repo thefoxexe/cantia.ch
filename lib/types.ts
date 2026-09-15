@@ -507,6 +507,22 @@ export interface ClientDocumentsPayload {
   factures: ClientDocumentSummary[];
 }
 
+export interface PublicPayslipSummary {
+  id: string;
+  year: number;
+  month: number;
+  status: 'validee' | 'payee';
+  net_chf: number;
+}
+
+export interface PublicPayslipsPayload {
+  organization_name: string;
+  organization_locale: 'fr' | 'de' | 'it';
+  organization_logo_url: string | null;
+  employee_name: string;
+  payslips: PublicPayslipSummary[];
+}
+
 export interface FactureItem {
   id: string;
   facture_id: string;
@@ -750,6 +766,13 @@ export interface PayrollProfile {
   notes: string | null;
   avs_number: string | null;
   birth_date: string | null;
+  iban: string | null;
+  // Deliberately separate from any app login email — set by the payroll
+  // manager, used only to reach the employee for the public payslip
+  // portal (see /salaire-employe/[token]). Works even for employees with
+  // no app account at all (ghost employees) or who never log in.
+  personal_email: string | null;
+  public_token: string;
   // §7.5 "Soldes horaires" groundwork — all three stay null until the
   // organization sets them: hire_date is real contract data, and while
   // vacation_days_per_year has a legally-fixed minimum (Art. 329a CO), a
@@ -976,8 +999,7 @@ export type NotificationType =
   | 'facture_overdue'
   | 'recurring_expense_due'
   | 'extra_work_accepted'
-  | 'feed_message'
-  | 'payslip_ready';
+  | 'feed_message';
 
 export interface Notification {
   id: string;

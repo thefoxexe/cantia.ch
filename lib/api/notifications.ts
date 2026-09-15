@@ -10,7 +10,6 @@ export const NOTIFICATION_TYPES: { type: NotificationType; label: string; descri
   { type: 'recurring_expense_due', label: 'Dépense récurrente à venir', description: "Un abonnement ou une charge récurrente arrive à échéance." },
   { type: 'extra_work_accepted', label: 'Travaux supplémentaires acceptés', description: "Un client a accepté et signé des travaux supplémentaires." },
   { type: 'feed_message', label: 'Message de chantier', description: "Quelqu'un poste un message dans le fil d'un chantier." },
-  { type: 'payslip_ready', label: 'Fiche de salaire disponible', description: "La personne qui gère la paie vous notifie qu'une fiche de salaire est prête à consulter." },
 ];
 
 export async function listNotifications(organizationId: string, limit = 50): Promise<Notification[]> {

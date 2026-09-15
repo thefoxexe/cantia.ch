@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, Redirect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
@@ -94,7 +94,7 @@ function LandingContent() {
       <View style={[styles.nav, scrolled && styles.navScrolled, { height: NAV_HEIGHT }]}>
         <View style={styles.navInner}>
           <Link href="/" style={styles.brand}>
-            <Feather name="hexagon" size={22} color={colors.primary} />
+            <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
             <Text style={styles.brandText}>Cantia</Text>
           </Link>
           {!isTablet ? <View style={styles.navLinks}>{navLinks}</View> : null}
@@ -364,7 +364,7 @@ function LandingContent() {
         <View style={styles.wrap}>
           <View style={[styles.bexioBanner, isMobile && styles.bexioBannerCompact]}>
             <View style={styles.bexioIcon}>
-              <Feather name="hexagon" size={22} color={colors.textMuted} />
+              <Image source={require('../assets/logo-mark.png')} style={styles.bexioLogo} resizeMode="contain" accessibilityLabel="Cantia" />
               <Text style={styles.bexioIconArrow}>↔</Text>
               <Text style={styles.bexioWord}>bexio</Text>
             </View>
@@ -476,6 +476,7 @@ const styles = StyleSheet.create({
   navScrolled: { borderBottomColor: colors.border },
   navInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: '100%', paddingHorizontal: spacing.xl, maxWidth: 1200, width: '100%', alignSelf: 'center', gap: spacing.lg },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  brandLogo: { width: 28, height: 28 },
   brandText: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', letterSpacing: -0.5, color: colors.text },
   navLinks: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
   navLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '500', color: colors.text },
@@ -588,6 +589,7 @@ const styles = StyleSheet.create({
   bexioBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, backgroundColor: colors.surface, padding: spacing.xl, marginVertical: spacing.xxxl },
   bexioBannerCompact: { flexDirection: 'column', alignItems: 'flex-start' },
   bexioIcon: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  bexioLogo: { width: 26, height: 26 },
   bexioIconArrow: { color: colors.textMuted },
   bexioWord: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', color: '#64764e', letterSpacing: -1 },
   bexioTitle: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: colors.text, marginVertical: 4 },

@@ -132,6 +132,16 @@ const LABELS = {
     de: 'Hier ist Ihr Code, um {doc} {number} von {org} anzusehen:',
     it: 'Ecco il vostro codice per consultare il {doc} {number} di {org}:',
   },
+  // Dedicated payslip wording rather than reusing verificationCodeTitle/Intro's
+  // {doc} placeholder — "fiche de salaire" is feminine (le/la agreement)
+  // while devis/facture (that template's only other callers) are masculine,
+  // and there's no document number to slot in either.
+  verificationCodePayslipTitle: { fr: 'Consulter votre fiche de salaire', de: 'Lohnabrechnung ansehen', it: 'Consultare la sua busta paga' },
+  verificationCodePayslipIntro: {
+    fr: 'Voici votre code pour consulter votre fiche de salaire de {org} :',
+    de: 'Hier ist Ihr Code, um Ihre Lohnabrechnung von {org} anzusehen:',
+    it: 'Ecco il suo codice per consultare la sua busta paga di {org}:',
+  },
   verificationCodeHint: {
     fr: "Ce code expire dans {minutes} minutes et ne peut être utilisé qu'une seule fois. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
     de: 'Dieser Code läuft in {minutes} Minuten ab und kann nur einmal verwendet werden. Falls Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.',

@@ -718,6 +718,8 @@ export async function upsertPayrollProfile(
       | 'overtime_hourly_rate_chf'
       | 'treizieme_mode'
       | 'treizieme_mois'
+      | 'iban'
+      | 'personal_email'
     >
   >,
   updatedBy: string | undefined,
@@ -1315,13 +1317,16 @@ export async function reversePayrollSlip(slipId: string): Promise<{ id: string |
   return { id: data ?? null, error: error?.message ?? null };
 }
 
-// Sends the employee an in-app + e-mail notification (title/link only, no
-// amounts) pointing them to the "Mes fiches de salaire" self-service
-// screen — the secure-link equivalent of the client portal, reusing the
-// existing generic notifications system instead of a bespoke channel.
-export async function notifyPayslipReady(slipId: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.rpc('notify_payslip_ready', { p_slip_id: slipId });
-  return { error: error?.message ?? null };
+// Sends the employee a branded e-mail (via Resend, no salary figures in the
+// body) with a link to their secure public payslip portal
+// (/salaire-employe/[token]) — mirrors the devis/facture reminder flow, not
+// the in-app notifications system, since payroll (especially fixed-salary
+// or ghost employees) can't assume the recipient ever opens the app.
+export async function sendPayslipEmail(slipId: string): Promise<{ error: string | null }> {
+  const { data, error } = await supabase.functions.invoke('send-payslip-email', { body: { slip_id: slipId } });
+  if (error) return { error: error.message };
+  if (data?.error) return { error: String(data.error) };
+  return { error: null };
 }
 
 // §7.9 "Déclarations préparatoires" — every non-extournée slip for the

@@ -47,6 +47,7 @@ const LABELS = {
   grossSalary: { fr: 'Salaire brut', de: 'Bruttolohn', it: 'Salario lordo' },
   netAdjustments: { fr: 'Ajustements nets (avances, régularisations)', de: 'Netto-Anpassungen (Vorschüsse, Korrekturen)', it: 'Rettifiche nette (anticipi, regolarizzazioni)' },
   netSalary: { fr: 'Salaire net', de: 'Nettolohn', it: 'Salario netto' },
+  paidTo: { fr: 'Versé sur', de: 'Überwiesen auf', it: 'Versato su' },
   dateLabel: { fr: '{place}, le {date}', de: '{place}, den {date}', it: '{place}, il {date}' },
   dateLabelNoPlace: { fr: 'Le {date}', de: 'Den {date}', it: 'Il {date}' },
   page: { fr: 'Page {n}', de: 'Seite {n}', it: 'Pagina {n}' },
@@ -375,6 +376,11 @@ Deno.serve(async (req: Request) => {
     y -= 14;
 
     row(pdfT(locale, 'netSalary'), formatChf(net), { bold: true, size: 13 });
+
+    if (profile.iban) {
+      y -= 10;
+      row(pdfT(locale, 'paidTo'), String(profile.iban), { size: 9.5, color: MUTED });
+    }
 
     drawFooter(page, font, 1, org?.name ?? 'Cantia', locale);
 

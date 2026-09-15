@@ -95,11 +95,7 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', notif.user_id)
       .eq('type', notif.type)
       .maybeSingle();
-    // Every other type defaults email off (opt-in) — but payslip_ready IS
-    // the notification: it exists specifically so an employee learns their
-    // payslip is ready without having to think to open the app, so it
-    // defaults to on like in-app/push do for every type.
-    const emailEnabled = pref?.email_enabled ?? (notif.type === 'payslip_ready');
+    const emailEnabled = pref?.email_enabled ?? false;
     const pushEnabled = pref?.push_enabled ?? true;
 
     const results: { push?: unknown; email?: unknown } = {};

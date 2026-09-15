@@ -70,6 +70,11 @@ export default function PayrollProfileScreen() {
   const [locality, setLocality] = useState('');
   const [notes, setNotes] = useState('');
   const [avsNumber, setAvsNumber] = useState('');
+  const [iban, setIban] = useState('');
+  // Deliberately separate from any app login email — used only to reach
+  // this employee for the public payslip portal (works for ghost
+  // employees too, who have no app account/login email at all).
+  const [personalEmail, setPersonalEmail] = useState('');
   const [birthDate, setBirthDate] = useState<string | null>(null);
   const [hireDate, setHireDate] = useState<string | null>(null);
   const [vacationDaysPerYear, setVacationDaysPerYear] = useState('');
@@ -117,6 +122,8 @@ export default function PayrollProfileScreen() {
       setLocality(profileRow.locality ?? '');
       setNotes(profileRow.notes ?? '');
       setAvsNumber(profileRow.avs_number ?? '');
+      setIban(profileRow.iban ?? '');
+      setPersonalEmail(profileRow.personal_email ?? '');
       setBirthDate(profileRow.birth_date);
       setHireDate(profileRow.hire_date);
       setVacationDaysPerYear(profileRow.vacation_days_per_year != null ? String(profileRow.vacation_days_per_year) : '');
@@ -216,6 +223,10 @@ export default function PayrollProfileScreen() {
 
   async function handleSave() {
     if (!organization || !employeeId || !user) return;
+    if (personalEmail.trim() && !personalEmail.includes('@')) {
+      setError(t('payrollProfile.personalEmailInvalid'));
+      return;
+    }
     setSaving(true);
     setError(null);
     const { error: err } = await upsertPayrollProfile(
@@ -230,6 +241,8 @@ export default function PayrollProfileScreen() {
         locality: locality.trim() || null,
         notes: notes.trim() || null,
         avs_number: avsNumber.trim() || null,
+        iban: iban.trim() || null,
+        personal_email: personalEmail.trim() ? personalEmail.trim().toLowerCase() : null,
         birth_date: birthDate,
         hire_date: hireDate,
         vacation_days_per_year: vacationDaysPerYear.trim() ? num(vacationDaysPerYear) : null,
@@ -343,6 +356,30 @@ export default function PayrollProfileScreen() {
 
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.avsNumberLabel')}</Text>
             <TextInput style={styles.addressInput} value={avsNumber} onChangeText={setAvsNumber} placeholder="756.XXXX.XXXX.XX" placeholderTextColor={colors.textMuted} />
+
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.ibanLabel')}</Text>
+            <Text style={styles.hint}>{t('payrollProfile.ibanHint')}</Text>
+            <TextInput
+              style={styles.addressInput}
+              value={iban}
+              onChangeText={setIban}
+              placeholder="CH00 0000 0000 0000 0000 0"
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="characters"
+            />
+
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.personalEmailLabel')}</Text>
+            <Text style={styles.hint}>{t('payrollProfile.personalEmailHint')}</Text>
+            <TextInput
+              style={styles.addressInput}
+              value={personalEmail}
+              onChangeText={setPersonalEmail}
+              placeholder="prenom.nom@exemple.ch"
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+
             <View style={{ marginTop: spacing.md }}>
               <DateField label={t('payrollProfile.birthDateLabel')} value={birthDate} onChange={setBirthDate} />
             </View>
@@ -644,6 +681,7 @@ const styles = StyleSheet.create({
   },
   chips: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },

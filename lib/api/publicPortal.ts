@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { ClientDocumentsPayload, PublicDevisPayload, PublicFacturePayload } from '../types';
+import type { ClientDocumentsPayload, PublicDevisPayload, PublicFacturePayload, PublicPayslipsPayload } from '../types';
 
 export function publicDevisUrl(token: string): string {
   if (typeof window !== 'undefined' && window.location) {
@@ -15,6 +15,13 @@ export function publicFactureUrl(token: string): string {
   return `https://cantia.ch/facture-client/${token}`;
 }
 
+export function publicPayslipsUrl(token: string): string {
+  if (typeof window !== 'undefined' && window.location) {
+    return `${window.location.origin}/salaire-employe/${token}`;
+  }
+  return `https://cantia.ch/salaire-employe/${token}`;
+}
+
 // All calls are anonymous (no session) — the RPCs are SECURITY DEFINER and
 // gate access themselves via token + client_email match, not via
 // RLS/auth.uid(), so the plain (anon-key) client works unauthenticated.
@@ -24,7 +31,7 @@ export function publicFactureUrl(token: string): string {
 // missing or carrying a stale session is rejected server-side regardless of
 // what the UI does, since these RPCs are the actual trust boundary.
 
-export async function requestPortalCode(token: string, kind: 'devis' | 'facture', email: string): Promise<{ ok: boolean; error: string | null }> {
+export async function requestPortalCode(token: string, kind: 'devis' | 'facture' | 'payslip', email: string): Promise<{ ok: boolean; error: string | null }> {
   const { data, error } = await supabase.functions.invoke('request-portal-code', { body: { token, kind, email } });
   if (error) return { ok: false, error: error.message };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -97,6 +104,33 @@ export async function getPublicDocumentPdfUrl(
   session: string,
 ): Promise<{ url: string | null; error: string | null }> {
   const { data, error } = await supabase.functions.invoke('public-document-pdf', { body: { token, kind, email, session } });
+  if (error) return { url: null, error: error.message };
+  if (data?.error) return { url: null, error: String(data.error) };
+  return { url: data?.url ?? null, error: null };
+}
+
+// The payslip portal has its own pair of endpoints (not the devis/facture
+// RPCs/edge function above) — an edge function rather than a plain RPC
+// because it also needs to sign the org's logo out of private storage,
+// something only an edge function (not SQL) can do.
+export async function getPublicPayslips(
+  token: string,
+  email: string,
+  session: string,
+): Promise<{ data: PublicPayslipsPayload | null; error: string | null }> {
+  const { data, error } = await supabase.functions.invoke('public-payslip-portal', { body: { token, email, session } });
+  if (error) return { data: null, error: error.message };
+  if (data?.error) return { data: null, error: String(data.error) };
+  return { data: (data as PublicPayslipsPayload) ?? null, error: null };
+}
+
+export async function getPublicPayslipPdfUrl(
+  token: string,
+  email: string,
+  session: string,
+  slipId: string,
+): Promise<{ url: string | null; error: string | null }> {
+  const { data, error } = await supabase.functions.invoke('public-payslip-pdf', { body: { token, email, session, slip_id: slipId } });
   if (error) return { url: null, error: error.message };
   if (data?.error) return { url: null, error: String(data.error) };
   return { url: data?.url ?? null, error: null };

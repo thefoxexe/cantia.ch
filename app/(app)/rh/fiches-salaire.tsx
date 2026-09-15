@@ -19,7 +19,7 @@ import {
   validatePayrollSlip,
   markPayrollSlipPaid,
   reversePayrollSlip,
-  notifyPayslipReady,
+  sendPayslipEmail,
   type PayrollSlip,
   type EmployeeRef,
   type PayrollSlipWageLineWithType,
@@ -174,10 +174,10 @@ export default function PayrollSlipsScreen() {
     else load();
   }
 
-  async function handleNotify(slip: PayrollSlip, key: string) {
+  async function handleSendEmail(slip: PayrollSlip, key: string) {
     setNotifyingKey(key);
     setError(null);
-    const { error: err } = await notifyPayslipReady(slip.id);
+    const { error: err } = await sendPayslipEmail(slip.id);
     setNotifyingKey(null);
     if (err) setError(err);
     else setNotifiedKeys((prev) => new Set(prev).add(key));
@@ -420,14 +420,15 @@ export default function PayrollSlipsScreen() {
                         <Feather name="download" size={14} color={colors.text} />
                       </Pressable>
                     ) : null}
-                    {item.ref.userId && slip && (slip.status === 'validee' || slip.status === 'payee') ? (
+                    {slip && (slip.status === 'validee' || slip.status === 'payee') ? (
                       <Pressable
-                        onPress={() => handleNotify(slip, key)}
+                        onPress={() => handleSendEmail(slip, key)}
                         disabled={notifyingKey === key || notifiedKeys.has(key)}
                         hitSlop={8}
                         style={styles.pdfBtn}
+                        accessibilityLabel={t('payrollSlips.sendEmail')}
                       >
-                        <Feather name={notifiedKeys.has(key) ? 'check' : 'bell'} size={14} color={notifiedKeys.has(key) ? colors.success : colors.text} />
+                        <Feather name={notifiedKeys.has(key) ? 'check' : 'mail'} size={14} color={notifiedKeys.has(key) ? colors.success : colors.text} />
                       </Pressable>
                     ) : null}
                     {slip && (slip.status === 'validee' || slip.status === 'payee') ? (
