@@ -47,18 +47,13 @@ interface VoiceExample {
 }
 
 interface Dict {
-  nav: { services: string; pricing: string; download: string; help: string; contact: string; login: string; cta: string };
   landingNav: {
     features: string;
-    team: string;
     pricing: string;
     help: string;
-    contact: string;
     login: string;
     signup: string;
-    mobileMetiers: string;
     mobileApp: string;
-    mobileHelp: string;
   };
   hero: {
     kicker: string;
@@ -197,21 +192,13 @@ interface Dict {
 }
 
 const fr: Dict = {
-  // "Download" left in English on purpose — a common, internationally
-  // understood tech word, so this one nav label reads identically for
-  // French and German visitors instead of needing its own translation.
-  nav: { services: 'Services', pricing: 'Tarifs', download: 'Download', help: 'Documentation', contact: 'Contact', login: 'Se connecter', cta: 'Essayer Cantia' },
   landingNav: {
     features: 'Fonctionnalités',
-    team: 'Heures & équipes',
     pricing: 'Tarifs',
     help: 'Aide',
-    contact: 'Contact',
     login: 'Connexion',
     signup: 'Inscription',
-    mobileMetiers: 'Votre métier',
     mobileApp: 'Application mobile',
-    mobileHelp: 'Aide & documentation',
   },
   hero: {
     kicker: 'Pensé pour le bâtiment suisse',
@@ -562,18 +549,13 @@ const fr: Dict = {
 };
 
 const de: Dict = {
-  nav: { services: 'Leistungen', pricing: 'Preise', download: 'Download', help: 'Dokumentation', contact: 'Kontakt', login: 'Anmelden', cta: 'Cantia testen' },
   landingNav: {
     features: 'Funktionen',
-    team: 'Stunden & Teams',
     pricing: 'Preise',
     help: 'Hilfe',
-    contact: 'Kontakt',
     login: 'Anmelden',
     signup: 'Registrieren',
-    mobileMetiers: 'Ihr Beruf',
     mobileApp: 'Mobile App',
-    mobileHelp: 'Hilfe & Dokumentation',
   },
   hero: {
     kicker: 'Für das Schweizer Baugewerbe entwickelt',
@@ -924,18 +906,13 @@ const de: Dict = {
 };
 
 const it: Dict = {
-  nav: { services: 'Servizi', pricing: 'Prezzi', download: 'Download', help: 'Documentazione', contact: 'Contatto', login: 'Accedi', cta: 'Prova Cantia' },
   landingNav: {
     features: 'Funzionalità',
-    team: 'Ore & squadre',
     pricing: 'Prezzi',
     help: 'Assistenza',
-    contact: 'Contatto',
     login: 'Accedi',
     signup: 'Registrati',
-    mobileMetiers: 'Il suo mestiere',
     mobileApp: 'App mobile',
-    mobileHelp: 'Assistenza & documentazione',
   },
   hero: {
     kicker: 'Pensato per l’edilizia svizzera',

@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
+import { landingFonts } from '../lib/landingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
 import { AVAILABLE_LOCALES, getAppLocale, useTranslation, type AppLocale } from '../lib/translations';
@@ -114,7 +115,20 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
 // (solutions/*, /telechargement, mentions légales, etc.). Same links, same
 // mobile hamburger collapse below `breakpoints.tablet` as the home page, so
 // no page in the site is missing the responsive behavior the others have.
-export function MarketingNav() {
+// onServicesPress/onPricingPress mirror MarketingFooter's own optional
+// callbacks: the homepage passes them in for a smooth in-page scroll to
+// its own Fonctionnalités/Tarifs sections instead of a full navigation to
+// "/#services" (which nothing on the page actually scrolls to — there's
+// no matching element id, so from any other page that hash link just
+// lands at the top). Every other page leaves them unset and gets a plain
+// link back to "/#services"/"/#pricing".
+export function MarketingNav({
+  onServicesPress,
+  onPricingPress,
+}: {
+  onServicesPress?: () => void;
+  onPricingPress?: () => void;
+} = {}) {
   const t = useMarketingDict();
   const { t: tr } = useTranslation();
   const locale = getAppLocale();
@@ -124,7 +138,6 @@ export function MarketingNav() {
   const servicesHref = locale === 'de' ? '/de/#services' : locale === 'it' ? '/it/#services' : '/#services';
   const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
-  const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   const telechargementHref = locale === 'de' ? '/de/telechargement' : locale === 'it' ? '/it/telechargement' : '/telechargement';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
@@ -160,27 +173,36 @@ export function MarketingNav() {
         </Pressable>
       ) : (
         <View style={styles.navLinks}>
-          <Link href={servicesHref as any}>
-            <Text style={styles.navLink}>{t.nav.services}</Text>
-          </Link>
-          <Link href={pricingHref as any}>
-            <Text style={styles.navLink}>{t.nav.pricing}</Text>
-          </Link>
+          {onServicesPress ? (
+            <Pressable onPress={onServicesPress}>
+              <Text style={styles.navLink}>{t.landingNav.features}</Text>
+            </Pressable>
+          ) : (
+            <Link href={servicesHref as any}>
+              <Text style={styles.navLink}>{t.landingNav.features}</Text>
+            </Link>
+          )}
+          {onPricingPress ? (
+            <Pressable onPress={onPricingPress}>
+              <Text style={styles.navLink}>{t.landingNav.pricing}</Text>
+            </Pressable>
+          ) : (
+            <Link href={pricingHref as any}>
+              <Text style={styles.navLink}>{t.landingNav.pricing}</Text>
+            </Link>
+          )}
           <Link href={telechargementHref as any}>
-            <Text style={styles.navLink}>{t.nav.download}</Text>
+            <Text style={styles.navLink}>{t.landingNav.mobileApp}</Text>
           </Link>
           <Link href={aideHref as any}>
-            <Text style={styles.navLink}>{t.nav.help}</Text>
-          </Link>
-          <Link href={contactHref as any}>
-            <Text style={styles.navLink}>{t.nav.contact}</Text>
+            <Text style={styles.navLink}>{t.landingNav.help}</Text>
           </Link>
           <LanguageSwitcher />
           <Link href={authHref('login')}>
-            <Text style={styles.navLink}>{t.nav.login}</Text>
+            <Text style={styles.navLink}>{t.landingNav.login}</Text>
           </Link>
           <Link href={authHref('signup')} asChild>
-            <Button title={t.nav.cta} onPress={() => {}} style={styles.navCta} />
+            <Button title={t.landingNav.signup} onPress={() => {}} style={styles.navCta} />
           </Link>
         </View>
       )}
@@ -210,29 +232,36 @@ export function MarketingNav() {
             </View>
             <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
               <View style={styles.mobileMenuGroup}>
-                <Link href={servicesHref as any} asChild>
-                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <Text style={styles.mobileMenuText}>{t.nav.services}</Text>
+                {onServicesPress ? (
+                  <Pressable style={styles.mobileMenuItem} onPress={() => { setMenuOpen(false); onServicesPress(); }}>
+                    <Text style={styles.mobileMenuText}>{t.landingNav.features}</Text>
                   </Pressable>
-                </Link>
-                <Link href={pricingHref as any} asChild>
-                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <Text style={styles.mobileMenuText}>{t.nav.pricing}</Text>
+                ) : (
+                  <Link href={servicesHref as any} asChild>
+                    <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                      <Text style={styles.mobileMenuText}>{t.landingNav.features}</Text>
+                    </Pressable>
+                  </Link>
+                )}
+                {onPricingPress ? (
+                  <Pressable style={styles.mobileMenuItem} onPress={() => { setMenuOpen(false); onPricingPress(); }}>
+                    <Text style={styles.mobileMenuText}>{t.landingNav.pricing}</Text>
                   </Pressable>
-                </Link>
+                ) : (
+                  <Link href={pricingHref as any} asChild>
+                    <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
+                      <Text style={styles.mobileMenuText}>{t.landingNav.pricing}</Text>
+                    </Pressable>
+                  </Link>
+                )}
                 <Link href={telechargementHref as any} asChild>
                   <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <Text style={styles.mobileMenuText}>{t.nav.download}</Text>
+                    <Text style={styles.mobileMenuText}>{t.landingNav.mobileApp}</Text>
                   </Pressable>
                 </Link>
                 <Link href={aideHref as any} asChild>
-                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
-                    <Text style={styles.mobileMenuText}>{t.nav.help}</Text>
-                  </Pressable>
-                </Link>
-                <Link href={contactHref as any} asChild>
                   <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
-                    <Text style={styles.mobileMenuText}>{t.nav.contact}</Text>
+                    <Text style={styles.mobileMenuText}>{t.landingNav.help}</Text>
                   </Pressable>
                 </Link>
               </View>
@@ -240,12 +269,12 @@ export function MarketingNav() {
               <Link href={authHref('login')} asChild>
                 <Pressable style={styles.mobileMenuSecondaryItem} onPress={() => setMenuOpen(false)}>
                   <Feather name="log-in" size={15} color={colors.textMuted} />
-                  <Text style={styles.mobileMenuSecondaryText}>{t.nav.login}</Text>
+                  <Text style={styles.mobileMenuSecondaryText}>{t.landingNav.login}</Text>
                 </Pressable>
               </Link>
 
               <Link href={authHref('signup')} asChild>
-                <Button title={t.nav.cta} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
+                <Button title={t.landingNav.signup} onPress={() => setMenuOpen(false)} style={styles.mobileMenuCta} />
               </Link>
             </ScrollView>
           </Animated.View>
@@ -414,10 +443,17 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
   },
+  // DM Sans, not the rest of the marketing site's Fraunces/Instrument Sans
+  // pairing — the nav is shared across every page (including the home
+  // page, which already committed to DM Sans for its own copy), so this
+  // one component's own type needs to read as one consistent brand mark
+  // everywhere rather than switching face depending on which page rendered
+  // it.
   navBrand: {
-    fontFamily: marketingFonts.display,
-    fontSize: fontSize.xl,
-    fontWeight: '700',
+    fontFamily: landingFonts.body,
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    letterSpacing: 0.3,
     color: colors.text,
   },
   navLinks: {
@@ -426,7 +462,7 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
   },
   navLink: {
-    fontFamily: marketingFonts.body,
+    fontFamily: landingFonts.body,
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
@@ -549,7 +585,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   mobileMenuText: {
-    fontFamily: marketingFonts.display,
+    fontFamily: landingFonts.body,
     fontSize: fontSize.xl,
     fontWeight: '700',
     color: colors.text,

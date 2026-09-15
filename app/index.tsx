@@ -1,9 +1,8 @@
-import { useCallback, useRef, useState } from 'react';
-import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useCallback, useRef } from 'react';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, Redirect } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import { Button, Screen } from '../components/ui';
-import { LanguageSwitcher, MarketingFooter } from '../components/MarketingChrome';
+import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
 import { PricingSection } from '../components/PricingSection';
 import { HeroCross } from '../components/landing/HeroCross';
@@ -19,8 +18,6 @@ import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { colors, breakpoints, fontSize, radius, spacing } from '../lib/theme';
 import { landingFonts } from '../lib/landingTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
-
-const NAV_HEIGHT = 72;
 
 // The compiled Android/iOS app has no marketing site to show — it goes
 // straight to the auth flow (app/_layout.tsx then takes over once the
@@ -57,91 +54,21 @@ function LandingContent() {
 
   const scrollRef = useRef<ScrollView>(null);
   const storiesRef = useRef<View>(null);
-  const teamRef = useRef<View>(null);
   const pricingRef = useRef<View>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   function scrollToRef(ref: React.RefObject<View | null>) {
-    setMenuOpen(false);
     ref.current?.measure((_x, y) => {
-      scrollRef.current?.scrollTo({ y: y - NAV_HEIGHT - 12, animated: true });
+      scrollRef.current?.scrollTo({ y: y - 12, animated: true });
     });
   }
-
-  const navLinks = (
-    <>
-      <Pressable onPress={() => scrollToRef(storiesRef)}>
-        <Text style={styles.navLink}>{t.landingNav.features}</Text>
-      </Pressable>
-      <Pressable onPress={() => scrollToRef(teamRef)}>
-        <Text style={styles.navLink}>{t.landingNav.team}</Text>
-      </Pressable>
-      <Pressable onPress={() => scrollToRef(pricingRef)}>
-        <Text style={styles.navLink}>{t.landingNav.pricing}</Text>
-      </Pressable>
-      <Link href={pageHref('aide') as any}>
-        <Text style={styles.navLink}>{t.landingNav.help}</Text>
-      </Link>
-      <Link href={pageHref('contact') as any}>
-        <Text style={styles.navLink}>{t.landingNav.contact}</Text>
-      </Link>
-    </>
-  );
-
-  // Same destinations as navLinks above, but as plain data rather than
-  // JSX — the full-screen mobile menu renders each one much bigger
-  // (styles.mobileMenuLinkText, not the compact top-bar styles.navLink),
-  // so it needs its own list rather than reusing that JSX fragment.
-  const mobileMenuItems: { label: string; href?: string; onPress?: () => void }[] = [
-    { label: t.landingNav.features, onPress: () => scrollToRef(storiesRef) },
-    { label: t.landingNav.team, onPress: () => scrollToRef(teamRef) },
-    { label: t.landingNav.pricing, onPress: () => scrollToRef(pricingRef) },
-    { label: t.landingNav.help, href: pageHref('aide') },
-    { label: t.landingNav.contact, href: pageHref('contact') },
-    { label: t.landingNav.mobileMetiers, href: pageHref('metiers') },
-    { label: t.landingNav.mobileApp, href: pageHref('telechargement') },
-  ];
 
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('home', appLocale)} />
 
-      <View style={[styles.nav, scrolled && styles.navScrolled, { height: NAV_HEIGHT }]}>
-        <View style={styles.navInner}>
-          <Link href="/" asChild>
-            <Pressable style={styles.brand}>
-              <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
-              <Text style={styles.brandText}>Cantia</Text>
-            </Pressable>
-          </Link>
-          {!isTablet ? <View style={styles.navLinks}>{navLinks}</View> : null}
-          <View style={styles.navActions}>
-            {!isMobile ? <LanguageSwitcher /> : null}
-            {!isTablet ? (
-              <>
-                <Link href={authHref('login')}>
-                  <Text style={styles.navLink}>{t.landingNav.login}</Text>
-                </Link>
-                <Link href={authHref('signup')} asChild>
-                  <Button title={t.landingNav.signup} onPress={() => {}} style={styles.navCta} />
-                </Link>
-              </>
-            ) : (
-              <Pressable onPress={() => setMenuOpen(true)} hitSlop={8} accessibilityLabel="Menu">
-                <Feather name="menu" size={24} color={colors.text} />
-              </Pressable>
-            )}
-          </View>
-        </View>
-      </View>
+      <MarketingNav onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
 
-      <ScrollView
-        ref={scrollRef}
-        onScroll={(e) => setScrolled(e.nativeEvent.contentOffset.y > 8)}
-        scrollEventThrottle={32}
-        contentContainerStyle={{ paddingTop: NAV_HEIGHT }}
-      >
+      <ScrollView ref={scrollRef}>
         {/* ---------------------------------------------------------------- Hero */}
         <View style={styles.hero}>
           <View style={[styles.wrap, styles.heroCopy]}>
@@ -270,7 +197,7 @@ function LandingContent() {
         </View>
 
         {/* ---------------------------------------------------------------- Team */}
-        <View style={[styles.wrap, styles.section]} ref={teamRef}>
+        <View style={[styles.wrap, styles.section]}>
           <ScrollReveal>
           <View style={styles.sectionHeadingCentered}>
             <Text style={styles.eyebrow}>{t.team.eyebrow}</Text>
@@ -449,46 +376,6 @@ function LandingContent() {
 
         <MarketingFooter onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
       </ScrollView>
-
-      <Modal visible={menuOpen} animationType="fade" onRequestClose={() => setMenuOpen(false)}>
-        <View style={styles.mobileMenuFull}>
-          <View style={styles.mobileMenuHeader}>
-            <View style={styles.brand}>
-              <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
-              <Text style={styles.brandText}>Cantia</Text>
-            </View>
-            <Pressable onPress={() => setMenuOpen(false)} hitSlop={8} style={styles.mobileMenuClose}>
-              <Feather name="x" size={24} color={colors.text} />
-            </Pressable>
-          </View>
-          <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
-            <View style={styles.mobileMenuLinks}>
-              {mobileMenuItems.map((item) =>
-                item.href ? (
-                  <Link key={item.label} href={item.href as any} onPress={() => setMenuOpen(false)}>
-                    <Text style={styles.mobileMenuLinkText}>{item.label}</Text>
-                  </Link>
-                ) : (
-                  <Pressable key={item.label} onPress={item.onPress}>
-                    <Text style={styles.mobileMenuLinkText}>{item.label}</Text>
-                  </Pressable>
-                ),
-              )}
-            </View>
-            <View style={{ marginTop: spacing.xl }}>
-              <LanguageSwitcher />
-            </View>
-            <View style={styles.mobileMenuActions}>
-              <Link href={authHref('login')} onPress={() => setMenuOpen(false)}>
-                <Text style={styles.mobileMenuLinkText}>{t.landingNav.login}</Text>
-              </Link>
-              <Link href={authHref('signup')} asChild>
-                <Button title={t.landingNav.signup} onPress={() => setMenuOpen(false)} />
-              </Link>
-            </View>
-          </ScrollView>
-        </View>
-      </Modal>
     </Screen>
   );
 }
@@ -501,33 +388,6 @@ const styles = StyleSheet.create({
   h2Em: { fontStyle: 'italic', color: colors.primary },
   bodyText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 24, color: colors.textMuted },
   textLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.primary, marginTop: spacing.sm },
-
-  // Nav
-  // Back to the pre-rebuild nav's frosted-glass treatment (same
-  // rgba(247, 241, 230, 0.7) — that's colors.bg '#F7F1E6' — over a blur,
-  // rather than the near-opaque white bar the Cantia_Landing rebuild used)
-  // per explicit feedback: the old navbar, not this one.
-  nav: {
-    position: Platform.OS === 'web' ? ('fixed' as any) : 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(247, 241, 230, 0.7)',
-    backdropFilter: 'saturate(180%) blur(20px)',
-    WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'transparent',
-    zIndex: 20,
-  } as any,
-  navScrolled: { borderBottomColor: colors.border, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
-  navInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: '100%', paddingHorizontal: spacing.xl, maxWidth: 1080, width: '100%', alignSelf: 'center', gap: spacing.md },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  brandLogo: { width: 24, height: 24 },
-  brandText: { fontFamily: landingFonts.body, fontSize: fontSize.md, fontWeight: '800', letterSpacing: 0.3, color: colors.text },
-  navLinks: { flexDirection: 'row', flexWrap: 'wrap', flexShrink: 1, minWidth: 0, alignItems: 'center', justifyContent: 'flex-end', gap: spacing.md },
-  navLink: { fontFamily: landingFonts.body, fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
-  navActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  navCta: { height: 38, paddingHorizontal: spacing.lg },
 
   // Hero
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl },
@@ -652,32 +512,4 @@ const styles = StyleSheet.create({
   closingText: { fontFamily: landingFonts.body, fontSize: 15, color: '#c4b7a6', textAlign: 'center', maxWidth: 520, alignSelf: 'center', marginBottom: spacing.xl },
   closingActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xl },
   closingContact: { fontFamily: landingFonts.body, fontSize: 13, color: '#e1d6c8', textDecorationLine: 'underline' },
-
-  // Mobile menu
-  // Full-screen menu (back to the pre-rebuild behaviour) rather than a
-  // narrow side drawer — per explicit feedback, "comme avant", not "un
-  // petit truc".
-  mobileMenuFull: { flex: 1, backgroundColor: colors.bg },
-  mobileMenuHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  mobileMenuClose: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mobileMenuBody: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: spacing.xxl * 2 },
-  mobileMenuLinks: { gap: spacing.xl },
-  mobileMenuLinkText: { fontFamily: landingFonts.body, fontSize: 24, fontWeight: '700', letterSpacing: -0.5, color: colors.text },
-  mobileMenuActions: { marginTop: spacing.xxl, gap: spacing.md, paddingTop: spacing.xl, borderTopWidth: 1, borderTopColor: colors.border },
 });
