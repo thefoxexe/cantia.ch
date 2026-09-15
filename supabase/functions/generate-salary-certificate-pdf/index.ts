@@ -289,6 +289,18 @@ Deno.serve(async (req: Request) => {
         recurringAdditions += amount;
         wageAdditionTotals.set(wt.label, (wageAdditionTotals.get(wt.label) ?? 0) + amount);
       }
+      // 13e salaire automatique — garder en phase avec computeTreiziemeAddition
+      // (lib/api/payroll.ts) et generate-payslip-pdf.
+      if (profile.treizieme_mode === 'reparti_mensuel') {
+        const amount = grossBeforeRecurring / 12;
+        recurringAdditions += amount;
+        wageAdditionTotals.set('13e salaire (prorata mensuel)', (wageAdditionTotals.get('13e salaire (prorata mensuel)') ?? 0) + amount);
+      } else if (profile.treizieme_mode === 'lump_sum_month' && profile.treizieme_mois === month + 1) {
+        const amount = profile.salary_type === 'monthly' ? Number(profile.monthly_salary_chf ?? 0) : grossBeforeRecurring;
+        recurringAdditions += amount;
+        const label = '13e salaire (versement annuel — estimation si salaire horaire)';
+        wageAdditionTotals.set(label, (wageAdditionTotals.get(label) ?? 0) + amount);
+      }
 
       const monthTotalGross = grossBeforeRecurring + recurringAdditions;
       totalGross += monthTotalGross;

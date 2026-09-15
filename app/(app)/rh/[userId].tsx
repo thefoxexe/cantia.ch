@@ -28,7 +28,7 @@ import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, SalaryType } from '../../../lib/types';
+import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, PayrollTreiziemeMode, SalaryType } from '../../../lib/types';
 
 export default function PayrollProfileScreen() {
   const { t } = useTranslation();
@@ -75,6 +75,8 @@ export default function PayrollProfileScreen() {
   const [vacationDaysPerYear, setVacationDaysPerYear] = useState('');
   const [weeklyContractHours, setWeeklyContractHours] = useState('');
   const [overtimeHourlyRate, setOvertimeHourlyRate] = useState('');
+  const [treiziemeMode, setTreiziemeMode] = useState<PayrollTreiziemeMode | null>(null);
+  const [treiziemeMois, setTreiziemeMois] = useState<number | null>(null);
   const [vacationBalance, setVacationBalance] = useState<VacationBalance | null>(null);
   const [hoursBalance, setHoursBalance] = useState<HoursBalance | null>(null);
 
@@ -120,6 +122,8 @@ export default function PayrollProfileScreen() {
       setVacationDaysPerYear(profileRow.vacation_days_per_year != null ? String(profileRow.vacation_days_per_year) : '');
       setWeeklyContractHours(profileRow.weekly_contract_hours != null ? String(profileRow.weekly_contract_hours) : '');
       setOvertimeHourlyRate(profileRow.overtime_hourly_rate_chf != null ? String(profileRow.overtime_hourly_rate_chf) : '');
+      setTreiziemeMode(profileRow.treizieme_mode);
+      setTreiziemeMois(profileRow.treizieme_mois);
     }
     const rates: Record<string, string> = {};
     const enabled: Record<string, boolean> = {};
@@ -231,6 +235,8 @@ export default function PayrollProfileScreen() {
         vacation_days_per_year: vacationDaysPerYear.trim() ? num(vacationDaysPerYear) : null,
         weekly_contract_hours: weeklyContractHours.trim() ? num(weeklyContractHours) : null,
         overtime_hourly_rate_chf: overtimeHourlyRate.trim() ? num(overtimeHourlyRate) : null,
+        treizieme_mode: treiziemeMode,
+        treizieme_mois: treiziemeMode === 'lump_sum_month' ? treiziemeMois : null,
       },
       user.id,
     );
@@ -382,6 +388,41 @@ export default function PayrollProfileScreen() {
                   placeholder="0.00"
                   placeholderTextColor={colors.textMuted}
                 />
+              </>
+            ) : null}
+
+            <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>{t('payrollProfile.treiziemeLabel')}</Text>
+            <Text style={styles.hint}>{t('payrollProfile.treiziemeHint')}</Text>
+            <View style={styles.chips}>
+              <Pressable
+                onPress={() => setTreiziemeMode('inclus_taux_horaire')}
+                style={[styles.chip, treiziemeMode === 'inclus_taux_horaire' && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, treiziemeMode === 'inclus_taux_horaire' && styles.chipTextActive]}>{t('payrollProfile.treiziemeInclus')}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setTreiziemeMode('reparti_mensuel')}
+                style={[styles.chip, treiziemeMode === 'reparti_mensuel' && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, treiziemeMode === 'reparti_mensuel' && styles.chipTextActive]}>{t('payrollProfile.treiziemeReparti')}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setTreiziemeMode('lump_sum_month')}
+                style={[styles.chip, treiziemeMode === 'lump_sum_month' && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, treiziemeMode === 'lump_sum_month' && styles.chipTextActive]}>{t('payrollProfile.treiziemeLumpSum')}</Text>
+              </Pressable>
+            </View>
+            {treiziemeMode === 'lump_sum_month' ? (
+              <>
+                <Text style={styles.hint}>{t('payrollProfile.treiziemeMonthHint')}</Text>
+                <View style={[styles.chips, { flexWrap: 'wrap' }]}>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    <Pressable key={m} onPress={() => setTreiziemeMois(m)} style={[styles.monthChip, treiziemeMois === m && styles.chipActive]}>
+                      <Text style={[styles.chipText, treiziemeMois === m && styles.chipTextActive]}>{m}</Text>
+                    </Pressable>
+                  ))}
+                </View>
               </>
             ) : null}
           </Card>
@@ -625,6 +666,17 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: colors.primary,
     fontWeight: '600',
+  },
+  monthChip: {
+    width: 40,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.xs,
   },
   rateField: {
     marginBottom: spacing.md,

@@ -716,6 +716,8 @@ export async function upsertPayrollProfile(
       | 'vacation_days_per_year'
       | 'weekly_contract_hours'
       | 'overtime_hourly_rate_chf'
+      | 'treizieme_mode'
+      | 'treizieme_mois'
     >
   >,
   updatedBy: string | undefined,
@@ -918,6 +920,32 @@ export function computeWageAdditions(
   }
 
   return { lines, total: round2(lines.reduce((sum, l) => sum + l.amount, 0)) };
+}
+
+// §7.1 follow-up — automatic 13e salaire, computed on the same base as
+// indemnité vacances (grossBeforeRecurring) and independently of it, so
+// the two automatic additions never compound on each other, same
+// precedent as multiple recurring_rate wage types today.
+// 'inclus_taux_horaire' (or unset): nothing automatic, matches the old
+// no-configuration behavior exactly.
+// 'reparti_mensuel': 1/12 of this period's gross, every period.
+// 'lump_sum_month': the full amount, but only in treizieme_mois — for a
+// monthly salary that's exactly one month's pay; for hourly it's this
+// month's own gross as an estimate (no per-employee annual-average
+// tracking exists), clearly labeled so it's reviewed before validating.
+function computeTreiziemeAddition(
+  profile: Pick<PayrollProfile, 'salary_type' | 'monthly_salary_chf' | 'treizieme_mode' | 'treizieme_mois'>,
+  grossBeforeRecurring: number,
+  month: number,
+): DeductionLine | null {
+  if (profile.treizieme_mode === 'reparti_mensuel') {
+    return { label: '13e salaire (prorata mensuel)', amount: round2(grossBeforeRecurring / 12) };
+  }
+  if (profile.treizieme_mode === 'lump_sum_month' && profile.treizieme_mois === month) {
+    const amount = profile.salary_type === 'monthly' ? Number(profile.monthly_salary_chf ?? 0) : grossBeforeRecurring;
+    return { label: '13e salaire (versement annuel — estimation si salaire horaire)', amount: round2(amount) };
+  }
+  return null;
 }
 
 export interface AnnualSalarySummary extends SalaryBreakdown {
@@ -1156,13 +1184,14 @@ export interface PayrollPeriodCalculation {
 }
 
 export function computePayrollPeriod(
-  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'treizieme_mode' | 'treizieme_mois'>,
   totalHours: number,
   deductionTypes: PayrollDeductionType[],
   deductionOverrides: PayrollProfileDeduction[],
   wageTypes: PayrollWageType[],
   wageRateOverrides: PayrollProfileWageRate[],
   manualLines: PayrollSlipWageLineWithType[],
+  month: number,
 ): PayrollPeriodCalculation {
   const baseGross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, totalHours);
 
@@ -1175,6 +1204,11 @@ export function computePayrollPeriod(
 
   const grossBeforeRecurring = round2(baseGross + manualAdditionsTotal);
   const wageAdditions = computeWageAdditions(grossBeforeRecurring, wageTypes, wageRateOverrides);
+  const treizieme = computeTreiziemeAddition(profile, grossBeforeRecurring, month);
+  if (treizieme) {
+    wageAdditions.lines.push(treizieme);
+    wageAdditions.total = round2(wageAdditions.total + treizieme.amount);
+  }
   const totalGross = round2(grossBeforeRecurring + wageAdditions.total);
 
   const breakdown = computeSalaryBreakdown(totalGross, deductionTypes, deductionOverrides);
@@ -1216,7 +1250,7 @@ export async function calculateAndSavePayrollSlip(
   ref: EmployeeRef,
   year: number,
   month: number,
-  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'treizieme_mode' | 'treizieme_mois'>,
   deductionTypes: PayrollDeductionType[],
   overrides: PayrollProfileDeduction[],
   wageTypes: PayrollWageType[] = [],
@@ -1227,7 +1261,7 @@ export async function calculateAndSavePayrollSlip(
   const totalHours = await totalHoursForPeriod(organizationId, ref, profile.salary_type, year, month);
   const manualLines = await listSlipWageLines(organizationId, ref, year, month);
 
-  const calc = computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines);
+  const calc = computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines, month);
 
   const snapshot: PayrollSlipSnapshot = {
     deductionTypes: deductionTypes.map((d) => ({ id: d.id, label: d.label, defaultRatePercent: d.default_rate_percent, employerRatePercent: d.employer_rate_percent })),
@@ -1326,7 +1360,7 @@ export async function simulatePayrollPeriod(
   ref: EmployeeRef,
   year: number,
   month: number,
-  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf'>,
+  profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'treizieme_mode' | 'treizieme_mois'>,
   deductionTypes: PayrollDeductionType[],
   overrides: PayrollProfileDeduction[],
   wageTypes: PayrollWageType[],
@@ -1334,7 +1368,7 @@ export async function simulatePayrollPeriod(
 ): Promise<PayrollPeriodCalculation> {
   const totalHours = await totalHoursForPeriod(organizationId, ref, profile.salary_type, year, month);
   const manualLines = await listSlipWageLines(organizationId, ref, year, month);
-  return computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines);
+  return computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines, month);
 }
 
 export interface PayrollCorrectionDiff {

@@ -762,9 +762,16 @@ export interface PayrollProfile {
   // de calculer le montant à partir d'un nombre d'heures plutôt que de le
   // faire taper à la main par le gestionnaire.
   overtime_hourly_rate_chf: number | null;
+  // Comment ce salarié reçoit son 13e salaire — null tant que ce n'est pas
+  // configuré (aucune automatisation, comportement historique). Voir la
+  // migration payroll_treizieme_mode pour la sémantique de chaque valeur.
+  treizieme_mode: PayrollTreiziemeMode | null;
+  treizieme_mois: number | null;
   updated_by: string | null;
   updated_at: string;
 }
+
+export type PayrollTreiziemeMode = 'inclus_taux_horaire' | 'reparti_mensuel' | 'lump_sum_month';
 
 // §7.1 "Rubriques de salaire" — earnings beyond base salary/hours. See
 // the schema migration's own comment for the kind/mode split.

@@ -203,6 +203,16 @@ Deno.serve(async (req: Request) => {
         if (ratePercent == null && fixedAmount == null) continue;
         recurringAdditions += fixedAmount != null ? Number(fixedAmount) : (grossBeforeRecurring * Number(ratePercent)) / 100;
       }
+      // 13e salaire automatique — toujours case 1 (comme le 13e manuel
+      // ci-dessus), jamais case 3, en l'ajoutant à recurringAdditions plutôt
+      // qu'à irregularAdditions. Garder en phase avec
+      // computeTreiziemeAddition (lib/api/payroll.ts) et les 2 autres
+      // fonctions PDF paie.
+      if (profile.treizieme_mode === 'reparti_mensuel') {
+        recurringAdditions += grossBeforeRecurring / 12;
+      } else if (profile.treizieme_mode === 'lump_sum_month' && profile.treizieme_mois === m.month + 1) {
+        recurringAdditions += profile.salary_type === 'monthly' ? Number(profile.monthly_salary_chf ?? 0) : grossBeforeRecurring;
+      }
 
       const monthTotalGross = grossBeforeRecurring + recurringAdditions;
       ziffer1Total += baseGross + thirteenthSalary + recurringAdditions;

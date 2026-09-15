@@ -242,6 +242,18 @@ Deno.serve(async (req: Request) => {
       recurringAdditionsTotal += amount;
       wageAdditionLines.push({ label: wt.label, amount: Math.round(amount * 100) / 100 });
     }
+    // 13e salaire automatique — même logique que computeTreiziemeAddition
+    // côté client (lib/api/payroll.ts) : gardez les deux en phase si l'une
+    // change, sinon le PDF divergera de la fiche persistée.
+    if (profile.treizieme_mode === 'reparti_mensuel') {
+      const amount = Math.round((grossBeforeRecurring / 12) * 100) / 100;
+      recurringAdditionsTotal += amount;
+      wageAdditionLines.push({ label: '13e salaire (prorata mensuel)', amount });
+    } else if (profile.treizieme_mode === 'lump_sum_month' && profile.treizieme_mois === periodMonth) {
+      const amount = Math.round((profile.salary_type === 'monthly' ? Number(profile.monthly_salary_chf ?? 0) : grossBeforeRecurring) * 100) / 100;
+      recurringAdditionsTotal += amount;
+      wageAdditionLines.push({ label: '13e salaire (versement annuel — estimation si salaire horaire)', amount });
+    }
     const gross = Math.round((grossBeforeRecurring + recurringAdditionsTotal) * 100) / 100;
 
     const overrideByType = new Map((overrides ?? []).map((o: any) => [o.deduction_type_id, o]));

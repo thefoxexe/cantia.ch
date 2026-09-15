@@ -77,6 +77,10 @@ export default function PayrollSlipsScreen() {
   const [lineSaving, setLineSaving] = useState(false);
   const [lineError, setLineError] = useState<string | null>(null);
   const [linesOvertimeRate, setLinesOvertimeRate] = useState<number | null>(null);
+  // Hides the manual "13e salaire" rubrique when this employee's profile
+  // already computes it automatically (§7.1 treizieme_mode) — adding a
+  // manual line on top of the automatic one would double it in gross.
+  const [linesTreiziemeAuto, setLinesTreiziemeAuto] = useState(false);
 
   function ownerKeyOf(ref: EmployeeRef): string {
     return ref.userId ?? ref.ghostEmployeeId!;
@@ -221,7 +225,6 @@ export default function PayrollSlipsScreen() {
     if (!organization) return;
     setLinesFor(item);
     setLineError(null);
-    setNewWageTypeId(manualWageTypes[0]?.id ?? null);
     setNewAmount('');
     setNewHours('');
     setNewNote('');
@@ -232,10 +235,18 @@ export default function PayrollSlipsScreen() {
     ]);
     setLines(rows);
     setLinesOvertimeRate(profile?.overtime_hourly_rate_chf ?? null);
+    const treiziemeAuto = profile?.treizieme_mode === 'reparti_mensuel' || profile?.treizieme_mode === 'lump_sum_month';
+    setLinesTreiziemeAuto(treiziemeAuto);
+    const availableTypes = manualWageTypes.filter((w) => !(treiziemeAuto && w.code === 'treizieme_salaire'));
+    setNewWageTypeId(availableTypes[0]?.id ?? null);
     setLinesLoading(false);
   }
 
-  const selectedNewWageType = manualWageTypes.find((w) => w.id === newWageTypeId) ?? null;
+  // The manual "13e salaire" rubrique is hidden once it's automatic for
+  // this employee — everything else in the picker stays the same.
+  const modalWageTypes = manualWageTypes.filter((w) => !(linesTreiziemeAuto && w.code === 'treizieme_salaire'));
+
+  const selectedNewWageType = modalWageTypes.find((w) => w.id === newWageTypeId) ?? null;
   const isOvertimeLine = selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate != null;
   const overtimeAmountPreview = isOvertimeLine ? (Number(newHours.replace(',', '.')) || 0) * (linesOvertimeRate ?? 0) : null;
 
@@ -442,7 +453,7 @@ export default function PayrollSlipsScreen() {
 
               <Text style={[styles.fieldLabel, { marginTop: spacing.lg }]}>{t('payrollSlips.lineTypeLabel')}</Text>
               <View style={[styles.chips, { flexWrap: 'wrap' }]}>
-                {manualWageTypes.map((w) => (
+                {modalWageTypes.map((w) => (
                   <Pressable
                     key={w.id}
                     onPress={() => setNewWageTypeId(w.id)}
@@ -452,7 +463,8 @@ export default function PayrollSlipsScreen() {
                   </Pressable>
                 ))}
               </View>
-              {manualWageTypes.length === 0 ? <Text style={styles.emptyText}>{t('payrollSlips.noWageTypes')}</Text> : null}
+              {modalWageTypes.length === 0 ? <Text style={styles.emptyText}>{t('payrollSlips.noWageTypes')}</Text> : null}
+              {linesTreiziemeAuto ? <Text style={styles.sectionSubtitle}>{t('payrollSlips.treiziemeAutoHint')}</Text> : null}
 
               {selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate == null ? (
                 <Text style={styles.error}>{t('payrollSlips.overtimeRateMissing')}</Text>
@@ -503,7 +515,7 @@ export default function PayrollSlipsScreen() {
                 icon="plus"
                 onPress={handleAddLine}
                 loading={lineSaving}
-                disabled={manualWageTypes.length === 0 || (selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate == null)}
+                disabled={modalWageTypes.length === 0 || (selectedNewWageType?.code === 'heures_sup' && linesOvertimeRate == null)}
                 style={{ marginTop: spacing.sm }}
               />
               <Button title={t('payrollSlips.close')} variant="secondary" onPress={() => { setLinesFor(null); load(); }} style={{ marginTop: spacing.sm }} />
