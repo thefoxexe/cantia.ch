@@ -89,6 +89,20 @@ function LandingContent() {
     </>
   );
 
+  // Same destinations as navLinks above, but as plain data rather than
+  // JSX — the full-screen mobile menu renders each one much bigger
+  // (styles.mobileMenuLinkText, not the compact top-bar styles.navLink),
+  // so it needs its own list rather than reusing that JSX fragment.
+  const mobileMenuItems: { label: string; href?: string; onPress?: () => void }[] = [
+    { label: t.landingNav.features, onPress: () => scrollToRef(storiesRef) },
+    { label: t.landingNav.team, onPress: () => scrollToRef(teamRef) },
+    { label: t.landingNav.pricing, onPress: () => scrollToRef(pricingRef) },
+    { label: t.landingNav.help, href: pageHref('aide') },
+    { label: t.landingNav.contact, href: pageHref('contact') },
+    { label: t.landingNav.mobileMetiers, href: pageHref('metiers') },
+    { label: t.landingNav.mobileApp, href: pageHref('telechargement') },
+  ];
+
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('home', appLocale)} />
@@ -436,36 +450,43 @@ function LandingContent() {
         <MarketingFooter onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
       </ScrollView>
 
-      <Modal visible={menuOpen} animationType="fade" transparent onRequestClose={() => setMenuOpen(false)}>
-        <View style={styles.mobileMenuBackdrop}>
-          <View style={styles.mobileMenu}>
-            <View style={styles.mobileMenuHeader}>
+      <Modal visible={menuOpen} animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+        <View style={styles.mobileMenuFull}>
+          <View style={styles.mobileMenuHeader}>
+            <View style={styles.brand}>
+              <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
               <Text style={styles.brandText}>Cantia</Text>
-              <Pressable onPress={() => setMenuOpen(false)} hitSlop={8}>
-                <Feather name="x" size={24} color={colors.text} />
-              </Pressable>
             </View>
+            <Pressable onPress={() => setMenuOpen(false)} hitSlop={8} style={styles.mobileMenuClose}>
+              <Feather name="x" size={24} color={colors.text} />
+            </Pressable>
+          </View>
+          <ScrollView contentContainerStyle={styles.mobileMenuBody} showsVerticalScrollIndicator={false}>
             <View style={styles.mobileMenuLinks}>
-              {navLinks}
-              <Link href={pageHref('metiers') as any} onPress={() => setMenuOpen(false)}>
-                <Text style={styles.navLink}>{t.landingNav.mobileMetiers}</Text>
-              </Link>
-              <Link href={pageHref('telechargement') as any} onPress={() => setMenuOpen(false)}>
-                <Text style={styles.navLink}>{t.landingNav.mobileApp}</Text>
-              </Link>
-              <View style={{ marginTop: spacing.md }}>
-                <LanguageSwitcher />
-              </View>
+              {mobileMenuItems.map((item) =>
+                item.href ? (
+                  <Link key={item.label} href={item.href as any} onPress={() => setMenuOpen(false)}>
+                    <Text style={styles.mobileMenuLinkText}>{item.label}</Text>
+                  </Link>
+                ) : (
+                  <Pressable key={item.label} onPress={item.onPress}>
+                    <Text style={styles.mobileMenuLinkText}>{item.label}</Text>
+                  </Pressable>
+                ),
+              )}
+            </View>
+            <View style={{ marginTop: spacing.xl }}>
+              <LanguageSwitcher />
             </View>
             <View style={styles.mobileMenuActions}>
               <Link href={authHref('login')} onPress={() => setMenuOpen(false)}>
-                <Text style={styles.navLink}>{t.landingNav.login}</Text>
+                <Text style={styles.mobileMenuLinkText}>{t.landingNav.login}</Text>
               </Link>
               <Link href={authHref('signup')} asChild>
                 <Button title={t.landingNav.signup} onPress={() => setMenuOpen(false)} />
               </Link>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
     </Screen>
@@ -633,9 +654,30 @@ const styles = StyleSheet.create({
   closingContact: { fontFamily: landingFonts.body, fontSize: 13, color: '#e1d6c8', textDecorationLine: 'underline' },
 
   // Mobile menu
-  mobileMenuBackdrop: { flex: 1, backgroundColor: '#231A12cc' },
-  mobileMenu: { marginLeft: 'auto', width: '82%', maxWidth: 360, height: '100%', backgroundColor: colors.bg, padding: spacing.xl },
-  mobileMenuHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl },
-  mobileMenuLinks: { gap: spacing.lg },
-  mobileMenuActions: { marginTop: 'auto', gap: spacing.md, paddingTop: spacing.xl },
+  // Full-screen menu (back to the pre-rebuild behaviour) rather than a
+  // narrow side drawer — per explicit feedback, "comme avant", not "un
+  // petit truc".
+  mobileMenuFull: { flex: 1, backgroundColor: colors.bg },
+  mobileMenuHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  mobileMenuClose: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mobileMenuBody: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: spacing.xxl * 2 },
+  mobileMenuLinks: { gap: spacing.xl },
+  mobileMenuLinkText: { fontFamily: landingFonts.body, fontSize: 24, fontWeight: '700', letterSpacing: -0.5, color: colors.text },
+  mobileMenuActions: { marginTop: spacing.xxl, gap: spacing.md, paddingTop: spacing.xl, borderTopWidth: 1, borderTopColor: colors.border },
 });
