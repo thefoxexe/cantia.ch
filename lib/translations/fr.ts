@@ -1819,7 +1819,7 @@ export const fr = {
     subtitle: 'Confirmez votre adresse e-mail',
     hintWithEmail: 'Un code a été envoyé à {{email}}.',
     hintNoEmail: 'Un code a été envoyé à votre adresse e-mail.',
-    spamHint: "Vous ne le voyez pas ? Vérifiez votre dossier spam / courrier indésirable.",
+    spamHint: "N'hésitez pas à vérifier vos spams si vous ne recevez rien.",
     codeLabel: 'Code de vérification',
     codePlaceholder: 'Code reçu par e-mail',
     submit: 'Vérifier',
