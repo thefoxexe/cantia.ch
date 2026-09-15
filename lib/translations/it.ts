@@ -1209,6 +1209,7 @@ export const it: TranslationDict = {
     selfSubtitle: 'Le sue ore e spese professionali, cantiere per cantiere.',
     adminSubtitle: "Ore e spese di tutto il team — la gestione dei salari avviene nel modulo Salari.",
     selfAbsencesLink: 'Le mie assenze',
+    selfPayslipsLink: 'Le mie buste paga',
     tabHours: 'Ore e spese',
     tabInvoicing: 'Fatturazione',
     setupBannerTitle: "Prima visita? Configuri prima i suoi tipi di lavoro",
@@ -1256,6 +1257,15 @@ export const it: TranslationDict = {
     addGhost: 'Aggiungi',
     emptyTitle: 'Nessun dipendente',
     emptySubtitle: 'I membri del team appariranno qui automaticamente.',
+  },
+  mesFiches: {
+    title: 'Le mie buste paga',
+    subtitle: 'Le sue buste paga convalidate, mese per mese.',
+    emptyTitle: 'Nessuna busta paga disponibile',
+    emptySubtitle: 'Le sue buste paga appariranno qui una volta convalidate dal responsabile paghe.',
+    download: 'Scarica',
+    downloadFailed: 'Generazione PDF non riuscita. Riprovi.',
+    filename: 'Busta paga {{month}}',
   },
   payrollSlips: {
     title: 'Fogli paga',

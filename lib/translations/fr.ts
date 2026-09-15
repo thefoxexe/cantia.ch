@@ -1187,6 +1187,7 @@ export const fr = {
     selfSubtitle: 'Vos heures et frais professionnels, chantier par chantier.',
     adminSubtitle: "Heures et frais de toute l'équipe — la gestion de la paie se fait dans le module Salaires.",
     selfAbsencesLink: 'Mes absences',
+    selfPayslipsLink: 'Mes fiches de salaire',
     tabHours: 'Heures & frais',
     tabInvoicing: 'Facturation',
     setupBannerTitle: "Première visite ? Configurez d'abord vos types de travail",
@@ -1234,6 +1235,15 @@ export const fr = {
     addGhost: 'Ajouter',
     emptyTitle: 'Aucun employé',
     emptySubtitle: "Les membres de l'équipe apparaîtront ici automatiquement.",
+  },
+  mesFiches: {
+    title: 'Mes fiches de salaire',
+    subtitle: 'Vos fiches de salaire validées, mois par mois.',
+    emptyTitle: 'Aucune fiche disponible',
+    emptySubtitle: "Vos fiches de salaire apparaîtront ici une fois validées par la personne qui gère la paie.",
+    download: 'Télécharger',
+    downloadFailed: 'Échec de la génération du PDF. Réessayez.',
+    filename: 'Fiche de salaire {{month}}',
   },
   payrollSlips: {
     title: 'Fiches de salaire',

@@ -260,10 +260,16 @@ export default function PayrollScreen() {
             title={t('payrollHub.title')}
             backTo="/(app)"
             right={
-              <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
-                <Feather name="calendar" size={15} color={colors.primary} />
-                <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfAbsencesLink')}</Text>
-              </Pressable>
+              <View style={{ flexDirection: 'row', gap: spacing.md }}>
+                <Pressable onPress={() => router.push('/(app)/rh/mes-fiches' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
+                  <Feather name="file-text" size={15} color={colors.primary} />
+                  <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfPayslipsLink')}</Text>
+                </Pressable>
+                <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
+                  <Feather name="calendar" size={15} color={colors.primary} />
+                  <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfAbsencesLink')}</Text>
+                </Pressable>
+              </View>
             }
           />
           <Text style={styles.pageSubtitle}>{t('payrollHub.selfSubtitle')}</Text>

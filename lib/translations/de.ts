@@ -1201,6 +1201,7 @@ export const de: TranslationDict = {
     selfSubtitle: 'Ihre Stunden und beruflichen Spesen, Baustelle für Baustelle.',
     adminSubtitle: 'Stunden und Spesen des gesamten Teams — die Lohnverwaltung erfolgt im Modul Löhne.',
     selfAbsencesLink: 'Meine Abwesenheiten',
+    selfPayslipsLink: 'Meine Lohnabrechnungen',
     tabHours: 'Stunden & Spesen',
     tabInvoicing: 'Abrechnung',
     setupBannerTitle: 'Erster Besuch? Konfigurieren Sie zuerst Ihre Arbeitsarten',
@@ -1248,6 +1249,15 @@ export const de: TranslationDict = {
     addGhost: 'Hinzufügen',
     emptyTitle: 'Keine Mitarbeitenden',
     emptySubtitle: 'Teammitglieder erscheinen hier automatisch.',
+  },
+  mesFiches: {
+    title: 'Meine Lohnabrechnungen',
+    subtitle: 'Ihre validierten Lohnabrechnungen, Monat für Monat.',
+    emptyTitle: 'Keine Abrechnung verfügbar',
+    emptySubtitle: 'Ihre Lohnabrechnungen erscheinen hier, sobald sie von der Lohnverantwortlichen validiert wurden.',
+    download: 'Herunterladen',
+    downloadFailed: 'PDF-Erstellung fehlgeschlagen. Bitte erneut versuchen.',
+    filename: 'Lohnabrechnung {{month}}',
   },
   payrollSlips: {
     title: 'Lohnabrechnungen',

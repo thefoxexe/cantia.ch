@@ -1346,6 +1346,20 @@ export async function getPayrollSlip(organizationId: string, ref: EmployeeRef, y
   return data ? mapPayrollSlip(data) : null;
 }
 
+// The employee-facing "my payslips" list — relies entirely on the
+// "employees can view own finalized payroll slips" RLS policy (own
+// user_id, status validee/payee only) rather than any explicit
+// organization_id/user_id filter, since a plain member has no
+// can_manage_org_payroll access to filter by in the first place.
+export async function listMyPayrollSlips(): Promise<PayrollSlip[]> {
+  const { data } = await supabase
+    .from('payroll_slips')
+    .select('*')
+    .order('year', { ascending: false })
+    .order('month', { ascending: false });
+  return (data ?? []).map(mapPayrollSlip);
+}
+
 // ==========================================================================
 // Cahier des charges V2, Lot 4 §7.7 "Correction rétroactive" — simulate a
 // past, already-validée/payée period with today's catalog/profile/hours,
