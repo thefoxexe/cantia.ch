@@ -61,6 +61,12 @@ function LandingContent() {
   // (tablet landscape, small laptop) the way a single fixed font-size did.
   const heroTitleSize = clamp(42, width * 0.047, 70);
   const heroCrossedSize = clamp(22, width * 0.027, 38);
+  // Desktop-only oversized treatment ("le grand geste") — the crossed-out
+  // tagline becomes the hero's dominant graphic moment instead of sharing a
+  // cramped row with the supporting copy. Compact/tablet keeps the original
+  // sizes above untouched.
+  const heroBigTitleSize = clamp(56, width * 0.068, 108);
+  const heroBigCrossedSize = clamp(40, width * 0.05, 78);
 
   const scrollRef = useRef<ScrollView>(null);
   const storiesRef = useRef<View>(null);
@@ -89,31 +95,71 @@ function LandingContent() {
               <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
             </View>
 
-            <View style={[styles.heroMain, isTablet && styles.heroMainCompact]}>
-              <View style={[styles.heroTitleCol, !isTablet && { maxWidth: 620 }]}>
-                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
-                  {t.hero.titlePrefix}
-                  {'\n'}
-                  <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
-                </Text>
-                <View style={styles.crossedWrap}>
-                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
-                  <HeroCross />
+            {isTablet ? (
+              <View style={[styles.heroMain, styles.heroMainCompact]}>
+                <View style={styles.heroTitleCol}>
+                  <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
+                    {t.hero.titlePrefix}
+                    {'\n'}
+                    <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
+                  </Text>
+                  <View style={styles.crossedWrap}>
+                    <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
+                    <HeroCross />
+                  </View>
+                </View>
+                <View style={styles.heroAside}>
+                  <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
+                  <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
+                  <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
+                  <Link href={authHref('signup')} asChild>
+                    <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
+                  </Link>
+                  <Pressable onPress={() => scrollToRef(storiesRef)}>
+                    <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
+                  </Pressable>
+                  <Text style={styles.heroTrust}>{t.hero.trust}</Text>
                 </View>
               </View>
-              <View style={styles.heroAside}>
-                <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
-                <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
-                <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
-                <Link href={authHref('signup')} asChild>
-                  <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
-                </Link>
-                <Pressable onPress={() => scrollToRef(storiesRef)}>
-                  <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
-                </Pressable>
-                <Text style={styles.heroTrust}>{t.hero.trust}</Text>
+            ) : (
+              // "Le grand geste" — the crossed-out tagline is the hero's
+              // dominant graphic moment, full width, instead of sharing a
+              // cramped row with the supporting copy. Everything that used
+              // to sit beside the title now runs in a full-width band
+              // underneath it, in three columns that actually use a large
+              // screen's width instead of leaving it empty.
+              <View style={styles.heroDesktop}>
+                <View style={styles.heroTitleCol}>
+                  <Text style={[styles.h1, { fontSize: heroBigTitleSize, lineHeight: heroBigTitleSize * 1.0 }]}>
+                    {t.hero.titlePrefix}
+                    {'\n'}
+                    <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
+                  </Text>
+                  <View style={styles.crossedWrap}>
+                    <Text style={[styles.crossedText, { fontSize: heroBigCrossedSize }]}>{t.hero.crossedText}</Text>
+                    <HeroCross />
+                  </View>
+                </View>
+                <View style={styles.heroInfoBand}>
+                  <View style={styles.heroInfoCol}>
+                    <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
+                    <Text style={styles.heroInfoSubhead}>{t.hero.asideP1}</Text>
+                  </View>
+                  <View style={styles.heroInfoCol}>
+                    <Text style={styles.heroInfoBody}>{t.hero.asideP2}</Text>
+                  </View>
+                  <View style={[styles.heroInfoCol, styles.heroInfoColCta]}>
+                    <Link href={authHref('signup')} asChild>
+                      <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
+                    </Link>
+                    <Pressable onPress={() => scrollToRef(storiesRef)}>
+                      <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
+                    </Pressable>
+                    <Text style={styles.heroTrust}>{t.hero.trust}</Text>
+                  </View>
+                </View>
               </View>
-            </View>
+            )}
 
             <View style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]}>
               <Text style={styles.baselineLabel}>{t.hero.baselineLabel}</Text>
@@ -417,6 +463,20 @@ const styles = StyleSheet.create({
   heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
   heroAsideP1: { fontFamily: landingFonts.body, fontSize: 19, fontWeight: '600', color: colors.text, lineHeight: 27, marginTop: spacing.xs, letterSpacing: -0.3 },
   heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.sm },
+  // Desktop-only "grand geste" layout — see the isTablet branch above.
+  heroDesktop: { paddingVertical: spacing.xxl, gap: spacing.md },
+  heroInfoBand: {
+    flexDirection: 'row',
+    gap: spacing.xxl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.xl,
+    marginTop: spacing.xl,
+  },
+  heroInfoCol: { flex: 1, gap: spacing.sm },
+  heroInfoColCta: { alignItems: 'flex-start', gap: spacing.md },
+  heroInfoSubhead: { fontFamily: landingFonts.body, fontSize: 24, fontWeight: '700', color: colors.text, lineHeight: 31, marginTop: spacing.xs, letterSpacing: -0.3 },
+  heroInfoBody: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 25 },
   heroDiscover: {
     alignSelf: 'flex-start',
     maxWidth: 300,
