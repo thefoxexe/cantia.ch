@@ -6,8 +6,10 @@
 //
 // Previously offered 4 selectable designs (classic/moderne/minimal/
 // structure); collapsed to this one sober layout so brand color is the only
-// customization left, and no logo is drawn — the org's own name is the
-// document's identity mark instead. RENDERERS/TemplateId are kept (rather
+// visual customization, with the org's name as the header's primary
+// identity mark. logoImg (org.logo_url, same asset/placement setting used by
+// generate-report-pdf) is optional — when an org hasn't uploaded one, the
+// header renders exactly as before. RENDERERS/TemplateId are kept (rather
 // than removed) so every existing pdf_templates row's base_layout value
 // still resolves without a migration, and both callers' `RENDERERS[template
 // .base_layout]` lookup keeps working unchanged.
@@ -15,6 +17,7 @@ import { PDFFont, PDFImage, PDFPage, PDFDocument, RGB } from 'npm:pdf-lib@1.17.1
 import {
   INK,
   LINE,
+  LogoPlacement,
   MARGIN,
   MUTED,
   PAGE_HEIGHT,
@@ -26,6 +29,7 @@ import {
   formatDate,
   formatDateTime,
   formatOrgAddress,
+  logoX,
   swissRound,
   wrapText,
 } from './pdf-helpers.ts';
@@ -71,6 +75,12 @@ export interface RenderCtx {
   clientSignatureImg?: PDFImage | null;
   clientSignedAt?: string | null;
   clientSignerName?: string | null;
+  // Same org.logo_url asset and left/center/right placement setting as
+  // generate-report-pdf's header — optional so an org without a logo (or a
+  // corrupt/unreadable upload, which embedImageSmart already degrades to
+  // null rather than throwing) just gets the name-only header unchanged.
+  logoImg?: PDFImage | null;
+  logoPlacement?: LogoPlacement;
   brand: RGB;
   footerText: string | null;
   docLabel: string; // localized 'Devis'/'Angebot' or 'Facture'/'Rechnung'
@@ -93,6 +103,8 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     clientSignatureImg,
     clientSignedAt,
     clientSignerName,
+    logoImg,
+    logoPlacement,
     brand,
     footerText,
     docLabel,
@@ -110,6 +122,27 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
   };
+
+  if (logoImg) {
+    // Same sizing rule as generate-report-pdf: capped by width, not a fixed
+    // height, so a wide wordmark logo doesn't stretch into an oversized
+    // banner. 'right' shares the header's vertical band with the name/
+    // address/contact block below (that block is ~40pt tall across its up
+    // to 3 lines, comfortably under the logo's 46pt cap); 'left'/'center'
+    // would otherwise sit directly on top of the name text, so those get
+    // their own row above it instead.
+    const maxW = 130;
+    const naturalH = (logoImg.height / logoImg.width) * maxW;
+    const h = Math.min(46, naturalH);
+    const w = (logoImg.width / logoImg.height) * h;
+    const placement = logoPlacement ?? 'right';
+    if (placement === 'right') {
+      page.drawImage(logoImg, { x: logoX(placement, PAGE_WIDTH, MARGIN, w), y: y - h + 12, width: w, height: h });
+    } else {
+      page.drawImage(logoImg, { x: logoX(placement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
+      y -= h + 14;
+    }
+  }
 
   drawText(page, org?.name ?? pdfT(locale, 'entrepriseFallback'), MARGIN, y, fontBold, 17, brand);
   y -= 16;

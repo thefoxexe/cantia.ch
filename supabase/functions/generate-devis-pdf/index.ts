@@ -8,6 +8,7 @@ import {
   orgHasCustomization,
   resolveBrand,
   resolveFooterText,
+  resolveLogoPlacement,
   resolvePdfTemplate,
 } from '../_shared/pdf-helpers.ts';
 import { RENDERERS } from '../_shared/pdf-document-renderers.ts';
@@ -98,6 +99,16 @@ Deno.serve(async (req: Request) => {
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org, orgHasCustomization(org), locale);
 
+    // Optional — same asset and placement setting (compte/apparence) as
+    // generate-report-pdf's header. An org that never uploaded one just
+    // gets the existing name-only header, unchanged.
+    let logoImg: PDFImage | null = null;
+    if (org?.logo_url) {
+      const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
+      if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
+    }
+    const logoPlacement = resolveLogoPlacement(template, org);
+
     // A devis is a quote, not a payment request — no QR-bill here (that's
     // generate-facture-pdf's job, once the client has accepted and it's
     // been converted to a facture).
@@ -114,6 +125,8 @@ Deno.serve(async (req: Request) => {
       clientSignatureImg,
       clientSignedAt: devis.client_signed_at,
       clientSignerName: devis.client_signer_name,
+      logoImg,
+      logoPlacement,
       brand,
       footerText,
       docLabel: pdfT(locale, 'devisLabel'),

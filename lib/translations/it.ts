@@ -677,7 +677,7 @@ export const it: TranslationDict = {
   },
   apparence: {
     title: 'Aspetto',
-    intro: 'Il logo e il colore del marchio personalizzano automaticamente i suoi preventivi e rapporti PDF.',
+    intro: 'Il logo e il colore del marchio personalizzano automaticamente i suoi preventivi, fatture e rapporti PDF.',
     previewBand: 'PREVENTIVO',
     previewOrgFallback: 'La sua azienda',
     previewTradeFallback: 'Mestiere',
@@ -685,6 +685,7 @@ export const it: TranslationDict = {
     previewTotal: "Totale 1'234.50 CHF",
     logoTitle: 'Logo',
     chooseLogo: 'Scegli un logo',
+    logoFormatHint: 'Idealmente un PNG con sfondo trasparente o bianco — si integra in modo pulito nell’intestazione dei suoi preventivi, fatture e rapporti.',
     signatureHint: 'La firma (sui preventivi e rapporti) è personale per ogni membro — ognuno aggiunge la propria nella scheda «Il mio profilo».',
     upsellTitle: 'Colore del marchio, posizione del logo, piè di pagina',
     upsellPlanHint: 'Disponibile a partire dal piano Solo (da CHF 9/mese).',

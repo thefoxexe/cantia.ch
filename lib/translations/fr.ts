@@ -655,7 +655,7 @@ export const fr = {
   },
   apparence: {
     title: 'Apparence',
-    intro: 'Le logo et la couleur de marque habillent automatiquement vos devis et rapports PDF.',
+    intro: 'Le logo et la couleur de marque habillent automatiquement vos devis, factures et rapports PDF.',
     previewBand: 'DEVIS',
     previewOrgFallback: 'Votre entreprise',
     previewTradeFallback: 'Métier',
@@ -663,6 +663,7 @@ export const fr = {
     previewTotal: "Total 1'234.50 CHF",
     logoTitle: 'Logo',
     chooseLogo: 'Choisir un logo',
+    logoFormatHint: 'Idéalement un PNG à fond transparent ou blanc — il s’intègre proprement dans l’en-tête de vos devis, factures et rapports.',
     signatureHint: 'La signature (sur les devis et rapports) est personnelle à chaque membre — chacun ajoute la sienne dans l’onglet « Mon profil ».',
     upsellTitle: 'Couleur de marque, placement du logo, pied de page',
     upsellPlanHint: 'Disponible à partir du plan Indépendant (dès CHF 9/mois).',

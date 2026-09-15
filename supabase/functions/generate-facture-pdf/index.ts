@@ -1,11 +1,14 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { PDFDocument, StandardFonts } from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
 import {
   drawFooter,
+  embedImageSmart,
+  fetchStorageBytes,
   formatDate,
   orgHasCustomization,
   resolveBrand,
   resolveFooterText,
+  resolveLogoPlacement,
   resolvePdfTemplate,
   swissRound,
 } from '../_shared/pdf-helpers.ts';
@@ -71,6 +74,16 @@ Deno.serve(async (req: Request) => {
     const brand = resolveBrand(template, org);
     const footerText = resolveFooterText(template, org, orgHasCustomization(org), locale);
 
+    // Optional — same asset and placement setting (compte/apparence) as
+    // generate-report-pdf's header. An org that never uploaded one just
+    // gets the existing name-only header, unchanged.
+    let logoImg: PDFImage | null = null;
+    if (org?.logo_url) {
+      const bytes = await fetchStorageBytes(admin, BUCKET, org.logo_url);
+      if (bytes) logoImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
+    }
+    const logoPlacement = resolveLogoPlacement(template, org);
+
     const metaLine =
       facture.status === 'paid' && facture.paid_at
         ? pdfT(locale, 'paidOn', { date: formatDate(facture.paid_at, locale) })
@@ -90,6 +103,8 @@ Deno.serve(async (req: Request) => {
         signatureImg: null,
         signatureLabel: '',
         showSignatures: false,
+        logoImg,
+        logoPlacement,
         brand,
         footerText,
         docLabel,

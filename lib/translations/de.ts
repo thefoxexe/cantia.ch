@@ -669,7 +669,7 @@ export const de: TranslationDict = {
   },
   apparence: {
     title: 'Erscheinungsbild',
-    intro: 'Logo und Markenfarbe gestalten automatisch Ihre Offerten und PDF-Rapporte.',
+    intro: 'Logo und Markenfarbe gestalten automatisch Ihre Offerten, Rechnungen und PDF-Rapporte.',
     previewBand: 'OFFERTE',
     previewOrgFallback: 'Ihr Unternehmen',
     previewTradeFallback: 'Gewerk',
@@ -677,6 +677,7 @@ export const de: TranslationDict = {
     previewTotal: 'Total 1\'234.50 CHF',
     logoTitle: 'Logo',
     chooseLogo: 'Logo auswählen',
+    logoFormatHint: 'Idealerweise ein PNG mit transparentem oder weissem Hintergrund — so fügt es sich sauber in den Kopfbereich Ihrer Offerten, Rechnungen und Rapporte ein.',
     signatureHint: 'Die Signatur (auf Offerten und Rapporten) ist für jedes Mitglied persönlich — jeder fügt seine eigene im Tab „Mein Profil" hinzu.',
     upsellTitle: 'Markenfarbe, Logoplatzierung, Fusszeile',
     upsellPlanHint: 'Verfügbar ab dem Solo-Plan (ab CHF 9/Monat).',

@@ -144,6 +144,7 @@ export default function ApparenceScreen() {
               ) : null}
             </View>
           </View>
+          <Text style={styles.hint}>{t('apparence.logoFormatHint')}</Text>
           <Text style={styles.hint}>{t('apparence.signatureHint')}</Text>
 
           {hasCustomization === false ? (
