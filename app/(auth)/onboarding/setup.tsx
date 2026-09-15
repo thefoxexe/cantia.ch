@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -49,9 +49,14 @@ export default function OnboardingSetupScreen() {
   const { t } = useTranslation();
   const { organization, refreshOrganization } = useAuth();
   const router = useRouter();
+  const scrollRef = useRef<ScrollView>(null);
   const [step, setStep] = useState(1);
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
 
   // Step 1 — company profile
   const [website, setWebsite] = useState(organization?.website ?? '');
@@ -129,7 +134,6 @@ export default function OnboardingSetupScreen() {
     if (!street.trim() || !postalCode.trim() || !locality.trim()) return t('authOnboardingSetup.addressRequired');
     if (!phone.trim()) return t('authOnboardingSetup.phoneRequired');
     if (!email.trim()) return t('authOnboardingSetup.emailRequired');
-    if (!ideNumber.trim()) return t('authOnboardingSetup.ideRequired');
     if (iban.trim() && !isValidSwissIban(iban.trim())) return t('authOnboardingSetup.ibanInvalid');
     return null;
   }
@@ -233,7 +237,7 @@ export default function OnboardingSetupScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
         <View style={styles.stepIconWrap}>
           <Feather name={STEP_ICONS[step - 1]} size={22} color={colors.primary} />
         </View>
@@ -463,11 +467,10 @@ function StepProfile({
         </View>
       </View>
 
-      <Field label={t('authOnboardingSetup.ideLabel')} value={ideNumber} onChangeText={setIdeNumber} placeholder="CHE-123.456.789" />
-
       <View style={styles.sectionDivider}>
         <Text style={styles.sectionDividerText}>{t('authOnboardingSetup.optionalSectionTitle')}</Text>
       </View>
+      <Field label={t('authOnboardingSetup.ideLabel')} value={ideNumber} onChangeText={setIdeNumber} placeholder="CHE-123.456.789" />
       <Field
         label={t('authOnboardingSetup.ibanLabel')}
         value={iban}

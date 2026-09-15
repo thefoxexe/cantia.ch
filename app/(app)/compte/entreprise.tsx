@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
@@ -30,7 +30,6 @@ export default function EntrepriseScreen() {
   const [iban, setIban] = useState(organization?.iban ?? '');
   const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
   const isAdmin = role === 'owner' || role === 'admin';
-  const router = useRouter();
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
     useUnsavedChanges(handleSave);
@@ -215,27 +214,6 @@ export default function EntrepriseScreen() {
             ))}
           </View>
 
-          <Text style={styles.sectionTitle}>{t('entreprise.emailsSectionTitle')}</Text>
-          <Pressable onPress={() => router.push('/(app)/compte/emails')} style={styles.emailsLink}>
-            <Feather name="mail" size={16} color={colors.primary} />
-            <Text style={styles.emailsLinkText}>{t('entreprise.emailsLinkText')}</Text>
-            <Feather name="chevron-right" size={16} color={colors.textMuted} />
-          </Pressable>
-
-          <Text style={styles.sectionTitle}>{t('compteMenu.facturation.label')}</Text>
-          <Pressable onPress={() => router.push('/(app)/compte/facturation')} style={styles.emailsLink}>
-            <Feather name="credit-card" size={16} color={colors.primary} />
-            <Text style={styles.emailsLinkText}>{t('compteMenu.facturation.description')}</Text>
-            <Feather name="chevron-right" size={16} color={colors.textMuted} />
-          </Pressable>
-
-          <Text style={styles.sectionTitle}>{t('compteMenu.entrepriseDanger.label')}</Text>
-          <Pressable onPress={() => router.push('/(app)/compte/entreprise-danger')} style={styles.dangerLink}>
-            <Feather name="alert-triangle" size={16} color={colors.danger} />
-            <Text style={styles.dangerLinkText}>{t('compteMenu.entrepriseDanger.description')}</Text>
-            <Feather name="chevron-right" size={16} color={colors.textMuted} />
-          </Pressable>
-
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
@@ -251,34 +229,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.lg,
     marginBottom: spacing.xs,
-  },
-  emailsLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  emailsLinkText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.text,
-    lineHeight: 16,
-  },
-  dangerLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.dangerSoft,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  dangerLinkText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.text,
-    lineHeight: 16,
   },
   fieldLabel: {
     fontSize: fontSize.sm,
