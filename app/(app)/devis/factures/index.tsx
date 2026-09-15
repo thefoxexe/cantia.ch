@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Modal, ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { sendFactureReminder, duplicateFacture, recomputeFactureDepositDeduction } from '../../../../lib/api/factures';
+import { sendFactureReminder, duplicateFacture, recomputeFactureDepositDeduction, addLateFeeToFacture } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
@@ -115,6 +115,16 @@ export default function FacturesListScreen() {
   const [openProjectId, setOpenProjectId] = useState<string | null>(null);
   const [remindingId, setRemindingId] = useState<string | null>(null);
   const [reminderError, setReminderError] = useState<string | null>(null);
+
+  // Overdue reminders only — before the due date, "pas de souci", straight
+  // to sendFactureReminder like before. Once overdue, offer to add a late
+  // fee (percent of the outstanding balance, or a flat CHF amount) to the
+  // facture before it's sent, instead of silently sending as-is every time.
+  const [feeModalFor, setFeeModalFor] = useState<Facture | null>(null);
+  const [feeType, setFeeType] = useState<'percent' | 'fixed'>('percent');
+  const [feeValue, setFeeValue] = useState('');
+  const [feeSaving, setFeeSaving] = useState(false);
+  const [feeError, setFeeError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const load = useCallback(async () => {
@@ -241,6 +251,50 @@ export default function FacturesListScreen() {
     load();
   }
 
+  function openRemind(facture: Facture) {
+    if (isOverdue(facture)) {
+      setFeeError(null);
+      setFeeType('percent');
+      setFeeValue('');
+      setFeeModalFor(facture);
+    } else {
+      handleRemind(facture);
+    }
+  }
+
+  function closeFeeModal() {
+    if (feeSaving) return;
+    setFeeModalFor(null);
+  }
+
+  async function handleSendWithoutFee() {
+    if (!feeModalFor) return;
+    const facture = feeModalFor;
+    setFeeModalFor(null);
+    await handleRemind(facture);
+  }
+
+  async function handleAddFeeAndSend() {
+    if (!feeModalFor) return;
+    const value = Number(feeValue.replace(',', '.'));
+    if (!feeValue.trim() || Number.isNaN(value) || value <= 0) {
+      setFeeError(t('facturesList.feeValueRequired'));
+      return;
+    }
+    setFeeSaving(true);
+    setFeeError(null);
+    const { error } = await addLateFeeToFacture(feeModalFor.id, feeType, value);
+    if (error) {
+      setFeeSaving(false);
+      setFeeError(error);
+      return;
+    }
+    const facture = feeModalFor;
+    setFeeSaving(false);
+    setFeeModalFor(null);
+    await handleRemind(facture);
+  }
+
   async function handleDuplicate(id: string) {
     setReminderError(null);
     const { id: newId, error } = await duplicateFacture(id);
@@ -321,7 +375,7 @@ export default function FacturesListScreen() {
                 <View />
               )}
               <Pressable
-                onPress={() => handleRemind(item)}
+                onPress={() => openRemind(item)}
                 disabled={remindingId === item.id}
                 style={[styles.remindButton, overdue && styles.remindButtonUrgent]}
               >
@@ -362,6 +416,7 @@ export default function FacturesListScreen() {
   const listToShow = openProject ? openProjectFactures : searchActive ? searchResults : null;
 
   return (
+    <>
     <Screen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         {openProject ? (
@@ -518,6 +573,48 @@ export default function FacturesListScreen() {
         )}
       </View>
     </Screen>
+
+    <Modal visible={feeModalFor !== null} animationType="fade" transparent onRequestClose={closeFeeModal}>
+      <View style={styles.feeBackdrop}>
+        <View style={styles.feeSheet}>
+          <Text style={styles.feeTitle}>{t('facturesList.feeModalTitle')}</Text>
+          <Text style={styles.feeSubtitle}>{t('facturesList.feeModalSubtitle', { number: feeModalFor?.number ?? '' })}</Text>
+
+          <View style={[styles.chips, { marginTop: spacing.md }]}>
+            <Pressable onPress={() => setFeeType('percent')} style={[styles.feeChip, feeType === 'percent' && styles.feeChipActive]}>
+              <Text style={[styles.feeChipText, feeType === 'percent' && styles.feeChipTextActive]}>{t('facturesList.feeTypePercent')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setFeeType('fixed')} style={[styles.feeChip, feeType === 'fixed' && styles.feeChipActive]}>
+              <Text style={[styles.feeChipText, feeType === 'fixed' && styles.feeChipTextActive]}>{t('facturesList.feeTypeFixed')}</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.feeHint}>
+            {feeType === 'percent' ? t('facturesList.feePercentHint') : t('facturesList.feeFixedHint')}
+          </Text>
+          <TextInput
+            style={styles.feeInput}
+            value={feeValue}
+            onChangeText={setFeeValue}
+            keyboardType="numbers-and-punctuation"
+            placeholder={feeType === 'percent' ? '5' : '30'}
+            placeholderTextColor={colors.textMuted}
+          />
+
+          {feeError ? <Text style={styles.reminderError}>{feeError}</Text> : null}
+
+          <Pressable onPress={handleAddFeeAndSend} disabled={feeSaving} style={[styles.feeButton, styles.feeButtonPrimary]}>
+            {feeSaving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.feeButtonPrimaryText}>{t('facturesList.feeAddAndSend')}</Text>}
+          </Pressable>
+          <Pressable onPress={handleSendWithoutFee} disabled={feeSaving} style={styles.feeButton}>
+            <Text style={styles.feeButtonText}>{t('facturesList.feeSendWithout')}</Text>
+          </Pressable>
+          <Pressable onPress={closeFeeModal} disabled={feeSaving} style={styles.feeCancel}>
+            <Text style={styles.feeCancelText}>{t('common.cancel')}</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+    </>
   );
 }
 
@@ -728,6 +825,99 @@ const styles = StyleSheet.create({
   reminderError: {
     fontSize: fontSize.xs,
     color: colors.danger,
+    marginBottom: spacing.xs,
+  },
+  chips: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  feeBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 20, 18, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  feeSheet: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+  },
+  feeTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  feeSubtitle: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  feeChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  feeChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  feeChipText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  feeChipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  feeHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  feeInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.md,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.md,
+  },
+  feeButton: {
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  feeButtonPrimary: {
+    backgroundColor: colors.primary,
+  },
+  feeButtonPrimaryText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: fontSize.sm,
+  },
+  feeButtonText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: fontSize.sm,
+  },
+  feeCancel: {
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  feeCancelText: {
+    color: colors.textMuted,
+    fontSize: fontSize.sm,
   },
   folderCard: {
     flexDirection: 'row',

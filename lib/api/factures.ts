@@ -18,6 +18,45 @@ export async function sendFactureEmail(factureId: string, customMessage?: string
   return { sent: !!data?.sent, error };
 }
 
+// Adds a "Frais de rappel" line to a facture before sending an overdue
+// reminder — either a percentage of the current outstanding balance (not
+// the original total, so a partially-paid facture isn't overcharged) or a
+// flat CHF amount. Just another facture_item: the total everywhere
+// (list, PDF, portal) already derives from facture_items, so nothing else
+// needs updating once this is inserted — the caller regenerates/attaches
+// the PDF afterwards (send-facture-reminder already does this on every send).
+export async function addLateFeeToFacture(
+  factureId: string,
+  feeType: 'percent' | 'fixed',
+  value: number,
+): Promise<{ amount: number | null; error: string | null }> {
+  const { data: facture, error: factureError } = await supabase.from('factures').select('vat_rate').eq('id', factureId).single();
+  if (factureError || !facture) return { amount: null, error: factureError?.message ?? 'Facture introuvable' };
+
+  const [{ data: items }, { data: payments }] = await Promise.all([
+    supabase.from('facture_items').select('quantity, unit_price, sort_order').eq('facture_id', factureId),
+    supabase.from('facture_payments').select('amount').eq('facture_id', factureId),
+  ]);
+  const subtotal = (items ?? []).reduce((s, it) => s + Number(it.quantity) * Number(it.unit_price), 0);
+  const total = Math.round(subtotal * (1 + Number(facture.vat_rate) / 100) * 100) / 100;
+  const paid = (payments ?? []).reduce((s, p) => s + Number(p.amount), 0);
+  const remaining = Math.max(0, Math.round((total - paid) * 100) / 100);
+
+  const amount = feeType === 'percent' ? Math.round(((remaining * value) / 100) * 100) / 100 : Math.round(value * 100) / 100;
+  if (!(amount > 0)) return { amount: null, error: 'Montant de frais invalide.' };
+
+  const nextSort = (items ?? []).reduce((max, it) => Math.max(max, it.sort_order ?? 0), 0) + 1;
+  const { error } = await supabase.from('facture_items').insert({
+    facture_id: factureId,
+    description: 'Frais de rappel',
+    quantity: 1,
+    unit: 'forfait',
+    unit_price: amount,
+    sort_order: nextSort,
+  });
+  return { amount: error ? null : amount, error: error?.message ?? null };
+}
+
 // depositPercent omitted (or null) creates the normal final invoice, which
 // auto-deducts any deposits already billed on the same devis. Passing a
 // percent instead creates a deposit invoice for that share of the devis.
