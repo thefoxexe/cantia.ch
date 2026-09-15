@@ -1,24 +1,161 @@
 import { useTranslation } from './translations';
 
-interface FeatureItem {
+// nav/footer/pricing are shared with components/MarketingChrome.tsx (the
+// nav/footer used by every other marketing page) and components/PricingSection.tsx
+// (reused as-is on the homepage below) — never rename or remove a field
+// those two files read. Every other section below is homepage-only content,
+// reshaped in September 2026 to match the "Cantia_Landing" reference package
+// (crème/terracotta Swiss-craft design, DM Sans, six-case story carousel):
+// only app/index.tsx reads them, so they're free to change shape.
+interface StoryCase {
+  id: string;
+  tab: string;
+  context: string;
+  question: string;
+  responseTitle: string;
+  responseText: string;
+  steps: string[];
+  linkLabel: string;
+  linkSlug: string;
+  concreteLabel: string;
+  concreteText: string;
+}
+
+interface CatalogItem {
   title: string;
   text: string;
-  detail: string[];
+}
+
+interface CatalogGroup {
+  title: string;
+  subtitle: string;
+  items: CatalogItem[];
+  linkLabel: string;
+  linkSlug: string;
+}
+
+interface TeamRole {
+  number: string;
+  title: string;
+  text: string;
+  tags: string[];
+}
+
+interface VoiceExample {
+  text: string;
+  result: string;
 }
 
 interface Dict {
   nav: { services: string; pricing: string; download: string; help: string; contact: string; login: string; cta: string };
-  hero: { kicker: string; headlinePrefix: string; headlineHighlight: string; subheadline: string; cta1: string; cta2: string; trust: string };
-  spotlight: {
+  landingNav: {
+    features: string;
+    team: string;
+    pricing: string;
+    help: string;
+    contact: string;
+    login: string;
+    signup: string;
+    mobileMetiers: string;
+    mobileApp: string;
+    mobileHelp: string;
+  };
+  hero: {
+    kicker: string;
+    titlePrefix: string;
+    titleHighlight: string;
+    crossedText: string;
+    asideEyebrow: string;
+    asideP1: string;
+    asideP2: string;
+    cta: string;
+    discover: string;
+    trust: string;
+    baselineLabel: string;
+    baselineItems: string[];
+    baselineNumber: string;
+  };
+  trust: {
+    locationLabel: string;
+    title: string;
+    text: string;
+    cards: { label: string; title: string; text: string }[];
+    contactCta: string;
+  };
+  profession: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    links: { label: string; slug: string }[];
+    allLink: string;
+    personalTitle: string;
+    items: { title: string; text: string }[];
+  };
+  stories: {
     title: string;
     subtitle: string;
-    voice: { label: string; listening: string; transcript: string; resultTitle: string; resultLines: string[]; caption: string };
-    qrbill: { label: string; title: string; text: string; badge: string };
-    catalog: { label: string; title: string; text: string; items: { name: string; match: number }[] };
+    cases: StoryCase[];
+    exploreLabel: string;
+    respondLabel: string;
+    prevLabel: string;
+    nextLabel: string;
+    pauseLabel: string;
+    playLabel: string;
   };
-  pain: { title: string; items: { title: string; text: string }[] };
-  services: { title: string; subtitle: string; items: FeatureItem[] };
-  trades: { title: string; note: string; list: string[] };
+  catalog: {
+    title: string;
+    subtitle: string;
+    groups: CatalogGroup[];
+    planNote: string;
+    comparePlans: string;
+  };
+  team: {
+    eyebrow: string;
+    titlePrefix: string;
+    titleEm: string;
+    text: string;
+    roles: TeamRole[];
+    permTitle: string;
+    permText: string;
+    permNote: string;
+    permLink: string;
+  };
+  automation: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    tag: string;
+    commandTitle: string;
+    commandText: string;
+    link: string;
+    tryLabel: string;
+    choices: { site: string; quote: string; invoice: string };
+    examples: { site: VoiceExample; quote: VoiceExample; invoice: VoiceExample };
+    resultLabel: string;
+    resultNote: string;
+    note: string;
+    animateLabel: string;
+    animatingLabel: string;
+  };
+  terrain: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    points: { label: string; text: string }[];
+    installCta: string;
+    installNote: string;
+  };
+  tailored: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    cta: string;
+    steps: { num: string; title: string; text: string }[];
+    link: string;
+  };
+  bexio: { eyebrow: string; title: string; text: string; link: string };
+  faq: { eyebrow: string; title: string; link: string; items: { q: string; a: string }[] };
+  closing: { eyebrow: string; titlePrefix: string; titleEm: string; text: string; cta: string; contact: string };
   pricing: {
     title: string;
     subtitle: string;
@@ -33,11 +170,6 @@ interface Dict {
     badge: string;
     paidCta: string;
   };
-  swiss: { title: string; text: string };
-  tour: { videoLabel: string };
-  devices: { title: string; text: string; benefits: { title: string; text: string }[] };
-  mobile: { title: string; text: string; installCta: string; storeNote: string; comingSoon: string; appStore: string; googlePlay: string };
-  finalCta: { title: string; subtitle: string; button: string; trust: string[] };
   footer: {
     blurb: string;
     product: string;
@@ -54,188 +186,333 @@ interface Dict {
 }
 
 const fr: Dict = {
-  // "Download" left in English on purpose (not "Télécharger") — a common,
-  // internationally-understood tech word, so this one nav label reads
-  // identically for French and German visitors instead of needing its own
-  // translation per locale.
+  // "Download" left in English on purpose — a common, internationally
+  // understood tech word, so this one nav label reads identically for
+  // French and German visitors instead of needing its own translation.
   nav: { services: 'Services', pricing: 'Tarifs', download: 'Download', help: 'Documentation', contact: 'Contact', login: 'Se connecter', cta: 'Essayer Cantia' },
+  landingNav: {
+    features: 'Fonctionnalités',
+    team: 'Heures & équipes',
+    pricing: 'Tarifs',
+    help: 'Aide',
+    contact: 'Contact',
+    login: 'Connexion',
+    signup: 'Inscription',
+    mobileMetiers: 'Votre métier',
+    mobileApp: 'Application mobile',
+    mobileHelp: 'Aide & documentation',
+  },
   hero: {
-    kicker: 'Conçu pour le bâtiment suisse 🇨🇭',
-    headlinePrefix: 'Gérez vos chantiers.',
-    headlineHighlight: 'Pas votre administratif.',
-    subheadline:
-      'Cantia est le logiciel de gestion conçu pour les entreprises du bâtiment suisse. Devis, factures, planning, rapports et rentabilité réunis au même endroit, au bureau comme sur le chantier.',
-    cta1: 'Démarrer mon essai de 14 jours',
-    cta2: 'Découvrir Cantia',
-    trust: '14 jours d’essai · Aucun code nécessaire · Hébergé en Suisse',
+    kicker: 'Pensé pour le bâtiment suisse',
+    titlePrefix: 'Gérez vos',
+    titleHighlight: 'chantiers.',
+    crossedText: 'Pas votre administratif.',
+    asideEyebrow: 'LE TERRAIN ET LE BUREAU, ENFIN RÉUNIS',
+    asideP1: 'Du premier devis à la dernière facture, gardez le fil de vos chantiers.',
+    asideP2: 'Devis, heures, documents et échanges restent liés au bon projet. Votre équipe renseigne le terrain ; vous retrouvez les informations pour décider.',
+    cta: 'Essayer Cantia 14 jours',
+    discover: 'Découvrir les fonctionnalités',
+    trust: '14 jours pour essayer Cantia avec votre équipe',
+    baselineLabel: 'UN SEUL ESPACE DE TRAVAIL',
+    baselineItems: ['Devis & factures', 'Chantiers', 'Heures & équipes', 'Rentabilité'],
+    baselineNumber: '01 — CANTIA',
   },
-  spotlight: {
-    title: 'Des automatisations pensées pour le quotidien du bâtiment',
-    subtitle: 'De la dictée du devis au QR-facture, Cantia automatise les tâches qui vous font perdre du temps entre le chantier et le bureau.',
-    voice: {
-      label: 'Dictée vocale',
-      listening: 'Écoute en cours…',
-      transcript: 'Façade nord, 12 mètres carrés de crépi à refaire, plus fourniture et pose de 3 fenêtres PVC…',
-      resultTitle: 'Devis généré automatiquement',
-      resultLines: ['Crépi façade nord — 12 m²', 'Fenêtre PVC (fourniture + pose) — 3 pce', 'Total calculé avec TVA'],
-      caption: 'Parlez, Cantia rédige. Votre devis est prêt avant même d’avoir quitté le chantier.',
-    },
-    qrbill: {
-      label: 'QR-facture suisse',
-      title: 'Payable en un scan',
-      text: 'Chaque facture inclut le bulletin de versement QR suisse, scannable depuis n’importe quelle appli bancaire.',
-      badge: 'Conforme norme SIX',
-    },
-    catalog: {
-      label: 'Catalogue intelligent',
-      title: 'Vos prix, mémorisés',
-      text: 'Chaque devis enrichit votre catalogue. La prochaine fois, Cantia reconnaît vos prestations et propose déjà le bon prix.',
-      items: [
-        { name: 'Fenêtre PVC double vitrage', match: 96 },
-        { name: 'Pose et étanchéité périphérique', match: 91 },
-        { name: 'Volet roulant alu sur mesure', match: 88 },
-      ],
-    },
+  trust: {
+    locationLabel: 'Conçu et hébergé en Suisse',
+    title: 'Chez vous.\nPour votre métier.',
+    text: 'Un logiciel ancré dans votre quotidien, avec des données hébergées en Suisse et un interlocuteur joignable.',
+    cards: [
+      { label: 'Facturation suisse', title: 'Vos factures parlent CHF.', text: 'QR-factures, TVA et acomptes : les outils pour facturer vos clients en Suisse.' },
+      { label: 'Votre façon de travailler', title: 'Vos prix. Vos documents.', text: 'Retrouvez vos prestations habituelles et envoyez des documents à votre image.' },
+      { label: 'Un contact direct', title: 'Une question ? Parlons-en.', text: 'Contactez-nous par téléphone ou par e-mail pour vos questions et vos besoins.' },
+    ],
+    contactCta: 'Contacter Cantia',
   },
-  pain: {
-    title: 'L’administratif ne vous coûte pas que du temps. Il vous coûte de l’argent.',
+  profession: {
+    eyebrow: 'Votre métier a ses habitudes',
+    title: 'Votre métier.\nVos habitudes.',
+    text: 'Un charpentier ne prépare pas ses chantiers comme un peintre. Cantia s’adapte à votre corps de métier, avec des modèles et des documents que vous pouvez personnaliser.',
+    links: [
+      { label: 'Charpente', slug: 'charpentier' },
+      { label: 'Maçonnerie', slug: 'macon' },
+      { label: 'Peinture', slug: 'peintre' },
+      { label: 'Électricité', slug: 'electricien' },
+      { label: 'Menuiserie', slug: 'menuisier' },
+      { label: 'Génie civil', slug: 'genie-civil' },
+    ],
+    allLink: 'Découvrir tous les métiers',
+    personalTitle: 'Configurez Cantia\nà votre façon.',
     items: [
+      { title: 'Vos prestations', text: 'Votre catalogue, vos prix et vos trames de devis suivent votre façon de chiffrer.' },
+      { title: 'Votre identité', text: 'Votre logo et vos couleurs accompagnent les documents envoyés aux clients.' },
+      { title: 'Votre organisation', text: 'Vous adaptez les accès aux responsabilités de chaque membre de l’équipe.' },
+    ],
+  },
+  stories: {
+    title: 'Ça vous parle ?',
+    subtitle: 'Les imprévus font partie du métier.\nL’administratif ne devrait pas les compliquer.',
+    exploreLabel: 'Explorer toutes les fonctionnalités',
+    respondLabel: 'Cantia répond',
+    prevLabel: 'Situation précédente',
+    nextLabel: 'Situation suivante',
+    pauseLabel: 'Mettre en pause',
+    playLabel: 'Lire',
+    cases: [
       {
-        title: 'Vos devis attendent le soir. Vos clients, eux, n’attendent pas.',
-        text: 'Après une journée de chantier, il reste encore les offres à rédiger. Cantia permet de préparer un devis directement depuis le terrain et de réutiliser vos prestations habituelles.',
+        id: 'devis',
+        tab: 'Devis',
+        context: 'Devis & offres',
+        question: 'Encore des devis\naprès le chantier ?',
+        responseTitle: 'Le devis avance\npendant la visite.',
+        responseText: 'Dictez ou saisissez vos prestations. Cantia reprend votre catalogue pour préparer une offre que vous vérifiez avant de l’envoyer.',
+        steps: ['Dicter ou saisir', 'Ajuster', 'Envoyer'],
+        linkLabel: 'Découvrir les devis',
+        linkSlug: 'devis',
+        concreteLabel: 'Sur le terrain',
+        concreteText: '« 12 m² de parquet en chêne, avec préparation du support et pose. »',
       },
       {
-        title: 'Photos, notes et décisions finissent partout sauf au bon endroit.',
-        text: 'WhatsApp, galerie du téléphone, papier, mails : Cantia rassemble l’historique directement dans le chantier concerné.',
+        id: 'chantier',
+        tab: 'Chantiers',
+        context: 'Suivi de chantier',
+        question: 'Où est le plan ?\nEt la dernière photo ?',
+        responseTitle: 'Tout se retrouve\ndans le chantier.',
+        responseText: 'Plans, messages et photos restent liés au projet. Vos notes du terrain peuvent ensuite alimenter un rapport à relire et partager.',
+        steps: ['Documenter', 'Rassembler', 'Partager'],
+        linkLabel: 'Découvrir le suivi et les rapports',
+        linkSlug: 'rapports-chantier',
+        concreteLabel: 'Sur le terrain',
+        concreteText: '« Le support est humide derrière la cloison. J’ajoute les photos au chantier. »',
       },
       {
-        title: 'Un chantier peut perdre de l’argent bien avant que vous le remarquiez.',
-        text: 'Comparez les heures, dépenses et montants facturés pendant le chantier pour détecter les écarts avant la fin des travaux.',
+        id: 'extras',
+        tab: 'Suppléments',
+        context: 'Travaux supplémentaires',
+        question: '« Tant que\nvous y êtes… »',
+        responseTitle: 'Un extra demandé.\nUn accord écrit.',
+        responseText: 'Chiffrez le supplément et faites-le signer en ligne. Après acceptation, Cantia génère une facture dédiée.',
+        steps: ['Chiffrer', 'Faire signer', 'Facturer'],
+        linkLabel: 'Découvrir les travaux supplémentaires',
+        linkSlug: 'travaux-supplementaires',
+        concreteLabel: 'Sur le terrain',
+        concreteText: '« Vous pourriez aussi repeindre la porte du garage ? »',
+      },
+      {
+        id: 'equipe',
+        tab: 'Équipes',
+        context: 'Équipes, heures & salaires',
+        question: 'Qui a fait quoi,\net combien d’heures ?',
+        responseTitle: 'Chacun saisit.\nLe bureau retrouve.',
+        responseText: 'Les employés saisissent leurs heures et frais par chantier. Les personnes autorisées retrouvent les données pour le suivi et les salaires.',
+        steps: ['Planifier', 'Saisir', 'Exploiter'],
+        linkLabel: 'Découvrir les heures et les salaires',
+        linkSlug: 'rh-salaires',
+        concreteLabel: 'Sur le terrain',
+        concreteText: '« 4 h à la Villa des Vignes, 3 h à la Résidence du Parc et 18 km de déplacement. »',
+      },
+      {
+        id: 'paiements',
+        tab: 'Factures',
+        context: 'Facturation & encaissements',
+        question: 'Facturé.\nMais encaissé ?',
+        responseTitle: 'Chaque versement\na sa place.',
+        responseText: 'Créez une QR-facture, demandez un acompte et enregistrez les paiements. Le solde restant suit les versements reçus.',
+        steps: ['Facturer', 'Enregistrer le paiement', 'Suivre le solde'],
+        linkLabel: 'Découvrir la facturation',
+        linkSlug: 'facturation',
+        concreteLabel: 'Sur le terrain',
+        concreteText: '« Sur cette facture de CHF 6’000, le client a déjà versé CHF 2’000. »',
+      },
+      {
+        id: 'pilotage',
+        tab: 'Rentabilité',
+        context: 'Rentabilité & trésorerie',
+        question: 'Du travail, oui.\nMais de la marge ?',
+        responseTitle: 'Voyez ce que\nle chantier vous rapporte.',
+        responseText: 'Comparez le devis aux dépenses et au coût de main-d’œuvre. Anticipez aussi les encaissements et les charges avec la trésorerie à 90 jours.',
+        steps: ['Rassembler les coûts', 'Comparer', 'Décider'],
+        linkLabel: 'Découvrir la rentabilité',
+        linkSlug: 'rentabilite',
+        concreteLabel: 'Sur le terrain',
+        concreteText: '« On a passé plus d’heures que prévu. Qu’est-ce que ça change pour ce chantier ? »',
       },
     ],
   },
-  services: {
-    title: 'Cantia relie le terrain et le bureau dans le même outil',
-    subtitle: 'Du premier rendez-vous à la facture payée : cliquez sur un service pour voir précisément ce qu’il fait.',
-    items: [
+  catalog: {
+    title: 'Explorez les outils\nqui vous seront utiles.',
+    subtitle: 'Retrouvez les fonctionnalités par usage.\nOuvrez uniquement ce qui vous intéresse.',
+    planNote: 'Les modules et les droits disponibles dépendent de votre formule.',
+    comparePlans: 'Comparer les offres',
+    groups: [
       {
-        title: 'Du rendez-vous au devis sans refaire le travail le soir',
-        text: 'Dictez vos lignes de devis à la voix depuis le chantier et laissez l’IA les chiffrer avec votre catalogue, TVA et totaux calculés, prêt à envoyer.',
-        detail: [
-          'Dictée vocale, catalogue de prestations réutilisables et prix mémorisés',
-          'Calcul automatique de la TVA et des totaux, PDF à votre couleur de marque',
-          'Envoi au client puis transformation en facture en un clic, sans ressaisie',
+        title: 'Préparer une offre',
+        subtitle: 'Du premier contact au devis accepté.',
+        linkLabel: 'Explorer cet usage',
+        linkSlug: 'devis',
+        items: [
+          { title: 'Clients', text: 'Retrouvez les coordonnées du client et réutilisez-les dans vos documents.' },
+          { title: 'Catalogue de prestations', text: 'Mémorisez descriptions, prix et unités ; repérez les écarts de prix.' },
+          { title: 'Trames de devis', text: 'Repartez de vos prestations habituelles et adaptez les quantités.' },
+          { title: 'Métrés', text: 'Détaillez les quantités nécessaires au chiffrage.' },
+          { title: 'Devis et signature', text: 'Préparez le PDF, partagez-le et suivez son statut jusqu’à l’acceptation.' },
         ],
       },
       {
-        title: 'Tout ce qui s’est passé sur le chantier reste avec le chantier',
-        text: 'Vos notes et photos, géolocalisées automatiquement, deviennent un rapport PDF prêt à envoyer avec votre logo et votre signature.',
-        detail: [
-          'Photos automatiquement horodatées et géolocalisées',
-          'Remarques, documents et historique classés par chantier',
-          'PDF généré en un clic, consultable à tout moment',
+        title: 'Facturer et suivre les paiements',
+        subtitle: 'De l’acompte au solde du chantier.',
+        linkLabel: 'Explorer cet usage',
+        linkSlug: 'facturation',
+        items: [
+          { title: 'Conversion du devis', text: 'Reprenez les lignes acceptées dans la facture, sans les retaper.' },
+          { title: 'QR-factures suisses', text: 'Générez le bulletin QR avec votre IBAN et la référence de paiement.' },
+          { title: 'Acomptes', text: 'Facturez une partie du devis et retrouvez la déduction sur la facture finale.' },
+          { title: 'Versements et échéances', text: 'Enregistrez les paiements partiels, consultez les soldes et rapprochez les références.' },
+          { title: 'Travaux supplémentaires', text: 'Chiffrez un extra, faites-le signer et retrouvez sa facture après acceptation.' },
         ],
       },
       {
-        title: 'Toute l’équipe sait où elle doit être',
-        text: 'Un planning central par employé et par chantier, pour ne plus avoir à appeler le patron afin de savoir où aller demain.',
-        detail: [
-          'Vue par membre et par jour, consultable par toute l’équipe',
-          'Chaque affectation liée à un chantier précis',
-          'Plusieurs chantiers en parallèle sans conflit de ressources',
+        title: 'Documenter le chantier',
+        subtitle: 'Ce que l’équipe voit, dit et réalise.',
+        linkLabel: 'Explorer cet usage',
+        linkSlug: 'rapports-chantier',
+        items: [
+          { title: 'Fil d’équipe', text: 'Échangez des messages et des notes vocales dans le chantier.' },
+          { title: 'Plans et documents', text: 'Rangez les fichiers dans des dossiers et sous-dossiers.' },
+          { title: 'Photos et localisation', text: 'Conservez les photos, leur horodatage et leur position géographique.' },
+          { title: 'Rapports', text: 'Rassemblez notes et photos dans un rapport à relire, signer et exporter.' },
+          { title: 'Sous-traitants', text: 'Retrouvez les entreprises intervenantes et leurs documents dans le projet.' },
         ],
       },
       {
-        title: 'Le chantier est terminé. La facture ne devrait pas attendre.',
-        text: 'Transformez un devis accepté en facture QR-suisse en un clic, avec suivi du statut jusqu’au paiement.',
-        detail: [
-          'Facture générée depuis le devis, sans ressaisie',
-          'QR-facture conforme, payable en un scan',
-          'Statut de paiement suivi en direct, relances facilitées',
+        title: 'Travailler en équipe',
+        subtitle: 'Le terrain et le bureau, avec les bons accès.',
+        linkLabel: 'Explorer cet usage',
+        linkSlug: 'rh-salaires',
+        items: [
+          { title: 'Planning partagé', text: 'Affectez les membres aux chantiers et consultez la semaine depuis le téléphone.' },
+          { title: 'Heures et exports', text: 'Saisissez les heures par jour et chantier ; exportez les feuilles en CSV.' },
+          { title: 'Frais professionnels', text: 'Suivez les déplacements et les autres frais liés aux employés.' },
+          { title: 'Profils et salaires', text: 'Renseignez salaire fixe ou taux horaire et cotisations pour les calculs brut/net.' },
+          { title: 'Rôles et permissions', text: 'Définissez les modules accessibles ; limitez l’accès aux informations sensibles.' },
         ],
       },
       {
-        title: 'Sachez ce que chaque chantier vous rapporte réellement',
-        text: 'Comparez en direct heures, dépenses, montant devisé et montant facturé pour repérer une marge qui s’effrite avant la fin des travaux.',
-        detail: [
-          'Comparaison devisé vs coût réel (matériel et main d’œuvre)',
-          'Alerte visuelle dès qu’un chantier s’écarte de sa marge prévue',
-          'Vue chantier par chantier, pas seulement en fin de mois',
+        title: 'Piloter les coûts',
+        subtitle: 'Les données du chantier au service des décisions.',
+        linkLabel: 'Explorer cet usage',
+        linkSlug: 'tresorerie',
+        items: [
+          { title: 'Dépenses', text: 'Retrouvez les achats des chantiers et les dépenses générales.' },
+          { title: 'Saisie par photo ou voix', text: 'Préparez une dépense à partir d’un justificatif ou d’une dictée, puis vérifiez-la.' },
+          { title: 'Rentabilité', text: 'Comparez le devis accepté aux coûts du matériel et de la main-d’œuvre.' },
+          { title: 'Trésorerie à 90 jours', text: 'Projetez les encaissements et décaissements depuis votre solde renseigné manuellement.' },
+          { title: 'Charges récurrentes', text: 'Suivez abonnements, loyers et autres échéances, avec rappels.' },
         ],
       },
       {
-        title: 'Documents en arborescence',
-        text: 'Chaque chantier a son propre classeur numérique, avec des dossiers et sous-dossiers pour vos plans et soumissions.',
-        detail: [
-          'Dossiers et sous-dossiers illimités, par chantier',
-          'Tout type de fichier : plans, PDF, photos, contrats',
-          'Retrouvez un document en quelques secondes',
-        ],
-      },
-      {
-        title: 'Galerie photos intelligente',
-        text: 'Toutes les photos d’un chantier se retrouvent au même endroit. Filtrez-les par date et repérez où elles ont été prises sur la carte.',
-        detail: [
-          'Toutes les photos d’un chantier regroupées automatiquement',
-          'Filtres par date : 7 jours, 30 jours ou tout l’historique',
-          'Ouverture directe de la localisation sur la carte',
-        ],
-      },
-      {
-        title: 'Un espace client sécurisé',
-        text: 'Chaque devis et chaque facture est accessible via un lien unique et privé : votre client consulte, signe et suit le paiement sans jamais créer de compte.',
-        detail: [
-          'Signature électronique horodatée, conservée en preuve',
-          'Statut de paiement visible en direct, avant même votre relance',
-          'Historique complet des devis et factures, classé par chantier',
-        ],
-      },
-      {
-        title: 'Documents à votre image',
-        text: 'Choisissez la couleur de votre marque, le placement de votre logo, et créez plusieurs modèles pour vos devis et rapports PDF.',
-        detail: [
-          'Couleur de marque et placement du logo personnalisables',
-          'Plusieurs modèles par type de document, à choisir à la création',
-          'Disponible dès le plan Essentiel',
-        ],
-      },
-      {
-        title: 'Métré poste par poste',
-        text: 'Détaillez vos quantités poste par poste, avec des totaux calculés automatiquement, puis transformez le tout en devis en un clic.',
-        detail: [
-          'Tableau de postes avec référence, quantité et unité',
-          'Totaux automatiques par unité (m², m³, ml…)',
-          'Transfert en un clic vers un devis pré-rempli',
-        ],
-      },
-      {
-        title: 'Pensé pour l’équipe',
-        text: 'Créez des rôles sur mesure et décidez précisément qui voit quoi — devis, factures, planning — sans tout donner à tout le monde.',
-        detail: [
-          'Rôles personnalisables avec accès à cocher par domaine',
-          'Finance, Métré, Planning et Documents gérés séparément',
-          'Ajout de collaborateurs selon votre plan',
-        ],
-      },
-      {
-        title: 'Coordination des sous-traitants',
-        text: 'Ajoutez les entreprises sous-traitées sur chaque chantier, suivez leurs interventions et gardez leurs attestations d’assurance à portée de main.',
-        detail: [
-          'Répertoire de sous-traitants réutilisable d’un chantier à l’autre',
-          'Statut d’intervention et dates de passage par chantier',
-          'Attestation d’assurance RC stockée et datée, plus d’oubli',
+        title: 'Adapter Cantia à votre entreprise',
+        subtitle: 'Votre métier, vos documents, votre organisation.',
+        linkLabel: 'Parler de votre besoin',
+        linkSlug: 'sur-mesure',
+        items: [
+          { title: 'Dictée et assistant', text: 'Dictez les messages et documents ou interrogez les données de votre entreprise.' },
+          { title: 'Documents personnalisés', text: 'Appliquez le logo, les couleurs et l’identité de votre entreprise.' },
+          { title: 'Ordinateur et mobile', text: 'Retrouvez Cantia au bureau et sur le terrain.' },
+          { title: 'Bexio, si vous en avez besoin', text: 'Connectez vos données Bexio ou utilisez Cantia indépendamment.' },
+          { title: 'Modules privés sur mesure', text: 'Faites étudier un module réservé à votre entreprise selon votre besoin.' },
         ],
       },
     ],
   },
-  trades: {
-    title: 'Pensé pour votre métier',
-    note: 'Chaque compte s’adapte à votre métier, avec des modèles de rapports, un taux de TVA et une mise en page de devis déjà configurés.',
-    list: ['Génie civil', 'Maçonnerie', 'Serrurerie', 'Électricité', 'Plomberie', 'Menuiserie', 'Peinture', 'Carrelage'],
+  team: {
+    eyebrow: 'Du bureau au terrain',
+    titlePrefix: 'Votre entreprise avance.',
+    titleEm: 'Toute l’équipe participe.',
+    text: 'Le patron pilote. Le bureau organise. Les employés font remonter le terrain.\nChacun retrouve les outils qui lui sont utiles, avec les accès que vous lui donnez.',
+    roles: [
+      { number: 'Direction', title: 'Gardez la vue d’ensemble.', text: 'Chantiers, devis, factures et rentabilité : les informations se rejoignent pour vous aider à décider.', tags: ['Piloter', 'Décider'] },
+      { number: 'Bureau', title: 'Faites avancer les dossiers.', text: 'Secrétariat ou administration : donnez accès aux documents, au planning et aux modules nécessaires au quotidien.', tags: ['Organiser', 'Préparer'] },
+      { number: 'Terrain', title: 'Partagez ce qui se passe.', text: 'Les employés saisissent leurs heures par chantier, échangent dans le fil du projet et ajoutent leurs rapports depuis leur téléphone.', tags: ['Pointer', 'Échanger', 'Documenter'] },
+    ],
+    permTitle: 'Le bon accès. Pour la bonne personne.',
+    permText: 'Créez vos rôles et choisissez les modules accessibles. Un employé peut remplir ses heures et suivre son chantier sans accéder à la facturation.',
+    permNote: 'Exemples d’organisation. Rôles personnalisés et modules disponibles selon votre plan. RH dès le plan Équipe.',
+    permLink: 'Découvrir le travail en équipe',
+  },
+  automation: {
+    eyebrow: 'Au clavier ou à la voix',
+    title: 'Dites-le.\nCantia le prépare.',
+    text: 'Saisissez, dictez, vérifiez.\nVous gardez la main sur chaque étape.',
+    tag: 'À VOTRE FAÇON',
+    commandTitle: 'Un chantier à suivre.\nUn devis à préparer.\nUne facture à envoyer.',
+    commandText: 'Travaillez à la main avec vos prestations, vos quantités et vos documents. Ou dictez ce dont vous avez besoin : Cantia vous aide à préparer la suite.\n\nVous relisez, vous ajustez, vous validez.',
+    link: 'Découvrir la dictée et l’assistant',
+    tryLabel: 'Essayez un exemple de dictée',
+    choices: { site: 'Chantier', quote: 'Devis', invoice: 'Facture' },
+    examples: {
+      site: { text: '« Prépare un rapport pour la Villa des Vignes : pose du parquet terminée dans le séjour. »', result: 'Un rapport rattaché au bon chantier.' },
+      quote: { text: '« Prépare un devis pour la fourniture et la pose de 12 m² de parquet en chêne. »', result: 'Une offre préparée avec votre catalogue.' },
+      invoice: { text: '« Prépare la facture à partir du devis accepté pour la Villa des Vignes. »', result: 'Une facture préparée à partir du devis.' },
+    },
+    resultLabel: 'CANTIA VOUS AIDE À PRÉPARER',
+    resultNote: 'Un brouillon à relire et à valider.',
+    note: 'Exemples illustratifs · Cette animation n’enregistre aucun son.',
+    animateLabel: 'Animer',
+    animatingLabel: 'Animation',
+  },
+  terrain: {
+    eyebrow: 'Cantia sur tous vos écrans',
+    title: 'Le bureau.\nDans votre poche.',
+    text: 'Un détail à photographier, un plan à consulter, des heures à saisir : ajoutez l’information là où le travail se fait. Retrouvez-la ensuite au bureau, dans le même chantier.',
+    points: [
+      { label: 'Ordinateur', text: 'Devis, factures et pilotage' },
+      { label: 'Tablette', text: 'Plans, rapports et suivi de chantier' },
+      { label: 'Téléphone', text: 'Photos, heures et informations terrain' },
+    ],
+    installCta: 'Installer Cantia',
+    installNote: 'Accessible dans le navigateur et ajoutable à l’écran d’accueil.\nVersions App Store et Google Play en développement.',
+  },
+  tailored: {
+    eyebrow: 'Quand votre entreprise a un besoin bien à elle',
+    title: 'Un besoin spécifique ?\nUn module sur mesure.',
+    text: 'Un processus particulier, un suivi métier ou un besoin que les modules existants ne couvrent pas ? Nous pouvons étudier un développement sur mesure pour votre entreprise.',
+    cta: 'Parlons de votre besoin',
+    steps: [
+      { num: '01', title: 'On part de votre quotidien.', text: 'Expliquez-nous ce que vous faites, ce qui manque et ce que vous souhaitez simplifier.' },
+      { num: '02', title: 'On définit une réponse adaptée.', text: 'Le fonctionnement, le périmètre et les conditions du développement sont définis ensemble.' },
+      { num: '03', title: 'Un module réservé à votre entreprise.', text: 'Un module privé peut être intégré à votre espace Cantia et réservé à vos collaborateurs autorisés.' },
+    ],
+    link: 'En savoir plus sur le sur-mesure',
+  },
+  bexio: {
+    eyebrow: 'Une connexion, si vous en avez besoin',
+    title: 'Vous utilisez Bexio ?\nGardez le lien.',
+    text: 'Vous utilisez déjà Bexio ? Connectez vos données clients, factures et paiements pour découvrir Cantia dans la continuité de votre organisation. Sans Bexio, vous pouvez utiliser Cantia de façon autonome.',
+    link: 'Voir l’intégration',
+  },
+  faq: {
+    eyebrow: 'Avant de vous lancer',
+    title: 'Vos questions.\nNos réponses.',
+    link: 'Consulter le centre d’aide',
+    items: [
+      { q: 'À qui s’adresse Cantia ?', a: 'Aux indépendants et entreprises du bâtiment suisse : maçonnerie, charpente, peinture, électricité, génie civil et autres métiers de la construction.' },
+      { q: 'Est-ce que Cantia fonctionne sans Bexio ?', a: 'Oui. Vous pouvez gérer votre activité dans Cantia seul. L’intégration Bexio permet de retrouver vos données dans les deux outils si vous utilisez déjà Bexio.' },
+      { q: 'Comment utiliser Cantia sur téléphone ?', a: 'Ouvrez Cantia dans votre navigateur et ajoutez-le à votre écran d’accueil. Les versions App Store et Google Play sont en développement.' },
+      { q: 'Que comprend l’essai de 14 jours ?', a: 'Les nouveaux comptes disposent de 14 jours d’essai, sans code promotionnel. Choisissez votre formule lors de l’inscription et consultez ses conditions avant de confirmer.' },
+      { q: 'Puis-je donner un accès à mon équipe ?', a: 'Oui. Selon votre formule, vous pouvez inviter jusqu’à 3, 10 ou 25 membres et définir leurs rôles. Pour une équipe plus grande, contactez Cantia.' },
+    ],
+  },
+  closing: {
+    eyebrow: 'Votre prochain chantier commence ici',
+    titlePrefix: 'Commencez avec',
+    titleEm: 'votre prochain chantier.',
+    text: 'Commencez par un devis, un chantier, une équipe. Voyez la différence pendant 14 jours.',
+    cta: 'Essayer Cantia gratuitement',
+    contact: 'Parler à l’équipe Cantia',
   },
   pricing: {
-    title: 'Choisissez la formule adaptée à votre entreprise',
-    subtitle: 'Tous les nouveaux comptes commencent par 14 jours d’essai complet, sans code promotionnel.',
+    title: 'Choisissez selon\nla taille de votre équipe.',
+    subtitle: 'Toutes les formules commencent par 14 jours d’essai complet, sans code promotionnel.',
     monthly: 'Facturation mensuelle',
     yearly: 'Facturation annuelle',
     yearlySavings: '-20%',
@@ -245,38 +522,7 @@ const fr: Dict = {
     memberPlural: 'membres',
     unlimited: 'Rapports & devis illimités',
     badge: 'Le plus choisi',
-    paidCta: 'Démarrer l’essai de 14 jours',
-  },
-  swiss: {
-    title: 'Pensé en Suisse, pas juste traduit pour la Suisse',
-    text: 'Cantia a été développé pour le fonctionnement des entreprises du bâtiment suisse : CHF, TVA suisse, QR-facture et données hébergées en Suisse.',
-  },
-  tour: {
-    videoLabel: 'Vidéo de présentation de Cantia',
-  },
-  devices: {
-    title: 'Gérez vos chantiers, où que vous soyez',
-    text: 'Au bureau, sur le chantier ou en déplacement, retrouvez Cantia sur ordinateur, tablette et smartphone.',
-    benefits: [
-      { title: 'Au bureau', text: 'Préparez devis, factures et analyses.' },
-      { title: 'Sur le chantier', text: 'Ajoutez rapports, photos et heures.' },
-      { title: 'En déplacement', text: 'Accédez à vos informations depuis votre téléphone.' },
-    ],
-  },
-  mobile: {
-    title: 'Cantia vous suit aussi sur le terrain',
-    text: "Ouvrez Cantia depuis votre téléphone ou votre tablette et ajoutez-le à votre écran d'accueil pour y accéder rapidement, en plein écran, comme à vos autres applications, dès aujourd'hui et sans passer par un store.",
-    installCta: 'Comment l’installer',
-    storeNote: 'Les versions officielles arrivent aussi :',
-    comingSoon: 'En développement',
-    appStore: 'App Store',
-    googlePlay: 'Google Play',
-  },
-  finalCta: {
-    title: 'Essayez Cantia sur votre prochain chantier',
-    subtitle: 'Créez votre compte et découvrez pendant 14 jours comment Cantia rassemble vos devis, chantiers, rapports et factures au même endroit.',
-    button: 'Démarrer mes 14 jours d’essai',
-    trust: ['14 jours d’essai · Aucun code nécessaire', 'Résiliable à tout moment', 'Hébergé en Suisse'],
+    paidCta: 'Essayer 14 jours',
   },
   footer: {
     blurb: 'L’application de gestion de chantier pour le bâtiment suisse. Rapports, documents, devis, factures et métré, tous au même endroit.',
@@ -293,188 +539,331 @@ const fr: Dict = {
   },
 };
 
-
 const de: Dict = {
-  // "Download" left in English (not "Herunterladen") — see the fr dict's
-  // comment above, same reasoning.
   nav: { services: 'Leistungen', pricing: 'Preise', download: 'Download', help: 'Dokumentation', contact: 'Kontakt', login: 'Anmelden', cta: 'Cantia testen' },
+  landingNav: {
+    features: 'Funktionen',
+    team: 'Stunden & Teams',
+    pricing: 'Preise',
+    help: 'Hilfe',
+    contact: 'Kontakt',
+    login: 'Anmelden',
+    signup: 'Registrieren',
+    mobileMetiers: 'Ihr Beruf',
+    mobileApp: 'Mobile App',
+    mobileHelp: 'Hilfe & Dokumentation',
+  },
   hero: {
-    kicker: 'Für das Schweizer Baugewerbe entwickelt 🇨🇭',
-    headlinePrefix: 'Verwalten Sie Ihre Baustellen.',
-    headlineHighlight: 'Nicht Ihre Administration.',
-    subheadline:
-      'Cantia ist die Verwaltungssoftware für Schweizer Bauunternehmen. Offerten, Rechnungen, Planung, Rapporte und Rentabilität an einem Ort, im Büro wie auf der Baustelle.',
-    cta1: 'Meine 14-tägige Testphase starten',
-    cta2: 'Cantia entdecken',
-    trust: '14 Tage Testphase · Kein Code nötig · In der Schweiz gehostet',
+    kicker: 'Für das Schweizer Baugewerbe entwickelt',
+    titlePrefix: 'Verwalten Sie Ihre',
+    titleHighlight: 'Baustellen.',
+    crossedText: 'Nicht Ihre Administration.',
+    asideEyebrow: 'BAUSTELLE UND BÜRO, ENDLICH VEREINT',
+    asideP1: 'Von der ersten Offerte bis zur letzten Rechnung, behalten Sie den Überblick über Ihre Baustellen.',
+    asideP2: 'Offerten, Stunden, Dokumente und Austausch bleiben mit dem richtigen Projekt verknüpft. Ihr Team erfasst vor Ort; Sie finden die Informationen, um zu entscheiden.',
+    cta: 'Cantia 14 Tage testen',
+    discover: 'Funktionen entdecken',
+    trust: '14 Tage, um Cantia mit Ihrem Team zu testen',
+    baselineLabel: 'EIN EINZIGER ARBEITSBEREICH',
+    baselineItems: ['Offerten & Rechnungen', 'Baustellen', 'Stunden & Teams', 'Rentabilität'],
+    baselineNumber: '01 — CANTIA',
   },
-  spotlight: {
-    title: 'Automatisierungen für den Alltag im Baugewerbe',
-    subtitle: 'Von der Offertendiktierung bis zur QR-Rechnung automatisiert Cantia die Aufgaben, die Ihnen zwischen Baustelle und Büro Zeit kosten.',
-    voice: {
-      label: 'Sprachdiktat',
-      listening: 'Aufnahme läuft…',
-      transcript: 'Nordfassade, 12 Quadratmeter Verputz zu erneuern, plus Lieferung und Montage von 3 PVC-Fenstern…',
-      resultTitle: 'Offerte automatisch erstellt',
-      resultLines: ['Verputz Nordfassade — 12 m²', 'PVC-Fenster (Lieferung + Montage) — 3 Stk', 'Total mit MWST berechnet'],
-      caption: 'Sie sprechen, Cantia schreibt. Ihre Offerte ist fertig, bevor Sie die Baustelle verlassen haben.',
-    },
-    qrbill: {
-      label: 'Schweizer QR-Rechnung',
-      title: 'Zahlbar mit einem Scan',
-      text: 'Jede Rechnung enthält den Schweizer QR-Einzahlungsschein, scannbar mit jeder Banking-App.',
-      badge: 'SIX-konform',
-    },
-    catalog: {
-      label: 'Intelligenter Katalog',
-      title: 'Ihre Preise, gespeichert',
-      text: 'Jede Offerte erweitert Ihren Katalog. Beim nächsten Mal erkennt Cantia Ihre Leistungen und schlägt bereits den richtigen Preis vor.',
-      items: [
-        { name: 'PVC-Fenster Doppelverglasung', match: 96 },
-        { name: 'Montage und Randabdichtung', match: 91 },
-        { name: 'Alu-Rollladen nach Mass', match: 88 },
-      ],
-    },
+  trust: {
+    locationLabel: 'Entwickelt und gehostet in der Schweiz',
+    title: 'Bei Ihnen zu Hause.\nFür Ihren Beruf.',
+    text: 'Eine Software, die in Ihrem Alltag verankert ist, mit in der Schweiz gehosteten Daten und einer erreichbaren Ansprechperson.',
+    cards: [
+      { label: 'Schweizer Rechnungsstellung', title: 'Ihre Rechnungen sprechen CHF.', text: 'QR-Rechnungen, MWST und Anzahlungen: die Werkzeuge, um Ihre Kunden in der Schweiz zu fakturieren.' },
+      { label: 'Ihre Arbeitsweise', title: 'Ihre Preise. Ihre Dokumente.', text: 'Finden Sie Ihre gewohnten Leistungen wieder und versenden Sie Dokumente in Ihrem Stil.' },
+      { label: 'Ein direkter Kontakt', title: 'Eine Frage? Sprechen wir darüber.', text: 'Kontaktieren Sie uns telefonisch oder per E-Mail für Ihre Fragen und Anliegen.' },
+    ],
+    contactCta: 'Cantia kontaktieren',
   },
-  pain: {
-    title: 'Die Administration kostet Sie nicht nur Zeit. Sie kostet Sie Geld.',
+  profession: {
+    eyebrow: 'Ihr Beruf hat seine Gewohnheiten',
+    title: 'Ihr Beruf.\nIhre Gewohnheiten.',
+    text: 'Ein Zimmermann bereitet seine Baustellen nicht wie ein Maler vor. Cantia passt sich Ihrem Gewerbe an, mit Vorlagen und Dokumenten, die Sie personalisieren können.',
+    links: [
+      { label: 'Zimmerei', slug: 'charpentier' },
+      { label: 'Maurerarbeiten', slug: 'macon' },
+      { label: 'Malerarbeiten', slug: 'peintre' },
+      { label: 'Elektrik', slug: 'electricien' },
+      { label: 'Schreinerei', slug: 'menuisier' },
+      { label: 'Tiefbau', slug: 'genie-civil' },
+    ],
+    allLink: 'Alle Berufe entdecken',
+    personalTitle: 'Konfigurieren Sie Cantia\nnach Ihrer Art.',
     items: [
+      { title: 'Ihre Leistungen', text: 'Ihr Katalog, Ihre Preise und Ihre Offertvorlagen folgen Ihrer Art zu kalkulieren.' },
+      { title: 'Ihre Identität', text: 'Ihr Logo und Ihre Farben begleiten die an Kunden versendeten Dokumente.' },
+      { title: 'Ihre Organisation', text: 'Sie passen die Zugriffe an die Verantwortlichkeiten jedes Teammitglieds an.' },
+    ],
+  },
+  stories: {
+    title: 'Kommt Ihnen das bekannt vor?',
+    subtitle: 'Unvorhergesehenes gehört zum Beruf.\nDie Administration sollte es nicht noch komplizierter machen.',
+    exploreLabel: 'Alle Funktionen entdecken',
+    respondLabel: 'Cantia antwortet',
+    prevLabel: 'Vorherige Situation',
+    nextLabel: 'Nächste Situation',
+    pauseLabel: 'Pausieren',
+    playLabel: 'Abspielen',
+    cases: [
       {
-        title: 'Ihre Offerten warten bis zum Abend. Ihre Kunden warten nicht.',
-        text: 'Nach einem Tag auf der Baustelle bleiben die Offerten noch zu schreiben. Mit Cantia erstellen Sie eine Offerte direkt vor Ort und nutzen dabei Ihre gewohnten Leistungen wieder.',
+        id: 'devis',
+        tab: 'Offerten',
+        context: 'Offerten & Angebote',
+        question: 'Offerten noch am Abend\nnach der Baustelle?',
+        responseTitle: 'Die Offerte entsteht\nwährend der Besichtigung.',
+        responseText: 'Diktieren oder erfassen Sie Ihre Leistungen. Cantia greift auf Ihren Katalog zurück, um ein Angebot vorzubereiten, das Sie vor dem Versand prüfen.',
+        steps: ['Diktieren oder erfassen', 'Anpassen', 'Versenden'],
+        linkLabel: 'Offerten entdecken',
+        linkSlug: 'devis',
+        concreteLabel: 'Vor Ort',
+        concreteText: '„12 m² Eichenparkett, mit Vorbereitung des Untergrunds und Verlegung.“',
       },
       {
-        title: 'Fotos, Notizen und Entscheidungen landen überall, nur nicht am richtigen Ort.',
-        text: 'WhatsApp, Fotogalerie, Papier, E-Mails: Cantia bündelt die Historie direkt in der betroffenen Baustelle.',
+        id: 'chantier',
+        tab: 'Baustellen',
+        context: 'Baustellenverfolgung',
+        question: 'Wo ist der Plan?\nUnd das letzte Foto?',
+        responseTitle: 'Alles findet sich\nin der Baustelle wieder.',
+        responseText: 'Pläne, Nachrichten und Fotos bleiben mit dem Projekt verknüpft. Ihre Notizen vor Ort können anschliessend einen Rapport speisen, der überprüft und geteilt wird.',
+        steps: ['Dokumentieren', 'Sammeln', 'Teilen'],
+        linkLabel: 'Verfolgung und Rapporte entdecken',
+        linkSlug: 'rapports-chantier',
+        concreteLabel: 'Vor Ort',
+        concreteText: '„Der Untergrund ist feucht hinter der Trennwand. Ich füge die Fotos zur Baustelle hinzu.“',
       },
       {
-        title: 'Eine Baustelle kann Geld verlieren, lange bevor Sie es bemerken.',
-        text: 'Vergleichen Sie Stunden, Ausgaben und verrechnete Beträge während der Bauzeit, um Abweichungen vor Bauende zu erkennen.',
+        id: 'extras',
+        tab: 'Zusatzarbeiten',
+        context: 'Zusätzliche Arbeiten',
+        question: '„Wo Sie schon\ndabei sind…“',
+        responseTitle: 'Ein Extra verlangt.\nEine schriftliche Vereinbarung.',
+        responseText: 'Kalkulieren Sie den Zusatz und lassen Sie ihn online unterschreiben. Nach der Annahme erstellt Cantia eine eigene Rechnung.',
+        steps: ['Kalkulieren', 'Unterschreiben lassen', 'Fakturieren'],
+        linkLabel: 'Zusatzarbeiten entdecken',
+        linkSlug: 'travaux-supplementaires',
+        concreteLabel: 'Vor Ort',
+        concreteText: '„Könnten Sie auch noch die Garagentür streichen?“',
+      },
+      {
+        id: 'equipe',
+        tab: 'Teams',
+        context: 'Teams, Stunden & Löhne',
+        question: 'Wer hat was gemacht,\nund wie viele Stunden?',
+        responseTitle: 'Jeder erfasst.\nDas Büro findet.',
+        responseText: 'Die Mitarbeitenden erfassen ihre Stunden und Spesen pro Baustelle. Berechtigte Personen finden die Daten für die Nachverfolgung und die Löhne.',
+        steps: ['Planen', 'Erfassen', 'Auswerten'],
+        linkLabel: 'Stunden und Löhne entdecken',
+        linkSlug: 'rh-salaires',
+        concreteLabel: 'Vor Ort',
+        concreteText: '„4 Std. bei der Villa des Vignes, 3 Std. bei der Résidence du Parc und 18 km Fahrt.“',
+      },
+      {
+        id: 'paiements',
+        tab: 'Rechnungen',
+        context: 'Rechnungsstellung & Inkasso',
+        question: 'Fakturiert.\nAber auch bezahlt?',
+        responseTitle: 'Jede Zahlung\nhat ihren Platz.',
+        responseText: 'Erstellen Sie eine QR-Rechnung, verlangen Sie eine Anzahlung und erfassen Sie die Zahlungen. Der verbleibende Saldo folgt den eingegangenen Zahlungen.',
+        steps: ['Fakturieren', 'Zahlung erfassen', 'Saldo verfolgen'],
+        linkLabel: 'Rechnungsstellung entdecken',
+        linkSlug: 'facturation',
+        concreteLabel: 'Vor Ort',
+        concreteText: '„Auf dieser Rechnung über CHF 6’000 hat der Kunde bereits CHF 2’000 bezahlt.“',
+      },
+      {
+        id: 'pilotage',
+        tab: 'Rentabilität',
+        context: 'Rentabilität & Liquidität',
+        question: 'Gearbeitet, ja.\nAber mit Marge?',
+        responseTitle: 'Sehen Sie, was\ndie Baustelle einbringt.',
+        responseText: 'Vergleichen Sie die Offerte mit den Ausgaben und den Lohnkosten. Antizipieren Sie auch Zahlungseingänge und -ausgänge mit der Liquiditätsplanung über 90 Tage.',
+        steps: ['Kosten sammeln', 'Vergleichen', 'Entscheiden'],
+        linkLabel: 'Rentabilität entdecken',
+        linkSlug: 'rentabilite',
+        concreteLabel: 'Vor Ort',
+        concreteText: '„Wir haben mehr Stunden gebraucht als geplant. Was bedeutet das für diese Baustelle?“',
       },
     ],
   },
-  services: {
-    title: 'Cantia verbindet Baustelle und Büro in einem einzigen Tool',
-    subtitle: 'Vom ersten Termin bis zur bezahlten Rechnung: Klicken Sie auf eine Leistung, um genau zu sehen, was sie tut.',
-    items: [
+  catalog: {
+    title: 'Entdecken Sie die Werkzeuge,\ndie Ihnen nützen.',
+    subtitle: 'Finden Sie die Funktionen nach Anwendung.\nÖffnen Sie nur, was Sie interessiert.',
+    planNote: 'Die verfügbaren Module und Rechte hängen von Ihrer Formel ab.',
+    comparePlans: 'Angebote vergleichen',
+    groups: [
       {
-        title: 'Vom Termin zur Offerte, ohne die Arbeit am Abend zu wiederholen',
-        text: 'Diktieren Sie Ihre Offertpositionen per Sprache direkt von der Baustelle und lassen Sie die KI sie mit Ihrem Katalog kalkulieren, inklusive MWST und berechneten Totalen, versandbereit.',
-        detail: [
-          'Sprachdiktat, wiederverwendbarer Leistungskatalog und gespeicherte Preise',
-          'Automatische Berechnung von MWST und Totalen, PDF in Ihrer Markenfarbe',
-          'Versand an den Kunden und Umwandlung in eine Rechnung mit einem Klick, ohne erneute Eingabe',
+        title: 'Eine Offerte vorbereiten',
+        subtitle: 'Vom ersten Kontakt bis zur angenommenen Offerte.',
+        linkLabel: 'Diesen Bereich entdecken',
+        linkSlug: 'devis',
+        items: [
+          { title: 'Kunden', text: 'Finden Sie die Kontaktdaten des Kunden und verwenden Sie sie in Ihren Dokumenten wieder.' },
+          { title: 'Leistungskatalog', text: 'Speichern Sie Beschreibungen, Preise und Einheiten; erkennen Sie Preisabweichungen.' },
+          { title: 'Offertvorlagen', text: 'Gehen Sie von Ihren gewohnten Leistungen aus und passen Sie die Mengen an.' },
+          { title: 'Aufmasse', text: 'Detaillieren Sie die für die Kalkulation nötigen Mengen.' },
+          { title: 'Offerte und Unterschrift', text: 'Bereiten Sie das PDF vor, teilen Sie es und verfolgen Sie den Status bis zur Annahme.' },
         ],
       },
       {
-        title: 'Alles, was auf der Baustelle passiert, bleibt bei der Baustelle',
-        text: 'Ihre Notizen und Fotos, automatisch georeferenziert, werden zu einem versandbereiten PDF-Rapport mit Ihrem Logo und Ihrer Unterschrift.',
-        detail: [
-          'Fotos automatisch mit Zeitstempel und Standort versehen',
-          'Bemerkungen, Dokumente und Historie nach Baustelle geordnet',
-          'PDF mit einem Klick erstellt, jederzeit einsehbar',
+        title: 'Fakturieren und Zahlungen verfolgen',
+        subtitle: 'Von der Anzahlung bis zum Baustellensaldo.',
+        linkLabel: 'Diesen Bereich entdecken',
+        linkSlug: 'facturation',
+        items: [
+          { title: 'Umwandlung der Offerte', text: 'Übernehmen Sie die angenommenen Positionen in die Rechnung, ohne sie neu einzutippen.' },
+          { title: 'Schweizer QR-Rechnungen', text: 'Erstellen Sie den QR-Einzahlungsschein mit Ihrer IBAN und der Zahlungsreferenz.' },
+          { title: 'Anzahlungen', text: 'Fakturieren Sie einen Teil der Offerte und finden Sie den Abzug auf der Schlussrechnung wieder.' },
+          { title: 'Zahlungen und Fälligkeiten', text: 'Erfassen Sie Teilzahlungen, prüfen Sie Salden und gleichen Sie Referenzen ab.' },
+          { title: 'Zusätzliche Arbeiten', text: 'Kalkulieren Sie ein Extra, lassen Sie es unterschreiben und finden Sie die Rechnung nach der Annahme wieder.' },
         ],
       },
       {
-        title: 'Das ganze Team weiss, wo es sein muss',
-        text: 'Eine zentrale Planung pro Mitarbeiter und Baustelle, damit niemand mehr den Chef anrufen muss, um zu erfahren, wohin er morgen soll.',
-        detail: [
-          'Ansicht pro Mitarbeiter und Tag, für das ganze Team einsehbar',
-          'Jede Zuteilung mit einer bestimmten Baustelle verknüpft',
-          'Mehrere Baustellen parallel ohne Ressourcenkonflikt',
+        title: 'Die Baustelle dokumentieren',
+        subtitle: 'Was das Team sieht, sagt und ausführt.',
+        linkLabel: 'Diesen Bereich entdecken',
+        linkSlug: 'rapports-chantier',
+        items: [
+          { title: 'Team-Feed', text: 'Tauschen Sie Nachrichten und Sprachnotizen in der Baustelle aus.' },
+          { title: 'Pläne und Dokumente', text: 'Ordnen Sie Dateien in Ordnern und Unterordnern.' },
+          { title: 'Fotos und Standort', text: 'Bewahren Sie Fotos, ihren Zeitstempel und ihre geografische Position auf.' },
+          { title: 'Rapporte', text: 'Fassen Sie Notizen und Fotos in einem Rapport zusammen, zum Prüfen, Unterschreiben und Exportieren.' },
+          { title: 'Subunternehmer', text: 'Finden Sie die beteiligten Unternehmen und ihre Dokumente im Projekt wieder.' },
         ],
       },
       {
-        title: 'Die Baustelle ist fertig. Die Rechnung sollte nicht warten.',
-        text: 'Verwandeln Sie eine angenommene Offerte mit einem Klick in eine Schweizer QR-Rechnung, mit Statusverfolgung bis zur Zahlung.',
-        detail: [
-          'Rechnung aus der Offerte erstellt, ohne erneute Eingabe',
-          'Konforme QR-Rechnung, zahlbar mit einem Scan',
-          'Zahlungsstatus live verfolgt, Mahnungen erleichtert',
+        title: 'Im Team arbeiten',
+        subtitle: 'Baustelle und Büro, mit den richtigen Zugriffen.',
+        linkLabel: 'Diesen Bereich entdecken',
+        linkSlug: 'rh-salaires',
+        items: [
+          { title: 'Geteilte Planung', text: 'Weisen Sie Mitglieder Baustellen zu und sehen Sie die Woche vom Telefon aus ein.' },
+          { title: 'Stunden und Exporte', text: 'Erfassen Sie Stunden pro Tag und Baustelle; exportieren Sie die Blätter als CSV.' },
+          { title: 'Berufliche Spesen', text: 'Verfolgen Sie Fahrten und andere Spesen der Mitarbeitenden.' },
+          { title: 'Profile und Löhne', text: 'Erfassen Sie Fixlohn oder Stundenansatz und Abzüge für die Brutto-/Nettoberechnung.' },
+          { title: 'Rollen und Berechtigungen', text: 'Definieren Sie zugängliche Module; beschränken Sie den Zugriff auf sensible Informationen.' },
         ],
       },
       {
-        title: 'Wissen, was jede Baustelle wirklich einbringt',
-        text: 'Vergleichen Sie live Stunden, Ausgaben, offerierten und verrechneten Betrag, um eine schwindende Marge vor Bauende zu erkennen.',
-        detail: [
-          'Vergleich offeriert vs. tatsächliche Kosten (Material und Arbeit)',
-          'Visueller Alarm, sobald eine Baustelle von der geplanten Marge abweicht',
-          'Ansicht baustellenweise, nicht erst am Monatsende',
+        title: 'Kosten steuern',
+        subtitle: 'Die Baustellendaten im Dienst Ihrer Entscheidungen.',
+        linkLabel: 'Diesen Bereich entdecken',
+        linkSlug: 'tresorerie',
+        items: [
+          { title: 'Ausgaben', text: 'Finden Sie Baustelleneinkäufe und allgemeine Ausgaben wieder.' },
+          { title: 'Erfassung per Foto oder Sprache', text: 'Bereiten Sie eine Ausgabe anhand eines Belegs oder eines Diktats vor und prüfen Sie sie.' },
+          { title: 'Rentabilität', text: 'Vergleichen Sie die angenommene Offerte mit den Material- und Lohnkosten.' },
+          { title: 'Liquidität über 90 Tage', text: 'Projizieren Sie Zahlungseingänge und -ausgänge ausgehend von Ihrem manuell erfassten Saldo.' },
+          { title: 'Wiederkehrende Kosten', text: 'Verfolgen Sie Abonnements, Mieten und andere Fälligkeiten, mit Erinnerungen.' },
         ],
       },
       {
-        title: 'Dokumente in Baumstruktur',
-        text: 'Jede Baustelle hat ihren eigenen digitalen Ordner, mit Unterordnern für Ihre Pläne und Ausschreibungen.',
-        detail: [
-          'Unbegrenzte Ordner und Unterordner pro Baustelle',
-          'Jeder Dateityp: Pläne, PDF, Fotos, Verträge',
-          'Ein Dokument in wenigen Sekunden wiederfinden',
-        ],
-      },
-      {
-        title: 'Intelligente Fotogalerie',
-        text: 'Alle Fotos einer Baustelle finden sich am selben Ort. Filtern Sie sie nach Datum und sehen Sie auf der Karte, wo sie aufgenommen wurden.',
-        detail: [
-          'Alle Fotos einer Baustelle automatisch gruppiert',
-          'Filter nach Datum: 7 Tage, 30 Tage oder gesamte Historie',
-          'Direkter Zugriff auf den Standort auf der Karte',
-        ],
-      },
-      {
-        title: 'Ein sicherer Kundenbereich',
-        text: 'Jede Offerte und jede Rechnung ist über einen eindeutigen, privaten Link zugänglich: Ihr Kunde sieht, unterschreibt und verfolgt die Zahlung, ohne je ein Konto zu erstellen.',
-        detail: [
-          'Elektronische Unterschrift mit Zeitstempel, als Nachweis gespeichert',
-          'Zahlungsstatus live sichtbar, noch vor Ihrer Mahnung',
-          'Vollständige Historie der Offerten und Rechnungen, nach Baustelle geordnet',
-        ],
-      },
-      {
-        title: 'Dokumente in Ihrem Stil',
-        text: 'Wählen Sie Ihre Markenfarbe, die Platzierung Ihres Logos, und erstellen Sie mehrere Vorlagen für Ihre Offerten und PDF-Rapporte.',
-        detail: [
-          'Markenfarbe und Logoplatzierung anpassbar',
-          'Mehrere Vorlagen pro Dokumenttyp, wählbar bei der Erstellung',
-          'Bereits im Plan Essentiel verfügbar',
-        ],
-      },
-      {
-        title: 'Aufmass Position für Position',
-        text: 'Erfassen Sie Ihre Mengen Position für Position, mit automatisch berechneten Totalen, und verwandeln Sie alles mit einem Klick in eine Offerte.',
-        detail: [
-          'Positionstabelle mit Referenz, Menge und Einheit',
-          'Automatische Totale pro Einheit (m², m³, lfm…)',
-          'Übertragung mit einem Klick in eine vorausgefüllte Offerte',
-        ],
-      },
-      {
-        title: 'Für das Team gedacht',
-        text: 'Erstellen Sie massgeschneiderte Rollen und entscheiden Sie genau, wer was sieht — Offerten, Rechnungen, Planung — ohne allen alles zu geben.',
-        detail: [
-          'Anpassbare Rollen mit ankreuzbaren Zugriffen pro Bereich',
-          'Finanzen, Aufmass, Planung und Dokumente separat verwaltet',
-          'Hinzufügen von Mitarbeitenden je nach Plan',
-        ],
-      },
-      {
-        title: 'Koordination der Subunternehmer',
-        text: 'Fügen Sie beauftragte Subunternehmer zu jeder Baustelle hinzu, verfolgen Sie ihre Einsätze und behalten Sie ihre Versicherungsnachweise griffbereit.',
-        detail: [
-          'Subunternehmer-Verzeichnis, von Baustelle zu Baustelle wiederverwendbar',
-          'Einsatzstatus und Termine pro Baustelle',
-          'Haftpflicht-Versicherungsnachweis gespeichert und datiert, nichts geht mehr vergessen',
+        title: 'Cantia an Ihr Unternehmen anpassen',
+        subtitle: 'Ihr Beruf, Ihre Dokumente, Ihre Organisation.',
+        linkLabel: 'Über Ihr Anliegen sprechen',
+        linkSlug: 'sur-mesure',
+        items: [
+          { title: 'Diktat und Assistent', text: 'Diktieren Sie Nachrichten und Dokumente oder befragen Sie die Daten Ihres Unternehmens.' },
+          { title: 'Personalisierte Dokumente', text: 'Wenden Sie Logo, Farben und Identität Ihres Unternehmens an.' },
+          { title: 'Computer und Mobil', text: 'Finden Sie Cantia im Büro und vor Ort wieder.' },
+          { title: 'Bexio, falls benötigt', text: 'Verbinden Sie Ihre Bexio-Daten oder nutzen Sie Cantia eigenständig.' },
+          { title: 'Massgeschneiderte private Module', text: 'Lassen Sie ein Ihrem Unternehmen vorbehaltenes Modul nach Ihrem Bedarf prüfen.' },
         ],
       },
     ],
   },
-  trades: {
-    title: 'Für Ihren Beruf gedacht',
-    note: 'Jedes Konto passt sich Ihrem Beruf an, mit bereits konfigurierten Rapportvorlagen, MWST-Satz und Offertenlayout.',
-    list: ['Tiefbau', 'Maurerarbeiten', 'Schlosserei', 'Elektrik', 'Sanitär', 'Schreinerei', 'Malerarbeiten', 'Plattenarbeiten'],
+  team: {
+    eyebrow: 'Vom Büro bis zur Baustelle',
+    titlePrefix: 'Ihr Unternehmen kommt voran.',
+    titleEm: 'Das ganze Team macht mit.',
+    text: 'Die Geschäftsleitung steuert. Das Büro organisiert. Die Mitarbeitenden melden von der Baustelle zurück.\nJeder findet die für ihn nützlichen Werkzeuge, mit den Zugriffen, die Sie vergeben.',
+    roles: [
+      { number: 'Geschäftsleitung', title: 'Behalten Sie den Überblick.', text: 'Baustellen, Offerten, Rechnungen und Rentabilität: Die Informationen laufen zusammen, um Ihnen bei Entscheidungen zu helfen.', tags: ['Steuern', 'Entscheiden'] },
+      { number: 'Büro', title: 'Bringen Sie die Dossiers voran.', text: 'Sekretariat oder Administration: Geben Sie Zugriff auf Dokumente, Planung und die im Alltag nötigen Module.', tags: ['Organisieren', 'Vorbereiten'] },
+      { number: 'Baustelle', title: 'Teilen Sie, was passiert.', text: 'Die Mitarbeitenden erfassen ihre Stunden pro Baustelle, tauschen sich im Projekt-Feed aus und fügen ihre Rapporte vom Telefon aus hinzu.', tags: ['Erfassen', 'Austauschen', 'Dokumentieren'] },
+    ],
+    permTitle: 'Der richtige Zugriff. Für die richtige Person.',
+    permText: 'Erstellen Sie Ihre Rollen und wählen Sie die zugänglichen Module. Ein Mitarbeitender kann seine Stunden erfassen und seine Baustelle verfolgen, ohne Zugriff auf die Rechnungsstellung zu haben.',
+    permNote: 'Beispiele einer Organisation. Personalisierte Rollen und verfügbare Module je nach Plan. HR ab dem Plan Team.',
+    permLink: 'Teamarbeit entdecken',
+  },
+  automation: {
+    eyebrow: 'Per Tastatur oder per Sprache',
+    title: 'Sagen Sie es.\nCantia bereitet es vor.',
+    text: 'Erfassen, diktieren, prüfen.\nSie behalten bei jedem Schritt die Kontrolle.',
+    tag: 'NACH IHRER ART',
+    commandTitle: 'Eine Baustelle zu verfolgen.\nEine Offerte vorzubereiten.\nEine Rechnung zu versenden.',
+    commandText: 'Arbeiten Sie von Hand mit Ihren Leistungen, Mengen und Dokumenten. Oder diktieren Sie, was Sie brauchen: Cantia hilft Ihnen, den nächsten Schritt vorzubereiten.\n\nSie prüfen, passen an, bestätigen.',
+    link: 'Diktat und Assistent entdecken',
+    tryLabel: 'Probieren Sie ein Diktat-Beispiel',
+    choices: { site: 'Baustelle', quote: 'Offerte', invoice: 'Rechnung' },
+    examples: {
+      site: { text: '„Bereite einen Rapport für die Villa des Vignes vor: Parkettverlegung im Wohnzimmer abgeschlossen.“', result: 'Ein Rapport, verknüpft mit der richtigen Baustelle.' },
+      quote: { text: '„Bereite eine Offerte für Lieferung und Verlegung von 12 m² Eichenparkett vor.“', result: 'Ein mit Ihrem Katalog vorbereitetes Angebot.' },
+      invoice: { text: '„Erstelle die Rechnung aus der angenommenen Offerte für die Villa des Vignes.“', result: 'Eine aus der Offerte vorbereitete Rechnung.' },
+    },
+    resultLabel: 'CANTIA HILFT IHNEN VORZUBEREITEN',
+    resultNote: 'Ein Entwurf, zu prüfen und zu bestätigen.',
+    note: 'Illustrative Beispiele · Diese Animation zeichnet keinen Ton auf.',
+    animateLabel: 'Abspielen',
+    animatingLabel: 'Animation',
+  },
+  terrain: {
+    eyebrow: 'Cantia auf all Ihren Bildschirmen',
+    title: 'Das Büro.\nIn Ihrer Tasche.',
+    text: 'Ein Detail zu fotografieren, ein Plan zu konsultieren, Stunden zu erfassen: Fügen Sie die Information dort hinzu, wo die Arbeit stattfindet. Finden Sie sie anschliessend im Büro, in derselben Baustelle, wieder.',
+    points: [
+      { label: 'Computer', text: 'Offerten, Rechnungen und Steuerung' },
+      { label: 'Tablet', text: 'Pläne, Rapporte und Baustellenverfolgung' },
+      { label: 'Telefon', text: 'Fotos, Stunden und Informationen vor Ort' },
+    ],
+    installCta: 'Cantia installieren',
+    installNote: 'Zugänglich im Browser und zum Startbildschirm hinzufügbar.\nApp-Store- und Google-Play-Versionen in Entwicklung.',
+  },
+  tailored: {
+    eyebrow: 'Wenn Ihr Unternehmen ein ganz eigenes Bedürfnis hat',
+    title: 'Ein spezifisches Bedürfnis?\nEin massgeschneidertes Modul.',
+    text: 'Ein besonderer Prozess, eine fachliche Nachverfolgung oder ein Bedürfnis, das die bestehenden Module nicht abdecken? Wir können eine massgeschneiderte Entwicklung für Ihr Unternehmen prüfen.',
+    cta: 'Sprechen wir über Ihr Anliegen',
+    steps: [
+      { num: '01', title: 'Wir gehen von Ihrem Alltag aus.', text: 'Erklären Sie uns, was Sie tun, was fehlt und was Sie vereinfachen möchten.' },
+      { num: '02', title: 'Wir definieren eine passende Lösung.', text: 'Funktionsweise, Umfang und Bedingungen der Entwicklung werden gemeinsam festgelegt.' },
+      { num: '03', title: 'Ein Ihrem Unternehmen vorbehaltenes Modul.', text: 'Ein privates Modul kann in Ihren Cantia-Bereich integriert und Ihren berechtigten Mitarbeitenden vorbehalten werden.' },
+    ],
+    link: 'Mehr über massgeschneiderte Lösungen erfahren',
+  },
+  bexio: {
+    eyebrow: 'Eine Verbindung, falls Sie sie brauchen',
+    title: 'Sie nutzen Bexio?\nBehalten Sie die Verbindung.',
+    text: 'Sie nutzen bereits Bexio? Verbinden Sie Ihre Kunden-, Rechnungs- und Zahlungsdaten, um Cantia im Einklang mit Ihrer Organisation zu entdecken. Ohne Bexio können Sie Cantia eigenständig nutzen.',
+    link: 'Die Integration ansehen',
+  },
+  faq: {
+    eyebrow: 'Bevor Sie starten',
+    title: 'Ihre Fragen.\nUnsere Antworten.',
+    link: 'Hilfe-Center besuchen',
+    items: [
+      { q: 'An wen richtet sich Cantia?', a: 'An Selbstständige und Unternehmen des Schweizer Baugewerbes: Maurerarbeiten, Zimmerei, Malerarbeiten, Elektrik, Tiefbau und andere Bauberufe.' },
+      { q: 'Funktioniert Cantia auch ohne Bexio?', a: 'Ja. Sie können Ihre Tätigkeit allein in Cantia verwalten. Die Bexio-Integration erlaubt es, Ihre Daten in beiden Tools wiederzufinden, falls Sie Bexio bereits nutzen.' },
+      { q: 'Wie nutzt man Cantia auf dem Telefon?', a: 'Öffnen Sie Cantia in Ihrem Browser und fügen Sie es zu Ihrem Startbildschirm hinzu. Die App-Store- und Google-Play-Versionen sind in Entwicklung.' },
+      { q: 'Was umfasst die 14-tägige Testphase?', a: 'Neue Konten verfügen über 14 Tage Testphase, ohne Aktionscode. Wählen Sie Ihre Formel bei der Registrierung und prüfen Sie deren Bedingungen vor der Bestätigung.' },
+      { q: 'Kann ich meinem Team Zugriff geben?', a: 'Ja. Je nach Formel können Sie bis zu 3, 10 oder 25 Mitglieder einladen und deren Rollen festlegen. Für ein grösseres Team kontaktieren Sie Cantia.' },
+    ],
+  },
+  closing: {
+    eyebrow: 'Ihre nächste Baustelle beginnt hier',
+    titlePrefix: 'Beginnen Sie mit',
+    titleEm: 'Ihrer nächsten Baustelle.',
+    text: 'Beginnen Sie mit einer Offerte, einer Baustelle, einem Team. Erleben Sie den Unterschied während 14 Tagen.',
+    cta: 'Cantia kostenlos testen',
+    contact: 'Mit dem Cantia-Team sprechen',
   },
   pricing: {
-    title: 'Wählen Sie die passende Formel für Ihr Unternehmen',
-    subtitle: 'Alle neuen Konten starten mit einer vollständigen 14-tägigen Testphase, ohne Aktionscode.',
+    title: 'Wählen Sie\nnach der Grösse Ihres Teams.',
+    subtitle: 'Alle Formeln beginnen mit 14 Tagen vollständiger Testphase, ohne Aktionscode.',
     monthly: 'Monatliche Abrechnung',
     yearly: 'Jährliche Abrechnung',
     yearlySavings: '-20%',
@@ -484,38 +873,7 @@ const de: Dict = {
     memberPlural: 'Mitglieder',
     unlimited: 'Unbegrenzte Rapporte & Offerten',
     badge: 'Meistgewählt',
-    paidCta: '14-tägige Testphase starten',
-  },
-  swiss: {
-    title: 'In der Schweiz entwickelt, nicht nur für die Schweiz übersetzt',
-    text: 'Cantia wurde für die Funktionsweise Schweizer Bauunternehmen entwickelt: CHF, Schweizer MWST, QR-Rechnung und in der Schweiz gehostete Daten.',
-  },
-  tour: {
-    videoLabel: 'Präsentationsvideo von Cantia',
-  },
-  devices: {
-    title: 'Verwalten Sie Ihre Baustellen, wo auch immer Sie sind',
-    text: 'Im Büro, auf der Baustelle oder unterwegs, finden Sie Cantia auf Computer, Tablet und Smartphone.',
-    benefits: [
-      { title: 'Im Büro', text: 'Erstellen Sie Offerten, Rechnungen und Auswertungen.' },
-      { title: 'Auf der Baustelle', text: 'Fügen Sie Rapporte, Fotos und Stunden hinzu.' },
-      { title: 'Unterwegs', text: 'Greifen Sie von Ihrem Telefon auf Ihre Informationen zu.' },
-    ],
-  },
-  mobile: {
-    title: 'Cantia begleitet Sie auch auf der Baustelle',
-    text: 'Öffnen Sie Cantia von Ihrem Telefon oder Tablet aus und fügen Sie es zu Ihrem Startbildschirm hinzu, um schon heute im Vollbild wie bei Ihren anderen Apps darauf zuzugreifen, ganz ohne App Store.',
-    installCta: 'So installieren Sie es',
-    storeNote: 'Die offiziellen Versionen kommen auch:',
-    comingSoon: 'In Entwicklung',
-    appStore: 'App Store',
-    googlePlay: 'Google Play',
-  },
-  finalCta: {
-    title: 'Testen Sie Cantia auf Ihrer nächsten Baustelle',
-    subtitle: 'Erstellen Sie Ihr Konto und entdecken Sie 14 Tage lang, wie Cantia Ihre Offerten, Baustellen, Rapporte und Rechnungen an einem Ort bündelt.',
-    button: 'Meine 14-tägige Testphase starten',
-    trust: ['14 Tage Testphase · Kein Code nötig', 'Jederzeit kündbar', 'In der Schweiz gehostet'],
+    paidCta: '14 Tage testen',
   },
   footer: {
     blurb: 'Die Baustellenverwaltungs-App für das Schweizer Baugewerbe. Rapporte, Dokumente, Offerten, Rechnungen und Aufmass, alles an einem Ort.',
@@ -533,187 +891,330 @@ const de: Dict = {
 };
 
 const it: Dict = {
-  // "Download" lasciato in inglese (non "Scaricare") — stessa scelta fatta
-  // per fr/de: una parola tecnica capita internazionalmente, così questa
-  // voce di navigazione resta identica in tutte le lingue.
   nav: { services: 'Servizi', pricing: 'Prezzi', download: 'Download', help: 'Documentazione', contact: 'Contatto', login: 'Accedi', cta: 'Prova Cantia' },
+  landingNav: {
+    features: 'Funzionalità',
+    team: 'Ore & squadre',
+    pricing: 'Prezzi',
+    help: 'Assistenza',
+    contact: 'Contatto',
+    login: 'Accedi',
+    signup: 'Registrati',
+    mobileMetiers: 'Il suo mestiere',
+    mobileApp: 'App mobile',
+    mobileHelp: 'Assistenza & documentazione',
+  },
   hero: {
-    kicker: 'Pensato per l’edilizia svizzera 🇨🇭',
-    headlinePrefix: 'Gestisca i suoi cantieri.',
-    headlineHighlight: 'Non la sua amministrazione.',
-    subheadline:
-      'Cantia è il software di gestione pensato per le imprese edili svizzere. Preventivi, fatture, pianificazione, rapporti e redditività riuniti in un unico strumento, in ufficio come in cantiere.',
-    cta1: 'Inizi la prova gratuita di 14 giorni',
-    cta2: 'Scopra Cantia',
-    trust: '14 giorni di prova · Nessun codice necessario · Ospitato in Svizzera',
+    kicker: 'Pensato per l’edilizia svizzera',
+    titlePrefix: 'Gestisca i suoi',
+    titleHighlight: 'cantieri.',
+    crossedText: 'Non la sua amministrazione.',
+    asideEyebrow: 'IL CANTIERE E L’UFFICIO, FINALMENTE UNITI',
+    asideP1: 'Dal primo preventivo all’ultima fattura, tenga il filo dei suoi cantieri.',
+    asideP2: 'Preventivi, ore, documenti e scambi restano collegati al progetto giusto. La sua squadra documenta sul campo; lei ritrova le informazioni per decidere.',
+    cta: 'Provi Cantia 14 giorni',
+    discover: 'Scopra le funzionalità',
+    trust: '14 giorni per provare Cantia con la sua squadra',
+    baselineLabel: 'UN UNICO SPAZIO DI LAVORO',
+    baselineItems: ['Preventivi & fatture', 'Cantieri', 'Ore & squadre', 'Redditività'],
+    baselineNumber: '01 — CANTIA',
   },
-  spotlight: {
-    title: 'Automatismi pensati per il quotidiano dell’edilizia',
-    subtitle: 'Dalla dettatura del preventivo alla fattura QR, Cantia automatizza i compiti che le fanno perdere tempo tra il cantiere e l’ufficio.',
-    voice: {
-      label: 'Dettatura vocale',
-      listening: 'Ascolto in corso…',
-      transcript: 'Facciata nord, 12 metri quadrati di intonaco da rifare, più fornitura e posa di 3 finestre in PVC…',
-      resultTitle: 'Preventivo generato automaticamente',
-      resultLines: ['Intonaco facciata nord — 12 m²', 'Finestra PVC (fornitura + posa) — 3 pz', 'Totale calcolato con IVA'],
-      caption: 'Lei parla, Cantia scrive. Il suo preventivo è pronto ancora prima di lasciare il cantiere.',
-    },
-    qrbill: {
-      label: 'Fattura QR svizzera',
-      title: 'Pagabile con una scansione',
-      text: 'Ogni fattura include la polizza di versamento QR svizzera, scansionabile da qualsiasi app bancaria.',
-      badge: 'Conforme allo standard SIX',
-    },
-    catalog: {
-      label: 'Catalogo intelligente',
-      title: 'I suoi prezzi, memorizzati',
-      text: 'Ogni preventivo arricchisce il suo catalogo. La prossima volta, Cantia riconosce le sue prestazioni e propone già il prezzo corretto.',
-      items: [
-        { name: 'Finestra PVC doppio vetro', match: 96 },
-        { name: 'Posa e impermeabilizzazione perimetrale', match: 91 },
-        { name: 'Tapparella in alluminio su misura', match: 88 },
-      ],
-    },
+  trust: {
+    locationLabel: 'Progettato e ospitato in Svizzera',
+    title: 'Da lei.\nPer il suo mestiere.',
+    text: 'Un software radicato nel suo quotidiano, con dati ospitati in Svizzera e un referente raggiungibile.',
+    cards: [
+      { label: 'Fatturazione svizzera', title: 'Le sue fatture parlano CHF.', text: 'Fatture QR, IVA e acconti: gli strumenti per fatturare i suoi clienti in Svizzera.' },
+      { label: 'Il suo modo di lavorare', title: 'I suoi prezzi. I suoi documenti.', text: 'Ritrova le sue prestazioni abituali e invia documenti a sua immagine.' },
+      { label: 'Un contatto diretto', title: 'Una domanda? Ne parliamo.', text: 'Ci contatti per telefono o e-mail per le sue domande e le sue esigenze.' },
+    ],
+    contactCta: 'Contattare Cantia',
   },
-  pain: {
-    title: 'L’amministrazione non le costa solo tempo. Le costa denaro.',
+  profession: {
+    eyebrow: 'Il suo mestiere ha le sue abitudini',
+    title: 'Il suo mestiere.\nLe sue abitudini.',
+    text: 'Un carpentiere non prepara i suoi cantieri come un pittore. Cantia si adatta al suo mestiere, con modelli e documenti che può personalizzare.',
+    links: [
+      { label: 'Carpenteria', slug: 'charpentier' },
+      { label: 'Muratura', slug: 'macon' },
+      { label: 'Pittura', slug: 'peintre' },
+      { label: 'Elettricità', slug: 'electricien' },
+      { label: 'Falegnameria', slug: 'menuisier' },
+      { label: 'Genio civile', slug: 'genie-civil' },
+    ],
+    allLink: 'Scopra tutti i mestieri',
+    personalTitle: 'Configuri Cantia\na modo suo.',
     items: [
+      { title: 'Le sue prestazioni', text: 'Il suo catalogo, i suoi prezzi e i suoi modelli di preventivo seguono il suo modo di calcolare.' },
+      { title: 'La sua identità', text: 'Il suo logo e i suoi colori accompagnano i documenti inviati ai clienti.' },
+      { title: 'La sua organizzazione', text: 'Adatta gli accessi alle responsabilità di ogni membro della squadra.' },
+    ],
+  },
+  stories: {
+    title: 'Le dice qualcosa?',
+    subtitle: 'Gli imprevisti fanno parte del mestiere.\nL’amministrazione non dovrebbe complicarli.',
+    exploreLabel: 'Esplora tutte le funzionalità',
+    respondLabel: 'Cantia risponde',
+    prevLabel: 'Situazione precedente',
+    nextLabel: 'Situazione successiva',
+    pauseLabel: 'Metti in pausa',
+    playLabel: 'Riproduci',
+    cases: [
       {
-        title: 'I suoi preventivi aspettano la sera. I suoi clienti, invece, non aspettano.',
-        text: 'Dopo una giornata di cantiere, restano ancora le offerte da scrivere. Cantia permette di preparare un preventivo direttamente dal campo e di riutilizzare le prestazioni abituali.',
+        id: 'devis',
+        tab: 'Preventivi',
+        context: 'Preventivi & offerte',
+        question: 'Ancora preventivi\ndopo il cantiere?',
+        responseTitle: 'Il preventivo avanza\ndurante il sopralluogo.',
+        responseText: 'Detti o inserisca le sue prestazioni. Cantia riprende il suo catalogo per preparare un’offerta che lei verifica prima di inviarla.',
+        steps: ['Dettare o inserire', 'Regolare', 'Inviare'],
+        linkLabel: 'Scopra i preventivi',
+        linkSlug: 'devis',
+        concreteLabel: 'Sul cantiere',
+        concreteText: '«12 m² di parquet in rovere, con preparazione del supporto e posa.»',
       },
       {
-        title: 'Foto, note e decisioni finiscono ovunque tranne che nel posto giusto.',
-        text: 'WhatsApp, galleria del telefono, carta, email: Cantia raccoglie lo storico direttamente nel cantiere interessato.',
+        id: 'chantier',
+        tab: 'Cantieri',
+        context: 'Monitoraggio del cantiere',
+        question: 'Dov’è il piano?\nE l’ultima foto?',
+        responseTitle: 'Tutto si ritrova\nnel cantiere.',
+        responseText: 'Piani, messaggi e foto restano collegati al progetto. Le sue note sul campo possono poi alimentare un rapporto da rileggere e condividere.',
+        steps: ['Documentare', 'Raccogliere', 'Condividere'],
+        linkLabel: 'Scopra il monitoraggio e i rapporti',
+        linkSlug: 'rapports-chantier',
+        concreteLabel: 'Sul cantiere',
+        concreteText: '«Il supporto è umido dietro la parete divisoria. Aggiungo le foto al cantiere.»',
       },
       {
-        title: 'Un cantiere può perdere denaro molto prima che lei se ne accorga.',
-        text: 'Confronti ore, spese e importi fatturati durante il cantiere per individuare gli scostamenti prima della fine dei lavori.',
+        id: 'extras',
+        tab: 'Supplementi',
+        context: 'Lavori supplementari',
+        question: '«Visto che\nc’è già…»',
+        responseTitle: 'Un extra richiesto.\nUn accordo scritto.',
+        responseText: 'Calcoli il supplemento e lo faccia firmare online. Dopo l’accettazione, Cantia genera una fattura dedicata.',
+        steps: ['Calcolare', 'Far firmare', 'Fatturare'],
+        linkLabel: 'Scopra i lavori supplementari',
+        linkSlug: 'travaux-supplementaires',
+        concreteLabel: 'Sul cantiere',
+        concreteText: '«Potrebbe anche riverniciare la porta del garage?»',
+      },
+      {
+        id: 'equipe',
+        tab: 'Squadre',
+        context: 'Squadre, ore & salari',
+        question: 'Chi ha fatto cosa,\ne quante ore?',
+        responseTitle: 'Ognuno registra.\nL’ufficio ritrova.',
+        responseText: 'I dipendenti registrano le loro ore e spese per cantiere. Le persone autorizzate ritrovano i dati per il monitoraggio e i salari.',
+        steps: ['Pianificare', 'Registrare', 'Sfruttare'],
+        linkLabel: 'Scopra ore e salari',
+        linkSlug: 'rh-salaires',
+        concreteLabel: 'Sul cantiere',
+        concreteText: '«4 h alla Villa des Vignes, 3 h alla Résidence du Parc e 18 km di spostamento.»',
+      },
+      {
+        id: 'paiements',
+        tab: 'Fatture',
+        context: 'Fatturazione & incassi',
+        question: 'Fatturato.\nMa incassato?',
+        responseTitle: 'Ogni versamento\nha il suo posto.',
+        responseText: 'Crei una fattura QR, richieda un acconto e registri i pagamenti. Il saldo restante segue i versamenti ricevuti.',
+        steps: ['Fatturare', 'Registrare il pagamento', 'Seguire il saldo'],
+        linkLabel: 'Scopra la fatturazione',
+        linkSlug: 'facturation',
+        concreteLabel: 'Sul cantiere',
+        concreteText: '«Su questa fattura di CHF 6’000, il cliente ha già versato CHF 2’000.»',
+      },
+      {
+        id: 'pilotage',
+        tab: 'Redditività',
+        context: 'Redditività & liquidità',
+        question: 'Lavoro fatto, sì.\nMa margine?',
+        responseTitle: 'Veda cosa le rende\ndavvero il cantiere.',
+        responseText: 'Confronti il preventivo con le spese e il costo della manodopera. Anticipi anche incassi e uscite con la liquidità a 90 giorni.',
+        steps: ['Raccogliere i costi', 'Confrontare', 'Decidere'],
+        linkLabel: 'Scopra la redditività',
+        linkSlug: 'rentabilite',
+        concreteLabel: 'Sul cantiere',
+        concreteText: '«Abbiamo impiegato più ore del previsto. Cosa cambia per questo cantiere?»',
       },
     ],
   },
-  services: {
-    title: 'Cantia collega il campo e l’ufficio in un unico strumento',
-    subtitle: 'Dal primo appuntamento alla fattura pagata: clicchi su un servizio per vedere esattamente cosa fa.',
-    items: [
+  catalog: {
+    title: 'Esplori gli strumenti\nche le saranno utili.',
+    subtitle: 'Ritrovi le funzionalità per uso.\nApra solo ciò che la interessa.',
+    planNote: 'I moduli e i diritti disponibili dipendono dalla sua formula.',
+    comparePlans: 'Confronta le offerte',
+    groups: [
       {
-        title: 'Dall’appuntamento al preventivo senza rifare il lavoro la sera',
-        text: 'Detti le righe del preventivo a voce dal cantiere e lasci che l’IA le quantifichi con il suo catalogo, IVA e totali calcolati, pronto per l’invio.',
-        detail: [
-          'Dettatura vocale, catalogo di prestazioni riutilizzabili e prezzi memorizzati',
-          'Calcolo automatico dell’IVA e dei totali, PDF nel suo colore aziendale',
-          'Invio al cliente e trasformazione in fattura con un clic, senza reinserimento',
+        title: 'Preparare un’offerta',
+        subtitle: 'Dal primo contatto al preventivo accettato.',
+        linkLabel: 'Esplora questo uso',
+        linkSlug: 'devis',
+        items: [
+          { title: 'Clienti', text: 'Ritrovi i dati di contatto del cliente e li riutilizzi nei suoi documenti.' },
+          { title: 'Catalogo di prestazioni', text: 'Memorizzi descrizioni, prezzi e unità; individui gli scostamenti di prezzo.' },
+          { title: 'Modelli di preventivo', text: 'Riparta dalle sue prestazioni abituali e adatti le quantità.' },
+          { title: 'Computi metrici', text: 'Dettagli le quantità necessarie per la quantificazione.' },
+          { title: 'Preventivo e firma', text: 'Prepari il PDF, lo condivida e ne segua lo stato fino all’accettazione.' },
         ],
       },
       {
-        title: 'Tutto ciò che succede in cantiere resta con il cantiere',
-        text: 'Le sue note e foto, geolocalizzate automaticamente, diventano un rapporto PDF pronto per l’invio con il suo logo e la sua firma.',
-        detail: [
-          'Foto con data e geolocalizzazione automatiche',
-          'Osservazioni, documenti e storico classificati per cantiere',
-          'PDF generato con un clic, consultabile in qualsiasi momento',
+        title: 'Fatturare e seguire i pagamenti',
+        subtitle: 'Dall’acconto al saldo del cantiere.',
+        linkLabel: 'Esplora questo uso',
+        linkSlug: 'facturation',
+        items: [
+          { title: 'Conversione del preventivo', text: 'Riprenda le voci accettate nella fattura, senza reinserirle.' },
+          { title: 'Fatture QR svizzere', text: 'Generi la polizza QR con il suo IBAN e il riferimento di pagamento.' },
+          { title: 'Acconti', text: 'Fatturi una parte del preventivo e ritrovi la deduzione sulla fattura finale.' },
+          { title: 'Versamenti e scadenze', text: 'Registri i pagamenti parziali, consulti i saldi e riconcili i riferimenti.' },
+          { title: 'Lavori supplementari', text: 'Calcoli un extra, lo faccia firmare e ritrovi la sua fattura dopo l’accettazione.' },
         ],
       },
       {
-        title: 'Tutta la squadra sa dove deve essere',
-        text: 'Una pianificazione centrale per dipendente e per cantiere, per non dover più chiamare il titolare per sapere dove andare domani.',
-        detail: [
-          'Vista per membro e per giorno, consultabile da tutta la squadra',
-          'Ogni assegnazione collegata a un cantiere preciso',
-          'Più cantieri in parallelo senza conflitti di risorse',
+        title: 'Documentare il cantiere',
+        subtitle: 'Ciò che la squadra vede, dice e realizza.',
+        linkLabel: 'Esplora questo uso',
+        linkSlug: 'rapports-chantier',
+        items: [
+          { title: 'Feed di squadra', text: 'Scambi messaggi e note vocali nel cantiere.' },
+          { title: 'Piani e documenti', text: 'Ordini i file in cartelle e sottocartelle.' },
+          { title: 'Foto e localizzazione', text: 'Conservi le foto, la loro data e ora e la loro posizione geografica.' },
+          { title: 'Rapporti', text: 'Raccolga note e foto in un rapporto da rileggere, firmare ed esportare.' },
+          { title: 'Subappaltatori', text: 'Ritrovi le imprese coinvolte e i loro documenti nel progetto.' },
         ],
       },
       {
-        title: 'Il cantiere è terminato. La fattura non dovrebbe aspettare.',
-        text: 'Trasformi un preventivo accettato in fattura QR svizzera con un clic, con monitoraggio dello stato fino al pagamento.',
-        detail: [
-          'Fattura generata dal preventivo, senza reinserimento',
-          'Fattura QR conforme, pagabile con una scansione',
-          'Stato del pagamento seguito in diretta, solleciti facilitati',
+        title: 'Lavorare in squadra',
+        subtitle: 'Il cantiere e l’ufficio, con gli accessi giusti.',
+        linkLabel: 'Esplora questo uso',
+        linkSlug: 'rh-salaires',
+        items: [
+          { title: 'Pianificazione condivisa', text: 'Assegni i membri ai cantieri e consulti la settimana dal telefono.' },
+          { title: 'Ore ed esportazioni', text: 'Registri le ore per giorno e cantiere; esporti i fogli in CSV.' },
+          { title: 'Spese professionali', text: 'Segua gli spostamenti e le altre spese legate ai dipendenti.' },
+          { title: 'Profili e salari', text: 'Inserisca salario fisso o tariffa oraria e contributi per i calcoli lordo/netto.' },
+          { title: 'Ruoli e permessi', text: 'Definisca i moduli accessibili; limiti l’accesso alle informazioni sensibili.' },
         ],
       },
       {
-        title: 'Sappia cosa le rende davvero ogni cantiere',
-        text: 'Confronti in diretta ore, spese, importo preventivato e importo fatturato per individuare un margine che si assottiglia prima della fine dei lavori.',
-        detail: [
-          'Confronto preventivato vs. costo reale (materiale e manodopera)',
-          'Avviso visivo non appena un cantiere si scosta dal margine previsto',
-          'Vista cantiere per cantiere, non solo a fine mese',
+        title: 'Gestire i costi',
+        subtitle: 'I dati del cantiere al servizio delle decisioni.',
+        linkLabel: 'Esplora questo uso',
+        linkSlug: 'tresorerie',
+        items: [
+          { title: 'Spese', text: 'Ritrovi gli acquisti dei cantieri e le spese generali.' },
+          { title: 'Inserimento per foto o voce', text: 'Prepari una spesa a partire da una ricevuta o da una dettatura, poi la verifichi.' },
+          { title: 'Redditività', text: 'Confronti il preventivo accettato con i costi di materiale e manodopera.' },
+          { title: 'Liquidità a 90 giorni', text: 'Proietti incassi e uscite a partire dal suo saldo inserito manualmente.' },
+          { title: 'Costi ricorrenti', text: 'Segua abbonamenti, affitti e altre scadenze, con promemoria.' },
         ],
       },
       {
-        title: 'Documenti ad albero',
-        text: 'Ogni cantiere ha il proprio raccoglitore digitale, con cartelle e sottocartelle per i suoi piani e capitolati.',
-        detail: [
-          'Cartelle e sottocartelle illimitate, per cantiere',
-          'Qualsiasi tipo di file: piani, PDF, foto, contratti',
-          'Ritrova un documento in pochi secondi',
-        ],
-      },
-      {
-        title: 'Galleria fotografica intelligente',
-        text: 'Tutte le foto di un cantiere si trovano nello stesso posto. Le filtri per data e individui dove sono state scattate sulla mappa.',
-        detail: [
-          'Tutte le foto di un cantiere raggruppate automaticamente',
-          'Filtri per data: 7 giorni, 30 giorni o tutto lo storico',
-          'Apertura diretta della posizione sulla mappa',
-        ],
-      },
-      {
-        title: 'Uno spazio cliente sicuro',
-        text: 'Ogni preventivo e ogni fattura è accessibile tramite un link unico e privato: il suo cliente consulta, firma e segue il pagamento senza mai creare un account.',
-        detail: [
-          'Firma elettronica con data e ora, conservata come prova',
-          'Stato del pagamento visibile in diretta, ancora prima del suo sollecito',
-          'Storico completo di preventivi e fatture, classificato per cantiere',
-        ],
-      },
-      {
-        title: 'Documenti a sua immagine',
-        text: 'Scelga il colore aziendale, il posizionamento del logo, e crei più modelli per i suoi preventivi e rapporti PDF.',
-        detail: [
-          'Colore aziendale e posizionamento del logo personalizzabili',
-          'Più modelli per tipo di documento, da scegliere alla creazione',
-          'Disponibile già dal piano Essenziale',
-        ],
-      },
-      {
-        title: 'Computo metrico voce per voce',
-        text: 'Dettagli le sue quantità voce per voce, con totali calcolati automaticamente, poi trasformi tutto in preventivo con un clic.',
-        detail: [
-          'Tabella di voci con riferimento, quantità e unità',
-          'Totali automatici per unità (m², m³, ml…)',
-          'Trasferimento con un clic verso un preventivo pre-compilato',
-        ],
-      },
-      {
-        title: 'Pensato per la squadra',
-        text: 'Crei ruoli su misura e decida esattamente chi vede cosa — preventivi, fatture, pianificazione — senza dare tutto a tutti.',
-        detail: [
-          'Ruoli personalizzabili con accessi selezionabili per ambito',
-          'Finanza, computo metrico, pianificazione e documenti gestiti separatamente',
-          'Aggiunta di collaboratori secondo il suo piano',
-        ],
-      },
-      {
-        title: 'Coordinamento dei subappaltatori',
-        text: 'Aggiunga le imprese subappaltate a ogni cantiere, segua i loro interventi e tenga a portata di mano i loro attestati assicurativi.',
-        detail: [
-          'Rubrica di subappaltatori riutilizzabile da un cantiere all’altro',
-          'Stato dell’intervento e date di passaggio per cantiere',
-          'Attestato di assicurazione RC memorizzato e datato, niente più dimenticanze',
+        title: 'Adattare Cantia alla sua impresa',
+        subtitle: 'Il suo mestiere, i suoi documenti, la sua organizzazione.',
+        linkLabel: 'Parliamo della sua esigenza',
+        linkSlug: 'sur-mesure',
+        items: [
+          { title: 'Dettatura e assistente', text: 'Detti messaggi e documenti o interroghi i dati della sua impresa.' },
+          { title: 'Documenti personalizzati', text: 'Applichi logo, colori e identità della sua impresa.' },
+          { title: 'Computer e mobile', text: 'Ritrovi Cantia in ufficio e sul campo.' },
+          { title: 'Bexio, se necessario', text: 'Colleghi i suoi dati Bexio oppure usi Cantia in autonomia.' },
+          { title: 'Moduli privati su misura', text: 'Faccia studiare un modulo riservato alla sua impresa secondo la sua esigenza.' },
         ],
       },
     ],
   },
-  trades: {
-    title: 'Pensato per il suo mestiere',
-    note: 'Ogni account si adatta al suo mestiere, con modelli di rapporto, aliquota IVA e impaginazione dei preventivi già configurati.',
-    list: ['Genio civile', 'Muratura', 'Serramenteria metallica', 'Elettricità', 'Idraulica', 'Falegnameria', 'Pittura', 'Piastrellatura'],
+  team: {
+    eyebrow: 'Dall’ufficio al cantiere',
+    titlePrefix: 'La sua impresa avanza.',
+    titleEm: 'Tutta la squadra partecipa.',
+    text: 'Il titolare guida. L’ufficio organizza. I dipendenti fanno arrivare le informazioni dal campo.\nOgnuno ritrova gli strumenti che gli sono utili, con gli accessi che lei assegna.',
+    roles: [
+      { number: 'Direzione', title: 'Mantenga la visione d’insieme.', text: 'Cantieri, preventivi, fatture e redditività: le informazioni si uniscono per aiutarla a decidere.', tags: ['Guidare', 'Decidere'] },
+      { number: 'Ufficio', title: 'Faccia avanzare le pratiche.', text: 'Segretariato o amministrazione: dia accesso ai documenti, alla pianificazione e ai moduli necessari ogni giorno.', tags: ['Organizzare', 'Preparare'] },
+      { number: 'Cantiere', title: 'Condivida ciò che succede.', text: 'I dipendenti registrano le loro ore per cantiere, si scambiano messaggi nel feed del progetto e aggiungono i loro rapporti dal telefono.', tags: ['Timbrare', 'Scambiare', 'Documentare'] },
+    ],
+    permTitle: 'L’accesso giusto. Per la persona giusta.',
+    permText: 'Crei i suoi ruoli e scelga i moduli accessibili. Un dipendente può compilare le sue ore e seguire il suo cantiere senza accedere alla fatturazione.',
+    permNote: 'Esempi di organizzazione. Ruoli personalizzati e moduli disponibili secondo il suo piano. HR a partire dal piano Squadra.',
+    permLink: 'Scopra il lavoro di squadra',
+  },
+  automation: {
+    eyebrow: 'Con la tastiera o con la voce',
+    title: 'Lo dica.\nCantia lo prepara.',
+    text: 'Inserisca, detti, verifichi.\nMantiene il controllo su ogni fase.',
+    tag: 'A MODO SUO',
+    commandTitle: 'Un cantiere da seguire.\nUn preventivo da preparare.\nUna fattura da inviare.',
+    commandText: 'Lavori manualmente con le sue prestazioni, quantità e documenti. Oppure detti ciò di cui ha bisogno: Cantia la aiuta a preparare il passo successivo.\n\nLei rilegge, regola, convalida.',
+    link: 'Scopra la dettatura e l’assistente',
+    tryLabel: 'Provi un esempio di dettatura',
+    choices: { site: 'Cantiere', quote: 'Preventivo', invoice: 'Fattura' },
+    examples: {
+      site: { text: '«Prepara un rapporto per la Villa des Vignes: posa del parquet terminata in soggiorno.»', result: 'Un rapporto collegato al cantiere giusto.' },
+      quote: { text: '«Prepara un preventivo per la fornitura e posa di 12 m² di parquet in rovere.»', result: 'Un’offerta preparata con il suo catalogo.' },
+      invoice: { text: '«Prepara la fattura a partire dal preventivo accettato per la Villa des Vignes.»', result: 'Una fattura preparata a partire dal preventivo.' },
+    },
+    resultLabel: 'CANTIA L’AIUTA A PREPARARE',
+    resultNote: 'Una bozza da rileggere e convalidare.',
+    note: 'Esempi illustrativi · Questa animazione non registra alcun suono.',
+    animateLabel: 'Riproduci',
+    animatingLabel: 'Animazione',
+  },
+  terrain: {
+    eyebrow: 'Cantia su tutti i suoi schermi',
+    title: 'L’ufficio.\nIn tasca.',
+    text: 'Un dettaglio da fotografare, un piano da consultare, ore da registrare: aggiunga l’informazione dove il lavoro si svolge. La ritrovi poi in ufficio, nello stesso cantiere.',
+    points: [
+      { label: 'Computer', text: 'Preventivi, fatture e gestione' },
+      { label: 'Tablet', text: 'Piani, rapporti e monitoraggio del cantiere' },
+      { label: 'Telefono', text: 'Foto, ore e informazioni dal campo' },
+    ],
+    installCta: 'Installare Cantia',
+    installNote: 'Accessibile dal browser e aggiungibile alla schermata principale.\nVersioni App Store e Google Play in sviluppo.',
+  },
+  tailored: {
+    eyebrow: 'Quando la sua impresa ha un’esigenza tutta sua',
+    title: 'Un’esigenza specifica?\nUn modulo su misura.',
+    text: 'Un processo particolare, un monitoraggio di settore o un’esigenza che i moduli esistenti non coprono? Possiamo studiare uno sviluppo su misura per la sua impresa.',
+    cta: 'Parliamo della sua esigenza',
+    steps: [
+      { num: '01', title: 'Partiamo dal suo quotidiano.', text: 'Ci spieghi cosa fa, cosa manca e cosa desidera semplificare.' },
+      { num: '02', title: 'Definiamo una risposta adatta.', text: 'Funzionamento, perimetro e condizioni dello sviluppo vengono definiti insieme.' },
+      { num: '03', title: 'Un modulo riservato alla sua impresa.', text: 'Un modulo privato può essere integrato nel suo spazio Cantia e riservato ai suoi collaboratori autorizzati.' },
+    ],
+    link: 'Scopra di più sul su misura',
+  },
+  bexio: {
+    eyebrow: 'Una connessione, se ne ha bisogno',
+    title: 'Usa Bexio?\nMantenga il collegamento.',
+    text: 'Usa già Bexio? Colleghi i suoi dati di clienti, fatture e pagamenti per scoprire Cantia in continuità con la sua organizzazione. Senza Bexio, può usare Cantia in modo autonomo.',
+    link: 'Veda l’integrazione',
+  },
+  faq: {
+    eyebrow: 'Prima di iniziare',
+    title: 'Le sue domande.\nLe nostre risposte.',
+    link: 'Consulti il centro assistenza',
+    items: [
+      { q: 'A chi si rivolge Cantia?', a: 'A indipendenti e imprese dell’edilizia svizzera: muratura, carpenteria, pittura, elettricità, genio civile e altri mestieri delle costruzioni.' },
+      { q: 'Cantia funziona anche senza Bexio?', a: 'Sì. Può gestire la sua attività in Cantia da solo. L’integrazione Bexio permette di ritrovare i suoi dati in entrambi gli strumenti se usa già Bexio.' },
+      { q: 'Come si usa Cantia sul telefono?', a: 'Apra Cantia nel suo browser e lo aggiunga alla schermata principale. Le versioni App Store e Google Play sono in sviluppo.' },
+      { q: 'Cosa comprende la prova di 14 giorni?', a: 'I nuovi account dispongono di 14 giorni di prova, senza codice promozionale. Scelga la sua formula al momento della registrazione e ne consulti le condizioni prima di confermare.' },
+      { q: 'Posso dare accesso alla mia squadra?', a: 'Sì. Secondo la sua formula, può invitare fino a 3, 10 o 25 membri e definirne i ruoli. Per una squadra più grande, contatti Cantia.' },
+    ],
+  },
+  closing: {
+    eyebrow: 'Il suo prossimo cantiere inizia qui',
+    titlePrefix: 'Inizi con',
+    titleEm: 'il suo prossimo cantiere.',
+    text: 'Inizi con un preventivo, un cantiere, una squadra. Veda la differenza per 14 giorni.',
+    cta: 'Provi Cantia gratuitamente',
+    contact: 'Parli con il team Cantia',
   },
   pricing: {
-    title: 'Scelga la formula adatta alla sua impresa',
-    subtitle: 'Tutti i nuovi account iniziano con 14 giorni di prova completa, senza codice promozionale.',
+    title: 'Scelga in base\nalla dimensione della sua squadra.',
+    subtitle: 'Tutte le formule iniziano con 14 giorni di prova completa, senza codice promozionale.',
     monthly: 'Fatturazione mensile',
     yearly: 'Fatturazione annuale',
     yearlySavings: '-20%',
@@ -723,38 +1224,7 @@ const it: Dict = {
     memberPlural: 'membri',
     unlimited: 'Rapporti & preventivi illimitati',
     badge: 'Il più scelto',
-    paidCta: 'Inizi la prova di 14 giorni',
-  },
-  swiss: {
-    title: 'Pensato in Svizzera, non solo tradotto per la Svizzera',
-    text: 'Cantia è stato sviluppato per il funzionamento delle imprese edili svizzere: CHF, IVA svizzera, fattura QR e dati ospitati in Svizzera.',
-  },
-  tour: {
-    videoLabel: 'Video di presentazione di Cantia',
-  },
-  devices: {
-    title: 'Gestisca i suoi cantieri, ovunque si trovi',
-    text: 'In ufficio, in cantiere o in trasferta, ritrovi Cantia su computer, tablet e smartphone.',
-    benefits: [
-      { title: 'In ufficio', text: 'Prepari preventivi, fatture e analisi.' },
-      { title: 'In cantiere', text: 'Aggiunga rapporti, foto e ore.' },
-      { title: 'In trasferta', text: 'Acceda alle sue informazioni dal telefono.' },
-    ],
-  },
-  mobile: {
-    title: 'Cantia la segue anche sul campo',
-    text: 'Apra Cantia dal telefono o dal tablet e lo aggiunga alla schermata principale per accedervi rapidamente, a schermo intero, come alle sue altre app, già da oggi e senza passare da uno store.',
-    installCta: 'Come installarlo',
-    storeNote: 'Arrivano anche le versioni ufficiali:',
-    comingSoon: 'In sviluppo',
-    appStore: 'App Store',
-    googlePlay: 'Google Play',
-  },
-  finalCta: {
-    title: 'Provi Cantia sul suo prossimo cantiere',
-    subtitle: 'Crei il suo account e scopra per 14 giorni come Cantia riunisce preventivi, cantieri, rapporti e fatture in un unico posto.',
-    button: 'Inizi i miei 14 giorni di prova',
-    trust: ['14 giorni di prova · Nessun codice necessario', 'Disdicibile in qualsiasi momento', 'Ospitato in Svizzera'],
+    paidCta: 'Provi 14 giorni',
   },
   footer: {
     blurb: 'L’app di gestione cantieri per l’edilizia svizzera. Rapporti, documenti, preventivi, fatture e computo metrico, tutto in un unico posto.',
