@@ -19,6 +19,10 @@ import { colors, breakpoints, fontSize, radius, spacing } from '../lib/theme';
 import { landingFonts } from '../lib/landingTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 
+function clamp(min: number, value: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 // The compiled Android/iOS app has no marketing site to show — it goes
 // straight to the auth flow (app/_layout.tsx then takes over once the
 // session is known). Plain platform check ahead of LandingContent's hooks,
@@ -51,6 +55,12 @@ function LandingContent() {
   const { width } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
+  // Mirrors the reference design's CSS clamp() — scales smoothly with the
+  // viewport between a floor and a ceiling instead of one fixed size, so
+  // the hero title doesn't look oversized/cramped on in-between widths
+  // (tablet landscape, small laptop) the way a single fixed font-size did.
+  const heroTitleSize = clamp(42, width * 0.047, 70);
+  const heroCrossedSize = clamp(22, width * 0.027, 38);
 
   const scrollRef = useRef<ScrollView>(null);
   const storiesRef = useRef<View>(null);
@@ -80,18 +90,18 @@ function LandingContent() {
             </View>
 
             <View style={[styles.heroMain, isTablet && styles.heroMainCompact]}>
-              <View style={[styles.heroTitleCol, !isTablet && { flex: 1.3 }]}>
-                <Text style={styles.h1}>
+              <View style={[styles.heroTitleCol, !isTablet && { flex: 1.4 }]}>
+                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
                   {t.hero.titlePrefix}
                   {'\n'}
                   <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
                 </Text>
                 <View style={styles.crossedWrap}>
-                  <Text style={styles.crossedText}>{t.hero.crossedText}</Text>
+                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
                   <HeroCross />
                 </View>
               </View>
-              <View style={[styles.heroAside, !isTablet && { flex: 1 }]}>
+              <View style={[styles.heroAside, !isTablet && { flex: 0.8 }]}>
                 <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
                 <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
                 <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
@@ -396,19 +406,30 @@ const styles = StyleSheet.create({
   originSymbol: { alignItems: 'center', justifyContent: 'center' },
   originSymbolSmall: { alignItems: 'center', justifyContent: 'center' },
   heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
-  heroMain: { flexDirection: 'row', gap: 60, paddingVertical: spacing.xl, alignItems: 'center' },
+  heroMain: { flexDirection: 'row', gap: 75, paddingVertical: spacing.xxl, alignItems: 'center' },
   heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },
-  heroTitleCol: {},
-  h1: { fontFamily: landingFonts.body, fontSize: 62, fontWeight: '700', letterSpacing: -3, lineHeight: 66, color: colors.text },
+  heroTitleCol: { minWidth: 0 },
+  h1: { fontFamily: landingFonts.body, fontWeight: '700', letterSpacing: -3, color: colors.text },
   h1Highlight: { color: colors.primary },
   crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
-  crossedText: { fontFamily: landingFonts.body, fontSize: 30, fontWeight: '500', letterSpacing: -1, color: '#786653' },
-  heroAside: { gap: spacing.sm },
+  crossedText: { fontFamily: landingFonts.body, fontWeight: '500', letterSpacing: -1, color: '#786653' },
+  heroAside: { gap: spacing.sm, maxWidth: 380 },
   heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
-  heroAsideP1: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text, lineHeight: 25, marginTop: spacing.xs },
-  heroAsideP2: { fontFamily: landingFonts.body, fontSize: 14, color: colors.textMuted, lineHeight: 22, marginBottom: spacing.sm },
-  heroDiscover: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: colors.text, marginTop: spacing.sm },
-  heroTrust: { fontFamily: landingFonts.body, fontSize: 12, color: colors.textMuted, marginTop: spacing.xs },
+  heroAsideP1: { fontFamily: landingFonts.body, fontSize: 19, fontWeight: '600', color: colors.text, lineHeight: 27, marginTop: spacing.xs, letterSpacing: -0.3 },
+  heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.sm },
+  heroDiscover: {
+    alignSelf: 'flex-start',
+    maxWidth: 300,
+    fontFamily: landingFonts.body,
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#D7C6B1',
+  },
+  heroTrust: { fontFamily: landingFonts.body, fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },
   heroBaseline: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: spacing.lg, gap: spacing.lg },
   heroBaselineCompact: { justifyContent: 'space-between' },
   baselineLabel: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },

@@ -2676,7 +2676,9 @@ export const de: TranslationDict = {
     aiAssistantQuota: 'KI-Sprachassistent (Offerten, Rechnungen, Fragen): {{count}}/Monat',
     contactText: 'Mehr als 25 Mitglieder, oder ein ganz eigenes Bedürfnis?',
     contactLink: 'Massgeschneidert entdecken →',
-    learnMore: 'Mehr erfahren →',
+    learnMore: 'Alle Details →',
+    includesFirst: 'Enthalten in {{plan}}',
+    includesNext: '{{plan}}, zusätzlich mit',
   },
   planPage: {
     ctaTrial: 'Kostenlose Testphase starten',

@@ -2662,7 +2662,9 @@ export const fr = {
     aiAssistantQuota: 'Assistant vocal IA (devis, factures, questions) : {{count}}/mois',
     contactText: 'Plus de 25 membres, ou un besoin métier bien à vous ?',
     contactLink: 'Découvrez Sur mesure →',
-    learnMore: 'En savoir plus →',
+    learnMore: 'Tous les détails →',
+    includesFirst: 'Inclus dans {{plan}}',
+    includesNext: '{{plan}}, avec en plus',
   },
   planPage: {
     ctaTrial: "Commencer l'essai gratuit",

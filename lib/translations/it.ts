@@ -2684,7 +2684,9 @@ export const it: TranslationDict = {
     aiAssistantQuota: 'Assistente vocale IA (preventivi, fatture, domande): {{count}}/mese',
     contactText: 'Più di 25 membri, o un\'esigenza tutta sua?',
     contactLink: 'Scopra Su misura →',
-    learnMore: 'Scopra di più →',
+    learnMore: 'Tutti i dettagli →',
+    includesFirst: 'Incluso in {{plan}}',
+    includesNext: '{{plan}}, con in più',
   },
   planPage: {
     ctaTrial: 'Inizi la prova gratuita',
