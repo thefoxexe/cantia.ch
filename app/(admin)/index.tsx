@@ -164,8 +164,13 @@ const styles = StyleSheet.create({
   },
   hero: {
     backgroundColor: colors.text,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: spacing.xl,
+    shadowColor: '#0B0F0E',
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
   },
   heroLabel: {
     fontSize: fontSize.sm,
@@ -244,6 +249,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    shadowColor: '#0B0F0E',
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 1,
   },
   statIcon: {
     width: 30,

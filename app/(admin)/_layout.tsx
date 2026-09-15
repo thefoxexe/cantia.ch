@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -85,10 +85,12 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
       <View style={styles.desktopRoot}>
         <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
           <View style={styles.brandRow}>
+            <Image source={require('../../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" />
             <Text style={styles.brandText}>Cantia</Text>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>SUPER ADMIN</Text>
-            </View>
+          </View>
+          <View style={styles.badge}>
+            <Feather name="shield" size={10} color="#fff" />
+            <Text style={styles.badgeText}>SUPER ADMIN</Text>
           </View>
           <View style={styles.nav}>
             {NAV_ITEMS.map((item) => {
@@ -99,6 +101,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
                   style={[styles.navItem, active && styles.navItemActive]}
                   onPress={() => router.replace(item.href as any)}
                 >
+                  {active ? <View style={styles.navItemBar} /> : null}
                   <Feather name={item.icon} size={17} color={active ? colors.primary : colors.textMuted} />
                   <Text style={[styles.navItemText, active && styles.navItemTextActive]}>{item.label}</Text>
                 </Pressable>
@@ -122,8 +125,10 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
   return (
     <View style={styles.mobileRoot}>
       <View style={[styles.mobileTopBar, { paddingTop: insets.top + spacing.sm }]}>
+        <Image source={require('../../assets/logo-mark.png')} style={styles.mobileBrandLogo} resizeMode="contain" />
         <Text style={styles.brandText}>Cantia</Text>
         <View style={styles.badge}>
+          <Feather name="shield" size={10} color="#fff" />
           <Text style={styles.badgeText}>SUPER ADMIN</Text>
         </View>
         <View style={{ flex: 1 }} />
@@ -172,16 +177,30 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   sidebar: {
-    width: 232,
+    width: 240,
     borderRightWidth: 1,
     borderRightColor: colors.border,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
+    shadowColor: '#0B0F0E',
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    shadowOffset: { width: 6, height: 0 },
   },
   brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing.sm,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.md,
     gap: spacing.sm,
+  },
+  brandLogo: {
+    width: 26,
+    height: 26,
+  },
+  mobileBrandLogo: {
+    width: 22,
+    height: 22,
   },
   brandText: {
     fontSize: fontSize.lg,
@@ -189,11 +208,16 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     alignSelf: 'flex-start',
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
+    paddingVertical: 4,
+    marginHorizontal: spacing.sm,
+    marginBottom: spacing.xl,
   },
   badgeText: {
     fontSize: 10,
@@ -216,6 +240,16 @@ const styles = StyleSheet.create({
   navItemActive: {
     backgroundColor: colors.primarySoft,
   },
+  navItemBar: {
+    position: 'absolute',
+    left: -spacing.md,
+    top: '50%',
+    marginTop: -10,
+    width: 3,
+    height: 20,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+  },
   navItemText: {
     fontSize: fontSize.md,
     fontWeight: '600',
@@ -223,6 +257,7 @@ const styles = StyleSheet.create({
   },
   navItemTextActive: {
     color: colors.primary,
+    fontWeight: '700',
   },
   exitLink: {
     flexDirection: 'row',
@@ -258,6 +293,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    shadowColor: '#0B0F0E',
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
   },
   mobileExitButton: {
     width: 32,
