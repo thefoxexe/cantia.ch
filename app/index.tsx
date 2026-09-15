@@ -90,7 +90,7 @@ function LandingContent() {
             </View>
 
             <View style={[styles.heroMain, isTablet && styles.heroMainCompact]}>
-              <View style={[styles.heroTitleCol, !isTablet && { flex: 1.4 }]}>
+              <View style={[styles.heroTitleCol, !isTablet && { maxWidth: 620 }]}>
                 <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
                   {t.hero.titlePrefix}
                   {'\n'}
@@ -101,7 +101,7 @@ function LandingContent() {
                   <HeroCross />
                 </View>
               </View>
-              <View style={[styles.heroAside, !isTablet && { flex: 0.8 }]}>
+              <View style={styles.heroAside}>
                 <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
                 <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
                 <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
@@ -406,14 +406,14 @@ const styles = StyleSheet.create({
   originSymbol: { alignItems: 'center', justifyContent: 'center' },
   originSymbolSmall: { alignItems: 'center', justifyContent: 'center' },
   heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
-  heroMain: { flexDirection: 'row', gap: 75, paddingVertical: spacing.xxl, alignItems: 'center' },
+  heroMain: { flexDirection: 'row', gap: 56, paddingVertical: spacing.xxl, alignItems: 'flex-start' },
   heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },
   heroTitleCol: { minWidth: 0 },
   h1: { fontFamily: landingFonts.body, fontWeight: '700', letterSpacing: -3, color: colors.text },
   h1Highlight: { color: colors.primary },
   crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
   crossedText: { fontFamily: landingFonts.body, fontWeight: '500', letterSpacing: -1, color: '#786653' },
-  heroAside: { gap: spacing.sm, maxWidth: 380 },
+  heroAside: { gap: spacing.sm, maxWidth: 430 },
   heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
   heroAsideP1: { fontFamily: landingFonts.body, fontSize: 19, fontWeight: '600', color: colors.text, lineHeight: 27, marginTop: spacing.xs, letterSpacing: -0.3 },
   heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.sm },
