@@ -7,6 +7,7 @@ import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { deleteTutorialChapter, listTutorialChapters, upsertTutorialChapter } from '../../../lib/api/admin';
+import { buildPublicVideoDescription } from '../../../lib/tutorialYoutubeDescription';
 import type { AdminTutorialChapter, TutorialChapterStatus } from '../../../lib/types';
 
 const STATUS_ORDER: TutorialChapterStatus[] = ['a_faire', 'tourne', 'monte', 'publie'];
@@ -116,6 +117,13 @@ export default function AdminTutorialsScreen() {
     setSaving(true);
     const existing = id !== 'new' ? chapters.find((c) => c.id === id) : null;
     const orderIndex = existing ? existing.order_index : chapters.length ? Math.max(...chapters.map((c) => c.order_index)) + 1 : 1;
+    const trimmedYoutubeUrl = draft.youtube_url.trim();
+    // Auto-fill the public-facing description the moment a link is
+    // published, instead of requiring it to be typed by hand for every
+    // chapter — an admin who did type one keeps it untouched either way.
+    const publicDescription =
+      draft.public_description.trim() ||
+      (trimmedYoutubeUrl ? buildPublicVideoDescription({ title: draft.title.trim(), talking_points: draft.talking_points }) : '');
     const { chapter, error: err } = await upsertTutorialChapter({
       id: existing?.id ?? null,
       order_index: orderIndex,
@@ -123,10 +131,10 @@ export default function AdminTutorialsScreen() {
       title: draft.title.trim(),
       talking_points: draft.talking_points,
       status: draft.status,
-      youtube_url: draft.youtube_url.trim() || null,
+      youtube_url: trimmedYoutubeUrl || null,
       site_embed_done: draft.site_embed_done,
       notes: draft.notes.trim() || null,
-      public_description: draft.public_description.trim() || null,
+      public_description: publicDescription || null,
     });
     if (!err && chapter) {
       setChapters((prev) => {

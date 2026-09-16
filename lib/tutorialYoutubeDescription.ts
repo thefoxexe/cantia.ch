@@ -134,6 +134,22 @@ function humanizeTalkingPoint(line: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+// The short line shown under a video's thumbnail on /aide/videos
+// (AdminTutorialChapter.public_description) — auto-filled from the same
+// talking_points script the moment a chapter's YouTube link gets published
+// (see app/(admin)/tutoriels/index.tsx's save()), so nobody has to write it
+// by hand for each of the 30+ chapters. An admin who does type something in
+// the field is always kept — this only ever fills a blank one.
+export function buildPublicVideoDescription(chapter: Pick<AdminTutorialChapter, 'title' | 'talking_points'>): string {
+  const firstPoint = chapter.talking_points
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map(humanizeTalkingPoint)[0];
+  const intro = `Comment ${lowerFirst(chapter.title)}, en vidéo.`;
+  return firstPoint ? `${intro} ${firstPoint}` : intro;
+}
+
 export function buildYoutubeDescription(chapter: Pick<AdminTutorialChapter, 'title' | 'feature_area' | 'talking_points'>): string {
   const points = chapter.talking_points
     .split('\n')
