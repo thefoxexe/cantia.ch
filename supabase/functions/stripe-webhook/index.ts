@@ -66,6 +66,15 @@ Deno.serve(async (req: Request) => {
           // organization — both are service-role-only (see the 20260902070000
           // migration) precisely so a client can't grant itself access before
           // Stripe actually confirms the checkout.
+          //
+          // trial_used is flipped here too, not at session creation
+          // (stripe-checkout/index.ts) — an org that opened Checkout and
+          // abandoned it (closed the tab, hit back) never reaches this
+          // handler, so it keeps its trial for the next real attempt.
+          // granted_trial is the decision stripe-checkout made about
+          // whether this session should consume the trial, carried through
+          // in session metadata since this handler has no other way to
+          // know if a trial was actually granted on this specific session.
           await admin
             .from('organizations')
             .update({
@@ -74,6 +83,7 @@ Deno.serve(async (req: Request) => {
               plan_id: planId ?? undefined,
               subscription_status: 'active',
               plan_selected: true,
+              ...(session.metadata?.granted_trial === 'true' ? { trial_used: true } : {}),
             })
             .eq('id', organizationId);
           await logOrgEvent(admin, organizationId, 'activated', { plan_id: planId ?? null });
