@@ -138,4 +138,8 @@ begin
 end;
 $$;
 
-revoke execute on function public.admin_feature_usage_overview() from anon;
+-- revoke from public (not just anon) — Postgres grants EXECUTE to PUBLIC by
+-- default at CREATE FUNCTION time, and anon inherits that unless revoked at
+-- the PUBLIC level itself.
+revoke execute on function public.admin_feature_usage_overview() from public;
+grant execute on function public.admin_feature_usage_overview() to authenticated;

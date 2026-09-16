@@ -32,6 +32,7 @@ const COUNTABLE: Record<string, { table: string; countKey: string }> = {
   metre: { table: 'metre_items', countKey: 'countMetre' },
   subcontractors: { table: 'project_subcontractors', countKey: 'countSubcontractors' },
   extraWorks: { table: 'extra_works', countKey: 'countExtraWorks' },
+  situations: { table: 'chantier_situations', countKey: 'countSituations' },
 };
 
 export default function ChantierDetailScreen() {
@@ -121,6 +122,13 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.extraWorks'),
       icon: 'plus-circle',
       route: `/(app)/chantiers/${id}/travaux-supplementaires`,
+      visible: canViewFinances,
+    },
+    {
+      key: 'situations',
+      label: t('chantierHub.situations'),
+      icon: 'trending-up',
+      route: `/(app)/chantiers/${id}/situations`,
       visible: canViewFinances,
     },
   ];

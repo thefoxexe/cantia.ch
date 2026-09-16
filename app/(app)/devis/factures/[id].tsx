@@ -509,6 +509,13 @@ export default function FactureDetailScreen() {
                   <Text style={styles.depositBadgeText}>{t('factureDetail.deposit')}</Text>
                 </View>
               ) : null}
+              {facture.is_situation ? (
+                <View style={styles.depositBadge}>
+                  <Text style={styles.depositBadgeText}>
+                    {facture.situation_number ? t('factureDetail.situationWithIndex', { index: facture.situation_number }) : t('factureDetail.situation')}
+                  </Text>
+                </View>
+              ) : null}
             </View>
             <StatusBadge status={facture.status} />
           </View>

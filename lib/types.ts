@@ -418,10 +418,49 @@ export interface Facture {
   public_token: string;
   last_reminded_at: string | null;
   is_deposit: boolean;
+  is_situation: boolean;
+  situation_number: number | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
   locale: 'fr' | 'de' | 'it' | null;
+}
+
+export type ChantierSituationStatus = 'draft' | 'finalized';
+
+// Facturation progressive : chaque situation facture l'avancement réel de
+// chaque poste d'un devis depuis la situation précédente — voir
+// finalize_chantier_situation() pour comment elle se transforme en facture.
+export interface ChantierSituation {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  devis_id: string | null;
+  number: string | null;
+  situation_index: number;
+  title: string;
+  status: ChantierSituationStatus;
+  client_name: string;
+  client_email: string | null;
+  vat_rate: number;
+  retenue_garantie_percent: number;
+  facture_id: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChantierSituationItem {
+  id: string;
+  situation_id: string;
+  source_devis_item_id: string | null;
+  description: string;
+  unit: string | null;
+  contract_quantity: number;
+  unit_price: number;
+  previous_percent: number;
+  cumulative_percent: number;
+  sort_order: number;
 }
 
 // Shapes returned by the anonymous public-portal RPCs (get_public_devis,

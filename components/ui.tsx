@@ -407,6 +407,7 @@ const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
   accepted: { bg: colors.successSoft, fg: colors.success },
   refused: { bg: colors.dangerSoft, fg: colors.danger },
   generated: { bg: colors.successSoft, fg: colors.success },
+  finalized: { bg: colors.successSoft, fg: colors.success },
   active: { bg: colors.primarySoft, fg: colors.primary },
   completed: { bg: colors.successSoft, fg: colors.success },
   archived: { bg: colors.border, fg: colors.textMuted },

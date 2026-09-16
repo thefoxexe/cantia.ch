@@ -51,5 +51,10 @@ begin
 end;
 $$;
 
+-- Postgres grants EXECUTE to PUBLIC by default at CREATE FUNCTION time (on
+-- top of Supabase's own standing `alter default privileges ... grant
+-- execute to anon, authenticated`), so `revoke ... from anon` alone leaves
+-- anon executing it via its PUBLIC membership — revoke from PUBLIC itself,
+-- same fix as 20260826000000_admin_rpcs_revoke_anon.sql.
+revoke execute on function public.accept_extra_work_live(uuid, text, text) from public;
 grant execute on function public.accept_extra_work_live(uuid, text, text) to authenticated;
-revoke execute on function public.accept_extra_work_live(uuid, text, text) from anon;
