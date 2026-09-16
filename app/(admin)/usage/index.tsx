@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { getFeatureUsage } from '../../../lib/api/admin';
-import type { AdminFeatureUsage } from '../../../lib/types';
+import { getFeatureUsage, getFeatureUsageByOrg } from '../../../lib/api/admin';
+import type { AdminFeatureUsage, AdminFeatureUsageByOrg } from '../../../lib/types';
 
 const CATEGORY_ORDER = ['coeur_metier', 'rh', 'finance', 'integrations', 'ia', 'personnalisation'];
 const CATEGORY_LABEL: Record<string, string> = {
@@ -17,14 +18,29 @@ const CATEGORY_LABEL: Record<string, string> = {
   personnalisation: 'Personnalisation',
 };
 
-function FeatureRow({ row }: { row: AdminFeatureUsage }) {
+function FeatureRow({
+  row,
+  byOrg,
+  expanded,
+  onToggle,
+}: {
+  row: AdminFeatureUsage;
+  byOrg: AdminFeatureUsageByOrg[];
+  expanded: boolean;
+  onToggle: () => void;
+}) {
   const pct = row.orgs_total > 0 ? Math.round((row.orgs_using / row.orgs_total) * 100) : 0;
   return (
     <View style={styles.row}>
-      <View style={styles.rowTop}>
-        <Text style={styles.rowLabel}>{row.label}</Text>
+      <Pressable style={styles.rowTop} onPress={onToggle} disabled={byOrg.length === 0}>
+        <View style={styles.rowLabelGroup}>
+          <Text style={styles.rowLabel}>{row.label}</Text>
+          {byOrg.length > 0 ? (
+            <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+          ) : null}
+        </View>
         <Text style={styles.rowPct}>{pct}%</Text>
-      </View>
+      </Pressable>
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${pct}%` }]} />
       </View>
@@ -36,6 +52,20 @@ function FeatureRow({ row }: { row: AdminFeatureUsage }) {
           <Text style={styles.rowMeta30}>{row.last_30d_count.toLocaleString('fr-CH')} sur 30 j</Text>
         ) : null}
       </View>
+      {expanded && byOrg.length > 0 ? (
+        <View style={styles.byOrgList}>
+          {byOrg.map((o) => (
+            <View key={o.organization_id} style={styles.byOrgRow}>
+              <Text style={styles.byOrgName} numberOfLines={1}>
+                {o.organization_name}
+              </Text>
+              <Text style={styles.byOrgCount}>
+                {o.use_count.toLocaleString('fr-CH')}×
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -48,14 +78,17 @@ function FeatureRow({ row }: { row: AdminFeatureUsage }) {
 // of guessing from the feature-list copy.
 export default function AdminUsageScreen() {
   const [rows, setRows] = useState<AdminFeatureUsage[]>([]);
+  const [byOrgRows, setByOrgRows] = useState<AdminFeatureUsageByOrg[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { rows: r, error: err } = await getFeatureUsage();
-    setRows(r);
-    setError(err);
+    const [overview, byOrg] = await Promise.all([getFeatureUsage(), getFeatureUsageByOrg()]);
+    setRows(overview.rows);
+    setByOrgRows(byOrg.rows);
+    setError(overview.error ?? byOrg.error);
     setLoading(false);
   }, []);
 
@@ -70,6 +103,13 @@ export default function AdminUsageScreen() {
     else byCategory.set(row.category, [row]);
   }
   const categories = CATEGORY_ORDER.filter((c) => byCategory.has(c));
+
+  const byOrgByFeature = new Map<string, AdminFeatureUsageByOrg[]>();
+  for (const row of byOrgRows) {
+    const list = byOrgByFeature.get(row.feature_key);
+    if (list) list.push(row);
+    else byOrgByFeature.set(row.feature_key, [row]);
+  }
 
   return (
     <ScrollView style={{ flex: 1 }}>
@@ -96,7 +136,13 @@ export default function AdminUsageScreen() {
                 <Text style={styles.groupTitle}>{CATEGORY_LABEL[cat] ?? cat}</Text>
                 <View style={styles.list}>
                   {byCategory.get(cat)!.map((row) => (
-                    <FeatureRow key={row.feature_key} row={row} />
+                    <FeatureRow
+                      key={row.feature_key}
+                      row={row}
+                      byOrg={byOrgByFeature.get(row.feature_key) ?? []}
+                      expanded={expanded === row.feature_key}
+                      onToggle={() => setExpanded((cur) => (cur === row.feature_key ? null : row.feature_key))}
+                    />
                   ))}
                 </View>
               </View>
@@ -166,6 +212,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.sm,
   },
+  rowLabelGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   rowLabel: {
     fontSize: fontSize.sm,
     fontWeight: '700',
@@ -202,5 +253,29 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: colors.success,
+  },
+  byOrgList: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    gap: 6,
+  },
+  byOrgRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  byOrgName: {
+    flex: 1,
+    fontSize: 12,
+    color: colors.text,
+  },
+  byOrgCount: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textMuted,
+    fontVariant: ['tabular-nums'],
   },
 });

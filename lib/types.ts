@@ -1242,6 +1242,16 @@ export interface AdminFeatureUsage {
   last_30d_count: number | null;
 }
 
+// One row of admin_feature_usage_by_org() — the per-organization breakdown
+// behind an AdminFeatureUsage row, for the Utilisation screen's "which
+// company, how many times" dropdown.
+export interface AdminFeatureUsageByOrg {
+  feature_key: string;
+  organization_id: string;
+  organization_name: string;
+  use_count: number;
+}
+
 export interface AdminModuleSummary {
   id: string;
   key: string;

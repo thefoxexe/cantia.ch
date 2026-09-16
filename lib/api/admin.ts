@@ -4,6 +4,7 @@ import type {
   AdminAuditLog,
   AdminDashboardStats,
   AdminFeatureUsage,
+  AdminFeatureUsageByOrg,
   AdminModuleSummary,
   AdminOrgBillingStatus,
   AdminOrganizationDetail,
@@ -192,6 +193,12 @@ export async function getFeatureUsage(): Promise<{ rows: AdminFeatureUsage[]; er
   const { data, error } = await supabase.rpc('admin_feature_usage_overview');
   const err = logRpcError('admin_feature_usage_overview', error);
   return { rows: err || !data ? [] : (data as AdminFeatureUsage[]), error: err };
+}
+
+export async function getFeatureUsageByOrg(): Promise<{ rows: AdminFeatureUsageByOrg[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_feature_usage_by_org');
+  const err = logRpcError('admin_feature_usage_by_org', error);
+  return { rows: err || !data ? [] : (data as AdminFeatureUsageByOrg[]), error: err };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the
