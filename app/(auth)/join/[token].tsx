@@ -73,7 +73,7 @@ export default function JoinScreen() {
 
   if (valid === null) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <LoadingScreen />
       </Screen>
     );
@@ -81,7 +81,7 @@ export default function JoinScreen() {
 
   if (!valid) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
@@ -98,7 +98,7 @@ export default function JoinScreen() {
 
   if (!session) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
@@ -121,7 +121,7 @@ export default function JoinScreen() {
   if (organization) {
     if (currentMemberCount === null) {
       return (
-        <Screen>
+        <Screen background="mountain">
           <LoadingScreen />
         </Screen>
       );
@@ -129,7 +129,7 @@ export default function JoinScreen() {
 
     if (currentMemberCount > 1) {
       return (
-        <Screen>
+        <Screen background="mountain">
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.container}>
               <Text style={styles.title}>{t('authJoinToken.alreadyInOrgTitle')}</Text>
@@ -148,7 +148,7 @@ export default function JoinScreen() {
     // separate confirmation step before calling acceptInvite(token, true).
     if (!confirmSwitch) {
       return (
-        <Screen>
+        <Screen background="mountain">
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.container}>
               <Text style={styles.title}>{t('authJoinToken.alreadyInOrgTitle')}</Text>
@@ -169,7 +169,7 @@ export default function JoinScreen() {
     }
 
     return (
-      <Screen>
+      <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Feather name="alert-triangle" size={32} color={colors.danger} style={{ alignSelf: 'center', marginBottom: spacing.md }} />
@@ -193,7 +193,7 @@ export default function JoinScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
           <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />

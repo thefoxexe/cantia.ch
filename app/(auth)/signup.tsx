@@ -45,7 +45,7 @@ export default function SignupScreen() {
 
   if (done) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <View style={styles.container}>
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
@@ -57,7 +57,7 @@ export default function SignupScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <BackToSiteButton href={siteHomeHref()} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">

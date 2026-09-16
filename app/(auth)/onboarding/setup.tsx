@@ -236,7 +236,7 @@ export default function OnboardingSetupScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
         <View style={styles.stepIconWrap}>
           <Feather name={STEP_ICONS[step - 1]} size={22} color={colors.primary} />

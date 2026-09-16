@@ -117,6 +117,20 @@ function RootNavigation() {
       } else if (subroute !== 'onboarding') {
         router.replace('/(auth)/onboarding');
       }
+    } else if (
+      !session &&
+      inAuthGroup &&
+      !['login', 'signup', 'forgot-password', 'update-password', 'verify-email', 'join'].includes(subroute)
+    ) {
+      // Signing out from a screen that assumes a signed-in user (the
+      // onboarding hub, choose-plan, the create/join org wizard) previously
+      // left the person stranded right where they were — nothing here was
+      // driving a redirect once session went null, since inAppGroup was
+      // false and isLanding was false too. The entry points a signed-out
+      // visitor can legitimately land on directly (login, signup, the
+      // password flows, verify-email right after signing up, and join/
+      // which handles its own no-session state) are excluded.
+      router.replace('/(auth)/login');
     } else if (inAppGroup) {
       router.replace('/(auth)/login');
     } else if (isLanding && isAppHost()) {

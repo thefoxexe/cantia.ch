@@ -74,7 +74,7 @@ export default function ChoosePlanScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
           <Text style={styles.title}>{t('authChoosePlan.title')}</Text>

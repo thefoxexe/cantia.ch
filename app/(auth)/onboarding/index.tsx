@@ -29,7 +29,7 @@ export default function OnboardingHubScreen() {
 
   if (pending === undefined) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <LoadingScreen />
       </Screen>
     );
@@ -37,7 +37,7 @@ export default function OnboardingHubScreen() {
 
   if (pending) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.container}>
           <Feather name="clock" size={32} color={colors.primary} style={styles.centerIcon} />
           <Text style={styles.title}>{t('authOnboardingHub.requestSentTitle')}</Text>
@@ -52,7 +52,7 @@ export default function OnboardingHubScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>{t('authOnboardingHub.welcomeTitle')}</Text>
         <Text style={styles.subtitle}>{t('authOnboardingHub.welcomeSubtitle')}</Text>

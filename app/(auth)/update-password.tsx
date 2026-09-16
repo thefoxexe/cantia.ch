@@ -40,7 +40,7 @@ export default function UpdatePasswordScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />

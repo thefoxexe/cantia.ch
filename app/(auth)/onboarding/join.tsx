@@ -62,7 +62,7 @@ export default function JoinOrganizationScreen() {
 
   if (pending === undefined) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <LoadingScreen />
       </Screen>
     );
@@ -70,7 +70,7 @@ export default function JoinOrganizationScreen() {
 
   if (pending) {
     return (
-      <Screen>
+      <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.container}>
           <Feather name="clock" size={32} color={colors.primary} style={styles.centerIcon} />
           <Text style={styles.title}>{t('authOnboardingJoin.requestSentTitle')}</Text>
@@ -85,7 +85,7 @@ export default function JoinOrganizationScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.container}>
         <Pressable onPress={() => router.replace('/(auth)/onboarding')} style={styles.backLink} hitSlop={8}>
           <Feather name="arrow-left" size={16} color={colors.textMuted} />

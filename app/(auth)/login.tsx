@@ -34,7 +34,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <BackToSiteButton href={siteHomeHref()} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">

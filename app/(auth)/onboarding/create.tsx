@@ -38,7 +38,7 @@ export default function CreateOrganizationScreen() {
   }
 
   return (
-    <Screen>
+    <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.container}>
         <Pressable onPress={() => router.replace('/(auth)/onboarding')} style={styles.backLink} hitSlop={8}>
           <Feather name="arrow-left" size={16} color={colors.textMuted} />
