@@ -30,9 +30,14 @@ export default function Root({ children }: PropsWithChildren) {
             html/body shows through for an instant during the mobile
             overscroll bounce at the top of the page, which reads as a
             stray gap under the (deliberately transparent) marketing navbar.
-            overscroll-behavior-y also mutes that bounce on browsers that
-            support it (mainly Chrome/Android; Safari/iOS still bounces). */}
-        <style>{'html, body { background-color: #F7F1E6; overscroll-behavior-y: none; }'}</style>
+            Deliberately NOT setting overscroll-behavior-y: none here — that
+            mutes the bounce on Chrome/Android, but that's the same mechanism
+            the browser's native pull-to-refresh is built on, so it silently
+            disabled pull-to-refresh everywhere on web as a side effect. The
+            background-color match already fixes the visible flash on its
+            own; losing pull-to-refresh (which every other site has) is the
+            worse tradeoff. */}
+        <style>{'html, body { background-color: #F7F1E6; }'}</style>
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
