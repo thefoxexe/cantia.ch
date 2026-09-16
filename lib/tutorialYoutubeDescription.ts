@@ -30,6 +30,38 @@ function hashtagForArea(area: string): string {
   return AREA_HASHTAG[area] ?? `#${area.replace(/[^a-zA-Z0-9]/g, '')}`;
 }
 
+// What a prospect actually types into YouTube search rarely matches an
+// internal chapter title ("Trames de devis réutilisables") — it matches
+// the problem they have ("logiciel de devis bâtiment suisse"). Each area
+// gets the search phrase its chapters are actually about, appended after
+// the descriptive title so both the specific action and the broad search
+// term are present.
+const AREA_SEO_SUFFIX: Record<string, string> = {
+  'Démarrage': 'Cantia, logiciel de gestion de chantier suisse',
+  'Devis': 'logiciel de devis bâtiment suisse | Cantia',
+  'Facturation': 'logiciel de facturation & QR-facture suisse | Cantia',
+  'Chantiers': 'logiciel de gestion de chantier suisse | Cantia',
+  'Équipe & RH': 'logiciel RH & heures de chantier suisse | Cantia',
+  'Pilotage': 'pilotage & rentabilité de chantier | Cantia Suisse',
+  'Paramètres': 'Cantia, logiciel de gestion de chantier suisse',
+  'Migration': 'migrer vers un logiciel de chantier suisse | Cantia',
+};
+
+function seoSuffixForArea(area: string): string {
+  return AREA_SEO_SUFFIX[area] ?? 'Cantia, logiciel de gestion de chantier suisse';
+}
+
+// The copy-pasteable YouTube title — distinct from AdminTutorialChapter.title,
+// which stays the short internal/shooting-plan name. Kept under YouTube's
+// ~100-char limit and short enough that search/suggested results don't
+// truncate it mid-word.
+export function buildYoutubeTitle(chapter: Pick<AdminTutorialChapter, 'title' | 'feature_area'>): string {
+  const suffix = seoSuffixForArea(chapter.feature_area);
+  const full = `${chapter.title} — ${suffix}`;
+  if (full.length <= 95) return full;
+  return `${chapter.title} — Cantia, logiciel de chantier suisse`;
+}
+
 function lowerFirst(s: string): string {
   return s.length ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }

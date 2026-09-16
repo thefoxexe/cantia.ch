@@ -9,7 +9,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listTutorialChapters } from '../../../lib/api/admin';
 import { generateThumbnailDataUrl } from '../../../lib/thumbnailGenerator';
-import { buildYoutubeDescription } from '../../../lib/tutorialYoutubeDescription';
+import { buildYoutubeDescription, buildYoutubeTitle } from '../../../lib/tutorialYoutubeDescription';
 import { downloadFile } from '../../../lib/downloadFile';
 import type { AdminTutorialChapter } from '../../../lib/types';
 
@@ -60,6 +60,7 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
     await downloadFile(thumb, `cantia-miniature-${slugify(chapter.title)}.png`);
   }
 
+  const youtubeTitle = buildYoutubeTitle(chapter);
   const youtubeDescription = buildYoutubeDescription(chapter);
 
   return (
@@ -87,6 +88,14 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
             <Text style={styles.downloadButtonText}>Télécharger la miniature</Text>
           </Pressable>
         </View>
+      </View>
+
+      <View style={styles.descBlock}>
+        <View style={styles.descHeader}>
+          <Text style={styles.descLabel}>Titre YouTube (optimisé recherche, à copier-coller)</Text>
+          <CopyButton text={youtubeTitle} />
+        </View>
+        <Text style={styles.titleText}>{youtubeTitle}</Text>
       </View>
 
       <View style={styles.descBlock}>
@@ -312,6 +321,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.text,
     lineHeight: 18,
+  },
+  titleText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
   },
   descEmpty: {
     fontSize: fontSize.xs,
