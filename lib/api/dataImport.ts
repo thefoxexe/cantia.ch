@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
 
 // Manual/self-service migration path for orgs switching from another
 // software (BauBit Pro, A3 Finance & Salaire…) — those export as Excel/CSV,
@@ -45,6 +46,61 @@ export interface ExpenseImportRow {
   amount: string;
   category: string;
   date: string;
+}
+
+// A field's value comes from the first non-empty source in this list —
+// either a single column, or a template combining several ("{0} {1}" for
+// prénom+nom, "{0}, {1} {2}" for rue/NPA/localité). Lets "raison sociale
+// sinon prénom+nom" be expressed as two fallback sources instead of a
+// bespoke per-kind rule.
+export type FieldSource =
+  | { type: 'column'; index: number }
+  | { type: 'template'; indices: number[]; template: string };
+
+export type FieldMapping = Record<string, FieldSource[]>;
+
+export function evalFieldSource(row: string[], source: FieldSource): string {
+  if (source.type === 'column') {
+    return (row[source.index] ?? '').trim();
+  }
+  let out = source.template;
+  source.indices.forEach((idx, i) => {
+    out = out.split(`{${i}}`).join((row[idx] ?? '').trim());
+  });
+  return out
+    .replace(/\s+/g, ' ')
+    .replace(/(,\s*){2,}/g, ', ')
+    .replace(/^[,\s]+|[,\s]+$/g, '')
+    .trim();
+}
+
+export function cellFromMapping(row: string[], sources: FieldSource[] | undefined): string {
+  if (!sources) return '';
+  for (const source of sources) {
+    const value = evalFieldSource(row, source);
+    if (value) return value;
+  }
+  return '';
+}
+
+// Sends only the headers + a few sample rows (never the whole file) to
+// Claude and gets back a declarative mapping, evaluated deterministically
+// for every row client-side — the AI is consulted once per import, not
+// once per row. Same monthly quota as every other AI feature
+// (check_and_log_ai_usage), enforced server-side in the edge function.
+export async function suggestImportMapping(
+  organizationId: string,
+  kind: ImportKind,
+  headers: string[],
+  sampleRows: string[][],
+): Promise<{ mapping: FieldMapping | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ mapping: FieldMapping }>('dataimport-ai-map', {
+    organization_id: organizationId,
+    kind,
+    headers,
+    sampleRows,
+  });
+  return { mapping: data?.mapping ?? null, error };
 }
 
 // Swiss exports commonly use an apostrophe as the thousands separator

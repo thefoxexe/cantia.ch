@@ -5,11 +5,15 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { parseCsv, type ParsedCsv } from '../../../lib/csv';
 import {
+  cellFromMapping,
   importChantiers,
   importClients,
   importDevis,
   importExpenses,
   importFactures,
+  suggestImportMapping,
+  type FieldMapping,
+  type FieldSource,
   type ImportKind,
 } from '../../../lib/api/dataImport';
 import { Button, Card, PageHeader, Screen } from '../../../components/ui';
@@ -67,11 +71,13 @@ function fieldsForKind(kind: ImportKind): FieldDef[] {
   }
 }
 
-// Guesses a mapping from header text so the common case (a header already
-// named "Nom"/"Name"/"Client"/"Adresse"…) needs zero manual clicks —
-// still fully overridable below, this only saves the obvious cases.
-function guessMapping(headers: string[], fields: FieldDef[]): Record<string, number | null> {
-  const mapping: Record<string, number | null> = {};
+// Fallback used the instant a file loads (AI suggestion is still in
+// flight) and as what "Modifier manuellement" resets a field to — a plain
+// keyword match, one column per field, no combining. The AI suggestion
+// (suggestImportMapping) normally replaces this a moment later with
+// something that actually handles split name/address columns.
+function guessMapping(headers: string[], fields: FieldDef[]): FieldMapping {
+  const mapping: FieldMapping = {};
   const normalized = headers.map((h) => h.trim().toLowerCase());
   const GUESSES: Record<string, string[]> = {
     name: ['nom', 'name', 'client', 'raison sociale'],
@@ -89,9 +95,22 @@ function guessMapping(headers: string[], fields: FieldDef[]): Record<string, num
   for (const field of fields) {
     const candidates = GUESSES[field.key] ?? [];
     const idx = normalized.findIndex((h) => candidates.some((c) => h.includes(c)));
-    mapping[field.key] = idx === -1 ? null : idx;
+    mapping[field.key] = idx === -1 ? [] : [{ type: 'column', index: idx }];
   }
   return mapping;
+}
+
+// A field is "simple" when it's backed by zero or one plain column — the
+// case the header-chip picker can represent directly. Anything richer
+// (an AI-combined name or address) renders as a read-only summary instead,
+// with a link that collapses it back to simple/editable.
+function isSimpleMapping(sources: FieldSource[] | undefined): boolean {
+  return !sources || sources.length === 0 || (sources.length === 1 && sources[0].type === 'column');
+}
+
+function describeSource(headers: string[], source: FieldSource): string {
+  if (source.type === 'column') return headers[source.index] || `#${source.index + 1}`;
+  return source.indices.map((i) => headers[i] || `#${i + 1}`).join(' + ');
 }
 
 const KIND_ORDER: ImportKind[] = ['clients', 'chantiers', 'devis', 'factures', 'expenses'];
@@ -116,7 +135,10 @@ export default function DataImportScreen() {
   const [kind, setKind] = useState<ImportKind>('clients');
   const [picking, setPicking] = useState(false);
   const [csv, setCsv] = useState<ParsedCsv | null>(null);
-  const [mapping, setMapping] = useState<Record<string, number | null>>({});
+  const [mapping, setMapping] = useState<FieldMapping>({});
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiApplied, setAiApplied] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ imported: number; errors: string[] } | null>(null);
@@ -126,6 +148,8 @@ export default function DataImportScreen() {
   function reset() {
     setCsv(null);
     setMapping({});
+    setAiApplied(false);
+    setAiError(null);
     setResult(null);
     setError(null);
   }
@@ -133,6 +157,25 @@ export default function DataImportScreen() {
   function changeKind(next: ImportKind) {
     setKind(next);
     reset();
+  }
+
+  async function runAiSuggestion(parsed: ParsedCsv, forKind: ImportKind) {
+    if (!organization) return;
+    setAiLoading(true);
+    setAiError(null);
+    const { mapping: suggested, error: err } = await suggestImportMapping(
+      organization.id,
+      forKind,
+      parsed.headers,
+      parsed.rows.slice(0, 5),
+    );
+    setAiLoading(false);
+    if (err || !suggested) {
+      setAiError(err ?? t('dataImport.aiFailed'));
+      return;
+    }
+    setMapping(suggested);
+    setAiApplied(true);
   }
 
   async function handlePick() {
@@ -149,7 +192,10 @@ export default function DataImportScreen() {
         return;
       }
       setCsv(parsed);
+      setAiApplied(false);
+      setAiError(null);
       setMapping(guessMapping(parsed.headers, fieldsForKind(kind)));
+      runAiSuggestion(parsed, kind);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('dataImport.readError'));
     } finally {
@@ -158,14 +204,21 @@ export default function DataImportScreen() {
   }
 
   function cell(row: string[], fieldKey: string): string {
-    const idx = mapping[fieldKey];
-    return idx == null || idx < 0 ? '' : (row[idx] ?? '');
+    return cellFromMapping(row, mapping[fieldKey]);
+  }
+
+  function clearFieldMapping(fieldKey: string) {
+    setMapping((m) => ({ ...m, [fieldKey]: [] }));
+  }
+
+  function setSimpleColumn(fieldKey: string, index: number | null) {
+    setMapping((m) => ({ ...m, [fieldKey]: index == null ? [] : [{ type: 'column', index }] }));
   }
 
   async function handleImport() {
     if (!csv || !organization) return;
-    const requiredField = fields.find((f) => f.required);
-    if (requiredField && mapping[requiredField.key] == null) {
+    const requiredField = fields.find((f) => f.required && !(mapping[f.key]?.length));
+    if (requiredField) {
       setError(t('dataImport.mappingRequired', { field: t(requiredField.labelKey as any) }));
       return;
     }
@@ -268,36 +321,71 @@ export default function DataImportScreen() {
           ) : (
             <View style={{ gap: spacing.lg, marginTop: spacing.lg }}>
               <Card>
-                <Text style={styles.sectionTitle}>{t('dataImport.mappingTitle')}</Text>
-                <Text style={styles.sectionHint}>{t('dataImport.mappingHint')}</Text>
-                <View style={{ gap: spacing.md }}>
-                  {fields.map((field) => (
-                    <View key={field.key} style={styles.mappingRow}>
-                      <Text style={styles.mappingLabel}>
-                        {t(field.labelKey as any)}
-                        {field.required ? ' *' : ''}
-                      </Text>
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.xs }}>
-                        <Pressable
-                          style={[styles.headerChip, mapping[field.key] == null && styles.headerChipActive]}
-                          onPress={() => setMapping((m) => ({ ...m, [field.key]: null }))}
-                        >
-                          <Text style={[styles.headerChipText, mapping[field.key] == null && styles.headerChipTextActive]}>{t('dataImport.noColumn')}</Text>
-                        </Pressable>
-                        {csv.headers.map((h, idx) => (
-                          <Pressable
-                            key={idx}
-                            style={[styles.headerChip, mapping[field.key] === idx && styles.headerChipActive]}
-                            onPress={() => setMapping((m) => ({ ...m, [field.key]: idx }))}
-                          >
-                            <Text style={[styles.headerChipText, mapping[field.key] === idx && styles.headerChipTextActive]} numberOfLines={1}>
-                              {h || `#${idx + 1}`}
+                <View style={styles.mappingHeader}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sectionTitle}>{t('dataImport.mappingTitle')}</Text>
+                    <Text style={styles.sectionHint}>
+                      {aiLoading ? t('dataImport.aiAnalyzing') : aiApplied ? t('dataImport.aiAppliedHint') : t('dataImport.mappingHint')}
+                    </Text>
+                  </View>
+                  <Pressable
+                    style={styles.aiButton}
+                    onPress={() => csv && runAiSuggestion(csv, kind)}
+                    disabled={aiLoading}
+                  >
+                    <Feather name="zap" size={13} color="#fff" />
+                    <Text style={styles.aiButtonText}>{aiLoading ? t('dataImport.aiAnalyzingShort') : t('dataImport.aiSuggest')}</Text>
+                  </Pressable>
+                </View>
+                {aiError ? <Text style={styles.error}>{aiError}</Text> : null}
+                <View style={{ gap: spacing.md, marginTop: spacing.sm }}>
+                  {fields.map((field) => {
+                    const sources = mapping[field.key];
+                    const simple = isSimpleMapping(sources);
+                    const simpleIndex = simple && sources?.[0]?.type === 'column' ? sources[0].index : null;
+                    return (
+                      <View key={field.key} style={styles.mappingRow}>
+                        <Text style={styles.mappingLabel}>
+                          {t(field.labelKey as any)}
+                          {field.required ? ' *' : ''}
+                        </Text>
+                        {simple ? (
+                          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.xs }}>
+                            <Pressable
+                              style={[styles.headerChip, simpleIndex == null && styles.headerChipActive]}
+                              onPress={() => setSimpleColumn(field.key, null)}
+                            >
+                              <Text style={[styles.headerChipText, simpleIndex == null && styles.headerChipTextActive]}>{t('dataImport.noColumn')}</Text>
+                            </Pressable>
+                            {csv.headers.map((h, idx) => (
+                              <Pressable
+                                key={idx}
+                                style={[styles.headerChip, simpleIndex === idx && styles.headerChipActive]}
+                                onPress={() => setSimpleColumn(field.key, idx)}
+                              >
+                                <Text style={[styles.headerChipText, simpleIndex === idx && styles.headerChipTextActive]} numberOfLines={1}>
+                                  {h || `#${idx + 1}`}
+                                </Text>
+                              </Pressable>
+                            ))}
+                          </ScrollView>
+                        ) : (
+                          <View style={styles.aiMappingSummary}>
+                            <View style={styles.aiBadge}>
+                              <Feather name="zap" size={10} color={colors.primary} />
+                              <Text style={styles.aiBadgeText}>IA</Text>
+                            </View>
+                            <Text style={styles.aiMappingSummaryText} numberOfLines={1}>
+                              {sources!.map((s) => describeSource(csv.headers, s)).join(t('dataImport.aiFallbackSeparator'))}
                             </Text>
-                          </Pressable>
-                        ))}
-                      </ScrollView>
-                    </View>
-                  ))}
+                            <Text style={styles.editManually} onPress={() => clearFieldMapping(field.key)}>
+                              {t('dataImport.editManually')}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })}
                 </View>
               </Card>
 
@@ -396,8 +484,62 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     lineHeight: 17,
   },
+  mappingHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  aiButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+  },
+  aiButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: '#fff',
+  },
   mappingRow: {
     gap: spacing.xs,
+  },
+  aiMappingSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  aiBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  aiMappingSummaryText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  editManually: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
   },
   mappingLabel: {
     fontSize: fontSize.xs,
