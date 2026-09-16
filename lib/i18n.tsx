@@ -186,7 +186,6 @@ interface Dict {
     resourcesBlog: string;
     resourcesContact: string;
     resourcesLogin: string;
-    youtube: string;
     legalLink: string;
     privacyLink: string;
     cgvLink: string;
@@ -546,7 +545,6 @@ const fr: Dict = {
     resourcesBlog: 'Blog',
     resourcesContact: 'Contact',
     resourcesLogin: 'Connexion',
-    youtube: 'YouTube — nos tutoriels',
     legalLink: 'Mentions légales',
     privacyLink: 'Confidentialité',
     cgvLink: 'Conditions générales',
@@ -906,7 +904,6 @@ const de: Dict = {
     resourcesBlog: 'Blog',
     resourcesContact: 'Kontakt',
     resourcesLogin: 'Anmelden',
-    youtube: 'YouTube — unsere Tutorials',
     legalLink: 'Impressum',
     privacyLink: 'Datenschutz',
     cgvLink: 'AGB',
@@ -1266,7 +1263,6 @@ const it: Dict = {
     resourcesBlog: 'Blog',
     resourcesContact: 'Contatto',
     resourcesLogin: 'Accedi',
-    youtube: 'YouTube — i nostri tutorial',
     legalLink: 'Note legali',
     privacyLink: 'Privacy',
     cgvLink: 'Condizioni generali',
