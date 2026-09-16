@@ -193,6 +193,7 @@ export interface Project {
   status: string;
   cover_photo_url: string | null;
   enabled_modules: string[];
+  auto_daily_report_enabled: boolean;
   created_by: string | null;
   created_at: string;
   updated_at: string;

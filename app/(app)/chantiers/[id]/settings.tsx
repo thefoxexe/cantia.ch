@@ -34,6 +34,7 @@ export default function ChantierSettingsScreen() {
   const [accessUserIds, setAccessUserIds] = useState<Set<string>>(new Set());
   const [restricted, setRestricted] = useState(false);
   const [enabledModules, setEnabledModules] = useState<string[]>([]);
+  const [autoDailyReport, setAutoDailyReport] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -47,6 +48,7 @@ export default function ChantierSettingsScreen() {
       setStatus(project.status);
       setCoverPhotoUrl(project.cover_photo_url ? await getSignedUrl(project.cover_photo_url) : null);
       setEnabledModules(project.enabled_modules ?? []);
+      setAutoDailyReport(!!project.auto_daily_report_enabled);
       const [{ data: memberRows }, { data: accessRows }, { data: org }] = await Promise.all([
         supabase.from('organization_members').select('*').eq('organization_id', project.organization_id).order('created_at'),
         supabase.from('project_members').select('user_id').eq('project_id', id),
@@ -145,6 +147,13 @@ export default function ChantierSettingsScreen() {
     load();
   }
 
+  async function toggleAutoDailyReport() {
+    if (!isAdmin) return;
+    const next = !autoDailyReport;
+    setAutoDailyReport(next);
+    await supabase.from('projects').update({ auto_daily_report_enabled: next }).eq('id', id);
+  }
+
   if (!loaded) {
     return (
       <Screen>
@@ -220,6 +229,24 @@ export default function ChantierSettingsScreen() {
                 </View>
               );
             })}
+          </Card>
+
+          <Text style={[styles.sectionTitle, { marginTop: spacing.xxl, marginBottom: spacing.sm }]}>{t('chantierSettings.autoReportTitle')}</Text>
+          <Text style={styles.accessHint}>{t('chantierSettings.autoReportHint')}</Text>
+          <Card style={{ padding: 0, overflow: 'hidden' }}>
+            <View style={styles.memberRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.memberName}>{t('chantierSettings.autoReportLabel')}</Text>
+                <Text style={styles.memberRole}>{t('chantierSettings.autoReportDescription')}</Text>
+              </View>
+              <Switch
+                value={autoDailyReport}
+                onValueChange={toggleAutoDailyReport}
+                disabled={!isAdmin}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor="#fff"
+              />
+            </View>
           </Card>
 
           <View style={styles.accessHeader}>
