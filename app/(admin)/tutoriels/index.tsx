@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, LoadingScreen, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
@@ -165,7 +166,15 @@ export default function AdminTutorialsScreen() {
               Plan de tournage : un chapitre par fonctionnalité, avec les points à montrer et le lien YouTube une fois publié.
             </Text>
           </View>
-          <AdminRefreshButton onPress={load} loading={loading} />
+          <View style={styles.headerActions}>
+            <Link href="/(admin)/tutoriels/miniatures" asChild>
+              <Pressable style={styles.thumbnailsLink}>
+                <Feather name="image" size={14} color={colors.primary} />
+                <Text style={styles.thumbnailsLinkText}>Miniatures & descriptions</Text>
+              </Pressable>
+            </Link>
+            <AdminRefreshButton onPress={load} loading={loading} />
+          </View>
         </View>
 
         {!loading && chapters.length > 0 ? (
@@ -400,6 +409,26 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 4,
     maxWidth: 480,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  thumbnailsLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  thumbnailsLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
   },
   progressCard: {
     flexDirection: 'row',
