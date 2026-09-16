@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useCallback, useEffect, useRef } from 'react';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link, Redirect } from 'expo-router';
 import { Button, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
@@ -52,9 +52,17 @@ function LandingContent() {
   const pageHref = useCallback((slug: string) => `${localePrefix}/${slug}`, [localePrefix]);
   const solutionHref = useCallback((slug: string) => `${localePrefix}/solutions/${slug}`, [localePrefix]);
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
+  // The hero's mountain backdrop (public/HERO.png, provided by the product
+  // owner) — skipped on phones both for load weight and because there's no
+  // spare width for it to read as anything but noise behind the text.
+  // Given real height on tablet/desktop so the photo actually fills the
+  // first screen on load rather than being squeezed into the text's
+  // natural (shorter) height.
+  const showHeroMountain = !isMobile;
+  const heroMinHeight = showHeroMountain ? clamp(600, height * 0.88, 940) : undefined;
   // Mirrors the reference design's CSS clamp() — scales smoothly with the
   // viewport between a floor and a ceiling instead of one fixed size, so
   // the hero title doesn't look oversized/cramped on in-between widths
@@ -71,6 +79,19 @@ function LandingContent() {
   const scrollRef = useRef<ScrollView>(null);
   const storiesRef = useRef<View>(null);
   const pricingRef = useRef<View>(null);
+  const heroMountainRef = useRef<View>(null);
+
+  // react-native-web's StyleSheet compiler silently drops backgroundPosition
+  // (it's outside RN's own style vocabulary, unlike backgroundImage/Size,
+  // which it does forward) — setting it through the style prop is a no-op,
+  // confirmed via computed styles in a real browser. Setting it directly on
+  // the DOM node is the only way to anchor the crop to the image's right
+  // side instead of the default top-left.
+  useEffect(() => {
+    if (!showHeroMountain) return;
+    const node = heroMountainRef.current as unknown as HTMLElement | null;
+    if (node?.style) node.style.backgroundPosition = 'right top';
+  }, [showHeroMountain]);
 
   function scrollToRef(ref: React.RefObject<View | null>) {
     ref.current?.measure((_x, y) => {
@@ -86,8 +107,17 @@ function LandingContent() {
 
       <ScrollView ref={scrollRef}>
         {/* ---------------------------------------------------------------- Hero */}
-        <View style={styles.hero}>
-          <View style={[styles.wrap, styles.heroCopy]}>
+        <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
+          {showHeroMountain ? (
+            // The mountain photo, full-bleed behind the hero: rendered at its
+            // own (near-16:9) ratio across the whole section so "cover"
+            // barely has to crop it, then masked so only its right side
+            // shows — the left side fades to nothing rather than being
+            // physically narrowed, which is what lets it read as "the page's
+            // own background" instead of a photo pasted in a box.
+            <View ref={heroMountainRef} pointerEvents="none" style={styles.heroMountainWrap} />
+          ) : null}
+          <View style={[styles.wrap, styles.heroCopy, showHeroMountain && { zIndex: 1 }]}>
             <View style={styles.heroKicker}>
               <View style={styles.originSymbol}>
                 <SwissCross size={15} />
@@ -446,7 +476,25 @@ const styles = StyleSheet.create({
   textLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.primary, marginTop: spacing.sm },
 
   // Hero
-  hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl },
+  hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
+  heroMountainWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: 'url(/HERO.png)',
+    backgroundSize: 'cover',
+    // backgroundPosition is set imperatively via heroMountainRef below —
+    // react-native-web's StyleSheet compiler drops that property silently.
+    backgroundRepeat: 'no-repeat',
+    // Transparent through the left ~42% (where the copy lives), ramping to
+    // fully opaque by ~65% — the mountain itself already sits in the
+    // source image's right half, so this just reveals it rather than
+    // fighting the photo's own composition.
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
+  } as unknown as ViewStyle,
   heroCopy: { paddingTop: spacing.xl },
   heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
   originSymbol: { alignItems: 'center', justifyContent: 'center' },
