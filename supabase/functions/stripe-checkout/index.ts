@@ -75,21 +75,14 @@ Deno.serve(async (req: Request) => {
     }
 
     // Every organization gets exactly one automatic 14-day trial, granted
-    // the first time it ever COMPLETES a checkout — no promo code to type
+    // the first time it ever completes a checkout — no promo code to type
     // in. trial_used is service-role-only (see
-    // 20260828100000_lock_billing_and_ownership_columns.sql). It's flipped
-    // by stripe-webhook's checkout.session.completed handler, not here:
-    // this function only creates the Checkout *session*, which someone can
-    // open and then abandon (close the tab, hit back) without ever
-    // entering payment details — flipping the flag at creation time used
-    // to burn the trial permanently on a mere abandoned attempt, with no
-    // way for the org to ever get a real trial afterwards. session.metadata
-    // carries the decision made here (granted_trial) through to the
-    // webhook so it knows whether this particular completed checkout
-    // should consume the trial. Checkout's default payment_method_collection
-    // ('always') still requires a card up front even with a trial, so the
-    // trial doesn't charge now but does bill automatically at trial end
-    // unless cancelled.
+    // 20260828100000_lock_billing_and_ownership_columns.sql), so this is
+    // the only place that can flip it; a client can't re-arm its own
+    // trial by hitting checkout again. Checkout's default
+    // payment_method_collection ('always') still requires a card up front
+    // even with a trial, so the trial doesn't charge now but does bill
+    // automatically at trial end unless cancelled.
     //
     // ESSAI30 is a separate, manual 30-day trial for someone who was
     // personally given extra time — it works even if trial_used is already
@@ -104,13 +97,16 @@ Deno.serve(async (req: Request) => {
     const promoCodeNormalized = typeof promo_code === 'string' ? promo_code.trim().toUpperCase() : '';
     const useEssai30 = promoCodeNormalized === 'ESSAI30';
     const trialDays = useEssai30 ? 30 : org.trial_used !== true ? 14 : null;
+    if (trialDays !== null && org.trial_used !== true) {
+      await admin.from('organizations').update({ trial_used: true }).eq('id', org.id);
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       client_reference_id: org.id,
-      metadata: { organization_id: org.id, plan_id: plan.id, granted_trial: trialDays !== null ? 'true' : 'false' },
+      metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
         metadata: { organization_id: org.id, plan_id: plan.id },
         ...(trialDays !== null ? { trial_period_days: trialDays } : {}),
