@@ -140,16 +140,16 @@ function LandingContent() {
             ]}
           >
             <View>
-              <View style={styles.heroKicker}>
+              <ScrollReveal style={styles.heroKicker}>
                 <View style={styles.originSymbol}>
                   <SwissCross size={15} />
                 </View>
                 <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
-              </View>
+              </ScrollReveal>
 
               {isTablet ? (
                 <View style={[styles.heroMain, styles.heroMainCompact]}>
-                  <View style={styles.heroTitleCol}>
+                  <ScrollReveal style={styles.heroTitleCol} delay={120}>
                     <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
                       {t.hero.titlePrefix}
                       {'\n'}
@@ -159,8 +159,8 @@ function LandingContent() {
                       <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
                       <HeroCross />
                     </View>
-                  </View>
-                  <View style={styles.heroAside}>
+                  </ScrollReveal>
+                  <ScrollReveal style={styles.heroAside} delay={480}>
                     <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
                     <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
                     <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
@@ -171,7 +171,7 @@ function LandingContent() {
                       <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
                     </Pressable>
                     <Text style={styles.heroTrust}>{t.hero.trust}</Text>
-                  </View>
+                  </ScrollReveal>
                 </View>
               ) : (
                 // "Le grand geste" — the crossed-out tagline is the hero's
@@ -181,7 +181,7 @@ function LandingContent() {
                 // underneath it, in three columns that actually use a large
                 // screen's width instead of leaving it empty.
                 <View style={styles.heroDesktop}>
-                  <View style={styles.heroTitleCol}>
+                  <ScrollReveal style={styles.heroTitleCol} delay={120}>
                     <Text style={[styles.h1, { fontSize: heroBigTitleSize, lineHeight: heroBigTitleSize * 1.0 }]}>
                       {t.hero.titlePrefix}
                       {'\n'}
@@ -191,8 +191,8 @@ function LandingContent() {
                       <Text style={[styles.crossedText, { fontSize: heroBigCrossedSize }]}>{t.hero.crossedText}</Text>
                       <HeroCross />
                     </View>
-                  </View>
-                  <View style={styles.heroInfoBand}>
+                  </ScrollReveal>
+                  <ScrollReveal style={styles.heroInfoBand} delay={480}>
                     <View style={styles.heroInfoCol}>
                       <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
                       <Text style={styles.heroInfoSubhead}>{t.hero.asideP1}</Text>
@@ -209,12 +209,15 @@ function LandingContent() {
                       </Pressable>
                       <Text style={styles.heroTrust}>{t.hero.trust}</Text>
                     </View>
-                  </View>
+                  </ScrollReveal>
                 </View>
               )}
             </View>
 
-            <View style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]}>
+            <ScrollReveal
+              style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]}
+              delay={680}
+            >
               <Text style={styles.baselineLabel}>{t.hero.baselineLabel}</Text>
               {!isMobile ? (
                 <View style={styles.baselineItems}>
@@ -224,7 +227,7 @@ function LandingContent() {
                 </View>
               ) : null}
               <Text style={styles.baselineNumber}>{t.hero.baselineNumber}</Text>
-            </View>
+            </ScrollReveal>
           </View>
         </View>
 
