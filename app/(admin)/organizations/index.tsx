@@ -199,7 +199,7 @@ function OrgCard({
                       {m.email} · {m.role}
                     </Text>
                   </View>
-                  <Text style={styles.memberMeta}>Dernière utilisation : {formatDateTime(m.last_sign_in_at)}</Text>
+                  <Text style={styles.memberMeta}>Dernière utilisation : {formatDateTime(m.last_seen_at)}</Text>
                 </View>
               ))}
             </View>

@@ -320,7 +320,10 @@ export default function AdminOrganizationDetailScreen() {
                   {m.email} · {m.role}
                 </Text>
               </View>
-              <Text style={styles.memberMeta}>Dernière connexion : {m.last_sign_in_at ? formatDateTime(m.last_sign_in_at) : 'jamais'}</Text>
+              <View>
+                <Text style={styles.memberMeta}>Dernière utilisation : {formatDateTime(m.last_seen_at)}</Text>
+                <Text style={styles.memberMetaSub}>Dernière connexion : {formatDateTime(m.last_sign_in_at)}</Text>
+              </View>
               <Feather name="chevron-right" size={16} color={colors.textMuted} />
             </Pressable>
           ))}
@@ -531,6 +534,14 @@ const styles = StyleSheet.create({
   memberMeta: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+    textAlign: 'right',
+  },
+  memberMetaSub: {
+    fontSize: 10,
+    color: colors.textMuted,
+    opacity: 0.7,
+    textAlign: 'right',
+    marginTop: 1,
   },
   eventRow: {
     flexDirection: 'row',

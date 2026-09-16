@@ -1206,7 +1206,13 @@ export interface AdminOrganizationMember {
   full_name: string | null;
   email: string;
   role: OrgRole;
+  // From auth.users — only moves on a fresh login (password/magic-link/OAuth),
+  // never on the silent token refreshes that keep a session alive day to day.
   last_sign_in_at: string | null;
+  // From organization_members.last_seen_at (touch_presence() heartbeat,
+  // bumped every ~60s while the app is foregrounded) — the real "were they
+  // actually using it recently" signal, unlike last_sign_in_at above.
+  last_seen_at: string | null;
   created_at: string;
 }
 
