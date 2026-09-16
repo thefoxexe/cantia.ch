@@ -104,11 +104,29 @@ Deno.serve(async (req: Request) => {
           // naive "+14 days from org creation" default — reflects any
           // Stripe-side adjustment and stays null once the trial's over.
           const trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null;
+
+          // A subscription only means "this org is actually paying/on a
+          // valid trial" while it's 'trialing' or 'active' — everything
+          // else (past_due, unpaid, incomplete, incomplete_expired, paused)
+          // means the post-trial (or renewal) charge failed. Previously
+          // only an outright customer.subscription.deleted event revoked
+          // access; a failed charge could leave a subscription sitting in
+          // past_due for Stripe's whole Smart Retry window (days to weeks)
+          // while the org kept full access. Clearing plan_id here — same
+          // mechanism customer.subscription.deleted below already uses —
+          // sends every member of the org (not just the owner: they all
+          // read this same organizations row through their own session,
+          // see app/_layout.tsx's redirect gate) straight back to
+          // choose-plan the moment a charge fails, and self-heals: if a
+          // later retry succeeds, the next update webhook reports 'active'
+          // and restores plan_id normally.
+          const hasAccess = subscription.status === 'trialing' || subscription.status === 'active';
           await admin
             .from('organizations')
             .update({
               stripe_subscription_id: subscription.id,
-              plan_id: planId ?? undefined,
+              plan_id: hasAccess ? planId ?? undefined : null,
+              plan_selected: hasAccess ? undefined : false,
               subscription_status: subscription.status,
               trial_ends_at: trialEndsAt,
             })
@@ -116,6 +134,8 @@ Deno.serve(async (req: Request) => {
 
           if (event.type === 'customer.subscription.created' && subscription.status === 'trialing') {
             await logOrgEvent(admin, organizationId, 'trial_started', { plan_id: planId ?? null, trial_end: trialEndsAt });
+          } else if (!hasAccess && orgBefore?.plan_id) {
+            await logOrgEvent(admin, organizationId, 'canceled', { was_trialing: false, reason: 'payment_failed', status: subscription.status });
           } else if (planId && orgBefore?.plan_id && orgBefore.plan_id !== planId) {
             await logOrgEvent(admin, organizationId, 'plan_changed', { from: orgBefore.plan_id, to: planId });
           }

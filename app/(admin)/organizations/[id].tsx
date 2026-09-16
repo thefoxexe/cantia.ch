@@ -27,6 +27,7 @@ const EVENT_META: Record<AdminOrgEvent['event_type'], { label: string; icon: key
 function describeEvent(event: AdminOrgEvent): string | null {
   const d = event.detail ?? {};
   if (event.event_type === 'plan_changed' && d.from && d.to) return `${d.from} → ${d.to}`;
+  if (event.event_type === 'canceled' && d.reason === 'payment_failed') return `Paiement échoué (statut Stripe : ${typeof d.status === 'string' ? d.status : '—'})`;
   if (event.event_type === 'canceled' && d.was_trialing) return "Résilié pendant la période d'essai";
   if (event.event_type === 'trial_started' && typeof d.trial_end === 'string') return `Jusqu'au ${formatDate(d.trial_end)}`;
   if ((event.event_type === 'activated' || event.event_type === 'trial_started') && typeof d.plan_id === 'string') return `Plan : ${d.plan_id}`;
