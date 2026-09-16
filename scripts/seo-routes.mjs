@@ -2167,6 +2167,11 @@ export const ROUTES = [
       "Politique de confidentialité de Cantia : données collectées, hébergement en Suisse, droits des utilisateurs.",
   },
   {
+    path: 'conditions-generales',
+    title: 'Conditions générales | Cantia',
+    description: "Conditions générales d'utilisation et de vente de Cantia : essai gratuit, abonnement, résiliation, droit applicable.",
+  },
+  {
     path: 'aide',
     title: "Centre d'aide | Cantia",
     description:
@@ -2392,6 +2397,11 @@ export const ROUTES = [
     path: 'de/confidentialite',
     title: 'Datenschutzerklärung | Cantia',
     description: 'Datenschutzerklärung von Cantia: erhobene Daten, Hosting in der Schweiz, Rechte der Nutzer.',
+  },
+  {
+    path: 'de/conditions-generales',
+    title: 'AGB | Cantia',
+    description: 'Allgemeine Geschäftsbedingungen von Cantia: kostenlose Testphase, Abonnement, Kündigung, anwendbares Recht.',
   },
   {
     path: 'de/aide',
@@ -2622,6 +2632,11 @@ export const ROUTES = [
     title: 'Informativa sulla privacy | Cantia',
     description:
       "Informativa sulla privacy di Cantia: dati raccolti, hosting in Svizzera, diritti degli utenti.",
+  },
+  {
+    path: 'it/conditions-generales',
+    title: 'Condizioni generali | Cantia',
+    description: "Condizioni generali di utilizzo e di vendita di Cantia: prova gratuita, abbonamento, disdetta, diritto applicabile.",
   },
   {
     path: 'it/aide',

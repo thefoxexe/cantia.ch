@@ -32,6 +32,11 @@ const TITLES: Record<string, Record<AppLocale, string>> = {
     de: 'Datenschutzerklärung | Cantia',
     it: 'Informativa sulla privacy | Cantia',
   },
+  conditionsGenerales: {
+    fr: 'Conditions générales | Cantia',
+    de: 'AGB | Cantia',
+    it: 'Condizioni generali | Cantia',
+  },
   aide: {
     fr: "Centre d'aide | Cantia",
     de: 'Hilfe-Center | Cantia',

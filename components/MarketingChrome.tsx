@@ -411,6 +411,9 @@ export function MarketingFooter({
           <Link href={`${localePrefix}/confidentialite` as any}>
             <Text style={styles.footerCopy}>{t.footer.privacyLink}</Text>
           </Link>
+          <Link href={`${localePrefix}/conditions-generales` as any}>
+            <Text style={styles.footerCopy}>{t.footer.cgvLink}</Text>
+          </Link>
         </View>
       </View>
     </View>
