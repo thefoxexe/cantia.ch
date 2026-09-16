@@ -51,6 +51,7 @@ interface Dict {
     features: string;
     pricing: string;
     help: string;
+    contact: string;
     login: string;
     signup: string;
     mobileApp: string;
@@ -197,6 +198,7 @@ const fr: Dict = {
     features: 'Fonctionnalités',
     pricing: 'Tarifs',
     help: 'Aide',
+    contact: 'Contact',
     login: 'Connexion',
     signup: 'Inscription',
     mobileApp: 'Application mobile',
@@ -555,6 +557,7 @@ const de: Dict = {
     features: 'Funktionen',
     pricing: 'Preise',
     help: 'Hilfe',
+    contact: 'Kontakt',
     login: 'Anmelden',
     signup: 'Registrieren',
     mobileApp: 'Mobile App',
@@ -913,6 +916,7 @@ const it: Dict = {
     features: 'Funzionalità',
     pricing: 'Prezzi',
     help: 'Assistenza',
+    contact: 'Contatto',
     login: 'Accedi',
     signup: 'Registrati',
     mobileApp: 'App mobile',

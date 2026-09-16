@@ -139,6 +139,7 @@ export function MarketingNav({
   const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   const telechargementHref = locale === 'de' ? '/de/telechargement' : locale === 'it' ? '/it/telechargement' : '/telechargement';
+  const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   const { width } = useWindowDimensions();
   const isCompactNav = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -196,6 +197,9 @@ export function MarketingNav({
           </Link>
           <Link href={aideHref as any}>
             <Text style={styles.navLink}>{t.landingNav.help}</Text>
+          </Link>
+          <Link href={contactHref as any}>
+            <Text style={styles.navLink}>{t.landingNav.contact}</Text>
           </Link>
           <LanguageSwitcher />
           <Link href={authHref('login')}>
@@ -260,8 +264,13 @@ export function MarketingNav({
                   </Pressable>
                 </Link>
                 <Link href={aideHref as any} asChild>
-                  <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
+                  <Pressable style={styles.mobileMenuItem} onPress={() => setMenuOpen(false)}>
                     <Text style={styles.mobileMenuText}>{t.landingNav.help}</Text>
+                  </Pressable>
+                </Link>
+                <Link href={contactHref as any} asChild>
+                  <Pressable style={mobileMenuLastItemStyle} onPress={() => setMenuOpen(false)}>
+                    <Text style={styles.mobileMenuText}>{t.landingNav.contact}</Text>
                   </Pressable>
                 </Link>
               </View>
