@@ -4,7 +4,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { parseCsv, type ParsedCsv } from '../../../lib/csv';
-import { importChantiers, importClients, type ImportKind } from '../../../lib/api/dataImport';
+import {
+  importChantiers,
+  importClients,
+  importDevis,
+  importExpenses,
+  importFactures,
+  type ImportKind,
+} from '../../../lib/api/dataImport';
 import { Button, Card, PageHeader, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -28,6 +35,38 @@ const CHANTIER_FIELDS: FieldDef[] = [
   { key: 'address', labelKey: 'dataImport.fieldAddress', required: false },
 ];
 
+const DEVIS_FIELDS: FieldDef[] = [
+  { key: 'clientName', labelKey: 'dataImport.fieldClientName', required: true },
+  { key: 'amount', labelKey: 'dataImport.fieldAmount', required: true },
+  { key: 'number', labelKey: 'dataImport.fieldNumber', required: false },
+  { key: 'date', labelKey: 'dataImport.fieldDate', required: false },
+  { key: 'status', labelKey: 'dataImport.fieldStatus', required: false },
+];
+
+const FACTURE_FIELDS: FieldDef[] = DEVIS_FIELDS;
+
+const EXPENSE_FIELDS: FieldDef[] = [
+  { key: 'label', labelKey: 'dataImport.fieldLabel', required: true },
+  { key: 'amount', labelKey: 'dataImport.fieldAmount', required: true },
+  { key: 'category', labelKey: 'dataImport.fieldCategory', required: false },
+  { key: 'date', labelKey: 'dataImport.fieldDate', required: false },
+];
+
+function fieldsForKind(kind: ImportKind): FieldDef[] {
+  switch (kind) {
+    case 'clients':
+      return CLIENT_FIELDS;
+    case 'chantiers':
+      return CHANTIER_FIELDS;
+    case 'devis':
+      return DEVIS_FIELDS;
+    case 'factures':
+      return FACTURE_FIELDS;
+    case 'expenses':
+      return EXPENSE_FIELDS;
+  }
+}
+
 // Guesses a mapping from header text so the common case (a header already
 // named "Nom"/"Name"/"Client"/"Adresse"…) needs zero manual clicks —
 // still fully overridable below, this only saves the obvious cases.
@@ -40,6 +79,12 @@ function guessMapping(headers: string[], fields: FieldDef[]): Record<string, num
     email: ['email', 'e-mail', 'courriel'],
     phone: ['telephone', 'téléphone', 'tel', 'phone', 'mobile'],
     address: ['adresse', 'address', 'rue'],
+    amount: ['montant', 'amount', 'total', 'prix', 'betrag', 'importo'],
+    number: ['numero', 'numéro', 'n°', 'number', 'nummer', 'numero'],
+    date: ['date', 'datum', 'data'],
+    status: ['statut', 'status', 'stato'],
+    label: ['libell', 'label', 'description', 'bezeichnung', 'descrizione'],
+    category: ['categorie', 'catégorie', 'category', 'kategorie', 'categoria'],
   };
   for (const field of fields) {
     const candidates = GUESSES[field.key] ?? [];
@@ -48,6 +93,22 @@ function guessMapping(headers: string[], fields: FieldDef[]): Record<string, num
   }
   return mapping;
 }
+
+const KIND_ORDER: ImportKind[] = ['clients', 'chantiers', 'devis', 'factures', 'expenses'];
+const KIND_LABEL_KEY: Record<ImportKind, string> = {
+  clients: 'dataImport.kindClients',
+  chantiers: 'dataImport.kindChantiers',
+  devis: 'dataImport.kindDevis',
+  factures: 'dataImport.kindFactures',
+  expenses: 'dataImport.kindExpenses',
+};
+const KIND_HINT_KEY: Record<ImportKind, string> = {
+  clients: 'dataImport.kindClientsHint',
+  chantiers: 'dataImport.kindChantiersHint',
+  devis: 'dataImport.kindDevisHint',
+  factures: 'dataImport.kindFacturesHint',
+  expenses: 'dataImport.kindExpensesHint',
+};
 
 export default function DataImportScreen() {
   const { t } = useTranslation();
@@ -60,7 +121,7 @@ export default function DataImportScreen() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ imported: number; errors: string[] } | null>(null);
 
-  const fields = kind === 'clients' ? CLIENT_FIELDS : CHANTIER_FIELDS;
+  const fields = fieldsForKind(kind);
 
   function reset() {
     setCsv(null);
@@ -88,7 +149,7 @@ export default function DataImportScreen() {
         return;
       }
       setCsv(parsed);
-      setMapping(guessMapping(parsed.headers, kind === 'clients' ? CLIENT_FIELDS : CHANTIER_FIELDS));
+      setMapping(guessMapping(parsed.headers, fieldsForKind(kind)));
     } catch (err) {
       setError(err instanceof Error ? err.message : t('dataImport.readError'));
     } finally {
@@ -110,23 +171,59 @@ export default function DataImportScreen() {
     }
     setImporting(true);
     setError(null);
-    if (kind === 'clients') {
-      const rows = csv.rows.map((r) => ({
-        name: cell(r, 'name'),
-        email: cell(r, 'email'),
-        phone: cell(r, 'phone'),
-        address: cell(r, 'address'),
-      }));
-      const res = await importClients(organization.id, user?.id, rows);
-      setResult(res);
-    } else {
-      const rows = csv.rows.map((r) => ({
-        name: cell(r, 'name'),
-        clientName: cell(r, 'clientName'),
-        address: cell(r, 'address'),
-      }));
-      const res = await importChantiers(organization.id, user?.id, rows);
-      setResult(res);
+    const vatRate = organization.default_vat_rate ?? 8.1;
+    switch (kind) {
+      case 'clients': {
+        const rows = csv.rows.map((r) => ({
+          name: cell(r, 'name'),
+          email: cell(r, 'email'),
+          phone: cell(r, 'phone'),
+          address: cell(r, 'address'),
+        }));
+        setResult(await importClients(organization.id, user?.id, rows));
+        break;
+      }
+      case 'chantiers': {
+        const rows = csv.rows.map((r) => ({
+          name: cell(r, 'name'),
+          clientName: cell(r, 'clientName'),
+          address: cell(r, 'address'),
+        }));
+        setResult(await importChantiers(organization.id, user?.id, rows));
+        break;
+      }
+      case 'devis': {
+        const rows = csv.rows.map((r) => ({
+          clientName: cell(r, 'clientName'),
+          amount: cell(r, 'amount'),
+          number: cell(r, 'number'),
+          date: cell(r, 'date'),
+          status: cell(r, 'status'),
+        }));
+        setResult(await importDevis(organization.id, user?.id, vatRate, rows));
+        break;
+      }
+      case 'factures': {
+        const rows = csv.rows.map((r) => ({
+          clientName: cell(r, 'clientName'),
+          amount: cell(r, 'amount'),
+          number: cell(r, 'number'),
+          date: cell(r, 'date'),
+          status: cell(r, 'status'),
+        }));
+        setResult(await importFactures(organization.id, user?.id, vatRate, rows));
+        break;
+      }
+      case 'expenses': {
+        const rows = csv.rows.map((r) => ({
+          label: cell(r, 'label'),
+          amount: cell(r, 'amount'),
+          category: cell(r, 'category'),
+          date: cell(r, 'date'),
+        }));
+        setResult(await importExpenses(organization.id, user?.id, rows));
+        break;
+      }
     }
     setImporting(false);
   }
@@ -138,15 +235,14 @@ export default function DataImportScreen() {
           <PageHeader title={t('dataImport.title')} backTo="/(app)/compte" />
           <Text style={styles.subtitle}>{t('dataImport.subtitle')}</Text>
 
-          <View style={styles.kindRow}>
-            <Pressable style={[styles.kindChip, kind === 'clients' && styles.kindChipActive]} onPress={() => changeKind('clients')}>
-              <Text style={[styles.kindChipText, kind === 'clients' && styles.kindChipTextActive]}>{t('dataImport.kindClients')}</Text>
-            </Pressable>
-            <Pressable style={[styles.kindChip, kind === 'chantiers' && styles.kindChipActive]} onPress={() => changeKind('chantiers')}>
-              <Text style={[styles.kindChipText, kind === 'chantiers' && styles.kindChipTextActive]}>{t('dataImport.kindChantiers')}</Text>
-            </Pressable>
-          </View>
-          <Text style={styles.kindHint}>{kind === 'clients' ? t('dataImport.kindClientsHint') : t('dataImport.kindChantiersHint')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kindRow}>
+            {KIND_ORDER.map((k) => (
+              <Pressable key={k} style={[styles.kindChip, kind === k && styles.kindChipActive]} onPress={() => changeKind(k)}>
+                <Text style={[styles.kindChipText, kind === k && styles.kindChipTextActive]}>{t(KIND_LABEL_KEY[k] as any)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <Text style={styles.kindHint}>{t(KIND_HINT_KEY[kind] as any)}</Text>
 
           {!csv ? (
             <Card style={{ alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxl, marginTop: spacing.lg }}>
