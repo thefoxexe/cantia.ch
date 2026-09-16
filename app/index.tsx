@@ -55,14 +55,16 @@ function LandingContent() {
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
-  // The hero's mountain backdrop (public/HERO.png, provided by the product
-  // owner) — skipped on phones both for load weight and because there's no
-  // spare width for it to read as anything but noise behind the text.
-  // Given real height on tablet/desktop so the photo actually fills the
-  // first screen on load rather than being squeezed into the text's
-  // natural (shorter) height.
-  const showHeroMountain = !isMobile;
-  const heroMinHeight = showHeroMountain ? clamp(600, height * 0.88, 940) : undefined;
+  // The hero's mountain backdrop (public/hero-mountain.webp, provided by
+  // the product owner) — full reveal on tablet/desktop, given real height
+  // so the photo fills the first screen on load rather than being
+  // squeezed into the text's natural (shorter) height. Phones get a
+  // narrow peek at the right edge instead of the full photo — the Swiss
+  // mountain is worth keeping in view everywhere, but there's no width on
+  // a phone for the full image to read as anything but noise behind text.
+  const showHeroMountainFull = !isMobile;
+  const showHeroMountainPeek = isMobile;
+  const heroMinHeight = showHeroMountainFull ? clamp(600, height * 0.88, 940) : undefined;
   // Mirrors the reference design's CSS clamp() — scales smoothly with the
   // viewport between a floor and a ceiling instead of one fixed size, so
   // the hero title doesn't look oversized/cramped on in-between widths
@@ -88,10 +90,10 @@ function LandingContent() {
   // the DOM node is the only way to anchor the crop to the image's right
   // side instead of the default top-left.
   useEffect(() => {
-    if (!showHeroMountain) return;
+    if (!showHeroMountainFull && !showHeroMountainPeek) return;
     const node = heroMountainRef.current as unknown as HTMLElement | null;
     if (node?.style) node.style.backgroundPosition = 'right top';
-  }, [showHeroMountain]);
+  }, [showHeroMountainFull, showHeroMountainPeek]);
 
   function scrollToRef(ref: React.RefObject<View | null>) {
     ref.current?.measure((_x, y) => {
@@ -108,77 +110,54 @@ function LandingContent() {
       <ScrollView ref={scrollRef}>
         {/* ---------------------------------------------------------------- Hero */}
         <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
-          {showHeroMountain ? (
+          {showHeroMountainFull || showHeroMountainPeek ? (
             // The mountain photo, full-bleed behind the hero: rendered at its
             // own (near-16:9) ratio across the whole section so "cover"
-            // barely has to crop it, then masked so only its right side
-            // shows — the left side fades to nothing rather than being
-            // physically narrowed, which is what lets it read as "the page's
-            // own background" instead of a photo pasted in a box.
-            <View ref={heroMountainRef} pointerEvents="none" style={styles.heroMountainWrap} />
+            // barely has to crop it, then masked so only a slice of its
+            // right side shows — the rest fades to nothing rather than
+            // being physically narrowed, which is what lets it read as
+            // "the page's own background" instead of a photo pasted in a
+            // box. Phones get a much narrower reveal (see showHeroMountainPeek
+            // above) — just enough to catch the mountain at the edge.
+            <View
+              ref={heroMountainRef}
+              pointerEvents="none"
+              style={[styles.heroMountainBase, showHeroMountainFull ? styles.heroMountainMaskFull : styles.heroMountainMaskPeek]}
+            />
           ) : null}
-          <View style={[styles.wrap, styles.heroCopy, showHeroMountain && { zIndex: 1 }]}>
-            <View style={styles.heroKicker}>
-              <View style={styles.originSymbol}>
-                <SwissCross size={15} />
+          <View
+            style={[
+              styles.wrap,
+              styles.heroCopy,
+              (showHeroMountainFull || showHeroMountainPeek) && { zIndex: 1 },
+              showHeroMountainFull && styles.heroCopySpread,
+            ]}
+          >
+            <View>
+              <View style={styles.heroKicker}>
+                <View style={styles.originSymbol}>
+                  <SwissCross size={15} />
+                </View>
+                <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
               </View>
-              <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
-            </View>
 
-            {isTablet ? (
-              <View style={[styles.heroMain, styles.heroMainCompact]}>
-                <View style={styles.heroTitleCol}>
-                  <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
-                    {t.hero.titlePrefix}
-                    {'\n'}
-                    <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
-                  </Text>
-                  <View style={styles.crossedWrap}>
-                    <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
-                    <HeroCross />
+              {isTablet ? (
+                <View style={[styles.heroMain, styles.heroMainCompact]}>
+                  <View style={styles.heroTitleCol}>
+                    <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
+                      {t.hero.titlePrefix}
+                      {'\n'}
+                      <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
+                    </Text>
+                    <View style={styles.crossedWrap}>
+                      <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
+                      <HeroCross />
+                    </View>
                   </View>
-                </View>
-                <View style={styles.heroAside}>
-                  <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
-                  <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
-                  <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
-                  <Link href={authHref('signup')} asChild>
-                    <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
-                  </Link>
-                  <Pressable onPress={() => scrollToRef(storiesRef)}>
-                    <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
-                  </Pressable>
-                  <Text style={styles.heroTrust}>{t.hero.trust}</Text>
-                </View>
-              </View>
-            ) : (
-              // "Le grand geste" — the crossed-out tagline is the hero's
-              // dominant graphic moment, full width, instead of sharing a
-              // cramped row with the supporting copy. Everything that used
-              // to sit beside the title now runs in a full-width band
-              // underneath it, in three columns that actually use a large
-              // screen's width instead of leaving it empty.
-              <View style={styles.heroDesktop}>
-                <View style={styles.heroTitleCol}>
-                  <Text style={[styles.h1, { fontSize: heroBigTitleSize, lineHeight: heroBigTitleSize * 1.0 }]}>
-                    {t.hero.titlePrefix}
-                    {'\n'}
-                    <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
-                  </Text>
-                  <View style={styles.crossedWrap}>
-                    <Text style={[styles.crossedText, { fontSize: heroBigCrossedSize }]}>{t.hero.crossedText}</Text>
-                    <HeroCross />
-                  </View>
-                </View>
-                <View style={styles.heroInfoBand}>
-                  <View style={styles.heroInfoCol}>
+                  <View style={styles.heroAside}>
                     <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
-                    <Text style={styles.heroInfoSubhead}>{t.hero.asideP1}</Text>
-                  </View>
-                  <View style={styles.heroInfoCol}>
-                    <Text style={styles.heroInfoBody}>{t.hero.asideP2}</Text>
-                  </View>
-                  <View style={[styles.heroInfoCol, styles.heroInfoColCta]}>
+                    <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
+                    <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
                     <Link href={authHref('signup')} asChild>
                       <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
                     </Link>
@@ -188,8 +167,46 @@ function LandingContent() {
                     <Text style={styles.heroTrust}>{t.hero.trust}</Text>
                   </View>
                 </View>
-              </View>
-            )}
+              ) : (
+                // "Le grand geste" — the crossed-out tagline is the hero's
+                // dominant graphic moment, full width, instead of sharing a
+                // cramped row with the supporting copy. Everything that used
+                // to sit beside the title now runs in a full-width band
+                // underneath it, in three columns that actually use a large
+                // screen's width instead of leaving it empty.
+                <View style={styles.heroDesktop}>
+                  <View style={styles.heroTitleCol}>
+                    <Text style={[styles.h1, { fontSize: heroBigTitleSize, lineHeight: heroBigTitleSize * 1.0 }]}>
+                      {t.hero.titlePrefix}
+                      {'\n'}
+                      <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
+                    </Text>
+                    <View style={styles.crossedWrap}>
+                      <Text style={[styles.crossedText, { fontSize: heroBigCrossedSize }]}>{t.hero.crossedText}</Text>
+                      <HeroCross />
+                    </View>
+                  </View>
+                  <View style={styles.heroInfoBand}>
+                    <View style={styles.heroInfoCol}>
+                      <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
+                      <Text style={styles.heroInfoSubhead}>{t.hero.asideP1}</Text>
+                    </View>
+                    <View style={styles.heroInfoCol}>
+                      <Text style={styles.heroInfoBody}>{t.hero.asideP2}</Text>
+                    </View>
+                    <View style={[styles.heroInfoCol, styles.heroInfoColCta]}>
+                      <Link href={authHref('signup')} asChild>
+                        <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
+                      </Link>
+                      <Pressable onPress={() => scrollToRef(storiesRef)}>
+                        <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
+                      </Pressable>
+                      <Text style={styles.heroTrust}>{t.hero.trust}</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+            </View>
 
             <View style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]}>
               <Text style={styles.baselineLabel}>{t.hero.baselineLabel}</Text>
@@ -477,25 +494,40 @@ const styles = StyleSheet.create({
 
   // Hero
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
-  heroMountainWrap: {
+  heroMountainBase: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundImage: 'url(/HERO.png)',
+    backgroundImage: 'url(/hero-mountain.webp)',
     backgroundSize: 'cover',
     // backgroundPosition is set imperatively via heroMountainRef below —
     // react-native-web's StyleSheet compiler drops that property silently.
     backgroundRepeat: 'no-repeat',
-    // Transparent through the left ~42% (where the copy lives), ramping to
-    // fully opaque by ~65% — the mountain itself already sits in the
-    // source image's right half, so this just reveals it rather than
-    // fighting the photo's own composition.
+  } as unknown as ViewStyle,
+  // Transparent through the left ~42% (where the copy lives), ramping to
+  // fully opaque by ~65% — the mountain itself already sits in the
+  // source image's right half, so this just reveals it rather than
+  // fighting the photo's own composition.
+  heroMountainMaskFull: {
     maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
     WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
   } as unknown as ViewStyle,
+  // Phones: just a peek at the very edge — opaque only past 84% of the
+  // width — instead of the full reveal above.
+  heroMountainMaskPeek: {
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 84%, black 97%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 84%, black 97%)',
+  } as unknown as ViewStyle,
   heroCopy: { paddingTop: spacing.xl },
+  // Stretches the copy column to the hero's full (forced) minHeight and
+  // pushes the baseline row down to meet its bottom edge, instead of
+  // leaving a bare gap of background between the content and the section
+  // end whenever natural content height falls short of minHeight (tablet
+  // portrait especially, where the compact layout is much shorter than
+  // desktop's "grand geste" treatment).
+  heroCopySpread: { flex: 1, justifyContent: 'space-between' },
   heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
   originSymbol: { alignItems: 'center', justifyContent: 'center' },
   originSymbolSmall: { alignItems: 'center', justifyContent: 'center' },
