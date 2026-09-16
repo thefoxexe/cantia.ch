@@ -9,10 +9,10 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, listOrganizations } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import { downloadTextFile } from '../../../lib/downloadFile';
-import type { AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
+import type { AdminOrganizationMember, AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
 
 const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 
@@ -23,6 +23,13 @@ function formatDateShort(iso: string | null): string {
 
 function formatChfShort(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(amount);
+}
+
+// Signup/last-seen moments need the time, not just the day — see the same
+// helper on the org detail screen.
+function formatDateTime(iso: string | null): string {
+  if (!iso) return 'jamais';
+  return new Date(iso).toLocaleString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 // Age of the org record at a glance — apart a brand-new signup from an
@@ -131,12 +138,16 @@ function OrgCard({
   expanded,
   onToggle,
   onOpenDetail,
+  members,
+  membersLoading,
 }: {
   org: AdminOrganizationSummary;
   billing: AdminOrgBillingStatus | undefined;
   expanded: boolean;
   onToggle: () => void;
   onOpenDetail: () => void;
+  members: AdminOrganizationMember[] | undefined;
+  membersLoading: boolean;
 }) {
   const line = billingLine(billing);
   const address = [org.street, [org.postal_code, org.locality].filter(Boolean).join(' ')].filter(Boolean).join(', ');
@@ -172,6 +183,28 @@ function OrgCard({
             <DetailField icon="calendar" label="Créée le" value={formatDateShort(org.created_at)} />
             <DetailField icon="hash" label="Identifiant" value={org.id} />
           </View>
+
+          <Text style={styles.membersTitle}>Membres</Text>
+          {membersLoading ? (
+            <Text style={styles.emptyMembers}>Chargement…</Text>
+          ) : !members || members.length === 0 ? (
+            <Text style={styles.emptyMembers}>Aucun membre.</Text>
+          ) : (
+            <View style={styles.membersList}>
+              {members.map((m) => (
+                <View key={m.user_id} style={styles.memberRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.memberName}>{m.full_name || m.email}</Text>
+                    <Text style={styles.memberSubtitle}>
+                      {m.email} · {m.role}
+                    </Text>
+                  </View>
+                  <Text style={styles.memberMeta}>Dernière utilisation : {formatDateTime(m.last_sign_in_at)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
           <Pressable style={styles.openDetailLink} onPress={onOpenDetail}>
             <Text style={styles.openDetailLinkText}>Voir le détail complet</Text>
             <Feather name="arrow-right" size={14} color={colors.primary} />
@@ -194,7 +227,12 @@ export default function AdminOrganizationsList() {
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Record<string, AdminOrgBillingStatus>>({});
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [membersByOrg, setMembersByOrg] = useState<Record<string, AdminOrganizationMember[]>>({});
+  const [membersLoadingIds, setMembersLoadingIds] = useState<Set<string>>(new Set());
 
+  // Fetched lazily, once per org, the first time its card is expanded —
+  // the same admin_get_organization_detail RPC the full detail page uses,
+  // just read here for its members[] instead of navigating away.
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -202,6 +240,17 @@ export default function AdminOrganizationsList() {
       else next.add(id);
       return next;
     });
+    if (!membersByOrg[id]) {
+      setMembersLoadingIds((prev) => new Set(prev).add(id));
+      getOrganizationDetail(id).then(({ detail }) => {
+        if (detail) setMembersByOrg((prev) => ({ ...prev, [id]: detail.members }));
+        setMembersLoadingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      });
+    }
   }
 
   const load = useCallback(async (query: string) => {
@@ -321,6 +370,8 @@ export default function AdminOrganizationsList() {
                 expanded={expandedIds.has(item.id)}
                 onToggle={() => toggleExpanded(item.id)}
                 onOpenDetail={() => router.push(`/(admin)/organizations/${item.id}` as any)}
+                members={membersByOrg[item.id]}
+                membersLoading={membersLoadingIds.has(item.id)}
               />
             ))}
           </View>
@@ -468,6 +519,45 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.text,
     marginTop: 1,
+  },
+  membersTitle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  emptyMembers: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  membersList: {
+    gap: spacing.xs,
+  },
+  memberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  memberName: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  memberSubtitle: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  memberMeta: {
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: 'right',
   },
   openDetailLink: {
     flexDirection: 'row',
