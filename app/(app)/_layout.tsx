@@ -30,7 +30,7 @@ function SafeNotificationBell() {
 
 function buildSections(
   t: (key: string) => string,
-  financeVisible: boolean,
+  devisVisible: boolean,
   planningEnabled: boolean,
   subcontractorsVisible: boolean,
   payrollEnabled: boolean,
@@ -75,7 +75,7 @@ function buildSections(
           : []),
       ],
     },
-    ...(financeVisible
+    ...(devisVisible
       ? [
           {
             title: t('nav.sectionFacturation'),
@@ -117,7 +117,7 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 export default function AppLayout() {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
-  const { organization, canViewFinances, canManagePayroll, permissions } = useAuth();
+  const { organization, canViewFinances, canManageDevis, canManagePayroll, permissions } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
   // Unlike Planning, RH & Salaires has no view permission gate: every member
@@ -137,8 +137,8 @@ export default function AppLayout() {
   // alongside Devis/Factures, so they're hidden together rather than left
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
-  const financeVisible = devisEnabled && canViewFinances;
-  const sections = buildSections(t, financeVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled);
+  const devisVisible = devisEnabled && canManageDevis;
+  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

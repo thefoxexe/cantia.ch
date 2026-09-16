@@ -163,6 +163,7 @@ export interface OrganizationRole {
   name: string;
   color: string;
   can_view_finances: boolean;
+  can_manage_devis: boolean;
   can_view_metre: boolean;
   can_view_planning: boolean;
   can_view_documents: boolean;

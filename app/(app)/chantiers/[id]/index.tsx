@@ -39,7 +39,7 @@ export default function ChantierDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { canViewFinances, permissions } = useAuth();
+  const { canViewFinances, canManageDevis, permissions } = useAuth();
   const { project } = useProject(id);
   const [counts, setCounts] = useState<Record<string, number>>({});
 
@@ -122,14 +122,14 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.extraWorks'),
       icon: 'plus-circle',
       route: `/(app)/chantiers/${id}/travaux-supplementaires`,
-      visible: canViewFinances,
+      visible: canManageDevis,
     },
     {
       key: 'situations',
       label: t('chantierHub.situations'),
       icon: 'trending-up',
       route: `/(app)/chantiers/${id}/situations`,
-      visible: canViewFinances,
+      visible: canManageDevis,
     },
   ];
 

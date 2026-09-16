@@ -12,7 +12,7 @@ import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
 
-// Every route under app/(app)/devis is already gated behind canViewFinances
+// Every route under app/(app)/devis is already gated behind canManageDevis
 // at the layout level (see devis/_layout.tsx) — a member without access to
 // this module never reaches this screen, so the amounts shown below need no
 // extra permission check of their own.

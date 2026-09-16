@@ -39,7 +39,7 @@ const ALL_ACTIONS: Exclude<VoiceCommandAction, 'unknown'>[] = ['payroll_entry', 
 // by re-dictating.
 export function VoiceAssistant() {
   const { t } = useTranslation();
-  const { organization, user, canViewFinances } = useAuth();
+  const { organization, user, canViewFinances, canManageDevis } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
@@ -98,8 +98,13 @@ export function VoiceAssistant() {
   // without Rentabilité/Trésorerie, so the assistant can say "this exists,
   // but isn't on your plan" instead of a vague "didn't understand". Devis,
   // factures and questions have no plan gate (every plan can create
-  // documents and ask questions), so only payroll_entry/expense go through
-  // actionUsable below.
+  // documents and ask questions) — but create_devis/create_facture do go
+  // through actionUsable below now, gated on the member's own
+  // canManageDevis permission (same one the real devis/facture screens
+  // enforce), so someone without it gets the same "unavailable" message
+  // payroll/expense already had instead of walking through the whole
+  // dictation flow only to hit an access-denied wall on the destination
+  // screen.
   const classificationActions = ALL_ACTIONS;
   // "expense" covers two destinations: a chantier-linked material cost
   // (needs profitabilityEnabled, feeds that chantier's Rentabilité) or a
@@ -112,6 +117,7 @@ export function VoiceAssistant() {
   function actionUsable(action: VoiceCommandAction): boolean {
     if (action === 'payroll_entry') return payrollEnabled;
     if (action === 'expense') return profitabilityEnabled || treasuryEnabled;
+    if (action === 'create_devis' || action === 'create_facture') return canManageDevis;
     return true;
   }
 
@@ -493,7 +499,11 @@ export function VoiceAssistant() {
               <View style={styles.centerBlock}>
                 <Feather name="lock" size={26} color={colors.accent} />
                 <Text style={styles.hintText}>
-                  {command.action === 'payroll_entry' ? t('voiceAssistant.unavailablePayroll') : t('voiceAssistant.unavailableExpense')}
+                  {command.action === 'payroll_entry'
+                    ? t('voiceAssistant.unavailablePayroll')
+                    : command.action === 'create_devis' || command.action === 'create_facture'
+                      ? t('voiceAssistant.unavailableDevis')
+                      : t('voiceAssistant.unavailableExpense')}
                 </Text>
                 <View style={styles.savedActions}>
                   <Pressable style={styles.secondaryButton} onPress={resetAndClose}>

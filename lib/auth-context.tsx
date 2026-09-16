@@ -33,12 +33,23 @@ interface AuthContextValue {
   user: User | null;
   organization: Organization | null;
   role: OrgRole | null;
-  // Whether the signed-in member can see devis/factures/rentabilité —
-  // always true for owner/admin, opt-in per member otherwise (see équipe
-  // screen). Derived from the role itself, not just the raw DB flag, so a
+  // Whether the signed-in member can see aggregate financial data —
+  // chiffre d'affaires, rentabilité, trésorerie, comptabilité — always true
+  // for owner/admin, opt-in per member otherwise (see équipe screen).
+  // Derived from the role itself, not just the raw DB flag, so a
   // stale/missing can_view_finances value on an admin/owner row can never
-  // lock them out.
+  // lock them out. Devis/facture creation itself is gated by
+  // canManageDevis below, not this — see its own comment for why they're
+  // separate.
   canViewFinances: boolean;
+  // Whether the signed-in member can create/manage devis, factures,
+  // travaux supplémentaires and situations de chantier — always true for
+  // owner/admin or anyone with canViewFinances (the broader permission
+  // implies the narrower one), opt-in per member otherwise. Deliberately
+  // separate from canViewFinances: a chef de chantier should be able to
+  // create a devis without also seeing the company's aggregate financial
+  // health.
+  canManageDevis: boolean;
   // Same opt-in-only semantics as canViewFinances: always true for
   // owner/admin, granted per member via a custom role otherwise.
   canCreateProjects: boolean;
@@ -102,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const lastOrgSnapshotRef = useRef<string | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
   const [canViewFinances, setCanViewFinances] = useState(false);
+  const [canManageDevis, setCanManageDevis] = useState(false);
   const [canCreateProjects, setCanCreateProjects] = useState(false);
   const [canManagePayroll, setCanManagePayroll] = useState(false);
   const [permissions, setPermissions] = useState<RolePermissions>(FULL_ACCESS);
@@ -114,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: membership } = await supabase
         .from('organization_members')
         .select(
-          'role, role_id, organization_id, locale, organizations(*), organization_roles(can_view_finances, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
+          'role, role_id, organization_id, locale, organizations(*), organization_roles(can_view_finances, can_manage_devis, can_view_metre, can_view_planning, can_view_documents, can_view_subcontractors, can_create_projects, can_manage_payroll)',
         )
         .eq('user_id', userId)
         .limit(1)
@@ -139,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         const assignedRole = membership.organization_roles as unknown as {
           can_view_finances: boolean;
+          can_manage_devis: boolean;
           can_view_metre: boolean;
           can_view_planning: boolean;
           can_view_documents: boolean;
@@ -148,7 +161,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } | null;
         const isStructuralAdmin = membership.role !== 'member';
         const hasNoCustomRole = !membership.role_id;
-        setCanViewFinances(isStructuralAdmin || !!assignedRole?.can_view_finances);
+        const financeAccess = isStructuralAdmin || !!assignedRole?.can_view_finances;
+        setCanViewFinances(financeAccess);
+        setCanManageDevis(financeAccess || !!assignedRole?.can_manage_devis);
         setCanCreateProjects(isStructuralAdmin || !!assignedRole?.can_create_projects);
         setCanManagePayroll(isStructuralAdmin || !!assignedRole?.can_manage_payroll);
         setPermissions(
@@ -166,6 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
+        setCanManageDevis(false);
         setCanCreateProjects(false);
         setCanManagePayroll(false);
         setPermissions(FULL_ACCESS);
@@ -176,6 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setOrganization(null);
       setRole(null);
       setCanViewFinances(false);
+      setCanManageDevis(false);
       setCanCreateProjects(false);
       setCanManagePayroll(false);
       setPermissions(FULL_ACCESS);
@@ -409,6 +426,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization,
       role,
       canViewFinances,
+      canManageDevis,
       canCreateProjects,
       canManagePayroll,
       permissions,
@@ -434,6 +452,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization,
       role,
       canViewFinances,
+      canManageDevis,
       canCreateProjects,
       canManagePayroll,
       permissions,

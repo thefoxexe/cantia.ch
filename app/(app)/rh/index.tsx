@@ -57,7 +57,7 @@ interface SummaryEntryDetail {
 
 export default function PayrollScreen() {
   const { t } = useTranslation();
-  const { organization, user, canManagePayroll, canViewFinances } = useAuth();
+  const { organization, user, canManagePayroll, canManageDevis } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.tablet;
@@ -323,7 +323,7 @@ export default function PayrollScreen() {
       totalChf={summaryTotalChf}
       invoicedHours={summaryInvoicedHours}
       grandTotalHours={summaryGrandTotalHours}
-      canInvoice={canViewFinances}
+      canInvoice={canManageDevis}
       projectFactures={projectFactures}
       onInvoiceProject={(id) => {
         setInvoiceProjectId(id);
@@ -369,7 +369,7 @@ export default function PayrollScreen() {
         />
         <Text style={styles.pageSubtitle}>{t('payrollHub.adminSubtitle')}</Text>
 
-        {canViewFinances ? (
+        {canManageDevis ? (
           <View style={styles.modeSwitch}>
             <Pressable onPress={() => setMode('hours')} style={[styles.modeTab, mode === 'hours' && styles.modeTabActive]}>
               <Feather name="clock" size={14} color={mode === 'hours' ? colors.primary : colors.textMuted} />

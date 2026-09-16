@@ -48,12 +48,18 @@ type IconName = keyof typeof Feather.glyphMap;
 // One checkbox per real, cleanly-isolated feature area — see
 // 20260812160000_role_permission_catalog.sql for why "Photos" isn't in
 // this list (same underlying data as the always-open Rapports tab).
-// Finance, création de chantier et gestion RH sont opt-in-only pour un
-// membre sans rôle (default false) ; les autres défaultent à true pour
-// qu'un rôle n'ait besoin de décocher que ce qui doit être restreint,
-// sans devoir tout re-accorder ailleurs.
+// Finance, devis & factures, création de chantier et gestion RH sont
+// opt-in-only pour un membre sans rôle (default false) ; les autres
+// défaultent à true pour qu'un rôle n'ait besoin de décocher que ce qui
+// doit être restreint, sans devoir tout re-accorder ailleurs. Finance et
+// devis & factures sont deux permissions distinctes délibérément : un chef
+// de chantier peut avoir besoin de créer des devis sans pour autant voir la
+// santé financière globale de l'entreprise — avoir Finance suffit à
+// débloquer aussi les devis/factures (la permission large implique la
+// restreinte), mais pas l'inverse.
 const PERMISSION_CATALOG: { key: keyof RolePermissions; icon: IconName }[] = [
-  { key: 'canViewFinances', icon: 'file-text' },
+  { key: 'canViewFinances', icon: 'trending-up' },
+  { key: 'canManageDevis', icon: 'file-text' },
   { key: 'canViewMetre', icon: 'list' },
   { key: 'canViewPlanning', icon: 'calendar' },
   { key: 'canViewDocuments', icon: 'folder' },
@@ -75,6 +81,7 @@ const EMPTY_DRAFT: RoleDraft = {
   color: ROLE_COLORS[0],
   permissions: {
     canViewFinances: false,
+    canManageDevis: false,
     canViewMetre: true,
     canViewPlanning: true,
     canViewDocuments: true,
@@ -342,6 +349,7 @@ export default function EquipeScreen() {
                         color: r.color,
                         permissions: {
                           canViewFinances: r.can_view_finances,
+                          canManageDevis: r.can_manage_devis,
                           canViewMetre: r.can_view_metre,
                           canViewPlanning: r.can_view_planning,
                           canViewDocuments: r.can_view_documents,

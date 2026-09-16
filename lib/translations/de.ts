@@ -878,7 +878,8 @@ export const de: TranslationDict = {
     owner: 'Inhaber',
     admin: 'Administrator',
     permissions: {
-      canViewFinances: { label: 'Finanzen', description: 'Offerten, Rechnungen und Rentabilität pro Baustelle.' },
+      canViewFinances: { label: 'Finanzen', description: 'Umsatz, Rentabilität pro Baustelle, Liquidität und Buchhaltung.' },
+      canManageDevis: { label: 'Offerten & Rechnungen', description: 'Offerten und Rechnungen erstellen und verwalten, ohne Zugriff auf die gesamte finanzielle Lage des Unternehmens.' },
       canViewMetre: { label: 'Aufmass', description: 'Mengentabelle Position für Position.' },
       canViewPlanning: { label: 'Planung', description: 'Wer geht wann auf welche Baustelle.' },
       canViewDocuments: { label: 'Dokumente', description: 'Ordner- und Dateiablage pro Baustelle.' },
@@ -1772,6 +1773,7 @@ export const de: TranslationDict = {
     viewExpenses: 'Meine Ausgaben ansehen',
     unavailablePayroll: 'Die Stundenerfassung per Sprache gibt es, aber das Modul Personal & Löhne ist für Ihre Organisation nicht aktiviert.',
     unavailableExpense: 'Die Ausgabenerfassung per Sprache gibt es, erfordert aber den Plan Team (Rentabilität oder Liquidität).',
+    unavailableDevis: 'Die Erstellung von Offerten/Rechnungen per Sprache gibt es, aber Ihre Rolle hat keinen Zugriff auf Offerten und Rechnungen.',
     seePlans: 'Pläne ansehen',
     missingProject: 'Wählen Sie eine Baustelle, bevor Sie bestätigen.',
     missingHours: 'Geben Sie die Anzahl Stunden an.',

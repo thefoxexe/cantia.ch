@@ -6,12 +6,12 @@ import { Button, LoadingScreen, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
-// A member without the finance permission (see équipe screen) is already
-// kept out of RLS-protected data on every route below, and out of the nav
-// entirely (app/(app)/_layout.tsx) — this catches the remaining case of a
-// stale bookmark/deep link or the back button landing here directly, with
-// an explicit message instead of a confusing "empty list" or a blank
-// insert-failed error.
+// A member without the devis/facturation permission (see équipe screen) is
+// already kept out of RLS-protected data on every route below, and out of
+// the nav entirely (app/(app)/_layout.tsx) — this catches the remaining
+// case of a stale bookmark/deep link or the back button landing here
+// directly, with an explicit message instead of a confusing "empty list"
+// or a blank insert-failed error.
 function AccessDenied() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -33,13 +33,13 @@ function AccessDenied() {
 
 export default function DevisLayout() {
   const { t } = useTranslation();
-  const { canViewFinances, loading } = useAuth();
-  // The membership/role fetch that determines canViewFinances is async and
+  const { canManageDevis, loading } = useAuth();
+  // The membership/role fetch that determines canManageDevis is async and
   // starts out false — without this guard, landing here directly (deep
   // link, bookmark, hard refresh) flashes "Accès non autorisé" for every
   // user, owners included, until it resolves a moment later.
   if (loading) return <LoadingScreen />;
-  if (!canViewFinances) return <AccessDenied />;
+  if (!canManageDevis) return <AccessDenied />;
   return (
     <Stack
       screenOptions={{

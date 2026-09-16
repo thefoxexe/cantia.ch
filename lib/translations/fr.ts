@@ -864,7 +864,8 @@ export const fr = {
     owner: 'Propriétaire',
     admin: 'Administrateur',
     permissions: {
-      canViewFinances: { label: 'Finance', description: 'Devis, factures et rentabilité par chantier.' },
+      canViewFinances: { label: 'Finance', description: 'Chiffre d’affaires, rentabilité par chantier, trésorerie et comptabilité.' },
+      canManageDevis: { label: 'Devis & factures', description: 'Créer et gérer les devis et factures, sans accès à la santé financière globale de l’entreprise.' },
       canViewMetre: { label: 'Métré', description: 'Tableau de quantités poste par poste.' },
       canViewPlanning: { label: 'Planning', description: 'Qui va sur quel chantier, et quand.' },
       canViewDocuments: { label: 'Documents', description: 'Classeur de dossiers et fichiers par chantier.' },
@@ -1758,6 +1759,7 @@ export const fr = {
     viewExpenses: 'Voir mes dépenses',
     unavailablePayroll: 'La saisie d’heures à la voix existe, mais le module RH & Salaires n’est pas activé pour votre organisation.',
     unavailableExpense: 'Le suivi des dépenses à la voix existe, mais nécessite le plan Équipe (Rentabilité ou Trésorerie).',
+    unavailableDevis: 'La création de devis/factures à la voix existe, mais votre rôle n’a pas accès aux devis et factures.',
     seePlans: 'Voir les plans',
     missingProject: 'Choisissez un chantier avant de confirmer.',
     missingHours: 'Indiquez le nombre d’heures.',

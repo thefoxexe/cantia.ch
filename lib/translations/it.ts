@@ -886,7 +886,8 @@ export const it: TranslationDict = {
     owner: 'Proprietario',
     admin: 'Amministratore',
     permissions: {
-      canViewFinances: { label: 'Finanza', description: 'Preventivi, fatture e redditività per cantiere.' },
+      canViewFinances: { label: 'Finanza', description: 'Fatturato, redditività per cantiere, liquidità e contabilità.' },
+      canManageDevis: { label: 'Preventivi & fatture', description: 'Creare e gestire preventivi e fatture, senza accesso alla salute finanziaria globale dell’azienda.' },
       canViewMetre: { label: 'Computo metrico', description: 'Tabella di quantità voce per voce.' },
       canViewPlanning: { label: 'Pianificazione', description: 'Chi va su quale cantiere, e quando.' },
       canViewDocuments: { label: 'Documenti', description: 'Raccoglitore di cartelle e file per cantiere.' },
@@ -1780,6 +1781,7 @@ export const it: TranslationDict = {
     viewExpenses: 'Vedi le mie spese',
     unavailablePayroll: 'La registrazione di ore a voce esiste, ma il modulo Personale e salari non è attivato per la sua organizzazione.',
     unavailableExpense: 'Il monitoraggio delle spese a voce esiste, ma richiede il piano Team (Redditività o Liquidità).',
+    unavailableDevis: 'La creazione di preventivi/fatture a voce esiste, ma il suo ruolo non ha accesso a preventivi e fatture.',
     seePlans: 'Vedi i piani',
     missingProject: 'Scelga un cantiere prima di confermare.',
     missingHours: 'Indichi il numero di ore.',

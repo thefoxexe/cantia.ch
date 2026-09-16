@@ -42,14 +42,14 @@ function formatTime(date: Date, locale: string): string {
 
 export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
-  const { organization, user, canViewFinances, role, permissions } = useAuth();
+  const { organization, user, canManageDevis, role, permissions } = useAuth();
   const router = useRouter();
   const isAdmin = role === 'owner' || role === 'admin';
   const trialDaysLeft = organization?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(organization.trial_ends_at).getTime() - Date.now()) / 86400000))
     : null;
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
-  const financeVisible = devisEnabled && canViewFinances;
+  const devisVisible = devisEnabled && canManageDevis;
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
   const payrollEnabled = isModuleEnabled(organization?.enabled_modules, 'payroll');
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
@@ -170,7 +170,7 @@ export default function DashboardScreen() {
     const list: { key: string; label: string; icon: IconName; href: string }[] = [
       { key: 'chantiers', label: t('dashboard.shortcutChantiers'), icon: 'layers', href: '/(app)/chantiers' },
     ];
-    if (financeVisible) {
+    if (devisVisible) {
       list.push(
         { key: 'devis', label: t('dashboard.shortcutDevis'), icon: 'file-text', href: '/(app)/devis' },
         { key: 'factures', label: t('dashboard.shortcutFactures'), icon: 'dollar-sign', href: '/(app)/devis/factures' },
@@ -179,7 +179,7 @@ export default function DashboardScreen() {
     if (payrollEnabled) list.push({ key: 'rh', label: t('dashboard.shortcutHeures'), icon: 'clock', href: '/(app)/rh' });
     if (planningEnabled) list.push({ key: 'planning', label: t('dashboard.shortcutPlanning'), icon: 'calendar', href: '/(app)/planning' });
     return list.slice(0, 4);
-  }, [financeVisible, planningEnabled, payrollEnabled, t]);
+  }, [devisVisible, planningEnabled, payrollEnabled, t]);
 
   const weatherInfo = weather ? describeWeatherCode(weather.code) : null;
 
@@ -244,7 +244,7 @@ export default function DashboardScreen() {
 
         <View style={styles.quickRow}>
           <Button title={t('dashboard.newProject')} icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flex: 1 }} />
-          {financeVisible ? (
+          {devisVisible ? (
             <Button title={t('dashboard.newDevis')} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flex: 1 }} />
           ) : null}
         </View>
