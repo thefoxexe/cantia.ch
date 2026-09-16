@@ -83,6 +83,33 @@ export interface ClientHistory {
   extraWorks: (Pick<ExtraWork, 'id' | 'number' | 'title' | 'status' | 'created_at'> & { project_id: string })[];
 }
 
+// Self-heals a devis/facture whose denormalized client_email/client_address
+// is missing even though it's linked to a client that does have one (e.g.
+// picked via the voice assistant before it threaded those two fields
+// through) — those columns are what the send-by-email/public-link gates
+// actually check, not a live join to clients, so a null here silently
+// blocks sending even though the client record itself has an e-mail. Only
+// ever fills in a currently-missing field — never overwrites one the
+// document already has, since that could be a deliberate edit or a
+// snapshot that's supposed to differ from the client's current details.
+// Best-effort and quiet: never surfaces an error of its own.
+export async function backfillDocumentClientContact(
+  table: 'devis' | 'factures',
+  documentId: string,
+  clientId: string,
+  current: { email: string | null; address: string | null },
+): Promise<{ email: string | null; address: string | null } | null> {
+  if (current.email && current.address) return null;
+  const { data: client } = await supabase.from('clients').select('email, address').eq('id', clientId).maybeSingle();
+  if (!client) return null;
+  const patch: { client_email?: string; client_address?: string } = {};
+  if (!current.email && client.email) patch.client_email = client.email;
+  if (!current.address && client.address) patch.client_address = client.address;
+  if (!Object.keys(patch).length) return null;
+  await supabase.from(table).update(patch).eq('id', documentId);
+  return { email: patch.client_email ?? current.email, address: patch.client_address ?? current.address };
+}
+
 export async function getClientHistory(clientId: string): Promise<ClientHistory> {
   const [devisRes, facturesRes, ewRes] = await Promise.all([
     supabase.from('devis').select('id, number, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }),

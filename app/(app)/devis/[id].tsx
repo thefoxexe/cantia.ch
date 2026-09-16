@@ -9,6 +9,7 @@ import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
 import { duplicateDevis, sendDevisEmail } from '../../../lib/api/devis';
+import { backfillDocumentClientContact } from '../../../lib/api/clients';
 import { translateEmailMessage } from '../../../lib/api/ai';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { publicDevisUrl } from '../../../lib/api/publicPortal';
@@ -18,6 +19,7 @@ import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
+import { DocumentPreview, type PreviewLine } from '../../../components/DocumentPreview';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
@@ -73,6 +75,8 @@ export default function DevisDetailScreen() {
   const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
   const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
   const [pushingBexio, setPushingBexio] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [validatingDraft, setValidatingDraft] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -80,6 +84,16 @@ export default function DevisDetailScreen() {
       supabase.from('devis_items').select('*').eq('devis_id', id).order('sort_order', { ascending: true }),
       listFacturesForDevis(id),
     ]);
+    if (d?.client_id && (!d.client_email || !d.client_address)) {
+      const backfilled = await backfillDocumentClientContact('devis', d.id, d.client_id, {
+        email: d.client_email,
+        address: d.client_address,
+      });
+      if (backfilled) {
+        if (backfilled.email) d.client_email = backfilled.email;
+        if (backfilled.address) d.client_address = backfilled.address;
+      }
+    }
     setDevis(d ?? null);
     setItems(i ?? []);
     setRelatedFactures(f);
@@ -148,6 +162,12 @@ export default function DevisDetailScreen() {
       }
     }
     load();
+  }
+
+  async function handleValidateDraft() {
+    setValidatingDraft(true);
+    await changeStatus('ready');
+    setValidatingDraft(false);
   }
 
   async function handleGeneratePdf() {
@@ -336,6 +356,15 @@ export default function DevisDetailScreen() {
   const vat = subtotal * (Number(devis.vat_rate) / 100);
   const total = subtotal + vat;
   const canPushToBexio = !!plan?.has_bexio_integration && bexioConnected && devis.status !== 'draft' && !!devis.client_id;
+  // Already reflects the exact saved lines (a discount is one of them, as a
+  // negative row, same as at creation time) — discountPercent stays '0' here
+  // so DocumentPreview doesn't try to fold in a second discount on top.
+  const previewLines: PreviewLine[] = items.map((it) => ({
+    description: it.description,
+    quantity: String(it.quantity),
+    unit: it.unit ?? '',
+    unitPrice: String(it.unit_price),
+  }));
 
   return (
     <AppScreen>
@@ -394,9 +423,16 @@ export default function DevisDetailScreen() {
           {!devis.client_email ? (
             <Text style={styles.copyLinkHint}>{t('devisDetail.emailRequiredForLink')}</Text>
           ) : devis.status === 'draft' ? (
-            <Text style={styles.copyLinkHint}>
-              {t('devisDetail.readyToSendHint')}
-            </Text>
+            <View>
+              <Button
+                title={t('devisDetail.validateDraft')}
+                icon="check-circle"
+                onPress={handleValidateDraft}
+                loading={validatingDraft}
+                style={{ marginTop: spacing.md, alignSelf: 'flex-start' }}
+              />
+              <Text style={styles.copyLinkHint}>{t('devisDetail.readyToSendHint')}</Text>
+            </View>
           ) : (
             <View style={styles.clientLinkRow}>
               <Button
@@ -522,11 +558,18 @@ export default function DevisDetailScreen() {
         ) : null}
 
         <Button
+          title={t('devisDetail.previewButton')}
+          icon="eye"
+          variant="secondary"
+          onPress={() => setPreviewVisible(true)}
+          style={{ marginTop: spacing.lg }}
+        />
+        <Button
           title={devis.pdf_path ? t('devisDetail.regeneratePdf') : t('devisDetail.generatePdf')}
           onPress={handleGeneratePdf}
           loading={generating}
           disabled={devis.status === 'draft'}
-          style={{ marginTop: spacing.lg }}
+          style={{ marginTop: spacing.md }}
         />
         {devis.status === 'draft' ? (
           <Text style={styles.pdfHint}>{t('devisDetail.readyToGeneratePdfHint')}</Text>
@@ -609,6 +652,31 @@ export default function DevisDetailScreen() {
               <Button title={t('devisDetail.cancel')} variant="secondary" onPress={() => setEmailModalVisible(false)} style={{ flex: 1 }} />
               <Button title={t('devisDetail.send')} onPress={handleConfirmSendEmail} loading={sendingEmail} style={{ flex: 1 }} />
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={previewVisible} animationType="slide" transparent onRequestClose={() => setPreviewVisible(false)}>
+        <View style={styles.previewOverlay}>
+          <View style={styles.previewSheet}>
+            <View style={styles.previewHeader}>
+              <Text style={styles.modalTitle}>{t('devisDetail.previewTitle')}</Text>
+              <Pressable hitSlop={8} onPress={() => setPreviewVisible(false)}>
+                <Feather name="x" size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={styles.previewBody}>
+              <DocumentPreview
+                kind="devis"
+                organization={organization}
+                clientName={devis.client_name}
+                clientAddress={devis.client_address ?? ''}
+                clientEmail={devis.client_email ?? ''}
+                projectName={linkedProject?.name}
+                lines={previewLines}
+                discountPercent="0"
+              />
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -840,5 +908,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  previewOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  previewSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '88%',
+  },
+  previewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  previewBody: {
+    padding: spacing.lg,
   },
 });

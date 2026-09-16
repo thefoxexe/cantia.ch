@@ -77,6 +77,8 @@ export function VoiceAssistant() {
   // same transcript once the router confirms which document type it is.
   const [devisClientName, setDevisClientName] = useState('');
   const [devisClientId, setDevisClientId] = useState<string | null>(null);
+  const [devisClientEmail, setDevisClientEmail] = useState('');
+  const [devisClientAddress, setDevisClientAddress] = useState('');
   const [devisProjectId, setDevisProjectId] = useState<string | null>(null);
   const [devisLines, setDevisLines] = useState<DictatedDevisLine[]>([]);
 
@@ -146,6 +148,8 @@ export function VoiceAssistant() {
     setSaveError(null);
     setDevisClientName('');
     setDevisClientId(null);
+    setDevisClientEmail('');
+    setDevisClientAddress('');
     setDevisProjectId(null);
     setDevisLines([]);
     setAnswerText(null);
@@ -222,6 +226,8 @@ export function VoiceAssistant() {
       setCommand(cmd);
       setDevisClientName(cmd.clientName ?? '');
       setDevisClientId(null);
+      setDevisClientEmail('');
+      setDevisClientAddress('');
       setDevisProjectId(null);
       const catalogPayload = catalog.slice(0, 150).map((c) => ({ description: c.description, unit: c.unit, unitPrice: c.unitPrice }));
       const { lines } = await generateDevisLines(transcript, catalogPayload, organization.id);
@@ -252,6 +258,8 @@ export function VoiceAssistant() {
     const params = new URLSearchParams();
     if (devisClientName.trim()) params.set('voiceClientName', devisClientName.trim());
     if (devisClientId) params.set('voiceClientId', devisClientId);
+    if (devisClientEmail.trim()) params.set('voiceClientEmail', devisClientEmail.trim());
+    if (devisClientAddress.trim()) params.set('voiceClientAddress', devisClientAddress.trim());
     if (devisProjectId) {
       const projectName = projects.find((p) => p.id === devisProjectId)?.label;
       if (projectName) {
@@ -391,6 +399,8 @@ export function VoiceAssistant() {
                 clientName={devisClientName}
                 setClientName={setDevisClientName}
                 setClientId={setDevisClientId}
+                setClientEmail={setDevisClientEmail}
+                setClientAddress={setDevisClientAddress}
                 projects={projects}
                 projectId={devisProjectId}
                 setProjectId={setDevisProjectId}
@@ -697,6 +707,8 @@ function DevisFactureConfirm({
   clientName,
   setClientName,
   setClientId,
+  setClientEmail,
+  setClientAddress,
   projects,
   projectId,
   setProjectId,
@@ -709,6 +721,8 @@ function DevisFactureConfirm({
   clientName: string;
   setClientName: (v: string) => void;
   setClientId: (id: string | null) => void;
+  setClientEmail: (v: string) => void;
+  setClientAddress: (v: string) => void;
   projects: PickItem[];
   projectId: string | null;
   setProjectId: (id: string | null) => void;
@@ -726,6 +740,8 @@ function DevisFactureConfirm({
   function handlePickClient(client: Client) {
     setClientName(client.name);
     setClientId(client.id);
+    setClientEmail(client.email ?? '');
+    setClientAddress(client.address ?? '');
   }
 
   return (
@@ -744,6 +760,8 @@ function DevisFactureConfirm({
           onChangeText={(v) => {
             setClientName(v);
             setClientId(null);
+            setClientEmail('');
+            setClientAddress('');
           }}
           placeholder={t('voiceAssistant.clientNamePlaceholder')}
         />

@@ -47,9 +47,11 @@ function emptyLine(): Line {
 export default function NewFactureScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+  const { voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
     voiceClientName?: string;
     voiceClientId?: string;
+    voiceClientEmail?: string;
+    voiceClientAddress?: string;
     voiceProjectId?: string;
     voiceProjectName?: string;
     voiceLines?: string;
@@ -130,6 +132,8 @@ export default function NewFactureScreen() {
     appliedVoiceRef.current = true;
     if (voiceClientName) setClientName(voiceClientName);
     if (voiceClientId) setClientId(voiceClientId);
+    if (voiceClientEmail) setClientEmail(voiceClientEmail);
+    if (voiceClientAddress) setClientAddress(voiceClientAddress);
     if (voiceProjectId && voiceProjectName) setSelectedProject({ id: voiceProjectId, name: voiceProjectName } as Project);
     if (voiceLines) {
       try {
@@ -154,7 +158,7 @@ export default function NewFactureScreen() {
         // Malformed param — ignore, the form just falls back to its blank starter line.
       }
     }
-  }, [voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines]);
+  }, [voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines]);
 
   const [dictationTarget, setDictationTarget] = useState<DictationTarget | null>(null);
   const dictationBaseRef = useRef('');

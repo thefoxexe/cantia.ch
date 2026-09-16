@@ -21,6 +21,7 @@ import {
 import { translateEmailMessage } from '../../../../lib/api/ai';
 import { confirm } from '../../../../lib/confirm';
 import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
+import { backfillDocumentClientContact } from '../../../../lib/api/clients';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { DateField } from '../../../../components/DateField';
@@ -113,6 +114,16 @@ export default function FactureDetailScreen() {
       supabase.from('facture_items').select('*').eq('facture_id', id).order('sort_order', { ascending: true }),
       listFacturePayments(id),
     ]);
+    if (f?.client_id && (!f.client_email || !f.client_address)) {
+      const backfilled = await backfillDocumentClientContact('factures', f.id, f.client_id, {
+        email: f.client_email,
+        address: f.client_address,
+      });
+      if (backfilled) {
+        if (backfilled.email) f.client_email = backfilled.email;
+        if (backfilled.address) f.client_address = backfilled.address;
+      }
+    }
     setFacture(f ?? null);
     setItems(i ?? []);
     setPayments(p);

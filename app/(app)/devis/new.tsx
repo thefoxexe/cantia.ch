@@ -54,10 +54,12 @@ function emptyLine(): Line {
 export default function NewDevisScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { trameId, voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+  const { trameId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
     trameId?: string;
     voiceClientName?: string;
     voiceClientId?: string;
+    voiceClientEmail?: string;
+    voiceClientAddress?: string;
     voiceProjectId?: string;
     voiceProjectName?: string;
     voiceLines?: string;
@@ -185,6 +187,8 @@ export default function NewDevisScreen() {
     appliedVoiceRef.current = true;
     if (voiceClientName) setClientName(voiceClientName);
     if (voiceClientId) setClientId(voiceClientId);
+    if (voiceClientEmail) setClientEmail(voiceClientEmail);
+    if (voiceClientAddress) setClientAddress(voiceClientAddress);
     if (voiceProjectId && voiceProjectName) setSelectedProject({ id: voiceProjectId, name: voiceProjectName } as Project);
     if (voiceLines) {
       try {
@@ -209,7 +213,7 @@ export default function NewDevisScreen() {
         // Malformed param — ignore, the form just falls back to its blank starter line.
       }
     }
-  }, [voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines]);
+  }, [voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines]);
 
   // Which field a dictation session is currently feeding, and that field's
   // text as it stood before the session started — the live transcript is
