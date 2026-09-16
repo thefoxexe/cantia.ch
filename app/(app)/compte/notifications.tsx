@@ -5,7 +5,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { NOTIFICATION_TYPES, listPreferences, upsertPreference } from '../../../lib/api/notifications';
 import { getMyNewsletterSubscription, setMyNewsletterSubscription } from '../../../lib/api/newsletter';
 import { registerForPushNotificationsAsync } from '../../../lib/notifications/registerPush';
-import { Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
+import { Card, Container, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import type { NotificationPreference, NotificationType } from '../../../lib/types';
@@ -63,7 +63,7 @@ export default function NotificationSettingsScreen() {
   if (!prefs) return null;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('notificationSettings.title')} backTo="/(app)/compte" />
@@ -105,7 +105,7 @@ export default function NotificationSettingsScreen() {
           </View>
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

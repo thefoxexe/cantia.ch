@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useProject } from '../../../../lib/useProject';
 import { ProjectMetre } from '../../../../components/ProjectMetre';
 import { FeatureHint } from '../../../../components/FeatureHint';
-import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
@@ -14,14 +14,14 @@ export default function ChantierMetreScreen() {
 
   if (!project) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <PageHeader
         title={t('chantierMetre.title')}
         backTo={`/(app)/chantiers/${id}`}
@@ -38,6 +38,6 @@ export default function ChantierMetreScreen() {
           <ProjectMetre projectId={id} organizationId={project.organization_id} />
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }

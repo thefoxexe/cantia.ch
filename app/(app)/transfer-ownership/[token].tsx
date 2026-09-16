@@ -10,7 +10,7 @@ import {
   getOwnershipTransferByToken,
   type OwnershipTransferDetails,
 } from '../../../lib/api/ownership';
-import { Button, Card, LoadingScreen, Screen } from '../../../components/ui';
+import { Button, Card, LoadingScreen, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -83,15 +83,15 @@ export default function TransferOwnershipScreen() {
 
   if (status === 'loading') {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (status === 'invalid') {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Feather name="alert-circle" size={32} color={colors.textMuted} style={styles.icon} />
@@ -100,13 +100,13 @@ export default function TransferOwnershipScreen() {
             <Button title={t('ownershipTransferConfirm.backToApp')} onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.xl }} />
           </View>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (status === 'wrongAccount') {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Feather name="alert-triangle" size={32} color={colors.danger} style={styles.icon} />
@@ -115,13 +115,13 @@ export default function TransferOwnershipScreen() {
             <Button title={t('ownershipTransferConfirm.backToApp')} onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.xl }} />
           </View>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (status === 'success' && transfer) {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <View style={styles.successBadge}>
@@ -132,14 +132,14 @@ export default function TransferOwnershipScreen() {
             <Button title={t('ownershipTransferConfirm.backToApp')} onPress={() => router.replace('/(app)/compte/entreprise-danger')} style={{ marginTop: spacing.xl }} />
           </View>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (!transfer) return null;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
           <Card>
@@ -157,7 +157,7 @@ export default function TransferOwnershipScreen() {
           </Card>
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

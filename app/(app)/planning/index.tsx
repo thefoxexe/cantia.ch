@@ -11,7 +11,7 @@ import {
   updatePlanningAssignment,
   type PlanningAssignmentWithNames,
 } from '../../../lib/api/planning';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
@@ -191,28 +191,28 @@ export default function PlanningScreen() {
 
   if (loading && assignments.length === 0 && projects.length === 0) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (!permissions.planning) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('planning.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="lock" size={22} color={colors.textMuted} />
           <Text style={styles.upsellTitle}>{t('planning.accessDeniedTitle')}</Text>
           <Text style={styles.upsellText}>{t('planning.accessDeniedText')}</Text>
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (plan && !plan.has_planning) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('planning.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="calendar" size={22} color={colors.accent} />
@@ -221,12 +221,12 @@ export default function PlanningScreen() {
           <Text style={styles.upsellText}>{t('planning.upsellPlanHint')}</Text>
           <Button title={t('planning.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader title={t('planning.title')} backTo="/(app)" right={<Button title={t('planning.assign')} icon="plus" onPress={() => openCreateForm()} />} />
         <Text style={styles.pageSubtitle}>{t('planning.subtitle')}</Text>
@@ -416,7 +416,7 @@ export default function PlanningScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

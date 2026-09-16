@@ -6,7 +6,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useAuth } from '../../../lib/auth-context';
 import { confirm } from '../../../lib/confirm';
 import { downloadTextFile } from '../../../lib/downloadFile';
-import { Button, Card, EmptyState, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import {
@@ -173,7 +173,7 @@ export default function InventaireScreen() {
   ];
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader title={t('inventaire.title')} />
         <Text style={styles.pageSubtitle}>
@@ -277,7 +277,7 @@ export default function InventaireScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

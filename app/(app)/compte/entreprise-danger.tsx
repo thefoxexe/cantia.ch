@@ -14,7 +14,7 @@ import {
   type OwnershipTransferDetails,
   type TransferableMember,
 } from '../../../lib/api/ownership';
-import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -134,7 +134,7 @@ export default function EntrepriseDangerZoneScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('compteMenu.entrepriseDanger.label')} backTo="/(app)/compte/entreprise" />
@@ -249,7 +249,7 @@ export default function EntrepriseDangerZoneScreen() {
           ) : null}
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

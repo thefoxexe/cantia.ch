@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
-import { Button, EmptyState, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
+import { Button, EmptyState, Card, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../components/ui';
 import { formatDate, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../../lib/theme';
 import type { Report } from '../../../../lib/types';
@@ -32,14 +32,14 @@ export default function ChantierReportsScreen() {
 
   if (!project) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <PageHeader title={t('chantierReports.title')} backTo={`/(app)/chantiers/${id}`} style={styles.topBar} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
         <Button
@@ -75,7 +75,7 @@ export default function ChantierReportsScreen() {
           </View>
         )}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

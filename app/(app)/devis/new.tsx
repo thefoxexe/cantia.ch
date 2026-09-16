@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Card, Field, Screen } from '../../../components/ui';
+import { Button, Card, Field, AppScreen } from '../../../components/ui';
 import { ClientPicker } from '../../../components/ClientPicker';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { TramePicker } from '../../../components/TramePicker';
@@ -444,7 +444,7 @@ export default function NewDevisScreen() {
   );
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
@@ -777,7 +777,7 @@ export default function NewDevisScreen() {
       </Modal>
 
       <SignaturePromptModal visible={showSignaturePrompt} onDone={() => setShowSignaturePrompt(false)} />
-    </Screen>
+    </AppScreen>
   );
 }
 

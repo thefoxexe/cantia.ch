@@ -7,7 +7,7 @@ import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../../lib/api/storage';
 import { assetFileInfo } from '../../../../lib/imageAsset';
-import { Button, Card, Container, Field, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { Button, Card, Container, Field, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -156,14 +156,14 @@ export default function ChantierSettingsScreen() {
 
   if (!loaded) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('chantierSettings.title')} backTo={`/(app)/chantiers/${id}`} />
@@ -288,7 +288,7 @@ export default function ChantierSettingsScreen() {
           </Card>
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

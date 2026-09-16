@@ -21,7 +21,7 @@ import {
 import { translateEmailMessage } from '../../../../lib/api/ai';
 import { confirm } from '../../../../lib/confirm';
 import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
-import { Button, Card, Container, Field, LangToggle, LoadingScreen, Screen, StatusBadge } from '../../../../components/ui';
+import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { DateField } from '../../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -423,9 +423,9 @@ export default function FactureDetailScreen() {
 
   if (!facture) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -497,7 +497,7 @@ export default function FactureDetailScreen() {
   ];
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={styles.scroll}>
       <Container>
         <Card>
@@ -815,7 +815,7 @@ export default function FactureDetailScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

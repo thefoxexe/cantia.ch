@@ -16,7 +16,7 @@ import {
   type PaymentBatch,
 } from '../../../../lib/api/payments';
 import { downloadTextFile } from '../../../../lib/downloadFile';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -108,7 +108,7 @@ export default function PaymentsScreen() {
   if (!organization) return <LoadingScreen />;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payments.title')} backTo="/(app)/devis/factures" />
         <Text style={styles.pageSubtitle}>{t('payments.subtitle')}</Text>
@@ -195,7 +195,7 @@ export default function PaymentsScreen() {
           </View>
         )}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

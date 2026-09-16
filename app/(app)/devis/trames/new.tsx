@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { createTrame } from '../../../../lib/api/trames';
-import { Button, Field, Screen } from '../../../../components/ui';
+import { Button, Field, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -65,7 +65,7 @@ export default function NewTrameScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>{t('newTrame.title')}</Text>
@@ -124,7 +124,7 @@ export default function NewTrameScreen() {
           <Button title={t('newTrame.save')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

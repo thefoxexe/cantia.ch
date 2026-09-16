@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { connectBexio, disconnectBexio, getIntegration, setBexioAutoSync, syncBexio } from '../../../lib/api/integrations';
-import { Button, Container, PageHeader, Screen } from '../../../components/ui';
+import { Button, Container, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Integration } from '../../../lib/types';
@@ -117,7 +117,7 @@ export default function IntegrationsScreen() {
   const locked = !loading && !entitled;
 
   return (
-    <Screen>
+    <AppScreen>
       <Container>
         <PageHeader title={t('integrationsSettings.title')} backTo="/(app)/compte" />
         {error ? (
@@ -220,7 +220,7 @@ export default function IntegrationsScreen() {
           {locked ? t('integrationsSettings.footnoteLocked') : t('integrationsSettings.footnoteUnlocked')}
         </Text>
       </Container>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../../../../lib/auth-context';
 import { useProject } from '../../../../../lib/useProject';
 import { createSituationDraft, listDevisForProject } from '../../../../../lib/api/situations';
-import { Button, Field, Screen } from '../../../../../components/ui';
+import { Button, Field, AppScreen } from '../../../../../components/ui';
 import { useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Devis } from '../../../../../lib/types';
@@ -54,7 +54,7 @@ export default function NewSituationScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
           <Text style={styles.pageTitle}>{t('newSituation.title')}</Text>
@@ -89,7 +89,7 @@ export default function NewSituationScreen() {
           <Button title={t('newSituation.create')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} disabled={devisOptions.length === 0} />
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

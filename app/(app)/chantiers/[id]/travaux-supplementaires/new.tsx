@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../../lib/auth-context';
 import { useProject } from '../../../../../lib/useProject';
 import { supabase } from '../../../../../lib/supabase';
-import { Button, Card, Field, Screen } from '../../../../../components/ui';
+import { Button, Card, Field, AppScreen } from '../../../../../components/ui';
 import { useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../../../lib/catalog';
@@ -202,7 +202,7 @@ export default function NewExtraWorkScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
           <Text style={styles.pageTitle}>{t('newExtraWork.title')}</Text>
@@ -346,7 +346,7 @@ export default function NewExtraWorkScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

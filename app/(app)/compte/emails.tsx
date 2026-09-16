@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
@@ -152,7 +152,7 @@ export default function EmailsSettingsScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('emailsSettings.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
@@ -237,7 +237,7 @@ export default function EmailsSettingsScreen() {
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
-    </Screen>
+    </AppScreen>
   );
 }
 

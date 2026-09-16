@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { confirm } from '../../../lib/confirm';
-import { Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { DashboardTask, DashboardTaskCategory } from '../../../lib/types';
 
@@ -117,7 +117,7 @@ export default function TachesScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader title="Tâches" backTo="/(app)" />
         <Text style={styles.pageSubtitle}>La liste de tâches partagée par toute l'équipe.</Text>
@@ -192,7 +192,7 @@ export default function TachesScreen() {
           </ScrollView>
         )}
       </View>
-    </Screen>
+    </AppScreen>
   );
 }
 

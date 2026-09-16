@@ -2,7 +2,7 @@ import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useProject } from '../../../../lib/useProject';
 import { ProjectFeed } from '../../../../components/ProjectFeed';
-import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
@@ -13,14 +13,14 @@ export default function ChantierFeedScreen() {
 
   if (!project) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <PageHeader
         title={t('chantierHub.feed')}
         backTo={`/(app)/chantiers/${id}`}
@@ -29,6 +29,6 @@ export default function ChantierFeedScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ProjectFeed projectId={id} />
       </KeyboardAvoidingView>
-    </Screen>
+    </AppScreen>
   );
 }

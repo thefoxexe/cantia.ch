@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import type { IconName } from '../../../../components/NavDrawer';
 import { useAuth } from '../../../../lib/auth-context';
-import { Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -32,17 +32,17 @@ export default function PayrollSalariesHubScreen() {
 
   if (!canManagePayroll) {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
           <PageHeader title={t('payrollSalariesHub.title')} backTo="/(app)/rh" />
           <Card><EmptyState title={t('payrollSalariesHub.title')} subtitle={t('payrollHub.selfSubtitle')} /></Card>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payrollSalariesHub.title')} backTo="/(app)/rh" />
         <Text style={styles.subtitle}>{t('payrollSalariesHub.subtitle')}</Text>
@@ -62,7 +62,7 @@ export default function PayrollSalariesHubScreen() {
           ))}
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

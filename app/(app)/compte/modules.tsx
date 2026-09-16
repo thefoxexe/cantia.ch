@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Container, PageHeader, Screen } from '../../../components/ui';
+import { Container, PageHeader, AppScreen } from '../../../components/ui';
 import { ORG_MODULES, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
@@ -69,7 +69,7 @@ export default function ModulesScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('moduleSettings.title')} backTo="/(app)/compte" />
@@ -125,7 +125,7 @@ export default function ModulesScreen() {
           ) : null}
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

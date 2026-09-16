@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
+  Image,
   Platform,
   Pressable,
   StyleProp,
@@ -27,14 +28,50 @@ type IconName = keyof typeof Feather.glyphMap;
 // (CSS) when both are present in a merged style array. On phones with a
 // notch/status bar, content was rendering flush under it (reported on a
 // Samsung S26); on web, insets.top is 0 so this is a no-op there.
-export function Screen({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Screen({
+  children,
+  style,
+  background,
+}: {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  // 'mountain': the same faint, fixed-in-place backdrop as the dashboard —
+  // see AppScreen below, which is what every authenticated app screen
+  // actually uses. Plain <Screen> (the marketing site, auth screens)
+  // never opts in, so this stays a no-op for every existing caller.
+  background?: 'mountain';
+}) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, style]}>
+      {background === 'mountain' ? <MountainBackdrop /> : null}
       <View style={{ height: insets.top + spacing.sm }} />
       {children}
     </View>
   );
+}
+
+// position: 'absolute' (not the web-only 'fixed') filling <Screen>'s own
+// non-scrolling View is enough to keep it in place while a descendant
+// ScrollView's own content scrolls over it — and unlike 'fixed', 'absolute'
+// works the same way on native, which is what lets this render on the
+// phone too via a bundled asset (web keeps using the lighter public/
+// copy instead of bundling the same image twice).
+function MountainBackdrop() {
+  const source = Platform.OS === 'web' ? { uri: '/hero-mountain.webp' } : require('../assets/hero-mountain.webp');
+  return (
+    <View pointerEvents="none" style={styles.mountainBackdropWrap}>
+      <Image source={source} style={styles.mountainBackdropImage} resizeMode="cover" />
+    </View>
+  );
+}
+
+// Every authenticated app screen (app/(app)/**) uses this instead of the
+// bare <Screen> — the marketing site and auth screens keep the plain one
+// untouched. Kept as a thin wrapper rather than changing <Screen>'s own
+// default so nothing here can leak onto the public site by accident.
+export function AppScreen(props: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  return <Screen background="mountain" {...props} />;
 }
 
 export function Container({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
@@ -434,6 +471,18 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  mountainBackdropWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.1,
+  },
+  mountainBackdropImage: {
+    width: '100%',
+    height: '100%',
   },
   card: {
     backgroundColor: colors.surface,

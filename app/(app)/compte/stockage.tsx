@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { formatBytes } from '../../../lib/api/storage';
-import { Button, Card, Container, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, Container, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -62,9 +62,9 @@ export default function StockageScreen() {
 
   if (loading && breakdown.length === 0) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -73,7 +73,7 @@ export default function StockageScreen() {
   const maxCategoryBytes = Math.max(...breakdown.map((b) => b.bytes), 1);
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('stockage.title')} backTo="/(app)/compte" />
@@ -140,7 +140,7 @@ export default function StockageScreen() {
           ) : null}
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

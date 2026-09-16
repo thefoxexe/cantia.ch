@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrls } from '../../../lib/api/storage';
-import { Button, Card, EmptyState, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, EmptyState, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Project } from '../../../lib/types';
@@ -39,7 +39,7 @@ export default function ChantiersListScreen() {
   );
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader title={t('chantiersList.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('chantiersList.subtitle')}</Text>
@@ -86,7 +86,7 @@ export default function ChantiersListScreen() {
           )}
         />
       </View>
-    </Screen>
+    </AppScreen>
   );
 }
 

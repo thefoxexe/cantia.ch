@@ -9,7 +9,7 @@ import { listFacturesForProjects, markTimeEntriesInvoiced, type ProjectFactureSu
 import { PayrollEntryPanel, defaultTodayRange } from '../../../components/PayrollEntryPanel';
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
 import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
-import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import type { Plan, PayrollWorkType } from '../../../lib/types';
@@ -231,15 +231,15 @@ export default function PayrollScreen() {
 
   if (loading || !organization || !user) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (plan && !plan.has_payroll) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('payrollHub.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="dollar-sign" size={22} color={colors.accent} />
@@ -248,13 +248,13 @@ export default function PayrollScreen() {
           <Text style={styles.upsellText}>{t('payrollHub.upsellPlanHint')}</Text>
           <Button title={t('payrollHub.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (!canManagePayroll) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <View style={isDesktop ? styles.adminContainer : styles.selfContainer}>
           <PageHeader
             title={t('payrollHub.title')}
@@ -303,7 +303,7 @@ export default function PayrollScreen() {
             </ScrollView>
           )}
         </View>
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -355,7 +355,7 @@ export default function PayrollScreen() {
   );
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.adminContainer}>
         <PageHeader
           title={t('payrollHub.title')}
@@ -465,7 +465,7 @@ export default function PayrollScreen() {
           router.push(`/(app)/devis/factures/${factureId}`);
         }}
       />
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -16,7 +16,7 @@ import {
   type FieldSource,
   type ImportKind,
 } from '../../../lib/api/dataImport';
-import { Button, Card, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -282,7 +282,7 @@ export default function DataImportScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <View style={styles.container}>
           <PageHeader title={t('dataImport.title')} backTo="/(app)/compte" />
@@ -412,7 +412,7 @@ export default function DataImportScreen() {
           )}
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useProject } from '../../../../lib/useProject';
 import { ProjectFeedMap } from '../../../../components/ProjectFeedMap';
 import { FeatureHint } from '../../../../components/FeatureHint';
-import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
 
@@ -14,14 +14,14 @@ export default function ChantierMapScreen() {
 
   if (!project) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <PageHeader
         title={t('chantierMap.title')}
         backTo={`/(app)/chantiers/${id}`}
@@ -38,6 +38,6 @@ export default function ChantierMapScreen() {
           <ProjectFeedMap projectId={id} />
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }

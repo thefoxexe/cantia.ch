@@ -25,7 +25,7 @@ import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 import { DateField } from '../../../components/DateField';
 import { downloadFile } from '../../../lib/downloadFile';
-import { Button, Card, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
+import { Button, Card, LoadingScreen, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
@@ -291,27 +291,27 @@ export default function PayrollProfileScreen() {
 
   if (loading) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   if (!canManagePayroll) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('payrollProfile.employeeSheetTitle')} backTo="/(app)/rh/salaires/employes" />
         <Card style={styles.upsell}>
           <Feather name="lock" size={22} color={colors.textMuted} />
           <Text style={styles.upsellTitle}>{t('payrollProfile.accessDeniedTitle')}</Text>
           <Text style={styles.upsellText}>{t('payrollProfile.accessDeniedText')}</Text>
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader
           title={memberName}
@@ -608,7 +608,7 @@ export default function PayrollProfileScreen() {
       </View>
       <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} />
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { createClient } from '../../../lib/api/clients';
-import { Button, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { ClientType } from '../../../lib/types';
@@ -48,7 +48,7 @@ export default function NewClientScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('newClient.title')} backTo="/(app)/clients" />
@@ -77,7 +77,7 @@ export default function NewClientScreen() {
           <Button title={t('newClient.create')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

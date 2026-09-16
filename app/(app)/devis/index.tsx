@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { duplicateDevis } from '../../../lib/api/devis';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -206,7 +206,7 @@ export default function DevisListScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         {openProject ? (
           <>
@@ -294,7 +294,7 @@ export default function DevisListScreen() {
           </ScrollView>
         )}
       </View>
-    </Screen>
+    </AppScreen>
   );
 }
 

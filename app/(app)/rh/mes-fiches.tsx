@@ -5,7 +5,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { listMyPayrollSlips, type PayrollSlip } from '../../../lib/api/payroll';
 import { generatePayslipPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
@@ -66,7 +66,7 @@ export default function MyPayrollSlipsScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <PageHeader title={t('mesFiches.title')} backTo="/(app)/rh" />
       <Text style={styles.subtitle}>{t('mesFiches.subtitle')}</Text>
 
@@ -99,7 +99,7 @@ export default function MyPayrollSlipsScreen() {
           ))
         )}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

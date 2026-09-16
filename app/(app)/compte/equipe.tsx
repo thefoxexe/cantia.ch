@@ -21,7 +21,7 @@ import {
   updateOrgRole,
   type RolePermissions,
 } from '../../../lib/api/roles';
-import { Button, Card, Container, Field, PageHeader, Screen, Switch } from '../../../components/ui';
+import { Button, Card, Container, Field, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -247,7 +247,7 @@ export default function EquipeScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('equipe.title')} backTo="/(app)/compte" />
@@ -508,7 +508,7 @@ export default function EquipeScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

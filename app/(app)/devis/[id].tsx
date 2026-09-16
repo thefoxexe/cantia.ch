@@ -15,7 +15,7 @@ import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
 import { getDevisBexioMapping, getIntegration, pushClientToBexio, pushDevisToBexio } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, Container, Field, LangToggle, LoadingScreen, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
 import { ProjectPicker } from '../../../components/ProjectPicker';
@@ -326,9 +326,9 @@ export default function DevisDetailScreen() {
 
   if (!devis) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -338,7 +338,7 @@ export default function DevisDetailScreen() {
   const canPushToBexio = !!plan?.has_bexio_integration && bexioConnected && devis.status !== 'draft' && !!devis.client_id;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={styles.scroll}>
       <Container>
         <Card>
@@ -612,7 +612,7 @@ export default function DevisDetailScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -13,7 +13,7 @@ import {
   updateAbsenceStatus,
   type EmployeeRef,
 } from '../../../lib/api/payroll';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -182,7 +182,7 @@ export default function AbsencesScreen() {
   });
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payrollAbsences.title')} backTo={canManagePayroll ? '/(app)/rh/salaires' : '/(app)/rh'} />
         <Text style={styles.pageSubtitle}>{canManagePayroll ? t('payrollAbsences.subtitleManager') : t('payrollAbsences.subtitleSelf')}</Text>
@@ -310,7 +310,7 @@ export default function AbsencesScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

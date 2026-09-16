@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Card, PageHeader, Screen } from '../../components/ui';
+import { Card, PageHeader, AppScreen } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -74,7 +74,7 @@ export default function InstallerScreen() {
   const guide = useMemo(() => detectGuide(), []);
 
   return (
-    <Screen>
+    <AppScreen>
       <PageHeader title="Installer l'app" />
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.lead}>
@@ -118,7 +118,7 @@ export default function InstallerScreen() {
             </Card>
           ))}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

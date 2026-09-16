@@ -26,7 +26,7 @@ import {
 } from '../../../lib/api/payroll';
 import { generatePayslipPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollWageType } from '../../../lib/types';
@@ -316,17 +316,17 @@ export default function PayrollSlipsScreen() {
 
   if (!canManagePayroll) {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
           <PageHeader title={t('payrollSlips.title')} backTo="/(app)/rh" />
           <Card><EmptyState title={t('payrollSlips.title')} subtitle={t('payrollHub.selfSubtitle')} /></Card>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payrollSlips.title')} backTo="/(app)/rh/salaires" />
         <Text style={styles.pageSubtitle}>{t('payrollSlips.subtitle')}</Text>
@@ -545,7 +545,7 @@ export default function PayrollSlipsScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

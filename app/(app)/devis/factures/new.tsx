@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { Button, Card, Screen } from '../../../../components/ui';
+import { Button, Card, AppScreen } from '../../../../components/ui';
 import { ClientPicker } from '../../../../components/ClientPicker';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { TramePicker } from '../../../../components/TramePicker';
@@ -368,7 +368,7 @@ export default function NewFactureScreen() {
   );
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
@@ -660,7 +660,7 @@ export default function NewFactureScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { addCashSnapshot, buildForecast, listRecurringExpenses, upcomingRecurringCount } from '../../../lib/api/treasury';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan, RecurringExpense, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
@@ -125,7 +125,7 @@ export default function TreasuryScreen() {
 
   if (plan && !plan.has_treasury) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('treasury.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="archive" size={22} color={colors.accent} />
@@ -134,12 +134,12 @@ export default function TreasuryScreen() {
           <Text style={styles.upsellText}>{t('treasury.upsellPlanHint')}</Text>
           <Button title={t('treasury.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('treasury.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('treasury.subtitle')}</Text>
@@ -239,7 +239,7 @@ export default function TreasuryScreen() {
           </View>
         ) : null}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

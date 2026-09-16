@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
 import { openCheckoutUrl } from '../../../lib/openUrl';
-import { Button, Container, PageHeader, Screen } from '../../../components/ui';
+import { Button, Container, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
@@ -100,7 +100,7 @@ export default function FacturationScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('facturationSettings.title')} backTo="/(app)/compte/entreprise" />
@@ -256,7 +256,7 @@ export default function FacturationScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

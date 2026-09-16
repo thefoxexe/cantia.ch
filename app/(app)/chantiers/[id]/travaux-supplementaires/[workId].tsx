@@ -7,7 +7,7 @@ import { sendExtraWorkEmail, publicExtraWorkUrl, acceptExtraWorkLive } from '../
 import { generateExtraWorkPdf } from '../../../../../lib/api/pdf';
 import { downloadFile } from '../../../../../lib/downloadFile';
 import { confirm } from '../../../../../lib/confirm';
-import { Button, Card, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, Field, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../../components/ui';
 import { SignaturePad } from '../../../../../components/SignaturePad';
 import { getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
@@ -54,9 +54,9 @@ export default function ExtraWorkDetailScreen() {
 
   if (loading || !work) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -147,7 +147,7 @@ export default function ExtraWorkDetailScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
         <View style={styles.container}>
           <PageHeader title={work.number ?? t('extraWorkDetail.fallbackTitle')} backTo={`/(app)/chantiers/${id}/travaux-supplementaires`} />
@@ -278,7 +278,7 @@ export default function ExtraWorkDetailScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

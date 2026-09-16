@@ -20,7 +20,7 @@ import {
   type PayrollCorrectionPreview,
   type PayrollSlip,
 } from '../../../lib/api/payroll';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollCorrection } from '../../../lib/types';
@@ -156,17 +156,17 @@ export default function PayrollCorrectionsScreen() {
 
   if (!canManagePayroll) {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
           <PageHeader title={t('payrollCorrections.title')} backTo="/(app)/rh" />
           <Card><EmptyState title={t('payrollCorrections.title')} subtitle={t('payrollHub.selfSubtitle')} /></Card>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payrollCorrections.title')} backTo="/(app)/rh/salaires" />
         <Text style={styles.pageSubtitle}>{t('payrollCorrections.subtitle')}</Text>
@@ -296,7 +296,7 @@ export default function PayrollCorrectionsScreen() {
           </>
         )}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

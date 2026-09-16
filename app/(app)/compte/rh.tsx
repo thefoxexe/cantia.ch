@@ -27,7 +27,7 @@ import {
   updateWageType,
   updateWorkType,
 } from '../../../lib/api/payroll';
-import { Button, Card, Container, PageHeader, Screen, Switch } from '../../../components/ui';
+import { Button, Card, Container, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -357,17 +357,17 @@ export default function PayrollSettingsScreen() {
 
   if (!canManagePayroll) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('payrollSettings.title')} backTo="/(app)/compte" />
         <Card style={{ marginTop: spacing.lg }}>
           <Text style={styles.emptyText}>{t('payrollSettings.adminOnlyHint')}</Text>
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('payrollSettings.title')} backTo="/(app)/compte" />
@@ -691,7 +691,7 @@ export default function PayrollSettingsScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -7,7 +7,7 @@ import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../..
 import { generateReportPdf } from '../../../../../lib/api/pdf';
 import { downloadFile } from '../../../../../lib/downloadFile';
 import { confirm } from '../../../../../lib/confirm';
-import { Button, Card, Container, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, Container, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../../components/ui';
 import { formatDate, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Report, ReportPhoto } from '../../../../../lib/types';
@@ -103,14 +103,14 @@ export default function ReportDetailScreen() {
 
   if (loading || !report) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={styles.container}>
         <Container>
           <PageHeader
@@ -198,7 +198,7 @@ export default function ReportDetailScreen() {
           ) : null}
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

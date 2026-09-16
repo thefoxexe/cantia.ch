@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { fetchTrame, renameTrame, replaceTrameItems, deleteTrame } from '../../../../lib/api/trames';
 import { confirm } from '../../../../lib/confirm';
-import { Button, Field, LoadingScreen, Screen } from '../../../../components/ui';
+import { Button, Field, LoadingScreen, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -104,14 +104,14 @@ export default function TrameDetailScreen() {
 
   if (!loaded) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
         <View style={styles.content}>
           <Field label={t('newTrame.nameLabel')} value={name} onChangeText={setName} placeholder={t('newTrame.namePlaceholder')} />
@@ -174,7 +174,7 @@ export default function TrameDetailScreen() {
           ) : null}
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

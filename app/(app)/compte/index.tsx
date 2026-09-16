@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { isModuleEnabled } from '../../../lib/modules';
 import { helpHref } from '../../../lib/appHost';
-import { Container, PageHeader, Screen } from '../../../components/ui';
+import { Container, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -162,7 +162,7 @@ export default function CompteIndexScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('compteMenu.title')} backTo="/(app)" />
@@ -249,7 +249,7 @@ export default function CompteIndexScreen() {
           )}
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

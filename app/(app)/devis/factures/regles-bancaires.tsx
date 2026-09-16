@@ -15,7 +15,7 @@ import {
   type BankRuleVatCodeOption,
 } from '../../../../lib/api/bank';
 import { listAssignableProjects } from '../../../../lib/api/subcontractors';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -123,7 +123,7 @@ export default function BankRulesScreen() {
   if (!organization) return <LoadingScreen />;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('bankRules.title')} backTo="/(app)/devis/factures/import-releve" />
         <Text style={styles.pageSubtitle}>{t('bankRules.subtitle')}</Text>
@@ -261,7 +261,7 @@ export default function BankRulesScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

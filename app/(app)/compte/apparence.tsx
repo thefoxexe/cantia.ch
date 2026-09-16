@@ -9,7 +9,7 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
-import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
@@ -105,7 +105,7 @@ export default function ApparenceScreen() {
   const previewColor = HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : colors.border;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('apparence.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
@@ -235,7 +235,7 @@ export default function ApparenceScreen() {
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
-    </Screen>
+    </AppScreen>
   );
 }
 

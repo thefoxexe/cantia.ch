@@ -8,7 +8,7 @@ import {
   updateSituationItemPercent,
   updateSituationRetenue,
 } from '../../../../../lib/api/situations';
-import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { ChantierSituation, ChantierSituationItem } from '../../../../../lib/types';
@@ -52,9 +52,9 @@ export default function SituationDetailScreen() {
 
   if (loading || !situation) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -105,7 +105,7 @@ export default function SituationDetailScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
         <View style={styles.container}>
           <PageHeader title={situation.number ?? t('situationDetail.fallbackTitle')} backTo={`/(app)/chantiers/${id}/situations`} />
@@ -197,7 +197,7 @@ export default function SituationDetailScreen() {
           )}
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -12,7 +12,7 @@ import {
   subscribeToNotifications,
 } from '../../../lib/api/notifications';
 import { DEFAULT_NOTIFICATION_ICON, DEFAULT_NOTIFICATION_TONE, NOTIFICATION_ICON, NOTIFICATION_TONE } from '../../../components/notificationMeta';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Notification } from '../../../lib/types';
 
@@ -87,7 +87,7 @@ export default function NotificationsScreen() {
   if (loading && items.length === 0) return <LoadingScreen />;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader
           title="Notifications"
@@ -147,7 +147,7 @@ export default function NotificationsScreen() {
           </View>
         )}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -3,7 +3,7 @@ import { Modal, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
 import { router } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -81,7 +81,7 @@ export default function NewChantierScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <ScrollView style={{ flex: 1 }}>
         <PageHeader title={t('newChantier.title')} backTo="/(app)/chantiers" />
 
@@ -122,7 +122,7 @@ export default function NewChantierScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

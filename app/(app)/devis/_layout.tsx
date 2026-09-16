@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { Button, LoadingScreen, Screen } from '../../../components/ui';
+import { Button, LoadingScreen, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -16,7 +16,7 @@ function AccessDenied() {
   const { t } = useTranslation();
   const router = useRouter();
   return (
-    <Screen>
+    <AppScreen>
       <View style={styles.deniedWrap}>
         <View style={styles.deniedIcon}>
           <Feather name="lock" size={22} color={colors.textMuted} />
@@ -27,7 +27,7 @@ function AccessDenied() {
         </Text>
         <Button title={t('devisLayout.backHome')} onPress={() => router.replace('/(app)')} />
       </View>
-    </Screen>
+    </AppScreen>
   );
 }
 

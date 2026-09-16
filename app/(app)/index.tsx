@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
-import { Button, Card, EmptyState, Screen } from '../../components/ui';
+import { Button, Card, EmptyState, AppScreen } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -184,15 +184,7 @@ export default function DashboardScreen() {
   const weatherInfo = weather ? describeWeatherCode(weather.code) : null;
 
   return (
-    <Screen>
-      {/* Fixed (not absolute) so it never moves as the ScrollView's own
-          content scrolls over it — a sibling of the ScrollView, not inside
-          it. Dashboard-only (not the generic Screen component) and
-          web-only: native has no "position: fixed" and this is purely a
-          decorative flourish, never load-bearing. Kept very faint (unlike
-          the marketing hero's full-strength reveal) since the point here
-          is reading the KPIs, not the view. */}
-      {Platform.OS === 'web' ? <View pointerEvents="none" style={styles.dashboardMountainBg} /> : null}
+    <AppScreen>
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -390,24 +382,11 @@ export default function DashboardScreen() {
           </>
         ) : null}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  dashboardMountainBg: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage: 'url(/hero-mountain.webp)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center center',
-    backgroundRepeat: 'no-repeat',
-    opacity: 0.1,
-    zIndex: -1,
-  } as unknown as ViewStyle,
   container: {
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 2,

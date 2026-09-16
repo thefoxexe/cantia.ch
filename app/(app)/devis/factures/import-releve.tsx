@@ -18,7 +18,7 @@ import {
   type BankTransactionRow,
   type EntryLineCandidate,
 } from '../../../../lib/api/bank';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -367,7 +367,7 @@ export default function ImportReleveScreen() {
   const visibleUnmatchedCredits = unmatchedCredits.filter((e) => !linkedTxIds.has(e.transactionId));
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader
           title={t('importReleve.title')}
@@ -535,7 +535,7 @@ export default function ImportReleveScreen() {
           </View>
         )}
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

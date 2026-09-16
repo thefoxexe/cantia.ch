@@ -12,7 +12,7 @@ import { polishReportNotes } from '../../../../lib/api/ai';
 import { captureLocation, exifCoords, exifTakenAt } from '../../../../lib/geo';
 import { useDictation } from '../../../../lib/useDictation';
 import { fetchCatalog, findMatches, type CatalogEntry, type CatalogMatch } from '../../../../lib/catalog';
-import { Button, Field, PageHeader, Screen } from '../../../../components/ui';
+import { Button, Field, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -206,7 +206,7 @@ export default function NewReportScreen() {
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <ScrollView style={{ flex: 1 }}>
         <PageHeader title={t('newReport.title')} backTo={`/(app)/chantiers/${projectId}/reports`} />
 
@@ -312,7 +312,7 @@ export default function NewReportScreen() {
           style={{ marginTop: spacing.xl }}
         />
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useProject } from '../../../../../lib/useProject';
 import { supabase } from '../../../../../lib/supabase';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../../components/ui';
 import { formatDate, getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../../../lib/theme';
 import type { ExtraWork, ExtraWorkItem } from '../../../../../lib/types';
@@ -57,14 +57,14 @@ export default function ExtraWorksListScreen() {
 
   if (!project) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         <PageHeader title={t('extraWorksList.title')} backTo={`/(app)/chantiers/${id}`} />
         <Text style={styles.projectName}>{project.name}</Text>
@@ -103,7 +103,7 @@ export default function ExtraWorksListScreen() {
           </ScrollView>
         )}
       </View>
-    </Screen>
+    </AppScreen>
   );
 }
 

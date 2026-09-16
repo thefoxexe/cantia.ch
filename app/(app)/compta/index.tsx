@@ -40,7 +40,7 @@ import {
 import { getVatReport, type VatReport, type VatReportBasis } from '../../../lib/api/factures';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -392,7 +392,7 @@ export default function AccountingScreen() {
   const selectedAccountForActivePicker = accountForPicker ? accounts.find((a) => a.id === accountForPicker.accountId) : null;
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('accounting.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('accounting.subtitleV2')}</Text>
@@ -980,7 +980,7 @@ export default function AccountingScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

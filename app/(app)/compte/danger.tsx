@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { deleteMyAccount } from '../../../lib/api/account';
-import { Button, Card, Container, Field, PageHeader, Screen } from '../../../components/ui';
+import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 
@@ -36,7 +36,7 @@ export default function DangerZoneScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('dangerZone.title')} backTo="/(app)/compte" />
@@ -66,7 +66,7 @@ export default function DangerZoneScreen() {
           </Card>
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

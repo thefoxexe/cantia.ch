@@ -22,7 +22,7 @@ import {
   type RecurringExpenseInput,
 } from '../../../lib/api/treasury';
 import { scanReceipt } from '../../../lib/api/ai';
-import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, Switch } from '../../../components/ui';
+import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { ReceiptScanTiles } from '../../../components/ReceiptScanTiles';
 import { ProjectPicker } from '../../../components/ProjectPicker';
@@ -203,7 +203,7 @@ export default function DepensesScreen() {
 
   if (!plan?.has_profitability && !plan?.has_treasury) {
     return (
-      <Screen style={{ padding: spacing.xl }}>
+      <AppScreen style={{ padding: spacing.xl }}>
         <PageHeader title={t('depensesList.title')} backTo="/(app)" />
         <Card style={styles.upsell}>
           <Feather name="shopping-bag" size={22} color={colors.accent} />
@@ -212,18 +212,18 @@ export default function DepensesScreen() {
           <Text style={styles.upsellText}>{t('depensesList.upsellPlanHint')}</Text>
           <Button title={t('depensesList.seePlans')} variant="secondary" icon="arrow-right" onPress={() => router.push('/(app)/compte')} style={{ marginTop: spacing.md }} />
         </Card>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       {/* The body (header through the expense list/recurring list) was a
           plain View with no scroll container of its own — only the two
           horizontal chip-row ScrollViews existed, and the add/edit modals'
           own ScrollViews, neither of which scrolls the page itself. Once
           the list grew past one screenful there was no way to reach the
-          rest of it. padding moves from Screen to the ScrollView's
+          rest of it. padding moves from AppScreen to the ScrollView's
           contentContainerStyle so it scrolls with the content instead of
           staying fixed to the viewport edge, matching the pattern used
           elsewhere (e.g. tresorerie/index.tsx). */}
@@ -376,7 +376,7 @@ export default function DepensesScreen() {
           load();
         }}
       />
-    </Screen>
+    </AppScreen>
   );
 }
 

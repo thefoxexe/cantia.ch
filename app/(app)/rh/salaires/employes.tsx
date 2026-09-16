@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { createGhostEmployee, listGhostEmployees } from '../../../../lib/api/payroll';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -68,17 +68,17 @@ export default function PayrollEmployeesScreen() {
 
   if (!canManagePayroll) {
     return (
-      <Screen>
+      <AppScreen>
         <ScrollView contentContainerStyle={{ padding: spacing.xl }}>
           <PageHeader title={t('payrollSalariesHub.employeesTitle')} backTo="/(app)/rh" />
           <Card><EmptyState title={t('payrollSalariesHub.employeesTitle')} subtitle={t('payrollHub.selfSubtitle')} /></Card>
         </ScrollView>
-      </Screen>
+      </AppScreen>
     );
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payrollSalariesHub.employeesTitle')} backTo="/(app)/rh/salaires" />
         <Text style={styles.subtitle}>{t('payrollSalariesHub.employeesSubtitle')}</Text>
@@ -149,7 +149,7 @@ export default function PayrollEmployeesScreen() {
           )}
         </Card>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

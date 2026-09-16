@@ -6,7 +6,7 @@ import { useAuth } from '../../../../lib/auth-context';
 import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
 import { isModuleEnabled } from '../../../../lib/modules';
-import { LoadingScreen, PageHeader, Screen } from '../../../../components/ui';
+import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -65,9 +65,9 @@ export default function ChantierDetailScreen() {
 
   if (!project) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -142,7 +142,7 @@ export default function ChantierDetailScreen() {
   }
 
   return (
-    <Screen>
+    <AppScreen>
       <PageHeader
         title={project.name}
         backTo="/(app)/chantiers"
@@ -176,7 +176,7 @@ export default function ChantierDetailScreen() {
             ))}
         </View>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

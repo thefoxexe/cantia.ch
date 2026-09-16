@@ -7,7 +7,7 @@ import { supabase } from '../../../lib/supabase';
 import { addClientNote, deleteClientNote, getClientHistory, listClientNotes, updateClient, type ClientHistory } from '../../../lib/api/clients';
 import { getClientBexioMapping, getIntegration, pushClientToBexio } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, Container, EmptyState, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, Container, EmptyState, Field, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -148,9 +148,9 @@ export default function ClientDetailScreen() {
 
   if (!client) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
@@ -163,7 +163,7 @@ export default function ClientDetailScreen() {
     : [];
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader
@@ -269,7 +269,7 @@ export default function ClientDetailScreen() {
           )}
         </Container>
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

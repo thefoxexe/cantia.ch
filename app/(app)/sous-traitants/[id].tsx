@@ -24,7 +24,7 @@ import {
 } from '../../../lib/api/subcontractors';
 import { downloadFile } from '../../../lib/downloadFile';
 import { confirm } from '../../../lib/confirm';
-import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../components/ui';
+import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { DateField } from '../../../components/DateField';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
@@ -246,16 +246,16 @@ export default function SubcontractorDetailScreen() {
 
   if (!loaded || !subcontractor) {
     return (
-      <Screen>
+      <AppScreen>
         <LoadingScreen />
-      </Screen>
+      </AppScreen>
     );
   }
 
   const insuranceExpired = !!subcontractor.insurance_expires_on && subcontractor.insurance_expires_on < todayIso();
 
   return (
-    <Screen>
+    <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <View style={styles.container}>
           <PageHeader
@@ -450,7 +450,7 @@ export default function SubcontractorDetailScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </AppScreen>
   );
 }
 

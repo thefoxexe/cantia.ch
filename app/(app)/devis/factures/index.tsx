@@ -7,7 +7,7 @@ import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder, duplicateFacture, recomputeFactureDepositDeduction, addLateFeeToFacture } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
-import { Card, EmptyState, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../components/ui';
+import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { formatDate, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
@@ -417,7 +417,7 @@ export default function FacturesListScreen() {
 
   return (
     <>
-    <Screen style={{ padding: spacing.xl }}>
+    <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
         {openProject ? (
           <>
@@ -572,7 +572,7 @@ export default function FacturesListScreen() {
           </ScrollView>
         )}
       </View>
-    </Screen>
+    </AppScreen>
 
     <Modal visible={feeModalFor !== null} animationType="fade" transparent onRequestClose={closeFeeModal}>
       <View style={styles.feeBackdrop}>
