@@ -34,11 +34,56 @@ function lowerFirst(s: string): string {
   return s.length ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }
 
+// talking_points is written as a filming script — imperative director
+// notes ("Montrer X.", "Rappeler que Y.", "Bon moment pour Z.") meant for
+// whoever's behind the camera. A viewer-facing YouTube description reading
+// "Montrer l'envoi du devis..." sounds like a leaked shot list, not a
+// description — so each line gets its directing verb stripped and its
+// first letter re-capitalized, turning it into a plain descriptive bullet
+// ("L'envoi du devis...") instead of an instruction.
+const SCRIPT_PREFIXES: RegExp[] = [
+  /^Montrer que /i,
+  /^Montrer comment /i,
+  /^Montrer /i,
+  /^Insister sur le fait que /i,
+  /^Insister sur /i,
+  /^Insister\s*:\s*/i,
+  /^Rappeler que /i,
+  /^Rappeler qui /i,
+  /^Rappeler /i,
+  /^Bien préciser\s*:\s*/i,
+  /^Préciser que /i,
+  /^Préciser /i,
+  /^Bon moment pour /i,
+  /^Bon exemple pour /i,
+  /^Bon chapitre de clôture\s*:\s*/i,
+  /^Comparer /i,
+  /^Se mettre à la place du client\s*:\s*/i,
+  /^Sur (un|une) [^,]+, montrer /i,
+];
+
+function humanizeTalkingPoint(line: string): string {
+  let s = line;
+  // Two passes: a few lines stack a framing clause in front of a second
+  // director verb ("Se mettre à la place du client : montrer ...") — one
+  // pass only strips the outer one and leaves "montrer" behind.
+  for (let pass = 0; pass < 2; pass++) {
+    for (const prefix of SCRIPT_PREFIXES) {
+      if (prefix.test(s)) {
+        s = s.replace(prefix, '');
+        break;
+      }
+    }
+  }
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export function buildYoutubeDescription(chapter: Pick<AdminTutorialChapter, 'title' | 'feature_area' | 'talking_points'>): string {
   const points = chapter.talking_points
     .split('\n')
     .map((l) => l.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map(humanizeTalkingPoint);
 
   const bullets = points.map((p) => `• ${p}`).join('\n');
   const areaTag = hashtagForArea(chapter.feature_area);
