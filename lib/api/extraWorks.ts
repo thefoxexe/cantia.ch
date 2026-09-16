@@ -40,3 +40,21 @@ export async function acceptPublicExtraWork(
   });
   return { status: (data as { status: string } | null)?.status ?? null, error: error?.message ?? null };
 }
+
+// "Signer maintenant" — un membre fait signer le client en direct sur sa
+// propre tablette (le client est encore sur place), sans passer par le lien
+// e-mail + token. Authentifiée via la session de l'artisan
+// (can_view_org_finances) au lieu du token public ; même effet de bord
+// (passe à accepted, convertit en facture) que accept_public_extra_work.
+export async function acceptExtraWorkLive(
+  extraWorkId: string,
+  signerName: string,
+  signatureData: string,
+): Promise<{ status: string | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('accept_extra_work_live', {
+    p_extra_work_id: extraWorkId,
+    p_signer_name: signerName,
+    p_signature_data: signatureData,
+  });
+  return { status: (data as { status: string } | null)?.status ?? null, error: error?.message ?? null };
+}

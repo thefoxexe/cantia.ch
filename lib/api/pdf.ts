@@ -16,6 +16,11 @@ export async function generateFacturePdf(factureId: string): Promise<{ url: stri
   return { url: data?.url ?? null, error };
 }
 
+export async function generateExtraWorkPdf(extraWorkId: string): Promise<{ url: string | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ url: string }>('generate-extra-work-pdf', { extra_work_id: extraWorkId });
+  return { url: data?.url ?? null, error };
+}
+
 // periodStart is the ISO first-of-month date the payslip covers (e.g.
 // '2026-08-01') — the edge function derives both the period label and the
 // hours-worked range from it.

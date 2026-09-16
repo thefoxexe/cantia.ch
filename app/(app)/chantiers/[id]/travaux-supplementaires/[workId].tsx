@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { supabase } from '../../../../../lib/supabase';
-import { sendExtraWorkEmail, publicExtraWorkUrl } from '../../../../../lib/api/extraWorks';
+import { sendExtraWorkEmail, publicExtraWorkUrl, acceptExtraWorkLive } from '../../../../../lib/api/extraWorks';
+import { generateExtraWorkPdf } from '../../../../../lib/api/pdf';
+import { downloadFile } from '../../../../../lib/downloadFile';
 import { confirm } from '../../../../../lib/confirm';
-import { Button, Card, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, Field, LoadingScreen, PageHeader, Screen, StatusBadge } from '../../../../../components/ui';
+import { SignaturePad } from '../../../../../components/SignaturePad';
 import { getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { ExtraWork, ExtraWorkItem } from '../../../../../lib/types';
@@ -25,6 +28,12 @@ export default function ExtraWorkDetailScreen() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [signModalOpen, setSignModalOpen] = useState(false);
+  const [signerName, setSignerName] = useState('');
+  const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [signing, setSigning] = useState(false);
+  const [signError, setSignError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -94,6 +103,49 @@ export default function ExtraWorkDetailScreen() {
     load();
   }
 
+  async function handleDownloadPdf() {
+    setDownloadingPdf(true);
+    setError(null);
+    const { url, error: genError } = await generateExtraWorkPdf(work!.id);
+    setDownloadingPdf(false);
+    if (genError || !url) {
+      setError(genError ?? t('extraWorkDetail.pdfGenFailed'));
+      return;
+    }
+    const { error: dlError } = await downloadFile(url, `${work!.number || work!.title}.pdf`);
+    if (dlError) setError(dlError);
+  }
+
+  function openSignModal() {
+    setSignerName('');
+    setSignatureData(null);
+    setSignError(null);
+    setSignModalOpen(true);
+  }
+
+  async function handleConfirmLiveSignature() {
+    if (!signerName.trim()) {
+      setSignError(t('extraWorkDetail.nameRequired'));
+      return;
+    }
+    if (!signatureData) {
+      setSignError(t('extraWorkDetail.signatureRequired'));
+      return;
+    }
+    setSigning(true);
+    setSignError(null);
+    const { status, error: acceptError } = await acceptExtraWorkLive(work!.id, signerName.trim(), signatureData);
+    if (acceptError || !status) {
+      setSigning(false);
+      setSignError(acceptError ?? t('extraWorkDetail.acceptFailed'));
+      return;
+    }
+    await generateExtraWorkPdf(work!.id);
+    setSigning(false);
+    setSignModalOpen(false);
+    load();
+  }
+
   return (
     <Screen style={{ padding: spacing.xl }}>
       <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
@@ -154,6 +206,14 @@ export default function ExtraWorkDetailScreen() {
                   style={{ marginTop: spacing.sm }}
                 />
               ) : null}
+              <Button
+                title={t('extraWorkDetail.downloadPdf')}
+                variant="secondary"
+                icon="download"
+                onPress={handleDownloadPdf}
+                loading={downloadingPdf}
+                style={{ marginTop: spacing.sm }}
+              />
             </Card>
           ) : work.status === 'refused' ? (
             <Text style={[styles.meta, { marginTop: spacing.md }]}>{t('extraWorkDetail.refusedNotice')}</Text>
@@ -163,6 +223,11 @@ export default function ExtraWorkDetailScreen() {
                 <Button title={t('extraWorkDetail.markAsSent')} variant="secondary" icon="send" onPress={handleMarkSent} />
               ) : null}
               <Button
+                title={t('extraWorkDetail.signNow')}
+                icon="edit-3"
+                onPress={openSignModal}
+              />
+              <Button
                 title={linkCopied ? t('extraWorkDetail.linkCopied') : t('extraWorkDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
@@ -170,15 +235,49 @@ export default function ExtraWorkDetailScreen() {
               />
               <Button
                 title={emailSent ? t('extraWorkDetail.emailSent') : t('extraWorkDetail.sendByEmail')}
+                variant="secondary"
                 icon="mail"
                 onPress={handleSendEmail}
                 loading={sendingEmail}
+              />
+              <Button
+                title={t('extraWorkDetail.downloadPdf')}
+                variant="secondary"
+                icon="download"
+                onPress={handleDownloadPdf}
+                loading={downloadingPdf}
               />
               <Button title={t('extraWorkDetail.markAsRefused')} variant="secondary" icon="x-circle" onPress={handleRefuse} />
             </View>
           )}
         </View>
       </ScrollView>
+
+      <Modal visible={signModalOpen} animationType="slide" transparent onRequestClose={() => setSignModalOpen(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('extraWorkDetail.signNowTitle')}</Text>
+              <Text style={styles.modalClose} onPress={() => setSignModalOpen(false)}>
+                ✕
+              </Text>
+            </View>
+            <ScrollView contentContainerStyle={styles.modalBody}>
+              <Text style={styles.modalHint}>{t('extraWorkDetail.signNowHint')}</Text>
+              <Field label={t('extraWorkDetail.signerNameLabel')} value={signerName} onChangeText={setSignerName} placeholder={t('extraWorkDetail.signerNamePlaceholder')} />
+              <Text style={styles.sectionTitle}>{t('extraWorkDetail.signatureLabel')}</Text>
+              <SignaturePad onChange={setSignatureData} />
+              {signError ? <Text style={styles.error}>{signError}</Text> : null}
+              <Button
+                title={t('extraWorkDetail.confirmSignature')}
+                onPress={handleConfirmLiveSignature}
+                loading={signing}
+                style={{ marginTop: spacing.md }}
+              />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -290,5 +389,44 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.success,
     textAlign: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalSheet: {
+    backgroundColor: colors.bg,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    maxHeight: '88%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalClose: {
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  modalHint: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
+    lineHeight: 19,
   },
 });

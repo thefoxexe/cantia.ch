@@ -53,6 +53,11 @@ const LABELS = {
     de: 'Bitte begleichen Sie diese Rechnung bis zum oben angegebenen Fälligkeitsdatum.',
     it: 'Vi preghiamo di saldare questa fattura entro la scadenza indicata sopra.',
   },
+  extraWorkAccepted: {
+    fr: 'Travaux supplémentaires acceptés et signés — facturés séparément du devis initial.',
+    de: 'Zusatzarbeiten akzeptiert und unterzeichnet — separat vom ursprünglichen Angebot in Rechnung gestellt.',
+    it: 'Lavori supplementari accettati e firmati — fatturati separatamente dal preventivo iniziale.',
+  },
   pricesInChf: { fr: 'Prix en francs suisses (CHF).', de: 'Preise in Schweizer Franken (CHF).', it: 'Prezzi in franchi svizzeri (CHF).' },
   documentGenerated: { fr: 'Document généré avec Cantia — cantia.ch', de: 'Dokument erstellt mit Cantia — cantia.ch', it: 'Documento generato con Cantia — cantia.ch' },
   page: { fr: 'Page {n}', de: 'Seite {n}', it: 'Pagina {n}' },

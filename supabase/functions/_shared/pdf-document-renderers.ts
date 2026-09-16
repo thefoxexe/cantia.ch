@@ -84,7 +84,7 @@ export interface RenderCtx {
   brand: RGB;
   footerText: string | null;
   docLabel: string; // localized 'Devis'/'Angebot' or 'Facture'/'Rechnung'
-  docKind: 'devis' | 'facture'; // drives which fixed strings drawTerms/renderUnified pick, independent of docLabel's locale
+  docKind: 'devis' | 'facture' | 'extra_work'; // drives which fixed strings drawTerms/renderUnified pick, independent of docLabel's locale
   metaLine: string | null; // e.g. "Échéance : 05.09.2026" or "Payée le 20.08.2026"
   locale: PdfLocale;
 }
@@ -305,11 +305,13 @@ function drawTotalsLine(page: PDFPage, font: PDFFont, y: number, label: string, 
 // (byte-identical to the pre-facture behavior). For a facture: a payment
 // reminder instead — the actual due date is already shown as metaLine near
 // the title, this is just the closing courtesy line.
-function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture', locale: PdfLocale, validUntil?: string | null): number {
+function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture' | 'extra_work', locale: PdfLocale, validUntil?: string | null): number {
   const validityDays = org?.devis_validity_days ?? 30;
   const baseText =
     docKind === 'facture'
       ? pdfT(locale, 'paymentReminder')
+      : docKind === 'extra_work'
+      ? pdfT(locale, 'extraWorkAccepted')
       : validUntil
       // An explicit per-devis date (chosen at creation) always wins over
       // the generic "valable X jours" org default — it's the actual date

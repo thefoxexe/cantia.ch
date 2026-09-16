@@ -360,6 +360,7 @@ export interface ExtraWork {
   client_signer_name: string | null;
   client_signature_data: string | null;
   facture_id: string | null;
+  pdf_path: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
