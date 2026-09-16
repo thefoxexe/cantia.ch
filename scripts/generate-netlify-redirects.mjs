@@ -83,11 +83,21 @@ ${blocks}
   status = 200
 
 # SPA fallback for every other route (the actual app, auth screens, etc.) —
-# stays last so none of the explicit rules above are shadowed by it.
+# stays last so none of the explicit rules above are shadowed by it. status
+# 404 (not 200): every route Google should ever see already matched one of
+# the explicit rules above, so anything reaching this one is a genuinely
+# dead/mistyped URL — app/+not-found.tsx renders its branded page either
+# way, but a real 404 status here (not a "soft 404") is what tells Search
+# Console this URL isn't meant to be indexed. Netlify still serves
+# index.html's content with that status, so nothing breaks for a visitor or
+# for app.cantia.ch's own client-side routes (that host is already
+# excluded from indexing — see lib/appHost.ts's excludeAppHostFromIndexing
+# — and a non-200 status on the initial document never stops a browser
+# from rendering/hydrating it).
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
+  status = 404
 `;
 
 writeFileSync(tomlPath, header);
