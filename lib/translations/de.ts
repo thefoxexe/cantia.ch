@@ -2840,7 +2840,7 @@ export const de: TranslationDict = {
     faqVatQ: 'Ist die MWST im Preis enthalten?',
     faqVatA: 'Die angezeigten Preise verstehen sich exklusive MWST. Die Schweizer MWST wird bei der Rechnungsstellung hinzugefügt.',
     closingTitle: 'Bereit, {{name}} auszuprobieren?',
-    closingText: '14 Tage kostenlose Testphase, ohne Kreditkarte, jederzeit kündbar.',
+    closingText: '14 Tage kostenlose Testphase — Kreditkarte bei der Anmeldung erforderlich, erste Abbuchung erst nach diesen 14 Tagen, jederzeit kostenlos kündbar.',
     plans: {
       solo: {
         heroText: 'Um allein oder zu wenigen zu starten, mit professionellen Offerten und Rechnungen ab dem ersten Tag.',

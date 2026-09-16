@@ -2829,7 +2829,7 @@ export const fr = {
     faqVatQ: "Le prix inclut-il la TVA ?",
     faqVatA: 'Les prix affichés sont hors TVA. La TVA suisse est ajoutée lors de la facturation.',
     closingTitle: 'Prêt à essayer {{name}} ?',
-    closingText: "14 jours d'essai gratuit, sans carte bancaire, résiliable à tout moment.",
+    closingText: "14 jours d'essai gratuit — carte bancaire requise à l'inscription, premier prélèvement uniquement après ces 14 jours, résiliable à tout moment et sans frais.",
     plans: {
       solo: {
         heroText: "Pour démarrer seul ou à quelques-uns, avec des devis et factures professionnels dès le premier jour.",

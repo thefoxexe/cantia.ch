@@ -158,7 +158,7 @@ Pourquoi Cantia :
 • Données hébergées 100% en Suisse (Zurich)
 • Essai gratuit de 14 jours, résiliable à tout moment, sans engagement
 
-Essayez Cantia gratuitement pendant 14 jours, sans carte bancaire à saisir :
+Essayez Cantia gratuitement pendant 14 jours (carte bancaire requise à l'inscription, débitée seulement après l'essai, résiliable à tout moment sans frais) :
 https://cantia.ch
 
 #Cantia #Suisse #BâtimentSuisse #ArtisanSuisse #ConstructionSuisse ${areaTag}`;

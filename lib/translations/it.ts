@@ -2848,7 +2848,7 @@ export const it: TranslationDict = {
     faqVatQ: 'Il prezzo include l\'IVA?',
     faqVatA: 'I prezzi indicati sono al netto dell\'IVA. L\'IVA svizzera viene aggiunta al momento della fatturazione.',
     closingTitle: 'Pronto a provare {{name}}?',
-    closingText: '14 giorni di prova gratuita, senza carta di credito, disdicibile in qualsiasi momento.',
+    closingText: '14 giorni di prova gratuita — carta di credito richiesta alla registrazione, primo addebito solo dopo questi 14 giorni, disdicibile in qualsiasi momento e senza costi.',
     plans: {
       solo: {
         heroText: 'Per iniziare da soli o in pochi, con preventivi e fatture professionali fin dal primo giorno.',
