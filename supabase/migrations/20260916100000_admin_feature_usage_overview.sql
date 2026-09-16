@@ -31,9 +31,14 @@ begin
   with orgs as (
     select id, logo_url, brand_color from public.organizations where not is_internal
   )
-  select 'devis'::text, 'Devis créés'::text, 'coeur_metier'::text,
-    count(*), count(distinct d.organization_id), v_orgs_total,
-    count(*) filter (where d.created_at > now() - interval '30 days')
+  -- Column aliases here (only) matter: a UNION's output column names come
+  -- from its first branch, and the trailing ORDER BY below needs those
+  -- names — without them "orgs_using"/"total_count" don't resolve to
+  -- anything and Postgres rejects the whole query with "invalid
+  -- UNION/INTERSECT/EXCEPT ORDER BY clause".
+  select 'devis'::text as feature_key, 'Devis créés'::text as label, 'coeur_metier'::text as category,
+    count(*) as total_count, count(distinct d.organization_id) as orgs_using, v_orgs_total as orgs_total,
+    count(*) filter (where d.created_at > now() - interval '30 days') as last_30d_count
   from public.devis d join orgs o on o.id = d.organization_id
   union all
   select 'factures', 'Factures créées', 'coeur_metier',
