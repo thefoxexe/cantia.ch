@@ -107,4 +107,20 @@ for (const route of ROUTES) {
   patchedCount++;
 }
 
+// This site's Netlify config is UI-only (no netlify.toml, see
+// app-marketing/README.md), so there are no [[redirects]] to send an
+// unmatched path to the prerendered `+not-found.html` `expo export`
+// produces — Netlify's own zero-config fallback only looks for a file
+// literally named `404.html` at the publish root, and serves it, with a
+// real 404 status, for any path that matches nothing else. Copying the
+// already-patched not-found page there is enough to get correct branded
+// 404s without adding any dashboard/redirect config at all.
+const notFoundFile = path.join(outputDir, '+not-found.html');
+if (existsSync(notFoundFile)) {
+  writeFileSync(path.join(outputDir, '404.html'), readFileSync(notFoundFile, 'utf8'));
+  console.log('404.html written from +not-found.html for Netlify\'s zero-config 404 fallback.');
+} else {
+  console.warn('  ! no +not-found.html found — Netlify has no custom 404 page for this build.');
+}
+
 console.log(`Marketing export ready: dist-marketing/ (${patchedCount}/${ROUTES.length} route(s) patched with SEO meta).`);
