@@ -25,7 +25,8 @@ type MenuKey =
   | 'aide'
   | 'danger'
   | 'entrepriseDanger'
-  | 'rh';
+  | 'rh'
+  | 'import';
 
 interface MenuItem {
   href: string;
@@ -78,6 +79,7 @@ const GROUPS: MenuGroup[] = [
       { href: '/(app)/compte/emails', icon: 'mail', key: 'emails' },
       { href: '/(app)/compte/facturation', icon: 'credit-card', key: 'facturation' },
       { href: '/(app)/compte/stockage', icon: 'hard-drive', key: 'stockage' },
+      { href: '/(app)/compte/import', icon: 'upload-cloud', key: 'import' },
       { href: '/(app)/compte/entreprise-danger', icon: 'alert-triangle', key: 'entrepriseDanger' },
     ],
   },
