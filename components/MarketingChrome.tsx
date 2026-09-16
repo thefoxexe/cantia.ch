@@ -322,8 +322,11 @@ export function MarketingFooter({
   // Rebuilt to match the validated Cantia_Landing reference's footer
   // exactly: brand column + three link columns (La plateforme / Découvrir
   // Cantia / Ressources), plain copyright + two legal links in the bottom
-  // bar — no help pill, no social icons, no language switcher down here
-  // (the top nav already offers one on every page that renders this footer).
+  // bar — no help pill, no language switcher down here (the top nav already
+  // offers one on every page that renders this footer). The YouTube link is
+  // the one deliberate exception to "no social icons": the channel carries
+  // the tutorial library referenced from /aide, worth surfacing everywhere
+  // this footer renders, not just there.
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -341,6 +344,12 @@ export function MarketingFooter({
           <Link href="tel:+41784501457" asChild>
             <Pressable style={styles.footerContact}>
               <Text style={styles.footerContactText}>+41 78 450 14 57</Text>
+            </Pressable>
+          </Link>
+          <Link href="https://www.youtube.com/@Cantiach" target="_blank" asChild>
+            <Pressable style={styles.footerContact}>
+              <Feather name="youtube" size={14} color={colors.textMuted} />
+              <Text style={styles.footerContactText}>{t.footer.youtube}</Text>
             </Pressable>
           </Link>
         </View>

@@ -3244,6 +3244,7 @@ export const de: TranslationDict = {
     lead: 'Kurze Videos, um jedes Modul in Aktion zu sehen — Einarbeitung, Schulung einer neuen Fachkraft, oder einfach ein Vorgeschmack vor der Anmeldung.',
     noticeTitle: 'Videos in Vorbereitung',
     noticeText: 'Pro Modul wird derzeit ein Präsentationsvideo gedreht. Sie werden im Laufe des Septembers hier verfügbar sein.',
+    channelLink: 'Alle unsere Tutorials auf unserem YouTube-Kanal ansehen',
     searchPlaceholder: 'Video suchen…',
     noResults: 'Kein Video passt zu „{{query}}“.',
   },

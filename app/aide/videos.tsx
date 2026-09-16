@@ -84,6 +84,15 @@ export default function TutorialVideosScreen() {
           <Text style={styles.title}>{t('aideVideosPage.title')}</Text>
           <Text style={styles.lead}>{t('aideVideosPage.lead')}</Text>
 
+          <Pressable
+            onPress={() => Linking.openURL('https://www.youtube.com/@Cantiach')}
+            style={styles.channelLink}
+          >
+            <Feather name="youtube" size={16} color={colors.primary} />
+            <Text style={styles.channelLinkText}>{t('aideVideosPage.channelLink')}</Text>
+            <Feather name="external-link" size={13} color={colors.primary} />
+          </Pressable>
+
           {loading ? null : available.length === 0 ? (
             <View style={styles.notice}>
               <Feather name="film" size={22} color={colors.primary} />
@@ -216,9 +225,21 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     color: colors.textMuted,
     marginTop: spacing.xs,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
     maxWidth: 560,
     lineHeight: 22,
+  },
+  channelLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    marginBottom: spacing.xl,
+  },
+  channelLinkText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primary,
   },
   notice: {
     flexDirection: 'row',
