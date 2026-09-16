@@ -3,6 +3,7 @@ import { invokeFunction } from './functions';
 import type {
   AdminAuditLog,
   AdminDashboardStats,
+  AdminFeatureUsage,
   AdminModuleSummary,
   AdminOrgBillingStatus,
   AdminOrganizationDetail,
@@ -182,6 +183,15 @@ export async function upsertTutorialChapter(input: {
 export async function deleteTutorialChapter(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('admin_delete_tutorial_chapter', { chapter_id: id });
   return { error: logRpcError('admin_delete_tutorial_chapter', error) };
+}
+
+// Real usage, not clicks — see admin_feature_usage_overview() for how each
+// row is counted (an org's own devis/facture/report/... rows, never new
+// event tracking).
+export async function getFeatureUsage(): Promise<{ rows: AdminFeatureUsage[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_feature_usage_overview');
+  const err = logRpcError('admin_feature_usage_overview', error);
+  return { rows: err || !data ? [] : (data as AdminFeatureUsage[]), error: err };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the

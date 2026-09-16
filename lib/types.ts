@@ -1186,6 +1186,21 @@ export interface AdminOrganizationDetail {
   private_modules: AdminOrganizationPrivateModule[];
 }
 
+// One row of admin_feature_usage_overview() — real usage counted from the
+// rows each feature already writes (a devis row IS "used the devis
+// feature"), never client-side event tracking. last_30d_count is null for
+// the two org-level boolean rows (logo/brand color), which have no natural
+// time series.
+export interface AdminFeatureUsage {
+  feature_key: string;
+  label: string;
+  category: string;
+  total_count: number;
+  orgs_using: number;
+  orgs_total: number;
+  last_30d_count: number | null;
+}
+
 export interface AdminModuleSummary {
   id: string;
   key: string;
