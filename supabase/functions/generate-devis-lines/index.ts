@@ -15,11 +15,17 @@ On te donne le texte dicté (souvent informel, parfois mal transcrit, en frança
 Règles strictes :
 - Découpe le texte en positions distinctes : une ligne par élément ou prestation mentionné. Ne fusionne jamais deux prestations différentes dans une même ligne.
 - Pour chaque position, déduis la quantité mentionnée (écrite en toutes lettres ou en chiffres) ; si aucune quantité n'est mentionnée, utilise 1.
-- Compare chaque position au catalogue fourni. Si un article du catalogue correspond clairement à la même prestation (même si le texte dicté est mal orthographié ou approximatif, ex. "tu es au PVC" pour "tuyau PVC"), reprends EXACTEMENT sa description, son unité et son prix unitaire tels que fournis dans le catalogue, et mets "matched": true.
-- Si aucun article du catalogue ne correspond clairement, rédige une description propre et professionnelle basée sur ce qui a été dit, dans la même langue que le texte dicté (ne traduis jamais), choisis une unité plausible (pce, m², m³, ml, h, kg), mets "unitPrice": null (l'artisan devra saisir le prix lui-même) et "matched": false.
-- N'invente jamais de prix : un prix ne peut venir que du catalogue fourni.
+- PRIORITÉ ABSOLUE AU PRIX DICTÉ. Si un prix, un tarif ou un forfait est explicitement mentionné pour une position (ex. "un forfait de 15'000 francs pour les installations de chantier", "150 francs le mètre cube", "30 francs de l'heure"), utilise TOUJOURS ce prix comme "unitPrice" — jamais celui du catalogue, même si un article du catalogue correspond à la même prestation avec un prix différent. Mets "priceSource": "stated".
+  - Pour un tarif par unité ("150 francs le mètre cube pour environ 3000 mètres cubes de terrassement") : "unitPrice" est le tarif unitaire dicté (150), "quantity" est la quantité dictée (3000), "unit" est l'unité dictée (m³) — ne laisse JAMAIS "unitPrice" à null quand un tarif a été dicté, c'est quantity × unitPrice qui donnera le total, calculé côté application, pas toi.
+  - Pour un forfait ("un forfait de 15'000 francs pour les installations de chantier") : "quantity": 1 (sauf quantité différente explicitement dictée), "unitPrice": 15000.
+- Compare quand même chaque position au catalogue fourni, pour la description/l'unité et pour repérer si le prix habituel diffère de ce qui a été dicté :
+  - Si un article correspond clairement (même si le texte dicté est mal orthographié ou approximatif, ex. "tu es au PVC" pour "tuyau PVC") : mets "matched": true, reprends sa description/unité si aucune n'a été dictée plus précisément.
+  - Si un prix a été dicté (priceSource "stated") et que le prix du catalogue pour cet article est différent, garde le prix dicté dans "unitPrice" mais indique le prix catalogue dans "catalogPrice" (pour signaler l'écart à l'utilisateur, jamais pour remplacer ce qu'il a dit).
+  - Si AUCUN prix n'a été dicté pour cette position et qu'un article du catalogue correspond, utilise son prix comme "unitPrice", mets "priceSource": "catalog", et laisse "catalogPrice": null (pas d'écart à signaler puisque le prix vient justement du catalogue).
+- Si aucun prix n'a été dicté et qu'aucun article du catalogue ne correspond, rédige une description propre et professionnelle basée sur ce qui a été dit, dans la même langue que le texte dicté (ne traduis jamais), choisis une unité plausible (pce, m², m³, ml, h, kg), mets "unitPrice": null, "priceSource": "none", "matched": false, "catalogPrice": null.
+- N'invente jamais un prix qui n'a été ni dicté ni trouvé dans le catalogue.
 - Réponds UNIQUEMENT avec un tableau JSON valide, sans texte autour, sans balises markdown, au format exact :
-[{"description": string, "quantity": number, "unit": string, "unitPrice": number | null, "matched": boolean}]`;
+[{"description": string, "quantity": number, "unit": string, "unitPrice": number | null, "matched": boolean, "priceSource": "stated" | "catalog" | "none", "catalogPrice": number | null}]`;
 
 interface CatalogInput {
   description: string;
@@ -33,6 +39,8 @@ interface DevisLine {
   unit: string;
   unitPrice: number | null;
   matched: boolean;
+  priceSource: 'stated' | 'catalog' | 'none';
+  catalogPrice: number | null;
 }
 
 Deno.serve(async (req: Request) => {
@@ -158,7 +166,16 @@ function parseLines(raw: string): DevisLine[] | null {
     const unitPriceRaw = (item as any).unitPrice;
     const unitPrice = typeof unitPriceRaw === 'number' && Number.isFinite(unitPriceRaw) ? unitPriceRaw : null;
     const matched = unitPrice != null && (item as any).matched === true;
-    lines.push({ description, quantity, unit, unitPrice, matched });
+    const priceSourceRaw = (item as any).priceSource;
+    const priceSource: DevisLine['priceSource'] =
+      priceSourceRaw === 'stated' || priceSourceRaw === 'catalog' || priceSourceRaw === 'none'
+        ? priceSourceRaw
+        : unitPrice != null
+          ? 'catalog'
+          : 'none';
+    const catalogPriceRaw = (item as any).catalogPrice;
+    const catalogPrice = typeof catalogPriceRaw === 'number' && Number.isFinite(catalogPriceRaw) ? catalogPriceRaw : null;
+    lines.push({ description, quantity, unit, unitPrice, matched, priceSource, catalogPrice });
   }
   return lines;
 }

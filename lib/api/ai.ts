@@ -11,6 +11,14 @@ export interface DictatedDevisLine {
   unit: string;
   unitPrice: number | null;
   matched: boolean;
+  // 'stated': a price was explicitly dictated for this line — always wins
+  // over the catalog, even when matched is also true. 'catalog': no price
+  // was dictated, unitPrice came from the catalog match. 'none': neither.
+  priceSource: 'stated' | 'catalog' | 'none';
+  // Only set when priceSource is 'stated' AND a catalog match exists at a
+  // different price — the catalog price shown as a "you usually charge…"
+  // hint, never used to override what was actually said.
+  catalogPrice: number | null;
 }
 
 export async function generateDevisLines(
@@ -139,7 +147,14 @@ export interface AssistantContext {
   overdueFactures: AssistantOverdueFacture[];
   overdueCount: number;
   overdueTotalChf: number;
+  revenueThisMonthChf: number;
   upcomingRecurringExpensesCount: number | null;
+  // True when the caller (buildAssistantContext) skipped the financial
+  // queries because the asking member doesn't have finance permission —
+  // overdueFactures/overdueTotalChf/revenueThisMonthChf are zeroed/empty
+  // in that case, not genuinely "nothing owed". Tells the model to say so
+  // explicitly instead of answering a money question with a misleading 0.
+  financialDataHidden: boolean;
 }
 
 // The voice assistant's second stage for a "question" command — the client

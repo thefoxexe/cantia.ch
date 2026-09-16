@@ -14,7 +14,9 @@ import { createExpense } from '../lib/api/treasury';
 import { buildAssistantContext } from '../lib/api/assistantContext';
 import { fetchCatalog, type CatalogEntry } from '../lib/catalog';
 import { Field } from './ui';
+import { ClientPicker } from './ClientPicker';
 import { ProjectPicker } from './ProjectPicker';
+import type { Client } from '../lib/types';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
@@ -65,11 +67,17 @@ export function VoiceAssistant() {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // create_devis / create_facture: the client name comes straight from the
-  // router, editable before handing off; the lines come from a second AI
-  // call (generateDevisLines, same one the devis/facture editors already
-  // use for their own "Dicter les positions" button) fired on the same
-  // transcript once the router confirms which document type it is.
+  // router, editable before handing off, with the same client picker
+  // (search existing / create inline) as the real devis/facture editor —
+  // picking one resolves a real client_id instead of leaving the created
+  // document with a free-text name and no client link. The chantier link
+  // is optional, same picker as the editor too. The lines come from a
+  // second AI call (generateDevisLines, same one the devis/facture editors
+  // already use for their own "Dicter les positions" button) fired on the
+  // same transcript once the router confirms which document type it is.
   const [devisClientName, setDevisClientName] = useState('');
+  const [devisClientId, setDevisClientId] = useState<string | null>(null);
+  const [devisProjectId, setDevisProjectId] = useState<string | null>(null);
   const [devisLines, setDevisLines] = useState<DictatedDevisLine[]>([]);
 
   // question: the natural-language answer from answerAssistantQuestion,
@@ -137,6 +145,8 @@ export function VoiceAssistant() {
     setCommand(null);
     setSaveError(null);
     setDevisClientName('');
+    setDevisClientId(null);
+    setDevisProjectId(null);
     setDevisLines([]);
     setAnswerText(null);
   }
@@ -196,7 +206,7 @@ export function VoiceAssistant() {
 
     if (cmd.action === 'question') {
       setCommand(cmd);
-      const context = await buildAssistantContext(organization, planName, treasuryEnabled, taskCategoryLabel);
+      const context = await buildAssistantContext(organization, planName, treasuryEnabled, canViewFinances, taskCategoryLabel);
       const { answer, error: ansErr } = await answerAssistantQuestion(transcript, organization.id, context, locale);
       if (ansErr || !answer) {
         setStage('error');
@@ -211,6 +221,8 @@ export function VoiceAssistant() {
     if (cmd.action === 'create_devis' || cmd.action === 'create_facture') {
       setCommand(cmd);
       setDevisClientName(cmd.clientName ?? '');
+      setDevisClientId(null);
+      setDevisProjectId(null);
       const catalogPayload = catalog.slice(0, 150).map((c) => ({ description: c.description, unit: c.unit, unitPrice: c.unitPrice }));
       const { lines } = await generateDevisLines(transcript, catalogPayload, organization.id);
       setDevisLines(lines ?? []);
@@ -239,6 +251,14 @@ export function VoiceAssistant() {
     if (!command || (command.action !== 'create_devis' && command.action !== 'create_facture')) return;
     const params = new URLSearchParams();
     if (devisClientName.trim()) params.set('voiceClientName', devisClientName.trim());
+    if (devisClientId) params.set('voiceClientId', devisClientId);
+    if (devisProjectId) {
+      const projectName = projects.find((p) => p.id === devisProjectId)?.label;
+      if (projectName) {
+        params.set('voiceProjectId', devisProjectId);
+        params.set('voiceProjectName', projectName);
+      }
+    }
     if (devisLines.length) params.set('voiceLines', JSON.stringify(devisLines));
     const base = command.action === 'create_devis' ? '/(app)/devis/new' : '/(app)/devis/factures/new';
     const target = params.toString() ? `${base}?${params.toString()}` : base;
@@ -367,8 +387,13 @@ export function VoiceAssistant() {
             {stage === 'confirm' && command && (command.action === 'create_devis' || command.action === 'create_facture') ? (
               <DevisFactureConfirm
                 command={command}
+                organizationId={organization.id}
                 clientName={devisClientName}
                 setClientName={setDevisClientName}
+                setClientId={setDevisClientId}
+                projects={projects}
+                projectId={devisProjectId}
+                setProjectId={setDevisProjectId}
                 lines={devisLines}
                 onConfirm={handleCreateDocument}
                 onRetryVoice={startOver}
@@ -668,15 +693,25 @@ function chf(n: number): string {
 // they land pre-filled. Nothing is written to the database from this modal.
 function DevisFactureConfirm({
   command,
+  organizationId,
   clientName,
   setClientName,
+  setClientId,
+  projects,
+  projectId,
+  setProjectId,
   lines,
   onConfirm,
   onRetryVoice,
 }: {
   command: VoiceCommand;
+  organizationId: string;
   clientName: string;
   setClientName: (v: string) => void;
+  setClientId: (id: string | null) => void;
+  projects: PickItem[];
+  projectId: string | null;
+  setProjectId: (id: string | null) => void;
   lines: DictatedDevisLine[];
   onConfirm: () => void;
   onRetryVoice: () => void;
@@ -685,12 +720,39 @@ function DevisFactureConfirm({
   const total = lines.reduce((sum, l) => sum + l.quantity * (l.unitPrice ?? 0), 0);
   const hasUnpriced = lines.some((l) => l.unitPrice == null);
   const isDevis = command.action === 'create_devis';
+  const selectedProjectOption = projectId ? projects.find((p) => p.id === projectId) : null;
+  const selectedProject = selectedProjectOption ? { id: selectedProjectOption.id, name: selectedProjectOption.label } : null;
+
+  function handlePickClient(client: Client) {
+    setClientName(client.name);
+    setClientId(client.id);
+  }
 
   return (
     <View style={{ gap: spacing.md }}>
       {command.summary ? <Text style={styles.summaryBanner}>{command.summary}</Text> : null}
 
-      <Field label={t('voiceAssistant.clientNameLabel')} value={clientName} onChangeText={setClientName} placeholder={t('voiceAssistant.clientNamePlaceholder')} />
+      <View style={{ gap: spacing.xs }}>
+        {/* Same picker as the real devis/facture editor — search an
+            existing client or create one inline, without leaving this
+            popup — so the created document gets a real client_id instead
+            of only a free-text name nobody can click through to later. */}
+        <ClientPicker organizationId={organizationId} onSelect={handlePickClient} />
+        <Field
+          label={t('voiceAssistant.clientNameLabel')}
+          value={clientName}
+          onChangeText={(v) => {
+            setClientName(v);
+            setClientId(null);
+          }}
+          placeholder={t('voiceAssistant.clientNamePlaceholder')}
+        />
+      </View>
+
+      <View style={{ gap: spacing.xs }}>
+        <Text style={styles.fieldLabel}>{t('voiceAssistant.projectLabel')}</Text>
+        <ProjectPicker organizationId={organizationId} selectedProject={selectedProject} onSelect={(p) => setProjectId(p?.id ?? null)} />
+      </View>
 
       <View style={{ gap: spacing.xs }}>
         <Text style={styles.fieldLabel}>{t('voiceAssistant.linesPreviewLabel')}</Text>
@@ -699,11 +761,19 @@ function DevisFactureConfirm({
         ) : (
           <View style={styles.linesPreview}>
             {lines.map((l, i) => (
-              <View key={i} style={styles.linePreviewRow}>
-                <Text style={styles.linePreviewDescription} numberOfLines={2}>
-                  {l.quantity} {l.unit} — {l.description}
-                </Text>
-                <Text style={styles.linePreviewPrice}>{l.unitPrice != null ? chf(l.quantity * l.unitPrice) : t('voiceAssistant.needsPriceTag')}</Text>
+              <View key={i}>
+                <View style={styles.linePreviewRow}>
+                  <Text style={styles.linePreviewDescription} numberOfLines={2}>
+                    {l.quantity} {l.unit} — {l.description}
+                  </Text>
+                  <Text style={styles.linePreviewPrice}>{l.unitPrice != null ? chf(l.quantity * l.unitPrice) : t('voiceAssistant.needsPriceTag')}</Text>
+                </View>
+                {/* Only shown when the dictated price actually differs from
+                    the catalog's — the dictated price always wins in the
+                    line above, this is just a heads-up, never applied. */}
+                {l.priceSource === 'stated' && l.catalogPrice != null ? (
+                  <Text style={styles.priceHint}>{t('voiceAssistant.catalogPriceHint', { price: chf(l.catalogPrice) })}</Text>
+                ) : null}
               </View>
             ))}
             <View style={styles.linePreviewTotalRow}>
@@ -956,6 +1026,12 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
+  },
+  priceHint: {
+    fontSize: 11,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    marginTop: 1,
   },
   linePreviewTotalRow: {
     flexDirection: 'row',

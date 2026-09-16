@@ -47,7 +47,13 @@ function emptyLine(): Line {
 export default function NewFactureScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { voiceClientName, voiceLines } = useLocalSearchParams<{ voiceClientName?: string; voiceLines?: string }>();
+  const { voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+    voiceClientName?: string;
+    voiceClientId?: string;
+    voiceProjectId?: string;
+    voiceProjectName?: string;
+    voiceLines?: string;
+  }>();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.desktop;
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -123,6 +129,8 @@ export default function NewFactureScreen() {
     if (appliedVoiceRef.current || (!voiceClientName && !voiceLines)) return;
     appliedVoiceRef.current = true;
     if (voiceClientName) setClientName(voiceClientName);
+    if (voiceClientId) setClientId(voiceClientId);
+    if (voiceProjectId && voiceProjectName) setSelectedProject({ id: voiceProjectId, name: voiceProjectName } as Project);
     if (voiceLines) {
       try {
         const parsed = JSON.parse(voiceLines) as { description: string; quantity: number; unit: string; unitPrice: number | null }[];
@@ -146,7 +154,7 @@ export default function NewFactureScreen() {
         // Malformed param — ignore, the form just falls back to its blank starter line.
       }
     }
-  }, [voiceClientName, voiceLines]);
+  }, [voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines]);
 
   const [dictationTarget, setDictationTarget] = useState<DictationTarget | null>(null);
   const dictationBaseRef = useRef('');

@@ -1772,6 +1772,7 @@ export const fr = {
     linesPreviewLabel: 'Prestations dictées',
     noLinesDictated: "Aucune position claire n'a été comprise — un document vierge sera créé avec ce client, à compléter vous-même.",
     needsPriceTag: 'prix à définir',
+    catalogPriceHint: 'Généralement facturé {price} dans votre catalogue — le prix dicté a été gardé.',
     totalEstimateLabel: 'Total estimé',
     someLinesNeedPrice: "Certaines lignes n'ont pas de prix reconnu dans votre catalogue — à compléter sur l'écran suivant.",
     createDevisButton: 'Créer le devis',

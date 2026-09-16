@@ -1794,6 +1794,7 @@ export const it: TranslationDict = {
     linesPreviewLabel: 'Prestazioni dettate',
     noLinesDictated: "Nessuna voce chiara è stata compresa — verrà creato un documento vuoto con questo cliente, da completare lei stesso.",
     needsPriceTag: 'prezzo da definire',
+    catalogPriceHint: 'Di solito fatturato {price} nel suo catalogo — è stato mantenuto il prezzo dettato.',
     totalEstimateLabel: 'Totale stimato',
     someLinesNeedPrice: "Alcune righe non hanno un prezzo riconosciuto nel suo catalogo — da completare nella schermata successiva.",
     createDevisButton: 'Crea il preventivo',

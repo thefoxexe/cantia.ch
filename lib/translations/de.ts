@@ -1786,6 +1786,7 @@ export const de: TranslationDict = {
     linesPreviewLabel: 'Diktierte Leistungen',
     noLinesDictated: 'Keine klare Position erkannt — ein leeres Dokument wird für diesen Kunden erstellt, das Sie selbst ergänzen.',
     needsPriceTag: 'Preis noch offen',
+    catalogPriceHint: 'In Ihrem Katalog normalerweise {price} — der diktierte Preis wurde beibehalten.',
     totalEstimateLabel: 'Geschätztes Total',
     someLinesNeedPrice: 'Für einige Zeilen wurde kein Preis in Ihrem Katalog erkannt — ergänzen Sie diese auf dem nächsten Bildschirm.',
     createDevisButton: 'Offerte erstellen',

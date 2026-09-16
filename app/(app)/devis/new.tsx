@@ -54,7 +54,14 @@ function emptyLine(): Line {
 export default function NewDevisScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { trameId, voiceClientName, voiceLines } = useLocalSearchParams<{ trameId?: string; voiceClientName?: string; voiceLines?: string }>();
+  const { trameId, voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+    trameId?: string;
+    voiceClientName?: string;
+    voiceClientId?: string;
+    voiceProjectId?: string;
+    voiceProjectName?: string;
+    voiceLines?: string;
+  }>();
   const { width } = useWindowDimensions();
   const isDesktop = width >= breakpoints.desktop;
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -169,12 +176,16 @@ export default function NewDevisScreen() {
   // dictated line items are prefilled once, exactly as if the user had
   // typed the client and used "Dicter les positions du devis" themselves.
   // Nothing is saved automatically: this only seeds the form, same trust
-  // level as every other field here.
+  // level as every other field here. voiceClientId/voiceProjectId are only
+  // present when the assistant's own ClientPicker/ProjectPicker resolved a
+  // real record — a real client_id/project_id, same as picking here.
   const appliedVoiceRef = useRef(false);
   useEffect(() => {
     if (appliedVoiceRef.current || (!voiceClientName && !voiceLines)) return;
     appliedVoiceRef.current = true;
     if (voiceClientName) setClientName(voiceClientName);
+    if (voiceClientId) setClientId(voiceClientId);
+    if (voiceProjectId && voiceProjectName) setSelectedProject({ id: voiceProjectId, name: voiceProjectName } as Project);
     if (voiceLines) {
       try {
         const parsed = JSON.parse(voiceLines) as { description: string; quantity: number; unit: string; unitPrice: number | null }[];
@@ -198,7 +209,7 @@ export default function NewDevisScreen() {
         // Malformed param — ignore, the form just falls back to its blank starter line.
       }
     }
-  }, [voiceClientName, voiceLines]);
+  }, [voiceClientName, voiceClientId, voiceProjectId, voiceProjectName, voiceLines]);
 
   // Which field a dictation session is currently feeding, and that field's
   // text as it stood before the session started — the live transcript is

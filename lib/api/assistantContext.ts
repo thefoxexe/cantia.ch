@@ -16,13 +16,21 @@ function daysBetween(fromIso: string, toIso: string): number {
 // Assembles the same real-business-data snapshot the assistant's "question"
 // answering step is allowed to see — a subset of what the dashboard and
 // factures list already query, kept intentionally small (tasks + overdue
-// factures + org info + one treasury count) rather than a full read of
-// everything, since this whole bundle gets sent to the AI on every
+// factures + revenue + org info + one treasury count) rather than a full
+// read of everything, since this whole bundle gets sent to the AI on every
 // question. RLS already scopes every query to organizationId's own data.
+//
+// canViewFinances gates the factures/payments reads entirely — someone
+// asking "combien j'ai facturé ce mois-ci" as a plain member without
+// finance permission gets financialDataHidden: true instead of a query
+// that RLS would silently return empty anyway (that'd look like "CHF 0",
+// not "you don't have access"). This is a client-side convenience on top
+// of RLS (can_view_org_finances), not a replacement for it.
 export async function buildAssistantContext(
   organization: Organization,
   planName: string | null,
   treasuryEnabled: boolean,
+  canViewFinances: boolean,
   categoryLabel: (category: string) => string,
 ): Promise<AssistantContext> {
   const [tasksRes, facturesRes] = await Promise.all([
@@ -32,11 +40,13 @@ export async function buildAssistantContext(
       .eq('organization_id', organization.id)
       .eq('done', false)
       .order('created_at', { ascending: false }),
-    supabase
-      .from('factures')
-      .select('id, client_name, due_date, status, vat_rate')
-      .eq('organization_id', organization.id)
-      .in('status', ['sent', 'partial']),
+    canViewFinances
+      ? supabase
+          .from('factures')
+          .select('id, client_name, due_date, status, vat_rate')
+          .eq('organization_id', organization.id)
+          .in('status', ['sent', 'partial'])
+      : Promise.resolve({ data: [] as { id: string; client_name: string; due_date: string; status: string; vat_rate: number }[] }),
   ]);
 
   const openTasksRows = (tasksRes.data ?? []) as { title: string; category: string }[];
@@ -64,6 +74,26 @@ export async function buildAssistantContext(
     overdueFactures = withAmounts.sort((a, b) => b.daysOverdue - a.daysOverdue).slice(0, 20);
   }
 
+  // "Chiffre d'affaires ce mois-ci" — encashed revenue (payments actually
+  // received), not invoiced amount: the sum of facture_payments dated this
+  // calendar month across the org's factures.
+  let revenueThisMonthChf = 0;
+  if (canViewFinances) {
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    const { data: factureIdRows } = await supabase.from('factures').select('id').eq('organization_id', organization.id);
+    const factureIds = (factureIdRows ?? []).map((f) => f.id as string);
+    if (factureIds.length) {
+      const { data: paymentsRows } = await supabase
+        .from('facture_payments')
+        .select('amount')
+        .in('facture_id', factureIds)
+        .gte('paid_at', monthStart.toISOString());
+      revenueThisMonthChf = (paymentsRows ?? []).reduce((sum, p) => sum + Number((p as { amount: number }).amount), 0);
+    }
+  }
+
   let upcomingRecurringExpensesCount: number | null = null;
   if (treasuryEnabled) {
     const recurring = await listRecurringExpenses(organization.id);
@@ -86,6 +116,8 @@ export async function buildAssistantContext(
     overdueFactures,
     overdueCount: overdueRows.length,
     overdueTotalChf,
+    revenueThisMonthChf,
     upcomingRecurringExpensesCount,
+    financialDataHidden: !canViewFinances,
   };
 }

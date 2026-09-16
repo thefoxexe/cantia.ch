@@ -32,7 +32,9 @@ interface AssistantContext {
   overdueFactures: AssistantOverdueFacture[];
   overdueCount: number;
   overdueTotalChf: number;
+  revenueThisMonthChf: number;
   upcomingRecurringExpensesCount: number | null;
+  financialDataHidden: boolean;
 }
 
 // The global voice assistant's second stage for a "question" command: unlike
@@ -49,6 +51,7 @@ On te donne un instantané de données réelles de son entreprise (tâches en co
 
 Règles strictes :
 - Ne réponds jamais en inventant un chiffre, un nom ou une date qui n'est pas dans les données fournies.
+- Si les données indiquent financialDataHidden: true et que la question porte sur l'argent (chiffre d'affaires, factures, impayés, montants), NE DONNE AUCUN CHIFFRE : dis clairement que ces informations ne sont pas accessibles avec son rôle actuel dans l'entreprise, et qu'un propriétaire ou administrateur peut lui donner accès depuis les paramètres de rôles. Les autres questions (tâches, informations générales sur l'entreprise) restent répondables normalement même dans ce cas.
 - Si la question porte sur quelque chose que les données ne couvrent pas (ex. un chantier précis, un client précis, une fonctionnalité de l'app), dis-le clairement et brièvement plutôt que de deviner — tu peux orienter vers le bon endroit de l'application si tu le sais (ex. "Rentabilité par chantier", "Devis", "Planning"), mais sans détailler des données que tu n'as pas.
 - Reste concis : 1 à 4 phrases, ton naturel et direct, comme si tu parlais à voix haute — pas de liste à puces, pas de markdown.
 - Réponds dans la même langue que la question si elle est clairement identifiable, sinon en ${lang}.
@@ -79,6 +82,14 @@ function formatContext(ctx: AssistantContext): string {
       ? ctx.overdueFactures.map((f) => `- ${f.clientName} — CHF ${f.amountChf.toFixed(0)}, en retard de ${f.daysOverdue} jour(s)`).join('\n')
       : '(aucune facture en retard)',
   );
+
+  if (ctx.financialDataHidden) {
+    lines.push('');
+    lines.push('financialDataHidden: true — cette personne n\'a pas la permission de voir les données financières de l\'entreprise (montants masqués ci-dessus).');
+  } else {
+    lines.push('');
+    lines.push(`Chiffre d'affaires encaissé ce mois-ci : CHF ${ctx.revenueThisMonthChf.toFixed(0)}`);
+  }
 
   if (ctx.upcomingRecurringExpensesCount !== null) {
     lines.push('');
@@ -203,7 +214,9 @@ function sanitizeContext(raw: unknown): AssistantContext {
     overdueFactures,
     overdueCount: Math.max(overdueFactures.length, Math.round(num(obj.overdueCount))),
     overdueTotalChf: num(obj.overdueTotalChf),
+    revenueThisMonthChf: num(obj.revenueThisMonthChf),
     upcomingRecurringExpensesCount: typeof obj.upcomingRecurringExpensesCount === 'number' ? Math.round(obj.upcomingRecurringExpensesCount) : null,
+    financialDataHidden: obj.financialDataHidden === true,
   };
 }
 

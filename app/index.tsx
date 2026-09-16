@@ -69,8 +69,13 @@ function LandingContent() {
   // viewport between a floor and a ceiling instead of one fixed size, so
   // the hero title doesn't look oversized/cramped on in-between widths
   // (tablet landscape, small laptop) the way a single fixed font-size did.
-  const heroTitleSize = clamp(42, width * 0.047, 70);
-  const heroCrossedSize = clamp(22, width * 0.027, 38);
+  // Sized up noticeably on this compact/tablet branch (was ~42-47px on an
+  // iPad-portrait-width screen) — with the mountain now filling the
+  // section's forced height, a small title just left more visually empty
+  // space above the baseline row instead of anchoring the hero the way it
+  // does on desktop.
+  const heroTitleSize = clamp(50, width * 0.09, 108);
+  const heroCrossedSize = clamp(28, width * 0.05, 58);
   // Desktop-only oversized treatment ("le grand geste") — the crossed-out
   // tagline becomes the hero's dominant graphic moment instead of sharing a
   // cramped row with the supporting copy. Compact/tablet keeps the original
@@ -125,6 +130,7 @@ function LandingContent() {
               style={[styles.heroMountainBase, showHeroMountainFull ? styles.heroMountainMaskFull : styles.heroMountainMaskPeek]}
             />
           ) : null}
+          {showHeroMountainFull || showHeroMountainPeek ? <View pointerEvents="none" style={styles.heroBottomFade} /> : null}
           <View
             style={[
               styles.wrap,
@@ -514,11 +520,25 @@ const styles = StyleSheet.create({
     maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
     WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
   } as unknown as ViewStyle,
-  // Phones: just a peek at the very edge — opaque only past 84% of the
-  // width — instead of the full reveal above.
+  // Phones: a soft, translucent reveal rather than the full-opacity one
+  // above — it's fine for this to sit behind the title/tagline text now,
+  // so the ramp is wide and capped at 55% opacity (never fully opaque)
+  // instead of a hard edge jumping straight to "black"/fully-visible,
+  // which read as the photo getting cut off abruptly mid-slope.
   heroMountainMaskPeek: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 84%, black 97%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 84%, black 97%)',
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+  } as unknown as ViewStyle,
+  // A soft fade at the very bottom of the hero, above the mountain but
+  // below the text, so the photo dissolves into the page background
+  // instead of being clipped hard where the section ends.
+  heroBottomFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 160,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
   } as unknown as ViewStyle,
   heroCopy: { paddingTop: spacing.xl },
   // Stretches the copy column to the hero's full (forced) minHeight and
