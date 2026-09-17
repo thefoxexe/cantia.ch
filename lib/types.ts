@@ -1290,6 +1290,22 @@ export interface AdminTutorialChapter {
   updated_at: string;
 }
 
+export type SocialPostStatus = 'idee' | 'pret' | 'publie';
+
+export interface AdminSocialPost {
+  id: string;
+  order_index: number;
+  topic: string;
+  headline: string;
+  subheadline: string;
+  instagram_caption: string;
+  linkedin_caption: string;
+  status: SocialPostStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AdminUserSummary {
   user_id: string;
   email: string;

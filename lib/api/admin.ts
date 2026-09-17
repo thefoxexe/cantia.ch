@@ -10,8 +10,10 @@ import type {
   AdminOrganizationDetail,
   AdminOrganizationSummary,
   AdminRevenueOverview,
+  AdminSocialPost,
   AdminTutorialChapter,
   AdminUserSummary,
+  SocialPostStatus,
   TutorialChapterStatus,
 } from '../types';
 
@@ -184,6 +186,42 @@ export async function upsertTutorialChapter(input: {
 export async function deleteTutorialChapter(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('admin_delete_tutorial_chapter', { chapter_id: id });
   return { error: logRpcError('admin_delete_tutorial_chapter', error) };
+}
+
+export async function listSocialPosts(): Promise<{ rows: AdminSocialPost[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_list_social_posts');
+  const err = logRpcError('admin_list_social_posts', error);
+  return { rows: err || !data ? [] : (data as AdminSocialPost[]), error: err };
+}
+
+export async function upsertSocialPost(input: {
+  id?: string | null;
+  order_index: number;
+  topic: string;
+  headline: string;
+  subheadline: string;
+  instagram_caption: string;
+  linkedin_caption: string;
+  status: SocialPostStatus;
+  notes?: string | null;
+}): Promise<{ post: AdminSocialPost | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_upsert_social_post', {
+    post_id: input.id ?? null,
+    p_order_index: input.order_index,
+    p_topic: input.topic,
+    p_headline: input.headline,
+    p_subheadline: input.subheadline,
+    p_instagram_caption: input.instagram_caption,
+    p_linkedin_caption: input.linkedin_caption,
+    p_status: input.status,
+    p_notes: input.notes ?? null,
+  });
+  return { post: (data as AdminSocialPost) ?? null, error: logRpcError('admin_upsert_social_post', error) };
+}
+
+export async function deleteSocialPost(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('admin_delete_social_post', { post_id: id });
+  return { error: logRpcError('admin_delete_social_post', error) };
 }
 
 // Real usage, not clicks — see admin_feature_usage_overview() for how each

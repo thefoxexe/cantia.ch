@@ -21,6 +21,7 @@ const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyph
   { href: '/(admin)/subscriptions', label: 'Abos', icon: 'credit-card' },
   { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail' },
   { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
+  { href: '/(admin)/social', label: 'Réseaux sociaux', icon: 'share-2' },
   { href: '/(admin)/logs', label: 'Logs', icon: 'list' },
 ];
 

@@ -58,7 +58,9 @@ function loadBackground(): Promise<HTMLImageElement | null> {
   return backgroundImagePromise;
 }
 
-function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+// Exported for lib/socialPostGenerator.ts, which needs the exact same
+// greedy word-wrap for its own canvas-drawn headlines.
+export function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
   let current = '';
