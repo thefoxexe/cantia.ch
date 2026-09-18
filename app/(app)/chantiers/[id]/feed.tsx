@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useProject } from '../../../../lib/useProject';
 import { ProjectFeed } from '../../../../components/ProjectFeed';
+import { markFeedRead } from '../../../../lib/api/feed';
 import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { spacing } from '../../../../lib/theme';
@@ -10,6 +12,15 @@ export default function ChantierFeedScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
+
+  // Clears this chantier's unread badge on the chantiers list the moment
+  // its Fil is actually opened — not just visited in passing, since this
+  // screen only mounts once the tab itself is selected.
+  useFocusEffect(
+    useCallback(() => {
+      if (id) markFeedRead(id);
+    }, [id]),
+  );
 
   if (!project) {
     return (

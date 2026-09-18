@@ -9,7 +9,11 @@ export const NOTIFICATION_TYPES: { type: NotificationType; label: string; descri
   { type: 'facture_overdue', label: 'Facture en retard', description: "Une facture envoyée a dépassé son échéance de paiement." },
   { type: 'recurring_expense_due', label: 'Dépense récurrente à venir', description: "Un abonnement ou une charge récurrente arrive à échéance." },
   { type: 'extra_work_accepted', label: 'Travaux supplémentaires acceptés', description: "Un client a accepté et signé des travaux supplémentaires." },
-  { type: 'feed_message', label: 'Message de chantier', description: "Quelqu'un poste un message dans le fil d'un chantier." },
+  // No 'feed_message' entry: a chantier message no longer goes through
+  // this system at all (no bell, no push, no e-mail) — it's a discrete
+  // unread-count badge on the chantiers list instead, see
+  // lib/api/feed.ts's getFeedUnreadCounts/markFeedRead. One busy chantier
+  // could otherwise flood every member's notification center.
 ];
 
 export async function listNotifications(organizationId: string, limit = 50): Promise<Notification[]> {

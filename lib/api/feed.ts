@@ -14,6 +14,26 @@ export async function listFeedEntries(projectId: string): Promise<FeedEntry[]> {
   return data ?? [];
 }
 
+// Called when the Fil tab is opened — clears that chantier's unread badge
+// on the chantiers list. A plain message doesn't go through the general
+// notification system (no bell, no push) precisely so this badge is the
+// one place it's ever surfaced — see the feed_unread_badge migration.
+export async function markFeedRead(projectId: string): Promise<void> {
+  await supabase.rpc('mark_feed_read', { p_project_id: projectId });
+}
+
+// One round trip for the whole chantiers list rather than one query per
+// row — keyed by project_id, only chantiers with at least one unread
+// message are present in the result.
+export async function getFeedUnreadCounts(organizationId: string): Promise<Record<string, number>> {
+  const { data } = await supabase.rpc('feed_unread_counts', { org_id: organizationId });
+  const counts: Record<string, number> = {};
+  for (const row of (data ?? []) as { project_id: string; unread_count: number }[]) {
+    counts[row.project_id] = row.unread_count;
+  }
+  return counts;
+}
+
 export async function addNoteEntry(params: {
   organizationId: string;
   projectId: string;

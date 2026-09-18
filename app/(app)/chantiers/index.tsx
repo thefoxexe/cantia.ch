@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { getSignedUrls } from '../../../lib/api/storage';
+import { getFeedUnreadCounts } from '../../../lib/api/feed';
 import { Button, Card, EmptyState, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -16,6 +17,7 @@ export default function ChantiersListScreen() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [coverUrls, setCoverUrls] = useState<Record<string, string>>({});
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -29,6 +31,7 @@ export default function ChantiersListScreen() {
     setProjects(data ?? []);
     const paths = (data ?? []).map((p) => p.cover_photo_url).filter((p): p is string => !!p);
     setCoverUrls(await getSignedUrls(paths));
+    setUnreadCounts(await getFeedUnreadCounts(organization.id));
     setLoading(false);
   }, [organization]);
 
@@ -80,6 +83,11 @@ export default function ChantiersListScreen() {
                   {item.client_name ? <Text style={styles.meta}>{t('chantiersList.client', { name: item.client_name })}</Text> : null}
                   {item.address ? <Text style={styles.meta}>{item.address}</Text> : null}
                 </View>
+                {unreadCounts[item.id] ? (
+                  <View style={styles.unreadBadge}>
+                    <Text style={styles.unreadBadgeText}>{unreadCounts[item.id] > 9 ? '9+' : unreadCounts[item.id]}</Text>
+                  </View>
+                ) : null}
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Card>
             </Pressable>
@@ -136,5 +144,19 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
+  },
+  unreadBadge: {
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  unreadBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#fff',
   },
 });
