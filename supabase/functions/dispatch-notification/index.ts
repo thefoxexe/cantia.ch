@@ -6,8 +6,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 // though other functions in this repo supposedly deploy that way. Every
 // payroll PDF function and send-facture-reminder hit the same wall and
 // were made self-contained for the same reason; this one follows that
-// precedent. Keep escapeHtml/textToHtmlLines/buildDocumentEmailHtml/
-// sendResendEmail in sync with _shared/resend.ts by hand if those change.
+// precedent. Keep escapeHtml/buildBrandedNotificationEmail/
+// sendResendEmail in sync with the other send-*-email functions by hand
+// if those change.
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -15,28 +16,93 @@ function escapeHtml(text: string): string {
 function textToHtmlLines(text: string): string {
   return escapeHtml(text).split('\n').join('<br/>');
 }
-function buildDocumentEmailHtml(params: {
-  clientName: string | null;
-  bodyMessage: string;
-  linkUrl: string;
-  linkLabel: string;
-  linkHint: string;
-  signature: string;
-}): string {
-  const { clientName, bodyMessage, linkUrl, linkLabel, linkHint, signature } = params;
-  const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+
+// One of three tones per notification type (see lib/api/notifications.ts'
+// NOTIFICATION_TYPES for the full list this must stay in sync with) —
+// positive for something a client accepted/signed, attention for something
+// that needs following up on but isn't urgent, urgent for money overdue,
+// neutral for a plain chantier message. Colors match lib/theme.ts's
+// success/warning/danger/primary tokens exactly.
+type Tone = 'positive' | 'attention' | 'urgent' | 'neutral';
+
+const TONE_BY_TYPE: Record<string, Tone> = {
+  devis_accepted: 'positive',
+  extra_work_accepted: 'positive',
+  devis_stale_draft: 'attention',
+  devis_expiring_soon: 'attention',
+  recurring_expense_due: 'attention',
+  facture_overdue: 'urgent',
+  feed_message: 'neutral',
+};
+
+const TONE_COLORS: Record<Tone, { fg: string; bg: string }> = {
+  positive: { fg: '#2E6B4F', bg: '#E2EEE6' },
+  attention: { fg: '#9C6510', bg: '#F3E8D6' },
+  urgent: { fg: '#AB3327', bg: '#F5E1DE' },
+  neutral: { fg: '#BC5A31', bg: '#F5DECB' },
+};
+
+// Three glyphs cover every current notification type: a checkmark for
+// something accepted/signed, an exclamation for something needing
+// attention or overdue, a chat bubble for a chantier feed message. Same
+// stroke weight/style as the card-declined badge in
+// send-payment-failed-email, so every transactional e-mail in the product
+// reads as one family.
+function toneIconSvg(tone: Tone, color: string): string {
+  if (tone === 'positive') {
+    return `<path d="M5 12.5l4.5 4.5L19 7" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+  }
+  if (tone === 'neutral') {
+    return `<path d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H10l-4.2 3.2A0.6 0.6 0 0 1 5 19.7V17H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1z" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" fill="none"/>`;
+  }
+  return `<circle cx="12" cy="12" r="9" stroke="${color}" stroke-width="1.8" fill="none"/><line x1="12" y1="7.5" x2="12" y2="13" stroke="${color}" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1.15" fill="${color}"/>`;
+}
+
+function buildIconBadge(tone: Tone): string {
+  const { fg, bg } = TONE_COLORS[tone];
   return `
-    <div style="font-family: ${font}; font-size: 15px; line-height: 1.6; color: #1a1f1c; max-width: 560px;">
-      <p style="margin: 0 0 16px;">Bonjour${clientName ? ` ${escapeHtml(clientName)}` : ''},</p>
-      <p style="margin: 0 0 20px;">${textToHtmlLines(bodyMessage)}</p>
-      <p style="margin: 0 0 24px;">
-        <a href="${linkUrl}" style="color: #1f3d3a; font-weight: 700; text-decoration: underline;">${escapeHtml(linkLabel)}</a>
-        ${linkHint ? ` — ${escapeHtml(linkHint)}` : ''}
+  <div style="width: 56px; height: 56px; border-radius: 16px; background: ${bg}; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${toneIconSvg(tone, fg)}</svg>
+  </div>`;
+}
+
+function buildBrandedNotificationEmail(params: {
+  title: string;
+  body: string;
+  linkUrl: string;
+  orgName: string;
+  signature: string;
+  tone: Tone;
+}): string {
+  const { title, body, linkUrl, orgName, signature, tone } = params;
+  const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  const eyebrowColor = TONE_COLORS[tone].fg;
+  return `
+    <div style="background: #F7F1E6; padding: 40px 20px; font-family: ${font};">
+      <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6D8C2; overflow: hidden;">
+        <div style="padding: 28px 32px 20px; border-bottom: 1px solid #E6D8C2;">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO2de7QlVX3nv/uc27dbELDF5tEgQ2xApHGBGqMRcS40KMbESZzplZm4khgf7VozWUkwxgSauO5ykplkxcSVzGSWQHyMY3QmnccMZIxKDD3aoEZNbLUbaLqBhKZRabqbboR+3FO/+eOcqv2u2ruq9rl1qn/fBbeqq+r3229P1d6/2uccgMVisVgsFovFYrFYLBaLxWKxWCwWi8VisVgsFovFYrFYLBaLxWKxWCwWi8VisVgsFovFYrFYLBaLxWKxWCxW3/X/ASXj6Yt23tA0AAAAAElFTkSuQmCC" width="24" height="24" alt="Cantia" style="vertical-align: middle; border: 0; display: inline-block;" />
+          <span style="font-size: 20px; font-weight: 800; letter-spacing: 0.2px; color: #231A12; vertical-align: middle; margin-left: 8px;">Cantia</span>
+        </div>
+        <div style="padding: 32px;">
+          ${buildIconBadge(tone)}
+          <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: ${eyebrowColor}; text-transform: uppercase; letter-spacing: 0.6px;">${escapeHtml(orgName)}</p>
+          <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(title)}</p>
+          <p style="margin: 0 0 28px; font-size: 15px; line-height: 1.6; color: #231A12;">${textToHtmlLines(body)}</p>
+          <p style="margin: 0 0 28px; text-align: center;">
+            <a href="${linkUrl}" style="display: inline-block; background: #BC5A31; color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">Ouvrir dans Cantia</a>
+          </p>
+          <p style="margin: 0; padding-top: 20px; border-top: 1px solid #E6D8C2; font-size: 13px; line-height: 1.6; color: #6E6151;">${textToHtmlLines(signature)}</p>
+        </div>
+      </div>
+      <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">
+        Cantia — logiciel suisse de gestion pour entreprises du bâtiment<br/>
+        <a href="https://cantia.ch" style="color: #BC5A31; text-decoration: none; font-weight: 600;">cantia.ch</a>
       </p>
-      <p style="margin: 0; padding-top: 16px; border-top: 1px solid #e5e2da; color: #1a1f1c;">${textToHtmlLines(signature)}</p>
     </div>
   `.trim();
 }
+
 async function sendResendEmail(params: {
   apiKey: string;
   from: string;
@@ -127,13 +193,14 @@ Deno.serve(async (req: Request) => {
         const orgName = org?.name ?? 'Cantia';
         const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
         const appPath = String(notif.link ?? '/').replace('/(app)', '') || '/';
-        const html = buildDocumentEmailHtml({
-          clientName: null,
-          bodyMessage: notif.body ?? notif.title,
+        const tone = TONE_BY_TYPE[notif.type as string] ?? 'neutral';
+        const html = buildBrandedNotificationEmail({
+          title: notif.title,
+          body: notif.body ?? notif.title,
           linkUrl: `https://app.cantia.ch${appPath}`,
-          linkLabel: 'Ouvrir dans Cantia',
-          linkHint: '',
+          orgName,
           signature,
+          tone,
         });
         const { ok, error } = await sendResendEmail({
           apiKey,
