@@ -14,6 +14,16 @@ async function notifyTrialEnded(organizationId: string): Promise<void> {
   });
 }
 
+async function notifyPaymentFailed(organizationId: string): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const dispatchSecret = Deno.env.get('DISPATCH_SECRET') ?? '';
+  await fetch(`${supabaseUrl}/functions/v1/send-payment-failed-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Dispatch-Secret': dispatchSecret },
+    body: JSON.stringify({ organization_id: organizationId }),
+  });
+}
+
 // Powers the "log per organization" timeline on the admin org detail
 // screen — best-effort: a logging failure must never fail the webhook
 // itself (Stripe already got its confirmation via the row update above).
@@ -129,6 +139,11 @@ Deno.serve(async (req: Request) => {
               plan_selected: hasAccess ? undefined : false,
               subscription_status: subscription.status,
               trial_ends_at: trialEndsAt,
+              // Cleared the moment access comes back (a successful retry,
+              // or a manual fix) so a later, genuinely new payment failure
+              // on this same organization is free to send the e-mail
+              // again — see send-payment-failed-email's idempotency claim.
+              payment_failed_email_sent_at: hasAccess ? null : undefined,
             })
             .eq('id', organizationId);
 
@@ -136,6 +151,13 @@ Deno.serve(async (req: Request) => {
             await logOrgEvent(admin, organizationId, 'trial_started', { plan_id: planId ?? null, trial_end: trialEndsAt });
           } else if (!hasAccess && orgBefore?.plan_id) {
             await logOrgEvent(admin, organizationId, 'canceled', { was_trialing: false, reason: 'payment_failed', status: subscription.status });
+            // Same fire-and-log pattern as notifyTrialEnded below: never let
+            // an e-mail failure fail the webhook itself.
+            try {
+              await notifyPaymentFailed(organizationId);
+            } catch (err) {
+              console.error('notifyPaymentFailed failed', err);
+            }
           } else if (planId && orgBefore?.plan_id && orgBefore.plan_id !== planId) {
             await logOrgEvent(admin, organizationId, 'plan_changed', { from: orgBefore.plan_id, to: planId });
           }
