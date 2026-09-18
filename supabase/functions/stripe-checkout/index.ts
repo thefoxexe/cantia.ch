@@ -79,10 +79,9 @@ Deno.serve(async (req: Request) => {
     // in. trial_used is service-role-only (see
     // 20260828100000_lock_billing_and_ownership_columns.sql), so this is
     // the only place that can flip it; a client can't re-arm its own
-    // trial by hitting checkout again. Checkout's default
-    // payment_method_collection ('always') still requires a card up front
-    // even with a trial, so the trial doesn't charge now but does bill
-    // automatically at trial end unless cancelled.
+    // trial by hitting checkout again. No card is collected to start the
+    // trial (payment_method_collection: 'if_required' below) — Stripe asks
+    // for one only if/when the trial is about to convert to a real charge.
     //
     // ESSAI30 is a separate, manual 30-day trial for someone who was
     // personally given extra time — it works even if trial_used is already
@@ -109,8 +108,23 @@ Deno.serve(async (req: Request) => {
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
         metadata: { organization_id: org.id, plan_id: plan.id },
-        ...(trialDays !== null ? { trial_period_days: trialDays } : {}),
+        ...(trialDays !== null
+          ? {
+              trial_period_days: trialDays,
+              // Cancel automatically if the trial ends with no card on
+              // file, rather than silently trying to bill nothing.
+              trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
+            }
+          : {}),
       },
+      // Data shows this is the actual killer: ~55% of every signup reaches
+      // this exact screen and never comes back, because Stripe's default
+      // ('always') demands a card immediately for what the app calls a
+      // "free trial" — a trust-breaking bait-and-switch for a non-SaaS-
+      // native trade-business audience. Only ask for a card when a real
+      // charge is about to happen (i.e. no trial at all, or the trial is
+      // ending) — never to merely start a free trial.
+      payment_method_collection: trialDays !== null ? 'if_required' : 'always',
       success_url,
       cancel_url,
       allow_promotion_codes: true,
