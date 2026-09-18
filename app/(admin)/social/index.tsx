@@ -8,6 +8,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { deleteSocialPost, listSocialPosts, upsertSocialPost } from '../../../lib/api/admin';
 import { generateSocialPostDataUrl, SOCIAL_FORMAT_LABEL, type SocialFormat } from '../../../lib/socialPostGenerator';
+import { SOCIAL_SCENES, type SocialScene } from '../../../lib/socialIllustrations';
 import { downloadFile } from '../../../lib/downloadFile';
 import type { AdminSocialPost, SocialPostStatus } from '../../../lib/types';
 
@@ -31,6 +32,7 @@ type Draft = {
   linkedin_caption: string;
   status: SocialPostStatus;
   notes: string;
+  scene: SocialScene;
 };
 
 function draftFrom(p: AdminSocialPost): Draft {
@@ -42,6 +44,7 @@ function draftFrom(p: AdminSocialPost): Draft {
     linkedin_caption: p.linkedin_caption,
     status: p.status,
     notes: p.notes ?? '',
+    scene: p.scene,
   };
 }
 
@@ -53,6 +56,7 @@ const BLANK_DRAFT: Draft = {
   linkedin_caption: '',
   status: 'idee',
   notes: '',
+  scene: 'essai',
 };
 
 function slugify(text: string): string {
@@ -90,7 +94,10 @@ function PreviewPane({ format, draft, slug }: { format: SocialFormat; draft: Dra
   useEffect(() => {
     let cancelled = false;
     setGenerating(true);
-    generateSocialPostDataUrl({ topic: draft.topic, headline: draft.headline, subheadline: draft.subheadline }, format).then((url) => {
+    generateSocialPostDataUrl(
+      { topic: draft.topic, headline: draft.headline, subheadline: draft.subheadline, scene: draft.scene },
+      format,
+    ).then((url) => {
       if (!cancelled) {
         setDataUrl(url);
         setGenerating(false);
@@ -100,7 +107,7 @@ function PreviewPane({ format, draft, slug }: { format: SocialFormat; draft: Dra
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [format, draft.topic, draft.headline, draft.subheadline]);
+  }, [format, draft.topic, draft.headline, draft.subheadline, draft.scene]);
 
   async function handleDownload() {
     if (!dataUrl) return;
@@ -176,6 +183,7 @@ export default function AdminSocialScreen() {
       linkedin_caption: draft.linkedin_caption,
       status: draft.status,
       notes: draft.notes.trim() || null,
+      scene: draft.scene,
     });
     if (!err && post) {
       setPosts((prev) => {
@@ -333,6 +341,22 @@ function PostEditor({
             );
           })}
         </View>
+      </View>
+
+      <Text style={styles.fieldLabel}>Illustration</Text>
+      <View style={styles.sceneRow}>
+        {SOCIAL_SCENES.map(({ key, label }) => {
+          const active = draft.scene === key;
+          return (
+            <Pressable
+              key={key}
+              onPress={() => setDraft({ ...draft, scene: key })}
+              style={[styles.sceneChip, active && styles.sceneChipActive]}
+            >
+              <Text style={[styles.sceneChipText, active && styles.sceneChipTextActive]}>{label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <Text style={styles.fieldLabel}>Titre principal (accroche visuelle — utiliser \n pour une 2e ligne en orange)</Text>
@@ -612,6 +636,33 @@ const styles = StyleSheet.create({
   },
   statusChipText: {
     fontSize: 11,
+    fontWeight: '700',
+  },
+  sceneRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  sceneChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    backgroundColor: colors.bg,
+  },
+  sceneChipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  sceneChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  sceneChipTextActive: {
+    color: colors.primaryDark,
     fontWeight: '700',
   },
   captionBlock: {

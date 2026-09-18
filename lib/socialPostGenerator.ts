@@ -1,18 +1,20 @@
 import { Platform } from 'react-native';
 import { Asset } from 'expo-asset';
 import { wrapLines } from './thumbnailGenerator';
+import { Iso, SCENES, SCENE_CARD_CONTENT, deviceCard, stampBadge, type SocialScene } from './socialIllustrations';
 
 // Renders the two social-media visuals (Instagram 4:5, LinkedIn 1200×627)
 // for a social_posts row entirely client-side via canvas, from just
-// headline/subheadline/topic — same reasoning as thumbnailGenerator.ts:
-// no server round trip, no storage bucket to manage, and editing a post's
-// text in the admin screen regenerates the image instantly instead of
-// requiring a re-upload. Both formats reuse the same brand elements (the
-// hero mountain photo, the logo mark, the crème/terracotta palette) the
-// user's own reference OG image already established for cantia.ch.
+// headline/subheadline/topic/scene — same reasoning as
+// thumbnailGenerator.ts: no server round trip, no storage bucket to
+// manage, and editing a post's text in the admin screen regenerates the
+// image instantly instead of requiring a re-upload. The hero illustration
+// is the same isometric/flat-figure language built for the paid ad
+// creatives (lib/socialIllustrations.ts) — genuine drawn artwork per
+// topic rather than a stock/mountain photo, matched to the logo mark and
+// the crème/terracotta palette.
 
 const LOGO_MODULE = require('../assets/logo-mark.png');
-const MOUNTAIN_SRC = '/hero-mountain.webp';
 
 const BG = '#F7F1E6';
 const TEXT = '#231A12';
@@ -27,10 +29,10 @@ export interface SocialPostContent {
   topic: string;
   headline: string;
   subheadline: string;
+  scene?: SocialScene | null;
 }
 
 let logoPromise: Promise<HTMLImageElement | null> | null = null;
-let mountainPromise: Promise<HTMLImageElement | null> | null = null;
 
 function loadBundledImage(mod: number): Promise<HTMLImageElement | null> {
   if (Platform.OS !== 'web') return Promise.resolve(null);
@@ -64,65 +66,23 @@ function loadLogo(): Promise<HTMLImageElement | null> {
   return logoPromise;
 }
 
-function loadMountain(): Promise<HTMLImageElement | null> {
-  if (Platform.OS !== 'web') return Promise.resolve(null);
-  if (!mountainPromise) mountainPromise = loadImageFromUri(MOUNTAIN_SRC);
-  return mountainPromise;
-}
-
-// Draws `img` into the dest rect with "cover" scaling (crops instead of
-// distorting), same fit behavior as CSS background-size: cover / RN's
-// resizeMode="cover".
-function coverDraw(ctx: CanvasRenderingContext2D, img: HTMLImageElement, dx: number, dy: number, dw: number, dh: number) {
-  const srcRatio = img.width / img.height;
-  const destRatio = dw / dh;
-  let sx: number, sy: number, sw: number, sh: number;
-  if (srcRatio > destRatio) {
-    sh = img.height;
-    sw = sh * destRatio;
-    sx = (img.width - sw) / 2;
-    sy = 0;
-  } else {
-    sw = img.width;
-    sh = sw / destRatio;
-    sx = 0;
-    sy = (img.height - sh) / 2;
-  }
-  ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
-}
-
-// Draws the mountain photo into the dest rect, faded to transparent along
-// one edge so it blends into the crème background instead of reading as a
-// pasted-in photo — the same effect the marketing hero (HeroCross's
-// backdrop) and the OG image reference both use. Composited via an
-// offscreen canvas + destination-in gradient: bake the fade into the
-// image's own alpha, then draw that (already-faded) result onto the main
-// canvas, over whatever's already there.
-function drawFadedMountain(
+// Draws the topic's isometric illustration into `rect`, plus its floating
+// device-card mockup (or, for the 'essai' scene, the "14 jours" stamp
+// badge instead) — the same convention as the ad creatives.
+function drawScene(
   ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  dx: number,
-  dy: number,
-  dw: number,
-  dh: number,
-  fadeEdge: 'left' | 'top',
+  scene: SocialScene,
+  iso: Iso,
+  card: { x: number; y: number; w: number; h: number; rotate: number } | null,
+  badge: { cx: number; cy: number; r: number; rotate: number } | null,
 ) {
-  const off = document.createElement('canvas');
-  off.width = dw;
-  off.height = dh;
-  const offCtx = off.getContext('2d');
-  if (!offCtx) return;
-  coverDraw(offCtx, img, 0, 0, dw, dh);
-
-  const gradient =
-    fadeEdge === 'left' ? offCtx.createLinearGradient(0, 0, dw * 0.42, 0) : offCtx.createLinearGradient(0, 0, 0, dh * 0.38);
-  gradient.addColorStop(0, 'rgba(0,0,0,0)');
-  gradient.addColorStop(1, 'rgba(0,0,0,1)');
-  offCtx.globalCompositeOperation = 'destination-in';
-  offCtx.fillStyle = gradient;
-  offCtx.fillRect(0, 0, dw, dh);
-
-  ctx.drawImage(off, dx, dy);
+  SCENES[scene](ctx, iso);
+  const content = SCENE_CARD_CONTENT[scene];
+  if (badge) {
+    stampBadge(ctx, badge.cx, badge.cy, badge.r, badge.rotate, '14', 'JOURS GRATUITS');
+  } else if (content && card) {
+    deviceCard(ctx, card.x, card.y, card.w, card.h, card.rotate, content);
+  }
 }
 
 // Splits on manual "\n" breaks first (used when a headline wants an
@@ -180,10 +140,10 @@ function drawKicker(ctx: CanvasRenderingContext2D, topic: string, x: number, y: 
   ctx.fillText(topic.toUpperCase(), x, y);
 }
 
-async function ensureAssets(): Promise<{ logo: HTMLImageElement | null; mountain: HTMLImageElement | null } | null> {
+async function ensureAssets(): Promise<{ logo: HTMLImageElement | null } | null> {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return null;
-  const [logo, mountain] = await Promise.all([loadLogo(), loadMountain()]);
-  return { logo, mountain };
+  const logo = await loadLogo();
+  return { logo };
 }
 
 // Instagram feed post, 4:5 (1080×1350 — Instagram's tallest allowed ratio,
@@ -203,8 +163,15 @@ async function generateInstagram(post: SocialPostContent): Promise<string | null
   ctx.fillStyle = BG;
   ctx.fillRect(0, 0, W, H);
 
-  const bandHeight = 460;
-  if (assets.mountain) drawFadedMountain(ctx, assets.mountain, 0, H - bandHeight, W, bandHeight, 'top');
+  const scene = post.scene ?? 'essai';
+  const iso = new Iso(500, 1280, 150, 78);
+  drawScene(
+    ctx,
+    scene,
+    iso,
+    { x: 700, y: 890, w: 320, h: 320, rotate: -7 },
+    scene === 'essai' ? { cx: 800, cy: 980, r: 175, rotate: -8 } : null,
+  );
 
   const marginX = 76;
   drawBrandHeader(ctx, assets.logo, marginX, 64, 44);
@@ -231,9 +198,8 @@ async function generateInstagram(post: SocialPostContent): Promise<string | null
     }
   }
 
-  // "cantia.ch" pill, anchored bottom-left over the photo band — a solid
-  // chip (not bare text over the photo) so it stays legible regardless of
-  // what's underneath it.
+  // "cantia.ch" pill, anchored bottom-left clear of the illustration — a
+  // solid chip so it stays legible regardless of what's underneath it.
   ctx.font = `800 30px ${FONT_FAMILY}`;
   const label = 'cantia.ch';
   const labelWidth = ctx.measureText(label).width;
@@ -270,8 +236,15 @@ async function generateLinkedin(post: SocialPostContent): Promise<string | null>
   ctx.fillStyle = BG;
   ctx.fillRect(0, 0, W, H);
 
-  const mountainW = 620;
-  if (assets.mountain) drawFadedMountain(ctx, assets.mountain, W - mountainW, 0, mountainW, H, 'left');
+  const scene = post.scene ?? 'essai';
+  const iso = new Iso(940, 610, 100, 52);
+  drawScene(
+    ctx,
+    scene,
+    iso,
+    { x: 800, y: 210, w: 230, h: 230, rotate: -7 },
+    scene === 'essai' ? { cx: 840, cy: 300, r: 118, rotate: -8 } : null,
+  );
 
   const marginX = 72;
   const contentWidth = 620;

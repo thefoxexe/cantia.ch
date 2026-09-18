@@ -16,6 +16,7 @@ import type {
   SocialPostStatus,
   TutorialChapterStatus,
 } from '../types';
+import type { SocialScene } from '../socialIllustrations';
 
 // All admin_* RPCs re-check is_platform_admin() server-side and raise if the
 // caller isn't one — this client layer never has to guess who's allowed to
@@ -204,6 +205,7 @@ export async function upsertSocialPost(input: {
   linkedin_caption: string;
   status: SocialPostStatus;
   notes?: string | null;
+  scene: SocialScene;
 }): Promise<{ post: AdminSocialPost | null; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_upsert_social_post', {
     post_id: input.id ?? null,
@@ -215,6 +217,7 @@ export async function upsertSocialPost(input: {
     p_linkedin_caption: input.linkedin_caption,
     p_status: input.status,
     p_notes: input.notes ?? null,
+    p_scene: input.scene,
   });
   return { post: (data as AdminSocialPost) ?? null, error: logRpcError('admin_upsert_social_post', error) };
 }

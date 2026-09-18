@@ -1,3 +1,5 @@
+import type { SocialScene } from './socialIllustrations';
+
 export type OrgRole = 'owner' | 'admin' | 'member';
 export type DevisStatus = 'draft' | 'ready' | 'sent' | 'accepted' | 'refused';
 export type ClientType = 'particulier' | 'entreprise';
@@ -1303,6 +1305,7 @@ export interface AdminSocialPost {
   linkedin_caption: string;
   status: SocialPostStatus;
   notes: string | null;
+  scene: SocialScene;
   created_at: string;
   updated_at: string;
 }
