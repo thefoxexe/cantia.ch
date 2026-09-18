@@ -1965,7 +1965,7 @@ export const de: TranslationDict = {
     subtitle: 'Ihr Arbeitsbereich {{name}} wurde erstellt. Wählen Sie die passende Formel, um zu starten.',
     checkoutStartError: 'Zahlung konnte nicht gestartet werden.',
     adminAccess: 'Zur Cantia-Administration',
-    trialBanner: '14 Tage kostenlos testen, jederzeit kündbar.',
+    trialBanner: '14 Tage kostenlos testen. Kreditkarte erforderlich, aber keine Abbuchung vor Ablauf der Testphase — jederzeit kündbar, ohne Bedingungen.',
     billingYearly: 'Jährliche Abrechnung',
     billingMonthly: 'Monatliche Abrechnung',
     recommended: 'Empfohlen',

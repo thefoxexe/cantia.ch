@@ -1973,7 +1973,7 @@ export const it: TranslationDict = {
     subtitle: 'Il suo spazio {{name}} è stato creato. Scelga la formula più adatta per iniziare.',
     checkoutStartError: 'Impossibile avviare il pagamento.',
     adminAccess: "Accedi all'amministrazione Cantia",
-    trialBanner: "14 giorni di prova gratuita su tutti i piani, disdicibile in qualsiasi momento.",
+    trialBanner: "14 giorni di prova gratuita su tutti i piani. Carta di credito richiesta, ma nessun addebito prima della fine della prova — disdicibile in qualsiasi momento, senza condizioni.",
     billingYearly: 'Fatturazione annuale',
     billingMonthly: 'Fatturazione mensile',
     recommended: 'Consigliato',
