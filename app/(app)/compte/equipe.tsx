@@ -11,6 +11,7 @@ import {
   listPendingRequestsForOrg,
   respondToJoinRequest,
   revokeInvite,
+  sendInviteEmail,
   type PendingJoinRequest,
 } from '../../../lib/api/invites';
 import {
@@ -101,6 +102,10 @@ export default function EquipeScreen() {
   const [maxMembers, setMaxMembers] = useState<number | null>(null);
   const [maxOrgRoles, setMaxOrgRoles] = useState<number | null>(null);
   const [inviting, setInviting] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [sendingInviteEmail, setSendingInviteEmail] = useState(false);
+  const [inviteEmailError, setInviteEmailError] = useState<string | null>(null);
+  const [inviteEmailSent, setInviteEmailSent] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -170,6 +175,37 @@ export default function EquipeScreen() {
     setInviting(true);
     await createInvite(organization.id, user?.id);
     setInviting(false);
+    load();
+  }
+
+  // Distinct flow from handleInvite above (that one is copy-link-only,
+  // silent): this creates the invite WITH an e-mail address attached, then
+  // immediately sends it — one admin action instead of "create, then find
+  // this exact row again to copy its link into your own mail client".
+  async function handleSendInviteEmail() {
+    if (!organization || !isAdmin || sendingInviteEmail || atCapacity) return;
+    const email = inviteEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setInviteEmailError(t('equipe.sendInviteEmailInvalid'));
+      return;
+    }
+    setInviteEmailError(null);
+    setSendingInviteEmail(true);
+    const { invite, error: createError } = await createInvite(organization.id, user?.id, email);
+    if (createError || !invite) {
+      setInviteEmailError(createError);
+      setSendingInviteEmail(false);
+      return;
+    }
+    const { error: sendError } = await sendInviteEmail(invite.id);
+    setSendingInviteEmail(false);
+    if (sendError) {
+      setInviteEmailError(sendError);
+      return;
+    }
+    setInviteEmail('');
+    setInviteEmailSent(true);
+    setTimeout(() => setInviteEmailSent(false), 2500);
     load();
   }
 
@@ -304,13 +340,46 @@ export default function EquipeScreen() {
               />
               {atCapacity ? (
                 <Text style={styles.capacityHint}>{t('equipe.capacityMembersHint', { count: maxMembers ?? 0 })}</Text>
-              ) : null}
+              ) : (
+                <View style={styles.inviteEmailBlock}>
+                  <View style={styles.inviteEmailRow}>
+                    <Field
+                      label={t('equipe.sendInviteEmailLabel')}
+                      value={inviteEmail}
+                      onChangeText={(v) => {
+                        setInviteEmail(v);
+                        setInviteEmailError(null);
+                      }}
+                      placeholder={t('equipe.sendInviteEmailPlaceholder')}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      style={styles.inviteEmailInput}
+                    />
+                    <Button
+                      title={inviteEmailSent ? t('equipe.sendInviteEmailSent') : t('equipe.sendInviteEmailButton')}
+                      variant="secondary"
+                      onPress={handleSendInviteEmail}
+                      loading={sendingInviteEmail}
+                      disabled={!inviteEmail.trim()}
+                      style={styles.inviteEmailButton}
+                    />
+                  </View>
+                  {inviteEmailError ? <Text style={styles.error}>{inviteEmailError}</Text> : null}
+                </View>
+              )}
 
               {invites.map((invite) => (
                 <Card key={invite.id} style={styles.inviteCard}>
-                  <Text style={styles.inviteLink} numberOfLines={1}>
-                    {inviteUrl(invite.token)}
-                  </Text>
+                  {invite.invited_email ? (
+                    <Text style={styles.inviteLink} numberOfLines={1}>
+                      {t('equipe.invitedTo', { email: invite.invited_email })}
+                    </Text>
+                  ) : (
+                    <Text style={styles.inviteLink} numberOfLines={1}>
+                      {inviteUrl(invite.token)}
+                    </Text>
+                  )}
                   <Text style={styles.inviteMeta}>
                     {t('equipe.expiresOn', { date: formatDate(invite.expires_at) })}
                   </Text>
@@ -570,6 +639,21 @@ const styles = StyleSheet.create({
   capacityHint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+  },
+  inviteEmailBlock: {
+    marginTop: spacing.md,
+    gap: 6,
+  },
+  inviteEmailRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+  },
+  inviteEmailInput: {
+    flex: 1,
+  },
+  inviteEmailButton: {
+    marginBottom: 2,
   },
   inviteCard: {
     gap: 2,

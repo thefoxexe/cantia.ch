@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { invokeFunction } from './functions';
 import type { Organization, OrganizationInvite, OrganizationSearchResult } from '../types';
 
 export async function listActiveInvites(organizationId: string): Promise<OrganizationInvite[]> {
@@ -13,13 +14,26 @@ export async function listActiveInvites(organizationId: string): Promise<Organiz
   return data ?? [];
 }
 
-export async function createInvite(organizationId: string, userId: string | undefined): Promise<{ invite: OrganizationInvite | null; error: string | null }> {
+export async function createInvite(
+  organizationId: string,
+  userId: string | undefined,
+  invitedEmail?: string,
+): Promise<{ invite: OrganizationInvite | null; error: string | null }> {
   const { data, error } = await supabase
     .from('organization_invites')
-    .insert({ organization_id: organizationId, created_by: userId })
+    .insert({ organization_id: organizationId, created_by: userId, invited_email: invitedEmail?.trim() || null })
     .select()
     .single();
   return { invite: data ?? null, error: error?.message ?? null };
+}
+
+// Separate from createInvite so a plain "copy link" invite never triggers
+// mail — only called right after creating one WITH an e-mail address.
+// send-invite-email re-reads invited_email off the row itself rather than
+// trusting a body param, see the migration's comment.
+export async function sendInviteEmail(inviteId: string): Promise<{ error: string | null }> {
+  const { error } = await invokeFunction('send-invite-email', { invite_id: inviteId });
+  return { error };
 }
 
 export async function revokeInvite(id: string): Promise<{ error: string | null }> {

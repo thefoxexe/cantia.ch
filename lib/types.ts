@@ -130,6 +130,7 @@ export interface OrganizationInvite {
   used_by: string | null;
   used_at: string | null;
   revoked: boolean;
+  invited_email: string | null;
 }
 
 export type JoinRequestStatus = 'pending' | 'accepted' | 'rejected';
