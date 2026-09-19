@@ -1,0 +1,11 @@
+-- Supabase grants EXECUTE on new public-schema functions to anon/
+-- authenticated by default (via ALTER DEFAULT PRIVILEGES), independent of
+-- the plain "revoke ... from public" already done in
+-- 20260919090000_per_org_document_numbering.sql — the security advisor
+-- caught next_document_number() as still callable directly via
+-- /rest/v1/rpc/next_document_number. It must only ever run from inside
+-- the devis/facture BEFORE INSERT triggers (themselves SECURITY DEFINER),
+-- never directly: a client calling it directly could burn through any
+-- other organization's counter and create unexplained gaps in their
+-- invoice numbering.
+revoke execute on function public.next_document_number(uuid, text, text) from anon, authenticated;

@@ -4,7 +4,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { duplicateDevis } from '../../../lib/api/devis';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
@@ -153,14 +152,8 @@ export default function DevisListScreen() {
     [devisList, openProjectId],
   );
 
-  async function handleDuplicate(id: string) {
-    setActionError(null);
-    const { id: newId, error } = await duplicateDevis(id);
-    if (error) {
-      setActionError(error);
-      return;
-    }
-    if (newId) router.push(`/(app)/devis/${newId}`);
+  function handleDuplicate(id: string) {
+    router.push(`/(app)/devis/new?duplicateFromId=${id}`);
   }
 
   async function handleDelete(item: Devis) {

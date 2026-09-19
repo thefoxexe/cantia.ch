@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { sendFactureReminder, duplicateFacture, recomputeFactureDepositDeduction, addLateFeeToFacture } from '../../../../lib/api/factures';
+import { sendFactureReminder, recomputeFactureDepositDeduction, addLateFeeToFacture } from '../../../../lib/api/factures';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../components/ui';
@@ -295,14 +295,8 @@ export default function FacturesListScreen() {
     await handleRemind(facture);
   }
 
-  async function handleDuplicate(id: string) {
-    setReminderError(null);
-    const { id: newId, error } = await duplicateFacture(id);
-    if (error) {
-      setReminderError(error);
-      return;
-    }
-    if (newId) router.push(`/(app)/devis/factures/${newId}`);
+  function handleDuplicate(id: string) {
+    router.push(`/(app)/devis/factures/new?duplicateFromId=${id}`);
   }
 
   async function handleDelete(item: Facture) {

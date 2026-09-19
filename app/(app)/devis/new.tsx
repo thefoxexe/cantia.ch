@@ -54,8 +54,9 @@ function emptyLine(): Line {
 export default function NewDevisScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { trameId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+  const { trameId, duplicateFromId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
     trameId?: string;
+    duplicateFromId?: string;
     voiceClientName?: string;
     voiceClientId?: string;
     voiceClientEmail?: string;
@@ -172,6 +173,46 @@ export default function NewDevisScreen() {
     appliedTrameRef.current = true;
     fetchTrame(trameId).then(({ items }) => applyTrameItems(items));
   }, [trameId]);
+
+  // Arriving here from an existing devis's "Dupliquer" action
+  // (?duplicateFromId=...) — prefills the client, chantier and every line
+  // item exactly as they were on the source devis, so the user edits,
+  // adds or removes positions here before saving a genuinely new devis
+  // (new number, new id), rather than a full copy being written to the
+  // database silently before they've seen it.
+  const appliedDuplicateRef = useRef(false);
+  useEffect(() => {
+    if (!duplicateFromId || appliedDuplicateRef.current) return;
+    appliedDuplicateRef.current = true;
+    (async () => {
+      const { data: source } = await supabase.from('devis').select('*').eq('id', duplicateFromId).maybeSingle();
+      if (!source) return;
+      setClientName(source.client_name ?? '');
+      setClientAddress(source.client_address ?? '');
+      setClientEmail(source.client_email ?? '');
+      setClientId(source.client_id ?? null);
+      if (source.project_id) {
+        const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
+        if (project) setSelectedProject(project as Project);
+      }
+      const { data: items } = await supabase
+        .from('devis_items')
+        .select('*')
+        .eq('devis_id', duplicateFromId)
+        .order('sort_order', { ascending: true });
+      if (items?.length) {
+        setLines(
+          items.map((it) => ({
+            description: it.description,
+            quantity: String(it.quantity),
+            unit: it.unit || 'pce',
+            unitPrice: String(it.unit_price),
+            unitAuto: false,
+          })),
+        );
+      }
+    })();
+  }, [duplicateFromId]);
 
   // Arriving here from the global voice assistant's "create_devis" action
   // (?voiceClientName=...&voiceLines=...) — the client name and any

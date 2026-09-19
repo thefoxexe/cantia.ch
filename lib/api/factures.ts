@@ -89,54 +89,6 @@ export async function listFacturesForDevis(devisId: string): Promise<Pick<Factur
   return data ?? [];
 }
 
-// devis_id is deliberately not copied: a duplicate is a fresh, unrelated
-// document — keeping the link would make it look like another deposit/final
-// invoice for the same quote, which the deduction logic in
-// convert_devis_to_facture would then pick up unintentionally.
-export async function duplicateFacture(factureId: string): Promise<{ id: string | null; error: string | null }> {
-  const { data: original, error: loadError } = await supabase.from('factures').select('*').eq('id', factureId).single();
-  if (loadError || !original) return { id: null, error: loadError?.message ?? 'Facture introuvable.' };
-
-  const { data: items } = await supabase
-    .from('facture_items')
-    .select('*')
-    .eq('facture_id', factureId)
-    .order('sort_order', { ascending: true });
-
-  const { data: created, error: insertError } = await supabase
-    .from('factures')
-    .insert({
-      organization_id: original.organization_id,
-      project_id: original.project_id,
-      client_id: original.client_id,
-      template_id: original.template_id,
-      client_name: original.client_name,
-      client_address: original.client_address,
-      client_email: original.client_email,
-      notes: original.notes,
-      vat_rate: original.vat_rate,
-    })
-    .select('id')
-    .single();
-  if (insertError || !created) return { id: null, error: insertError?.message ?? 'Échec de la duplication.' };
-
-  if (items?.length) {
-    const { error: itemsError } = await supabase.from('facture_items').insert(
-      items.map((it) => ({
-        facture_id: created.id,
-        description: it.description,
-        quantity: it.quantity,
-        unit: it.unit,
-        unit_price: it.unit_price,
-        sort_order: it.sort_order,
-      })),
-    );
-    if (itemsError) return { id: created.id, error: itemsError.message };
-  }
-
-  return { id: created.id, error: null };
-}
-
 // Standalone facture creation, not converted from a devis — used by the RH
 // module's "Facturer ce chantier" flow (see PayrollInvoiceModal). One line
 // per work type, quantity always 1 and unit null: the position's price is

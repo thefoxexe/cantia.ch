@@ -8,7 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl } from '../../../lib/api/storage';
 import { generateDevisPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
-import { duplicateDevis, sendDevisEmail } from '../../../lib/api/devis';
+import { sendDevisEmail } from '../../../lib/api/devis';
 import { backfillDocumentClientContact } from '../../../lib/api/clients';
 import { translateEmailMessage } from '../../../lib/api/ai';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
@@ -190,14 +190,8 @@ export default function DevisDetailScreen() {
     if (dlError) setError(dlError);
   }
 
-  async function handleDuplicate() {
-    setError(null);
-    const { id: newId, error: dupError } = await duplicateDevis(id);
-    if (dupError) {
-      setError(dupError);
-      return;
-    }
-    if (newId) router.push(`/(app)/devis/${newId}`);
+  function handleDuplicate() {
+    router.push(`/(app)/devis/new?duplicateFromId=${id}`);
   }
 
   async function handleDelete() {

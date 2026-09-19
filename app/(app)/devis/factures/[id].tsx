@@ -9,7 +9,6 @@ import { generateFacturePdf } from '../../../../lib/api/pdf';
 import { downloadFile } from '../../../../lib/downloadFile';
 import { publicFactureUrl } from '../../../../lib/api/publicPortal';
 import {
-  duplicateFacture,
   convertDevisToFacture,
   listFacturesForDevis,
   listFacturePayments,
@@ -288,15 +287,9 @@ export default function FactureDetailScreen() {
     load();
   }
 
-  async function handleDuplicate() {
-    setError(null);
+  function handleDuplicate() {
     setActionsOpen(false);
-    const { id: newId, error: dupError } = await duplicateFacture(id);
-    if (dupError) {
-      setError(dupError);
-      return;
-    }
-    if (newId) router.push(`/(app)/devis/factures/${newId}`);
+    router.push(`/(app)/devis/factures/new?duplicateFromId=${id}`);
   }
 
   async function handlePushToBexio() {

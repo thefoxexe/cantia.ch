@@ -47,7 +47,8 @@ function emptyLine(): Line {
 export default function NewFactureScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+  const { duplicateFromId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+    duplicateFromId?: string;
     voiceClientName?: string;
     voiceClientId?: string;
     voiceClientEmail?: string;
@@ -126,6 +127,44 @@ export default function NewFactureScreen() {
   // (?voiceClientName=...&voiceLines=...) — same prefill-only pattern as
   // devis/new.tsx: seeds the client name and any dictated line items once,
   // nothing is saved automatically.
+  // Arriving here from an existing facture's "Dupliquer" action
+  // (?duplicateFromId=...) — same prefill-only pattern as devis/new.tsx:
+  // client, chantier and every line item are seeded from the source
+  // facture, nothing is saved until the user submits this form.
+  const appliedDuplicateRef = useRef(false);
+  useEffect(() => {
+    if (!duplicateFromId || appliedDuplicateRef.current) return;
+    appliedDuplicateRef.current = true;
+    (async () => {
+      const { data: source } = await supabase.from('factures').select('*').eq('id', duplicateFromId).maybeSingle();
+      if (!source) return;
+      setClientName(source.client_name ?? '');
+      setClientAddress(source.client_address ?? '');
+      setClientEmail(source.client_email ?? '');
+      setClientId(source.client_id ?? null);
+      if (source.project_id) {
+        const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
+        if (project) setSelectedProject(project as Project);
+      }
+      const { data: items } = await supabase
+        .from('facture_items')
+        .select('*')
+        .eq('facture_id', duplicateFromId)
+        .order('sort_order', { ascending: true });
+      if (items?.length) {
+        setLines(
+          items.map((it) => ({
+            description: it.description,
+            quantity: String(it.quantity),
+            unit: it.unit || 'pce',
+            unitPrice: String(it.unit_price),
+            unitAuto: false,
+          })),
+        );
+      }
+    })();
+  }, [duplicateFromId]);
+
   const appliedVoiceRef = useRef(false);
   useEffect(() => {
     if (appliedVoiceRef.current || (!voiceClientName && !voiceLines)) return;
