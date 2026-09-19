@@ -9,10 +9,12 @@ import type {
   AdminOrgBillingStatus,
   AdminOrganizationDetail,
   AdminOrganizationSummary,
+  AdminPlatformExpense,
   AdminRevenueOverview,
   AdminSocialPost,
   AdminTutorialChapter,
   AdminUserSummary,
+  PlatformExpenseCategory,
   SocialPostStatus,
   TutorialChapterStatus,
 } from '../types';
@@ -254,4 +256,36 @@ export function subscribeToNewOrganizations(onInsert: () => void): () => void {
   return () => {
     supabase.removeChannel(channel);
   };
+}
+
+export async function listPlatformExpenses(): Promise<{ rows: AdminPlatformExpense[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_list_platform_expenses');
+  const err = logRpcError('admin_list_platform_expenses', error);
+  return { rows: err || !data ? [] : (data as AdminPlatformExpense[]), error: err };
+}
+
+export async function upsertPlatformExpense(input: {
+  id?: string | null;
+  category: PlatformExpenseCategory;
+  label: string;
+  amount_chf: number;
+  expense_date: string;
+  recurring: boolean;
+  notes?: string | null;
+}): Promise<{ expense: AdminPlatformExpense | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_upsert_platform_expense', {
+    expense_id: input.id ?? null,
+    p_category: input.category,
+    p_label: input.label,
+    p_amount_chf: input.amount_chf,
+    p_expense_date: input.expense_date,
+    p_recurring: input.recurring,
+    p_notes: input.notes ?? null,
+  });
+  return { expense: (data as AdminPlatformExpense) ?? null, error: logRpcError('admin_upsert_platform_expense', error) };
+}
+
+export async function deletePlatformExpense(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('admin_delete_platform_expense', { expense_id: id });
+  return { error: logRpcError('admin_delete_platform_expense', error) };
 }

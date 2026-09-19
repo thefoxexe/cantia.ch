@@ -387,23 +387,57 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     signupsByDay.set(day, (signupsByDay.get(day) ?? 0) + 1);
   }
 
+  // "Encaissé" means real cash in hand, not the gross invoice amount — Stripe
+  // takes its processing fee (card scheme + Stripe's own cut) out of every
+  // charge before the remainder ever reaches the bank account. Each paid
+  // invoice's charge carries a balance_transaction with that exact fee/net
+  // split, so it's read here (not estimated from a flat %) and subtracted.
+  // A charge whose balance_transaction fails to expand (e.g. an edge case
+  // Stripe object) degrades to fee=0 for that one invoice rather than
+  // failing the whole overview — logged so it's visible, never silent.
   let caTotalChf = 0;
   let caThisMonthChf = 0;
+  let feesTotalChf = 0;
+  let feesThisMonthChf = 0;
   const revenueByDay = new Map<string, number>();
   const firstPaymentByCustomer = new Map<string, number>();
   let startingAfter: string | undefined;
   for (let page = 0; page < 5; page++) {
-    const invoices: Stripe.ApiList<Stripe.Invoice> = await stripe.invoices.list({ status: 'paid', limit: 100, starting_after: startingAfter });
+    const invoices: Stripe.ApiList<Stripe.Invoice> = await stripe.invoices.list({
+      status: 'paid',
+      limit: 100,
+      starting_after: startingAfter,
+      expand: ['data.charge.balance_transaction'],
+    });
     for (const inv of invoices.data) {
       const customerId = typeof inv.customer === 'string' ? inv.customer : inv.customer?.id;
       if (!customerId || !knownCustomerIds.has(customerId)) continue;
       const amount = (inv.amount_paid ?? 0) / 100;
       const paidAtTs = inv.status_transitions?.paid_at ?? inv.created;
-      caTotalChf += amount;
-      if (paidAtTs >= monthStartTs) caThisMonthChf += amount;
+
+      let feeChf = 0;
+      const charge = (inv as unknown as { charge?: Stripe.Charge | string | null }).charge;
+      if (charge && typeof charge === 'object') {
+        const bt = charge.balance_transaction;
+        if (bt && typeof bt === 'object') {
+          feeChf = (bt.fee ?? 0) / 100;
+        } else if (charge.balance_transaction) {
+          console.error('balance_transaction not expanded for charge', charge.id);
+        }
+      } else if (amount > 0) {
+        console.error('invoice paid with no expandable charge', inv.id);
+      }
+      const netAmount = amount - feeChf;
+
+      caTotalChf += netAmount;
+      feesTotalChf += feeChf;
+      if (paidAtTs >= monthStartTs) {
+        caThisMonthChf += netAmount;
+        feesThisMonthChf += feeChf;
+      }
       if (amount > 0) {
         const day = dayKey(paidAtTs);
-        revenueByDay.set(day, (revenueByDay.get(day) ?? 0) + amount);
+        revenueByDay.set(day, (revenueByDay.get(day) ?? 0) + netAmount);
         const existing = firstPaymentByCustomer.get(customerId);
         if (!existing || paidAtTs < existing) firstPaymentByCustomer.set(customerId, paidAtTs);
       }
@@ -469,6 +503,8 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     net_mrr_this_month_chf: round2(newMrrThisMonthChf - churnedMrrThisMonthChf),
     ca_total_chf: round2(caTotalChf),
     ca_this_month_chf: round2(caThisMonthChf),
+    stripe_fees_total_chf: round2(feesTotalChf),
+    stripe_fees_this_month_chf: round2(feesThisMonthChf),
     active_count: activeCount,
     trialing_count: trialingCount,
     scheduled_cancellations_count: activeCancellingCount + trialingCancellingCount,

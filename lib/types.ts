@@ -1185,8 +1185,14 @@ export interface AdminRevenueOverview {
   churned_mrr_this_month_chf: number;
   churned_count_this_month: number;
   net_mrr_this_month_chf: number;
+  // Real cash collected — Stripe's processing fee (read from each charge's
+  // own balance_transaction, not a flat estimate) is already subtracted,
+  // so this is what actually lands in the bank account, not the gross
+  // invoice amount the customer was billed.
   ca_total_chf: number;
   ca_this_month_chf: number;
+  stripe_fees_total_chf: number;
+  stripe_fees_this_month_chf: number;
   active_count: number;
   trialing_count: number;
   // Active OR trialing subs Stripe already flagged as cancel_at_period_end
@@ -1399,4 +1405,19 @@ export interface IntegrationSyncLog {
   request_id: string | null;
   payload_summary: Record<string, unknown>;
   created_at: string;
+}
+
+export type PlatformExpenseCategory = 'hebergement' | 'marketing' | 'outils' | 'domaine_email' | 'juridique_comptable' | 'autre';
+
+export interface AdminPlatformExpense {
+  id: string;
+  category: PlatformExpenseCategory;
+  label: string;
+  amount_chf: number;
+  expense_date: string;
+  recurring: boolean;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }

@@ -114,8 +114,20 @@ export default function AdminDashboard() {
           <StatTile label="Utilisateurs" value={(stats?.users_count ?? 0).toLocaleString('fr-CH')} icon="users" />
           {overview ? (
             <>
-              <StatTile label="Encaissé ce mois" value={formatChf(overview.ca_this_month_chf)} icon="calendar" accent={colors.success} />
-              <StatTile label="Encaissé à vie" value={formatChf(overview.ca_total_chf)} icon="dollar-sign" accent={colors.success} />
+              <StatTile
+                label="Encaissé ce mois"
+                value={formatChf(overview.ca_this_month_chf)}
+                icon="calendar"
+                accent={colors.success}
+                hint={overview.stripe_fees_this_month_chf > 0 ? `frais Stripe déduits : ${formatChf(overview.stripe_fees_this_month_chf)}` : undefined}
+              />
+              <StatTile
+                label="Encaissé à vie"
+                value={formatChf(overview.ca_total_chf)}
+                icon="dollar-sign"
+                accent={colors.success}
+                hint={overview.stripe_fees_total_chf > 0 ? `frais Stripe déduits : ${formatChf(overview.stripe_fees_total_chf)}` : undefined}
+              />
               <StatTile
                 label="Résiliations programmées"
                 value={scheduledCancelPct !== null ? `${scheduledCancelPct.toFixed(1)}%` : '—'}
@@ -134,7 +146,7 @@ export default function AdminDashboard() {
             <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés — filtrable par période." />
             <GrowthChart points={overview.timeseries} />
 
-            <SectionHeading title="Cash encaissé par mois" subtitle="Factures Stripe effectivement payées, regroupées par mois." />
+            <SectionHeading title="Cash encaissé par mois" subtitle="Factures Stripe effectivement payées, frais Stripe déjà déduits, regroupées par mois." />
             <CashCollectedChart points={overview.timeseries} />
           </>
         ) : null}
