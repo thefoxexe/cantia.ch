@@ -1177,6 +1177,15 @@ export interface AdminRevenueTimeseriesPoint {
   mrr_chf: number;
 }
 
+export interface AdminRevenueTransaction {
+  id: string;
+  customer_name: string;
+  number: string | null;
+  amount_chf: number;
+  fee_chf: number;
+  date: string;
+}
+
 export interface AdminRevenueOverview {
   mrr_active_chf: number;
   mrr_trialing_chf: number;
@@ -1209,6 +1218,9 @@ export interface AdminRevenueOverview {
   by_plan: AdminRevenuePlanBreakdown[];
   promo_codes: AdminRevenuePromoCode[];
   timeseries: AdminRevenueTimeseriesPoint[];
+  // Most recent paid invoices (net of Stripe fees), newest first — feeds the
+  // Rentabilité screen's transaction ledger alongside manual expenses.
+  recent_transactions: AdminRevenueTransaction[];
 }
 
 export interface AdminOrganizationMember {

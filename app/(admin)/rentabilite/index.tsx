@@ -8,11 +8,13 @@ import { DateField } from '../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { useAdminData } from '../../../lib/adminDataContext';
 import { deletePlatformExpense, listPlatformExpenses, upsertPlatformExpense } from '../../../lib/api/admin';
-import type { AdminPlatformExpense, PlatformExpenseCategory } from '../../../lib/types';
+import type { AdminPlatformExpense, AdminRevenueTransaction, PlatformExpenseCategory } from '../../../lib/types';
 
 function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 2 }).format(amount);
 }
+
+type MergedRow = { kind: 'expense'; date: string; expense: AdminPlatformExpense } | { kind: 'revenue'; date: string; tx: AdminRevenueTransaction };
 
 function todayIso(): string {
   const d = new Date();
@@ -115,6 +117,21 @@ export default function AdminRentabiliteScreen() {
     for (const e of expenses) map.set(e.category, (map.get(e.category) ?? 0) + e.amount_chf);
     return map;
   }, [expenses]);
+
+  const revenueTransactions = overview?.recent_transactions ?? [];
+
+  // A single chronological ledger — manual expenses (editable) interleaved
+  // with real Stripe payments (read-only, already net of fees) — so the
+  // page shows the full picture of what moved, not just costs entered by
+  // hand.
+  const mergedRows = useMemo<MergedRow[]>(() => {
+    const rows: MergedRow[] = [
+      ...expenses.map((e): MergedRow => ({ kind: 'expense', date: e.expense_date, expense: e })),
+      ...revenueTransactions.map((tx): MergedRow => ({ kind: 'revenue', date: tx.date.slice(0, 10), tx })),
+    ];
+    rows.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    return rows;
+  }, [expenses, revenueTransactions]);
 
   // overview.ca_*_chf is already net of Stripe's processing fee (see
   // admin-billing-overview) — the dashboard elsewhere shows that net figure
@@ -236,15 +253,38 @@ export default function AdminRentabiliteScreen() {
           </View>
         ) : null}
 
-        <Text style={styles.groupTitle}>Dépenses</Text>
+        <Text style={styles.groupTitle}>Transactions</Text>
+        <Text style={[styles.hint, styles.transactionsHint]}>Encaissements Stripe (lecture seule) et dépenses de la plateforme, les plus récents en premier.</Text>
 
         {loading ? (
           <LoadingScreen label="Chargement…" />
-        ) : expenses.length === 0 ? (
-          <EmptyState title="Aucune dépense enregistrée" subtitle="Ajoute la première ci-dessous." />
+        ) : mergedRows.length === 0 ? (
+          <EmptyState title="Aucune transaction" subtitle="Ajoute une première dépense ci-dessous." />
         ) : (
           <View style={styles.list}>
-            {expenses.map((e) => {
+            {mergedRows.map((row) => {
+              if (row.kind === 'revenue') {
+                const tx = row.tx;
+                return (
+                  <View key={`tx-${tx.id}`} style={styles.card}>
+                    <View style={styles.row}>
+                      <View style={[styles.rowIcon, styles.rowIconRevenue]}>
+                        <Feather name="arrow-down-circle" size={14} color={colors.success} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.rowLabel}>{tx.customer_name}</Text>
+                        <Text style={styles.rowMeta}>
+                          Stripe{tx.number ? ` · ${tx.number}` : ''} · {new Date(tx.date).toLocaleDateString('fr-CH')}
+                          {tx.fee_chf > 0 ? ` · frais ${formatChf(tx.fee_chf)}` : ''}
+                        </Text>
+                      </View>
+                      <Text style={[styles.rowAmount, styles.rowAmountPositive]}>+{formatChf(tx.amount_chf)}</Text>
+                    </View>
+                  </View>
+                );
+              }
+
+              const e = row.expense;
               const open = expandedId === e.id;
               const activeDraft = open ? draft : draftFrom(e);
               return (
@@ -260,7 +300,7 @@ export default function AdminRentabiliteScreen() {
                         {e.recurring ? ' · récurrent' : ''}
                       </Text>
                     </View>
-                    <Text style={styles.rowAmount}>{formatChf(e.amount_chf)}</Text>
+                    <Text style={styles.rowAmount}>-{formatChf(e.amount_chf)}</Text>
                     <Feather name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                   </Pressable>
 
@@ -491,6 +531,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     marginBottom: spacing.sm,
   },
+  transactionsHint: {
+    marginTop: -spacing.xs,
+    marginBottom: spacing.md,
+  },
   list: {
     gap: spacing.sm,
   },
@@ -520,6 +564,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rowIconRevenue: {
+    backgroundColor: colors.successSoft,
+  },
   rowLabel: {
     fontSize: fontSize.sm,
     fontWeight: '700',
@@ -534,6 +581,9 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '800',
     color: colors.text,
+  },
+  rowAmountPositive: {
+    color: colors.success,
   },
   editor: {
     borderTopWidth: 1,

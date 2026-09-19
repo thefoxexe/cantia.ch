@@ -386,6 +386,8 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     .not('stripe_customer_id', 'is', null);
   const knownCustomerIds = new Set((orgs ?? []).map((o: { stripe_customer_id: string | null }) => o.stripe_customer_id).filter(Boolean));
   for (const o of allRealOrgs ?? []) knownCustomerIds.add(o.stripe_customer_id);
+  const orgNameByCustomerId = new Map<string, string>();
+  for (const o of allRealOrgs ?? []) if (o.stripe_customer_id) orgNameByCustomerId.set(o.stripe_customer_id, o.name);
 
   let churnedMrrThisMonthChf = 0;
   let churnedCountThisMonth = 0;
@@ -438,6 +440,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   let feesThisMonthChf = 0;
   const revenueByDay = new Map<string, number>();
   const firstPaymentByCustomer = new Map<string, number>();
+  const transactions: { id: string; customer_name: string; number: string | null; amount_chf: number; fee_chf: number; date: string }[] = [];
   let startingAfter: string | undefined;
   for (let page = 0; page < 5; page++) {
     const invoices: Stripe.ApiList<Stripe.Invoice> = await stripe.invoices.list({
@@ -466,11 +469,20 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
         revenueByDay.set(day, (revenueByDay.get(day) ?? 0) + netAmount);
         const existing = firstPaymentByCustomer.get(customerId);
         if (!existing || paidAtTs < existing) firstPaymentByCustomer.set(customerId, paidAtTs);
+        transactions.push({
+          id: inv.id,
+          customer_name: orgNameByCustomerId.get(customerId) ?? inv.customer_name ?? 'Client',
+          number: inv.number ?? null,
+          amount_chf: round2(netAmount),
+          fee_chf: round2(feeChf),
+          date: new Date(paidAtTs * 1000).toISOString(),
+        });
       }
     }
     if (!invoices.has_more) break;
     startingAfter = invoices.data[invoices.data.length - 1]?.id;
   }
+  transactions.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
   // Daily growth series for the last 90 days — the client filters this down
   // to "aujourd'hui" / "7 jours" / "ce mois" / "depuis toujours" itself,
@@ -547,6 +559,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
       .sort((a, b) => b.mrr_chf - a.mrr_chf),
     promo_codes: Array.from(promoCounts.values()).sort((a, b) => b.org_count - a.org_count),
     timeseries: points,
+    recent_transactions: transactions.slice(0, 100),
   };
 }
 
