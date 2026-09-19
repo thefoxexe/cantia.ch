@@ -23,27 +23,11 @@ function clamp(min: number, value: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-// The compiled Android/iOS app has no marketing site to show — it goes
-// straight to the auth flow (app/_layout.tsx then takes over once the
-// session is known). Plain platform check ahead of LandingContent's hooks,
-// not a conditional hook call, so it stays rules-of-hooks safe.
 export default function LandingScreen() {
   if (Platform.OS !== 'web') return <Redirect href="/(auth)/login" />;
   return <LandingContent />;
 }
 
-// September 2026 rebuild: replaces the previous SaaS-dashboard-mockup hero
-// with the "Cantia_Landing" reference package — a crème/terracotta,
-// DM Sans, story-driven design commissioned and validated by the product
-// owner (see the brief that shipped alongside the reference assets). Every
-// section below reproduces that reference's structure and copy; only the
-// implementation (React Native Web instead of static HTML/CSS/JS) and the
-// internal routing (real app routes instead of hardcoded cantia.ch URLs)
-// differ. lib/theme.ts's palette already matched the reference's crème/ink/
-// terracotta exactly — nothing there needed to change; DM Sans (this
-// design's specified typeface, distinct from the rest of the marketing
-// site's Fraunces/Instrument Sans — see lib/landingTheme.ts) is the one new
-// visual dependency.
 function LandingContent() {
   const t = useMarketingDict();
   useSyncMarketingLocaleFromPath();
@@ -55,31 +39,11 @@ function LandingContent() {
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
-  // The hero's mountain backdrop (public/hero-mountain.webp, provided by
-  // the product owner) — full reveal on tablet/desktop, given real height
-  // so the photo fills the first screen on load rather than being
-  // squeezed into the text's natural (shorter) height. Phones get a
-  // narrow peek at the right edge instead of the full photo — the Swiss
-  // mountain is worth keeping in view everywhere, but there's no width on
-  // a phone for the full image to read as anything but noise behind text.
   const showHeroMountainFull = !isMobile;
   const showHeroMountainPeek = isMobile;
   const heroMinHeight = showHeroMountainFull ? clamp(600, height * 0.88, 940) : undefined;
-  // Mirrors the reference design's CSS clamp() — scales smoothly with the
-  // viewport between a floor and a ceiling instead of one fixed size, so
-  // the hero title doesn't look oversized/cramped on in-between widths
-  // (tablet landscape, small laptop) the way a single fixed font-size did.
-  // Sized up noticeably on this compact/tablet branch (was ~42-47px on an
-  // iPad-portrait-width screen) — with the mountain now filling the
-  // section's forced height, a small title just left more visually empty
-  // space above the baseline row instead of anchoring the hero the way it
-  // does on desktop.
   const heroTitleSize = clamp(50, width * 0.09, 108);
   const heroCrossedSize = clamp(28, width * 0.05, 58);
-  // Desktop-only oversized treatment ("le grand geste") — the crossed-out
-  // tagline becomes the hero's dominant graphic moment instead of sharing a
-  // cramped row with the supporting copy. Compact/tablet keeps the original
-  // sizes above untouched.
   const heroBigTitleSize = clamp(56, width * 0.068, 108);
   const heroBigCrossedSize = clamp(40, width * 0.05, 78);
 
@@ -88,12 +52,6 @@ function LandingContent() {
   const pricingRef = useRef<View>(null);
   const heroMountainRef = useRef<View>(null);
 
-  // react-native-web's StyleSheet compiler silently drops backgroundPosition
-  // (it's outside RN's own style vocabulary, unlike backgroundImage/Size,
-  // which it does forward) — setting it through the style prop is a no-op,
-  // confirmed via computed styles in a real browser. Setting it directly on
-  // the DOM node is the only way to anchor the crop to the image's right
-  // side instead of the default top-left.
   useEffect(() => {
     if (!showHeroMountainFull && !showHeroMountainPeek) return;
     const node = heroMountainRef.current as unknown as HTMLElement | null;
@@ -113,17 +71,8 @@ function LandingContent() {
       <MarketingNav onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
 
       <ScrollView ref={scrollRef}>
-        {/* ---------------------------------------------------------------- Hero */}
         <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
           {showHeroMountainFull || showHeroMountainPeek ? (
-            // The mountain photo, full-bleed behind the hero: rendered at its
-            // own (near-16:9) ratio across the whole section so "cover"
-            // barely has to crop it, then masked so only a slice of its
-            // right side shows — the rest fades to nothing rather than
-            // being physically narrowed, which is what lets it read as
-            // "the page's own background" instead of a photo pasted in a
-            // box. Phones get a much narrower reveal (see showHeroMountainPeek
-            // above) — just enough to catch the mountain at the edge.
             <View
               ref={heroMountainRef}
               pointerEvents="none"
@@ -174,12 +123,6 @@ function LandingContent() {
                   </ScrollReveal>
                 </View>
               ) : (
-                // "Le grand geste" — the crossed-out tagline is the hero's
-                // dominant graphic moment, full width, instead of sharing a
-                // cramped row with the supporting copy. Everything that used
-                // to sit beside the title now runs in a full-width band
-                // underneath it, in three columns that actually use a large
-                // screen's width instead of leaving it empty.
                 <View style={styles.heroDesktop}>
                   <ScrollReveal style={styles.heroTitleCol} delay={120}>
                     <Text style={[styles.h1, { fontSize: heroBigTitleSize, lineHeight: heroBigTitleSize * 1.0 }]}>
@@ -231,7 +174,6 @@ function LandingContent() {
           </View>
         </View>
 
-        {/* ---------------------------------------------------------------- Trust */}
         <ScrollReveal style={styles.wrap}>
           <View style={[styles.trustLayout, isTablet && styles.trustLayoutCompact]}>
             <View style={[styles.trustOrigin, !isTablet && { flex: 0.9 }]}>
@@ -261,7 +203,6 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ---------------------------------------------------------------- Profession */}
         <ScrollReveal style={styles.wrap}>
           <View style={[styles.professionLayout, isTablet && styles.professionLayoutCompact]}>
             <View style={[styles.professionCopy, !isTablet && { flex: 1 }]}>
@@ -296,7 +237,6 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ---------------------------------------------------------------- Stories + catalog */}
         <View style={styles.wrap} ref={storiesRef}>
           <ScrollReveal>
             <View style={styles.sectionHeadingCentered}>
@@ -308,7 +248,6 @@ function LandingContent() {
           </ScrollReveal>
         </View>
 
-        {/* ---------------------------------------------------------------- Team */}
         <View style={[styles.wrap, styles.section]}>
           <ScrollReveal>
           <View style={styles.sectionHeadingCentered}>
@@ -350,7 +289,6 @@ function LandingContent() {
           </ScrollReveal>
         </View>
 
-        {/* ---------------------------------------------------------------- Automation / voice */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
           <View style={[styles.sectionHeadingRow, isTablet && styles.sectionHeadingRowCompact]}>
             <View style={!isTablet ? { flex: 1 } : undefined}>
@@ -374,7 +312,6 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ---------------------------------------------------------------- Terrain */}
         <View style={styles.terrainOuter}>
           <ScrollReveal style={styles.wrap}>
             <Text style={styles.eyebrow}>{t.terrain.eyebrow}</Text>
@@ -395,7 +332,6 @@ function LandingContent() {
           </ScrollReveal>
         </View>
 
-        {/* ---------------------------------------------------------------- Tailored */}
         <ScrollReveal style={[styles.wrap, styles.section, styles.tailored, isTablet && styles.tailoredCompact]}>
           <View style={[styles.tailoredHeading, !isTablet && { flex: 1 }]}>
             <Text style={styles.eyebrow}>{t.tailored.eyebrow}</Text>
@@ -421,7 +357,6 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ---------------------------------------------------------------- Bexio */}
         <ScrollReveal style={styles.wrap}>
           <View style={[styles.bexioBanner, isMobile && styles.bexioBannerCompact]}>
             <View style={styles.bexioIcon}>
@@ -440,14 +375,12 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ---------------------------------------------------------------- Pricing */}
         <View ref={pricingRef}>
           <ScrollReveal>
             <PricingSection />
           </ScrollReveal>
         </View>
 
-        {/* ---------------------------------------------------------------- FAQ */}
         <ScrollReveal style={[styles.wrap, styles.section, styles.faqLayout, isTablet && styles.faqLayoutCompact]}>
           <View style={[styles.faqHeading, !isTablet && { flex: 0.8 }]}>
             <Text style={styles.eyebrow}>{t.faq.eyebrow}</Text>
@@ -465,7 +398,6 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ---------------------------------------------------------------- Closing */}
         <View style={styles.closing}>
           <ScrollReveal style={styles.wrap}>
             <Text style={styles.closingEyebrow}>{t.closing.eyebrow}</Text>
@@ -501,7 +433,6 @@ const styles = StyleSheet.create({
   bodyText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 24, color: colors.textMuted },
   textLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.primary, marginTop: spacing.sm },
 
-  // Hero
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
   heroMountainBase: {
     position: 'absolute',
@@ -511,30 +442,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundImage: 'url(/hero-mountain.webp)',
     backgroundSize: 'cover',
-    // backgroundPosition is set imperatively via heroMountainRef below —
-    // react-native-web's StyleSheet compiler drops that property silently.
     backgroundRepeat: 'no-repeat',
   } as unknown as ViewStyle,
-  // Transparent through the left ~42% (where the copy lives), ramping to
-  // fully opaque by ~65% — the mountain itself already sits in the
-  // source image's right half, so this just reveals it rather than
-  // fighting the photo's own composition.
   heroMountainMaskFull: {
     maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
     WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
   } as unknown as ViewStyle,
-  // Phones: a soft, translucent reveal rather than the full-opacity one
-  // above — it's fine for this to sit behind the title/tagline text now,
-  // so the ramp is wide and capped at 55% opacity (never fully opaque)
-  // instead of a hard edge jumping straight to "black"/fully-visible,
-  // which read as the photo getting cut off abruptly mid-slope.
   heroMountainMaskPeek: {
     maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
     WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
   } as unknown as ViewStyle,
-  // A soft fade at the very bottom of the hero, above the mountain but
-  // below the text, so the photo dissolves into the page background
-  // instead of being clipped hard where the section ends.
   heroBottomFade: {
     position: 'absolute',
     left: 0,
@@ -544,12 +461,6 @@ const styles = StyleSheet.create({
     backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
   } as unknown as ViewStyle,
   heroCopy: { paddingTop: spacing.xl },
-  // Stretches the copy column to the hero's full (forced) minHeight and
-  // pushes the baseline row down to meet its bottom edge, instead of
-  // leaving a bare gap of background between the content and the section
-  // end whenever natural content height falls short of minHeight (tablet
-  // portrait especially, where the compact layout is much shorter than
-  // desktop's "grand geste" treatment).
   heroCopySpread: { flex: 1, justifyContent: 'space-between' },
   heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
   originSymbol: { alignItems: 'center', justifyContent: 'center' },
@@ -566,7 +477,6 @@ const styles = StyleSheet.create({
   heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
   heroAsideP1: { fontFamily: landingFonts.body, fontSize: 19, fontWeight: '600', color: colors.text, lineHeight: 27, marginTop: spacing.xs, letterSpacing: -0.3 },
   heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.sm },
-  // Desktop-only "grand geste" layout — see the isTablet branch above.
   heroDesktop: { paddingVertical: spacing.xxl, gap: spacing.md },
   heroInfoBand: {
     flexDirection: 'row',
@@ -600,7 +510,6 @@ const styles = StyleSheet.create({
   baselineItem: { fontFamily: landingFonts.body, fontSize: 12, color: colors.text },
   baselineNumber: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
 
-  // Trust
   trustLayout: { flexDirection: 'row', gap: spacing.xxxl, paddingVertical: spacing.xxxl, borderTopWidth: 1, borderTopColor: colors.border },
   trustLayoutCompact: { flexDirection: 'column', gap: spacing.xl },
   trustOrigin: {},
@@ -614,7 +523,6 @@ const styles = StyleSheet.create({
   trustCardText: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, lineHeight: 20 },
   trustCardLink: { fontFamily: landingFonts.body, fontSize: 12, fontWeight: '700', color: colors.primary, marginTop: 4 },
 
-  // Profession
   professionLayout: { flexDirection: 'row', gap: 70, paddingVertical: spacing.xxxl, alignItems: 'center' },
   professionLayoutCompact: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xl },
   professionCopy: {},
@@ -633,7 +541,6 @@ const styles = StyleSheet.create({
   sectionHeadingRowCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.sm },
   sectionHeadingRowText: { flex: 1, textAlign: 'right' },
 
-  // Team
   teamRoles: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl },
   teamRolesCompact: { flexDirection: 'column' },
   teamRole: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: 6, backgroundColor: colors.surface },
@@ -649,7 +556,6 @@ const styles = StyleSheet.create({
   teamPermTitle: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text, marginBottom: 4 },
   teamPermNote: { fontFamily: landingFonts.body, fontSize: 11, color: colors.textMuted, marginTop: spacing.xs },
 
-  // Automation
   commandLayout: { flexDirection: 'row', gap: spacing.xxl, marginTop: spacing.xl },
   commandLayoutCompact: { flexDirection: 'column' },
   commandCopy: { gap: spacing.sm },
@@ -657,7 +563,6 @@ const styles = StyleSheet.create({
   commandTitle: { fontFamily: landingFonts.body, fontSize: 26, fontWeight: '600', letterSpacing: -0.8, lineHeight: 33, color: colors.text, marginVertical: spacing.sm },
   commandDemo: { backgroundColor: colors.text, borderRadius: radius.lg, padding: spacing.xl },
 
-  // Terrain
   terrainOuter: { backgroundColor: colors.primarySoft, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, paddingVertical: spacing.xxxl, marginTop: spacing.xxxl * 1.3 },
   devicePoints: { flexDirection: 'row', gap: spacing.lg, marginVertical: spacing.lg, maxWidth: 640 },
   devicePointsCompact: { flexDirection: 'column', gap: spacing.md },
@@ -666,7 +571,6 @@ const styles = StyleSheet.create({
   devicePointText: { fontFamily: landingFonts.body, fontSize: 12, color: colors.textMuted },
   installNote: { fontFamily: landingFonts.body, fontSize: 11, color: colors.textMuted, marginTop: spacing.md, lineHeight: 17 },
 
-  // Tailored
   tailored: { flexDirection: 'row', gap: 70, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: spacing.xxxl },
   tailoredCompact: { flexDirection: 'column', gap: spacing.xl },
   tailoredHeading: { gap: spacing.sm },
@@ -675,7 +579,6 @@ const styles = StyleSheet.create({
   tailoredStepNum: { width: 30, height: 30, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bg, textAlign: 'center', textAlignVertical: 'center', fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', color: colors.primary, lineHeight: 30 },
   tailoredStepTitle: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 2 },
 
-  // Bexio
   bexioBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, backgroundColor: colors.surface, padding: spacing.xl, marginVertical: spacing.xxxl },
   bexioBannerCompact: { flexDirection: 'column', alignItems: 'flex-start' },
   bexioIcon: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -684,12 +587,10 @@ const styles = StyleSheet.create({
   bexioWord: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', color: '#64764e', letterSpacing: -1 },
   bexioTitle: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: colors.text, marginVertical: 4 },
 
-  // FAQ
   faqLayout: { flexDirection: 'row', gap: spacing.xxxl },
   faqLayoutCompact: { flexDirection: 'column', gap: spacing.lg },
   faqHeading: { gap: spacing.sm },
 
-  // Closing
   closing: { backgroundColor: colors.text, paddingVertical: spacing.xxxl * 1.4, marginTop: spacing.xxxl },
   closingEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: '#e8ad89', textAlign: 'center' },
   closingTitle: { fontFamily: landingFonts.body, fontSize: 40, fontWeight: '600', color: '#fff', textAlign: 'center', letterSpacing: -1.2, lineHeight: 46, marginVertical: spacing.md },

@@ -24,11 +24,6 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'Sur-mesure & automatisations': 'sliders',
 };
 
-// Shared template for every /blog/[slug] article — same chrome, hero and
-// closing CTA pattern as SolutionPage.tsx, so the blog reads as the same
-// site rather than a bolted-on section. The content itself renders through
-// a small switch over BlogBlock, since no markdown/MDX parser exists in
-// this repo (see lib/blog/types.ts).
 export function BlogArticle({ post }: { post: BlogPost }) {
   const { t } = useTranslation();
   const locale = getAppLocale();
@@ -43,10 +38,6 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
   const related = getRelatedPosts(post, 3, locale);
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
-  // "Back to blog" and related-article links were hardcoded to /blog/...
-  // regardless of locale — a German or Italian reader following either
-  // link landed on a French page. See app/blog/index.tsx for the same bug
-  // on the blog index's own cards, fixed the same way.
   const blogHrefPrefix = `${tradeHrefPrefix}blog`;
 
   return (

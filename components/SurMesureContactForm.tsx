@@ -6,15 +6,6 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
-// Netlify's spam-filtered form-submission service only ever sees a
-// submission if the form's name+fields were discovered in the STATIC build
-// output at deploy time — it never executes this SPA's JS, so it can't see
-// this component. public/sur-mesure-form.html is a hidden, unvisited page
-// that exists purely to give Netlify's build-time HTML parser something to
-// find; its field names must stay in sync with FIELDS below. Once Netlify
-// knows the form exists, this plain fetch() POST (matching form-name) is
-// enough to actually deliver a real submission — no backend of our own
-// needed for what's essentially a "call me" lead form.
 const FORM_NAME = 'sur-mesure';
 
 function encodeFormData(data: Record<string, string>): string {
@@ -30,9 +21,6 @@ export function SurMesureContactForm() {
   const [company, setCompany] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  // Honeypot: a real visitor never sees or fills this field (it's off-screen,
-  // not just hidden — a screen reader would otherwise still announce it),
-  // but a form-filling bot that blindly populates every input trips it.
   const [botField, setBotField] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
@@ -41,8 +29,6 @@ export function SurMesureContactForm() {
   async function handleSubmit() {
     if (!canSubmit || status === 'sending') return;
     if (botField.trim()) {
-      // Silently pretend success to a bot — no point telling it what tripped
-      // the trap.
       setStatus('sent');
       return;
     }
@@ -122,8 +108,6 @@ export function SurMesureContactForm() {
         numberOfLines={4}
         style={styles.textarea}
       />
-      {/* Off-screen (not display:none — some bots skip those), never
-          reachable by a real visitor's tab order or screen reader. */}
       <View style={styles.honeypot} accessible={false} importantForAccessibility="no-hide-descendants">
         <Field label="Ne pas remplir" value={botField} onChangeText={setBotField} tabIndex={-1} />
       </View>

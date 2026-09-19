@@ -1,16 +1,5 @@
 import type { AppLocale } from './translations';
 
-// The document <title> for the marketing site's non-templated static pages
-// (homepage + the handful of standalone pages that aren't driven by a
-// shared data-backed template like TradePage/SolutionPage/BlogArticle,
-// which derive their own title from their own content). Copied verbatim
-// from scripts/seo-routes.mjs's ROUTES array — that file is the real source
-// of truth (it also drives the static build's baked-in <title>), but it's a
-// Node-only script outside the app bundle, so these few strings are
-// duplicated here rather than threading a whole second data pipeline
-// through the app for nine pages. Used by components/MarketingHead to
-// replace the empty <title> Expo Router's head management otherwise leaves
-// after hydration — see MarketingHead.tsx for why that's needed at all.
 const TITLES: Record<string, Record<AppLocale, string>> = {
   home: {
     fr: 'Logiciel de gestion de chantier en Suisse | Cantia',

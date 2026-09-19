@@ -1,37 +1,3 @@
-// web.output is "single" (a plain client-rendered SPA export), so Expo
-// Router's app/+html.tsx convention — the normal place for per-project
-// <head> customization — is silently ignored; it only applies under
-// web.output "static". Switching the whole app to "static" pre-rendering
-// just to get SEO tags is a much bigger, riskier change than this file
-// warrants, so instead this runs once after `expo export` and patches the
-// meta tags straight into the already-built dist/index.html. Static text
-// injection like this is also what actually matters here: social-media
-// link-preview crawlers (Facebook/Twitter/LinkedIn/WhatsApp/Slack) read the
-// raw HTML and do not execute JavaScript, so client-side-injected <meta>
-// tags would never be seen by them — only build-time-injected ones work.
-//
-// `single` mode means `expo export` only ever produces one dist/index.html
-// for every route — every public page (solutions/*, /telechargement, legal
-// pages) was shipping that exact same file, same <title>, same
-// <link rel="canonical" href="https://cantia.ch/">. That canonical tag is
-// the actual bug: it told search engines every one of those pages is a
-// duplicate of the homepage, which is a direct signal to drop them from the
-// index rather than rank them. The asset paths in the exported HTML are
-// absolute (`/_expo/...`, verified against a real `expo export` output), so
-// a copy of index.html works unmodified from any nested directory — Expo
-// Router hydrates client-side off `window.location.pathname` regardless of
-// which physical file served it. So: clone index.html once per public
-// route below and patch each clone's own title/description/canonical/JSON-LD.
-// Netlify (see netlify.toml) serves a matching static file before falling
-// back to its SPA catch-all redirect, so dist/solutions/devis/index.html
-// answers GET /solutions/devis directly.
-//
-// This is the "single" CSR build that still ships app.cantia.ch, and
-// cantia.ch until its DNS points at the separate marketing build (see
-// scripts/build-marketing.mjs). Once that cutover happens this script's
-// dist/ output is only ever served under app.cantia.ch, where every public
-// page is noindex'd anyway — kept for now as the fallback while that
-// migration is rolled out domain by domain.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -40,15 +6,6 @@ import { SITE, OG_IMAGE, ROUTES, alternatePathFor, jsonLdFor, localeAndBareOf } 
 const distDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist');
 const distIndex = path.join(distDir, 'index.html');
 
-// Same `web.output: "single"` problem as the SEO tags above: app/+html.tsx's
-// <link> tags for the marketing typefaces (Fraunces/Instrument Sans, see
-// lib/marketingTheme.ts) never reach the exported HTML either — only visible
-// via `expo start --web`, never on the actual cantia.ch build. Injected here
-// for the same reason the meta tags are.
-// Also carries a body background matching lib/theme.ts colors.bg (#F7F1E6)
-// — without it, the raw white html/body shows through for an instant
-// during the mobile overscroll bounce at the top of the page, which reads
-// as a stray gap under the (deliberately transparent) marketing navbar.
 const FONT_LINKS = `
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />

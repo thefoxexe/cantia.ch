@@ -10,8 +10,6 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { marketingFonts } from '../../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
-// A distinct accent per category so a card reads as its own object at a
-// glance — not just a paragraph of text — even before the title is read.
 const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap; color: string; soft: string }> = {
   'Devis & facturation': { icon: 'file-text', color: colors.primary, soft: colors.primarySoft },
   'Juridique & normes': { icon: 'shield', color: colors.danger, soft: colors.dangerSoft },
@@ -27,20 +25,10 @@ function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
 }
 
-// The blog index — search + category filter over lib/blog's static content
-// array, following the same accent-insensitive normalize()+useMemo pattern
-// already established in app/aide.tsx, so a new visitor doesn't get a
-// second, differently-behaving search on the same site.
 export default function BlogIndexScreen() {
   const { t } = useTranslation();
   const locale = getAppLocale();
   const posts = useMemo(() => getAllPosts(locale), [locale]);
-  // Every card below linked to /blog/<slug> unconditionally, so a visitor
-  // reading the German or Italian blog index (getAllPosts already returns
-  // the correctly translated posts here) landed on the FRENCH version of
-  // whichever article they clicked — confirmed via a static-export crawl:
-  // dist-marketing/de/blog/index.html and .../it/blog/index.html both
-  // linked to bare /blog/<slug> URLs, 138 wrong links on each page.
   const blogHrefPrefix = locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog';
   const formatDate = (iso: string) => {
     const d = new Date(iso + 'T00:00:00');

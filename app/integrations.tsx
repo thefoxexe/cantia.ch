@@ -6,25 +6,8 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
-// Directory page for third-party integrations — today just Bexio, but the
-// shape (one detailed card per integration, room for a "bientôt" row) is
-// built to grow without a redesign once a second one ships. Distinct from
-// the "Compatible avec Bexio" teaser ribbon on the homepage: this is the
-// place that actually explains what each integration does, in detail.
-//
-// Both diagrams below are real interconnection diagrams — Cantia's mark on
-// one end, Bexio's logo on the other, connected by genuinely curved
-// bidirectional arrows (a plain straight dashed line read as flat/boxy) —
-// rather than a fake browser-chrome mockup of a screen that doesn't really
-// look like this. Curves are drawn with react-native-svg (quadratic
-// béziers) instead of CSS border tricks so they render identically and
-// crisply on web, iOS and Android at any width.
 type FlowIcon = keyof typeof Feather.glyphMap;
 
-// A single dashed, curved, two-way arrow. viewBoxWidth is a nominal
-// coordinate-space width (not pixels) — the Svg stretches to fill its
-// actual container via width="100%" + preserveAspectRatio="none", so the
-// same curve reads correctly at any real rendered width.
 function CurvedArrow({
   height,
   bulge,
@@ -121,14 +104,6 @@ function IntegrationsVisual() {
   );
 }
 
-// The wider, elongated version of the same idea, dropped in right after the
-// features grid via SolutionPage's afterFeatures slot — one long sweeping
-// curve spanning the full section width instead of four cramped rows, with
-// the four data-type chips floating right on the curve. Positions are
-// computed from the same quadratic-bézier formula the curve itself is
-// drawn with (y(t) = y + 2·t·(1−t)·bulge for a bézier whose endpoints
-// share one y), so the chips always sit exactly on the line rather than
-// being eyeballed into place.
 const BAND_VB_WIDTH = 1000;
 const BAND_HEIGHT = 176;
 const BAND_X1 = 90;

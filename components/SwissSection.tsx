@@ -6,9 +6,6 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { useTranslation } from '../lib/translations';
 
-// Shared "Conçu pour les entreprises suisses" block — same four facts on
-// the homepage and every /[metier] trade page, so the Swiss positioning
-// never drifts or gets watered down on a page built later than the others.
 export function SwissSection() {
   const { t } = useTranslation();
   const FACTS: { icon: keyof typeof Feather.glyphMap | 'hosting'; title: string; text: string }[] = [

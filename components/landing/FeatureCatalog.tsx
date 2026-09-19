@@ -7,9 +7,6 @@ import type { useMarketingDict } from '../../lib/i18n';
 
 type Dict = ReturnType<typeof useMarketingDict>;
 
-// The 30-item catalog (6 collapsible groups of 5), the one part of the
-// reference's "problem -> response" section that stays a plain accordion
-// rather than the animated carousel — see StoryShowcase for that one.
 export function FeatureCatalog({ dict, hrefFor }: { dict: Dict['catalog']; hrefFor: (slug: string) => string }) {
   return (
     <View style={styles.wrap}>

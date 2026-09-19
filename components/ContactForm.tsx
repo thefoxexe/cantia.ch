@@ -6,10 +6,6 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
-// Same Netlify-Forms mechanism as SurMesureContactForm — see that file's
-// comment for the full explanation. public/contact-form.html is this
-// form's hidden static twin; its field names must stay in sync with
-// FIELDS below.
 const FORM_NAME = 'contact';
 
 function encodeFormData(data: Record<string, string>): string {
@@ -23,8 +19,6 @@ export function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  // Honeypot: off-screen, never seen or filled by a real visitor — a bot
-  // that blindly fills every input trips it.
   const [botField, setBotField] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
@@ -96,8 +90,6 @@ export function ContactForm() {
         numberOfLines={4}
         style={styles.textarea}
       />
-      {/* Off-screen (not display:none — some bots skip those), never
-          reachable by a real visitor's tab order or screen reader. */}
       <View style={styles.honeypot} accessible={false} importantForAccessibility="no-hide-descendants">
         <Field label="Ne pas remplir" value={botField} onChangeText={setBotField} tabIndex={-1} />
       </View>

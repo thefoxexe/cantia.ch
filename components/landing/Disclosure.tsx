@@ -3,10 +3,6 @@ import { Animated, Easing, LayoutChangeEvent, Pressable, StyleSheet, Text, View 
 import { colors, radius, spacing } from '../../lib/theme';
 import { landingFonts } from '../../lib/landingTheme';
 
-// Small native-<details>-equivalent row, used by both FeatureCatalog (30
-// items in 6 collapsible groups) and the homepage FAQ — each instance's
-// open state is independent, several can be open at once, matching the
-// reference's plain <details>/<summary> behavior.
 export function Disclosure({
   title,
   subtitle,

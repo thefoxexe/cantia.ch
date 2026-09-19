@@ -11,20 +11,9 @@ import { marketingFonts } from '../lib/marketingTheme';
 import { authHref, planHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
-// Card design matches the "Cantia_Landing" reference package's pricing
-// section exactly (cream/peach cards, floating ribbon on the featured
-// plan, capacity chips, divider + "Inclus dans X" list) — see that
-// reference's style.css .plan/.plan.featured/.recommended rules. Colors
-// below (#FAF6EE, #FFFAF2) are that reference's own values, distinct from
-// the general theme tokens on purpose, to match it precisely.
 const CARD_BG = '#FAF6EE';
 const CARD_BG_FEATURED = '#FFFAF2';
 
-// The single pricing block reused by the homepage's /#pricing anchor and
-// every /[metier] trade page — same Supabase query as choose-plan.tsx
-// (excludes 'free' and 'decouverte', is_contact_only filtered client-side),
-// same t.pricing copy, so a price or a plan name can only ever be wrong in
-// one place: the `plans` table itself. Never hardcode a number here.
 export function PricingSection({ compact }: { compact?: boolean }) {
   const t = useMarketingDict();
   const { t: tr } = useTranslation();
@@ -48,8 +37,6 @@ export function PricingSection({ compact }: { compact?: boolean }) {
           setLoading(false);
         },
         (err: unknown) => {
-          // Without this, a network hiccup leaves the section stuck on its
-          // skeleton forever — the single biggest conversion block on the page.
           console.error('PricingSection: failed to load plans', err);
           setLoading(false);
         },
@@ -80,12 +67,6 @@ export function PricingSection({ compact }: { compact?: boolean }) {
           ? [0, 1, 2].map((i) => <PriceCardSkeleton key={i} featured={i === 1} />)
           : visiblePlans.map((p, i) => {
               const isYearly = billingInterval === 'year';
-              // PostgREST serializes numeric columns as JSON strings (to
-              // avoid float precision loss), so price_chf_monthly/_yearly
-              // arrive as e.g. "39.00", not a number — Number(...) here,
-              // once, rather than relying on `/ 12` to coerce it only in
-              // the yearly branch and crashing .toFixed() in the monthly
-              // one (confirmed live: this crashed the whole section).
               const monthlyPrice = Number(p.price_chf_monthly ?? 0);
               const yearlyPrice = p.price_chf_yearly != null ? Number(p.price_chf_yearly) : null;
               const displayMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;

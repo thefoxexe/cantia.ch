@@ -17,26 +17,6 @@ const LOCALE_META: Record<AppLocale, { flag: string; label: string }> = {
 };
 const LANG_DROPDOWN_WIDTH = 168;
 
-// FR/DE/IT picker for the marketing site's nav, footer and mobile menu — a
-// small anchored dropdown (flag + code, tap to reveal the 3 options) rather
-// than the previous sliding-pill toggle, which read as a segmented control
-// rather than a language picker. Navigates to the same page's
-// other-language mirror (toggleLocalePathname), not just the homepage, so
-// switching from a trade or solution page keeps the visitor on that same
-// page.
-//
-// On web this is a real `window.location` navigation, not router.push: a
-// client-side (SPA) transition never updates document.title, <link
-// rel="canonical">, the hreflang <link> tags or <html lang> — nothing in
-// this codebase does that on navigation — so a visitor (or an SEO audit)
-// clicking FR → IT would keep seeing French metadata indefinitely despite
-// the page content itself being correctly Italian. A full navigation hits
-// the actual prerendered HTML file for the target route, which carries its
-// own correct title/description/canonical/hreflang/lang baked in at build
-// time (see scripts/build-marketing.mjs) — the same thing a fresh direct
-// visit to that URL would show. Slightly heavier than an SPA transition,
-// but this is the marketing site, not the app, and a language switch is
-// infrequent enough that the difference isn't felt.
 export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -68,12 +48,6 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
     ? Math.min(Math.max(12, anchor.x + anchor.width - LANG_DROPDOWN_WIDTH), winWidth - LANG_DROPDOWN_WIDTH - 12)
     : 0;
 
-  // Flips to open upward when the trigger is low enough on the page (the
-  // footer's own picker, mainly) that opening downward would push the panel
-  // past the bottom of the screen — it only ever showed as a sliver you had
-  // to scroll to reach. Estimated rather than measured (the panel doesn't
-  // exist to measure until it's already positioned), from a fixed row
-  // height that comfortably covers this component's own langOption style.
   const DROPDOWN_ROW_HEIGHT = 40;
   const dropdownHeight = AVAILABLE_LOCALES.length * DROPDOWN_ROW_HEIGHT + spacing.xs * 2;
   const gap = 6;
@@ -110,18 +84,6 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   );
 }
 
-// Shared navbar + footer for every marketing page — the single-page index.tsx
-// (which has its own scroll-to-section links) and every static page below it
-// (solutions/*, /telechargement, mentions légales, etc.). Same links, same
-// mobile hamburger collapse below `breakpoints.tablet` as the home page, so
-// no page in the site is missing the responsive behavior the others have.
-// onServicesPress/onPricingPress mirror MarketingFooter's own optional
-// callbacks: the homepage passes them in for a smooth in-page scroll to
-// its own Fonctionnalités/Tarifs sections instead of a full navigation to
-// "/#services" (which nothing on the page actually scrolls to — there's
-// no matching element id, so from any other page that hash link just
-// lands at the top). Every other page leaves them unset and gets a plain
-// link back to "/#services"/"/#pricing".
 export function MarketingNav({
   onServicesPress,
   onPricingPress,
@@ -145,8 +107,6 @@ export function MarketingNav({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuAnim = useRef(new Animated.Value(0)).current;
 
-  // Keeps the visible language matching the URL on every client-side
-  // navigation, not just the first page load — see useSyncMarketingLocaleFromPath.
   useSyncMarketingLocaleFromPath();
 
   useEffect(() => {
@@ -294,10 +254,6 @@ export function MarketingNav({
   );
 }
 
-// scrollToServices/scrollToPricing are only meaningful on the homepage
-// itself (smooth-scroll to the in-page section instead of a full
-// navigation) — the homepage passes them in; every other page leaves them
-// unset and gets a plain link back to "/" instead.
 export function MarketingFooter({
   onServicesPress,
   onPricingPress,
@@ -312,21 +268,7 @@ export function MarketingFooter({
   const pricingHref = locale === 'de' ? '/de/#pricing' : locale === 'it' ? '/it/#pricing' : '/#pricing';
   const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
-  // The 12 solutions/integrations/sur-mesure/legal links below were all
-  // hardcoded to their French path regardless of locale — since this footer
-  // renders on almost every marketing page, a German or Italian visitor
-  // clicking any of them landed on the French version. localePrefix is ''
-  // for French (paths below already start with '/'), '/de' or '/it'
-  // otherwise.
   const localePrefix = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '';
-  // Rebuilt to match the validated Cantia_Landing reference's footer
-  // exactly: brand column + three link columns (La plateforme / Découvrir
-  // Cantia / Ressources), plain copyright + two legal links in the bottom
-  // bar — no help pill, no language switcher down here (the top nav already
-  // offers one on every page that renders this footer). The YouTube link is
-  // the one deliberate exception to "no social icons": the channel carries
-  // the tutorial library referenced from /aide, worth surfacing everywhere
-  // this footer renders, not just there.
   return (
     <View style={styles.footer}>
       <View style={styles.footerGrid}>
@@ -475,12 +417,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
   },
-  // DM Sans, not the rest of the marketing site's Fraunces/Instrument Sans
-  // pairing — the nav is shared across every page (including the home
-  // page, which already committed to DM Sans for its own copy), so this
-  // one component's own type needs to read as one consistent brand mark
-  // everywhere rather than switching face depending on which page rendered
-  // it.
   navBrand: {
     fontFamily: landingFonts.body,
     fontSize: fontSize.lg,
@@ -599,10 +535,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
   },
-  // A plain stacked list — large type, a hairline between rows, nothing
-  // else — reads calmer than the earlier boxed/icon-badge treatment and
-  // lets the type carry it, closer to how the rest of the marketing site's
-  // typography-led sections already look.
   mobileMenuGroup: {
     marginBottom: spacing.xl,
     borderTopWidth: 1,
@@ -744,11 +676,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// A <Link asChild> clones its child through a <Slot> that only accepts a
-// single flattened style object on that direct child, not an array — the
-// usual RN "[base, condition && variant]" pattern throws "[expo-router]:
-// You are passing an array of styles to a child of <Slot>" and takes down
-// the whole page's error boundary. Flattened once here at module scope
-// (it's static) for the one row — last in its group — that needs the
-// bottom hairline removed.
 const mobileMenuLastItemStyle = StyleSheet.flatten([styles.mobileMenuItem, styles.mobileMenuItemLast]);

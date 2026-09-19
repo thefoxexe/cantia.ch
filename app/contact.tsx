@@ -10,8 +10,6 @@ import { getAppLocale, useTranslation } from '../lib/translations';
 import { openLiveChat } from '../lib/liveChat';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
 
-// Real, dedicated support entry point — previously the only trace of a
-// way to reach Cantia was a small mailto link buried in the footer.
 export default function ContactScreen() {
   const { t } = useTranslation();
 

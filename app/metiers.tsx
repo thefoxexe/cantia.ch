@@ -57,12 +57,6 @@ export default function MetiersScreen() {
           {TRADE_PAGE_SLUGS.map((slug) => {
             const trade = getTradePage(slug, locale)!;
             return (
-              // The sizing (flexGrow/flexBasis/maxWidth) lives on this plain
-              // outer View, not on the Pressable inside <Link asChild> — Link
-              // clones its child onto the <a> tag it renders, but doesn't
-              // carry flex-sizing props onto that tag, so a card sized only
-              // via the Pressable's own style silently loses its width and
-              // stretches to fill the row instead of sitting in a grid.
               <View key={slug} style={styles.cardOuter}>
                 <Link href={`${tradeHrefPrefix}${slug}` as any} asChild>
                   <Pressable style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}>

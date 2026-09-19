@@ -40,13 +40,6 @@ export interface TradeLandingPage {
   relatedTrades?: string[];
 }
 
-// Lot 1 — the eight trades with the strongest commercial fit, per the
-// phase-2 brief's own priority order. Each page's pain points, usages,
-// scenario and FAQ are written for that specific trade's real workflow,
-// not a word-swap of a generic template — a charpentier's problem with
-// montage hours isn't a maçon's problem with heures either, even though
-// both eventually route to the same "heures rattachées au chantier"
-// feature. Lot 2/3 trades come later, once these are live and validated.
 export const TRADE_PAGES: Record<string, TradeLandingPage> = {
   charpentier: {
     slug: 'charpentier',
@@ -655,8 +648,6 @@ export const TRADE_PAGES: Record<string, TradeLandingPage> = {
     relatedTrades: ['entreprise-generale', 'macon'],
   },
 
-  // Lot 2 — same priority list as Lot 1, per the phase-2 brief's own
-  // ordering (section 36).
   couvreur: {
     slug: 'couvreur',
     tradeName: 'couvreur',
@@ -1265,7 +1256,6 @@ export const TRADE_PAGES: Record<string, TradeLandingPage> = {
     relatedTrades: ['menuisier', 'construction-bois'],
   },
 
-  // Lot 3 — métiers plus spécifiques, mêmes exigences de contenu.
   ferblantier: {
     slug: 'ferblantier',
     tradeName: 'ferblantier',
@@ -1877,22 +1867,12 @@ export const TRADE_PAGES: Record<string, TradeLandingPage> = {
 
 export const TRADE_PAGE_SLUGS = Object.keys(TRADE_PAGES);
 
-// German trade content lives in a sibling file (lib/tradeLandingPagesDe.ts)
-// rather than a `de` field on each entry here, so the much larger French
-// dataset above stays the single source of truth for slugs/structure and
-// German is free to be added trade-by-trade without touching this file.
 export function getTradePage(slug: string, locale: string): TradeLandingPage | undefined {
   if (locale === 'de' && TRADE_PAGES_DE[slug]) return TRADE_PAGES_DE[slug];
   if (locale === 'it' && TRADE_PAGES_IT[slug]) return TRADE_PAGES_IT[slug];
   return TRADE_PAGES[slug];
 }
 
-// tradeName + "s" only pluralizes correctly for single-word trades
-// ("charpentier" -> "charpentiers"). Several multi-word trade names break
-// that naive rule: "bois" is already invariable (a trailing "s" doubles
-// up), "entreprise de X" needs "entreprise" itself pluralized rather than
-// X, and "génie civil" is a field name that doesn't pluralize by adding
-// an "s" to "civil". Special-cased here instead of mangling them.
 const PLURAL_OVERRIDES: Record<string, string> = {
   'entreprise générale': 'Entreprises générales',
   'entreprise de rénovation': 'Entreprises de rénovation',

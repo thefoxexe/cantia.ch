@@ -7,11 +7,6 @@ import { BLOG_POSTS, getPostBySlug } from '../../lib/blog';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
-// Needed for the `app-marketing/` static export (web.output: "static") to
-// know which /blog/<slug> pages to prerender — see app-marketing/blog/[slug].tsx,
-// which re-exports this alongside this function. The app.cantia.ch build
-// (web.output: "single") ignores this export entirely and just resolves the
-// route client-side, so it costs nothing there.
 export function generateStaticParams() {
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
 }

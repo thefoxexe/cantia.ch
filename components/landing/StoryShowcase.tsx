@@ -8,13 +8,6 @@ import type { useMarketingDict } from '../../lib/i18n';
 
 type Dict = ReturnType<typeof useMarketingDict>;
 
-// The six-case "Ça vous parle ?" carousel — a controlled sequence (10s
-// autoplay, pauses on hover/focus/manual nav/hidden tab/reduced motion,
-// direct #cas-* links, prev/next, counter) mirroring the reference
-// package's vanilla-JS behavior (source/app.js's story-showcase IIFE), the
-// one interaction in this rebuild explicitly called out as needing to
-// match — reimplemented with React state/effects since RN Web has no
-// IntersectionObserver-driven <details> equivalent to lean on.
 export function StoryShowcase({ dict, hrefFor }: { dict: Dict['stories']; hrefFor: (slug: string) => string }) {
   const [current, setCurrent] = useState(0);
   const [userPaused, setUserPaused] = useState(false);
@@ -36,7 +29,6 @@ export function StoryShowcase({ dict, hrefFor }: { dict: Dict['stories']; hrefFo
     if (manual) setUserPaused(true);
   }, [total]);
 
-  // Autoplay scheduling — reactive to every input that should pause it.
   useEffect(() => {
     clearTimer();
     const reduceMotion = Platform.OS === 'web' && typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

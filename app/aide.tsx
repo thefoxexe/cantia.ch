@@ -15,24 +15,11 @@ function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
 }
 
-// The one Centre d'aide, reachable from the marketing nav without needing an
-// account (so a prospect, or a client who just wants to know how something
-// works, isn't forced through login), and linked to directly from inside the
-// app too (Compte, profile menu) — no separate in-app copy of this page.
-// Each article below is its own indexable page at /aide/<id> (see
-// app/aide/[id].tsx) rather than an accordion row expanding in place — a
-// prospect searching "comment créer un devis Cantia" lands directly on that
-// article instead of on this generic list.
 export default function PublicAideScreen() {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const locale = getAppLocale();
   const aideHrefPrefix = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
-  // useTranslation() above already re-renders this component on locale
-  // change (same mechanism every other marketing/app screen relies on for
-  // getAppLocale()), so this stays in sync with the FR/DE/IT toggle. Italian
-  // falls back to French articles until HELP_ARTICLES_IT is filled in,
-  // rather than showing an empty help center.
   const articles = locale === 'de' ? HELP_ARTICLES_DE : locale === 'it' && HELP_ARTICLES_IT.length ? HELP_ARTICLES_IT : HELP_ARTICLES;
 
   const filtered = useMemo(() => {

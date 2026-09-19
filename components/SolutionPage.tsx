@@ -34,11 +34,6 @@ export interface SolutionRelatedLink {
   label: string;
 }
 
-// One shared template for every /solutions/* SEO page — same chrome
-// (MarketingNav/Footer), same section order (hero → features → steps →
-// closing CTA), only the copy changes per page. Keeping this as one
-// component rather than copy-pasting the layout seven times means a design
-// tweak (spacing, a new section) only has to happen once.
 export function SolutionPage({
   kicker,
   title,
@@ -57,10 +52,6 @@ export function SolutionPage({
   subtitle: string;
   visual?: ReactNode;
   features: SolutionFeature[];
-  // Optional full-width block rendered right after the features grid, ahead
-  // of "Comment ça marche" — for a page that needs something wider/taller
-  // than the hero's cramped visual slot (e.g. integrations.tsx's flow
-  // diagram) without every /solutions/* page paying for the extra section.
   afterFeatures?: ReactNode;
   steps?: SolutionStep[];
   faq?: SolutionFaqItem[];
@@ -70,9 +61,6 @@ export function SolutionPage({
 }) {
   const { t } = useTranslation();
   const pricingHref = getAppLocale() === 'de' ? '/de/#pricing' : getAppLocale() === 'it' ? '/it/#pricing' : '/#pricing';
-  // A single mount-in beat for the hero (fade + rise) — no scroll tracking
-  // needed since it's the first thing visible on load, unlike index.tsx's
-  // scroll-scrubbed reveals further down the page.
   const heroAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(heroAnim, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
@@ -80,11 +68,6 @@ export function SolutionPage({
 
   return (
     <Screen>
-      {/* Not the exact hand-crafted SEO title from scripts/seo-routes.mjs
-          (that string lives in a Node-only build script, not importable
-          here) — the page's own H1 headline plus the site suffix, which is
-          still a real, relevant, page-specific title instead of the blank
-          one Expo Router's head management leaves after hydration. */}
       <MarketingHead title={`${title} | Cantia`} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <MarketingNav />

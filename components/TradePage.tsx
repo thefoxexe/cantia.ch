@@ -24,10 +24,6 @@ export function TradePage({ slug }: { slug: string }) {
     Animated.timing(heroAnim, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   }, [heroAnim]);
 
-  // Features present on every trade page regardless of métier — the "richesse
-  // globale" block from the brief (section 11), same content everywhere so it
-  // never has to be written per métier. Trade-specific usages (5-6 per page,
-  // from lib/trades.ts) are shown above this, in their own more detailed grid.
   const SECONDARY_FEATURES: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
     { icon: 'users', title: t('tradePage.secondaryClientsTitle'), text: t('tradePage.secondaryClientsText') },
     { icon: 'credit-card', title: t('tradePage.secondaryQrTitle'), text: t('tradePage.secondaryQrText') },
@@ -37,15 +33,9 @@ export function TradePage({ slug }: { slug: string }) {
     { icon: 'zap', title: t('tradePage.secondaryIntegrationsTitle'), text: t('tradePage.secondaryIntegrationsText') },
   ];
 
-  // French needs a gendered/pluralized prefix ("les charpentiers"); German
-  // tradeName values are already authored as the natural plural/generic noun
-  // (e.g. "Zimmerleute"), so they're used as-is.
   const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;
 
   const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
-  // getPostBySlug(s) without a locale defaults to French — the related-post
-  // title shown here (and the link below) was always French regardless of
-  // the trade page's own language.
   const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostBySlug(s, locale)).filter((p) => !!p);
   const hrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
 
@@ -64,8 +54,6 @@ export function TradePage({ slug }: { slug: string }) {
             <Text style={styles.breadcrumbCurrent}>{trade.tradeName.charAt(0).toUpperCase() + trade.tradeName.slice(1)}</Text>
           </View>
         </Container>
-
-        {/* ---- Hero ---- */}
         <Container style={styles.heroOuter}>
           <Animated.View
             style={[
@@ -89,8 +77,6 @@ export function TradePage({ slug }: { slug: string }) {
             <Text style={styles.heroTrust}>{t('tradePage.heroTrust')}</Text>
           </Animated.View>
         </Container>
-
-        {/* ---- Pain points ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.painEyebrow')}</Text>
           <Heading level={2} style={styles.sectionTitle}>{t('tradePage.painTitle')}</Heading>
@@ -110,8 +96,6 @@ export function TradePage({ slug }: { slug: string }) {
             ))}
           </View>
         </Container>
-
-        {/* ---- Usages ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.usagesEyebrow')}</Text>
           <Heading level={2} style={styles.sectionTitle}>{t('tradePage.usagesTitle', { trade: forTrade })}</Heading>
@@ -127,8 +111,6 @@ export function TradePage({ slug }: { slug: string }) {
             ))}
           </View>
         </Container>
-
-        {/* ---- Scenario ---- */}
         <Container style={styles.section}>
           <View style={styles.scenarioCard}>
             <Feather name="map" size={18} color={colors.primary} />
@@ -136,8 +118,6 @@ export function TradePage({ slug }: { slug: string }) {
             <Text style={styles.scenarioText}>{trade.scenario.text}</Text>
           </View>
         </Container>
-
-        {/* ---- Before / after ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.comparisonEyebrow')}</Text>
           <View style={styles.comparisonTable}>
@@ -159,8 +139,6 @@ export function TradePage({ slug }: { slug: string }) {
             ))}
           </View>
         </Container>
-
-        {/* ---- Secondary features ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.secondaryEyebrow')}</Text>
           <View style={styles.secondaryGrid}>
@@ -192,8 +170,6 @@ export function TradePage({ slug }: { slug: string }) {
             </View>
           </Container>
         ) : null}
-
-        {/* ---- FAQ ---- */}
         <Container style={styles.section}>
           <Text style={styles.eyebrow}>{t('tradePage.faqEyebrow')}</Text>
           <View style={styles.faqList}>
@@ -227,8 +203,6 @@ export function TradePage({ slug }: { slug: string }) {
             </View>
           </Container>
         ) : null}
-
-        {/* ---- Final CTA ---- */}
         <Container style={styles.closingOuter}>
           <View style={styles.closing}>
             <Text style={styles.closingTitle}>{t('tradePage.closingTitle')}</Text>
@@ -245,10 +219,6 @@ export function TradePage({ slug }: { slug: string }) {
   );
 }
 
-// "pour charpentier" reads wrong in French — needs "les charpentiers" /
-// "la charpente" depending on the noun. Rather than hand-writing a gendered
-// preposition per trade in lib/trades.ts (one more field to keep in sync),
-// this covers the two shapes actually used across Lot 1's tradeName values.
 function genderedFor(tradeName: string): string {
   if (tradeName.endsWith('e') && !tradeName.endsWith('générale')) return `les ${tradeName}s`;
   if (tradeName === 'entreprise générale') return 'les entreprises générales';
@@ -434,9 +404,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   relatedChipText: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
-  // Blog post titles are full sentences (unlike the short trade names in
-  // relatedChip above), so they get a full-width row that wraps instead of
-  // a pill that would either overflow on mobile or truncate silently.
   articleColumn: { gap: spacing.sm },
   articleCard: {
     flexDirection: 'row',

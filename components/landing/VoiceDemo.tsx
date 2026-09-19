@@ -8,9 +8,6 @@ import type { useMarketingDict } from '../../lib/i18n';
 type Dict = ReturnType<typeof useMarketingDict>;
 type CommandKey = 'site' | 'quote' | 'invoice';
 
-// 29 bars, matching the reference's exact per-bar height/stagger so the
-// "waveform" reads as speech rather than a uniform pulse — same --bar/--delay
-// values from source/index.html's inline style attributes.
 const BARS: { height: number; delay: number }[] = [
   { height: 0.2, delay: 0 }, { height: 0.35, delay: 130 }, { height: 0.65, delay: 260 }, { height: 0.4, delay: 390 }, { height: 0.85, delay: 520 },
   { height: 0.55, delay: 650 }, { height: 1, delay: 780 }, { height: 0.72, delay: 910 }, { height: 0.35, delay: 1040 }, { height: 0.6, delay: 0 },
@@ -115,11 +112,6 @@ const styles = StyleSheet.create({
   transcript: { fontFamily: landingFonts.body, fontSize: 14, color: '#f2ece3', lineHeight: 21, fontStyle: 'italic' },
   audioLine: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   voiceToggle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  // flex:1 bars (rather than a fixed width:3) let the whole waveform
-  // compress on narrow screens instead of overflowing past its allotted
-  // space and painting over voiceStatus next to it (confirmed live: on a
-  // narrow phone the fixed-width bars spilled straight through the
-  // "Animer" label).
   waveform: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 2, height: 28, minWidth: 0, overflow: 'hidden' },
   bar: { flex: 1, minWidth: 1.5, maxWidth: 3, height: 28, borderRadius: 2, backgroundColor: '#e9a27c' },
   voiceStatus: { fontFamily: landingFonts.body, fontSize: 11, color: '#bfb1a0', width: 60, flexShrink: 0, textAlign: 'right' },

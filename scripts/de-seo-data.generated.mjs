@@ -1,7 +1,3 @@
-// GENERATED FILE — do not hand-edit.
-// Regenerate with: node scripts/generate-de-seo-data.mjs
-// Source: lib/blog/posts-de/*.ts and lib/blog/posts/*.ts (blog),
-// lib/tradeLandingPagesDe.ts (trades), and lib/helpArticles.ts (help center).
 export const BLOG_SEO_DE = [
   {
     "path": "de/blog/accident-travail-chantier-obligations-employeur-suva",

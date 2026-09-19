@@ -1,10 +1,3 @@
-// Builds the marketing-only static export that ships as cantia.ch — see
-// app-marketing/README.md for why this directory/build exists. Completely
-// separate from the normal `expo export` used for app.cantia.ch: different
-// router root (EXPO_ROUTER_APP_ROOT), different web.output ("static" via
-// app.config.js's MARKETING_BUILD switch, vs. the default "single"), and a
-// different output directory (dist-marketing vs. dist), so this can never
-// interfere with the app.cantia.ch build/deploy.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -27,13 +20,6 @@ execFileSync('npx', ['expo', 'export', '-p', 'web', '-c', '--output-dir', 'dist-
   },
 });
 
-// Under web.output "static", `expo export` already gives each route its own
-// HTML file with real prerendered content — unlike scripts/inject-seo-meta.mjs
-// (which clones one empty shell per route because "single" mode only ever
-// produces dist/index.html). All that's left to patch per route here is the
-// <head>: title/description/canonical/OG/Twitter/JSON-LD, same metadata
-// source (scripts/seo-routes.mjs) as the app.cantia.ch fallback build so the
-// two can never describe a page differently.
 function findRouteFile(routePath) {
   const candidates = routePath
     ? [path.join(outputDir, routePath, 'index.html'), path.join(outputDir, `${routePath}.html`)]
@@ -82,10 +68,6 @@ function patchHead(html, route) {
     <meta name="twitter:image" content="${OG_IMAGE}" />
     <script type="application/ld+json">${JSON.stringify(jsonLdFor(canonicalUrl, route))}</script>`;
 
-  // Replace whatever lang the prerendered shell happens to carry — app/+html.tsx
-  // hardcodes lang="fr" for every route (it has no per-route awareness at
-  // all), so this must not assume the source is always "fr": a regex on the
-  // opening <html ...> tag handles that regardless of what's actually there.
   let patched = html.replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}"`);
   patched = patched.replace('<head>', `<head>${metaTags}`);
   if (/<title>.*?<\/title>/.test(patched)) {
@@ -107,14 +89,6 @@ for (const route of ROUTES) {
   patchedCount++;
 }
 
-// This site's Netlify config is UI-only (no netlify.toml, see
-// app-marketing/README.md), so there are no [[redirects]] to send an
-// unmatched path to the prerendered `+not-found.html` `expo export`
-// produces — Netlify's own zero-config fallback only looks for a file
-// literally named `404.html` at the publish root, and serves it, with a
-// real 404 status, for any path that matches nothing else. Copying the
-// already-patched not-found page there is enough to get correct branded
-// 404s without adding any dashboard/redirect config at all.
 const notFoundFile = path.join(outputDir, '+not-found.html');
 if (existsSync(notFoundFile)) {
   writeFileSync(path.join(outputDir, '404.html'), readFileSync(notFoundFile, 'utf8'));

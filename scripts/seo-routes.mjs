@@ -1,10 +1,3 @@
-// Single source of truth for marketing-page SEO metadata, shared by:
-//  - scripts/inject-seo-meta.mjs (patches meta tags into the "single"
-//    CSR export that still ships app.cantia.ch)
-//  - scripts/build-marketing.mjs (patches the same meta tags into the
-//    separate "static" prerendered export that ships cantia.ch)
-// Keeping one array means the two builds can never describe a page
-// differently by accident.
 import { BLOG_DATES_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 
@@ -17,11 +10,6 @@ const TRADE_SLUGS = new Set([
 
 export const SITE = 'https://cantia.ch';
 export const OG_IMAGE = `${SITE}/og-image.jpg`;
-// Organization.logo wants a roughly-square mark (Google's guidance favors a
-// 1:1 image, and flags a wide social-share banner as not actually a logo) —
-// OG_IMAGE above is 1200x630, correct for og:image/twitter:image but wrong
-// here. pwa-icon-512.png is the real square app icon already shipped for
-// the PWA manifest.
 export const ORG_LOGO = `${SITE}/pwa-icon-512.png`;
 
 const HOME = {
@@ -31,9 +19,6 @@ const HOME = {
     'Cantia centralise devis, factures, planning, rapports, heures et rentabilité pour les artisans et PME du bâtiment en Suisse.',
 };
 
-// One entry per public marketing route — copied from each page's own
-// title/subtitle (or lead paragraph) so the tags actually match what a
-// visitor (and a crawler) finds on that page.
 export const ROUTES = [
   HOME,
   {
@@ -2196,14 +2181,6 @@ export const ROUTES = [
   },
   ...HELP_SEO_FR,
 
-  // ==========================================================================
-  // Allemand (/de/*) — mêmes pages que ci-dessus, en miroir. Les pages métier
-  // et les articles de blog sont générées depuis de-seo-data.generated.mjs
-  // (voir scripts/generate-de-seo-data.mjs) pour ne jamais désynchroniser ce
-  // fichier du contenu réellement traduit dans lib/tradeLandingPagesDe.ts et
-  // lib/blog/posts-de/*.ts ; le reste (accueil, solutions, pages légales…)
-  // est traduit ici à la main, comme le FR ci-dessus.
-  // ==========================================================================
   {
     path: 'de',
     title: 'Software für Baustellenverwaltung in der Schweiz | Cantia',
@@ -2427,16 +2404,6 @@ export const ROUTES = [
   ...HELP_SEO_DE,
   ...BLOG_SEO_DE,
 
-  // ==========================================================================
-  // Italiano (/it/*) — mêmes pages que ci-dessus, en miroir. Les pages métier,
-  // les articles de blog et le centre d'aide sont générées depuis
-  // it-seo-data.generated.mjs (voir scripts/generate-it-seo-data.mjs) pour ne
-  // jamais désynchroniser ce fichier du contenu réellement traduit dans
-  // lib/tradeLandingPagesIt.ts, lib/helpArticles.ts et lib/blog/posts-it/*.ts ;
-  // le reste (accueil, solutions, pages légales…) est traduit ici à la main,
-  // comme le FR/DE ci-dessus. HELP_SEO_IT et BLOG_SEO_IT sont vides tant que
-  // ces phases de traduction n'ont pas encore eu lieu.
-  // ==========================================================================
   {
     path: 'it',
     title: 'Software di gestione cantieri in Svizzera | Cantia',
@@ -2665,27 +2632,12 @@ export const ROUTES = [
   ...BLOG_SEO_IT,
 ];
 
-// The 138 hand-authored FR blog entries above predate generate-de-seo-data.mjs
-// and carry no publishedAt of their own — fill it in from the same generated
-// file so Article JSON-LD (see jsonLdFor below) can show a real date on the
-// French blog too, same as the German one.
 for (const route of ROUTES) {
   if (route.publishedAt) continue;
   const slug = route.path.startsWith('blog/') ? route.path.slice('blog/'.length) : null;
   if (slug && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
 }
 
-// Locale prefix map — same one lib/appHost.ts's toggleLocalePathname uses
-// client-side, duplicated here because these build scripts run under plain
-// `node` (no bundler, no access to the app's own TS modules). Every route
-// path in ROUTES either has no prefix (French), or starts with "de/"/"it/"
-// (or is exactly "de"/"it" for that language's homepage). Every locale-aware
-// helper below goes through this one function instead of hand-rolling its
-// own "isDe" check, so adding a language means editing this map once — the
-// bug this replaces (fr-CH hreflang pointing AT the Italian page, de-CH
-// pointing at "/de/it/peintre") existed because alternatePathFor/jsonLdFor
-// each had their own copy of the old isDe-only check, silently treating any
-// "it/..." path as if it were already bare French.
 const LOCALE_PREFIXES = { de: 'de', it: 'it' };
 
 export function localeAndBareOf(routePath) {
@@ -2696,10 +2648,6 @@ export function localeAndBareOf(routePath) {
   return { locale: 'fr', bare: routePath };
 }
 
-// FR path "X" <-> DE path "de/X" <-> IT path "it/X" (home: "" <-> "de" <-> "it")
-// — same mapping as toggleLocalePathname in lib/appHost.ts, used here so
-// build scripts can emit hreflang alternates without a second lookup table
-// to keep in sync.
 export function alternatePathFor(routePath, targetLocale) {
   const { bare } = localeAndBareOf(routePath);
   if (targetLocale === 'fr') return bare;
@@ -2707,17 +2655,11 @@ export function alternatePathFor(routePath, targetLocale) {
   return bare === '' ? prefix : `${prefix}/${bare}`;
 }
 
-// Turns "rapports-chantier" into "Rapports chantier" for a breadcrumb label
-// — not shown to visitors, just needs to be a reasonable name for the node.
 function humanizeSegment(segment) {
   const words = segment.replace(/-/g, ' ');
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-// What kind of page a route is, for jsonLdFor below — Google's structured
-// data guidelines require markup to reflect the page's real primary content,
-// so a blog article or a métier landing page must not carry the same
-// SoftwareApplication + pricing block as the homepage/solutions pages.
 function routeKind(routePath) {
   const { bare } = localeAndBareOf(routePath);
   if (bare === '' || bare === 'blog') return bare.startsWith('blog') ? 'blog-index' : 'product';
@@ -2727,16 +2669,6 @@ function routeKind(routePath) {
   return 'page';
 }
 
-// route: { path, title, description, faq, publishedAt } — the same object
-// pulled straight out of ROUTES, so this can never describe a page
-// differently than its own title/description/faq say. url is the already
-// -resolved canonical URL (SITE + '/' + path). Page "kind" (routeKind above)
-// decides which schema.org type actually describes the page's own content:
-// SoftwareApplication + pricing only for the product-shaped pages (home,
-// /solutions/*), Article for blog posts (with a real datePublished when one
-// is known), plain WebPage for everything else (trade/métier pages, legal
-// pages, etc.) — never all three shoehorned onto every route regardless of
-// what the page actually is.
 const LOCALE_TAGS = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
 const HOME_LABELS = { fr: 'Accueil', de: 'Startseite', it: 'Home' };
 
@@ -2770,10 +2702,6 @@ export function jsonLdFor(url, route) {
       image: OG_IMAGE,
       inLanguage: locale,
       publisher: { '@id': `${SITE}/#organization` },
-      // lowPrice/highPrice mirror the three self-serve plans (Essentiel 39,
-      // Équipe 79, Entreprise 129 CHF/mois) — there is no free tier, so this
-      // must never read '0' again (that told Google Cantia starts at CHF 0,
-      // which stopped being true when the permanent free plan was retired).
       offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: '39', highPrice: '129', offerCount: '3' },
     });
   } else if (kind === 'article') {
@@ -2801,9 +2729,6 @@ export function jsonLdFor(url, route) {
   }
 
   if (routePath === '' || routePath === 'de' || routePath === 'it') {
-    // Homepage only (each language) — lets Google understand the site as a
-    // whole (and is the prerequisite for a sitelinks search box, though
-    // that's Google's call, not something this markup can force).
     graph.push({
       '@type': 'WebSite',
       '@id': `${SITE}/#website`,
@@ -2813,14 +2738,6 @@ export function jsonLdFor(url, route) {
       publisher: { '@id': `${SITE}/#organization` },
     });
   } else {
-    // Every other page gets a breadcrumb back to its own homepage — cheap,
-    // accurate (it's literally the URL structure), and one of the few
-    // structured-data types safe to add without any real risk of a
-    // manual-action penalty for fabricated content. Segments come from the
-    // locale-bare path, not the raw URL, so a "de/" or "it/" prefix never
-    // shows up as its own bogus breadcrumb item (the old code walked every
-    // "/"-separated segment of the full URL, so /it/peintre produced
-    // "Accueil > It > Peintre" — a fabricated "It" crumb).
     const { bare } = localeAndBareOf(routePath);
     const segments = bare.split('/').filter(Boolean);
     const homeUrl = routeLocale === 'fr' ? `${SITE}/` : `${SITE}/${LOCALE_PREFIXES[routeLocale]}`;
@@ -2832,10 +2749,6 @@ export function jsonLdFor(url, route) {
     });
     graph.push({ '@type': 'BreadcrumbList', itemListElement: items });
   }
-  // Matches the visible FAQ section rendered on the same page
-  // (components/SolutionPage.tsx / TradePage.tsx / lib/blog) — Google
-  // requires structured data to reflect content actually shown to visitors,
-  // not hidden-only markup.
   if (faq?.length) {
     graph.push({
       '@type': 'FAQPage',
