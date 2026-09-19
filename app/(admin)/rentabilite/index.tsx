@@ -116,10 +116,20 @@ export default function AdminRentabiliteScreen() {
     return map;
   }, [expenses]);
 
-  const cashThisMonth = overview?.ca_this_month_chf ?? 0;
-  const cashTotal = overview?.ca_total_chf ?? 0;
-  const netThisMonth = cashThisMonth - expensesThisMonthChf;
-  const netTotal = cashTotal - expensesTotalChf;
+  // overview.ca_*_chf is already net of Stripe's processing fee (see
+  // admin-billing-overview) — the dashboard elsewhere shows that net figure
+  // directly as "Encaissé". Here, the fee is instead surfaced as its own
+  // Dépenses line for visibility, so the "Cash" tile is reconstructed back
+  // to gross and the fee is added to Dépenses — net profitability
+  // (gross - all dépenses) lands on the exact same number either way.
+  const stripeFeesThisMonth = overview?.stripe_fees_this_month_chf ?? 0;
+  const stripeFeesTotal = overview?.stripe_fees_total_chf ?? 0;
+  const cashThisMonth = (overview?.ca_this_month_chf ?? 0) + stripeFeesThisMonth;
+  const cashTotal = (overview?.ca_total_chf ?? 0) + stripeFeesTotal;
+  const depensesThisMonth = expensesThisMonthChf + stripeFeesThisMonth;
+  const depensesTotal = expensesTotalChf + stripeFeesTotal;
+  const netThisMonth = cashThisMonth - depensesThisMonth;
+  const netTotal = cashTotal - depensesTotal;
 
   function openExisting(e: AdminPlatformExpense) {
     setExpandedId(e.id);
@@ -179,7 +189,7 @@ export default function AdminRentabiliteScreen() {
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Rentabilité</Text>
-            <Text style={styles.hint}>Cash réellement encaissé (frais Stripe déjà déduits) moins les dépenses de la plateforme.</Text>
+            <Text style={styles.hint}>Cash réellement encaissé (brut) moins les frais Stripe et les dépenses de la plateforme.</Text>
           </View>
           <AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />
         </View>
@@ -187,8 +197,8 @@ export default function AdminRentabiliteScreen() {
         {error ? <AdminErrorBanner message={error} /> : null}
 
         <View style={styles.statGrid}>
-          <StatTile label="Cash net encaissé — ce mois" value={formatChf(cashThisMonth)} icon="dollar-sign" accent={colors.success} />
-          <StatTile label="Dépenses — ce mois" value={formatChf(expensesThisMonthChf)} icon="trending-down" accent={colors.danger} />
+          <StatTile label="Cash encaissé (brut) — ce mois" value={formatChf(cashThisMonth)} icon="dollar-sign" accent={colors.success} />
+          <StatTile label="Dépenses — ce mois" value={formatChf(depensesThisMonth)} icon="trending-down" accent={colors.danger} />
           <StatTile
             label="Rentabilité nette — ce mois"
             value={formatChf(netThisMonth)}
@@ -197,8 +207,8 @@ export default function AdminRentabiliteScreen() {
           />
         </View>
         <View style={styles.statGrid}>
-          <StatTile label="Cash net encaissé — à vie" value={formatChf(cashTotal)} icon="dollar-sign" />
-          <StatTile label="Dépenses — à vie" value={formatChf(expensesTotalChf)} icon="trending-down" />
+          <StatTile label="Cash encaissé (brut) — à vie" value={formatChf(cashTotal)} icon="dollar-sign" />
+          <StatTile label="Dépenses — à vie" value={formatChf(depensesTotal)} icon="trending-down" />
           <StatTile
             label="Rentabilité nette — à vie"
             value={formatChf(netTotal)}
@@ -207,8 +217,15 @@ export default function AdminRentabiliteScreen() {
           />
         </View>
 
-        {expenses.length > 0 ? (
+        {expenses.length > 0 || stripeFeesTotal > 0 ? (
           <View style={styles.categoryRow}>
+            {stripeFeesTotal > 0 ? (
+              <View style={styles.categoryChip}>
+                <Feather name="credit-card" size={12} color={colors.textMuted} />
+                <Text style={styles.categoryChipLabel}>Frais Stripe</Text>
+                <Text style={styles.categoryChipValue}>{formatChf(stripeFeesTotal)}</Text>
+              </View>
+            ) : null}
             {CATEGORY_ORDER.filter((c) => byCategory.get(c)).map((c) => (
               <View key={c} style={styles.categoryChip}>
                 <Feather name={CATEGORY_ICON[c]} size={12} color={colors.textMuted} />

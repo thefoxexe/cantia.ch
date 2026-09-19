@@ -214,6 +214,43 @@ function dayKey(unixSeconds: number): string {
   return new Date(unixSeconds * 1000).toISOString().slice(0, 10);
 }
 
+// Stripe API 2025-03-31.basil no longer returns Invoice.charge / Invoice.
+// payment_intent (both quietly undefined, not just unexpanded) — the real
+// linkage now lives in Invoice.payments[].payment.payment_intent (a plain
+// id string; expanding straight through to the balance_transaction from the
+// invoices.list call exceeds Stripe's 4-level expand depth cap). So this
+// does one extra retrieve per payment_intent to read its latest_charge's
+// balance_transaction — the only place the real processing fee lives.
+async function getInvoiceFeeChf(stripe: Stripe, inv: Stripe.Invoice): Promise<number> {
+  const paymentsList = (inv as unknown as {
+    payments?: { data?: { payment?: { type?: string; payment_intent?: string | Stripe.PaymentIntent | null } }[] } | null;
+  }).payments;
+  const entries = paymentsList?.data ?? [];
+  let feeChf = 0;
+  for (const entry of entries) {
+    const pi = entry.payment?.payment_intent;
+    if (!pi) continue;
+    const piId = typeof pi === 'string' ? pi : pi.id;
+    try {
+      const full = await stripe.paymentIntents.retrieve(piId, { expand: ['latest_charge.balance_transaction'] });
+      const charge = full.latest_charge;
+      if (charge && typeof charge === 'object') {
+        const bt = charge.balance_transaction;
+        if (bt && typeof bt === 'object') {
+          feeChf += (bt.fee ?? 0) / 100;
+        } else {
+          console.error('balance_transaction not expanded for payment_intent', piId);
+        }
+      } else {
+        console.error('payment_intent has no expandable latest_charge', piId);
+      }
+    } catch (err) {
+      console.error('failed to resolve fee for payment_intent', piId, err);
+    }
+  }
+  return feeChf;
+}
+
 // deno-lint-ignore no-explicit-any
 async function getRevenueOverview(stripe: Stripe, admin: any) {
   const [{ data: orgs }, { data: plans }] = await Promise.all([
@@ -389,12 +426,12 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
 
   // "Encaissé" means real cash in hand, not the gross invoice amount — Stripe
   // takes its processing fee (card scheme + Stripe's own cut) out of every
-  // charge before the remainder ever reaches the bank account. Each paid
-  // invoice's charge carries a balance_transaction with that exact fee/net
-  // split, so it's read here (not estimated from a flat %) and subtracted.
-  // A charge whose balance_transaction fails to expand (e.g. an edge case
-  // Stripe object) degrades to fee=0 for that one invoice rather than
-  // failing the whole overview — logged so it's visible, never silent.
+  // charge before the remainder ever reaches the bank account. See
+  // getInvoiceFeeChf's comment for why this goes through Invoice.payments ->
+  // PaymentIntent -> latest_charge rather than the (now-empty) Invoice.charge
+  // field. A payment_intent whose fee fails to resolve degrades to fee=0 for
+  // that one invoice rather than failing the whole overview — logged so it's
+  // visible, never silent.
   let caTotalChf = 0;
   let caThisMonthChf = 0;
   let feesTotalChf = 0;
@@ -407,7 +444,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
       status: 'paid',
       limit: 100,
       starting_after: startingAfter,
-      expand: ['data.charge.balance_transaction'],
+      expand: ['data.payments.data.payment'],
     });
     for (const inv of invoices.data) {
       const customerId = typeof inv.customer === 'string' ? inv.customer : inv.customer?.id;
@@ -415,18 +452,7 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
       const amount = (inv.amount_paid ?? 0) / 100;
       const paidAtTs = inv.status_transitions?.paid_at ?? inv.created;
 
-      let feeChf = 0;
-      const charge = (inv as unknown as { charge?: Stripe.Charge | string | null }).charge;
-      if (charge && typeof charge === 'object') {
-        const bt = charge.balance_transaction;
-        if (bt && typeof bt === 'object') {
-          feeChf = (bt.fee ?? 0) / 100;
-        } else if (charge.balance_transaction) {
-          console.error('balance_transaction not expanded for charge', charge.id);
-        }
-      } else if (amount > 0) {
-        console.error('invoice paid with no expandable charge', inv.id);
-      }
+      const feeChf = amount > 0 ? await getInvoiceFeeChf(stripe, inv) : 0;
       const netAmount = amount - feeChf;
 
       caTotalChf += netAmount;
