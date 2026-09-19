@@ -194,6 +194,10 @@ export default function DevisDetailScreen() {
     router.push(`/(app)/devis/new?duplicateFromId=${id}`);
   }
 
+  function handleEdit() {
+    router.push(`/(app)/devis/new?editId=${id}`);
+  }
+
   async function handleDelete() {
     const ok = await confirm(t('devisDetail.deleteConfirmTitle'), t('devisDetail.deleteConfirmBody', { number: devis?.number ?? '' }));
     if (!ok) return;
@@ -371,6 +375,9 @@ export default function DevisDetailScreen() {
               <StatusDropdown status={devis.status} options={STATUS_FLOW} labels={STATUS_LABELS} onChange={changeStatus} />
               <RowActionMenu
                 actions={[
+                  ...(devis.status === 'draft'
+                    ? [{ key: 'edit', icon: 'edit-3' as const, label: t('devisDetail.edit'), onPress: handleEdit }]
+                    : []),
                   { key: 'duplicate', icon: 'copy', label: t('devisDetail.duplicate'), onPress: handleDuplicate },
                   {
                     key: 'save-trame',

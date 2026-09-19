@@ -365,7 +365,7 @@ export async function listReconciliationCandidates(organizationId: string): Prom
     .from('factures')
     .select('id, number, client_name, status, vat_rate')
     .eq('organization_id', organizationId)
-    .in('status', ['sent', 'partial']);
+    .in('status', ['ready', 'sent', 'partial']);
   if (!factures?.length) return [];
 
   const ids = factures.map((f) => f.id);
@@ -409,7 +409,7 @@ async function syncFactureStatus(factureId: string, total: number): Promise<void
   const payments = await listFacturePayments(factureId);
   const paidSum = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const { data: facture } = await supabase.from('factures').select('status').eq('id', factureId).single();
-  if (!facture || (facture.status !== 'sent' && facture.status !== 'partial' && facture.status !== 'paid')) return;
+  if (!facture || (facture.status !== 'ready' && facture.status !== 'sent' && facture.status !== 'partial' && facture.status !== 'paid')) return;
   const isFullyPaid = paidSum >= total - 0.01;
   const nextStatus: FactureStatus = isFullyPaid ? 'paid' : paidSum > 0.01 ? 'partial' : 'sent';
   if (nextStatus === facture.status) return;

@@ -400,7 +400,7 @@ export interface PublicExtraWorkPayload {
   organization: PublicPortalOrganization;
 }
 
-export type FactureStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'cancelled';
+export type FactureStatus = 'draft' | 'ready' | 'sent' | 'partial' | 'paid' | 'cancelled';
 
 export interface Facture {
   id: string;

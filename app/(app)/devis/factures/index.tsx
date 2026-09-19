@@ -29,7 +29,7 @@ function todayIso(): string {
 }
 
 function isUnsettled(facture: Facture): boolean {
-  return facture.status === 'sent' || facture.status === 'partial';
+  return facture.status === 'ready' || facture.status === 'sent' || facture.status === 'partial';
 }
 
 function isOverdue(facture: Facture): boolean {

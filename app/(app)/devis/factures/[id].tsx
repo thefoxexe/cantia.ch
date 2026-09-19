@@ -267,7 +267,7 @@ export default function FactureDetailScreen() {
   // regenerate on their own, this is just convenience.
   async function handleFinalize() {
     setBusy(true);
-    await setStatus('sent');
+    await setStatus('ready');
     setBusy(false);
     generateFacturePdf(id);
   }
@@ -290,6 +290,11 @@ export default function FactureDetailScreen() {
   function handleDuplicate() {
     setActionsOpen(false);
     router.push(`/(app)/devis/factures/new?duplicateFromId=${id}`);
+  }
+
+  function handleEdit() {
+    setActionsOpen(false);
+    router.push(`/(app)/devis/factures/new?editId=${id}`);
   }
 
   async function handlePushToBexio() {
@@ -439,7 +444,8 @@ export default function FactureDetailScreen() {
   const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const remaining = Math.max(0, total - totalPaid);
   const overdue =
-    (facture.status === 'sent' || facture.status === 'partial') && facture.due_date < new Date().toISOString().slice(0, 10);
+    (facture.status === 'ready' || facture.status === 'sent' || facture.status === 'partial') &&
+    facture.due_date < new Date().toISOString().slice(0, 10);
   const paymentRef = generatePaymentReference(orgIban, facture.id);
 
   const canDeposit = !facture.is_deposit && !!facture.devis_id && !siblingFactures.some((f) => f.is_deposit);
@@ -482,6 +488,9 @@ export default function FactureDetailScreen() {
             },
           },
         ] as ActionRow[])
+      : []),
+    ...(facture.status === 'draft'
+      ? ([{ key: 'edit', icon: 'edit-3', label: t('factureDetail.edit'), onPress: handleEdit }] as ActionRow[])
       : []),
     { key: 'duplicate', icon: 'copy', label: t('factureDetail.duplicate'), onPress: handleDuplicate },
     ...(facture.devis_id
@@ -711,7 +720,7 @@ export default function FactureDetailScreen() {
           </View>
         </Card>
 
-        {payments.length || facture.status === 'sent' || facture.status === 'partial' ? (
+        {payments.length || facture.status === 'ready' || facture.status === 'sent' || facture.status === 'partial' ? (
           <>
             <Text style={styles.sectionTitle}>{t('factureDetail.paymentsTitle')}</Text>
             <Card>

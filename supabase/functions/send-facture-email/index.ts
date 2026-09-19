@@ -125,8 +125,11 @@ Deno.serve(async (req: Request) => {
     });
     if (!ok) return json({ error }, 502);
 
-    // Status is already sent/partial/paid by this point (draft is rejected
-    // above) — never downgrade a partial/paid facture back to "sent".
+    // Only a facture finalized but not yet sent flips to "sent" here — never
+    // downgrade a partial/paid facture back to "sent".
+    if (facture.status === 'ready') {
+      await admin.from('factures').update({ status: 'sent' }).eq('id', facture_id);
+    }
 
     return json({ sent: true });
   } catch (err) {

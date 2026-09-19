@@ -47,8 +47,9 @@ function emptyLine(): Line {
 export default function NewFactureScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { duplicateFromId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+  const { duplicateFromId, editId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
     duplicateFromId?: string;
+    editId?: string;
     voiceClientName?: string;
     voiceClientId?: string;
     voiceClientEmail?: string;
@@ -68,6 +69,7 @@ export default function NewFactureScreen() {
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [editingNumber, setEditingNumber] = useState<string | null>(null);
 
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [priceMismatches, setPriceMismatches] = useState<PriceMismatch[] | null>(null);
@@ -164,6 +166,44 @@ export default function NewFactureScreen() {
       }
     })();
   }, [duplicateFromId]);
+
+  // Arriving here from an existing draft facture's "Modifier" action
+  // (?editId=...) — same prefill pattern as duplicateFromId, except submit
+  // updates this same facture in place instead of inserting a new one.
+  const appliedEditRef = useRef(false);
+  useEffect(() => {
+    if (!editId || appliedEditRef.current) return;
+    appliedEditRef.current = true;
+    (async () => {
+      const { data: source } = await supabase.from('factures').select('*').eq('id', editId).maybeSingle();
+      if (!source) return;
+      setEditingNumber(source.number ?? null);
+      setClientName(source.client_name ?? '');
+      setClientAddress(source.client_address ?? '');
+      setClientEmail(source.client_email ?? '');
+      setClientId(source.client_id ?? null);
+      if (source.project_id) {
+        const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
+        if (project) setSelectedProject(project as Project);
+      }
+      const { data: items } = await supabase
+        .from('facture_items')
+        .select('*')
+        .eq('facture_id', editId)
+        .order('sort_order', { ascending: true });
+      if (items?.length) {
+        setLines(
+          items.map((it) => ({
+            description: it.description,
+            quantity: String(it.quantity),
+            unit: it.unit || 'pce',
+            unitPrice: String(it.unit_price),
+            unitAuto: false,
+          })),
+        );
+      }
+    })();
+  }, [editId]);
 
   const appliedVoiceRef = useRef(false);
   useEffect(() => {
@@ -341,7 +381,52 @@ export default function NewFactureScreen() {
       setPriceMismatches(mismatches);
       return;
     }
-    await submitFacture(validLines, []);
+    if (editId) await submitEditFacture(editId, validLines, []);
+    else await submitFacture(validLines, []);
+  }
+
+  async function submitEditFacture(id: string, validLines: Line[], mismatches: PriceMismatch[]) {
+    if (!organization) return;
+    setLoading(true);
+
+    await Promise.all(
+      mismatches.filter((m) => m.updateCatalog).map((m) => updateCatalogItemPrice(m.catalogItemId, m.enteredPrice, m.unit)),
+    );
+
+    const { error: factureError } = await supabase
+      .from('factures')
+      .update({
+        client_name: clientName.trim(),
+        client_address: clientAddress.trim() || null,
+        client_email: clientEmail.trim() || null,
+        client_id: clientId,
+        project_id: selectedProject?.id ?? null,
+      })
+      .eq('id', id);
+
+    if (factureError) {
+      setError(factureError.message || t('factureNew.updateFailed'));
+      setLoading(false);
+      return;
+    }
+
+    const { error: deleteError } = await supabase.from('facture_items').delete().eq('facture_id', id);
+    if (deleteError) {
+      setError(deleteError.message || t('factureNew.updateFailed'));
+      setLoading(false);
+      return;
+    }
+
+    const itemsPayload = buildItemsPayload(id, validLines);
+
+    const { error: itemsError } = await supabase.from('facture_items').insert(itemsPayload);
+    setLoading(false);
+    if (itemsError) {
+      setError(itemsError.message);
+      return;
+    }
+
+    router.replace(`/(app)/devis/factures/${id}`);
   }
 
   async function submitFacture(validLines: Line[], mismatches: PriceMismatch[]) {
@@ -394,7 +479,8 @@ export default function NewFactureScreen() {
     const mismatches = priceMismatches;
     const validLines = lines.filter((l) => l.description.trim());
     setPriceMismatches(null);
-    await submitFacture(validLines, mismatches);
+    if (editId) await submitEditFacture(editId, validLines, mismatches);
+    else await submitFacture(validLines, mismatches);
   }
 
   const previewNode = (
@@ -415,6 +501,12 @@ export default function NewFactureScreen() {
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
+          {editId && editingNumber ? (
+            <View style={styles.editBanner}>
+              <Feather name="edit-3" size={14} color={colors.primaryDark} />
+              <Text style={styles.editBannerText}>{t('factureNew.editBannerTitle', { number: editingNumber })}</Text>
+            </View>
+          ) : null}
           <Text style={styles.sectionTitle}>{t('devisNew.clientTitle')}</Text>
           {organization ? (
             <ClientPicker
@@ -635,7 +727,12 @@ export default function NewFactureScreen() {
             />
           ) : null}
 
-          <Button title={t('factureNew.createFacture')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+          <Button
+            title={editId ? t('factureNew.editSave') : t('factureNew.createFacture')}
+            onPress={handleCreate}
+            loading={loading}
+            style={{ marginTop: spacing.lg }}
+          />
         </View>
         {isDesktop ? <View style={styles.previewColumn}>{previewNode}</View> : null}
         </View>
@@ -851,6 +948,20 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
+  },
+  editBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  editBannerText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primaryDark,
   },
   sectionHint: {
     fontSize: fontSize.xs,

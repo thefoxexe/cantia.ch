@@ -54,9 +54,10 @@ function emptyLine(): Line {
 export default function NewDevisScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const { trameId, duplicateFromId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
+  const { trameId, duplicateFromId, editId, voiceClientName, voiceClientId, voiceClientEmail, voiceClientAddress, voiceProjectId, voiceProjectName, voiceLines } = useLocalSearchParams<{
     trameId?: string;
     duplicateFromId?: string;
+    editId?: string;
     voiceClientName?: string;
     voiceClientId?: string;
     voiceClientEmail?: string;
@@ -75,6 +76,7 @@ export default function NewDevisScreen() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
+  const [editingNumber, setEditingNumber] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Validity: a preset (20/30/60 days from today) or an exact date, chosen
@@ -213,6 +215,47 @@ export default function NewDevisScreen() {
       }
     })();
   }, [duplicateFromId]);
+
+  // Arriving here from an existing draft's "Modifier" button
+  // (?editId=...) — same prefill as duplicating, but submitting updates
+  // this same devis (same id/number) instead of creating a new one. Only
+  // ever offered while the devis is still a draft (see devis/[id].tsx),
+  // so there's no risk of silently changing something already sent to a
+  // client.
+  const appliedEditRef = useRef(false);
+  useEffect(() => {
+    if (!editId || appliedEditRef.current) return;
+    appliedEditRef.current = true;
+    (async () => {
+      const { data: source } = await supabase.from('devis').select('*').eq('id', editId).maybeSingle();
+      if (!source) return;
+      setEditingNumber(source.number ?? null);
+      setClientName(source.client_name ?? '');
+      setClientAddress(source.client_address ?? '');
+      setClientEmail(source.client_email ?? '');
+      setClientId(source.client_id ?? null);
+      if (source.project_id) {
+        const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
+        if (project) setSelectedProject(project as Project);
+      }
+      const { data: items } = await supabase
+        .from('devis_items')
+        .select('*')
+        .eq('devis_id', editId)
+        .order('sort_order', { ascending: true });
+      if (items?.length) {
+        setLines(
+          items.map((it) => ({
+            description: it.description,
+            quantity: String(it.quantity),
+            unit: it.unit || 'pce',
+            unitPrice: String(it.unit_price),
+            unitAuto: false,
+          })),
+        );
+      }
+    })();
+  }, [editId]);
 
   // Arriving here from the global voice assistant's "create_devis" action
   // (?voiceClientName=...&voiceLines=...) — the client name and any
@@ -393,7 +436,8 @@ export default function NewDevisScreen() {
       setPriceMismatches(mismatches);
       return;
     }
-    await submitDevis(validLines, []);
+    if (editId) await submitEditDevis(editId, validLines, []);
+    else await submitDevis(validLines, []);
   }
 
   function resolveValidUntil(): string | null {
@@ -463,6 +507,75 @@ export default function NewDevisScreen() {
     router.replace(`/(app)/devis/${devis.id}`);
   }
 
+  // Updates the same devis in place (same id, same number) instead of
+  // creating a new one — every line item is replaced wholesale (delete
+  // then re-insert) rather than diffed, since the form has no concept of
+  // "this line used to exist" once loaded, only its current state. Fields
+  // this form doesn't manage (status, notes, template_id, pdf_path...)
+  // are deliberately left out of the update patch so they're never
+  // clobbered by an edit.
+  async function submitEditDevis(id: string, validLines: Line[], mismatches: PriceMismatch[]) {
+    if (!organization) return;
+    setLoading(true);
+
+    await Promise.all(
+      mismatches.filter((m) => m.updateCatalog).map((m) => updateCatalogItemPrice(m.catalogItemId, m.enteredPrice, m.unit)),
+    );
+
+    const { error: devisError } = await supabase
+      .from('devis')
+      .update({
+        client_name: clientName.trim(),
+        client_address: clientAddress.trim() || null,
+        client_email: clientEmail.trim() || null,
+        client_id: clientId,
+        project_id: selectedProject?.id ?? null,
+        valid_until: resolveValidUntil(),
+      })
+      .eq('id', id);
+
+    if (devisError) {
+      setError(devisError.message || t('devisNew.updateFailed'));
+      setLoading(false);
+      return;
+    }
+
+    const { error: deleteError } = await supabase.from('devis_items').delete().eq('devis_id', id);
+    if (deleteError) {
+      setError(deleteError.message || t('devisNew.updateFailed'));
+      setLoading(false);
+      return;
+    }
+
+    const itemsPayload = validLines.map((l, i) => ({
+      devis_id: id,
+      description: l.description.trim(),
+      quantity: Number(l.quantity) || 1,
+      unit: l.unit.trim() || 'pce',
+      unit_price: Number(l.unitPrice) || 0,
+      sort_order: i,
+    }));
+    if (discountAmount > 0) {
+      itemsPayload.push({
+        devis_id: id,
+        description: t('documentPreview.discountLine', { pct: Number(discountPercent) }),
+        quantity: 1,
+        unit: 'pce',
+        unit_price: -Math.round(discountAmount * 100) / 100,
+        sort_order: itemsPayload.length,
+      });
+    }
+
+    const { error: itemsError } = await supabase.from('devis_items').insert(itemsPayload);
+    setLoading(false);
+    if (itemsError) {
+      setError(itemsError.message);
+      return;
+    }
+
+    router.replace(`/(app)/devis/${id}`);
+  }
+
   function toggleMismatchUpdate(catalogItemId: string) {
     setPriceMismatches((prev) => (prev ? prev.map((m) => (m.catalogItemId === catalogItemId ? { ...m, updateCatalog: !m.updateCatalog } : m)) : prev));
   }
@@ -472,7 +585,8 @@ export default function NewDevisScreen() {
     const mismatches = priceMismatches;
     const validLines = lines.filter((l) => l.description.trim());
     setPriceMismatches(null);
-    await submitDevis(validLines, mismatches);
+    if (editId) await submitEditDevis(editId, validLines, mismatches);
+    else await submitDevis(validLines, mismatches);
   }
 
   const previewNode = (
@@ -493,6 +607,12 @@ export default function NewDevisScreen() {
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
+          {editId && editingNumber ? (
+            <View style={styles.editBanner}>
+              <Feather name="edit-3" size={14} color={colors.primaryDark} />
+              <Text style={styles.editBannerText}>{t('devisNew.editBannerTitle', { number: editingNumber })}</Text>
+            </View>
+          ) : null}
           <Text style={styles.sectionTitle}>{t('devisNew.clientTitle')}</Text>
           {organization ? (
             <ClientPicker
@@ -752,7 +872,12 @@ export default function NewDevisScreen() {
             />
           ) : null}
 
-          <Button title={t('devisNew.createDevis')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.lg }} />
+          <Button
+            title={editId ? t('devisNew.editSave') : t('devisNew.createDevis')}
+            onPress={handleCreate}
+            loading={loading}
+            style={{ marginTop: spacing.lg }}
+          />
         </View>
         {isDesktop ? <View style={styles.previewColumn}>{previewNode}</View> : null}
         </View>
@@ -976,6 +1101,20 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
+  },
+  editBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  editBannerText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.primaryDark,
   },
   sectionHint: {
     fontSize: fontSize.xs,
