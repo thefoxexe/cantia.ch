@@ -30,6 +30,9 @@ export interface SocialPostContent {
   headline: string;
   subheadline: string;
   scene?: SocialScene | null;
+  statValue?: string | null;
+  statLabel?: string | null;
+  badge?: string | null;
 }
 
 let logoPromise: Promise<HTMLImageElement | null> | null = null;
@@ -140,6 +143,40 @@ function drawKicker(ctx: CanvasRenderingContext2D, topic: string, x: number, y: 
   ctx.fillText(topic.toUpperCase(), x, y);
 }
 
+function drawBadge(ctx: CanvasRenderingContext2D, text: string, rightX: number, y: number, fontSize: number) {
+  const label = text.toUpperCase();
+  ctx.font = `800 ${fontSize}px ${FONT_FAMILY}`;
+  const textW = ctx.measureText(label).width;
+  const padX = fontSize * 0.7;
+  const h = fontSize * 2.1;
+  const w = textW + padX * 2;
+  const x = rightX - w;
+  ctx.fillStyle = PRIMARY;
+  roundRect(ctx, x, y, w, h, h / 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, x + padX, y + h / 2 + 1);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawStat(ctx: CanvasRenderingContext2D, value: string, label: string, x: number, y: number, valueSize: number, labelSize: number, maxWidth: number) {
+  ctx.fillStyle = PRIMARY;
+  ctx.font = `900 ${valueSize}px ${FONT_FAMILY}`;
+  const valueBaseline = y + valueSize * 0.78;
+  ctx.fillText(value, x, valueBaseline);
+  if (!label) return valueBaseline;
+  ctx.fillStyle = TEXT_MUTED;
+  ctx.font = `700 ${labelSize}px ${FONT_FAMILY}`;
+  const lines = wrapLines(ctx, label.toUpperCase(), maxWidth).slice(0, 2);
+  let labelY = valueBaseline + labelSize * 1.5;
+  for (const line of lines) {
+    ctx.fillText(line, x, labelY);
+    labelY += labelSize * 1.3;
+  }
+  return labelY;
+}
+
 async function ensureAssets(): Promise<{ logo: HTMLImageElement | null } | null> {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return null;
   const logo = await loadLogo();
@@ -175,6 +212,7 @@ async function generateInstagram(post: SocialPostContent): Promise<string | null
 
   const marginX = 76;
   drawBrandHeader(ctx, assets.logo, marginX, 64, 44);
+  if (post.badge) drawBadge(ctx, post.badge, W - marginX, 60, 20);
   drawKicker(ctx, post.topic, marginX, 190, 26);
 
   const { lines, size } = layoutHeadline(ctx, post.headline, W - marginX * 2, 4, 84, 52);
@@ -196,6 +234,10 @@ async function generateInstagram(post: SocialPostContent): Promise<string | null
       ctx.fillText(line, marginX, y);
       y += 42;
     }
+  }
+
+  if (post.statValue && y < 700) {
+    drawStat(ctx, post.statValue, post.statLabel ?? '', marginX, y + 24, 84, 20, 460);
   }
 
   // "cantia.ch" pill, anchored bottom-left clear of the illustration — a
@@ -249,6 +291,7 @@ async function generateLinkedin(post: SocialPostContent): Promise<string | null>
   const marginX = 72;
   const contentWidth = 620;
   drawBrandHeader(ctx, assets.logo, marginX, 52, 40);
+  if (post.badge) drawBadge(ctx, post.badge, W - marginX, 48, 15);
   drawKicker(ctx, post.topic, marginX, 156, 24);
 
   const { lines, size } = layoutHeadline(ctx, post.headline, contentWidth, 3, 68, 42);
@@ -273,6 +316,10 @@ async function generateLinkedin(post: SocialPostContent): Promise<string | null>
       ctx.fillText(line, marginX, y);
       y += 32;
     }
+  }
+
+  if (post.statValue && y < H - 130) {
+    drawStat(ctx, post.statValue, post.statLabel ?? '', marginX, y + 8, 48, 13, contentWidth);
   }
 
   ctx.fillStyle = TEXT;

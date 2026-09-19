@@ -33,6 +33,9 @@ type Draft = {
   status: SocialPostStatus;
   notes: string;
   scene: SocialScene;
+  stat_value: string;
+  stat_label: string;
+  badge: string;
 };
 
 function draftFrom(p: AdminSocialPost): Draft {
@@ -45,6 +48,9 @@ function draftFrom(p: AdminSocialPost): Draft {
     status: p.status,
     notes: p.notes ?? '',
     scene: p.scene,
+    stat_value: p.stat_value ?? '',
+    stat_label: p.stat_label ?? '',
+    badge: p.badge ?? '',
   };
 }
 
@@ -57,6 +63,9 @@ const BLANK_DRAFT: Draft = {
   status: 'idee',
   notes: '',
   scene: 'essai',
+  stat_value: '',
+  stat_label: '',
+  badge: '',
 };
 
 function slugify(text: string): string {
@@ -95,7 +104,15 @@ function PreviewPane({ format, draft, slug }: { format: SocialFormat; draft: Dra
     let cancelled = false;
     setGenerating(true);
     generateSocialPostDataUrl(
-      { topic: draft.topic, headline: draft.headline, subheadline: draft.subheadline, scene: draft.scene },
+      {
+        topic: draft.topic,
+        headline: draft.headline,
+        subheadline: draft.subheadline,
+        scene: draft.scene,
+        statValue: draft.stat_value || null,
+        statLabel: draft.stat_label || null,
+        badge: draft.badge || null,
+      },
       format,
     ).then((url) => {
       if (!cancelled) {
@@ -107,7 +124,7 @@ function PreviewPane({ format, draft, slug }: { format: SocialFormat; draft: Dra
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [format, draft.topic, draft.headline, draft.subheadline, draft.scene]);
+  }, [format, draft.topic, draft.headline, draft.subheadline, draft.scene, draft.stat_value, draft.stat_label, draft.badge]);
 
   async function handleDownload() {
     if (!dataUrl) return;
@@ -184,6 +201,9 @@ export default function AdminSocialScreen() {
       status: draft.status,
       notes: draft.notes.trim() || null,
       scene: draft.scene,
+      stat_value: draft.stat_value.trim() || null,
+      stat_label: draft.stat_label.trim() || null,
+      badge: draft.badge.trim() || null,
     });
     if (!err && post) {
       setPosts((prev) => {
@@ -357,6 +377,39 @@ function PostEditor({
             </Pressable>
           );
         })}
+      </View>
+
+      <View style={styles.editorRow}>
+        <View style={{ flex: 1, minWidth: 120 }}>
+          <Text style={styles.fieldLabel}>Chiffre choc (optionnel)</Text>
+          <TextInput
+            value={draft.stat_value}
+            onChangeText={(v) => setDraft({ ...draft, stat_value: v })}
+            style={styles.input}
+            placeholder="Ex. 3 min"
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
+        <View style={{ flex: 2, minWidth: 180 }}>
+          <Text style={styles.fieldLabel}>Légende du chiffre</Text>
+          <TextInput
+            value={draft.stat_label}
+            onChangeText={(v) => setDraft({ ...draft, stat_label: v })}
+            style={styles.input}
+            placeholder="Ex. pour un devis complet"
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
+        <View style={{ flex: 1, minWidth: 160 }}>
+          <Text style={styles.fieldLabel}>Badge promo (optionnel)</Text>
+          <TextInput
+            value={draft.badge}
+            onChangeText={(v) => setDraft({ ...draft, badge: v })}
+            style={styles.input}
+            placeholder="Ex. Sans carte bancaire"
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
       </View>
 
       <Text style={styles.fieldLabel}>Titre principal (accroche visuelle — utiliser \n pour une 2e ligne en orange)</Text>

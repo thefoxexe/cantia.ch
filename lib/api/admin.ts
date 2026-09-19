@@ -208,6 +208,9 @@ export async function upsertSocialPost(input: {
   status: SocialPostStatus;
   notes?: string | null;
   scene: SocialScene;
+  stat_value?: string | null;
+  stat_label?: string | null;
+  badge?: string | null;
 }): Promise<{ post: AdminSocialPost | null; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_upsert_social_post', {
     post_id: input.id ?? null,
@@ -220,6 +223,9 @@ export async function upsertSocialPost(input: {
     p_status: input.status,
     p_notes: input.notes ?? null,
     p_scene: input.scene,
+    p_stat_value: input.stat_value ?? null,
+    p_stat_label: input.stat_label ?? null,
+    p_badge: input.badge ?? null,
   });
   return { post: (data as AdminSocialPost) ?? null, error: logRpcError('admin_upsert_social_post', error) };
 }

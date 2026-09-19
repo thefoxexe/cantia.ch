@@ -1324,6 +1324,9 @@ export interface AdminSocialPost {
   status: SocialPostStatus;
   notes: string | null;
   scene: SocialScene;
+  stat_value: string | null;
+  stat_label: string | null;
+  badge: string | null;
   created_at: string;
   updated_at: string;
 }

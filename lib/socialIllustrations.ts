@@ -38,7 +38,15 @@ export type SocialScene =
   | 'dashboard'
   | 'meteo'
   | 'support'
-  | 'multiDevice';
+  | 'multiDevice'
+  | 'paieEtendue'
+  | 'invitationEquipe'
+  | 'personnalisationDocuments'
+  | 'portailClient'
+  | 'troisLangues'
+  | 'reconciliationBancaire'
+  | 'avantApres'
+  | 'statShock';
 
 export const SOCIAL_SCENES: { key: SocialScene; label: string }[] = [
   { key: 'devis', label: 'Devis à la voix (micro)' },
@@ -58,6 +66,14 @@ export const SOCIAL_SCENES: { key: SocialScene; label: string }[] = [
   { key: 'meteo', label: 'Météo chantier' },
   { key: 'support', label: 'Support / aide' },
   { key: 'multiDevice', label: 'Bureau + chantier synchronisés' },
+  { key: 'paieEtendue', label: 'Paie étendue (calculatrice)' },
+  { key: 'invitationEquipe', label: 'Invitation équipe (enveloppe)' },
+  { key: 'personnalisationDocuments', label: 'Personnalisation documents (couleurs)' },
+  { key: 'portailClient', label: 'Portail client (bouclier)' },
+  { key: 'troisLangues', label: 'Trois langues (globe)' },
+  { key: 'reconciliationBancaire', label: 'Réconciliation bancaire' },
+  { key: 'avantApres', label: 'Avant / après' },
+  { key: 'statShock', label: 'Chiffre choc (minimal)' },
 ];
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -317,6 +333,97 @@ function checkBadge(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: nu
   ctx.lineTo(cx - r * 0.12, cy + r * 0.32);
   ctx.lineTo(cx + r * 0.46, cy - r * 0.38);
   ctx.stroke();
+}
+
+function envelope(ctx: CanvasRenderingContext2D, cx: number, cy: number, w: number, h: number, rotateDeg: number, color = SURFACE, accent = PRIMARY) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate((rotateDeg * Math.PI) / 180);
+  ctx.shadowColor = 'rgba(35,26,18,0.18)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 12;
+  rr(ctx, -w / 2, -h / 2, w, h, 12, color);
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = BORDER;
+  ctx.lineWidth = 2;
+  roundRectPath(ctx, -w / 2, -h / 2, w, h, 12);
+  ctx.stroke();
+  fillPoly(
+    ctx,
+    [
+      [-w / 2 + 6, -h / 2 + 4],
+      [0, h * 0.08],
+      [w / 2 - 6, -h / 2 + 4],
+    ],
+    lighten(accent, 0.7),
+  );
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(-w / 2 + 6, -h / 2 + 4);
+  ctx.lineTo(0, h * 0.08);
+  ctx.lineTo(w / 2 - 6, -h / 2 + 4);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function shieldGlyph(ctx: CanvasRenderingContext2D, cx: number, cy: number, w: number, h: number, color = SLATE) {
+  ctx.save();
+  ctx.translate(cx - w / 2, cy - h / 2);
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.12);
+  ctx.quadraticCurveTo(0, 0, w * 0.14, 0);
+  ctx.lineTo(w * 0.86, 0);
+  ctx.quadraticCurveTo(w, 0, w, h * 0.12);
+  ctx.lineTo(w, h * 0.48);
+  ctx.quadraticCurveTo(w, h * 0.82, w / 2, h);
+  ctx.quadraticCurveTo(0, h * 0.82, 0, h * 0.48);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = w * 0.09;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(w * 0.28, h * 0.46);
+  ctx.lineTo(w * 0.44, h * 0.62);
+  ctx.lineTo(w * 0.74, h * 0.3);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function globeGlyph(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color = SLATE) {
+  circle(ctx, cx, cy, r, lighten(color, 0.72));
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, r * 0.42, r, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx - r, cy - r * 0.32);
+  ctx.lineTo(cx + r, cy - r * 0.32);
+  ctx.moveTo(cx - r, cy + r * 0.32);
+  ctx.lineTo(cx + r, cy + r * 0.32);
+  ctx.stroke();
+}
+
+function isoTopLines(ctx: CanvasRenderingContext2D, iso: Iso, gx: number, gy: number, w: number, d: number, h: number, rows: number, lineColor: string) {
+  const P = (x: number, y: number) => iso.project(x, y, h);
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 1.6;
+  for (let r = 1; r < rows; r++) {
+    const t = r / rows;
+    const [x1, y1] = P(gx + w * 0.08, gy + d * t);
+    const [x2, y2] = P(gx + w * 0.92, gy + d * t);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
 }
 
 function syncGlyph(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color = SUCCESS) {
@@ -939,6 +1046,168 @@ export function syncContent(ctx: CanvasRenderingContext2D, x: number, y: number,
   syncGlyph(ctx, x + w / 2, cy - 4, 26, SUCCESS);
 }
 
+export function payrollBreakdownContent(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const pad = 22;
+  ctx.fillStyle = MUTED;
+  ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('DÉTAIL DU SALAIRE', x + pad, y + 34);
+  const rows = [
+    { label: '13e salaire', value: 'CHF 435.–' },
+    { label: 'Heures sup.', value: 'CHF 210.–' },
+    { label: 'Indemnité vacances', value: 'CHF 180.–' },
+    { label: 'Avance déduite', value: '– CHF 300.–' },
+  ];
+  let ry = y + 54;
+  rows.forEach((row) => {
+    ctx.fillStyle = INK;
+    ctx.font = '500 13px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(row.label, x + pad, ry);
+    ctx.fillStyle = MUTED;
+    ctx.font = '600 13px "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(row.value, x + w - pad, ry);
+    ctx.textAlign = 'left';
+    ry += 28;
+  });
+  ctx.strokeStyle = BORDER;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(x + pad, ry + 2);
+  ctx.lineTo(x + w - pad, ry + 2);
+  ctx.stroke();
+  ctx.fillStyle = SUCCESS;
+  ctx.font = '800 15px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('Calculé automatiquement', x + pad, ry + 26);
+}
+
+export function inviteContent(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const pad = 22;
+  ctx.fillStyle = MUTED;
+  ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('INVITATION ÉQUIPE', x + pad, y + 34);
+  circle(ctx, x + pad + 22, y + 74, 22, SLATE);
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 15px "Helvetica Neue", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('+', x + pad + 22, y + 80);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = INK;
+  ctx.font = '600 14px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('marc@exemple.ch', x + pad + 56, y + 70);
+  ctx.fillStyle = MUTED;
+  ctx.font = '400 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('Invitation envoyée', x + pad + 56, y + 87);
+  const chipY = y + 112;
+  rr(ctx, x + pad, chipY, w - pad * 2, 38, 12, PRIMARY);
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 13px "Helvetica Neue", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Rejoindre l’équipe', x + w / 2, chipY + 24);
+  ctx.textAlign = 'left';
+}
+
+export function brandingContent(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const pad = 20;
+  rr(ctx, x + pad, y + pad, w - pad * 2, h - pad * 2, 14, '#F7F1E6');
+  rr(ctx, x + pad, y + pad, w - pad * 2, 40, 14, PRIMARY);
+  circle(ctx, x + pad + 26, y + pad + 20, 12, '#fff');
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 13px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('Votre entreprise', x + pad + 48, y + pad + 25);
+  let ly = y + pad + 66;
+  for (let i = 0; i < 3; i++) {
+    rr(ctx, x + pad + 16, ly, w - pad * 2 - 32, 10, 5, BORDER);
+    ly += 22;
+  }
+  const chipY = ly + 10;
+  rr(ctx, x + pad + 16, chipY, 90, 28, 14, lighten(PRIMARY, 0.82));
+  ctx.fillStyle = PRIMARY;
+  ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('CHF 4’280.–', x + pad + 28, chipY + 19);
+}
+
+export function otpContent(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const pad = 22;
+  ctx.fillStyle = MUTED;
+  ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('CODE DE VÉRIFICATION', x + pad, y + 36);
+  const digits = ['4', '2', '8', '1'];
+  const gap = 10;
+  const boxW = (w - pad * 2 - gap * (digits.length - 1)) / digits.length;
+  let bx = x + pad;
+  const by = y + 56;
+  digits.forEach((d) => {
+    rr(ctx, bx, by, boxW, 52, 10, '#F7F1E6');
+    ctx.strokeStyle = PRIMARY;
+    ctx.lineWidth = 2;
+    roundRectPath(ctx, bx, by, boxW, 52, 10);
+    ctx.stroke();
+    ctx.fillStyle = INK;
+    ctx.font = '800 22px "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(d, bx + boxW / 2, by + 34);
+    ctx.textAlign = 'left';
+    bx += boxW + gap;
+  });
+  checkBadge(ctx, x + w - pad - 14, by + 78, 14, SUCCESS);
+  ctx.fillStyle = SUCCESS;
+  ctx.font = '700 13px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('Accès sécurisé', x + pad, by + 84);
+}
+
+export function languageContent(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const pad = 22;
+  ctx.fillStyle = MUTED;
+  ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('LANGUE', x + pad, y + 34);
+  const rows: { label: string; active: boolean }[] = [
+    { label: 'Français', active: true },
+    { label: 'Deutsch', active: false },
+    { label: 'Italiano', active: false },
+  ];
+  let ry = y + 54;
+  rows.forEach((row) => {
+    rr(ctx, x + pad, ry, w - pad * 2, 40, 12, row.active ? lighten(PRIMARY, 0.82) : '#F7F1E6');
+    ctx.fillStyle = row.active ? PRIMARY : INK;
+    ctx.font = row.active ? '700 14px "Helvetica Neue", Arial, sans-serif' : '500 14px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(row.label, x + pad + 16, ry + 26);
+    if (row.active) checkBadge(ctx, x + w - pad - 16, ry + 20, 12, PRIMARY);
+    ry += 48;
+  });
+}
+
+export function reconciliationContent(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const pad = 20;
+  ctx.fillStyle = MUTED;
+  ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
+  ctx.fillText('RÉCONCILIATION BANCAIRE', x + pad, y + 32);
+  const rows = [
+    { stmt: 'VIR. 2’480.00', inv: 'Facture #214' },
+    { stmt: 'VIR. 1’150.00', inv: 'Facture #219' },
+  ];
+  let ry = y + 52;
+  const colW = (w - pad * 2 - 30) / 2;
+  rows.forEach((row) => {
+    rr(ctx, x + pad, ry, colW, 48, 10, '#F7F1E6');
+    ctx.fillStyle = INK;
+    ctx.font = '600 12px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(row.stmt, x + pad + 10, ry + 28);
+    const rx = x + pad + colW + 30;
+    rr(ctx, rx, ry, colW, 48, 10, lighten(SUCCESS, 0.82));
+    ctx.fillStyle = SUCCESS;
+    ctx.font = '600 12px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(row.inv, rx + 10, ry + 28);
+    const midX = x + pad + colW + 15;
+    ctx.strokeStyle = SUCCESS;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(midX, ry + 24);
+    ctx.lineTo(midX + 30, ry + 24);
+    ctx.stroke();
+    ry += 60;
+  });
+}
+
 // ----------------------------------------------------------------- scenes
 function sceneDevis(ctx: CanvasRenderingContext2D, iso: Iso) {
   groundPlinth(ctx, iso);
@@ -1152,6 +1421,104 @@ function sceneMultiDevice(ctx: CanvasRenderingContext2D, iso: Iso) {
   bush(ctx, iso, 2.6, -1.5);
 }
 
+function scenePaieEtendue(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  isoBox(ctx, iso, -1.1, -0.9, 1.3, 1.0, 0.55, SLATE);
+  isoTopGrid(ctx, iso, -1.1, -0.9, 1.3, 1.0, 0.55, 3, 4, lighten(SLATE, 0.3));
+  const [cx, cy] = iso.project(1.5, 0.2, 0.55);
+  for (let i = 0; i < 3; i++) circle(ctx, cx, cy - i * 11, 26, i % 2 === 0 ? ACCENT : lighten(ACCENT, 0.2));
+  workerFigure(ctx, ...iso.project(-2.2, 1.1, 0.55), 0.56, { hatColor: PRIMARY, prop: 'none' });
+  bush(ctx, iso, 2.7, -1.5);
+}
+
+function sceneInvitationEquipe(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  const [ex, ey] = iso.project(0.2, -0.2, 1.5);
+  envelope(ctx, ex, ey, 190, 130, -6, SURFACE, PRIMARY);
+  checkBadge(ctx, ex + 110, ey - 60, 24, SUCCESS);
+  workerFigure(ctx, ...iso.project(-2.1, 1.1, 0.55), 0.58, { hatColor: SLATE, prop: 'none' });
+  bush(ctx, iso, 2.6, -1.5);
+}
+
+function scenePersonnalisationDocuments(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  isoBox(ctx, iso, -1.3, -0.9, 1.1, 1.5, 0.06, '#F1E6D5');
+  isoBox(ctx, iso, -1.2, -0.8, 1.1, 1.5, 0.06, SURFACE, 0.06);
+  const swatches = [PRIMARY, SLATE, MOSS];
+  swatches.forEach((col, i) => {
+    const [sx, sy] = iso.project(1.0 + i * 0.5, -0.8, 1.0);
+    circle(ctx, sx, sy, 22, col);
+  });
+  swissCross(ctx, ...iso.project(1.5, 1.0, 0.55), 44);
+  bush(ctx, iso, 2.7, -1.6);
+}
+
+function scenePortailClient(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  const [shx, shy] = iso.project(-0.8, -0.4, 1.5);
+  shieldGlyph(ctx, shx, shy, 96, 108, SLATE);
+  miniPhone(ctx, iso, 1.3, 0.2, -6);
+  workerFigure(ctx, ...iso.project(-2.4, 1.2, 0.55), 0.56, { hatColor: PRIMARY, prop: 'none' });
+  bush(ctx, iso, 2.7, -1.5);
+}
+
+function sceneTroisLangues(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  const [gx, gy] = iso.project(-0.6, -0.4, 1.3);
+  globeGlyph(ctx, gx, gy, 62, SLATE);
+  const langs = [
+    { label: 'FR', color: PRIMARY },
+    { label: 'DE', color: SLATE },
+    { label: 'IT', color: MOSS },
+  ];
+  langs.forEach((l, i) => {
+    const [lx, ly] = iso.project(1.1 + i * 0.05, -1.2 + i * 0.7, 1.5 - i * 0.35);
+    rr(ctx, lx - 26, ly - 18, 52, 36, 10, l.color);
+    ctx.fillStyle = '#fff';
+    ctx.font = '800 14px "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(l.label, lx, ly + 5);
+    ctx.textAlign = 'left';
+  });
+  bush(ctx, iso, 2.7, 1.3);
+}
+
+function sceneReconciliationBancaire(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  isoBox(ctx, iso, -2.2, -1.1, 1.3, 1.6, 0.1, SURFACE);
+  isoTopLines(ctx, iso, -2.2, -1.1, 1.3, 1.6, 0.1, 5, BORDER);
+  isoBox(ctx, iso, 0.6, -0.2, 0.9, 0.65, 0.06, '#F1E6D5');
+  checkBadge(ctx, ...iso.project(-0.4, 0.1, 0.9), 22, SUCCESS);
+  bush(ctx, iso, 2.6, -1.5);
+}
+
+function sceneAvantApres(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.8, 4.4);
+  [
+    { gx: -2.6, gy: -0.9, rot: -18 },
+    { gx: -2.2, gy: -0.4, rot: 12 },
+    { gx: -2.7, gy: 0.1, rot: -6 },
+  ].forEach(({ gx, gy, rot }) => {
+    const [px, py] = iso.project(gx, gy, 0.55);
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate((rot * Math.PI) / 180);
+    rr(ctx, -34, -46, 68, 46, 6, lighten(MUTED, 0.6));
+    ctx.restore();
+  });
+  isoBox(ctx, iso, 0.8, -0.6, 1.0, 0.75, 0.08, '#F1E6D5');
+  isoBox(ctx, iso, 0.85, -0.55, 1.0, 0.75, 0.08, SURFACE, 0.08);
+  checkBadge(ctx, ...iso.project(2.0, -0.9, 1.1), 22, SUCCESS);
+  bush(ctx, iso, 2.7, 1.3);
+}
+
+function sceneStatShock(ctx: CanvasRenderingContext2D, iso: Iso) {
+  groundPlinth(ctx, iso, 6.2, 4.0);
+  swissCross(ctx, ...iso.project(0, 0, 1.0), 56);
+  bush(ctx, iso, 2.4, -1.4);
+  bush(ctx, iso, -2.4, 1.2, lighten(MOSS, 0.1));
+}
+
 export const SCENES: Record<SocialScene, (ctx: CanvasRenderingContext2D, iso: Iso) => void> = {
   devis: sceneDevis,
   chantier: sceneChantier,
@@ -1170,6 +1537,14 @@ export const SCENES: Record<SocialScene, (ctx: CanvasRenderingContext2D, iso: Is
   meteo: sceneMeteo,
   support: sceneSupport,
   multiDevice: sceneMultiDevice,
+  paieEtendue: scenePaieEtendue,
+  invitationEquipe: sceneInvitationEquipe,
+  personnalisationDocuments: scenePersonnalisationDocuments,
+  portailClient: scenePortailClient,
+  troisLangues: sceneTroisLangues,
+  reconciliationBancaire: sceneReconciliationBancaire,
+  avantApres: sceneAvantApres,
+  statShock: sceneStatShock,
 };
 
 export const SCENE_CARD_CONTENT: Record<SocialScene, ((ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => void) | null> = {
@@ -1190,4 +1565,12 @@ export const SCENE_CARD_CONTENT: Record<SocialScene, ((ctx: CanvasRenderingConte
   meteo: weatherContent,
   support: chatContent,
   multiDevice: syncContent,
+  paieEtendue: payrollBreakdownContent,
+  invitationEquipe: inviteContent,
+  personnalisationDocuments: brandingContent,
+  portailClient: otpContent,
+  troisLangues: languageContent,
+  reconciliationBancaire: reconciliationContent,
+  avantApres: null,
+  statShock: null,
 };
