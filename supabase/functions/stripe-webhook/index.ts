@@ -131,6 +131,13 @@ Deno.serve(async (req: Request) => {
           // later retry succeeds, the next update webhook reports 'active'
           // and restores plan_id normally.
           const hasAccess = subscription.status === 'trialing' || subscription.status === 'active';
+          // The org's one free trial is spent here — the moment Stripe
+          // actually creates a subscription that's trialing — not back in
+          // stripe-checkout when the Checkout Session was merely created.
+          // A session someone abandons before entering payment details
+          // never reaches this event at all, so it no longer burns their
+          // trial; see the note in stripe-checkout for the bug this fixes.
+          const grantsTrial = event.type === 'customer.subscription.created' && subscription.status === 'trialing';
           await admin
             .from('organizations')
             .update({
@@ -144,10 +151,11 @@ Deno.serve(async (req: Request) => {
               // on this same organization is free to send the e-mail
               // again — see send-payment-failed-email's idempotency claim.
               payment_failed_email_sent_at: hasAccess ? null : undefined,
+              ...(grantsTrial ? { trial_used: true } : {}),
             })
             .eq('id', organizationId);
 
-          if (event.type === 'customer.subscription.created' && subscription.status === 'trialing') {
+          if (grantsTrial) {
             await logOrgEvent(admin, organizationId, 'trial_started', { plan_id: planId ?? null, trial_end: trialEndsAt });
           } else if (!hasAccess && orgBefore?.plan_id) {
             await logOrgEvent(admin, organizationId, 'canceled', { was_trialing: false, reason: 'payment_failed', status: subscription.status });
