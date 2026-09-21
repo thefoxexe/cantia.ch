@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentProps } from 'react';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -132,7 +132,12 @@ export default function ChoosePlanScreen() {
               plan={customPlan}
               billingInterval="month"
               highlight
+              premium
               showLearnMore={false}
+              badgeLabel={t('authChoosePlan.customPlanBadge')}
+              badgeIcon="award"
+              priceNote={t('authChoosePlan.customPlanPriceNote')}
+              includedLabel={t('authChoosePlan.customPlanIncludedLabel')}
               loading={busyPlan === customPlan.id}
               disabled={!!busyPlan}
               onChoose={() => choosePlan(customPlan.id)}
@@ -230,6 +235,11 @@ function PlanCard({
   disabled,
   onChoose,
   showLearnMore = true,
+  premium = false,
+  badgeLabel,
+  badgeIcon = 'star',
+  priceNote,
+  includedLabel,
 }: {
   plan: Plan;
   billingInterval: 'month' | 'year';
@@ -238,6 +248,16 @@ function PlanCard({
   disabled: boolean;
   onChoose: () => void;
   showLearnMore?: boolean;
+  // A bespoke per-client plan (see customPlan above) reuses this same card
+  // rather than a one-off layout — premium swaps in a richer border/shadow
+  // and the three props below let the caller relabel the generic
+  // "Recommandé" badge and add a price justification + a features header,
+  // without touching the public-grid card's look at all.
+  premium?: boolean;
+  badgeLabel?: string;
+  badgeIcon?: ComponentProps<typeof Feather>['name'];
+  priceNote?: string;
+  includedLabel?: string;
 }) {
   const { t } = useTranslation();
   const PLAN_TAGLINE = t('authChoosePlan.planTaglines', { returnObjects: true }) as Record<string, string>;
@@ -253,10 +273,11 @@ function PlanCard({
   const yearlyPrice = plan.price_chf_yearly != null ? Number(plan.price_chf_yearly) : null;
   const displayMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;
   return (
-    <Card style={[styles.card, highlight && styles.cardHighlight]}>
+    <Card style={[styles.card, highlight && styles.cardHighlight, premium && styles.cardPremium]}>
       {highlight ? (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{t('authChoosePlan.recommended')}</Text>
+        <View style={[styles.badge, premium && styles.badgePremium]}>
+          {premium ? <Feather name={badgeIcon} size={11} color="#fff" style={styles.badgeIcon} /> : null}
+          <Text style={styles.badgeText}>{badgeLabel ?? t('authChoosePlan.recommended')}</Text>
         </View>
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
@@ -274,16 +295,19 @@ function PlanCard({
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
       </View>
-      {isYearly && yearlyPrice != null ? (
+      {priceNote ? (
+        <Text style={styles.priceNote}>{priceNote}</Text>
+      ) : isYearly && yearlyPrice != null ? (
         <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: yearlyPrice.toFixed(2) })}</Text>
       ) : null}
+      {includedLabel ? <Text style={styles.includedLabel}>{includedLabel}</Text> : null}
       <View style={styles.features}>
-        <Feature text={t('authChoosePlan.storageFeature', { gb: (plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0) })} />
-        <Feature text={t('authChoosePlan.membersFeature', { count: plan.max_members })} />
         {(PLAN_HIGHLIGHTS[plan.id] ?? []).map((text) => (
-          <Feature key={text} text={text} />
+          <Feature key={text} text={text} premium={premium} />
         ))}
-        {plan.max_ai_uses_per_month ? <Feature text={t('authChoosePlan.aiAssistantQuota', { count: plan.max_ai_uses_per_month })} /> : null}
+        <Feature text={t('authChoosePlan.storageFeature', { gb: (plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0) })} premium={premium} />
+        <Feature text={t('authChoosePlan.membersFeature', { count: plan.max_members })} premium={premium} />
+        {plan.max_ai_uses_per_month ? <Feature text={t('authChoosePlan.aiAssistantQuota', { count: plan.max_ai_uses_per_month })} premium={premium} /> : null}
       </View>
       <Button
         title={t('authChoosePlan.choosePlanBtn', { name: plan.name })}
@@ -297,7 +321,17 @@ function PlanCard({
   );
 }
 
-function Feature({ text, muted }: { text: string; muted?: boolean }) {
+function Feature({ text, muted, premium }: { text: string; muted?: boolean; premium?: boolean }) {
+  if (premium) {
+    return (
+      <View style={styles.featureRow}>
+        <View style={styles.featureCheckPremium}>
+          <Feather name="check" size={11} color="#fff" />
+        </View>
+        <Text style={[styles.featureText, styles.featureTextPremium]}>{text}</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.featureRow}>
       <Feather name={muted ? 'x' : 'check'} size={14} color={muted ? colors.textMuted : colors.success} />
@@ -463,7 +497,22 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     borderWidth: 2,
   },
+  cardPremium: {
+    width: 320,
+    borderColor: colors.primaryDark,
+    borderWidth: 2,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
+    shadowColor: colors.primaryDark,
+    shadowOpacity: 0.22,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
   badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -471,10 +520,34 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     marginBottom: spacing.xs,
   },
+  badgePremium: {
+    backgroundColor: colors.primaryDark,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    marginBottom: spacing.sm,
+  },
+  badgeIcon: {
+    marginRight: 4,
+  },
   badgeText: {
     fontSize: 10,
     fontWeight: '700',
     color: '#fff',
+  },
+  priceNote: {
+    fontSize: fontSize.xs,
+    color: colors.primaryDark,
+    fontWeight: '700',
+    marginTop: -spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  includedLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: spacing.xs,
   },
   planName: {
     fontSize: fontSize.lg,
@@ -527,6 +600,17 @@ const styles = StyleSheet.create({
   },
   featureTextMuted: {
     color: colors.textMuted,
+  },
+  featureTextPremium: {
+    fontWeight: '600',
+  },
+  featureCheckPremium: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contactCard: {
     flexDirection: 'row',
