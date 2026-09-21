@@ -1952,6 +1952,8 @@ export const fr = {
     checkoutStartError: 'Impossible de démarrer le paiement.',
     adminAccess: "Accéder à l'administration Cantia",
     trialBanner: "14 jours d'essai gratuit sur tous les plans. Carte bancaire requise, mais aucun débit avant la fin de l'essai — résiliable à tout moment, sans condition.",
+    customPlanTitle: 'Une offre préparée pour {{name}}',
+    customPlanSubtitle: 'Ce plan a été composé spécialement pour vous, avec les fonctionnalités dont vous avez besoin.',
     billingYearly: 'Facturation annuelle',
     billingMonthly: 'Facturation mensuelle',
     recommended: 'Recommandé',

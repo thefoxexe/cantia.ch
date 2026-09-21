@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
@@ -19,7 +19,7 @@ export default function ChoosePlanScreen() {
   // No visible field for this anywhere on the page — it only exists for
   // whoever was personally handed a link like /choose-plan?promo=ESSAI30.
   // Read once and applied silently; nothing on screen reveals it's there.
-  const { promo } = useLocalSearchParams<{ promo?: string }>();
+  const { promo, plan: planParam } = useLocalSearchParams<{ promo?: string; plan?: string }>();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
@@ -35,6 +35,25 @@ export default function ChoosePlanScreen() {
       .order('price_chf_monthly', { ascending: true })
       .then(({ data }) => setPlans(data ?? []));
   }, []);
+
+  // A bespoke plan built for one specific client (is_contact_only, so it
+  // never appears in the grid above) is reached only through a private link
+  // like /choose-plan?plan=custom-xyz nobody else has — same convention as
+  // ?promo= above. Looked up on its own id, independent of the excluding
+  // query that feeds the public grid.
+  const [customPlan, setCustomPlan] = useState<Plan | null | undefined>(undefined);
+  useEffect(() => {
+    if (!planParam) {
+      setCustomPlan(null);
+      return;
+    }
+    supabase
+      .from('plans')
+      .select('*')
+      .eq('id', planParam)
+      .maybeSingle()
+      .then(({ data }) => setCustomPlan(data ?? null));
+  }, [planParam]);
 
   async function choosePlan(planId: string) {
     if (!organization || busyPlan) return;
@@ -73,13 +92,21 @@ export default function ChoosePlanScreen() {
     setBusyPlan(null);
   }
 
+  // customPlan starts undefined (not resolved yet) and, once the lookup
+  // above settles, is either the matched Plan or null (no planParam, or a
+  // bad/stale link that matched nothing — falls back to the public grid
+  // rather than a dead end).
+  const showCustomOnly = !!planParam && !!customPlan;
+  const showCustomLoading = !!planParam && customPlan === undefined;
+  const showPublicGrid = !planParam || customPlan === null;
+
   return (
     <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={styles.title}>{t('authChoosePlan.title')}</Text>
+          <Text style={styles.title}>{showCustomOnly ? t('authChoosePlan.customPlanTitle', { name: organization?.name ?? '' }) : t('authChoosePlan.title')}</Text>
           <Text style={styles.subtitle}>
-            {t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
+            {showCustomOnly ? t('authChoosePlan.customPlanSubtitle') : t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
           </Text>
         </View>
 
@@ -99,44 +126,68 @@ export default function ChoosePlanScreen() {
           </Text>
         </View>
 
-        <Pressable
-          onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
-          style={styles.billingToggle}
-        >
-          <Text style={styles.billingToggleLabel}>
-            {billingInterval === 'year' ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}
-          </Text>
-          <View style={styles.billingToggleSaveBadge}>
-            <Text style={styles.billingToggleSaveText}>-20%</Text>
+        {showCustomLoading ? (
+          <View style={styles.customLoading}>
+            <ActivityIndicator color={colors.primary} />
           </View>
-          <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
-        </Pressable>
+        ) : null}
 
-        <View style={styles.grid}>
-          {plans.map((p) => (
+        {showCustomOnly && customPlan ? (
+          <View style={styles.grid}>
             <PlanCard
-              key={p.id}
-              plan={p}
-              billingInterval={billingInterval}
-              highlight={p.id === 'equipe'}
-              loading={busyPlan === p.id}
+              plan={customPlan}
+              billingInterval="month"
+              highlight
+              showLearnMore={false}
+              loading={busyPlan === customPlan.id}
               disabled={!!busyPlan}
-              onChoose={() => choosePlan(p.id)}
+              onChoose={() => choosePlan(customPlan.id)}
             />
-          ))}
-        </View>
+          </View>
+        ) : null}
 
-        <Pressable
-          style={styles.contactCard}
-          onPress={() => router.push((getAppLocale() === 'de' ? '/de/sur-mesure' : getAppLocale() === 'it' ? '/it/sur-mesure' : '/sur-mesure') as any)}
-          hitSlop={8}
-        >
-          <Feather name="tool" size={16} color={colors.textMuted} />
-          <Text style={styles.contactCardText}>
-            {t('authChoosePlan.contactText')}{' '}
-            <Text style={styles.contactCardLink}>{t('authChoosePlan.contactLink')}</Text>
-          </Text>
-        </Pressable>
+        {showPublicGrid ? (
+          <>
+            <Pressable
+              onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
+              style={styles.billingToggle}
+            >
+              <Text style={styles.billingToggleLabel}>
+                {billingInterval === 'year' ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}
+              </Text>
+              <View style={styles.billingToggleSaveBadge}>
+                <Text style={styles.billingToggleSaveText}>-20%</Text>
+              </View>
+              <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
+            </Pressable>
+
+            <View style={styles.grid}>
+              {plans.map((p) => (
+                <PlanCard
+                  key={p.id}
+                  plan={p}
+                  billingInterval={billingInterval}
+                  highlight={p.id === 'equipe'}
+                  loading={busyPlan === p.id}
+                  disabled={!!busyPlan}
+                  onChoose={() => choosePlan(p.id)}
+                />
+              ))}
+            </View>
+
+            <Pressable
+              style={styles.contactCard}
+              onPress={() => router.push((getAppLocale() === 'de' ? '/de/sur-mesure' : getAppLocale() === 'it' ? '/it/sur-mesure' : '/sur-mesure') as any)}
+              hitSlop={8}
+            >
+              <Feather name="tool" size={16} color={colors.textMuted} />
+              <Text style={styles.contactCardText}>
+                {t('authChoosePlan.contactText')}{' '}
+                <Text style={styles.contactCardLink}>{t('authChoosePlan.contactLink')}</Text>
+              </Text>
+            </Pressable>
+          </>
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -149,6 +200,7 @@ function PlanCard({
   loading,
   disabled,
   onChoose,
+  showLearnMore = true,
 }: {
   plan: Plan;
   billingInterval: 'month' | 'year';
@@ -156,16 +208,18 @@ function PlanCard({
   loading: boolean;
   disabled: boolean;
   onChoose: () => void;
+  showLearnMore?: boolean;
 }) {
   const { t } = useTranslation();
   const PLAN_TAGLINE = t('authChoosePlan.planTaglines', { returnObjects: true }) as Record<string, string>;
   const PLAN_HIGHLIGHTS = t('authChoosePlan.planHighlights', { returnObjects: true }) as Record<string, string[]>;
   const isYearly = billingInterval === 'year';
-  // is_contact_only plans are filtered out of the query this screen loads
-  // from (self-serve checkout only), so price_chf_monthly is always set here.
-  // Both columns are numeric in Postgres — PostgREST serializes those as
-  // JSON strings (e.g. "39.00"), so Number(...) them before any arithmetic
-  // or .toFixed() call, or the monthly branch/yearlyNote below crashes.
+  // Both public plans (filtered to self-serve ones by the query that feeds
+  // the grid) and a private bespoke plan (fed in on its own via ?plan=, see
+  // showCustomOnly above) always carry a real price by the time they reach
+  // this card. Postgres numeric columns are serialized as JSON strings by
+  // PostgREST (e.g. "39.00"), so Number(...) them before any arithmetic or
+  // .toFixed() call, or the monthly branch/yearlyNote below crashes.
   const monthlyPrice = Number(plan.price_chf_monthly ?? 0);
   const yearlyPrice = plan.price_chf_yearly != null ? Number(plan.price_chf_yearly) : null;
   const displayMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;
@@ -178,13 +232,15 @@ function PlanCard({
       ) : null}
       <Text style={styles.planName}>{plan.name}</Text>
       {PLAN_TAGLINE[plan.id] ? <Text style={styles.tagline}>{PLAN_TAGLINE[plan.id]}</Text> : null}
-      <Pressable
-        onPress={() => Linking.openURL(planHref(plan.id)).catch(() => {})}
-        hitSlop={6}
-        style={styles.learnMoreLink}
-      >
-        <Text style={styles.learnMoreLinkText}>{t('authChoosePlan.learnMore')}</Text>
-      </Pressable>
+      {showLearnMore ? (
+        <Pressable
+          onPress={() => Linking.openURL(planHref(plan.id)).catch(() => {})}
+          hitSlop={6}
+          style={styles.learnMoreLink}
+        >
+          <Text style={styles.learnMoreLinkText}>{t('authChoosePlan.learnMore')}</Text>
+        </Pressable>
+      ) : null}
       <View style={styles.priceRow}>
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
@@ -331,6 +387,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: spacing.lg,
+  },
+  customLoading: {
+    paddingVertical: spacing.xxl,
+    alignItems: 'center',
   },
   card: {
     width: 280,

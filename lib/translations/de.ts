@@ -1966,6 +1966,8 @@ export const de: TranslationDict = {
     checkoutStartError: 'Zahlung konnte nicht gestartet werden.',
     adminAccess: 'Zur Cantia-Administration',
     trialBanner: '14 Tage kostenlos testen. Kreditkarte erforderlich, aber keine Abbuchung vor Ablauf der Testphase — jederzeit kündbar, ohne Bedingungen.',
+    customPlanTitle: 'Ein Angebot für {{name}}',
+    customPlanSubtitle: 'Dieser Plan wurde speziell für Sie zusammengestellt, mit den Funktionen, die Sie benötigen.',
     billingYearly: 'Jährliche Abrechnung',
     billingMonthly: 'Monatliche Abrechnung',
     recommended: 'Empfohlen',

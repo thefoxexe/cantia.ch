@@ -1974,6 +1974,8 @@ export const it: TranslationDict = {
     checkoutStartError: 'Impossibile avviare il pagamento.',
     adminAccess: "Accedi all'amministrazione Cantia",
     trialBanner: "14 giorni di prova gratuita su tutti i piani. Carta di credito richiesta, ma nessun addebito prima della fine della prova — disdicibile in qualsiasi momento, senza condizioni.",
+    customPlanTitle: "Un'offerta preparata per {{name}}",
+    customPlanSubtitle: 'Questo piano è stato composto appositamente per lei, con le funzionalità di cui ha bisogno.',
     billingYearly: 'Fatturazione annuale',
     billingMonthly: 'Fatturazione mensile',
     recommended: 'Consigliato',
