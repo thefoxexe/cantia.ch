@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
@@ -19,7 +19,7 @@ export default function ChoosePlanScreen() {
   // No visible field for this anywhere on the page — it only exists for
   // whoever was personally handed a link like /choose-plan?promo=ESSAI30.
   // Read once and applied silently; nothing on screen reveals it's there.
-  const { promo, plan: planParam } = useLocalSearchParams<{ promo?: string; plan?: string }>();
+  const { promo } = useLocalSearchParams<{ promo?: string }>();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
@@ -37,23 +37,31 @@ export default function ChoosePlanScreen() {
   }, []);
 
   // A bespoke plan built for one specific client (is_contact_only, so it
-  // never appears in the grid above) is reached only through a private link
-  // like /choose-plan?plan=custom-xyz nobody else has — same convention as
-  // ?promo= above. Looked up on its own id, independent of the excluding
-  // query that feeds the public grid.
-  const [customPlan, setCustomPlan] = useState<Plan | null | undefined>(undefined);
-  useEffect(() => {
-    if (!planParam) {
-      setCustomPlan(null);
+  // never appears in the grid above) is unlocked by typing the access code
+  // they were personally given, via redeem_plan_code — a security-definer
+  // RPC that's the only thing allowed to read plan_access_codes, so the
+  // code itself is never exposed to the client the way a plans.* select
+  // would expose it. A wrong/unknown code just returns null; nothing here
+  // reveals whether a code "almost" matched.
+  const [customPlanOpen, setCustomPlanOpen] = useState(false);
+  const [customPlanCode, setCustomPlanCode] = useState('');
+  const [customPlan, setCustomPlan] = useState<Plan | null>(null);
+  const [customPlanChecking, setCustomPlanChecking] = useState(false);
+  const [customPlanError, setCustomPlanError] = useState<string | null>(null);
+
+  async function redeemCustomPlanCode() {
+    const code = customPlanCode.trim();
+    if (!code || customPlanChecking) return;
+    setCustomPlanChecking(true);
+    setCustomPlanError(null);
+    const { data, error: err } = await supabase.rpc('redeem_plan_code', { p_code: code }).maybeSingle();
+    setCustomPlanChecking(false);
+    if (err || !data) {
+      setCustomPlanError(t('authChoosePlan.personalPlanCodeError'));
       return;
     }
-    supabase
-      .from('plans')
-      .select('*')
-      .eq('id', planParam)
-      .maybeSingle()
-      .then(({ data }) => setCustomPlan(data ?? null));
-  }, [planParam]);
+    setCustomPlan(data as Plan);
+  }
 
   async function choosePlan(planId: string) {
     if (!organization || busyPlan) return;
@@ -92,21 +100,13 @@ export default function ChoosePlanScreen() {
     setBusyPlan(null);
   }
 
-  // customPlan starts undefined (not resolved yet) and, once the lookup
-  // above settles, is either the matched Plan or null (no planParam, or a
-  // bad/stale link that matched nothing — falls back to the public grid
-  // rather than a dead end).
-  const showCustomOnly = !!planParam && !!customPlan;
-  const showCustomLoading = !!planParam && customPlan === undefined;
-  const showPublicGrid = !planParam || customPlan === null;
-
   return (
     <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={styles.title}>{showCustomOnly ? t('authChoosePlan.customPlanTitle', { name: organization?.name ?? '' }) : t('authChoosePlan.title')}</Text>
+          <Text style={styles.title}>{customPlan ? t('authChoosePlan.customPlanTitle', { name: customPlan.name }) : t('authChoosePlan.title')}</Text>
           <Text style={styles.subtitle}>
-            {showCustomOnly ? t('authChoosePlan.customPlanSubtitle') : t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
+            {customPlan ? t('authChoosePlan.customPlanSubtitle') : t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
           </Text>
         </View>
 
@@ -126,13 +126,7 @@ export default function ChoosePlanScreen() {
           </Text>
         </View>
 
-        {showCustomLoading ? (
-          <View style={styles.customLoading}>
-            <ActivityIndicator color={colors.primary} />
-          </View>
-        ) : null}
-
-        {showCustomOnly && customPlan ? (
+        {customPlan ? (
           <View style={styles.grid}>
             <PlanCard
               plan={customPlan}
@@ -144,9 +138,7 @@ export default function ChoosePlanScreen() {
               onChoose={() => choosePlan(customPlan.id)}
             />
           </View>
-        ) : null}
-
-        {showPublicGrid ? (
+        ) : (
           <>
             <Pressable
               onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
@@ -186,8 +178,45 @@ export default function ChoosePlanScreen() {
                 <Text style={styles.contactCardLink}>{t('authChoosePlan.contactLink')}</Text>
               </Text>
             </Pressable>
+
+            {/* A code personally handed to one client unlocks a bespoke,
+                otherwise-invisible plan (see redeemCustomPlanCode above) —
+                deliberately tucked below the contact card, not competing
+                with the public grid for attention. */}
+            {customPlanOpen ? (
+              <View style={styles.personalPlanBox}>
+                <Text style={styles.personalPlanLabel}>{t('authChoosePlan.personalPlanCodeLabel')}</Text>
+                <View style={styles.personalPlanRow}>
+                  <TextInput
+                    value={customPlanCode}
+                    onChangeText={(v) => {
+                      setCustomPlanCode(v);
+                      if (customPlanError) setCustomPlanError(null);
+                    }}
+                    placeholder={t('authChoosePlan.personalPlanCodePlaceholder')}
+                    placeholderTextColor={colors.textMuted}
+                    autoCapitalize="characters"
+                    autoCorrect={false}
+                    style={styles.personalPlanInput}
+                    onSubmitEditing={redeemCustomPlanCode}
+                  />
+                  <Button
+                    title={t('authChoosePlan.personalPlanCodeSubmit')}
+                    onPress={redeemCustomPlanCode}
+                    loading={customPlanChecking}
+                    disabled={!customPlanCode.trim() || customPlanChecking}
+                    variant="secondary"
+                  />
+                </View>
+                {customPlanError ? <Text style={styles.error}>{customPlanError}</Text> : null}
+              </View>
+            ) : (
+              <Pressable style={styles.personalPlanToggle} onPress={() => setCustomPlanOpen(true)} hitSlop={8}>
+                <Text style={styles.personalPlanToggleText}>{t('authChoosePlan.havePersonalPlan')}</Text>
+              </Pressable>
+            )}
           </>
-        ) : null}
+        )}
       </ScrollView>
     </Screen>
   );
@@ -388,9 +417,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.lg,
   },
-  customLoading: {
-    paddingVertical: spacing.xxl,
-    alignItems: 'center',
+  personalPlanToggle: {
+    alignSelf: 'center',
+    marginTop: spacing.lg,
+    padding: spacing.sm,
+  },
+  personalPlanToggleText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textDecorationLine: 'underline',
+  },
+  personalPlanBox: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 360,
+    marginTop: spacing.lg,
+    gap: spacing.xs,
+  },
+  personalPlanLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  personalPlanRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  personalPlanInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
   },
   card: {
     width: 280,
