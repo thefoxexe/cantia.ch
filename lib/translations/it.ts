@@ -2000,7 +2000,7 @@ export const it: TranslationDict = {
       solo: "Per iniziare da soli o in pochi, senza rinunciare all'essenziale.",
       equipe: 'Per i team che gestiscono cantieri, personale e liquidità nello stesso posto.',
       pro: 'Per le strutture consolidate che hanno bisogno di più margine di manovra.',
-      'custom-besson': 'Tutte le funzionalità di Essenziale, con in più l’integrazione Bexio e la redditività per cantiere — composto su misura per lei.',
+      'custom-besson': 'Tutte le funzionalità di Essenziale, con in più le risorse umane, l’integrazione Bexio e la redditività per cantiere — composto su misura per lei.',
     },
     planHighlights: {
       solo: ['Preventivi, fatture e rapporti illimitati', 'QR-fattura e personalizzazione del marchio', "2 ruoli di team modificabili"],

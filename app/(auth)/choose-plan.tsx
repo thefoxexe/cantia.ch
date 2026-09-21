@@ -134,11 +134,24 @@ export default function ChoosePlanScreen() {
           </Text>
         </View>
 
+        <Pressable
+          onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
+          style={styles.billingToggle}
+        >
+          <Text style={styles.billingToggleLabel}>
+            {billingInterval === 'year' ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}
+          </Text>
+          <View style={styles.billingToggleSaveBadge}>
+            <Text style={styles.billingToggleSaveText}>-20%</Text>
+          </View>
+          <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
+        </Pressable>
+
         {customPlan ? (
           <View style={styles.grid}>
             <PlanCard
               plan={customPlan}
-              billingInterval="month"
+              billingInterval={billingInterval}
               highlight
               premium
               showLearnMore={false}
@@ -148,24 +161,11 @@ export default function ChoosePlanScreen() {
               includedLabel={t('authChoosePlan.customPlanIncludedLabel')}
               loading={busyPlan === customPlan.id}
               disabled={!!busyPlan}
-              onChoose={() => choosePlan(customPlan.id, 'month')}
+              onChoose={() => choosePlan(customPlan.id)}
             />
           </View>
         ) : (
           <>
-            <Pressable
-              onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
-              style={styles.billingToggle}
-            >
-              <Text style={styles.billingToggleLabel}>
-                {billingInterval === 'year' ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}
-              </Text>
-              <View style={styles.billingToggleSaveBadge}>
-                <Text style={styles.billingToggleSaveText}>-20%</Text>
-              </View>
-              <Switch value={billingInterval === 'year'} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
-            </Pressable>
-
             <View style={styles.grid}>
               {plans.map((p) => (
                 <PlanCard
@@ -303,9 +303,8 @@ function PlanCard({
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
       </View>
-      {priceNote ? (
-        <Text style={styles.priceNote}>{priceNote}</Text>
-      ) : isYearly && yearlyPrice != null ? (
+      {priceNote ? <Text style={styles.priceNote}>{priceNote}</Text> : null}
+      {isYearly && yearlyPrice != null ? (
         <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: yearlyPrice.toFixed(2) })}</Text>
       ) : null}
       {includedLabel ? <Text style={styles.includedLabel}>{includedLabel}</Text> : null}

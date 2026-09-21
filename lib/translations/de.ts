@@ -1992,7 +1992,7 @@ export const de: TranslationDict = {
       solo: 'Um allein oder zu wenigen zu starten, ohne beim Wesentlichen Abstriche zu machen.',
       equipe: 'Für Teams, die Baustellen, Personal und Liquidität an einem Ort verwalten.',
       pro: 'Für etablierte Unternehmen, die mehr Handlungsspielraum brauchen.',
-      'custom-besson': 'Alle Funktionen von Basis, dazu die Bexio-Integration und die Rentabilität pro Baustelle — massgeschneidert für Sie.',
+      'custom-besson': 'Alle Funktionen von Basis, dazu Personalwesen, die Bexio-Integration und die Rentabilität pro Baustelle — massgeschneidert für Sie.',
     },
     planHighlights: {
       solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', '2 anpassbare Teamrollen'],

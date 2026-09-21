@@ -1978,7 +1978,7 @@ export const fr = {
       solo: "Pour démarrer seul ou à quelques-uns, sans rien sacrifier sur l'essentiel.",
       equipe: 'Pour les équipes qui gèrent chantiers, RH et trésorerie au même endroit.',
       pro: 'Pour les structures établies qui ont besoin de plus de marge de manœuvre.',
-      'custom-besson': 'Toutes les fonctionnalités d’Essentiel, avec en plus l’intégration Bexio et la rentabilité par chantier — composé sur mesure pour vous.',
+      'custom-besson': 'Toutes les fonctionnalités d’Essentiel, avec en plus le RH, l’intégration Bexio et la rentabilité par chantier — composé sur mesure pour vous.',
     },
     planHighlights: {
       solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', "2 rôles d'équipe modifiables"],
