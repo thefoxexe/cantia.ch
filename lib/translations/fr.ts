@@ -1978,7 +1978,7 @@ export const fr = {
       solo: "Pour démarrer seul ou à quelques-uns, sans rien sacrifier sur l'essentiel.",
       equipe: 'Pour les équipes qui gèrent chantiers, RH et trésorerie au même endroit.',
       pro: 'Pour les structures établies qui ont besoin de plus de marge de manœuvre.',
-      'custom-besson': 'Composé sur mesure pour vos besoins : Bexio, heures par chantier et rentabilité — rien de plus, rien de moins.',
+      'custom-besson': 'Toutes les fonctionnalités d’Essentiel, avec en plus l’intégration Bexio et la rentabilité par chantier — composé sur mesure pour vous.',
     },
     planHighlights: {
       solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', "2 rôles d'équipe modifiables"],
@@ -1986,10 +1986,11 @@ export const fr = {
       pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire'],
       'custom-besson': [
         'Intégration Bexio (synchronisation comptable)',
-        'Saisie des heures de travail par chantier',
         'Rentabilité par chantier en temps réel',
-        'Devis & factures illimités',
-        'QR-facture suisse incluse',
+        'Saisie des heures de travail par chantier',
+        'Devis, factures & rapports illimités',
+        'QR-facture & personnalisation de marque',
+        'Envoi de devis/factures par e-mail',
       ],
     },
     aiAssistantQuota: 'Assistant vocal IA — devis, factures, dépenses, questions : {{count}}/mois',

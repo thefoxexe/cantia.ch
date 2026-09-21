@@ -2000,7 +2000,7 @@ export const it: TranslationDict = {
       solo: "Per iniziare da soli o in pochi, senza rinunciare all'essenziale.",
       equipe: 'Per i team che gestiscono cantieri, personale e liquidità nello stesso posto.',
       pro: 'Per le strutture consolidate che hanno bisogno di più margine di manovra.',
-      'custom-besson': 'Composto su misura per le sue esigenze: Bexio, ore per cantiere e redditività — niente di più, niente di meno.',
+      'custom-besson': 'Tutte le funzionalità di Essenziale, con in più l’integrazione Bexio e la redditività per cantiere — composto su misura per lei.',
     },
     planHighlights: {
       solo: ['Preventivi, fatture e rapporti illimitati', 'QR-fattura e personalizzazione del marchio', "2 ruoli di team modificabili"],
@@ -2008,10 +2008,11 @@ export const it: TranslationDict = {
       pro: ['Tutto Team incluso', 'Ruoli avanzati illimitati', 'Supporto prioritario'],
       'custom-besson': [
         'Integrazione Bexio (sincronizzazione contabile)',
-        'Registrazione delle ore di lavoro per cantiere',
         'Redditività per cantiere in tempo reale',
-        'Preventivi e fatture illimitati',
-        'QR-fattura svizzera inclusa',
+        'Registrazione delle ore di lavoro per cantiere',
+        'Preventivi, fatture e rapporti illimitati',
+        'QR-fattura e personalizzazione del marchio',
+        'Invio di preventivi/fatture via e-mail',
       ],
     },
     aiAssistantQuota: 'Assistente vocale IA — preventivi, fatture, spese, domande: {{count}}/mese',

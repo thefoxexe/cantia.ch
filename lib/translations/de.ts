@@ -1992,7 +1992,7 @@ export const de: TranslationDict = {
       solo: 'Um allein oder zu wenigen zu starten, ohne beim Wesentlichen Abstriche zu machen.',
       equipe: 'Für Teams, die Baustellen, Personal und Liquidität an einem Ort verwalten.',
       pro: 'Für etablierte Unternehmen, die mehr Handlungsspielraum brauchen.',
-      'custom-besson': 'Massgeschneidert für Ihre Bedürfnisse: Bexio, Stunden pro Baustelle und Rentabilität — nicht mehr, nicht weniger.',
+      'custom-besson': 'Alle Funktionen von Basis, dazu die Bexio-Integration und die Rentabilität pro Baustelle — massgeschneidert für Sie.',
     },
     planHighlights: {
       solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', '2 anpassbare Teamrollen'],
@@ -2000,10 +2000,11 @@ export const de: TranslationDict = {
       pro: ['Alles aus Team inklusive', 'Unbegrenzte erweiterte Rollen', 'Priority-Support'],
       'custom-besson': [
         'Bexio-Integration (Buchhaltungs-Synchronisation)',
-        'Erfassung der Arbeitsstunden pro Baustelle',
         'Rentabilität pro Baustelle in Echtzeit',
-        'Unbegrenzte Offerten & Rechnungen',
-        'Schweizer QR-Rechnung inklusive',
+        'Erfassung der Arbeitsstunden pro Baustelle',
+        'Unbegrenzte Offerten, Rechnungen & Rapporte',
+        'QR-Rechnung & Markenanpassung',
+        'Versand von Offerten/Rechnungen per E-Mail',
       ],
     },
     aiAssistantQuota: 'KI-Sprachassistent — Offerten, Rechnungen, Ausgaben, Fragen: {{count}}/Monat',
