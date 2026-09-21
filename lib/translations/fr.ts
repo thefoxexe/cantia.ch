@@ -1987,7 +1987,7 @@ export const fr = {
       'custom-besson': [
         'Intégration Bexio (synchronisation comptable)',
         'Rentabilité par chantier en temps réel',
-        'Saisie des heures de travail par chantier',
+        'RH & saisie des heures par chantier',
         'Devis, factures & rapports illimités',
         'QR-facture & personnalisation de marque',
         'Envoi de devis/factures par e-mail',

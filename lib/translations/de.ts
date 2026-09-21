@@ -2001,7 +2001,7 @@ export const de: TranslationDict = {
       'custom-besson': [
         'Bexio-Integration (Buchhaltungs-Synchronisation)',
         'Rentabilität pro Baustelle in Echtzeit',
-        'Erfassung der Arbeitsstunden pro Baustelle',
+        'Personalwesen & Stundenerfassung pro Baustelle',
         'Unbegrenzte Offerten, Rechnungen & Rapporte',
         'QR-Rechnung & Markenanpassung',
         'Versand von Offerten/Rechnungen per E-Mail',

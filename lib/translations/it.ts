@@ -2009,7 +2009,7 @@ export const it: TranslationDict = {
       'custom-besson': [
         'Integrazione Bexio (sincronizzazione contabile)',
         'Redditività per cantiere in tempo reale',
-        'Registrazione delle ore di lavoro per cantiere',
+        'Risorse umane e registrazione delle ore per cantiere',
         'Preventivi, fatture e rapporti illimitati',
         'QR-fattura e personalizzazione del marchio',
         'Invio di preventivi/fatture via e-mail',

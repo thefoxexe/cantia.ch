@@ -63,7 +63,7 @@ export default function ChoosePlanScreen() {
     setCustomPlan(data as Plan);
   }
 
-  async function choosePlan(planId: string) {
+  async function choosePlan(planId: string, intervalOverride?: 'month' | 'year') {
     if (!organization || busyPlan) return;
     setError(null);
     setBusyPlan(planId);
@@ -76,7 +76,15 @@ export default function ChoosePlanScreen() {
     // The 14-day trial is automatic server-side (stripe-checkout grants it
     // once per org). `promo` (ESSAI30) is only ever present via a link
     // someone was personally given — there's no on-screen way to enter one.
-    const { url, error: err } = await startCheckout(planId, billingInterval, promo);
+    //
+    // intervalOverride exists for the private code-unlocked plan: it's
+    // always month-only (no stripe_price_id_yearly), but the page-level
+    // billingInterval state defaults to 'year' for the public grid and
+    // stays there even while that grid is hidden — without the override
+    // this silently sent 'year' for the custom plan too, and stripe-checkout
+    // rejected it as "not configured for online payment" since it looked up
+    // a yearly price id that was never set.
+    const { url, error: err } = await startCheckout(planId, intervalOverride ?? billingInterval, promo);
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? t('authChoosePlan.checkoutStartError'));
@@ -140,7 +148,7 @@ export default function ChoosePlanScreen() {
               includedLabel={t('authChoosePlan.customPlanIncludedLabel')}
               loading={busyPlan === customPlan.id}
               disabled={!!busyPlan}
-              onChoose={() => choosePlan(customPlan.id)}
+              onChoose={() => choosePlan(customPlan.id, 'month')}
             />
           </View>
         ) : (
