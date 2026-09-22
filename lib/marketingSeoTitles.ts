@@ -51,6 +51,11 @@ const TITLES: Record<string, Record<AppLocale, string>> = {
     de: 'Integrationen | Cantia',
     it: 'Integrazioni | Cantia',
   },
+  tarifs: {
+    fr: 'Tarifs | Cantia',
+    de: 'Preise | Cantia',
+    it: 'Prezzi | Cantia',
+  },
 };
 
 export type MarketingPageKey = keyof typeof TITLES;

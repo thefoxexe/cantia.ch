@@ -22,6 +22,12 @@ const HOME = {
 export const ROUTES = [
   HOME,
   {
+    path: 'tarifs',
+    title: 'Tarifs | Cantia',
+    description:
+      'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, essai gratuit.',
+  },
+  {
     path: 'solutions/devis',
     title: 'Devis en ligne pour artisans suisses | Cantia',
     description:

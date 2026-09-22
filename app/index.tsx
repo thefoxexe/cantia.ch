@@ -81,6 +81,17 @@ function LandingContent() {
     });
   }
 
+  // Lets an external link (e.g. cantia.ch/#pricing, submitted to a directory
+  // like Capterra) land directly on the pricing section instead of just the
+  // top of the homepage — the nav/footer buttons already call scrollToRef,
+  // this covers arriving with the hash already in the URL on first load.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    if (window.location.hash !== '#pricing') return;
+    const id = setTimeout(() => scrollToRef(pricingRef), 300);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('home', appLocale)} />
