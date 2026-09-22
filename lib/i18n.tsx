@@ -67,6 +67,7 @@ interface Dict {
     cta: string;
     discover: string;
     trust: string;
+    trustCount: string;
     baselineLabel: string;
     baselineItems: string[];
     baselineNumber: string;
@@ -214,6 +215,7 @@ const fr: Dict = {
     cta: 'Essayer Cantia 14 jours',
     discover: 'Découvrir les fonctionnalités',
     trust: '14 jours pour essayer Cantia avec votre équipe',
+    trustCount: '+{{count}} entreprises du bâtiment nous font déjà confiance',
     baselineLabel: 'UN SEUL ESPACE DE TRAVAIL',
     baselineItems: ['Devis & factures', 'Chantiers', 'Heures & équipes', 'Rentabilité'],
     baselineNumber: '01 — CANTIA',
@@ -573,6 +575,7 @@ const de: Dict = {
     cta: 'Cantia 14 Tage testen',
     discover: 'Funktionen entdecken',
     trust: '14 Tage, um Cantia mit Ihrem Team zu testen',
+    trustCount: '+{{count}} Bauunternehmen vertrauen uns bereits',
     baselineLabel: 'EIN EINZIGER ARBEITSBEREICH',
     baselineItems: ['Offerten & Rechnungen', 'Baustellen', 'Stunden & Teams', 'Rentabilität'],
     baselineNumber: '01 — CANTIA',
@@ -932,6 +935,7 @@ const it: Dict = {
     cta: 'Provi Cantia 14 giorni',
     discover: 'Scopra le funzionalità',
     trust: '14 giorni per provare Cantia con la sua squadra',
+    trustCount: '+{{count}} imprese del settore edile si fidano già di noi',
     baselineLabel: 'UN UNICO SPAZIO DI LAVORO',
     baselineItems: ['Preventivi & fatture', 'Cantieri', 'Ore & squadre', 'Redditività'],
     baselineNumber: '01 — CANTIA',
