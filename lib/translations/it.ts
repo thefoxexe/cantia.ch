@@ -3005,7 +3005,7 @@ export const it: TranslationDict = {
     title: 'Note legali',
     updated: 'Ultimo aggiornamento: luglio 2026',
     publisherTitle: 'Editore del sito',
-    publisherText: 'Il sito e l\'applicazione Cantia sono pubblicati da Cantia, ditta individuale con sede in Svizzera. Per qualsiasi domanda relativa all\'identità legale dell\'editore, ci contatti all\'indirizzo info@cantia.ch.',
+    publisherText: 'Il sito e l\'applicazione Cantia sono pubblicati a titolo individuale, in Svizzera — la struttura giuridica dell\'azienda è in fase di formalizzazione. Per qualsiasi domanda relativa all\'identità dell\'editore, ci contatti all\'indirizzo info@cantia.ch.',
     hostingTitle: 'Hosting',
     hostingText: 'L\'applicazione è ospitata da Supabase Inc. (database, autenticazione e archiviazione file) e da Netlify, Inc. (distribuzione dell\'interfaccia web). I suoi dati — database e file — sono archiviati in modo sicuro nel centro dati Supabase di Zurigo, in Svizzera. L\'interfaccia web viene distribuita tramite la rete globale di Netlify, che non archivia alcun dato personale.',
     ipTitle: 'Proprietà intellettuale',

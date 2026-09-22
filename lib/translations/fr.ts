@@ -2986,7 +2986,7 @@ export const fr = {
     title: 'Mentions légales',
     updated: 'Dernière mise à jour : juillet 2026',
     publisherTitle: 'Éditeur du site',
-    publisherText: 'Le site et l’application Cantia sont édités par Cantia, entreprise individuelle basée en Suisse. Pour toute question relative à l’identité légale de l’éditeur, contactez-nous à l’adresse info@cantia.ch.',
+    publisherText: 'Le site et l’application Cantia sont édités à titre individuel, en Suisse — la structure juridique de l’entreprise est en cours de formalisation. Pour toute question relative à l’identité de l’éditeur, contactez-nous à l’adresse info@cantia.ch.',
     hostingTitle: 'Hébergement',
     hostingText: 'L’application est hébergée par Supabase Inc. (base de données, authentification et stockage de fichiers) et par Netlify, Inc. (diffusion de l’interface web). Vos données — base de données et fichiers — sont stockées de manière sécurisée dans le centre de données Supabase de Zurich, en Suisse. L’interface web est distribuée via le réseau mondial de Netlify, qui ne stocke aucune de vos données personnelles.',
     ipTitle: 'Propriété intellectuelle',

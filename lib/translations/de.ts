@@ -2997,7 +2997,7 @@ export const de: TranslationDict = {
     title: 'Impressum',
     updated: 'Letzte Aktualisierung: Juli 2026',
     publisherTitle: 'Herausgeber der Website',
-    publisherText: 'Die Website und die Anwendung Cantia werden von Cantia herausgegeben, einer Einzelunternehmung mit Sitz in der Schweiz. Bei Fragen zur rechtlichen Identität des Herausgebers kontaktieren Sie uns unter info@cantia.ch.',
+    publisherText: 'Die Website und die Anwendung Cantia werden von einer Einzelperson in der Schweiz betrieben — die rechtliche Struktur des Unternehmens befindet sich im Aufbau. Bei Fragen zur Identität des Herausgebers kontaktieren Sie uns unter info@cantia.ch.',
     hostingTitle: 'Hosting',
     hostingText: 'Die Anwendung wird von Supabase Inc. (Datenbank, Authentifizierung und Dateispeicherung) und von Netlify, Inc. (Auslieferung der Weboberfläche) gehostet. Ihre Daten — Datenbank und Dateien — werden sicher im Supabase-Rechenzentrum in Zürich, Schweiz, gespeichert. Die Weboberfläche wird über das weltweite Netzwerk von Netlify ausgeliefert, das keine Ihrer persönlichen Daten speichert.',
     ipTitle: 'Geistiges Eigentum',
