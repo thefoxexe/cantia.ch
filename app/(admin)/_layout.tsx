@@ -20,6 +20,7 @@ const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyph
   { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
   { href: '/(admin)/subscriptions', label: 'Abos', icon: 'credit-card' },
   { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up' },
+  { href: '/(admin)/blog-leads', label: 'Blog & Leads', icon: 'download' },
   { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail' },
   { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
   { href: '/(admin)/social', label: 'Réseaux sociaux', icon: 'share-2' },

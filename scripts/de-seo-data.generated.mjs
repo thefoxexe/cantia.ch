@@ -3526,6 +3526,7 @@ export const BLOG_DATES_FR = {
   "meilleur-rapport-qualite-prix-logiciel-pme-batiment": "2026-08-04",
   "meilleures-alternatives-gratuites-bexio": "2026-07-23",
   "mentions-obligatoires-facture-suisse-tva": "2026-08-15",
+  "modele-devis-gratuit-artisan-batiment-suisse": "2026-09-20",
   "norme-sia-118-devis-obligatoire": "2026-01-15",
   "note-de-credit-facture-rectificative-suisse": "2026-06-11",
   "numerotation-facture-obligations-legales-suisse": "2026-06-15",

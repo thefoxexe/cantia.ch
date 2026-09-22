@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { invokeFunction } from './functions';
 import type {
   AdminAuditLog,
+  AdminBlogFunnelOverview,
   AdminDashboardStats,
   AdminFeatureUsage,
   AdminFeatureUsageByOrg,
@@ -248,6 +249,14 @@ export async function getFeatureUsageByOrg(): Promise<{ rows: AdminFeatureUsageB
   const { data, error } = await supabase.rpc('admin_feature_usage_by_org');
   const err = logRpcError('admin_feature_usage_by_org', error);
   return { rows: err || !data ? [] : (data as AdminFeatureUsageByOrg[]), error: err };
+}
+
+// Blog funnel: which articles drive pageviews, CTA clicks and lead-magnet
+// emails — see admin_blog_funnel_overview() for how each figure is counted.
+export async function getBlogFunnelOverview(): Promise<{ overview: AdminBlogFunnelOverview | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_blog_funnel_overview');
+  const err = logRpcError('admin_blog_funnel_overview', error);
+  return { overview: err || !data ? null : (data as AdminBlogFunnelOverview), error: err };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the

@@ -1281,6 +1281,33 @@ export interface AdminFeatureUsageByOrg {
   use_count: number;
 }
 
+// Shape of admin_blog_funnel_overview()'s jsonb result — pageviews (from
+// site_pageviews), CTA clicks and lead-magnet emails captured, per blog
+// article, over the last 30 days.
+export interface AdminBlogFunnelArticle {
+  slug: string;
+  pageviews_30d: number;
+  clicks_30d: number;
+  leads_30d: number;
+}
+
+export interface AdminBlogFunnelLead {
+  email: string;
+  source_slug: string | null;
+  created_at: string;
+}
+
+export interface AdminBlogFunnelOverview {
+  leads_total: number;
+  leads_7d: number;
+  leads_30d: number;
+  clicks_total: number;
+  clicks_7d: number;
+  clicks_30d: number;
+  per_article: AdminBlogFunnelArticle[];
+  recent_leads: AdminBlogFunnelLead[];
+}
+
 export interface AdminModuleSummary {
   id: string;
   key: string;

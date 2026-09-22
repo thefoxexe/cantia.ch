@@ -1872,6 +1872,17 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/modele-devis-gratuit-artisan-batiment-suisse',
+    title: 'Modèle de devis gratuit pour artisans du bâtiment | Cantia',
+    description:
+      'Un modèle de devis gratuit à télécharger, conforme aux usages suisses (TVA, mentions obligatoires), pour tous les corps de métier du bâtiment.',
+    faq: [
+      { q: 'Ce modèle de devis convient-il à tous les corps de métier du bâtiment ?', a: 'Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s\'adapte à n\'importe quel corps de métier du bâtiment — seul le détail des prestations change d\'un métier à l\'autre.' },
+      { q: 'Le modèle de devis inclut-il le calcul de la TVA suisse ?', a: 'Le modèle prévoit les lignes nécessaires (sous-total HT, TVA, total TTC) mais le calcul reste manuel, contrairement à un outil qui le calcule automatiquement à chaque ligne.' },
+      { q: 'Quelles mentions sont obligatoires sur un devis en Suisse ?', a: 'Coordonnées de l\'entreprise (idéalement avec numéro IDE), coordonnées du client, description précise des prestations, prix et TVA, ainsi qu\'une durée de validité de l\'offre.' },
+    ],
+  },
+  {
     path: 'metiers',
     title: 'Cantia pour votre métier | Logiciel de gestion par métier',
     description:

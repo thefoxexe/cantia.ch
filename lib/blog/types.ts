@@ -14,7 +14,12 @@ export type BlogBlock =
   // rows under a heading — used by hub/pillar articles that need to link out
   // to many related posts, beyond the 3-card "see also" grid every article
   // already gets from relatedSlugs.
-  | { type: 'linklist'; title: string; items: { label: string; slug: string }[] };
+  | { type: 'linklist'; title: string; items: { label: string; slug: string }[] }
+  // A gated download: captures the visitor's email into blog_leads (see
+  // components/BlogLeadMagnet.tsx), then reveals fileUrl. fileUrl is a
+  // public, unsigned static asset path (e.g. under /downloads/) — the email
+  // capture is a soft gate for the lead, not real access control.
+  | { type: 'leadmagnet'; title: string; text: string; buttonLabel: string; fileUrl: string; fileLabel: string };
 
 export interface BlogFaqItem {
   question: string;

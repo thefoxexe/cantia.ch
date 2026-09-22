@@ -6,9 +6,11 @@ import { Button, Container, Screen } from './ui';
 import { Heading } from './Heading';
 import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
+import { BlogLeadMagnet } from './BlogLeadMagnet';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
+import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
 import { getRelatedPosts } from '../lib/blog';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -22,6 +24,54 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'Métiers du bâtiment': 'tool',
   'Croissance & acquisition': 'target',
   'Sur-mesure & automatisations': 'sliders',
+};
+
+// Closing-CTA copy tailored per article category, used only for locale ===
+// 'fr' (every article is authored in French first; DE/IT keep the generic
+// translated closing CTA below rather than needing 24 more translated
+// strings for content that, for now, mostly falls back to the FR post
+// anyway). Absent categories fall back to the generic copy too.
+const CATEGORY_CLOSING_FR: Partial<Record<BlogPost['category'], { title: string; text: string; cta: string }>> = {
+  'Devis & facturation': {
+    title: 'Vos devis et factures, sans ressaisie',
+    text: 'Cantia calcule TVA et totaux automatiquement, génère la QR-facture, et enregistre chaque position dans votre catalogue de prix.',
+    cta: 'Essayer gratuitement',
+  },
+  'Juridique & normes': {
+    title: 'Le juridique réglé, la gestion simplifiée',
+    text: 'Une fois le statut et les démarches en ordre, Cantia prend le relais pour les devis, factures et le suivi conforme au quotidien.',
+    cta: 'Essayer gratuitement',
+  },
+  'RH & salaires': {
+    title: 'La paie du bâtiment, sans tableur',
+    text: 'Cantia calcule salaires, 13e, heures supplémentaires et vacances selon les règles suisses, chantier après chantier.',
+    cta: 'Découvrir le module RH',
+  },
+  'Chantier & rentabilité': {
+    title: 'Sachez enfin ce que chaque chantier rapporte',
+    text: 'Cantia suit les coûts et les encaissements chantier par chantier, en temps réel, pas seulement en fin d’année.',
+    cta: 'Découvrir la rentabilité',
+  },
+  'Comparatifs & outils': {
+    title: 'Le seul outil qu’il vous faut vraiment',
+    text: 'Devis, factures, chantiers et RH réunis dans un seul endroit, pensé pour le bâtiment suisse dès le premier jour.',
+    cta: 'Essayer gratuitement',
+  },
+  'Métiers du bâtiment': {
+    title: 'Un outil qui s’adapte à votre métier',
+    text: 'Cantia s’ajuste aux besoins spécifiques de votre corps de métier, pas l’inverse.',
+    cta: 'Essayer gratuitement',
+  },
+  'Croissance & acquisition': {
+    title: 'Transformez plus de devis en chantiers',
+    text: 'Répondez plus vite, suivez vos relances et donnez une image professionnelle à chaque interaction client.',
+    cta: 'Essayer gratuitement',
+  },
+  'Sur-mesure & automatisations': {
+    title: 'Un logiciel construit avec vous',
+    text: 'Au-delà du standard, Cantia peut s’adapter à des besoins spécifiques à votre entreprise, sur demande.',
+    cta: 'Discuter d’un besoin sur mesure',
+  },
 };
 
 export function BlogArticle({ post }: { post: BlogPost }) {
@@ -39,6 +89,12 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const related = getRelatedPosts(post, 3, locale);
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
   const blogHrefPrefix = `${tradeHrefPrefix}blog`;
+  const categoryClosing = locale === 'fr' ? CATEGORY_CLOSING_FR[post.category] : undefined;
+  const closing = {
+    title: categoryClosing?.title ?? t('blogArticlePage.closingTitle'),
+    text: categoryClosing?.text ?? t('blogArticlePage.closingText'),
+    cta: categoryClosing?.cta ?? t('blogArticlePage.closingCta'),
+  };
 
   return (
     <Screen>
@@ -77,7 +133,9 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         </Container>
 
         <Container style={styles.body}>
-          {post.blocks.map((block, i) => <BlockRenderer key={i} block={block} />)}
+          {post.blocks.map((block, i) => (
+            <BlockRenderer key={i} block={block} sourceSlug={post.slug} category={post.category} />
+          ))}
         </Container>
 
         {post.faq?.length ? (
@@ -129,10 +187,15 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
         <Container style={styles.closingOuter}>
           <View style={styles.closing}>
-            <Text style={styles.closingTitle}>{t('blogArticlePage.closingTitle')}</Text>
-            <Text style={styles.closingText}>{t('blogArticlePage.closingText')}</Text>
+            <Text style={styles.closingTitle}>{closing.title}</Text>
+            <Text style={styles.closingText}>{closing.text}</Text>
             <Link href={authHref('signup')} asChild>
-              <Button title={t('blogArticlePage.closingCta')} variant="secondary" onPress={() => {}} style={styles.closingCta} />
+              <Button
+                title={closing.cta}
+                variant="secondary"
+                onPress={() => trackBlogCtaClick(post.slug, post.category, 'closing')}
+                style={styles.closingCta}
+              />
             </Link>
           </View>
         </Container>
@@ -143,7 +206,15 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   );
 }
 
-function BlockRenderer({ block }: { block: BlogPost['blocks'][number] }) {
+function BlockRenderer({
+  block,
+  sourceSlug,
+  category,
+}: {
+  block: BlogPost['blocks'][number];
+  sourceSlug: string;
+  category: string;
+}) {
   switch (block.type) {
     case 'p':
       return <Text style={styles.paragraph}>{block.text}</Text>;
@@ -210,12 +281,14 @@ function BlockRenderer({ block }: { block: BlogPost['blocks'][number] }) {
             <Text style={styles.inlineCtaText}>{block.text}</Text>
           </View>
           <Link href={authHref('signup')} asChild>
-            <Button title={block.buttonLabel} onPress={() => {}} />
+            <Button title={block.buttonLabel} onPress={() => trackBlogCtaClick(sourceSlug, category, 'inline')} />
           </Link>
         </View>
       );
     case 'linklist':
       return <LinkListBlock block={block} />;
+    case 'leadmagnet':
+      return <BlogLeadMagnet block={block} sourceSlug={sourceSlug} category={category} />;
     default:
       return null;
   }
