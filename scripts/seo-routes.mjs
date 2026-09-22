@@ -1878,6 +1878,556 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/application-devis-mobile-artisan',
+    title: 'Meilleure application de devis sur mobile pour artisan | Cantia',
+    description:
+      'Faire un devis directement depuis le chantier change la donne. Ce qu’il faut vérifier avant de choisir une application, et la différence entre une simple calculatrice de devis et un vrai outil de gestion.',
+    faq: [
+      { q: 'Une application de devis doit-elle vraiment fonctionner hors ligne ?', a: 'Oui, dans la plupart des cas. De nombreux chantiers ont un réseau mobile faible ou inexistant, et une application qui dépend d’une connexion continue devient vite inutilisable sur le terrain.' },
+      { q: 'Quelle différence entre une calculatrice de devis et une vraie application de gestion ?', a: 'Une calculatrice se limite généralement à additionner quelques lignes saisies à la main. Un vrai outil de gestion inclut un catalogue de prix réutilisable, un lien direct vers la facturation et un historique par chantier et par client.' },
+      { q: 'Peut-on faire signer un devis directement sur le chantier depuis mobile ?', a: 'Oui, avec une application intégrant la signature électronique, le client peut valider le devis sur place, ce qui accélère nettement le passage du devis au chantier confirmé par rapport à un échange de PDF par email.' },
+    ],
+  },
+  {
+    path: 'blog/calculer-acomptes-impots-independant-batiment',
+    title: 'Comment calculer ses acomptes d’impôts quand on est indépendant du bâtiment | Cantia',
+    description:
+      'Acomptes provisoires, estimation du revenu, risque de la première année sans historique : comment provisionner correctement ses impôts en tant qu’indépendant du bâtiment.',
+    faq: [
+      { q: 'Peut-on demander une révision des acomptes en cours d’année ?', a: 'Oui, il est généralement possible de demander une adaptation des acomptes auprès de l’administration fiscale cantonale si le revenu réel s’écarte fortement de l’estimation initiale, à la hausse comme à la baisse.' },
+      { q: 'Les acomptes AVS et les acomptes d’impôts se calculent-ils de la même façon ?', a: 'Non, ce sont deux calculs distincts gérés par deux entités différentes : la caisse de compensation pour l’AVS, l’administration fiscale cantonale pour l’impôt. Il ne faut provisionner ni l’un à la place de l’autre, ni un seul des deux.' },
+      { q: 'Que se passe-t-il si l’estimation de la première année était trop basse ?', a: 'L’impôt définitif, calculé une fois la déclaration traitée, peut créer un rattrapage important à payer d’un coup. C’est pour cela qu’il vaut mieux provisionner un peu plus que l’estimation initiale plutôt que de viser juste au plus bas.' },
+    ],
+  },
+  {
+    path: 'blog/cantia-vs-cresus-facturation',
+    title: 'Cantia vs Crésus Facturation : quelle différence pour le bâtiment | Cantia',
+    description:
+      'Crésus Facturation est un logiciel suisse populaire et abordable, historiquement pensé pour Windows. Cantia est pensée mobile, pour le chantier. Comparaison honnête des deux approches.',
+    faq: [
+      { q: 'Crésus Facturation suffit-il pour gérer une entreprise du bâtiment ?', a: 'Pour la seule facturation, oui dans bien des cas. Mais Crésus Facturation ne couvre pas le suivi de chantier, la rentabilité par projet ni les devis créés directement sur le terrain, des besoins propres au métier du bâtiment.' },
+      { q: 'Quelle est la principale différence entre Crésus Facturation et Cantia ?', a: 'Crésus Facturation est un logiciel généraliste de facturation, simple et abordable. Cantia est pensée spécifiquement pour le déroulement d’un chantier du bâtiment, du devis sur le terrain jusqu’au paiement final.' },
+      { q: 'Peut-on utiliser Crésus et Cantia en parallèle ?', a: 'C’est possible pour une période de transition, mais la plupart des entreprises du bâtiment qui adoptent un outil métier comme Cantia finissent par centraliser devis et factures au même endroit pour éviter la double saisie.' },
+    ],
+  },
+  {
+    path: 'blog/cantia-vs-klara',
+    title: 'Cantia vs Klara : quel logiciel pour une entreprise du bâtiment suisse | Cantia',
+    description:
+      'Klara est une solution suisse solide de comptabilité et facturation pour indépendants et petites entreprises. Cantia est pensée spécifiquement pour le chantier. Comparaison honnête des deux approches.',
+    faq: [
+      { q: 'Klara convient-il à une entreprise du bâtiment ?', a: 'Klara peut convenir pour la facturation et la comptabilité générale, mais il n’a pas été conçu spécifiquement pour le bâtiment : pas de suivi de rentabilité par chantier, pas de catalogue de prix métier, pas de rapport de chantier avec photos.' },
+      { q: 'Quelle est la principale différence entre Klara et Cantia ?', a: 'Klara est un outil généraliste de comptabilité et facturation pour petites entreprises suisses, tous secteurs confondus. Cantia est pensé spécifiquement pour le déroulement d’un chantier, du premier devis jusqu’au paiement final.' },
+      { q: 'Peut-on utiliser Klara et Cantia ensemble ?', a: 'C’est possible : certaines entreprises gardent un outil de comptabilité générale comme Klara pour la clôture annuelle, tout en utilisant Cantia au quotidien pour le pilotage opérationnel des chantiers.' },
+    ],
+  },
+  {
+    path: 'blog/cantia-vs-winbiz',
+    title: 'Cantia vs Winbiz : comparatif pour artisans du bâtiment | Cantia',
+    description:
+      'Winbiz est un logiciel suisse établi de comptabilité, facturation et gestion, historiquement orienté poste de travail fixe. Cantia est pensée mobile, pour le chantier. Comparaison factuelle des deux approches.',
+    faq: [
+      { q: 'Winbiz convient-il à une entreprise du bâtiment ?', a: 'Winbiz couvre bien la comptabilité et la facturation générale, mais il n’a pas été conçu spécifiquement pour le bâtiment ni pour un usage mobile depuis un chantier, contrairement à un outil comme Cantia.' },
+      { q: 'Peut-on remplacer Winbiz uniquement par Cantia ?', a: 'Cantia n’est pas un logiciel de comptabilité générale en partie double. Pour la tenue comptable complète, beaucoup d’entreprises gardent un outil dédié comme Winbiz, tout en utilisant Cantia pour le pilotage opérationnel des chantiers.' },
+      { q: 'Winbiz fonctionne-t-il bien depuis un chantier, sur mobile ?', a: 'Winbiz reste historiquement plus orienté vers un usage depuis un poste de travail fixe. Pour créer un devis ou documenter un chantier directement sur le terrain, un outil pensé mobile dès le départ, comme Cantia, est généralement plus adapté.' },
+    ],
+  },
+  {
+    path: 'blog/checklist-fin-annee-entreprise-batiment',
+    title: 'Checklist administrative de fin d’année pour une entreprise du bâtiment | Cantia',
+    description:
+      'La checklist de fin d’année pour une entreprise du bâtiment en Suisse : impayés, inventaire, certificats de salaire, rentabilité par chantier, acomptes.',
+    faq: [
+      { q: 'Pourquoi relancer les impayés avant la clôture plutôt qu’après ?', a: 'Parce qu’un impayé identifié et relancé avant la clôture peut encore être encaissé sur l’exercice en cours, alors qu’un impayé reporté sur l’année suivante complique le suivi et retarde d’autant la trésorerie disponible.' },
+      { q: 'Comment analyser la rentabilité par chantier en fin d’année ?', a: 'En comparant, pour chaque chantier, le prix facturé au client avec le coût réel (matériel, heures de main-d’œuvre, sous-traitance), pour identifier les types de chantiers qui génèrent effectivement de la marge.' },
+      { q: 'Cette checklist remplace-t-elle le travail du fiduciaire ?', a: 'Non, elle prépare le terrain administratif et opérationnel en amont, ce qui rend le travail du fiduciaire sur la clôture comptable proprement dite plus rapide et plus fiable.' },
+    ],
+  },
+  {
+    path: 'blog/chomage-intemperies-rht-batiment-suisse',
+    title: 'Chômage-intempéries (RHT) dans le bâtiment : comment ça fonctionne | Cantia',
+    description:
+      'Le mécanisme du chômage-intempéries pour le secteur du bâtiment en Suisse : conditions, démarches auprès de la caisse de chômage, délai de carence et impact sur la trésorerie d’hiver.',
+    faq: [
+      { q: 'Le chômage-intempéries s’applique-t-il à tous les métiers du bâtiment ?', a: 'Il concerne surtout les travaux extérieurs directement empêchés par les conditions météorologiques, typiquement le gros œuvre et le génie civil. Les métiers qui travaillent principalement en intérieur sont en général moins concernés, sauf si le chantier dans son ensemble est bloqué.' },
+      { q: 'Y a-t-il un délai avant que l’indemnisation ne commence ?', a: 'Oui, un délai de carence s’applique généralement en début de période, durant lequel la perte reste à la charge de l’employeur avant que l’indemnisation ne prenne le relais.' },
+      { q: 'Faut-il une autorisation préalable pour bénéficier du chômage-intempéries ?', a: 'L’entreprise doit annoncer la perte de travail à la caisse de chômage compétente selon la procédure en vigueur. Il est recommandé de se renseigner à l’avance sur les démarches exactes plutôt que d’attendre la première interruption pour les découvrir.' },
+    ],
+  },
+  {
+    path: 'blog/chomage-partiel-entreprise-batiment-suisse',
+    title: 'Chômage partiel dans le bâtiment : quand et comment le demander | Cantia',
+    description:
+      'Réduction de l’horaire de travail (RHT) pour raisons économiques dans le bâtiment : conditions, démarche auprès de l’autorité cantonale, et différence avec le chômage-intempéries.',
+    faq: [
+      { q: 'Quelle est la différence entre le chômage partiel et le chômage-intempéries ?', a: 'Le chômage-intempéries indemnise l’impossibilité de travailler à cause de conditions météorologiques défavorables, spécifique au bâtiment. Le chômage partiel (RHT) couvre une baisse d’activité pour raisons économiques, indépendamment de la météo.' },
+      { q: 'Faut-il l’accord des employés pour mettre en place le chômage partiel ?', a: 'En principe oui, les employés concernés doivent donner leur accord ou à défaut ne pas s’y opposer, selon les modalités applicables. Il est recommandé de bien communiquer avec les équipes avant le dépôt de la demande.' },
+      { q: 'Combien de temps avant faut-il déposer une demande de RHT ?', a: 'Un préavis est généralement requis avant la période concernée, mais le délai exact et les démarches varient et sont régulièrement mis à jour par les autorités cantonales. Il est conseillé de se renseigner directement auprès de l’autorité compétente ou de sa fiduciaire.' },
+    ],
+  },
+  {
+    path: 'blog/clauses-oubliees-contrat-travail-batiment',
+    title: 'Les clauses qu’on oublie dans un contrat de travail du bâtiment | Cantia',
+    description:
+      'Mobilité entre chantiers, indemnités de déplacement, heures supplémentaires, matériel de service : les clauses fréquemment oubliées dans un contrat de travail du bâtiment.',
+    faq: [
+      { q: 'Pourquoi la clause de mobilité est-elle importante dans le bâtiment ?', a: 'Parce que, contrairement à un poste de bureau, un employé du bâtiment travaille rarement toujours au même endroit. Sans clause précisant une zone géographique d’affectation, chaque changement de chantier éloigné peut être contesté comme une modification du contrat initial.' },
+      { q: 'Faut-il préciser le régime des heures supplémentaires dans le contrat ?', a: 'C’est fortement recommandé, en complément de ce que prévoit la CCT applicable. Préciser comment les heures supplémentaires sont comptabilisées et compensées évite la plupart des désaccords, en particulier sur les chantiers avec des délais serrés.' },
+      { q: 'Un modèle de contrat trouvé en ligne est-il suffisant pour une entreprise du bâtiment ?', a: 'Rarement en l’état. Un modèle générique doit être adapté aux spécificités du secteur (mobilité, véhicule de service, indemnités de déplacement) pour offrir une protection réelle, tant à l’employeur qu’à l’employé.' },
+    ],
+  },
+  {
+    path: 'blog/declaration-tva-trimestrielle-artisan-suisse',
+    title: 'Comment remplir sa déclaration TVA trimestrielle quand on est artisan | Cantia',
+    description:
+      'Qui doit déclarer la TVA chaque trimestre, quelles données réunir avant de se connecter au portail AFC, et les erreurs les plus fréquentes chez les artisans indépendants.',
+    faq: [
+      { q: 'Que se passe-t-il si le décompte TVA est déposé en retard ?', a: 'Un intérêt moratoire est généralement appliqué sur le montant dû, même si le décompte est correct. Il vaut mieux déposer un décompte estimé dans les temps et le corriger ensuite que de déposer un décompte exact en retard.' },
+      { q: 'Peut-on récupérer la TVA sur l’achat d’un véhicule utilitaire ?', a: 'Oui, dans la mesure où le véhicule est affecté à l’activité professionnelle. La part d’usage privé, si elle existe, doit en revanche être exclue de la déduction ou compensée ensuite.' },
+      { q: 'Faut-il déclarer la TVA même si le chiffre d’affaires du trimestre est nul ?', a: 'Oui, une entreprise assujettie doit en principe déposer un décompte à chaque échéance, même vide, tant qu’elle reste inscrite au registre TVA. Ne pas le faire peut entraîner une taxation d’office par l’AFC.' },
+    ],
+  },
+  {
+    path: 'blog/delai-declaration-tva-suisse-calendrier',
+    title: 'Dates de déclaration TVA en Suisse : le calendrier à ne jamais manquer | Cantia',
+    description:
+      'Le rythme des échéances TVA en Suisse selon la méthode choisie, la conséquence d’un dépôt tardif, et comment éviter de rater une échéance quand on gère un chantier.',
+    faq: [
+      { q: 'Que faire si on sait déjà qu’on ne pourra pas respecter l’échéance TVA ?', a: 'Il est possible de demander une prolongation de délai auprès de l’AFC avant l’échéance. Cela évite l’intérêt moratoire automatique lié à un dépôt tardif non annoncé.' },
+      { q: 'Le décompte mensuel est-il intéressant pour une petite entreprise du bâtiment ?', a: 'Il peut l’être pour lisser la trésorerie en évitant de provisionner un gros montant trimestriel, mais il multiplie aussi le nombre de démarches administratives dans l’année. C’est un arbitrage à faire selon la taille de l’équipe comptable.' },
+      { q: 'L’intérêt moratoire s’applique-t-il même pour quelques jours de retard ?', a: 'Oui, l’intérêt moratoire se calcule généralement dès le lendemain de l’échéance, sans jours de tolérance automatique. Mieux vaut anticiper que compter sur une marge.' },
+    ],
+  },
+  {
+    path: 'blog/delai-permis-de-construire-canton-suisse',
+    title: 'Délai moyen d’obtention d’un permis de construire, canton par canton | Cantia',
+    description:
+      'Pourquoi le délai d’obtention d’un permis de construire varie fortement d’un canton et d’une commune à l’autre en Suisse, et comment éviter les principales causes de retard.',
+    faq: [
+      { q: 'Existe-t-il un délai légal maximal pour traiter un permis de construire en Suisse ?', a: 'Les pratiques varient selon les cantons et les communes, et il n’existe pas de délai unique valable partout en Suisse. Le mieux est de demander directement au service de l’urbanisme concerné le délai indicatif de traitement.' },
+      { q: 'Une opposition de voisinage bloque-t-elle automatiquement le chantier ?', a: 'Elle suspend généralement la procédure tant qu’elle n’est pas traitée, ce qui retarde le début du chantier. Le délai final dépend de la nature de l’opposition et de la façon dont elle est résolue, à l’amiable ou par voie de recours.' },
+      { q: 'La procédure simplifiée est-elle toujours plus rapide que la procédure ordinaire ?', a: 'En général oui, car elle concerne des projets de faible ampleur avec moins de préavis à recueillir. Mais son éligibilité dépend des critères fixés par chaque canton ou commune, à vérifier avant de compter dessus.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-ferblantier-suisse',
+    title: 'Devis et facturation pour un ferblantier en Suisse | Cantia',
+    description:
+      'Comment chiffrer un devis et facturer en tant que ferblantier en Suisse : chiffrage au mètre linéaire, lien avec la couverture, coût de la sécurité en hauteur.',
+    faq: [
+      { q: 'Pourquoi le prix d’une gouttière varie-t-il autant selon le matériau ?', a: 'Le zinc, le cuivre et l’aluminium ont des coûts d’achat et de mise en œuvre différents, et le cuivre en particulier reste nettement plus cher que le zinc, ce qui doit se refléter clairement dans le devis.' },
+      { q: 'Faut-il facturer séparément l’échafaudage ou la protection en hauteur ?', a: 'C’est recommandé : cela évite que le client ne compare que le prix au mètre linéaire entre plusieurs devis sans comprendre pourquoi l’un inclut un dispositif de sécurité plus complet que l’autre.' },
+      { q: 'Le ferblantier doit-il coordonner son devis avec celui du couvreur ?', a: 'Dans la plupart des cas oui, car les deux interventions se déroulent sur le même échafaudage et souvent dans la même fenêtre de chantier, ce qui permet aussi de mutualiser certains coûts d’accès.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-frigoriste-climatisation-suisse',
+    title: 'Devis et facturation pour un frigoriste-climaticien en Suisse | Cantia',
+    description:
+      'Comment chiffrer un devis et facturer en tant que frigoriste-climaticien en Suisse : matériel dominant, fluides frigorigènes, contrats d’entretien récurrent.',
+    faq: [
+      { q: 'Pourquoi le prix d’une climatisation varie-t-il autant entre deux devis ?', a: 'Principalement à cause du matériel : la puissance, la gamme et la technologie de l’unité choisie font varier fortement le prix, bien plus que le temps de pose lui-même.' },
+      { q: 'Faut-il facturer le contrat d’entretien séparément de l’installation ?', a: 'C’est recommandé, car cela permet de suivre la rentabilité de chaque activité indépendamment et de lisser le chiffre d’affaires sur l’année plutôt que de tout concentrer sur les mois de forte demande.' },
+      { q: 'Qui peut manipuler les fluides frigorigènes lors d’une installation ?', a: 'Uniquement du personnel disposant de la certification professionnelle requise pour ce type de fluide. Le frigoriste doit s’assurer que sa qualification reste valide selon les exigences applicables à son activité.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-installateur-solaire-suisse',
+    title: 'Devis et facturation pour un installateur de panneaux solaires en Suisse | Cantia',
+    description:
+      'Comment chiffrer un devis et facturer en tant qu’installateur de panneaux solaires en Suisse : poids du matériel, raccordement électrique, subventions et rétribution d’injection.',
+    faq: [
+      { q: 'Faut-il inclure le raccordement électrique dans le devis solaire ?', a: 'Oui, même si un électricien tiers l’effectue : le client doit voir le prix total de son installation fonctionnelle, raccordement compris, sans découvrir un poste supplémentaire après la pose.' },
+      { q: 'Peut-on garantir un montant de subvention sur le devis ?', a: 'Non, ces montants dépendent du canton et du distributeur d’électricité local et peuvent changer. Le devis doit présenter le prix net et renvoyer le client vérifier les conditions exactes avant signature.' },
+      { q: 'Comment se protéger d’une hausse du prix du matériel entre le devis et la pose ?', a: 'En limitant la durée de validité du devis, ou en ajoutant une clause de révision si la commande du matériel intervient plusieurs semaines après la signature, ce qui est fréquent sur ce marché en forte demande.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-platrier-suisse',
+    title: 'Devis et facturation pour un plâtrier en Suisse | Cantia',
+    description:
+      'Comment chiffrer un devis et facturer en tant que plâtrier en Suisse : prix au m² pour cloisons et faux-plafonds, distinction gros-œuvre intérieur et finitions.',
+    faq: [
+      { q: 'Faut-il séparer le prix des cloisons et celui des enduits sur le devis ?', a: 'Oui, ce sont deux prestations avec des bases de prix différentes. Les regrouper sous un seul prix au m² rend le devis difficile à comparer et à justifier en cas de modification en cours de chantier.' },
+      { q: 'Qui décide du niveau de finition attendu avant peinture ?', a: 'Cela doit être précisé au devis, en accord avec le client et si possible avec le peintre qui interviendra ensuite, pour éviter un désaccord sur la qualité du support livré en fin de chantier.' },
+      { q: 'Pourquoi deux cloisons de même surface peuvent-elles coûter différemment ?', a: 'La hauteur sous plafond, les découpes autour des ouvertures et l’intégration de gaines techniques font varier le temps de pose réel, indépendamment de la surface brute en m² annoncée.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-poelier-fumiste-suisse',
+    title: 'Devis et facturation pour un poêlier-fumiste en Suisse | Cantia',
+    description:
+      'Comment chiffrer un devis et facturer en tant que poêlier-fumiste en Suisse : matériel, main-d’œuvre, contrôle du ramoneur officiel, saisonnalité d’automne.',
+    faq: [
+      { q: 'Qui contrôle une installation de poêle ou de cheminée après la pose ?', a: 'Le ramoneur officiel attribué au secteur, selon les règles cantonales. Ce contrôle est distinct de l’installation elle-même et doit être planifié avec le client dès le devis.' },
+      { q: 'Pourquoi les prix des poêles varient-ils autant d’un devis à l’autre ?', a: 'Le matériel est le poste le plus variable : puissance, matériaux, marque et finitions changent fortement le prix d’achat, indépendamment du coût de la pose qui reste plus stable.' },
+      { q: 'Comment gérer le pic de demande à l’automne ?', a: 'En incitant les clients à signer leur devis en amont, idéalement avant l’été, pour lisser le planning de pose et sécuriser l’approvisionnement du matériel avant la période de forte demande.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-ramoneur-suisse',
+    title: 'Devis et facturation pour un ramoneur en Suisse | Cantia',
+    description:
+      'Comment établir devis et factures en tant que ramoneur en Suisse : secteur réglementé par canton, facturation périodique, rapport de contrôle écrit.',
+    faq: [
+      { q: 'Le ramonage est-il obligatoire partout en Suisse selon les mêmes règles ?', a: 'Le principe d’un contrôle périodique existe largement, mais la fréquence et l’organisation par secteur varient selon le canton. Il est important de vérifier les règles exactes applicables à sa propre zone d’activité.' },
+      { q: 'Pourquoi facturer le ramonage par cycle plutôt qu’à l’intervention ?', a: 'Parce que l’activité repose sur des contrôles périodiques récurrents plutôt que sur des chantiers ponctuels, un suivi par cycle facilite à la fois la planification des tournées et la prévisibilité du chiffre d’affaires.' },
+      { q: 'Que doit contenir le rapport remis après un contrôle ?', a: 'Un état clair de la conformité de l’installation, daté et signé, remis rapidement au client — ce document peut lui être demandé par son assurance ou lors d’une transaction immobilière.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-terrassier-suisse',
+    title: 'Devis et facturation pour un terrassier en Suisse | Cantia',
+    description:
+      'Comment chiffrer un devis et facturer en tant que terrassier en Suisse : incertitude sur le terrain, facturation machine et opérateur, clauses pour les imprévus.',
+    faq: [
+      { q: 'Comment facturer une découverte de roche non prévue au devis ?', a: 'Via un avenant chiffré séparément, à condition que le devis initial mentionne explicitement que le prix se base sur la nature de sol présumée et que toute différence constatée sera facturée en plus.' },
+      { q: 'Faut-il facturer le terrassement au forfait ou à l’heure ?', a: 'Un mix des deux est souvent le plus juste : forfait pour les prestations bien définies par les plans, régie horaire (machine et opérateur) pour tout ce qui dépend de la nature réelle du terrain.' },
+      { q: 'Pourquoi demander un acompte avant de démarrer un chantier de terrassement ?', a: 'Parce que le terrassier engage des coûts importants de machine et de main-d’œuvre dès le premier jour, souvent avant que le reste du projet soit finalisé, ce qui l’expose davantage en cas d’arrêt du chantier.' },
+    ],
+  },
+  {
+    path: 'blog/devis-pompe-a-chaleur-chiffrage',
+    title: 'Comment chiffrer un devis d’installation de pompe à chaleur | Cantia',
+    description:
+      'Comment chiffrer un devis de pompe à chaleur en Suisse : unité, raccordement, forage éventuel, facteurs de variation du prix, lien avec le Programme Bâtiments.',
+    faq: [
+      { q: 'Pourquoi une pompe à chaleur géothermique coûte-t-elle plus cher qu’une air-eau ?', a: 'Principalement à cause du forage nécessaire pour capter la chaleur du sol, un poste supplémentaire qui n’existe pas pour une solution air-eau, en échange d’un rendement généralement plus stable toute l’année.' },
+      { q: 'Faut-il isoler le bâtiment avant d’installer une pompe à chaleur ?', a: 'Ce n’est pas toujours obligatoire, mais l’état de l’isolation conditionne le bon dimensionnement de l’installation. Un diagnostic préalable permet d’éviter une pompe sous- ou surdimensionnée par rapport aux besoins réels.' },
+      { q: 'Le remplacement d’un chauffage au mazout par une pompe à chaleur est-il subventionné ?', a: 'Souvent oui, dans le cadre du Programme Bâtiments, mais le montant exact et les conditions dépendent du canton. Le client doit vérifier son éligibilité et le montant précis sur le site cantonal correspondant.' },
+    ],
+  },
+  {
+    path: 'blog/diagnostic-amiante-renovation-obligatoire-suisse',
+    title: 'Amiante avant rénovation : quand un diagnostic est-il obligatoire | Cantia',
+    description:
+      'Quels bâtiments sont concernés par le risque amiante avant travaux de rénovation en Suisse, pourquoi c’est la responsabilité de l’entreprise exécutante, et la marche à suivre avant de commencer.',
+    faq: [
+      { q: 'Un diagnostic amiante est-il obligatoire pour tous les bâtiments anciens ?', a: 'Il est fortement recommandé, et souvent exigé en pratique, dès qu’un bâtiment antérieur aux années 1990 fait l’objet de travaux susceptibles de toucher des matériaux suspects. La prudence s’impose dès le doute, même sans certitude absolue sur la date de construction.' },
+      { q: 'Qui doit payer le diagnostic amiante, le maître d’ouvrage ou l’entreprise ?', a: 'Cela dépend généralement de ce qui est convenu contractuellement, mais l’entreprise qui exécute les travaux a intérêt à s’assurer que ce diagnostic existe avant de démarrer, quelle que soit la partie qui le finance.' },
+      { q: 'Que faire si de l’amiante est découvert en cours de chantier, sans diagnostic préalable ?', a: 'Il faut arrêter immédiatement les travaux sur la zone concernée, sécuriser le périmètre, et faire intervenir une entreprise spécialisée dans le désamiantage avant toute reprise du chantier.' },
+    ],
+  },
+  {
+    path: 'blog/directive-suva-echafaudage-chantier-obligation',
+    title: 'Échafaudages de chantier : ce que la directive SUVA impose vraiment | Cantia',
+    description:
+      'Garde-corps, ancrages, contrôle avant mise en service, formation des utilisateurs : ce que la directive SUVA exige concrètement pour un échafaudage de chantier en Suisse.',
+    faq: [
+      { q: 'Qui est responsable si un échafaudage loué s’avère non conforme ?', a: 'La responsabilité se partage généralement entre le loueur, qui doit fournir un matériel conforme, et l’entreprise qui l’installe et l’utilise, qui doit vérifier sa conformité avant la mise en service. Le contrat de location précise en principe cette répartition.' },
+      { q: 'Faut-il contrôler un échafaudage même s’il n’a pas été touché depuis le montage ?', a: 'Oui, un contrôle régulier reste recommandé même sans intervention apparente, notamment après un épisode de vent fort, car des éléments peuvent se desserrer sans signe visible immédiat.' },
+      { q: 'La formation à l’échafaudage est-elle obligatoire pour toute l’équipe de chantier ?', a: 'Elle est surtout exigée pour les personnes qui montent, démontent ou modifient l’échafaudage. Les personnes qui l’utilisent simplement comme poste de travail doivent en revanche être informées des consignes de sécurité de base.' },
+    ],
+  },
+  {
+    path: 'blog/etablir-certificat-salaire-lohnausweis-premier-employe',
+    title: 'Comment établir un certificat de salaire (Lohnausweis) pour son premier employé | Cantia',
+    description:
+      'Le certificat de salaire annuel expliqué pour un employeur du bâtiment qui engage son premier employé : contenu obligatoire, formulaire officiel, délai et lien avec la déclaration d’impôts.',
+    faq: [
+      { q: 'Faut-il établir un certificat de salaire même pour un employé engagé en cours d’année ?', a: 'Oui, un certificat couvre la période réellement travaillée durant l’année civile, même si elle ne fait que quelques mois. Il n’existe pas de seuil minimal de durée d’emploi en dessous duquel l’obligation disparaît.' },
+      { q: 'Le certificat de salaire est-il le même document que la déclaration de salaire à la caisse AVS ?', a: 'Non, ce sont deux documents distincts avec des destinataires différents : le certificat de salaire est remis à l’employé pour sa déclaration d’impôts, la déclaration de salaire annuelle est transmise à la caisse de compensation AVS.' },
+      { q: 'Comment valoriser l’usage privé d’un véhicule de service sur le certificat de salaire ?', a: 'Une valeur forfaitaire mensuelle est généralement appliquée, calculée sur un pourcentage du prix d’achat du véhicule, sauf si un décompte réel plus précis est tenu. Les règles exactes doivent être vérifiées auprès de sa fiduciaire ou de l’administration fiscale cantonale.' },
+    ],
+  },
+  {
+    path: 'blog/facturer-depannage-urgent-sans-devis',
+    title: 'Combien facturer un dépannage urgent effectué sans devis préalable | Cantia',
+    description:
+      'Comment facturer une intervention d’urgence sans devis signé : forfait de déplacement, tarif horaire majoré, documentation de l’intervention et majorations courantes.',
+    faq: [
+      { q: 'Peut-on facturer un dépannage sans avoir fait signer de devis ?', a: 'Oui, c’est une pratique courante et légale pour les interventions urgentes, à condition de pouvoir démontrer que le client était informé du principe de facturation et, idéalement, d’un ordre de grandeur avant l’intervention. Un bon d’intervention signé sur place reste la meilleure protection.' },
+      { q: 'Quel forfait appliquer pour un déplacement d’urgence ?', a: 'Il n’existe pas de montant standard imposé : chaque entreprise définit son propre forfait selon sa zone d’intervention et ses coûts réels. L’essentiel est de l’indiquer clairement dans les conditions générales et de le communiquer au client avant le déplacement.' },
+      { q: 'Comment se protéger si le client conteste une facture de dépannage urgent ?', a: 'En documentant systématiquement l’intervention : bon signé, photos, horodatage, et si possible une trace écrite (SMS ou email) informant le client du principe de facturation avant le déplacement. Ces éléments sont souvent décisifs en cas de désaccord.' },
+    ],
+  },
+  {
+    path: 'blog/facturer-frais-deplacement-client-artisan',
+    title: 'Faut-il facturer les frais de déplacement à ses clients | Cantia',
+    description:
+      'Forfait kilométrique, tarif horaire incluant le trajet, ou gratuité dans un rayon donné : les pratiques courantes pour facturer le déplacement, et comment le rendre transparent.',
+    faq: [
+      { q: 'Peut-on facturer le déplacement même pour un petit chantier ?', a: 'Oui, rien ne l’interdit, à condition que ce soit annoncé clairement dans le devis ou dans les conditions générales avant l’intervention. C’est la transparence, plus que le montant, qui détermine si le client l’acceptera sans contester.' },
+      { q: 'Vaut-il mieux inclure le déplacement dans le tarif horaire ou le facturer à part ?', a: 'Les deux approches existent et fonctionnent. Inclure le déplacement dans le tarif horaire simplifie le devis mais peut désavantager l’entreprise sur les chantiers proches ; le facturer à part est plus juste sur la distance mais ajoute une ligne à expliquer au client.' },
+      { q: 'Comment fixer un forfait de déplacement cohérent ?', a: 'En partant du coût réel (temps de trajet non facturable, carburant, usure du véhicule) plutôt que d’un montant arbitraire copié sur la concurrence. Un forfait par zone de distance est souvent plus simple à gérer qu’un calcul au kilomètre exact.' },
+    ],
+  },
+  {
+    path: 'blog/google-sheets-partage-equipe-limites-batiment',
+    title: 'Tableur partagé en équipe : pourquoi ça craque à partir de combien de personnes | Cantia',
+    description:
+      'Un Google Sheets partagé fonctionne bien seul, mais craque dès que plusieurs personnes y touchent en même temps. Conflits d’édition, accès non contrôlé, versions qui divergent : le point de rupture en équipe.',
+    faq: [
+      { q: 'À partir de combien de personnes un Google Sheets partagé devient-il problématique ?', a: 'Généralement à partir de quatre ou cinq personnes actives sur le même fichier, les conflits d’édition, les versions divergentes et le manque de contrôle d’accès deviennent une gêne régulière plutôt qu’une exception.' },
+      { q: 'Un tableur partagé peut-il gérer des accès différents selon l’employé ?', a: 'Pas de façon fiable dans la plupart des cas. Un tableur partagé donne généralement le même niveau de visibilité à tous, sans distinction entre ce qu’un ouvrier et un gérant devraient voir.' },
+      { q: 'Le problème vient-il d’une mauvaise utilisation du tableur ?', a: 'Non, il vient surtout de l’outil lui-même : un tableur n’a pas été conçu pour gérer des accès différenciés, des notifications de modification ou un travail simultané à plusieurs sur des données actives.' },
+    ],
+  },
+  {
+    path: 'blog/horaires-bruit-chantier-autorises-suisse',
+    title: 'Bruit de chantier : les horaires autorisés selon les communes suisses | Cantia',
+    description:
+      'Pourquoi les horaires de bruit de chantier dépendent de chaque commune en Suisse, les plages généralement admises, et comment réagir face à une plainte de voisinage.',
+    faq: [
+      { q: 'Existe-t-il une règle fédérale sur les horaires de bruit de chantier en Suisse ?', a: 'Non, la réglementation relève principalement des communes, qui fixent leurs propres horaires dans leur règlement de police des constructions. Il faut donc vérifier au cas par cas, commune par commune.' },
+      { q: 'Peut-on obtenir une dérogation pour travailler en dehors des horaires autorisés ?', a: 'C’est possible dans certaines communes, pour des interventions ponctuelles justifiées, mais la demande doit généralement être faite en amont auprès du service communal compétent, pas après coup.' },
+      { q: 'Que faire si un voisin se plaint alors que les horaires réglementaires sont respectés ?', a: 'Il est utile de pouvoir démontrer, avec un planning précis, que les horaires communaux ont bien été respectés. Un dialogue direct avec le voisin, accompagné d’une information préalable sur la durée du chantier, permet souvent d’éviter que la situation ne s’envenime.' },
+    ],
+  },
+  {
+    path: 'blog/independant-reconnu-avs-batiment',
+    title: 'Indépendant reconnu par l’AVS dans le bâtiment : ce que ça change vraiment | Cantia',
+    description:
+      'Les critères de reconnaissance du statut d’indépendant par la caisse de compensation AVS, et le risque de requalification pour les sous-traitants du bâtiment qui ne sont pas reconnus.',
+    faq: [
+      { q: 'Un sous-traitant avec un seul client est-il automatiquement requalifié en salarié ?', a: 'Pas automatiquement, mais c’est l’un des critères les plus lourds examinés par la caisse de compensation. Travailler pour un seul donneur d’ordre de façon durable augmente fortement le risque de requalification si les autres critères d’indépendance ne sont pas non plus réunis.' },
+      { q: 'Qui paie les cotisations en cas de requalification rétroactive ?', a: 'En général, l’entreprise cliente est considérée comme l’employeur de fait et doit régulariser les cotisations sociales dues sur la période concernée, avec les intérêts moratoires. C’est pour cela que le risque pèse aussi sur le donneur d’ordre, pas uniquement sur le sous-traitant.' },
+      { q: 'Comment vérifier qu’un sous-traitant est bien reconnu comme indépendant par l’AVS ?', a: 'En lui demandant son attestation de reconnaissance d’indépendant délivrée par sa caisse de compensation. C’est un document officiel, distinct d’une simple inscription au registre du commerce.' },
+    ],
+  },
+  {
+    path: 'blog/instagram-ou-facebook-artisan-batiment',
+    title: 'Facebook ou Instagram : quel réseau pour un artisan du bâtiment | Cantia',
+    description:
+      'Facebook et Instagram ne touchent pas le même public ni le même usage. Lequel privilégier selon sa clientèle, et pourquoi il vaut mieux bien alimenter un seul réseau plutôt que d’en abandonner deux.',
+    faq: [
+      { q: 'Faut-il être présent sur Facebook et Instagram à la fois ?', a: 'Ce n’est pas nécessaire au démarrage. Mieux vaut choisir le réseau le plus adapté à sa clientèle et l’alimenter régulièrement, plutôt que de se disperser sur deux comptes peu actifs.' },
+      { q: 'Instagram est-il utile pour une entreprise du bâtiment qui travaille surtout avec des particuliers locaux ?', a: 'Il peut l’être pour des activités très visuelles comme la rénovation esthétique ou l’aménagement, mais pour une clientèle très locale et orientée recommandation, Facebook et ses groupes de quartier restent souvent plus efficaces.' },
+      { q: 'Combien de temps faut-il consacrer aux réseaux sociaux en tant qu’artisan ?', a: 'Généralement très peu si l’activité est déjà documentée par des photos de chantier : quelques minutes suffisent pour publier une photo avant/après avec une légende courte, sans que cela devienne une charge de travail à part entière.' },
+    ],
+  },
+  {
+    path: 'blog/lire-fiche-de-salaire-batiment',
+    title: 'Comment expliquer une fiche de salaire à un employé du bâtiment | Cantia',
+    description:
+      'Structure d’une fiche de salaire suisse (brut, déductions AVS/AI/APG, AC, LPP, LAANP, net) et comment l’expliquer simplement à un employé du bâtiment.',
+    faq: [
+      { q: 'Pourquoi le salaire net est-il tellement inférieur au salaire brut ?', a: 'Parce que plusieurs cotisations sociales obligatoires sont déduites du brut avant versement : AVS/AI/APG, assurance-chômage, prévoyance professionnelle (LPP), et parfois l’assurance accidents non professionnels. Ces déductions financent des prestations sociales concrètes.' },
+      { q: 'Toutes les déductions sont-elles identiques d’un employé à l’autre ?', a: 'Non, certaines déductions dépendent du salaire, de l’âge (notamment pour la LPP) ou du statut de l’employé. C’est pourquoi deux fiches de salaire avec un même montant brut peuvent afficher un net légèrement différent.' },
+      { q: 'Faut-il expliquer la fiche de salaire à chaque nouvel employé ?', a: 'C’est fortement recommandé, en particulier lors du premier mois. Une explication simple, ligne par ligne, évite la plupart des questions et malentendus récurrents sur l’écart entre salaire brut et salaire net.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-signature-electronique-chantier',
+    title: 'Logiciel de gestion chantier avec signature électronique : lequel choisir | Cantia',
+    description:
+      'Signature sur tablette directement sur le chantier, horodatage automatique, document archivé et retrouvable : ce qu’il faut chercher dans un outil pour éviter les contestations de fin de chantier.',
+    faq: [
+      { q: 'La signature électronique sur un logiciel de chantier a-t-elle une valeur légale en Suisse ?', a: 'Dans la plupart des cas pour un devis ou un document commercial courant, oui. La question de la valeur légale précise selon le type de document est traitée en détail dans notre article dédié à la signature électronique en Suisse.' },
+      { q: 'Pourquoi l’horodatage automatique est-il important ?', a: 'Il fixe de façon fiable le moment exact de la signature, indépendamment de toute modification ultérieure. C’est souvent cet élément, autant que la signature elle-même, qui pèse en cas de contestation.' },
+      { q: 'Comment éviter de perdre un document signé quelques mois après le chantier ?', a: 'En choisissant un outil qui archive automatiquement chaque document signé et le rattache directement au chantier concerné, plutôt que de dépendre d’une recherche dans des emails ou des fichiers dispersés.' },
+    ],
+  },
+  {
+    path: 'blog/marge-beneficiaire-entreprise-batiment-suisse',
+    title: 'Quelle marge bénéficiaire viser dans le bâtiment en Suisse | Cantia',
+    description:
+      'Marge brute, marge nette, fourchettes réalistes selon le corps de métier, et pourquoi une marge trop basse peut tuer une entreprise malgré un carnet de commandes plein.',
+    faq: [
+      { q: 'Quelle est la différence entre marge brute et marge nette ?', a: 'La marge brute ne déduit que les coûts directs d’un chantier (matériaux, main-d’œuvre affectée). La marge nette déduit en plus toutes les charges de structure de l’entreprise. Une entreprise peut avoir une bonne marge brute chantier par chantier et une marge nette insuffisante si ses frais fixes sont mal répercutés.' },
+      { q: 'Quelle marge nette viser dans le bâtiment en Suisse ?', a: 'Il n’existe pas de chiffre universel, mais une marge nette confortable se situe généralement entre 8 et 15 % du chiffre d’affaires selon le corps de métier et la taille de l’entreprise. Ces repères doivent être ajustés à votre structure de coûts réelle.' },
+      { q: 'Pourquoi une entreprise très occupée peut-elle quand même perdre de l’argent ?', a: 'Parce qu’être occupé ne veut pas dire être rentable : si les prix pratiqués ne couvrent pas correctement les coûts réels et les charges de structure, plus l’entreprise travaille, plus elle accumule de la perte sur chaque chantier mal chiffré.' },
+    ],
+  },
+  {
+    path: 'blog/negocier-prix-client-compare-plusieurs-devis',
+    title: 'Comment répondre à un client qui compare trois devis sans baisser son prix | Cantia',
+    description:
+      'Baisser systématiquement son prix face à la concurrence est rarement la bonne réponse. Comment défendre son devis avec des arguments concrets, et quand un ajustement reste légitime.',
+    faq: [
+      { q: 'Faut-il toujours refuser de baisser son prix face à la concurrence ?', a: 'Non, mais une baisse doit se justifier par un changement concret (volume, simplification du travail, conditions de paiement), pas uniquement par la peur de perdre le chantier face à un devis concurrent.' },
+      { q: 'Comment réagir si un devis concurrent est anormalement bas ?', a: 'Expliquer factuellement ce que couvre son propre prix (matériaux, assurance, garanties, délai) permet souvent au client de comprendre pourquoi l’écart existe, sans avoir à critiquer directement le concurrent.' },
+      { q: 'Un client qui compare plusieurs devis cherche-t-il forcément le moins cher ?', a: 'Pas toujours. Beaucoup de clients comparent surtout pour se rassurer sur le sérieux de l’entreprise choisie. Des références solides et un devis clair pèsent souvent autant que le prix dans la décision finale.' },
+    ],
+  },
+  {
+    path: 'blog/norme-aeai-incendie-batiment-obligation',
+    title: 'Norme incendie AEAI : ce qu’un artisan doit connaître avant un chantier | Cantia',
+    description:
+      'Le rôle de l’AEAI dans la protection incendie en Suisse, ce que ça implique concrètement pour un artisan (matériaux classés, cloisons coupe-feu, issues de secours) et le risque d’ignorer la norme.',
+    faq: [
+      { q: 'Qui vérifie le respect de la norme incendie AEAI sur un chantier ?', a: 'Le contrôle est généralement effectué par l’autorité cantonale compétente en matière de protection incendie ou par un mandataire spécialisé, souvent au moment de la réception de l’ouvrage.' },
+      { q: 'Toutes les cloisons d’un bâtiment doivent-elles être coupe-feu ?', a: 'Non, seules certaines zones sont concernées, notamment les séparations entre logements, les cages d’escalier et les gaines techniques. Les exigences précises dépendent de l’usage et de la configuration du bâtiment, à vérifier sur les plans d’exécution.' },
+      { q: 'Que risque une entreprise qui pose un matériau non conforme à la norme incendie ?', a: 'Elle risque un refus de réception du chantier et l’obligation de reprendre les travaux à ses frais, en plus d’une responsabilité engagée en cas de sinistre où la non-conformité serait constatée.' },
+    ],
+  },
+  {
+    path: 'blog/periode-essai-batiment-duree-legale',
+    title: 'Période d’essai dans le bâtiment : durée légale et ce qu’on peut y faire | Cantia',
+    description:
+      'Durée légale de la période d’essai selon le Code des obligations, possibilité de la prolonger contractuellement, délai de congé raccourci, et spécificités CCT bâtiment.',
+    faq: [
+      { q: 'Quelle est la durée maximale de la période d’essai dans le bâtiment ?', a: 'Le régime légal par défaut est d’un mois si rien n’est précisé au contrat, mais les parties peuvent convenir par écrit d’une durée allant généralement jusqu’à trois mois. Vérifiez également les éventuelles dispositions spécifiques de la CCT applicable à votre entreprise.' },
+      { q: 'Peut-on prolonger la période d’essai en cas de maladie de l’employé ?', a: 'Oui, une absence pour cause de maladie, accident ou service obligatoire pendant la période d’essai peut la prolonger d’une durée équivalente, dans les limites prévues par la loi. Cela permet à l’employeur de disposer réellement du temps d’essai prévu au contrat.' },
+      { q: 'Le délai de congé est-il le même pendant et après la période d’essai ?', a: 'Non, le délai de congé pendant la période d’essai est nettement plus court que celui applicable une fois l’essai terminé. Il est recommandé de vérifier le délai exact prévu par le contrat et, le cas échéant, par la CCT applicable.' },
+    ],
+  },
+  {
+    path: 'blog/prix-isolation-facade-m2-suisse',
+    title: 'Combien coûte une isolation de façade au m² en Suisse | Cantia',
+    description:
+      'Fourchettes CHF/m² réalistes pour une isolation de façade en Suisse selon le type de système (crépi isolant, bardage ventilé), avec le lien vers les subventions cantonales.',
+    faq: [
+      { q: 'Quel est le prix moyen d’une isolation de façade au m² en Suisse ?', a: 'Pour une isolation sous crépi, comptez généralement entre CHF 180 et 280 par m², fourniture et pose comprises. Un bardage ventilé coûte plus cher, souvent entre CHF 300 et 450 par m². Ces fourchettes varient selon la région et la complexité de la façade.' },
+      { q: 'Les subventions cantonales couvrent-elles une part importante du coût ?', a: 'Cela dépend fortement du canton et évolue régulièrement, généralement via le Programme Bâtiments. Il est recommandé d’orienter le client vers le service cantonal de l’énergie pour connaître les montants et conditions exacts au moment du projet.' },
+      { q: 'Le bardage ventilé est-il toujours plus cher que le crépi isolant ?', a: 'Dans la plupart des cas oui, mais le bardage offre une meilleure durabilité dans le temps et davantage de possibilités esthétiques. Le choix dépend souvent autant du budget que du rendu recherché par le client.' },
+    ],
+  },
+  {
+    path: 'blog/prix-refection-toiture-suisse',
+    title: 'Combien coûte la réfection d’une toiture en Suisse | Cantia',
+    description:
+      'Fourchettes CHF/m² réalistes pour une réfection de toiture en Suisse selon le matériau (tuiles, ardoise, étanchéité plate), et pourquoi une visite sur place reste indispensable.',
+    faq: [
+      { q: 'Quel est le prix moyen d’une réfection de toiture en tuiles en Suisse ?', a: 'Pour la couverture seule, comptez généralement entre CHF 250 et 400 par m². Ce montant n’inclut pas une éventuelle intervention sur la charpente, qui peut représenter un coût supplémentaire important selon son état.' },
+      { q: 'Pourquoi les devis de toiture donnés par téléphone sont-ils peu fiables ?', a: 'Parce que l’état de la charpente, souvent le facteur de coût le plus variable, ne peut être évalué qu’en inspectant le bâtiment sur place, parfois depuis les combles. Un chiffre donné sans visite reste une estimation très grossière.' },
+      { q: 'Faut-il prévoir une clause pour l’état de la charpente dans le devis ?', a: 'C’est fortement recommandé. Une clause précisant qu’un complément pourra être facturé si la charpente se révèle plus dégradée qu’anticipé protège l’entreprise sans surprendre le client, à condition de l’expliquer clairement avant signature.' },
+    ],
+  },
+  {
+    path: 'blog/prix-renovation-cuisine-suisse',
+    title: 'Prix moyen d’une rénovation de cuisine en Suisse | Cantia',
+    description:
+      'Fourchettes réalistes pour une rénovation de cuisine en Suisse selon le standing (agencement standard, milieu de gamme, sur mesure), avec le détail poste par poste.',
+    faq: [
+      { q: 'Quel est le prix moyen d’une cuisine standard posée en Suisse ?', a: 'Pour une cuisine en kit de série avec pose et électroménager d’entrée de gamme, comptez généralement entre CHF 12’000 et 20’000 pour une surface de 8 à 10 m². Le prix grimpe rapidement dès qu’on passe à du semi-sur-mesure.' },
+      { q: 'Pourquoi une cuisine sur mesure coûte-t-elle tellement plus cher ?', a: 'Le sur-mesure implique une fabrication spécifique à l’espace (pas de dimensions standardisées), souvent des matériaux plus nobles, et un temps de pose plus long. L’écart avec une cuisine en kit peut atteindre le double ou le triple pour une surface identique.' },
+      { q: 'Faut-il inclure l’électroménager dans le devis global de cuisine ?', a: 'C’est fortement recommandé, même sous forme de fourchette indicative si le client n’a pas encore choisi ses appareils. Cela évite les mauvaises surprises et donne une vision réaliste du budget total dès le premier devis.' },
+    ],
+  },
+  {
+    path: 'blog/prix-renovation-salle-de-bain-suisse-m2',
+    title: 'Prix moyen d’une rénovation de salle de bain en Suisse | Cantia',
+    description:
+      'Fourchettes réalistes pour une rénovation de salle de bain en Suisse (standard vs haut de gamme), poste par poste : sanitaire, carrelage, plomberie, électricité, étanchéité.',
+    faq: [
+      { q: 'Quel est le prix d’une salle de bain de 5 m² tout compris en Suisse ?', a: 'Pour une rénovation complète (sanitaires, carrelage, plomberie, électricité) en milieu de gamme, comptez généralement entre CHF 15’000 et 25’000. Le prix varie fortement selon l’état des installations existantes et les matériaux choisis.' },
+      { q: 'Pourquoi déplacer un point d’eau coûte-t-il si cher ?', a: 'Déplacer une arrivée ou une évacuation implique de casser la chape existante, de modifier les canalisations et de refaire l’étanchéité sur la zone concernée. C’est un travail qui demande plusieurs corps de métier en cascade, d’où un surcoût souvent significatif par rapport à un remplacement à l’identique.' },
+      { q: 'Faut-il prévoir une marge pour imprévus dans un devis de rénovation de salle de bain ?', a: 'Oui, c’est fortement recommandé dès que les murs ou le sol existants sont ouverts : l’état réel des conduites n’est visible qu’après démolition. Une provision explicite dans le devis évite les mauvaises surprises pour le client comme pour l’entreprise.' },
+    ],
+  },
+  {
+    path: 'blog/programme-batiments-subvention-renovation-suisse',
+    title: 'Le Programme Bâtiments : ce qu’un artisan doit savoir pour ses clients | Cantia',
+    description:
+      'Le Programme Bâtiments soutient la rénovation énergétique en Suisse : isolation, remplacement de chauffage fossile. Ce qu’un artisan doit savoir pour informer ses clients.',
+    faq: [
+      { q: 'Le Programme Bâtiments est-il le même dans tous les cantons ?', a: 'Le cadre général est commun à la Confédération et aux cantons, mais chaque canton administre son propre programme avec ses conditions et montants spécifiques. Il faut toujours vérifier les règles du canton concerné.' },
+      { q: 'Un artisan peut-il garantir un montant de subvention à son client ?', a: 'Non, ce n’est pas son rôle et les montants exacts dépendent de critères cantonaux qui évoluent. Le client doit vérifier lui-même le montant exact sur le site du programme cantonal avant de compter dessus dans son budget.' },
+      { q: 'Faut-il déposer la demande de subvention avant de commencer les travaux ?', a: 'Cela dépend du canton et du type de travaux : certains programmes exigent que la demande soit déposée, voire validée, avant le début du chantier. C’est un point à vérifier systématiquement avant de signer un devis.' },
+    ],
+  },
+  {
+    path: 'blog/provoquer-bouche-a-oreille-artisan',
+    title: 'Bouche-à-oreille : comment le provoquer plutôt que l’attendre | Cantia',
+    description:
+      'Le bouche-à-oreille ne se limite pas à la qualité du travail. Le moment où il se déclenche, la dernière impression laissée sur le chantier et les petits déclencheurs qui font vraiment parler.',
+    faq: [
+      { q: 'Quel est le meilleur moment pour demander une recommandation à un client ?', a: 'Juste après la fin d’un chantier réussi, quand la satisfaction est la plus forte. Attendre trop longtemps réduit fortement les chances d’obtenir une recommandation spontanée.' },
+      { q: 'La qualité technique suffit-elle à générer du bouche-à-oreille ?', a: 'Pas toujours. La dernière impression, notamment la propreté et la ponctualité en fin de chantier, joue souvent un rôle au moins aussi important que la qualité technique perçue par un client non expert.' },
+      { q: 'Faut-il mettre en place un programme de parrainage pour générer du bouche-à-oreille ?', a: 'Ce n’est pas indispensable pour démarrer. Des déclencheurs simples et non formels (demander une photo, soigner la fin de chantier) suffisent souvent. Un programme structuré avec incitations peut ensuite venir compléter cette base.' },
+    ],
+  },
+  {
+    path: 'blog/relancer-client-devis-sans-reponse',
+    title: 'Comment relancer un client qui ne répond plus après un devis | Cantia',
+    description:
+      'Un silence après un devis n’est pas forcément un refus. Le calendrier de relance à respecter, le ton à adopter et les erreurs qui font perdre un chantier encore possible.',
+    faq: [
+      { q: 'Au bout de combien de temps faut-il relancer un client après un devis ?', a: 'Une première relance quelques jours après l’envoi reste raisonnable, suivie d’une deuxième plus tard, avant l’expiration de la validité du devis. Au-delà, mieux vaut espacer largement plutôt que d’insister trop souvent.' },
+      { q: 'Un client qui ne répond pas a-t-il forcément choisi un concurrent ?', a: 'Pas nécessairement. Le silence traduit souvent une décision encore en cours, une comparaison de devis non terminée ou simplement un oubli. Une relance courte et sans pression permet souvent de le savoir.' },
+      { q: 'Faut-il baisser le prix dans une relance de devis sans réponse ?', a: 'Non, pas d’emblée. Il est préférable de d’abord comprendre la raison du silence (question technique, délai, budget) avant d’envisager un ajustement, plutôt que de baisser le prix sans savoir ce qui bloque réellement.' },
+    ],
+  },
+  {
+    path: 'blog/repondre-appel-offres-public-batiment-etapes',
+    title: 'Comment répondre à un appel d’offres public dans le bâtiment, étape par étape | Cantia',
+    description:
+      'Où trouver les appels d’offres publics, comment monter un dossier complet et sur quels critères les collectivités suisses évaluent réellement les offres. Un guide concret pour se lancer.',
+    faq: [
+      { q: 'Une petite entreprise a-t-elle vraiment une chance sur un appel d’offres public ?', a: 'Oui, dans la mesure où le prix n’est généralement pas le seul critère : les références, les délais et la qualité du dossier comptent aussi. Une petite structure bien préparée, avec de bonnes références locales, peut tout à fait l’emporter face à une entreprise plus grande.' },
+      { q: 'Où surveiller les appels d’offres publics dans le bâtiment en Suisse ?', a: 'Principalement sur les plateformes cantonales dédiées aux marchés publics et sur simap.ch pour les marchés soumis aux accords intercantonaux, en complément des publications communales. Une alerte par mot-clé évite de devoir vérifier manuellement chaque semaine.' },
+      { q: 'Que se passe-t-il si un document du dossier est manquant ?', a: 'Dans la plupart des cas, un dossier incomplet ou déposé après le délai est purement et simplement écarté avant même l’évaluation du prix ou des références. La rigueur administrative est donc au moins aussi importante que le contenu de l’offre elle-même.' },
+    ],
+  },
+  {
+    path: 'blog/repondre-avis-negatif-google-artisan',
+    title: 'Comment répondre à un avis Google négatif quand on est artisan | Cantia',
+    description:
+      'Un avis négatif fait mal, mais mal y répondre fait plus mal encore. Le ton à adopter, quand passer en message privé, et ce qu’il ne faut jamais faire face à un avis Google défavorable.',
+    faq: [
+      { q: 'Faut-il toujours répondre à un avis Google négatif ?', a: 'Oui, presque toujours, même brièvement. Une réponse absente est souvent perçue comme un désintérêt, alors qu’une réponse posée rassure les futurs clients qui liront l’avis bien après le client concerné.' },
+      { q: 'Peut-on faire supprimer un avis Google négatif ?', a: 'Uniquement s’il enfreint les règles de Google (contenu diffamatoire, faux avis, hors sujet). Un avis légitime, même sévère, doit dans la plupart des cas être traité par une réponse plutôt que par une tentative de suppression.' },
+      { q: 'Faut-il proposer un remboursement ou un geste commercial en public ?', a: 'Non, ce type de détail se traite généralement en message privé. La réponse publique doit rester factuelle et courte, et inviter le client à poursuivre l’échange en privé pour trouver une solution.' },
+    ],
+  },
+  {
+    path: 'blog/seuil-lpp-affiliation-employe-batiment',
+    title: 'À partir de quel salaire un employé doit-il être affilié à la LPP | Cantia',
+    description:
+      'Le seuil d’entrée LPP, la coordination avec l’AVS, et les démarches concrètes de l’employeur pour affilier correctement un employé du bâtiment à la prévoyance professionnelle.',
+    faq: [
+      { q: 'Le seuil d’entrée LPP est-il le même pour tous les employeurs ?', a: 'Oui, c’est un seuil fixé au niveau fédéral, applicable de la même façon à toutes les entreprises suisses, quel que soit leur secteur. Seul son montant est révisé chaque année.' },
+      { q: 'Un employé en dessous du seuil peut-il quand même être affilié à la LPP ?', a: 'Oui, une affiliation volontaire reste possible dans certains cas, notamment via une institution supplétive, même si elle n’est pas imposée par la loi en dessous du seuil.' },
+      { q: 'Qui paie la part employeur de la LPP ?', a: 'L’employeur doit verser une part au moins équivalente à celle retenue sur le salaire de l’employé, selon les règles fixées par la loi et le règlement de la caisse de pension choisie.' },
+    ],
+  },
+  {
+    path: 'blog/site-internet-ou-carte-de-visite-artisan',
+    title: 'Site internet ou carte de visite : lequel prioriser en premier | Cantia',
+    description:
+      'Quand le budget et le temps sont limités au démarrage, faut-il investir d’abord dans un site internet ou dans une carte de visite ? Les arguments des deux côtés, et une solution intermédiaire réaliste.',
+    faq: [
+      { q: 'Peut-on démarrer une entreprise du bâtiment sans site internet ?', a: 'Oui, dans les premiers mois, une carte de visite et une fiche Google Business Profile bien tenue suffisent généralement à couvrir l’essentiel des besoins, en attendant d’avoir le temps ou le budget pour un site plus complet.' },
+      { q: 'Quand devient-il vraiment nécessaire d’avoir un site internet ?', a: 'Dès que le bouche-à-oreille commence à amener des clients qui cherchent à vérifier l’entreprise avant de contacter, un site simple avec quelques photos de chantiers devient utile pour rassurer et convertir ces recherches.' },
+      { q: 'Une fiche Google Business Profile remplace-t-elle vraiment un site internet ?', a: 'Elle ne le remplace pas complètement, mais elle en couvre l’essentiel pour démarrer : visibilité locale, photos, avis, coordonnées. Un vrai site apporte davantage de contrôle et de contenu par la suite.' },
+    ],
+  },
+  {
+    path: 'blog/travailleur-detache-batiment-suisse-regles',
+    title: 'Travailleur détaché dans le bâtiment suisse : les règles à connaître | Cantia',
+    description:
+      'Définition du détachement, procédure d’annonce préalable, respect des conditions de salaire et de travail suisses, et risques en cas de non-respect sur un chantier.',
+    faq: [
+      { q: 'Faut-il annoncer chaque intervention d’une entreprise étrangère sur un chantier suisse ?', a: 'Dans la plupart des cas oui, via la procédure d’annonce préalable prévue à cet effet, avant le début des travaux. Les modalités exactes et les éventuelles exceptions doivent être vérifiées auprès des autorités compétentes, car elles peuvent évoluer.' },
+      { q: 'Un travailleur détaché doit-il être payé selon les conditions suisses ?', a: 'Généralement oui, notamment lorsque le chantier est soumis à une CCT étendue du secteur, qui fixe des conditions de salaire et de travail minimales applicables à tous les intervenants, y compris détachés.' },
+      { q: 'Que risque une entreprise qui ne respecte pas les règles du détachement ?', a: 'Des sanctions sont possibles, allant d’amendes à des restrictions temporaires d’intervention sur le marché suisse. Les chantiers du bâtiment font l’objet de contrôles réguliers, ce qui rend le respect de la procédure d’annonce particulièrement important.' },
+    ],
+  },
+  {
+    path: 'blog/tva-methode-effective-ou-tdfn-batiment',
+    title: 'TVA méthode effective ou taux de la dette fiscale nette : laquelle choisir | Cantia',
+    description:
+      'Méthode effective ou TDFN pour la TVA d’une entreprise du bâtiment : ce que chaque méthode implique en charge administrative, en impôt préalable déductible, et comment orienter son choix.',
+    faq: [
+      { q: 'Peut-on changer de méthode TVA en cours d’année ?', a: 'Non, un changement de méthode s’effectue en général au début d’une période fiscale et implique le respect d’un délai minimal avant de pouvoir revenir à l’autre méthode. Toute demande de changement doit passer par l’AFC.' },
+      { q: 'Le TDFN dispense-t-il complètement de suivre les factures d’achat ?', a: 'Non, il simplifie le calcul de la TVA due, mais l’entreprise doit tout de même conserver ses factures d’achat et de vente comme n’importe quelle entreprise assujettie, notamment en cas de contrôle.' },
+      { q: 'Une petite entreprise du bâtiment a-t-elle intérêt à rester en méthode effective ?', a: 'Cela dépend surtout du volume d’achats de matériel et d’investissements déductibles. Une entreprise qui achète beaucoup de matériel a souvent intérêt à rester en méthode effective pour récupérer l’impôt préalable réel plutôt qu’un taux forfaitaire.' },
+    ],
+  },
+  {
+    path: 'blog/vacances-construction-suisse-dates-canton',
+    title: 'Vacances de la construction en Suisse : dates par canton et impact sur la facturation | Cantia',
+    description:
+      'Vacances de la construction en Suisse romande : pourquoi elles existent, comment les dates varient par canton et CCT, et comment anticiper leur impact sur la trésorerie.',
+    faq: [
+      { q: 'Les vacances de la construction sont-elles identiques dans tous les cantons romands ?', a: 'Non, les dates et l’existence même de cette fermeture dépendent de la convention collective de travail et de la commission paritaire applicables dans chaque canton. Il faut vérifier la situation propre à son canton chaque année.' },
+      { q: 'Comment éviter un trou de trésorerie pendant la fermeture estivale ?', a: 'En planifiant les factures d’acompte ou de situation de chantier juste avant la fermeture, plutôt que d’attendre la reprise, et en anticipant ce creux dans son prévisionnel de trésorerie annuel.' },
+      { q: 'Où trouver les dates exactes des vacances de la construction pour mon canton ?', a: 'Auprès de la commission paritaire cantonale compétente pour votre secteur d’activité, qui publie les dates applicables chaque année selon la CCT en vigueur.' },
+    ],
+  },
+  {
+    path: 'blog/vacances-employe-batiment-cct-jours',
+    title: 'Combien de jours de vacances un employé du bâtiment a-t-il droit | Cantia',
+    description:
+      'Minimum légal de vacances selon le Code des obligations, ce que prévoit en plus la CCT du secteur principal de la construction, et le calcul au prorata pour une année incomplète.',
+    faq: [
+      { q: 'Quel est le minimum légal de vacances dans le bâtiment en Suisse ?', a: 'Le Code des obligations fixe un minimum de quatre semaines par an pour les travailleurs adultes. Dans la plupart des cas, la CCT du secteur principal de la construction prévoit un nombre de jours plus favorable, à vérifier dans le texte applicable à votre entreprise.' },
+      { q: 'La CCT prévoit-elle plus de vacances selon l’âge ou l’ancienneté ?', a: 'C’est généralement le cas, avec des paliers qui peuvent varier selon les dispositions en vigueur. Il est recommandé de vérifier le texte à jour de la CCT applicable plutôt que de se baser sur un chiffre fixe qui pourrait avoir évolué.' },
+      { q: 'Comment calculer les vacances d’un employé qui part en cours d’année ?', a: 'Le droit aux vacances se calcule au prorata du nombre de mois réellement travaillés dans l’année. Il faut ensuite comparer ce droit acquis aux jours déjà pris pour déterminer un solde à verser ou, le cas échéant, un trop-perçu à régulariser.' },
+    ],
+  },
+  {
     path: 'blog/modele-devis-gratuit-artisan-batiment-suisse',
     title: 'Modèle de devis gratuit pour artisans du bâtiment | Cantia',
     description:

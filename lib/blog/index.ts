@@ -145,6 +145,56 @@ import { post as p141 } from './posts/immatriculer-entreprise-construction-regis
 import { post as p142 } from './posts/dix-erreurs-premiere-annee-entreprise-batiment';
 import { post as p143 } from './posts/creer-entreprise-batiment-suisse-guide-complet';
 import { post as p144 } from './posts/modele-devis-gratuit-artisan-batiment-suisse';
+import { post as p145 } from './posts/application-devis-mobile-artisan';
+import { post as p146 } from './posts/calculer-acomptes-impots-independant-batiment';
+import { post as p147 } from './posts/cantia-vs-cresus-facturation';
+import { post as p148 } from './posts/cantia-vs-klara';
+import { post as p149 } from './posts/cantia-vs-winbiz';
+import { post as p150 } from './posts/checklist-fin-annee-entreprise-batiment';
+import { post as p151 } from './posts/chomage-intemperies-rht-batiment-suisse';
+import { post as p152 } from './posts/chomage-partiel-entreprise-batiment-suisse';
+import { post as p153 } from './posts/clauses-oubliees-contrat-travail-batiment';
+import { post as p154 } from './posts/declaration-tva-trimestrielle-artisan-suisse';
+import { post as p155 } from './posts/delai-declaration-tva-suisse-calendrier';
+import { post as p156 } from './posts/delai-permis-de-construire-canton-suisse';
+import { post as p157 } from './posts/devis-facture-ferblantier-suisse';
+import { post as p158 } from './posts/devis-facture-frigoriste-climatisation-suisse';
+import { post as p159 } from './posts/devis-facture-installateur-solaire-suisse';
+import { post as p160 } from './posts/devis-facture-platrier-suisse';
+import { post as p161 } from './posts/devis-facture-poelier-fumiste-suisse';
+import { post as p162 } from './posts/devis-facture-ramoneur-suisse';
+import { post as p163 } from './posts/devis-facture-terrassier-suisse';
+import { post as p164 } from './posts/devis-pompe-a-chaleur-chiffrage';
+import { post as p165 } from './posts/diagnostic-amiante-renovation-obligatoire-suisse';
+import { post as p166 } from './posts/directive-suva-echafaudage-chantier-obligation';
+import { post as p167 } from './posts/etablir-certificat-salaire-lohnausweis-premier-employe';
+import { post as p168 } from './posts/facturer-depannage-urgent-sans-devis';
+import { post as p169 } from './posts/facturer-frais-deplacement-client-artisan';
+import { post as p170 } from './posts/google-sheets-partage-equipe-limites-batiment';
+import { post as p171 } from './posts/horaires-bruit-chantier-autorises-suisse';
+import { post as p172 } from './posts/independant-reconnu-avs-batiment';
+import { post as p173 } from './posts/instagram-ou-facebook-artisan-batiment';
+import { post as p174 } from './posts/lire-fiche-de-salaire-batiment';
+import { post as p175 } from './posts/logiciel-signature-electronique-chantier';
+import { post as p176 } from './posts/marge-beneficiaire-entreprise-batiment-suisse';
+import { post as p177 } from './posts/negocier-prix-client-compare-plusieurs-devis';
+import { post as p178 } from './posts/norme-aeai-incendie-batiment-obligation';
+import { post as p179 } from './posts/periode-essai-batiment-duree-legale';
+import { post as p180 } from './posts/prix-isolation-facade-m2-suisse';
+import { post as p181 } from './posts/prix-refection-toiture-suisse';
+import { post as p182 } from './posts/prix-renovation-cuisine-suisse';
+import { post as p183 } from './posts/prix-renovation-salle-de-bain-suisse-m2';
+import { post as p184 } from './posts/programme-batiments-subvention-renovation-suisse';
+import { post as p185 } from './posts/provoquer-bouche-a-oreille-artisan';
+import { post as p186 } from './posts/relancer-client-devis-sans-reponse';
+import { post as p187 } from './posts/repondre-appel-offres-public-batiment-etapes';
+import { post as p188 } from './posts/repondre-avis-negatif-google-artisan';
+import { post as p189 } from './posts/seuil-lpp-affiliation-employe-batiment';
+import { post as p190 } from './posts/site-internet-ou-carte-de-visite-artisan';
+import { post as p191 } from './posts/travailleur-detache-batiment-suisse-regles';
+import { post as p192 } from './posts/tva-methode-effective-ou-tdfn-batiment';
+import { post as p193 } from './posts/vacances-construction-suisse-dates-canton';
+import { post as p194 } from './posts/vacances-employe-batiment-cct-jours';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -160,6 +210,9 @@ export const BLOG_POSTS: BlogPost[] = [
   p91, p92, p93, p94, p95, p96, p97, p98, p99, p100, p101, p102, p103, p104, p105, p106, p107, p108, p109, p110,
   p111, p112, p113, p114, p115, p116, p117, p118, p119, p120, p121, p122, p123, p124, p125, p126, p127, p128, p129, p130,
   p131, p132, p133, p134, p135, p136, p137, p138, p139, p140, p141, p142, p143, p144,
+  p145, p146, p147, p148, p149, p150, p151, p152, p153, p154, p155, p156, p157, p158, p159, p160, p161, p162, p163, p164,
+  p165, p166, p167, p168, p169, p170, p171, p172, p173, p174, p175, p176, p177, p178, p179, p180, p181, p182, p183, p184,
+  p185, p186, p187, p188, p189, p190, p191, p192, p193, p194,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));
