@@ -125,30 +125,40 @@ Deno.serve(async (req: Request) => {
           const subtotal = itemsList.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
           const vat = subtotal * (Number(facture.vat_rate) / 100);
           const total = swissRound(subtotal + vat);
-          const reusedContentPage = await appendQrBillPage(
-            pdfDoc,
-            font,
-            fontBold,
-            {
-              iban: org.iban,
-              creditor: {
-                name: org.name ?? pdfT(locale, 'entrepriseFallback'),
-                addressLine1: org.street ?? org.address ?? null,
-                postalCode: org.postal_code ?? null,
-                town: org.locality ?? null,
+          // A partial payment doesn't clear the facture, so the QR-bill
+          // still needs to be generated — but for the *remaining* balance,
+          // not the original total. Without this, regenerating the PDF
+          // after recording, say, CHF 2015.- against a CHF 5600.- facture
+          // still produced a QR-bill asking for the full 5600.- again.
+          const { data: payments } = await admin.from('facture_payments').select('amount').eq('facture_id', facture_id);
+          const paidSum = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+          const amountDue = swissRound(Math.max(0, total - paidSum));
+          if (amountDue > 0) {
+            const reusedContentPage = await appendQrBillPage(
+              pdfDoc,
+              font,
+              fontBold,
+              {
+                iban: org.iban,
+                creditor: {
+                  name: org.name ?? pdfT(locale, 'entrepriseFallback'),
+                  addressLine1: org.street ?? org.address ?? null,
+                  postalCode: org.postal_code ?? null,
+                  town: org.locality ?? null,
+                },
+                amount: amountDue,
+                currency: 'CHF',
+                debtor: facture.client_name
+                  ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
+                  : null,
+                referenceId: facture.id,
+                unstructuredMessage: facture.number ? `${docLabel} ${facture.number}` : undefined,
               },
-              amount: total,
-              currency: 'CHF',
-              debtor: facture.client_name
-                ? { name: facture.client_name, addressLine1: facture.client_address ?? null }
-                : null,
-              referenceId: facture.id,
-              unstructuredMessage: facture.number ? `${docLabel} ${facture.number}` : undefined,
-            },
-            { page: rendered.page, y: rendered.y },
-            locale,
-          );
-          footerOwedOnContentPage = !reusedContentPage;
+              { page: rendered.page, y: rendered.y },
+              locale,
+            );
+            footerOwedOnContentPage = !reusedContentPage;
+          }
         } catch (qrErr) {
           console.error('QR-bill generation failed:', qrErr);
         }

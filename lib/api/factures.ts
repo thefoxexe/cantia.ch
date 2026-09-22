@@ -57,16 +57,20 @@ export async function addLateFeeToFacture(
   return { amount: error ? null : amount, error: error?.message ?? null };
 }
 
-// depositPercent omitted (or null) creates the normal final invoice, which
-// auto-deducts any deposits already billed on the same devis. Passing a
-// percent instead creates a deposit invoice for that share of the devis.
+// Both depositPercent/depositAmount omitted (or null) creates the normal
+// final invoice, which auto-deducts any deposits already billed on the same
+// devis. Passing exactly one of the two creates a deposit invoice instead —
+// either a share of the devis subtotal, or a flat CHF amount typed by the
+// user. Passing both is rejected server-side (convert_devis_to_facture_internal).
 export async function convertDevisToFacture(
   devisId: string,
   depositPercent?: number,
+  depositAmount?: number,
 ): Promise<{ id: string | null; error: string | null }> {
   const { data, error } = await supabase.rpc('convert_devis_to_facture', {
     p_devis_id: devisId,
     p_deposit_percent: depositPercent ?? null,
+    p_deposit_amount: depositAmount ?? null,
   });
   return { id: data ?? null, error: error?.message ?? null };
 }

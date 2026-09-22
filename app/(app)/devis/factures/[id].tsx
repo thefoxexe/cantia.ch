@@ -99,7 +99,9 @@ export default function FactureDetailScreen() {
   const [messageLocale, setMessageLocale] = useState<'fr' | 'de' | 'it'>('fr');
 
   const [depositModalVisible, setDepositModalVisible] = useState(false);
+  const [depositMode, setDepositMode] = useState<'percent' | 'amount'>('percent');
   const [depositPercent, setDepositPercent] = useState('30');
+  const [depositAmount, setDepositAmount] = useState('');
   const [depositError, setDepositError] = useState<string | null>(null);
 
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
@@ -413,14 +415,24 @@ export default function FactureDetailScreen() {
 
   async function handleCreateDeposit() {
     if (!facture?.devis_id) return;
-    const percent = Number(depositPercent.replace(',', '.'));
-    if (!percent || percent <= 0 || percent > 100) {
-      setDepositError(t('factureDetail.invalidPercent'));
-      return;
+    let percent: number | undefined;
+    let amount: number | undefined;
+    if (depositMode === 'percent') {
+      percent = Number(depositPercent.replace(',', '.'));
+      if (!percent || percent <= 0 || percent > 100) {
+        setDepositError(t('factureDetail.invalidPercent'));
+        return;
+      }
+    } else {
+      amount = Number(depositAmount.replace(',', '.'));
+      if (!amount || amount <= 0) {
+        setDepositError(t('factureDetail.invalidAmount'));
+        return;
+      }
     }
     setBusy(true);
     setDepositError(null);
-    const { id: newId, error: rpcError } = await convertDevisToFacture(facture.devis_id, percent);
+    const { id: newId, error: rpcError } = await convertDevisToFacture(facture.devis_id, percent, amount);
     setBusy(false);
     if (rpcError) {
       setDepositError(rpcError);
@@ -457,25 +469,29 @@ export default function FactureDetailScreen() {
     ...(facture.status === 'draft'
       ? ([{ key: 'finalize', icon: 'check', label: t('factureDetail.finalize'), onPress: handleFinalize }] as ActionRow[])
       : []),
-    ...(facture.status !== 'draft' && facture.status !== 'cancelled'
+    ...(facture.status !== 'draft' && facture.status !== 'cancelled' && facture.status !== 'paid'
       ? ([
-          ...(facture.status !== 'paid'
-            ? ([
-                {
-                  key: 'record-payment',
-                  icon: 'plus-circle',
-                  label: t('factureDetail.recordPayment'),
-                  onPress: () => {
-                    setPaymentDate(todayDisplay());
-                    setPaymentAmount(remaining.toFixed(2));
-                    setPaymentError(null);
-                    setPaymentModalVisible(true);
-                    setActionsOpen(false);
-                  },
-                },
-                { key: 'mark-paid', icon: 'check-circle', label: t('factureDetail.markPaid'), onPress: handleMarkPaid },
-              ] as ActionRow[])
-            : []),
+          {
+            key: 'record-payment',
+            icon: 'plus-circle',
+            label: t('factureDetail.recordPayment'),
+            onPress: () => {
+              setPaymentDate(todayDisplay());
+              setPaymentAmount(remaining.toFixed(2));
+              setPaymentError(null);
+              setPaymentModalVisible(true);
+              setActionsOpen(false);
+            },
+          },
+          { key: 'mark-paid', icon: 'check-circle', label: t('factureDetail.markPaid'), onPress: handleMarkPaid },
+        ] as ActionRow[])
+      : []),
+    // Unlike recording a payment, invoicing a deposit doesn't touch THIS
+    // facture at all — it spawns a brand-new one from the same devis (see
+    // convertDevisToFacture) — so there's no reason this facture being
+    // 'draft' should hide it, only 'cancelled' (a dead-end chain) should.
+    ...(facture.status !== 'cancelled'
+      ? ([
           {
             key: 'deposit',
             icon: 'percent',
@@ -777,17 +793,41 @@ export default function FactureDetailScreen() {
             <Text style={styles.modalTitle}>{t('factureDetail.invoiceDepositTitle')}</Text>
             <Text style={styles.meta}>{t('factureDetail.invoiceDepositHint')}</Text>
             <View style={styles.percentPresets}>
-              {DEPOSIT_PRESETS.map((p) => (
-                <Pressable
-                  key={p}
-                  onPress={() => setDepositPercent(String(p))}
-                  style={[styles.percentChip, depositPercent === String(p) && styles.percentChipActive]}
-                >
-                  <Text style={[styles.percentChipText, depositPercent === String(p) && styles.percentChipTextActive]}>{p}%</Text>
-                </Pressable>
-              ))}
+              <Pressable
+                onPress={() => setDepositMode('percent')}
+                style={[styles.percentChip, depositMode === 'percent' && styles.percentChipActive]}
+              >
+                <Text style={[styles.percentChipText, depositMode === 'percent' && styles.percentChipTextActive]}>
+                  {t('factureDetail.depositModePercent')}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setDepositMode('amount')}
+                style={[styles.percentChip, depositMode === 'amount' && styles.percentChipActive]}
+              >
+                <Text style={[styles.percentChipText, depositMode === 'amount' && styles.percentChipTextActive]}>
+                  {t('factureDetail.depositModeAmount')}
+                </Text>
+              </Pressable>
             </View>
-            <Field label={t('factureDetail.percentLabel')} value={depositPercent} onChangeText={setDepositPercent} keyboardType="decimal-pad" />
+            {depositMode === 'percent' ? (
+              <>
+                <View style={styles.percentPresets}>
+                  {DEPOSIT_PRESETS.map((p) => (
+                    <Pressable
+                      key={p}
+                      onPress={() => setDepositPercent(String(p))}
+                      style={[styles.percentChip, depositPercent === String(p) && styles.percentChipActive]}
+                    >
+                      <Text style={[styles.percentChipText, depositPercent === String(p) && styles.percentChipTextActive]}>{p}%</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Field label={t('factureDetail.percentLabel')} value={depositPercent} onChangeText={setDepositPercent} keyboardType="decimal-pad" />
+              </>
+            ) : (
+              <Field label={t('factureDetail.amountLabel')} value={depositAmount} onChangeText={setDepositAmount} keyboardType="decimal-pad" />
+            )}
             {depositError ? <Text style={styles.error}>{depositError}</Text> : null}
             <View style={styles.modalActions}>
               <Button title={t('factureDetail.cancel')} variant="secondary" onPress={() => setDepositModalVisible(false)} style={{ flex: 1 }} />
