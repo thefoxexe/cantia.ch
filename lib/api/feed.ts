@@ -22,6 +22,24 @@ export async function markFeedRead(projectId: string): Promise<void> {
   await supabase.rpc('mark_feed_read', { p_project_id: projectId });
 }
 
+// edited_at is set here and only here — generateReportFromFeed's own
+// update() call above only ever touches report_id, so linking an entry to a
+// report never marks it "modifié". A report always reads the entry's
+// current body at generation time regardless of whether it was ever edited,
+// so there's nothing else to keep in sync.
+export async function updateFeedEntry(entryId: string, body: string): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('feed_entries')
+    .update({ body: body.trim(), edited_at: new Date().toISOString() })
+    .eq('id', entryId);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteFeedEntry(entryId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('feed_entries').delete().eq('id', entryId);
+  return { error: error?.message ?? null };
+}
+
 // One round trip for the whole chantiers list rather than one query per
 // row — keyed by project_id, only chantiers with at least one unread
 // message are present in the result.

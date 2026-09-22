@@ -24,7 +24,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
 import { supabase } from '../lib/supabase';
 import { getSignedUrls } from '../lib/api/storage';
-import { addNoteEntry, addPhotoEntry, addVoiceEntry, generateReportFromFeed, listFeedEntries } from '../lib/api/feed';
+import { addNoteEntry, addPhotoEntry, addVoiceEntry, deleteFeedEntry, generateReportFromFeed, listFeedEntries, updateFeedEntry } from '../lib/api/feed';
 import { captureLocation, exifCoords, exifTakenAt } from '../lib/geo';
 import { useVoiceRecorder } from '../lib/useVoiceRecorder';
 import { useDictation } from '../lib/useDictation';
@@ -62,7 +62,8 @@ function formatDuration(seconds: number | null | undefined): string {
 
 export function ProjectFeed({ projectId }: { projectId: string }) {
   const { t } = useTranslation();
-  const { organization, user } = useAuth();
+  const { organization, user, role } = useAuth();
+  const isOrgAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
   const { width: winWidth } = useWindowDimensions();
   const [entries, setEntries] = useState<FeedEntry[]>([]);
@@ -116,6 +117,58 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   const [pendingLocal, setPendingLocal] = useState<QueuedPhoto[]>([]);
   const [pendingPreviewUris, setPendingPreviewUris] = useState<Record<string, string>>({});
   const [offline, setOffline] = useState(false);
+
+  // Editing an already-posted note in place — deleting is fire-and-confirm
+  // (no local state needed), editing needs a draft to type into before
+  // committing. Only ever one entry at a time.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  function startEdit(entry: FeedEntry) {
+    setEditingId(entry.id);
+    setEditingText(entry.body ?? '');
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditingText('');
+  }
+
+  async function saveEdit() {
+    if (!editingId || savingEdit) return;
+    const body = editingText.trim();
+    if (!body) return;
+    setSavingEdit(true);
+    const { error: err } = await updateFeedEntry(editingId, body);
+    setSavingEdit(false);
+    if (err) {
+      Alert.alert(t('projectFeed.editErrorTitle'), err);
+      return;
+    }
+    setEntries((prev) => prev.map((e) => (e.id === editingId ? { ...e, body, edited_at: new Date().toISOString() } : e)));
+    setEditingId(null);
+    setEditingText('');
+  }
+
+  function confirmDeleteEntry(entry: FeedEntry) {
+    Alert.alert(t('projectFeed.deleteConfirmTitle'), t('projectFeed.deleteConfirmMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('common.delete'),
+        style: 'destructive',
+        onPress: async () => {
+          const { error: err } = await deleteFeedEntry(entry.id);
+          if (err) {
+            Alert.alert(t('projectFeed.deleteErrorTitle'), err);
+            return;
+          }
+          setEntries((prev) => prev.filter((e) => e.id !== entry.id));
+          if (editingId === entry.id) cancelEdit();
+        },
+      },
+    ]);
+  }
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -616,9 +669,39 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
         <View style={[styles.bubble, isMe && styles.bubbleMe]}>
           <View style={styles.bubbleHeader}>
             <Text style={styles.bubbleAuthor}>{isMe ? t('projectFeed.you') : author}</Text>
-            <Text style={styles.bubbleTime}>{time}</Text>
+            <Text style={styles.bubbleTime}>
+              {time}
+              {entry.edited_at ? ` · ${t('projectFeed.edited')}` : ''}
+            </Text>
           </View>
-          {entry.type === 'note' ? (
+          {entry.type === 'note' && editingId === entry.id ? (
+            <View style={styles.editingBox}>
+              <TextInput
+                value={editingText}
+                onChangeText={setEditingText}
+                multiline
+                autoFocus
+                style={styles.editingInput}
+              />
+              <View style={styles.editingActions}>
+                <Pressable onPress={cancelEdit} hitSlop={6} style={styles.editingActionBtn}>
+                  <Text style={styles.editingActionText}>{t('common.cancel')}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={saveEdit}
+                  hitSlop={6}
+                  style={styles.editingActionBtn}
+                  disabled={savingEdit || !editingText.trim()}
+                >
+                  {savingEdit ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : (
+                    <Text style={[styles.editingActionText, styles.editingActionTextPrimary]}>{t('common.save')}</Text>
+                  )}
+                </Pressable>
+              </View>
+            </View>
+          ) : entry.type === 'note' ? (
             <Text style={styles.bubbleText}>{entry.body}</Text>
           ) : entry.type === 'voice' ? (
             <View>
@@ -657,6 +740,18 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
             <View style={styles.usedBadge}>
               <Feather name="check" size={10} color={colors.success} />
               <Text style={styles.usedBadgeText}>{t('projectFeed.includedInReport')}</Text>
+            </View>
+          ) : null}
+          {!selecting && editingId !== entry.id && (isMe || isOrgAdmin) ? (
+            <View style={styles.entryActions}>
+              {entry.type === 'note' && isMe ? (
+                <Pressable onPress={() => startEdit(entry)} hitSlop={8} style={styles.entryActionBtn}>
+                  <Feather name="edit-2" size={12} color={colors.textMuted} />
+                </Pressable>
+              ) : null}
+              <Pressable onPress={() => confirmDeleteEntry(entry)} hitSlop={8} style={styles.entryActionBtn}>
+                <Feather name="trash-2" size={12} color={colors.textMuted} />
+              </Pressable>
             </View>
           ) : null}
         </View>
@@ -1155,6 +1250,46 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.success,
     fontWeight: '600',
+  },
+  entryActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  entryActionBtn: {
+    padding: 2,
+  },
+  editingBox: {
+    gap: spacing.xs,
+  },
+  editingInput: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    lineHeight: 19,
+    minHeight: 40,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  editingActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+  },
+  editingActionBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  editingActionText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  editingActionTextPrimary: {
+    color: colors.primary,
   },
   generatePanel: {
     gap: spacing.sm,

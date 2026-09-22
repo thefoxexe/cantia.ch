@@ -81,6 +81,86 @@ export function drawText(page: PDFPage, text: string, x: number, y: number, font
   page.drawText(sanitizePdfText(text), { x, y, size, font, color });
 }
 
+export interface RichTextRun {
+  text: string;
+  bold: boolean;
+}
+
+// Splits "hello **world** foo" into runs so **...** can render as actual
+// bold glyphs instead of literal asterisks — pdf-lib has no markdown/rich-
+// text support, so this is the only way to mix two fonts on one line. An
+// unmatched "**" (odd count) just falls through as plain text with the
+// asterisks kept, rather than throwing.
+function parseBoldRuns(paragraph: string): RichTextRun[] {
+  const runs: RichTextRun[] = [];
+  const re = /\*\*(.+?)\*\*/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(paragraph))) {
+    if (match.index > lastIndex) runs.push({ text: paragraph.slice(lastIndex, match.index), bold: false });
+    runs.push({ text: match[1], bold: true });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < paragraph.length) runs.push({ text: paragraph.slice(lastIndex), bold: false });
+  return runs;
+}
+
+function tokenizeBoldRuns(paragraph: string): RichTextRun[] {
+  const tokens: RichTextRun[] = [];
+  for (const run of parseBoldRuns(paragraph)) {
+    for (const word of run.text.split(' ')) {
+      if (word.length > 0) tokens.push({ text: word, bold: run.bold });
+    }
+  }
+  return tokens;
+}
+
+// wrapText's bold-aware sibling: same greedy word-wrap, but each returned
+// line is a list of {text, bold} runs (words) instead of one plain string,
+// so drawRichLine can switch fonts mid-line. Text with no "**" at all wraps
+// identically to wrapText — every run just comes back bold: false.
+export function wrapRichText(text: string, font: PDFFont, fontBold: PDFFont, size: number, maxWidth: number): RichTextRun[][] {
+  const lines: RichTextRun[][] = [];
+  for (const paragraph of sanitizePdfText(text).split('\n')) {
+    const tokens = tokenizeBoldRuns(paragraph);
+    if (tokens.length === 0) {
+      lines.push([]);
+      continue;
+    }
+    const spaceWidth = font.widthOfTextAtSize(' ', size);
+    let current: RichTextRun[] = [];
+    let currentWidth = 0;
+    for (const tok of tokens) {
+      const tokWidth = (tok.bold ? fontBold : font).widthOfTextAtSize(tok.text, size);
+      const extra = current.length > 0 ? spaceWidth + tokWidth : tokWidth;
+      if (currentWidth + extra > maxWidth && current.length > 0) {
+        lines.push(current);
+        current = [tok];
+        currentWidth = tokWidth;
+      } else {
+        current.push(tok);
+        currentWidth += extra;
+      }
+    }
+    if (current.length > 0) lines.push(current);
+  }
+  return lines;
+}
+
+// Draws one wrapRichText line, switching between font/fontBold per run.
+// Tokens are already sanitized (wrapRichText sanitizes per-paragraph before
+// tokenizing), so no second sanitizePdfText pass here.
+export function drawRichLine(page: PDFPage, tokens: RichTextRun[], x: number, y: number, font: PDFFont, fontBold: PDFFont, size: number, color: RGB = INK) {
+  let cursorX = x;
+  const spaceWidth = font.widthOfTextAtSize(' ', size);
+  tokens.forEach((tok, i) => {
+    const tokFont = tok.bold ? fontBold : font;
+    if (i > 0) cursorX += spaceWidth;
+    page.drawText(tok.text, { x: cursorX, y, size, font: tokFont, color });
+    cursorX += tokFont.widthOfTextAtSize(tok.text, size);
+  });
+}
+
 export function drawTextRight(page: PDFPage, text: string, xRight: number, y: number, font: PDFFont, size: number, color: RGB = INK) {
   const safe = sanitizePdfText(text);
   const w = font.widthOfTextAtSize(safe, size);

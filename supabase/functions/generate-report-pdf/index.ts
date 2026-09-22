@@ -11,6 +11,7 @@ import {
   WHITE,
   drawFooter,
   drawPhotoGrid,
+  drawRichLine,
   drawText,
   drawTextRight,
   embedImageSmart,
@@ -24,7 +25,7 @@ import {
   resolveFooterText,
   resolveLogoPlacement,
   resolvePdfTemplate,
-  wrapText,
+  wrapRichText,
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
 
@@ -217,10 +218,10 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       if (!report.notes?.trim()) return;
       sectionLabel('NOTES');
       y -= 16;
-      const lines = wrapText(report.notes, font, 10, PAGE_WIDTH - 2 * MARGIN);
+      const lines = wrapRichText(report.notes, font, fontBold, 10, PAGE_WIDTH - 2 * MARGIN);
       for (const line of lines) {
         if (y < MARGIN + 60) newPage();
-        drawText(page, line, MARGIN, y, font, 10, INK);
+        drawRichLine(page, line, MARGIN, y, font, fontBold, 10, INK);
         y -= 13;
       }
       y -= 10;

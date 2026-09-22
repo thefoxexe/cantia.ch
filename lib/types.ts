@@ -251,6 +251,7 @@ export interface FeedEntry {
   report_id: string | null;
   created_by: string | null;
   created_at: string;
+  edited_at: string | null;
 }
 
 export interface ProjectExpense {
