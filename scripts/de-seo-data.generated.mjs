@@ -3454,7 +3454,9 @@ export const BLOG_DATES_FR = {
   "comment-facturer-premiers-clients-debut-activite": "2026-07-26",
   "contrat-ecrit-petits-travaux-quand-necessaire": "2026-05-18",
   "contrat-entreprise-vs-mandat-artisan": "2026-03-19",
+  "cout-creation-entreprise-construction-suisse": "2026-09-10",
   "creer-champ-processus-sur-mesure-logiciel-gestion": "2026-08-18",
+  "creer-entreprise-batiment-suisse-guide-complet": "2026-09-18",
   "crm-artisan-batiment-pourquoi-utile": "2026-06-05",
   "defaut-construction-decouvert-apres-reception-qui-paie": "2026-03-09",
   "degats-voisinage-chantier-qui-est-responsable": "2026-06-19",
@@ -3476,6 +3478,7 @@ export const BLOG_DATES_FR = {
   "devis-peintre-batiment-calcul-surface-suisse": "2026-09-02",
   "difference-devis-offre-facture-pro-forma": "2026-05-11",
   "difference-sia-108-sia-118-devis-contrat": "2026-06-17",
+  "dix-erreurs-premiere-annee-entreprise-batiment": "2026-09-15",
   "duree-conservation-devis-factures-suisse": "2026-02-16",
   "duree-validite-devis-non-signe-combien-temps": "2026-06-09",
   "erreurs-choisir-premier-logiciel-gestion": "2026-08-09",
@@ -3496,6 +3499,7 @@ export const BLOG_DATES_FR = {
   "gestion-entreprise-sur-mobile-artisan": "2026-07-20",
   "heures-supplementaires-batiment-majoration-25": "2026-03-26",
   "hypotheque-legale-artisans-entrepreneurs-suisse": "2026-08-24",
+  "immatriculer-entreprise-construction-registre-commerce": "2026-09-12",
   "indemnites-kilometriques-2026-nouveau-taux": "2026-03-30",
   "integration-bexio-cantia-synchronisation-automatique": "2026-08-25",
   "lancer-entreprise-batiment-suisse-par-ou-commencer": "2026-08-13",
@@ -3540,6 +3544,7 @@ export const BLOG_DATES_FR = {
   "previsionnel-tresorerie-entreprise-batiment": "2026-07-05",
   "qr-facture-obligatoire-2026": "2026-01-19",
   "quel-logiciel-choisir-demarrer-entreprise-construction": "2026-07-08",
+  "raison-individuelle-sarl-sa-quel-statut-batiment": "2026-09-08",
   "reception-travaux-proces-verbal-chantier": "2026-08-21",
   "rediger-devis-qui-inspire-confiance-client": "2026-02-19",
   "relancer-client-facture-impayee-sans-perdre-client": "2026-02-26",
@@ -3669,7 +3674,7 @@ export const HELP_SEO_FR = [
   },
   {
     "path": "aide/depenses",
-    "title": "Dépenses : la vue d’ensemble | Centre d'aide Cantia",
+    "title": "Dépenses : créer, suivre et filtrer | Centre d'aide Cantia",
     "description": "La section Dépenses (dans la navigation, à côté de Trésorerie) regroupe en une seule liste toutes les dépenses de l'entreprise : celles liées à un…"
   },
   {
@@ -3766,8 +3771,83 @@ export const HELP_SEO_DE = [
     "description": "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und…"
   },
   {
+    "path": "de/aide/tableau-de-bord",
+    "title": "Die Startseite verstehen | Cantia Hilfe-Center",
+    "description": "Der Startbildschirm zeigt die Kennzahlen, die im Alltag zählen: Offerten, die auf eine Antwort warten, unbezahlte oder überfällige Rechnungen und aktuell…"
+  },
+  {
+    "path": "de/aide/rejoindre-organisation",
+    "title": "Einer bestehenden Organisation beitreten | Cantia Hilfe-Center",
+    "description": "Wenn Ihr Unternehmen Cantia bereits nutzt, müssen Sie keine neue Organisation erstellen: Ein Administrator sendet Ihnen einen Einladungslink (unter Konto…"
+  },
+  {
+    "path": "de/aide/dictee-vocale",
+    "title": "Die Spracheingabe, überall in Cantia | Cantia Hilfe-Center",
+    "description": "Die Mikrofon-Schaltfläche erscheint überall dort, wo Sie in Cantia etwas eingeben: eine Offertposition, eine Nachricht im Baustellen-Feed, eine Notiz im…"
+  },
+  {
+    "path": "de/aide/chantiers-documents",
+    "title": "Fotos und Dokumente der Baustelle | Cantia Hilfe-Center",
+    "description": "Jede Baustelle hat ihren eigenen Dokumentenbereich, organisiert in Ordnern (Pläne, Bewilligungen, Verträge, Lieferantenrechnungen…) statt eines einfachen…"
+  },
+  {
+    "path": "de/aide/chantiers-sous-traitants",
+    "title": "Subunternehmer auf einer Baustelle | Cantia Hilfe-Center",
+    "description": "Ein Subunternehmer kann direkt zu einer bestimmten Baustelle hinzugefügt werden, mit seinen eigenen Kontaktdaten und der Nachverfolgung seiner mit dieser…"
+  },
+  {
+    "path": "de/aide/travaux-supplementaires",
+    "title": "Zusatzarbeiten (ZA) | Cantia Hilfe-Center",
+    "description": "Eine Zusatzarbeit (ZA) ist ein eigenständiges Dokument für alles, was während der Bauausführung zusätzlich zur ursprünglichen Offerte verlangt wird "
+  },
+  {
+    "path": "de/aide/rh-heures-salaires",
+    "title": "Stunden, Spesen und Lohnabrechnungen | Cantia Hilfe-Center",
+    "description": "Jeder Mitarbeiter erfasst seine Arbeitsstunden direkt über sein Smartphone, zugeordnet zu einer bestimmten Baustelle "
+  },
+  {
     "path": "de/aide/rh-heures-guide",
     "title": "Arbeitszeit erfassen und pro Baustelle verrechnen — Schritt für Schritt | Cantia Hilfe-Center",
     "description": "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt — vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen…"
+  },
+  {
+    "path": "de/aide/tresorerie",
+    "title": "Liquiditätsprognose | Cantia Hilfe-Center",
+    "description": "Das Modul Liquidität projiziert Ihren zukünftigen Saldo über 90 Tage, basierend auf dem, was Cantia bereits über Ihre Tätigkeit weiss: offene…"
+  },
+  {
+    "path": "de/aide/depenses",
+    "title": "Ausgaben: erstellen, verfolgen und filtern | Cantia Hilfe-Center",
+    "description": "Der Bereich Ausgaben (in der Navigation, neben Liquidität) bündelt in einer einzigen Liste alle Ausgaben des Unternehmens: die einer bestimmten Baustelle…"
+  },
+  {
+    "path": "de/aide/clients",
+    "title": "Die Kundenkartei | Cantia Hilfe-Center",
+    "description": "Jeder Kunde hat seine eigene Kundenkartei: Kontaktdaten, vollständiger Verlauf seiner Offerten, Rechnungen und Baustellen, sowie Notizen zur…"
+  },
+  {
+    "path": "de/aide/sous-traitants",
+    "title": "Das Verzeichnis der Subunternehmer | Cantia Hilfe-Center",
+    "description": "Das Modul Subunternehmer (aktivierbar unter Konto → Module) bündelt alle Subunternehmer, mit denen Sie zusammenarbeiten, über eine einzelne Baustelle…"
+  },
+  {
+    "path": "de/aide/integration-bexio",
+    "title": "Bexio-Integration | Cantia Hilfe-Center",
+    "description": "Die Bexio-Integration (verfügbar ab dem Team-Plan) verbindet Cantia über die offizielle Bexio-API mit Ihrer Buchhaltung, unter Konto → Integrationen."
+  },
+  {
+    "path": "de/aide/relances-impayes",
+    "title": "Eine unbezahlte Rechnung mahnen | Cantia Hilfe-Center",
+    "description": "Eine überfällige Rechnung erscheint direkt auf der Startseite und in der Rechnungsliste, ohne dass ein Kontoauszug manuell mit einer Liste versendeter…"
+  },
+  {
+    "path": "de/aide/import-releve-bancaire",
+    "title": "Kontoauszug importieren | Cantia Hilfe-Center",
+    "description": "Unter Rechnungsstellung → Kontoauszug-Import kann eine Kontoauszugsdatei (insbesondere im camt.053-Format) importiert werden, um erhaltene Zahlungen…"
+  },
+  {
+    "path": "de/aide/portail-client",
+    "title": "Was der Kunde auf seinem Portal sieht | Cantia Hilfe-Center",
+    "description": "Der an einen Kunden gesendete Link öffnet ein sicheres Portal, ohne dass er ein Konto oder Passwort erstellen muss "
   }
 ];

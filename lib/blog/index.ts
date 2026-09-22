@@ -139,6 +139,11 @@ import { post as p135 } from './posts/pourquoi-modeles-figes-ne-conviennent-pas-
 import { post as p136 } from './posts/demander-fonctionnalite-sur-mesure-editeur-logiciel';
 import { post as p137 } from './posts/automatiser-suivi-administratif-entreprise-artisanale';
 import { post as p138 } from './posts/logiciel-construit-avec-vous-sur-mesure';
+import { post as p139 } from './posts/raison-individuelle-sarl-sa-quel-statut-batiment';
+import { post as p140 } from './posts/cout-creation-entreprise-construction-suisse';
+import { post as p141 } from './posts/immatriculer-entreprise-construction-registre-commerce';
+import { post as p142 } from './posts/dix-erreurs-premiere-annee-entreprise-batiment';
+import { post as p143 } from './posts/creer-entreprise-batiment-suisse-guide-complet';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -153,7 +158,7 @@ export const BLOG_POSTS: BlogPost[] = [
   p71, p72, p73, p74, p75, p76, p77, p78, p79, p80, p81, p82, p83, p84, p85, p86, p87, p88, p89, p90,
   p91, p92, p93, p94, p95, p96, p97, p98, p99, p100, p101, p102, p103, p104, p105, p106, p107, p108, p109, p110,
   p111, p112, p113, p114, p115, p116, p117, p118, p119, p120, p121, p122, p123, p124, p125, p126, p127, p128, p129, p130,
-  p131, p132, p133, p134, p135, p136, p137, p138,
+  p131, p132, p133, p134, p135, p136, p137, p138, p139, p140, p141, p142, p143,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

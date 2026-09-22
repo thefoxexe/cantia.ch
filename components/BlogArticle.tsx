@@ -214,9 +214,31 @@ function BlockRenderer({ block }: { block: BlogPost['blocks'][number] }) {
           </Link>
         </View>
       );
+    case 'linklist':
+      return <LinkListBlock block={block} />;
     default:
       return null;
   }
+}
+
+function LinkListBlock({ block }: { block: Extract<BlogPost['blocks'][number], { type: 'linklist' }> }) {
+  const locale = getAppLocale();
+  const blogHrefPrefix = locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog';
+  return (
+    <View style={styles.linklist}>
+      <Text style={styles.linklistTitle}>{block.title}</Text>
+      <View style={styles.linklistItems}>
+        {block.items.map((item) => (
+          <Link key={item.slug} href={`${blogHrefPrefix}/${item.slug}` as any} asChild>
+            <Pressable style={styles.linklistRow}>
+              <Text style={styles.linklistRowText}>{item.label}</Text>
+              <Feather name="arrow-right" size={13} color={colors.primary} />
+            </Pressable>
+          </Link>
+        ))}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -453,6 +475,41 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
     lineHeight: 19,
+  },
+  linklist: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  linklistTitle: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  linklistItems: {
+    gap: 2,
+  },
+  linklistRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  linklistRowText: {
+    flex: 1,
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.primaryDark,
+    lineHeight: 20,
   },
   section: {
     maxWidth: 760,

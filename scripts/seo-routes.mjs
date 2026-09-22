@@ -1817,6 +1817,61 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/raison-individuelle-sarl-sa-quel-statut-batiment',
+    title: 'Raison individuelle, Sàrl ou SA : quel statut pour une entreprise du bâtiment | Cantia',
+    description:
+      'Raison individuelle, Sàrl ou SA pour se lancer dans le bâtiment en Suisse : capital, responsabilité, coûts de création et le vrai critère de choix, avec un tableau comparatif.',
+    faq: [
+      { q: 'Peut-on démarrer en raison individuelle et passer en Sàrl plus tard ?', a: 'Oui, c\'est même la trajectoire la plus fréquente dans le bâtiment : démarrer en raison individuelle pour limiter les frais de création, puis basculer vers une Sàrl une fois l\'activité stabilisée et le risque financier devenu significatif.' },
+      { q: 'Faut-il un capital minimum pour créer une raison individuelle ?', a: 'Non, aucun capital minimum n\'est exigé pour une raison individuelle, contrairement à la Sàrl (CHF 20’000) ou à la SA (CHF 100’000).' },
+      { q: 'La responsabilité illimitée d\'une raison individuelle concerne-t-elle uniquement les biens professionnels ?', a: 'Non, elle engage l\'ensemble du patrimoine personnel de l\'entrepreneur, pas seulement les actifs affectés à l\'activité professionnelle — c\'est la différence essentielle avec une structure à responsabilité limitée.' },
+    ],
+  },
+  {
+    path: 'blog/cout-creation-entreprise-construction-suisse',
+    title: 'Combien coûte réellement la création d\'une entreprise de construction | Cantia',
+    description:
+      'Le budget réel pour lancer une entreprise du bâtiment en Suisse : frais d\'inscription, assurances, outillage, trésorerie de départ et le poste que presque personne ne budgète.',
+    faq: [
+      { q: 'Combien coûte réellement la création d\'une raison individuelle dans le bâtiment ?', a: 'L\'inscription elle-même coûte quasiment rien (numéro IDE gratuit, aucun capital minimum), mais le budget réel de démarrage inclut aussi les assurances, l\'outillage et plusieurs mois de trésorerie de charges fixes, souvent plusieurs milliers de francs au total.' },
+      { q: 'Quel est le poste de coût le plus souvent sous-estimé au démarrage ?', a: 'La trésorerie de départ : le délai entre le premier chantier signé et le premier encaissement réel dépasse souvent deux à trois mois, pendant lesquels les charges fixes continuent de tomber.' },
+      { q: 'Faut-il souscrire une assurance RC professionnelle dès la création de l\'entreprise ?', a: 'Dans la pratique, presque toujours oui : de nombreux maîtres d\'ouvrage et architectes l\'exigent avant même de signer un premier devis, même quand elle n\'est pas légalement obligatoire pour le métier concerné.' },
+    ],
+  },
+  {
+    path: 'blog/immatriculer-entreprise-construction-registre-commerce',
+    title: 'Comment immatriculer son entreprise de construction au registre du commerce | Cantia',
+    description:
+      'La procédure concrète pour inscrire une entreprise du bâtiment au registre du commerce suisse : quand c\'est obligatoire, les étapes, les documents et les délais réels.',
+    faq: [
+      { q: 'Une raison individuelle doit-elle obligatoirement s\'inscrire au registre du commerce ?', a: 'Seulement à partir de CHF 100’000 de chiffre d\'affaires annuel. En dessous de ce seuil, l\'inscription reste facultative, même si elle peut être utile pour la crédibilité commerciale ou l\'accès à certains marchés.' },
+      { q: 'Faut-il un numéro IDE même sans inscription au registre du commerce ?', a: 'Oui, le numéro IDE est nécessaire dès le début de l\'activité indépendante, indépendamment de l\'inscription au registre du commerce, et s\'obtient gratuitement auprès de l\'Office fédéral de la statistique.' },
+      { q: 'Combien de temps prend l\'inscription d\'une Sàrl au registre du commerce ?', a: 'Généralement une à trois semaines entre le dépôt du dossier complet chez le notaire et l\'inscription effective, selon le canton et la charge de l\'office du registre du commerce concerné.' },
+    ],
+  },
+  {
+    path: 'blog/dix-erreurs-premiere-annee-entreprise-batiment',
+    title: 'Les 10 erreurs à éviter la première année d\'une entreprise du bâtiment | Cantia',
+    description:
+      '10 erreurs qui reviennent le plus souvent chez les jeunes entreprises du bâtiment en Suisse — et comment les éviter, avant qu\'elles ne coûtent une marge entière.',
+    faq: [
+      { q: 'Quelle est l\'erreur la plus coûteuse la première année d\'une entreprise du bâtiment ?', a: 'Ne pas savoir, chantier par chantier, lequel a réellement fait gagner de l\'argent et lequel a fait perdre : sans ce suivi, une entreprise très occupée peut rester peu rentable sans que personne ne s\'en aperçoive avant la fin de l\'année.' },
+      { q: 'Un carnet de commandes plein garantit-il une entreprise rentable ?', a: 'Non, une activité intense peut coexister avec une rentabilité médiocre si certains chantiers sont sous-évalués ou si le suivi financier par chantier n\'existe pas.' },
+      { q: 'Combien de temps faut-il prévoir en trésorerie tampon au démarrage ?', a: 'Généralement deux à trois mois de charges fixes, pour couvrir le délai habituel entre le premier chantier signé et le premier encaissement réel.' },
+    ],
+  },
+  {
+    path: 'blog/creer-entreprise-batiment-suisse-guide-complet',
+    title: 'Créer une entreprise du bâtiment en Suisse : le guide complet | Cantia',
+    description:
+      'Le parcours complet pour créer une entreprise du bâtiment en Suisse : statut juridique, immatriculation, budget réel, premiers outils, premiers clients et premier employé.',
+    faq: [
+      { q: 'Par quelle étape commencer pour créer une entreprise du bâtiment en Suisse ?', a: 'Par le choix du statut juridique (raison individuelle, Sàrl ou SA), qui conditionne les démarches d\'immatriculation suivantes et le niveau de risque financier personnel accepté.' },
+      { q: 'Faut-il tout mettre en place avant le premier chantier ?', a: 'Non : le statut juridique, l\'assurance RC professionnelle et un outil de devis/factures conforme sont indispensables dès le début, mais le reste (RH, planning multi-équipe, rentabilité fine) peut s\'activer progressivement.' },
+      { q: 'Combien de temps prend réellement la création d\'une entreprise du bâtiment en Suisse ?', a: 'Une raison individuelle peut démarrer en quelques jours. Une Sàrl prend généralement une à trois semaines entre le rendez-vous notarial et l\'inscription effective au registre du commerce.' },
+    ],
+  },
+  {
     path: 'metiers',
     title: 'Cantia pour votre métier | Logiciel de gestion par métier',
     description:

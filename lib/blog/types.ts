@@ -9,7 +9,12 @@ export type BlogBlock =
   | { type: 'callout'; title: string; text: string }
   | { type: 'stat'; value: string; label: string }
   | { type: 'table'; headers: string[]; rows: string[][] }
-  | { type: 'cta'; title: string; text: string; buttonLabel: string };
+  | { type: 'cta'; title: string; text: string; buttonLabel: string }
+  // A grouped set of internal links to other blog slugs, rendered as tappable
+  // rows under a heading — used by hub/pillar articles that need to link out
+  // to many related posts, beyond the 3-card "see also" grid every article
+  // already gets from relatedSlugs.
+  | { type: 'linklist'; title: string; items: { label: string; slug: string }[] };
 
 export interface BlogFaqItem {
   question: string;
