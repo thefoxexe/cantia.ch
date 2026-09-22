@@ -195,6 +195,56 @@ import { post as p191 } from './posts/travailleur-detache-batiment-suisse-regles
 import { post as p192 } from './posts/tva-methode-effective-ou-tdfn-batiment';
 import { post as p193 } from './posts/vacances-construction-suisse-dates-canton';
 import { post as p194 } from './posts/vacances-employe-batiment-cct-jours';
+import { post as p195 } from './posts/action-garantie-sous-traitant-entrepreneur-general';
+import { post as p196 } from './posts/affacturage-factoring-entreprise-batiment-suisse';
+import { post as p197 } from './posts/arbitrage-sia-mediation-professionnelle-batiment';
+import { post as p198 } from './posts/assurance-bris-machine-outillage-chantier';
+import { post as p199 } from './posts/assurance-cyber-pme-batiment-donnees-clients';
+import { post as p200 } from './posts/assurance-perte-exploitation-chantier-arrete';
+import { post as p201 } from './posts/assurance-protection-juridique-entreprise-batiment';
+import { post as p202 } from './posts/assurance-transport-materiel-chantier';
+import { post as p203 } from './posts/bilan-carbone-chantier-construction-suisse';
+import { post as p204 } from './posts/cautionnement-bancaire-entreprise-generale-suisse';
+import { post as p205 } from './posts/certificat-energetique-cantonal-geak-batiment';
+import { post as p206 } from './posts/chantier-copropriete-ppe-facturation-suisse';
+import { post as p207 } from './posts/chantier-propre-reduire-nuisances-voisinage';
+import { post as p208 } from './posts/comparer-devis-fournisseurs-materiaux-methode';
+import { post as p209 } from './posts/construction-modulaire-prefabriquee-suisse';
+import { post as p210 } from './posts/cooperative-cautionnement-pme-financement-batiment';
+import { post as p211 } from './posts/credit-construction-hypothecaire-entreprise-batiment';
+import { post as p212 } from './posts/deleguer-sans-tout-controler-patron-artisan';
+import { post as p213 } from './posts/devis-facture-construction-bois-ossature-suisse';
+import { post as p214 } from './posts/devis-facture-demolition-suisse';
+import { post as p215 } from './posts/devis-facture-echafaudeur-suisse';
+import { post as p216 } from './posts/devis-facture-entreprise-renovation-suisse';
+import { post as p217 } from './posts/devis-facture-etancheur-suisse';
+import { post as p218 } from './posts/devis-facture-genie-civil-suisse';
+import { post as p219 } from './posts/devis-facture-parqueteur-suisse';
+import { post as p220 } from './posts/devis-facture-vitrier-suisse';
+import { post as p221 } from './posts/entretien-annuel-employe-batiment-comment-faire';
+import { post as p222 } from './posts/expertise-judiciaire-malfacon-construction-suisse';
+import { post as p223 } from './posts/faillite-client-creance-impayee-que-faire';
+import { post as p224 } from './posts/formation-continue-obligatoire-batiment-suisse';
+import { post as p225 } from './posts/gerer-conflit-entre-deux-ouvriers-chantier';
+import { post as p226 } from './posts/gestion-dechets-chantier-tri-obligatoire-suisse';
+import { post as p227 } from './posts/gestion-entreprise-generale-sous-traitants-suisse';
+import { post as p228 } from './posts/groupement-achat-artisans-batiment-suisse';
+import { post as p229 } from './posts/leasing-machines-vehicules-chantier-suisse';
+import { post as p230 } from './posts/ligne-de-credit-tresorerie-pme-batiment';
+import { post as p231 } from './posts/motiver-equipe-chantier-batiment-quotidien';
+import { post as p232 } from './posts/negocier-prix-fournisseur-materiaux-batiment';
+import { post as p233 } from './posts/norme-minergie-batiment-explication';
+import { post as p234 } from './posts/onboarding-nouvel-apprenti-premieres-semaines';
+import { post as p235 } from './posts/prime-fin-annee-ou-13e-salaire-difference';
+import { post as p236 } from './posts/racheter-entreprise-batiment-existante-suisse';
+import { post as p237 } from './posts/reemploi-materiaux-economie-circulaire-batiment';
+import { post as p238 } from './posts/renovation-apres-sinistre-degat-eau-assurance';
+import { post as p239 } from './posts/renovation-batiment-historique-protege-suisse';
+import { post as p240 } from './posts/responsabilite-apres-livraison-travaux-assurance';
+import { post as p241 } from './posts/rupture-stock-fournisseur-chantier-que-faire';
+import { post as p242 } from './posts/saisie-conservatoire-creance-impayee-batiment';
+import { post as p243 } from './posts/succession-familiale-entreprise-artisanale-batiment';
+import { post as p244 } from './posts/transmettre-entreprise-batiment-retraite';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -213,6 +263,9 @@ export const BLOG_POSTS: BlogPost[] = [
   p145, p146, p147, p148, p149, p150, p151, p152, p153, p154, p155, p156, p157, p158, p159, p160, p161, p162, p163, p164,
   p165, p166, p167, p168, p169, p170, p171, p172, p173, p174, p175, p176, p177, p178, p179, p180, p181, p182, p183, p184,
   p185, p186, p187, p188, p189, p190, p191, p192, p193, p194,
+  p195, p196, p197, p198, p199, p200, p201, p202, p203, p204, p205, p206, p207, p208, p209, p210, p211, p212, p213, p214,
+  p215, p216, p217, p218, p219, p220, p221, p222, p223, p224, p225, p226, p227, p228, p229, p230, p231, p232, p233, p234,
+  p235, p236, p237, p238, p239, p240, p241, p242, p243, p244,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

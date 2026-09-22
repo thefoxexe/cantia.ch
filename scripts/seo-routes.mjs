@@ -3250,6 +3250,556 @@ export const ROUTES = [
     description:
       'Scarichi la brochure di presentazione Cantia in PDF: funzionalità, tariffe e vantaggi per le imprese edili in Svizzera.',
   },
+  {
+    path: 'blog/action-garantie-sous-traitant-entrepreneur-general',
+    title: 'Action en garantie entre sous-traitant et entrepreneur général | Cantia',
+    description:
+      'Comment fonctionne l’action en garantie entre un sous-traitant et un entrepreneur général en cas de défaut, et pourquoi une assurance RC pro propre est essentielle.',
+    faq: [
+      { q: 'Le maître d’ouvrage peut-il agir directement contre un sous-traitant ?', a: 'En général non, faute de lien contractuel direct entre eux — le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire.' },
+      { q: 'Dans quel délai une action en garantie peut-elle être engagée ?', a: 'Cela dépend des délais de garantie prévus au contrat et des règles de prescription applicables, qui varient selon les cas. Consultez un avocat pour évaluer les délais précis de votre situation.' },
+      { q: 'Une clause contractuelle peut-elle limiter la responsabilité d’un sous-traitant ?', a: 'Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances — à vérifier avec un avocat lors de la rédaction du contrat.' },
+    ],
+  },
+  {
+    path: 'blog/affacturage-factoring-entreprise-batiment-suisse',
+    title: 'L’affacturage (factoring) pour une entreprise du bâtiment : bonne idée ? | Cantia',
+    description:
+      'Comment fonctionne l’affacturage, ses avantages et ses inconvénients pour une entreprise du bâtiment, et dans quels cas précis il vaut vraiment le coût de la commission.',
+    faq: [
+      { q: 'L’affacturage est-il réservé aux grandes entreprises ?', a: 'Non, des formules existent aussi pour les PME, mais leur intérêt économique dépend du volume et du montant des factures concernées. En dessous d’un certain seuil, le coût peut ne pas justifier la mise en place.' },
+      { q: 'Le client sait-il que sa facture a été cédée à un organisme de factoring ?', a: 'Oui, en général le client est informé et règle directement l’organisme de factoring plutôt que l’entreprise elle-même. Certaines formules plus discrètes existent, mais elles restent moins courantes.' },
+      { q: 'L’affacturage couvre-t-il le risque d’impayé total ?', a: 'Cela dépend de la formule choisie : certains contrats transfèrent une partie du risque d’impayé à l’organisme de factoring, d’autres non. C’est un point essentiel à clarifier avant de signer.' },
+    ],
+  },
+  {
+    path: 'blog/arbitrage-sia-mediation-professionnelle-batiment',
+    title: 'Arbitrage SIA : une alternative au tribunal pour un litige de chantier | Cantia',
+    description:
+      'Ce qu’est une clause d’arbitrage SIA dans un contrat de construction, ses avantages et inconvénients face à un tribunal ordinaire, et comment savoir si elle s’applique.',
+    faq: [
+      { q: 'Comment savoir si mon contrat contient une clause d’arbitrage SIA ?', a: 'En relisant les conditions générales ou les clauses particulières du contrat, souvent en référence aux normes SIA 118. En cas de doute, un avocat peut confirmer si la clause s’applique à votre situation.' },
+      { q: 'Peut-on refuser l’arbitrage si le contrat le prévoit ?', a: 'Généralement non, une fois la clause acceptée dans le contrat, elle engage les deux parties pour la résolution d’un litige futur, sauf accord mutuel de la modifier.' },
+      { q: 'Une sentence arbitrale peut-elle être contestée devant un tribunal ?', a: 'Les possibilités de recours sont généralement très limitées, contrairement à un jugement ordinaire. Consultez un avocat pour connaître les voies de recours applicables à votre situation précise.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-bris-machine-outillage-chantier',
+    title: 'Assurance bris de machine et vol d’outillage sur chantier | Cantia',
+    description:
+      'Pourquoi l’outillage laissé sur chantier attire le vol, la différence entre assurance choses classique et couverture outillage mobile, et ce qu’il faut vérifier avant de signer.',
+    faq: [
+      { q: 'L’assurance de l’entreprise couvre-t-elle automatiquement le vol sur chantier ?', a: 'Pas toujours. Une police d’assurance choses standard couvre en général le matériel dans les locaux de l’entreprise, pas systématiquement sur chantier. Il faut vérifier ou ajouter une extension outillage mobile.' },
+      { q: 'Faut-il assurer chaque outil individuellement ?', a: 'Non, la plupart des contrats fonctionnent avec une valeur totale déclarée pour l’ensemble du parc, complétée par un plafond par objet pour les machines les plus coûteuses. L’important est de tenir cette liste à jour.' },
+      { q: 'Le bris accidentel est-il couvert de la même façon que le vol ?', a: 'Généralement non, ce sont souvent deux garanties distinctes dans le contrat, avec des conditions et parfois des franchises différentes. Il faut vérifier que les deux sont bien incluses, pas seulement le vol.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-cyber-pme-batiment-donnees-clients',
+    title: 'Assurance cyber pour une PME du bâtiment : pourquoi y penser | Cantia',
+    description:
+      'Pourquoi une petite entreprise du bâtiment n’est pas à l’abri d’un incident numérique, ce que couvre en général une assurance cyber, et pourquoi les bonnes pratiques restent la première ligne de défense.',
+    faq: [
+      { q: 'Une entreprise de quelques employés est-elle vraiment une cible ?', a: 'Oui, les attaques automatisées ne ciblent pas la taille de l’entreprise mais les failles trouvées. Une petite structure avec des accès mal protégés est souvent plus facile à atteindre qu’une grande entreprise mieux équipée.' },
+      { q: 'L’assurance cyber couvre-t-elle la rançon elle-même en cas de rançongiciel ?', a: 'Cela dépend entièrement du contrat et de l’assureur, et c’est un point à clarifier explicitement avant de signer. Certains contrats excluent le paiement de rançon, d’autres le couvrent sous conditions strictes.' },
+      { q: 'Quelles bonnes pratiques réduisent le plus le risque au quotidien ?', a: 'Des sauvegardes automatiques régulières, des mots de passe différents et robustes par accès, et la méfiance envers les emails inattendus avec pièce jointe ou lien restent les mesures les plus efficaces, avant même de penser à une assurance.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-perte-exploitation-chantier-arrete',
+    title: 'Assurance perte d’exploitation : que couvre-t-elle si un chantier s’arrête | Cantia',
+    description:
+      'Différence entre assurance chantier ECTR et perte d’exploitation, quand cette couverture devient pertinente pour une entreprise du bâtiment, et ce qu’il faut vérifier avant de souscrire.',
+    faq: [
+      { q: 'L’assurance chantier ECTR couvre-t-elle la perte de revenu ?', a: 'Non, l’ECTR couvre en général les dommages physiques au chantier et aux matériaux, pas le manque à gagner lié à l’arrêt de l’activité. Il faut une assurance perte d’exploitation distincte pour couvrir ce second risque.' },
+      { q: 'Toutes les entreprises du bâtiment ont-elles besoin d’une perte d’exploitation ?', a: 'Pas nécessairement. Elle devient surtout pertinente pour les entreprises fortement dépendantes d’un client ou d’un chantier unique, où un sinistre isolé peut avoir un impact majeur sur l’ensemble du chiffre d’affaires.' },
+      { q: 'Comment est calculé le montant de l’indemnisation ?', a: 'Le calcul se base généralement sur les résultats antérieurs de l’entreprise et sur la durée réelle d’interruption, dans les limites fixées par le contrat. C’est un point à faire préciser clairement par l’assureur avant de signer.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-protection-juridique-entreprise-batiment',
+    title: 'Assurance protection juridique pour une entreprise du bâtiment : utile ou pas | Cantia',
+    description:
+      'Ce que couvre en général une protection juridique professionnelle dans le bâtiment, ce qu’elle ne couvre pas, et pourquoi les frais d’avocat dépassent parfois l’enjeu du litige lui-même.',
+    faq: [
+      { q: 'La protection juridique remplace-t-elle la RC professionnelle ?', a: 'Non. La protection juridique couvre les frais de procédure pour défendre ou faire valoir un droit, tandis que la RC professionnelle couvre le dommage lui-même quand l’entreprise est reconnue responsable. Les deux sont complémentaires, pas interchangeables.' },
+      { q: 'Une petite entreprise du bâtiment a-t-elle vraiment besoin de cette assurance ?', a: 'Cela dépend surtout de la fréquence des litiges avec les clients et fournisseurs et du montant moyen des factures. Plus les chantiers sont nombreux et les clients particuliers, plus le risque de contestation ponctuelle est élevé.' },
+      { q: 'Les litiges avec les employés sont-ils toujours couverts ?', a: 'Pas systématiquement : cela dépend du contrat souscrit. Il faut vérifier explicitement si le volet droit du travail, côté employeur, est inclus ou proposé en option auprès de l’assureur.' },
+    ],
+  },
+  {
+    path: 'blog/assurance-transport-materiel-chantier',
+    title: 'Faut-il assurer le transport de matériel et marchandises vers le chantier | Cantia',
+    description:
+      'Les risques pendant le transport de matériel vers un chantier, la différence entre assurance du véhicule et assurance des marchandises transportées, et quand ça devient pertinent.',
+    faq: [
+      { q: 'L’assurance du camion suffit-elle à couvrir le matériel transporté ?', a: 'Non, en général l’assurance du véhicule couvre le camion lui-même, pas la valeur de ce qu’il transporte. Une assurance marchandises transportées, distincte, est nécessaire pour couvrir le chargement.' },
+      { q: 'Faut-il assurer chaque trajet individuellement ?', a: 'Non, la plupart des contrats fonctionnent sur une base annuelle avec un plafond par trajet ou par sinistre, pas au coup par coup. C’est plus simple à gérer pour une entreprise qui transporte régulièrement du matériel.' },
+      { q: 'Que se passe-t-il si le transport est sous-traité à un tiers ?', a: 'La responsabilité et la couverture dépendent alors du contrat du transporteur, dont les plafonds d’indemnisation sont parfois inférieurs à la valeur réelle transportée. Il vaut mieux le vérifier avant d’envoyer un chargement de valeur.' },
+    ],
+  },
+  {
+    path: 'blog/bilan-carbone-chantier-construction-suisse',
+    title: 'Bilan carbone d’un chantier : de quoi parle-t-on vraiment | Cantia',
+    description:
+      'Matériaux, transport, énergie et déchets : voici ce qui compose réellement le bilan carbone d’un chantier suisse, et pourquoi ce critère revient de plus en plus dans les cahiers des charges.',
+    faq: [
+      { q: 'Qu’est-ce qui pèse le plus dans le bilan carbone d’un chantier ?', a: 'En général, la production des matériaux, en particulier le béton et l’acier, représente la part la plus importante, largement devant le transport ou l’énergie consommée directement sur le chantier.' },
+      { q: 'Le bilan carbone d’un chantier est-il obligatoire en Suisse ?', a: 'Il n’existe pas d’obligation générale et uniforme, mais certains marchés publics ou projets soumis à des exigences environnementales spécifiques peuvent le demander explicitement dans leur cahier des charges.' },
+      { q: 'Quelle différence entre le bilan carbone d’un bâtiment et celui d’un chantier ?', a: 'Le bilan carbone d’un bâtiment couvre toute sa durée de vie, chauffage et entretien compris sur plusieurs décennies, alors que celui d’un chantier se limite à la phase de construction ou de rénovation proprement dite.' },
+    ],
+  },
+  {
+    path: 'blog/cautionnement-bancaire-entreprise-generale-suisse',
+    title: 'Cautionnement bancaire pour une entreprise générale : à quoi ça sert | Cantia',
+    description:
+      'Comment fonctionne un cautionnement bancaire exigé sur les gros chantiers et marchés publics, son coût général, et pourquoi il concerne surtout les entreprises générales.',
+    faq: [
+      { q: 'Le cautionnement bancaire remplace-t-il une assurance chantier ?', a: 'Non, ce sont deux mécanismes différents. Le cautionnement garantit au maître d’ouvrage que l’entreprise honorera ses engagements contractuels, tandis qu’une assurance chantier couvre les dommages physiques survenus pendant les travaux.' },
+      { q: 'Une petite entreprise peut-elle obtenir un cautionnement bancaire ?', a: 'Oui, mais cela dépend de sa solidité financière et de son historique auprès de la banque. Une jeune entreprise sans historique long peut avoir plus de difficulté à l’obtenir seule, et se tourner vers un organisme de cautionnement PME en complément.' },
+      { q: 'Le coût du cautionnement est-il négociable ?', a: 'La commission dépend généralement du montant garanti, de la durée et du profil de risque de l’entreprise évalué par la banque. Il vaut la peine de comparer plusieurs établissements avant de s’engager sur un gros marché.' },
+    ],
+  },
+  {
+    path: 'blog/certificat-energetique-cantonal-geak-batiment',
+    title: 'Le CECB/GEAK : le certificat énergétique cantonal des bâtiments | Cantia',
+    description:
+      'Le CECB, aussi appelé GEAK, note l’efficacité énergétique d’un bâtiment de A à G. Obligatoire dans certains cantons lors d’une vente, il concerne aussi les artisans en rénovation énergétique.',
+    faq: [
+      { q: 'Le CECB et le GEAK sont-ils la même chose ?', a: 'Oui, ce sont deux noms pour le même certificat : GEAK en allemand (Gebäudeenergieausweis der Kantone) et CECB en français, tous deux désignant le certificat énergétique cantonal des bâtiments.' },
+      { q: 'Le CECB est-il obligatoire dans toute la Suisse ?', a: 'Non, les exigences varient selon le canton, avec une obligation fréquente lors d’une vente et parfois lors d’une location, selon les règles cantonales en vigueur. Il faut vérifier la réglementation précise du canton concerné.' },
+      { q: 'Le CECB donne-t-il droit à une subvention ?', a: 'Non, le CECB est un outil d’évaluation, pas de subvention. Les aides financières pour la rénovation énergétique relèvent d’autres dispositifs, comme le Programme Bâtiments, qui fonctionne indépendamment du certificat.' },
+    ],
+  },
+  {
+    path: 'blog/chantier-copropriete-ppe-facturation-suisse',
+    title: 'Chantier en copropriété (PPE) : comment facturer plusieurs propriétaires | Cantia',
+    description:
+      'Assemblée de copropriétaires, administrateur PPE, répartition des quotes-parts : comment devis et facturation fonctionnent sur un chantier en propriété par étages en Suisse.',
+    faq: [
+      { q: 'Faut-il un devis signé par chaque copropriétaire individuellement ?', a: 'Non, généralement pas. C’est l’administrateur de la PPE qui signe au nom de la communauté, une fois le devis approuvé par l’assemblée générale des copropriétaires selon la majorité prévue par le règlement.' },
+      { q: 'Que faire si un copropriétaire refuse de payer sa quote-part ?', a: 'Cette question relève généralement de la gestion interne de la PPE, pas de la relation entre l’entreprise et la copropriété. L’entreprise facture l’administration de la PPE, qui reste responsable du recouvrement auprès des copropriétaires selon les règles internes.' },
+      { q: 'Combien de temps faut-il prévoir avant qu’un devis soit validé en PPE ?', a: 'Cela dépend du règlement de chaque PPE et de la fréquence des assemblées, mais il vaut mieux prévoir plusieurs semaines, voire plus si une assemblée extraordinaire doit être convoquée spécifiquement pour ces travaux.' },
+    ],
+  },
+  {
+    path: 'blog/chantier-propre-reduire-nuisances-voisinage',
+    title: 'Chantier propre : réduire les nuisances pour le voisinage | Cantia',
+    description:
+      'Bruit, poussière, accès bloqués : un chantier mal géré crée des tensions durables avec le voisinage. Voici les réflexes concrets pour limiter les nuisances et préserver la réputation de l’entreprise.',
+    faq: [
+      { q: 'Existe-t-il des horaires légaux à respecter sur un chantier ?', a: 'Les horaires de tranquillité, notamment en soirée, tôt le matin et le dimanche, sont généralement fixés par la réglementation communale ou cantonale, avec des règles qui varient d’une commune à l’autre. Se renseigner localement avant le début du chantier évite les mauvaises surprises.' },
+      { q: 'Faut-il prévenir les voisins avant de commencer un chantier ?', a: 'Ce n’est pas toujours une obligation légale, mais c’est une pratique fortement recommandée, en particulier avant une phase bruyante ou un blocage d’accès. Un simple mot informatif suffit souvent à désamorcer une tension avant qu’elle n’apparaisse.' },
+      { q: 'Un voisinage mécontent peut-il vraiment nuire à l’entreprise ?', a: 'Oui, un voisin excédé peut se plaindre auprès de la commune, mais aussi laisser un avis négatif en ligne visible par de futurs clients, ce qui pèse directement sur la réputation de l’entreprise au-delà du chantier concerné.' },
+    ],
+  },
+  {
+    path: 'blog/comparer-devis-fournisseurs-materiaux-methode',
+    title: 'Comment comparer plusieurs devis fournisseurs sans se tromper | Cantia',
+    description:
+      'La méthode pour comparer plusieurs devis fournisseurs de matériaux sur des bases équivalentes, sans se laisser piéger par le seul prix total.',
+    faq: [
+      { q: 'Faut-il toujours demander plusieurs devis avant une commande de matériaux ?', a: 'Pour les commandes importantes ou récurrentes, oui. Pour un petit achat ponctuel, le temps passé à comparer peut dépasser le gain potentiel.' },
+      { q: 'Comment comparer des devis avec des unités de mesure différentes ?', a: 'Ramenez systématiquement les prix à une unité commune (le mètre carré, le mètre cube, la pièce) avant de comparer, plutôt que de comparer des montants globaux qui masquent des quantités différentes.' },
+      { q: 'Un devis fournisseur est-il engageant une fois accepté ?', a: 'Généralement oui, dans les conditions et délais qu’il précise. Vérifiez sa durée de validité, car un prix peut ne plus être garanti au-delà d’une certaine date.' },
+    ],
+  },
+  {
+    path: 'blog/construction-modulaire-prefabriquee-suisse',
+    title: 'Construction modulaire et préfabriquée : où en est la Suisse | Cantia',
+    description:
+      'Principe, avantages, limites et impact sur l’organisation d’une entreprise : où en est la construction modulaire et préfabriquée en Suisse en 2026.',
+    faq: [
+      { q: 'La construction modulaire coûte-t-elle plus cher que la construction traditionnelle ?', a: 'Cela dépend fortement du projet. Le gain de temps et la réduction de la main-d’œuvre sur site compensent souvent un coût de fabrication en atelier plus élevé, mais le calcul reste à faire projet par projet, notamment selon la complexité du transport et du grutage.' },
+      { q: 'Peut-on personnaliser un bâtiment modulaire comme une construction classique ?', a: 'La personnalisation est généralement plus limitée qu’en construction traditionnelle, mais l’offre s’est élargie : de nombreux fabricants proposent aujourd’hui des configurations modulables. Il vaut mieux clarifier ce point avec le client dès le devis pour éviter les malentendus.' },
+      { q: 'Faut-il des compétences particulières pour travailler sur un chantier modulaire ?', a: 'La compétence clé se déplace vers la préparation : lecture de plans précis, coordination avec l’atelier de fabrication, et gestion logistique du transport et du grutage. Le travail d’assemblage sur site demande une bonne organisation plus qu’un nouveau métier.' },
+    ],
+  },
+  {
+    path: 'blog/cooperative-cautionnement-pme-financement-batiment',
+    title: 'Cautionnement PME : une alternative pour financer son entreprise du bâtiment | Cantia',
+    description:
+      'Comment fonctionnent les organismes de cautionnement PME en Suisse, pourquoi ils sont utiles à une jeune entreprise du bâtiment sans historique bancaire, et la démarche pour y accéder.',
+    faq: [
+      { q: 'Le cautionnement PME est-il réservé aux entreprises du bâtiment ?', a: 'Non, ces organismes accompagnent des PME de nombreux secteurs, mais le bâtiment y recourt fréquemment en raison des besoins d’investissement en matériel et véhicules dès les premières années d’activité.' },
+      { q: 'Une raison individuelle peut-elle en bénéficier ?', a: 'Oui, le statut juridique n’est en général pas un critère d’exclusion, mais les critères précis d’éligibilité, montant garanti et conditions varient selon l’organisme régional concerné.' },
+      { q: 'Le cautionnement PME accélère-t-il l’obtention du crédit ?', a: 'Pas forcément plus vite qu’un crédit classique accepté directement par une banque, mais il rend possible un financement qui aurait sinon été refusé faute de garanties suffisantes. C’est surtout un accès qu’il facilite, pas nécessairement une rapidité.' },
+    ],
+  },
+  {
+    path: 'blog/credit-construction-hypothecaire-entreprise-batiment',
+    title: 'Le crédit de construction : ce qu’un entrepreneur doit comprendre | Cantia',
+    description:
+      'Comment fonctionne un crédit de construction, pourquoi il influence directement le rythme de paiement d’un client, et comment adapter son calendrier de facturation par situations.',
+    faq: [
+      { q: 'Le crédit de construction concerne-t-il l’entreprise ou uniquement le client ?', a: 'Il est généralement contracté par le maître d’ouvrage, pas par l’entreprise qui réalise les travaux. Mais son rythme de déblocage influence directement la rapidité avec laquelle ce client peut régler les factures de l’entreprise.' },
+      { q: 'Pourquoi un client solvable peut-il quand même payer en retard ?', a: 'Parce que le paiement dépend parfois du déblocage d’une tranche de crédit par la banque, qui exige ses propres vérifications d’avancement avant de libérer les fonds. Le retard vient alors du processus bancaire, pas d’un manque de volonté du client.' },
+      { q: 'La facturation par situations aide-t-elle vraiment à limiter ce risque ?', a: 'Oui, en alignant ses factures sur les jalons d’avancement que la banque du client va de toute façon vérifier, l’entreprise réduit le décalage entre sa demande de paiement et le moment où le client dispose réellement des fonds.' },
+    ],
+  },
+  {
+    path: 'blog/deleguer-sans-tout-controler-patron-artisan',
+    title: 'Déléguer sans tout contrôler : le vrai défi du patron artisan | Cantia',
+    description:
+      'Beaucoup de patrons artisans restent l’unique point de passage de toutes les décisions, même en grandissant. Voici ce que ça coûte réellement, et les premiers pas concrets pour déléguer sans tout lâcher.',
+    faq: [
+      { q: 'Pourquoi est-il si difficile pour un patron artisan de déléguer ?', a: 'C’est souvent une habitude héritée des débuts de l’entreprise, quand tout contrôler était réellement nécessaire faute d’équipe. Ce réflexe persiste même quand l’entreprise a grandi et que les employés seraient capables de prendre certaines décisions seuls.' },
+      { q: 'Par où commencer pour déléguer sans tout lâcher d’un coup ?', a: 'Choisir une tâche complète à faible risque, avec un résultat attendu clair, et accepter qu’elle soit exécutée différemment de sa propre méthode tant que le résultat final convient. Cette première expérience construit progressivement la confiance nécessaire pour aller plus loin.' },
+      { q: 'Le manque de délégation limite-t-il vraiment la croissance d’une entreprise du bâtiment ?', a: 'Oui, dans la plupart des cas : une entreprise dont toutes les décisions passent par une seule personne ne peut pas gérer plus de chantiers que ce que cette personne peut superviser directement, ce qui plafonne mécaniquement sa croissance.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-construction-bois-ossature-suisse',
+    title: 'Devis et facturation pour une entreprise de construction bois | Cantia',
+    description:
+      'Ossature complète plutôt que charpente seule, préfabrication en atelier, délai de montage réduit : comment chiffrer et facturer une construction bois en Suisse.',
+    faq: [
+      { q: 'Quelle est la différence entre une entreprise de charpente et une entreprise de construction bois ?', a: 'Une entreprise de charpente traditionnelle réalise généralement la structure de toiture d’un bâtiment déjà construit. Une entreprise de construction bois conçoit et réalise l’ossature porteuse complète du bâtiment, murs compris, pas seulement la toiture.' },
+      { q: 'La préfabrication en atelier rend-elle le devis plus prévisible ?', a: 'Généralement oui, car une part importante du travail est réalisée dans des conditions contrôlées en atelier, avec moins d’aléas que sur un chantier extérieur. Le montage sur site reste toutefois soumis aux conditions d’accès et à la météo du jour de pose.' },
+      { q: 'Une construction bois est-elle plus rapide à livrer qu’une construction maçonnée ?', a: 'Le montage de l’ossature elle-même est généralement plus rapide, souvent quelques jours seulement. Mais le délai de livraison final dépend aussi du second œuvre et des finitions, qui suivent un calendrier comparable à celui d’une construction traditionnelle.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-demolition-suisse',
+    title: 'Devis et facturation pour une entreprise de démolition en Suisse | Cantia',
+    description:
+      'Accessibilité, évacuation des gravats, diagnostic amiante préalable : comment chiffrer et facturer un chantier de démolition en Suisse sans sous-estimer les postes cachés.',
+    faq: [
+      { q: 'Le diagnostic amiante est-il obligatoire avant une démolition ?', a: 'Il est généralement requis pour les bâtiments construits avant une certaine période, avant toute démolition. Les règles exactes dépendent du canton et du type de bâtiment : il vaut mieux vérifier auprès des autorités compétentes avant de chiffrer les travaux.' },
+      { q: 'Pourquoi le coût d’évacuation des gravats varie-t-il autant d’un chantier à l’autre ?', a: 'Le coût dépend du volume réel de déchets, de leur nature (inertes, dangereux, valorisables) et de la distance jusqu’aux filières de traitement adaptées. Un tri mal anticipé peut aussi faire grimper la facture si des matériaux dangereux sont mélangés aux gravats classiques.' },
+      { q: 'Peut-on donner un prix ferme avant d’avoir visité le bâtiment à démolir ?', a: 'Ce n’est généralement pas recommandé. Sans visite et sans diagnostic préalable, mieux vaut présenter une estimation sous réserve, le temps de confirmer la structure réelle, l’accessibilité et l’absence ou la présence de matériaux dangereux.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-echafaudeur-suisse',
+    title: 'Devis et facturation pour un échafaudeur en Suisse | Cantia',
+    description:
+      'Location à la durée, montage et démontage, dépassement de délai, contrôle de sécurité : comment établir devis et factures en tant qu’échafaudeur en Suisse.',
+    faq: [
+      { q: 'Comment facturer un échafaudage qui reste plus longtemps que prévu sur un chantier ?', a: 'Le devis initial doit prévoir une clause de dépassement de durée, avec un tarif journalier ou hebdomadaire au-delà de la période contractuelle. Sans cette clause, la négociation devient plus difficile une fois le chantier en cours.' },
+      { q: 'Qui est responsable si un échafaudage n’est pas conforme aux normes de sécurité ?', a: 'L’entreprise qui monte l’échafaudage porte généralement la responsabilité de sa conformité au moment de la mise à disposition. Un contrôle documenté avant remise au client protège l’échafaudeur en cas de contrôle ou d’incident ultérieur.' },
+      { q: 'Le démontage est-il toujours inclus dans le prix du montage ?', a: 'C’est généralement le cas dans la plupart des devis d’échafaudage, mais il vaut mieux le préciser explicitement dans le devis pour éviter toute ambiguïté, notamment si le démontage doit intervenir dans des conditions différentes de celles prévues au montage.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-entreprise-renovation-suisse',
+    title: 'Devis et facturation pour une entreprise de rénovation générale | Cantia',
+    description:
+      'Coordination de plusieurs corps de métier, état réel du bâtiment inconnu au devis, clause d’imprévu structurel : comment chiffrer une rénovation générale en Suisse.',
+    faq: [
+      { q: 'Comment intégrer une clause d’imprévu structurel dans un devis de rénovation ?', a: 'Il faut mentionner explicitement que le devis se base sur l’état visible du bâtiment au moment du chiffrage, et prévoir la procédure en cas de découverte imprévue : arrêt du poste concerné, établissement d’un devis complémentaire, validation du client avant reprise des travaux.' },
+      { q: 'Un sondage préalable élimine-t-il tous les risques de découverte imprévue ?', a: 'Non, il les réduit mais ne les élimine jamais complètement, en particulier sur un bâtiment ancien où certains éléments structurels ou techniques ne sont visibles qu’une fois les travaux de démolition partielle engagés.' },
+      { q: 'Comment facturer un avenant lié à une découverte imprévue sans perdre la confiance du client ?', a: 'La transparence est essentielle : documenter la découverte avec des photos, expliquer clairement pourquoi elle n’était pas visible au moment du devis initial, et présenter un devis complémentaire détaillé avant de reprendre les travaux, plutôt que de facturer après coup sans explication.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-etancheur-suisse',
+    title: 'Devis et facturation pour un étancheur en Suisse | Cantia',
+    description:
+      'Toitures plates, terrasses, sous-sols : chiffrage au m² selon le système d’étanchéité et importance de la garantie pour un étancheur en Suisse.',
+    faq: [
+      { q: 'Quel système d’étanchéité choisir pour une terrasse accessible ?', a: 'Le choix dépend de l’usage prévu et du revêtement final souhaité. Une résine liquide convient souvent bien aux formes complexes et aux points singuliers, tandis qu’une membrane synthétique reste une valeur sûre pour de grandes surfaces exposées. Le conseil d’un professionnel reste indispensable au cas par cas.' },
+      { q: 'Combien de temps après les travaux une infiltration peut-elle apparaître ?', a: 'Cela varie fortement selon la cause : un défaut de pose peut se révéler dès les premières fortes pluies, tandis qu’un vieillissement prématuré du matériau peut n’apparaître qu’après plusieurs années. C’est justement pour cela qu’une bonne documentation de l’exécution est essentielle.' },
+      { q: 'Faut-il garantir l’étanchéité plus longtemps que les autres travaux du bâtiment ?', a: 'Les garanties légales générales s’appliquent, mais certains fabricants de systèmes d’étanchéité proposent en complément des garanties spécifiques sur leurs produits, sous réserve d’une pose conforme à leurs prescriptions. Il vaut mieux vérifier ces conditions avant de les indiquer au client.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-genie-civil-suisse',
+    title: 'Devis et facturation pour une entreprise de génie civil | Cantia',
+    description:
+      'Métré de grande envergure, marchés publics, situations d’avancement, cautionnements : comment chiffrer et facturer un chantier de génie civil en Suisse.',
+    faq: [
+      { q: 'Qu’est-ce qu’une situation d’avancement en génie civil ?', a: 'C’est une facturation périodique, généralement mensuelle, basée sur les quantités de travaux réellement exécutées depuis la dernière facturation, valorisées aux prix unitaires définis dans le contrat. Elle doit généralement être validée par le maître d’œuvre avant paiement.' },
+      { q: 'Pourquoi une garantie bancaire est-elle souvent exigée sur ces marchés ?', a: 'Elle protège le maître d’ouvrage en cas de défaillance de l’entreprise en cours de chantier, notamment sur des marchés publics de montant important. Son coût et son délai d’obtention doivent être anticipés avant la remise de l’offre.' },
+      { q: 'Le prix d’une soumission de génie civil est-il négociable après attribution ?', a: 'Sur un marché public, la marge de négociation après attribution est généralement très limitée, le prix ayant été fixé lors de la procédure de soumission. Des avenants restent possibles en cours de chantier, mais uniquement pour des travaux réellement supplémentaires ou imprévus.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-parqueteur-suisse',
+    title: 'Devis et facturation pour un parqueteur en Suisse | Cantia',
+    description:
+      'Chiffrage au m² selon le type de pose et l’essence, délai d’acclimatation du bois, ponçage et vitrification : comment établir devis et factures en tant que parqueteur en Suisse.',
+    faq: [
+      { q: 'Combien de temps faut-il pour l’acclimatation du bois avant la pose ?', a: 'Le délai varie selon l’essence, le taux d’humidité de la pièce et le type de bois, mais il faut généralement compter plusieurs jours. Le fournisseur du parquet donne généralement une recommandation précise selon le produit livré.' },
+      { q: 'Le ponçage d’un parquet ancien peut-il être facturé au même tarif que la pose neuve ?', a: 'Non, ce sont deux prestations différentes avec des logiques de prix distinctes. Le ponçage dépend surtout de l’état du support existant et du nombre de passages nécessaires, alors que la pose neuve dépend de la surface et du type de pose choisi.' },
+      { q: 'Un parquet flottant est-il toujours moins cher qu’un parquet collé ?', a: 'Généralement oui en termes de main-d’œuvre, mais pas systématiquement en fourniture : certains parquets flottants haut de gamme peuvent coûter plus cher que des parquets collés d’entrée de gamme. Le devis doit distinguer clairement les deux postes.' },
+    ],
+  },
+  {
+    path: 'blog/devis-facture-vitrier-suisse',
+    title: 'Devis et facturation pour un vitrier en Suisse | Cantia',
+    description:
+      'Prise de mesure, délai de fabrication du verre, dépannage urgent ou remplacement planifié : comment chiffrer et facturer un chantier de vitrerie en Suisse.',
+    faq: [
+      { q: 'Faut-il facturer un devis pour un simple dépannage de vitre cassée ?', a: 'De nombreux vitriers facturent le dépannage directement après intervention plutôt que d’établir un devis préalable, notamment en cas d’urgence. Il reste toutefois recommandé d’indiquer une fourchette de prix au client par téléphone avant le déplacement.' },
+      { q: 'Combien de temps prévoir pour la fabrication d’un vitrage sur mesure ?', a: 'Le délai varie selon le fournisseur et le type de vitrage, mais il faut généralement compter plusieurs semaines pour un double ou triple vitrage sur mesure. Ce délai doit être communiqué au client dès la signature du devis.' },
+      { q: 'Le verre de sécurité feuilleté est-il obligatoire partout ?', a: 'Il est généralement requis dans certaines situations à risque, comme les garde-corps ou certaines zones de passage, selon les normes en vigueur. En cas de doute sur un cas précis, il vaut mieux vérifier auprès des normes applicables au type de bâtiment concerné.' },
+    ],
+  },
+  {
+    path: 'blog/entretien-annuel-employe-batiment-comment-faire',
+    title: 'Comment mener un entretien annuel avec un employé du bâtiment | Cantia',
+    description:
+      'Rare dans un secteur rythmé par les chantiers plutôt que par un calendrier RH, l’entretien annuel reste pourtant un vrai outil de fidélisation. Voici une structure simple pour le rendre utile.',
+    faq: [
+      { q: 'L’entretien annuel est-il obligatoire dans le bâtiment en Suisse ?', a: 'Non, il ne s’agit pas d’une obligation légale générale, mais d’une bonne pratique de gestion d’équipe qui reste peu répandue dans un secteur où le rythme est dicté par les chantiers plutôt que par un calendrier RH formel.' },
+      { q: 'Combien de temps faut-il prévoir pour un entretien annuel efficace ?', a: 'Trente à quarante-cinq minutes suffisent généralement pour couvrir un vrai bilan sans que l’exercice devienne trop lourd, à condition que la discussion reste concrète et centrée sur des faits plutôt que sur des généralités.' },
+      { q: 'L’entretien annuel aide-t-il vraiment à fidéliser les employés ?', a: 'Il y contribue, en particulier dans un secteur en pénurie de main-d’œuvre qualifiée, car il montre à l’employé que son parcours est pris en compte au-delà de la seule exécution des tâches quotidiennes sur les chantiers.' },
+    ],
+  },
+  {
+    path: 'blog/expertise-judiciaire-malfacon-construction-suisse',
+    title: 'Expertise judiciaire en cas de malfaçon : comment ça se passe | Cantia',
+    description:
+      'Comment se déroule une expertise judiciaire en cas de désaccord sur une malfaçon de construction, et pourquoi bien documenter le chantier facilite tout.',
+    faq: [
+      { q: 'Qui paie les frais de l’expertise judiciaire ?', a: 'Généralement la partie qui la demande en fait l’avance, puis les frais sont répartis selon l’issue de la procédure. Les règles précises varient selon les cas — consultez un avocat pour votre situation.' },
+      { q: 'Peut-on contester les conclusions d’un expert judiciaire ?', a: 'Oui, généralement en demandant un complément d’expertise ou une contre-expertise si les conclusions semblent erronées ou incomplètes, mais cela allonge la procédure. À évaluer avec votre avocat selon le cas.' },
+      { q: 'Une expertise amiable, hors tribunal, a-t-elle la même valeur ?', a: 'Une expertise amiable, réalisée d’un commun accord entre les parties, peut suffire à résoudre un désaccord sans procédure judiciaire, mais elle a généralement moins de poids qu’une expertise judiciaire si le litige finit tout de même devant un tribunal.' },
+    ],
+  },
+  {
+    path: 'blog/faillite-client-creance-impayee-que-faire',
+    title: 'Un client fait faillite : que devient votre créance impayée | Cantia',
+    description:
+      'Ce que devient une créance impayée lorsqu’un client fait faillite : comment produire sa créance et pourquoi la situation diffère d’un simple impayé.',
+    faq: [
+      { q: 'Que faire si mon client refuse de payer mais n’est pas en faillite ?', a: 'C’est une situation différente, à traiter par la voie de la poursuite ordinaire pour facture impayée plutôt que par une production de créance. Consultez notre article sur la procédure de poursuite en Suisse pour la marche à suivre.' },
+      { q: 'Dans quel délai faut-il produire sa créance lors d’une faillite ?', a: 'Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines — vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer.' },
+      { q: 'Peut-on récupérer sa créance plus vite en agissant tôt, avant la faillite ?', a: 'Dans certains cas, oui — une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible.' },
+    ],
+  },
+  {
+    path: 'blog/formation-continue-obligatoire-batiment-suisse',
+    title: 'Formation continue dans le bâtiment : ce qui est obligatoire | Cantia',
+    description:
+      'Sécurité SUVA, travail en hauteur, conduite d’engins : plusieurs habilitations du bâtiment doivent être recyclées périodiquement. Voici pourquoi les négliger expose l’entreprise en cas d’accident.',
+    faq: [
+      { q: 'Toutes les formations du bâtiment doivent-elles être recyclées périodiquement ?', a: 'Non, cela concerne surtout les habilitations liées à des travaux considérés à risque particulier, comme le travail en hauteur ou certaines opérations avec des engins spécifiques. La formation de base initiale n’a généralement pas besoin d’être répétée de la même façon.' },
+      { q: 'Qui paie les formations de recyclage dans le bâtiment ?', a: 'C’est généralement à l’employeur d’organiser et de financer ces formations, dans le cadre de son obligation générale d’assurer la sécurité de ses employés sur les chantiers.' },
+      { q: 'Que risque une entreprise si une habilitation n’est pas à jour lors d’un accident ?', a: 'La situation peut compliquer la prise en charge par l’assurance et engager davantage la responsabilité de l’entreprise, en particulier si l’accident concerne précisément le type de travaux couvert par l’habilitation expirée.' },
+    ],
+  },
+  {
+    path: 'blog/gerer-conflit-entre-deux-ouvriers-chantier',
+    title: 'Gérer un conflit entre deux ouvriers sur un chantier | Cantia',
+    description:
+      'Pression des délais, proximité physique, fatigue : les tensions entre ouvriers sont fréquentes sur un chantier. Voici comment intervenir tôt et efficacement, avant que ça ne dégénère.',
+    faq: [
+      { q: 'Faut-il intervenir immédiatement dès qu’une tension apparaît entre deux ouvriers ?', a: 'Pas nécessairement dès la première friction, mais dès qu’une tension se répète sur plusieurs jours ou commence à affecter le travail, une intervention rapide reste préférable à l’attente d’une résolution spontanée, qui survient rarement.' },
+      { q: 'Comment mener la discussion sans prendre parti ?', a: 'Écouter chaque personne séparément d’abord, puis recentrer l’échange commun sur des faits concrets liés au travail plutôt que sur les personnalités, aide à garder une posture neutre et à éviter d’envenimer la situation.' },
+      { q: 'Quand faut-il faire appel à une aide extérieure pour un conflit d’équipe ?', a: 'Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe — RH, association professionnelle ou conseil juridique — devient nécessaire.' },
+    ],
+  },
+  {
+    path: 'blog/gestion-dechets-chantier-tri-obligatoire-suisse',
+    title: 'Gestion des déchets de chantier : le tri obligatoire en Suisse | Cantia',
+    description:
+      'Le tri des déchets de chantier n’est plus une option en Suisse : béton, bois, métaux et déchets spéciaux doivent être séparés. Voici comment l’organiser sans perdre de temps ni d’argent.',
+    faq: [
+      { q: 'Le tri des déchets de chantier est-il obligatoire partout en Suisse ?', a: 'Le principe de séparation à la source est très largement appliqué, avec des exigences précises qui varient selon le canton et la commune. Dans le doute, le service cantonal de l’environnement ou le règlement communal de gestion des déchets donne les règles exactes applicables au chantier.' },
+      { q: 'Que se passe-t-il si une benne de chantier n’est pas triée ?', a: 'La plupart des centres de traitement appliquent une surtaxe pour une benne mélangée, et certains refusent carrément de l’accepter. Sur un chantier soumis à des exigences contractuelles de tri, cela peut aussi créer un litige avec le maître d’ouvrage.' },
+      { q: 'Que faire des matériaux suspectés de contenir de l’amiante ?', a: 'Ces matériaux ne se mélangent jamais avec les autres déchets et suivent une filière spécifique et strictement encadrée. En cas de doute sur la présence d’amiante, faire analyser le matériau avant toute démolition reste la seule approche sûre.' },
+    ],
+  },
+  {
+    path: 'blog/gestion-entreprise-generale-sous-traitants-suisse',
+    title: 'Gérer une entreprise générale et ses sous-traitants en Suisse | Cantia',
+    description:
+      'Prix global, coordination multi-corps de métier, responsabilité vis-à-vis du client : comment une entreprise générale pilote ses sous-traitants et suit sa rentabilité en Suisse.',
+    faq: [
+      { q: 'L’entreprise générale est-elle responsable des malfaçons d’un sous-traitant ?', a: 'Oui, généralement, vis-à-vis du client. Le contrat lie l’entreprise générale au client, qui n’a pas de lien contractuel direct avec les sous-traitants. L’entreprise générale se retourne ensuite, si besoin, contre son sous-traitant selon les termes de leur propre contrat.' },
+      { q: 'Comment savoir si un lot sous-traité est rentable ou déficitaire ?', a: 'Il faut comparer, pour chaque lot, le montant facturé au sous-traitant par l’entreprise générale au montant réellement payé à ce sous-traitant, en intégrant les éventuels avenants ou surcoûts. Un suivi chantier par chantier ne suffit pas : le détail doit être fait lot par lot.' },
+      { q: 'Faut-il un contrat écrit avec chaque sous-traitant, même pour un petit lot ?', a: 'C’est fortement recommandé, quelle que soit la taille du lot. Un contrat écrit clarifie le périmètre, le prix, les délais et les responsabilités, et protège l’entreprise générale en cas de litige avec le sous-traitant ou de réclamation du client.' },
+    ],
+  },
+  {
+    path: 'blog/groupement-achat-artisans-batiment-suisse',
+    title: 'Groupement d’achat entre artisans : une idée sous-exploitée | Cantia',
+    description:
+      'Le principe du groupement d’achat entre artisans indépendants du bâtiment, ses avantages au-delà du prix, et comment en démarrer un à petite échelle.',
+    faq: [
+      { q: 'Un groupement d’achat nécessite-t-il une structure juridique ?', a: 'Pas au démarrage. Une simple entente informelle entre deux ou trois entreprises suffit pour tester la pratique. Une structure plus formelle (association, coopérative) peut être envisagée si le groupement grandit.' },
+      { q: 'Comment répartir la commande groupée entre les entreprises ?', a: 'Généralement au prorata des quantités commandées par chacune, avec une facturation séparée par le fournisseur à chaque entreprise, ou une redistribution interne selon ce qui a été convenu au départ.' },
+      { q: 'Un groupement d’achat pose-t-il un problème de concurrence entre les membres ?', a: 'Uniquement si les membres sont en concurrence directe sur les mêmes chantiers. C’est pourquoi les groupements fonctionnent mieux entre métiers complémentaires ou zones géographiques distinctes.' },
+    ],
+  },
+  {
+    path: 'blog/leasing-machines-vehicules-chantier-suisse',
+    title: 'Leasing ou achat pour les machines et véhicules de chantier | Cantia',
+    description:
+      'Avantages et inconvénients du leasing et de l’achat pour les machines et véhicules de chantier, et les critères concrets pour trancher selon la situation de l’entreprise.',
+    faq: [
+      { q: 'Le leasing est-il toujours plus cher que l’achat sur le long terme ?', a: 'En général oui, sur la durée totale de vie du matériel, mais pas systématiquement une fois pris en compte l’entretien, la revente et le risque de panne d’un matériel ancien. Le calcul dépend fortement de l’usage réel.' },
+      { q: 'Peut-on mixer leasing et achat au sein d’une même flotte ?', a: 'Oui, c’est même une pratique courante : acheter le matériel utilisé quotidiennement et intensément, et louer en leasing ou à la demande le matériel utilisé ponctuellement ou pour des besoins spécifiques.' },
+      { q: 'Le leasing a-t-il un impact sur la capacité d’emprunt de l’entreprise ?', a: 'Cela peut jouer, selon la structure du contrat et la façon dont il est comptabilisé, sur l’appréciation de l’endettement par une banque lors d’une demande de crédit ultérieure. Il vaut la peine d’en discuter avec son fiduciaire.' },
+    ],
+  },
+  {
+    path: 'blog/ligne-de-credit-tresorerie-pme-batiment',
+    title: 'Ligne de crédit court terme : combler un creux de trésorerie sans paniquer | Cantia',
+    description:
+      'Différence entre une ligne de crédit et un prêt classique, quand y recourir sereinement pour un creux ponctuel, et quand ce recours révèle un problème de marge plus profond.',
+    faq: [
+      { q: 'Une ligne de crédit coûte-t-elle cher si elle n’est pas utilisée ?', a: 'En général, les intérêts ne sont dus que sur le montant réellement utilisé, mais certains contrats prévoient des frais fixes de mise à disposition. Il faut vérifier précisément les conditions avant de souscrire.' },
+      { q: 'Comment savoir si le recours à une ligne de crédit est sain ou problématique ?', a: 'Un bon signe est un solde qui revient régulièrement à zéro ou proche de zéro entre deux utilisations. Un solde qui augmente en continu, sans jamais redescendre, indique généralement un problème de fond à traiter, pas seulement un besoin ponctuel de trésorerie.' },
+      { q: 'Faut-il attendre d’être dans le rouge pour demander une ligne de crédit ?', a: 'Non, c’est même l’inverse : une ligne de crédit se négocie mieux et à de meilleures conditions quand l’entreprise est en bonne santé financière, avant qu’un besoin urgent n’apparaisse.' },
+    ],
+  },
+  {
+    path: 'blog/motiver-equipe-chantier-batiment-quotidien',
+    title: 'Comment motiver une équipe de chantier au quotidien | Cantia',
+    description:
+      'La motivation d’une équipe de chantier ne se joue pas qu’au niveau du salaire. Reconnaissance, clarté des attentes et organisation du chantier pèsent souvent bien plus au quotidien.',
+    faq: [
+      { q: 'Le salaire est-il le principal levier de motivation sur un chantier ?', a: 'C’est un facteur important mais rarement suffisant à lui seul. La reconnaissance du travail, la clarté des attentes et l’organisation concrète du chantier influencent souvent autant l’engagement d’une équipe qu’un ajustement de rémunération.' },
+      { q: 'Comment savoir si une équipe de chantier est démotivée ?', a: 'Des signes discrets précèdent souvent une baisse de motivation ouverte : moins d’initiative, des questions qui ne remontent plus, un rythme de travail qui ralentit sans explication apparente. Ces signaux méritent d’être pris au sérieux avant qu’ils ne s’installent.' },
+      { q: 'Faut-il communiquer l’avancement du chantier à toute l’équipe ?', a: 'C’est fortement recommandé : une équipe qui comprend où en est le projet et pourquoi certaines décisions sont prises reste généralement plus engagée qu’une équipe qui exécute des tâches sans vision d’ensemble.' },
+    ],
+  },
+  {
+    path: 'blog/negocier-prix-fournisseur-materiaux-batiment',
+    title: 'Comment négocier ses prix avec un fournisseur de matériaux | Cantia',
+    description:
+      'Les leviers concrets pour négocier de meilleurs prix avec un fournisseur de matériaux de construction, sans dégrader la relation ni la qualité de service.',
+    faq: [
+      { q: 'Faut-il toujours privilégier le fournisseur le moins cher ?', a: 'Pas nécessairement. Le prix affiché ne dit rien du délai de livraison, du service après-vente ou de la fiabilité des stocks. Un fournisseur légèrement plus cher mais fiable coûte souvent moins cher au final.' },
+      { q: 'Comment aborder la négociation sans dégrader la relation ?', a: 'En présentant des chiffres concrets (volume annuel, régularité, délai de paiement) plutôt qu’en demandant simplement une remise. Un fournisseur négocie plus volontiers face à des arguments qu’face à une pression.' },
+      { q: 'Une petite entreprise a-t-elle un vrai pouvoir de négociation ?', a: 'Oui, dans une mesure plus limitée. La régularité des commandes et la rapidité de paiement comptent souvent autant que le volume pour un fournisseur, surtout local.' },
+    ],
+  },
+  {
+    path: 'blog/norme-minergie-batiment-explication',
+    title: 'Norme Minergie : ce qu’un artisan doit savoir | Cantia',
+    description:
+      'Minergie n’est pas une loi mais un label suisse de construction basse consommation. Voici ce que ça change concrètement pour un artisan qui exécute des travaux sur un bâtiment labellisé.',
+    faq: [
+      { q: 'Minergie est-il obligatoire en Suisse ?', a: 'Non, c’est un label privé et volontaire, pas une obligation légale. Certains cantons ou communes peuvent toutefois l’exiger ou le favoriser dans le cadre de certains projets, notamment pour bénéficier de conditions particulières.' },
+      { q: 'Quelle différence entre Minergie et Minergie-ECO ?', a: 'Minergie de base porte sur la consommation d’énergie du bâtiment. Minergie-ECO ajoute des critères sur la santé des occupants et l’impact écologique des matériaux, en plus des exigences énergétiques du label standard.' },
+      { q: 'Un artisan doit-il être certifié pour travailler sur un chantier Minergie ?', a: 'Pas systématiquement, mais une exécution soignée et conforme aux exigences du label est indispensable, car un contrôle final par un professionnel agréé est généralement requis avant la validation du label.' },
+    ],
+  },
+  {
+    path: 'blog/onboarding-nouvel-apprenti-premieres-semaines',
+    title: 'Les premières semaines d’un apprenti : ce qui fait la différence | Cantia',
+    description:
+      'Au-delà du salaire et des obligations légales, les premières semaines d’un apprenti déterminent souvent s’il tiendra jusqu’au CFC. Voici comment structurer un vrai accueil sur le chantier.',
+    faq: [
+      { q: 'Pourquoi les premières semaines d’un apprenti sont-elles aussi importantes ?', a: 'C’est souvent durant cette période que se joue, implicitement, l’engagement réel de l’apprenti envers le métier. Un accueil structuré donne des repères qui rassurent, alors qu’un accueil négligé peut installer un désengagement difficile à corriger par la suite.' },
+      { q: 'Faut-il désigner un référent officiel pour un apprenti ?', a: 'Ce n’est pas toujours une obligation formelle distincte du formateur responsable au sens légal, mais c’est une bonne pratique concrète : avoir une personne identifiée sur le terrain aide l’apprenti à savoir vers qui se tourner au quotidien.' },
+      { q: 'Quelle différence entre cet accompagnement et les obligations légales de l’entreprise formatrice ?', a: 'Les obligations légales couvrent le salaire, l’autorisation de former et le suivi pédagogique formel avec l’école professionnelle. L’intégration au quotidien est complémentaire : elle porte sur l’accueil concret sur le chantier, au-delà de ce qu’exige strictement la réglementation.' },
+    ],
+  },
+  {
+    path: 'blog/prime-fin-annee-ou-13e-salaire-difference',
+    title: 'Prime de fin d’année ou 13e salaire : quelle différence | Cantia',
+    description:
+      'Le 13e salaire est généralement une obligation fixe, la prime de fin d’année reste discrétionnaire. Confondre les deux peut créer un litige le jour où un employé la considère comme acquise.',
+    faq: [
+      { q: 'Un employeur est-il obligé de verser une prime de fin d’année ?', a: 'Non, contrairement au 13e salaire quand il est prévu par le contrat ou la CCT, une prime de fin d’année reste en principe discrétionnaire, sauf si l’entreprise l’a explicitement transformée en engagement contractuel.' },
+      { q: 'Une prime versée plusieurs années de suite devient-elle obligatoire ?', a: 'Elle peut le devenir dans certaines situations si elle est versée de façon répétée et sans réserve explicite, ce qui peut créer une attente légitime chez l’employé. C’est pour cette raison qu’il vaut mieux formuler clairement son caractère discrétionnaire chaque année.' },
+      { q: 'Comment calculer le 13e salaire d’un employé qui a travaillé une partie de l’année seulement ?', a: 'Le calcul suit en général un prorata basé sur la durée effective d’emploi durant l’année, selon les règles précises fixées par le contrat ou la convention collective applicable — un point traité en détail dans un article dédié au calcul du 13e salaire.' },
+    ],
+  },
+  {
+    path: 'blog/racheter-entreprise-batiment-existante-suisse',
+    title: 'Racheter une entreprise du bâtiment existante : les points à vérifier | Cantia',
+    description:
+      'Les points essentiels à vérifier avant de racheter une entreprise du bâtiment existante en Suisse : finances, carnet de commandes, matériel et clientèle.',
+    faq: [
+      { q: 'Vaut-il mieux racheter les parts d’une société ou son fonds de commerce ?', a: 'Cela dépend du passif de l’entreprise. Racheter le fonds de commerce évite généralement d’hériter des dettes ou litiges de l’ancienne structure, mais peut être fiscalement moins avantageux selon les cas — à valider avec une fiduciaire.' },
+      { q: 'Comment vérifier que le chiffre d’affaires annoncé est réel ?', a: 'En demandant les comptes des trois derniers exercices, idéalement révisés, et en les croisant avec les décomptes TVA et les relevés bancaires plutôt que de se fier au seul bilan présenté.' },
+      { q: 'La clientèle reste-t-elle automatiquement après un rachat ?', a: 'Non, rien ne le garantit. Une partie de la clientèle peut être fidèle au patron sortant plus qu’à l’entreprise. C’est un risque à intégrer dans la valorisation du rachat.' },
+    ],
+  },
+  {
+    path: 'blog/reemploi-materiaux-economie-circulaire-batiment',
+    title: 'Réemploi de matériaux : l’économie circulaire dans le bâtiment suisse | Cantia',
+    description:
+      'Récupérer et réutiliser des matériaux de démolition plutôt que les jeter : le réemploi progresse dans le bâtiment suisse. Voici comment ça fonctionne concrètement, et ses vraies limites.',
+    faq: [
+      { q: 'Le réemploi de matériaux est-il moins cher que des matériaux neufs ?', a: 'Pas systématiquement : le matériau lui-même coûte souvent moins cher, mais le temps de déconstruction soignée, de stockage et de contrôle avant réutilisation peut compenser une partie de l’économie. Tout dépend du type de matériau et de la logistique disponible.' },
+      { q: 'Un matériau réemployé bénéficie-t-il d’une garantie ?', a: 'En général non, ou pas dans les mêmes conditions qu’un produit neuf, ce qui explique la prudence de certains professionnels. C’est un point à clarifier explicitement avec le client avant d’intégrer un matériau réemployé dans un chantier.' },
+      { q: 'Où trouver des matériaux de réemploi pour un chantier en Suisse ?', a: 'Des réseaux et plateformes d’échange spécialisés se développent progressivement selon les régions, en plus des filières informelles entre professionnels. Se renseigner localement, souvent via des associations ou des acteurs régionaux de la construction durable, reste le point de départ le plus fiable.' },
+    ],
+  },
+  {
+    path: 'blog/renovation-apres-sinistre-degat-eau-assurance',
+    title: 'Rénovation après sinistre : travailler avec l’assurance du client | Cantia',
+    description:
+      'Expertise préalable, documentation des dommages, délai de paiement : comment gérer un chantier de rénovation après dégât d’eau ou incendie quand l’assurance du client est impliquée.',
+    faq: [
+      { q: 'Faut-il attendre l’accord de l’assurance avant de commencer les travaux ?', a: 'Cela dépend de l’urgence et de l’ampleur du sinistre. Pour des mesures conservatoires urgentes, il est souvent possible d’intervenir immédiatement, mais pour des travaux de rénovation complets, mieux vaut généralement attendre la validation de l’assurance ou de son expert pour éviter un refus de remboursement.' },
+      { q: 'Qui paie l’entreprise : le client ou directement l’assurance ?', a: 'Les deux cas existent. Certaines assurances remboursent le client après paiement de la facture, d’autres acceptent de régler directement l’entreprise sur présentation des documents. Ce point doit être clarifié avec le client avant le début du chantier.' },
+      { q: 'Que faire si l’assurance conteste une partie du devis ?', a: 'Une documentation précise, avec photos datées et description détaillée des dommages, facilite grandement la discussion. En cas de désaccord persistant, le client peut généralement faire appel à un contre-expert, mais cela allonge encore le délai de règlement.' },
+    ],
+  },
+  {
+    path: 'blog/renovation-batiment-historique-protege-suisse',
+    title: 'Rénover un bâtiment historique ou protégé : les contraintes à connaître | Cantia',
+    description:
+      'Autorisations plus lourdes, matériaux imposés, délais d’exécution allongés : ce qui change quand un chantier de rénovation touche un bâtiment historique ou protégé en Suisse.',
+    faq: [
+      { q: 'Comment savoir si un bâtiment est protégé ou classé ?', a: 'L’information figure généralement dans l’inventaire cantonal des biens culturels ou dans le plan d’affectation communal. En cas de doute, il vaut mieux se renseigner directement auprès du service cantonal des monuments historiques ou de la commune avant de chiffrer les travaux.' },
+      { q: 'Le surcoût d’une rénovation patrimoniale peut-il être subventionné ?', a: 'Certains cantons et communes proposent des aides pour la restauration de bâtiments protégés, mais les conditions varient fortement. Il faut vérifier au cas par cas auprès de l’autorité cantonale compétente, généralement avant le début des travaux.' },
+      { q: 'Peut-on refuser certaines exigences du service des monuments historiques ?', a: 'Les prescriptions liées à un bien protégé sont généralement contraignantes et peu négociables sur le fond, même si des discussions restent possibles sur des détails d’exécution. Mieux vaut les anticiper dès le chiffrage plutôt que de les découvrir en cours de chantier.' },
+    ],
+  },
+  {
+    path: 'blog/responsabilite-apres-livraison-travaux-assurance',
+    title: 'Responsabilité civile après la livraison des travaux : ce qui change | Cantia',
+    description:
+      'La responsabilité civile professionnelle reste engagée après la fin d’un chantier. Pourquoi laisser sa police expirer trop tôt est risqué tant que des garanties de travaux courent encore.',
+    faq: [
+      { q: 'Combien de temps un entrepreneur reste-t-il responsable après la livraison ?', a: 'Cela dépend du délai de garantie applicable au contrat, qui peut s’étendre sur plusieurs années après la réception des travaux. Il est essentiel de vérifier ce délai dans le contrat signé avec le client, pas seulement dans la police d’assurance.' },
+      { q: 'Que se passe-t-il si l’entreprise change d’assureur entre-temps ?', a: 'Cela dépend des clauses du contrat, notamment de l’existence d’une couverture subséquente pour les faits survenus avant le changement. Il faut le clarifier explicitement avec le nouvel assureur avant de résilier l’ancienne police.' },
+      { q: 'Un artisan indépendant qui cesse son activité reste-t-il responsable ?', a: 'En principe oui, la responsabilité pour un défaut lié à des travaux déjà réalisés ne disparaît pas automatiquement avec la fin de l’activité. C’est pourquoi il vaut mieux anticiper la question de la couverture avant toute cessation.' },
+    ],
+  },
+  {
+    path: 'blog/rupture-stock-fournisseur-chantier-que-faire',
+    title: 'Rupture de stock fournisseur en plein chantier : que faire | Cantia',
+    description:
+      'Comment réagir face à une rupture de stock fournisseur en plein chantier, anticiper le risque et protéger votre planning et votre relation client.',
+    faq: [
+      { q: 'Une rupture de stock fournisseur peut-elle justifier un dépassement de délai contractuel ?', a: 'Cela dépend des termes du contrat. Si le délai était formulé comme indicatif ou si une clause de force majeure ou d’imprévu est prévue, cela peut jouer en votre faveur ; sinon, la responsabilité peut rester engagée. Mieux vaut anticiper la formulation du contrat que de s’appuyer dessus après coup.' },
+      { q: 'Faut-il prévenir le client immédiatement en cas de rupture de stock ?', a: 'Oui, dans l’idéal avec une solution ou un nouveau délai déjà envisagé. Un client informé tôt et avec une proposition concrète réagit presque toujours mieux qu’un client qui découvre le retard sur le chantier.' },
+      { q: 'Comment choisir un fournisseur de secours pour un matériau critique ?', a: 'Idéalement un fournisseur déjà testé sur d’autres chantiers, avec un délai de livraison comparable, même si son prix est légèrement supérieur au fournisseur principal.' },
+    ],
+  },
+  {
+    path: 'blog/saisie-conservatoire-creance-impayee-batiment',
+    title: 'Saisie conservatoire : un outil méconnu contre un client qui ne paie pas | Cantia',
+    description:
+      'Ce qu’est une saisie conservatoire (séquestre), quand l’utiliser face à un client qui ne paie pas, et en quoi elle diffère d’une poursuite ordinaire.',
+    faq: [
+      { q: 'Faut-il un avocat pour demander une saisie conservatoire ?', a: 'Ce n’est pas toujours obligatoire, mais fortement recommandé compte tenu de la complexité de la démarche et de l’urgence d’agir correctement. Consultez un avocat pour évaluer si votre situation justifie cette mesure.' },
+      { q: 'La saisie conservatoire garantit-elle le recouvrement de la créance ?', a: 'Non, elle bloque des actifs identifiés mais ne garantit pas leur valeur suffisante ni l’issue finale de la procédure de recouvrement, qui suit généralement son cours par la suite selon les voies ordinaires.' },
+      { q: 'Peut-on demander une saisie conservatoire pour n’importe quel montant impayé ?', a: 'En théorie oui, mais en pratique elle est réservée aux cas où le risque de perte est réel et le montant justifie la démarche, compte tenu de son coût et de sa complexité. Pour un petit montant sans risque particulier, la poursuite ordinaire reste plus adaptée.' },
+    ],
+  },
+  {
+    path: 'blog/succession-familiale-entreprise-artisanale-batiment',
+    title: 'Succession familiale dans une entreprise artisanale du bâtiment | Cantia',
+    description:
+      'Comment préparer une succession familiale dans une entreprise artisanale du bâtiment, entre dimension affective et nécessité de formaliser par écrit.',
+    faq: [
+      { q: 'Un pacte successoral est-il obligatoire pour une succession familiale d’entreprise ?', a: 'Non, mais il est fortement recommandé dès qu’il y a plusieurs héritiers, car il permet de fixer les règles de transmission du vivant du patron et d’éviter des désaccords après son décès.' },
+      { q: 'Comment traiter équitablement les enfants qui ne reprennent pas l’entreprise ?', a: 'Généralement par une compensation financière équivalente à leur part successorale, calculée sur la valeur réelle de l’entreprise. Consultez un notaire ou un avocat pour structurer cela selon votre situation précise.' },
+      { q: 'Combien de temps faut-il pour préparer un enfant à reprendre l’entreprise ?', a: 'Il n’y a pas de règle fixe, mais une transition progressive sur plusieurs années, avec une prise de responsabilités croissante, donne généralement de bien meilleurs résultats qu’une reprise soudaine.' },
+    ],
+  },
+  {
+    path: 'blog/transmettre-entreprise-batiment-retraite',
+    title: 'Transmettre son entreprise du bâtiment au moment de la retraite | Cantia',
+    description:
+      'Les options pour transmettre son entreprise du bâtiment à l’approche de la retraite, et pourquoi anticiper plusieurs années à l’avance change tout.',
+    faq: [
+      { q: 'Combien de temps avant la retraite faut-il commencer à préparer la transmission ?', a: 'Généralement plusieurs années, souvent trois à cinq, pour avoir le temps d’introduire un repreneur auprès de la clientèle et de structurer la transmission dans de bonnes conditions.' },
+      { q: 'Comment estimer la valeur d’une entreprise artisanale du bâtiment ?', a: 'Plusieurs méthodes existent (valeur des actifs, capacité bénéficiaire, multiple du chiffre d’affaires selon le secteur). Un professionnel (fiduciaire, expert en transmission d’entreprise) est généralement nécessaire pour une évaluation fiable.' },
+      { q: 'Que faire si aucun repreneur ne se présente ?', a: 'La cessation d’activité reste une option, avec la liquidation des actifs. Dans ce cas, anticiper permet au moins d’organiser la fin de l’activité et les obligations envers les employés et les chantiers en cours dans de bonnes conditions.' },
+    ],
+  },
   ...HELP_SEO_IT,
   ...BLOG_SEO_IT,
 ];
