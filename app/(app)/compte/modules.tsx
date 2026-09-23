@@ -1,13 +1,16 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Container, PageHeader, AppScreen } from '../../../components/ui';
+import { Card, Container, PageHeader, Switch, AppScreen } from '../../../components/ui';
 import { ORG_MODULES, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
-import { colors, fontSize, spacing } from '../../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
+
+type IconName = keyof typeof Feather.glyphMap;
 
 // Modules whose availability also depends on the org's plan, beyond the
 // admin's own on/off toggle.
@@ -15,6 +18,19 @@ const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   planning: 'has_planning',
   payroll: 'has_payroll',
   treasury: 'has_treasury',
+};
+
+const MODULE_ICON: Record<ModuleKey, IconName> = {
+  documents: 'folder',
+  photos: 'image',
+  devis: 'file-text',
+  metre: 'grid',
+  planning: 'calendar',
+  profitability: 'pie-chart',
+  subcontractors: 'briefcase',
+  payroll: 'users',
+  treasury: 'trending-up',
+  accounting: 'book-open',
 };
 
 export default function ModulesScreen() {
@@ -74,11 +90,26 @@ export default function ModulesScreen() {
         <Container>
           <PageHeader title={t('moduleSettings.title')} backTo="/(app)/compte" />
           <Text style={styles.hint}>{t('moduleSettings.intro')}</Text>
-          <View style={{ marginTop: spacing.lg, gap: spacing.lg }}>
+
+          <View style={styles.rolesCallout}>
+            <Feather name="shield" size={16} color={colors.accent} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rolesCalloutText}>{t('moduleSettings.rolesHint')}</Text>
+              <Text style={styles.rolesCalloutLink} onPress={() => router.push('/(app)/compte/equipe')}>
+                {t('moduleSettings.rolesLink')}
+              </Text>
+            </View>
+          </View>
+
+          <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
             {ORG_MODULES.map((m) => {
               const gated = isPlanGated(m.key);
+              const active = !gated && isModuleEnabled(enabledModules, m.key);
               return (
-                <View key={m.key} style={styles.row}>
+                <Card key={m.key} style={styles.moduleCard}>
+                  <View style={[styles.moduleIcon, active && styles.moduleIconActive]}>
+                    <Feather name={MODULE_ICON[m.key]} size={17} color={active ? colors.primary : colors.textMuted} />
+                  </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.label}>{t(`modules.${m.key}.label` as any)}</Text>
                     <Text style={styles.desc}>{t(`modules.${m.key}.description` as any)}</Text>
@@ -88,14 +119,8 @@ export default function ModulesScreen() {
                       </Text>
                     ) : null}
                   </View>
-                  <Switch
-                    value={!gated && isModuleEnabled(enabledModules, m.key)}
-                    onValueChange={() => toggleModule(m.key)}
-                    disabled={!isAdmin || gated}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor="#fff"
-                  />
-                </View>
+                  <Switch value={active} onChange={() => toggleModule(m.key)} disabled={!isAdmin || gated} />
+                </Card>
               );
             })}
           </View>
@@ -104,21 +129,18 @@ export default function ModulesScreen() {
             <>
               <Text style={styles.sectionTitle}>{t('moduleSettings.customModulesTitle')}</Text>
               <Text style={styles.hint}>{t('moduleSettings.customModulesHint')}</Text>
-              <View style={{ marginTop: spacing.lg, gap: spacing.lg }}>
+              <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
                 {privateModules.map((m) => (
-                  <View key={m.key} style={styles.row}>
+                  <Card key={m.key} style={styles.moduleCard}>
+                    <View style={[styles.moduleIcon, m.activated && styles.moduleIconActive]}>
+                      <Feather name="package" size={17} color={m.activated ? colors.primary : colors.textMuted} />
+                    </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.label}>{m.name}</Text>
                       {m.description ? <Text style={styles.desc}>{m.description}</Text> : null}
                     </View>
-                    <Switch
-                      value={m.activated}
-                      onValueChange={() => togglePrivateModule(m)}
-                      disabled={!isAdmin || togglingKey === m.key}
-                      trackColor={{ false: colors.border, true: colors.primary }}
-                      thumbColor="#fff"
-                    />
-                  </View>
+                    <Switch value={m.activated} onChange={() => togglePrivateModule(m)} disabled={!isAdmin || togglingKey === m.key} />
+                  </Card>
                 ))}
               </View>
             </>
@@ -133,6 +155,27 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
+    lineHeight: 17,
+  },
+  rolesCallout: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.md,
+  },
+  rolesCalloutText: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+    lineHeight: 17,
+  },
+  rolesCalloutLink: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary,
+    marginTop: spacing.xs,
   },
   sectionTitle: {
     fontSize: fontSize.lg,
@@ -141,10 +184,21 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxl,
     marginBottom: spacing.xs,
   },
-  row: {
+  moduleCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+  },
+  moduleIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moduleIconActive: {
+    backgroundColor: colors.primarySoft,
   },
   label: {
     fontSize: fontSize.md,

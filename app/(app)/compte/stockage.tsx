@@ -92,6 +92,7 @@ export default function StockageScreen() {
           </Card>
 
           <Text style={styles.sectionTitle}>{t('stockage.breakdown')}</Text>
+          <Text style={styles.scopeHint}>{t('stockage.scopeHint')}</Text>
           {breakdown.length === 0 ? (
             <Text style={styles.emptyText}>{t('stockage.emptyText')}</Text>
           ) : (
@@ -192,6 +193,13 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xl,
     marginBottom: spacing.sm,
+  },
+  scopeHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.xs,
+    marginBottom: spacing.sm,
+    lineHeight: 16,
   },
   emptyText: {
     fontSize: fontSize.sm,

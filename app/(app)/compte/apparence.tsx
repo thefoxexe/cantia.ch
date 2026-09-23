@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -176,11 +176,25 @@ export default function ApparenceScreen() {
               />
               <Text style={styles.hint}>{t('apparence.websiteHint')}</Text>
               {isAdmin && website.trim() ? (
-                <Pressable onPress={analyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
-                  <Feather name="globe" size={13} color={colors.primary} />
-                  <Text style={styles.analyzeLinkText}>
-                    {analyzingWebsite ? t('apparence.analyzing') : t('apparence.analyzeWebsite')}
-                  </Text>
+                <Pressable
+                  onPress={analyzeWebsite}
+                  disabled={analyzingWebsite}
+                  style={({ pressed }) => [styles.analyzeAction, pressed && !analyzingWebsite && styles.analyzeActionPressed]}
+                >
+                  <View style={styles.analyzeActionIcon}>
+                    {analyzingWebsite ? (
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    ) : (
+                      <Feather name="globe" size={18} color={colors.primary} />
+                    )}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.analyzeActionTitle}>
+                      {analyzingWebsite ? t('apparence.analyzing') : t('apparence.analyzeWebsite')}
+                    </Text>
+                    <Text style={styles.analyzeActionSubtitle}>{t('apparence.analyzeWebsiteHint')}</Text>
+                  </View>
+                  {!analyzingWebsite ? <Feather name="chevron-right" size={18} color={colors.primary} /> : null}
                 </Pressable>
               ) : null}
               <View style={styles.colorRow}>
@@ -333,17 +347,39 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
-  analyzeLink: {
+  analyzeAction: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.sm,
+    gap: spacing.md,
+    marginTop: spacing.md,
     marginBottom: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
-  analyzeLinkText: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
+  analyzeActionPressed: {
+    opacity: 0.85,
+  },
+  analyzeActionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  analyzeActionTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '800',
     color: colors.primary,
+  },
+  analyzeActionSubtitle: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   errorHint: {
     fontSize: fontSize.xs,

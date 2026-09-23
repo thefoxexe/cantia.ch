@@ -326,6 +326,20 @@ export default function DataImportScreen() {
           <PageHeader title={t('dataImport.title')} backTo="/(app)/compte" />
           <Text style={styles.subtitle}>{t('dataImport.subtitle')}</Text>
 
+          {!csv ? (
+            <View style={styles.stepsRow}>
+              {([1, 2, 3] as const).map((n) => (
+                <View key={n} style={styles.stepItem}>
+                  <View style={styles.stepBadge}>
+                    <Text style={styles.stepBadgeText}>{n}</Text>
+                  </View>
+                  <Text style={styles.stepLabel}>{t(`dataImport.step${n}` as any)}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          <Text style={styles.kindSectionLabel}>{t('dataImport.kindSectionLabel')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kindRow}>
             {KIND_ORDER.map((k) => (
               <Pressable key={k} style={[styles.kindChip, kind === k && styles.kindChipActive]} onPress={() => changeKind(k)}>
@@ -465,6 +479,49 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 19,
     marginBottom: spacing.lg,
+  },
+  stepsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.lg,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    flexGrow: 1,
+    flexBasis: 180,
+  },
+  stepBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  stepBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  stepLabel: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.text,
+    lineHeight: 16,
+  },
+  kindSectionLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   kindRow: {
     flexDirection: 'row',
