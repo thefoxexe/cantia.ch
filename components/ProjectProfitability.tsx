@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../lib/auth-context';
@@ -35,8 +35,9 @@ function businessDays(startIso: string, endIso: string): number {
 
 export function ProjectProfitability({ projectId, organizationId }: { projectId: string; organizationId: string }) {
   const { t } = useTranslation();
-  const { organization } = useAuth();
+  const { organization, role, refreshOrganization } = useAuth();
   const router = useRouter();
+  const isAdmin = role === 'owner' || role === 'admin';
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [devisedTotal, setDevisedTotal] = useState(0);
   const [extraWorksTotal, setExtraWorksTotal] = useState(0);
@@ -45,6 +46,9 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [editingRate, setEditingRate] = useState(false);
+  const [rateDraft, setRateDraft] = useState('');
+  const [savingRate, setSavingRate] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -118,6 +122,20 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
     await deleteProjectExpense(id);
   }
 
+  function startEditRate() {
+    setRateDraft(hourlyCost > 0 ? String(hourlyCost) : '');
+    setEditingRate(true);
+  }
+
+  async function saveRate() {
+    if (!organization) return;
+    setSavingRate(true);
+    await supabase.from('organizations').update({ hourly_cost: Number(rateDraft) || 0 }).eq('id', organization.id);
+    await refreshOrganization();
+    setSavingRate(false);
+    setEditingRate(false);
+  }
+
   if (loading) return null;
 
   if (plan && !plan.has_profitability) {
@@ -140,11 +158,43 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
   return (
     <View style={{ gap: spacing.lg }}>
-      {hourlyCost === 0 ? (
+      {isAdmin && (editingRate || hourlyCost === 0) ? (
         <Card style={styles.noticeCard}>
           <Feather name="info" size={16} color={colors.accent} />
-          <Text style={styles.noticeText}>{t('projectProfitability.hourlyCostNotice')}</Text>
+          <View style={{ flex: 1, gap: spacing.sm }}>
+            <Text style={styles.noticeText}>{t('projectProfitability.hourlyCostNotice')}</Text>
+            <View style={styles.rateEditRow}>
+              <TextInput
+                style={styles.rateInput}
+                value={rateDraft}
+                onChangeText={setRateDraft}
+                keyboardType="decimal-pad"
+                placeholder={t('projectProfitability.hourlyCostPlaceholder')}
+                placeholderTextColor={colors.textMuted}
+                autoFocus={editingRate}
+              />
+              <Text style={styles.rateSuffix}>CHF/h</Text>
+              <Pressable onPress={saveRate} disabled={savingRate} style={styles.rateSaveButton}>
+                {savingRate ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="check" size={14} color="#fff" />}
+              </Pressable>
+              {editingRate && hourlyCost > 0 ? (
+                <Pressable onPress={() => setEditingRate(false)} style={styles.rateCancelButton}>
+                  <Feather name="x" size={14} color={colors.textMuted} />
+                </Pressable>
+              ) : null}
+            </View>
+          </View>
         </Card>
+      ) : !isAdmin && hourlyCost === 0 ? (
+        <Card style={styles.noticeCard}>
+          <Feather name="info" size={16} color={colors.accent} />
+          <Text style={styles.noticeText}>{t('projectProfitability.hourlyCostNoticeNonAdmin')}</Text>
+        </Card>
+      ) : isAdmin && hourlyCost > 0 ? (
+        <Pressable onPress={startEditRate} style={styles.rateSummaryLink}>
+          <Feather name="edit-2" size={11} color={colors.primary} />
+          <Text style={styles.rateSummaryLinkText}>{t('projectProfitability.hourlyCostEdit', { rate: chf(hourlyCost) })}</Text>
+        </Pressable>
       ) : null}
 
       <Card style={[styles.summaryCard, { borderColor: tone.fg }]}>
@@ -255,6 +305,53 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.text,
     lineHeight: 17,
+  },
+  rateEditRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  rateInput: {
+    width: 80,
+    height: 36,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
+  },
+  rateSuffix: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  rateSaveButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rateCancelButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rateSummaryLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+  },
+  rateSummaryLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
   },
   summaryCard: {
     borderWidth: 1.5,

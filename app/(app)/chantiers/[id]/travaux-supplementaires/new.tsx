@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../lib/auth-context';
 import { useProject } from '../../../../../lib/useProject';
 import { supabase } from '../../../../../lib/supabase';
 import { Button, Card, Field, AppScreen } from '../../../../../components/ui';
+import { FeatureHint } from '../../../../../components/FeatureHint';
 import { useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../../../lib/catalog';
@@ -207,6 +208,13 @@ export default function NewExtraWorkScreen() {
         <View style={styles.content}>
           <Text style={styles.pageTitle}>{t('newExtraWork.title')}</Text>
           <Text style={styles.pageSubtitle}>{project?.name}</Text>
+
+          <FeatureHint
+            id="new-extra-work"
+            icon="plus-circle"
+            title={t('newExtraWork.hintTitle')}
+            text={t('newExtraWork.hintText')}
+          />
 
           <Field label={t('newExtraWork.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('newExtraWork.titlePlaceholder')} />
 

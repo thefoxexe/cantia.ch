@@ -204,25 +204,30 @@ export default function ChantierSettingsScreen() {
         <Container>
           <PageHeader title={t('chantierSettings.title')} backTo={`/(app)/chantiers/${id}`} onBeforeBack={confirmBeforeBack} />
 
-          <Pressable onPress={pickCoverPhoto} style={styles.coverWrap}>
-            {coverPhotoUrl ? (
-              <Image source={{ uri: coverPhotoUrl }} style={styles.coverImage} />
-            ) : (
-              <View style={[styles.coverImage, styles.coverPlaceholder]}>
-                <Feather name="image" size={22} color={colors.textMuted} />
+          <View style={styles.coverRow}>
+            <Pressable onPress={pickCoverPhoto} style={styles.coverThumbWrap}>
+              {coverPhotoUrl ? (
+                <Image source={{ uri: coverPhotoUrl }} style={styles.coverThumb} />
+              ) : (
+                <View style={[styles.coverThumb, styles.coverPlaceholder]}>
+                  <Feather name="image" size={18} color={colors.textMuted} />
+                </View>
+              )}
+              <View style={styles.coverEditBadge}>
+                <Feather name="camera" size={11} color="#fff" />
               </View>
-            )}
-            <View style={styles.coverEditBadge}>
-              <Feather name="camera" size={12} color="#fff" />
+            </Pressable>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.coverTitle}>{t('chantierSettings.coverTitle')}</Text>
+              <Text style={styles.coverHint}>
+                {uploadingCover
+                  ? t('chantierSettings.uploadingCover')
+                  : coverPhotoUrl
+                    ? t('chantierSettings.changeCoverHint')
+                    : t('chantierSettings.addCoverHint')}
+              </Text>
             </View>
-          </Pressable>
-          <Text style={styles.coverHint}>
-            {uploadingCover
-              ? t('chantierSettings.uploadingCover')
-              : coverPhotoUrl
-                ? t('chantierSettings.changeCoverHint')
-                : t('chantierSettings.addCoverHint')}
-          </Text>
+          </View>
 
           <Field label={t('chantierSettings.nameLabel')} value={name} onChangeText={withDirty(setName)} />
           <Field
@@ -338,13 +343,18 @@ export default function ChantierSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  coverWrap: {
-    position: 'relative',
-    marginBottom: spacing.sm,
+  coverRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
   },
-  coverImage: {
-    width: '100%',
-    aspectRatio: 16 / 9,
+  coverThumbWrap: {
+    position: 'relative',
+  },
+  coverThumb: {
+    width: 76,
+    height: 76,
     borderRadius: radius.md,
     backgroundColor: colors.surfaceAlt,
   },
@@ -357,21 +367,27 @@ const styles = StyleSheet.create({
   },
   coverEditBadge: {
     position: 'absolute',
-    right: spacing.sm,
-    bottom: spacing.sm,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    right: -4,
+    bottom: -4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: colors.surface,
   },
+  coverTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 2,
+  },
   coverHint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginBottom: spacing.lg,
+    lineHeight: 16,
   },
   fieldLabel: {
     fontSize: fontSize.sm,

@@ -20,6 +20,11 @@ interface HubItem {
   route: string;
   visible: boolean;
   countTable?: string;
+  // Notes and Rapports are the two things used every day on every chantier
+  // — rendered as a full-width row so they read as the primary actions,
+  // everything else (situations, travaux supp., etc.) sits in the regular
+  // grid below at equal, secondary weight.
+  featured?: boolean;
 }
 
 // Cheap head-count queries for the modules where it's a single table keyed
@@ -89,8 +94,8 @@ export default function ChantierDetailScreen() {
 
   const enabled = project.enabled_modules;
   const items: HubItem[] = [
-    { key: 'feed', label: t('chantierHub.feed'), icon: 'message-circle', route: `/(app)/chantiers/${id}/feed`, visible: true },
-    { key: 'reports', label: t('chantierHub.reports'), icon: 'file-text', route: `/(app)/chantiers/${id}/reports`, visible: true },
+    { key: 'feed', label: t('chantierHub.feed'), icon: 'edit-3', route: `/(app)/chantiers/${id}/feed`, visible: true, featured: true },
+    { key: 'reports', label: t('chantierHub.reports'), icon: 'file-text', route: `/(app)/chantiers/${id}/reports`, visible: true, featured: true },
     {
       key: 'documents',
       label: t('chantierHub.documents'),
@@ -103,13 +108,6 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.photos'),
       icon: 'image',
       route: `/(app)/chantiers/${id}/photos`,
-      visible: isModuleEnabled(enabled, 'photos'),
-    },
-    {
-      key: 'map',
-      label: t('chantierHub.map'),
-      icon: 'map',
-      route: `/(app)/chantiers/${id}/map`,
       visible: isModuleEnabled(enabled, 'photos'),
     },
     {
@@ -149,7 +147,16 @@ export default function ChantierDetailScreen() {
     },
   ];
 
+  // Situations and travaux supplémentaires are the two items people don't
+  // recognize on sight — a one-line description of what they actually do
+  // is more useful here than a bare count, which stays meaningless at 0.
+  const STATIC_HINT: Partial<Record<string, string>> = {
+    extraWorks: t('chantierHub.extraWorksHint'),
+    situations: t('chantierHub.situationsHint'),
+  };
+
   function subtitleFor(key: string): string | null {
+    if (STATIC_HINT[key]) return STATIC_HINT[key]!;
     const def = COUNTABLE[key];
     if (!def) return null;
     const n = counts[key];
@@ -162,15 +169,13 @@ export default function ChantierDetailScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.hero}>
+        <View style={coverUrl ? styles.hero : styles.heroCompact}>
           {coverUrl ? (
-            <Image source={{ uri: coverUrl }} style={styles.heroImage} />
-          ) : (
-            <View style={[styles.heroImage, styles.heroPlaceholder]}>
-              <Feather name="image" size={30} color={colors.primary} style={{ opacity: 0.35 }} />
-            </View>
-          )}
-          <View style={styles.heroScrim} pointerEvents="none" />
+            <>
+              <Image source={{ uri: coverUrl }} style={styles.heroImage} />
+              <View style={styles.heroScrim} pointerEvents="none" />
+            </>
+          ) : null}
 
           <View style={styles.heroTopBar}>
             <Pressable onPress={() => router.replace('/(app)/chantiers')} hitSlop={8} style={styles.heroIconButton}>
@@ -181,7 +186,7 @@ export default function ChantierDetailScreen() {
             </Pressable>
           </View>
 
-          <View style={styles.heroBottom}>
+          <View style={coverUrl ? styles.heroBottom : styles.heroBottomCompact}>
             <View style={styles.heroBadgeRow}>
               <StatusBadge status={project.status} />
             </View>
@@ -217,18 +222,25 @@ export default function ChantierDetailScreen() {
               key={it.key}
               onPress={() => router.push(it.route as any)}
               style={({ hovered, pressed }: any) => [
-                styles.tile,
+                it.featured ? styles.tileFeatured : styles.tile,
                 hovered && styles.tileHovered,
                 pressed && styles.tilePressed,
               ]}
             >
-              <View style={styles.tileIcon}>
-                <Feather name={it.icon} size={19} color={colors.primary} />
+              <View style={[styles.tileIcon, it.featured && styles.tileIconFeatured]}>
+                <Feather name={it.icon} size={it.featured ? 21 : 19} color={colors.primary} />
               </View>
-              <Text style={styles.tileLabel} numberOfLines={2}>
-                {it.label}
-              </Text>
-              {subtitleFor(it.key) ? <Text style={styles.tileSubtitle}>{subtitleFor(it.key)}</Text> : null}
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.tileLabel, it.featured && styles.tileLabelFeatured]} numberOfLines={2}>
+                  {it.label}
+                </Text>
+                {subtitleFor(it.key) ? (
+                  <Text style={styles.tileSubtitle} numberOfLines={it.featured ? 1 : 2}>
+                    {subtitleFor(it.key)}
+                  </Text>
+                ) : null}
+              </View>
+              {it.featured ? <Feather name="chevron-right" size={18} color={colors.textMuted} /> : null}
             </Pressable>
           ))}
         </View>
@@ -250,15 +262,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     justifyContent: 'flex-end',
   },
+  // No cover photo set for this chantier: a compact, dark banner instead of
+  // a big empty placeholder — the photo only ever shows once one is
+  // actually uploaded from the chantier's settings.
+  heroCompact: {
+    width: '100%',
+    backgroundColor: colors.text,
+    justifyContent: 'flex-end',
+  },
   heroImage: {
     ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
-  },
-  heroPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primarySoft,
   },
   heroScrim: {
     ...StyleSheet.absoluteFill,
@@ -285,6 +300,11 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xxl * 1.6,
     gap: spacing.xs,
     backgroundColor: 'rgba(15,23,20,0.55)',
+  },
+  heroBottomCompact: {
+    padding: spacing.lg,
+    paddingTop: spacing.xxl,
+    gap: spacing.xs,
   },
   heroBadgeRow: {
     flexDirection: 'row',
@@ -324,6 +344,17 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.xs,
   },
+  tileFeatured: {
+    flexBasis: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+  },
   tileHovered: {
     borderColor: colors.primary,
   },
@@ -339,10 +370,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.xs,
   },
+  tileIconFeatured: {
+    width: 46,
+    height: 46,
+    marginBottom: 0,
+  },
   tileLabel: {
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
+  },
+  tileLabelFeatured: {
+    fontSize: fontSize.md,
   },
   tileSubtitle: {
     fontSize: fontSize.xs,

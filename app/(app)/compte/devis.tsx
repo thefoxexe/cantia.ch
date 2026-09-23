@@ -18,7 +18,6 @@ export default function DevisSettingsScreen() {
   const [vatRate, setVatRate] = useState(String(organization?.default_vat_rate ?? 8.1));
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
-  const [hourlyCost, setHourlyCost] = useState(String(organization?.hourly_cost ?? 0));
   const isAdmin = role === 'owner' || role === 'admin';
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
@@ -36,7 +35,6 @@ export default function DevisSettingsScreen() {
     setVatRate(String(organization.default_vat_rate ?? 8.1));
     setValidityDays(String(organization.devis_validity_days ?? 30));
     setDevisTerms(organization.devis_terms ?? '');
-    setHourlyCost(String(organization.hourly_cost ?? 0));
   }, [organization]);
 
   useFocusEffect(
@@ -53,7 +51,6 @@ export default function DevisSettingsScreen() {
         default_vat_rate: Number(vatRate) || 0,
         devis_validity_days: Number(validityDays) || 30,
         devis_terms: devisTerms.trim() || null,
-        hourly_cost: Number(hourlyCost) || 0,
       })
       .eq('id', organization.id);
     refreshOrganization();
@@ -112,30 +109,6 @@ export default function DevisSettingsScreen() {
               style={styles.terms}
             />
             <Text style={styles.hint}>{t('devisSettings.layoutHint')}</Text>
-          </Card>
-
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionIcon}>
-              <Feather name="trending-up" size={15} color={colors.primary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.sectionTitle}>{t('devisSettings.hourlyCostTitle')}</Text>
-              <Text style={styles.sectionHint}>{t('devisSettings.hourlyCostSectionHint')}</Text>
-            </View>
-          </View>
-          <Card style={styles.card}>
-            <Field
-              label={t('devisSettings.hourlyCostLabel')}
-              value={hourlyCost}
-              onChangeText={withDirty(setHourlyCost)}
-              editable={isAdmin}
-              keyboardType="decimal-pad"
-              placeholder={t('devisSettings.hourlyCostPlaceholder')}
-            />
-            <View style={styles.usageCallout}>
-              <Feather name="pie-chart" size={16} color={colors.accent} />
-              <Text style={styles.usageCalloutText}>{t('devisSettings.hourlyCostHint')}</Text>
-            </View>
           </Card>
         </Container>
       </ScrollView>
@@ -201,20 +174,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: spacing.xs,
-  },
-  usageCallout: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    backgroundColor: colors.accentSoft,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginTop: spacing.xs,
-  },
-  usageCalloutText: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.text,
-    lineHeight: 17,
   },
 });

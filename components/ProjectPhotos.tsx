@@ -1,70 +1,87 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Image, Linking, LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Image, LayoutChangeEvent, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { getSignedUrls } from '../lib/api/storage';
-import { EmptyState } from './ui';
+import { FeedMap, type FeedMapPoint } from './FeedMap';
+import { EmptyState, LoadingScreen } from './ui';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
-interface ProjectPhoto {
+interface GalleryPhoto {
   id: string;
   storage_path: string;
   caption: string | null;
   latitude: number | null;
   longitude: number | null;
   taken_at: string;
-  report_title: string;
 }
 
-type DateFilter = 'all' | '7d' | '30d';
-
-const FILTERS: { key: DateFilter; labelKey: 'filterAll' | 'filter7d' | 'filter30d' }[] = [
-  { key: 'all', labelKey: 'filterAll' },
-  { key: '7d', labelKey: 'filter7d' },
-  { key: '30d', labelKey: 'filter30d' },
-];
-
-function dayKey(iso: string): string {
-  return iso.slice(0, 10);
-}
-
-function formatDayHeading(iso: string): string {
-  const d = new Date(iso);
-  const text = d.toLocaleDateString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'long', year: 'numeric' });
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
+// A single "Galerie" merging every photo ever attached to this chantier —
+// both ones still sitting in the feed (feed_entries, type='photo') and ones
+// already pulled into a generated report (report_photos, duplicated at
+// generation time — see generateReportFromFeed). Querying only one of the
+// two used to hide half the photos depending on whether they'd been turned
+// into a report yet; storage_path is the one identity both rows share, so
+// it's what de-duplicates them into one continuous, newest-first grid —
+// exactly like a phone's own photo gallery, with an in-place map toggle
+// instead of a separate "Carte" screen.
 export function ProjectPhotos({ projectId }: { projectId: string }) {
   const { t } = useTranslation();
-  const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
+  const { width: winWidth } = useWindowDimensions();
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<DateFilter>('all');
+  const [view, setView] = useState<'grid' | 'map'>('grid');
   const [containerWidth, setContainerWidth] = useState(0);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const viewerScrollRef = useRef<ScrollView>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('report_photos')
-      .select('id, storage_path, caption, latitude, longitude, taken_at, reports!inner(project_id, title)')
-      .eq('reports.project_id', projectId)
-      .order('taken_at', { ascending: false });
+    const [{ data: feedRows }, { data: reportRows }] = await Promise.all([
+      supabase
+        .from('feed_entries')
+        .select('id, storage_path, caption, latitude, longitude, taken_at, created_at')
+        .eq('project_id', projectId)
+        .eq('type', 'photo'),
+      supabase
+        .from('report_photos')
+        .select('id, storage_path, caption, latitude, longitude, taken_at, reports!inner(project_id)')
+        .eq('reports.project_id', projectId),
+    ]);
 
-    const rows: ProjectPhoto[] = (data ?? []).map((p: any) => ({
-      id: p.id,
-      storage_path: p.storage_path,
-      caption: p.caption,
-      latitude: p.latitude,
-      longitude: p.longitude,
-      taken_at: p.taken_at,
-      report_title: p.reports?.title ?? '',
-    }));
-    setPhotos(rows);
-
-    const signed = await getSignedUrls(rows.map((r) => r.storage_path));
-    setUrls(signed);
+    // Every report photo also has an originating feed_entries row unless
+    // that entry was explicitly deleted after its report was generated —
+    // feed rows go in first (they're the live/editable copy), report rows
+    // only fill in a storage_path not already covered.
+    const merged = new Map<string, GalleryPhoto>();
+    for (const r of feedRows ?? []) {
+      if (!r.storage_path) continue;
+      merged.set(r.storage_path, {
+        id: r.id,
+        storage_path: r.storage_path,
+        caption: r.caption,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        taken_at: r.taken_at ?? r.created_at,
+      });
+    }
+    for (const r of (reportRows ?? []) as { id: string; storage_path: string | null; caption: string | null; latitude: number | null; longitude: number | null; taken_at: string }[]) {
+      if (!r.storage_path || merged.has(r.storage_path)) continue;
+      merged.set(r.storage_path, {
+        id: r.id,
+        storage_path: r.storage_path,
+        caption: r.caption,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        taken_at: r.taken_at,
+      });
+    }
+    const list = Array.from(merged.values()).sort((a, b) => new Date(b.taken_at).getTime() - new Date(a.taken_at).getTime());
+    setPhotos(list);
+    setUrls(await getSignedUrls(list.map((p) => p.storage_path)));
     setLoading(false);
   }, [projectId]);
 
@@ -74,186 +91,222 @@ export function ProjectPhotos({ projectId }: { projectId: string }) {
     }, [load]),
   );
 
-  const filtered = useMemo(() => {
-    if (filter === 'all') return photos;
-    const days = filter === '7d' ? 7 : 30;
-    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-    return photos.filter((p) => new Date(p.taken_at).getTime() >= cutoff);
-  }, [photos, filter]);
-
-  const groups = useMemo(() => {
-    const map = new Map<string, ProjectPhoto[]>();
-    for (const p of filtered) {
-      const key = dayKey(p.taken_at);
-      const list = map.get(key);
-      if (list) list.push(p);
-      else map.set(key, [p]);
-    }
-    return Array.from(map.entries());
-  }, [filtered]);
-
-  const gap = spacing.md;
-  const cols = containerWidth >= 900 ? 4 : containerWidth >= 640 ? 3 : containerWidth >= 340 ? 2 : 1;
-  const cardWidth = containerWidth > 0 ? (containerWidth - gap * (cols - 1)) / cols : undefined;
+  const mapPoints: FeedMapPoint[] = useMemo(
+    () =>
+      photos
+        .filter((p) => p.latitude != null && p.longitude != null)
+        .map((p) => ({
+          id: p.id,
+          lat: p.latitude as number,
+          lon: p.longitude as number,
+          thumbUrl: urls[p.storage_path] ?? null,
+          caption: p.caption,
+          takenAt: p.taken_at,
+        })),
+    [photos, urls],
+  );
 
   function onGridLayout(e: LayoutChangeEvent) {
     setContainerWidth(e.nativeEvent.layout.width);
   }
 
-  function openMap(photo: ProjectPhoto) {
-    if (photo.latitude == null || photo.longitude == null) return;
-    Linking.openURL(`https://www.google.com/maps?q=${photo.latitude},${photo.longitude}`);
-  }
+  const gap = spacing.xs;
+  const cols = containerWidth >= 900 ? 6 : containerWidth >= 640 ? 5 : containerWidth >= 420 ? 4 : 3;
+  const cardSize = containerWidth > 0 ? (containerWidth - gap * (cols - 1)) / cols : undefined;
+
+  if (loading && photos.length === 0) return <LoadingScreen />;
 
   return (
     <View>
-      <View style={styles.filterRow}>
-        {FILTERS.map((f) => (
-          <Pressable
-            key={f.key}
-            onPress={() => setFilter(f.key)}
-            style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
-          >
-            <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>{t(`projectPhotos.${f.labelKey}`)}</Text>
+      <View style={styles.toolbar}>
+        <Text style={styles.count}>{t('projectPhotos.count', { count: photos.length })}</Text>
+        <View style={styles.viewToggle}>
+          <Pressable onPress={() => setView('grid')} style={[styles.viewToggleButton, view === 'grid' && styles.viewToggleButtonActive]} hitSlop={6}>
+            <Feather name="grid" size={14} color={view === 'grid' ? colors.primary : colors.textMuted} />
           </Pressable>
-        ))}
+          <Pressable
+            onPress={() => mapPoints.length > 0 && setView('map')}
+            disabled={mapPoints.length === 0}
+            style={[styles.viewToggleButton, view === 'map' && styles.viewToggleButtonActive, mapPoints.length === 0 && styles.viewToggleButtonDisabled]}
+            hitSlop={6}
+          >
+            <Feather name="map" size={14} color={view === 'map' ? colors.primary : colors.textMuted} />
+          </Pressable>
+        </View>
       </View>
 
-      {filtered.length === 0 && !loading ? (
+      {photos.length === 0 && !loading ? (
         <EmptyState title={t('projectPhotos.emptyTitle')} subtitle={t('projectPhotos.emptySubtitle')} />
+      ) : view === 'map' ? (
+        <FeedMap points={mapPoints} height={460} />
       ) : (
-        <View onLayout={onGridLayout}>
-          {groups.map(([key, dayPhotos]) => (
-            <View key={key} style={styles.group}>
-              <Text style={styles.groupHeading}>{formatDayHeading(dayPhotos[0].taken_at)}</Text>
-              <View style={styles.grid}>
-                {dayPhotos.map((photo) => (
-                  <View key={photo.id} style={[styles.photoCard, cardWidth ? { width: cardWidth } : { flexGrow: 1, minWidth: 140 }]}>
-                    {urls[photo.storage_path] ? (
-                      <Image source={{ uri: urls[photo.storage_path] }} style={styles.photoImg} />
-                    ) : (
-                      <View style={[styles.photoImg, styles.photoPlaceholder]} />
-                    )}
-                    <View style={styles.photoInfo}>
-                      {photo.caption ? (
-                        <Text style={styles.photoCaption} numberOfLines={1}>
-                          {photo.caption}
-                        </Text>
-                      ) : null}
-                      <Text style={styles.photoMeta} numberOfLines={1}>
-                        {photo.report_title}
-                      </Text>
-                      <View style={styles.photoFooter}>
-                        <Text style={styles.photoDate}>
-                          {new Date(photo.taken_at).toLocaleTimeString(`${getAppLocale()}-CH`, { hour: '2-digit', minute: '2-digit' })}
-                        </Text>
-                        {photo.latitude != null ? (
-                          <Pressable onPress={() => openMap(photo)} style={styles.mapLink} hitSlop={6}>
-                            <Feather name="map-pin" size={12} color={colors.accent} />
-                            <Text style={styles.mapLinkText}>{t('projectPhotos.map')}</Text>
-                          </Pressable>
-                        ) : null}
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
+        <View onLayout={onGridLayout} style={styles.grid}>
+          {photos.map((photo, i) => (
+            <Pressable
+              key={photo.id}
+              onPress={() => setViewerIndex(i)}
+              style={[styles.photoCard, cardSize ? { width: cardSize, height: cardSize } : { flexGrow: 1, minWidth: 90, aspectRatio: 1 }]}
+            >
+              {urls[photo.storage_path] ? (
+                <Image source={{ uri: urls[photo.storage_path] }} style={styles.photoImg} />
+              ) : (
+                <View style={[styles.photoImg, styles.photoPlaceholder]} />
+              )}
+              {photo.latitude != null ? (
+                <View style={styles.geoBadge}>
+                  <Feather name="map-pin" size={9} color="#fff" />
+                </View>
+              ) : null}
+            </Pressable>
           ))}
         </View>
       )}
+
+      {/* Full-screen viewer — swipe left/right between photos, same
+          horizontal-paging technique as the feed's staged-photo review. */}
+      <Modal
+        visible={viewerIndex !== null}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setViewerIndex(null)}
+        onShow={() => viewerScrollRef.current?.scrollTo({ x: (viewerIndex ?? 0) * winWidth, animated: false })}
+      >
+        <View style={styles.viewerOverlay}>
+          <Pressable style={styles.viewerClose} onPress={() => setViewerIndex(null)} hitSlop={10}>
+            <Feather name="x" size={24} color="#fff" />
+          </Pressable>
+          <ScrollView
+            ref={viewerScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => setViewerIndex(Math.round(e.nativeEvent.contentOffset.x / winWidth))}
+          >
+            {photos.map((photo) => (
+              <View key={photo.id} style={[styles.viewerPage, { width: winWidth }]}>
+                {urls[photo.storage_path] ? (
+                  <Image source={{ uri: urls[photo.storage_path] }} style={styles.viewerImage} resizeMode="contain" />
+                ) : null}
+                <View style={styles.viewerFooter}>
+                  {photo.caption ? <Text style={styles.viewerCaption}>{photo.caption}</Text> : null}
+                  <Text style={styles.viewerDate}>
+                    {new Date(photo.taken_at).toLocaleString(`${getAppLocale()}-CH`, {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  filterRow: {
+  toolbar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
   },
-  filterChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
+  count: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  viewToggle: {
+    flexDirection: 'row',
+    gap: 2,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: 2,
+  },
+  viewToggleButton: {
+    width: 30,
+    height: 30,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewToggleButtonActive: {
     backgroundColor: colors.surface,
   },
-  filterChipActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  filterChipText: {
-    fontSize: fontSize.xs,
-    color: colors.text,
-  },
-  filterChipTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  group: {
-    marginBottom: spacing.xl,
-  },
-  groupHeading: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.md,
+  viewToggleButtonDisabled: {
+    opacity: 0.4,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    gap: spacing.xs,
   },
   photoCard: {
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
   },
   photoImg: {
     width: '100%',
-    height: 120,
-    backgroundColor: colors.surfaceAlt,
+    height: '100%',
   },
   photoPlaceholder: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  photoInfo: {
-    padding: spacing.sm,
-  },
-  photoCaption: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  photoMeta: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  photoFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  geoBadge: {
+    position: 'absolute',
+    right: 4,
+    bottom: 4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(15,23,20,0.55)',
     alignItems: 'center',
-    marginTop: spacing.xs,
+    justifyContent: 'center',
   },
-  photoDate: {
-    fontSize: 11,
-    color: colors.textMuted,
+  viewerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(10,12,11,0.96)',
   },
-  mapLink: {
-    flexDirection: 'row',
+  viewerClose: {
+    position: 'absolute',
+    top: spacing.xl,
+    right: spacing.lg,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
-    gap: 3,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
-  mapLinkText: {
-    fontSize: 11,
-    color: colors.accent,
+  viewerPage: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  viewerImage: {
+    width: '100%',
+    height: '78%',
+  },
+  viewerFooter: {
+    position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
+    bottom: spacing.xxl,
+    gap: 2,
+  },
+  viewerCaption: {
+    fontSize: fontSize.sm,
     fontWeight: '600',
+    color: '#fff',
+  },
+  viewerDate: {
+    fontSize: fontSize.xs,
+    color: 'rgba(255,255,255,0.7)',
   },
 });

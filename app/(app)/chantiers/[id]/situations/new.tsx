@@ -5,6 +5,7 @@ import { useAuth } from '../../../../../lib/auth-context';
 import { useProject } from '../../../../../lib/useProject';
 import { createSituationDraft, listDevisForProject } from '../../../../../lib/api/situations';
 import { Button, Field, AppScreen } from '../../../../../components/ui';
+import { FeatureHint } from '../../../../../components/FeatureHint';
 import { useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import type { Devis } from '../../../../../lib/types';
@@ -59,6 +60,13 @@ export default function NewSituationScreen() {
         <View style={styles.content}>
           <Text style={styles.pageTitle}>{t('newSituation.title')}</Text>
           <Text style={styles.pageSubtitle}>{project?.name}</Text>
+
+          <FeatureHint
+            id="new-situation"
+            icon="bar-chart-2"
+            title={t('newSituation.hintTitle')}
+            text={t('newSituation.hintText')}
+          />
 
           <Field label={t('newSituation.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('newSituation.titlePlaceholder')} />
 
