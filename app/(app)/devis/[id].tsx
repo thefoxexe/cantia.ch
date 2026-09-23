@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
@@ -21,7 +21,7 @@ import { RowActionMenu } from '../../../components/RowActionMenu';
 import { StatusDropdown } from '../../../components/StatusDropdown';
 import { DocumentPreview, type PreviewLine } from '../../../components/DocumentPreview';
 import { ProjectPicker } from '../../../components/ProjectPicker';
-import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { breakpoints, colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
@@ -78,6 +78,12 @@ export default function DevisDetailScreen() {
   const [pushingBexio, setPushingBexio] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [validatingDraft, setValidatingDraft] = useState(false);
+  // On a wide screen the preview reads better docked to the right, like the
+  // live side-by-side preview on devis/new.tsx and factures/new.tsx — a
+  // bottom sheet stretched across a desktop-wide window (the previous
+  // behaviour here) just produced a giant, oddly-proportioned overlay.
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= breakpoints.desktop;
 
   const load = useCallback(async () => {
     const [{ data: d }, { data: i }, f] = await Promise.all([
@@ -665,8 +671,8 @@ export default function DevisDetailScreen() {
       </Modal>
 
       <Modal visible={previewVisible} animationType="slide" transparent onRequestClose={() => setPreviewVisible(false)}>
-        <View style={styles.previewOverlay}>
-          <View style={styles.previewSheet}>
+        <View style={[styles.previewOverlay, isDesktop && styles.previewOverlayDesktop]}>
+          <View style={[styles.previewSheet, isDesktop && styles.previewSheetDesktop]}>
             <View style={styles.previewHeader}>
               <Text style={styles.modalTitle}>{t('devisDetail.previewTitle')}</Text>
               <Pressable hitSlop={8} onPress={() => setPreviewVisible(false)}>
@@ -922,11 +928,28 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
+  // On a bottom-sheet width equal to the full (desktop) window, the A4-
+  // proportioned page inside just became a giant, oddly-stretched panel.
+  // Docking it to the right at a fixed width — same idea as new.tsx's
+  // previewColumn — keeps it at a real document size instead.
+  previewOverlayDesktop: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   previewSheet: {
     backgroundColor: colors.bg,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
     maxHeight: '88%',
+  },
+  previewSheetDesktop: {
+    width: 460,
+    maxHeight: '100%',
+    height: '100%',
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: 0,
   },
   previewHeader: {
     flexDirection: 'row',
