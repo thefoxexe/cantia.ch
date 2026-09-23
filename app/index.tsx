@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
   docShowcaseImage: {
     width: '100%',
     maxWidth: 520,
-    aspectRatio: 1819 / 1690,
+    aspectRatio: 1819 / 2573,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
