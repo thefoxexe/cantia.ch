@@ -18,6 +18,7 @@ import {
   fetchStorageBytes,
   formatDate,
   formatOrgAddress,
+  hexToRgb,
   logoX,
   orgHasCustomization,
   pickReadableTextColor,
@@ -25,9 +26,25 @@ import {
   resolveFooterText,
   resolveLogoPlacement,
   resolvePdfTemplate,
+  tint,
   wrapRichText,
+  wrapText,
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
+
+// Fixed (not brand-tinted) — an anomaly flag reads the same regardless of
+// which brand color the org picked, same way lib/theme.ts's warning token
+// is independent of primary/accent.
+const WARNING = hexToRgb('#9C6510');
+const WARNING_SOFT = hexToRgb('#F3E8D6');
+const WARNING_BORDER = hexToRgb('#DCC58F');
+
+interface ReportStructuredContent {
+  summary: string;
+  sections: { label: string; text: string; photo_indexes: number[] }[];
+  attention: { text: string; photo_indexes: number[] }[];
+  next_steps: string | null;
+}
 
 const BUCKET = 'opus-storage';
 
@@ -182,10 +199,19 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   y -= 26;
 
   drawText(page, 'RAPPORT DE CHANTIER', MARGIN, y, fontBold, 8.5, MUTED);
+  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 8.5, MUTED);
   y -= 22;
-  drawText(page, report.title, MARGIN, y, fontBold, 19, INK);
-  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y - 3, font, 10, MUTED);
-  y -= 26;
+  // Wrapped rather than a single fixed line: the AI now writes a
+  // descriptive title (e.g. "Pose des meubles bas et adaptation de
+  // l'arrivée d'eau") instead of the old date-only placeholder, which at
+  // 19pt bold routinely ran past the page width and collided with the date
+  // that used to sit to its right on the same line.
+  const titleLines = wrapText(report.title, fontBold, 19, PAGE_WIDTH - 2 * MARGIN);
+  for (const line of titleLines) {
+    drawText(page, line, MARGIN, y, fontBold, 19, INK);
+    y -= 23;
+  }
+  y -= 3;
 
   const project = report.projects;
   const metaLines = [
@@ -213,8 +239,144 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
     drawText(page, label, MARGIN + 10, y, fontBold, 10, MUTED);
   };
 
+  // Set by the 'intro' drawer below so 'photos' can skip whatever already
+  // ran inline next to a section/point d'attention — nothing is dropped
+  // either way: a photo referenced by structured_content still appears in
+  // the trailing grid if it wasn't one of the (at most one per
+  // section/point) actually drawn inline.
+  const usedPhotoIndexes = new Set<number>();
+
+  // Fetches one photo and draws it scaled-to-fit inside a fixed box —
+  // shared by the section and point-d'attention inline thumbnails below.
+  // Silently draws nothing (just the placeholder tint) if the photo can't
+  // be embedded, same graceful-degradation as drawPhotoGrid.
+  async function drawInlinePhoto(index: number, x: number, yTop: number, w: number, h: number) {
+    const photo = photos[index];
+    if (!photo) return;
+    page.drawRectangle({ x, y: yTop - h, width: w, height: h, color: PAPER_ALT });
+    const bytes = await fetchStorageBytes(admin, BUCKET, photo.storage_path);
+    if (!bytes) return;
+    const img = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
+    if (!img) return;
+    const scale = Math.min(w / img.width, h / img.height);
+    const iw = img.width * scale;
+    const ih = img.height * scale;
+    page.drawImage(img, { x: x + (w - iw) / 2, y: yTop - h + (h - ih) / 2, width: iw, height: ih });
+  }
+
   await runSections(sections, {
-    intro: () => {
+    intro: async () => {
+      const structured = report.structured_content as ReportStructuredContent | null;
+      if (structured && Array.isArray(structured.sections) && structured.sections.length > 0) {
+        // ---- "En bref" summary chip ----
+        if (structured.summary?.trim()) {
+          const chipLines = wrapText(structured.summary, font, 10, PAGE_WIDTH - 2 * MARGIN - 20);
+          const chipH = chipLines.length * 13 + 16;
+          if (y < MARGIN + chipH + 40) newPage();
+          page.drawRectangle({ x: MARGIN, y: y - chipH, width: PAGE_WIDTH - 2 * MARGIN, height: chipH, color: tint(brand, 0.88) });
+          let cy = y - 14;
+          drawText(page, 'EN BREF', MARGIN + 10, cy, fontBold, 8, brand);
+          cy -= 14;
+          for (const line of chipLines) {
+            drawText(page, line, MARGIN + 10, cy, font, 10, INK);
+            cy -= 13;
+          }
+          y -= chipH + 18;
+        }
+
+        // ---- sections (each an optional inline photo + a short paragraph) ----
+        for (const section of structured.sections) {
+          const photoIdx = section.photo_indexes.find((i) => photos[i]);
+          const hasPhoto = photoIdx != null;
+          const PHOTO_W = 72;
+          const PHOTO_H = 54;
+          const textX = hasPhoto ? MARGIN + PHOTO_W + 14 : MARGIN;
+          const textWidth = PAGE_WIDTH - MARGIN - textX;
+          const lines = wrapText(section.text, font, 10, textWidth);
+          const blockH = Math.max(hasPhoto ? PHOTO_H : 0, lines.length * 13) + 24;
+          if (y < MARGIN + blockH + 30) newPage();
+
+          sectionLabel(section.label.toUpperCase());
+          y -= 16;
+          const blockTop = y;
+          if (hasPhoto) await drawInlinePhoto(photoIdx!, MARGIN, blockTop, PHOTO_W, PHOTO_H);
+          if (hasPhoto) usedPhotoIndexes.add(photoIdx!);
+          let ty = blockTop;
+          for (const line of lines) {
+            drawText(page, line, textX, ty, font, 10, INK);
+            ty -= 13;
+          }
+          y = blockTop - Math.max(hasPhoto ? PHOTO_H : 0, lines.length * 13) - 18;
+        }
+
+        // ---- points d'attention ----
+        for (const item of structured.attention) {
+          const photoIdx = item.photo_indexes.find((i) => photos[i]);
+          const hasPhoto = photoIdx != null;
+          const PHOTO_SIZE = 46;
+          const padX = 10;
+          const iconColW = 24;
+          const textX = MARGIN + padX + iconColW;
+          const textWidth = PAGE_WIDTH - MARGIN - padX - textX - (hasPhoto ? PHOTO_SIZE + 12 : 0);
+          const lines = wrapText(item.text, font, 9.8, textWidth);
+          // 27pt from box top to the first line's baseline (room for the
+          // icon + "POINT D'ATTENTION" label above it), 12.5pt per
+          // subsequent line, 10pt of bottom padding below the last line.
+          const contentH = Math.max(27 + (lines.length - 1) * 12.5 + 10, hasPhoto ? PHOTO_SIZE + 16 : 0);
+          if (y < MARGIN + contentH + 30) newPage();
+
+          const boxTop = y;
+          const boxBottom = boxTop - contentH;
+          page.drawRectangle({
+            x: MARGIN,
+            y: boxBottom,
+            width: PAGE_WIDTH - 2 * MARGIN,
+            height: contentH,
+            color: WARNING_SOFT,
+            borderColor: WARNING_BORDER,
+            borderWidth: 1,
+          });
+          const iconCx = MARGIN + padX + 7;
+          const iconCy = boxTop - 16;
+          page.drawEllipse({ x: iconCx, y: iconCy, xScale: 7.5, yScale: 7.5, color: WARNING });
+          drawText(page, '!', iconCx - 2, iconCy - 4, fontBold, 10, WHITE);
+          drawText(page, "POINT D'ATTENTION", textX, boxTop - 13, fontBold, 8.5, WARNING);
+          let ty = boxTop - 27;
+          for (const line of lines) {
+            drawText(page, line, textX, ty, font, 9.8, INK);
+            ty -= 12.5;
+          }
+          if (hasPhoto) {
+            await drawInlinePhoto(photoIdx!, PAGE_WIDTH - MARGIN - padX - PHOTO_SIZE, boxTop - 8, PHOTO_SIZE, PHOTO_SIZE);
+            usedPhotoIndexes.add(photoIdx!);
+          }
+          y = boxBottom - 16;
+        }
+
+        // ---- next steps ----
+        if (structured.next_steps?.trim()) {
+          const lines = wrapText(structured.next_steps, font, 9.8, PAGE_WIDTH - 2 * MARGIN - 60);
+          const h = lines.length * 12.5 + 6;
+          if (y < MARGIN + h + 20) newPage();
+          drawText(page, 'SUITE ->', MARGIN, y, fontBold, 8.5, brand);
+          let ty = y;
+          for (const line of lines) {
+            drawText(page, line, MARGIN + 52, ty, font, 9.8, INK);
+            ty -= 12.5;
+          }
+          y -= h + 12;
+        }
+
+        y -= 8;
+        page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
+        y -= 20;
+        return;
+      }
+
+      // Fallback for reports with no AI-structured breakdown (older
+      // reports, or notes edited by hand after structuring — see
+      // rapports/[reportId].tsx's saveEdits) — identical to the original
+      // flat-paragraph rendering.
       if (!report.notes?.trim()) return;
       sectionLabel('NOTES');
       y -= 16;
@@ -247,9 +409,15 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       y -= MAP_H + 20;
     },
     photos: async () => {
-      if (!photos.length) return;
+      // Photos already shown inline next to a section or point d'attention
+      // (see 'intro' above) are skipped here — everything else still gets
+      // its own card, so nothing uploaded is ever silently left out of the
+      // document.
+      const remaining = photos.filter((_, i) => !usedPhotoIndexes.has(i));
+      if (!remaining.length) return;
       if (y < MARGIN + 240) newPage();
-      sectionLabel(`PHOTOS (${photos.length})`);
+      const label = usedPhotoIndexes.size > 0 ? `AUTRES PHOTOS (${remaining.length})` : `PHOTOS (${remaining.length})`;
+      sectionLabel(label);
       y -= 20;
       const state = await drawPhotoGrid({
         pdfDoc,
@@ -258,7 +426,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
         page,
         pageNum,
         y,
-        photos,
+        photos: remaining,
         font,
         fontBold,
         labelColor: MUTED,

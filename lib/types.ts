@@ -210,6 +210,16 @@ export interface ReportTemplate {
   description: string | null;
 }
 
+// The AI-structured breakdown of a report's content — see the migration
+// comment on reports.structured_content. photo_indexes are positions into
+// the report's photos ordered by sort_order, not photo ids.
+export interface ReportStructuredContent {
+  summary: string;
+  sections: { label: string; text: string; photo_indexes: number[] }[];
+  attention: { text: string; photo_indexes: number[] }[];
+  next_steps: string | null;
+}
+
 export interface Report {
   id: string;
   organization_id: string;
@@ -217,6 +227,7 @@ export interface Report {
   template_id: string | null;
   title: string;
   notes: string | null;
+  structured_content: ReportStructuredContent | null;
   status: 'draft' | 'generated';
   pdf_path: string | null;
   created_by: string | null;

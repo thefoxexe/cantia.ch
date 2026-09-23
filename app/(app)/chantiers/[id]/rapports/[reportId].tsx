@@ -80,9 +80,12 @@ export default function ReportDetailScreen() {
   async function saveEdits() {
     if (!report || !editTitle.trim()) return;
     setSaving(true);
+    // A manual edit invalidates any AI-structured breakdown of the old
+    // notes — generate-report-pdf falls back to the plain layout for
+    // whatever's typed here rather than showing a now-mismatched structure.
     await supabase
       .from('reports')
-      .update({ title: editTitle.trim(), notes: editNotes.trim() || null })
+      .update({ title: editTitle.trim(), notes: editNotes.trim() || null, structured_content: null })
       .eq('id', report.id);
     setSaving(false);
     setEditing(false);

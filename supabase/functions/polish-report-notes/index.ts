@@ -8,16 +8,103 @@ const corsHeaders = {
 
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
 
+// Asks for a structured breakdown (title, summary, dated steps, flagged
+// anomalies, next step) instead of one flowing paragraph — generate-
+// report-pdf lays this out with photos next to the step/anomaly they
+// illustrate and anomalies in their own highlighted block, which a single
+// block of prose can't express. photo_indexes reference the position (0-
+// based) of a photo in the SAME ORDER as the "Photos jointes" list below
+// (report_photos ordered by sort_order) — never a caption, id or filename,
+// since those aren't guaranteed unique or stable.
 const SYSTEM_PROMPT = `Tu rédiges des rapports de chantier professionnels pour des artisans et entreprises du bâtiment en Suisse.
-On te donne des notes brutes prises sur le terrain (souvent dictées à l'oral, informelles, avec des fautes) et parfois les légendes des photos jointes.
-Réécris-les en un texte de rapport clair, professionnel et bien structuré, de façon neutre.
+On te donne des notes brutes prises sur le terrain (souvent dictées à l'oral, informelles, avec des fautes) et la liste des photos jointes avec leur légende et leur position (index).
+Tu dois répondre UNIQUEMENT avec un objet JSON valide, rien d'autre (pas de texte avant/après, pas de balises markdown), respectant exactement ce schéma :
+{
+  "title": string | null,
+  "summary": string,
+  "sections": [{ "label": string, "text": string, "photo_indexes": number[] }],
+  "attention": [{ "text": string, "photo_indexes": number[] }],
+  "next_steps": string | null
+}
 Règles strictes :
-- Réponds TOUJOURS dans la même langue que les notes fournies (français, allemand suisse ou italien le plus souvent) — ne traduis jamais, ne bascule jamais vers une autre langue que celle des notes d'origine.
+- Réponds TOUJOURS dans la même langue que les notes fournies (français, allemand suisse ou italien le plus souvent) — ne traduis jamais.
 - N'invente jamais de fait, chiffre, date ou observation qui n'est pas dans les notes fournies.
-- Corrige l'orthographe et la grammaire, reformule en phrases complètes et professionnelles.
-- Organise le texte en paragraphes courts et logiques (par exemple par étape ou par zone du chantier si pertinent), sans titres markdown ni puces ni astérisques.
-- Reste concis : privilégie la clarté à la longueur.
-- Réponds uniquement avec le texte du rapport, sans préambule ni commentaire.`;
+- "title" : un titre court (6-10 mots) qui résume CE QUI S'EST PASSÉ ce jour-là (ex. "Pose des meubles bas et adaptation de l'arrivée d'eau"), jamais une simple date ni un titre générique type "Rapport de chantier". Mets null seulement si les notes sont trop maigres pour en tirer un titre spécifique.
+- "summary" : une à deux phrases, l'essentiel de la journée en un coup d'œil.
+- "sections" : découpe le travail réalisé en étapes ou zones logiques (2 à 5 sections en général) ; chaque "text" est un court paragraphe (2-4 phrases) en prose professionnelle. Ne mets JAMAIS de puces ni d'astérisques dans "text".
+- "attention" : UNIQUEMENT les anomalies, imprévus, écarts au plan, points nécessitant validation ou vigilance — un tableau vide si rien de tel n'est mentionné dans les notes. Ne force jamais une entrée artificielle.
+- "photo_indexes" : uniquement des index de la liste "Photos jointes" fournie, seulement quand une photo illustre clairement cette section/ce point précis d'après sa légende ou son contexte — sinon un tableau vide. Une même photo peut être référencée par au plus une section ou un point d'attention (jamais les deux, jamais deux fois).
+- "next_steps" : une phrase courte sur la suite prévue si les notes la mentionnent, sinon null.
+- Corrige l'orthographe et la grammaire partout, reformule en phrases complètes et professionnelles.
+- Reste concis : privilégie la clarté à la longueur.`;
+
+interface StructuredReport {
+  title: string | null;
+  summary: string;
+  sections: { label: string; text: string; photo_indexes: number[] }[];
+  attention: { text: string; photo_indexes: number[] }[];
+  next_steps: string | null;
+}
+
+// Turns the structured object back into flat text — kept as reports.notes
+// so anything that only ever reads plain text (search, the in-app notes
+// textarea, older report renderings) still gets something sensible.
+function flattenStructured(s: StructuredReport): string {
+  const parts: string[] = [s.summary];
+  for (const section of s.sections) parts.push(`${section.label} : ${section.text}`);
+  for (const a of s.attention) parts.push(`Point d'attention : ${a.text}`);
+  if (s.next_steps) parts.push(`Prochaine étape : ${s.next_steps}`);
+  return parts.filter(Boolean).join('\n\n');
+}
+
+// Validates the model's own JSON against the schema rather than trusting it
+// blindly — a malformed/partial response (truncated by max_tokens, an odd
+// model quirk) must fall back to null structured content, never a half-
+// built object the PDF renderer would choke on or misrender.
+function parseStructured(raw: string, photoCount: number): StructuredReport | null {
+  let parsed: unknown;
+  try {
+    // The model is instructed to return bare JSON, but strip a ```json
+    // fence defensively in case it wraps it anyway.
+    const cleaned = raw.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    parsed = JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
+  if (!parsed || typeof parsed !== 'object') return null;
+  const p = parsed as Record<string, unknown>;
+
+  const clampIndexes = (v: unknown): number[] =>
+    Array.isArray(v) ? v.filter((n): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n < photoCount) : [];
+
+  if (typeof p.summary !== 'string' || !p.summary.trim()) return null;
+  if (!Array.isArray(p.sections)) return null;
+
+  const sections = p.sections
+    .filter((s): s is Record<string, unknown> => !!s && typeof s === 'object')
+    .map((s) => ({
+      label: typeof s.label === 'string' && s.label.trim() ? s.label.trim() : 'Travaux réalisés',
+      text: typeof s.text === 'string' ? s.text.trim() : '',
+      photo_indexes: clampIndexes(s.photo_indexes),
+    }))
+    .filter((s) => s.text.length > 0);
+  if (sections.length === 0) return null;
+
+  const attention = Array.isArray(p.attention)
+    ? p.attention
+        .filter((a): a is Record<string, unknown> => !!a && typeof a === 'object')
+        .map((a) => ({ text: typeof a.text === 'string' ? a.text.trim() : '', photo_indexes: clampIndexes(a.photo_indexes) }))
+        .filter((a) => a.text.length > 0)
+    : [];
+
+  return {
+    title: typeof p.title === 'string' && p.title.trim() ? p.title.trim() : null,
+    summary: p.summary.trim(),
+    sections,
+    attention,
+    next_steps: typeof p.next_steps === 'string' && p.next_steps.trim() ? p.next_steps.trim() : null,
+  };
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -64,8 +151,7 @@ Deno.serve(async (req: Request) => {
       .select('caption')
       .eq('report_id', report_id)
       .order('sort_order', { ascending: true });
-
-    const captionLines = (photos ?? []).map((p) => p.caption?.trim()).filter(Boolean) as string[];
+    const photoList = photos ?? [];
 
     const project = report.projects as { name?: string; client_name?: string; address?: string } | null;
     const contextLines = [
@@ -76,11 +162,13 @@ Deno.serve(async (req: Request) => {
       .filter(Boolean)
       .join('\n');
 
+    const photoLines = photoList.map((p, i) => `${i}. ${p.caption?.trim() || '(sans légende)'}`);
+
     const userPrompt = [
       contextLines ? `Contexte du chantier :\n${contextLines}\n` : '',
       'Notes brutes prises sur le terrain :',
       report.notes,
-      captionLines.length ? `\nLégendes des photos jointes :\n${captionLines.map((c) => `- ${c}`).join('\n')}` : '',
+      photoLines.length ? `\nPhotos jointes (index. légende) :\n${photoLines.join('\n')}` : '\nAucune photo jointe.',
     ]
       .filter(Boolean)
       .join('\n');
@@ -94,7 +182,7 @@ Deno.serve(async (req: Request) => {
       },
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
-        max_tokens: 1500,
+        max_tokens: 2000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       }),
@@ -107,15 +195,21 @@ Deno.serve(async (req: Request) => {
     }
 
     const aiData = await aiRes.json();
-    const polished = ((aiData?.content ?? []) as Array<{ type: string; text?: string }>)
+    const raw = ((aiData?.content ?? []) as Array<{ type: string; text?: string }>)
       .filter((b) => b.type === 'text' && b.text)
       .map((b) => b.text)
       .join('\n')
       .trim();
 
-    if (!polished) return json({ error: 'La réponse IA était vide' }, 502);
+    if (!raw) return json({ error: 'La réponse IA était vide' }, 502);
 
-    return json({ notes: polished });
+    const structured = parseStructured(raw, photoList.length);
+    if (!structured) {
+      console.error('polish-report-notes: could not parse structured JSON from model output', raw.slice(0, 500));
+      return json({ error: "La rédaction IA n'a pas pu être structurée, réessayez" }, 502);
+    }
+
+    return json({ title: structured.title, notes: flattenStructured(structured), structured });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

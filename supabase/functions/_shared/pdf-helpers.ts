@@ -286,6 +286,18 @@ export function pickReadableTextColor(bg: RGB): RGB {
   return luminance > 0.5 ? INK : WHITE;
 }
 
+// Lightens a color toward white by `amount` (0 = unchanged, 1 = white) —
+// used to derive a soft tinted background (e.g. a brand-colored summary
+// chip) from an org's own brand color, the same way theme.ts pairs
+// primary/primarySoft, without hardcoding a second palette.
+export function tint(color: RGB, amount: number): RGB {
+  return rgb(
+    color.red + (1 - color.red) * amount,
+    color.green + (1 - color.green) * amount,
+    color.blue + (1 - color.blue) * amount,
+  );
+}
+
 export type LogoPlacement = 'left' | 'center' | 'right';
 
 export function logoX(placement: LogoPlacement, pageWidth: number, margin: number, logoWidth: number): number {

@@ -111,7 +111,14 @@ Deno.serve(async (req: Request) => {
       });
       const polishData = await polishRes.json().catch(() => null);
       if (polishRes.ok && polishData?.notes) {
-        await admin.from('reports').update({ notes: polishData.notes }).eq('id', report.id);
+        // The cron path never had a real title to begin with (just
+        // "Rapport automatique du DD.MM.YYYY" from the insert above) — the
+        // AI's own title replaces it here. The manual "Générer" flow
+        // (rapport-new.tsx) is different: the writer already typed a real
+        // title, so that path never overwrites it.
+        const update: Record<string, unknown> = { notes: polishData.notes, structured_content: polishData.structured ?? null };
+        if (polishData.title) update.title = polishData.title;
+        await admin.from('reports').update(update).eq('id', report.id);
       }
     }
 

@@ -182,9 +182,12 @@ export default function NewReportScreen() {
       // report still gets created and PDF'd with whatever notes exist.
       if (notes.trim()) {
         setStep(t('newReport.aiWriting'));
-        const { notes: polished } = await polishReportNotes(report.id);
+        // Title stays whatever the writer typed above — only the body gets
+        // the AI's structured rewrite (summary/sections/points d'attention)
+        // that generate-report-pdf lays out with photos in context.
+        const { notes: polished, structured } = await polishReportNotes(report.id);
         if (polished) {
-          await supabase.from('reports').update({ notes: polished }).eq('id', report.id);
+          await supabase.from('reports').update({ notes: polished, structured_content: structured }).eq('id', report.id);
         }
       }
 

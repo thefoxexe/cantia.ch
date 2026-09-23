@@ -1,8 +1,14 @@
 import { invokeFunction } from './functions';
+import type { ReportStructuredContent } from '../types';
 
-export async function polishReportNotes(reportId: string): Promise<{ notes: string | null; error: string | null }> {
-  const { data, error } = await invokeFunction<{ notes: string }>('polish-report-notes', { report_id: reportId });
-  return { notes: data?.notes ?? null, error };
+export async function polishReportNotes(
+  reportId: string,
+): Promise<{ title: string | null; notes: string | null; structured: ReportStructuredContent | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ title: string | null; notes: string; structured: ReportStructuredContent }>(
+    'polish-report-notes',
+    { report_id: reportId },
+  );
+  return { title: data?.title ?? null, notes: data?.notes ?? null, structured: data?.structured ?? null, error };
 }
 
 export interface DictatedDevisLine {
