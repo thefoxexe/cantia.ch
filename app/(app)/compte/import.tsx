@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Feather } from '@expo/vector-icons';
+import * as XLSX from 'xlsx';
 import { useAuth } from '../../../lib/auth-context';
 import { parseCsv, type ParsedCsv } from '../../../lib/csv';
 import {
@@ -55,6 +56,38 @@ const EXPENSE_FIELDS: FieldDef[] = [
   { key: 'category', labelKey: 'dataImport.fieldCategory', required: false },
   { key: 'date', labelKey: 'dataImport.fieldDate', required: false },
 ];
+
+// .xls (legacy binary) is included alongside .xlsx (the modern zipped-XML
+// format) — SheetJS reads both from the same buffer without needing to
+// know which one it is.
+const EXCEL_MIME_TYPES = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+
+function isExcelFile(name: string | null | undefined, mimeType: string | null | undefined): boolean {
+  const lower = (name ?? '').toLowerCase();
+  return lower.endsWith('.xlsx') || lower.endsWith('.xls') || EXCEL_MIME_TYPES.includes(mimeType ?? '');
+}
+
+// Reads the first sheet of a real Excel workbook into the exact {headers,
+// rows} shape parseCsv produces from a text file, so every downstream step
+// (guessMapping, the AI suggestion, the per-kind import) works unchanged
+// regardless of which format was picked — a .xlsx no longer has to be
+// re-exported to CSV first. Every cell is stringified (raw: false) since
+// the rest of the screen already treats every field as free text until
+// import-time parsing (amounts, dates) converts it, exactly like a CSV
+// cell would be.
+function parseExcelWorkbook(buffer: ArrayBuffer): ParsedCsv {
+  const workbook = XLSX.read(buffer, { type: 'array' });
+  const sheetName = workbook.SheetNames[0];
+  const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
+  if (!sheet) return { headers: [], rows: [] };
+  const aoa = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false, defval: '' });
+  const [headerRow, ...dataRows] = aoa;
+  const headers = (headerRow ?? []).map((h) => String(h ?? '').trim());
+  const rows = dataRows
+    .filter((r) => r.some((cell) => String(cell ?? '').trim().length > 0))
+    .map((r) => headers.map((_, i) => String(r[i] ?? '').trim()));
+  return { headers, rows };
+}
 
 function fieldsForKind(kind: ImportKind): FieldDef[] {
   switch (kind) {
@@ -181,12 +214,17 @@ export default function DataImportScreen() {
   async function handlePick() {
     setError(null);
     setResult(null);
-    const picked = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'text/plain', '*/*'], copyToCacheDirectory: true });
+    const picked = await DocumentPicker.getDocumentAsync({
+      type: ['text/csv', 'text/comma-separated-values', 'text/plain', ...EXCEL_MIME_TYPES, '*/*'],
+      copyToCacheDirectory: true,
+    });
     if (picked.canceled || !picked.assets?.length) return;
     setPicking(true);
     try {
-      const text = await fetch(picked.assets[0].uri).then((r) => r.text());
-      const parsed = parseCsv(text);
+      const asset = picked.assets[0];
+      const parsed = isExcelFile(asset.name, asset.mimeType)
+        ? parseExcelWorkbook(await fetch(asset.uri).then((r) => r.arrayBuffer()))
+        : parseCsv(await fetch(asset.uri).then((r) => r.text()));
       if (parsed.headers.length === 0 || parsed.rows.length === 0) {
         setError(t('dataImport.emptyFile'));
         return;
