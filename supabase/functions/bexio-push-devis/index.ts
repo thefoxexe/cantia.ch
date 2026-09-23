@@ -30,6 +30,19 @@ const corsHeaders = {
 // are still left out — Bexio's 422 never flagged them as required, so
 // guessing them risks silently misclassifying the line instead of letting
 // a real BEXIO_VALIDATION_ERROR surface.
+// Also reachable without a user session, via a shared X-Dispatch-Secret
+// header instead of an Authorization JWT: dispatch_bexio_push_devis() (see
+// migration) fires this automatically right after a devis is inserted, so
+// a devis created in Cantia reaches Bexio without anyone clicking "Envoyer
+// vers Bexio" — the same fire-and-forget treatment clients already get
+// (see lib/api/clients.ts::createClient / bexio-push-client). That path
+// skips the is_org_admin gate below (there's no user to check — creating
+// the devis was already something a normal member is allowed to do, this
+// is just its background side effect) but still respects the org's own
+// auto_sync_enabled toggle, re-checked below even though the trigger
+// already filters on it, in case this endpoint is ever hit directly.
+const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -41,22 +54,25 @@ Deno.serve(async (req: Request) => {
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization') ?? '';
+    const isSystemDispatch = !!DISPATCH_SECRET && req.headers.get('x-dispatch-secret') === DISPATCH_SECRET;
 
     const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const admin = createClient(supabaseUrl, serviceKey);
-
-    const {
-      data: { user },
-    } = await userClient.auth.getUser();
-    if (!user) return json({ error: 'Non authentifié' }, 401);
 
     const { organization_id, devis_id } = await req.json();
     if (!organization_id || !devis_id) return json({ error: 'organization_id et devis_id requis' }, 400);
     orgIdForErrorLog = organization_id;
     devisIdForErrorLog = devis_id;
 
-    const { data: isAdmin } = await userClient.rpc('is_org_admin', { org_id: organization_id });
-    if (!isAdmin) return json({ error: "Seul un administrateur de l'entreprise peut envoyer un devis vers Bexio." }, 403);
+    if (!isSystemDispatch) {
+      const {
+        data: { user },
+      } = await userClient.auth.getUser();
+      if (!user) return json({ error: 'Non authentifié' }, 401);
+
+      const { data: isAdmin } = await userClient.rpc('is_org_admin', { org_id: organization_id });
+      if (!isAdmin) return json({ error: "Seul un administrateur de l'entreprise peut envoyer un devis vers Bexio." }, 403);
+    }
 
     const { data: org } = await admin.from('organizations').select('plan_id, devis_validity_days').eq('id', organization_id).maybeSingle();
     const { data: plan } = await admin.from('plans').select('has_bexio_integration').eq('id', org?.plan_id ?? '').maybeSingle();
@@ -64,11 +80,12 @@ Deno.serve(async (req: Request) => {
 
     const { data: integration } = await admin
       .from('integrations')
-      .select('id, organization_id, status, needs_reconnect')
+      .select('id, organization_id, status, needs_reconnect, auto_sync_enabled')
       .eq('organization_id', organization_id)
       .eq('provider', 'bexio')
       .maybeSingle();
     if (!integration || integration.status !== 'connected') return json({ error: "Bexio n'est pas connecté pour cette entreprise." }, 400);
+    if (isSystemDispatch && !integration.auto_sync_enabled) return json({ ok: true, skipped: true });
     if (integration.needs_reconnect) {
       return json(
         { error: "La connexion Bexio doit être renouvelée (nouveau droit requis pour envoyer des devis vers Bexio). Reconnectez Bexio depuis Compte > Intégrations." },

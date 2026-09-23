@@ -21,6 +21,13 @@ const corsHeaders = {
 // decodeBexioCompanyUserId / resolveBexioSalesTaxId in bexio.ts. Left out
 // only if either lookup comes back empty, so a real BEXIO_VALIDATION_ERROR
 // still surfaces instead of a guessed value silently corrupting the invoice.
+// Also reachable without a user session, via a shared X-Dispatch-Secret
+// header instead of an Authorization JWT: dispatch_bexio_push_facture()
+// (see migration) fires this automatically right after a facture is
+// inserted, so a facture created in Cantia reaches Bexio without anyone
+// clicking "Envoyer vers Bexio" — same treatment as bexio-push-devis.
+const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -29,20 +36,23 @@ Deno.serve(async (req: Request) => {
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization') ?? '';
+    const isSystemDispatch = !!DISPATCH_SECRET && req.headers.get('x-dispatch-secret') === DISPATCH_SECRET;
 
     const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const {
-      data: { user },
-    } = await userClient.auth.getUser();
-    if (!user) return json({ error: 'Non authentifié' }, 401);
-
     const { organization_id, facture_id } = await req.json();
     if (!organization_id || !facture_id) return json({ error: 'organization_id et facture_id requis' }, 400);
 
-    const { data: isAdmin } = await userClient.rpc('is_org_admin', { org_id: organization_id });
-    if (!isAdmin) return json({ error: "Seul un administrateur de l'entreprise peut envoyer une facture vers Bexio." }, 403);
+    if (!isSystemDispatch) {
+      const {
+        data: { user },
+      } = await userClient.auth.getUser();
+      if (!user) return json({ error: 'Non authentifié' }, 401);
+
+      const { data: isAdmin } = await userClient.rpc('is_org_admin', { org_id: organization_id });
+      if (!isAdmin) return json({ error: "Seul un administrateur de l'entreprise peut envoyer une facture vers Bexio." }, 403);
+    }
 
     const { data: org } = await admin.from('organizations').select('plan_id').eq('id', organization_id).maybeSingle();
     const { data: plan } = await admin.from('plans').select('has_bexio_integration').eq('id', org?.plan_id ?? '').maybeSingle();
@@ -50,11 +60,12 @@ Deno.serve(async (req: Request) => {
 
     const { data: integration } = await admin
       .from('integrations')
-      .select('id, organization_id, status')
+      .select('id, organization_id, status, auto_sync_enabled')
       .eq('organization_id', organization_id)
       .eq('provider', 'bexio')
       .maybeSingle();
     if (!integration || integration.status !== 'connected') return json({ error: "Bexio n'est pas connecté pour cette entreprise." }, 400);
+    if (isSystemDispatch && !integration.auto_sync_enabled) return json({ ok: true, skipped: true });
 
     const { data: facture } = await admin
       .from('factures')
@@ -132,13 +143,43 @@ Deno.serve(async (req: Request) => {
       .eq('local_id', facture.id)
       .maybeSingle();
 
-    let externalId: string;
+    let externalId: string | null = existingMapping?.external_id ?? null;
+    let mappingId: string | null = existingMapping?.id ?? null;
+
+    // Anti-duplicate safety net, same as bexio-push-devis: if no local
+    // mapping exists, search Bexio itself by api_reference before creating
+    // — covers a lost mapping row, and also the automatic-push path racing
+    // a manual "Envoyer vers Bexio" click on the same just-created facture
+    // (both can reach here with no mapping yet; the second one to run
+    // finds the first one's invoice here instead of creating a duplicate).
+    if (!externalId) {
+      const found = await bexioJson<{ id: number }[]>(admin, integration, '/2.0/kb_invoice/search', {
+        method: 'POST',
+        body: JSON.stringify([{ field: 'api_reference', value: `cantia:facture:${facture.id}`, criteria: '=' }]),
+      });
+      if (Array.isArray(found) && found.length > 0) {
+        externalId = String(found[0].id);
+      }
+    }
+
     let action: 'create' | 'update';
-    if (existingMapping) {
+    if (externalId) {
       action = 'update';
-      await bexioJson(admin, integration, `/2.0/kb_invoice/${existingMapping.external_id}`, { method: 'POST', body: JSON.stringify(payload) });
-      externalId = existingMapping.external_id;
-      await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', existingMapping.id);
+      await bexioJson(admin, integration, `/2.0/kb_invoice/${externalId}`, { method: 'POST', body: JSON.stringify(payload) });
+      if (mappingId) {
+        await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mappingId);
+      } else {
+        await admin.from('integration_mappings').insert({
+          integration_id: integration.id,
+          organization_id,
+          entity_type: 'facture',
+          local_id: facture.id,
+          external_id: externalId,
+          external_type: 'kb_invoice',
+          sync_direction: 'push',
+          last_synced_at: new Date().toISOString(),
+        });
+      }
     } else {
       action = 'create';
       const created = await bexioJson<{ id: number }>(admin, integration, '/2.0/kb_invoice', { method: 'POST', body: JSON.stringify(payload) });
