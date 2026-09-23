@@ -93,30 +93,59 @@ export async function setBexioAutoSync(organizationId: string, enabled: boolean)
   return { error: error?.message ?? null };
 }
 
-export async function getFactureBexioMapping(organizationId: string, factureId: string): Promise<{ externalId: string | null; lastSyncedAt: string | null }> {
+// sync_direction tells "envoyé vers Bexio" (push, created in Cantia) apart
+// from "importé de Bexio" (pull, created directly in Bexio) — both used to
+// render the identical generic "Synchronisé avec Bexio" badge, which never
+// actually answered "did this come FROM Bexio or did I send it there?".
+export type BexioSyncDirection = 'push' | 'pull';
+
+export async function getFactureBexioMapping(
+  organizationId: string,
+  factureId: string,
+): Promise<{ externalId: string | null; lastSyncedAt: string | null; direction: BexioSyncDirection | null }> {
   const { data: integration } = await supabase.from('integrations').select('id').eq('organization_id', organizationId).eq('provider', 'bexio').maybeSingle();
-  if (!integration) return { externalId: null, lastSyncedAt: null };
+  if (!integration) return { externalId: null, lastSyncedAt: null, direction: null };
   const { data } = await supabase
     .from('integration_mappings')
-    .select('external_id, last_synced_at')
+    .select('external_id, last_synced_at, sync_direction')
     .eq('integration_id', integration.id)
     .eq('entity_type', 'facture')
     .eq('local_id', factureId)
     .maybeSingle();
-  return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null };
+  return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null, direction: (data?.sync_direction as BexioSyncDirection) ?? null };
 }
 
-export async function getDevisBexioMapping(organizationId: string, devisId: string): Promise<{ externalId: string | null; lastSyncedAt: string | null }> {
+export async function getDevisBexioMapping(
+  organizationId: string,
+  devisId: string,
+): Promise<{ externalId: string | null; lastSyncedAt: string | null; direction: BexioSyncDirection | null }> {
   const { data: integration } = await supabase.from('integrations').select('id').eq('organization_id', organizationId).eq('provider', 'bexio').maybeSingle();
-  if (!integration) return { externalId: null, lastSyncedAt: null };
+  if (!integration) return { externalId: null, lastSyncedAt: null, direction: null };
   const { data } = await supabase
     .from('integration_mappings')
-    .select('external_id, last_synced_at')
+    .select('external_id, last_synced_at, sync_direction')
     .eq('integration_id', integration.id)
     .eq('entity_type', 'devis')
     .eq('local_id', devisId)
     .maybeSingle();
-  return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null };
+  return { externalId: data?.external_id ?? null, lastSyncedAt: data?.last_synced_at ?? null, direction: (data?.sync_direction as BexioSyncDirection) ?? null };
+}
+
+// Bulk equivalent for list screens — one query for every devis/facture in
+// the org instead of one per row, so the list can show a compact "Bexio"
+// badge without an N+1.
+export async function getBexioSyncDirectionsByLocalId(
+  organizationId: string,
+  entityType: 'client' | 'devis' | 'facture',
+): Promise<Map<string, BexioSyncDirection>> {
+  const { data: integration } = await supabase.from('integrations').select('id').eq('organization_id', organizationId).eq('provider', 'bexio').maybeSingle();
+  if (!integration) return new Map();
+  const { data } = await supabase
+    .from('integration_mappings')
+    .select('local_id, sync_direction')
+    .eq('integration_id', integration.id)
+    .eq('entity_type', entityType);
+  return new Map((data ?? []).map((m) => [m.local_id as string, m.sync_direction as BexioSyncDirection]));
 }
 
 export async function getClientBexioMapping(organizationId: string, clientId: string): Promise<boolean> {

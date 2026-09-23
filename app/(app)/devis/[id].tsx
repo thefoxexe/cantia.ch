@@ -14,7 +14,7 @@ import { translateEmailMessage } from '../../../lib/api/ai';
 import { convertDevisToFacture, listFacturesForDevis } from '../../../lib/api/factures';
 import { publicDevisUrl } from '../../../lib/api/publicPortal';
 import { createTrameFromDevis } from '../../../lib/api/trames';
-import { getDevisBexioMapping, getIntegration, pushClientToBexio, pushDevisToBexio } from '../../../lib/api/integrations';
+import { getDevisBexioMapping, getIntegration, pushClientToBexio, pushDevisToBexio, type BexioSyncDirection } from '../../../lib/api/integrations';
 import { confirm } from '../../../lib/confirm';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
@@ -74,6 +74,7 @@ export default function DevisDetailScreen() {
   const [bexioConnected, setBexioConnected] = useState(false);
   const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
   const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
+  const [bexioDirection, setBexioDirection] = useState<BexioSyncDirection | null>(null);
   const [pushingBexio, setPushingBexio] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [validatingDraft, setValidatingDraft] = useState(false);
@@ -108,10 +109,12 @@ export default function DevisDetailScreen() {
         setBexioConnected(integration?.status === 'connected');
         setBexioExternalId(mapping.externalId);
         setBexioLastSyncedAt(mapping.lastSyncedAt);
+        setBexioDirection(mapping.direction);
       } else {
         setBexioConnected(false);
         setBexioExternalId(null);
         setBexioLastSyncedAt(null);
+        setBexioDirection(null);
       }
     }
     if (d?.project_id) {
@@ -401,9 +404,13 @@ export default function DevisDetailScreen() {
           {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
           {bexioExternalId ? (
             <View style={styles.bexioBadge}>
-              <Feather name="check-circle" size={12} color={colors.success} />
+              <Feather name={bexioDirection === 'pull' ? 'download' : 'upload'} size={12} color={colors.success} />
               <Text style={styles.bexioBadgeText}>
-                {devis.bexio_document_nr ? t('devisDetail.bexioDocNr', { number: devis.bexio_document_nr }) : t('devisDetail.bexioSynced')}
+                {devis.bexio_document_nr
+                  ? t('devisDetail.bexioDocNr', { number: devis.bexio_document_nr })
+                  : bexioDirection === 'pull'
+                    ? t('devisDetail.bexioImported')
+                    : t('devisDetail.bexioSynced')}
                 {bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString(`${getAppLocale()}-CH`)}` : ''}
               </Text>
             </View>

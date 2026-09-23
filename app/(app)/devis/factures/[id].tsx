@@ -19,7 +19,7 @@ import {
 } from '../../../../lib/api/factures';
 import { translateEmailMessage } from '../../../../lib/api/ai';
 import { confirm } from '../../../../lib/confirm';
-import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio } from '../../../../lib/api/integrations';
+import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio, type BexioSyncDirection } from '../../../../lib/api/integrations';
 import { backfillDocumentClientContact } from '../../../../lib/api/clients';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
@@ -83,6 +83,7 @@ export default function FactureDetailScreen() {
   const [bexioConnected, setBexioConnected] = useState(false);
   const [bexioExternalId, setBexioExternalId] = useState<string | null>(null);
   const [bexioLastSyncedAt, setBexioLastSyncedAt] = useState<string | null>(null);
+  const [bexioDirection, setBexioDirection] = useState<BexioSyncDirection | null>(null);
   const [pushingBexio, setPushingBexio] = useState(false);
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
@@ -154,10 +155,12 @@ export default function FactureDetailScreen() {
           setBexioConnected(integration?.status === 'connected');
           setBexioExternalId(mapping.externalId);
           setBexioLastSyncedAt(mapping.lastSyncedAt);
+          setBexioDirection(mapping.direction);
         } else {
           setBexioConnected(false);
           setBexioExternalId(null);
           setBexioLastSyncedAt(null);
+          setBexioDirection(null);
         }
       }
     }
@@ -570,9 +573,10 @@ export default function FactureDetailScreen() {
           )}
           {bexioExternalId ? (
             <View style={styles.bexioBadge}>
-              <Feather name="check-circle" size={12} color={colors.success} />
+              <Feather name={bexioDirection === 'pull' ? 'download' : 'upload'} size={12} color={colors.success} />
               <Text style={styles.bexioBadgeText}>
-                {t('factureDetail.bexioSynced')}{bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString(`${getAppLocale()}-CH`)}` : ''}
+                {bexioDirection === 'pull' ? t('factureDetail.bexioImported') : t('factureDetail.bexioSynced')}
+                {bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString(`${getAppLocale()}-CH`)}` : ''}
               </Text>
             </View>
           ) : null}

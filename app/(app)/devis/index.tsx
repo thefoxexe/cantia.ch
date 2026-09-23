@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { confirm } from '../../../lib/confirm';
+import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../lib/api/integrations';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { formatDate, useTranslation } from '../../../lib/translations';
@@ -73,6 +74,7 @@ export default function DevisListScreen() {
   const router = useRouter();
   const [devisList, setDevisList] = useState<Devis[]>([]);
   const [totals, setTotals] = useState<Record<string, number>>({});
+  const [bexioDirections, setBexioDirections] = useState<Map<string, BexioSyncDirection>>(new Map());
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -82,13 +84,15 @@ export default function DevisListScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [{ data: d }, { data: p }] = await Promise.all([
+    const [{ data: d }, { data: p }, directions] = await Promise.all([
       supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
       supabase.from('projects').select('id, name').eq('organization_id', organization.id),
+      getBexioSyncDirectionsByLocalId(organization.id, 'devis'),
     ]);
     const list = d ?? [];
     setDevisList(list);
     setProjects(p ?? []);
+    setBexioDirections(directions);
 
     const ids = list.map((item) => item.id);
     if (ids.length) {
@@ -169,13 +173,21 @@ export default function DevisListScreen() {
   }
 
   function DevisRow({ item }: { item: Devis }) {
+    const bexioDirection = bexioDirections.get(item.id);
     return (
       <View style={styles.cardWrap}>
         <Pressable onPress={() => router.push(`/(app)/devis/${item.id}`)}>
           <Card style={styles.card}>
             <View style={styles.cardBody}>
               <View style={styles.row}>
-                <Text style={styles.number}>{item.number}</Text>
+                <View style={styles.numberGroup}>
+                  <Text style={styles.number}>{item.number}</Text>
+                  {bexioDirection ? (
+                    <View style={styles.bexioTag}>
+                      <Feather name={bexioDirection === 'pull' ? 'download' : 'upload'} size={10} color={colors.success} />
+                    </View>
+                  ) : null}
+                </View>
                 <StatusBadge status={item.status} />
               </View>
               <Text style={styles.client}>{item.client_name}</Text>
@@ -388,10 +400,23 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.xs,
   },
+  numberGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   number: {
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
+  },
+  bexioTag: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.successSoft,
   },
   client: {
     fontSize: fontSize.md,

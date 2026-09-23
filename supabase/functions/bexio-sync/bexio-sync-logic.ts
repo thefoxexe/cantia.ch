@@ -452,12 +452,28 @@ interface BexioInvoiceDetail {
   total_net: string | number | null;
   total_received_payments: string | number | null;
   total_remaining_payments: string | number | null;
-  positions?: { type?: string; text?: string | null; amount?: string | number | null; unit_price?: string | number | null }[];
+  positions?: { type?: string; text?: string | null; amount?: string | number | null; unit_price?: string | number | null; tax_id?: number | null }[];
 }
 
 export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
   try {
     const invoices = await fetchAllBexioPages<BexioInvoiceListEntry>(admin, integration, '/2.0/kb_invoice');
+
+    // Resolved once per sweep, not once per invoice — the same tax rates
+    // the account already uses to push (see resolveBexioSalesTaxId), just
+    // read the other way (Bexio's own tax_id -> percentage) so an imported
+    // invoice keeps its real VAT rate instead of silently landing on
+    // factures.vat_rate's schema default (8.1%) regardless of what the
+    // Bexio-side invoice actually charged. Best-effort: a failure here
+    // just means every invoice in this sweep falls back to that default,
+    // same as before this fix.
+    const taxPercentById = new Map<number, number>();
+    try {
+      const taxes = await bexioJson<{ id: number; value: number }[]>(admin, integration, '/3.0/taxes');
+      for (const tax of taxes) taxPercentById.set(tax.id, Number(tax.value));
+    } catch {
+      // vat_rate falls back to the column default below.
+    }
 
     // Batch every lookup that used to run once per invoice (already-mapped
     // check, contact->client resolution, client row fetch) into a handful
@@ -516,6 +532,14 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
       const received = Number(detail.total_received_payments ?? 0);
       const status = remaining <= 0 && received > 0 ? 'paid' : received > 0 ? 'partial' : 'sent';
 
+      // Real VAT rate from the first position that carries a recognized
+      // tax_id — factures has one vat_rate for the whole document (same
+      // model the push side assumes), so a mixed-rate Bexio invoice can't
+      // be represented exactly either way. Omitted (falls back to the
+      // column default) rather than guessed when no position resolves.
+      const firstTaxedPosition = (detail.positions ?? []).find((p) => p.tax_id != null && taxPercentById.has(p.tax_id));
+      const resolvedVatRate = firstTaxedPosition?.tax_id != null ? taxPercentById.get(firstTaxedPosition.tax_id) : undefined;
+
       const { data: facture, error: factureError } = await admin
         .from('factures')
         .insert({
@@ -524,7 +548,15 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
           client_name: client.name,
           client_address: client.address,
           client_email: client.email,
-          notes: 'Importée automatiquement depuis Bexio.',
+          // No client-facing remark set here — this used to write
+          // "Importée automatiquement depuis Bexio." straight into
+          // factures.notes, which is the SAME field the PDF prints under
+          // "Remarque" (see generate-facture-pdf / pdf-document-renderers)
+          // — every Bexio-pulled invoice was silently leaking that
+          // internal sync note onto the document sent to the actual
+          // client. Origin is now only shown in Cantia's own UI, via the
+          // integration_mappings row this function already writes below.
+          vat_rate: resolvedVatRate,
           status,
           due_date: detail.is_valid_to ?? undefined,
           paid_at: status === 'paid' ? new Date().toISOString() : null,

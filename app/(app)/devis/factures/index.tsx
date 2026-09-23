@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder, recomputeFactureDepositDeduction, addLateFeeToFacture } from '../../../../lib/api/factures';
+import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../../lib/api/integrations';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../components/ui';
@@ -107,6 +108,7 @@ export default function FacturesListScreen() {
   const router = useRouter();
   const [factures, setFactures] = useState<Facture[]>([]);
   const [totals, setTotals] = useState<Record<string, number>>({});
+  const [bexioDirections, setBexioDirections] = useState<Map<string, BexioSyncDirection>>(new Map());
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterKey>('all');
@@ -130,13 +132,15 @@ export default function FacturesListScreen() {
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const [{ data: fData }, { data: projectsData }] = await Promise.all([
+    const [{ data: fData }, { data: projectsData }, directions] = await Promise.all([
       supabase.from('factures').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
       supabase.from('projects').select('id, name').eq('organization_id', organization.id),
+      getBexioSyncDirectionsByLocalId(organization.id, 'facture'),
     ]);
     const list = fData ?? [];
     setFactures(list);
     setProjects(projectsData ?? []);
+    setBexioDirections(directions);
 
     const ids = list.map((f) => f.id);
     if (ids.length) {
@@ -328,6 +332,7 @@ export default function FacturesListScreen() {
     const canRemind = isAdmin && isUnsettled(item) && !!item.client_email;
     const showRemindRow = isAdmin && isUnsettled(item);
     const amount = totals[item.id] ?? 0;
+    const bexioDirection = bexioDirections.get(item.id);
     return (
       <View style={styles.cardWrap}>
         <Card style={styles.card}>
@@ -339,6 +344,11 @@ export default function FacturesListScreen() {
                   {item.is_deposit ? (
                     <View style={styles.depositBadge}>
                       <Text style={styles.depositBadgeText}>{t('facturesList.deposit')}</Text>
+                    </View>
+                  ) : null}
+                  {bexioDirection ? (
+                    <View style={styles.bexioTag}>
+                      <Feather name={bexioDirection === 'pull' ? 'download' : 'upload'} size={10} color={colors.success} />
                     </View>
                   ) : null}
                 </View>
@@ -985,6 +995,14 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
     color: colors.accent,
+  },
+  bexioTag: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.successSoft,
   },
   client: {
     fontSize: fontSize.md,
