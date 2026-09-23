@@ -18,6 +18,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus } from '../lib/types';
 
 const STATUS_CYCLE: SubcontractorAssignmentStatus[] = ['planifie', 'en_cours', 'termine', 'annule'];
+const STATUS_FILTERS: SubcontractorAssignmentStatus[] = STATUS_CYCLE;
 
 function displayDate(iso: string | null | undefined): string {
   if (!iso) return '';
@@ -48,6 +49,8 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
   const [newEmail, setNewEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<SubcontractorAssignmentStatus | 'all'>('all');
+  const [tradeFilter, setTradeFilter] = useState<string | 'all'>('all');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -64,6 +67,21 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
   );
 
   const assignedIds = useMemo(() => new Set(assignments.map((a) => a.subcontractor_id)), [assignments]);
+
+  // Only worth showing when there's actually something to classify by —
+  // one chantier with a single trade or a single status has nothing to
+  // filter, so the chips stay hidden rather than cluttering the screen.
+  const trades = useMemo(
+    () => Array.from(new Set(assignments.map((a) => a.subcontractors?.trade).filter((t): t is string => !!t))).sort(),
+    [assignments],
+  );
+  const visibleAssignments = useMemo(
+    () =>
+      assignments.filter(
+        (a) => (statusFilter === 'all' || a.status === statusFilter) && (tradeFilter === 'all' || a.subcontractors?.trade === tradeFilter),
+      ),
+    [assignments, statusFilter, tradeFilter],
+  );
   const filteredDirectory = useMemo(
     () =>
       directory.filter(
@@ -150,50 +168,96 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
           subtitle={t('projectSubcontractors.emptySubtitle')}
         />
       ) : (
-        <View style={{ gap: spacing.md }}>
-          {assignments.map((a) => {
-            const insurance = a.subcontractors?.insurance_expires_on;
-            const expired = !!insurance && insurance < todayIso();
-            return (
-              <Pressable key={a.id} onPress={() => router.push(`/(app)/sous-traitants/${a.subcontractor_id}` as any)}>
-                <Card>
-                  <View style={styles.headerRow}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.company}>{a.subcontractors?.company_name}</Text>
-                      {a.subcontractors?.trade || a.task ? (
-                        <Text style={styles.meta}>{[a.subcontractors?.trade, a.task].filter(Boolean).join(' · ')}</Text>
-                      ) : null}
-                    </View>
-                    <Pressable onPress={() => cycleStatus(a)} hitSlop={8}>
-                      <StatusBadge status={a.status} />
-                    </Pressable>
-                    <Pressable onPress={() => handleRemoveAssignment(a)} hitSlop={8}>
-                      <Feather name="trash-2" size={15} color={colors.danger} />
-                    </Pressable>
-                  </View>
-                  {a.start_date || a.end_date ? (
-                    <Text style={styles.dates}>
-                      {a.start_date ? displayDate(a.start_date) : '?'} → {a.end_date ? displayDate(a.end_date) : '?'}
-                    </Text>
-                  ) : null}
-                  {a.subcontractors?.insurance_doc_path ? (
-                    <View style={styles.insuranceRow}>
-                      <Feather name={expired ? 'alert-triangle' : 'shield'} size={13} color={expired ? colors.danger : colors.success} />
-                      <Text style={[styles.insuranceText, expired && { color: colors.danger }]}>
-                        {expired ? t('projectSubcontractors.insuranceExpired') : t('projectSubcontractors.insuranceUpToDate')}
-                      </Text>
-                    </View>
-                  ) : (
-                    <View style={styles.insuranceRow}>
-                      <Feather name="alert-circle" size={13} color={colors.textMuted} />
-                      <Text style={styles.insuranceTextMuted}>{t('projectSubcontractors.insuranceMissing')}</Text>
-                    </View>
-                  )}
-                </Card>
+        <>
+          {assignments.length > 1 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+              <Pressable style={[styles.filterChip, statusFilter === 'all' && styles.filterChipActive]} onPress={() => setStatusFilter('all')}>
+                <Text style={[styles.filterChipText, statusFilter === 'all' && styles.filterChipTextActive]}>{t('projectSubcontractors.filterAll')}</Text>
               </Pressable>
-            );
-          })}
-        </View>
+              {STATUS_FILTERS.map((s) => (
+                <Pressable key={s} style={[styles.filterChip, statusFilter === s && styles.filterChipActive]} onPress={() => setStatusFilter(s)}>
+                  <Text style={[styles.filterChipText, statusFilter === s && styles.filterChipTextActive]}>{t(`common.status.${s}`)}</Text>
+                </Pressable>
+              ))}
+              {trades.length > 1
+                ? trades.map((tr) => (
+                    <Pressable
+                      key={tr}
+                      style={[styles.filterChip, styles.filterChipTrade, tradeFilter === tr && styles.filterChipActive]}
+                      onPress={() => setTradeFilter(tradeFilter === tr ? 'all' : tr)}
+                    >
+                      <Text style={[styles.filterChipText, tradeFilter === tr && styles.filterChipTextActive]}>{tr}</Text>
+                    </Pressable>
+                  ))
+                : null}
+            </ScrollView>
+          ) : null}
+
+          {visibleAssignments.length === 0 ? (
+            <Text style={styles.emptyHint}>{t('projectSubcontractors.noResults')}</Text>
+          ) : (
+            <View style={{ gap: spacing.md }}>
+              {visibleAssignments.map((a) => {
+                const insurance = a.subcontractors?.insurance_expires_on;
+                const expired = !!insurance && insurance < todayIso();
+                return (
+                  <Pressable key={a.id} onPress={() => router.push(`/(app)/sous-traitants/${a.subcontractor_id}` as any)}>
+                    <Card>
+                      <View style={styles.headerRow}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.company}>{a.subcontractors?.company_name}</Text>
+                          {a.subcontractors?.trade || a.task ? (
+                            <Text style={styles.meta}>{[a.subcontractors?.trade, a.task].filter(Boolean).join(' · ')}</Text>
+                          ) : null}
+                        </View>
+                        <Pressable onPress={() => cycleStatus(a)} hitSlop={8}>
+                          <StatusBadge status={a.status} />
+                        </Pressable>
+                        <Pressable onPress={() => handleRemoveAssignment(a)} hitSlop={8}>
+                          <Feather name="trash-2" size={15} color={colors.danger} />
+                        </Pressable>
+                      </View>
+                      {a.subcontractors?.contact_name || a.subcontractors?.phone ? (
+                        <View style={styles.contactRow}>
+                          {a.subcontractors?.contact_name ? (
+                            <View style={styles.contactItem}>
+                              <Feather name="user" size={12} color={colors.textMuted} />
+                              <Text style={styles.contactText}>{a.subcontractors.contact_name}</Text>
+                            </View>
+                          ) : null}
+                          {a.subcontractors?.phone ? (
+                            <View style={styles.contactItem}>
+                              <Feather name="phone" size={12} color={colors.textMuted} />
+                              <Text style={styles.contactText}>{a.subcontractors.phone}</Text>
+                            </View>
+                          ) : null}
+                        </View>
+                      ) : null}
+                      {a.start_date || a.end_date ? (
+                        <Text style={styles.dates}>
+                          {a.start_date ? displayDate(a.start_date) : '?'} → {a.end_date ? displayDate(a.end_date) : '?'}
+                        </Text>
+                      ) : null}
+                      {a.subcontractors?.insurance_doc_path ? (
+                        <View style={styles.insuranceRow}>
+                          <Feather name={expired ? 'alert-triangle' : 'shield'} size={13} color={expired ? colors.danger : colors.success} />
+                          <Text style={[styles.insuranceText, expired && { color: colors.danger }]}>
+                            {expired ? t('projectSubcontractors.insuranceExpired') : t('projectSubcontractors.insuranceUpToDate')}
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={styles.insuranceRow}>
+                          <Feather name="alert-circle" size={13} color={colors.textMuted} />
+                          <Text style={styles.insuranceTextMuted}>{t('projectSubcontractors.insuranceMissing')}</Text>
+                        </View>
+                      )}
+                    </Card>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </>
       )}
 
       {/* Add: pick from directory or create a new one */}
@@ -253,6 +317,50 @@ export function ProjectSubcontractors({ projectId, organizationId }: { projectId
 }
 
 const styles = StyleSheet.create({
+  filterRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+    paddingRight: spacing.md,
+  },
+  filterChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  filterChipTrade: {
+    borderStyle: 'dashed',
+  },
+  filterChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  filterChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  filterChipTextActive: {
+    color: colors.primary,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  contactText: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',

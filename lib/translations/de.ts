@@ -202,6 +202,7 @@ export const de: TranslationDict = {
   },
   projectSubcontractors: {
     addSubcontractor: 'Subunternehmer hinzufügen',
+    filterAll: 'Alle',
     emptyTitle: 'Kein Subunternehmer',
     emptySubtitle: 'Fügen Sie die auf dieser Baustelle beauftragten Firmen hinzu, um ihre Einsätze und Dokumente zu verfolgen.',
     insuranceExpired: 'Versicherungsnachweis abgelaufen',
@@ -1544,6 +1545,7 @@ export const de: TranslationDict = {
   subcontractorsList: {
     title: 'Subunternehmer',
     subtitle: 'Ihre beauftragten Firmen, wiederverwendbar von Baustelle zu Baustelle — Einsätze, Versicherungen und erhaltene Rechnungen an einem Ort.',
+    filterAll: 'Alle',
     newCompany: 'Neue Firma',
     searchPlaceholder: 'Suche nach Name, Gewerk, Kontakt',
     emptyTitle: 'Kein Subunternehmer',

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -17,6 +17,7 @@ export default function SubcontractorsListScreen() {
   const [activeChantiers, setActiveChantiers] = useState<Map<string, string[]>>(new Map());
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [tradeFilter, setTradeFilter] = useState<string | 'all'>('all');
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -43,16 +44,23 @@ export default function SubcontractorsListScreen() {
     }, [load]),
   );
 
+  const trades = useMemo(
+    () => Array.from(new Set(subcontractors.map((s) => s.trade).filter((t): t is string => !!t))).sort(),
+    [subcontractors],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return subcontractors;
-    return subcontractors.filter(
-      (s) =>
+    return subcontractors.filter((s) => {
+      if (tradeFilter !== 'all' && s.trade !== tradeFilter) return false;
+      if (!q) return true;
+      return (
         s.company_name.toLowerCase().includes(q) ||
         s.trade?.toLowerCase().includes(q) ||
-        s.contact_name?.toLowerCase().includes(q),
-    );
-  }, [subcontractors, search]);
+        s.contact_name?.toLowerCase().includes(q)
+      );
+    });
+  }, [subcontractors, search, tradeFilter]);
 
   return (
     <AppScreen style={{ padding: spacing.xl }}>
@@ -78,6 +86,23 @@ export default function SubcontractorsListScreen() {
             autoCapitalize="none"
           />
         </View>
+
+        {trades.length > 1 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tradeFilterRow}>
+            <Pressable style={[styles.tradeChip, tradeFilter === 'all' && styles.tradeChipActive]} onPress={() => setTradeFilter('all')}>
+              <Text style={[styles.tradeChipText, tradeFilter === 'all' && styles.tradeChipTextActive]}>{t('subcontractorsList.filterAll')}</Text>
+            </Pressable>
+            {trades.map((tr) => (
+              <Pressable
+                key={tr}
+                style={[styles.tradeChip, tradeFilter === tr && styles.tradeChipActive]}
+                onPress={() => setTradeFilter(tradeFilter === tr ? 'all' : tr)}
+              >
+                <Text style={[styles.tradeChipText, tradeFilter === tr && styles.tradeChipTextActive]}>{tr}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        ) : null}
 
         <FlatList
           data={filtered}
@@ -147,6 +172,32 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: fontSize.sm,
     color: colors.text,
+  },
+  tradeFilterRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+    paddingRight: spacing.md,
+  },
+  tradeChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  tradeChipActive: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  tradeChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  tradeChipTextActive: {
+    color: colors.primary,
   },
   card: {
     flexDirection: 'row',

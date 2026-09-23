@@ -377,19 +377,20 @@ export default function EquipeScreen() {
               ) : (
                 <View style={styles.inviteEmailBlock}>
                   <View style={styles.inviteEmailRow}>
-                    <Field
-                      label={t('equipe.sendInviteEmailLabel')}
-                      value={inviteEmail}
-                      onChangeText={(v) => {
-                        setInviteEmail(v);
-                        setInviteEmailError(null);
-                      }}
-                      placeholder={t('equipe.sendInviteEmailPlaceholder')}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      style={styles.inviteEmailInput}
-                    />
+                    <View style={styles.inviteEmailFieldWrap}>
+                      <Field
+                        label={t('equipe.sendInviteEmailLabel')}
+                        value={inviteEmail}
+                        onChangeText={(v) => {
+                          setInviteEmail(v);
+                          setInviteEmailError(null);
+                        }}
+                        placeholder={t('equipe.sendInviteEmailPlaceholder')}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                    </View>
                     <Button
                       title={inviteEmailSent ? t('equipe.sendInviteEmailSent') : t('equipe.sendInviteEmailButton')}
                       variant="secondary"
@@ -550,26 +551,32 @@ export default function EquipeScreen() {
                 <Feather name="x" size={22} color={colors.text} />
               </Pressable>
             </View>
-            <Pressable style={styles.roleOption} onPress={() => handleAssignRole(null)}>
-              <View style={[styles.roleChipDot, { backgroundColor: colors.textMuted }]} />
-              <Text style={styles.roleOptionText}>{t('equipe.noRoleMember')}</Text>
-              {!assigningMember?.role_id ? <Feather name="check" size={16} color={colors.primary} /> : null}
-            </Pressable>
-            {roles.map((r) => (
-              <Pressable key={r.id} style={styles.roleOption} onPress={() => handleAssignRole(r.id)}>
-                <View style={[styles.roleChipDot, { backgroundColor: r.color }]} />
-                <Text style={styles.roleOptionText}>{r.name}</Text>
-                {assigningMember?.role_id === r.id ? <Feather name="check" size={16} color={colors.primary} /> : null}
+            <ScrollView contentContainerStyle={styles.sheetScrollBody}>
+              <Pressable style={styles.roleOption} onPress={() => handleAssignRole(null)}>
+                <View style={[styles.roleChipDot, { backgroundColor: colors.textMuted }]} />
+                <Text style={styles.roleOptionText}>{t('equipe.noRoleMember')}</Text>
+                {!assigningMember?.role_id ? <Feather name="check" size={16} color={colors.primary} /> : null}
               </Pressable>
-            ))}
-            {roles.length === 0 ? (
-              <Text style={styles.rolesHint}>{t('equipe.createRoleHint')}</Text>
-            ) : null}
+              {roles.map((r) => (
+                <Pressable key={r.id} style={styles.roleOption} onPress={() => handleAssignRole(r.id)}>
+                  <View style={[styles.roleChipDot, { backgroundColor: r.color }]} />
+                  <Text style={styles.roleOptionText}>{r.name}</Text>
+                  {assigningMember?.role_id === r.id ? <Feather name="check" size={16} color={colors.primary} /> : null}
+                </Pressable>
+              ))}
+              {roles.length === 0 ? (
+                <Text style={styles.rolesHint}>{t('equipe.createRoleHint')}</Text>
+              ) : null}
+            </ScrollView>
           </View>
         </View>
       </Modal>
 
-      {/* Create/edit a role — name, color, and its permission(s). */}
+      {/* Create/edit a role — name, color, and its permission(s). Header and
+          footer stay fixed, the middle scrolls, and the whole sheet is
+          capped to a share of the viewport — otherwise a tall permission
+          list can push the footer (or even the top of the sheet) off
+          screen with no way to reach it, especially on a short window. */}
       <Modal visible={!!roleDraft} animationType="slide" transparent onRequestClose={() => setRoleDraft(null)}>
         <View style={styles.sheetOverlay}>
           <View style={styles.sheet}>
@@ -580,46 +587,48 @@ export default function EquipeScreen() {
               </Pressable>
             </View>
 
-            <Field
-              label={t('equipe.nameLabel')}
-              value={roleDraft?.name ?? ''}
-              onChangeText={(v) => setRoleDraft((d) => (d ? { ...d, name: v } : d))}
-              placeholder={t('equipe.namePlaceholder')}
-            />
+            <ScrollView contentContainerStyle={styles.sheetScrollBody} keyboardShouldPersistTaps="handled">
+              <Field
+                label={t('equipe.nameLabel')}
+                value={roleDraft?.name ?? ''}
+                onChangeText={(v) => setRoleDraft((d) => (d ? { ...d, name: v } : d))}
+                placeholder={t('equipe.namePlaceholder')}
+              />
 
-            <Text style={styles.fieldLabel}>{t('equipe.colorLabel')}</Text>
-            <View style={styles.colorRow}>
-              {ROLE_COLORS.map((c) => (
-                <Pressable
-                  key={c}
-                  style={[styles.colorSwatch, { backgroundColor: c }, roleDraft?.color === c && styles.colorSwatchActive]}
-                  onPress={() => setRoleDraft((d) => (d ? { ...d, color: c } : d))}
-                >
-                  {roleDraft?.color === c ? <Feather name="check" size={14} color="#fff" /> : null}
-                </Pressable>
-              ))}
-            </View>
+              <Text style={styles.fieldLabel}>{t('equipe.colorLabel')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.colorRow}>
+                {ROLE_COLORS.map((c) => (
+                  <Pressable
+                    key={c}
+                    style={[styles.colorSwatch, { backgroundColor: c }, roleDraft?.color === c && styles.colorSwatchActive]}
+                    onPress={() => setRoleDraft((d) => (d ? { ...d, color: c } : d))}
+                  >
+                    {roleDraft?.color === c ? <Feather name="check" size={16} color="#fff" /> : null}
+                  </Pressable>
+                ))}
+              </ScrollView>
 
-            <Text style={styles.fieldLabel}>{t('equipe.accessLabel')}</Text>
-            <View style={{ gap: spacing.sm }}>
-              {PERMISSION_CATALOG.map((p) => (
-                <View key={p.key} style={styles.permissionRow}>
-                  <Feather name={p.icon} size={15} color={colors.textMuted} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.permissionTitle}>{t(`equipe.permissions.${p.key}.label` as any)}</Text>
-                    <Text style={styles.permissionSubtitle}>{t(`equipe.permissions.${p.key}.description` as any)}</Text>
+              <Text style={styles.fieldLabel}>{t('equipe.accessLabel')}</Text>
+              <View style={{ gap: spacing.sm }}>
+                {PERMISSION_CATALOG.map((p) => (
+                  <View key={p.key} style={styles.permissionRow}>
+                    <Feather name={p.icon} size={15} color={colors.textMuted} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.permissionTitle}>{t(`equipe.permissions.${p.key}.label` as any)}</Text>
+                      <Text style={styles.permissionSubtitle}>{t(`equipe.permissions.${p.key}.description` as any)}</Text>
+                    </View>
+                    <Switch
+                      value={roleDraft?.permissions[p.key] ?? false}
+                      onChange={(v) =>
+                        setRoleDraft((d) => (d ? { ...d, permissions: { ...d.permissions, [p.key]: v } } : d))
+                      }
+                    />
                   </View>
-                  <Switch
-                    value={roleDraft?.permissions[p.key] ?? false}
-                    onChange={(v) =>
-                      setRoleDraft((d) => (d ? { ...d, permissions: { ...d.permissions, [p.key]: v } } : d))
-                    }
-                  />
-                </View>
-              ))}
-            </View>
+                ))}
+              </View>
 
-            {roleDraftError ? <Text style={styles.error}>{roleDraftError}</Text> : null}
+              {roleDraftError ? <Text style={styles.error}>{roleDraftError}</Text> : null}
+            </ScrollView>
 
             <View style={styles.sheetActions}>
               {roleDraft?.id ? (
@@ -746,13 +755,17 @@ const styles = StyleSheet.create({
   },
   inviteEmailRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-end',
     gap: spacing.sm,
   },
-  inviteEmailInput: {
-    flex: 1,
+  inviteEmailFieldWrap: {
+    flexGrow: 1,
+    flexBasis: 220,
   },
   inviteEmailButton: {
+    flexGrow: 1,
+    flexBasis: 120,
     marginBottom: 2,
   },
   inviteCard: {
@@ -931,8 +944,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
-    gap: spacing.sm,
     maxWidth: 560,
+    maxHeight: '85%',
     width: '100%',
     alignSelf: 'center',
   },
@@ -941,6 +954,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.sm,
+  },
+  sheetScrollBody: {
+    gap: spacing.sm,
+    paddingBottom: spacing.sm,
   },
   sheetTitle: {
     fontSize: fontSize.lg,
@@ -974,13 +991,14 @@ const styles = StyleSheet.create({
   },
   colorRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.sm,
+    paddingVertical: 4,
+    paddingRight: spacing.md,
   },
   colorSwatch: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },

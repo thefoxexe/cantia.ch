@@ -183,6 +183,7 @@ export const fr = {
   },
   projectSubcontractors: {
     addSubcontractor: 'Ajouter un sous-traitant',
+    filterAll: 'Tous',
     emptyTitle: 'Aucun sous-traitant',
     emptySubtitle: 'Ajoutez les entreprises sous-traitées sur ce chantier pour suivre leurs interventions et leurs documents.',
     insuranceExpired: "Attestation d'assurance expirée",
@@ -1530,6 +1531,7 @@ export const fr = {
   subcontractorsList: {
     title: 'Sous-traitants',
     subtitle: "Vos entreprises sous-traitées, réutilisables d'un chantier à l'autre — interventions, assurances et factures reçues, au même endroit.",
+    filterAll: 'Tous',
     newCompany: 'Nouvelle entreprise',
     searchPlaceholder: 'Rechercher par nom, métier, contact',
     emptyTitle: 'Aucun sous-traitant',

@@ -326,6 +326,16 @@ export default function DataImportScreen() {
           <PageHeader title={t('dataImport.title')} backTo="/(app)/compte" />
           <Text style={styles.subtitle}>{t('dataImport.subtitle')}</Text>
 
+          <Text style={styles.kindSectionLabel}>{t('dataImport.kindSectionLabel')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kindRow}>
+            {KIND_ORDER.map((k) => (
+              <Pressable key={k} style={[styles.kindChip, kind === k && styles.kindChipActive]} onPress={() => changeKind(k)}>
+                <Text style={[styles.kindChipText, kind === k && styles.kindChipTextActive]}>{t(KIND_LABEL_KEY[k] as any)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <Text style={styles.kindHint}>{t(KIND_HINT_KEY[kind] as any)}</Text>
+
           {!csv ? (
             <View style={styles.stepsRow}>
               {([1, 2, 3] as const).map((n) => (
@@ -338,16 +348,6 @@ export default function DataImportScreen() {
               ))}
             </View>
           ) : null}
-
-          <Text style={styles.kindSectionLabel}>{t('dataImport.kindSectionLabel')}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kindRow}>
-            {KIND_ORDER.map((k) => (
-              <Pressable key={k} style={[styles.kindChip, kind === k && styles.kindChipActive]} onPress={() => changeKind(k)}>
-                <Text style={[styles.kindChipText, kind === k && styles.kindChipTextActive]}>{t(KIND_LABEL_KEY[k] as any)}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-          <Text style={styles.kindHint}>{t(KIND_HINT_KEY[kind] as any)}</Text>
 
           {!csv ? (
             <Card style={{ alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xxl, marginTop: spacing.lg }}>

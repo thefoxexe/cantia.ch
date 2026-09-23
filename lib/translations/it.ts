@@ -205,6 +205,7 @@ export const it: TranslationDict = {
   },
   projectSubcontractors: {
     addSubcontractor: 'Aggiungi un subappaltatore',
+    filterAll: 'Tutti',
     emptyTitle: 'Nessun subappaltatore',
     emptySubtitle: 'Aggiunga le imprese subappaltate su questo cantiere per monitorare i loro interventi e documenti.',
     insuranceExpired: 'Attestato assicurativo scaduto',
@@ -1552,6 +1553,7 @@ export const it: TranslationDict = {
   subcontractorsList: {
     title: 'Subappaltatori',
     subtitle: "Le sue imprese subappaltate, riutilizzabili da un cantiere all'altro — interventi, assicurazioni e fatture ricevute, nello stesso posto.",
+    filterAll: 'Tutti',
     newCompany: 'Nuova impresa',
     searchPlaceholder: 'Cerca per nome, mestiere, contatto',
     emptyTitle: 'Nessun subappaltatore',
