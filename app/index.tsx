@@ -12,7 +12,6 @@ import { SwissCross } from '../components/SwissCross';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
 import { VoiceDemo } from '../components/landing/VoiceDemo';
-import { DocumentBrandingMockup } from '../components/landing/DocumentBrandingMockup';
 import { Disclosure } from '../components/landing/Disclosure';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale } from '../lib/translations';
@@ -423,8 +422,17 @@ function LandingContent() {
               <Text style={styles.textLink}>{t.docCustomization.link} →</Text>
             </Link>
           </View>
-          <View style={[styles.docShowcaseVisual, !isTablet && { flex: 1 }]}>
-            <DocumentBrandingMockup />
+          <View style={[styles.docShowcaseVisual, !isTablet && { flex: 1.1 }]}>
+            {/* A real facture rendered by the actual PDF generator (see
+                supabase/functions/_shared/pdf-document-renderers.ts) —
+                not a mockup. Coherent example services/prices so it reads
+                as a genuine document, not a template. */}
+            <Image
+              source={{ uri: '/showcase/facture-exemple.png' }}
+              style={styles.docShowcaseImage}
+              resizeMode="contain"
+              accessibilityLabel="Exemple de facture générée par Cantia"
+            />
           </View>
         </ScrollReveal>
 
@@ -617,12 +625,24 @@ const styles = StyleSheet.create({
   commandDemo: { backgroundColor: colors.text, borderRadius: radius.lg, padding: spacing.xl },
 
   docShowcase: { flexDirection: 'row', gap: spacing.xxl, alignItems: 'flex-start' },
-  docShowcaseCompact: { flexDirection: 'column' },
+  docShowcaseCompact: { flexDirection: 'column', alignItems: 'stretch' },
   docShowcaseCopy: { gap: spacing.sm },
   docShowcasePoints: { gap: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs },
   docShowcasePoint: { gap: 2 },
   docShowcasePointTitle: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.text },
   docShowcaseVisual: { alignItems: 'center' },
+  docShowcaseImage: {
+    width: '100%',
+    maxWidth: 520,
+    aspectRatio: 1819 / 1690,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#231A12',
+    shadowOpacity: 0.12,
+    shadowRadius: 32,
+    shadowOffset: { width: 0, height: 18 },
+  } as any,
 
   terrainOuter: { backgroundColor: colors.primarySoft, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, paddingVertical: spacing.xxxl, marginTop: spacing.xxxl * 1.3 },
   devicePoints: { flexDirection: 'row', gap: spacing.lg, marginVertical: spacing.lg, maxWidth: 640 },

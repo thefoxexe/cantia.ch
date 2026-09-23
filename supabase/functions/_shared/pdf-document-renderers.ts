@@ -406,7 +406,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   }
   y -= 6;
 
-  y = drawTerms(page, font, org, y, docKind, locale, docKind === 'devis' ? devis.valid_until : null);
+  y = drawTerms(page, font, org, y, docKind, locale);
 
   if (showSignatures) {
     const h = 50;
@@ -455,30 +455,24 @@ export const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => RenderResult> = {
   structure: renderUnified,
 };
 
-// For a devis: the original "valable X jours" quote-validity notice
-// (byte-identical to the pre-facture behavior). For a facture: a payment
-// reminder instead — the actual due date is already shown as metaLine near
-// the title, this is just the closing courtesy line.
-function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture' | 'extra_work', locale: PdfLocale, validUntil?: string | null): number {
-  const validityDays = org?.devis_validity_days ?? 30;
-  const baseText =
-    docKind === 'facture'
-      ? pdfT(locale, 'paymentReminder')
-      : docKind === 'extra_work'
-      ? pdfT(locale, 'extraWorkAccepted')
-      : validUntil
-      // An explicit per-devis date (chosen at creation) always wins over
-      // the generic "valable X jours" org default — it's the actual date
-      // the creator committed to, not a computed approximation of it.
-      ? pdfT(locale, 'quoteValidUntil', { date: new Date(`${validUntil}T00:00:00`).toLocaleDateString(`${locale}-CH`) })
-      : pdfT(locale, 'quoteValidity', { days: validityDays });
-  const pricesLine = pdfT(locale, 'pricesInChf');
-  const termsLines = wrapText(
-    org?.devis_terms?.trim() ? `${org.devis_terms.trim()} ${baseText} ${pricesLine}` : `${baseText} ${pricesLine}`,
-    font,
-    8.5,
-    PAGE_WIDTH - 2 * MARGIN,
-  );
+// For a devis/facture: no more auto-generated "valable X jours" / "Prix en
+// francs suisses (CHF)" / "Merci de régler avant l'échéance" boilerplate —
+// the reference box right above already states the validity date or the
+// échéance, and every printed amount already carries "CHF", so repeating
+// either here was pure redundancy. The only thing drawn now is the org's
+// own optional custom terms (compte > devis > "Conditions particulières",
+// org.devis_terms) — genuinely optional, and only printed if actually set,
+// so a document with none of that configured ends right after the totals
+// instead of leaving a boilerplate line. extra_work keeps its own fixed
+// notice (a signed extra-work order needs the "accepted and signed"
+// wording spelled out — it isn't shown anywhere else on the document).
+function drawTerms(page: PDFPage, font: PDFFont, org: any, y: number, docKind: 'devis' | 'facture' | 'extra_work', locale: PdfLocale): number {
+  const text =
+    docKind === 'extra_work'
+      ? `${org?.devis_terms?.trim() ? org.devis_terms.trim() + ' ' : ''}${pdfT(locale, 'extraWorkAccepted')}`
+      : org?.devis_terms?.trim() || null;
+  if (!text) return y;
+  const termsLines = wrapText(text, font, 8.5, PAGE_WIDTH - 2 * MARGIN);
   let cursor = y;
   for (const line of termsLines) {
     drawText(page, line, MARGIN, cursor, font, 8.5, MUTED);
