@@ -302,8 +302,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15,23,20,0.55)',
   },
   heroBottomCompact: {
+    // The back/settings buttons above are absolutely positioned (top:
+    // spacing.lg, 38px tall) and don't take up flow space here, so this
+    // padding is the only thing keeping this content from sitting right
+    // underneath — and overlapping — them.
     padding: spacing.lg,
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.lg + 38 + spacing.lg,
     gap: spacing.xs,
   },
   heroBadgeRow: {
