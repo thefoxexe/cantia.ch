@@ -256,15 +256,6 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   }
   y -= 10;
 
-  if (devis.notes?.trim()) {
-    const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
-    for (const line of lines) {
-      drawText(page, line, MARGIN, y, font, 9.5, MUTED);
-      y -= 12;
-    }
-    y -= 10;
-  }
-
   // --- Totals math, computed up front (needed both to size the amount
   // columns below and to draw the totals block later). A deposit already
   // invoiced against this devis shows up as its own negative facture_items
@@ -405,6 +396,23 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     boxedRow(pdfT(locale, 'netToPay'), chf(netToPay));
   }
   y -= 6;
+
+  // --- Per-document remark (devis.notes/factures.notes) — free text the
+  // creator typed in for this specific document, e.g. "Merci d'installer
+  // l'échafaudage avant notre passage." Printed below the totals, ahead of
+  // the org-wide terms, so it reads as this document's own note rather than
+  // a fixed legal mention.
+  if (devis.notes?.trim()) {
+    if (y < MARGIN + 90) newPage();
+    drawText(page, pdfT(locale, 'remarkLabel'), MARGIN, y, fontBold, 9, MUTED);
+    y -= 13;
+    const remarkLines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
+    for (const line of remarkLines) {
+      drawText(page, line, MARGIN, y, font, 9.5, INK);
+      y -= 12;
+    }
+    y -= 8;
+  }
 
   y = drawTerms(page, font, org, y, docKind, locale);
 

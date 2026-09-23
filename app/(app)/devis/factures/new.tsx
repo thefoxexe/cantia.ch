@@ -79,6 +79,10 @@ export default function NewFactureScreen() {
   // Bexio) picks it up automatically, with no special-casing needed and no
   // way for the discount to drift out of sync between screens.
   const [discountPercent, setDiscountPercent] = useState('');
+  // A free-text note attached to this specific facture, printed on the PDF
+  // below the totals (see factures.notes) — distinct from org.devis_terms,
+  // which is the organization's fixed, always-the-same legal mention.
+  const [remark, setRemark] = useState('');
 
   useEffect(() => {
     if (!organization) return;
@@ -144,6 +148,7 @@ export default function NewFactureScreen() {
       setClientAddress(source.client_address ?? '');
       setClientEmail(source.client_email ?? '');
       setClientId(source.client_id ?? null);
+      setRemark(source.notes ?? '');
       if (source.project_id) {
         const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
         if (project) setSelectedProject(project as Project);
@@ -182,6 +187,7 @@ export default function NewFactureScreen() {
       setClientAddress(source.client_address ?? '');
       setClientEmail(source.client_email ?? '');
       setClientId(source.client_id ?? null);
+      setRemark(source.notes ?? '');
       if (source.project_id) {
         const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
         if (project) setSelectedProject(project as Project);
@@ -401,6 +407,7 @@ export default function NewFactureScreen() {
         client_email: clientEmail.trim() || null,
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
+        notes: remark.trim() || null,
       })
       .eq('id', id);
 
@@ -447,6 +454,7 @@ export default function NewFactureScreen() {
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         vat_rate: organization.default_vat_rate,
+        notes: remark.trim() || null,
         created_by: user?.id,
       })
       .select()
@@ -493,6 +501,7 @@ export default function NewFactureScreen() {
       projectName={selectedProject?.name}
       lines={lines}
       discountPercent={discountPercent}
+      remark={remark}
     />
   );
 
@@ -715,6 +724,18 @@ export default function NewFactureScreen() {
             </>
           ) : null}
           <Text style={styles.total}>{t('devisNew.totalEstimated', { amount: total.toFixed(2) })}</Text>
+
+          <View style={styles.remarkField}>
+            <Text style={styles.remarkFieldLabel}>{t('devisNew.remarkLabel')}</Text>
+            <TextInput
+              style={styles.remarkInput}
+              value={remark}
+              onChangeText={setRemark}
+              placeholder={t('devisNew.remarkPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              multiline
+            />
+          </View>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {error?.includes('plan payant') ? (
@@ -1225,6 +1246,27 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'right',
     marginBottom: spacing.md,
+  },
+  remarkField: {
+    marginBottom: spacing.md,
+  },
+  remarkFieldLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+  },
+  remarkInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.bg,
+    minHeight: 60,
+    textAlignVertical: 'top',
   },
   error: {
     color: colors.danger,

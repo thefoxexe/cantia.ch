@@ -99,6 +99,10 @@ export default function NewDevisScreen() {
   // up automatically, with no special-casing needed. Same pattern as
   // devis/factures/new.tsx.
   const [discountPercent, setDiscountPercent] = useState('');
+  // A free-text note attached to this specific devis, printed on the PDF
+  // below the totals (see devis.notes) — distinct from org.devis_terms,
+  // which is the organization's fixed, always-the-same legal mention.
+  const [remark, setRemark] = useState('');
 
   useEffect(() => {
     if (!organization) return;
@@ -193,6 +197,7 @@ export default function NewDevisScreen() {
       setClientAddress(source.client_address ?? '');
       setClientEmail(source.client_email ?? '');
       setClientId(source.client_id ?? null);
+      setRemark(source.notes ?? '');
       if (source.project_id) {
         const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
         if (project) setSelectedProject(project as Project);
@@ -234,6 +239,7 @@ export default function NewDevisScreen() {
       setClientAddress(source.client_address ?? '');
       setClientEmail(source.client_email ?? '');
       setClientId(source.client_id ?? null);
+      setRemark(source.notes ?? '');
       if (source.project_id) {
         const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
         if (project) setSelectedProject(project as Project);
@@ -467,6 +473,7 @@ export default function NewDevisScreen() {
         project_id: selectedProject?.id ?? null,
         valid_until: resolveValidUntil(),
         vat_rate: organization.default_vat_rate,
+        notes: remark.trim() || null,
         created_by: user?.id,
       })
       .select()
@@ -511,9 +518,9 @@ export default function NewDevisScreen() {
   // creating a new one — every line item is replaced wholesale (delete
   // then re-insert) rather than diffed, since the form has no concept of
   // "this line used to exist" once loaded, only its current state. Fields
-  // this form doesn't manage (status, notes, template_id, pdf_path...)
-  // are deliberately left out of the update patch so they're never
-  // clobbered by an edit.
+  // this form doesn't manage (status, template_id, pdf_path...) are
+  // deliberately left out of the update patch so they're never clobbered
+  // by an edit.
   async function submitEditDevis(id: string, validLines: Line[], mismatches: PriceMismatch[]) {
     if (!organization) return;
     setLoading(true);
@@ -531,6 +538,7 @@ export default function NewDevisScreen() {
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         valid_until: resolveValidUntil(),
+        notes: remark.trim() || null,
       })
       .eq('id', id);
 
@@ -599,6 +607,7 @@ export default function NewDevisScreen() {
       projectName={selectedProject?.name}
       lines={lines}
       discountPercent={discountPercent}
+      remark={remark}
     />
   );
 
@@ -860,6 +869,18 @@ export default function NewDevisScreen() {
             </>
           ) : null}
           <Text style={styles.total}>{t('devisNew.totalEstimated', { amount: total.toFixed(2) })}</Text>
+
+          <View style={styles.remarkField}>
+            <Text style={styles.remarkFieldLabel}>{t('devisNew.remarkLabel')}</Text>
+            <TextInput
+              style={styles.remarkInput}
+              value={remark}
+              onChangeText={setRemark}
+              placeholder={t('devisNew.remarkPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              multiline
+            />
+          </View>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {error?.includes('plan payant') ? (
@@ -1404,6 +1425,27 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'right',
     marginBottom: spacing.md,
+  },
+  remarkField: {
+    marginBottom: spacing.md,
+  },
+  remarkFieldLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+  },
+  remarkInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.bg,
+    minHeight: 60,
+    textAlignVertical: 'top',
   },
   error: {
     color: colors.danger,

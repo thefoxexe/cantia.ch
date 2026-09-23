@@ -67,6 +67,7 @@ export default function ApparenceScreen() {
         brand_color: validHex ? brandColor.trim() : organization.brand_color,
         logo_placement: logoPlacement,
         footer_text: footerText.trim() || null,
+        website: website.trim() || null,
       })
       .eq('id', organization.id);
     refreshOrganization();
@@ -99,7 +100,7 @@ export default function ApparenceScreen() {
     setAnalyzingWebsite(true);
     const found = await suggestBrandColorsFromWebsite(website.trim());
     setAnalyzingWebsite(false);
-    if (found.length) setBrandColor(found[0]);
+    if (found.length) withDirty(setBrandColor)(found[0]);
   }
 
   const previewColor = HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : colors.border;
@@ -164,6 +165,16 @@ export default function ApparenceScreen() {
             <>
               <Text style={styles.sectionTitle}>{t('apparence.brandColorTitle')}</Text>
               <Text style={styles.hint}>{t('apparence.brandColorHint')}</Text>
+              <Field
+                label={t('apparence.websiteLabel')}
+                value={website}
+                onChangeText={withDirty(setWebsite)}
+                editable={isAdmin}
+                autoCapitalize="none"
+                keyboardType="url"
+                placeholder={t('apparence.websitePlaceholder')}
+              />
+              <Text style={styles.hint}>{t('apparence.websiteHint')}</Text>
               {isAdmin && website.trim() ? (
                 <Pressable onPress={analyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
                   <Feather name="globe" size={13} color={colors.primary} />

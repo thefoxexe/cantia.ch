@@ -43,6 +43,7 @@ const LABELS = {
   depositsDeducted: { fr: 'Acompte(s) déjà facturé(s)', de: 'Bereits fakturierte Anzahlung(en)', it: 'Acconto/i già fatturato/i' },
   alreadyPaid: { fr: 'Déjà payé', de: 'Bereits bezahlt', it: 'Già pagato' },
   netToPay: { fr: 'Net à payer', de: 'Netto zu zahlen', it: 'Netto da pagare' },
+  remarkLabel: { fr: 'Remarque', de: 'Bemerkung', it: 'Osservazione' },
   entrepriseFallback: { fr: 'Entreprise', de: 'Unternehmen', it: 'Azienda' },
   signature: { fr: 'Signature', de: 'Unterschrift', it: 'Firma' },
   signatureOf: { fr: 'Signature {name}', de: 'Unterschrift {name}', it: 'Firma {name}' },

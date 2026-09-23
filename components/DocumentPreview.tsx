@@ -22,6 +22,10 @@ interface Props {
   projectName?: string | null;
   lines: PreviewLine[];
   discountPercent: string;
+  // Free text typed for this specific document — devis.notes/factures.notes
+  // — printed below the totals, ahead of the org-wide terms. Distinct from
+  // organization.devis_terms, which is fixed across every document.
+  remark?: string;
 }
 
 // Same shape the real submit builds: the discount is one more (negative)
@@ -91,7 +95,7 @@ function readableTextColor(hex: string): string {
   return luminance > 0.5 ? INK : '#fff';
 }
 
-export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent }: Props) {
+export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent, remark }: Props) {
   const { t } = useTranslation();
   const brandColor = safeHex(organization?.brand_color);
   const vatRate = organization?.default_vat_rate ?? 8.1;
@@ -149,6 +153,7 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
   // régler" — matches drawTerms() in pdf-document-renderers.ts, which now
   // only prints the org's own optional custom terms, nothing else.
   const terms = organization?.devis_terms?.trim() || null;
+  const remarkText = remark?.trim() || null;
 
   const footerText = organization?.footer_text?.trim() || t('documentPreview.footerFallback');
   const showQrNote = kind === 'facture' && !!organization?.iban;
@@ -229,6 +234,13 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
             <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {total.toFixed(2)}</Text>
           </View>
         </View>
+
+        {remarkText ? (
+          <View style={styles.remarkBlock}>
+            <Text style={styles.remarkBlockLabel}>{t('documentPreview.remarkLabel')}</Text>
+            <Text style={styles.remarkBlockText}>{remarkText}</Text>
+          </View>
+        ) : null}
 
         {terms ? <Text style={styles.terms}>{terms}</Text> : null}
 
@@ -471,6 +483,22 @@ const styles = StyleSheet.create({
   grandTotalValue: {
     fontSize: 10,
     fontWeight: '800',
+  },
+  remarkBlock: {
+    marginTop: 14,
+  },
+  remarkBlockLabel: {
+    fontSize: 7,
+    fontWeight: '700',
+    color: MUTED,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+    marginBottom: 2,
+  },
+  remarkBlockText: {
+    fontSize: 8,
+    color: INK,
+    lineHeight: 11,
   },
   terms: {
     fontSize: 7,
