@@ -21,6 +21,39 @@ export interface SyncResult {
   error?: string;
 }
 
+// How many rows to process at once for the per-record contact/article sync
+// loops below. Each row still needs its own insert/update round trip (the
+// values differ per row, so a single bulk statement isn't straightforward
+// through the JS client) but awaiting them CONCURRENCY at a time instead of
+// one at a time collapses wall-clock time by roughly that factor — the
+// difference between an org with a large Bexio contact list finishing in
+// seconds instead of minutes. See mapWithConcurrency below.
+const SYNC_CONCURRENCY = 20;
+
+// Runs `fn` over `items` with at most `concurrency` in flight at once,
+// instead of either fully sequential (await in a for-loop — too slow once
+// an org has more than a few hundred rows, see the incident this was added
+// for: an org with 1140 Bexio contacts took long enough per sweep that it
+// starved every other org sharing the same 15-minute cron tick, none of
+// them completing a sync for two days) or fully parallel (Promise.all over
+// everything at once — floods Postgres and the Bexio API with thousands of
+// simultaneous requests). A fixed pool of workers each pull the next index
+// off a shared cursor until the list is exhausted; if any call throws, that
+// rejection propagates out of Promise.all (other in-flight workers finish
+// their current item but no new one is picked up), matching the previous
+// per-item loop's behavior of aborting the whole sync on the first hard
+// failure.
+async function mapWithConcurrency<T>(items: T[], concurrency: number, fn: (item: T) => Promise<void>): Promise<void> {
+  let cursor = 0;
+  async function worker() {
+    while (cursor < items.length) {
+      const item = items[cursor++];
+      await fn(item);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, worker));
+}
+
 async function logSync(
   admin: any,
   integration: BexioIntegrationRow,
@@ -155,18 +188,25 @@ function mapBexioContactToClient(c: BexioContact): { type: 'entreprise' | 'parti
 export async function syncBexioContacts(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
   try {
     const contacts = await fetchAllBexioPages<BexioContact>(admin, integration, '/2.0/contact');
+
+    // One query for every existing mapping instead of one per contact — see
+    // mapWithConcurrency's comment for why this mattered (an org with 1140
+    // Bexio contacts used to mean 1140 extra sequential round trips here
+    // alone).
+    const { data: existingMappings } = await admin
+      .from('integration_mappings')
+      .select('id, local_id, external_id')
+      .eq('integration_id', integration.id)
+      .eq('entity_type', 'client');
+    const mappingByExternalId = new Map<string, { id: string; local_id: string }>(
+      (existingMappings ?? []).map((m: any) => [m.external_id, m]),
+    );
+
     let count = 0;
-    for (const contact of contacts) {
+    await mapWithConcurrency(contacts, SYNC_CONCURRENCY, async (contact) => {
       const externalId = String(contact.id);
       const mapped = mapBexioContactToClient(contact);
-
-      const { data: existingMapping } = await admin
-        .from('integration_mappings')
-        .select('id, local_id')
-        .eq('integration_id', integration.id)
-        .eq('entity_type', 'client')
-        .eq('external_id', externalId)
-        .maybeSingle();
+      const existingMapping = mappingByExternalId.get(externalId);
 
       if (existingMapping) {
         const updatePayload: Record<string, unknown> = { type: mapped.type, name: mapped.name, company_name: mapped.company_name, email: mapped.email, phone: mapped.phone, address: mapped.address };
@@ -196,7 +236,7 @@ export async function syncBexioContacts(admin: any, integration: BexioIntegratio
         });
       }
       count += 1;
-    }
+    });
     await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'client', payload_summary: { count } });
     return { action: 'contacts', ok: true, count };
   } catch (err) {
@@ -212,8 +252,8 @@ export async function syncBexioContacts(admin: any, integration: BexioIntegratio
 // field names aren't in a dedicated cahier des charges section beyond the
 // scope grant, so they're inferred by analogy the same way KbPositionCustom
 // was for the invoice push — an article missing a name or sale price is
-// skipped rather than guessed. Manual/on-connect only (see bexio-cron-sync
-// header), never part of the hourly sweep.
+// skipped rather than guessed. Part of the 15-minute cron sweep (see
+// bexio-cron-sync/index.ts), same as every other sync* function here.
 // ---------------------------------------------------------------------------
 function normalizeCatalogKey(input: string): string {
   return input
@@ -234,24 +274,28 @@ interface BexioArticle {
 export async function syncBexioArticles(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
   try {
     const articles = await fetchAllBexioPages<BexioArticle>(admin, integration, '/2.0/article');
+
+    // Same one-query-instead-of-one-per-row fix as syncBexioContacts.
+    const { data: existingMappings } = await admin
+      .from('integration_mappings')
+      .select('id, local_id, external_id')
+      .eq('integration_id', integration.id)
+      .eq('entity_type', 'article');
+    const mappingByExternalId = new Map<string, { id: string; local_id: string }>(
+      (existingMappings ?? []).map((m: any) => [m.external_id, m]),
+    );
+
     let count = 0;
     let skipped = 0;
-    for (const article of articles) {
+    await mapWithConcurrency(articles, SYNC_CONCURRENCY, async (article) => {
       const name = article.intern_name?.trim();
       const price = article.sale_price != null ? Number(article.sale_price) : null;
       if (!name || price == null || Number.isNaN(price)) {
         skipped += 1;
-        continue;
+        return;
       }
       const externalId = String(article.id);
-
-      const { data: existingMapping } = await admin
-        .from('integration_mappings')
-        .select('id, local_id')
-        .eq('integration_id', integration.id)
-        .eq('entity_type', 'article')
-        .eq('external_id', externalId)
-        .maybeSingle();
+      const existingMapping = mappingByExternalId.get(externalId);
 
       if (existingMapping) {
         await admin.from('catalog_items').update({ description: name, unit_price: price }).eq('id', existingMapping.local_id);
@@ -263,7 +307,7 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
         const key = normalizeCatalogKey(name);
         if (!key) {
           skipped += 1;
-          continue;
+          return;
         }
         // A local catalogue row with the same normalized description
         // (e.g. created earlier from a devis line) is linked and refreshed
@@ -291,7 +335,7 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
         });
       }
       count += 1;
-    }
+    });
     await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'article', payload_summary: { count, skipped } });
     return { action: 'articles', ok: true, count };
   } catch (err) {
@@ -320,13 +364,23 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
       .select('id, local_id, external_id')
       .eq('integration_id', integration.id)
       .eq('entity_type', 'facture');
+
+    // One query for every mapped facture's current status instead of one
+    // per mapping — same fix as syncBexioContacts/syncBexioArticles, and
+    // just as necessary here: an org with hundreds of mapped invoices used
+    // to mean that many extra sequential round trips before even getting
+    // to the (also sequential) Bexio status fetch below.
+    const localIds = (mappings ?? []).map((m: any) => m.local_id);
+    const { data: factureRows } = localIds.length ? await admin.from('factures').select('id, status, paid_at').in('id', localIds) : { data: [] as any[] };
+    const factureById = new Map<string, any>((factureRows ?? []).map((f: any) => [f.id, f]));
+
     let count = 0;
     let failed = 0;
-    for (const mapping of mappings ?? []) {
-      const { data: facture } = await admin.from('factures').select('id, status, paid_at').eq('id', mapping.local_id).maybeSingle();
+    await mapWithConcurrency(mappings ?? [], SYNC_CONCURRENCY, async (mapping) => {
+      const facture = factureById.get(mapping.local_id);
       // Never let an automated pull resurrect a locally cancelled/draft
       // invoice — those are deliberate local states, not payment states.
-      if (!facture || facture.status === 'cancelled' || facture.status === 'draft') continue;
+      if (!facture || facture.status === 'cancelled' || facture.status === 'draft') return;
 
       let invoice: BexioInvoiceStatus;
       try {
@@ -342,7 +396,7 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
         failed += 1;
         const message = err instanceof Error ? err.message : String(err);
         await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'facture', local_id: mapping.local_id, external_id: mapping.external_id, error_message: message });
-        continue;
+        return;
       }
 
       const remaining = Number(invoice.total_remaining_payments ?? 0);
@@ -359,7 +413,7 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
       }
       await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
       count += 1;
-    }
+    });
     if (failed > 0 && count === 0) {
       throw new Error(`Échec de synchronisation des statuts pour ${failed} facture(s) — la connexion Bexio est probablement invalide.`);
     }
@@ -404,41 +458,50 @@ interface BexioInvoiceDetail {
 export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
   try {
     const invoices = await fetchAllBexioPages<BexioInvoiceListEntry>(admin, integration, '/2.0/kb_invoice');
+
+    // Batch every lookup that used to run once per invoice (already-mapped
+    // check, contact->client resolution, client row fetch) into a handful
+    // of queries up front — an org with hundreds of historical Bexio
+    // invoices used to mean 2-3x that many sequential round trips here
+    // alone before even reaching the (also sequential) per-invoice detail
+    // fetch below.
+    const { data: existingFactureMappings } = await admin
+      .from('integration_mappings')
+      .select('external_id')
+      .eq('integration_id', integration.id)
+      .eq('entity_type', 'facture');
+    const mappedExternalIds = new Set<string>((existingFactureMappings ?? []).map((m: any) => m.external_id));
+
+    const { data: clientMappings } = await admin
+      .from('integration_mappings')
+      .select('local_id, external_id')
+      .eq('integration_id', integration.id)
+      .eq('entity_type', 'client');
+    const clientIdByContactId = new Map<string, string>((clientMappings ?? []).map((m: any) => [m.external_id, m.local_id]));
+
+    const toImport = invoices.filter((entry) => !mappedExternalIds.has(String(entry.id)));
+    const neededClientIds = [
+      ...new Set(
+        toImport
+          .map((entry) => (entry.contact_id != null ? clientIdByContactId.get(String(entry.contact_id)) : undefined))
+          .filter((id): id is string => !!id),
+      ),
+    ];
+    const { data: clientRows } = neededClientIds.length ? await admin.from('clients').select('id, name, address, email').in('id', neededClientIds) : { data: [] as any[] };
+    const clientById = new Map<string, any>((clientRows ?? []).map((c: any) => [c.id, c]));
+
     let count = 0;
     let skipped = 0;
-    for (const entry of invoices) {
+    await mapWithConcurrency(toImport, SYNC_CONCURRENCY, async (entry) => {
       const externalId = String(entry.id);
-      const { data: existingMapping } = await admin
-        .from('integration_mappings')
-        .select('id')
-        .eq('integration_id', integration.id)
-        .eq('entity_type', 'facture')
-        .eq('external_id', externalId)
-        .maybeSingle();
-      if (existingMapping) continue;
-
-      let clientId: string | null = null;
-      if (entry.contact_id != null) {
-        const { data: clientMapping } = await admin
-          .from('integration_mappings')
-          .select('local_id')
-          .eq('integration_id', integration.id)
-          .eq('entity_type', 'client')
-          .eq('external_id', String(entry.contact_id))
-          .maybeSingle();
-        clientId = clientMapping?.local_id ?? null;
-      }
-      if (!clientId) {
+      const clientId = entry.contact_id != null ? clientIdByContactId.get(String(entry.contact_id)) : undefined;
+      const client = clientId ? clientById.get(clientId) : undefined;
+      if (!clientId || !client) {
         // No known Cantia client for this Bexio contact — synchronize
         // clients first (or this invoice's contact predates the client
         // sync) rather than creating a facture with a guessed name.
         skipped += 1;
-        continue;
-      }
-      const { data: client } = await admin.from('clients').select('name, address, email').eq('id', clientId).maybeSingle();
-      if (!client) {
-        skipped += 1;
-        continue;
+        return;
       }
 
       let detail: BexioInvoiceDetail;
@@ -446,7 +509,7 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
         detail = await bexioJson<BexioInvoiceDetail>(admin, integration, `/2.0/kb_invoice/${entry.id}`);
       } catch {
         skipped += 1;
-        continue;
+        return;
       }
 
       const remaining = Number(detail.total_remaining_payments ?? 0);
@@ -470,7 +533,7 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
         .single();
       if (factureError || !facture) {
         skipped += 1;
-        continue;
+        return;
       }
 
       const positions = Array.isArray(detail.positions) ? detail.positions.filter((p) => p.text) : [];
@@ -507,7 +570,7 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
         last_synced_at: new Date().toISOString(),
       });
       count += 1;
-    }
+    });
     await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'facture', payload_summary: { count, skipped } });
     return { action: 'invoices_pull', ok: true, count };
   } catch (err) {
@@ -663,9 +726,16 @@ export async function syncBexioDevisStatuses(admin: any, integration: BexioInteg
       .select('id, local_id, external_id')
       .eq('integration_id', integration.id)
       .eq('entity_type', 'devis');
+
+    // One query for every mapped devis's current status instead of one per
+    // mapping — same fix as the other sync* functions here.
+    const localIds = (mappings ?? []).map((m: any) => m.local_id);
+    const { data: devisRows } = localIds.length ? await admin.from('devis').select('id, status').in('id', localIds) : { data: [] as any[] };
+    const devisById = new Map<string, any>((devisRows ?? []).map((d: any) => [d.id, d]));
+
     let count = 0;
     let failed = 0;
-    for (const mapping of mappings ?? []) {
+    await mapWithConcurrency(mappings ?? [], SYNC_CONCURRENCY, async (mapping) => {
       let offer: BexioOffer;
       try {
         offer = await bexioJson<BexioOffer>(admin, integration, `/2.0/kb_offer/${mapping.external_id}`);
@@ -673,10 +743,10 @@ export async function syncBexioDevisStatuses(admin: any, integration: BexioInteg
         failed += 1;
         const message = err instanceof Error ? err.message : String(err);
         await logSync(admin, integration, { direction: 'pull', action: 'error', status: 'error', entity_type: 'devis', local_id: mapping.local_id, external_id: mapping.external_id, error_message: message });
-        continue;
+        return;
       }
 
-      const { data: localDevis } = await admin.from('devis').select('status').eq('id', mapping.local_id).maybeSingle();
+      const localDevis = devisById.get(mapping.local_id);
       const wasAccepted = localDevis?.status === 'accepted';
 
       const updatePayload: Record<string, unknown> = { bexio_document_nr: offer.document_nr, bexio_status_id: offer.kb_item_status_id, bexio_network_link: offer.network_link };
@@ -688,7 +758,7 @@ export async function syncBexioDevisStatuses(admin: any, integration: BexioInteg
       count += 1;
 
       if (justAccepted) await autoCreateAndPushFactureForAcceptedDevis(admin, integration, mapping.local_id);
-    }
+    });
     if (failed > 0 && count === 0) {
       throw new Error(`Échec de synchronisation des devis pour ${failed} devis — la connexion Bexio est probablement invalide.`);
     }
