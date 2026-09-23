@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -29,6 +29,8 @@ export default function ApparenceScreen() {
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
+  const [websiteColors, setWebsiteColors] = useState<string[]>([]);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
@@ -98,9 +100,15 @@ export default function ApparenceScreen() {
   async function analyzeWebsite() {
     if (!website.trim() || analyzingWebsite) return;
     setAnalyzingWebsite(true);
+    setAnalyzeError(null);
+    setWebsiteColors([]);
     const found = await suggestBrandColorsFromWebsite(website.trim());
     setAnalyzingWebsite(false);
-    if (found.length) withDirty(setBrandColor)(found[0]);
+    if (found.length) {
+      setWebsiteColors(found);
+    } else {
+      setAnalyzeError(t('apparence.websiteNoColorsFound'));
+    }
   }
 
   const previewColor = HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : colors.border;
@@ -111,7 +119,25 @@ export default function ApparenceScreen() {
         <Container>
           <PageHeader title={t('apparence.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 
-          <Text style={styles.hint}>{t('apparence.intro')}</Text>
+          <View style={styles.introRow}>
+            <Text style={styles.introText}>{t('apparence.intro')}</Text>
+            <Pressable onPress={pickLogo} disabled={!isAdmin} style={styles.logoInlineWrap}>
+              {logoUrl ? (
+                <Image source={{ uri: logoUrl }} style={styles.logoPreviewSmall} />
+              ) : (
+                <View style={[styles.logoPreviewSmall, styles.brandPlaceholder]}>
+                  <Feather name="image" size={16} color={colors.textMuted} />
+                </View>
+              )}
+              {isAdmin ? (
+                <View style={styles.logoEditBadge}>
+                  <Feather name="camera" size={10} color="#fff" />
+                </View>
+              ) : null}
+            </Pressable>
+          </View>
+          <Text style={styles.hint}>{t('apparence.logoFormatHint')}</Text>
+          <Text style={styles.hint}>{t('apparence.signatureHint')}</Text>
 
           <Card style={styles.previewCard}>
             <View style={[styles.previewBand, { backgroundColor: previewColor }]}>
@@ -127,26 +153,6 @@ export default function ApparenceScreen() {
               <Text style={styles.previewTotal}>{t('apparence.previewTotal')}</Text>
             </View>
           </Card>
-
-          <Text style={styles.sectionTitle}>{t('apparence.logoTitle')}</Text>
-          <View style={styles.brandingRow}>
-            <View style={styles.brandingItem}>
-              {logoUrl ? (
-                <Image source={{ uri: logoUrl }} style={styles.logoPreview} />
-              ) : (
-                <View style={[styles.logoPreview, styles.brandPlaceholder]}>
-                  <Feather name="image" size={20} color={colors.textMuted} />
-                </View>
-              )}
-              {isAdmin ? (
-                <Pressable style={styles.brandingButton} onPress={pickLogo}>
-                  <Text style={styles.brandingButtonText}>{t('apparence.chooseLogo')}</Text>
-                </Pressable>
-              ) : null}
-            </View>
-          </View>
-          <Text style={styles.hint}>{t('apparence.logoFormatHint')}</Text>
-          <Text style={styles.hint}>{t('apparence.signatureHint')}</Text>
 
           {hasCustomization === false ? (
             <Card style={styles.upsell}>
@@ -165,38 +171,62 @@ export default function ApparenceScreen() {
             <>
               <Text style={styles.sectionTitle}>{t('apparence.brandColorTitle')}</Text>
               <Text style={styles.hint}>{t('apparence.brandColorHint')}</Text>
-              <Field
-                label={t('apparence.websiteLabel')}
-                value={website}
-                onChangeText={withDirty(setWebsite)}
-                editable={isAdmin}
-                autoCapitalize="none"
-                keyboardType="url"
-                placeholder={t('apparence.websitePlaceholder')}
-              />
-              <Text style={styles.hint}>{t('apparence.websiteHint')}</Text>
-              {isAdmin && website.trim() ? (
-                <Pressable
-                  onPress={analyzeWebsite}
-                  disabled={analyzingWebsite}
-                  style={({ pressed }) => [styles.analyzeAction, pressed && !analyzingWebsite && styles.analyzeActionPressed]}
-                >
-                  <View style={styles.analyzeActionIcon}>
+
+              <Text style={styles.searchLabel}>{t('apparence.websiteLabel')}</Text>
+              <View style={styles.searchBar}>
+                <Feather name="search" size={15} color={colors.textMuted} />
+                <TextInput
+                  style={styles.searchInput}
+                  value={website}
+                  onChangeText={(v) => {
+                    withDirty(setWebsite)(v);
+                    setWebsiteColors([]);
+                    setAnalyzeError(null);
+                  }}
+                  editable={isAdmin}
+                  autoCapitalize="none"
+                  keyboardType="url"
+                  placeholder={t('apparence.websitePlaceholder')}
+                  placeholderTextColor={colors.textMuted}
+                  onSubmitEditing={analyzeWebsite}
+                  returnKeyType="search"
+                />
+                {isAdmin && website.trim() ? (
+                  <Pressable onPress={analyzeWebsite} disabled={analyzingWebsite} style={styles.searchButton}>
                     {analyzingWebsite ? (
-                      <ActivityIndicator size="small" color={colors.primary} />
+                      <ActivityIndicator size="small" color="#fff" />
                     ) : (
-                      <Feather name="globe" size={18} color={colors.primary} />
+                      <Text style={styles.searchButtonText}>{t('apparence.analyzeWebsite')}</Text>
                     )}
+                  </Pressable>
+                ) : null}
+              </View>
+              <Text style={styles.hint}>{analyzingWebsite ? t('apparence.analyzing') : t('apparence.websiteHint')}</Text>
+
+              {websiteColors.length > 0 ? (
+                <View style={styles.resultsBlock}>
+                  <Text style={styles.resultsLabel}>{t('apparence.websiteResultsLabel')}</Text>
+                  <View style={styles.colorRow}>
+                    {websiteColors.map((hex) => (
+                      <Pressable
+                        key={hex}
+                        onPress={() => withDirty(setBrandColor)(hex)}
+                        style={[
+                          styles.colorSwatch,
+                          { backgroundColor: hex },
+                          brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive,
+                        ]}
+                      >
+                        {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color="#fff" /> : null}
+                      </Pressable>
+                    ))}
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.analyzeActionTitle}>
-                      {analyzingWebsite ? t('apparence.analyzing') : t('apparence.analyzeWebsite')}
-                    </Text>
-                    <Text style={styles.analyzeActionSubtitle}>{t('apparence.analyzeWebsiteHint')}</Text>
-                  </View>
-                  {!analyzingWebsite ? <Feather name="chevron-right" size={18} color={colors.primary} /> : null}
-                </Pressable>
+                </View>
+              ) : analyzeError ? (
+                <Text style={styles.errorHint}>{analyzeError}</Text>
               ) : null}
+
+              <Text style={styles.sectionTitle}>{t('apparence.presetsTitle')}</Text>
               <View style={styles.colorRow}>
                 {BRAND_COLOR_PRESETS.map((hex) => (
                   <Pressable
@@ -311,15 +341,39 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: spacing.xs,
   },
-  brandingRow: {
+  introRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.lg,
-  },
-  brandingItem: {
-    flexGrow: 1,
-    flexBasis: 120,
     alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+  introText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 17,
+  },
+  logoInlineWrap: {
+    position: 'relative',
+  },
+  logoPreviewSmall: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+  },
+  logoEditBadge: {
+    position: 'absolute',
+    right: -4,
+    bottom: -4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.surface,
   },
   brandPlaceholder: {
     alignItems: 'center',
@@ -328,58 +382,51 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderStyle: 'dashed',
   },
-  logoPreview: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    marginBottom: spacing.sm,
+  searchLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '500',
+    marginBottom: spacing.xs,
   },
-  brandingButton: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  brandingButtonText: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  analyzeAction: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
+    gap: spacing.sm,
     borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
-  },
-  analyzeActionPressed: {
-    opacity: 0.85,
-  },
-  analyzeActionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
     backgroundColor: colors.surface,
+    paddingLeft: spacing.md,
+    paddingRight: 4,
+    height: 48,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    height: '100%',
+  },
+  searchButton: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  analyzeActionTitle: {
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.primary,
-  },
-  analyzeActionSubtitle: {
+  searchButtonText: {
     fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  resultsBlock: {
+    marginTop: spacing.md,
+  },
+  resultsLabel: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   errorHint: {
     fontSize: fontSize.xs,

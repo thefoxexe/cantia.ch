@@ -9,14 +9,14 @@ export type LogoPlacement = 'left' | 'center' | 'right';
 export const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
 
 export const BRAND_COLOR_PRESETS = [
-  '#1F3D3A', // vert sapin (défaut)
-  '#16324F', // bleu marine
-  '#7A2E2E', // rouge brique
-  '#2E4A2E', // vert forêt
-  '#33475B', // bleu ardoise
-  '#6B4226', // terre cuite
-  '#263238', // anthracite
-  '#8A5A00', // ambre
+  '#1B4332', // vert sapin profond (défaut)
+  '#1B3A5C', // bleu royal profond
+  '#7D2E3B', // bordeaux
+  '#3D5A80', // bleu ardoise
+  '#4A4E69', // prune indigo
+  '#6E4B2A', // noyer
+  '#22333B', // anthracite
+  '#9C6B1F', // bronze doré
 ];
 
 export const LOGO_PLACEMENTS: { id: LogoPlacement; label: string; icon: 'align-left' | 'align-center' | 'align-right' }[] = [

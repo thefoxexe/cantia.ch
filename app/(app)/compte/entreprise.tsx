@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { isValidSwissIban } from '../../../lib/iban';
-import { Container, Field, PageHeader, AppScreen } from '../../../components/ui';
+import { Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
@@ -14,6 +14,22 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
+
+type IconName = keyof typeof Feather.glyphMap;
+
+function SectionHeader({ icon, title, hint }: { icon: IconName; title: string; hint?: string }) {
+  return (
+    <View style={styles.sectionHeader}>
+      <View style={styles.sectionIcon}>
+        <Feather name={icon} size={15} color={colors.primary} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        {hint ? <Text style={styles.sectionHint}>{hint}</Text> : null}
+      </View>
+    </View>
+  );
+}
 
 export default function EntrepriseScreen() {
   const { t } = useTranslation();
@@ -102,118 +118,126 @@ export default function EntrepriseScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
           <PageHeader title={t('entreprise.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
+          {!isAdmin ? <Text style={styles.readOnlyHint}>{t('entreprise.readOnlyHint')}</Text> : null}
 
-          <Field label={t('entreprise.nameLabel')} value={name} onChangeText={withDirty(setName)} editable={isAdmin} />
+          <SectionHeader icon="briefcase" title={t('entreprise.identityTitle')} />
+          <Card style={styles.card}>
+            <Field label={t('entreprise.nameLabel')} value={name} onChangeText={withDirty(setName)} editable={isAdmin} />
+            <Text style={styles.fieldLabel}>{t('entreprise.tradeLabel')}</Text>
+            <View style={styles.chips}>
+              {TRADES.map((tr) => (
+                <Pressable
+                  key={tr}
+                  onPress={() => isAdmin && withDirty(setTrade)(tr)}
+                  disabled={!isAdmin}
+                  style={[styles.chip, trade === tr && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                >
+                  <Text style={[styles.chipText, trade === tr && styles.chipTextActive]}>{t(`trades.${TRADE_KEYS[tr]}` as any)}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </Card>
 
-          <Text style={styles.fieldLabel}>{t('entreprise.tradeLabel')}</Text>
-          <View style={styles.chips}>
-            {TRADES.map((tr) => (
-              <Pressable
-                key={tr}
-                onPress={() => isAdmin && withDirty(setTrade)(tr)}
-                disabled={!isAdmin}
-                style={[styles.chip, trade === tr && styles.chipActive, !isAdmin && styles.chipDisabled]}
-              >
-                <Text style={[styles.chipText, trade === tr && styles.chipTextActive]}>{t(`trades.${TRADE_KEYS[tr]}` as any)}</Text>
-              </Pressable>
-            ))}
-          </View>
-          {!isAdmin ? (
-            <Text style={styles.readOnlyHint}>{t('entreprise.readOnlyHint')}</Text>
-          ) : null}
+          <SectionHeader icon="map-pin" title={t('entreprise.addressTitle')} hint={t('entreprise.addressHint')} />
+          <Card style={styles.card}>
+            <SwissAddressField
+              label={t('entreprise.streetLabel')}
+              value={street}
+              onChangeText={withDirty(setStreet)}
+              onSelectAddress={(addr) => {
+                setStreet(addr.street);
+                setPostalCode(addr.postalCode);
+                setLocality(addr.locality);
+                markDirty();
+              }}
+              editable={isAdmin}
+              placeholder={t('entreprise.streetPlaceholder')}
+            />
+            <View style={styles.row2}>
+              <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
+                <Field label={t('entreprise.npaLabel')} value={postalCode} onChangeText={handlePostalCodeChange} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
+              </View>
+              <View style={styles.row2Item}>
+                <Field label={t('entreprise.localityLabel')} value={locality} onChangeText={withDirty(setLocality)} editable={isAdmin} placeholder="Lausanne" />
+              </View>
+            </View>
+            {organization?.address && !street.trim() ? (
+              <Text style={styles.hint}>{t('entreprise.oldAddressHint', { address: organization.address })}</Text>
+            ) : null}
+            {iban.trim() && (!postalCode.trim() || !locality.trim()) ? (
+              <View style={styles.warningBanner}>
+                <Feather name="alert-triangle" size={14} color={colors.accent} />
+                <Text style={styles.warningText}>{t('entreprise.qrAddressWarning')}</Text>
+              </View>
+            ) : null}
+          </Card>
 
-          <SwissAddressField
-            label={t('entreprise.streetLabel')}
-            value={street}
-            onChangeText={withDirty(setStreet)}
-            onSelectAddress={(addr) => {
-              setStreet(addr.street);
-              setPostalCode(addr.postalCode);
-              setLocality(addr.locality);
-              markDirty();
-            }}
-            editable={isAdmin}
-            placeholder={t('entreprise.streetPlaceholder')}
-          />
-          <View style={styles.row2}>
-            <View style={[styles.row2Item, { flexBasis: 100, flexGrow: 0 }]}>
-              <Field label={t('entreprise.npaLabel')} value={postalCode} onChangeText={handlePostalCodeChange} editable={isAdmin} keyboardType="number-pad" placeholder="1000" />
+          <SectionHeader icon="phone" title={t('entreprise.contactTitle')} />
+          <Card style={styles.card}>
+            <Field label={t('entreprise.ideLabel')} value={ideNumber} onChangeText={withDirty(setIdeNumber)} editable={isAdmin} />
+            <View style={styles.row2}>
+              <View style={styles.row2Item}>
+                <Field
+                  label={t('entreprise.phoneLabel')}
+                  value={phone}
+                  onChangeText={withDirty(setPhone)}
+                  editable={isAdmin}
+                  keyboardType="phone-pad"
+                  placeholder="+41 79 000 00 00"
+                />
+              </View>
+              <View style={styles.row2Item}>
+                <Field
+                  label={t('entreprise.companyEmailLabel')}
+                  value={email}
+                  onChangeText={withDirty(setEmail)}
+                  editable={isAdmin}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholder="contact@entreprise.ch"
+                />
+              </View>
             </View>
-            <View style={styles.row2Item}>
-              <Field label={t('entreprise.localityLabel')} value={locality} onChangeText={withDirty(setLocality)} editable={isAdmin} placeholder="Lausanne" />
-            </View>
-          </View>
-          {organization?.address && !street.trim() ? (
-            <Text style={styles.hint}>{t('entreprise.oldAddressHint', { address: organization.address })}</Text>
-          ) : null}
-          {iban.trim() && (!postalCode.trim() || !locality.trim()) ? (
-            <View style={styles.warningBanner}>
-              <Feather name="alert-triangle" size={14} color={colors.accent} />
-              <Text style={styles.warningText}>{t('entreprise.qrAddressWarning')}</Text>
-            </View>
-          ) : null}
-          <Field label={t('entreprise.ideLabel')} value={ideNumber} onChangeText={withDirty(setIdeNumber)} editable={isAdmin} />
-          <View style={styles.row2}>
-            <View style={styles.row2Item}>
-              <Field
-                label={t('entreprise.phoneLabel')}
-                value={phone}
-                onChangeText={withDirty(setPhone)}
-                editable={isAdmin}
-                keyboardType="phone-pad"
-                placeholder="+41 79 000 00 00"
-              />
-            </View>
-            <View style={styles.row2Item}>
-              <Field
-                label={t('entreprise.companyEmailLabel')}
-                value={email}
-                onChangeText={withDirty(setEmail)}
-                editable={isAdmin}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholder="contact@entreprise.ch"
-              />
-            </View>
-          </View>
-          <Field
-            label={t('entreprise.websiteLabel')}
-            value={website}
-            onChangeText={withDirty(setWebsite)}
-            editable={isAdmin}
-            autoCapitalize="none"
-            placeholder="www.entreprise.ch"
-          />
-          <Field
-            label={t('entreprise.ibanLabel')}
-            value={iban}
-            onChangeText={withDirty(setIban)}
-            editable={isAdmin}
-            autoCapitalize="characters"
-            placeholder="CH00 0000 0000 0000 0000 0"
-          />
-          {iban.trim() && !isValidSwissIban(iban.trim()) ? (
-            <Text style={styles.errorHint}>{t('entreprise.ibanInvalid')}</Text>
-          ) : (
-            <Text style={styles.hint}>{t('entreprise.ibanHint')}</Text>
-          )}
-          <Text style={styles.sectionTitle}>{t('entreprise.documentLocaleTitle')}</Text>
-          <Text style={styles.hint}>{t('entreprise.documentLocaleHint')}</Text>
-          <View style={styles.chips}>
-            {(['fr', 'de', 'it'] as const).map((loc) => (
-              <Pressable
-                key={loc}
-                onPress={() => isAdmin && withDirty(setDocLocale)(loc)}
-                disabled={!isAdmin}
-                style={[styles.chip, docLocale === loc && styles.chipActive, !isAdmin && styles.chipDisabled]}
-              >
-                <Text style={[styles.chipText, docLocale === loc && styles.chipTextActive]}>
-                  {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('entreprise.localeIt')}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
+            <Field
+              label={t('entreprise.websiteLabel')}
+              value={website}
+              onChangeText={withDirty(setWebsite)}
+              editable={isAdmin}
+              autoCapitalize="none"
+              placeholder="www.entreprise.ch"
+            />
+          </Card>
 
+          <SectionHeader icon="credit-card" title={t('entreprise.billingTitle')} hint={t('entreprise.ibanHint')} />
+          <Card style={styles.card}>
+            <Field
+              label={t('entreprise.ibanLabel')}
+              value={iban}
+              onChangeText={withDirty(setIban)}
+              editable={isAdmin}
+              autoCapitalize="characters"
+              placeholder="CH00 0000 0000 0000 0000 0"
+            />
+            {iban.trim() && !isValidSwissIban(iban.trim()) ? <Text style={styles.errorHint}>{t('entreprise.ibanInvalid')}</Text> : null}
+          </Card>
+
+          <SectionHeader icon="globe" title={t('entreprise.documentLocaleTitle')} hint={t('entreprise.documentLocaleHint')} />
+          <Card style={styles.card}>
+            <View style={styles.chips}>
+              {(['fr', 'de', 'it'] as const).map((loc) => (
+                <Pressable
+                  key={loc}
+                  onPress={() => isAdmin && withDirty(setDocLocale)(loc)}
+                  disabled={!isAdmin}
+                  style={[styles.chip, docLocale === loc && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                >
+                  <Text style={[styles.chipText, docLocale === loc && styles.chipTextActive]}>
+                    {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('entreprise.localeIt')}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </Card>
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
@@ -223,24 +247,47 @@ export default function EntrepriseScreen() {
 }
 
 const styles = StyleSheet.create({
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
+  },
+  sectionIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
   sectionTitle: {
     fontSize: fontSize.md,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text,
-    marginTop: spacing.lg,
-    marginBottom: spacing.xs,
+  },
+  sectionHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  card: {
+    gap: spacing.md,
   },
   fieldLabel: {
     fontSize: fontSize.sm,
     color: colors.textMuted,
     marginBottom: spacing.sm,
     fontWeight: '500',
+    marginTop: -spacing.xs,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    marginBottom: spacing.lg,
   },
   chip: {
     paddingHorizontal: spacing.md,
@@ -268,8 +315,7 @@ const styles = StyleSheet.create({
   readOnlyHint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.lg,
+    marginTop: spacing.sm,
   },
   row2: {
     flexDirection: 'row',
@@ -283,13 +329,10 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: spacing.sm,
   },
   errorHint: {
     fontSize: fontSize.xs,
     color: colors.danger,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.sm,
   },
   warningBanner: {
     flexDirection: 'row',
@@ -298,8 +341,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
     borderRadius: radius.md,
     padding: spacing.sm,
-    marginTop: spacing.sm,
-    marginBottom: spacing.sm,
   },
   warningText: {
     flex: 1,
