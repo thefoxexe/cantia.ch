@@ -452,7 +452,7 @@ interface BexioInvoiceDetail {
   total_net: string | number | null;
   total_received_payments: string | number | null;
   total_remaining_payments: string | number | null;
-  positions?: { type?: string; text?: string | null; amount?: string | number | null; unit_price?: string | number | null; tax_id?: number | null }[];
+  positions?: { type?: string; text?: string | null; amount?: string | number | null; unit_price?: string | number | null; tax_id?: number | null; unit_name?: string | null }[];
 }
 
 export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
@@ -575,7 +575,14 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
               facture_id: facture.id,
               description: p.text ?? 'Position',
               quantity: p.amount != null ? Number(p.amount) : 1,
-              unit: 'pce',
+              // unit_name is the account's own real unit label for this
+              // position (confirmed live on GET /2.0/kb_invoice/{id} — e.g.
+              // "Stk" — not a lookup table id), reproduced as-is rather than
+              // hardcoded, so an imported line's total (quantity × price)
+              // reads the same way it did in Bexio. Bexio leaves it null for
+              // positions never given a unit; 'pce' matches facture_items'
+              // own column default in that case.
+              unit: p.unit_name?.trim() || 'pce',
               unit_price: p.unit_price != null ? Number(p.unit_price) : 0,
               sort_order: i,
             }))
