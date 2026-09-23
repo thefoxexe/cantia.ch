@@ -1,7 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing } from '../lib/theme';
 import { getAppLocale, i18next, useTranslation } from '../lib/translations';
+import { getSignedUrl } from '../lib/api/storage';
 import type { Organization } from '../lib/types';
 
 export interface PreviewLine {
@@ -44,30 +46,78 @@ export function computeDocumentTotals(lines: PreviewLine[], discountPercent: str
 }
 
 // A4-proportioned, purely client-side facsimile of the real PDF layout —
-// same page ratio, same single-column header (no logo: the real renderer
-// never draws one, see supabase/functions/_shared/pdf-document-renderers.ts
-// — the org name in brand color is the document's identity mark instead),
-// same 4-column table, same totals composition (a discount is folded into
-// the line items as a negative row server-side, not a separate totals
-// line — mirrored here so the numbers read exactly like the eventual PDF),
-// same colors (INK/MUTED/LINE pulled straight from pdf-helpers.ts). Not a
-// render of the real thing (that's server-generated, see
-// generate-devis-pdf / generate-facture-pdf) — recomputed instantly from
-// the same raw form state on every keystroke, with zero network calls.
+// kept in sync by hand with supabase/functions/_shared/pdf-document-
+// renderers.ts (there is no code sharing between a Deno edge function and
+// this React Native component, so every visual change made there has to be
+// mirrored here): the logo + its left/center/right placement, the brand-
+// colored doc-type label, the tinted reference/date/validity box with its
+// left accent edge, the brand-colored table header band, zebra-striped
+// rows, and the boxed total highlight. The terms line is genuinely
+// optional now too — only org.devis_terms, printed if set, nothing
+// auto-generated — matching drawTerms() removing the old boilerplate.
+// Recomputed instantly from the same raw form state on every keystroke,
+// zero network calls — not a render of the real thing (that's server-
+// generated, see generate-devis-pdf / generate-facture-pdf), but built to
+// track it as closely as a client-side facsimile reasonably can.
 const INK = '#181C1B';
 const MUTED = '#5C6560';
 const LINE = '#E1DED4';
+const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 // PDF page constants (pt), from supabase/functions/_shared/pdf-helpers.ts —
 // only the ratio matters here, the preview scales to fit its column.
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 
+// Same softTint/pickReadableTextColor math as pdf-helpers.ts, reimplemented
+// in JS since the edge function's Deno code isn't importable here.
+function safeHex(hex: string | null | undefined): string {
+  return hex && HEX_RE.test(hex) ? hex : '#1F3D3A';
+}
+function tint(hex: string, amount: number): string {
+  const clean = safeHex(hex);
+  const r = parseInt(clean.slice(1, 3), 16);
+  const g = parseInt(clean.slice(3, 5), 16);
+  const b = parseInt(clean.slice(5, 7), 16);
+  const mix = (c: number) => Math.round(c + (255 - c) * amount);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+}
+function readableTextColor(hex: string): string {
+  const clean = safeHex(hex);
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  const r = lin(parseInt(clean.slice(1, 3), 16) / 255);
+  const g = lin(parseInt(clean.slice(3, 5), 16) / 255);
+  const b = lin(parseInt(clean.slice(5, 7), 16) / 255);
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.5 ? INK : '#fff';
+}
+
 export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent }: Props) {
   const { t } = useTranslation();
-  const brandColor = organization?.brand_color || '#1F3D3A';
+  const brandColor = safeHex(organization?.brand_color);
   const vatRate = organization?.default_vat_rate ?? 8.1;
   const docLabel = kind === 'devis' ? t('documentPreview.docLabelDevis') : t('documentPreview.docLabelFacture');
   const { tableRows, subtotal, vat, total } = computeDocumentTotals(lines, discountPercent, vatRate);
+
+  // Same asset + left/center/right placement setting as the real PDF's
+  // header (compte/apparence) — resolved to a signed URL like every other
+  // screen that displays org.logo_url (a storage path, not a public URL).
+  const [logoUri, setLogoUri] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    if (organization?.logo_url) {
+      getSignedUrl(organization.logo_url).then((url) => {
+        if (!cancelled) setLogoUri(url);
+      });
+    } else {
+      setLogoUri(null);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [organization?.logo_url]);
+  const logoPlacement = organization?.logo_placement ?? 'right';
+  const headerDirection = logoPlacement === 'left' ? 'row' : logoPlacement === 'center' ? 'column' : 'row-reverse';
+  const centerHeader = logoPlacement === 'center';
 
   const orgAddressParts = [
     organization?.street || organization?.address,
@@ -79,19 +129,34 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
   const locale = `${getAppLocale()}-CH`;
   const today = new Date();
   const dueDate = new Date(today.getTime() + 30 * 86400000);
-  const metaLine = kind === 'facture' ? t('documentPreview.dueDate', { date: dueDate.toLocaleDateString(locale) }) : null;
+  const validityDays = organization?.devis_validity_days ?? 30;
+
+  // Same 3-row reference box as the real PDF (Référence/Date + either
+  // Échéance or Validité) — "—" for the reference since a draft doesn't
+  // have a document number yet (the real renderer's own fallback for a
+  // missing devis.number/facture.number).
+  const boxRows = [
+    `${t('documentPreview.reference')} : —`,
+    `${t('documentPreview.date')} : ${today.toLocaleDateString(locale)}`,
+    kind === 'facture' ? t('documentPreview.dueDate', { date: dueDate.toLocaleDateString(locale) }) : t('documentPreview.validity', { days: validityDays }),
+  ];
 
   const clientLines = [clientName || t('documentPreview.clientFallback'), clientAddress, clientEmail, projectName ? t('documentPreview.projectLine', { name: projectName }) : null].filter(
     (l): l is string => !!l,
   );
 
-  const validityDays = organization?.devis_validity_days ?? 30;
-  const termsBase =
-    kind === 'devis' ? t('documentPreview.devisValidity', { days: validityDays }) : t('documentPreview.factureTermsBase');
-  const terms = `${organization?.devis_terms?.trim() ? `${organization.devis_terms.trim()} ` : ''}${termsBase} ${t('documentPreview.priceInChf')}`;
+  // No more auto-generated "valable X jours" / "prix en CHF" / "merci de
+  // régler" — matches drawTerms() in pdf-document-renderers.ts, which now
+  // only prints the org's own optional custom terms, nothing else.
+  const terms = organization?.devis_terms?.trim() || null;
 
   const footerText = organization?.footer_text?.trim() || t('documentPreview.footerFallback');
   const showQrNote = kind === 'facture' && !!organization?.iban;
+
+  const headTextColor = readableTextColor(brandColor);
+  const refBoxBg = tint(brandColor, 0.93);
+  const zebraBg = tint(brandColor, 0.96);
+  const totalBoxBg = tint(brandColor, 0.9);
 
   return (
     <View style={styles.wrap}>
@@ -100,18 +165,25 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
       </View>
 
       <View style={styles.page}>
-        <Text style={[styles.orgName, { color: brandColor }]}>{organization?.name || t('documentPreview.orgFallback')}</Text>
-        {orgLine ? <Text style={styles.meta}>{orgLine}</Text> : null}
-        {contactLine ? <Text style={styles.meta}>{contactLine}</Text> : null}
+        <View style={[styles.headerRow, { flexDirection: headerDirection }, centerHeader && styles.headerRowCenter]}>
+          {logoUri ? <Image source={{ uri: logoUri }} style={[styles.logo, centerHeader && styles.logoCenter]} resizeMode="contain" /> : null}
+          <View style={centerHeader ? styles.headerTextCenter : styles.headerText}>
+            <Text style={[styles.orgName, { color: brandColor }, centerHeader && styles.textCenter]}>{organization?.name || t('documentPreview.orgFallback')}</Text>
+            {orgLine ? <Text style={[styles.meta, centerHeader && styles.textCenter]}>{orgLine}</Text> : null}
+            {contactLine ? <Text style={[styles.meta, centerHeader && styles.textCenter]}>{contactLine}</Text> : null}
+          </View>
+        </View>
         <View style={styles.rule} />
 
-        <View style={styles.titleRow}>
-          <Text style={[styles.docTitle, { color: brandColor }]} numberOfLines={1}>
-            {docLabel}
-          </Text>
-          <Text style={styles.meta}>{today.toLocaleDateString(locale)}</Text>
+        <Text style={[styles.docTitle, { color: brandColor }]}>{docLabel.toUpperCase()}</Text>
+
+        <View style={[styles.refBox, { backgroundColor: refBoxBg, borderLeftColor: brandColor }]}>
+          {boxRows.map((row, i) => (
+            <Text key={i} style={styles.refBoxLine}>
+              {row}
+            </Text>
+          ))}
         </View>
-        {metaLine ? <Text style={[styles.meta, styles.metaLine]}>{metaLine}</Text> : null}
 
         <Text style={styles.label}>{t('documentPreview.clientLabel')}</Text>
         {clientLines.map((line, i) => (
@@ -120,18 +192,18 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
           </Text>
         ))}
 
-        <View style={styles.tableHeadRow}>
-          <Text style={[styles.th, styles.colDesc]}>{t('documentPreview.colDescription')}</Text>
-          <Text style={[styles.th, styles.colQty]}>{t('documentPreview.colQty')}</Text>
-          <Text style={[styles.th, styles.colUnit]}>{t('documentPreview.colUnit')}</Text>
-          <Text style={[styles.th, styles.colPrice]}>{t('documentPreview.colPrice')}</Text>
-          <Text style={[styles.th, styles.colTotal]}>{t('documentPreview.colTotal')}</Text>
+        <View style={[styles.tableHeadRow, { backgroundColor: brandColor }]}>
+          <Text style={[styles.th, styles.colDesc, { color: headTextColor }]}>{t('documentPreview.colDescription')}</Text>
+          <Text style={[styles.th, styles.colQty, { color: headTextColor }]}>{t('documentPreview.colQty')}</Text>
+          <Text style={[styles.th, styles.colUnit, { color: headTextColor }]}>{t('documentPreview.colUnit')}</Text>
+          <Text style={[styles.th, styles.colPrice, { color: headTextColor }]}>{t('documentPreview.colPrice')}</Text>
+          <Text style={[styles.th, styles.colTotal, { color: headTextColor }]}>{t('documentPreview.colTotal')}</Text>
         </View>
         {tableRows.length === 0 ? (
           <Text style={styles.emptyHint}>{t('documentPreview.emptyLinesHint')}</Text>
         ) : (
           tableRows.map((l, i) => (
-            <View key={i} style={styles.tableRow}>
+            <View key={i} style={[styles.tableRow, i % 2 === 1 && { backgroundColor: zebraBg }]}>
               <Text style={[styles.td, styles.colDesc]} numberOfLines={2}>
                 {l.description}
               </Text>
@@ -142,7 +214,6 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
             </View>
           ))
         )}
-        <View style={styles.tableBottomRule} />
 
         <View style={styles.totals}>
           <View style={styles.totalRow}>
@@ -153,13 +224,13 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
             <Text style={styles.body}>{t('documentPreview.vat', { rate: vatRate })}</Text>
             <Text style={styles.body}>CHF {vat.toFixed(2)}</Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.grandTotalLabel}>{t('documentPreview.grandTotal')}</Text>
-            <Text style={styles.grandTotalValue}>CHF {total.toFixed(2)}</Text>
+          <View style={[styles.grandTotalBox, { backgroundColor: totalBoxBg, borderColor: brandColor }]}>
+            <Text style={[styles.grandTotalLabel, { color: brandColor }]}>{t('documentPreview.grandTotal')}</Text>
+            <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {total.toFixed(2)}</Text>
           </View>
         </View>
 
-        <Text style={styles.terms}>{terms}</Text>
+        {terms ? <Text style={styles.terms}>{terms}</Text> : null}
 
         {kind === 'devis' ? (
           <View style={styles.signatureRow}>
@@ -247,6 +318,31 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     overflow: 'hidden',
   },
+  headerRow: {
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  headerRowCenter: {
+    alignItems: 'center',
+  },
+  headerText: {
+    flex: 1,
+  },
+  headerTextCenter: {
+    alignItems: 'center',
+  },
+  logo: {
+    width: 44,
+    height: 26,
+  },
+  logoCenter: {
+    width: 54,
+    height: 30,
+    marginBottom: 4,
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
   orgName: {
     fontSize: 13,
     fontWeight: '700',
@@ -262,18 +358,23 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 14,
   },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-  },
   docTitle: {
-    fontSize: 12.5,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
-  metaLine: {
-    textAlign: 'right',
-    marginTop: 3,
+  refBox: {
+    borderLeftWidth: 2.5,
+    borderRadius: 2,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    marginTop: 8,
+    gap: 2,
+    alignSelf: 'flex-start',
+  },
+  refBoxLine: {
+    fontSize: 8,
+    color: INK,
   },
   label: {
     fontSize: 7.5,
@@ -281,7 +382,7 @@ const styles = StyleSheet.create({
     color: MUTED,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
-    marginTop: 14,
+    marginTop: 12,
     marginBottom: 4,
   },
   body: {
@@ -294,20 +395,22 @@ const styles = StyleSheet.create({
   },
   tableHeadRow: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: LINE,
-    paddingBottom: 5,
-    marginTop: 16,
+    paddingVertical: 5,
+    paddingHorizontal: 4,
+    marginTop: 14,
+    borderRadius: 1,
   },
   th: {
     fontSize: 7.5,
     fontWeight: '700',
-    color: MUTED,
     textTransform: 'uppercase',
   },
   tableRow: {
     flexDirection: 'row',
     paddingVertical: 5,
+    paddingHorizontal: 4,
+    borderBottomWidth: 0.5,
+    borderBottomColor: LINE,
   },
   td: {
     fontSize: 8.5,
@@ -340,31 +443,34 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     paddingVertical: 10,
   },
-  tableBottomRule: {
-    height: 1,
-    backgroundColor: LINE,
-    marginTop: 2,
-  },
   totals: {
     alignSelf: 'flex-end',
-    minWidth: '48%',
+    minWidth: '55%',
     marginTop: 10,
+    gap: 3,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: spacing.md,
-    marginTop: 2,
+  },
+  grandTotalBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    marginTop: 3,
   },
   grandTotalLabel: {
     fontSize: 9.5,
-    fontWeight: '700',
-    color: INK,
+    fontWeight: '800',
   },
   grandTotalValue: {
-    fontSize: 9.5,
-    fontWeight: '700',
-    color: INK,
+    fontSize: 10,
+    fontWeight: '800',
   },
   terms: {
     fontSize: 7,
