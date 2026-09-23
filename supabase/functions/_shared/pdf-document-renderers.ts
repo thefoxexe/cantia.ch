@@ -159,42 +159,63 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     y = PAGE_HEIGHT - MARGIN;
   };
 
-  // --- Header: logo + org identity — layout/placement logic unchanged from
-  // before, so an org's chosen logo placement never shifts underneath it.
+  // --- Header: logo + org identity. 'left' and 'right' sit inline with the
+  // name/address/contact block (logo floats beside the text, same row) —
+  // a stacked logo used to add ~60pt of pure vertical waste and looked
+  // visually disconnected from the text, which also made a typical short
+  // facture's QR-bill band miss fitting on the same page. 'center' can't
+  // be inline (a centered logo and a centered text line both straddle the
+  // page's mid-x and would draw on top of each other), so it keeps a
+  // stacked layout — logo centered on its own row, then every text line
+  // centered below it — just with a much tighter gap than before. With no
+  // logo, text always stays left-aligned exactly as if placement were unset.
+  const placement = logoPlacement ?? 'right';
+  let textX = MARGIN;
+  const centerText = placement === 'center' && !!logoImg;
   if (logoImg) {
     const maxW = 130;
     const naturalH = (logoImg.height / logoImg.width) * maxW;
     const h = Math.min(46, naturalH);
     const w = (logoImg.width / logoImg.height) * h;
-    const placement = logoPlacement ?? 'right';
-    if (placement === 'right') {
-      page.drawImage(logoImg, { x: logoX(placement, PAGE_WIDTH, MARGIN, w), y: y - h + 12, width: w, height: h });
+    if (placement === 'left') {
+      page.drawImage(logoImg, { x: MARGIN, y: y - h + 12, width: w, height: h });
+      textX = MARGIN + w + 16;
+    } else if (placement === 'center') {
+      page.drawImage(logoImg, { x: logoX('center', PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
+      y -= h + 18; // clears the ~12pt ascender of the 17pt name text drawn right after
     } else {
-      page.drawImage(logoImg, { x: logoX(placement, PAGE_WIDTH, MARGIN, w), y: y - h, width: w, height: h });
-      y -= h + 14;
+      page.drawImage(logoImg, { x: logoX(placement, PAGE_WIDTH, MARGIN, w), y: y - h + 12, width: w, height: h });
     }
   }
+  const drawHeaderLine = (text: string, size: number, lineFont: PDFFont, color: RGB) => {
+    if (centerText) {
+      const w = lineFont.widthOfTextAtSize(sanitizePdfText(text), size);
+      drawText(page, text, (PAGE_WIDTH - w) / 2, y, lineFont, size, color);
+    } else {
+      drawText(page, text, textX, y, lineFont, size, color);
+    }
+  };
 
-  drawText(page, org?.name ?? pdfT(locale, 'entrepriseFallback'), MARGIN, y, fontBold, 17, brand);
+  drawHeaderLine(org?.name ?? pdfT(locale, 'entrepriseFallback'), 17, fontBold, brand);
   y -= 16;
   const orgLine = [formatOrgAddress(org), org?.ide_number ? `IDE ${org.ide_number}` : null].filter(Boolean).join(' · ');
   if (orgLine) {
-    drawText(page, orgLine, MARGIN, y, font, 9, MUTED);
+    drawHeaderLine(orgLine, 9, font, MUTED);
     y -= 12;
   }
   const contactLine = [org?.phone, org?.email, org?.website].filter(Boolean).join(' · ');
   if (contactLine) {
-    drawText(page, contactLine, MARGIN, y, font, 9, MUTED);
+    drawHeaderLine(contactLine, 9, font, MUTED);
     y -= 12;
   }
-  y -= 16;
+  y -= 12;
   page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-  y -= 30;
+  y -= 24;
 
   // --- Big document-type label, brand-colored, then a tinted reference box
   // right below it (replaces the old plain "Devis 2026-018 ... date" line).
   drawText(page, docLabel.toUpperCase(), MARGIN, y, fontBold, 20, brand);
-  y -= 26;
+  y -= 22;
 
   const boxRows: string[] = [
     `${pdfT(locale, 'reference')} : ${devis.number ?? '—'}`,
@@ -205,8 +226,8 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   } else if (docKind === 'devis' && devis.valid_until) {
     boxRows.push(`${pdfT(locale, 'validity')} : ${formatDate(devis.valid_until, locale)}`);
   }
-  const boxRowH = 15;
-  const boxPadV = 10;
+  const boxRowH = 13;
+  const boxPadV = 7;
   const boxPadL = 16;
   const boxW = Math.min(320, Math.max(220, measureMax(font, boxRows, 10) + boxPadL + 16));
   const boxH = boxRows.length * boxRowH + boxPadV * 2;
@@ -218,7 +239,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     drawText(page, row, MARGIN + boxPadL, rowY, font, 9.5, INK);
     rowY -= boxRowH;
   }
-  y = boxTop - boxH - 24;
+  y = boxTop - boxH - 18;
 
   // --- Client block ---
   const clientLines = [
@@ -233,7 +254,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     drawText(page, line, MARGIN, y, font, 10.5, INK);
     y -= 14;
   }
-  y -= 14;
+  y -= 10;
 
   if (devis.notes?.trim()) {
     const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
@@ -336,7 +357,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     y = rowTop - rowH;
   });
 
-  y -= 22;
+  y -= 14;
   if (y < MARGIN + 150) newPage();
 
   // --- Totals block: plain rows for the running math, a boxed brand-tinted
@@ -363,16 +384,16 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   const plainRow = (label: string, value: string) => {
     drawText(page, label, totalsLeft, y, font, 10.5, INK);
     drawTextRight(page, value, totalsRight, y, font, 10.5, INK);
-    y -= 16;
+    y -= 15;
   };
   const boxedRow = (label: string, value: string) => {
-    const h = 26;
+    const h = 23;
     const fill = softTint(brand, 0.9);
     page.drawRectangle({ x: totalsLeft, y: y - h + 6, width: totalsBoxW, height: h, color: fill, borderColor: brand, borderWidth: 1 });
     const textColor = pickReadableTextColor(fill);
-    drawText(page, label, totalsLeft + 10, y - h + 16, fontBold, 11, textColor);
-    drawTextRight(page, value, totalsRight - 10, y - h + 16, fontBold, 12, textColor);
-    y -= h + 10;
+    drawText(page, label, totalsLeft + 10, y - h + 15, fontBold, 11, textColor);
+    drawTextRight(page, value, totalsRight - 10, y - h + 15, fontBold, 12, textColor);
+    y -= h + 7;
   };
 
   plainRow(pdfT(locale, 'subtotal'), chf(visibleSubtotal));
@@ -383,7 +404,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     plainRow(pdfT(locale, 'alreadyPaid'), chf(-(paidSum as number)));
     boxedRow(pdfT(locale, 'netToPay'), chf(netToPay));
   }
-  y -= 8;
+  y -= 6;
 
   y = drawTerms(page, font, org, y, docKind, locale, docKind === 'devis' ? devis.valid_until : null);
 
