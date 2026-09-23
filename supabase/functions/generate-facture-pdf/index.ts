@@ -89,6 +89,14 @@ Deno.serve(async (req: Request) => {
         ? pdfT(locale, 'paidOn', { date: formatDate(facture.paid_at, locale) })
         : pdfT(locale, 'dueDate', { date: formatDate(facture.due_date, locale) });
 
+    // Real cash already received against this facture — computed once and
+    // threaded into the renderer (so the on-page totals block can show
+    // "Déjà payé" / "Net à payer", not just the original total) and reused
+    // below for the QR-bill's amount, instead of the two being computed
+    // separately and only the QR-bill ever reflecting a partial payment.
+    const { data: payments } = await admin.from('facture_payments').select('amount').eq('facture_id', facture_id);
+    const paidSum = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+
     let pdfBytes: Uint8Array;
     const docLabel = pdfT(locale, facture.is_deposit ? 'factureDepositLabel' : 'factureLabel');
 
@@ -111,6 +119,7 @@ Deno.serve(async (req: Request) => {
         docKind: 'facture',
         metaLine,
         locale,
+        paidSum: paidSum > 0 ? paidSum : undefined,
       });
 
       // The QR-bill band goes on this same last page when there's enough
@@ -130,8 +139,6 @@ Deno.serve(async (req: Request) => {
           // not the original total. Without this, regenerating the PDF
           // after recording, say, CHF 2015.- against a CHF 5600.- facture
           // still produced a QR-bill asking for the full 5600.- again.
-          const { data: payments } = await admin.from('facture_payments').select('amount').eq('facture_id', facture_id);
-          const paidSum = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
           const amountDue = swissRound(Math.max(0, total - paidSum));
           if (amountDue > 0) {
             const reusedContentPage = await appendQrBillPage(

@@ -13,7 +13,16 @@
 // than removed) so every existing pdf_templates row's base_layout value
 // still resolves without a migration, and both callers' `RENDERERS[template
 // .base_layout]` lookup keeps working unchanged.
-import { PDFFont, PDFImage, PDFPage, PDFDocument, RGB } from 'npm:pdf-lib@1.17.1';
+//
+// Elaborated layout: a tinted reference/date/validity box (brand-colored
+// left edge), a brand-colored table header band, zebra-striped item rows,
+// and a boxed TOTAL TTC / NET À PAYER highlight — all driven by the org's
+// own brand_color, never a hardcoded color. Every amount column's width is
+// measured against the actual formatted strings that will appear in *this*
+// document (font.widthOfTextAtSize), not a fixed pixel guess, so a total in
+// the millions gets a wider column instead of overlapping its neighbour —
+// the description column simply absorbs whatever space is left over.
+import { PDFFont, PDFImage, PDFPage, PDFDocument, RGB, rgb } from 'npm:pdf-lib@1.17.1';
 import {
   INK,
   LINE,
@@ -30,6 +39,8 @@ import {
   formatDateTime,
   formatOrgAddress,
   logoX,
+  pickReadableTextColor,
+  sanitizePdfText,
   swissRound,
   wrapText,
 } from './pdf-helpers.ts';
@@ -87,6 +98,30 @@ export interface RenderCtx {
   docKind: 'devis' | 'facture' | 'extra_work'; // drives which fixed strings drawTerms/renderUnified pick, independent of docLabel's locale
   metaLine: string | null; // e.g. "Échéance : 05.09.2026" or "Payée le 20.08.2026"
   locale: PdfLocale;
+  // Real cash already received against this facture (sum of
+  // facture_payments.amount), computed once by generate-facture-pdf and
+  // passed in so the on-page totals block can show "Déjà payé" / "Net à
+  // payer" — not just the QR-bill's amount, which previously was the only
+  // place a partial payment showed up. Undefined/0 on a devis (no payments
+  // concept there) and on a facture with no payments recorded yet.
+  paidSum?: number;
+}
+
+// Blends a color toward white by `amount` (0-1) — used for a light tint of
+// the org's own brand color behind the reference box, table zebra rows and
+// totals highlight, so any brand color (light or dark) stays legible as a
+// background fill instead of needing a second hardcoded palette.
+function softTint(c: RGB, amount: number): RGB {
+  return rgb(c.red + (1 - c.red) * amount, c.green + (1 - c.green) * amount, c.blue + (1 - c.blue) * amount);
+}
+
+// Widest rendered width of a set of strings at a given size — the basis for
+// every dynamically-sized column/box below. Sanitized first: widthOfTextAtSize
+// on an unsanitized string containing e.g. a curly quote can throw or
+// mis-measure against pdf-lib's WinAnsi-encoded standard fonts, the same
+// reason drawText/drawTextRight always sanitize before drawing.
+function measureMax(font: PDFFont, strings: string[], size: number, fallback = 0): number {
+  return strings.reduce((max, s) => Math.max(max, font.widthOfTextAtSize(sanitizePdfText(s), size)), fallback);
 }
 
 function renderUnified(ctx: RenderCtx): RenderResult {
@@ -111,6 +146,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     docKind,
     metaLine,
     locale,
+    paidSum,
   } = ctx;
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
@@ -123,14 +159,9 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     y = PAGE_HEIGHT - MARGIN;
   };
 
+  // --- Header: logo + org identity — layout/placement logic unchanged from
+  // before, so an org's chosen logo placement never shifts underneath it.
   if (logoImg) {
-    // Same sizing rule as generate-report-pdf: capped by width, not a fixed
-    // height, so a wide wordmark logo doesn't stretch into an oversized
-    // banner. 'right' shares the header's vertical band with the name/
-    // address/contact block below (that block is ~40pt tall across its up
-    // to 3 lines, comfortably under the logo's 46pt cap); 'left'/'center'
-    // would otherwise sit directly on top of the name text, so those get
-    // their own row above it instead.
     const maxW = 130;
     const naturalH = (logoImg.height / logoImg.width) * maxW;
     const h = Math.min(46, naturalH);
@@ -158,29 +189,51 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   }
   y -= 16;
   page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-  y -= 28;
+  y -= 30;
 
-  drawText(page, `${docLabel} ${devis.number ?? ''}`, MARGIN, y, fontBold, 16, brand);
-  drawTextRight(page, formatDate(devis.created_at, locale), PAGE_WIDTH - MARGIN, y, font, 10, MUTED);
-  y -= 22;
+  // --- Big document-type label, brand-colored, then a tinted reference box
+  // right below it (replaces the old plain "Devis 2026-018 ... date" line).
+  drawText(page, docLabel.toUpperCase(), MARGIN, y, fontBold, 20, brand);
+  y -= 26;
+
+  const boxRows: string[] = [
+    `${pdfT(locale, 'reference')} : ${devis.number ?? '—'}`,
+    `${pdfT(locale, 'date')} : ${formatDate(devis.created_at, locale)}`,
+  ];
   if (metaLine) {
-    drawTextRight(page, metaLine, PAGE_WIDTH - MARGIN, y, font, 9, MUTED);
-    y -= 14;
+    boxRows.push(metaLine);
+  } else if (docKind === 'devis' && devis.valid_until) {
+    boxRows.push(`${pdfT(locale, 'validity')} : ${formatDate(devis.valid_until, locale)}`);
   }
+  const boxRowH = 15;
+  const boxPadV = 10;
+  const boxPadL = 16;
+  const boxW = Math.min(320, Math.max(220, measureMax(font, boxRows, 10) + boxPadL + 16));
+  const boxH = boxRows.length * boxRowH + boxPadV * 2;
+  const boxTop = y;
+  page.drawRectangle({ x: MARGIN, y: boxTop - boxH, width: boxW, height: boxH, color: softTint(brand, 0.93) });
+  page.drawRectangle({ x: MARGIN, y: boxTop - boxH, width: 3, height: boxH, color: brand });
+  let rowY = boxTop - boxPadV - 9;
+  for (const row of boxRows) {
+    drawText(page, row, MARGIN + boxPadL, rowY, font, 9.5, INK);
+    rowY -= boxRowH;
+  }
+  y = boxTop - boxH - 24;
 
+  // --- Client block ---
   const clientLines = [
     devis.client_name,
     devis.client_address,
     devis.client_email,
     devis.projects?.name ? pdfT(locale, 'project', { name: devis.projects.name }) : null,
   ].filter(Boolean) as string[];
-  drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 10, MUTED);
+  drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 9, MUTED);
   y -= 14;
   for (const line of clientLines) {
     drawText(page, line, MARGIN, y, font, 10.5, INK);
     y -= 14;
   }
-  y -= 16;
+  y -= 14;
 
   if (devis.notes?.trim()) {
     const lines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
@@ -188,63 +241,149 @@ function renderUnified(ctx: RenderCtx): RenderResult {
       drawText(page, line, MARGIN, y, font, 9.5, MUTED);
       y -= 12;
     }
-    y -= 12;
+    y -= 10;
   }
 
-  const colX = { desc: MARGIN, qty: 300, unit: 335, price: 375, total: 463 };
-  const tableRight = PAGE_WIDTH - MARGIN;
-  const colRight = { qty: colX.unit - 10, unit: colX.price - 10, price: colX.total - 10, total: tableRight };
+  // --- Totals math, computed up front (needed both to size the amount
+  // columns below and to draw the totals block later). A deposit already
+  // invoiced against this devis shows up as its own negative facture_items
+  // row (sort_order 9999, see convert_devis_to_facture) — pulled out of the
+  // visible item table and shown as its own "Acompte(s) déjà facturé(s)"
+  // line instead, without changing the underlying subtotal/VAT/total math
+  // at all (it's still included in allSubtotal exactly as before).
+  const isDepositDeduction = (item: any) => Number(item.sort_order) === 9999 && Number(item.unit_price) < 0;
+  const visibleItems = items.filter((item) => !isDepositDeduction(item));
+  const depositItems = items.filter(isDepositDeduction);
 
+  const allSubtotal = items.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+  const visibleSubtotal = visibleItems.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+  const depositTotal = depositItems.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+  const vat = allSubtotal * (Number(devis.vat_rate) / 100);
+  const total = swissRound(allSubtotal + vat);
+  const hasPaidSum = typeof paidSum === 'number' && paidSum > 0;
+  const netToPay = hasPaidSum ? swissRound(Math.max(0, total - (paidSum as number))) : null;
+
+  // --- Line-items table — amount column widths are measured against the
+  // actual strings this document will print, not a fixed guess, so large
+  // totals (CHF 1'000'000+) get the room they need instead of overlapping.
+  const amountSamples = [
+    ...visibleItems.map((item) => chf(Number(item.quantity) * Number(item.unit_price))),
+    ...visibleItems.map((item) => chf(Number(item.unit_price))),
+    chf(visibleSubtotal),
+    chf(vat),
+    chf(total),
+  ];
+  const qtyStrings = visibleItems.map((item) => String(item.quantity));
+  const unitStrings = visibleItems.map((item) => item.unit ?? pdfT(locale, 'unitFallback'));
+
+  const tableRight = PAGE_WIDTH - MARGIN;
+  const gutter = 12;
+  const totalW = Math.max(60, measureMax(fontBold, amountSamples, 10));
+  const priceW = Math.max(55, measureMax(font, amountSamples, 10));
+  const unitW = Math.max(26, measureMax(font, unitStrings, 10));
+  const qtyW = Math.max(22, measureMax(font, qtyStrings, 10));
+
+  const colRight = {
+    qty: tableRight - priceW - gutter - totalW - gutter - unitW - gutter,
+    unit: tableRight - priceW - gutter - totalW - gutter,
+    price: tableRight - totalW - gutter,
+    total: tableRight,
+  };
+  const colX = {
+    desc: MARGIN,
+    qty: colRight.qty - qtyW,
+  };
+  const descWidth = colX.qty - gutter - MARGIN;
+
+  const headerH = 22;
   const drawTableHeader = () => {
-    drawText(page, pdfT(locale, 'description'), colX.desc, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, pdfT(locale, 'quantity'), colRight.qty, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, pdfT(locale, 'unit'), colRight.unit, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, pdfT(locale, 'price'), colRight.price, y, fontBold, 9.5, MUTED);
-    drawTextRight(page, pdfT(locale, 'total'), colRight.total, y, fontBold, 9.5, MUTED);
-    y -= 8;
-    page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
-    y -= 16;
+    const top = y;
+    page.drawRectangle({ x: MARGIN, y: top - headerH, width: tableRight - MARGIN, height: headerH, color: brand });
+    const headTextColor = pickReadableTextColor(brand);
+    const midY = top - headerH + 7;
+    drawText(page, pdfT(locale, 'description'), colX.desc + 8, midY, fontBold, 9, headTextColor);
+    drawTextRight(page, pdfT(locale, 'quantity'), colRight.qty, midY, fontBold, 9, headTextColor);
+    drawTextRight(page, pdfT(locale, 'unit'), colRight.unit, midY, fontBold, 9, headTextColor);
+    drawTextRight(page, pdfT(locale, 'price'), colRight.price, midY, fontBold, 9, headTextColor);
+    drawTextRight(page, pdfT(locale, 'total'), colRight.total - 8, midY, fontBold, 9, headTextColor);
+    y = top - headerH - 4;
   };
 
   drawTableHeader();
 
-  let subtotal = 0;
-  for (const item of items) {
+  visibleItems.forEach((item, idx) => {
     const lineTotal = Number(item.quantity) * Number(item.unit_price);
-    subtotal += lineTotal;
-
-    const descLines = wrapText(item.description, font, 10, colX.qty - colX.desc - 10);
-    if (y - descLines.length * 13 < MARGIN + 120) {
+    const descLines = wrapText(item.description, font, 10, descWidth - 8);
+    const rowH = Math.max(24, descLines.length * 13 + 12);
+    if (y - rowH < MARGIN + 130) {
       newPage();
       drawTableHeader();
     }
     const rowTop = y;
-    for (const line of descLines) {
-      drawText(page, line, colX.desc, y, font, 10, INK);
-      y -= 13;
+    if (idx % 2 === 1) {
+      page.drawRectangle({ x: MARGIN, y: rowTop - rowH, width: tableRight - MARGIN, height: rowH, color: softTint(brand, 0.96) });
     }
-    drawTextRight(page, String(item.quantity), colRight.qty, rowTop, font, 10, INK);
-    drawTextRight(page, item.unit ?? pdfT(locale, 'unitFallback'), colRight.unit, rowTop, font, 10, INK);
-    drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop, font, 10, INK);
-    drawTextRight(page, chf(lineTotal), colRight.total, rowTop, font, 10, INK);
-    y -= 6;
+    let lineY = rowTop - 15;
+    for (const line of descLines) {
+      drawText(page, line, colX.desc + 8, lineY, font, 10, INK);
+      lineY -= 13;
+    }
+    drawTextRight(page, String(item.quantity), colRight.qty, rowTop - 15, font, 10, INK);
+    drawTextRight(page, item.unit ?? pdfT(locale, 'unitFallback'), colRight.unit, rowTop - 15, font, 10, INK);
+    drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop - 15, font, 10, INK);
+    drawTextRight(page, chf(lineTotal), colRight.total - 8, rowTop - 15, fontBold, 10, INK);
+    page.drawLine({ start: { x: MARGIN, y: rowTop - rowH }, end: { x: tableRight, y: rowTop - rowH }, thickness: 0.5, color: LINE });
+    y = rowTop - rowH;
+  });
+
+  y -= 22;
+  if (y < MARGIN + 150) newPage();
+
+  // --- Totals block: plain rows for the running math, a boxed brand-tinted
+  // highlight for TOTAL TTC and — only when this facture has recorded
+  // payments — a second one for NET À PAYER.
+  const totalsLabelSamples = [
+    pdfT(locale, 'subtotal'),
+    pdfT(locale, 'vat', { rate: devis.vat_rate }),
+    pdfT(locale, 'totalIncl'),
+    pdfT(locale, 'depositsDeducted'),
+    pdfT(locale, 'alreadyPaid'),
+    pdfT(locale, 'netToPay'),
+  ];
+  const totalsValueSamples = [chf(visibleSubtotal), chf(vat), chf(total)];
+  if (depositTotal) totalsValueSamples.push(chf(depositTotal));
+  if (hasPaidSum) totalsValueSamples.push(chf(-(paidSum as number)));
+  if (netToPay != null) totalsValueSamples.push(chf(netToPay));
+  const totalsLabelW = measureMax(font, totalsLabelSamples, 10.5);
+  const totalsValueW = measureMax(fontBold, totalsValueSamples, 12, 60);
+  const totalsBoxW = Math.max(220, totalsLabelW + totalsValueW + 30);
+  const totalsRight = PAGE_WIDTH - MARGIN;
+  const totalsLeft = totalsRight - totalsBoxW;
+
+  const plainRow = (label: string, value: string) => {
+    drawText(page, label, totalsLeft, y, font, 10.5, INK);
+    drawTextRight(page, value, totalsRight, y, font, 10.5, INK);
+    y -= 16;
+  };
+  const boxedRow = (label: string, value: string) => {
+    const h = 26;
+    const fill = softTint(brand, 0.9);
+    page.drawRectangle({ x: totalsLeft, y: y - h + 6, width: totalsBoxW, height: h, color: fill, borderColor: brand, borderWidth: 1 });
+    const textColor = pickReadableTextColor(fill);
+    drawText(page, label, totalsLeft + 10, y - h + 16, fontBold, 11, textColor);
+    drawTextRight(page, value, totalsRight - 10, y - h + 16, fontBold, 12, textColor);
+    y -= h + 10;
+  };
+
+  plainRow(pdfT(locale, 'subtotal'), chf(visibleSubtotal));
+  if (depositTotal) plainRow(pdfT(locale, 'depositsDeducted'), chf(depositTotal));
+  plainRow(pdfT(locale, 'vat', { rate: devis.vat_rate }), chf(vat));
+  boxedRow(pdfT(locale, 'totalIncl'), chf(total));
+  if (netToPay != null) {
+    plainRow(pdfT(locale, 'alreadyPaid'), chf(-(paidSum as number)));
+    boxedRow(pdfT(locale, 'netToPay'), chf(netToPay));
   }
-
-  y -= 6;
-  page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRight, y }, thickness: 1, color: LINE });
-  y -= 20;
-
-  if (y < MARGIN + 100) newPage();
-
-  const vat = subtotal * (Number(devis.vat_rate) / 100);
-  const total = swissRound(subtotal + vat);
-
-  drawTotalsLine(page, font, y, pdfT(locale, 'subtotal'), chf(subtotal));
-  y -= 15;
-  drawTotalsLine(page, font, y, pdfT(locale, 'vat', { rate: devis.vat_rate }), chf(vat));
-  y -= 15;
-  drawTotalsLine(page, fontBold, y, pdfT(locale, 'totalIncl'), chf(total), 12);
-  y -= 30;
+  y -= 8;
 
   y = drawTerms(page, font, org, y, docKind, locale, docKind === 'devis' ? devis.valid_until : null);
 
@@ -253,9 +392,9 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     const creatorW = signatureImg ? (signatureImg.width / signatureImg.height) * h : 150;
     const clientW = clientSignatureImg ? (clientSignatureImg.width / clientSignatureImg.height) * h : 150;
     const gap = 30;
-    const totalW = creatorW + gap + clientW;
+    const totalW2 = creatorW + gap + clientW;
     if (y < MARGIN + 100) newPage();
-    const startX = PAGE_WIDTH - MARGIN - totalW;
+    const startX = PAGE_WIDTH - MARGIN - totalW2;
 
     drawText(page, signatureLabel, startX, y, font, 9, MUTED);
     if (signatureImg) {
@@ -294,12 +433,6 @@ export const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => RenderResult> = {
   minimal: renderUnified,
   structure: renderUnified,
 };
-
-function drawTotalsLine(page: PDFPage, font: PDFFont, y: number, label: string, value: string, size = 10.5) {
-  const x = 500 - 130;
-  drawText(page, label, x, y, font, size, INK);
-  drawTextRight(page, value, PAGE_WIDTH - MARGIN, y, font, size, INK);
-}
 
 // For a devis: the original "valable X jours" quote-validity notice
 // (byte-identical to the pre-facture behavior). For a facture: a payment
