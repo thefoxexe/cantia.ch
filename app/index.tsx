@@ -12,6 +12,7 @@ import { SwissCross } from '../components/SwissCross';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
 import { VoiceDemo } from '../components/landing/VoiceDemo';
+import { DocumentBrandingMockup } from '../components/landing/DocumentBrandingMockup';
 import { Disclosure } from '../components/landing/Disclosure';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale } from '../lib/translations';
@@ -405,6 +406,28 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
+        <ScrollReveal style={[styles.wrap, styles.section, styles.docShowcase, isTablet && styles.docShowcaseCompact]}>
+          <View style={[styles.docShowcaseCopy, !isTablet && { flex: 1 }]}>
+            <Text style={styles.eyebrow}>{t.docCustomization.eyebrow}</Text>
+            <Text style={styles.h2}>{t.docCustomization.title}</Text>
+            <Text style={styles.bodyText}>{t.docCustomization.text}</Text>
+            <View style={styles.docShowcasePoints}>
+              {t.docCustomization.points.map((p) => (
+                <View key={p.title} style={styles.docShowcasePoint}>
+                  <Text style={styles.docShowcasePointTitle}>{p.title}</Text>
+                  <Text style={styles.bodyText}>{p.text}</Text>
+                </View>
+              ))}
+            </View>
+            <Link href={solutionHref('facturation') as any}>
+              <Text style={styles.textLink}>{t.docCustomization.link} →</Text>
+            </Link>
+          </View>
+          <View style={[styles.docShowcaseVisual, !isTablet && { flex: 1 }]}>
+            <DocumentBrandingMockup />
+          </View>
+        </ScrollReveal>
+
         <View ref={pricingRef}>
           <ScrollReveal>
             <PricingSection />
@@ -592,6 +615,14 @@ const styles = StyleSheet.create({
   automationTag: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1.2, color: colors.primary },
   commandTitle: { fontFamily: landingFonts.body, fontSize: 26, fontWeight: '600', letterSpacing: -0.8, lineHeight: 33, color: colors.text, marginVertical: spacing.sm },
   commandDemo: { backgroundColor: colors.text, borderRadius: radius.lg, padding: spacing.xl },
+
+  docShowcase: { flexDirection: 'row', gap: spacing.xxl, alignItems: 'flex-start' },
+  docShowcaseCompact: { flexDirection: 'column' },
+  docShowcaseCopy: { gap: spacing.sm },
+  docShowcasePoints: { gap: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs },
+  docShowcasePoint: { gap: 2 },
+  docShowcasePointTitle: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.text },
+  docShowcaseVisual: { alignItems: 'center' },
 
   terrainOuter: { backgroundColor: colors.primarySoft, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, paddingVertical: spacing.xxxl, marginTop: spacing.xxxl * 1.3 },
   devicePoints: { flexDirection: 'row', gap: spacing.lg, marginVertical: spacing.lg, maxWidth: 640 },

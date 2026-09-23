@@ -151,6 +151,13 @@ interface Dict {
     link: string;
   };
   bexio: { eyebrow: string; title: string; text: string; link: string };
+  docCustomization: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    points: { title: string; text: string }[];
+    link: string;
+  };
   faq: { eyebrow: string; title: string; link: string; items: { q: string; a: string }[] };
   closing: { eyebrow: string; titlePrefix: string; titleEm: string; text: string; cta: string; contact: string };
   pricing: {
@@ -492,6 +499,17 @@ const fr: Dict = {
     title: 'Vous utilisez Bexio ?\nGardez le lien.',
     text: 'Vous utilisez déjà Bexio ? Connectez vos données clients, factures et paiements pour découvrir Cantia dans la continuité de votre organisation. Sans Bexio, vous pouvez utiliser Cantia de façon autonome.',
     link: 'Voir l’intégration',
+  },
+  docCustomization: {
+    eyebrow: 'Vos documents, à votre image',
+    title: 'Vos devis et factures.\nAux couleurs de votre entreprise.',
+    text: 'Chaque devis et chaque facture généré par Cantia reprend la couleur et le logo de votre entreprise — et chaque facture inclut le bulletin de versement QR suisse, prêt à être scanné.',
+    points: [
+      { title: 'Couleur de marque', text: 'Choisissez votre couleur dans Compte > Apparence : elle habille automatiquement l’en-tête, le tableau et les totaux.' },
+      { title: 'Votre logo', text: 'Ajoutez votre logo et choisissez sa position — à gauche, au centre ou à droite de l’en-tête.' },
+      { title: 'QR-facture suisse', text: 'Chaque facture inclut le bulletin de versement QR, directement sur le document, prêt à être scanné.' },
+    ],
+    link: 'Découvrir la facturation',
   },
   faq: {
     eyebrow: 'Avant de vous lancer',
@@ -853,6 +871,17 @@ const de: Dict = {
     text: 'Sie nutzen bereits Bexio? Verbinden Sie Ihre Kunden-, Rechnungs- und Zahlungsdaten, um Cantia im Einklang mit Ihrer Organisation zu entdecken. Ohne Bexio können Sie Cantia eigenständig nutzen.',
     link: 'Die Integration ansehen',
   },
+  docCustomization: {
+    eyebrow: 'Ihre Dokumente, in Ihrem Look',
+    title: 'Ihre Angebote und Rechnungen.\nIn den Farben Ihres Unternehmens.',
+    text: 'Jedes von Cantia erstellte Angebot und jede Rechnung übernimmt die Farbe und das Logo Ihres Unternehmens — und jede Rechnung enthält den Schweizer QR-Einzahlungsschein, bereit zum Scannen.',
+    points: [
+      { title: 'Markenfarbe', text: 'Wählen Sie Ihre Farbe unter Konto > Erscheinungsbild: Sie färbt automatisch Kopfzeile, Tabelle und Summen ein.' },
+      { title: 'Ihr Logo', text: 'Fügen Sie Ihr Logo hinzu und wählen Sie seine Position — links, mittig oder rechts in der Kopfzeile.' },
+      { title: 'Schweizer QR-Rechnung', text: 'Jede Rechnung enthält den QR-Einzahlungsschein direkt auf dem Dokument, bereit zum Scannen.' },
+    ],
+    link: 'Die Rechnungsstellung entdecken',
+  },
   faq: {
     eyebrow: 'Bevor Sie starten',
     title: 'Ihre Fragen.\nUnsere Antworten.',
@@ -1212,6 +1241,17 @@ const it: Dict = {
     title: 'Usa Bexio?\nMantenga il collegamento.',
     text: 'Usa già Bexio? Colleghi i suoi dati di clienti, fatture e pagamenti per scoprire Cantia in continuità con la sua organizzazione. Senza Bexio, può usare Cantia in modo autonomo.',
     link: 'Veda l’integrazione',
+  },
+  docCustomization: {
+    eyebrow: 'I suoi documenti, a sua immagine',
+    title: 'I suoi preventivi e fatture.\nNei colori della sua impresa.',
+    text: 'Ogni preventivo e ogni fattura generati da Cantia riprendono il colore e il logo della sua impresa — e ogni fattura include la polizza di versamento QR svizzera, pronta per la scansione.',
+    points: [
+      { title: 'Colore del marchio', text: 'Scelga il suo colore in Account > Aspetto: colora automaticamente intestazione, tabella e totali.' },
+      { title: 'Il suo logo', text: 'Aggiunga il suo logo e scelga la sua posizione — a sinistra, al centro o a destra dell’intestazione.' },
+      { title: 'Fattura QR svizzera', text: 'Ogni fattura include la polizza di versamento QR direttamente sul documento, pronta per essere scansionata.' },
+    ],
+    link: 'Scopra la fatturazione',
   },
   faq: {
     eyebrow: 'Prima di iniziare',
