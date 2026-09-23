@@ -295,9 +295,34 @@ export default function EquipeScreen() {
         <Container>
           <PageHeader title={t('equipe.title')} backTo="/(app)/compte" />
 
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>
+                {members.length}
+                {maxMembers != null ? <Text style={styles.statValueMuted}> / {maxMembers}</Text> : null}
+              </Text>
+              <Text style={styles.statLabel}>{t('equipe.statsMembers')}</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{roles.length}</Text>
+              <Text style={styles.statLabel}>{t('equipe.statsRoles')}</Text>
+            </View>
+            {isAdmin ? (
+              <View style={styles.statCard}>
+                <Text style={[styles.statValue, invites.length > 0 && styles.statValueAccent]}>{invites.length}</Text>
+                <Text style={styles.statLabel}>{t('equipe.statsPendingInvites')}</Text>
+              </View>
+            ) : null}
+          </View>
+
           {isAdmin && joinRequests.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t('equipe.joinRequestsTitle')}</Text>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <Feather name="user-check" size={15} color={colors.primary} />
+                </View>
+                <Text style={styles.sectionTitle}>{t('equipe.joinRequestsTitle')}</Text>
+              </View>
               {requestError ? <Text style={styles.error}>{requestError}</Text> : null}
               {joinRequests.map((r) => (
                 <Card key={r.id} style={styles.requestCard}>
@@ -330,6 +355,15 @@ export default function EquipeScreen() {
 
           {isAdmin ? (
             <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <Feather name="user-plus" size={15} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sectionTitle}>{t('equipe.inviteSectionTitle')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('equipe.inviteSectionHint')}</Text>
+                </View>
+              </View>
               <Button
                 title={t('equipe.inviteMember')}
                 icon="user-plus"
@@ -402,9 +436,14 @@ export default function EquipeScreen() {
 
           {isAdmin ? (
             <View style={styles.section}>
-              <View style={styles.rolesHeaderRow}>
-                <Text style={styles.sectionTitle}>{t('equipe.rolesTitle')}</Text>
-                <Text style={styles.rolesHint}>{t('equipe.rolesHint')}</Text>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <Feather name="shield" size={15} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sectionTitle}>{t('equipe.rolesTitle')}</Text>
+                  <Text style={styles.sectionSubtitle}>{t('equipe.rolesHint')}</Text>
+                </View>
               </View>
               <View style={styles.roleChipRow}>
                 {roles.map((r) => (
@@ -450,6 +489,12 @@ export default function EquipeScreen() {
           ) : null}
 
           <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionIcon}>
+                <Feather name="users" size={15} color={colors.primary} />
+              </View>
+              <Text style={styles.sectionTitle}>{t('equipe.membersTitle', { count: members.length })}</Text>
+            </View>
             {members.map((m) => {
               const pill = pillFor(m);
               const assignable = isAdmin && m.role === 'member';
@@ -590,15 +635,70 @@ export default function EquipeScreen() {
 }
 
 const styles = StyleSheet.create({
+  statsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: fontSize.xl,
+    fontWeight: '800',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  statValueMuted: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  statValueAccent: {
+    color: colors.accent,
+  },
+  statLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginTop: 2,
+  },
   section: {
     marginBottom: spacing.xl,
     gap: spacing.sm,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  sectionIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  sectionSubtitle: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+    lineHeight: 16,
   },
   sectionTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.xs,
   },
   requestCard: {
     flexDirection: 'row',
@@ -681,9 +781,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.primary,
-  },
-  rolesHeaderRow: {
-    gap: 2,
   },
   rolesHint: {
     fontSize: fontSize.xs,

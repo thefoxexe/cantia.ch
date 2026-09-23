@@ -3,10 +3,11 @@ import type { ReportStructuredContent } from '../types';
 
 export async function polishReportNotes(
   reportId: string,
+  extraInstructions?: string,
 ): Promise<{ title: string | null; notes: string | null; structured: ReportStructuredContent | null; error: string | null }> {
   const { data, error } = await invokeFunction<{ title: string | null; notes: string; structured: ReportStructuredContent }>(
     'polish-report-notes',
-    { report_id: reportId },
+    { report_id: reportId, extra_instructions: extraInstructions?.trim() || undefined },
   );
   return { title: data?.title ?? null, notes: data?.notes ?? null, structured: data?.structured ?? null, error };
 }

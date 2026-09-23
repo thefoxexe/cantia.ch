@@ -37,6 +37,7 @@ import {
   type QueuedPhoto,
 } from '../lib/offline/photoQueue';
 import { Button, EmptyState, Field } from './ui';
+import { DateField } from './DateField';
 import { formatDate, getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import type { FeedEntry } from '../lib/types';
@@ -108,8 +109,19 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showTitleField, setShowTitleField] = useState(false);
   const [reportTitle, setReportTitle] = useState('');
+  const [extraInstructions, setExtraInstructions] = useState('');
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Report generation entry point: a time-range picker replaces having to
+  // tap every single message one by one — "Sélection manuelle" below still
+  // falls back to the old per-bubble picker for the rare case someone wants
+  // fine control, but it's no longer the default path.
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [customFrom, setCustomFrom] = useState<string | null>(null);
+  const [customTo, setCustomTo] = useState<string | null>(null);
+  const [showCustomRange, setShowCustomRange] = useState(false);
+  const [rangeEmptyWarning, setRangeEmptyWarning] = useState(false);
 
   // Photos captured with no/flaky signal — queued locally (durably, so they
   // survive an app restart) and shown right in the feed with a "en attente"
@@ -329,6 +341,27 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
     }
     textDictationBaseRef.current = text;
     const started = await textDictation.start('fr-FR');
+    if (!started) {
+      Alert.alert(t('projectFeed.micPermissionTitle'), t('projectFeed.micPermissionDictation'));
+    }
+  }
+
+  // Separate dictation instance for the "extra instructions" field in the
+  // report-generation panel — talking through what to emphasize is faster
+  // than typing it, same pattern as the composer's own dictation above.
+  const instructionsBaseRef = useRef('');
+  const instructionsDictation = useDictation((sessionTranscript) => {
+    const base = instructionsBaseRef.current;
+    setExtraInstructions(base + (base && sessionTranscript ? ' ' : '') + sessionTranscript);
+  });
+
+  async function toggleInstructionsDictation() {
+    if (instructionsDictation.listening) {
+      await instructionsDictation.stop();
+      return;
+    }
+    instructionsBaseRef.current = extraInstructions;
+    const started = await instructionsDictation.start('fr-FR');
     if (!started) {
       Alert.alert(t('projectFeed.micPermissionTitle'), t('projectFeed.micPermissionDictation'));
     }
@@ -577,9 +610,69 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   }
 
   function toggleSelecting() {
-    setSelecting((s) => !s);
+    if (selecting) {
+      setSelecting(false);
+      setSelected(new Set());
+      setShowTitleField(false);
+      setExtraInstructions('');
+      return;
+    }
+    setRangeEmptyWarning(false);
+    setShowCustomRange(false);
+    setCustomFrom(null);
+    setCustomTo(null);
+    setReportModalVisible(true);
+  }
+
+  // Applies a computed [from, to] window as the report's content — pre-
+  // selects every entry in range (so it reuses the exact same generation
+  // path as manual selection below) and drops straight to the title step,
+  // since picking a range in the modal already was the "let's do this"
+  // decision.
+  function applyRange(from: Date, to: Date) {
+    const ids = entries
+      .filter((e) => {
+        const ts = new Date(e.created_at).getTime();
+        return ts >= from.getTime() && ts <= to.getTime();
+      })
+      .map((e) => e.id);
+    if (ids.length === 0) {
+      setRangeEmptyWarning(true);
+      return;
+    }
+    setRangeEmptyWarning(false);
+    setSelected(new Set(ids));
+    setSelecting(true);
+    setShowTitleField(true);
+    setReportModalVisible(false);
+  }
+
+  function pickToday() {
+    const now = new Date();
+    const start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    applyRange(start, now);
+  }
+
+  function pickWeek() {
+    const now = new Date();
+    const start = new Date(now);
+    start.setDate(start.getDate() - 7);
+    applyRange(start, now);
+  }
+
+  function pickCustomRange() {
+    if (!customFrom) return;
+    const from = new Date(`${customFrom}T00:00:00`);
+    const to = customTo ? new Date(`${customTo}T23:59:59`) : new Date();
+    applyRange(from, to);
+  }
+
+  function pickManualSelection() {
     setSelected(new Set());
+    setSelecting(true);
     setShowTitleField(false);
+    setReportModalVisible(false);
   }
 
   function toggleSelect(id: string) {
@@ -616,6 +709,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       title: reportTitle.trim() || t('projectFeed.reportDefaultTitle', { date: formatDate(new Date()) }),
       entries: selectedEntries,
       authorNames,
+      extraInstructions: extraInstructions.trim() || undefined,
     });
     setGenerating(false);
     if (err) setError(err);
@@ -623,6 +717,7 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       setSelecting(false);
       setSelected(new Set());
       setShowTitleField(false);
+      setExtraInstructions('');
       load();
       router.push(`/(app)/chantiers/${projectId}/rapports/${reportId}`);
     }
@@ -841,6 +936,37 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
                 onChangeText={setReportTitle}
                 placeholder={t('projectFeed.reportDefaultTitle', { date: formatDate(new Date()) })}
               />
+              <View style={styles.instructionsLabelRow}>
+                <Text style={styles.instructionsLabel}>{t('projectFeed.extraInstructionsLabel')}</Text>
+                {instructionsDictation.supported ? (
+                  <Pressable
+                    onPress={toggleInstructionsDictation}
+                    disabled={instructionsDictation.transcribing}
+                    style={[styles.dictateChip, (instructionsDictation.listening || instructionsDictation.transcribing) && styles.dictateChipActive]}
+                  >
+                    {instructionsDictation.transcribing ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Feather name="mic" size={12} color={instructionsDictation.listening ? '#fff' : colors.primary} />
+                    )}
+                    <Text style={[styles.dictateChipText, (instructionsDictation.listening || instructionsDictation.transcribing) && styles.dictateChipTextActive]}>
+                      {instructionsDictation.transcribing
+                        ? t('projectFeed.transcribing')
+                        : instructionsDictation.listening
+                          ? t('projectFeed.listening')
+                          : t('projectFeed.dictate')}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              <TextInput
+                style={styles.instructionsInput}
+                value={extraInstructions}
+                onChangeText={setExtraInstructions}
+                placeholder={t('projectFeed.extraInstructionsPlaceholder')}
+                placeholderTextColor={colors.textMuted}
+                multiline
+              />
               <Button title={t('projectFeed.createReportPdf')} icon="check" onPress={confirmGenerate} loading={generating} />
             </>
           ) : (
@@ -854,6 +980,75 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
       ) : null}
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      {/* Report generation entry point — pick a time window (the AI pulls
+          everything posted in it automatically) instead of having to tap
+          every message one by one. "Sélection manuelle" still falls back
+          to that old per-bubble flow for fine control. */}
+      <Modal visible={reportModalVisible} animationType="slide" transparent onRequestClose={() => setReportModalVisible(false)}>
+        <View style={styles.sheetOverlay}>
+          <View style={styles.sheet}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>{t('projectFeed.rangeModalTitle')}</Text>
+              <Pressable onPress={() => setReportModalVisible(false)} hitSlop={10}>
+                <Feather name="x" size={22} color={colors.text} />
+              </Pressable>
+            </View>
+            <Text style={styles.sheetSubtitle}>{t('projectFeed.rangeModalHint')}</Text>
+
+            <Pressable style={styles.rangeOption} onPress={pickToday}>
+              <View style={styles.rangeOptionIcon}>
+                <Feather name="sun" size={16} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rangeOptionTitle}>{t('projectFeed.rangeToday')}</Text>
+                <Text style={styles.rangeOptionSubtitle}>{t('projectFeed.rangeTodayHint')}</Text>
+              </View>
+              <Feather name="chevron-right" size={16} color={colors.textMuted} />
+            </Pressable>
+
+            <Pressable style={styles.rangeOption} onPress={pickWeek}>
+              <View style={styles.rangeOptionIcon}>
+                <Feather name="calendar" size={16} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rangeOptionTitle}>{t('projectFeed.rangeWeek')}</Text>
+                <Text style={styles.rangeOptionSubtitle}>{t('projectFeed.rangeWeekHint')}</Text>
+              </View>
+              <Feather name="chevron-right" size={16} color={colors.textMuted} />
+            </Pressable>
+
+            <Pressable style={styles.rangeOption} onPress={() => setShowCustomRange((v) => !v)}>
+              <View style={styles.rangeOptionIcon}>
+                <Feather name="sliders" size={16} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rangeOptionTitle}>{t('projectFeed.rangeCustom')}</Text>
+                <Text style={styles.rangeOptionSubtitle}>{t('projectFeed.rangeCustomHint')}</Text>
+              </View>
+              <Feather name={showCustomRange ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+            </Pressable>
+
+            {showCustomRange ? (
+              <View style={styles.customRangeBlock}>
+                <View style={{ flex: 1 }}>
+                  <DateField label={t('projectFeed.rangeFromLabel')} value={customFrom} onChange={setCustomFrom} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <DateField label={t('projectFeed.rangeToLabel')} value={customTo} onChange={setCustomTo} />
+                </View>
+                <Button title={t('projectFeed.rangeApply')} onPress={pickCustomRange} disabled={!customFrom} style={{ marginTop: -spacing.sm }} />
+              </View>
+            ) : null}
+
+            {rangeEmptyWarning ? <Text style={styles.error}>{t('projectFeed.rangeEmpty')}</Text> : null}
+
+            <Pressable style={styles.manualSelectionLink} onPress={pickManualSelection}>
+              <Text style={styles.manualSelectionLinkText}>{t('projectFeed.rangeManual')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       {!selecting && stagedPhotos.length > 0 ? (
         <Pressable
@@ -1294,6 +1489,125 @@ const styles = StyleSheet.create({
   generatePanel: {
     gap: spacing.sm,
     paddingTop: spacing.sm,
+  },
+  instructionsLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: -spacing.xs,
+  },
+  instructionsLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: '500',
+  },
+  dictateChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  dictateChipActive: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
+  },
+  dictateChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  dictateChipTextActive: {
+    color: '#fff',
+  },
+  instructionsInput: {
+    minHeight: 60,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    fontSize: fontSize.sm,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    textAlignVertical: 'top',
+  },
+  sheetOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  sheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    gap: spacing.sm,
+    maxWidth: 560,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sheetTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  sheetSubtitle: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    lineHeight: 17,
+    marginBottom: spacing.xs,
+  },
+  rangeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+  },
+  rangeOptionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rangeOptionTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  rangeOptionSubtitle: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  customRangeBlock: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  manualSelectionLink: {
+    alignItems: 'center',
+    paddingTop: spacing.sm,
+  },
+  manualSelectionLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.textMuted,
+    textDecorationLine: 'underline',
   },
   offlineBanner: {
     flexDirection: 'row',

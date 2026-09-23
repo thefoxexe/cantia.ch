@@ -36,7 +36,9 @@ Règles strictes :
 - "photo_indexes" : uniquement des index de la liste "Photos jointes" fournie, seulement quand une photo illustre clairement cette section/ce point précis d'après sa légende ou son contexte — sinon un tableau vide. Une même photo peut être référencée par au plus une section ou un point d'attention (jamais les deux, jamais deux fois).
 - "next_steps" : une phrase courte sur la suite prévue si les notes la mentionnent, sinon null.
 - Corrige l'orthographe et la grammaire partout, reformule en phrases complètes et professionnelles.
-- Reste concis : privilégie la clarté à la longueur.`;
+- Reste concis : privilégie la clarté à la longueur.
+- Adapte la longueur et le nombre de sections à la quantité réelle d'informations disponibles dans les notes : des notes courtes donnent un rapport court (2 sections suffisent, voire une seule), des notes riches et détaillées donnent un rapport plus complet (jusqu'à 5 sections). Ne rallonge JAMAIS artificiellement une section avec des généralités ou des tournures vagues juste pour qu'elle paraisse plus étoffée — si les notes ne donnent rien de concret sur un point, n'en fais pas une section à part, fusionne-le ailleurs ou omets-le.
+- Si des "Consignes supplémentaires" sont fournies plus bas, applique-les (ton, longueur, points à mettre en avant, etc.) tout en respectant strictement toutes les règles ci-dessus — en particulier ne jamais inventer un fait qu'elles ne fournissent pas elles-mêmes.`;
 
 interface StructuredReport {
   title: string | null;
@@ -110,7 +112,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { report_id } = await req.json();
+    const { report_id, extra_instructions } = await req.json();
     if (!report_id) return json({ error: 'report_id requis' }, 400);
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
@@ -169,6 +171,9 @@ Deno.serve(async (req: Request) => {
       'Notes brutes prises sur le terrain :',
       report.notes,
       photoLines.length ? `\nPhotos jointes (index. légende) :\n${photoLines.join('\n')}` : '\nAucune photo jointe.',
+      typeof extra_instructions === 'string' && extra_instructions.trim()
+        ? `\nConsignes supplémentaires demandées par l'auteur du rapport (à respecter, sans jamais t'en servir pour inventer un fait qui n'est pas dans les notes ci-dessus) :\n${extra_instructions.trim()}`
+        : '',
     ]
       .filter(Boolean)
       .join('\n');

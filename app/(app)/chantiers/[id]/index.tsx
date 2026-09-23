@@ -1,12 +1,13 @@
-import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
+import { getSignedUrl } from '../../../../lib/api/storage';
 import { isModuleEnabled } from '../../../../lib/modules';
-import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
+import { LoadingScreen, StatusBadge, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -42,6 +43,7 @@ export default function ChantierDetailScreen() {
   const { canViewFinances, canManageDevis, permissions } = useAuth();
   const { project } = useProject(id);
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
   const loadCounts = useCallback(async () => {
     const entries = Object.entries(COUNTABLE);
@@ -62,6 +64,20 @@ export default function ChantierDetailScreen() {
       loadCounts();
     }, [loadCounts]),
   );
+
+  useEffect(() => {
+    if (!project?.cover_photo_url) {
+      setCoverUrl(null);
+      return;
+    }
+    let cancelled = false;
+    getSignedUrl(project.cover_photo_url).then((url) => {
+      if (!cancelled) setCoverUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [project?.cover_photo_url]);
 
   if (!project) {
     return (
@@ -127,7 +143,7 @@ export default function ChantierDetailScreen() {
     {
       key: 'situations',
       label: t('chantierHub.situations'),
-      icon: 'trending-up',
+      icon: 'bar-chart-2',
       route: `/(app)/chantiers/${id}/situations`,
       visible: canManageDevis,
     },
@@ -141,39 +157,80 @@ export default function ChantierDetailScreen() {
     return t(`chantierHub.${def.countKey}` as any, { count: n });
   }
 
+  const visibleItems = items.filter((it) => it.visible);
+
   return (
     <AppScreen>
-      <PageHeader
-        title={project.name}
-        backTo="/(app)/chantiers"
-        style={styles.topBar}
-        right={
-          <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/settings`)} hitSlop={8} style={styles.iconButton}>
-            <Feather name="settings" size={20} color={colors.text} />
-          </Pressable>
-        }
-      />
-
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.list}>
-          {items
-            .filter((it) => it.visible)
-            .map((it) => (
-              <Pressable
-                key={it.key}
-                onPress={() => router.push(it.route as any)}
-                style={({ hovered }: any) => [styles.row, hovered && styles.rowHovered]}
-              >
-                <View style={styles.rowIcon}>
-                  <Feather name={it.icon} size={18} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowLabel}>{it.label}</Text>
-                  {subtitleFor(it.key) ? <Text style={styles.rowSubtitle}>{subtitleFor(it.key)}</Text> : null}
-                </View>
-                <Feather name="chevron-right" size={18} color={colors.textMuted} />
-              </Pressable>
-            ))}
+        <View style={styles.hero}>
+          {coverUrl ? (
+            <Image source={{ uri: coverUrl }} style={styles.heroImage} />
+          ) : (
+            <View style={[styles.heroImage, styles.heroPlaceholder]}>
+              <Feather name="image" size={30} color={colors.primary} style={{ opacity: 0.35 }} />
+            </View>
+          )}
+          <View style={styles.heroScrim} pointerEvents="none" />
+
+          <View style={styles.heroTopBar}>
+            <Pressable onPress={() => router.replace('/(app)/chantiers')} hitSlop={8} style={styles.heroIconButton}>
+              <Feather name="arrow-left" size={20} color="#fff" />
+            </Pressable>
+            <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/settings`)} hitSlop={8} style={styles.heroIconButton}>
+              <Feather name="settings" size={19} color="#fff" />
+            </Pressable>
+          </View>
+
+          <View style={styles.heroBottom}>
+            <View style={styles.heroBadgeRow}>
+              <StatusBadge status={project.status} />
+            </View>
+            <Text style={styles.heroTitle} numberOfLines={2}>
+              {project.name}
+            </Text>
+            {project.client_name || project.address ? (
+              <View style={{ gap: 2 }}>
+                {project.client_name ? (
+                  <View style={styles.heroMetaRow}>
+                    <Feather name="user" size={12} color="rgba(255,255,255,0.85)" />
+                    <Text style={styles.heroMetaText} numberOfLines={1}>
+                      {project.client_name}
+                    </Text>
+                  </View>
+                ) : null}
+                {project.address ? (
+                  <View style={styles.heroMetaRow}>
+                    <Feather name="map-pin" size={12} color="rgba(255,255,255,0.85)" />
+                    <Text style={styles.heroMetaText} numberOfLines={1}>
+                      {project.address}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
+        </View>
+
+        <View style={styles.grid}>
+          {visibleItems.map((it) => (
+            <Pressable
+              key={it.key}
+              onPress={() => router.push(it.route as any)}
+              style={({ hovered, pressed }: any) => [
+                styles.tile,
+                hovered && styles.tileHovered,
+                pressed && styles.tilePressed,
+              ]}
+            >
+              <View style={styles.tileIcon}>
+                <Feather name={it.icon} size={19} color={colors.primary} />
+              </View>
+              <Text style={styles.tileLabel} numberOfLines={2}>
+                {it.label}
+              </Text>
+              {subtitleFor(it.key) ? <Text style={styles.tileSubtitle}>{subtitleFor(it.key)}</Text> : null}
+            </Pressable>
+          ))}
         </View>
       </ScrollView>
     </AppScreen>
@@ -181,61 +238,114 @@ export default function ChantierDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    maxWidth: 880,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-    marginBottom: 0,
-  },
-  iconButton: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   scroll: {
     flexGrow: 1,
     paddingBottom: spacing.xxl,
   },
-  list: {
-    gap: spacing.sm,
+  hero: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    maxHeight: 320,
+    minHeight: 200,
+    backgroundColor: colors.surfaceAlt,
+    justifyContent: 'flex-end',
+  },
+  heroImage: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+  },
+  heroPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primarySoft,
+  },
+  heroScrim: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(15,23,20,0.15)',
+  },
+  heroTopBar: {
+    position: 'absolute',
+    top: spacing.lg,
+    left: spacing.lg,
+    right: spacing.lg,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  heroIconButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(15,23,20,0.45)',
+  },
+  heroBottom: {
     padding: spacing.lg,
-    maxWidth: 720,
+    paddingTop: spacing.xxl * 1.6,
+    gap: spacing.xs,
+    backgroundColor: 'rgba(15,23,20,0.55)',
+  },
+  heroBadgeRow: {
+    flexDirection: 'row',
+    marginBottom: 2,
+  },
+  heroTitle: {
+    fontSize: fontSize.xl + 2,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  heroMetaText: {
+    fontSize: fontSize.sm,
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '500',
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    padding: spacing.lg,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
+  tile: {
+    flexGrow: 1,
+    flexBasis: 150,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    gap: spacing.xs,
   },
-  rowHovered: {
+  tileHovered: {
     borderColor: colors.primary,
   },
-  rowIcon: {
-    width: 42,
-    height: 42,
+  tilePressed: {
+    opacity: 0.85,
+  },
+  tileIcon: {
+    width: 40,
+    height: 40,
     borderRadius: radius.md,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.xs,
   },
-  rowLabel: {
-    fontSize: fontSize.md,
+  tileLabel: {
+    fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.text,
   },
-  rowSubtitle: {
+  tileSubtitle: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: 2,
   },
 });

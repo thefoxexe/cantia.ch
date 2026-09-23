@@ -1,16 +1,20 @@
 import { useCallback, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../../lib/api/storage';
 import { assetFileInfo } from '../../../../lib/imageAsset';
-import { Button, Card, Container, Field, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
+import { Button, Card, Container, Field, LoadingScreen, PageHeader, AppScreen, Switch } from '../../../../components/ui';
+import { UnsavedChangesBar } from '../../../../components/UnsavedChangesBar';
+import { UnsavedChangesModal } from '../../../../components/UnsavedChangesModal';
+import { useUnsavedChanges } from '../../../../lib/useUnsavedChanges';
 import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { confirm } from '../../../../lib/confirm';
 import type { OrganizationMember, Plan } from '../../../../lib/types';
 
 const STATUSES: { key: string; labelKey: 'active' | 'completed' | 'archived' }[] = [
@@ -22,6 +26,7 @@ const STATUSES: { key: string; labelKey: 'active' | 'completed' | 'archived' }[]
 export default function ChantierSettingsScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { role } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [name, setName] = useState('');
@@ -36,8 +41,18 @@ export default function ChantierSettingsScreen() {
   const [enabledModules, setEnabledModules] = useState<string[]>([]);
   const [autoDailyReport, setAutoDailyReport] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
-  const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
+    useUnsavedChanges(handleSave);
+
+  function withDirty<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setter(v);
+      markDirty();
+    };
+  }
 
   const load = useCallback(async () => {
     const { data: project } = await supabase.from('projects').select('*').eq('id', id).single();
@@ -71,9 +86,12 @@ export default function ChantierSettingsScreen() {
     }, [load]),
   );
 
+  // Everything below is staged in local state only — the single Save
+  // action (via UnsavedChangesBar) is what actually writes to Supabase, so
+  // toggling a module or restricting access no longer has a different
+  // save behavior than editing the name field.
   async function handleSave() {
-    if (!name.trim()) return;
-    setSaving(true);
+    if (!id || !name.trim()) return false;
     await supabase
       .from('projects')
       .update({
@@ -81,9 +99,17 @@ export default function ChantierSettingsScreen() {
         client_name: clientName.trim() || null,
         address: address.trim() || null,
         status,
+        enabled_modules: enabledModules,
+        auto_daily_report_enabled: autoDailyReport,
       })
       .eq('id', id);
-    setSaving(false);
+
+    // Access list is small (one org's team, per project) — replacing it
+    // wholesale on save is simpler and just as correct as diffing.
+    await supabase.from('project_members').delete().eq('project_id', id);
+    if (restricted && accessUserIds.size > 0) {
+      await supabase.from('project_members').insert(Array.from(accessUserIds).map((uid) => ({ project_id: id, user_id: uid })));
+    }
   }
 
   async function pickCoverPhoto() {
@@ -112,46 +138,56 @@ export default function ChantierSettingsScreen() {
     return !plan[field];
   }
 
-  async function toggleModule(key: ModuleKey) {
+  function toggleModule(key: ModuleKey) {
     if (!isAdmin || isPlanGated(key)) return;
-    const next = isModuleEnabled(enabledModules, key)
-      ? enabledModules.filter((m) => m !== key)
-      : [...enabledModules, key];
-    setEnabledModules(next);
-    await supabase.from('projects').update({ enabled_modules: next }).eq('id', id);
+    setEnabledModules((prev) => (isModuleEnabled(prev, key) ? prev.filter((m) => m !== key) : [...prev, key]));
+    markDirty();
   }
 
   function hasAccess(userId: string): boolean {
     return restricted ? accessUserIds.has(userId) : true;
   }
 
-  async function toggleMemberAccess(member: OrganizationMember) {
+  function toggleMemberAccess(member: OrganizationMember) {
     if (!isAdmin || member.role === 'owner' || member.role === 'admin') return;
-
     if (!restricted) {
       // First restriction on an open chantier: materialize explicit access
       // for everyone except the member being excluded right now.
-      const rows = members.filter((m) => m.user_id !== member.user_id).map((m) => ({ project_id: id, user_id: m.user_id }));
-      if (rows.length) await supabase.from('project_members').insert(rows);
+      setRestricted(true);
+      setAccessUserIds(new Set(members.filter((m) => m.user_id !== member.user_id).map((m) => m.user_id)));
     } else if (accessUserIds.has(member.user_id)) {
-      await supabase.from('project_members').delete().eq('project_id', id).eq('user_id', member.user_id);
+      setAccessUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(member.user_id);
+        return next;
+      });
     } else {
-      await supabase.from('project_members').insert({ project_id: id, user_id: member.user_id });
+      setAccessUserIds((prev) => new Set(prev).add(member.user_id));
     }
-    load();
+    markDirty();
   }
 
-  async function openToEveryone() {
+  function openToEveryone() {
     if (!isAdmin) return;
-    await supabase.from('project_members').delete().eq('project_id', id);
-    load();
+    setRestricted(false);
+    setAccessUserIds(new Set());
+    markDirty();
   }
 
-  async function toggleAutoDailyReport() {
+  function toggleAutoDailyReport() {
     if (!isAdmin) return;
-    const next = !autoDailyReport;
-    setAutoDailyReport(next);
-    await supabase.from('projects').update({ auto_daily_report_enabled: next }).eq('id', id);
+    setAutoDailyReport((v) => !v);
+    markDirty();
+  }
+
+  async function handleDeleteProject() {
+    if (!isAdmin || !id) return;
+    const ok = await confirm(t('chantierSettings.deleteConfirmTitle', { name }), t('chantierSettings.deleteConfirmMessage'));
+    if (!ok) return;
+    setDeleting(true);
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    setDeleting(false);
+    if (!error) router.replace('/(app)/chantiers');
   }
 
   if (!loaded) {
@@ -166,7 +202,7 @@ export default function ChantierSettingsScreen() {
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <Container>
-          <PageHeader title={t('chantierSettings.title')} backTo={`/(app)/chantiers/${id}`} />
+          <PageHeader title={t('chantierSettings.title')} backTo={`/(app)/chantiers/${id}`} onBeforeBack={confirmBeforeBack} />
 
           <Pressable onPress={pickCoverPhoto} style={styles.coverWrap}>
             {coverPhotoUrl ? (
@@ -188,9 +224,19 @@ export default function ChantierSettingsScreen() {
                 : t('chantierSettings.addCoverHint')}
           </Text>
 
-          <Field label={t('chantierSettings.nameLabel')} value={name} onChangeText={setName} />
-          <Field label={t('chantierSettings.clientLabel')} value={clientName} onChangeText={setClientName} placeholder={t('chantierSettings.clientPlaceholder')} />
-          <Field label={t('chantierSettings.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('chantierSettings.addressPlaceholder')} />
+          <Field label={t('chantierSettings.nameLabel')} value={name} onChangeText={withDirty(setName)} />
+          <Field
+            label={t('chantierSettings.clientLabel')}
+            value={clientName}
+            onChangeText={withDirty(setClientName)}
+            placeholder={t('chantierSettings.clientPlaceholder')}
+          />
+          <Field
+            label={t('chantierSettings.addressLabel')}
+            value={address}
+            onChangeText={withDirty(setAddress)}
+            placeholder={t('chantierSettings.addressPlaceholder')}
+          />
 
           <Text style={styles.fieldLabel}>{t('chantierSettings.statusLabel')}</Text>
           <View style={styles.statusRow}>
@@ -199,13 +245,11 @@ export default function ChantierSettingsScreen() {
                 key={s.key}
                 title={t(`common.projectStatus.${s.labelKey}`)}
                 variant={status === s.key ? 'primary' : 'secondary'}
-                onPress={() => setStatus(s.key)}
+                onPress={() => withDirty(setStatus)(s.key)}
                 style={{ flex: 1 }}
               />
             ))}
           </View>
-
-          <Button title={t('common.save')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
 
           <Text style={[styles.sectionTitle, { marginTop: spacing.xxl, marginBottom: spacing.sm }]}>{t('chantierSettings.toolsTitle')}</Text>
           <Text style={styles.accessHint}>{t('chantierSettings.toolsHint')}</Text>
@@ -219,13 +263,7 @@ export default function ChantierSettingsScreen() {
                     <Text style={styles.memberRole}>{t(`modules.${m.key}.description` as any)}</Text>
                     {gated ? <Text style={styles.openLink}>{t('chantierSettings.modulePlanGatedHint')}</Text> : null}
                   </View>
-                  <Switch
-                    value={!gated && isModuleEnabled(enabledModules, m.key)}
-                    onValueChange={() => toggleModule(m.key)}
-                    disabled={!isAdmin || gated}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor="#fff"
-                  />
+                  <Switch value={!gated && isModuleEnabled(enabledModules, m.key)} onChange={() => toggleModule(m.key)} disabled={!isAdmin || gated} />
                 </View>
               );
             })}
@@ -239,13 +277,7 @@ export default function ChantierSettingsScreen() {
                 <Text style={styles.memberName}>{t('chantierSettings.autoReportLabel')}</Text>
                 <Text style={styles.memberRole}>{t('chantierSettings.autoReportDescription')}</Text>
               </View>
-              <Switch
-                value={autoDailyReport}
-                onValueChange={toggleAutoDailyReport}
-                disabled={!isAdmin}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor="#fff"
-              />
+              <Switch value={autoDailyReport} onChange={toggleAutoDailyReport} disabled={!isAdmin} />
             </View>
           </Card>
 
@@ -275,19 +307,32 @@ export default function ChantierSettingsScreen() {
                         : t('common.member')}
                     </Text>
                   </View>
-                  <Switch
-                    value={alwaysOn || hasAccess(m.user_id)}
-                    onValueChange={() => toggleMemberAccess(m)}
-                    disabled={!isAdmin || alwaysOn}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor="#fff"
-                  />
+                  <Switch value={alwaysOn || hasAccess(m.user_id)} onChange={() => toggleMemberAccess(m)} disabled={!isAdmin || alwaysOn} />
                 </View>
               );
             })}
           </Card>
+
+          {isAdmin ? (
+            <>
+              <View style={styles.dangerHeader}>
+                <Feather name="alert-triangle" size={15} color={colors.danger} />
+                <Text style={styles.dangerTitle}>{t('chantierSettings.dangerZoneTitle')}</Text>
+              </View>
+              <Text style={styles.accessHint}>{t('chantierSettings.dangerZoneHint')}</Text>
+              <Button
+                title={t('chantierSettings.deleteButton')}
+                variant="danger"
+                icon="trash-2"
+                onPress={handleDeleteProject}
+                loading={deleting}
+              />
+            </>
+          ) : null}
         </Container>
       </ScrollView>
+      {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
+      <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </AppScreen>
   );
 }
@@ -384,5 +429,17 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  dangerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.xxl,
+    marginBottom: spacing.xs,
+  },
+  dangerTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+    color: colors.danger,
   },
 });

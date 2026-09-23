@@ -155,6 +155,10 @@ export async function generateReportFromFeed(params: {
   title: string;
   entries: FeedEntry[];
   authorNames: Record<string, string>;
+  // Free-form guidance from whoever is generating the report (typed or
+  // dictated) — forwarded to the AI rewrite pass below, never to the raw
+  // notes/PDF layout directly.
+  extraInstructions?: string;
 }): Promise<{ reportId: string | null; error: string | null }> {
   const sorted = [...params.entries].sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
@@ -214,9 +218,9 @@ export async function generateReportFromFeed(params: {
   // a chat transcript as the final text, and there's no separate creation
   // form here to add a manual "Rédiger avec l'IA" step to.
   if (noteLines.length > 0) {
-    const { notes: polished } = await polishReportNotes(report.id);
+    const { notes: polished, structured } = await polishReportNotes(report.id, params.extraInstructions);
     if (polished) {
-      await supabase.from('reports').update({ notes: polished }).eq('id', report.id);
+      await supabase.from('reports').update({ notes: polished, structured_content: structured }).eq('id', report.id);
     }
   }
 
