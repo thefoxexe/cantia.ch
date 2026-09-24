@@ -1,5 +1,6 @@
 import { SolutionPage } from '../../components/SolutionPage';
 import { ModuleMockup } from '../../components/solutions/ModuleMockup';
+import { ProblemBand } from '../../components/solutions/ProblemBand';
 
 export default function DevisSolutionPage() {
   return (
@@ -8,6 +9,41 @@ export default function DevisSolutionPage() {
       title="Des devis chiffrés en quelques minutes, pas en fin de soirée"
       subtitle="Dictez vos lignes de devis à voix haute sur le chantier ou en voiture. Cantia les transforme en positions chiffrées, reprend vos prix habituels depuis votre catalogue, et prépare un PDF prêt à envoyer."
       visual={<ModuleMockup kind="devis" />}
+      afterFeatures={
+        <ProblemBand
+          eyebrow="Ce que le devis lent vous coûte"
+          headline="Un devis envoyé le lendemain, c'est un chantier qui part chez le concurrent."
+          problems={[
+            {
+              icon: 'clock',
+              problem: 'Un devis fait le soir, de mémoire.',
+              consequence: "Une ligne oubliée, et c'est vous qui l'absorbez — ou le client qui ne rappelle plus.",
+            },
+            {
+              icon: 'file-minus',
+              problem: "Un prix qui varie d'un devis à l'autre.",
+              consequence: 'Sans catalogue à jour, deux clients voisins comparent leurs devis — et le moins cher gagne.',
+            },
+            {
+              icon: 'alert-triangle',
+              problem: "Un devis sans trace de ce qui a été validé.",
+              consequence: "En cas de désaccord sur le prix, rien ne prouve ce qui a réellement été convenu.",
+            },
+            {
+              icon: 'trending-down',
+              problem: 'Un devis envoyé, puis jamais relancé.',
+              consequence: 'Le client oublie, part voir ailleurs — un devis sans suivi est un devis perdu.',
+            },
+          ]}
+          reliefLabel="Avec Cantia"
+          reliefItems={[
+            'Devis chiffré et envoyé en quelques minutes, depuis le chantier',
+            'Prix toujours cohérents, tirés de votre catalogue',
+            'Signature du client intégrée — devis accepté, preuve écrite',
+            'Statut de chaque devis visible en un coup d’œil, relance facile',
+          ]}
+        />
+      }
       features={[
         {
           icon: 'mic',

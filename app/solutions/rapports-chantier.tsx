@@ -1,5 +1,6 @@
 import { SolutionPage } from '../../components/SolutionPage';
 import { ModuleMockup } from '../../components/solutions/ModuleMockup';
+import { ProblemBand } from '../../components/solutions/ProblemBand';
 
 export default function RapportsChantierSolutionPage() {
   return (
@@ -8,6 +9,41 @@ export default function RapportsChantierSolutionPage() {
       title="Le rapport se rédige pendant que vous êtes encore sur le chantier"
       subtitle="Notes vocales, photos géolocalisées et messages du fil d'actualité : Cantia rassemble tout et en tire un rapport rédigé, structuré et prêt à envoyer — vous n'avez plus qu'à relire."
       visual={<ModuleMockup kind="rapports-chantier" />}
+      afterFeatures={
+        <ProblemBand
+          eyebrow="Ce qu'un rapport bâclé vous coûte"
+          headline="Sans preuve écrite, c'est votre parole contre celle du client."
+          problems={[
+            {
+              icon: 'camera',
+              problem: 'Des photos prises sans note ni date claire.',
+              consequence: 'Six mois plus tard, impossible de dire quelle photo correspond à quelle étape du chantier.',
+            },
+            {
+              icon: 'edit-3',
+              problem: 'Un rapport rédigé de mémoire, le soir.',
+              consequence: "Des détails oubliés, un avancement mal décrit — le rapport ne protège plus personne.",
+            },
+            {
+              icon: 'alert-triangle',
+              problem: 'Un client qui conteste un délai ou une prestation.',
+              consequence: 'Sans rapport daté et photographié, impossible de prouver ce qui a été fait et quand.',
+            },
+            {
+              icon: 'clock',
+              problem: "Un rapport qui n'arrive jamais au client.",
+              consequence: "Sans envoi automatique, le client découvre l'avancement seulement à la fin — ou jamais.",
+            },
+          ]}
+          reliefLabel="Avec Cantia"
+          reliefItems={[
+            'Photos géolocalisées et horodatées automatiquement',
+            'Rapport rédigé par l’IA à partir de vos notes vocales, en quelques minutes',
+            'Rapport daté et signé — preuve en cas de litige',
+            'Envoi automatique au client selon la fréquence de votre choix',
+          ]}
+        />
+      }
       features={[
         {
           icon: 'mic',
