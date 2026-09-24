@@ -290,3 +290,79 @@ export function buildCatalogCsv(entries: CatalogEntry[]): string {
   ];
   return rows.join('\n');
 }
+
+export interface ParsedMetreItem {
+  reference: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  section: string | null;
+}
+
+export interface ParsedMetreCsv {
+  items: ParsedMetreItem[];
+  skipped: number;
+  error: string | null;
+}
+
+const REFERENCE_HEADERS = ['ref', 'reference', 'pos', 'position', 'no', 'numero', 'n'];
+const QUANTITY_HEADERS = ['quantite', 'qte', 'qty', 'quantity', 'q'];
+const SECTION_HEADERS = ['lot', 'chapitre', 'section', 'categorie', 'groupe', 'ouvrage'];
+
+// Shared column-detection between parseMetreCsv (plain CSV/text export) and
+// the Excel import path in ProjectMetre.tsx, which reads a .xlsx via
+// SheetJS into this same {headers, rows} shape — one pass of the same
+// French-first header vocabulary covers a métré exported from Excel,
+// BauBit Pro or a plain CSV alike, whichever format someone actually has.
+export function metreItemsFromTable(headerCellsRaw: string[], dataRows: string[][]): ParsedMetreCsv {
+  const headerCells = headerCellsRaw.map(normalizeHeader);
+
+  let titleIdx = headerCells.findIndex((h) => TITLE_HEADERS.includes(h));
+  let detailIdx = headerCells.findIndex((h, i) => i !== titleIdx && DETAIL_HEADERS.includes(h));
+  if (titleIdx === -1) {
+    titleIdx = detailIdx;
+    detailIdx = -1;
+  }
+  if (titleIdx === -1) {
+    return { items: [], skipped: 0, error: "Impossible de détecter une colonne de désignation dans ce fichier." };
+  }
+  const refIdx = headerCells.findIndex((h) => REFERENCE_HEADERS.includes(h));
+  const qtyIdx = headerCells.findIndex((h) => QUANTITY_HEADERS.includes(h));
+  const unitIdx = headerCells.findIndex((h) => UNIT_HEADERS.includes(h));
+  const priceIdx = headerCells.findIndex((h) => PRICE_HEADERS.includes(h));
+  const sectionIdx = headerCells.findIndex((h) => SECTION_HEADERS.includes(h));
+
+  const items: ParsedMetreItem[] = [];
+  let skipped = 0;
+  for (const cells of dataRows) {
+    const title = (cells[titleIdx] ?? '').trim();
+    const detail = detailIdx >= 0 ? (cells[detailIdx] ?? '').trim() : '';
+    const description = detail && detail !== title ? `${title} — ${detail}` : title;
+    if (!description) {
+      skipped += 1;
+      continue;
+    }
+    const reference = refIdx >= 0 ? (cells[refIdx] ?? '').trim() : '';
+    const quantity = qtyIdx >= 0 ? parsePrice(cells[qtyIdx] ?? '0') : 0;
+    const unit = unitIdx >= 0 ? (cells[unitIdx] ?? '').trim() || 'pce' : 'pce';
+    const unitPrice = priceIdx >= 0 ? parsePrice(cells[priceIdx] ?? '0') : 0;
+    const section = sectionIdx >= 0 ? (cells[sectionIdx] ?? '').trim() || null : null;
+    items.push({ reference, description, quantity, unit, unitPrice, section });
+  }
+
+  return { items, skipped, error: null };
+}
+
+export function parseMetreCsv(text: string): ParsedMetreCsv {
+  const lines = text.split(/\r\n|\r|\n/).filter((l) => l.trim().length > 0);
+  if (lines.length < 2) {
+    return { items: [], skipped: 0, error: 'Le fichier est vide ou ne contient aucune ligne de données.' };
+  }
+  const commaCount = (lines[0].match(/,/g) || []).length;
+  const semicolonCount = (lines[0].match(/;/g) || []).length;
+  const delimiter = semicolonCount > commaCount ? ';' : ',';
+  const headerCells = parseCsvLine(lines[0], delimiter);
+  const dataRows = lines.slice(1).map((line) => parseCsvLine(line, delimiter));
+  return metreItemsFromTable(headerCells, dataRows);
+}

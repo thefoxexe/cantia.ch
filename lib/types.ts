@@ -635,6 +635,8 @@ export interface MetreItem {
   description: string;
   quantity: number;
   unit: string | null;
+  unit_price: number;
+  section: string | null;
   sort_order: number;
   created_by: string | null;
   created_at: string;
