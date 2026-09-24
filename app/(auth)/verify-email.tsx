@@ -29,7 +29,17 @@ export default function VerifyEmailScreen() {
     setError(null);
     const { error: err } = await verifySignupCode(email, code.trim());
     setVerifying(false);
-    if (err) setError(err);
+    if (err) {
+      setError(err);
+      return;
+    }
+    // This screen is also reached when an existing user's login fails with
+    // "email not confirmed", not just after a fresh signup — firing on
+    // mount would count those too. Firing here, on a successful code
+    // verification, marks the actual moment an account becomes usable.
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      (window as any).gtag?.('event', 'conversion', { send_to: 'AW-18465996566/H7osCOaBzIMdEJb-ouVE' });
+    }
     // On success the session updates and app/_layout.tsx redirects away —
     // nothing else to do here.
   }
