@@ -20,18 +20,34 @@ function clamp(min: number, value: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-const PAIN_POINTS = [
-  'Devis et factures dispersés entre Excel, Word et papier',
-  'Suivi de chantier flou, rien de centralisé pour l’équipe',
-  'Rapports de chantier rédigés le soir, de mémoire',
-  'Factures sans QR-code, paiements difficiles à rapprocher',
+const PROBLEM_CARDS: { icon: IconName; problem: string; consequence: string }[] = [
+  {
+    icon: 'clock',
+    problem: 'Un devis fait le soir, à la main, sur Excel.',
+    consequence: 'Le temps que vous l’envoyiez, le client a déjà signé avec celui qui a répondu le premier.',
+  },
+  {
+    icon: 'file-minus',
+    problem: 'Un imprévu réglé à l’oral, sur le chantier.',
+    consequence: 'Sans signature ni trace écrite, il est fait gratuitement — répété sur l’année, ça représente vite plusieurs journées de travail non payées.',
+  },
+  {
+    icon: 'trending-down',
+    problem: 'Un chantier qui a fini par coûter plus qu’il n’a rapporté.',
+    consequence: 'Vous ne le découvrez qu’en comptant les heures à la fin, des semaines plus tard — quand il est trop tard pour corriger quoi que ce soit.',
+  },
+  {
+    icon: 'alert-triangle',
+    problem: 'Un client qui conteste un délai ou une prestation.',
+    consequence: 'Sans photos datées ni rapport écrit, c’est votre parole contre la sienne — et c’est rarement vous qui gagnez ce genre de discussion.',
+  },
 ];
 
-const SOLUTIONS = [
-  'Devis et factures générés en quelques minutes, dictés à la voix',
-  'Chaque chantier centralisé : notes, photos, documents, rentabilité',
-  'Rapport de chantier rédigé automatiquement pendant que vous êtes encore sur place',
-  'QR-facture suisse conforme sur chaque facture, statut de paiement à jour',
+const RELIEF_ITEMS = [
+  'Devis chiffré et envoyé en quelques minutes, depuis le chantier',
+  'Travaux supplémentaires signés sur tablette, facturés automatiquement',
+  'Rentabilité visible chantier par chantier, en temps réel',
+  'Rapport avec photos horodatées, généré pendant que vous êtes encore sur place',
 ];
 
 const FEATURES: { icon: IconName; title: string; text: string; href: string }[] = [
@@ -136,16 +152,16 @@ export default function LogicielChantierPage() {
                   <Text style={styles.h1Highlight}>chantiers.</Text>
                 </Text>
                 <View style={styles.crossedWrap}>
-                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>Pas cinq outils différents.</Text>
+                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>Pas votre temps et votre argent qui filent.</Text>
                   <HeroCross />
                 </View>
               </ScrollReveal>
               <ScrollReveal style={styles.heroAside} delay={420}>
                 <Text style={styles.heroAsideEyebrow}>DEVIS · FACTURES · RAPPORTS · PLANNING</Text>
-                <Text style={styles.heroAsideP1}>Un seul endroit, du devis à la facture.</Text>
+                <Text style={styles.heroAsideP1}>Un devis oublié, un imprévu jamais facturé, un chantier découvert déficitaire trop tard.</Text>
                 <Text style={styles.heroAsideP2}>
-                  Fini les allers-retours entre Excel, WhatsApp et le papier : chaque devis, chaque rapport, chaque
-                  facture au même endroit — accessible depuis le chantier, sur téléphone.
+                  Chaque outil que vous n’avez pas — Excel, WhatsApp, papier — vous coûte de l’argent quelque part sur
+                  un chantier, sans que vous le voyiez venir. Cantia centralise tout, du devis au paiement.
                 </Text>
                 <View style={styles.ctaRow}>
                   <Link href={authHref('signup')} asChild>
@@ -200,35 +216,38 @@ export default function LogicielChantierPage() {
           </View>
         </ScrollReveal>
 
-        {/* Pain / solution — full-bleed dark band for real contrast */}
+        {/* Pain / solution — full-bleed dark band, concrete scenarios not a feature list */}
         <View style={styles.darkBand}>
           <ScrollReveal style={styles.wrap}>
-            <Text style={styles.darkEyebrow}>Pourquoi Cantia</Text>
-            <Text style={styles.darkH2}>Fini les devis sur un coin de table.</Text>
-            <View style={styles.compareGrid}>
-              <ScrollReveal style={styles.compareColPlain} delay={80}>
-                <Text style={styles.compareColLabelDark}>Sans outil dédié</Text>
-                {PAIN_POINTS.map((p) => (
-                  <View key={p} style={styles.compareRow}>
-                    <View style={styles.compareIconDark}>
-                      <Feather name="x" size={13} color="rgba(255,255,255,0.85)" />
-                    </View>
-                    <Text style={styles.compareTextDark}>{p}</Text>
+            <Text style={styles.darkEyebrow}>Ce que ça vous coûte aujourd’hui</Text>
+            <Text style={styles.darkH2}>
+              Chaque semaine sans outil dédié, vous perdez de l’argent quelque part sur un chantier — et vous ne le
+              voyez pas.
+            </Text>
+            <View style={styles.problemGrid}>
+              {PROBLEM_CARDS.map((p, i) => (
+                <ScrollReveal key={p.problem} style={styles.problemCard} delay={80 + i * 90}>
+                  <View style={styles.problemIcon}>
+                    <Feather name={p.icon} size={17} color="#F3A98C" />
                   </View>
-                ))}
-              </ScrollReveal>
-              <ScrollReveal style={styles.compareColCard} delay={220}>
-                <Text style={styles.compareColLabelLight}>Avec Cantia</Text>
-                {SOLUTIONS.map((s) => (
-                  <View key={s} style={styles.compareRow}>
-                    <View style={styles.compareIconLight}>
+                  <Text style={styles.problemText}>{p.problem}</Text>
+                  <Text style={styles.problemConsequence}>{p.consequence}</Text>
+                </ScrollReveal>
+              ))}
+            </View>
+            <ScrollReveal style={styles.reliefCard} delay={440}>
+              <Text style={styles.reliefLabel}>Avec Cantia, ces angles morts disparaissent</Text>
+              <View style={styles.reliefGrid}>
+                {RELIEF_ITEMS.map((r) => (
+                  <View key={r} style={styles.reliefRow}>
+                    <View style={styles.reliefIcon}>
                       <Feather name="check" size={13} color={colors.success} />
                     </View>
-                    <Text style={styles.compareTextLight}>{s}</Text>
+                    <Text style={styles.reliefText}>{r}</Text>
                   </View>
                 ))}
-              </ScrollReveal>
-            </View>
+              </View>
+            </ScrollReveal>
           </ScrollReveal>
         </View>
 
@@ -300,7 +319,7 @@ export default function LogicielChantierPage() {
         {/* Closing CTA */}
         <View style={[styles.wrap, styles.closingOuter]}>
           <View style={styles.closing}>
-            <Text style={styles.closingTitle}>Prêt à arrêter de perdre du temps en administratif ?</Text>
+            <Text style={styles.closingTitle}>Chaque chantier géré à l’ancienne est un risque que vous prenez avec votre argent.</Text>
             <Text style={styles.closingText}>
               14 jours d'essai gratuit sur tous les plans, sans engagement — devis et factures illimités dès le
               premier jour.
@@ -425,12 +444,30 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     maxWidth: 640,
   },
-  compareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl },
-  compareColPlain: { flex: 1, minWidth: 280, gap: spacing.md, paddingTop: spacing.sm },
-  compareColCard: {
+  problemGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
+  problemCard: {
     flex: 1,
-    minWidth: 280,
-    gap: spacing.md,
+    minWidth: 260,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    padding: spacing.lg,
+    gap: spacing.xs,
+  } as unknown as ViewStyle,
+  problemIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  problemText: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: '#fff', lineHeight: 22 },
+  problemConsequence: { fontFamily: landingFonts.body, fontSize: 14, color: 'rgba(255,255,255,0.68)', lineHeight: 20 },
+  reliefCard: {
+    marginTop: spacing.xl,
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
     padding: spacing.xl,
@@ -439,35 +476,18 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
   } as unknown as ViewStyle,
-  compareColLabelDark: {
-    fontFamily: landingFonts.body,
-    fontSize: 12,
-    fontWeight: '800',
-    color: 'rgba(255,255,255,0.55)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: spacing.xs,
-  },
-  compareColLabelLight: {
+  reliefLabel: {
     fontFamily: landingFonts.body,
     fontSize: 12,
     fontWeight: '800',
     color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.md,
   },
-  compareRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
-  compareIconDark: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  compareIconLight: {
+  reliefGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  reliefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, minWidth: 280, flex: 1 },
+  reliefIcon: {
     width: 22,
     height: 22,
     borderRadius: radius.pill,
@@ -476,8 +496,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 1,
   },
-  compareTextDark: { fontFamily: landingFonts.body, fontSize: 15, color: 'rgba(255,255,255,0.78)', lineHeight: 21, flex: 1 },
-  compareTextLight: { fontFamily: landingFonts.body, fontSize: 15, color: colors.text, lineHeight: 21, flex: 1, fontWeight: '500' },
+  reliefText: { fontFamily: landingFonts.body, fontSize: 15, color: colors.text, lineHeight: 21, flex: 1, fontWeight: '500' },
 
   featureGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   featureCard: {
@@ -550,7 +569,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     letterSpacing: -0.4,
     textAlign: 'center',
-    maxWidth: 520,
+    maxWidth: 580,
   },
   closingText: {
     fontFamily: landingFonts.body,
