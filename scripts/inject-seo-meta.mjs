@@ -12,6 +12,20 @@ const FONT_LINKS = `
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />
     <style>html, body { background-color: #F7F1E6; overscroll-behavior-y: none; }</style>`;
 
+// Google Ads base tag — the actual production build (web.output: "single" in
+// app.json) never renders app/+html.tsx at all, only this script's patched
+// output ends up in dist/, so that's where any site-wide <head> injection
+// has to live, same as FONT_LINKS above. Needed on every route on both
+// cantia.ch and app.cantia.ch (same static export) so a click landing on
+// cantia.ch can be cross-domain-linked to a signup conversion firing on
+// app.cantia.ch.
+const GTAG_SCRIPT = `
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566"></script>
+    <script>window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-18465996566');</script>`;
+
 const OG_LOCALES = { fr: 'fr_CH', de: 'de_CH', it: 'it_CH' };
 
 function patch(baseHtml, route) {
@@ -54,7 +68,7 @@ function patch(baseHtml, route) {
     <script type="application/ld+json">${JSON.stringify(jsonLdFor(canonicalUrl, route))}</script>`;
 
   let html = baseHtml.replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}"`);
-  html = html.replace('<head>', `<head>${FONT_LINKS}`);
+  html = html.replace('<head>', `<head>${FONT_LINKS}${GTAG_SCRIPT}`);
   html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>${metaTags}`);
   return html;
 }
