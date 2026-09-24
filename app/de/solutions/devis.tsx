@@ -70,7 +70,7 @@ export default function DevisSolutionPageDe() {
         },
         {
           question: 'Ist Cantia für Offerten kostenlos?',
-          answer: 'Ja, ein monatliches Offertkontingent steht kostenlos zur Verfügung, ohne Kreditkarte und ohne Verpflichtung.',
+          answer: 'Cantia bietet auf allen Plänen eine 14-tägige kostenlose Testphase (Kreditkarte erforderlich, keine Abbuchung vor Ende der Testphase). Nach dem Abo sind Offerten und Rechnungen auf jedem Plan unbegrenzt, ohne monatliches Kontingent.',
         },
       ]}
       related={[
@@ -80,7 +80,7 @@ export default function DevisSolutionPageDe() {
         { href: '/de/solutions/travaux-supplementaires', label: 'Zusatzarbeiten' },
       ]}
       closingTitle="Weniger Zeit für Offerten, nicht weniger Zeit auf der Baustelle"
-      closingText="Cantia ist zum Start kostenlos, mit einem monatlichen Offertkontingent — ohne Verpflichtung."
+      closingText="14 Tage kostenlose Testphase auf allen Plänen, danach unbegrenzt Offerten und Rechnungen — ohne Verpflichtung."
     />
   );
 }

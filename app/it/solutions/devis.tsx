@@ -70,7 +70,7 @@ export default function DevisSolutionPageIt() {
         },
         {
           question: 'Cantia è gratuito per fare i preventivi?',
-          answer: "Sì, è disponibile gratuitamente una quota mensile di preventivi, senza carta di credito né impegno.",
+          answer: "Cantia offre una prova gratuita di 14 giorni su tutti i piani (carta di credito richiesta, nessun addebito prima della fine della prova). Una volta abbonati, preventivi e fatture sono illimitati su ogni piano, senza quota mensile.",
         },
       ]}
       related={[
@@ -80,7 +80,7 @@ export default function DevisSolutionPageIt() {
         { href: '/it/solutions/travaux-supplementaires', label: 'Lavori supplementari' },
       ]}
       closingTitle="Meno tempo sui preventivi, non meno tempo in cantiere"
-      closingText="Cantia è gratuito per iniziare, con una quota mensile di preventivi — senza impegno."
+      closingText="14 giorni di prova gratuita su tutti i piani, preventivi e fatture illimitati in seguito — senza impegno."
     />
   );
 }

@@ -28,6 +28,30 @@ export const ROUTES = [
       'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, essai gratuit.',
   },
   {
+    path: 'logiciel-chantier',
+    title: 'Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia',
+    description:
+      'Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. Essai gratuit 14 jours, sans engagement, hébergé en Suisse.',
+    faq: [
+      {
+        q: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
+        a: "Les tarifs varient selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai gratuit (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
+      },
+      {
+        q: 'Ai-je besoin d’installer un logiciel sur mon ordinateur ?',
+        a: 'Non. Cantia fonctionne entièrement dans le navigateur, sur ordinateur, tablette ou téléphone — sans rien installer, y compris directement depuis le chantier.',
+      },
+      {
+        q: 'Mes données sont-elles hébergées en Suisse ?',
+        a: 'Oui, toutes les données sont hébergées en Suisse (Zurich), chiffrées, jamais revendues.',
+      },
+      {
+        q: 'Y a-t-il un engagement ou une durée minimale ?',
+        a: "Aucun. Tous les plans sont résiliables à tout moment depuis Compte → Abonnement, sans justification ni frais de sortie.",
+      },
+    ],
+  },
+  {
     path: 'solutions/devis',
     title: 'Devis en ligne pour artisans suisses | Cantia',
     description:
@@ -47,7 +71,7 @@ export const ROUTES = [
       },
       {
         q: 'Cantia est-il gratuit pour faire des devis ?',
-        a: 'Oui, un quota de devis mensuel est disponible gratuitement, sans carte bancaire ni engagement.',
+        a: "Cantia propose un essai gratuit de 14 jours sur tous les plans (carte bancaire requise, aucun débit avant la fin de l'essai). Une fois abonné, les devis et factures sont illimités sur chaque plan, sans quota mensuel.",
       },
     ],
   },
@@ -2818,7 +2842,7 @@ export const ROUTES = [
       { q: 'Wie erstellt man als Handwerker schnell eine Offerte?', a: 'Diktieren Sie Ihre Positionen auf der Baustelle oder im Auto. Cantia wandelt sie mit Ihren gewohnten Preisen in bezifferte Positionen um, und das PDF ist fertig, bevor Sie den Kunden verlassen haben.' },
       { q: 'Ist die Offerte konform mit den Schweizer Gepflogenheiten (MWST, Layout)?', a: 'Ja: Jede Offerte übernimmt Ihren MWST-Satz, Ihre Firmendaten und lässt sich mit Ihrer Markenfarbe und Ihrem Logo personalisieren.' },
       { q: 'Kann eine akzeptierte Offerte automatisch in eine Rechnung umgewandelt werden?', a: 'Ja, eine unterzeichnete Offerte wird mit einem Klick zur Rechnung — inklusive Schweizer QR-Rechnung — ohne die Positionen neu zu erfassen.' },
-      { q: 'Ist Cantia für Offerten kostenlos?', a: 'Ja, ein monatliches Offerten-Kontingent steht kostenlos zur Verfügung, ohne Kreditkarte oder Verpflichtung.' },
+      { q: 'Ist Cantia für Offerten kostenlos?', a: 'Cantia bietet auf allen Plänen eine 14-tägige kostenlose Testphase (Kreditkarte erforderlich, keine Abbuchung vor Ende der Testphase). Nach dem Abo sind Offerten und Rechnungen auf jedem Plan unbegrenzt, ohne monatliches Kontingent.' },
     ],
   },
   {
@@ -3041,7 +3065,7 @@ export const ROUTES = [
       { q: 'Come si fa un preventivo velocemente da artigiano?', a: "Detti le Sue righe a voce alta in cantiere o in auto. Cantia le trasforma in posizioni con prezzo usando i Suoi prezzi abituali, e il PDF è pronto ancora prima di aver lasciato il cliente." },
       { q: 'Il preventivo è conforme agli usi svizzeri (IVA, impaginazione)?', a: "Sì: ogni preventivo riprende la Sua aliquota IVA, i Suoi dati aziendali e può essere personalizzato con il colore del Suo marchio e il Suo logo." },
       { q: 'Si può trasformare automaticamente un preventivo accettato in fattura?', a: "Sì, un preventivo accettato si converte in fattura — con fattura QR svizzera — con un clic, senza reinserire le righe." },
-      { q: 'Cantia è gratuito per fare i preventivi?', a: "Sì, è disponibile gratuitamente una quota mensile di preventivi, senza carta di credito né impegno." },
+      { q: 'Cantia è gratuito per fare i preventivi?', a: "Cantia offre una prova gratuita di 14 giorni su tutti i piani (carta di credito richiesta, nessun addebito prima della fine della prova). Una volta abbonati, preventivi e fatture sono illimitati su ogni piano, senza quota mensile." },
     ],
   },
   {

@@ -67,7 +67,7 @@ export default function DevisSolutionPage() {
         },
         {
           question: 'Cantia est-il gratuit pour faire des devis ?',
-          answer: "Oui, un quota de devis mensuel est disponible gratuitement, sans carte bancaire ni engagement.",
+          answer: "Cantia propose un essai gratuit de 14 jours sur tous les plans (carte bancaire requise, aucun débit avant la fin de l'essai). Une fois abonné, les devis et factures sont illimités sur chaque plan, sans quota mensuel.",
         },
       ]}
       related={[
@@ -77,7 +77,7 @@ export default function DevisSolutionPage() {
         { href: '/solutions/travaux-supplementaires', label: 'Travaux supplémentaires' },
       ]}
       closingTitle="Passez moins de temps sur vos devis, pas moins de temps sur le chantier"
-      closingText="Cantia est gratuit pour démarrer, avec un quota de devis mensuel — sans engagement."
+      closingText="14 jours d'essai gratuit sur tous les plans, devis et factures illimités ensuite — sans engagement."
     />
   );
 }
