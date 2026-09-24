@@ -103,9 +103,10 @@ export default function LogicielChantierPage() {
 
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
-  const heroMinHeight = !isMobile ? clamp(560, height * 0.8, 860) : undefined;
-  const heroTitleSize = clamp(34, width * 0.05, 66);
-  const heroCrossedSize = clamp(22, width * 0.032, 40);
+  const isTablet = width < breakpoints.desktop;
+  const heroMinHeight = !isMobile ? clamp(380, height * 0.58, 620) : undefined;
+  const heroTitleSize = clamp(32, width * 0.048, 66);
+  const heroCrossedSize = clamp(20, width * 0.03, 38);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -144,23 +145,23 @@ export default function LogicielChantierPage() {
               <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
             </ScrollReveal>
 
-            <View style={[styles.heroMain, isMobile && styles.heroMainCompact]}>
-              <ScrollReveal style={styles.heroTitleCol} delay={120}>
+            <View style={[styles.heroMain, isTablet && styles.heroMainCompact]}>
+              <ScrollReveal style={[styles.heroTitleCol, !isTablet && styles.heroTitleColWide]} delay={120}>
                 <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.1 }]}>
-                  Le logiciel qui gère vos
+                  Reprenez le contrôle
                   {'\n'}
-                  <Text style={styles.h1Highlight}>chantiers.</Text>
+                  de vos <Text style={styles.h1Highlight}>chantiers.</Text>
                 </Text>
                 <View style={styles.crossedWrap}>
-                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>Pas votre temps et votre argent qui filent.</Text>
+                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>Pas ce que vous oubliez de facturer.</Text>
                   <HeroCross />
                 </View>
               </ScrollReveal>
-              <ScrollReveal style={styles.heroAside} delay={420}>
-                <Text style={styles.heroAsideEyebrow}>DEVIS · FACTURES · RAPPORTS · PLANNING</Text>
-                <Text style={styles.heroAsideP1}>Un devis oublié, un imprévu jamais facturé, un chantier découvert déficitaire trop tard.</Text>
+              <ScrollReveal style={[styles.heroAside, !isTablet && styles.heroAsideWide]} delay={420}>
+                <Text style={styles.heroAsideEyebrow}>FAIT. FACTURÉ. PAYÉ.</Text>
+                <Text style={styles.heroAsideP1}>Ce que vous ne facturez pas, vous ne le récupérez jamais.</Text>
                 <Text style={styles.heroAsideP2}>
-                  Chaque outil que vous n’avez pas — Excel, WhatsApp, papier — vous coûte de l’argent quelque part sur
+                  Excel, WhatsApp, papier : chaque outil que vous n’avez pas vous coûte de l’argent quelque part sur
                   un chantier, sans que vous le voyiez venir. Cantia centralise tout, du devis au paiement.
                 </Text>
                 <View style={styles.ctaRow}>
@@ -184,7 +185,7 @@ export default function LogicielChantierPage() {
 
             <ScrollReveal style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]} delay={680}>
               <Text style={styles.baselineLabel}>TOUT INCLUS, UN SEUL ABONNEMENT</Text>
-              {!isMobile ? (
+              {!isTablet ? (
                 <View style={styles.baselineItems}>
                   {BASELINE_ITEMS.map((item) => (
                     <Text key={item} style={styles.baselineItem}>{item}</Text>
@@ -219,11 +220,8 @@ export default function LogicielChantierPage() {
         {/* Pain / solution — full-bleed dark band, concrete scenarios not a feature list */}
         <View style={styles.darkBand}>
           <ScrollReveal style={styles.wrap}>
-            <Text style={styles.darkEyebrow}>Ce que ça vous coûte aujourd’hui</Text>
-            <Text style={styles.darkH2}>
-              Chaque semaine sans outil dédié, vous perdez de l’argent quelque part sur un chantier — et vous ne le
-              voyez pas.
-            </Text>
+            <Text style={styles.darkEyebrow}>La facture cachée</Text>
+            <Text style={styles.darkH2}>Vous perdez de l’argent sur vos chantiers. Vous ne le voyez juste pas encore.</Text>
             <View style={styles.problemGrid}>
               {PROBLEM_CARDS.map((p, i) => (
                 <ScrollReveal key={p.problem} style={styles.problemCard} delay={80 + i * 90}>
@@ -319,7 +317,7 @@ export default function LogicielChantierPage() {
         {/* Closing CTA */}
         <View style={[styles.wrap, styles.closingOuter]}>
           <View style={styles.closing}>
-            <Text style={styles.closingTitle}>Chaque chantier géré à l’ancienne est un risque que vous prenez avec votre argent.</Text>
+            <Text style={styles.closingTitle}>Chaque chantier géré à l’ancienne, c’est de l’argent que vous risquez.</Text>
             <Text style={styles.closingText}>
               14 jours d'essai gratuit sur tous les plans, sans engagement — devis et factures illimités dès le
               premier jour.
@@ -373,12 +371,14 @@ const styles = StyleSheet.create({
   heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
   heroMain: { flexDirection: 'row', gap: 56, paddingVertical: spacing.xxl, alignItems: 'flex-start' },
   heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },
-  heroTitleCol: { minWidth: 0, flex: 1.15 },
+  heroTitleCol: { minWidth: 0 },
+  heroTitleColWide: { flex: 1.15 },
   h1: { fontFamily: landingFonts.body, fontWeight: '700', letterSpacing: -2, color: colors.text },
   h1Highlight: { color: colors.primary },
   crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
   crossedText: { fontFamily: landingFonts.body, fontWeight: '500', letterSpacing: -0.6, color: '#786653' },
-  heroAside: { gap: spacing.sm, maxWidth: 420, flex: 1 },
+  heroAside: { gap: spacing.sm, maxWidth: 420 },
+  heroAsideWide: { flex: 1 },
   heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
   heroAsideP1: { fontFamily: landingFonts.body, fontSize: 21, fontWeight: '700', color: colors.text, lineHeight: 28, marginTop: spacing.xs, letterSpacing: -0.3 },
   heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.xs },
