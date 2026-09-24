@@ -1,19 +1,24 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button, Container, Screen } from '../components/ui';
-import { Heading } from '../components/Heading';
+import { Button, Screen } from '../components/ui';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { PricingSection } from '../components/PricingSection';
 import { SwissCross } from '../components/SwissCross';
 import { ModuleMockup } from '../components/solutions/ModuleMockup';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { HeroCross } from '../components/landing/HeroCross';
+import { ScrollReveal } from '../components/landing/ScrollReveal';
+import { colors, breakpoints, fontSize, radius, spacing } from '../lib/theme';
+import { landingFonts } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
 
 type IconName = keyof typeof Feather.glyphMap;
+
+function clamp(min: number, value: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 const PAIN_POINTS = [
   'Devis et factures dispersés entre Excel, Word et papier',
@@ -72,103 +77,167 @@ const FAQ: { question: string; answer: string }[] = [
   },
 ];
 
+const BASELINE_ITEMS = ['Devis & factures', 'Rapports de chantier', 'Planning d’équipe', 'Rentabilité', 'RH & salaires', 'Trésorerie'];
+
 export default function LogicielChantierPage() {
-  const heroAnim = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<ScrollView>(null);
   const pricingRef = useRef<View>(null);
+  const featuresRef = useRef<View>(null);
+  const heroMountainRef = useRef<View>(null);
+
+  const { width, height } = useWindowDimensions();
+  const isMobile = width < breakpoints.tablet;
+  const heroMinHeight = !isMobile ? clamp(560, height * 0.8, 860) : undefined;
+  const heroTitleSize = clamp(34, width * 0.05, 66);
+  const heroCrossedSize = clamp(22, width * 0.032, 40);
 
   useEffect(() => {
-    Animated.timing(heroAnim, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [heroAnim]);
+    if (Platform.OS !== 'web') return;
+    const node = heroMountainRef.current as unknown as HTMLElement | null;
+    if (node?.style) node.style.backgroundPosition = 'right top';
+  }, []);
 
-  function scrollToPricing() {
-    pricingRef.current?.measure((_x, y) => {
+  function scrollToRef(ref: React.RefObject<View | null>) {
+    ref.current?.measure((_x, y) => {
       scrollRef.current?.scrollTo({ y: y - 12, animated: true });
     });
   }
 
   return (
-    <Screen>
+    <Screen style={{ padding: 0 }}>
       <MarketingHead
         title="Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia"
         description="Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. Essai gratuit 14 jours, sans engagement, hébergé en Suisse."
       />
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MarketingNav onPricingPress={scrollToPricing} />
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
+        <MarketingNav onPricingPress={() => scrollToRef(pricingRef)} />
 
         {/* Hero */}
-        <Container style={styles.heroOuter}>
-          <View style={styles.heroRow}>
-            <Animated.View
-              style={[
-                styles.heroText,
-                { opacity: heroAnim, transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] },
-              ]}
-            >
-              <View style={styles.kickerPill}>
-                <SwissCross size={13} />
-                <Text style={styles.kickerText}>Logiciel de gestion de chantier · Suisse</Text>
+        <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
+          <View
+            ref={heroMountainRef}
+            pointerEvents="none"
+            style={[styles.heroMountainBase, isMobile ? styles.heroMountainMaskPeek : styles.heroMountainMaskFull]}
+          />
+          <View pointerEvents="none" style={styles.heroBottomFade} />
+          <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }]}>
+            <ScrollReveal style={styles.heroKicker}>
+              <View style={styles.originSymbol}>
+                <SwissCross size={14} />
               </View>
-              <Heading level={1} style={styles.title}>
-                Le logiciel de gestion de chantier fait pour les entreprises du bâtiment en Suisse
-              </Heading>
-              <Text style={styles.subtitle}>
-                Devis, factures, rapports de chantier, planning et rentabilité — un seul outil, pensé pour les
-                artisans et PME romandes qui n’ont pas de temps à perdre en administratif.
-              </Text>
-              <View style={styles.ctaRow}>
-                <Link href={authHref('signup')} asChild>
-                  <Button title="Essai gratuit 14 jours" onPress={() => {}} icon="arrow-up-right" />
-                </Link>
-                <Button title="Voir les tarifs" onPress={scrollToPricing} variant="secondary" />
-              </View>
-              <View style={styles.trustRow}>
-                <Text style={styles.trustItem}>Hébergé en Suisse</Text>
-                <Text style={styles.trustDot}>·</Text>
-                <Text style={styles.trustItem}>QR-facture conforme</Text>
-                <Text style={styles.trustDot}>·</Text>
-                <Text style={styles.trustItem}>Sans engagement</Text>
-              </View>
-            </Animated.View>
-            <Animated.View
-              style={[
-                styles.heroVisual,
-                { opacity: heroAnim, transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] },
-              ]}
-            >
-              <ModuleMockup kind="devis" />
-            </Animated.View>
-          </View>
-        </Container>
+              <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
+            </ScrollReveal>
 
-        {/* Pain / solution */}
-        <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Fini les devis sur un coin de table</Text>
-          <View style={styles.compareGrid}>
-            <View style={styles.compareCol}>
-              <Text style={styles.compareColTitle}>Sans outil dédié</Text>
-              {PAIN_POINTS.map((p) => (
-                <View key={p} style={styles.compareRow}>
-                  <Feather name="x" size={15} color={colors.danger} style={styles.compareIcon} />
-                  <Text style={styles.compareText}>{p}</Text>
+            <View style={[styles.heroMain, isMobile && styles.heroMainCompact]}>
+              <ScrollReveal style={styles.heroTitleCol} delay={120}>
+                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.1 }]}>
+                  Le logiciel qui gère vos
+                  {'\n'}
+                  <Text style={styles.h1Highlight}>chantiers.</Text>
+                </Text>
+                <View style={styles.crossedWrap}>
+                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>Pas cinq outils différents.</Text>
+                  <HeroCross />
                 </View>
-              ))}
+              </ScrollReveal>
+              <ScrollReveal style={styles.heroAside} delay={420}>
+                <Text style={styles.heroAsideEyebrow}>DEVIS · FACTURES · RAPPORTS · PLANNING</Text>
+                <Text style={styles.heroAsideP1}>Un seul endroit, du devis à la facture.</Text>
+                <Text style={styles.heroAsideP2}>
+                  Fini les allers-retours entre Excel, WhatsApp et le papier : chaque devis, chaque rapport, chaque
+                  facture au même endroit — accessible depuis le chantier, sur téléphone.
+                </Text>
+                <View style={styles.ctaRow}>
+                  <Link href={authHref('signup')} asChild>
+                    <Button title="Essai gratuit 14 jours" onPress={() => {}} icon="arrow-up-right" />
+                  </Link>
+                  <Button title="Voir les tarifs" onPress={() => scrollToRef(pricingRef)} variant="secondary" />
+                </View>
+                <Pressable onPress={() => scrollToRef(featuresRef)}>
+                  <Text style={styles.heroDiscover}>Découvrir les fonctionnalités ↓</Text>
+                </Pressable>
+                <View style={styles.trustRow}>
+                  <Text style={styles.trustItem}>Hébergé en Suisse</Text>
+                  <Text style={styles.trustDot}>·</Text>
+                  <Text style={styles.trustItem}>QR-facture conforme</Text>
+                  <Text style={styles.trustDot}>·</Text>
+                  <Text style={styles.trustItem}>Sans engagement</Text>
+                </View>
+              </ScrollReveal>
             </View>
-            <View style={styles.compareCol}>
-              <Text style={[styles.compareColTitle, { color: colors.primaryDark }]}>Avec Cantia</Text>
-              {SOLUTIONS.map((s) => (
-                <View key={s} style={styles.compareRow}>
-                  <Feather name="check" size={15} color={colors.success} style={styles.compareIcon} />
-                  <Text style={styles.compareText}>{s}</Text>
+
+            <ScrollReveal style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]} delay={680}>
+              <Text style={styles.baselineLabel}>TOUT INCLUS, UN SEUL ABONNEMENT</Text>
+              {!isMobile ? (
+                <View style={styles.baselineItems}>
+                  {BASELINE_ITEMS.map((item) => (
+                    <Text key={item} style={styles.baselineItem}>{item}</Text>
+                  ))}
                 </View>
-              ))}
+              ) : null}
+              <View style={styles.baselineOrigin}>
+                <SwissCross size={12} />
+                <Text style={styles.baselineNumber}>Zurich, Suisse</Text>
+              </View>
+            </ScrollReveal>
+          </View>
+        </View>
+
+        {/* Product preview */}
+        <ScrollReveal style={styles.wrap}>
+          <View style={styles.showcase}>
+            <View style={styles.showcaseCopy}>
+              <Text style={styles.eyebrow}>En quelques minutes</Text>
+              <Text style={styles.h2}>Du devis chiffré à la facture QR, sans ressaisie.</Text>
+              <Text style={styles.bodyText}>
+                Décrivez le travail à voix haute, Cantia chiffre avec votre catalogue de prix et génère un PDF prêt à
+                envoyer — la facture reprend automatiquement les mêmes lignes, avec QR-facture suisse conforme.
+              </Text>
+            </View>
+            <View style={styles.showcaseVisual}>
+              <ModuleMockup kind="devis" />
             </View>
           </View>
-        </Container>
+        </ScrollReveal>
+
+        {/* Pain / solution — full-bleed dark band for real contrast */}
+        <View style={styles.darkBand}>
+          <ScrollReveal style={styles.wrap}>
+            <Text style={styles.darkEyebrow}>Pourquoi Cantia</Text>
+            <Text style={styles.darkH2}>Fini les devis sur un coin de table.</Text>
+            <View style={styles.compareGrid}>
+              <ScrollReveal style={styles.compareColPlain} delay={80}>
+                <Text style={styles.compareColLabelDark}>Sans outil dédié</Text>
+                {PAIN_POINTS.map((p) => (
+                  <View key={p} style={styles.compareRow}>
+                    <View style={styles.compareIconDark}>
+                      <Feather name="x" size={13} color="rgba(255,255,255,0.85)" />
+                    </View>
+                    <Text style={styles.compareTextDark}>{p}</Text>
+                  </View>
+                ))}
+              </ScrollReveal>
+              <ScrollReveal style={styles.compareColCard} delay={220}>
+                <Text style={styles.compareColLabelLight}>Avec Cantia</Text>
+                {SOLUTIONS.map((s) => (
+                  <View key={s} style={styles.compareRow}>
+                    <View style={styles.compareIconLight}>
+                      <Feather name="check" size={13} color={colors.success} />
+                    </View>
+                    <Text style={styles.compareTextLight}>{s}</Text>
+                  </View>
+                ))}
+              </ScrollReveal>
+            </View>
+          </ScrollReveal>
+        </View>
 
         {/* Feature grid */}
-        <Container style={styles.section}>
-          <Text style={styles.eyebrow}>Tout ce dont votre entreprise a besoin, dans un seul outil</Text>
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <View ref={featuresRef}>
+            <Text style={styles.eyebrow}>Fonctionnalités</Text>
+            <Text style={styles.h2}>Tout ce dont votre entreprise a besoin, dans un seul outil.</Text>
+          </View>
           <View style={styles.featureGrid}>
             {FEATURES.map((f) => (
               <Link key={f.title} href={f.href as any} asChild>
@@ -186,10 +255,10 @@ export default function LogicielChantierPage() {
               </Link>
             ))}
           </View>
-        </Container>
+        </ScrollReveal>
 
         {/* Trust band */}
-        <Container style={styles.section}>
+        <ScrollReveal style={[styles.wrap, styles.section]}>
           <View style={styles.trustBand}>
             <View style={styles.trustBandItem}>
               <Feather name="map-pin" size={18} color={colors.primary} />
@@ -208,7 +277,7 @@ export default function LogicielChantierPage() {
               <Text style={styles.trustBandText}>Résiliable{'\n'}à tout moment</Text>
             </View>
           </View>
-        </Container>
+        </ScrollReveal>
 
         {/* Pricing */}
         <View ref={pricingRef}>
@@ -216,7 +285,7 @@ export default function LogicielChantierPage() {
         </View>
 
         {/* FAQ */}
-        <Container style={styles.section}>
+        <ScrollReveal style={[styles.wrap, styles.section]}>
           <Text style={styles.eyebrow}>Questions fréquentes</Text>
           <View style={styles.faqList}>
             {FAQ.map((f, i) => (
@@ -226,10 +295,10 @@ export default function LogicielChantierPage() {
               </View>
             ))}
           </View>
-        </Container>
+        </ScrollReveal>
 
         {/* Closing CTA */}
-        <Container style={styles.closingOuter}>
+        <View style={[styles.wrap, styles.closingOuter]}>
           <View style={styles.closing}>
             <Text style={styles.closingTitle}>Prêt à arrêter de perdre du temps en administratif ?</Text>
             <Text style={styles.closingText}>
@@ -240,96 +309,176 @@ export default function LogicielChantierPage() {
               <Button title="Essai gratuit 14 jours" variant="secondary" onPress={() => {}} style={styles.closingCta} />
             </Link>
           </View>
-        </Container>
+        </View>
 
-        <MarketingFooter onPricingPress={scrollToPricing} />
+        <MarketingFooter onPricingPress={() => scrollToRef(pricingRef)} />
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 1 },
-  heroOuter: {
-    maxWidth: 1080,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-  },
-  heroRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xxl },
-  heroText: { flex: 1, minWidth: 320 },
-  heroVisual: { flex: 1, minWidth: 300, alignItems: 'center' },
-  kickerPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  wrap: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingHorizontal: spacing.xl },
+  section: { paddingTop: spacing.xxxl },
+
+  hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
+  heroMountainBase: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: 'url(/hero-mountain.webp)',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+  } as unknown as ViewStyle,
+  heroMountainMaskFull: {
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
+  } as unknown as ViewStyle,
+  heroMountainMaskPeek: {
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+  } as unknown as ViewStyle,
+  heroBottomFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 140,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
+  } as unknown as ViewStyle,
+  heroCopy: { paddingTop: spacing.xl },
+  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
+  originSymbol: { alignItems: 'center', justifyContent: 'center' },
+  heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
+  heroMain: { flexDirection: 'row', gap: 56, paddingVertical: spacing.xxl, alignItems: 'flex-start' },
+  heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },
+  heroTitleCol: { minWidth: 0, flex: 1.15 },
+  h1: { fontFamily: landingFonts.body, fontWeight: '700', letterSpacing: -2, color: colors.text },
+  h1Highlight: { color: colors.primary },
+  crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
+  crossedText: { fontFamily: landingFonts.body, fontWeight: '500', letterSpacing: -0.6, color: '#786653' },
+  heroAside: { gap: spacing.sm, maxWidth: 420, flex: 1 },
+  heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
+  heroAsideP1: { fontFamily: landingFonts.body, fontSize: 21, fontWeight: '700', color: colors.text, lineHeight: 28, marginTop: spacing.xs, letterSpacing: -0.3 },
+  heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.xs },
+  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+  heroDiscover: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    marginBottom: spacing.md,
-  },
-  kickerText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primaryDark,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  title: {
-    fontFamily: marketingFonts.display,
-    fontSize: 46,
+    fontFamily: landingFonts.body,
+    fontSize: 13,
     fontWeight: '600',
     color: colors.text,
-    letterSpacing: -0.6,
-    lineHeight: 52,
-    maxWidth: 640,
-  } as unknown as ViewStyle,
-  subtitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
     marginTop: spacing.md,
-    lineHeight: 24,
-    maxWidth: 540,
+    paddingVertical: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: '#D7C6B1',
   },
-  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xl },
-  trustRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xs, marginTop: spacing.lg },
-  trustItem: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600' },
-  trustDot: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, color: colors.border },
-  section: {
-    maxWidth: 1040,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+  trustRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
+  trustItem: { fontFamily: landingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600' },
+  trustDot: { fontFamily: landingFonts.body, fontSize: fontSize.xs, color: colors.border },
+  heroBaseline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingVertical: spacing.lg,
+    gap: spacing.lg,
   },
-  eyebrow: {
-    fontFamily: marketingFonts.body,
-    fontSize: 22,
+  heroBaselineCompact: { justifyContent: 'space-between' },
+  baselineLabel: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
+  baselineItems: { flexDirection: 'row', gap: spacing.xl, flexWrap: 'wrap' },
+  baselineItem: { fontFamily: landingFonts.body, fontSize: 12, color: colors.text },
+  baselineOrigin: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  baselineNumber: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
+
+  eyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: colors.primary, textTransform: 'uppercase' },
+  h2: {
+    fontFamily: landingFonts.body,
+    fontSize: 32,
     fontWeight: '700',
+    letterSpacing: -0.8,
+    lineHeight: 38,
     color: colors.text,
-    marginBottom: spacing.lg,
+    marginTop: 10,
+    marginBottom: spacing.md,
     maxWidth: 620,
   },
+  bodyText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 24, color: colors.textMuted, maxWidth: 480 },
+
+  showcase: { flexDirection: 'row', flexWrap: 'wrap-reverse', alignItems: 'center', gap: spacing.xxl, paddingVertical: spacing.xxxl },
+  showcaseCopy: { flex: 1, minWidth: 300 },
+  showcaseVisual: { flex: 1, minWidth: 300, alignItems: 'center' },
+
+  darkBand: { backgroundColor: colors.primaryDark, paddingVertical: spacing.xxxl * 1.2 },
+  darkEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: '#E8B79A', textTransform: 'uppercase' },
+  darkH2: {
+    fontFamily: landingFonts.body,
+    fontSize: 34,
+    fontWeight: '700',
+    letterSpacing: -0.8,
+    lineHeight: 40,
+    color: '#fff',
+    marginTop: 10,
+    marginBottom: spacing.xl,
+    maxWidth: 640,
+  },
   compareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl },
-  compareCol: { flex: 1, minWidth: 280, gap: spacing.sm },
-  compareColTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
+  compareColPlain: { flex: 1, minWidth: 280, gap: spacing.md, paddingTop: spacing.sm },
+  compareColCard: {
+    flex: 1,
+    minWidth: 280,
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+  } as unknown as ViewStyle,
+  compareColLabelDark: {
+    fontFamily: landingFonts.body,
+    fontSize: 12,
     fontWeight: '800',
-    color: colors.danger,
+    color: 'rgba(255,255,255,0.55)',
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.8,
+    marginBottom: spacing.xs,
+  },
+  compareColLabelLight: {
+    fontFamily: landingFonts.body,
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
     marginBottom: spacing.xs,
   },
   compareRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
-  compareIcon: { marginTop: 3 },
-  compareText: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.text, lineHeight: 21, flex: 1 },
+  compareIconDark: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  compareIconLight: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    backgroundColor: colors.successSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  compareTextDark: { fontFamily: landingFonts.body, fontSize: 15, color: 'rgba(255,255,255,0.78)', lineHeight: 21, flex: 1 },
+  compareTextLight: { fontFamily: landingFonts.body, fontSize: 15, color: colors.text, lineHeight: 21, flex: 1, fontWeight: '500' },
+
   featureGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   featureCard: {
     flex: 1,
@@ -364,8 +513,9 @@ const styles = StyleSheet.create({
     transitionDuration: '0.2s',
   } as unknown as ViewStyle,
   featureIconHovered: { backgroundColor: colors.primary },
-  featureTitle: { fontFamily: marketingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
-  featureText: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },
+  featureTitle: { fontFamily: landingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  featureText: { fontFamily: landingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },
+
   trustBand: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -377,13 +527,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
   },
   trustBandItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minWidth: 200 },
-  trustBandText: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 16, fontWeight: '600' },
+  trustBandText: { fontFamily: landingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 16, fontWeight: '600' },
+
   faqList: { maxWidth: 760 },
   faqRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 6 },
   faqRowLast: { borderBottomWidth: 0 },
-  faqQuestion: { fontFamily: marketingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
-  faqAnswer: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 21, maxWidth: 640 },
-  closingOuter: { maxWidth: 1040, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingBottom: spacing.xxxl },
+  faqQuestion: { fontFamily: landingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  faqAnswer: { fontFamily: landingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 21, maxWidth: 640 },
+
+  closingOuter: { paddingTop: spacing.xxxl, paddingBottom: spacing.xxxl },
   closing: {
     backgroundColor: colors.primaryDark,
     borderRadius: radius.xl,
@@ -392,16 +544,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closingTitle: {
-    fontFamily: marketingFonts.display,
+    fontFamily: landingFonts.body,
     fontSize: 30,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#fff',
     letterSpacing: -0.4,
     textAlign: 'center',
     maxWidth: 520,
   },
   closingText: {
-    fontFamily: marketingFonts.body,
+    fontFamily: landingFonts.body,
     fontSize: fontSize.sm,
     color: 'rgba(255,255,255,0.78)',
     textAlign: 'center',
