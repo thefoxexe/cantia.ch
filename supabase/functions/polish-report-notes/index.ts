@@ -38,6 +38,7 @@ Règles strictes :
 - Corrige l'orthographe et la grammaire partout, reformule en phrases complètes et professionnelles.
 - Reste concis : privilégie la clarté à la longueur.
 - Adapte la longueur et le nombre de sections à la quantité réelle d'informations disponibles dans les notes : des notes courtes donnent un rapport court (2 sections suffisent, voire une seule), des notes riches et détaillées donnent un rapport plus complet (jusqu'à 5 sections). Ne rallonge JAMAIS artificiellement une section avec des généralités ou des tournures vagues juste pour qu'elle paraisse plus étoffée — si les notes ne donnent rien de concret sur un point, n'en fais pas une section à part, fusionne-le ailleurs ou omets-le.
+- Ne commente JAMAIS la qualité, la clarté ou le caractère fragmentaire des notes fournies (ex. jamais de tournure du type "les notes sont trop fragmentaires pour…" ou "notes insuffisamment exploitables") — ce document est lu par le client final, pas par l'auteur des notes. Limite-toi strictement aux faits que tu peux en tirer, aussi courts soient-ils ; s'il n'y a presque rien d'exploitable, écris juste les quelques faits certains en une phrase, sans t'excuser ni évoquer les notes elles-mêmes.
 - Si des "Consignes supplémentaires" sont fournies plus bas, applique-les (ton, longueur, points à mettre en avant, etc.) tout en respectant strictement toutes les règles ci-dessus — en particulier ne jamais inventer un fait qu'elles ne fournissent pas elles-mêmes.`;
 
 interface StructuredReport {

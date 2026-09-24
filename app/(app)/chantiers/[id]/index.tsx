@@ -286,6 +286,12 @@ const styles = StyleSheet.create({
     right: spacing.lg,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    // heroBottom/heroBottomCompact below is a later sibling that's also a
+    // positioned box (RN Views default to position: relative) spanning
+    // this whole banner — without an explicit zIndex here, on web it paints
+    // (and captures taps) over this bar despite being visually transparent
+    // there, so the back/settings buttons looked present but did nothing.
+    zIndex: 2,
   },
   heroIconButton: {
     width: 38,
