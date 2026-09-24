@@ -39,6 +39,23 @@ export default function Root({ children }: PropsWithChildren) {
             worse tradeoff. */}
         <style>{'html, body { background-color: #F7F1E6; }'}</style>
         <ScrollViewStyleReset />
+
+        {/* Google Ads base tag — loaded site-wide (same build serves both
+            cantia.ch and app.cantia.ch) so cross-domain conversion linking
+            works: a click landing on cantia.ch needs this tag present to
+            decorate outbound links to app.cantia.ch with the click id,
+            otherwise the signup conversion on app.cantia.ch can't be
+            attributed back to the ad. The actual conversion event fires
+            only on the verify-email screen after signup, not here. */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-18465996566');`,
+          }}
+        />
       </head>
       <body>{children}</body>
     </html>
