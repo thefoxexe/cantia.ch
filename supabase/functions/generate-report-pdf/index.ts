@@ -221,22 +221,25 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   ].filter(Boolean) as string[];
   if (metaLines.length) {
     const boxTop = y;
-    let my = y - 10;
-    for (const _line of metaLines) my -= 13;
-    const boxBottom = my + 3;
-    page.drawRectangle({ x: MARGIN, y: boxBottom, width: PAGE_WIDTH - 2 * MARGIN, height: boxTop - boxBottom + 4, color: PAPER_ALT });
-    page.drawRectangle({ x: MARGIN, y: boxBottom, width: 3, height: boxTop - boxBottom + 4, color: brand });
-    my = y - 10;
+    let my = y - 12;
+    for (const _line of metaLines) my -= 14;
+    const boxBottom = my + 4;
+    page.drawRectangle({ x: MARGIN, y: boxBottom, width: PAGE_WIDTH - 2 * MARGIN, height: boxTop - boxBottom + 6, color: PAPER_ALT });
+    page.drawRectangle({ x: MARGIN, y: boxBottom, width: 3, height: boxTop - boxBottom + 6, color: brand });
+    my = y - 12;
     for (const line of metaLines) {
-      drawText(page, line, MARGIN + 10, my, font, 10, INK);
-      my -= 13;
+      drawText(page, line, MARGIN + 12, my, font, 10, INK);
+      my -= 14;
     }
-    y = boxBottom - 22;
+    y = boxBottom - 26;
   }
 
+  // A small filled dot, inline with the label's cap-height — reads as a
+  // bullet/marker rather than the disconnected-looking vertical tick this
+  // used to be (a 3×10 bar floating a few points off the text baseline).
   const sectionLabel = (label: string) => {
-    page.drawRectangle({ x: MARGIN, y: y - 8, width: 3, height: 10, color: brand });
-    drawText(page, label, MARGIN + 10, y, fontBold, 10, MUTED);
+    page.drawEllipse({ x: MARGIN + 2.5, y: y - 3, xScale: 2.5, yScale: 2.5, color: brand });
+    drawText(page, label, MARGIN + 13, y, fontBold, 9.5, MUTED);
   };
 
   // Set by the 'intro' drawer below so 'photos' can skip whatever already
@@ -271,17 +274,17 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
         // ---- "En bref" summary chip ----
         if (structured.summary?.trim()) {
           const chipLines = wrapText(structured.summary, font, 10, PAGE_WIDTH - 2 * MARGIN - 20);
-          const chipH = chipLines.length * 13 + 16;
+          const chipH = chipLines.length * 14.5 + 24;
           if (y < MARGIN + chipH + 40) newPage();
           page.drawRectangle({ x: MARGIN, y: y - chipH, width: PAGE_WIDTH - 2 * MARGIN, height: chipH, color: tint(brand, 0.88) });
-          let cy = y - 14;
+          let cy = y - 16;
           drawText(page, 'EN BREF', MARGIN + 10, cy, fontBold, 8, brand);
-          cy -= 14;
+          cy -= 16;
           for (const line of chipLines) {
             drawText(page, line, MARGIN + 10, cy, font, 10, INK);
-            cy -= 13;
+            cy -= 14.5;
           }
-          y -= chipH + 18;
+          y -= chipH + 24;
         }
 
         // ---- sections (each an optional inline photo + a short paragraph) ----
@@ -293,20 +296,20 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
           const textX = hasPhoto ? MARGIN + PHOTO_W + 14 : MARGIN;
           const textWidth = PAGE_WIDTH - MARGIN - textX;
           const lines = wrapText(section.text, font, 10, textWidth);
-          const blockH = Math.max(hasPhoto ? PHOTO_H : 0, lines.length * 13) + 24;
+          const blockH = Math.max(hasPhoto ? PHOTO_H : 0, lines.length * 14.5) + 30;
           if (y < MARGIN + blockH + 30) newPage();
 
           sectionLabel(section.label.toUpperCase());
-          y -= 16;
+          y -= 20;
           const blockTop = y;
           if (hasPhoto) await drawInlinePhoto(photoIdx!, MARGIN, blockTop, PHOTO_W, PHOTO_H);
           if (hasPhoto) usedPhotoIndexes.add(photoIdx!);
           let ty = blockTop;
           for (const line of lines) {
             drawText(page, line, textX, ty, font, 10, INK);
-            ty -= 13;
+            ty -= 14.5;
           }
-          y = blockTop - Math.max(hasPhoto ? PHOTO_H : 0, lines.length * 13) - 18;
+          y = blockTop - Math.max(hasPhoto ? PHOTO_H : 0, lines.length * 14.5) - 26;
         }
 
         // ---- points d'attention ----
@@ -320,9 +323,9 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
           const textWidth = PAGE_WIDTH - MARGIN - padX - textX - (hasPhoto ? PHOTO_SIZE + 12 : 0);
           const lines = wrapText(item.text, font, 9.8, textWidth);
           // 27pt from box top to the first line's baseline (room for the
-          // icon + "POINT D'ATTENTION" label above it), 12.5pt per
-          // subsequent line, 10pt of bottom padding below the last line.
-          const contentH = Math.max(27 + (lines.length - 1) * 12.5 + 10, hasPhoto ? PHOTO_SIZE + 16 : 0);
+          // icon + "POINT D'ATTENTION" label above it), 13.5pt per
+          // subsequent line, 14pt of bottom padding below the last line.
+          const contentH = Math.max(27 + (lines.length - 1) * 13.5 + 14, hasPhoto ? PHOTO_SIZE + 16 : 0);
           if (y < MARGIN + contentH + 30) newPage();
 
           const boxTop = y;
@@ -344,32 +347,32 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
           let ty = boxTop - 27;
           for (const line of lines) {
             drawText(page, line, textX, ty, font, 9.8, INK);
-            ty -= 12.5;
+            ty -= 13.5;
           }
           if (hasPhoto) {
             await drawInlinePhoto(photoIdx!, PAGE_WIDTH - MARGIN - padX - PHOTO_SIZE, boxTop - 8, PHOTO_SIZE, PHOTO_SIZE);
             usedPhotoIndexes.add(photoIdx!);
           }
-          y = boxBottom - 16;
+          y = boxBottom - 22;
         }
 
         // ---- next steps ----
         if (structured.next_steps?.trim()) {
           const lines = wrapText(structured.next_steps, font, 9.8, PAGE_WIDTH - 2 * MARGIN - 60);
-          const h = lines.length * 12.5 + 6;
+          const h = lines.length * 13.5 + 8;
           if (y < MARGIN + h + 20) newPage();
           drawText(page, 'SUITE ->', MARGIN, y, fontBold, 8.5, brand);
           let ty = y;
           for (const line of lines) {
             drawText(page, line, MARGIN + 52, ty, font, 9.8, INK);
-            ty -= 12.5;
+            ty -= 13.5;
           }
-          y -= h + 12;
+          y -= h + 16;
         }
 
-        y -= 8;
+        y -= 10;
         page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
-        y -= 20;
+        y -= 26;
         return;
       }
 
@@ -379,12 +382,12 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       // flat-paragraph rendering.
       if (!report.notes?.trim()) return;
       sectionLabel('NOTES');
-      y -= 16;
+      y -= 20;
       const lines = wrapRichText(report.notes, font, fontBold, 10, PAGE_WIDTH - 2 * MARGIN);
       for (const line of lines) {
         if (y < MARGIN + 60) newPage();
         drawRichLine(page, line, MARGIN, y, font, fontBold, 10, INK);
-        y -= 13;
+        y -= 14.5;
       }
       y -= 10;
       page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
