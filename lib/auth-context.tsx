@@ -247,21 +247,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => listener.subscription.unsubscribe();
   }, [loadOrganization]);
 
+  // On web, a tab left open in the background (e.g. while working in
+  // another app) still counts as "active" per AppState — it just tracks
+  // document.visibilitychange, not real engagement. That let last_seen_at
+  // look fresh for hours with no one actually using Cantia. Track genuine
+  // interaction ourselves and only let the periodic beats through when
+  // something real happened recently; native doesn't need this since an
+  // unattended screen dims/locks well before it would matter.
+  const lastInteractionRef = useRef(Date.now());
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const markActive = () => {
+      lastInteractionRef.current = Date.now();
+    };
+    const events: Array<keyof DocumentEventMap> = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((event) => document.addEventListener(event, markActive, { passive: true }));
+    return () => {
+      events.forEach((event) => document.removeEventListener(event, markActive));
+    };
+  }, []);
+
   // "Online" presence for the équipe screen/dashboard: bumps last_seen_at
-  // every 60s while signed in and foregrounded. AppState.currentState works
-  // on web too (react-native-web maps it to document.visibilitychange), so
-  // this doesn't need a separate branch per platform.
+  // every 60s while signed in, foregrounded, and (on web) recently
+  // interacted with — see lastInteractionRef above.
   useEffect(() => {
     if (!session?.user) return;
+    const ACTIVITY_WINDOW_MS = 5 * 60 * 1000;
+    const recentlyActive = () =>
+      Platform.OS !== 'web' || Date.now() - lastInteractionRef.current < ACTIVITY_WINDOW_MS;
     const beat = () => {
       supabase.rpc('touch_presence').then(() => {}, () => {});
     };
     beat();
     const interval = setInterval(() => {
-      if (AppState.currentState === 'active') beat();
+      if (AppState.currentState === 'active' && recentlyActive()) beat();
     }, 60000);
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') beat();
+      if (state === 'active' && recentlyActive()) beat();
     });
     return () => {
       clearInterval(interval);
