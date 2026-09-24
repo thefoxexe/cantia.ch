@@ -28,6 +28,15 @@ function SafeNotificationBell() {
   );
 }
 
+// The feed screen (chantiers/[id]/feed, aka "Notes et suivi") has its own
+// composer with a dedicated mic button for in-note dictation, sitting flush
+// against the bottom of the screen — the global assistant FAB, also
+// bottom-right, would sit right on top of it and block taps on the
+// composer's own controls (reported: mic button unreachable in Notes).
+function isFeedScreen(pathname: string): boolean {
+  return /\/chantiers\/[^/]+\/feed$/.test(pathname);
+}
+
 function buildSections(
   t: (key: string) => string,
   devisVisible: boolean,
@@ -177,7 +186,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <Slot />
       </SafeAreaInsetsContext.Provider>
       <NavDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} sections={sections} activeHref={activeHref} />
-      <VoiceAssistant />
+      {!isFeedScreen(pathname) ? <VoiceAssistant /> : null}
     </View>
   );
 }
@@ -302,7 +311,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
         </SafeAreaInsetsContext.Provider>
       </View>
       <SupportPopup visible={supportVisible} onClose={() => setSupportVisible(false)} />
-      <VoiceAssistant />
+      {!isFeedScreen(pathname) ? <VoiceAssistant /> : null}
     </View>
   );
 }

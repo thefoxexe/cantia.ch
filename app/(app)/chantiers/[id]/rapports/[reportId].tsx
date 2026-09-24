@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../../../../lib/supabase';
 import { getSignedUrl, getSignedUrls, deleteFromOrgBucket } from '../../../../../lib/api/storage';
 import { generateReportPdf } from '../../../../../lib/api/pdf';
+import { polishReportNotes } from '../../../../../lib/api/ai';
 import { downloadFile } from '../../../../../lib/downloadFile';
 import { confirm } from '../../../../../lib/confirm';
 import { Button, Card, Container, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../../components/ui';
@@ -21,6 +22,7 @@ export default function ReportDetailScreen() {
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
+  const [rewriting, setRewriting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -68,6 +70,30 @@ export default function ReportDetailScreen() {
       const { error: dlError } = await downloadFile(url, `${report?.title || 'rapport'}.pdf`);
       if (dlError) setError(dlError);
     }
+  }
+
+  // Recovery path for when the AI polish pass failed at generation time
+  // (best-effort there, silently leaving raw "[heure] Auteur :" notes and no
+  // structured_content) — lets the writer get the proper structured layout
+  // without retyping anything.
+  async function rewriteWithAi() {
+    if (!report) return;
+    setRewriting(true);
+    setError(null);
+    const { notes: polished, structured, error: polishError } = await polishReportNotes(report.id);
+    if (!polished) {
+      setRewriting(false);
+      setError(polishError ?? "Échec de la rédaction IA, réessayez dans un instant");
+      return;
+    }
+    await supabase.from('reports').update({ notes: polished, structured_content: structured }).eq('id', report.id);
+    const { error: genError } = await generateReportPdf(report.id);
+    setRewriting(false);
+    if (genError) {
+      setError(genError);
+      return;
+    }
+    await load();
   }
 
   function startEditing() {
@@ -156,6 +182,13 @@ export default function ReportDetailScreen() {
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
+          {!editing && !report.structured_content && report.notes?.trim() ? (
+            <View style={styles.warning}>
+              <Feather name="alert-triangle" size={14} color={colors.accent} />
+              <Text style={styles.warningText}>{t('reportDetail.notPolishedWarning')}</Text>
+            </View>
+          ) : null}
+
           {!editing ? (
             <View style={styles.actionsRow}>
               {report.pdf_path ? (
@@ -167,6 +200,19 @@ export default function ReportDetailScreen() {
                 variant={report.pdf_path ? 'secondary' : 'primary'}
                 onPress={regenerate}
                 loading={regenerating}
+                style={{ flex: 1 }}
+              />
+            </View>
+          ) : null}
+
+          {!editing && !report.structured_content && report.notes?.trim() ? (
+            <View style={styles.actionsRow}>
+              <Button
+                title={t('reportDetail.retryAiWriting')}
+                icon="zap"
+                variant="secondary"
+                onPress={rewriteWithAi}
+                loading={rewriting}
                 style={{ flex: 1 }}
               />
             </View>
@@ -249,6 +295,20 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: fontSize.sm,
     marginTop: spacing.md,
+  },
+  warning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginTop: spacing.md,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.text,
   },
   actionsRow: {
     flexDirection: 'row',

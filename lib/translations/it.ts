@@ -429,6 +429,8 @@ export const it: TranslationDict = {
     deleteConfirmBody: 'Questa azione è definitiva ed eliminerà anche le sue foto.',
     photosCount: 'Foto ({{count}})',
     positionUnavailable: 'Posizione non disponibile',
+    notPolishedWarning: 'La redazione IA non è riuscita per questo rapporto: il PDF mostra le note grezze, non riformulate. Riprovi qui sotto.',
+    retryAiWriting: "Riprova la redazione IA",
   },
   newReport: {
     title: 'Nuovo rapporto',
@@ -457,6 +459,8 @@ export const it: TranslationDict = {
     generatingPdf: 'Generazione del PDF…',
     savedButPdfFailed: 'Rapporto salvato, ma la generazione del PDF non è riuscita: {{error}}',
     submit: 'Crea e genera il rapporto PDF',
+    aiWritingFailedTitle: 'Redazione IA non disponibile',
+    aiWritingFailedBody: 'Il rapporto è stato creato e il PDF generato con le sue note grezze (non riformulate). Può riprovare la redazione IA dalla scheda del rapporto.',
   },
   chantierReports: {
     title: 'Rapporti',
@@ -465,6 +469,7 @@ export const it: TranslationDict = {
     emptySubtitle: 'Crei un rapporto con le sue note e foto georeferenziate.',
     viewReport: 'Vedi il rapporto',
     pdfMissing: 'PDF non generato — vedi il rapporto',
+    writeManually: 'Oppure scriva un rapporto manualmente, senza partire dal diario',
   },
   projectFeed: {
     you: 'Lei',
@@ -593,7 +598,7 @@ export const it: TranslationDict = {
     },
   },
   chantierHub: {
-    feed: 'Note',
+    feed: 'Note e monitoraggio',
     reports: 'Rapporti',
     documents: 'Documenti',
     photos: 'Galleria',

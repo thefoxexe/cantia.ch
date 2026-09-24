@@ -407,6 +407,8 @@ export const fr = {
     deleteConfirmBody: 'Cette action est définitive et supprimera aussi ses photos.',
     photosCount: 'Photos ({{count}})',
     positionUnavailable: 'Position non disponible',
+    notPolishedWarning: "La rédaction IA a échoué pour ce rapport : le PDF affiche les notes brutes, non reformulées. Réessayez ci-dessous.",
+    retryAiWriting: "Réessayer la rédaction IA",
   },
   newReport: {
     title: 'Nouveau rapport',
@@ -435,6 +437,8 @@ export const fr = {
     generatingPdf: 'Génération du PDF…',
     savedButPdfFailed: 'Rapport enregistré, mais la génération du PDF a échoué : {{error}}',
     submit: 'Créer et générer le rapport PDF',
+    aiWritingFailedTitle: 'Rédaction IA indisponible',
+    aiWritingFailedBody: "Le rapport a été créé et son PDF généré avec vos notes brutes (non reformulées). Vous pouvez réessayer la rédaction IA depuis la fiche du rapport.",
   },
   chantierReports: {
     title: 'Rapports',
@@ -443,6 +447,7 @@ export const fr = {
     emptySubtitle: 'Créez un rapport avec vos notes et photos géoréférencées.',
     viewReport: 'Voir le rapport',
     pdfMissing: 'PDF non généré — voir le rapport',
+    writeManually: 'Ou rédiger un rapport manuellement, sans partir du fil',
   },
   projectFeed: {
     you: 'Vous',
@@ -571,7 +576,7 @@ export const fr = {
     },
   },
   chantierHub: {
-    feed: 'Notes',
+    feed: 'Notes et suivi',
     reports: 'Rapports',
     documents: 'Documents',
     photos: 'Galerie',

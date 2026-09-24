@@ -45,9 +45,12 @@ export default function ChantierReportsScreen() {
         <Button
           title={t('chantierReports.newReport')}
           icon="plus"
-          onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)}
-          style={{ marginBottom: spacing.lg }}
+          onPress={() => router.push(`/(app)/chantiers/${id}/feed?newReport=1`)}
+          style={{ marginBottom: spacing.sm }}
         />
+        <Pressable onPress={() => router.push(`/(app)/chantiers/${id}/rapport-new`)} style={{ marginBottom: spacing.lg }}>
+          <Text style={styles.manualLink}>{t('chantierReports.writeManually')}</Text>
+        </Pressable>
 
         {reports.length === 0 && !loading ? (
           <EmptyState title={t('chantierReports.emptyTitle')} subtitle={t('chantierReports.emptySubtitle')} />
@@ -125,5 +128,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
     fontSize: fontSize.sm,
+  },
+  manualLink: {
+    color: colors.textMuted,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });

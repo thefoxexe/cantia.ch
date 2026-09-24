@@ -426,6 +426,8 @@ export const de: TranslationDict = {
     deleteConfirmBody: 'Diese Aktion ist endgültig und löscht auch die zugehörigen Fotos.',
     photosCount: 'Fotos ({{count}})',
     positionUnavailable: 'Position nicht verfügbar',
+    notPolishedWarning: 'Die KI-Erstellung ist für diesen Rapport fehlgeschlagen: Das PDF zeigt die rohen, nicht überarbeiteten Notizen. Versuchen Sie es unten erneut.',
+    retryAiWriting: 'KI-Erstellung erneut versuchen',
   },
   newReport: {
     title: 'Neuer Rapport',
@@ -454,6 +456,8 @@ export const de: TranslationDict = {
     generatingPdf: 'PDF wird erstellt…',
     savedButPdfFailed: 'Rapport gespeichert, aber die PDF-Erstellung ist fehlgeschlagen: {{error}}',
     submit: 'PDF-Rapport erstellen und generieren',
+    aiWritingFailedTitle: 'KI-Erstellung nicht verfügbar',
+    aiWritingFailedBody: 'Der Rapport wurde erstellt und das PDF mit Ihren rohen, nicht überarbeiteten Notizen generiert. Sie können die KI-Erstellung über die Rapport-Seite erneut versuchen.',
   },
   chantierReports: {
     title: 'Rapporte',
@@ -462,6 +466,7 @@ export const de: TranslationDict = {
     emptySubtitle: 'Erstellen Sie einen Rapport mit Ihren Notizen und georeferenzierten Fotos.',
     viewReport: 'Rapport ansehen',
     pdfMissing: 'PDF nicht erstellt — Rapport ansehen',
+    writeManually: 'Oder einen Rapport manuell verfassen, unabhängig vom Verlauf',
   },
   projectFeed: {
     you: 'Sie',
@@ -590,7 +595,7 @@ export const de: TranslationDict = {
     },
   },
   chantierHub: {
-    feed: 'Notizen',
+    feed: 'Notizen & Verlauf',
     reports: 'Baustellenrapporte',
     documents: 'Dokumente',
     photos: 'Galerie',

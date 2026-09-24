@@ -5,10 +5,23 @@ export async function polishReportNotes(
   reportId: string,
   extraInstructions?: string,
 ): Promise<{ title: string | null; notes: string | null; structured: ReportStructuredContent | null; error: string | null }> {
-  const { data, error } = await invokeFunction<{ title: string | null; notes: string; structured: ReportStructuredContent }>(
+  const body = { report_id: reportId, extra_instructions: extraInstructions?.trim() || undefined };
+  let result = await invokeFunction<{ title: string | null; notes: string; structured: ReportStructuredContent }>(
     'polish-report-notes',
-    { report_id: reportId, extra_instructions: extraInstructions?.trim() || undefined },
+    body,
   );
+  // A best-effort call this important shouldn't give up on the first hiccup
+  // — a dropped connection to the edge function (seen in practice: the
+  // browser sends the CORS preflight but the POST itself never lands) is
+  // transient and a plain retry usually succeeds. One retry only: a real
+  // quota/validation error will just fail the same way again instantly.
+  if (result.error) {
+    result = await invokeFunction<{ title: string | null; notes: string; structured: ReportStructuredContent }>(
+      'polish-report-notes',
+      body,
+    );
+  }
+  const { data, error } = result;
   return { title: data?.title ?? null, notes: data?.notes ?? null, structured: data?.structured ?? null, error };
 }
 

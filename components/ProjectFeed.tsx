@@ -61,7 +61,7 @@ function formatDuration(seconds: number | null | undefined): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export function ProjectFeed({ projectId }: { projectId: string }) {
+export function ProjectFeed({ projectId, autoOpenReportModal }: { projectId: string; autoOpenReportModal?: boolean }) {
   const { t } = useTranslation();
   const { organization, user, role } = useAuth();
   const isOrgAdmin = role === 'owner' || role === 'admin';
@@ -122,6 +122,15 @@ export function ProjectFeed({ projectId }: { projectId: string }) {
   const [customTo, setCustomTo] = useState<string | null>(null);
   const [showCustomRange, setShowCustomRange] = useState(false);
   const [rangeEmptyWarning, setRangeEmptyWarning] = useState(false);
+
+  // Lets the chantier's reports list link straight into this same
+  // period-picker flow (its own "Nouveau rapport" used to only open the
+  // separate manual rapport-new form, with no period prompt) instead of
+  // duplicating the modal there.
+  useEffect(() => {
+    if (autoOpenReportModal) setReportModalVisible(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Photos captured with no/flaky signal — queued locally (durably, so they
   // survive an app restart) and shown right in the feed with a "en attente"

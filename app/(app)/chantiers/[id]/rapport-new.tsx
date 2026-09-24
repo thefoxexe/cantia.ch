@@ -178,8 +178,13 @@ export default function NewReportScreen() {
 
       // Always let the AI turn the raw (often dictated) notes into proper
       // report prose — no separate manual "Rédiger avec l'IA" step to
-      // remember. Best-effort: if it fails (e.g. no notes at all), the
-      // report still gets created and PDF'd with whatever notes exist.
+      // remember. Best-effort (already retried once inside
+      // polishReportNotes): if it still fails, the report still gets
+      // created and PDF'd with the raw notes, but the writer is told so the
+      // plain layout in the resulting PDF isn't a silent surprise — they
+      // can retry from the report's own page (has a "Réessayer la
+      // rédaction IA" action).
+      let polishFailed = false;
       if (notes.trim()) {
         setStep(t('newReport.aiWriting'));
         // Title stays whatever the writer typed above — only the body gets
@@ -188,6 +193,8 @@ export default function NewReportScreen() {
         const { notes: polished, structured } = await polishReportNotes(report.id);
         if (polished) {
           await supabase.from('reports').update({ notes: polished, structured_content: structured }).eq('id', report.id);
+        } else {
+          polishFailed = true;
         }
       }
 
@@ -200,6 +207,9 @@ export default function NewReportScreen() {
         return;
       }
 
+      if (polishFailed) {
+        Alert.alert(t('newReport.aiWritingFailedTitle'), t('newReport.aiWritingFailedBody'));
+      }
       router.replace(`/(app)/chantiers/${projectId}/reports`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));

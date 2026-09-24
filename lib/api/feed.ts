@@ -216,16 +216,23 @@ export async function generateReportFromFeed(params: {
   // Turn the raw "[heure] Auteur : message" concatenation into real report
   // prose automatically — generating a report from the feed shouldn't leave
   // a chat transcript as the final text, and there's no separate creation
-  // form here to add a manual "Rédiger avec l'IA" step to.
+  // form here to add a manual "Rédiger avec l'IA" step to. Not fatal if it
+  // fails (already retried once inside polishReportNotes) — the report
+  // still gets created and PDF'd with the raw notes, but the caller is told
+  // so the PDF's plain layout isn't a silent surprise, and the report
+  // detail screen offers a "Réessayer la rédaction IA" action to recover.
+  let polishWarning: string | null = null;
   if (noteLines.length > 0) {
-    const { notes: polished, structured } = await polishReportNotes(report.id, params.extraInstructions);
+    const { notes: polished, structured, error: polishError } = await polishReportNotes(report.id, params.extraInstructions);
     if (polished) {
       await supabase.from('reports').update({ notes: polished, structured_content: structured }).eq('id', report.id);
+    } else {
+      polishWarning = `Rapport créé avec les notes brutes (non reformulées) : ${polishError ?? 'échec de la rédaction IA'}. Vous pouvez réessayer depuis la fiche du rapport.`;
     }
   }
 
   const { error: pdfError } = await generateReportPdf(report.id);
   if (pdfError) return { reportId: report.id, error: `Rapport créé, mais la génération du PDF a échoué : ${pdfError}` };
 
-  return { reportId: report.id, error: null };
+  return { reportId: report.id, error: polishWarning };
 }

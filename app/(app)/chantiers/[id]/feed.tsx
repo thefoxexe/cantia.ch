@@ -10,7 +10,7 @@ import { spacing } from '../../../../lib/theme';
 
 export default function ChantierFeedScreen() {
   const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, newReport } = useLocalSearchParams<{ id: string; newReport?: string }>();
   const { project } = useProject(id);
 
   // Clears this chantier's unread badge on the chantiers list the moment
@@ -38,7 +38,7 @@ export default function ChantierFeedScreen() {
         style={{ maxWidth: 880, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: 0 }}
       />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ProjectFeed projectId={id} />
+        <ProjectFeed projectId={id} autoOpenReportModal={newReport === '1'} />
       </KeyboardAvoidingView>
     </AppScreen>
   );
