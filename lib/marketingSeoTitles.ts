@@ -42,9 +42,9 @@ const TITLES: Record<string, Record<AppLocale, string>> = {
     it: 'Sviluppo su misura | Cantia',
   },
   telechargement: {
-    fr: 'Télécharger Cantia | App mobile & web',
-    de: 'Cantia herunterladen | Mobile & Web-App',
-    it: 'Scaricare Cantia | App mobile & web',
+    fr: "Ajouter Cantia à l'écran d'accueil | App web mobile",
+    de: 'Cantia-Verknüpfung zum Startbildschirm hinzufügen | Web-App',
+    it: 'Aggiungere Cantia alla schermata Home | App web mobile',
   },
   integrations: {
     fr: 'Intégrations | Cantia',

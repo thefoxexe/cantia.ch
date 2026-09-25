@@ -479,8 +479,8 @@ const fr: Dict = {
       { label: 'Tablette', text: 'Plans, rapports et suivi de chantier' },
       { label: 'Téléphone', text: 'Photos, heures et informations terrain' },
     ],
-    installCta: 'Installer Cantia',
-    installNote: 'Accessible dans le navigateur et ajoutable à l’écran d’accueil.\nVersions App Store et Google Play en développement.',
+    installCta: 'Accéder à Cantia',
+    installNote: 'Application 100% web, sans rien à télécharger — ajoutable à l’écran d’accueil comme raccourci.\nVersions App Store et Google Play en développement.',
   },
   tailored: {
     eyebrow: 'Quand votre entreprise a un besoin bien à elle',
@@ -850,8 +850,8 @@ const de: Dict = {
       { label: 'Tablet', text: 'Pläne, Rapporte und Baustellenverfolgung' },
       { label: 'Telefon', text: 'Fotos, Stunden und Informationen vor Ort' },
     ],
-    installCta: 'Cantia installieren',
-    installNote: 'Zugänglich im Browser und zum Startbildschirm hinzufügbar.\nApp-Store- und Google-Play-Versionen in Entwicklung.',
+    installCta: 'Cantia öffnen',
+    installNote: '100 % webbasierte Anwendung, nichts herunterzuladen — als Verknüpfung zum Startbildschirm hinzufügbar.\nApp-Store- und Google-Play-Versionen in Entwicklung.',
   },
   tailored: {
     eyebrow: 'Wenn Ihr Unternehmen ein ganz eigenes Bedürfnis hat',
@@ -1221,8 +1221,8 @@ const it: Dict = {
       { label: 'Tablet', text: 'Piani, rapporti e monitoraggio del cantiere' },
       { label: 'Telefono', text: 'Foto, ore e informazioni dal campo' },
     ],
-    installCta: 'Installare Cantia',
-    installNote: 'Accessibile dal browser e aggiungibile alla schermata principale.\nVersioni App Store e Google Play in sviluppo.',
+    installCta: 'Accedi a Cantia',
+    installNote: 'Applicazione 100% web, senza nulla da scaricare — aggiungibile alla schermata principale come collegamento.\nVersioni App Store e Google Play in sviluppo.',
   },
   tailored: {
     eyebrow: 'Quando la sua impresa ha un’esigenza tutta sua',

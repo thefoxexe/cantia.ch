@@ -2782,9 +2782,9 @@ export const ROUTES = [
   },
   {
     path: 'telechargement',
-    title: 'Télécharger Cantia | App mobile & web',
+    title: "Ajouter Cantia à l'écran d'accueil | App web mobile",
     description:
-      "Cantia fonctionne comme une application web installable, sur ordinateur comme sur téléphone. Applications natives iOS et Android bientôt disponibles.",
+      "Cantia est une application 100% web, accessible depuis n'importe quel navigateur — sur ordinateur comme sur téléphone. Aucun fichier à télécharger. Applications natives iOS et Android bientôt disponibles.",
   },
   {
     path: 'mentions-legales',
@@ -3008,8 +3008,8 @@ export const ROUTES = [
   },
   {
     path: 'de/telechargement',
-    title: 'Cantia herunterladen | Mobile & Web-App',
-    description: 'Cantia funktioniert als installierbare Web-App, auf dem Computer wie auf dem Telefon. Native iOS- und Android-Apps demnächst verfügbar.',
+    title: 'Cantia-Verknüpfung zum Startbildschirm hinzufügen | Web-App',
+    description: 'Cantia ist eine 100 % webbasierte Anwendung, zugänglich über jeden Browser — auf dem Computer wie auf dem Telefon. Keine Datei zum Herunterladen. Native iOS- und Android-Apps demnächst verfügbar.',
   },
   {
     path: 'de/mentions-legales',
@@ -3232,8 +3232,8 @@ export const ROUTES = [
   },
   {
     path: 'it/telechargement',
-    title: 'Scaricare Cantia | App mobile & web',
-    description: "Cantia funziona come un'applicazione web installabile, su computer come su telefono. App native iOS e Android disponibili a breve.",
+    title: 'Aggiungere Cantia alla schermata Home | App web mobile',
+    description: "Cantia è un'applicazione 100% web, accessibile da qualsiasi browser — su computer come su telefono. Nessun file da scaricare. App native iOS e Android disponibili a breve.",
   },
   {
     path: 'it/mentions-legales',

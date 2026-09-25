@@ -68,9 +68,9 @@ const FAQ: { question: string; answer: string }[] = [
       "Les tarifs sont détaillés plus haut sur cette page — vous les choisissez selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai gratuit (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
   },
   {
-    question: 'Ai-je besoin d’installer un logiciel sur mon ordinateur ?',
+    question: 'Cantia fonctionne-t-il directement dans le navigateur ?',
     answer:
-      'Non. Cantia fonctionne entièrement dans le navigateur, sur ordinateur, tablette ou téléphone — sans rien installer, y compris directement depuis le chantier.',
+      'Oui. Cantia est une application 100% web, accessible depuis un ordinateur, une tablette ou un téléphone avec n’importe quel navigateur — aucun programme à télécharger, y compris directement depuis le chantier.',
   },
   {
     question: 'Puis-je récupérer mes devis, factures et clients existants ?',
