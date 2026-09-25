@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Rect } from 'react-native-svg';
+import { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { BarChart } from 'react-native-gifted-charts';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { useMeasuredWidth } from './charts/useMeasuredWidth';
+import { ChartTooltip } from './charts/ChartTooltip';
 import type { AdminRevenueTimeseriesPoint } from '../lib/types';
 
 interface MonthBar {
@@ -35,73 +37,79 @@ function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 }).format(amount);
 }
 
-const CHART_HEIGHT = 140;
-const BAR_GAP = 6;
+const CHART_HEIGHT = 150;
 const MAX_MONTHS = 12;
 
 export function CashCollectedChart({ points }: { points: AdminRevenueTimeseriesPoint[] }) {
   const months = useMemo(() => bucketByMonth(points).slice(-MAX_MONTHS), [points]);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [onLayout, width] = useMeasuredWidth();
 
-  const max = Math.max(...months.map((m) => m.total), 1);
-  const activeIndex = selected ?? months.length - 1;
-  const active = months[activeIndex];
-  const prev = activeIndex > 0 ? months[activeIndex - 1] : null;
-  const delta = active && prev ? active.total - prev.total : null;
+  const latest = months[months.length - 1];
+  const previous = months.length > 1 ? months[months.length - 2] : null;
+  const delta = latest && previous ? latest.total - previous.total : null;
 
   if (months.length === 0) {
     return <Text style={styles.emptyText}>Pas encore de donnée pour ce graphique.</Text>;
   }
 
-  const barWidth = 100 / months.length;
+  const data = months.map((m) => ({ value: m.total, label: m.label, fullLabel: m.fullLabel }));
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerLabel}>{active.fullLabel}</Text>
-          <Text style={styles.headerValue}>{formatChf(active.total)}</Text>
+          <Text style={styles.headerLabel}>{latest.fullLabel}</Text>
+          <Text style={styles.headerValue}>{formatChf(latest.total)}</Text>
         </View>
         {delta !== null ? (
           <View style={[styles.deltaChip, delta >= 0 ? styles.deltaChipUp : styles.deltaChipDown]}>
             <Text style={[styles.deltaChipText, { color: delta >= 0 ? colors.success : colors.danger }]}>
               {delta >= 0 ? '+' : '−'}
-              {formatChf(Math.abs(delta))} vs {prev!.label}
+              {formatChf(Math.abs(delta))} vs {previous!.label}
             </Text>
           </View>
         ) : null}
       </View>
 
-      <View style={styles.barRow}>
-        {months.map((m, i) => {
-          const heightPct = Math.max(4, (m.total / max) * 100);
-          const isActive = i === activeIndex;
-          return (
-            <Pressable
-              key={m.key}
-              style={[styles.barSlot, { width: `${barWidth}%` }]}
-              onPress={() => setSelected(i)}
-            >
-              <View style={styles.barTrack}>
-                <Svg width="100%" height={CHART_HEIGHT} viewBox="0 0 100 100" preserveAspectRatio="none">
-                  <Rect
-                    x={BAR_GAP / 2}
-                    y={100 - heightPct}
-                    width={100 - BAR_GAP}
-                    height={heightPct}
-                    rx={4}
-                    fill={isActive ? colors.success : `${colors.success}55`}
-                  />
-                </Svg>
-              </View>
-              <Text style={[styles.barLabel, isActive && styles.barLabelActive]} numberOfLines={1}>
-                {m.label}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View onLayout={onLayout} style={{ height: CHART_HEIGHT + 30 }}>
+        {width > 0 ? (
+          <BarChart
+            data={data as any}
+            width={width}
+            height={CHART_HEIGHT}
+            barWidth={Math.min(46, width / (months.length * 2.2))}
+            adjustToWidth
+            disableScroll
+            initialSpacing={0}
+            endSpacing={0}
+            barBorderTopLeftRadius={6}
+            barBorderTopRightRadius={6}
+            frontColor={colors.success}
+            hideRules
+            hideYAxisText
+            yAxisThickness={0}
+            xAxisThickness={0}
+            xAxisLabelTextStyle={styles.barLabel}
+            isAnimated
+            animationDuration={350}
+            pointerConfig={{
+              pointerStripHeight: CHART_HEIGHT,
+              pointerStripColor: colors.border,
+              pointerStripWidth: 1,
+              pointerColor: colors.success,
+              radius: 4,
+              activatePointersInstantlyOnTouch: true,
+              autoAdjustPointerLabelPosition: true,
+              pointerLabelWidth: 130,
+              pointerLabelHeight: 54,
+              pointerLabelComponent: (items: any[]) => (
+                <ChartTooltip value={items[0].value} dateLabel={items[0].fullLabel} color={colors.success} formatValue={formatChf} />
+              ),
+            }}
+          />
+        ) : null}
       </View>
-      <Text style={styles.hint}>Touchez un mois pour voir le détail.</Text>
+      <Text style={styles.hint}>Cliquez-glissez sur le graphique pour explorer chaque mois.</Text>
     </View>
   );
 }
@@ -150,29 +158,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
   },
-  barRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    height: CHART_HEIGHT,
-  },
-  barSlot: {
-    height: '100%',
-    alignItems: 'center',
-  },
-  barTrack: {
-    flex: 1,
-    width: '100%',
-  },
   barLabel: {
-    fontSize: 10,
     color: colors.textMuted,
+    fontSize: 10,
     fontWeight: '600',
-    marginTop: spacing.xs,
     textTransform: 'capitalize',
-  },
-  barLabelActive: {
-    color: colors.success,
-    fontWeight: '800',
   },
   hint: {
     fontSize: 10,

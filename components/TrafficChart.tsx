@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import { LineChart } from 'react-native-gifted-charts';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { buildSmoothPath } from '../lib/chartPath';
+import { useMeasuredWidth } from './charts/useMeasuredWidth';
+import { ChartTooltip } from './charts/ChartTooltip';
 import type { AdminTrafficTimeseriesPoint } from '../lib/types';
 
 type Period = '7d' | '30d' | '60d';
@@ -14,6 +15,10 @@ const PERIODS: { key: Period; label: string; days: number }[] = [
   { key: '60d', label: '60 jours', days: 60 },
 ];
 
+function formatCount(v: number): string {
+  return v.toLocaleString('fr-CH');
+}
+
 const SERIES: { key: SeriesKey; label: string; color: string }[] = [
   { key: 'visits', label: 'Visites', color: colors.primary },
   { key: 'unique_visitors', label: 'Visiteurs uniques', color: colors.accent },
@@ -21,83 +26,64 @@ const SERIES: { key: SeriesKey; label: string; color: string }[] = [
   { key: 'signups', label: 'Inscriptions', color: colors.warning },
 ];
 
-const VIEW_WIDTH = 300;
-const CHART_HEIGHT = 110;
+const CHART_HEIGHT = 120;
 
 function formatDayLabel(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' });
 }
 
 function LineSeries({ points, seriesKey, color }: { points: AdminTrafficTimeseriesPoint[]; seriesKey: SeriesKey; color: string }) {
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const [layoutWidth, setLayoutWidth] = useState(VIEW_WIDTH);
-  const values = points.map((p) => Number(p[seriesKey]));
-  const max = Math.max(...values, 1);
-  const padY = 8;
-  const usableHeight = CHART_HEIGHT - padY * 2;
-  const stepX = points.length > 1 ? VIEW_WIDTH / (points.length - 1) : 0;
-
-  const coords = values.map((v, i) => ({
-    x: i * stepX,
-    y: padY + usableHeight - (v / max) * usableHeight,
-  }));
-  const last = coords[coords.length - 1];
-  const gradientId = `traffic-${seriesKey}`;
-  const active = hoverIndex !== null ? hoverIndex : coords.length - 1;
-  const activePoint = points[active];
-  const activeCoord = coords[active];
-
-  if (coords.length < 2) {
-    return (
-      <View style={styles.chartRow}>
-        <Svg width="100%" height={CHART_HEIGHT} viewBox={`0 0 ${VIEW_WIDTH} ${CHART_HEIGHT}`}>
-          <Circle cx={last.x} cy={last.y} r={3.5} fill={color} />
-        </Svg>
-      </View>
-    );
-  }
-
-  const linePath = buildSmoothPath(coords);
-  const areaPath = `${linePath} L ${last.x} ${CHART_HEIGHT} L ${coords[0].x} ${CHART_HEIGHT} Z`;
+  const [onLayout, width] = useMeasuredWidth();
+  const data = points.map((p) => ({ value: Number(p[seriesKey]), label: '', dateLabel: formatDayLabel(p.date) }));
+  const last = points[points.length - 1];
 
   return (
     <View>
       <View style={styles.seriesHeader}>
         <Text style={[styles.seriesLabel, { color }]}>{SERIES.find((s) => s.key === seriesKey)?.label}</Text>
-        <Text style={styles.hoverValue}>
-          {Number(activePoint[seriesKey]).toLocaleString('fr-CH')}
-          <Text style={styles.hoverDate}>  ·  {formatDayLabel(activePoint.date)}</Text>
-        </Text>
+        <Text style={styles.latestValue}>{formatCount(Number(last[seriesKey]))}</Text>
       </View>
-      <View
-        style={styles.chartRow}
-        onLayout={(e) => setLayoutWidth(e.nativeEvent.layout.width)}
-        // Lets a finger/mouse sweep the chart and see each day's value,
-        // instead of only ever showing the last point — onLayout's width is
-        // the real rendered width, cross-platform (unlike DOM offsetWidth).
-        onStartShouldSetResponder={() => true}
-        onResponderMove={(e) => {
-          const { locationX } = e.nativeEvent;
-          const ratio = Math.min(1, Math.max(0, locationX / layoutWidth));
-          const idx = Math.round(ratio * (points.length - 1));
-          setHoverIndex(idx);
-        }}
-        onResponderRelease={() => setHoverIndex(null)}
-      >
-        <Svg width="100%" height={CHART_HEIGHT} viewBox={`0 0 ${VIEW_WIDTH} ${CHART_HEIGHT}`} preserveAspectRatio="none">
-          <Defs>
-            <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={color} stopOpacity={0.22} />
-              <Stop offset="1" stopColor={color} stopOpacity={0} />
-            </LinearGradient>
-          </Defs>
-          <Path d={areaPath} fill={`url(#${gradientId})`} stroke="none" />
-          <Path d={linePath} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          {hoverIndex !== null ? (
-            <Path d={`M ${activeCoord.x} 0 L ${activeCoord.x} ${CHART_HEIGHT}`} stroke={colors.border} strokeWidth={1} />
-          ) : null}
-          <Circle cx={activeCoord.x} cy={activeCoord.y} r={hoverIndex !== null ? 4.5 : 3.5} fill={color} />
-        </Svg>
+      <View onLayout={onLayout} style={{ height: CHART_HEIGHT }}>
+        {width > 0 ? (
+          <LineChart
+            data={data as any}
+            width={width}
+            height={CHART_HEIGHT}
+            curved
+            areaChart
+            color={color}
+            thickness={2.5}
+            startFillColor={color}
+            endFillColor={color}
+            startOpacity={0.2}
+            endOpacity={0}
+            hideDataPoints
+            hideAxesAndRules
+            hideYAxisText
+            yAxisThickness={0}
+            xAxisThickness={0}
+            initialSpacing={0}
+            endSpacing={0}
+            adjustToWidth
+            disableScroll
+            isAnimated
+            animationDuration={350}
+            pointerConfig={{
+              pointerStripHeight: CHART_HEIGHT,
+              pointerStripColor: colors.border,
+              pointerStripWidth: 1,
+              pointerColor: color,
+              radius: 4,
+              activatePointersInstantlyOnTouch: true,
+              autoAdjustPointerLabelPosition: true,
+              pointerLabelWidth: 110,
+              pointerLabelHeight: 54,
+              pointerLabelComponent: (items: any[]) => (
+                <ChartTooltip value={items[0].value} dateLabel={items[0].dateLabel} color={color} formatValue={formatCount} />
+              ),
+            }}
+          />
+        ) : null}
       </View>
     </View>
   );
@@ -157,6 +143,7 @@ export function TrafficChart({ points }: { points: AdminTrafficTimeseriesPoint[]
             <Text style={styles.axisLabel}>{formatDayLabel(filtered[0].date)}</Text>
             {filtered.length > 1 ? <Text style={styles.axisLabel}>{formatDayLabel(filtered[filtered.length - 1].date)}</Text> : null}
           </View>
+          <Text style={styles.hint}>Cliquez-glissez sur une courbe pour explorer chaque jour.</Text>
         </View>
       )}
     </View>
@@ -229,19 +216,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     fontWeight: '700',
   },
-  hoverValue: {
+  latestValue: {
     fontSize: fontSize.sm,
     fontWeight: '800',
     color: colors.text,
     fontVariant: ['tabular-nums'],
-  },
-  hoverDate: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  chartRow: {
-    height: CHART_HEIGHT,
   },
   axisRow: {
     flexDirection: 'row',
@@ -252,6 +231,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.textMuted,
     fontWeight: '600',
+  },
+  hint: {
+    fontSize: 10,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    textAlign: 'center',
   },
   emptyText: {
     fontSize: fontSize.sm,
