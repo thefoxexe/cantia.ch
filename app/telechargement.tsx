@@ -88,6 +88,16 @@ export default function TelechargementScreen() {
         </View>
 
         <Container style={styles.container}>
+          <View style={styles.claritySection}>
+            <View style={styles.clarityIcon}>
+              <Feather name="globe" size={18} color={colors.primary} />
+            </View>
+            <View style={styles.clarityBody}>
+              <Text style={styles.clarityTitle}>{t('telechargementPage.clarityTitle')}</Text>
+              <Text style={styles.clarityText}>{t('telechargementPage.clarityText')}</Text>
+            </View>
+          </View>
+
           <View style={styles.installSection}>
             <Text style={styles.installTitle}>{t('telechargementPage.installTitle')}</Text>
             <Text style={styles.installLead}>{t('telechargementPage.installLead')}</Text>
@@ -279,6 +289,46 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     lineHeight: 20,
     maxWidth: 560,
+  },
+  // Sits right above the install steps, before any mention of "installer" —
+  // states plainly this is a browser shortcut, not a downloadable .exe.
+  // Added after Google Ads misclassified the ad under its Free Desktop
+  // Software policy (it read "logiciel" + "gratuit" + "télécharger" as
+  // signals for an actual installable executable).
+  claritySection: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  clarityIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  clarityBody: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  clarityTitle: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  clarityText: {
+    fontFamily: marketingFonts.body,
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    lineHeight: 20,
   },
   storeSection: {
     flexDirection: 'row',
