@@ -7,6 +7,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
 import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
+import { getStoredAttribution } from './siteAnalytics';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -433,7 +434,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const createOrganization = useCallback(
     async (name: string, trade: string | null) => {
-      const { error } = await supabase.rpc('create_organization', { org_name: name, org_trade: trade });
+      // Attribution was captured (if any) back on cantia.ch's first pageview
+      // and survives the domain jump to app.cantia.ch via a shared cookie —
+      // see lib/siteAnalytics.ts. Native has no such cookie/URL, so this is
+      // naturally a no-op there.
+      const attr = Platform.OS === 'web' ? getStoredAttribution() : null;
+      const referrer = Platform.OS === 'web' && typeof document !== 'undefined' ? document.referrer || null : null;
+      const { error } = await supabase.rpc('create_organization', {
+        org_name: name,
+        org_trade: trade,
+        p_utm_source: attr?.utm_source ?? null,
+        p_utm_medium: attr?.utm_medium ?? null,
+        p_utm_campaign: attr?.utm_campaign ?? null,
+        p_utm_content: attr?.utm_content ?? null,
+        p_utm_term: attr?.utm_term ?? null,
+        p_gclid: attr?.gclid ?? null,
+        p_referrer: referrer,
+      });
       if (error) return { error: error.message };
       if (session?.user) await loadOrganization(session.user.id);
       return { error: null };

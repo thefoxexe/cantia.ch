@@ -1321,6 +1321,44 @@ export interface AdminBlogFunnelOverview {
   recent_leads: AdminBlogFunnelLead[];
 }
 
+export interface AdminTrafficTimeseriesPoint {
+  date: string;
+  visits: number;
+  unique_visitors: number;
+}
+
+export interface AdminTrafficTopPage {
+  path: string;
+  visits: number;
+}
+
+export interface AdminTrafficSource {
+  source: string;
+  medium: string | null;
+  campaign: string | null;
+  visits: number;
+  unique_visitors: number;
+  gclid_visits: number;
+}
+
+export interface AdminTrafficSignupSource {
+  source: string;
+  campaign: string | null;
+  signups: number;
+}
+
+export interface AdminSiteTrafficOverview {
+  visits_today: number;
+  visits_7d: number;
+  visits_30d: number;
+  unique_visitors_today: number;
+  unique_visitors_7d: number;
+  top_pages: AdminTrafficTopPage[];
+  timeseries: AdminTrafficTimeseriesPoint[];
+  sources_30d: AdminTrafficSource[];
+  signups_by_source_30d: AdminTrafficSignupSource[];
+}
+
 export interface AdminModuleSummary {
   id: string;
   key: string;

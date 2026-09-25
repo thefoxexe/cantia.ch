@@ -12,6 +12,7 @@ import type {
   AdminOrganizationSummary,
   AdminPlatformExpense,
   AdminRevenueOverview,
+  AdminSiteTrafficOverview,
   AdminSocialPost,
   AdminTutorialChapter,
   AdminUserSummary,
@@ -257,6 +258,15 @@ export async function getBlogFunnelOverview(): Promise<{ overview: AdminBlogFunn
   const { data, error } = await supabase.rpc('admin_blog_funnel_overview');
   const err = logRpcError('admin_blog_funnel_overview', error);
   return { overview: err || !data ? null : (data as AdminBlogFunnelOverview), error: err };
+}
+
+// Site traffic + campaign attribution (UTM/gclid) — see
+// admin_site_traffic_overview() for how visits, sources and signups are
+// grouped.
+export async function getSiteTrafficOverview(): Promise<{ overview: AdminSiteTrafficOverview | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_site_traffic_overview');
+  const err = logRpcError('admin_site_traffic_overview', error);
+  return { overview: err || !data ? null : (data as AdminSiteTrafficOverview), error: err };
 }
 
 // Realtime "dernières inscriptions" — new organizations landing live in the
