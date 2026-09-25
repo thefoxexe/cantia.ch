@@ -1,5 +1,5 @@
 [build]
-  command = "npx expo export -p web -c && node scripts/inject-seo-meta.mjs"
+  command = "npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs"
   publish = "dist"
 
 [build.environment]
