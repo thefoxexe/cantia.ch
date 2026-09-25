@@ -1325,6 +1325,8 @@ export interface AdminTrafficTimeseriesPoint {
   date: string;
   visits: number;
   unique_visitors: number;
+  ads_visits: number;
+  signups: number;
 }
 
 export interface AdminTrafficTopPage {
@@ -1349,10 +1351,21 @@ export interface AdminTrafficSignupSource {
 
 export interface AdminSiteTrafficOverview {
   visits_today: number;
+  visits_yesterday: number;
   visits_7d: number;
+  visits_prev_7d: number;
   visits_30d: number;
   unique_visitors_today: number;
+  unique_visitors_yesterday: number;
   unique_visitors_7d: number;
+  unique_visitors_prev_7d: number;
+  signups_today: number;
+  signups_yesterday: number;
+  signups_7d: number;
+  signups_prev_7d: number;
+  ads_visits_today: number;
+  ads_visits_7d: number;
+  ads_visits_prev_7d: number;
   top_pages: AdminTrafficTopPage[];
   timeseries: AdminTrafficTimeseriesPoint[];
   sources_30d: AdminTrafficSource[];

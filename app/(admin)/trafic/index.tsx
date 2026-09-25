@@ -3,15 +3,59 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
+import { TrafficChart } from '../../../components/TrafficChart';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getSiteTrafficOverview } from '../../../lib/api/admin';
 import type { AdminSiteTrafficOverview } from '../../../lib/types';
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function pct(current: number, previous: number): { label: string; direction: 'up' | 'down' | 'flat' } {
+  if (previous === 0) {
+    if (current === 0) return { label: '± 0%', direction: 'flat' };
+    return { label: 'nouveau', direction: 'up' };
+  }
+  const change = ((current - previous) / previous) * 100;
+  if (Math.abs(change) < 1) return { label: '± 0%', direction: 'flat' };
+  return { label: `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`, direction: change >= 0 ? 'up' : 'down' };
+}
+
+function StatCard({
+  label,
+  value,
+  compareValue,
+  compareLabel,
+}: {
+  label: string;
+  value: number;
+  compareValue?: number;
+  compareLabel?: string;
+}) {
+  const delta = compareValue !== undefined ? pct(value, compareValue) : null;
   return (
     <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value.toLocaleString('fr-CH')}</Text>
       <Text style={styles.statLabel}>{label}</Text>
+      <View style={styles.statValueRow}>
+        <Text style={styles.statValue}>{value.toLocaleString('fr-CH')}</Text>
+        {delta ? (
+          <View
+            style={[
+              styles.deltaChip,
+              delta.direction === 'up' && styles.deltaChipUp,
+              delta.direction === 'down' && styles.deltaChipDown,
+              delta.direction === 'flat' && styles.deltaChipFlat,
+            ]}
+          >
+            <Text
+              style={[
+                styles.deltaChipText,
+                { color: delta.direction === 'up' ? colors.success : delta.direction === 'down' ? colors.danger : colors.textMuted },
+              ]}
+            >
+              {delta.direction === 'up' ? '↑' : delta.direction === 'down' ? '↓' : '→'} {delta.label}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      {compareLabel ? <Text style={styles.statCompareLabel}>{compareLabel}</Text> : null}
     </View>
   );
 }
@@ -39,6 +83,8 @@ export default function AdminTrafficScreen() {
     load();
   }, [load]);
 
+  const totalSourceVisits = overview ? overview.sources_30d.reduce((sum, s) => sum + s.visits, 0) : 0;
+
   return (
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
@@ -60,11 +106,64 @@ export default function AdminTrafficScreen() {
           <EmptyState title="Pas encore de données" />
         ) : (
           <View style={styles.sections}>
-            <View style={styles.statsRow}>
-              <StatCard label="Visites (aujourd'hui)" value={overview.visits_today} />
-              <StatCard label="Visites (7 j)" value={overview.visits_7d} />
-              <StatCard label="Visites (30 j)" value={overview.visits_30d} />
-              <StatCard label="Visiteurs uniques (7 j)" value={overview.unique_visitors_7d} />
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Aujourd'hui vs hier</Text>
+              <View style={styles.statsRow}>
+                <StatCard
+                  label="Visites"
+                  value={overview.visits_today}
+                  compareValue={overview.visits_yesterday}
+                  compareLabel={`Hier : ${overview.visits_yesterday.toLocaleString('fr-CH')}`}
+                />
+                <StatCard
+                  label="Visiteurs uniques"
+                  value={overview.unique_visitors_today}
+                  compareValue={overview.unique_visitors_yesterday}
+                  compareLabel={`Hier : ${overview.unique_visitors_yesterday.toLocaleString('fr-CH')}`}
+                />
+                <StatCard
+                  label="Inscriptions"
+                  value={overview.signups_today}
+                  compareValue={overview.signups_yesterday}
+                  compareLabel={`Hier : ${overview.signups_yesterday.toLocaleString('fr-CH')}`}
+                />
+                <StatCard label="Clics Google Ads" value={overview.ads_visits_today} />
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Cette semaine vs la semaine dernière (7 jours glissants)</Text>
+              <View style={styles.statsRow}>
+                <StatCard
+                  label="Visites (7 j)"
+                  value={overview.visits_7d}
+                  compareValue={overview.visits_prev_7d}
+                  compareLabel={`7 j précédents : ${overview.visits_prev_7d.toLocaleString('fr-CH')}`}
+                />
+                <StatCard
+                  label="Visiteurs uniques (7 j)"
+                  value={overview.unique_visitors_7d}
+                  compareValue={overview.unique_visitors_prev_7d}
+                  compareLabel={`7 j précédents : ${overview.unique_visitors_prev_7d.toLocaleString('fr-CH')}`}
+                />
+                <StatCard
+                  label="Inscriptions (7 j)"
+                  value={overview.signups_7d}
+                  compareValue={overview.signups_prev_7d}
+                  compareLabel={`7 j précédents : ${overview.signups_prev_7d.toLocaleString('fr-CH')}`}
+                />
+                <StatCard
+                  label="Clics Google Ads (7 j)"
+                  value={overview.ads_visits_7d}
+                  compareValue={overview.ads_visits_prev_7d}
+                  compareLabel={`7 j précédents : ${overview.ads_visits_prev_7d.toLocaleString('fr-CH')}`}
+                />
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Évolution</Text>
+              <TrafficChart points={overview.timeseries} />
             </View>
 
             <View style={styles.section}>
@@ -77,6 +176,7 @@ export default function AdminTrafficScreen() {
                     <Text style={[styles.cell, styles.cellWide, styles.cellHead]}>Source</Text>
                     <Text style={[styles.cell, styles.cellWide, styles.cellHead]}>Campagne</Text>
                     <Text style={[styles.cell, styles.cellHead]}>Visites</Text>
+                    <Text style={[styles.cell, styles.cellHead]}>% du trafic</Text>
                     <Text style={[styles.cell, styles.cellHead]}>Uniques</Text>
                     <Text style={[styles.cell, styles.cellHead]}>Via clic Ads</Text>
                   </View>
@@ -90,8 +190,11 @@ export default function AdminTrafficScreen() {
                         {row.campaign ?? '—'}
                       </Text>
                       <Text style={styles.cell}>{row.visits.toLocaleString('fr-CH')}</Text>
+                      <Text style={styles.cell}>{totalSourceVisits > 0 ? `${((row.visits / totalSourceVisits) * 100).toFixed(0)}%` : '—'}</Text>
                       <Text style={styles.cell}>{row.unique_visitors.toLocaleString('fr-CH')}</Text>
-                      <Text style={styles.cell}>{row.gclid_visits.toLocaleString('fr-CH')}</Text>
+                      <Text style={[styles.cell, row.gclid_visits > 0 && styles.cellHighlight]}>
+                        {row.gclid_visits.toLocaleString('fr-CH')}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -181,7 +284,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    minWidth: 140,
+    minWidth: 160,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
@@ -189,16 +292,47 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
+  statLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  statValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: 4,
+  },
   statValue: {
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.primary,
     fontVariant: ['tabular-nums'],
   },
-  statLabel: {
-    fontSize: 11,
+  statCompareLabel: {
+    fontSize: 10,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  deltaChip: {
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  deltaChipUp: {
+    backgroundColor: colors.successSoft,
+  },
+  deltaChipDown: {
+    backgroundColor: colors.dangerSoft,
+  },
+  deltaChipFlat: {
+    backgroundColor: colors.surfaceAlt,
+  },
+  deltaChipText: {
+    fontSize: 11,
+    fontWeight: '700',
   },
   section: {
     gap: spacing.sm,
@@ -244,6 +378,10 @@ const styles = StyleSheet.create({
   },
   cellWide: {
     flex: 2,
+  },
+  cellHighlight: {
+    color: colors.success,
+    fontWeight: '800',
   },
   cellHead: {
     fontWeight: '800',
