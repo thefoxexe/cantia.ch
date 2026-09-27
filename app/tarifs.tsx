@@ -7,7 +7,7 @@ import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { PricingSection } from '../components/PricingSection';
 import { SwissCross } from '../components/SwissCross';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { authHref } from '../lib/appHost';
 import { getAppLocale } from '../lib/translations';
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 40,
     fontWeight: '600',
     color: colors.text,

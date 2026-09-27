@@ -3,7 +3,7 @@ import { Link } from 'expo-router';
 import { Button, Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 
 // Expo Router's built-in convention for a 404 — any unmatched route renders
 // this instead of the framework's bare default page. Kept branded and on
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 34,
     fontWeight: '600',
     letterSpacing: -0.4,

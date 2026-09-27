@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Animated, Easing, LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing } from '../../lib/theme';
+import { colors, spacing } from '../../lib/theme';
 import { landingFonts } from '../../lib/landingTheme';
 
 export function Disclosure({
@@ -62,10 +62,10 @@ export function Disclosure({
 }
 
 const styles = StyleSheet.create({
-  plainWrap: { borderBottomWidth: 1, borderBottomColor: colors.border },
-  cardWrap: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.surface, overflow: 'hidden' },
+  plainWrap: { borderBottomWidth: 1, borderBottomColor: '#D8C8B0' },
+  cardWrap: { borderBottomWidth: 1, borderBottomColor: colors.border },
   summary: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.md, paddingVertical: spacing.lg, paddingHorizontal: spacing.xs },
-  title: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: colors.text },
+  title: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text, lineHeight: 24 },
   subtitle: { fontFamily: landingFonts.body, fontSize: 12, color: colors.textMuted, marginTop: 4 },
   expand: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '400', color: colors.primary, lineHeight: 24 },
   content: { paddingHorizontal: spacing.xs, paddingBottom: spacing.lg, gap: spacing.md },

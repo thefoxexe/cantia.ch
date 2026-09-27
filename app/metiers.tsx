@@ -5,7 +5,7 @@ import { Container, Screen } from '../components/ui';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 38,
     fontWeight: '600',
     color: colors.text,

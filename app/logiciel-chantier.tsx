@@ -2,7 +2,11 @@ import { useEffect, useRef } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button, Screen } from '../components/ui';
+import { Screen } from '../components/ui';
+import { CtaButton } from '../components/landing/CtaButton';
+import { SectionHead } from '../components/landing/SectionHead';
+import { Cartouche } from '../components/landing/Cartouche';
+import { bodyInk, ink, rule } from '../components/landing/brand';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { PricingSection } from '../components/PricingSection';
@@ -10,8 +14,8 @@ import { SwissCross } from '../components/SwissCross';
 import { ModuleMockup } from '../components/solutions/ModuleMockup';
 import { HeroCross } from '../components/landing/HeroCross';
 import { ScrollReveal } from '../components/landing/ScrollReveal';
-import { colors, breakpoints, fontSize, radius, spacing } from '../lib/theme';
-import { landingFonts } from '../lib/landingTheme';
+import { colors, breakpoints, spacing } from '../lib/theme';
+import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -65,7 +69,7 @@ const FAQ: { question: string; answer: string }[] = [
   {
     question: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
     answer:
-      "Les tarifs sont détaillés plus haut sur cette page — vous les choisissez selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai gratuit (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
+      "Les tarifs sont détaillés plus haut sur cette page — vous les choisissez selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
   },
   {
     question: 'Cantia fonctionne-t-il directement dans le navigateur ?',
@@ -93,20 +97,25 @@ const FAQ: { question: string; answer: string }[] = [
   },
 ];
 
-const BASELINE_ITEMS = ['Devis & factures', 'Rapports de chantier', 'Planning d’équipe', 'Rentabilité', 'RH & salaires', 'Trésorerie'];
+const CARTOUCHE = [
+  { label: 'Inclus', value: 'Devis, factures, rapports, planning, RH, trésorerie' },
+  { label: 'QR-facture', value: 'Conforme à la norme SIX' },
+  { label: 'Hébergement', value: 'Zurich, Suisse' },
+  { label: 'Engagement', value: 'Aucun, résiliable à tout moment' },
+];
+
+const FACTS = ['Dès CHF 39.– par mois', '14 jours d’essai, sans engagement', 'Interface FR · DE · IT'];
 
 export default function LogicielChantierPage() {
   const scrollRef = useRef<ScrollView>(null);
   const pricingRef = useRef<View>(null);
-  const featuresRef = useRef<View>(null);
   const heroMountainRef = useRef<View>(null);
 
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
-  const heroMinHeight = !isMobile ? clamp(380, height * 0.58, 620) : undefined;
-  const heroTitleSize = clamp(32, width * 0.048, 66);
-  const heroCrossedSize = clamp(20, width * 0.03, 38);
+  const heroMinHeight = !isMobile ? clamp(560, height * 0.82, 880) : undefined;
+  const heroTitleSize = isMobile ? clamp(44, width * 0.12, 60) : clamp(60, width * 0.066, 104);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -124,7 +133,7 @@ export default function LogicielChantierPage() {
     <Screen style={{ padding: 0 }}>
       <MarketingHead
         title="Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia"
-        description="Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. Essai gratuit 14 jours, sans engagement, hébergé en Suisse."
+        description="Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. 14 jours d’essai, sans engagement, hébergé en Suisse."
       />
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
         <MarketingNav onPricingPress={() => scrollToRef(pricingRef)} />
@@ -138,175 +147,116 @@ export default function LogicielChantierPage() {
           />
           <View pointerEvents="none" style={styles.heroBottomFade} />
           <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }]}>
-            <ScrollReveal style={styles.heroKicker}>
-              <View style={styles.originSymbol}>
+            <View style={!isTablet ? { maxWidth: '58%' } : undefined}>
+              <ScrollReveal style={styles.heroKicker}>
                 <SwissCross size={14} />
-              </View>
-              <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
-            </ScrollReveal>
-
-            <View style={[styles.heroMain, isTablet && styles.heroMainCompact]}>
-              <ScrollReveal style={[styles.heroTitleCol, !isTablet && styles.heroTitleColWide]} delay={120}>
-                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.1 }]}>
-                  Reprenez le contrôle
-                  {'\n'}
-                  de vos <Text style={styles.h1Highlight}>chantiers.</Text>
+                <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
+              </ScrollReveal>
+              <ScrollReveal delay={120}>
+                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>
+                  Reprenez le contrôle de vos chantiers.
                 </Text>
                 <View style={styles.crossedWrap}>
-                  <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>Pas ce que vous oubliez de facturer.</Text>
+                  <Text style={[styles.crossedText, { fontSize: heroTitleSize * 0.42, lineHeight: heroTitleSize * 0.5 }]}>
+                    Pas ce que vous oubliez de facturer.
+                  </Text>
                   <HeroCross />
                 </View>
               </ScrollReveal>
-              <ScrollReveal style={[styles.heroAside, !isTablet && styles.heroAsideWide]} delay={420}>
-                <Text style={styles.heroAsideEyebrow}>FAIT. FACTURÉ. PAYÉ.</Text>
-                <Text style={styles.heroAsideP1}>Ce que vous ne facturez pas, vous ne le récupérez jamais.</Text>
-                <Text style={styles.heroAsideP2}>
-                  Excel, WhatsApp, papier : chaque outil que vous n’avez pas vous coûte de l’argent quelque part sur
-                  un chantier, sans que vous le voyiez venir. Cantia centralise tout, du devis au paiement.
+              <ScrollReveal delay={420} style={styles.heroBody}>
+                <Text style={styles.heroLede}>
+                  Excel, WhatsApp, papier : chaque outil qui manque vous coûte de l’argent quelque part sur un chantier.
+                  Cantia rassemble devis, factures QR, rapports, planning et salaires, du premier devis au paiement.
                 </Text>
                 <View style={styles.ctaRow}>
                   <Link href={authHref('signup')} asChild>
-                    <Button title="Essai gratuit 14 jours" onPress={() => {}} icon="arrow-up-right" />
+                    <CtaButton title="Essayer 14 jours" />
                   </Link>
-                  <Button title="Voir les tarifs" onPress={() => scrollToRef(pricingRef)} variant="secondary" />
+                  <Pressable onPress={() => scrollToRef(pricingRef)}>
+                    <Text style={styles.underlineLink}>Voir les tarifs</Text>
+                  </Pressable>
                 </View>
-                <Pressable onPress={() => scrollToRef(featuresRef)}>
-                  <Text style={styles.heroDiscover}>Découvrir les fonctionnalités ↓</Text>
-                </Pressable>
-                <View style={styles.trustRow}>
-                  <Text style={styles.trustItem}>Hébergé en Suisse</Text>
-                  <Text style={styles.trustDot}>·</Text>
-                  <Text style={styles.trustItem}>QR-facture conforme</Text>
-                  <Text style={styles.trustDot}>·</Text>
-                  <Text style={styles.trustItem}>Sans engagement</Text>
-                </View>
+                <Text style={styles.heroFacts}>{FACTS.join(isMobile ? '\n' : '   ·   ')}</Text>
               </ScrollReveal>
             </View>
-
-            <ScrollReveal style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]} delay={680}>
-              <Text style={styles.baselineLabel}>TOUT INCLUS, UN SEUL ABONNEMENT</Text>
-              {!isTablet ? (
-                <View style={styles.baselineItems}>
-                  {BASELINE_ITEMS.map((item) => (
-                    <Text key={item} style={styles.baselineItem}>{item}</Text>
-                  ))}
-                </View>
-              ) : null}
-              <View style={styles.baselineOrigin}>
-                <SwissCross size={12} />
-                <Text style={styles.baselineNumber}>Zurich, Suisse</Text>
-              </View>
+            <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && { alignSelf: 'stretch', maxWidth: undefined }]}>
+              <Cartouche cells={CARTOUCHE} compact={isMobile} />
             </ScrollReveal>
           </View>
         </View>
 
         {/* Product preview */}
-        <ScrollReveal style={styles.wrap}>
-          <View style={styles.showcase}>
-            <View style={styles.showcaseCopy}>
-              <Text style={styles.eyebrow}>En quelques minutes</Text>
-              <Text style={styles.h2}>Du devis chiffré à la facture QR, sans ressaisie.</Text>
-              <Text style={styles.bodyText}>
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label="En quelques minutes" title="Du devis chiffré à la facture QR, sans ressaisie." />
+          <View style={[styles.split, isTablet && styles.splitCompact]}>
+            <View style={styles.splitCol}>
+              <Text style={styles.bodyLarge}>
                 Décrivez le travail à voix haute, Cantia chiffre avec votre catalogue de prix et génère un PDF prêt à
-                envoyer — la facture reprend automatiquement les mêmes lignes, avec QR-facture suisse conforme.
+                envoyer. La facture reprend ensuite les mêmes lignes, avec la QR-facture suisse.
               </Text>
             </View>
-            <View style={styles.showcaseVisual}>
+            <View style={[styles.splitCol, { alignItems: 'center' }]}>
               <ModuleMockup kind="devis" />
             </View>
           </View>
         </ScrollReveal>
 
-        {/* Pain / solution — full-bleed dark band, concrete scenarios not a feature list */}
+        {/* Pain / solution — full-bleed dark band, concrete scenarios */}
         <View style={styles.darkBand}>
           <ScrollReveal style={styles.wrap}>
             <Text style={styles.darkEyebrow}>La facture cachée</Text>
-            <Text style={styles.darkH2}>Vous perdez de l’argent sur vos chantiers. Vous ne le voyez juste pas encore.</Text>
-            <View style={styles.problemGrid}>
-              {PROBLEM_CARDS.map((p, i) => (
-                <ScrollReveal key={p.problem} style={styles.problemCard} delay={80 + i * 90}>
-                  <View style={styles.problemIcon}>
-                    <Feather name={p.icon} size={17} color="#F3A98C" />
-                  </View>
+            <Text style={styles.darkH2}>Vous perdez de l’argent sur vos chantiers, souvent sans le voir.</Text>
+            <View style={[styles.problemGrid, isTablet && { flexDirection: 'column' }]}>
+              {PROBLEM_CARDS.map((p) => (
+                <View key={p.problem} style={styles.problemCard}>
+                  <Feather name={p.icon} size={18} color="#F3A98C" />
                   <Text style={styles.problemText}>{p.problem}</Text>
                   <Text style={styles.problemConsequence}>{p.consequence}</Text>
-                </ScrollReveal>
+                </View>
               ))}
             </View>
-            <ScrollReveal style={styles.reliefCard} delay={440}>
+            <View style={styles.reliefCard}>
               <Text style={styles.reliefLabel}>Avec Cantia, ces angles morts disparaissent</Text>
               <View style={styles.reliefGrid}>
                 {RELIEF_ITEMS.map((r) => (
                   <View key={r} style={styles.reliefRow}>
-                    <View style={styles.reliefIcon}>
-                      <Feather name="check" size={13} color={colors.success} />
-                    </View>
+                    <Feather name="check" size={16} color={colors.primary} style={{ marginTop: 3 }} />
                     <Text style={styles.reliefText}>{r}</Text>
                   </View>
                 ))}
               </View>
-            </ScrollReveal>
+            </View>
           </ScrollReveal>
         </View>
 
-        {/* Feature grid */}
+        {/* Features, as a parts list */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
-          <View ref={featuresRef}>
-            <Text style={styles.eyebrow}>Fonctionnalités</Text>
-            <Text style={styles.h2}>Tout ce dont votre entreprise a besoin, dans un seul outil.</Text>
-          </View>
+          <SectionHead label="Fonctionnalités" title="Tout ce dont votre entreprise a besoin, dans un seul outil." />
           <View style={styles.featureGrid}>
             {FEATURES.map((f) => (
               <Link key={f.title} href={f.href as any} asChild>
-                <Pressable style={({ hovered }: any) => [styles.featureCard, hovered && styles.featureCardHovered]}>
-                  {({ hovered }: any) => (
-                    <>
-                      <View style={[styles.featureIcon, hovered && styles.featureIconHovered]}>
-                        <Feather name={f.icon} size={18} color={hovered ? '#fff' : colors.primary} />
-                      </View>
-                      <Text style={styles.featureTitle}>{f.title}</Text>
-                      <Text style={styles.featureText}>{f.text}</Text>
-                    </>
-                  )}
+                <Pressable style={StyleSheet.flatten([styles.featureCard, isMobile && { flexBasis: '100%' }])}>
+                  <Feather name={f.icon} size={20} color={colors.primary} />
+                  <Text style={styles.featureTitle}>{f.title}</Text>
+                  <Text style={styles.featureText}>{f.text}</Text>
+                  <Text style={styles.featureLink}>{f.href} →</Text>
                 </Pressable>
               </Link>
             ))}
           </View>
         </ScrollReveal>
 
-        {/* Trust band */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <View style={styles.trustBand}>
-            <View style={styles.trustBandItem}>
-              <Feather name="map-pin" size={18} color={colors.primary} />
-              <Text style={styles.trustBandText}>Données hébergées{'\n'}en Suisse (Zurich)</Text>
-            </View>
-            <View style={styles.trustBandItem}>
-              <Feather name="shield" size={18} color={colors.primary} />
-              <Text style={styles.trustBandText}>QR-facture{'\n'}norme SIX conforme</Text>
-            </View>
-            <View style={styles.trustBandItem}>
-              <Feather name="globe" size={18} color={colors.primary} />
-              <Text style={styles.trustBandText}>Interface{'\n'}FR · DE · IT</Text>
-            </View>
-            <View style={styles.trustBandItem}>
-              <Feather name="x-circle" size={18} color={colors.primary} />
-              <Text style={styles.trustBandText}>Résiliable{'\n'}à tout moment</Text>
-            </View>
-          </View>
-        </ScrollReveal>
-
         {/* Pricing */}
-        <View ref={pricingRef}>
+        <View ref={pricingRef} style={{ paddingTop: 64 }}>
           <PricingSection />
         </View>
 
         {/* FAQ */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
-          <Text style={styles.eyebrow}>Questions fréquentes</Text>
+          <SectionHead label="Avant de vous lancer" title="Questions fréquentes" />
           <View style={styles.faqList}>
-            {FAQ.map((f, i) => (
-              <View key={f.question} style={[styles.faqRow, i === FAQ.length - 1 && styles.faqRowLast]}>
+            {FAQ.map((f) => (
+              <View key={f.question} style={styles.faqRow}>
                 <Text style={styles.faqQuestion}>{f.question}</Text>
                 <Text style={styles.faqAnswer}>{f.answer}</Text>
               </View>
@@ -315,17 +265,19 @@ export default function LogicielChantierPage() {
         </ScrollReveal>
 
         {/* Closing CTA */}
-        <View style={[styles.wrap, styles.closingOuter]}>
-          <View style={styles.closing}>
+        <View style={styles.closing}>
+          <ScrollReveal style={styles.wrap}>
+            <Text style={styles.closingEyebrow}>Prêt à essayer ?</Text>
             <Text style={styles.closingTitle}>Chaque chantier géré à l’ancienne, c’est de l’argent que vous risquez.</Text>
             <Text style={styles.closingText}>
-              14 jours d'essai gratuit sur tous les plans, sans engagement — devis et factures illimités dès le
-              premier jour.
+              14 jours d’essai sur toutes les formules, sans engagement. Devis et factures illimités dès le premier jour.
             </Text>
-            <Link href={authHref('signup')} asChild>
-              <Button title="Essai gratuit 14 jours" variant="secondary" onPress={() => {}} style={styles.closingCta} />
-            </Link>
-          </View>
+            <View style={styles.ctaRow}>
+              <Link href={authHref('signup')} asChild>
+                <CtaButton title="Essayer 14 jours" />
+              </Link>
+            </View>
+          </ScrollReveal>
         </View>
 
         <MarketingFooter onPricingPress={() => scrollToRef(pricingRef)} />
@@ -335,8 +287,10 @@ export default function LogicielChantierPage() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingHorizontal: spacing.xl },
-  section: { paddingTop: spacing.xxxl },
+  wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
+  section: { paddingTop: 112 },
+  bodyLarge: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 30, color: bodyInk, maxWidth: 520 },
+  underlineLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
 
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
   heroMountainBase: {
@@ -350,235 +304,63 @@ const styles = StyleSheet.create({
     backgroundRepeat: 'no-repeat',
   } as unknown as ViewStyle,
   heroMountainMaskFull: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 48%, black 72%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 48%, black 72%)',
   } as unknown as ViewStyle,
   heroMountainMaskPeek: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
   } as unknown as ViewStyle,
   heroBottomFade: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 140,
+    height: 180,
     backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
   } as unknown as ViewStyle,
-  heroCopy: { paddingTop: spacing.xl },
-  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
-  originSymbol: { alignItems: 'center', justifyContent: 'center' },
-  heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
-  heroMain: { flexDirection: 'row', gap: 56, paddingVertical: spacing.xxl, alignItems: 'flex-start' },
-  heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },
-  heroTitleCol: { minWidth: 0 },
-  heroTitleColWide: { flex: 1.15 },
-  h1: { fontFamily: landingFonts.body, fontWeight: '700', letterSpacing: -2, color: colors.text },
-  h1Highlight: { color: colors.primary },
+  heroCopy: { paddingTop: spacing.xxxl, flex: 1, justifyContent: 'space-between' },
+  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl },
+  heroKickerText: { ...monoType, fontSize: 11.5, letterSpacing: 0.3, color: '#674932', textTransform: 'uppercase' },
+  h1: { ...displayType, fontWeight: '800', letterSpacing: -0.5, color: ink },
   crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
-  crossedText: { fontFamily: landingFonts.body, fontWeight: '500', letterSpacing: -0.6, color: '#786653' },
-  heroAside: { gap: spacing.sm, maxWidth: 420 },
-  heroAsideWide: { flex: 1 },
-  heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
-  heroAsideP1: { fontFamily: landingFonts.body, fontSize: 21, fontWeight: '700', color: colors.text, lineHeight: 28, marginTop: spacing.xs, letterSpacing: -0.3 },
-  heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.xs },
-  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
-  heroDiscover: {
-    alignSelf: 'flex-start',
-    fontFamily: landingFonts.body,
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: spacing.md,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: '#D7C6B1',
-  },
-  trustRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
-  trustItem: { fontFamily: landingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600' },
-  trustDot: { fontFamily: landingFonts.body, fontSize: fontSize.xs, color: colors.border },
-  heroBaseline: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingVertical: spacing.lg,
-    gap: spacing.lg,
-  },
-  heroBaselineCompact: { justifyContent: 'space-between' },
-  baselineLabel: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
-  baselineItems: { flexDirection: 'row', gap: spacing.xl, flexWrap: 'wrap' },
-  baselineItem: { fontFamily: landingFonts.body, fontSize: 12, color: colors.text },
-  baselineOrigin: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  baselineNumber: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
+  crossedText: { ...displayType, fontWeight: '600', color: '#786653' },
+  heroBody: { marginTop: spacing.xxl, gap: spacing.lg, maxWidth: 680 },
+  heroLede: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 29, color: ink, maxWidth: 540 },
+  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xs },
+  heroFacts: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },
+  heroCartouche: { alignSelf: 'flex-end', width: '100%', maxWidth: 820, marginTop: spacing.xxl },
 
-  eyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: colors.primary, textTransform: 'uppercase' },
-  h2: {
-    fontFamily: landingFonts.body,
-    fontSize: 32,
-    fontWeight: '700',
-    letterSpacing: -0.8,
-    lineHeight: 38,
-    color: colors.text,
-    marginTop: 10,
-    marginBottom: spacing.md,
-    maxWidth: 620,
-  },
-  bodyText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 24, color: colors.textMuted, maxWidth: 480 },
+  split: { flexDirection: 'row', gap: 64, alignItems: 'center' },
+  splitCompact: { flexDirection: 'column', gap: spacing.xxl, alignItems: 'stretch' },
+  splitCol: { flex: 1 },
 
-  showcase: { flexDirection: 'row', flexWrap: 'wrap-reverse', alignItems: 'center', gap: spacing.xxl, paddingVertical: spacing.xxxl },
-  showcaseCopy: { flex: 1, minWidth: 300 },
-  showcaseVisual: { flex: 1, minWidth: 300, alignItems: 'center' },
+  darkBand: { backgroundColor: colors.primaryDark, paddingVertical: 96, marginTop: 112 },
+  darkEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8B79A', textTransform: 'uppercase' },
+  darkH2: { ...displayType, fontSize: 48, fontWeight: '800', lineHeight: 48, color: '#fff', marginTop: spacing.md, marginBottom: spacing.xxl, maxWidth: 820 },
+  problemGrid: { flexDirection: 'row', gap: spacing.xl },
+  problemCard: { flex: 1, gap: spacing.sm, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.28)', paddingTop: spacing.lg },
+  problemText: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: '#fff', lineHeight: 24 },
+  problemConsequence: { fontFamily: landingFonts.body, fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 23 },
+  reliefCard: { marginTop: spacing.xxl, backgroundColor: colors.bg, borderRadius: 3, padding: spacing.xl },
+  reliefLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase', marginBottom: spacing.lg },
+  reliefGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xl, rowGap: spacing.md },
+  reliefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, flexBasis: 440, flexGrow: 1 },
+  reliefText: { flex: 1, fontFamily: landingFonts.body, fontSize: 16, color: ink, lineHeight: 24 },
 
-  darkBand: { backgroundColor: colors.primaryDark, paddingVertical: spacing.xxxl * 1.2 },
-  darkEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: '#E8B79A', textTransform: 'uppercase' },
-  darkH2: {
-    fontFamily: landingFonts.body,
-    fontSize: 34,
-    fontWeight: '700',
-    letterSpacing: -0.8,
-    lineHeight: 40,
-    color: '#fff',
-    marginTop: 10,
-    marginBottom: spacing.xl,
-    maxWidth: 640,
-  },
-  problemGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
-  problemCard: {
-    flex: 1,
-    minWidth: 260,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    padding: spacing.lg,
-    gap: spacing.xs,
-  } as unknown as ViewStyle,
-  problemIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-  },
-  problemText: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: '#fff', lineHeight: 22 },
-  problemConsequence: { fontFamily: landingFonts.body, fontSize: 14, color: 'rgba(255,255,255,0.68)', lineHeight: 20 },
-  reliefCard: {
-    marginTop: spacing.xl,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-  } as unknown as ViewStyle,
-  reliefLabel: {
-    fontFamily: landingFonts.body,
-    fontSize: 12,
-    fontWeight: '800',
-    color: colors.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: spacing.md,
-  },
-  reliefGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  reliefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, minWidth: 280, flex: 1 },
-  reliefIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  reliefText: { fontFamily: landingFonts.body, fontSize: 15, color: colors.text, lineHeight: 21, flex: 1, fontWeight: '500' },
+  featureGrid: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1.5, borderTopColor: ink },
+  featureCard: { flexGrow: 1, flexBasis: '25%', minWidth: 240, gap: spacing.sm, paddingTop: spacing.lg, paddingBottom: spacing.xl, paddingRight: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule },
+  featureTitle: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
+  featureText: { fontFamily: landingFonts.body, fontSize: 15, color: bodyInk, lineHeight: 23 },
+  featureLink: { ...monoType, fontSize: 10.5, color: colors.primary, marginTop: spacing.xs },
 
-  featureGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  featureCard: {
-    flex: 1,
-    minWidth: 230,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.xs,
-    transitionProperty: 'transform, border-color, box-shadow',
-    transitionDuration: '0.2s',
-    transitionTimingFunction: 'ease',
-  } as unknown as ViewStyle,
-  featureCardHovered: {
-    borderColor: colors.primary,
-    transform: [{ translateY: -3 }],
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  featureIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-    transitionProperty: 'background-color',
-    transitionDuration: '0.2s',
-  } as unknown as ViewStyle,
-  featureIconHovered: { backgroundColor: colors.primary },
-  featureTitle: { fontFamily: landingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
-  featureText: { fontFamily: landingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },
+  faqList: { maxWidth: 820, alignSelf: 'flex-end', width: '100%' },
+  faqRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule, gap: 6 },
+  faqQuestion: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
+  faqAnswer: { fontFamily: landingFonts.body, fontSize: 16, color: bodyInk, lineHeight: 25 },
 
-  trustBand: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: spacing.lg,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.xl,
-  },
-  trustBandItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minWidth: 200 },
-  trustBandText: { fontFamily: landingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 16, fontWeight: '600' },
-
-  faqList: { maxWidth: 760 },
-  faqRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 6 },
-  faqRowLast: { borderBottomWidth: 0 },
-  faqQuestion: { fontFamily: landingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
-  faqAnswer: { fontFamily: landingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 21, maxWidth: 640 },
-
-  closingOuter: { paddingTop: spacing.xxxl, paddingBottom: spacing.xxxl },
-  closing: {
-    backgroundColor: colors.primaryDark,
-    borderRadius: radius.xl,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxxl,
-    alignItems: 'center',
-  },
-  closingTitle: {
-    fontFamily: landingFonts.body,
-    fontSize: 30,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: -0.4,
-    textAlign: 'center',
-    maxWidth: 580,
-  },
-  closingText: {
-    fontFamily: landingFonts.body,
-    fontSize: fontSize.sm,
-    color: 'rgba(255,255,255,0.78)',
-    textAlign: 'center',
-    marginTop: spacing.sm,
-    lineHeight: 20,
-    maxWidth: 440,
-  },
-  closingCta: { marginTop: spacing.xl, borderWidth: 0 },
+  closing: { backgroundColor: ink, paddingVertical: 112, marginTop: 112 },
+  closingEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8AD89', textTransform: 'uppercase' },
+  closingTitle: { ...displayType, fontSize: 60, lineHeight: 58, fontWeight: '800', color: '#FBF6EE', marginVertical: spacing.lg, maxWidth: 900 },
+  closingText: { fontFamily: landingFonts.body, fontSize: 18, lineHeight: 28, color: '#D5C8B8', maxWidth: 560, marginBottom: spacing.xl },
 });

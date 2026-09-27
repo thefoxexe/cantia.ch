@@ -2,13 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link, Redirect } from 'expo-router';
 import { supabase } from '../lib/supabase';
-import { Button, Screen } from '../components/ui';
+import { Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
 import { PricingSection } from '../components/PricingSection';
 import { HeroCross } from '../components/landing/HeroCross';
 import { ScrollReveal } from '../components/landing/ScrollReveal';
 import { SwissCross } from '../components/SwissCross';
+import { CtaButton } from '../components/landing/CtaButton';
+import { SectionHead } from '../components/landing/SectionHead';
+import { Cartouche } from '../components/landing/Cartouche';
+import { bodyInk, ink, rule } from '../components/landing/brand';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
 import { VoiceDemo } from '../components/landing/VoiceDemo';
@@ -16,8 +20,8 @@ import { Disclosure } from '../components/landing/Disclosure';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
-import { colors, breakpoints, fontSize, radius, spacing } from '../lib/theme';
-import { landingFonts } from '../lib/landingTheme';
+import { colors, breakpoints, spacing } from '../lib/theme';
+import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 
 function clamp(min: number, value: number, max: number): number {
@@ -59,10 +63,8 @@ function LandingContent() {
   const showHeroMountainFull = !isMobile;
   const showHeroMountainPeek = isMobile;
   const heroMinHeight = showHeroMountainFull ? clamp(600, height * 0.88, 940) : undefined;
-  const heroTitleSize = clamp(50, width * 0.09, 108);
-  const heroCrossedSize = clamp(28, width * 0.05, 58);
-  const heroBigTitleSize = clamp(56, width * 0.068, 108);
-  const heroBigCrossedSize = clamp(40, width * 0.05, 78);
+  const heroTitleSize = isMobile ? clamp(46, width * 0.13, 64) : clamp(64, width * 0.075, 116);
+  const closingTitleSize = clamp(44, width * 0.07, 96);
 
   const scrollRef = useRef<ScrollView>(null);
   const storiesRef = useRef<View>(null);
@@ -99,6 +101,7 @@ function LandingContent() {
       <MarketingNav onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
 
       <ScrollView ref={scrollRef}>
+        {/* ——— Hero: the mountain stays, the type does the talking ——— */}
         <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
           {showHeroMountainFull || showHeroMountainPeek ? (
             <View
@@ -108,331 +111,249 @@ function LandingContent() {
             />
           ) : null}
           {showHeroMountainFull || showHeroMountainPeek ? <View pointerEvents="none" style={styles.heroBottomFade} /> : null}
-          <View
-            style={[
-              styles.wrap,
-              styles.heroCopy,
-              (showHeroMountainFull || showHeroMountainPeek) && { zIndex: 1 },
-              showHeroMountainFull && styles.heroCopySpread,
-            ]}
-          >
-            <View>
+          <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }, showHeroMountainFull && styles.heroCopySpread]}>
+            <View style={[styles.heroMain, !isTablet && { maxWidth: '56%' }]}>
               <ScrollReveal style={styles.heroKicker}>
-                <View style={styles.originSymbol}>
-                  <SwissCross size={15} />
-                </View>
+                <SwissCross size={14} />
                 <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
               </ScrollReveal>
 
-              {isTablet ? (
-                <View style={[styles.heroMain, styles.heroMainCompact]}>
-                  <ScrollReveal style={styles.heroTitleCol} delay={120}>
-                    <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 1.08 }]}>
-                      {t.hero.titlePrefix}
-                      {'\n'}
-                      <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
-                    </Text>
-                    <View style={styles.crossedWrap}>
-                      <Text style={[styles.crossedText, { fontSize: heroCrossedSize }]}>{t.hero.crossedText}</Text>
-                      <HeroCross />
-                    </View>
-                  </ScrollReveal>
-                  <ScrollReveal style={styles.heroAside} delay={480}>
-                    <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
-                    <Text style={styles.heroAsideP1}>{t.hero.asideP1}</Text>
-                    <Text style={styles.heroAsideP2}>{t.hero.asideP2}</Text>
-                    <Link href={authHref('signup')} asChild>
-                      <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
-                    </Link>
-                    <Pressable onPress={() => scrollToRef(storiesRef)}>
-                      <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
-                    </Pressable>
-                    <Text style={styles.heroTrust}>{t.hero.trust}</Text>
-                    {trustCountText ? <Text style={styles.heroTrust}>{trustCountText}</Text> : null}
-                  </ScrollReveal>
+              <ScrollReveal delay={120}>
+                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titlePrefix}</Text>
+                <View style={styles.h1Line2}>
+                  <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titleHighlight} </Text>
+                  <View style={styles.crossedWrap}>
+                    <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.crossedText}</Text>
+                    <HeroCross />
+                  </View>
                 </View>
-              ) : (
-                <View style={styles.heroDesktop}>
-                  <ScrollReveal style={styles.heroTitleCol} delay={120}>
-                    <Text style={[styles.h1, { fontSize: heroBigTitleSize, lineHeight: heroBigTitleSize * 1.0 }]}>
-                      {t.hero.titlePrefix}
-                      {'\n'}
-                      <Text style={styles.h1Highlight}>{t.hero.titleHighlight}</Text>
-                    </Text>
-                    <View style={styles.crossedWrap}>
-                      <Text style={[styles.crossedText, { fontSize: heroBigCrossedSize }]}>{t.hero.crossedText}</Text>
-                      <HeroCross />
-                    </View>
-                  </ScrollReveal>
-                  <ScrollReveal style={styles.heroInfoBand} delay={480}>
-                    <View style={styles.heroInfoCol}>
-                      <Text style={styles.heroAsideEyebrow}>{t.hero.asideEyebrow}</Text>
-                      <Text style={styles.heroInfoSubhead}>{t.hero.asideP1}</Text>
-                    </View>
-                    <View style={styles.heroInfoCol}>
-                      <Text style={styles.heroInfoBody}>{t.hero.asideP2}</Text>
-                    </View>
-                    <View style={[styles.heroInfoCol, styles.heroInfoColCta]}>
-                      <Link href={authHref('signup')} asChild>
-                        <Button title={t.hero.cta} onPress={() => {}} icon="arrow-up-right" style={{ alignSelf: 'flex-start' }} />
-                      </Link>
-                      <Pressable onPress={() => scrollToRef(storiesRef)}>
-                        <Text style={styles.heroDiscover}>{t.hero.discover} ↓</Text>
-                      </Pressable>
-                      <Text style={styles.heroTrust}>{t.hero.trust}</Text>
-                    {trustCountText ? <Text style={styles.heroTrust}>{trustCountText}</Text> : null}
-                    </View>
-                  </ScrollReveal>
+              </ScrollReveal>
+
+              <ScrollReveal delay={420} style={styles.heroBody}>
+                <Text style={styles.heroLede}>{t.hero.lede}</Text>
+                <View style={styles.heroCtas}>
+                  <Link href={authHref('signup')} asChild>
+                    <CtaButton title={t.hero.cta} />
+                  </Link>
+                  <Pressable onPress={() => scrollToRef(pricingRef)}>
+                    <Text style={styles.underlineLink}>{t.hero.secondaryCta}</Text>
+                  </Pressable>
                 </View>
-              )}
+                <Text style={styles.heroFacts}>{t.hero.facts.join(isMobile ? '\n' : '   ·   ')}</Text>
+                {trustCountText ? <Text style={styles.heroFacts}>{trustCountText}</Text> : null}
+              </ScrollReveal>
             </View>
 
-            <ScrollReveal
-              style={[styles.heroBaseline, isMobile && styles.heroBaselineCompact]}
-              delay={680}
-            >
-              <Text style={styles.baselineLabel}>{t.hero.baselineLabel}</Text>
-              {!isMobile ? (
-                <View style={styles.baselineItems}>
-                  {t.hero.baselineItems.map((item) => (
-                    <Text key={item} style={styles.baselineItem}>{item}</Text>
-                  ))}
-                </View>
-              ) : null}
-              <Text style={styles.baselineNumber}>{t.hero.baselineNumber}</Text>
+            <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && styles.heroCartoucheCompact]}>
+              <Cartouche cells={t.hero.cartouche} compact={isMobile} />
             </ScrollReveal>
           </View>
         </View>
 
-        <ScrollReveal style={styles.wrap}>
-          <View style={[styles.trustLayout, isTablet && styles.trustLayoutCompact]}>
-            <View style={[styles.trustOrigin, !isTablet && { flex: 0.9 }]}>
-              <View style={styles.trustLocationRow}>
-                <View style={styles.originSymbolSmall}>
-                  <SwissCross size={13} />
-                </View>
-                <Text style={styles.trustLocationText}>{t.trust.locationLabel}</Text>
+        {/* ——— Swiss facts: three ruled columns, no cards ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.trust.locationLabel} title={t.trust.title} intro={t.trust.text} />
+          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
+            {t.trust.cards.map((card, i) => (
+              <View key={card.label} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
+                <Text style={styles.monoLabel}>{card.label}</Text>
+                <Text style={styles.columnTitle}>{card.title}</Text>
+                <Text style={styles.bodyText}>{card.text}</Text>
+                {i === t.trust.cards.length - 1 ? (
+                  <Link href={pageHref('contact') as any}>
+                    <Text style={styles.textLink}>{t.trust.contactCta} →</Text>
+                  </Link>
+                ) : null}
               </View>
-              <Text style={styles.h2}>{t.trust.title}</Text>
-              <Text style={styles.bodyText}>{t.trust.text}</Text>
+            ))}
+          </View>
+        </ScrollReveal>
+
+        {/* ——— Everyday situations ——— */}
+        <View style={[styles.wrap, styles.section]} ref={storiesRef}>
+          <ScrollReveal>
+            <SectionHead label={t.landingNav.features} title={t.stories.title} intro={t.stories.subtitle} />
+            <StoryShowcase dict={t.stories} hrefFor={solutionHref} />
+          </ScrollReveal>
+        </View>
+
+        {/* ——— Nomenclature: every feature, visible without clicking ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead title={t.catalog.title} intro={t.catalog.subtitle} />
+          <FeatureCatalog dict={t.catalog} hrefFor={(slug) => (slug === 'sur-mesure' ? pageHref('sur-mesure') : solutionHref(slug))} />
+        </ScrollReveal>
+
+        {/* ——— Trades ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.profession.eyebrow} title={t.profession.title} intro={t.profession.text} />
+          <View style={[styles.split, isTablet && styles.splitCompact]}>
+            <View style={styles.splitCol}>
+              {t.profession.links.map((link) => (
+                <Link key={link.slug} href={pageHref(link.slug) as any} asChild>
+                  <Pressable style={styles.listRow}>
+                    <Text style={styles.listRowText}>{link.label}</Text>
+                    <Text style={styles.listRowArrow}>→</Text>
+                  </Pressable>
+                </Link>
+              ))}
+              <Link href={pageHref('metiers') as any}>
+                <Text style={styles.textLink}>{t.profession.allLink} →</Text>
+              </Link>
             </View>
-            <View style={[styles.trustCards, !isTablet && { flex: 1.4 }, isMobile && styles.trustCardsCompact]}>
-              {t.trust.cards.map((card, i) => (
-                <View key={card.label} style={styles.trustCard}>
-                  <Text style={styles.trustCardLabel}>{card.label}</Text>
-                  <Text style={styles.trustCardTitle}>{card.title}</Text>
-                  <Text style={styles.trustCardText}>{card.text}</Text>
-                  {i === t.trust.cards.length - 1 ? (
-                    <Link href={pageHref('contact') as any}>
-                      <Text style={styles.trustCardLink}>{t.trust.contactCta} ↗</Text>
-                    </Link>
-                  ) : null}
+            <View style={styles.splitCol}>
+              <Text style={styles.subHead}>{t.profession.personalTitle}</Text>
+              {t.profession.items.map((item) => (
+                <View key={item.title} style={styles.defRow}>
+                  <Text style={styles.defTerm}>{item.title}</Text>
+                  <Text style={[styles.bodyText, { flex: 1 }]}>{item.text}</Text>
                 </View>
               ))}
             </View>
           </View>
         </ScrollReveal>
 
-        <ScrollReveal style={styles.wrap}>
-          <View style={[styles.professionLayout, isTablet && styles.professionLayoutCompact]}>
-            <View style={[styles.professionCopy, !isTablet && { flex: 1 }]}>
-              <Text style={styles.eyebrow}>{t.profession.eyebrow}</Text>
-              <Text style={styles.h2}>{t.profession.title}</Text>
-              <Text style={styles.bodyText}>{t.profession.text}</Text>
-              <View style={styles.professionLinks}>
-                {t.profession.links.map((link) => (
-                  <Link key={link.slug} href={pageHref(link.slug) as any} style={styles.professionLinkWrap}>
-                    <View style={styles.professionLink}>
-                      <Text style={styles.professionLinkText}>{link.label}</Text>
-                      <Text style={styles.professionLinkArrow}>↗</Text>
-                    </View>
-                  </Link>
-                ))}
-              </View>
-              <Link href={pageHref('metiers') as any}>
-                <Text style={styles.textLink}>{t.profession.allLink} →</Text>
-              </Link>
-            </View>
-            <View style={[styles.personalization, !isTablet && { flex: 1 }]}>
-              <Text style={styles.personalizationTitle}>{t.profession.personalTitle}</Text>
-              <View style={{ gap: spacing.lg }}>
-                {t.profession.items.map((item) => (
-                  <View key={item.title}>
-                    <Text style={styles.personalizationItemTitle}>{item.title}</Text>
-                    <Text style={styles.personalizationItemText}>{item.text}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-        </ScrollReveal>
-
-        <View style={styles.wrap} ref={storiesRef}>
-          <ScrollReveal>
-            <View style={styles.sectionHeadingCentered}>
-              <Text style={styles.h2}>{t.stories.title}</Text>
-              <Text style={styles.bodyText}>{t.stories.subtitle}</Text>
-            </View>
-            <StoryShowcase dict={t.stories} hrefFor={solutionHref} />
-            <FeatureCatalog dict={t.catalog} hrefFor={(slug) => (slug === 'sur-mesure' ? pageHref('sur-mesure') : solutionHref(slug))} />
-          </ScrollReveal>
-        </View>
-
-        <View style={[styles.wrap, styles.section]}>
-          <ScrollReveal>
-          <View style={styles.sectionHeadingCentered}>
-            <Text style={styles.eyebrow}>{t.team.eyebrow}</Text>
-            <Text style={styles.h2}>
-              {t.team.titlePrefix}
-              {'\n'}
-              <Text style={styles.h2Em}>{t.team.titleEm}</Text>
-            </Text>
-            <Text style={styles.bodyText}>{t.team.text}</Text>
-          </View>
-          <View style={[styles.teamRoles, isTablet && styles.teamRolesCompact]}>
-            {t.team.roles.map((role) => (
-              <View key={role.number} style={styles.teamRole}>
-                <Text style={styles.teamRoleNumber}>{role.number}</Text>
-                <Text style={styles.teamRoleTitle}>{role.title}</Text>
-                <Text style={styles.teamRoleText}>{role.text}</Text>
-                <View style={styles.teamRoleTags}>
-                  {role.tags.map((tag) => (
-                    <View key={tag} style={styles.teamTag}>
-                      <Text style={styles.teamTagText}>{tag}</Text>
-                    </View>
-                  ))}
-                </View>
+        {/* ——— Team ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.team.eyebrow} title={`${t.team.titlePrefix} ${t.team.titleEm}`} intro={t.team.text} />
+          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
+            {t.team.roles.map((role, i) => (
+              <View key={role.number} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
+                <Text style={styles.monoLabel}>{role.number}</Text>
+                <Text style={styles.columnTitle}>{role.title}</Text>
+                <Text style={styles.bodyText}>{role.text}</Text>
               </View>
             ))}
           </View>
-          <View style={[styles.teamPermissions, isMobile && styles.teamPermissionsCompact]}>
-            <Text style={styles.permissionsSymbol}>↳</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.teamPermTitle}>{t.team.permTitle}</Text>
+          <View style={[styles.noteRow, isMobile && styles.noteRowCompact]}>
+            <View style={{ flex: 1, gap: 6 }}>
+              <Text style={styles.columnTitle}>{t.team.permTitle}</Text>
               <Text style={styles.bodyText}>{t.team.permText}</Text>
-              <Text style={styles.teamPermNote}>{t.team.permNote}</Text>
+              <Text style={styles.fineNote}>{t.team.permNote}</Text>
             </View>
             <Link href={solutionHref('rh-salaires') as any}>
-              <Text style={styles.textLink}>{t.team.permLink} ↗</Text>
+              <Text style={styles.textLink}>{t.team.permLink} →</Text>
             </Link>
           </View>
-          </ScrollReveal>
-        </View>
+        </ScrollReveal>
 
+        {/* ——— Voice ——— */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
-          <View style={[styles.sectionHeadingRow, isTablet && styles.sectionHeadingRowCompact]}>
-            <View style={!isTablet ? { flex: 1 } : undefined}>
-              <Text style={styles.eyebrow}>{t.automation.eyebrow}</Text>
-              <Text style={styles.h2}>{t.automation.title}</Text>
-            </View>
-            <Text style={[styles.bodyText, !isTablet && styles.sectionHeadingRowText]}>{t.automation.text}</Text>
-          </View>
-          <View style={[styles.commandLayout, isTablet && styles.commandLayoutCompact]}>
-            <View style={[styles.commandCopy, !isTablet && { flex: 1 }]}>
-              <Text style={styles.automationTag}>{t.automation.tag}</Text>
-              <Text style={styles.commandTitle}>{t.automation.commandTitle}</Text>
+          <SectionHead label={t.automation.eyebrow} title={t.automation.title} intro={t.automation.text} />
+          <View style={[styles.split, isTablet && styles.splitCompact]}>
+            <View style={[styles.splitCol, { gap: spacing.md }]}>
+              <Text style={styles.subHead}>{t.automation.commandTitle}</Text>
               <Text style={styles.bodyText}>{t.automation.commandText}</Text>
               <Link href={solutionHref('dictee-vocale') as any}>
                 <Text style={styles.textLink}>{t.automation.link} →</Text>
               </Link>
             </View>
-            <View style={[styles.commandDemo, !isTablet && { flex: 1.1 }]}>
+            <View style={[styles.commandDemo, !isTablet && { flex: 1.15 }]}>
               <VoiceDemo dict={t.automation} />
             </View>
           </View>
         </ScrollReveal>
 
+        {/* ——— A real invoice, annotated like a drawing ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.docCustomization.eyebrow} title={t.docCustomization.title} intro={t.docCustomization.text} />
+          <View style={[styles.split, isTablet && styles.splitCompact, { alignItems: isTablet ? 'stretch' : 'center' }]}>
+            <View style={[styles.docFigure, !isTablet && { flex: 1 }]}>
+              {/* A real facture rendered by the actual PDF generator (see
+                  supabase/functions/_shared/pdf-document-renderers.ts), not a
+                  mockup. Callout positions match that render: brand-colored
+                  table header, company header, QR payment part. */}
+              <View style={styles.docSheet}>
+                <Image
+                  source={{ uri: '/showcase/facture-exemple.png' }}
+                  style={styles.docImage}
+                  resizeMode="contain"
+                  accessibilityLabel="Exemple de facture générée par Cantia"
+                />
+                {DOC_CALLOUTS.map((c) => (
+                  <View key={c.n} style={[styles.callout, { top: c.top as any }]} pointerEvents="none">
+                    <View style={styles.calloutLine} />
+                    <Text style={styles.calloutNum}>{c.n}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+            <View style={[styles.splitCol, { gap: 0 }]}>
+              {t.docCustomization.points.map((p, i) => (
+                <View key={p.title} style={styles.legendRow}>
+                  <Text style={styles.legendNum}>{i + 1}</Text>
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={styles.legendTitle}>{p.title}</Text>
+                    <Text style={styles.bodyText}>{p.text}</Text>
+                  </View>
+                </View>
+              ))}
+              <Link href={solutionHref('facturation') as any}>
+                <Text style={[styles.textLink, { marginTop: spacing.lg }]}>{t.docCustomization.link} →</Text>
+              </Link>
+            </View>
+          </View>
+        </ScrollReveal>
+
+        {/* ——— Field / office band ——— */}
         <View style={styles.terrainOuter}>
-          <ScrollReveal style={styles.wrap}>
-            <Text style={styles.eyebrow}>{t.terrain.eyebrow}</Text>
-            <Text style={styles.h2}>{t.terrain.title}</Text>
-            <Text style={[styles.bodyText, { maxWidth: 480 }]}>{t.terrain.text}</Text>
-            <View style={[styles.devicePoints, isMobile && styles.devicePointsCompact]}>
+          <ScrollReveal style={[styles.wrap, styles.split, isTablet && styles.splitCompact]}>
+            <View style={styles.splitCol}>
+              <Text style={styles.monoLabel}>{t.terrain.eyebrow}</Text>
+              <Text style={styles.bandTitle}>{t.terrain.title}</Text>
+              <Text style={styles.bodyText}>{t.terrain.text}</Text>
+              <Link href={pageHref('telechargement') as any} asChild>
+                <CtaButton title={t.terrain.installCta} style={{ marginTop: spacing.lg }} />
+              </Link>
+              <Text style={styles.fineNote}>{t.terrain.installNote}</Text>
+            </View>
+            <View style={[styles.splitCol, { justifyContent: 'center' }]}>
               {t.terrain.points.map((p) => (
-                <View key={p.label} style={isMobile ? styles.devicePointRow : undefined}>
-                  <Text style={styles.devicePointLabel}>{p.label}</Text>
-                  <Text style={styles.devicePointText}>{p.text}</Text>
+                <View key={p.label} style={[styles.defRow, { borderTopColor: '#E3B89C' }]}>
+                  <Text style={styles.defTerm}>{p.label}</Text>
+                  <Text style={[styles.bodyText, { flex: 1 }]}>{p.text}</Text>
                 </View>
               ))}
             </View>
-            <Link href={pageHref('telechargement') as any} asChild>
-              <Button title={t.terrain.installCta} onPress={() => {}} icon="arrow-right" style={{ alignSelf: 'flex-start', marginTop: spacing.lg }} />
-            </Link>
-            <Text style={styles.installNote}>{t.terrain.installNote}</Text>
           </ScrollReveal>
         </View>
 
-        <ScrollReveal style={[styles.wrap, styles.section, styles.tailored, isTablet && styles.tailoredCompact]}>
-          <View style={[styles.tailoredHeading, !isTablet && { flex: 1 }]}>
-            <Text style={styles.eyebrow}>{t.tailored.eyebrow}</Text>
-            <Text style={styles.h2}>{t.tailored.title}</Text>
-            <Text style={styles.bodyText}>{t.tailored.text}</Text>
-            <Link href={pageHref('contact') as any} asChild>
-              <Button title={t.tailored.cta} onPress={() => {}} icon="arrow-right" style={{ alignSelf: 'flex-start' }} />
-            </Link>
-          </View>
-          <View style={[styles.tailoredContent, !isTablet && { flex: 1 }]}>
-            {t.tailored.steps.map((step) => (
-              <View key={step.num} style={styles.tailoredStep}>
-                <Text style={styles.tailoredStepNum}>{step.num}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.tailoredStepTitle}>{step.title}</Text>
-                  <Text style={styles.bodyText}>{step.text}</Text>
-                </View>
+        {/* ——— Custom modules ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.tailored.eyebrow} title={t.tailored.title} intro={t.tailored.text} />
+          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
+            {t.tailored.steps.map((step, i) => (
+              <View key={step.num} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
+                <Text style={styles.stepNum}>{step.num}</Text>
+                <Text style={styles.columnTitle}>{step.title}</Text>
+                <Text style={styles.bodyText}>{step.text}</Text>
               </View>
             ))}
+          </View>
+          <View style={[styles.ctaRow, isMobile && styles.noteRowCompact]}>
+            <Link href={pageHref('contact') as any} asChild>
+              <CtaButton title={t.tailored.cta} />
+            </Link>
             <Link href={pageHref('sur-mesure') as any}>
-              <Text style={[styles.textLink, { marginTop: spacing.md }]}>{t.tailored.link} →</Text>
+              <Text style={styles.underlineLink}>{t.tailored.link}</Text>
             </Link>
           </View>
         </ScrollReveal>
 
+        {/* ——— Bexio ——— */}
         <ScrollReveal style={styles.wrap}>
-          <View style={[styles.bexioBanner, isMobile && styles.bexioBannerCompact]}>
+          <View style={[styles.bexioRow, isMobile && styles.noteRowCompact]}>
             <View style={styles.bexioIcon}>
               <Image source={require('../assets/logo-mark.png')} style={styles.bexioLogo} resizeMode="contain" accessibilityLabel="Cantia" />
               <Text style={styles.bexioIconArrow}>↔</Text>
               <Text style={styles.bexioWord}>bexio</Text>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.eyebrow}>{t.bexio.eyebrow}</Text>
-              <Text style={styles.bexioTitle}>{t.bexio.title}</Text>
+            <View style={{ flex: 1, gap: 6 }}>
+              <Text style={styles.columnTitle}>{t.bexio.title}</Text>
               <Text style={styles.bodyText}>{t.bexio.text}</Text>
             </View>
             <Link href={pageHref('integrations') as any}>
-              <Text style={styles.textLink}>{t.bexio.link} ↗</Text>
+              <Text style={styles.textLink}>{t.bexio.link} →</Text>
             </Link>
-          </View>
-        </ScrollReveal>
-
-        <ScrollReveal style={[styles.wrap, styles.section, styles.docShowcase, isTablet && styles.docShowcaseCompact]}>
-          <View style={[styles.docShowcaseCopy, !isTablet && { flex: 1 }]}>
-            <Text style={styles.eyebrow}>{t.docCustomization.eyebrow}</Text>
-            <Text style={styles.h2}>{t.docCustomization.title}</Text>
-            <Text style={styles.bodyText}>{t.docCustomization.text}</Text>
-            <View style={styles.docShowcasePoints}>
-              {t.docCustomization.points.map((p) => (
-                <View key={p.title} style={styles.docShowcasePoint}>
-                  <Text style={styles.docShowcasePointTitle}>{p.title}</Text>
-                  <Text style={styles.bodyText}>{p.text}</Text>
-                </View>
-              ))}
-            </View>
-            <Link href={solutionHref('facturation') as any}>
-              <Text style={styles.textLink}>{t.docCustomization.link} →</Text>
-            </Link>
-          </View>
-          <View style={[styles.docShowcaseVisual, !isTablet && { flex: 1.1 }]}>
-            {/* A real facture rendered by the actual PDF generator (see
-                supabase/functions/_shared/pdf-document-renderers.ts) —
-                not a mockup. Coherent example services/prices so it reads
-                as a genuine document, not a template. */}
-            <Image
-              source={{ uri: '/showcase/facture-exemple.png' }}
-              style={styles.docShowcaseImage}
-              resizeMode="contain"
-              accessibilityLabel="Exemple de facture générée par Cantia"
-            />
           </View>
         </ScrollReveal>
 
@@ -442,40 +363,44 @@ function LandingContent() {
           </ScrollReveal>
         </View>
 
-        <ScrollReveal style={[styles.wrap, styles.section, styles.faqLayout, isTablet && styles.faqLayoutCompact]}>
-          <View style={[styles.faqHeading, !isTablet && { flex: 0.8 }]}>
-            <Text style={styles.eyebrow}>{t.faq.eyebrow}</Text>
-            <Text style={styles.h2}>{t.faq.title}</Text>
-            <Link href={pageHref('aide') as any}>
-              <Text style={styles.textLink}>{t.faq.link} →</Text>
-            </Link>
-          </View>
-          <View style={!isTablet ? { flex: 1 } : undefined}>
-            {t.faq.items.map((item) => (
-              <Disclosure key={item.q} title={item.q}>
-                <Text style={styles.bodyText}>{item.a}</Text>
-              </Disclosure>
-            ))}
+        {/* ——— FAQ ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.faq.eyebrow} title={t.faq.title} />
+          <View style={[styles.split, { gap: 0 }, isTablet && styles.splitCompact]}>
+            <View style={!isTablet ? { width: '25%' } : { marginBottom: spacing.lg }}>
+              <Link href={pageHref('aide') as any}>
+                <Text style={styles.textLink}>{t.faq.link} →</Text>
+              </Link>
+            </View>
+            <View style={{ flex: 1 }}>
+              {t.faq.items.map((item) => (
+                <Disclosure key={item.q} title={item.q}>
+                  <Text style={styles.bodyText}>{item.a}</Text>
+                </Disclosure>
+              ))}
+            </View>
           </View>
         </ScrollReveal>
 
+        {/* ——— Closing ——— */}
         <View style={styles.closing}>
           <ScrollReveal style={styles.wrap}>
             <Text style={styles.closingEyebrow}>{t.closing.eyebrow}</Text>
-            <Text style={styles.closingTitle}>
+            <Text style={[styles.closingTitle, { fontSize: closingTitleSize, lineHeight: closingTitleSize * 0.95 }]}>
               {t.closing.titlePrefix}
               {'\n'}
-              <Text style={{ color: '#e8ad89' }}>{t.closing.titleEm}</Text>
+              <Text style={{ color: '#E8AD89' }}>{t.closing.titleEm}</Text>
             </Text>
             <Text style={styles.closingText}>{t.closing.text}</Text>
-            <View style={styles.closingActions}>
+            <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
               <Link href={authHref('signup')} asChild>
-                <Button title={t.closing.cta} onPress={() => {}} icon="arrow-right" />
+                <CtaButton title={t.closing.cta} />
               </Link>
               <Link href={pageHref('contact') as any}>
                 <Text style={styles.closingContact}>{t.closing.contact}</Text>
               </Link>
             </View>
+            <Text style={styles.closingFacts}>{t.hero.facts.join('   ·   ')}</Text>
           </ScrollReveal>
         </View>
 
@@ -485,14 +410,22 @@ function LandingContent() {
   );
 }
 
+// Positions of the three numbered callouts on /showcase/facture-exemple.png,
+// in the same order as docCustomization.points (brand color, logo, QR).
+const DOC_CALLOUTS = [
+  { n: 1, top: '35%' },
+  { n: 2, top: '3.5%' },
+  { n: 3, top: '77%' },
+];
+
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingHorizontal: spacing.xl },
-  section: { paddingTop: spacing.xxxl * 1.3 },
-  eyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: colors.primary, textTransform: 'uppercase' },
-  h2: { fontFamily: landingFonts.body, fontSize: 34, fontWeight: '600', letterSpacing: -1, lineHeight: 40, color: colors.text, marginTop: 10, marginBottom: spacing.md },
-  h2Em: { fontStyle: 'italic', color: colors.primary },
-  bodyText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 24, color: colors.textMuted },
-  textLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.primary, marginTop: spacing.sm },
+  wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
+  section: { paddingTop: 112 },
+  monoLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase' },
+  bodyText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
+  textLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: colors.primary, marginTop: spacing.sm },
+  underlineLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
+  fineNote: { ...monoType, fontSize: 10.5, lineHeight: 17, color: colors.textMuted, marginTop: spacing.md },
 
   hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
   heroMountainBase: {
@@ -506,176 +439,94 @@ const styles = StyleSheet.create({
     backgroundRepeat: 'no-repeat',
   } as unknown as ViewStyle,
   heroMountainMaskFull: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 42%, black 65%)',
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 46%, black 70%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 46%, black 70%)',
   } as unknown as ViewStyle,
   heroMountainMaskPeek: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.55) 100%)',
+    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
   } as unknown as ViewStyle,
   heroBottomFade: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 160,
+    height: 180,
     backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
   } as unknown as ViewStyle,
-  heroCopy: { paddingTop: spacing.xl },
+  heroCopy: { paddingTop: spacing.xxxl },
   heroCopySpread: { flex: 1, justifyContent: 'space-between' },
-  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.lg },
-  originSymbol: { alignItems: 'center', justifyContent: 'center' },
-  originSymbolSmall: { alignItems: 'center', justifyContent: 'center' },
-  heroKickerText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: '#674932' },
-  heroMain: { flexDirection: 'row', gap: 56, paddingVertical: spacing.xxl, alignItems: 'flex-start' },
-  heroMainCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.xl },
-  heroTitleCol: { minWidth: 0 },
-  h1: { fontFamily: landingFonts.body, fontWeight: '700', letterSpacing: -3, color: colors.text },
-  h1Highlight: { color: colors.primary },
-  crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
-  crossedText: { fontFamily: landingFonts.body, fontWeight: '500', letterSpacing: -1, color: '#786653' },
-  heroAside: { gap: spacing.sm, maxWidth: 430 },
-  heroAsideEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary },
-  heroAsideP1: { fontFamily: landingFonts.body, fontSize: 19, fontWeight: '600', color: colors.text, lineHeight: 27, marginTop: spacing.xs, letterSpacing: -0.3 },
-  heroAsideP2: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 24, marginBottom: spacing.sm },
-  heroDesktop: { paddingVertical: spacing.xxl, gap: spacing.md },
-  heroInfoBand: {
-    flexDirection: 'row',
-    gap: spacing.xxl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: spacing.xl,
-    marginTop: spacing.xl,
-  },
-  heroInfoCol: { flex: 1, gap: spacing.sm },
-  heroInfoColCta: { alignItems: 'flex-start', gap: spacing.md },
-  heroInfoSubhead: { fontFamily: landingFonts.body, fontSize: 24, fontWeight: '700', color: colors.text, lineHeight: 31, marginTop: spacing.xs, letterSpacing: -0.3 },
-  heroInfoBody: { fontFamily: landingFonts.body, fontSize: 15, color: colors.textMuted, lineHeight: 25 },
-  heroDiscover: {
-    alignSelf: 'flex-start',
-    maxWidth: 300,
-    fontFamily: landingFonts.body,
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: '#D7C6B1',
-  },
-  heroTrust: { fontFamily: landingFonts.body, fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },
-  heroBaseline: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: spacing.lg, gap: spacing.lg },
-  heroBaselineCompact: { justifyContent: 'space-between' },
-  baselineLabel: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
-  baselineItems: { flexDirection: 'row', gap: spacing.xl },
-  baselineItem: { fontFamily: landingFonts.body, fontSize: 12, color: colors.text },
-  baselineNumber: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1, color: colors.textMuted },
+  heroMain: { paddingBottom: spacing.xxl },
+  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl },
+  heroKickerText: { ...monoType, fontSize: 11.5, letterSpacing: 0.3, color: '#674932', textTransform: 'uppercase' },
+  h1: { ...displayType, fontWeight: '800', letterSpacing: -0.5, color: ink },
+  h1Line2: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end' },
+  crossedWrap: { position: 'relative' },
+  heroBody: { marginTop: spacing.xxl, gap: spacing.lg, maxWidth: 660 },
+  heroLede: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 29, color: ink, maxWidth: 540 },
+  heroCtas: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xs },
+  heroFacts: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },
+  heroCartouche: { alignSelf: 'flex-end', width: '100%', maxWidth: 760, marginTop: spacing.xl },
+  heroCartoucheCompact: { alignSelf: 'stretch', maxWidth: undefined },
 
-  trustLayout: { flexDirection: 'row', gap: spacing.xxxl, paddingVertical: spacing.xxxl, borderTopWidth: 1, borderTopColor: colors.border },
-  trustLayoutCompact: { flexDirection: 'column', gap: spacing.xl },
-  trustOrigin: {},
-  trustLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: spacing.sm },
-  trustLocationText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: colors.text },
-  trustCards: { flexDirection: 'row', gap: spacing.lg },
-  trustCardsCompact: { flexDirection: 'column' },
-  trustCard: { flex: 1, gap: 6 },
-  trustCardLabel: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.6 },
-  trustCardTitle: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text, marginTop: 4 },
-  trustCardText: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, lineHeight: 20 },
-  trustCardLink: { fontFamily: landingFonts.body, fontSize: 12, fontWeight: '700', color: colors.primary, marginTop: 4 },
+  columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
+  columnsCompact: { flexDirection: 'column', borderBottomWidth: 0 },
+  column: { flex: 1, gap: spacing.sm, paddingRight: spacing.xl, paddingBottom: spacing.xl },
+  columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.xl },
+  columnCompact: { borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg, paddingRight: 0 },
+  columnTitle: { fontFamily: landingFonts.body, fontSize: 20, fontWeight: '700', lineHeight: 26, letterSpacing: -0.2, color: ink },
+  stepNum: { ...monoType, fontSize: 12, color: colors.primary },
 
-  professionLayout: { flexDirection: 'row', gap: 70, paddingVertical: spacing.xxxl, alignItems: 'center' },
-  professionLayoutCompact: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xl },
-  professionCopy: {},
-  professionLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: spacing.lg },
-  professionLinkWrap: { width: '47%' },
-  professionLink: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.sm, paddingVertical: 11, paddingHorizontal: 13 },
-  professionLinkText: { fontFamily: landingFonts.body, fontSize: 13, color: colors.text },
-  professionLinkArrow: { color: colors.primary, fontSize: 12 },
-  personalization: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl },
-  personalizationTitle: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '600', letterSpacing: -0.5, color: colors.text, marginBottom: spacing.lg, lineHeight: 27 },
-  personalizationItemTitle: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 3 },
-  personalizationItemText: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, lineHeight: 19 },
+  split: { flexDirection: 'row', gap: 64 },
+  splitCompact: { flexDirection: 'column', gap: spacing.xxl },
+  splitCol: { flex: 1 },
+  subHead: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', lineHeight: 29, letterSpacing: -0.3, color: ink, marginBottom: spacing.md },
+  listRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: rule },
+  listRowText: { ...displayType, fontSize: 26, fontWeight: '700', color: ink },
+  listRowArrow: { fontSize: 18, color: colors.primary },
+  defRow: { flexDirection: 'row', gap: spacing.lg, borderTopWidth: 1, borderTopColor: rule, paddingVertical: spacing.md },
+  defTerm: { width: 130, fontFamily: landingFonts.body, fontSize: 15, fontWeight: '700', color: ink, lineHeight: 25 },
 
-  sectionHeadingCentered: { alignItems: 'center', textAlign: 'center', maxWidth: 720, alignSelf: 'center', marginBottom: spacing.lg },
-  sectionHeadingRow: { flexDirection: 'row', gap: spacing.xl, alignItems: 'flex-end', marginBottom: spacing.xl },
-  sectionHeadingRowCompact: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing.sm },
-  sectionHeadingRowText: { flex: 1, textAlign: 'right' },
+  noteRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, paddingVertical: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule },
+  noteRowCompact: { flexDirection: 'column', alignItems: 'flex-start' },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xl },
 
-  teamRoles: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl },
-  teamRolesCompact: { flexDirection: 'column' },
-  teamRole: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: 6, backgroundColor: colors.surface },
-  teamRoleNumber: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.6 },
-  teamRoleTitle: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text },
-  teamRoleText: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, lineHeight: 20 },
-  teamRoleTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
-  teamTag: { backgroundColor: colors.bg, borderRadius: radius.pill, paddingVertical: 4, paddingHorizontal: 10 },
-  teamTagText: { fontFamily: landingFonts.body, fontSize: 11, color: colors.textMuted, fontWeight: '600' },
-  teamPermissions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, marginTop: spacing.xl, backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: spacing.xl },
-  teamPermissionsCompact: { flexDirection: 'column', alignItems: 'flex-start' },
-  permissionsSymbol: { fontSize: 22, color: colors.primary },
-  teamPermTitle: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: colors.text, marginBottom: 4 },
-  teamPermNote: { fontFamily: landingFonts.body, fontSize: 11, color: colors.textMuted, marginTop: spacing.xs },
+  commandDemo: { backgroundColor: ink, borderRadius: 4, padding: spacing.xl },
 
-  commandLayout: { flexDirection: 'row', gap: spacing.xxl, marginTop: spacing.xl },
-  commandLayoutCompact: { flexDirection: 'column' },
-  commandCopy: { gap: spacing.sm },
-  automationTag: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', letterSpacing: 1.2, color: colors.primary },
-  commandTitle: { fontFamily: landingFonts.body, fontSize: 26, fontWeight: '600', letterSpacing: -0.8, lineHeight: 33, color: colors.text, marginVertical: spacing.sm },
-  commandDemo: { backgroundColor: colors.text, borderRadius: radius.lg, padding: spacing.xl },
-
-  docShowcase: { flexDirection: 'row', gap: spacing.xxl, alignItems: 'flex-start' },
-  docShowcaseCompact: { flexDirection: 'column', alignItems: 'stretch' },
-  docShowcaseCopy: { gap: spacing.sm },
-  docShowcasePoints: { gap: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs },
-  docShowcasePoint: { gap: 2 },
-  docShowcasePointTitle: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '700', color: colors.text },
-  docShowcaseVisual: { alignItems: 'center' },
-  docShowcaseImage: {
+  docFigure: { alignItems: 'center', paddingRight: 44 },
+  docSheet: {
     width: '100%',
-    maxWidth: 520,
-    aspectRatio: 1819 / 2573,
-    borderRadius: radius.lg,
+    maxWidth: 480,
+    position: 'relative',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: rule,
+    backgroundColor: '#fff',
     shadowColor: '#231A12',
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 14 },
   } as any,
+  docImage: { width: '100%', aspectRatio: 1819 / 2573 },
+  callout: { position: 'absolute', right: -44, flexDirection: 'row', alignItems: 'center', width: 70 },
+  calloutLine: { flex: 1, borderTopWidth: 1, borderStyle: 'dashed', borderTopColor: colors.primary },
+  calloutNum: { ...monoType, width: 24, height: 24, lineHeight: 21, borderRadius: 12, borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.bg, color: colors.primary, fontSize: 11, textAlign: 'center' },
+  legendRow: { flexDirection: 'row', gap: spacing.lg, paddingVertical: spacing.lg, borderTopWidth: 1, borderTopColor: rule },
+  legendNum: { ...monoType, width: 26, height: 26, lineHeight: 23, borderRadius: 13, borderWidth: 1.5, borderColor: colors.primary, color: colors.primary, fontSize: 12, textAlign: 'center' },
+  legendTitle: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
 
-  terrainOuter: { backgroundColor: colors.primarySoft, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, paddingVertical: spacing.xxxl, marginTop: spacing.xxxl * 1.3 },
-  devicePoints: { flexDirection: 'row', gap: spacing.lg, marginVertical: spacing.lg, maxWidth: 640 },
-  devicePointsCompact: { flexDirection: 'column', gap: spacing.md },
-  devicePointRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'baseline' },
-  devicePointLabel: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '700', color: colors.text },
-  devicePointText: { fontFamily: landingFonts.body, fontSize: 12, color: colors.textMuted },
-  installNote: { fontFamily: landingFonts.body, fontSize: 11, color: colors.textMuted, marginTop: spacing.md, lineHeight: 17 },
+  terrainOuter: { backgroundColor: colors.primarySoft, paddingVertical: 88, marginTop: 112 },
+  bandTitle: { ...displayType, fontSize: 44, fontWeight: '800', lineHeight: 44, color: ink, marginVertical: spacing.md },
 
-  tailored: { flexDirection: 'row', gap: 70, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: spacing.xxxl },
-  tailoredCompact: { flexDirection: 'column', gap: spacing.xl },
-  tailoredHeading: { gap: spacing.sm },
-  tailoredContent: { gap: spacing.md },
-  tailoredStep: { flexDirection: 'row', gap: spacing.md, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.md },
-  tailoredStepNum: { width: 30, height: 30, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bg, textAlign: 'center', textAlignVertical: 'center', fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', color: colors.primary, lineHeight: 30 },
-  tailoredStepTitle: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 2 },
-
-  bexioBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, backgroundColor: colors.surface, padding: spacing.xl, marginVertical: spacing.xxxl },
-  bexioBannerCompact: { flexDirection: 'column', alignItems: 'flex-start' },
-  bexioIcon: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  bexioRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, paddingVertical: spacing.xl, marginTop: 112, marginBottom: spacing.xxxl },
+  bexioIcon: { flexDirection: 'row', alignItems: 'center', gap: 8, width: 160 },
   bexioLogo: { width: 26, height: 26 },
   bexioIconArrow: { color: colors.textMuted },
   bexioWord: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', color: '#64764e', letterSpacing: -1 },
-  bexioTitle: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: colors.text, marginVertical: 4 },
 
-  faqLayout: { flexDirection: 'row', gap: spacing.xxxl },
-  faqLayoutCompact: { flexDirection: 'column', gap: spacing.lg },
-  faqHeading: { gap: spacing.sm },
-
-  closing: { backgroundColor: colors.text, paddingVertical: spacing.xxxl * 1.4, marginTop: spacing.xxxl },
-  closingEyebrow: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1.4, color: '#e8ad89', textAlign: 'center' },
-  closingTitle: { fontFamily: landingFonts.body, fontSize: 40, fontWeight: '600', color: '#fff', textAlign: 'center', letterSpacing: -1.2, lineHeight: 46, marginVertical: spacing.md },
-  closingText: { fontFamily: landingFonts.body, fontSize: 15, color: '#c4b7a6', textAlign: 'center', maxWidth: 520, alignSelf: 'center', marginBottom: spacing.xl },
-  closingActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xl },
-  closingContact: { fontFamily: landingFonts.body, fontSize: 13, color: '#e1d6c8', textDecorationLine: 'underline' },
+  closing: { backgroundColor: ink, paddingVertical: 112, marginTop: 112 },
+  closingEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8AD89', textTransform: 'uppercase' },
+  closingTitle: { ...displayType, fontWeight: '800', color: '#FBF6EE', marginTop: spacing.lg },
+  closingText: { fontFamily: landingFonts.body, fontSize: 18, lineHeight: 28, color: '#D5C8B8', maxWidth: 560, marginTop: spacing.xl },
+  closingContact: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: '#F1E6D5', borderBottomWidth: 1.5, borderBottomColor: '#F1E6D5', paddingBottom: 2 },
+  closingFacts: { ...monoType, fontSize: 10.5, letterSpacing: 0.2, color: '#A8988A', textTransform: 'uppercase', marginTop: spacing.xxl },
 });

@@ -9,7 +9,7 @@ import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { authHref, planHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import type { Plan } from '../lib/types';
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 44,
     fontWeight: '600',
     color: colors.text,
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closingTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 30,
     fontWeight: '600',
     color: '#fff',

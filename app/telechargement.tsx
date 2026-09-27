@@ -6,7 +6,7 @@ import { Button, Container, Screen } from '../components/ui';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 46,
     fontWeight: '600',
     color: colors.text,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
   },
   sectionTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 24,
     fontWeight: '600',
     color: colors.text,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   installTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 26,
     fontWeight: '600',
     color: colors.text,
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   trustTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 28,
     fontWeight: '600',
     color: colors.text,

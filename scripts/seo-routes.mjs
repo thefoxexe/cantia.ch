@@ -25,17 +25,17 @@ export const ROUTES = [
     path: 'tarifs',
     title: 'Tarifs | Cantia',
     description:
-      'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, essai gratuit.',
+      'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, 14 jours d’essai.',
   },
   {
     path: 'logiciel-chantier',
     title: 'Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia',
     description:
-      'Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. Essai gratuit 14 jours, sans engagement, hébergé en Suisse.',
+      'Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. 14 jours d’essai, sans engagement, hébergé en Suisse.',
     faq: [
       {
         q: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
-        a: "Les tarifs varient selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai gratuit (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
+        a: "Les tarifs varient selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
       },
       {
         q: 'Ai-je besoin d’installer un logiciel sur mon ordinateur ?',

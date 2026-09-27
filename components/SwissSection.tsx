@@ -3,7 +3,7 @@ import { Feather } from '@expo/vector-icons';
 import { Container } from './ui';
 import { SwissCross } from './SwissCross';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { useTranslation } from '../lib/translations';
 
 export function SwissSection() {
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   },
   flagBadge: { marginBottom: spacing.sm },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 28,
     fontWeight: '600',
     color: colors.text,

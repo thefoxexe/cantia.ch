@@ -7,7 +7,7 @@ import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome'
 import { BLOG_CATEGORIES, getAllPosts } from '../../lib/blog';
 import { BlogCategory } from '../../lib/blog/types';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { marketingFonts } from '../../lib/marketingTheme';
+import { displayType, marketingFonts } from '../../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
 const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap; color: string; soft: string }> = {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 42,
     fontWeight: '600',
     color: colors.text,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   featuredTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 26,
     fontWeight: '600',
     color: colors.text,

@@ -2,12 +2,13 @@ import { ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button, Container, Screen } from './ui';
+import { Container, Screen } from './ui';
 import { Heading } from './Heading';
 import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { colors, spacing } from '../lib/theme';
+import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
+import { CtaButton } from './landing/CtaButton';
 import { authHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
@@ -90,10 +91,10 @@ export function SolutionPage({
               <Text style={styles.subtitle}>{subtitle}</Text>
               <View style={styles.ctaRow}>
                 <Link href={authHref('signup')} asChild>
-                  <Button title={t('solutionPage.ctaTrial')} onPress={() => {}} />
+                  <CtaButton title={t('solutionPage.ctaTrial')} />
                 </Link>
-                <Link href={pricingHref as any} asChild>
-                  <Button title={t('solutionPage.ctaPricing')} variant="secondary" onPress={() => {}} />
+                <Link href={pricingHref as any}>
+                  <Text style={styles.secondaryLink}>{t('solutionPage.ctaPricing')}</Text>
                 </Link>
               </View>
             </Animated.View>
@@ -115,21 +116,12 @@ export function SolutionPage({
 
         <Container style={styles.section}>
           <View style={styles.featureGrid}>
-            {features.map((f, i) => (
-              <Pressable key={f.title} style={({ hovered }: any) => [styles.featureCard, hovered && styles.featureCardHovered]}>
-                {({ hovered }: any) => (
-                  <>
-                    <View style={styles.featureCardTop}>
-                      <View style={[styles.featureIcon, hovered && styles.featureIconHovered]}>
-                        <Feather name={f.icon} size={18} color={hovered ? '#fff' : colors.primary} />
-                      </View>
-                      <Text style={styles.featureIndex}>{String(i + 1).padStart(2, '0')}</Text>
-                    </View>
-                    <Text style={styles.featureTitle}>{f.title}</Text>
-                    <Text style={styles.featureText}>{f.text}</Text>
-                  </>
-                )}
-              </Pressable>
+            {features.map((f) => (
+              <View key={f.title} style={styles.featureCard}>
+                <Feather name={f.icon} size={20} color={colors.primary} style={styles.featureIcon} />
+                <Text style={styles.featureTitle}>{f.title}</Text>
+                <Text style={styles.featureText}>{f.text}</Text>
+              </View>
             ))}
           </View>
         </Container>
@@ -178,9 +170,9 @@ export function SolutionPage({
             <View style={styles.relatedRow}>
               {related.map((r) => (
                 <Link key={r.href} href={r.href as any} asChild>
-                  <Pressable style={({ hovered }: any) => [styles.relatedChip, hovered && styles.relatedChipHovered]}>
+                  <Pressable style={styles.relatedChip}>
                     <Text style={styles.relatedChipText}>{r.label}</Text>
-                    <Feather name="arrow-right" size={13} color={colors.primary} />
+                    <Text style={styles.relatedArrow}>→</Text>
                   </Pressable>
                 </Link>
               ))}
@@ -193,7 +185,7 @@ export function SolutionPage({
             <Text style={styles.closingTitle}>{closingTitle}</Text>
             <Text style={styles.closingText}>{closingText}</Text>
             <Link href={authHref('signup')} asChild>
-              <Button title={t('solutionPage.ctaTrial')} variant="secondary" onPress={() => {}} style={styles.closingCta} />
+              <CtaButton title={t('solutionPage.ctaTrial')} tone="light" style={styles.closingCta} />
             </Link>
           </View>
         </Container>
@@ -231,45 +223,11 @@ const styles = StyleSheet.create({
     minWidth: 300,
     alignItems: 'center',
   },
-  kickerPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    marginBottom: spacing.md,
-  },
-  kickerText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primaryDark,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  title: {
-    fontFamily: marketingFonts.display,
-    fontSize: 44,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.6,
-    lineHeight: 50,
-    maxWidth: 640,
-  } as unknown as ViewStyle,
-  subtitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    marginTop: spacing.md,
-    lineHeight: 24,
-    maxWidth: 540,
-  },
-  ctaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.xl,
-  },
+  kickerPill: { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  kickerText: { ...monoType, fontSize: 11, color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.4 },
+  title: { ...displayType, fontSize: 60, fontWeight: '800', color: colors.text, letterSpacing: -0.3, lineHeight: 58, maxWidth: 680 } as unknown as ViewStyle,
+  subtitle: { fontFamily: marketingFonts.body, fontSize: 18, color: '#4A3D31', marginTop: spacing.lg, lineHeight: 28, maxWidth: 560 },
+  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xl },
   section: {
     maxWidth: 1040,
     width: '100%',
@@ -277,78 +235,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
-  featureGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  featureCard: {
-    flex: 1,
-    minWidth: 240,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.xs,
-    transitionProperty: 'transform, border-color, box-shadow',
-    transitionDuration: '0.2s',
-    transitionTimingFunction: 'ease',
-  } as unknown as ViewStyle,
-  featureCardHovered: {
-    borderColor: colors.primary,
-    transform: [{ translateY: -3 }],
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  featureCardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xs,
-  },
-  featureIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transitionProperty: 'background-color',
-    transitionDuration: '0.2s',
-  } as unknown as ViewStyle,
-  featureIconHovered: {
-    backgroundColor: colors.primary,
-  },
-  featureIndex: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.border,
-  },
-  featureTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  featureText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-  },
-  stepsEyebrow: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
-    marginBottom: spacing.lg,
-  },
+  featureGrid: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1.5, borderTopColor: '#231A12' },
+  featureCard: { flexGrow: 1, flexBasis: 300, paddingTop: spacing.lg, paddingBottom: spacing.xl, paddingRight: spacing.xl, borderBottomWidth: 1, borderBottomColor: '#D8C8B0', gap: spacing.sm },
+  featureIcon: { marginBottom: spacing.xs },
+  featureTitle: { fontFamily: marketingFonts.body, fontSize: 18, fontWeight: '700', color: colors.text, lineHeight: 24 },
+  featureText: { fontFamily: marketingFonts.body, fontSize: 15, color: '#4A3D31', lineHeight: 23 },
+  stepsEyebrow: { ...monoType, fontSize: 11, color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: spacing.lg, borderTopWidth: 1.5, borderTopColor: '#231A12', paddingTop: spacing.md },
   stepsList: {
     maxWidth: 640,
   },
@@ -361,21 +253,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 30,
   },
-  stepNumber: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  stepNumberText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: '#fff',
-  },
+  stepNumber: { width: 30, height: 30, borderRadius: 15, borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  stepNumberText: { ...monoType, fontSize: 12, color: colors.primary },
   stepConnector: {
     width: 1,
     flex: 1,
@@ -388,19 +267,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
     gap: 2,
   },
-  stepTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  stepText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-    marginTop: 2,
-  },
+  stepTitle: { fontFamily: marketingFonts.body, fontSize: 18, fontWeight: '700', color: colors.text },
+  stepText: { fontFamily: marketingFonts.body, fontSize: 15, color: '#4A3D31', lineHeight: 23, marginTop: 2 },
   faqList: {
     maxWidth: 760,
   },
@@ -413,47 +281,11 @@ const styles = StyleSheet.create({
   faqRowLast: {
     borderBottomWidth: 0,
   },
-  faqQuestion: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  faqAnswer: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 21,
-    maxWidth: 640,
-  },
-  relatedRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  relatedChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surface,
-    transitionProperty: 'border-color, transform',
-    transitionDuration: '0.15s',
-  } as unknown as ViewStyle,
-  relatedChipHovered: {
-    borderColor: colors.primary,
-    transform: [{ translateY: -1 }],
-  },
-  relatedChipText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
+  faqQuestion: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: colors.text },
+  faqAnswer: { fontFamily: marketingFonts.body, fontSize: 15, color: '#4A3D31', lineHeight: 23, maxWidth: 680 },
+  relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl },
+  relatedChip: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, borderBottomWidth: 1.5, borderBottomColor: '#231A12', paddingBottom: 2 },
+  relatedChipText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: colors.text },
   closingOuter: {
     maxWidth: 1040,
     width: '100%',
@@ -461,33 +293,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxxl,
   },
-  closing: {
-    backgroundColor: colors.primaryDark,
-    borderRadius: radius.xl,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxxl,
-    alignItems: 'center',
-  },
-  closingTitle: {
-    fontFamily: marketingFonts.display,
-    fontSize: 30,
-    fontWeight: '600',
-    color: '#fff',
-    letterSpacing: -0.4,
-    textAlign: 'center',
-    maxWidth: 520,
-  },
-  closingText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: 'rgba(255,255,255,0.78)',
-    textAlign: 'center',
-    marginTop: spacing.sm,
-    lineHeight: 20,
-    maxWidth: 440,
-  },
-  closingCta: {
-    marginTop: spacing.xl,
-    borderWidth: 0,
-  },
+  closing: { backgroundColor: colors.primaryDark, borderRadius: 3, paddingHorizontal: spacing.xl, paddingVertical: 64, alignItems: 'flex-start' },
+  closingTitle: { ...displayType, fontSize: 44, fontWeight: '800', color: '#fff', lineHeight: 44, maxWidth: 680 },
+  closingText: { fontFamily: marketingFonts.body, fontSize: 17, color: 'rgba(255,255,255,0.8)', marginTop: spacing.md, lineHeight: 26, maxWidth: 520 },
+  closingCta: { marginTop: spacing.xl },
+  secondaryLink: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: colors.text, borderBottomWidth: 1.5, borderBottomColor: '#231A12', paddingBottom: 2 },
+  relatedArrow: { color: colors.primary, fontSize: 14 },
 });

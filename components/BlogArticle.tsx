@@ -8,7 +8,7 @@ import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { BlogLeadMagnet } from './BlogLeadMagnet';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
@@ -35,12 +35,12 @@ const CATEGORY_CLOSING_FR: Partial<Record<BlogPost['category'], { title: string;
   'Devis & facturation': {
     title: 'Vos devis et factures, sans ressaisie',
     text: 'Cantia calcule TVA et totaux automatiquement, génère la QR-facture, et enregistre chaque position dans votre catalogue de prix.',
-    cta: 'Essayer gratuitement',
+    cta: 'Essayer 14 jours',
   },
   'Juridique & normes': {
     title: 'Le juridique réglé, la gestion simplifiée',
     text: 'Une fois le statut et les démarches en ordre, Cantia prend le relais pour les devis, factures et le suivi conforme au quotidien.',
-    cta: 'Essayer gratuitement',
+    cta: 'Essayer 14 jours',
   },
   'RH & salaires': {
     title: 'La paie du bâtiment, sans tableur',
@@ -55,17 +55,17 @@ const CATEGORY_CLOSING_FR: Partial<Record<BlogPost['category'], { title: string;
   'Comparatifs & outils': {
     title: 'Le seul outil qu’il vous faut vraiment',
     text: 'Devis, factures, chantiers et RH réunis dans un seul endroit, pensé pour le bâtiment suisse dès le premier jour.',
-    cta: 'Essayer gratuitement',
+    cta: 'Essayer 14 jours',
   },
   'Métiers du bâtiment': {
     title: 'Un outil qui s’adapte à votre métier',
     text: 'Cantia s’ajuste aux besoins spécifiques de votre corps de métier, pas l’inverse.',
-    cta: 'Essayer gratuitement',
+    cta: 'Essayer 14 jours',
   },
   'Croissance & acquisition': {
     title: 'Transformez plus de devis en chantiers',
     text: 'Répondez plus vite, suivez vos relances et donnez une image professionnelle à chaque interaction client.',
-    cta: 'Essayer gratuitement',
+    cta: 'Essayer 14 jours',
   },
   'Sur-mesure & automatisations': {
     title: 'Un logiciel construit avec vous',
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 38,
     fontWeight: '600',
     color: colors.text,
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   h2: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '600',
     color: colors.text,
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   statValue: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 30,
     fontWeight: '600',
     color: colors.text,
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closingTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 30,
     fontWeight: '600',
     color: '#fff',

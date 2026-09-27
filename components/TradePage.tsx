@@ -9,7 +9,7 @@ import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { PricingSection } from './PricingSection';
 import { SwissSection } from './SwissSection';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { getTradePage } from '../lib/tradeLandingPages';
 import { getPostBySlug } from '../lib/blog';
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 40,
     fontWeight: '600',
     color: colors.text,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   sectionTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 26,
     fontWeight: '600',
     color: colors.text,
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closingTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 28,
     fontWeight: '600',
     color: '#fff',

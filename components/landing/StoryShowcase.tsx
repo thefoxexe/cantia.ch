@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { colors, breakpoints, radius, spacing } from '../../lib/theme';
-import { landingFonts } from '../../lib/landingTheme';
+import { colors, breakpoints, spacing } from '../../lib/theme';
+import { displayType, landingFonts, monoType } from '../../lib/landingTheme';
+import { bodyInk, ink, rule } from './brand';
 import type { useMarketingDict } from '../../lib/i18n';
 
 type Dict = ReturnType<typeof useMarketingDict>;
@@ -83,6 +84,7 @@ export function StoryShowcase({ dict, hrefFor }: { dict: Dict['stories']; hrefFo
               <View key={s} style={styles.stepChip}>
                 <Text style={styles.stepChipNum}>{i + 1}</Text>
                 <Text style={styles.stepChipText}>{s}</Text>
+                {i < active.steps.length - 1 ? <Text style={styles.stepArrow}>→</Text> : null}
               </View>
             ))}
           </View>
@@ -118,35 +120,36 @@ export function StoryShowcase({ dict, hrefFor }: { dict: Dict['stories']; hrefFo
 }
 
 const styles = StyleSheet.create({
-  wrap: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, backgroundColor: colors.surface, padding: spacing.xl, marginTop: spacing.xl },
-  tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginBottom: spacing.lg },
-  tab: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.pill, backgroundColor: colors.bg },
-  tabActive: { backgroundColor: colors.primary },
-  tabText: { fontFamily: landingFonts.body, fontSize: 13, fontWeight: '600', color: colors.textMuted },
-  tabTextActive: { color: '#fff' },
-  stage: { flexDirection: 'row', gap: spacing.xl },
-  stageCompact: { flexDirection: 'column' },
-  problem: { gap: spacing.sm },
-  context: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.primary, textTransform: 'uppercase' },
-  question: { fontFamily: landingFonts.body, fontSize: 24, fontWeight: '600', color: colors.text, letterSpacing: -0.5, lineHeight: 30 },
-  response: { gap: spacing.sm, backgroundColor: colors.bg, borderRadius: radius.md, padding: spacing.lg },
+  wrap: {},
+  tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule, marginBottom: spacing.xl },
+  tab: { paddingVertical: spacing.sm + 2, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
+  tabActive: { borderBottomColor: colors.primary },
+  tabText: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '500', color: colors.textMuted },
+  tabTextActive: { color: ink, fontWeight: '700' },
+  stage: { flexDirection: 'row', gap: spacing.xxl, minHeight: 250 },
+  stageCompact: { flexDirection: 'column', gap: spacing.xl, minHeight: 0 },
+  problem: { gap: spacing.md },
+  context: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase' },
+  question: { ...displayType, fontSize: 42, fontWeight: '800', color: ink, lineHeight: 42 },
+  response: { gap: spacing.md, borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.xl },
   responseSignature: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  signatureDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
-  signatureText: { fontFamily: landingFonts.body, fontSize: 11, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.6 },
-  responseTitle: { fontFamily: landingFonts.body, fontSize: 19, fontWeight: '600', color: colors.text, letterSpacing: -0.4, lineHeight: 24 },
-  responseText: { fontFamily: landingFonts.body, fontSize: 14, color: colors.textMuted, lineHeight: 21 },
-  stepsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.xs },
-  stepChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 10 },
-  stepChipNum: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', color: colors.primary },
-  stepChipText: { fontFamily: landingFonts.body, fontSize: 11, color: colors.text },
-  storyLink: { fontFamily: landingFonts.body, fontSize: 12, fontWeight: '700', color: colors.primary, marginTop: spacing.xs },
-  concrete: { gap: spacing.xs, borderLeftWidth: 2, borderLeftColor: colors.primary, paddingLeft: spacing.lg, justifyContent: 'center' },
-  concreteLabel: { fontFamily: landingFonts.body, fontSize: 10, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
-  concreteText: { fontFamily: landingFonts.body, fontSize: 15, color: colors.text, fontStyle: 'italic', lineHeight: 22 },
-  footer: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xl },
+  signatureDot: { width: 6, height: 6, backgroundColor: colors.primary },
+  signatureText: { ...monoType, fontSize: 10, color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.4 },
+  responseTitle: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', color: ink, letterSpacing: -0.3, lineHeight: 28 },
+  responseText: { fontFamily: landingFonts.body, fontSize: 16, color: bodyInk, lineHeight: 25 },
+  stepsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+  stepChip: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  stepChipNum: { ...monoType, fontSize: 10, color: colors.primary, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, width: 18, height: 18, lineHeight: 16, textAlign: 'center' },
+  stepChipText: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: ink },
+  stepArrow: { color: colors.textMuted, fontSize: 13, marginLeft: 2 },
+  storyLink: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: colors.primary, marginTop: spacing.xs },
+  concrete: { gap: spacing.sm, justifyContent: 'center' },
+  concreteLabel: { ...monoType, fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 },
+  concreteText: { fontFamily: landingFonts.body, fontSize: 19, color: ink, fontStyle: 'italic', lineHeight: 28 },
+  footer: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xxl },
   controls: { flexDirection: 'row', gap: 4 },
-  controlBtn: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  counter: { fontFamily: landingFonts.body, fontSize: 11, color: colors.textMuted, fontVariant: ['tabular-nums'] },
-  progressTrack: { flex: 1, height: 2, backgroundColor: colors.border, borderRadius: 1, overflow: 'hidden' },
+  controlBtn: { width: 32, height: 32, borderRadius: 2, borderWidth: 1, borderColor: rule, alignItems: 'center', justifyContent: 'center' },
+  counter: { ...monoType, fontSize: 11, color: colors.textMuted, fontVariant: ['tabular-nums'] },
+  progressTrack: { flex: 1, height: 1.5, backgroundColor: rule, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: colors.primary },
 });

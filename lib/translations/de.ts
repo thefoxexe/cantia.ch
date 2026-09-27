@@ -2839,7 +2839,7 @@ export const de: TranslationDict = {
   tradePage: {
     breadcrumbHome: 'Start',
     breadcrumbTrades: 'Berufe',
-    ctaTrial: 'Cantia 14 Tage kostenlos testen',
+    ctaTrial: 'Cantia 14 Tage testen',
     discoverFor: 'Cantia für {{trade}} entdecken',
     heroTrust: '14 Tage Testphase · Kein Code nötig',
     painEyebrow: 'Der Berufsalltag',
@@ -2870,7 +2870,7 @@ export const de: TranslationDict = {
     seeAlsoTradeChip: 'Cantia für {{trade}}',
     seeAlsoAllTrades: 'Alle Berufe',
     closingTitle: 'Verwalten Sie Ihre Baustellen mit weniger Administration',
-    closingText: 'Entdecken Sie Cantia 14 Tage lang kostenlos, kein Code nötig.',
+    closingText: 'Entdecken Sie Cantia 14 Tage lang, ohne Verpflichtung und ohne Code.',
     closingCta: 'Testphase starten',
   },
   marketingChrome: {

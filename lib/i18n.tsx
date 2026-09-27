@@ -58,19 +58,18 @@ interface Dict {
   };
   hero: {
     kicker: string;
+    // Rendered as "{titlePrefix}\n{titleHighlight} {crossedText}" with the
+    // hand-drawn red strike over crossedText only.
     titlePrefix: string;
     titleHighlight: string;
     crossedText: string;
-    asideEyebrow: string;
-    asideP1: string;
-    asideP2: string;
+    lede: string;
     cta: string;
-    discover: string;
-    trust: string;
+    secondaryCta: string;
+    facts: string[];
     trustCount: string;
-    baselineLabel: string;
-    baselineItems: string[];
-    baselineNumber: string;
+    // The drawing title block ("cartouche") under the hero.
+    cartouche: { label: string; value: string }[];
   };
   trust: {
     locationLabel: string;
@@ -105,6 +104,7 @@ interface Dict {
     groups: CatalogGroup[];
     planNote: string;
     comparePlans: string;
+    columns: { ref: string; usage: string; content: string };
   };
   team: {
     eyebrow: string;
@@ -212,35 +212,36 @@ const fr: Dict = {
     mobileApp: 'Application mobile',
   },
   hero: {
-    kicker: 'Pensé pour le bâtiment suisse',
-    titlePrefix: 'Gérez vos',
-    titleHighlight: 'chantiers.',
-    crossedText: 'Pas votre administratif.',
-    asideEyebrow: 'LE TERRAIN ET LE BUREAU, ENFIN RÉUNIS',
-    asideP1: 'Du premier devis à la dernière facture, gardez le fil de vos chantiers.',
-    asideP2: 'Devis, heures, documents et échanges restent liés au bon projet. Votre équipe renseigne le terrain ; vous retrouvez les informations pour décider.',
-    cta: 'Essayer Cantia 14 jours',
-    discover: 'Découvrir les fonctionnalités',
-    trust: '14 jours pour essayer Cantia avec votre équipe',
+    kicker: 'Logiciel de chantier pour les entreprises du bâtiment suisse',
+    titlePrefix: 'Gérez vos chantiers,',
+    titleHighlight: 'pas votre',
+    crossedText: 'administratif.',
+    lede: 'Devis, factures QR, rapports de chantier, planning et salaires dans un seul outil. Votre équipe renseigne le terrain depuis son téléphone, vous retrouvez tout au bureau.',
+    cta: 'Essayer 14 jours',
+    secondaryCta: 'Voir les tarifs',
+    facts: ['Dès CHF 39.– par mois', '14 jours d’essai, sans engagement', 'Données hébergées à Zurich'],
     trustCount: '+{{count}} entreprises du bâtiment nous font déjà confiance',
-    baselineLabel: 'UN SEUL ESPACE DE TRAVAIL',
-    baselineItems: ['Devis & factures', 'Chantiers', 'Heures & équipes', 'Rentabilité'],
-    baselineNumber: '01 — CANTIA',
+    cartouche: [
+      { label: 'Objet', value: 'Logiciel de gestion de chantier' },
+      { label: 'Pour', value: 'Entreprises de 1 à 25 personnes' },
+      { label: 'Langues', value: 'Français, Deutsch, Italiano' },
+      { label: 'Hébergement', value: 'Zurich, Suisse' },
+    ],
   },
   trust: {
     locationLabel: 'Conçu et hébergé en Suisse',
-    title: 'Chez vous.\nPour votre métier.',
-    text: 'Un logiciel ancré dans votre quotidien, avec des données hébergées en Suisse et un interlocuteur joignable.',
+    title: 'Un logiciel suisse, avec une vraie personne au bout du fil.',
+    text: 'Vos données restent en Suisse, vos factures suivent les règles suisses, et quand vous appelez, quelqu’un vous répond.',
     cards: [
-      { label: 'Facturation suisse', title: 'Vos factures parlent CHF.', text: 'QR-factures, TVA et acomptes : les outils pour facturer vos clients en Suisse.' },
-      { label: 'Votre façon de travailler', title: 'Vos prix. Vos documents.', text: 'Retrouvez vos prestations habituelles et envoyez des documents à votre image.' },
-      { label: 'Un contact direct', title: 'Une question ? Parlons-en.', text: 'Contactez-nous par téléphone ou par e-mail pour vos questions et vos besoins.' },
+      { label: 'Facturation suisse', title: 'Des factures QR conformes, en francs suisses', text: 'QR-factures, TVA et acomptes : les outils pour facturer vos clients en Suisse.' },
+      { label: 'Votre façon de travailler', title: 'Vos prestations et vos prix, pas les nôtres', text: 'Retrouvez vos prestations habituelles et envoyez des documents à votre image.' },
+      { label: 'Un contact direct', title: 'Une question ? On décroche.', text: 'Contactez-nous par téléphone ou par e-mail pour vos questions et vos besoins.' },
     ],
     contactCta: 'Contacter Cantia',
   },
   profession: {
     eyebrow: 'Votre métier a ses habitudes',
-    title: 'Votre métier.\nVos habitudes.',
+    title: 'Adapté à votre corps de métier',
     text: 'Un charpentier ne prépare pas ses chantiers comme un peintre. Cantia s’adapte à votre corps de métier, avec des modèles et des documents que vous pouvez personnaliser.',
     links: [
       { label: 'Charpente', slug: 'charpentier' },
@@ -251,7 +252,7 @@ const fr: Dict = {
       { label: 'Génie civil', slug: 'genie-civil' },
     ],
     allLink: 'Découvrir tous les métiers',
-    personalTitle: 'Configurez Cantia\nà votre façon.',
+    personalTitle: 'Réglé comme vous travaillez',
     items: [
       { title: 'Vos prestations', text: 'Votre catalogue, vos prix et vos trames de devis suivent votre façon de chiffrer.' },
       { title: 'Votre identité', text: 'Votre logo et vos couleurs accompagnent les documents envoyés aux clients.' },
@@ -260,7 +261,7 @@ const fr: Dict = {
   },
   stories: {
     title: 'Ça vous parle ?',
-    subtitle: 'Les imprévus font partie du métier.\nL’administratif ne devrait pas les compliquer.',
+    subtitle: 'Les imprévus font partie du métier. L’administratif ne devrait pas les compliquer.',
     exploreLabel: 'Explorer toutes les fonctionnalités',
     respondLabel: 'Cantia répond',
     prevLabel: 'Situation précédente',
@@ -273,7 +274,7 @@ const fr: Dict = {
         tab: 'Devis',
         context: 'Devis & offres',
         question: 'Encore des devis\naprès le chantier ?',
-        responseTitle: 'Le devis avance\npendant la visite.',
+        responseTitle: 'Le devis avance pendant la visite.',
         responseText: 'Dictez ou saisissez vos prestations. Cantia reprend votre catalogue pour préparer une offre que vous vérifiez avant de l’envoyer.',
         steps: ['Dicter ou saisir', 'Ajuster', 'Envoyer'],
         linkLabel: 'Découvrir les devis',
@@ -286,7 +287,7 @@ const fr: Dict = {
         tab: 'Chantiers',
         context: 'Suivi de chantier',
         question: 'Où est le plan ?\nEt la dernière photo ?',
-        responseTitle: 'Tout se retrouve\ndans le chantier.',
+        responseTitle: 'Plans, photos et messages restent dans le chantier.',
         responseText: 'Plans, messages et photos restent liés au projet. Vos notes du terrain peuvent ensuite alimenter un rapport à relire et partager.',
         steps: ['Documenter', 'Rassembler', 'Partager'],
         linkLabel: 'Découvrir le suivi et les rapports',
@@ -299,7 +300,7 @@ const fr: Dict = {
         tab: 'Suppléments',
         context: 'Travaux supplémentaires',
         question: '« Tant que\nvous y êtes… »',
-        responseTitle: 'Un extra demandé.\nUn accord écrit.',
+        responseTitle: 'Le supplément est signé avant d’être réalisé.',
         responseText: 'Chiffrez le supplément et faites-le signer en ligne. Après acceptation, Cantia génère une facture dédiée.',
         steps: ['Chiffrer', 'Faire signer', 'Facturer'],
         linkLabel: 'Découvrir les travaux supplémentaires',
@@ -312,7 +313,7 @@ const fr: Dict = {
         tab: 'Équipes',
         context: 'Équipes, heures & salaires',
         question: 'Qui a fait quoi,\net combien d’heures ?',
-        responseTitle: 'Chacun saisit.\nLe bureau retrouve.',
+        responseTitle: 'Chacun saisit ses heures, le bureau les retrouve.',
         responseText: 'Les employés saisissent leurs heures et frais par chantier. Les personnes autorisées retrouvent les données pour le suivi et les salaires.',
         steps: ['Planifier', 'Saisir', 'Exploiter'],
         linkLabel: 'Découvrir les heures et les salaires',
@@ -324,8 +325,8 @@ const fr: Dict = {
         id: 'paiements',
         tab: 'Factures',
         context: 'Facturation & encaissements',
-        question: 'Facturé.\nMais encaissé ?',
-        responseTitle: 'Chaque versement\na sa place.',
+        question: 'Facturé,\nmais encaissé ?',
+        responseTitle: 'Chaque versement est rattaché à sa facture.',
         responseText: 'Créez une QR-facture, demandez un acompte et enregistrez les paiements. Le solde restant suit les versements reçus.',
         steps: ['Facturer', 'Enregistrer le paiement', 'Suivre le solde'],
         linkLabel: 'Découvrir la facturation',
@@ -337,8 +338,8 @@ const fr: Dict = {
         id: 'pilotage',
         tab: 'Rentabilité',
         context: 'Rentabilité & trésorerie',
-        question: 'Du travail, oui.\nMais de la marge ?',
-        responseTitle: 'Voyez ce que\nle chantier vous rapporte.',
+        question: 'Beaucoup de travail,\nmais quelle marge ?',
+        responseTitle: 'Voyez ce que chaque chantier vous rapporte.',
         responseText: 'Comparez le devis aux dépenses et au coût de main-d’œuvre. Anticipez aussi les encaissements et les charges avec la trésorerie à 90 jours.',
         steps: ['Rassembler les coûts', 'Comparer', 'Décider'],
         linkLabel: 'Découvrir la rentabilité',
@@ -349,8 +350,9 @@ const fr: Dict = {
     ],
   },
   catalog: {
-    title: 'Explorez les outils\nqui vous seront utiles.',
-    subtitle: 'Retrouvez les fonctionnalités par usage.\nOuvrez uniquement ce qui vous intéresse.',
+    title: 'Toutes les fonctions, classées par usage',
+    subtitle: 'Chaque ligne renvoie à sa page détaillée.',
+    columns: { ref: 'Page', usage: 'Usage', content: 'Ce qui est inclus' },
     planNote: 'Les modules et les droits disponibles dépendent de votre formule.',
     comparePlans: 'Comparer les offres',
     groups: [
@@ -436,25 +438,25 @@ const fr: Dict = {
   },
   team: {
     eyebrow: 'Du bureau au terrain',
-    titlePrefix: 'Votre entreprise avance.',
-    titleEm: 'Toute l’équipe participe.',
-    text: 'Le patron pilote. Le bureau organise. Les employés font remonter le terrain.\nChacun retrouve les outils qui lui sont utiles, avec les accès que vous lui donnez.',
+    titlePrefix: 'Le patron, le bureau et le terrain',
+    titleEm: 'dans le même outil.',
+    text: 'Le patron pilote, le bureau organise et les employés font remonter ce qui se passe sur le chantier. Chacun retrouve les outils qui lui sont utiles, avec les accès que vous lui donnez.',
     roles: [
       { number: 'Direction', title: 'Gardez la vue d’ensemble.', text: 'Chantiers, devis, factures et rentabilité : les informations se rejoignent pour vous aider à décider.', tags: ['Piloter', 'Décider'] },
       { number: 'Bureau', title: 'Faites avancer les dossiers.', text: 'Secrétariat ou administration : donnez accès aux documents, au planning et aux modules nécessaires au quotidien.', tags: ['Organiser', 'Préparer'] },
       { number: 'Terrain', title: 'Partagez ce qui se passe.', text: 'Les employés saisissent leurs heures par chantier, échangent dans le fil du projet et ajoutent leurs rapports depuis leur téléphone.', tags: ['Pointer', 'Échanger', 'Documenter'] },
     ],
-    permTitle: 'Le bon accès. Pour la bonne personne.',
+    permTitle: 'Chacun voit ce dont il a besoin, et rien de plus.',
     permText: 'Créez vos rôles et choisissez les modules accessibles. Un employé peut remplir ses heures et suivre son chantier sans accéder à la facturation.',
     permNote: 'Exemples d’organisation. Rôles personnalisés et modules disponibles selon votre plan. RH dès le plan Équipe.',
     permLink: 'Découvrir le travail en équipe',
   },
   automation: {
     eyebrow: 'Au clavier ou à la voix',
-    title: 'Dites-le.\nCantia le prépare.',
-    text: 'Saisissez, dictez, vérifiez.\nVous gardez la main sur chaque étape.',
+    title: 'Dictez sur le chantier, relisez au bureau.',
+    text: 'Vous saisissez ou vous dictez, Cantia prépare le brouillon, vous validez.',
     tag: 'À VOTRE FAÇON',
-    commandTitle: 'Un chantier à suivre.\nUn devis à préparer.\nUne facture à envoyer.',
+    commandTitle: 'Un rapport, un devis ou une facture, préparé à partir de ce que vous dites.',
     commandText: 'Travaillez à la main avec vos prestations, vos quantités et vos documents. Ou dictez ce dont vous avez besoin : Cantia vous aide à préparer la suite.\n\nVous relisez, vous ajustez, vous validez.',
     link: 'Découvrir la dictée et l’assistant',
     tryLabel: 'Essayez un exemple de dictée',
@@ -472,7 +474,7 @@ const fr: Dict = {
   },
   terrain: {
     eyebrow: 'Cantia sur tous vos écrans',
-    title: 'Le bureau.\nDans votre poche.',
+    title: 'Le chantier sur le téléphone, le bureau sur l’ordinateur.',
     text: 'Un détail à photographier, un plan à consulter, des heures à saisir : ajoutez l’information là où le travail se fait. Retrouvez-la ensuite au bureau, dans le même chantier.',
     points: [
       { label: 'Ordinateur', text: 'Devis, factures et pilotage' },
@@ -484,7 +486,7 @@ const fr: Dict = {
   },
   tailored: {
     eyebrow: 'Quand votre entreprise a un besoin bien à elle',
-    title: 'Un besoin spécifique ?\nUn module sur mesure.',
+    title: 'Un besoin que personne ne couvre ? On peut le développer.',
     text: 'Un processus particulier, un suivi métier ou un besoin que les modules existants ne couvrent pas ? Nous pouvons étudier un développement sur mesure pour votre entreprise.',
     cta: 'Parlons de votre besoin',
     steps: [
@@ -496,13 +498,13 @@ const fr: Dict = {
   },
   bexio: {
     eyebrow: 'Une connexion, si vous en avez besoin',
-    title: 'Vous utilisez Bexio ?\nGardez le lien.',
+    title: 'Vous utilisez Bexio ? Cantia s’y connecte.',
     text: 'Vous utilisez déjà Bexio ? Connectez vos données clients, factures et paiements pour découvrir Cantia dans la continuité de votre organisation. Sans Bexio, vous pouvez utiliser Cantia de façon autonome.',
     link: 'Voir l’intégration',
   },
   docCustomization: {
     eyebrow: 'Vos documents, à votre image',
-    title: 'Vos devis et factures.\nAux couleurs de votre entreprise.',
+    title: 'Des devis et des factures à vos couleurs, avec le QR suisse',
     text: 'Chaque devis et chaque facture généré par Cantia reprend la couleur et le logo de votre entreprise — et chaque facture inclut le bulletin de versement QR suisse, prêt à être scanné.',
     points: [
       { title: 'Couleur de marque', text: 'Choisissez votre couleur dans Compte > Apparence : elle habille automatiquement l’en-tête, le tableau et les totaux.' },
@@ -513,7 +515,7 @@ const fr: Dict = {
   },
   faq: {
     eyebrow: 'Avant de vous lancer',
-    title: 'Vos questions.\nNos réponses.',
+    title: 'Questions fréquentes',
     link: 'Consulter le centre d’aide',
     items: [
       { q: 'À qui s’adresse Cantia ?', a: 'Aux indépendants et entreprises du bâtiment suisse : maçonnerie, charpente, peinture, électricité, génie civil et autres métiers de la construction.' },
@@ -524,15 +526,15 @@ const fr: Dict = {
     ],
   },
   closing: {
-    eyebrow: 'Votre prochain chantier commence ici',
-    titlePrefix: 'Commencez avec',
-    titleEm: 'votre prochain chantier.',
-    text: 'Commencez par un devis, un chantier, une équipe. Voyez la différence pendant 14 jours.',
-    cta: 'Essayer Cantia gratuitement',
+    eyebrow: 'Prêt à essayer ?',
+    titlePrefix: 'Commencez par votre',
+    titleEm: 'prochain chantier.',
+    text: 'Créez un devis, ouvrez un chantier, invitez votre équipe. Vous avez 14 jours pour juger, sans engagement.',
+    cta: 'Essayer 14 jours',
     contact: 'Parler à l’équipe Cantia',
   },
   pricing: {
-    title: 'Choisissez selon\nla taille de votre équipe.',
+    title: 'Un prix selon la taille de votre équipe',
     subtitle: 'Toutes les formules commencent par 14 jours d’essai complet, sans code promotionnel.',
     monthly: 'Facturation mensuelle',
     yearly: 'Facturation annuelle',
@@ -583,35 +585,36 @@ const de: Dict = {
     mobileApp: 'Mobile App',
   },
   hero: {
-    kicker: 'Für das Schweizer Baugewerbe entwickelt',
-    titlePrefix: 'Verwalten Sie Ihre',
-    titleHighlight: 'Baustellen.',
-    crossedText: 'Nicht Ihre Administration.',
-    asideEyebrow: 'BAUSTELLE UND BÜRO, ENDLICH VEREINT',
-    asideP1: 'Von der ersten Offerte bis zur letzten Rechnung, behalten Sie den Überblick über Ihre Baustellen.',
-    asideP2: 'Offerten, Stunden, Dokumente und Austausch bleiben mit dem richtigen Projekt verknüpft. Ihr Team erfasst vor Ort; Sie finden die Informationen, um zu entscheiden.',
-    cta: 'Cantia 14 Tage testen',
-    discover: 'Funktionen entdecken',
-    trust: '14 Tage, um Cantia mit Ihrem Team zu testen',
+    kicker: 'Baustellensoftware für Schweizer Bauunternehmen',
+    titlePrefix: 'Verwalten Sie Ihre Baustellen,',
+    titleHighlight: 'nicht Ihre',
+    crossedText: 'Administration.',
+    lede: 'Offerten, QR-Rechnungen, Baustellenrapporte, Planung und Löhne in einem einzigen Werkzeug. Ihr Team erfasst vor Ort per Telefon, Sie finden alles im Büro wieder.',
+    cta: '14 Tage testen',
+    secondaryCta: 'Preise ansehen',
+    facts: ['Ab CHF 39.– pro Monat', '14 Tage Testphase, ohne Verpflichtung', 'Daten in Zürich gehostet'],
     trustCount: '+{{count}} Bauunternehmen vertrauen uns bereits',
-    baselineLabel: 'EIN EINZIGER ARBEITSBEREICH',
-    baselineItems: ['Offerten & Rechnungen', 'Baustellen', 'Stunden & Teams', 'Rentabilität'],
-    baselineNumber: '01 — CANTIA',
+    cartouche: [
+      { label: 'Gegenstand', value: 'Software für Baustellenverwaltung' },
+      { label: 'Für', value: 'Unternehmen mit 1 bis 25 Personen' },
+      { label: 'Sprachen', value: 'Français, Deutsch, Italiano' },
+      { label: 'Hosting', value: 'Zürich, Schweiz' },
+    ],
   },
   trust: {
     locationLabel: 'Entwickelt und gehostet in der Schweiz',
-    title: 'Bei Ihnen zu Hause.\nFür Ihren Beruf.',
-    text: 'Eine Software, die in Ihrem Alltag verankert ist, mit in der Schweiz gehosteten Daten und einer erreichbaren Ansprechperson.',
+    title: 'Eine Schweizer Software, mit einem echten Menschen am Telefon.',
+    text: 'Ihre Daten bleiben in der Schweiz, Ihre Rechnungen folgen den Schweizer Regeln, und wenn Sie anrufen, antwortet jemand.',
     cards: [
-      { label: 'Schweizer Rechnungsstellung', title: 'Ihre Rechnungen sprechen CHF.', text: 'QR-Rechnungen, MWST und Anzahlungen: die Werkzeuge, um Ihre Kunden in der Schweiz zu fakturieren.' },
-      { label: 'Ihre Arbeitsweise', title: 'Ihre Preise. Ihre Dokumente.', text: 'Finden Sie Ihre gewohnten Leistungen wieder und versenden Sie Dokumente in Ihrem Stil.' },
-      { label: 'Ein direkter Kontakt', title: 'Eine Frage? Sprechen wir darüber.', text: 'Kontaktieren Sie uns telefonisch oder per E-Mail für Ihre Fragen und Anliegen.' },
+      { label: 'Schweizer Rechnungsstellung', title: 'Konforme QR-Rechnungen in Schweizer Franken', text: 'QR-Rechnungen, MWST und Anzahlungen: die Werkzeuge, um Ihre Kunden in der Schweiz zu fakturieren.' },
+      { label: 'Ihre Arbeitsweise', title: 'Ihre Leistungen und Ihre Preise, nicht unsere', text: 'Finden Sie Ihre gewohnten Leistungen wieder und versenden Sie Dokumente in Ihrem Stil.' },
+      { label: 'Ein direkter Kontakt', title: 'Eine Frage? Wir nehmen ab.', text: 'Kontaktieren Sie uns telefonisch oder per E-Mail für Ihre Fragen und Anliegen.' },
     ],
     contactCta: 'Cantia kontaktieren',
   },
   profession: {
     eyebrow: 'Ihr Beruf hat seine Gewohnheiten',
-    title: 'Ihr Beruf.\nIhre Gewohnheiten.',
+    title: 'Auf Ihr Gewerbe abgestimmt',
     text: 'Ein Zimmermann bereitet seine Baustellen nicht wie ein Maler vor. Cantia passt sich Ihrem Gewerbe an, mit Vorlagen und Dokumenten, die Sie personalisieren können.',
     links: [
       { label: 'Zimmerei', slug: 'charpentier' },
@@ -622,7 +625,7 @@ const de: Dict = {
       { label: 'Tiefbau', slug: 'genie-civil' },
     ],
     allLink: 'Alle Berufe entdecken',
-    personalTitle: 'Konfigurieren Sie Cantia\nnach Ihrer Art.',
+    personalTitle: 'Eingestellt, wie Sie arbeiten',
     items: [
       { title: 'Ihre Leistungen', text: 'Ihr Katalog, Ihre Preise und Ihre Offertvorlagen folgen Ihrer Art zu kalkulieren.' },
       { title: 'Ihre Identität', text: 'Ihr Logo und Ihre Farben begleiten die an Kunden versendeten Dokumente.' },
@@ -631,7 +634,7 @@ const de: Dict = {
   },
   stories: {
     title: 'Kommt Ihnen das bekannt vor?',
-    subtitle: 'Unvorhergesehenes gehört zum Beruf.\nDie Administration sollte es nicht noch komplizierter machen.',
+    subtitle: 'Unvorhergesehenes gehört zum Beruf. Die Administration sollte es nicht noch komplizierter machen.',
     exploreLabel: 'Alle Funktionen entdecken',
     respondLabel: 'Cantia antwortet',
     prevLabel: 'Vorherige Situation',
@@ -644,7 +647,7 @@ const de: Dict = {
         tab: 'Offerten',
         context: 'Offerten & Angebote',
         question: 'Offerten noch am Abend\nnach der Baustelle?',
-        responseTitle: 'Die Offerte entsteht\nwährend der Besichtigung.',
+        responseTitle: 'Die Offerte entsteht während der Besichtigung.',
         responseText: 'Diktieren oder erfassen Sie Ihre Leistungen. Cantia greift auf Ihren Katalog zurück, um ein Angebot vorzubereiten, das Sie vor dem Versand prüfen.',
         steps: ['Diktieren oder erfassen', 'Anpassen', 'Versenden'],
         linkLabel: 'Offerten entdecken',
@@ -657,7 +660,7 @@ const de: Dict = {
         tab: 'Baustellen',
         context: 'Baustellenverfolgung',
         question: 'Wo ist der Plan?\nUnd das letzte Foto?',
-        responseTitle: 'Alles findet sich\nin der Baustelle wieder.',
+        responseTitle: 'Pläne, Fotos und Nachrichten bleiben in der Baustelle.',
         responseText: 'Pläne, Nachrichten und Fotos bleiben mit dem Projekt verknüpft. Ihre Notizen vor Ort können anschliessend einen Rapport speisen, der überprüft und geteilt wird.',
         steps: ['Dokumentieren', 'Sammeln', 'Teilen'],
         linkLabel: 'Verfolgung und Rapporte entdecken',
@@ -670,7 +673,7 @@ const de: Dict = {
         tab: 'Zusatzarbeiten',
         context: 'Zusätzliche Arbeiten',
         question: '„Wo Sie schon\ndabei sind…“',
-        responseTitle: 'Ein Extra verlangt.\nEine schriftliche Vereinbarung.',
+        responseTitle: 'Der Zusatz wird unterschrieben, bevor er ausgeführt wird.',
         responseText: 'Kalkulieren Sie den Zusatz und lassen Sie ihn online unterschreiben. Nach der Annahme erstellt Cantia eine eigene Rechnung.',
         steps: ['Kalkulieren', 'Unterschreiben lassen', 'Fakturieren'],
         linkLabel: 'Zusatzarbeiten entdecken',
@@ -683,7 +686,7 @@ const de: Dict = {
         tab: 'Teams',
         context: 'Teams, Stunden & Löhne',
         question: 'Wer hat was gemacht,\nund wie viele Stunden?',
-        responseTitle: 'Jeder erfasst.\nDas Büro findet.',
+        responseTitle: 'Jeder erfasst seine Stunden, das Büro findet sie wieder.',
         responseText: 'Die Mitarbeitenden erfassen ihre Stunden und Spesen pro Baustelle. Berechtigte Personen finden die Daten für die Nachverfolgung und die Löhne.',
         steps: ['Planen', 'Erfassen', 'Auswerten'],
         linkLabel: 'Stunden und Löhne entdecken',
@@ -696,7 +699,7 @@ const de: Dict = {
         tab: 'Rechnungen',
         context: 'Rechnungsstellung & Inkasso',
         question: 'Fakturiert.\nAber auch bezahlt?',
-        responseTitle: 'Jede Zahlung\nhat ihren Platz.',
+        responseTitle: 'Jede Zahlung ist ihrer Rechnung zugeordnet.',
         responseText: 'Erstellen Sie eine QR-Rechnung, verlangen Sie eine Anzahlung und erfassen Sie die Zahlungen. Der verbleibende Saldo folgt den eingegangenen Zahlungen.',
         steps: ['Fakturieren', 'Zahlung erfassen', 'Saldo verfolgen'],
         linkLabel: 'Rechnungsstellung entdecken',
@@ -709,7 +712,7 @@ const de: Dict = {
         tab: 'Rentabilität',
         context: 'Rentabilität & Liquidität',
         question: 'Gearbeitet, ja.\nAber mit Marge?',
-        responseTitle: 'Sehen Sie, was\ndie Baustelle einbringt.',
+        responseTitle: 'Sehen Sie, was jede Baustelle einbringt.',
         responseText: 'Vergleichen Sie die Offerte mit den Ausgaben und den Lohnkosten. Antizipieren Sie auch Zahlungseingänge und -ausgänge mit der Liquiditätsplanung über 90 Tage.',
         steps: ['Kosten sammeln', 'Vergleichen', 'Entscheiden'],
         linkLabel: 'Rentabilität entdecken',
@@ -720,8 +723,9 @@ const de: Dict = {
     ],
   },
   catalog: {
-    title: 'Entdecken Sie die Werkzeuge,\ndie Ihnen nützen.',
-    subtitle: 'Finden Sie die Funktionen nach Anwendung.\nÖffnen Sie nur, was Sie interessiert.',
+    title: 'Alle Funktionen, nach Anwendung geordnet',
+    subtitle: 'Jede Zeile führt zur ausführlichen Seite.',
+    columns: { ref: 'Seite', usage: 'Anwendung', content: 'Was enthalten ist' },
     planNote: 'Die verfügbaren Module und Rechte hängen von Ihrer Formel ab.',
     comparePlans: 'Angebote vergleichen',
     groups: [
@@ -807,25 +811,25 @@ const de: Dict = {
   },
   team: {
     eyebrow: 'Vom Büro bis zur Baustelle',
-    titlePrefix: 'Ihr Unternehmen kommt voran.',
-    titleEm: 'Das ganze Team macht mit.',
-    text: 'Die Geschäftsleitung steuert. Das Büro organisiert. Die Mitarbeitenden melden von der Baustelle zurück.\nJeder findet die für ihn nützlichen Werkzeuge, mit den Zugriffen, die Sie vergeben.',
+    titlePrefix: 'Chef, Büro und Baustelle',
+    titleEm: 'im selben Werkzeug.',
+    text: 'Die Geschäftsleitung steuert, das Büro organisiert und die Mitarbeitenden melden, was auf der Baustelle passiert. Jeder findet die für ihn nützlichen Werkzeuge, mit den Zugriffen, die Sie vergeben.',
     roles: [
       { number: 'Geschäftsleitung', title: 'Behalten Sie den Überblick.', text: 'Baustellen, Offerten, Rechnungen und Rentabilität: Die Informationen laufen zusammen, um Ihnen bei Entscheidungen zu helfen.', tags: ['Steuern', 'Entscheiden'] },
       { number: 'Büro', title: 'Bringen Sie die Dossiers voran.', text: 'Sekretariat oder Administration: Geben Sie Zugriff auf Dokumente, Planung und die im Alltag nötigen Module.', tags: ['Organisieren', 'Vorbereiten'] },
       { number: 'Baustelle', title: 'Teilen Sie, was passiert.', text: 'Die Mitarbeitenden erfassen ihre Stunden pro Baustelle, tauschen sich im Projekt-Feed aus und fügen ihre Rapporte vom Telefon aus hinzu.', tags: ['Erfassen', 'Austauschen', 'Dokumentieren'] },
     ],
-    permTitle: 'Der richtige Zugriff. Für die richtige Person.',
+    permTitle: 'Jeder sieht, was er braucht, und nicht mehr.',
     permText: 'Erstellen Sie Ihre Rollen und wählen Sie die zugänglichen Module. Ein Mitarbeitender kann seine Stunden erfassen und seine Baustelle verfolgen, ohne Zugriff auf die Rechnungsstellung zu haben.',
     permNote: 'Beispiele einer Organisation. Personalisierte Rollen und verfügbare Module je nach Plan. HR ab dem Plan Team.',
     permLink: 'Teamarbeit entdecken',
   },
   automation: {
     eyebrow: 'Per Tastatur oder per Sprache',
-    title: 'Sagen Sie es.\nCantia bereitet es vor.',
-    text: 'Erfassen, diktieren, prüfen.\nSie behalten bei jedem Schritt die Kontrolle.',
+    title: 'Auf der Baustelle diktieren, im Büro prüfen.',
+    text: 'Sie erfassen oder diktieren, Cantia bereitet den Entwurf vor, Sie bestätigen.',
     tag: 'NACH IHRER ART',
-    commandTitle: 'Eine Baustelle zu verfolgen.\nEine Offerte vorzubereiten.\nEine Rechnung zu versenden.',
+    commandTitle: 'Ein Rapport, eine Offerte oder eine Rechnung, vorbereitet aus dem, was Sie sagen.',
     commandText: 'Arbeiten Sie von Hand mit Ihren Leistungen, Mengen und Dokumenten. Oder diktieren Sie, was Sie brauchen: Cantia hilft Ihnen, den nächsten Schritt vorzubereiten.\n\nSie prüfen, passen an, bestätigen.',
     link: 'Diktat und Assistent entdecken',
     tryLabel: 'Probieren Sie ein Diktat-Beispiel',
@@ -843,7 +847,7 @@ const de: Dict = {
   },
   terrain: {
     eyebrow: 'Cantia auf all Ihren Bildschirmen',
-    title: 'Das Büro.\nIn Ihrer Tasche.',
+    title: 'Die Baustelle auf dem Telefon, das Büro auf dem Computer.',
     text: 'Ein Detail zu fotografieren, ein Plan zu konsultieren, Stunden zu erfassen: Fügen Sie die Information dort hinzu, wo die Arbeit stattfindet. Finden Sie sie anschliessend im Büro, in derselben Baustelle, wieder.',
     points: [
       { label: 'Computer', text: 'Offerten, Rechnungen und Steuerung' },
@@ -855,7 +859,7 @@ const de: Dict = {
   },
   tailored: {
     eyebrow: 'Wenn Ihr Unternehmen ein ganz eigenes Bedürfnis hat',
-    title: 'Ein spezifisches Bedürfnis?\nEin massgeschneidertes Modul.',
+    title: 'Ein Bedürfnis, das niemand abdeckt? Wir können es entwickeln.',
     text: 'Ein besonderer Prozess, eine fachliche Nachverfolgung oder ein Bedürfnis, das die bestehenden Module nicht abdecken? Wir können eine massgeschneiderte Entwicklung für Ihr Unternehmen prüfen.',
     cta: 'Sprechen wir über Ihr Anliegen',
     steps: [
@@ -867,13 +871,13 @@ const de: Dict = {
   },
   bexio: {
     eyebrow: 'Eine Verbindung, falls Sie sie brauchen',
-    title: 'Sie nutzen Bexio?\nBehalten Sie die Verbindung.',
+    title: 'Sie nutzen Bexio? Cantia verbindet sich damit.',
     text: 'Sie nutzen bereits Bexio? Verbinden Sie Ihre Kunden-, Rechnungs- und Zahlungsdaten, um Cantia im Einklang mit Ihrer Organisation zu entdecken. Ohne Bexio können Sie Cantia eigenständig nutzen.',
     link: 'Die Integration ansehen',
   },
   docCustomization: {
     eyebrow: 'Ihre Dokumente, in Ihrem Look',
-    title: 'Ihre Angebote und Rechnungen.\nIn den Farben Ihres Unternehmens.',
+    title: 'Offerten und Rechnungen in Ihren Farben, mit Schweizer QR',
     text: 'Jedes von Cantia erstellte Angebot und jede Rechnung übernimmt die Farbe und das Logo Ihres Unternehmens — und jede Rechnung enthält den Schweizer QR-Einzahlungsschein, bereit zum Scannen.',
     points: [
       { title: 'Markenfarbe', text: 'Wählen Sie Ihre Farbe unter Konto > Erscheinungsbild: Sie färbt automatisch Kopfzeile, Tabelle und Summen ein.' },
@@ -884,7 +888,7 @@ const de: Dict = {
   },
   faq: {
     eyebrow: 'Bevor Sie starten',
-    title: 'Ihre Fragen.\nUnsere Antworten.',
+    title: 'Häufige Fragen',
     link: 'Hilfe-Center besuchen',
     items: [
       { q: 'An wen richtet sich Cantia?', a: 'An Selbstständige und Unternehmen des Schweizer Baugewerbes: Maurerarbeiten, Zimmerei, Malerarbeiten, Elektrik, Tiefbau und andere Bauberufe.' },
@@ -895,15 +899,15 @@ const de: Dict = {
     ],
   },
   closing: {
-    eyebrow: 'Ihre nächste Baustelle beginnt hier',
-    titlePrefix: 'Beginnen Sie mit',
-    titleEm: 'Ihrer nächsten Baustelle.',
-    text: 'Beginnen Sie mit einer Offerte, einer Baustelle, einem Team. Erleben Sie den Unterschied während 14 Tagen.',
-    cta: 'Cantia kostenlos testen',
+    eyebrow: 'Bereit zum Testen?',
+    titlePrefix: 'Beginnen Sie mit Ihrer',
+    titleEm: 'nächsten Baustelle.',
+    text: 'Erstellen Sie eine Offerte, eröffnen Sie eine Baustelle, laden Sie Ihr Team ein. Sie haben 14 Tage Zeit, ohne Verpflichtung.',
+    cta: '14 Tage testen',
     contact: 'Mit dem Cantia-Team sprechen',
   },
   pricing: {
-    title: 'Wählen Sie\nnach der Grösse Ihres Teams.',
+    title: 'Ein Preis nach der Grösse Ihres Teams',
     subtitle: 'Alle Formeln beginnen mit 14 Tagen vollständiger Testphase, ohne Aktionscode.',
     monthly: 'Monatliche Abrechnung',
     yearly: 'Jährliche Abrechnung',
@@ -954,35 +958,36 @@ const it: Dict = {
     mobileApp: 'App mobile',
   },
   hero: {
-    kicker: 'Pensato per l’edilizia svizzera',
-    titlePrefix: 'Gestisca i suoi',
-    titleHighlight: 'cantieri.',
-    crossedText: 'Non la sua amministrazione.',
-    asideEyebrow: 'IL CANTIERE E L’UFFICIO, FINALMENTE UNITI',
-    asideP1: 'Dal primo preventivo all’ultima fattura, tenga il filo dei suoi cantieri.',
-    asideP2: 'Preventivi, ore, documenti e scambi restano collegati al progetto giusto. La sua squadra documenta sul campo; lei ritrova le informazioni per decidere.',
-    cta: 'Provi Cantia 14 giorni',
-    discover: 'Scopra le funzionalità',
-    trust: '14 giorni per provare Cantia con la sua squadra',
+    kicker: 'Software di cantiere per le imprese edili svizzere',
+    titlePrefix: 'Gestisca i suoi cantieri,',
+    titleHighlight: 'non la sua',
+    crossedText: 'amministrazione.',
+    lede: 'Preventivi, fatture QR, rapporti di cantiere, pianificazione e salari in un unico strumento. La squadra registra sul campo dal telefono, lei ritrova tutto in ufficio.',
+    cta: 'Provi 14 giorni',
+    secondaryCta: 'Vedere i prezzi',
+    facts: ['Da CHF 39.– al mese', '14 giorni di prova, senza impegno', 'Dati ospitati a Zurigo'],
     trustCount: '+{{count}} imprese del settore edile si fidano già di noi',
-    baselineLabel: 'UN UNICO SPAZIO DI LAVORO',
-    baselineItems: ['Preventivi & fatture', 'Cantieri', 'Ore & squadre', 'Redditività'],
-    baselineNumber: '01 — CANTIA',
+    cartouche: [
+      { label: 'Oggetto', value: 'Software di gestione del cantiere' },
+      { label: 'Per', value: 'Imprese da 1 a 25 persone' },
+      { label: 'Lingue', value: 'Français, Deutsch, Italiano' },
+      { label: 'Hosting', value: 'Zurigo, Svizzera' },
+    ],
   },
   trust: {
     locationLabel: 'Progettato e ospitato in Svizzera',
-    title: 'Da lei.\nPer il suo mestiere.',
-    text: 'Un software radicato nel suo quotidiano, con dati ospitati in Svizzera e un referente raggiungibile.',
+    title: 'Un software svizzero, con una vera persona al telefono.',
+    text: 'I suoi dati restano in Svizzera, le sue fatture seguono le regole svizzere, e quando chiama qualcuno le risponde.',
     cards: [
-      { label: 'Fatturazione svizzera', title: 'Le sue fatture parlano CHF.', text: 'Fatture QR, IVA e acconti: gli strumenti per fatturare i suoi clienti in Svizzera.' },
-      { label: 'Il suo modo di lavorare', title: 'I suoi prezzi. I suoi documenti.', text: 'Ritrova le sue prestazioni abituali e invia documenti a sua immagine.' },
-      { label: 'Un contatto diretto', title: 'Una domanda? Ne parliamo.', text: 'Ci contatti per telefono o e-mail per le sue domande e le sue esigenze.' },
+      { label: 'Fatturazione svizzera', title: 'Fatture QR conformi, in franchi svizzeri', text: 'Fatture QR, IVA e acconti: gli strumenti per fatturare i suoi clienti in Svizzera.' },
+      { label: 'Il suo modo di lavorare', title: 'Le sue prestazioni e i suoi prezzi, non i nostri', text: 'Ritrova le sue prestazioni abituali e invia documenti a sua immagine.' },
+      { label: 'Un contatto diretto', title: 'Una domanda? Rispondiamo noi.', text: 'Ci contatti per telefono o e-mail per le sue domande e le sue esigenze.' },
     ],
     contactCta: 'Contattare Cantia',
   },
   profession: {
     eyebrow: 'Il suo mestiere ha le sue abitudini',
-    title: 'Il suo mestiere.\nLe sue abitudini.',
+    title: 'Adattato al suo mestiere',
     text: 'Un carpentiere non prepara i suoi cantieri come un pittore. Cantia si adatta al suo mestiere, con modelli e documenti che può personalizzare.',
     links: [
       { label: 'Carpenteria', slug: 'charpentier' },
@@ -993,7 +998,7 @@ const it: Dict = {
       { label: 'Genio civile', slug: 'genie-civil' },
     ],
     allLink: 'Scopra tutti i mestieri',
-    personalTitle: 'Configuri Cantia\na modo suo.',
+    personalTitle: 'Regolato su come lavora lei',
     items: [
       { title: 'Le sue prestazioni', text: 'Il suo catalogo, i suoi prezzi e i suoi modelli di preventivo seguono il suo modo di calcolare.' },
       { title: 'La sua identità', text: 'Il suo logo e i suoi colori accompagnano i documenti inviati ai clienti.' },
@@ -1002,7 +1007,7 @@ const it: Dict = {
   },
   stories: {
     title: 'Le dice qualcosa?',
-    subtitle: 'Gli imprevisti fanno parte del mestiere.\nL’amministrazione non dovrebbe complicarli.',
+    subtitle: 'Gli imprevisti fanno parte del mestiere. L’amministrazione non dovrebbe complicarli.',
     exploreLabel: 'Esplora tutte le funzionalità',
     respondLabel: 'Cantia risponde',
     prevLabel: 'Situazione precedente',
@@ -1015,7 +1020,7 @@ const it: Dict = {
         tab: 'Preventivi',
         context: 'Preventivi & offerte',
         question: 'Ancora preventivi\ndopo il cantiere?',
-        responseTitle: 'Il preventivo avanza\ndurante il sopralluogo.',
+        responseTitle: 'Il preventivo avanza durante il sopralluogo.',
         responseText: 'Detti o inserisca le sue prestazioni. Cantia riprende il suo catalogo per preparare un’offerta che lei verifica prima di inviarla.',
         steps: ['Dettare o inserire', 'Regolare', 'Inviare'],
         linkLabel: 'Scopra i preventivi',
@@ -1028,7 +1033,7 @@ const it: Dict = {
         tab: 'Cantieri',
         context: 'Monitoraggio del cantiere',
         question: 'Dov’è il piano?\nE l’ultima foto?',
-        responseTitle: 'Tutto si ritrova\nnel cantiere.',
+        responseTitle: 'Piani, foto e messaggi restano nel cantiere.',
         responseText: 'Piani, messaggi e foto restano collegati al progetto. Le sue note sul campo possono poi alimentare un rapporto da rileggere e condividere.',
         steps: ['Documentare', 'Raccogliere', 'Condividere'],
         linkLabel: 'Scopra il monitoraggio e i rapporti',
@@ -1041,7 +1046,7 @@ const it: Dict = {
         tab: 'Supplementi',
         context: 'Lavori supplementari',
         question: '«Visto che\nc’è già…»',
-        responseTitle: 'Un extra richiesto.\nUn accordo scritto.',
+        responseTitle: 'Il supplemento viene firmato prima di essere eseguito.',
         responseText: 'Calcoli il supplemento e lo faccia firmare online. Dopo l’accettazione, Cantia genera una fattura dedicata.',
         steps: ['Calcolare', 'Far firmare', 'Fatturare'],
         linkLabel: 'Scopra i lavori supplementari',
@@ -1054,7 +1059,7 @@ const it: Dict = {
         tab: 'Squadre',
         context: 'Squadre, ore & salari',
         question: 'Chi ha fatto cosa,\ne quante ore?',
-        responseTitle: 'Ognuno registra.\nL’ufficio ritrova.',
+        responseTitle: 'Ognuno registra le sue ore, l’ufficio le ritrova.',
         responseText: 'I dipendenti registrano le loro ore e spese per cantiere. Le persone autorizzate ritrovano i dati per il monitoraggio e i salari.',
         steps: ['Pianificare', 'Registrare', 'Sfruttare'],
         linkLabel: 'Scopra ore e salari',
@@ -1067,7 +1072,7 @@ const it: Dict = {
         tab: 'Fatture',
         context: 'Fatturazione & incassi',
         question: 'Fatturato.\nMa incassato?',
-        responseTitle: 'Ogni versamento\nha il suo posto.',
+        responseTitle: 'Ogni versamento è collegato alla sua fattura.',
         responseText: 'Crei una fattura QR, richieda un acconto e registri i pagamenti. Il saldo restante segue i versamenti ricevuti.',
         steps: ['Fatturare', 'Registrare il pagamento', 'Seguire il saldo'],
         linkLabel: 'Scopra la fatturazione',
@@ -1080,7 +1085,7 @@ const it: Dict = {
         tab: 'Redditività',
         context: 'Redditività & liquidità',
         question: 'Lavoro fatto, sì.\nMa margine?',
-        responseTitle: 'Veda cosa le rende\ndavvero il cantiere.',
+        responseTitle: 'Veda quanto le rende ogni cantiere.',
         responseText: 'Confronti il preventivo con le spese e il costo della manodopera. Anticipi anche incassi e uscite con la liquidità a 90 giorni.',
         steps: ['Raccogliere i costi', 'Confrontare', 'Decidere'],
         linkLabel: 'Scopra la redditività',
@@ -1091,8 +1096,9 @@ const it: Dict = {
     ],
   },
   catalog: {
-    title: 'Esplori gli strumenti\nche le saranno utili.',
-    subtitle: 'Ritrovi le funzionalità per uso.\nApra solo ciò che la interessa.',
+    title: 'Tutte le funzioni, ordinate per uso',
+    subtitle: 'Ogni riga rimanda alla sua pagina dettagliata.',
+    columns: { ref: 'Pagina', usage: 'Uso', content: 'Cosa è incluso' },
     planNote: 'I moduli e i diritti disponibili dipendono dalla sua formula.',
     comparePlans: 'Confronta le offerte',
     groups: [
@@ -1178,25 +1184,25 @@ const it: Dict = {
   },
   team: {
     eyebrow: 'Dall’ufficio al cantiere',
-    titlePrefix: 'La sua impresa avanza.',
-    titleEm: 'Tutta la squadra partecipa.',
-    text: 'Il titolare guida. L’ufficio organizza. I dipendenti fanno arrivare le informazioni dal campo.\nOgnuno ritrova gli strumenti che gli sono utili, con gli accessi che lei assegna.',
+    titlePrefix: 'Il titolare, l’ufficio e il cantiere',
+    titleEm: 'nello stesso strumento.',
+    text: 'Il titolare guida, l’ufficio organizza e i dipendenti fanno arrivare ciò che succede in cantiere. Ognuno ritrova gli strumenti che gli sono utili, con gli accessi che lei assegna.',
     roles: [
       { number: 'Direzione', title: 'Mantenga la visione d’insieme.', text: 'Cantieri, preventivi, fatture e redditività: le informazioni si uniscono per aiutarla a decidere.', tags: ['Guidare', 'Decidere'] },
       { number: 'Ufficio', title: 'Faccia avanzare le pratiche.', text: 'Segretariato o amministrazione: dia accesso ai documenti, alla pianificazione e ai moduli necessari ogni giorno.', tags: ['Organizzare', 'Preparare'] },
       { number: 'Cantiere', title: 'Condivida ciò che succede.', text: 'I dipendenti registrano le loro ore per cantiere, si scambiano messaggi nel feed del progetto e aggiungono i loro rapporti dal telefono.', tags: ['Timbrare', 'Scambiare', 'Documentare'] },
     ],
-    permTitle: 'L’accesso giusto. Per la persona giusta.',
+    permTitle: 'Ognuno vede ciò che gli serve, e niente di più.',
     permText: 'Crei i suoi ruoli e scelga i moduli accessibili. Un dipendente può compilare le sue ore e seguire il suo cantiere senza accedere alla fatturazione.',
     permNote: 'Esempi di organizzazione. Ruoli personalizzati e moduli disponibili secondo il suo piano. HR a partire dal piano Squadra.',
     permLink: 'Scopra il lavoro di squadra',
   },
   automation: {
     eyebrow: 'Con la tastiera o con la voce',
-    title: 'Lo dica.\nCantia lo prepara.',
-    text: 'Inserisca, detti, verifichi.\nMantiene il controllo su ogni fase.',
+    title: 'Detti in cantiere, rilegga in ufficio.',
+    text: 'Lei inserisce o detta, Cantia prepara la bozza, lei conferma.',
     tag: 'A MODO SUO',
-    commandTitle: 'Un cantiere da seguire.\nUn preventivo da preparare.\nUna fattura da inviare.',
+    commandTitle: 'Un rapporto, un preventivo o una fattura, preparati da ciò che dice.',
     commandText: 'Lavori manualmente con le sue prestazioni, quantità e documenti. Oppure detti ciò di cui ha bisogno: Cantia la aiuta a preparare il passo successivo.\n\nLei rilegge, regola, convalida.',
     link: 'Scopra la dettatura e l’assistente',
     tryLabel: 'Provi un esempio di dettatura',
@@ -1214,7 +1220,7 @@ const it: Dict = {
   },
   terrain: {
     eyebrow: 'Cantia su tutti i suoi schermi',
-    title: 'L’ufficio.\nIn tasca.',
+    title: 'Il cantiere sul telefono, l’ufficio sul computer.',
     text: 'Un dettaglio da fotografare, un piano da consultare, ore da registrare: aggiunga l’informazione dove il lavoro si svolge. La ritrovi poi in ufficio, nello stesso cantiere.',
     points: [
       { label: 'Computer', text: 'Preventivi, fatture e gestione' },
@@ -1226,7 +1232,7 @@ const it: Dict = {
   },
   tailored: {
     eyebrow: 'Quando la sua impresa ha un’esigenza tutta sua',
-    title: 'Un’esigenza specifica?\nUn modulo su misura.',
+    title: 'Un’esigenza che nessuno copre? Possiamo svilupparla.',
     text: 'Un processo particolare, un monitoraggio di settore o un’esigenza che i moduli esistenti non coprono? Possiamo studiare uno sviluppo su misura per la sua impresa.',
     cta: 'Parliamo della sua esigenza',
     steps: [
@@ -1238,13 +1244,13 @@ const it: Dict = {
   },
   bexio: {
     eyebrow: 'Una connessione, se ne ha bisogno',
-    title: 'Usa Bexio?\nMantenga il collegamento.',
+    title: 'Usa Bexio? Cantia si collega.',
     text: 'Usa già Bexio? Colleghi i suoi dati di clienti, fatture e pagamenti per scoprire Cantia in continuità con la sua organizzazione. Senza Bexio, può usare Cantia in modo autonomo.',
     link: 'Veda l’integrazione',
   },
   docCustomization: {
     eyebrow: 'I suoi documenti, a sua immagine',
-    title: 'I suoi preventivi e fatture.\nNei colori della sua impresa.',
+    title: 'Preventivi e fatture nei suoi colori, con il QR svizzero',
     text: 'Ogni preventivo e ogni fattura generati da Cantia riprendono il colore e il logo della sua impresa — e ogni fattura include la polizza di versamento QR svizzera, pronta per la scansione.',
     points: [
       { title: 'Colore del marchio', text: 'Scelga il suo colore in Account > Aspetto: colora automaticamente intestazione, tabella e totali.' },
@@ -1255,7 +1261,7 @@ const it: Dict = {
   },
   faq: {
     eyebrow: 'Prima di iniziare',
-    title: 'Le sue domande.\nLe nostre risposte.',
+    title: 'Domande frequenti',
     link: 'Consulti il centro assistenza',
     items: [
       { q: 'A chi si rivolge Cantia?', a: 'A indipendenti e imprese dell’edilizia svizzera: muratura, carpenteria, pittura, elettricità, genio civile e altri mestieri delle costruzioni.' },
@@ -1266,15 +1272,15 @@ const it: Dict = {
     ],
   },
   closing: {
-    eyebrow: 'Il suo prossimo cantiere inizia qui',
-    titlePrefix: 'Inizi con',
-    titleEm: 'il suo prossimo cantiere.',
-    text: 'Inizi con un preventivo, un cantiere, una squadra. Veda la differenza per 14 giorni.',
-    cta: 'Provi Cantia gratuitamente',
+    eyebrow: 'Pronto a provare?',
+    titlePrefix: 'Inizi dal suo',
+    titleEm: 'prossimo cantiere.',
+    text: 'Crei un preventivo, apra un cantiere, inviti la sua squadra. Ha 14 giorni per giudicare, senza impegno.',
+    cta: 'Provi 14 giorni',
     contact: 'Parli con il team Cantia',
   },
   pricing: {
-    title: 'Scelga in base\nalla dimensione della sua squadra.',
+    title: 'Un prezzo in base alla sua squadra',
     subtitle: 'Tutte le formule iniziano con 14 giorni di prova completa, senza codice promozionale.',
     monthly: 'Fatturazione mensile',
     yearly: 'Fatturazione annuale',

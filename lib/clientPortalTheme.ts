@@ -6,7 +6,7 @@ import { marketingFonts } from './marketingTheme';
 // facture-client): the only screens in the app a non-customer ever opens,
 // so they're built to the same "Swiss-made, premium, secure" register as
 // the marketing site rather than the utilitarian internal app chrome —
-// same Fraunces/Instrument Sans pairing, same warm palette, more air.
+// same brand typography (Archivo), same warm palette, more air.
 export const portalFonts = marketingFonts;
 
 // A floating card with more radius and a softer, wider shadow than the

@@ -3,7 +3,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button, Card, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
 const FORM_NAME = 'contact';
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   formTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: fontSize.xl,
     fontWeight: '700',
     color: colors.text,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   successTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,

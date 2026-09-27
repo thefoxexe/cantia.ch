@@ -5,7 +5,7 @@ import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { ContactForm } from '../components/ContactForm';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { openLiveChat } from '../lib/liveChat';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: fontSize.xxxl,
     fontWeight: '800',
     color: colors.text,

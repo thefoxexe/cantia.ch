@@ -4,7 +4,7 @@ import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
 import { breakpoints, colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { landingFonts } from '../lib/landingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
@@ -437,6 +437,8 @@ const styles = StyleSheet.create({
   },
   navCta: {
     paddingHorizontal: spacing.lg,
+    borderRadius: 3,
+    shadowOpacity: 0,
   },
   langSwitcherCompact: {
     marginLeft: 0,
@@ -566,7 +568,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textMuted,
   },
-  mobileMenuCta: {},
+  mobileMenuCta: { borderRadius: 3, shadowOpacity: 0 },
   footer: {
     marginTop: spacing.xxxl,
     borderTopWidth: 1,
@@ -598,7 +600,7 @@ const styles = StyleSheet.create({
     height: 28,
   },
   footerBrand: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '700',
     letterSpacing: -0.5,

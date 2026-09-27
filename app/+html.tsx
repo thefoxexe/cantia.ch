@@ -8,11 +8,8 @@ import { type PropsWithChildren } from 'react';
 // request. The app's own screens don't reference any of these families, so
 // this has no visual effect outside app/index.tsx, app/solutions/*,
 // app/telechargement.tsx and MarketingChrome.
-// - Fraunces + Instrument Sans: brand display/body pairing from the ad
-//   videos, used by /solutions/*, trade pages, MarketingChrome.
-// - DM Sans: the homepage only (app/index.tsx) — see lib/landingTheme.ts —
-//   from the September 2026 "Cantia_Landing" reference package, which
-//   specified this typeface precisely for the redesigned landing page.
+// - Archivo (variable width, condensed for headings) + Martian Mono: the
+//   brand typography of every marketing page — see lib/marketingTheme.ts.
 export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="fr">
@@ -24,7 +21,7 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap"
         />
         {/* Matches lib/theme.ts colors.bg — without this, the raw white
             html/body shows through for an instant during the mobile

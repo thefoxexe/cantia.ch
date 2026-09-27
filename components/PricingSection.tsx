@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { authHref, planHref } from '../lib/appHost';
 import type { Plan } from '../lib/types';
 
@@ -174,20 +174,20 @@ const styles = StyleSheet.create({
   },
   centerText: { textAlign: 'center' },
   eyebrow: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '800',
+    fontFamily: marketingFonts.mono,
+    fontSize: 11,
     color: colors.primary,
     textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    letterSpacing: 0.4,
   },
   title: {
-    fontFamily: marketingFonts.display,
-    fontSize: 32,
-    fontWeight: '600',
+    ...displayType,
+    fontSize: 48,
+    lineHeight: 48,
+    fontWeight: '800',
     color: colors.text,
-    marginTop: spacing.xs,
-    maxWidth: 560,
+    marginTop: spacing.sm,
+    maxWidth: 720,
   },
   subtitle: {
     fontFamily: marketingFonts.body,
@@ -232,8 +232,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: 'center',
     paddingVertical: 8,
-    borderTopLeftRadius: radius.md,
-    borderTopRightRadius: radius.md,
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
   },
   ribbonText: {
     fontFamily: marketingFonts.body,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   card: {
     gap: 0,
     padding: 26,
-    borderRadius: radius.md,
+    borderRadius: 3,
     backgroundColor: CARD_BG,
     borderWidth: 1,
     borderColor: colors.border,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   },
   cardSkeleton: { opacity: 0.6 },
   skeletonLine: { height: 14, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt, width: '90%' },
-  planName: { fontFamily: marketingFonts.display, fontSize: 25, fontWeight: '600', color: colors.text },
+  planName: { ...displayType, fontSize: 30, fontWeight: '800', color: colors.text },
   planIntro: { fontFamily: marketingFonts.body, fontSize: 13, color: colors.textMuted, lineHeight: 19, marginTop: 8, marginBottom: spacing.lg, minHeight: 38 },
   capacityRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.lg },
   capacityChip: { backgroundColor: 'rgba(35,26,18,0.05)', borderRadius: radius.sm, paddingVertical: 6, paddingHorizontal: 10 },
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   capacityChipNum: { fontWeight: '700', color: colors.text },
   priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 5 },
   currency: { fontFamily: marketingFonts.body, fontSize: 12, color: colors.textMuted },
-  price: { fontFamily: marketingFonts.body, fontSize: 38, fontWeight: '600', letterSpacing: -1.5, color: colors.text },
+  price: { ...displayType, fontSize: 52, fontWeight: '800', color: colors.text },
   period: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.textMuted },
   yearlyNote: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, color: colors.textMuted, marginTop: 6, marginBottom: spacing.lg },
   ctaButton: {
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: radius.sm,
+    borderRadius: 3,
     paddingVertical: 13,
     marginTop: spacing.lg,
   },

@@ -7,7 +7,7 @@ import { Heading } from './Heading';
 import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, fontSize, radius, spacing } from './../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { displayType, marketingFonts } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { HelpArticle } from '../lib/helpArticles';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 34,
     fontWeight: '600',
     color: colors.text,
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   closingTitle: {
-    fontFamily: marketingFonts.display,
+    ...displayType,
     fontSize: 20,
     fontWeight: '600',
     color: colors.text,
