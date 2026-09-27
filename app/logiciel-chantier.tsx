@@ -160,17 +160,23 @@ function Cta({ label = 'Essayer 14 jours', location, small }: { label?: string; 
   );
 }
 
-// Same figures as the `plans` table (monthly price, member cap). `saved` is
-// the share of admin time each plan removes: the more of the company works
-// in Cantia, the less is left outside to collect and retype. Not displayed
-// as a percentage; the page shows the resulting hours and bars instead.
+// Same figures as the `plans` table (monthly price, member cap). Each plan is
+// valued for the team it covers:
+// - `office`: share of the owner's admin hours it removes, from a task-by-task
+//   split of an 8 h week (quote writing, invoices, reports, hours and payroll,
+//   planning, Bexio, profitability, plus quote follow-up for Entreprise):
+//   42 / 60 / 70 %.
+// - `field`: hours saved per week by each other person working in Cantia
+//   (hours, reports and photos entered on the phone, fewer calls to the
+//   office). Essentiel has no planning or payroll, hence half.
+// Because the price per person drops with the plan, bigger plans pay back
+// faster.
 const ROI_PLANS = [
-  { id: 'entreprise', name: 'Entreprise', monthly: 129, members: 25, saved: 0.55, scope: 'Toute l’entreprise dans Cantia : plus rien à recopier, tout arrive déjà rangé.' },
-  { id: 'equipe', name: 'Équipe', monthly: 79, members: 10, saved: 0.4, scope: 'Le bureau et les chefs d’équipe : heures et rapports saisis sur place.' },
-  { id: 'essentiel', name: 'Essentiel', monthly: 39, members: 3, saved: 0.25, scope: 'Le bureau seul : ce qui vient du chantier reste à ressaisir.' },
+  { id: 'entreprise', name: 'Entreprise', monthly: 129, members: 25, office: 0.7, field: 1, scope: 'Tout le bureau et le terrain dans Cantia, avec le suivi commercial et les relances automatiques des devis (bientôt disponible).' },
+  { id: 'equipe', name: 'Équipe', monthly: 79, members: 10, office: 0.6, field: 1, scope: 'Planning, salaires, rentabilité par chantier et synchronisation Bexio inclus.' },
+  { id: 'essentiel', name: 'Essentiel', monthly: 39, members: 3, office: 0.42, field: 0.5, scope: 'Devis, factures et rapports. Sans planning ni salaires : une partie reste à ressaisir.' },
 ] as const;
 const ROI_WEEKS = 46;
-const ROI_MAX_SAVED = Math.max(...ROI_PLANS.map((p) => p.saved));
 
 // Swiss notation: CHF 9’900 and CHF 7.90.
 const chf = (n: number, decimals = 0) => {
@@ -219,33 +225,34 @@ function RoiCalculator({ compact }: { compact: boolean }) {
           <Text style={styles.roiHint}>par an, pour {adminHours} heures passées au bureau plutôt que sur le chantier.</Text>
         </View>
         <Text style={styles.roiNote}>
-          Le calcul porte uniquement sur vos heures d’administratif ({ROI_WEEKS} semaines travaillées). Plus votre équipe travaille dans Cantia, moins il reste d’informations à récupérer et à ressaisir : c’est pourquoi le gain grandit avec la formule.
+          Chaque formule est calculée pour l’équipe qu’elle couvre ({ROI_WEEKS} semaines travaillées) : le temps gagné sur vos heures d’administratif, plus 1 h par semaine pour chaque personne sur le terrain (heures, rapports et photos saisis sur le téléphone ; 30 min avec l’Essentiel). Le prix par personne baisse avec la formule, c’est pourquoi les plus grandes sont rentabilisées plus vite.
         </Text>
       </View>
 
       <View style={[styles.roiResult, !compact && { flex: 1.15 }]}>
         <Text style={styles.roiResultLabel}>Ce que chaque formule vous fait gagner</Text>
         {ROI_PLANS.map((p, idx) => {
-          const saved = Math.round(adminHours * p.saved);
+          const saved = Math.round(adminHours * p.office + (p.members - 1) * p.field * ROI_WEEKS);
           const net = saved * rate - p.monthly * 12;
           const days = saved * rate > 0 ? Math.ceil(((p.monthly * 12) / (saved * rate)) * 365) : null;
           const best = idx === 0;
+          const maxSaved = Math.round(adminHours * ROI_PLANS[0].office + (ROI_PLANS[0].members - 1) * ROI_PLANS[0].field * ROI_WEEKS);
           return (
             <View key={p.id} style={[styles.roiPlanBlock, best && styles.roiPlanBlockBest]}>
               <View style={styles.roiPlanHead}>
                 <Text style={styles.roiPlanLineName}>
                   {p.name}
-                  {best ? <Text style={styles.roiPlanLineTag}>{'   '}gain le plus élevé</Text> : null}
+                  {best ? <Text style={styles.roiPlanLineTag}>{'   '}rentabilisé le plus vite</Text> : null}
                 </Text>
-                <Text style={styles.roiPlanLineMeta}>{chf(p.monthly)}.–/mois · jusqu’à {p.members} pers.</Text>
+                <Text style={styles.roiPlanLineMeta}>{chf(p.monthly)}.–/mois · équipe de {p.members} · {chf(p.monthly / p.members, 2).replace(/\.00$/, '.–')}/pers.</Text>
               </View>
               <Text style={styles.roiPlanScope}>{p.scope}</Text>
               <View style={styles.roiBarTrack}>
-                <View style={[styles.roiBarFill, { width: `${(p.saved / ROI_MAX_SAVED) * 100}%` }, best && { backgroundColor: '#E8AD89' }]} />
+                <View style={[styles.roiBarFill, { width: `${maxSaved > 0 ? Math.max(4, (saved / maxSaved) * 100) : 0}%` }, best && { backgroundColor: '#E8AD89' }]} />
               </View>
               <View style={styles.roiPlanFigures}>
                 <View>
-                  <Text style={styles.roiFigValue}>{saved} h</Text>
+                  <Text style={styles.roiFigValue}>{chf(saved).replace('CHF ', '')} h</Text>
                   <Text style={styles.roiFigLabel}>récupérées / an</Text>
                 </View>
                 <View>
@@ -463,7 +470,7 @@ export default function LogicielChantierPage() {
         {/* 5 · ROI calculator */}
         <View style={[styles.wrap, styles.section]}>
           <ScrollReveal>
-            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Deux chiffres suffisent : le temps que vous passez chaque semaine sur l’administratif, et ce que vous coûte une heure. Le calcul ne porte que sur ces heures-là." />
+            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Deux chiffres suffisent : le temps que vous passez chaque semaine sur l’administratif, et ce que vous coûte une heure. Chaque formule est ensuite calculée pour l’équipe qu’elle couvre." />
             <RoiCalculator compact={isTablet} />
           </ScrollReveal>
         </View>
