@@ -230,12 +230,12 @@ const fr: Dict = {
   },
   trust: {
     locationLabel: 'Conçu et hébergé en Suisse',
-    title: 'Un logiciel suisse, avec une vraie personne au bout du fil.',
+    title: 'Suisse, du serveur à la facture QR.',
     text: 'Vos données restent en Suisse, vos factures suivent les règles suisses, et quand vous appelez, quelqu’un vous répond.',
     cards: [
       { label: 'Facturation suisse', title: 'Des factures QR conformes, en francs suisses', text: 'QR-factures, TVA et acomptes : les outils pour facturer vos clients en Suisse.' },
       { label: 'Votre façon de travailler', title: 'Vos prestations et vos prix, pas les nôtres', text: 'Retrouvez vos prestations habituelles et envoyez des documents à votre image.' },
-      { label: 'Un contact direct', title: 'Une question ? On décroche.', text: 'Contactez-nous par téléphone ou par e-mail pour vos questions et vos besoins.' },
+      { label: 'Un contact direct', title: 'Un contact direct, par téléphone ou e-mail', text: 'Contactez-nous par téléphone ou par e-mail pour vos questions et vos besoins.' },
     ],
     contactCta: 'Contacter Cantia',
   },
@@ -260,7 +260,7 @@ const fr: Dict = {
     ],
   },
   stories: {
-    title: 'Ça vous parle ?',
+    title: 'Six situations que vous connaissez',
     subtitle: 'Les imprévus font partie du métier. L’administratif ne devrait pas les compliquer.',
     exploreLabel: 'Explorer toutes les fonctionnalités',
     respondLabel: 'Cantia répond',
@@ -603,12 +603,12 @@ const de: Dict = {
   },
   trust: {
     locationLabel: 'Entwickelt und gehostet in der Schweiz',
-    title: 'Eine Schweizer Software, mit einem echten Menschen am Telefon.',
+    title: 'Schweizerisch, vom Server bis zur QR-Rechnung.',
     text: 'Ihre Daten bleiben in der Schweiz, Ihre Rechnungen folgen den Schweizer Regeln, und wenn Sie anrufen, antwortet jemand.',
     cards: [
       { label: 'Schweizer Rechnungsstellung', title: 'Konforme QR-Rechnungen in Schweizer Franken', text: 'QR-Rechnungen, MWST und Anzahlungen: die Werkzeuge, um Ihre Kunden in der Schweiz zu fakturieren.' },
       { label: 'Ihre Arbeitsweise', title: 'Ihre Leistungen und Ihre Preise, nicht unsere', text: 'Finden Sie Ihre gewohnten Leistungen wieder und versenden Sie Dokumente in Ihrem Stil.' },
-      { label: 'Ein direkter Kontakt', title: 'Eine Frage? Wir nehmen ab.', text: 'Kontaktieren Sie uns telefonisch oder per E-Mail für Ihre Fragen und Anliegen.' },
+      { label: 'Ein direkter Kontakt', title: 'Direkter Kontakt, per Telefon oder E-Mail', text: 'Kontaktieren Sie uns telefonisch oder per E-Mail für Ihre Fragen und Anliegen.' },
     ],
     contactCta: 'Cantia kontaktieren',
   },
@@ -633,7 +633,7 @@ const de: Dict = {
     ],
   },
   stories: {
-    title: 'Kommt Ihnen das bekannt vor?',
+    title: 'Sechs Situationen, die Sie kennen',
     subtitle: 'Unvorhergesehenes gehört zum Beruf. Die Administration sollte es nicht noch komplizierter machen.',
     exploreLabel: 'Alle Funktionen entdecken',
     respondLabel: 'Cantia antwortet',
@@ -976,12 +976,12 @@ const it: Dict = {
   },
   trust: {
     locationLabel: 'Progettato e ospitato in Svizzera',
-    title: 'Un software svizzero, con una vera persona al telefono.',
+    title: 'Svizzero, dal server alla fattura QR.',
     text: 'I suoi dati restano in Svizzera, le sue fatture seguono le regole svizzere, e quando chiama qualcuno le risponde.',
     cards: [
       { label: 'Fatturazione svizzera', title: 'Fatture QR conformi, in franchi svizzeri', text: 'Fatture QR, IVA e acconti: gli strumenti per fatturare i suoi clienti in Svizzera.' },
       { label: 'Il suo modo di lavorare', title: 'Le sue prestazioni e i suoi prezzi, non i nostri', text: 'Ritrova le sue prestazioni abituali e invia documenti a sua immagine.' },
-      { label: 'Un contatto diretto', title: 'Una domanda? Rispondiamo noi.', text: 'Ci contatti per telefono o e-mail per le sue domande e le sue esigenze.' },
+      { label: 'Un contatto diretto', title: 'Un contatto diretto, per telefono o e-mail', text: 'Ci contatti per telefono o e-mail per le sue domande e le sue esigenze.' },
     ],
     contactCta: 'Contattare Cantia',
   },
@@ -1006,7 +1006,7 @@ const it: Dict = {
     ],
   },
   stories: {
-    title: 'Le dice qualcosa?',
+    title: 'Sei situazioni che conosce',
     subtitle: 'Gli imprevisti fanno parte del mestiere. L’amministrazione non dovrebbe complicarli.',
     exploreLabel: 'Esplora tutte le funzionalità',
     respondLabel: 'Cantia risponde',
