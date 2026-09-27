@@ -160,30 +160,66 @@ function Cta({ label = 'Essayer 14 jours', location, small }: { label?: string; 
   );
 }
 
-// "How much does admin cost you" — every figure comes from the visitor's own
-// inputs; the only assumption (share of that time Cantia saves) is shown and
-// adjustable, defaulting to a conservative value.
+// Same figures as the `plans` table (monthly price, member cap). The yearly
+// price is monthly × 12 − 20 %.
+const ROI_PLANS = [
+  { id: 'essentiel', name: 'Essentiel', monthly: 39, members: 3 },
+  { id: 'equipe', name: 'Équipe', monthly: 79, members: 10 },
+  { id: 'entreprise', name: 'Entreprise', monthly: 129, members: 25 },
+] as const;
+type RoiPlanId = (typeof ROI_PLANS)[number]['id'];
+
+// Share of admin time Cantia removes. Fixed and stated on the page rather than
+// left to the visitor: dictated quotes, QR invoices built from the quote,
+// hours entered by the team from their phones.
+const ROI_TIME_SAVED = 0.3;
+// Plus, per employee besides the owner: timesheets and site reports entered
+// on the phone instead of paper collected and retyped.
+const ROI_HOURS_PER_EMPLOYEE = 0.25;
+const ROI_WEEKS = 46;
+
+// Swiss notation: CHF 9’900 and CHF 7.90.
+const chf = (n: number, decimals = 0) => {
+  const [int, dec] = n.toFixed(decimals).split('.');
+  return `CHF ${int.replace(/\B(?=(\d{3})+(?!\d))/g, '’')}${dec ? `.${dec}` : ''}`;
+};
+const perPerson = (monthly: number, people: number) => chf(monthly / people, 2).replace(/\.00$/, '.–');
+
+// "How much does admin cost you": team size, weekly admin hours and the value
+// of an hour come from the visitor; the time saved is a fixed, stated 30 %.
+// The team size picks the matching plan, and the plan list shows how the
+// price per person drops as the team grows.
 function RoiCalculator({ compact }: { compact: boolean }) {
+  const [team, setTeam] = useState(3);
   const [hours, setHours] = useState(8);
-  const [rate, setRate] = useState(90);
-  const [share, setShare] = useState(30);
-  const weeks = 46;
-  const hoursSaved = Math.round((hours * weeks * share) / 100);
+  const [rate, setRate] = useState(35);
+  const fitting = ROI_PLANS.find((p) => p.members >= team) ?? ROI_PLANS[ROI_PLANS.length - 1];
+  const [picked, setPicked] = useState<RoiPlanId | null>(null);
+  const pickedPlan = ROI_PLANS.find((p) => p.id === picked);
+  // A manual pick only holds while it still covers the team.
+  const plan = pickedPlan && pickedPlan.members >= team ? pickedPlan : fitting;
+
+  const hoursSaved = Math.round((hours * ROI_TIME_SAVED + (team - 1) * ROI_HOURS_PER_EMPLOYEE) * ROI_WEEKS);
   const valueSaved = hoursSaved * rate;
-  const cantiaYear = 39 * 12;
-  const paybackDays = valueSaved > 0 ? Math.max(1, Math.ceil((cantiaYear / valueSaved) * 365)) : null;
-  const chf = (n: number) => `CHF ${Math.round(n).toLocaleString('fr-CH').replace(/ | |\s/g, '’')}`;
+  const planYear = plan.monthly * 12;
+  const paybackDays = valueSaved > 0 ? Math.max(1, Math.ceil((planYear / valueSaved) * 365)) : null;
+  const net = valueSaved - planYear;
+
   const inputs = [
-    { label: 'Heures d’administratif par semaine', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(30, v + 1)) },
-    { label: 'Valeur d’une de vos heures', value: `CHF ${rate}`, dec: () => setRate((v) => Math.max(40, v - 5)), inc: () => setRate((v) => Math.min(200, v + 5)) },
-    { label: 'Temps que Cantia vous fait gagner', value: `${share} %`, dec: () => setShare((v) => Math.max(10, v - 5)), inc: () => setShare((v) => Math.min(70, v + 5)) },
+    { label: 'Personnes dans l’entreprise', hint: 'vous compris', value: `${team}`, dec: () => setTeam((v) => Math.max(1, v - 1)), inc: () => setTeam((v) => Math.min(25, v + 1)) },
+    { label: 'Heures d’administratif par semaine', hint: 'devis, factures, heures, relances', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(40, v + 1)) },
+    { label: 'Valeur d’une heure de travail', hint: 'ce que vous facturez ou payez', value: `CHF ${rate}`, dec: () => setRate((v) => Math.max(25, v - 5)), inc: () => setRate((v) => Math.min(150, v + 5)) },
   ];
+
   return (
     <View style={[styles.roi, compact && styles.roiCompact]}>
       <View style={[styles.roiInputs, !compact && { flex: 1 }]}>
         {inputs.map((i) => (
           <View key={i.label} style={styles.roiRow}>
-            <Text style={styles.roiLabel}>{i.label}</Text>
+            <View style={{ flex: 1, minWidth: 180 }}>
+              <Text style={styles.roiLabel}>{i.label}</Text>
+              <Text style={styles.roiHint}>{i.hint}</Text>
+            </View>
             <View style={styles.stepper}>
               <Pressable onPress={i.dec} style={styles.stepBtn} accessibilityLabel={`Diminuer : ${i.label}`}>
                 <Text style={styles.stepBtnText}>−</Text>
@@ -195,8 +231,44 @@ function RoiCalculator({ compact }: { compact: boolean }) {
             </View>
           </View>
         ))}
-        <Text style={styles.roiNote}>Estimation sur 46 semaines travaillées, selon vos chiffres. Ajustez la part de temps gagné à votre situation.</Text>
+        <View style={styles.roiFixed}>
+          <Text style={styles.roiFixedValue}>−30 %</Text>
+          <Text style={styles.roiFixedText}>
+            de temps d’administratif avec Cantia (devis dictés et chiffrés, facture QR créée depuis le devis), plus 15 min par semaine et par employé : heures et rapports saisis sur le téléphone, plus rien à recopier.
+          </Text>
+        </View>
+
+        <Text style={styles.roiPlansLabel}>Votre formule · plus l’équipe est grande, moins chaque personne coûte</Text>
+        {ROI_PLANS.map((p) => {
+          const tooSmall = p.members < team;
+          const active = p.id === plan.id;
+          return (
+            <Pressable
+              key={p.id}
+              onPress={() => !tooSmall && setPicked(p.id)}
+              disabled={tooSmall}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: active, disabled: tooSmall }}
+              style={[styles.roiPlan, active && styles.roiPlanActive, tooSmall && { opacity: 0.4 }]}
+            >
+              <View style={[styles.roiRadio, active && styles.roiRadioActive]} />
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.roiPlanName}>
+                  {p.name}
+                  {p.id === fitting.id ? <Text style={styles.roiPlanTag}>{'   '}recommandé</Text> : null}
+                </Text>
+                <Text style={styles.roiPlanMeta}>{tooSmall ? `Jusqu’à ${p.members} personnes, trop petit pour vous` : `Jusqu’à ${p.members} personnes`}</Text>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={styles.roiPlanPrice}>{chf(p.monthly)}.–<Text style={styles.roiPlanPer}> /mois</Text></Text>
+                <Text style={styles.roiPlanPerson}>dès {perPerson(p.monthly, p.members)} /pers.</Text>
+              </View>
+            </Pressable>
+          );
+        })}
+        <Text style={styles.roiNote}>Estimation sur {ROI_WEEKS} semaines travaillées. En facturation annuelle, chaque formule coûte 20 % de moins.</Text>
       </View>
+
       <View style={[styles.roiResult, !compact && { flex: 1 }]}>
         <Text style={styles.roiResultLabel}>Temps récupéré par an</Text>
         <Text style={styles.roiBig}>{hoursSaved} h</Text>
@@ -204,10 +276,16 @@ function RoiCalculator({ compact }: { compact: boolean }) {
         <Text style={styles.roiBig}>{chf(valueSaved)}</Text>
         <View style={styles.roiDivider} />
         <Text style={styles.roiCompare}>
-          Cantia Essentiel : {chf(cantiaYear)} par an{paybackDays ? `, rentabilisé en ${paybackDays} jours.` : '.'}
+          Cantia {plan.name} pour {team} {team > 1 ? 'personnes' : 'personne'} : {chf(planYear)} par an, soit {perPerson(plan.monthly, team)} par personne et par mois.
         </Text>
+        {paybackDays ? (
+          <Text style={styles.roiPayback}>
+            {paybackDays <= 365 ? `Rentabilisé en ${paybackDays} jours` : 'Pas rentable avec ces chiffres'}
+            {net > 0 ? ` · ${chf(net)} gagnés sur l’année` : ''}
+          </Text>
+        ) : null}
         <View style={{ marginTop: spacing.lg }}>
-          <Cta location="roi" label="Récupérer ce temps, essai 14 jours" />
+          <Cta location="roi" label={`Essayer ${plan.name} 14 jours`} />
         </View>
       </View>
     </View>
@@ -409,7 +487,7 @@ export default function LogicielChantierPage() {
         {/* 5 · ROI calculator */}
         <View style={[styles.wrap, styles.section]}>
           <ScrollReveal>
-            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Entrez vos propres chiffres : le temps passé le soir sur les devis, les factures et les heures, et ce que vaut une heure de votre travail." />
+            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Indiquez la taille de votre équipe, le temps passé chaque semaine sur les devis, les factures et les heures, et ce que vaut une heure de travail. La formule adaptée s’affiche avec son prix." />
             <RoiCalculator compact={isTablet} />
           </ScrollReveal>
         </View>
@@ -547,7 +625,23 @@ const styles = StyleSheet.create({
   roiCompact: { flexDirection: 'column', gap: spacing.xxl },
   roiInputs: { gap: 0 },
   roiRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule, flexWrap: 'wrap' },
-  roiLabel: { flex: 1, minWidth: 180, fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: ink },
+  roiLabel: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: ink },
+  roiHint: { fontFamily: landingFonts.body, fontSize: 13, lineHeight: 18, color: colors.textMuted, marginTop: 2 },
+  roiFixed: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule },
+  roiFixedValue: { ...displayType, fontSize: 34, lineHeight: 36, fontWeight: '800', color: colors.primary },
+  roiFixedText: { flex: 1, fontFamily: landingFonts.body, fontSize: 14, lineHeight: 20, color: bodyInk },
+  roiPlansLabel: { ...monoType, fontSize: 10.5, lineHeight: 16, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary, marginTop: spacing.xl, marginBottom: spacing.sm },
+  roiPlan: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 12, paddingHorizontal: spacing.md, borderWidth: 1, borderColor: rule, borderRadius: 3, marginBottom: 8, backgroundColor: '#FFFDF8' },
+  roiPlanActive: { borderColor: colors.primary, borderWidth: 1.5, backgroundColor: '#FBEFE6' },
+  roiRadio: { width: 16, height: 16, borderRadius: 8, borderWidth: 1.5, borderColor: ink },
+  roiRadioActive: { borderColor: colors.primary, borderWidth: 5 },
+  roiPlanName: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: ink },
+  roiPlanTag: { ...monoType, fontSize: 10, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary, fontWeight: '400' },
+  roiPlanMeta: { fontFamily: landingFonts.body, fontSize: 13, lineHeight: 18, color: colors.textMuted },
+  roiPlanPrice: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: ink, fontVariant: ['tabular-nums'] },
+  roiPlanPer: { fontSize: 12, fontWeight: '400', color: colors.textMuted },
+  roiPlanPerson: { ...monoType, fontSize: 10.5, color: colors.primary, marginTop: 2 },
+  roiPayback: { ...displayType, fontSize: 24, lineHeight: 28, fontWeight: '800', color: '#FBF6EE', marginTop: spacing.md },
   stepper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ink, borderRadius: 3 },
   stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stepBtnText: { fontSize: 20, color: ink, lineHeight: 22 },
