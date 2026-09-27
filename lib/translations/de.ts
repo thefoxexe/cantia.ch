@@ -798,6 +798,10 @@ export const de: TranslationDict = {
     adminOnlyHint: 'Nur ein Administrator kann Bexio verbinden.',
     footnoteLocked: 'Die Bexio-Integration ermöglicht die Synchronisierung Ihrer Kunden, Produkte und Rechnungen. Sie ist ab dem Team-Plan enthalten.',
     footnoteUnlocked: 'Kunden werden in beide Richtungen übertragen: Ein in Bexio erstellter Kunde wird bei der Verbindung und bei jeder Synchronisierung (alle 15 Minuten) importiert, ein in Cantia erstellter Kunde wird sofort an Bexio gesendet. Bexio-Artikel speisen Ihren Katalog. Auch Rechnungen werden in beide Richtungen übertragen: Senden Sie eine Cantia-Rechnung über deren Detailseite an Bexio, oder erstellen Sie sie direkt in Bexio — sie erscheint hier bei der nächsten Synchronisierung, mit aktuellem Zahlungsstatus. Offerten können über ihre Detailseite als Angebot an Bexio gesendet werden — ihre Bexio-Nummer wird automatisch angezeigt.',
+    comingSoon: 'Demnächst verfügbar',
+    emailSectionTitle: 'E-Mail',
+    gmailSubtitle: 'Finden Sie den Austausch mit Ihren Kunden in deren Kundenakte und senden Sie Offerten von Ihrer Gmail-Adresse.',
+    outlookSubtitle: 'Finden Sie den Austausch mit Ihren Kunden in deren Kundenakte und senden Sie Offerten von Ihrer Outlook-Adresse.',
   },
   emailsSettings: {
     title: 'E-Mails',

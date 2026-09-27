@@ -806,6 +806,10 @@ export const it: TranslationDict = {
     adminOnlyHint: 'Solo un amministratore può collegare Bexio.',
     footnoteLocked: "L'integrazione Bexio permette di sincronizzare i suoi clienti, prodotti e fatture. È inclusa a partire dal piano Team.",
     footnoteUnlocked: "I clienti viaggiano in entrambe le direzioni: un cliente creato in Bexio viene importato al momento della connessione e a ogni sincronizzazione (ogni 15 minuti), un cliente creato in Cantia viene inviato a Bexio non appena creato. Gli articoli Bexio alimentano il suo Catalogo. Anche le fatture viaggiano in entrambe le direzioni: invii una fattura Cantia a Bexio dal suo dettaglio, oppure la crei direttamente in Bexio — apparirà qui alla sincronizzazione successiva, con il suo stato di pagamento aggiornato. I preventivi possono essere inviati a Bexio come offerta dal loro dettaglio — il numero Bexio torna a essere visualizzato automaticamente.",
+    comingSoon: 'Presto disponibile',
+    emailSectionTitle: 'Posta elettronica',
+    gmailSubtitle: 'Ritrovi gli scambi con i suoi clienti nella loro scheda e invii i preventivi dal suo indirizzo Gmail.',
+    outlookSubtitle: 'Ritrovi gli scambi con i suoi clienti nella loro scheda e invii i preventivi dal suo indirizzo Outlook.',
   },
   emailsSettings: {
     title: 'E-mail',

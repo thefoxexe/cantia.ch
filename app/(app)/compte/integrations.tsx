@@ -15,6 +15,13 @@ function formatDateTime(iso: string | null): string {
   return new Date(iso).toLocaleString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
+// Mailbox connections announced ahead of release: shown with their logo and a
+// "coming soon" badge, no action yet.
+const EMAIL_PROVIDERS = [
+  { name: 'Gmail', logo: require('../../../assets/integrations/gmail-logo.png'), subtitleKey: 'integrationsSettings.gmailSubtitle' },
+  { name: 'Outlook', logo: require('../../../assets/integrations/outlook-logo.png'), subtitleKey: 'integrationsSettings.outlookSubtitle' },
+] as const;
+
 export default function IntegrationsScreen() {
   const { t } = useTranslation();
   const { organization, role } = useAuth();
@@ -219,6 +226,24 @@ export default function IntegrationsScreen() {
         <Text style={styles.footnote}>
           {locked ? t('integrationsSettings.footnoteLocked') : t('integrationsSettings.footnoteUnlocked')}
         </Text>
+
+        <Text style={styles.sectionTitle}>{t('integrationsSettings.emailSectionTitle')}</Text>
+        {EMAIL_PROVIDERS.map((p) => (
+          <View key={p.name} style={[styles.card, styles.soonCard]}>
+            <View style={styles.cardHeader}>
+              <View style={[styles.logoBadge, styles.logoBadgeLight]}>
+                <Image source={p.logo} style={styles.providerLogo} resizeMode="contain" accessibilityLabel={p.name} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>{p.name}</Text>
+                <Text style={styles.cardSubtitle}>{t(p.subtitleKey)}</Text>
+              </View>
+              <View style={styles.soonBadge}>
+                <Text style={styles.soonText}>{t('integrationsSettings.comingSoon')}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
       </Container>
     </AppScreen>
   );
@@ -281,6 +306,40 @@ const styles = StyleSheet.create({
   },
   logoBadgeLocked: {
     backgroundColor: colors.border,
+  },
+  logoBadgeLight: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  providerLogo: {
+    width: 26,
+    height: 26,
+  },
+  sectionTitle: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
+  },
+  soonCard: {
+    marginBottom: spacing.sm,
+  },
+  soonBadge: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  soonText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textMuted,
   },
   logoImage: {
     width: 42,
