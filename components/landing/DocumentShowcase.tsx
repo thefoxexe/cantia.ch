@@ -9,15 +9,15 @@ import type { useMarketingDict } from '../../lib/i18n';
 type Dict = ReturnType<typeof useMarketingDict>;
 export type DocumentId = Dict['documents']['docs'][number]['id'];
 
-// Real exports: each image is the actual output of the app's own PDF
+// Real exports, full A4 pages: each image is the actual output of the app's own PDF
 // generator (supabase/functions/generate-*-pdf) run with sample data, not a
 // mockup. `callouts` are the vertical positions (share of the image height)
 // of the numbered markers, in the same order as the document's `points`.
 const DOCUMENTS: Record<DocumentId, { uri: string; aspect: number; callouts: string[] }> = {
   facture: { uri: '/showcase/facture-exemple.png', aspect: 1819 / 2573, callouts: ['36%', '4.5%', '78%'] },
-  devis: { uri: '/showcase/devis-signe.webp', aspect: 1429 / 1546, callouts: ['25.5%', '47%', '88.5%'] },
-  rapport: { uri: '/showcase/rapport-chantier.webp', aspect: 1429 / 1506, callouts: ['40.5%', '55%', '84.5%', '93.8%'] },
-  salaire: { uri: '/showcase/fiche-salaire.webp', aspect: 1429 / 1182, callouts: ['47%', '74%', '88.5%'] },
+  devis: { uri: '/showcase/devis-signe.webp', aspect: 1429 / 2021, callouts: ['19.5%', '36%', '67.7%'] },
+  rapport: { uri: '/showcase/rapport-chantier.webp', aspect: 1429 / 2021, callouts: ['30.2%', '41%', '63%', '69.9%'] },
+  salaire: { uri: '/showcase/fiche-salaire.webp', aspect: 1429 / 2021, callouts: ['27.5%', '43.3%', '51.8%'] },
 };
 
 // One real document with numbered markers on its right edge and the
