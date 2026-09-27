@@ -160,142 +160,129 @@ function Cta({ label = 'Essayer 14 jours', location, small }: { label?: string; 
   );
 }
 
-// Same figures as the `plans` table (monthly price, member cap). Each plan is
-// valued for the team it covers:
-// - `office`: share of the owner's admin hours it removes, from a task-by-task
-//   split of an 8 h week (quote writing, invoices, reports, hours and payroll,
-//   planning, Bexio, profitability, plus quote follow-up for Entreprise):
-//   42 / 60 / 70 %.
-// - `field`: hours saved per week by each other person working in Cantia
-//   (hours, reports and photos entered on the phone, fewer calls to the
-//   office). Essentiel has no planning or payroll, hence half.
-// Because the price per person drops with the plan, bigger plans pay back
-// faster.
-const ROI_PLANS = [
-  { id: 'entreprise', name: 'Entreprise', monthly: 129, members: 25, office: 0.7, field: 1, scope: 'Tout le bureau et le terrain dans Cantia, avec le suivi commercial et les relances automatiques des devis (bientôt disponible).' },
-  { id: 'equipe', name: 'Équipe', monthly: 79, members: 10, office: 0.6, field: 1, scope: 'Planning, salaires, rentabilité par chantier et synchronisation Bexio inclus.' },
-  { id: 'essentiel', name: 'Essentiel', monthly: 39, members: 3, office: 0.42, field: 0.5, scope: 'Devis, factures et rapports. Sans planning ni salaires : une partie reste à ressaisir.' },
-] as const;
+// Cantia Équipe, the plan this page recommends (same figures as the `plans`
+// table: CHF 79.– per month, up to 10 people). Only features that exist
+// today are counted.
+const ROI_PRICE_MONTHLY = 79;
+const ROI_MAX_PEOPLE = 10;
 const ROI_WEEKS = 46;
+// Share of the owner's admin hours Équipe removes, from the task-by-task split
+// of an 8 h week in ROI_TASKS below (4.8 h saved out of 8).
+const ROI_OFFICE_SHARE = 0.6;
+// Hours saved per week by each other person working in Cantia: hours,
+// reports and photos entered on the phone, fewer calls to the office.
+const ROI_FIELD_HOURS = 1;
 
 // Swiss notation: CHF 9’900 and CHF 7.90.
 const chf = (n: number, decimals = 0) => {
   const [int, dec] = n.toFixed(decimals).split('.');
   return `CHF ${int.replace(/\B(?=(\d{3})+(?!\d))/g, '’')}${dec ? `.${dec}` : ''}`;
 };
+const num = (n: number) => chf(n).replace('CHF ', '');
 
-// "How much does admin cost you": the only inputs are weekly admin hours and
-// the cost of an hour. The recap shows what that admin costs per year, then
-// for each plan the hours recovered, the net gain and the payback. Bigger
-// plans recover more because more of the team works directly in Cantia.
+function roiFigures(people: number, hours: number, rate: number) {
+  const office = Math.round(hours * ROI_WEEKS * ROI_OFFICE_SHARE);
+  const field = Math.round((people - 1) * ROI_FIELD_HOURS * ROI_WEEKS);
+  const total = office + field;
+  const value = total * rate;
+  const year = ROI_PRICE_MONTHLY * 12;
+  const days = value > 0 ? Math.ceil((year / value) * 365) : null;
+  return { office, field, total, value, year, net: value - year, days };
+}
+
+// "How much does admin cost you", for Cantia Équipe only: the visitor enters
+// the size of the company, weekly admin hours and the cost of an hour, and
+// gets hours recovered, net gain and payback. A toggle below writes out the
+// calculation with their own figures.
 function RoiCalculator({ compact }: { compact: boolean }) {
+  const [people, setPeople] = useState(4);
   const [hours, setHours] = useState(8);
   const [rate, setRate] = useState(35);
-  const adminHours = hours * ROI_WEEKS;
-  const adminCost = adminHours * rate;
+  const f = roiFigures(people, hours, rate);
 
   const inputs = [
-    { label: 'Heures d’administratif par semaine', hint: 'devis, factures, heures, rapports, relances', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(40, v + 1)) },
+    { label: 'Personnes dans l’entreprise', hint: 'vous compris, jusqu’à 10', value: `${people}`, dec: () => setPeople((v) => Math.max(1, v - 1)), inc: () => setPeople((v) => Math.min(ROI_MAX_PEOPLE, v + 1)) },
+    { label: 'Heures d’administratif par semaine', hint: 'devis, factures, heures, rapports', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(40, v + 1)) },
     { label: 'Combien vous coûte une heure', hint: 'votre tarif horaire ou ce que vous payez', value: `CHF ${rate}`, dec: () => setRate((v) => Math.max(25, v - 5)), inc: () => setRate((v) => Math.min(150, v + 5)) },
   ];
 
   return (
     <View>
-    <View style={[styles.roi, compact && styles.roiCompact]}>
-      <View style={[styles.roiInputs, !compact && { flex: 1 }]}>
-        {inputs.map((i) => (
-          <View key={i.label} style={styles.roiRow}>
-            <View style={{ flex: 1, minWidth: 180 }}>
-              <Text style={styles.roiLabel}>{i.label}</Text>
-              <Text style={styles.roiHint}>{i.hint}</Text>
+      <View style={[styles.roi, compact && styles.roiCompact]}>
+        <View style={[styles.roiInputs, !compact && { flex: 1 }]}>
+          {inputs.map((i) => (
+            <View key={i.label} style={styles.roiRow}>
+              <View style={{ flex: 1, minWidth: 180 }}>
+                <Text style={styles.roiLabel}>{i.label}</Text>
+                <Text style={styles.roiHint}>{i.hint}</Text>
+              </View>
+              <View style={styles.stepper}>
+                <Pressable onPress={i.dec} style={styles.stepBtn} accessibilityLabel={`Diminuer : ${i.label}`}>
+                  <Text style={styles.stepBtnText}>−</Text>
+                </Pressable>
+                <Text style={styles.stepValue}>{i.value}</Text>
+                <Pressable onPress={i.inc} style={styles.stepBtn} accessibilityLabel={`Augmenter : ${i.label}`}>
+                  <Text style={styles.stepBtnText}>+</Text>
+                </Pressable>
+              </View>
             </View>
-            <View style={styles.stepper}>
-              <Pressable onPress={i.dec} style={styles.stepBtn} accessibilityLabel={`Diminuer : ${i.label}`}>
-                <Text style={styles.stepBtnText}>−</Text>
-              </Pressable>
-              <Text style={styles.stepValue}>{i.value}</Text>
-              <Pressable onPress={i.inc} style={styles.stepBtn} accessibilityLabel={`Augmenter : ${i.label}`}>
-                <Text style={styles.stepBtnText}>+</Text>
-              </Pressable>
+          ))}
+          <View style={styles.roiTimeRow}>
+            <Text style={styles.roiResultLabelLight}>Votre administratif aujourd’hui</Text>
+            <Text style={styles.roiMid}>{chf(hours * ROI_WEEKS * rate)}</Text>
+            <Text style={styles.roiHint}>par an, pour {num(hours * ROI_WEEKS)} heures passées au bureau plutôt que sur le chantier.</Text>
+          </View>
+        </View>
+
+        <View style={[styles.roiResult, !compact && { flex: 1 }]}>
+          <Text style={styles.roiResultLabel}>Avec Cantia Équipe · {chf(ROI_PRICE_MONTHLY)}.– par mois</Text>
+          <View style={styles.roiBigRow}>
+            <View>
+              <Text style={styles.roiBigValue}>{num(f.total)} h</Text>
+              <Text style={styles.roiFigLabel}>récupérées par an</Text>
+            </View>
+            <View>
+              <Text style={styles.roiBigValue}>{f.net > 0 ? chf(f.net) : '—'}</Text>
+              <Text style={styles.roiFigLabel}>gagnés par an, abonnement déduit</Text>
             </View>
           </View>
-        ))}
-        <View style={styles.roiTimeRow}>
-          <Text style={styles.roiResultLabelLight}>Votre administratif aujourd’hui</Text>
-          <Text style={styles.roiMid}>{chf(adminCost)}</Text>
-          <Text style={styles.roiHint}>par an, pour {adminHours} heures passées au bureau plutôt que sur le chantier.</Text>
-        </View>
-        <Text style={styles.roiNote}>
-          Chaque formule est calculée pour l’équipe qu’elle couvre ({ROI_WEEKS} semaines travaillées) : le temps gagné sur vos heures d’administratif, plus 1 h par semaine pour chaque personne sur le terrain (heures, rapports et photos saisis sur le téléphone ; 30 min avec l’Essentiel). Le prix par personne baisse avec la formule, c’est pourquoi les plus grandes sont rentabilisées plus vite.
-        </Text>
-      </View>
-
-      <View style={[styles.roiResult, !compact && { flex: 1.15 }]}>
-        <Text style={styles.roiResultLabel}>Ce que chaque formule vous fait gagner</Text>
-        {ROI_PLANS.map((p, idx) => {
-          const saved = Math.round(adminHours * p.office) + Math.round((p.members - 1) * p.field * ROI_WEEKS);
-          const net = saved * rate - p.monthly * 12;
-          const days = saved * rate > 0 ? Math.ceil(((p.monthly * 12) / (saved * rate)) * 365) : null;
-          const best = idx === 0;
-          const maxSaved = Math.round(adminHours * ROI_PLANS[0].office) + Math.round((ROI_PLANS[0].members - 1) * ROI_PLANS[0].field * ROI_WEEKS);
-          return (
-            <View key={p.id} style={[styles.roiPlanBlock, best && styles.roiPlanBlockBest]}>
-              <View style={styles.roiPlanHead}>
-                <Text style={styles.roiPlanLineName}>
-                  {p.name}
-                  {best ? <Text style={styles.roiPlanLineTag}>{'   '}rentabilisé le plus vite</Text> : null}
-                </Text>
-                <Text style={styles.roiPlanLineMeta}>{chf(p.monthly)}.–/mois · équipe de {p.members} · {chf(p.monthly / p.members, 2).replace(/\.00$/, '.–')}/pers.</Text>
-              </View>
-              <Text style={styles.roiPlanScope}>{p.scope}</Text>
-              <View style={styles.roiBarTrack}>
-                <View style={[styles.roiBarFill, { width: `${maxSaved > 0 ? Math.max(4, (saved / maxSaved) * 100) : 0}%` }, best && { backgroundColor: '#E8AD89' }]} />
-              </View>
-              <View style={styles.roiPlanFigures}>
-                <View>
-                  <Text style={styles.roiFigValue}>{chf(saved).replace('CHF ', '')} h</Text>
-                  <Text style={styles.roiFigLabel}>récupérées / an</Text>
-                </View>
-                <View>
-                  <Text style={styles.roiFigValue}>{net > 0 ? chf(net) : '—'}</Text>
-                  <Text style={styles.roiFigLabel}>gain net / an</Text>
-                </View>
-                <View>
-                  <Text style={styles.roiFigValue}>{days && days <= 365 ? `${days} j` : '—'}</Text>
-                  <Text style={styles.roiFigLabel}>rentabilisé en</Text>
-                </View>
-              </View>
-            </View>
-          );
-        })}
-        <View style={{ marginTop: spacing.lg }}>
-          <Cta location="roi" label="Récupérer ce temps, essai 14 jours" />
+          <View style={styles.roiPaybackBox}>
+            <Text style={styles.roiPaybackText}>
+              {f.days && f.days <= 365 ? `Rentabilisé en ${f.days} jours` : 'Pas rentable avec ces chiffres'}
+            </Text>
+            <Text style={styles.roiPlanScope}>Planning, salaires, rentabilité par chantier et synchronisation Bexio inclus, jusqu’à 10 personnes.</Text>
+          </View>
+          <View style={{ marginTop: spacing.lg }}>
+            <Cta location="roi" label="Récupérer ce temps, essai 14 jours" />
+          </View>
+          <Link href="/tarifs" style={styles.roiCompareLink}>Comparer les trois formules →</Link>
         </View>
       </View>
-    </View>
-    <RoiExplainer hours={hours} rate={rate} />
+      <RoiExplainer people={people} hours={hours} rate={rate} />
     </View>
   );
 }
 
-// Task-by-task split of an 8 h admin week behind the 42 / 60 / 70 % office
-// shares: [task, hours per week, share Cantia removes, plans that cover it].
-const ROI_TASKS: [string, number, string, string][] = [
-  ['Rédaction des devis (dictée, catalogue de prix)', 2.5, '60 %', 'Toutes'],
-  ['Factures et relances de factures', 1.25, '70 %', 'Toutes'],
-  ['Rapports de chantier', 1, '70 %', 'Toutes'],
-  ['Heures et salaires', 1, '80 %', 'Équipe, Entreprise (Essentiel : heures seulement)'],
-  ['Planning', 0.75, '60 %', 'Équipe, Entreprise'],
-  ['Double saisie en comptabilité (Bexio)', 0.25, '90 %', 'Équipe, Entreprise'],
-  ['Rentabilité et trésorerie', 0.25, '90 %', 'Équipe, Entreprise'],
-  ['Suivi et relances des devis', 1, '80 %', 'Entreprise'],
+// Task-by-task split of an 8 h admin week behind the 60 % office share:
+// [task, hours per week, share Cantia Équipe removes].
+const ROI_TASKS: [string, number, number][] = [
+  ['Rédaction des devis (dictée, catalogue de prix)', 2.5, 0.6],
+  ['Factures et relances de factures', 1.25, 0.7],
+  ['Rapports de chantier', 1, 0.7],
+  ['Heures et salaires', 1, 0.8],
+  ['Planning', 0.75, 0.6],
+  ['Double saisie en comptabilité (Bexio)', 0.25, 0.9],
+  ['Rentabilité et trésorerie', 0.25, 0.9],
+  ['Suivi et relances des devis (non compté)', 1, 0],
 ];
+const dec = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',');
 
 // "How is it calculated": the same computation as the calculator, written out
 // with the visitor's own figures so every number can be checked by hand.
-function RoiExplainer({ hours, rate }: { hours: number; rate: number }) {
+function RoiExplainer({ people, hours, rate }: { people: number; hours: number; rate: number }) {
   const [open, setOpen] = useState(false);
-  const fmt = (n: number) => chf(n).replace('CHF ', '');
+  const f = roiFigures(people, hours, rate);
+  const saved = ROI_TASKS.reduce((s, [, h, share]) => s + h * share, 0);
   return (
     <View style={styles.explain}>
       <Pressable onPress={() => setOpen((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: open }} style={styles.explainToggle}>
@@ -305,42 +292,30 @@ function RoiExplainer({ hours, rate }: { hours: number; rate: number }) {
       {open ? (
         <View style={styles.explainBody}>
           <Text style={styles.explainP}>
-            Pour chaque formule, on additionne deux choses : le temps gagné au bureau sur vos heures d’administratif, et le temps gagné par chaque personne sur le terrain. On compte {ROI_WEEKS} semaines travaillées par an.
+            On additionne le temps gagné au bureau et le temps gagné par chaque personne sur le terrain, sur {ROI_WEEKS} semaines travaillées par an. Seules les fonctions déjà disponibles dans Cantia Équipe sont comptées.
           </Text>
-          {ROI_PLANS.map((p) => {
-            const office = Math.round(hours * ROI_WEEKS * p.office);
-            const field = Math.round((p.members - 1) * p.field * ROI_WEEKS);
-            const total = office + field;
-            const value = total * rate;
-            const year = p.monthly * 12;
-            const days = value > 0 ? Math.ceil((year / value) * 365) : null;
-            const fieldLabel = p.field === 1 ? '1 h' : '30 min';
-            return (
-              <View key={p.id} style={styles.explainPlan}>
-                <Text style={styles.explainPlanName}>{p.name} · équipe de {p.members}</Text>
-                <Text style={styles.explainLine}>Bureau : {hours} h × {ROI_WEEKS} semaines × {Math.round(p.office * 100)} % = {fmt(office)} h</Text>
-                <Text style={styles.explainLine}>Terrain : {p.members - 1} personnes × {fieldLabel} × {ROI_WEEKS} semaines = {fmt(field)} h</Text>
-                <Text style={styles.explainLine}>Valeur : {fmt(total)} h × CHF {rate} = {chf(value)}</Text>
-                <Text style={styles.explainLine}>Gain net : {chf(value)} − abonnement {chf(year)} = {chf(value - year)}</Text>
-                <Text style={styles.explainLine}>Rentabilisé : {fmt(year)} ÷ {fmt(value)} × 365 jours = {days ?? '—'} jours</Text>
-              </View>
-            );
-          })}
-          <Text style={[styles.explainPlanName, { marginTop: spacing.lg }]}>D’où viennent les 42 / 60 / 70 % ?</Text>
+          <View style={styles.explainPlan}>
+            <Text style={styles.explainLine}>Bureau : {hours} h × {ROI_WEEKS} semaines × {Math.round(ROI_OFFICE_SHARE * 100)} % = {num(f.office)} h</Text>
+            <Text style={styles.explainLine}>Terrain : {people - 1} {people - 1 > 1 ? 'personnes' : 'personne'} × {ROI_FIELD_HOURS} h × {ROI_WEEKS} semaines = {num(f.field)} h</Text>
+            <Text style={styles.explainLine}>Valeur : {num(f.total)} h × CHF {rate} = {chf(f.value)}</Text>
+            <Text style={styles.explainLine}>Gain : {chf(f.value)} − abonnement {chf(f.year)} = {chf(f.net)}</Text>
+            <Text style={styles.explainLine}>Rentabilisé : {num(f.year)} ÷ {num(f.value)} × 365 jours = {f.days ?? '—'} jours</Text>
+          </View>
+          <Text style={[styles.explainPlanName, { marginTop: spacing.md }]}>D’où viennent les {Math.round(ROI_OFFICE_SHARE * 100)} % ?</Text>
           <Text style={styles.explainP}>
-            Une semaine d’administratif de 8 h découpée par tâche. Chaque formule ne gagne du temps que sur les tâches qu’elle couvre. Additionné, ça donne 3,4 h gagnées sur 8 avec l’Essentiel (42 %), 4,8 h avec l’Équipe (60 %) et 5,6 h avec l’Entreprise (70 %).
+            Une semaine d’administratif de 8 h découpée par tâche, et la part que Cantia Équipe fait gagner sur chacune. Total : {dec(saved)} h gagnées sur 8, soit {Math.round((saved / 8) * 100)} %.
           </Text>
           <View style={styles.explainTable}>
-            {ROI_TASKS.map(([task, h, share, plans]) => (
+            {ROI_TASKS.map(([task, h, share]) => (
               <View key={task} style={styles.explainRow}>
                 <Text style={styles.explainTask}>{task}</Text>
-                <Text style={styles.explainCell}>{String(h).replace('.', ',')} h/sem. · {share} gagnés</Text>
-                <Text style={styles.explainPlans}>{plans}</Text>
+                <Text style={styles.explainCell}>{dec(h)} h/sem. · {Math.round(share * 100)} % gagnés</Text>
+                <Text style={styles.explainPlans}>{dec(h * share)} h gagnées</Text>
               </View>
             ))}
           </View>
           <Text style={styles.explainP}>
-            Sur le terrain, 1 h par semaine et par personne : heures, rapports et photos saisis sur le téléphone plutôt que sur papier, et moins d’appels au bureau pour savoir où aller. 30 min avec l’Essentiel, qui n’a ni planning ni salaires. Ce sont des estimations : entrez vos propres heures pour ajuster le résultat.
+            Sur le terrain, {ROI_FIELD_HOURS} h par semaine et par personne : heures, rapports et photos saisis sur le téléphone plutôt que sur papier, et moins d’appels au bureau pour savoir où aller. Ce sont des estimations : entrez vos propres chiffres pour ajuster le résultat.
           </Text>
         </View>
       ) : null}
@@ -543,7 +518,7 @@ export default function LogicielChantierPage() {
         {/* 5 · ROI calculator */}
         <View style={[styles.wrap, styles.section]}>
           <ScrollReveal>
-            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Deux chiffres suffisent : le temps que vous passez chaque semaine sur l’administratif, et ce que vous coûte une heure. Chaque formule est ensuite calculée pour l’équipe qu’elle couvre." />
+            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Trois chiffres suffisent : la taille de votre entreprise, le temps passé chaque semaine sur l’administratif, et ce que vous coûte une heure." />
             <RoiCalculator compact={isTablet} />
           </ScrollReveal>
         </View>
@@ -687,7 +662,6 @@ const styles = StyleSheet.create({
   stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stepBtnText: { fontSize: 20, color: ink, lineHeight: 22 },
   stepValue: { ...monoType, minWidth: 84, textAlign: 'center', fontSize: 14, color: ink, borderLeftWidth: 1, borderRightWidth: 1, borderColor: ink, paddingVertical: 10 },
-  roiNote: { ...monoType, fontSize: 10.5, lineHeight: 17, color: colors.textMuted, marginTop: spacing.md },
   roiResult: { backgroundColor: ink, borderRadius: 3, padding: spacing.xl },
   roiResultLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: '#E8AD89' },
   explain: { marginTop: spacing.xl, borderTopWidth: 1, borderTopColor: rule, borderBottomWidth: 1, borderBottomColor: rule },
@@ -703,21 +677,16 @@ const styles = StyleSheet.create({
   explainTask: { flexGrow: 1, flexBasis: 260, fontFamily: landingFonts.body, fontSize: 14.5, color: ink },
   explainCell: { ...monoType, fontSize: 12, color: colors.primary, flexBasis: 190 },
   explainPlans: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, flexBasis: 240, flexGrow: 1 },
+  roiBigRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl, marginTop: spacing.md },
+  roiBigValue: { ...displayType, fontSize: 52, lineHeight: 56, fontWeight: '800', color: '#FBF6EE', fontVariant: ['tabular-nums'] },
+  roiPaybackBox: { marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(251,246,238,0.2)', gap: 6 },
+  roiPaybackText: { ...displayType, fontSize: 30, lineHeight: 34, fontWeight: '800', color: '#E8AD89' },
+  roiCompareLink: { marginTop: spacing.md, fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: '#E8AD89', textDecorationLine: 'underline' },
   roiTimeRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
   roiResultLabelLight: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
   roiMid: { ...displayType, fontSize: 52, lineHeight: 56, fontWeight: '800', color: ink },
-  roiPlanBlock: { marginTop: spacing.md, padding: spacing.md, borderWidth: 1, borderColor: 'rgba(251,246,238,0.15)', borderRadius: 3, gap: 8 },
-  roiPlanBlockBest: { borderColor: '#E8AD89', backgroundColor: 'rgba(191,90,50,0.18)' },
-  roiPlanHead: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', columnGap: spacing.md, rowGap: 2 },
   roiPlanScope: { fontFamily: landingFonts.body, fontSize: 13.5, lineHeight: 19, color: '#D5C8B8' },
-  roiBarTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(251,246,238,0.12)', overflow: 'hidden' },
-  roiBarFill: { height: 6, borderRadius: 3, backgroundColor: colors.primary },
-  roiPlanFigures: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: spacing.md, rowGap: 6 },
-  roiFigValue: { ...displayType, fontSize: 26, lineHeight: 30, fontWeight: '800', color: '#FBF6EE', fontVariant: ['tabular-nums'] },
   roiFigLabel: { ...monoType, fontSize: 9.5, letterSpacing: 0.3, textTransform: 'uppercase', color: '#BFB2A2' },
-  roiPlanLineName: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: '#FBF6EE' },
-  roiPlanLineTag: { ...monoType, fontSize: 10, letterSpacing: 0.4, textTransform: 'uppercase', color: '#E8AD89', fontWeight: '400' },
-  roiPlanLineMeta: { fontFamily: landingFonts.body, fontSize: 12.5, lineHeight: 18, color: '#BFB2A2' },
 
   columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
   columnsCompact: { flexDirection: 'column', borderBottomWidth: 0 },
