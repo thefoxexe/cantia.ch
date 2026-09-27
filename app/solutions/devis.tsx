@@ -5,6 +5,7 @@ import { ProblemBand } from '../../components/solutions/ProblemBand';
 export default function DevisSolutionPage() {
   return (
     <SolutionPage
+      documentId="devis"
       kicker="Devis"
       title="Des devis chiffrés en quelques minutes, pas en fin de soirée"
       subtitle="Dictez vos lignes de devis à voix haute sur le chantier ou en voiture. Cantia les transforme en positions chiffrées, reprend vos prix habituels depuis votre catalogue, et prépare un PDF prêt à envoyer."

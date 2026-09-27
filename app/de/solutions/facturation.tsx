@@ -7,6 +7,7 @@ forceLocale('de');
 export default function FacturationSolutionPageDe() {
   return (
     <SolutionPage
+      documentId="facture"
       kicker="Rechnungsstellung"
       title="Rechnungen mit echtem Schweizer QR-Einzahlungsschein, ohne separate Software"
       subtitle="Jede Cantia-Rechnung enthält automatisch die normkonforme Schweizer QR-Rechnung — IBAN, strukturierte Referenz und Betrag bereits codiert, bereit zum Scannen mit jeder Banking-App."

@@ -12,6 +12,7 @@ import { SwissCross } from '../components/SwissCross';
 import { CtaButton } from '../components/landing/CtaButton';
 import { SectionHead } from '../components/landing/SectionHead';
 import { Cartouche } from '../components/landing/Cartouche';
+import { DocumentShowcase } from '../components/landing/DocumentShowcase';
 import { useHeroFit } from '../components/landing/useHeroFit';
 import { bodyInk, ink, rule } from '../components/landing/brand';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
@@ -278,45 +279,10 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ——— A real invoice, annotated like a drawing ——— */}
+        {/* ——— Real exports, annotated like a drawing ——— */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.docCustomization.eyebrow} title={t.docCustomization.title} intro={t.docCustomization.text} />
-          <View style={[styles.split, isTablet && styles.splitCompact, { alignItems: isTablet ? 'stretch' : 'center' }]}>
-            <View style={[styles.docFigure, !isTablet && { flex: 1 }]}>
-              {/* A real facture rendered by the actual PDF generator (see
-                  supabase/functions/_shared/pdf-document-renderers.ts), not a
-                  mockup. Callout positions match that render: brand-colored
-                  table header, company header, QR payment part. */}
-              <View style={styles.docSheet}>
-                <Image
-                  source={{ uri: '/showcase/facture-exemple.png' }}
-                  style={styles.docImage}
-                  resizeMode="contain"
-                  accessibilityLabel="Exemple de facture générée par Cantia"
-                />
-                {DOC_CALLOUTS.map((c) => (
-                  <View key={c.n} style={[styles.callout, { top: c.top as any }]} pointerEvents="none">
-                    <View style={styles.calloutLine} />
-                    <Text style={styles.calloutNum}>{c.n}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-            <View style={[styles.splitCol, { gap: 0 }]}>
-              {t.docCustomization.points.map((p, i) => (
-                <View key={p.title} style={styles.legendRow}>
-                  <Text style={styles.legendNum}>{i + 1}</Text>
-                  <View style={{ flex: 1, gap: 4 }}>
-                    <Text style={styles.legendTitle}>{p.title}</Text>
-                    <Text style={styles.bodyText}>{p.text}</Text>
-                  </View>
-                </View>
-              ))}
-              <Link href={solutionHref('facturation') as any}>
-                <Text style={[styles.textLink, { marginTop: spacing.lg }]}>{t.docCustomization.link} →</Text>
-              </Link>
-            </View>
-          </View>
+          <SectionHead label={t.documents.eyebrow} title={t.documents.title} intro={t.documents.intro} />
+          <DocumentShowcase dict={t.documents} hrefFor={solutionHref} />
         </ScrollReveal>
 
         {/* ——— Field / office band ——— */}
@@ -435,13 +401,6 @@ function LandingContent() {
   );
 }
 
-// Positions of the three numbered callouts on /showcase/facture-exemple.png,
-// in the same order as docCustomization.points (brand color, logo, QR).
-const DOC_CALLOUTS = [
-  { n: 1, top: '35%' },
-  { n: 2, top: '3.5%' },
-  { n: 3, top: '77%' },
-];
 
 const styles = StyleSheet.create({
   wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
@@ -519,26 +478,6 @@ const styles = StyleSheet.create({
 
   commandDemo: { backgroundColor: ink, borderRadius: 4, padding: spacing.xl },
 
-  docFigure: { alignItems: 'center', paddingRight: 44 },
-  docSheet: {
-    width: '100%',
-    maxWidth: 480,
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: rule,
-    backgroundColor: '#fff',
-    shadowColor: '#231A12',
-    shadowOpacity: 0.1,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 14 },
-  } as any,
-  docImage: { width: '100%', aspectRatio: 1819 / 2573 },
-  callout: { position: 'absolute', right: -44, flexDirection: 'row', alignItems: 'center', width: 70 },
-  calloutLine: { flex: 1, borderTopWidth: 1, borderStyle: 'dashed', borderTopColor: colors.primary },
-  calloutNum: { ...monoType, width: 24, height: 24, lineHeight: 21, borderRadius: 12, borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.bg, color: colors.primary, fontSize: 11, textAlign: 'center' },
-  legendRow: { flexDirection: 'row', gap: spacing.lg, paddingVertical: spacing.lg, borderTopWidth: 1, borderTopColor: rule },
-  legendNum: { ...monoType, width: 26, height: 26, lineHeight: 23, borderRadius: 13, borderWidth: 1.5, borderColor: colors.primary, color: colors.primary, fontSize: 12, textAlign: 'center' },
-  legendTitle: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
 
   terrainOuter: { backgroundColor: colors.primarySoft, paddingVertical: 88, marginTop: 112 },
   bandTitle: { ...displayType, fontSize: 44, fontWeight: '800', lineHeight: 44, color: ink, marginVertical: spacing.md },

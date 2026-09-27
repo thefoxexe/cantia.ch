@@ -159,6 +159,22 @@ interface Dict {
     points: { title: string; text: string }[];
     link: string;
   };
+  // Real exports from the app's own PDF generators (sample data), shown
+  // annotated — see components/landing/DocumentShowcase.tsx.
+  documents: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    hint: string;
+    docs: {
+      id: 'facture' | 'devis' | 'rapport' | 'salaire';
+      tab: string;
+      alt: string;
+      points: { title: string; text: string }[];
+      link: string;
+      linkSlug: string;
+    }[];
+  };
   faq: { eyebrow: string; title: string; link: string; items: { q: string; a: string }[] };
   closing: { eyebrow: string; titlePrefix: string; titleEm: string; text: string; cta: string; contact: string };
   pricing: {
@@ -514,6 +530,51 @@ const fr: Dict = {
       { title: 'QR-facture suisse', text: 'Chaque facture inclut le bulletin de versement QR, directement sur le document, prêt à être scanné.' },
     ],
     link: 'Découvrir la facturation',
+  },
+  documents: {
+    eyebrow: 'Exports réels',
+    title: 'Les documents que vos clients et vos employés reçoivent',
+    intro: 'Générés par Cantia avec des données d’exemple : même mise en page, mêmes calculs que vos propres documents.',
+    hint: 'Choisissez un document pour voir ce qu’il contient.',
+    docs: [
+      {
+        id: 'facture', tab: 'Facture QR', alt: 'Facture avec bulletin QR suisse générée par Cantia',
+        points: [
+          { title: 'Couleur de votre entreprise', text: 'L’en-tête du tableau, les totaux et les encadrés prennent la couleur choisie dans Compte > Apparence.' },
+          { title: 'Votre logo et vos coordonnées', text: 'Nom, adresse, IDE et contacts en tête de chaque document, logo à gauche, au centre ou à droite.' },
+          { title: 'Bulletin QR suisse', text: 'Le bulletin de versement QR est imprimé sur la facture, avec votre IBAN et la référence de paiement.' },
+        ],
+        link: 'Découvrir la facturation', linkSlug: 'facturation',
+      },
+      {
+        id: 'devis', tab: 'Devis signé', alt: 'Devis signé électroniquement par le client, généré par Cantia',
+        points: [
+          { title: 'Référence et validité', text: 'Numérotation automatique, date du devis et date de validité dans un encadré lisible.' },
+          { title: 'Vos prestations, vos prix', text: 'Les lignes viennent de votre catalogue ; quantités, unités, TVA et total sont calculés pour vous.' },
+          { title: 'Signature électronique du client', text: 'Le client signe en ligne ; sa signature, son nom, la date et l’heure sont intégrés au PDF.' },
+        ],
+        link: 'Découvrir les devis', linkSlug: 'devis',
+      },
+      {
+        id: 'rapport', tab: 'Rapport de chantier', alt: 'Rapport de chantier avec photos généré par Cantia',
+        points: [
+          { title: 'L’essentiel en deux lignes', text: 'Le résumé est rédigé à partir des notes, photos et dictées de la journée. Vous relisez avant d’envoyer.' },
+          { title: 'Chaque constat avec sa photo', text: 'Les photos du chantier sont placées à côté du point qu’elles documentent.' },
+          { title: 'Les points d’attention ressortent', text: 'Un imprévu ou un supplément à facturer est encadré pour que personne ne le manque.' },
+          { title: 'La suite', text: 'Les prochaines étapes terminent le rapport : bétonnage, livraison, décoffrage.' },
+        ],
+        link: 'Découvrir les rapports de chantier', linkSlug: 'rapports-chantier',
+      },
+      {
+        id: 'salaire', tab: 'Fiche de salaire', alt: 'Décompte de salaire suisse généré par Cantia',
+        points: [
+          { title: 'Heures reprises du pointage', text: 'Les heures saisies par l’employé sur ses chantiers donnent le salaire du mois, sans ressaisie.' },
+          { title: 'Déductions suisses', text: 'AVS/AI/APG, chômage, AANP, LPP et IJM, avec vos propres taux.' },
+          { title: 'Net à verser', text: 'Le salaire net et l’IBAN de l’employé, prêts pour le paiement.' },
+        ],
+        link: 'Découvrir les heures et les salaires', linkSlug: 'rh-salaires',
+      },
+    ],
   },
   faq: {
     eyebrow: 'Avant de vous lancer',
@@ -889,6 +950,51 @@ const de: Dict = {
     ],
     link: 'Die Rechnungsstellung entdecken',
   },
+  documents: {
+    eyebrow: 'Echte Exporte',
+    title: 'Die Dokumente, die Ihre Kunden und Mitarbeitenden erhalten',
+    intro: 'Von Cantia mit Beispieldaten erstellt: dasselbe Layout, dieselben Berechnungen wie Ihre eigenen Dokumente.',
+    hint: 'Wählen Sie ein Dokument, um zu sehen, was es enthält.',
+    docs: [
+      {
+        id: 'facture', tab: 'QR-Rechnung', alt: 'Von Cantia erstellte Rechnung mit Schweizer QR-Einzahlungsschein',
+        points: [
+          { title: 'Die Farbe Ihres Unternehmens', text: 'Tabellenkopf, Summen und Rahmen übernehmen die Farbe aus Konto > Erscheinungsbild.' },
+          { title: 'Ihr Logo und Ihre Angaben', text: 'Name, Adresse, UID und Kontakt oben auf jedem Dokument, Logo links, mittig oder rechts.' },
+          { title: 'Schweizer QR-Einzahlungsschein', text: 'Der QR-Einzahlungsschein steht auf der Rechnung, mit Ihrer IBAN und der Zahlungsreferenz.' },
+        ],
+        link: 'Rechnungsstellung entdecken', linkSlug: 'facturation',
+      },
+      {
+        id: 'devis', tab: 'Unterschriebene Offerte', alt: 'Vom Kunden elektronisch unterschriebene Offerte, erstellt mit Cantia',
+        points: [
+          { title: 'Referenz und Gültigkeit', text: 'Automatische Nummerierung, Datum und Gültigkeitsdatum in einem gut lesbaren Rahmen.' },
+          { title: 'Ihre Leistungen, Ihre Preise', text: 'Die Positionen stammen aus Ihrem Katalog; Mengen, Einheiten, MWST und Total werden berechnet.' },
+          { title: 'Elektronische Unterschrift des Kunden', text: 'Der Kunde unterschreibt online; Unterschrift, Name, Datum und Uhrzeit stehen im PDF.' },
+        ],
+        link: 'Offerten entdecken', linkSlug: 'devis',
+      },
+      {
+        id: 'rapport', tab: 'Baustellenrapport', alt: 'Von Cantia erstellter Baustellenrapport mit Fotos',
+        points: [
+          { title: 'Das Wichtigste in zwei Zeilen', text: 'Die Zusammenfassung entsteht aus Notizen, Fotos und Diktaten des Tages. Sie prüfen vor dem Versand.' },
+          { title: 'Jede Feststellung mit Foto', text: 'Die Baustellenfotos stehen neben dem Punkt, den sie dokumentieren.' },
+          { title: 'Wichtige Punkte fallen auf', text: 'Ein Zwischenfall oder ein zu verrechnender Zusatz wird hervorgehoben, damit ihn niemand übersieht.' },
+          { title: 'Nächste Schritte', text: 'Der Rapport endet mit den nächsten Schritten: Betonieren, Lieferung, Ausschalen.' },
+        ],
+        link: 'Baustellenrapporte entdecken', linkSlug: 'rapports-chantier',
+      },
+      {
+        id: 'salaire', tab: 'Lohnabrechnung', alt: 'Von Cantia erstellte Schweizer Lohnabrechnung',
+        points: [
+          { title: 'Stunden aus der Zeiterfassung', text: 'Die auf den Baustellen erfassten Stunden ergeben den Monatslohn, ohne erneute Eingabe.' },
+          { title: 'Schweizer Abzüge', text: 'AHV/IV/EO, ALV, NBU, BVG und KTG, mit Ihren eigenen Sätzen.' },
+          { title: 'Auszuzahlender Nettolohn', text: 'Nettolohn und IBAN der Mitarbeiterin oder des Mitarbeiters, bereit für die Zahlung.' },
+        ],
+        link: 'Stunden und Löhne entdecken', linkSlug: 'rh-salaires',
+      },
+    ],
+  },
   faq: {
     eyebrow: 'Bevor Sie starten',
     title: 'Häufige Fragen',
@@ -1262,6 +1368,51 @@ const it: Dict = {
       { title: 'Fattura QR svizzera', text: 'Ogni fattura include la polizza di versamento QR direttamente sul documento, pronta per essere scansionata.' },
     ],
     link: 'Scopra la fatturazione',
+  },
+  documents: {
+    eyebrow: 'Export reali',
+    title: 'I documenti che ricevono i suoi clienti e i suoi dipendenti',
+    intro: 'Generati da Cantia con dati di esempio: stessa impaginazione, stessi calcoli dei suoi documenti.',
+    hint: 'Scelga un documento per vedere cosa contiene.',
+    docs: [
+      {
+        id: 'facture', tab: 'Fattura QR', alt: 'Fattura con polizza QR svizzera generata da Cantia',
+        points: [
+          { title: 'Il colore della sua impresa', text: 'Intestazione della tabella, totali e riquadri prendono il colore scelto in Account > Aspetto.' },
+          { title: 'Il suo logo e i suoi dati', text: 'Nome, indirizzo, IDI e contatti in testa a ogni documento, logo a sinistra, al centro o a destra.' },
+          { title: 'Polizza QR svizzera', text: 'La polizza di versamento QR è stampata sulla fattura, con il suo IBAN e il riferimento di pagamento.' },
+        ],
+        link: 'Scoprire la fatturazione', linkSlug: 'facturation',
+      },
+      {
+        id: 'devis', tab: 'Preventivo firmato', alt: 'Preventivo firmato elettronicamente dal cliente, generato da Cantia',
+        points: [
+          { title: 'Riferimento e validità', text: 'Numerazione automatica, data e scadenza del preventivo in un riquadro leggibile.' },
+          { title: 'Le sue prestazioni, i suoi prezzi', text: 'Le righe vengono dal suo catalogo; quantità, unità, IVA e totale sono calcolati.' },
+          { title: 'Firma elettronica del cliente', text: 'Il cliente firma online; firma, nome, data e ora sono integrati nel PDF.' },
+        ],
+        link: 'Scoprire i preventivi', linkSlug: 'devis',
+      },
+      {
+        id: 'rapport', tab: 'Rapporto di cantiere', alt: 'Rapporto di cantiere con foto generato da Cantia',
+        points: [
+          { title: 'L’essenziale in due righe', text: 'Il riassunto nasce da note, foto e dettature della giornata. Lei rilegge prima di inviare.' },
+          { title: 'Ogni constatazione con la sua foto', text: 'Le foto del cantiere sono accanto al punto che documentano.' },
+          { title: 'I punti di attenzione risaltano', text: 'Un imprevisto o un supplemento da fatturare viene evidenziato perché nessuno lo perda.' },
+          { title: 'Il seguito', text: 'Il rapporto termina con i prossimi passi: getto, consegna, disarmo.' },
+        ],
+        link: 'Scoprire i rapporti di cantiere', linkSlug: 'rapports-chantier',
+      },
+      {
+        id: 'salaire', tab: 'Conteggio salariale', alt: 'Conteggio salariale svizzero generato da Cantia',
+        points: [
+          { title: 'Ore riprese dalla timbratura', text: 'Le ore registrate dal dipendente sui cantieri danno il salario del mese, senza reinserirle.' },
+          { title: 'Deduzioni svizzere', text: 'AVS/AI/IPG, disoccupazione, AINP, LPP e IGM, con le sue aliquote.' },
+          { title: 'Netto da versare', text: 'Salario netto e IBAN del dipendente, pronti per il pagamento.' },
+        ],
+        link: 'Scoprire ore e salari', linkSlug: 'rh-salaires',
+      },
+    ],
   },
   faq: {
     eyebrow: 'Prima di iniziare',

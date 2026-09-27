@@ -7,6 +7,7 @@ forceLocale('it');
 export default function RapportsChantierSolutionPageIt() {
   return (
     <SolutionPage
+      documentId="rapport"
       kicker="Rapporti di cantiere"
       title="Il rapporto si redige mentre è ancora in cantiere"
       subtitle="Note vocali, foto geolocalizzate e messaggi del feed: Cantia raccoglie tutto e ne ricava un rapporto redatto, strutturato e pronto per l'invio — non resta che rileggerlo."

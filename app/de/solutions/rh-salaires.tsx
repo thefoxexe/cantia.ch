@@ -7,6 +7,7 @@ forceLocale('de');
 export default function RhSalairesSolutionPageDe() {
   return (
     <SolutionPage
+      documentId="salaire"
       kicker="HR & Löhne"
       title="Stunden, Spesen und Löhne des ganzen Teams an einem Ort"
       subtitle="Jeder Mitarbeiter erfasst seine Stunden Baustelle für Baustelle sowie seine beruflichen Spesen. Die Sekretärin oder der Administrator verwaltet die Lohnabrechnung jedes Einzelnen — Satz, Abzüge und Nettolohn — ohne separate Tabelle."

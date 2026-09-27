@@ -9,6 +9,9 @@ import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { colors, spacing } from '../lib/theme';
 import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
 import { CtaButton } from './landing/CtaButton';
+import { SectionHead } from './landing/SectionHead';
+import { AnnotatedDocument, type DocumentId } from './landing/DocumentShowcase';
+import { useMarketingDict } from '../lib/i18n';
 import { authHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
@@ -42,6 +45,7 @@ export function SolutionPage({
   visual,
   features,
   afterFeatures,
+  documentId,
   steps,
   faq,
   related,
@@ -54,6 +58,9 @@ export function SolutionPage({
   visual?: ReactNode;
   features: SolutionFeature[];
   afterFeatures?: ReactNode;
+  // A real export of this module (components/landing/DocumentShowcase),
+  // shown annotated right after the feature grid.
+  documentId?: DocumentId;
   steps?: SolutionStep[];
   faq?: SolutionFaqItem[];
   related?: SolutionRelatedLink[];
@@ -61,6 +68,9 @@ export function SolutionPage({
   closingText: string;
 }) {
   const { t } = useTranslation();
+  const docsDict = useMarketingDict().documents;
+  const exportDoc = documentId ? docsDict.docs.find((d) => d.id === documentId) : undefined;
+  const solutionsPrefix = getAppLocale() === 'de' ? '/de/solutions' : getAppLocale() === 'it' ? '/it/solutions' : '/solutions';
   const pricingHref = getAppLocale() === 'de' ? '/de/#pricing' : getAppLocale() === 'it' ? '/it/#pricing' : '/#pricing';
   const heroAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -125,6 +135,13 @@ export function SolutionPage({
             ))}
           </View>
         </Container>
+
+        {exportDoc ? (
+          <Container style={styles.section}>
+            <SectionHead label={docsDict.eyebrow} title={exportDoc.tab} intro={docsDict.intro} />
+            <AnnotatedDocument doc={exportDoc} hrefFor={(slug) => `${solutionsPrefix}/${slug}`} />
+          </Container>
+        ) : null}
 
         {afterFeatures}
 

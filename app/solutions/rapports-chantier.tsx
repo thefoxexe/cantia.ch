@@ -5,6 +5,7 @@ import { ProblemBand } from '../../components/solutions/ProblemBand';
 export default function RapportsChantierSolutionPage() {
   return (
     <SolutionPage
+      documentId="rapport"
       kicker="Rapports de chantier"
       title="Le rapport se rédige pendant que vous êtes encore sur le chantier"
       subtitle="Notes vocales, photos géolocalisées et messages du fil d'actualité : Cantia rassemble tout et en tire un rapport rédigé, structuré et prêt à envoyer — vous n'avez plus qu'à relire."

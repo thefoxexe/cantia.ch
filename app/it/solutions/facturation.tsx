@@ -7,6 +7,7 @@ forceLocale('it');
 export default function FacturationSolutionPageIt() {
   return (
     <SolutionPage
+      documentId="facture"
       kicker="Fatturazione"
       title="Fatture con vera polizza QR svizzera, senza software a parte"
       subtitle="Ogni fattura Cantia integra automaticamente la fattura QR svizzera conforme alla norma — IBAN, riferimento strutturato e importo già codificati, pronti per essere scansionati da qualsiasi app bancaria."

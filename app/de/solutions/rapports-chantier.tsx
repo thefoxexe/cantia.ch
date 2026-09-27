@@ -7,6 +7,7 @@ forceLocale('de');
 export default function RapportsChantierSolutionPageDe() {
   return (
     <SolutionPage
+      documentId="rapport"
       kicker="Baustellenrapporte"
       title="Der Rapport entsteht, während Sie noch auf der Baustelle sind"
       subtitle="Sprachnotizen, georeferenzierte Fotos und Nachrichten aus dem Feed: Cantia sammelt alles und erstellt daraus einen verfassten, strukturierten und versandbereiten Rapport — Sie müssen nur noch gegenlesen."

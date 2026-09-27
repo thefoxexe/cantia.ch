@@ -7,6 +7,7 @@ forceLocale('it');
 export default function DevisSolutionPageIt() {
   return (
     <SolutionPage
+      documentId="devis"
       kicker="Preventivi"
       title="Preventivi dettagliati in pochi minuti, non a fine giornata"
       subtitle="Detti le voci del preventivo a voce alta in cantiere o in auto. Cantia le trasforma in posizioni con prezzo, riprende i Suoi prezzi abituali dal catalogo e prepara un PDF pronto per l'invio."

@@ -7,6 +7,7 @@ forceLocale('it');
 export default function RhSalairesSolutionPageIt() {
   return (
     <SolutionPage
+      documentId="salaire"
       kicker="HR & Salari"
       title="Ore, spese e salari di tutta la squadra, in un unico posto"
       subtitle="Ogni dipendente registra le proprie ore cantiere per cantiere e le proprie spese professionali. La segretaria o l'amministratore gestisce la busta paga di ciascuno — tariffa, contributi e salario netto — senza fogli di calcolo separati."

@@ -7,6 +7,7 @@ forceLocale('de');
 export default function DevisSolutionPageDe() {
   return (
     <SolutionPage
+      documentId="devis"
       kicker="Offerten"
       title="Detaillierte Offerten in wenigen Minuten, nicht erst am Abend"
       subtitle="Diktieren Sie Ihre Offertpositionen laut auf der Baustelle oder im Auto. Cantia wandelt sie in bepreiste Positionen um, übernimmt Ihre gewohnten Preise aus dem Katalog und erstellt ein versandbereites PDF."
