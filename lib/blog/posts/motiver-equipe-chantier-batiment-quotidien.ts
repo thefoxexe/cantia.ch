@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une équipe qui sait où en est le chantier',
       text: 'Planning partagé, tâches assignées et avancement visible par tous : Cantia donne à chaque membre de l’équipe une vision claire du chantier, sans dépendre d’une explication orale répétée chaque matin.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

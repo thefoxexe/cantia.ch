@@ -81,7 +81,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le statut change, la façon de gérer votre entreprise, non',
       text: 'Que vous démarriez en raison individuelle ou que vous passiez en Sàrl plus tard, devis, factures et suivi de chantier fonctionnent exactement de la même façon sur Cantia.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

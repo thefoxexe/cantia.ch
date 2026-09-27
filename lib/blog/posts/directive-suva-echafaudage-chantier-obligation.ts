@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La sécurité de chantier, suivie comme le reste du dossier',
       text: 'Cantia permet de garder une trace des contrôles et des vérifications réalisées sur un chantier, pour retrouver facilement qui a vérifié quoi et quand, y compris pour un point aussi sensible que l’échafaudage.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

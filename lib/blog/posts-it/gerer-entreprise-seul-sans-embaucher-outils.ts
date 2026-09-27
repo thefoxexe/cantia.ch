@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Automatizzare tutto, anche da soli',
       text: 'Per restare efficace da solo senza passarci le serate, Cantia automatizza l’IVA, la numerazione e i solleciti di pagamento.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -2,8 +2,9 @@ import { ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button, Container, Screen } from './ui';
+import { Container, Screen } from './ui';
 import { Heading } from './Heading';
+import { CtaButton } from './landing/CtaButton';
 import { MarketingHead } from './MarketingHead';
 import { MarketingFooter, MarketingNav } from './MarketingChrome';
 import { BlogLeadMagnet } from './BlogLeadMagnet';
@@ -189,14 +190,15 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <View style={styles.closing}>
             <Text style={styles.closingTitle}>{closing.title}</Text>
             <Text style={styles.closingText}>{closing.text}</Text>
-            <Link href={authHref('signup')} asChild>
-              <Button
-                title={closing.cta}
-                variant="secondary"
-                onPress={() => trackBlogCtaClick(post.slug, post.category, 'closing')}
-                style={styles.closingCta}
-              />
-            </Link>
+            <View style={{ width: '100%', maxWidth: 1192 }}>
+              <Link href={authHref('signup')} asChild>
+                <CtaButton
+                  title={closing.cta}
+                  onPress={() => trackBlogCtaClick(post.slug, post.category, 'closing')}
+                  style={styles.closingCta}
+                />
+              </Link>
+            </View>
           </View>
         </Container>
 
@@ -281,7 +283,7 @@ function BlockRenderer({
             <Text style={styles.inlineCtaText}>{block.text}</Text>
           </View>
           <Link href={authHref('signup')} asChild>
-            <Button title={block.buttonLabel} onPress={() => trackBlogCtaClick(sourceSlug, category, 'inline')} />
+            <CtaButton title={block.buttonLabel} onPress={() => trackBlogCtaClick(sourceSlug, category, 'inline')} />
           </Link>
         </View>
       );
@@ -318,14 +320,7 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
-  heroOuter: {
-    maxWidth: 760,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
-  },
+  heroOuter: { maxWidth: 820, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xxl, paddingBottom: spacing.lg },
   backLink: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -339,80 +334,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.primary,
   },
-  kickerPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    marginBottom: spacing.md,
-  },
-  kickerText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primaryDark,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  title: {
-    ...displayType,
-    fontSize: 38,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.5,
-    lineHeight: 44,
-  } as unknown as ViewStyle,
-  question: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    marginTop: spacing.md,
-    lineHeight: 24,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.lg,
-  },
-  metaText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-  },
+  kickerPill: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginBottom: spacing.lg },
+  kickerText: { fontFamily: marketingFonts.mono, fontSize: 11, color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.4 },
+  title: { ...displayType, fontSize: 58, fontWeight: '800', color: '#231A12', lineHeight: 58, marginTop: 0, marginBottom: 0 } as unknown as ViewStyle,
+  question: { fontFamily: marketingFonts.body, fontSize: 19, color: '#4A3D31', marginTop: spacing.lg, lineHeight: 29 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.md, borderTopWidth: 1.5, borderTopColor: '#231A12' },
+  metaText: { fontFamily: marketingFonts.mono, fontSize: 10.5, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.3 },
   metaDot: {
     width: 3,
     height: 3,
     borderRadius: 2,
     backgroundColor: colors.border,
   },
-  body: {
-    maxWidth: 760,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    gap: spacing.lg,
-  },
-  paragraph: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.text,
-    lineHeight: 26,
-  },
-  h2: {
-    ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.3,
-    marginTop: spacing.md,
-  } as unknown as ViewStyle,
+  body: { maxWidth: 820, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md, gap: spacing.lg },
+  paragraph: { fontFamily: marketingFonts.body, fontSize: 18, color: '#231A12', lineHeight: 30 },
+  h2: { ...displayType, fontSize: 34, lineHeight: 36, fontWeight: '800', color: '#231A12', marginTop: spacing.xl } as unknown as ViewStyle,
   list: {
     gap: spacing.sm,
   },
@@ -452,7 +388,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
     backgroundColor: colors.primarySoft,
-    borderRadius: radius.lg,
+    borderRadius: 3,
     padding: spacing.lg,
   },
   calloutIcon: {
@@ -481,7 +417,7 @@ const styles = StyleSheet.create({
   statValue: {
     ...displayType,
     fontSize: 30,
-    fontWeight: '600',
+    fontWeight: '800',
     color: colors.text,
   } as unknown as ViewStyle,
   statLabel: {
@@ -491,7 +427,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   tableScroll: {
-    borderRadius: radius.md,
+    borderRadius: 3,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -525,38 +461,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  inlineCta: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-  },
-  inlineCtaTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  inlineCtaText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginTop: 2,
-    lineHeight: 19,
-  },
-  linklist: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
+  inlineCta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.lg, borderLeftWidth: 2, borderLeftColor: colors.primary, paddingLeft: spacing.lg, paddingVertical: spacing.sm },
+  inlineCtaTitle: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: '#231A12' },
+  inlineCtaText: { fontFamily: marketingFonts.body, fontSize: 15, color: '#4A3D31', marginTop: 2, lineHeight: 22 },
+  linklist: { borderTopWidth: 1.5, borderTopColor: '#231A12', paddingTop: spacing.md, gap: spacing.sm },
   linklistTitle: {
     fontFamily: marketingFonts.body,
     fontSize: fontSize.sm,
@@ -592,12 +500,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
   },
   sectionEyebrow: {
-    fontFamily: marketingFonts.body,
+    fontFamily: marketingFonts.mono,
     fontSize: fontSize.xs,
-    fontWeight: '800',
     color: colors.primary,
     textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    letterSpacing: 0.4,
     marginBottom: spacing.lg,
   },
   faqList: {},
@@ -627,7 +534,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     padding: spacing.lg,
-    borderRadius: radius.lg,
+    borderRadius: 3,
     backgroundColor: colors.primarySoft,
   },
   tradeLinkText: {
@@ -639,42 +546,17 @@ const styles = StyleSheet.create({
   tradeLinkTextAccent: {
     color: colors.primary,
   },
-  relatedGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  relatedCard: {
-    flex: 1,
-    minWidth: 220,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.xs,
-    transitionProperty: 'transform, border-color',
-    transitionDuration: '0.2s',
-  } as unknown as ViewStyle,
-  relatedCardHovered: {
-    borderColor: colors.primary,
-    transform: [{ translateY: -3 }],
-  },
+  relatedGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl, borderTopWidth: 1.5, borderTopColor: '#231A12' },
+  relatedCard: { flexGrow: 1, flexBasis: 260, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: '#D8C8B0', gap: spacing.xs },
+  relatedCardHovered: {},
   relatedCategory: {
-    fontFamily: marketingFonts.body,
+    fontFamily: marketingFonts.mono,
     fontSize: fontSize.xs,
-    fontWeight: '700',
     color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  relatedTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    lineHeight: 20,
-  },
+  relatedTitle: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: '#231A12', lineHeight: 23 },
   relatedMore: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -687,39 +569,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
-  closingOuter: {
-    maxWidth: 1040,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxxl,
-    paddingTop: spacing.lg,
-  },
-  closing: {
-    backgroundColor: colors.primaryDark,
-    borderRadius: radius.xl,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxxl,
-    alignItems: 'center',
-  },
-  closingTitle: {
-    ...displayType,
-    fontSize: 30,
-    fontWeight: '600',
-    color: '#fff',
-    letterSpacing: -0.4,
-    textAlign: 'center',
-    maxWidth: 520,
-  } as unknown as ViewStyle,
-  closingText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: 'rgba(255,255,255,0.78)',
-    textAlign: 'center',
-    marginTop: spacing.sm,
-    lineHeight: 20,
-    maxWidth: 440,
-  },
+  closingOuter: { width: '100%', paddingTop: spacing.xxl },
+  closing: { backgroundColor: '#231A12', paddingHorizontal: spacing.xl, paddingVertical: 96, alignItems: 'center' },
+  closingTitle: { ...displayType, fontSize: 48, lineHeight: 48, fontWeight: '800', color: '#FBF6EE', maxWidth: 1192, width: '100%' } as unknown as ViewStyle,
+  closingText: { fontFamily: marketingFonts.body, fontSize: 17, color: '#D5C8B8', marginTop: spacing.md, lineHeight: 27, maxWidth: 1192, width: '100%' },
   closingCta: {
     marginTop: spacing.xl,
     borderWidth: 0,

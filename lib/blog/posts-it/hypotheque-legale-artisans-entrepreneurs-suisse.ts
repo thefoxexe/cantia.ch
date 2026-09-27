@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un cantiere datato, dal primo all’ultimo giorno',
       text: 'Cantia conserva la traccia di ogni cantiere, dalla sua apertura alla sua chiusura, il che permette di stabilire senza ambiguità la data di fine lavori se dovete agire in fretta per preservare la vostra ipoteca legale.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Parlons de ce qui manque à votre quotidien',
       text: 'Si un détail de votre façon de travailler ne trouve pas sa place dans Cantia aujourd\'hui, discutons-en. C\'est souvent le point de départ d\'une fonctionnalité sur mesure.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

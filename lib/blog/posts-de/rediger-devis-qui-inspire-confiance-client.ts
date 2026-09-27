@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Klare Offerten, online unterschrieben',
       text: 'Cantia erstellt detaillierte, gut präsentierte Offerten mit einem Kundenportal, auf dem die Offerte online eingesehen, besprochen und unterschrieben wird. Sie werden benachrichtigt, sobald sie geöffnet wird.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

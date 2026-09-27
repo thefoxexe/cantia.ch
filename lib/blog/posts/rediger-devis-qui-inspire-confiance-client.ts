@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des devis clairs, signés en ligne',
       text: 'Cantia génère des devis détaillés et bien présentés, avec un portail client où le devis se consulte, se discute et se signe en ligne. Vous êtes notifié dès qu’il est ouvert.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

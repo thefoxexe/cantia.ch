@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gardez une trace claire de votre activité pour préparer une transmission',
       text: 'Cantia conserve l’historique complet de vos chantiers, devis et clients — une base précieuse pour valoriser votre entreprise le jour où vous préparez sa transmission.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

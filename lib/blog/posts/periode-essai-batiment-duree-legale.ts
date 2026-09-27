@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des contrats de travail chantier prêts à signer, sans clause oubliée',
       text: 'Cantia vous aide à centraliser les dossiers RH de vos employés — contrats, dates clés, périodes d’essai — pour ne plus jamais partir d’une feuille blanche à chaque embauche.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

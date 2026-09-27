@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Automatisierte Verwaltung, von der Baustelle bis zum Kunden',
       text: 'Cantia automatisiert die Erstellung von Rapporten, die Dokumentenablage und Erinnerungen, um im Alltag administrative Zeit freizusetzen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

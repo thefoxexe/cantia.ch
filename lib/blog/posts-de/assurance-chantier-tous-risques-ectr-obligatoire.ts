@@ -39,7 +39,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Den Zustand der Baustelle vor jedem Schaden dokumentieren',
       text: 'Die Baustellenrapporte von Cantia, mit geolokalisierten und zeitgestempelten Fotos, liefern eine wertvolle faktische Grundlage für jede Schadensmeldung, sei es für die ECTR oder die Betriebshaftpflicht.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

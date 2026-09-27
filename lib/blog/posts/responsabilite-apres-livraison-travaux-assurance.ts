@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gardez la trace de chaque chantier livré, garanties comprises',
       text: 'En cas de litige des mois après la fin d’un chantier, retrouver rapidement le devis, les avenants et les dates exactes fait toute la différence. Cantia conserve tout l’historique de chaque chantier au même endroit.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

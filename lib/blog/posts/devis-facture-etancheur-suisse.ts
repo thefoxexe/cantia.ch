@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis et un dossier de chantier qui se construisent ensemble',
       text: 'Cantia permet de joindre photos et documents techniques directement au dossier de chantier, pour un historique complet en cas de réclamation.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

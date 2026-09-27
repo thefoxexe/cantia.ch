@@ -92,6 +92,7 @@ interface Dict {
     subtitle: string;
     cases: StoryCase[];
     exploreLabel: string;
+    hint: string;
     respondLabel: string;
     prevLabel: string;
     nextLabel: string;
@@ -263,6 +264,7 @@ const fr: Dict = {
     title: 'Six situations que vous connaissez',
     subtitle: 'Les imprévus font partie du métier. L’administratif ne devrait pas les compliquer.',
     exploreLabel: 'Explorer toutes les fonctionnalités',
+    hint: 'Cliquez sur une situation ou utilisez les flèches pour passer à la suivante.',
     respondLabel: 'Cantia répond',
     prevLabel: 'Situation précédente',
     nextLabel: 'Situation suivante',
@@ -636,6 +638,7 @@ const de: Dict = {
     title: 'Sechs Situationen, die Sie kennen',
     subtitle: 'Unvorhergesehenes gehört zum Beruf. Die Administration sollte es nicht noch komplizierter machen.',
     exploreLabel: 'Alle Funktionen entdecken',
+    hint: 'Klicken Sie auf eine Situation oder wechseln Sie mit den Pfeilen zur nächsten.',
     respondLabel: 'Cantia antwortet',
     prevLabel: 'Vorherige Situation',
     nextLabel: 'Nächste Situation',
@@ -1009,6 +1012,7 @@ const it: Dict = {
     title: 'Sei situazioni che conosce',
     subtitle: 'Gli imprevisti fanno parte del mestiere. L’amministrazione non dovrebbe complicarli.',
     exploreLabel: 'Esplora tutte le funzionalità',
+    hint: 'Clicchi su una situazione o usi le frecce per passare alla successiva.',
     respondLabel: 'Cantia risponde',
     prevLabel: 'Situazione precedente',
     nextLabel: 'Situazione successiva',

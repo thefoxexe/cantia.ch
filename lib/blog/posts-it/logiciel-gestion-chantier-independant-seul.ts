@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Utile fin dal primo preventivo, non solo in più persone',
       text: 'Il piano Essentiel di Cantia copre preventivi, fatture QR e catalogo prezzi, pensato per essere utile fin da quando si lavora da soli, non solo una volta ingrandito il team. Provatelo gratuitamente per 14 giorni.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

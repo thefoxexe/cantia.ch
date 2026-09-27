@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un fil d’actualité par chantier, pas un seul grand groupe',
       text: 'Cantia organise les échanges, photos et notes par chantier (retrouvables des mois plus tard), sans faire défiler une conversation entière pour retomber sur l’information qu’on cherche.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

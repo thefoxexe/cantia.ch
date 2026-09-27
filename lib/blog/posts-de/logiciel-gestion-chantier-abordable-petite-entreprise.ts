@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Die Baustellendokumentation inklusive, keine teure Option',
       text: 'Cantia integriert die Baustellendokumentation (Fotos, Fortschritt, Dokumente) direkt in seine Pläne, ohne versteckte Mehrkosten.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

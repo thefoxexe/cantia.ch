@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pensata per il cantiere, non solo per l\'ufficio',
       text: 'Cantia funziona altrettanto bene da un telefono in cantiere che da un computer: preventivi, foto e fatture, ovunque Lei si trovi.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Fatturi una riparazione dal marciapiede, in pochi minuti',
       text: 'Cantia permette di emettere una fattura direttamente dal telefono subito dopo un intervento di riparazione, senza bisogno di rientrare in laboratorio per non dimenticare di fatturarla.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

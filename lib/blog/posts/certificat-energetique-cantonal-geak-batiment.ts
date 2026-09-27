@@ -43,7 +43,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Chiffrer une rénovation énergétique sans perdre le fil',
       text: 'Isolation, fenêtres, chauffage : une rénovation énergétique combine souvent plusieurs corps de métier et plusieurs devis. Avec Cantia, chaque poste reste suivi jusqu’à la facture finale, pour garder une vision claire de la rentabilité du chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

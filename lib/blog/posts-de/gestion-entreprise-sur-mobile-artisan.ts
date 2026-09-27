@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Der Alltag auf dem Handy, die Konfiguration am Computer',
       text: 'Ein einziges Cantia-Konto genügt, egal ob vom Handy auf der Baustelle oder vom Computer aus für die anspruchsvolleren Aufgaben.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

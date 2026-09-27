@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des devis qui gardent vos prix par format et par motif',
       text: 'Cantia conserve votre catalogue de prix (format, motif, marge de casse) pour composer un devis de carrelage cohérent en quelques minutes, sans tout recalculer à chaque nouveau chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

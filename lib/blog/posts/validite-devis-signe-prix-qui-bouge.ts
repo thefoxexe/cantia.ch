@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La validité, jamais oubliée sur un devis',
       text: 'Chaque devis Cantia inclut automatiquement sa date de validité, calculée depuis vos paramètres d’entreprise. Plus besoin d’y penser à chaque envoi.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

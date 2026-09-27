@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Verfolgen Sie den Baustellenfortschritt vom Handy aus, auch in der Höhe',
       text: 'Mit Cantia lassen sich Fotos und Fortschrittsrapporte direkt von der Baustelle aus erfassen — nützlich, um einen Wetterstopp oder eine beim Abbruch entdeckte unerwartete Dachstuhlproblematik zu dokumentieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

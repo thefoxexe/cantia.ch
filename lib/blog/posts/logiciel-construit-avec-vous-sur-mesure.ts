@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Votre avis façonne directement l\'outil',
       text: 'Chez Cantia, chaque retour compte réellement dans l\'évolution du produit. Essayez-le gratuitement et dites-nous ce qui pourrait mieux coller à votre façon de travailler.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

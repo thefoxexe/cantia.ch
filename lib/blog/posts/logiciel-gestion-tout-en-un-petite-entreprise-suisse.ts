@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Devis, factures, chantiers et heures dans une seule appli',
       text: 'Cantia couvre l\'ensemble du parcours d\'une petite entreprise du bâtiment, du premier devis au suivi de trésorerie, sans ressaisie entre les modules.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

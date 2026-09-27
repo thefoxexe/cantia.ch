@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ne plus découvrir l’échéance TVA le jour même',
       text: 'Cantia garde une vue d’ensemble sur les factures et les chantiers en cours, pour que la préparation du décompte TVA ne soit jamais une surprise de dernière minute.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

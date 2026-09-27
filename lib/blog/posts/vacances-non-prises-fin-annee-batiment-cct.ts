@@ -40,7 +40,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un planning d’équipe qui anticipe les absences',
       text: 'Le module Planning de Cantia donne une vue claire des chantiers en cours et de l’équipe disponible. De quoi planifier les vacances sans se retrouver à court de main-d’œuvre en pleine saison.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

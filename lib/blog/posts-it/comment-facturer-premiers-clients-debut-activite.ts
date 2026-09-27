@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una fattura conforme fin dal primo invio',
       text: 'Cantia applica automaticamente numerazione, IVA e fattura QR svizzera: anche la primissima fattura ne esce impeccabile.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des photos de chantier prêtes à publier',
       text: 'Avec Cantia, chaque rapport de chantier inclut déjà des photos avant/après organisées. De quoi alimenter un réseau social sans travail de reprise supplémentaire.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

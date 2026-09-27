@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis détaillé, prêt pour une assurance',
       text: 'Cantia permet d’établir un devis poste par poste, avec photos et documents joints, pour un dossier complet à présenter à l’assurance du client.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

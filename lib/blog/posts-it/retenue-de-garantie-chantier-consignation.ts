@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Monitoraggio dei saldi trattenuti, cantiere per cantiere',
       text: 'Cantia tiene traccia chiara di ciò che resta dovuto su ogni fattura, per non perdere mai il filo di una ritenuta di garanzia da reclamare una volta trascorso il periodo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

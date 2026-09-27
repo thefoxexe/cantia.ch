@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gestire il cantiere, non la burocrazia assicurativa',
       text: 'Cantia centralizza preventivi, fatture e subappaltatori per cantiere, per concentrarsi sul lavoro piuttosto che sulla ricerca del documento giusto nel momento sbagliato.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

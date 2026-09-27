@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un plan adapté, qui évolue avec vous',
       text: 'Cantia propose un plan pensé pour une société individuelle, capable d\'évoluer vers un plan équipe le jour où l\'activité grandit, sans migration de données.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

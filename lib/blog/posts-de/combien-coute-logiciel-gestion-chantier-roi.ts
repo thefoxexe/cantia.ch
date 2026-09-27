@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: '14 Tage Testphase, um den Nutzen vor der Investition zu prüfen',
       text: 'Cantia lässt sich 14 Tage unter realen Bedingungen testen, inklusive Offerten, QR-Rechnungen und Preiskatalog, was es erlaubt, die zurückgewonnene Zeit konkret zu messen, bevor man sich entscheidet.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

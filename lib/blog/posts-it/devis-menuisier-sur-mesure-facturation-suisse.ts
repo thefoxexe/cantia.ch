@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo che distingue studio, fabbricazione e posa',
       text: 'Cantia permette di strutturare un preventivo in voci chiare, con il catalogo dei Suoi prezzi ricorrenti per non ripartire da zero a ogni nuovo progetto su misura.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

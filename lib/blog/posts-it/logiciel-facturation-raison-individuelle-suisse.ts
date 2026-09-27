@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Semplice da usare, anche in solitaria',
       text: 'Cantia è pensato per un indipendente in ditta individuale che gestisce tutto da solo (preventivi, fatture e liquidità), senza inutile complessità contabile.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

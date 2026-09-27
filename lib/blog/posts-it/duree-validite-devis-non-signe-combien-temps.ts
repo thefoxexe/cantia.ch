@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una data di validità applicata automaticamente',
       text: 'Cantia calcola e visualizza la durata di validità di ogni preventivo a partire dai parametri della vostra azienda, senza doverci pensare a ogni documento.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

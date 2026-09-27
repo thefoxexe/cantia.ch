@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des heures suivies, facturées sans perte de détail',
       text: 'Le module Heures & Salaires de Cantia relie le suivi d’heures par chantier directement à la facturation, si bien que le détail par jour et par personne reste toujours disponible en cas de question du client.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

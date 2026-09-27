@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Nota di credito generata in un clic',
       text: 'Cantia permette di emettere una nota di credito direttamente collegata alla fattura d’origine, con numerazione automatica e continua.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -79,7 +79,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une fois l’entreprise inscrite, place à la gestion réelle',
       text: 'Numéro IDE en main, Cantia génère des devis et factures conformes (mentions légales, TVA, QR-facture) dès le premier client.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

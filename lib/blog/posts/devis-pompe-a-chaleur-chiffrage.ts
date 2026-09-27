@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des devis clairs pour un choix technique complexe',
       text: 'Cantia permet de présenter plusieurs scénarios chiffrés (air-eau, géothermie) dans un même devis, pour que le client compare facilement avant de décider.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

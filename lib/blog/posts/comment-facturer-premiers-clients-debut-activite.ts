@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une facture conforme dès le premier envoi',
       text: 'Cantia applique automatiquement numérotation, TVA et QR-facture suisse : même la toute première facture en ressort irréprochable.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

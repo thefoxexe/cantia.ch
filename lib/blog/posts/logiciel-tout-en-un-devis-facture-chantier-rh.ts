@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Quatre domaines, une seule base de données',
       text: 'Chez Cantia, devis, factures, chantiers et RH partagent les mêmes informations : un chantier documenté aujourd\'hui alimente automatiquement sa rentabilité et sa facturation demain.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

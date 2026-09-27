@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une base propre dès le premier document',
       text: 'Cantia structure automatiquement devis et factures de façon conforme. C\'est une base solide, que vous gériez seul aujourd\'hui ou avec un fiduciaire demain.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

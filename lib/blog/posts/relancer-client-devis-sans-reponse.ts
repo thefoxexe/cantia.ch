@@ -54,7 +54,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des relances de devis qui partent au bon moment',
       text: 'Avec Cantia, chaque devis en attente peut être relancé automatiquement à intervalle raisonnable, sans avoir à y penser manuellement ni à laisser filer une échéance de validité.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

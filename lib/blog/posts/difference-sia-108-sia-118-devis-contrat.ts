@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Mentionnez la bonne norme sur chaque devis',
       text: 'Cantia permet d’ajouter des conditions personnalisées, y compris une référence explicite à la SIA 118, directement sur vos devis et contrats.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

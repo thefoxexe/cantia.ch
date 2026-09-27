@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Tool, das sich mit Ihrem Wachstum anpasst',
       text: 'Cantia entwickelt sich mit Ihrem Unternehmen: neue Module zum Aktivieren oder massgeschneiderte Funktionen, die gemeinsam mit Ihnen nach Ihrem tatsächlichen Bedarf entwickelt werden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

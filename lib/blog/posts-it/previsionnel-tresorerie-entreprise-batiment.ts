@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una previsione di liquidità automatica',
       text: 'Il modulo Liquidità di Cantia proietta il Suo saldo futuro a partire dalle fatture in sospeso e dalle spese ricorrenti, aggiornato in tempo reale.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

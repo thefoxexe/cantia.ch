@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Alle Ihre Baustellenfotos zentralisiert, Baustelle für Baustelle',
       text: 'Cantia ordnet Fotos automatisch nach Baustelle, mit Geolokalisierung und Datum. So finden Sie leicht eine gelungene Realisierung zur Wiederverwendung, ohne die Handy-Galerie zu durchsuchen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

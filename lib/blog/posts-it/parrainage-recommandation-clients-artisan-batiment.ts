@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un cantiere ben documentato si racconta meglio',
       text: 'Cantia conserva una traccia chiara di ogni cantiere (foto, rapporti, avanzamento), utile per condividere facilmente una bella realizzazione con un cliente che pensa di raccomandarLa.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

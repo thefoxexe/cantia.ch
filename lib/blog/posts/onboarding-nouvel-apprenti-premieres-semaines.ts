@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivre la progression d’un apprenti au fil des chantiers',
       text: 'Le fil d’actualité par chantier de Cantia permet de documenter concrètement les tâches confiées à chaque apprenti, semaine après semaine, une base utile pour ajuster le dosage entre observation et pratique.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

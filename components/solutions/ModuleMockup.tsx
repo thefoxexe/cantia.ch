@@ -341,13 +341,13 @@ const styles = StyleSheet.create({
   frame: {
     width: '100%',
     maxWidth: 380,
-    borderRadius: radius.xl,
+    borderRadius: 3,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
     shadowColor: '#231A12',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0,
     shadowRadius: 28,
     shadowOffset: { width: 0, height: 16 },
   } as unknown as ViewStyle,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   screenHeaderIcon: {
     width: 22,
     height: 22,
-    borderRadius: radius.sm,
+    borderRadius: 3,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: 3,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   photoTile: {
     width: '48%',
     aspectRatio: 1.4,
-    borderRadius: radius.sm,
+    borderRadius: 3,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',

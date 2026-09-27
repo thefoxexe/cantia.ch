@@ -53,7 +53,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis fait sur le chantier, une facture qui suit automatiquement',
       text: 'Avec Cantia, le devis se crée à la voix directement sur le chantier, la facture QR suisse se génère ensuite en un clic, et la rentabilité du chantier se calcule sans ressaisie.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivez vos coûts d’achat matériaux pour savoir si un groupement en vaut la peine',
       text: 'Cantia donne une vue claire de ce que vous dépensez par fournisseur et par matériau, pour évaluer concrètement le gain potentiel d’un achat groupé.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

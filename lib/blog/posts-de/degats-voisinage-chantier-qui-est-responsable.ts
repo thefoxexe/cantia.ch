@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Zeitgestempelte Baustellenfotos, ab dem ersten Tag',
       text: 'Der Cantia-Aktivitätsstream versieht jedes Foto mit Standort und Zeitstempel. Ein Zustandsbericht vor Arbeitsbeginn wird so zu einem einfachen Reflex, automatisch dokumentiert.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

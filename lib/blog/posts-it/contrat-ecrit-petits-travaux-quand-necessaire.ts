@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo, anche per un piccolo intervento, in pochi minuti',
       text: 'Cantia permette di generare un preventivo rapido e quantificato anche per un piccolo intervento. La traccia esiste allora senza rallentare il ritmo di una giornata intensa.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

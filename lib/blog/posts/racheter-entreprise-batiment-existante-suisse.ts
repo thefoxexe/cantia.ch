@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Évaluez une entreprise à racheter avec des chiffres clairs, pas des promesses',
       text: 'Cantia donne accès à un historique structuré de chantiers, devis et facturation — un atout pour qui rachète une entreprise comme pour qui la vend.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

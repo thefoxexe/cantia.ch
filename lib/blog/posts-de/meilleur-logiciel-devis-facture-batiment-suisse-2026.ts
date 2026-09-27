@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Testen Sie Cantia bei Ihrer nächsten Offerte',
       text: '14 Tage kostenlose Testphase, ohne Code einzugeben: Offerte, QR-Rechnung und Preiskatalog von Tag eins an inklusive.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

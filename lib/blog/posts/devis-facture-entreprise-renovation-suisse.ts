@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis prêt à absorber les imprévus de la rénovation',
       text: 'Cantia permet de générer rapidement un avenant lié à une découverte imprévue, sans repartir de zéro sur le devis initial ni perdre le fil du chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

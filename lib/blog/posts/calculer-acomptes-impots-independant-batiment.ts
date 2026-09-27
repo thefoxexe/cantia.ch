@@ -56,7 +56,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une trésorerie qui provisionne, pas qui subit',
       text: 'En suivant précisément l’encaissement de chaque chantier dans Cantia, il devient plus simple de mettre de côté chaque mois la part destinée aux impôts et aux charges sociales, plutôt que de la découvrir à la facture d’acompte.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

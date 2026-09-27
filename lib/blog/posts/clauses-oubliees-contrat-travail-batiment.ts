@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des dossiers employés complets, chantier par chantier',
       text: 'Cantia centralise les informations RH de vos équipes et le suivi des affectations chantier, pour que chaque clause de mobilité ou d’heures supplémentaires corresponde à la réalité du terrain.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un historique clair pour appuyer une soumission',
       text: 'Cantia conserve l’historique complet des chantiers réalisés, utile pour constituer les références demandées dans un dossier de soumission publique.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

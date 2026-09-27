@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un suivi clair de vos intervenants, y compris les sous-traitants étrangers',
       text: 'Cantia vous aide à centraliser les documents et les affectations de chaque intervenant sur un chantier, pour retrouver rapidement les justificatifs nécessaires en cas de contrôle.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

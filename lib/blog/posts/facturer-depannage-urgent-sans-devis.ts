@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Facturez un dépannage urgent en quelques minutes, depuis le chantier',
       text: 'Avec Cantia, transformez un bon d’intervention signé sur le chantier en facture en quelques clics, avec vos tarifs d’urgence et vos majorations déjà paramétrés.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

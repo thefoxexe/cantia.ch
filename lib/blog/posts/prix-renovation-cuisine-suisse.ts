@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis de cuisine qui ne cache aucune ligne',
       text: 'Agencement, électroménager, plomberie, électricité : Cantia vous permet de détailler chaque poste d’un devis de cuisine avec vos propres prix catalogue, pour que le client voie exactement ce qu’il paie.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

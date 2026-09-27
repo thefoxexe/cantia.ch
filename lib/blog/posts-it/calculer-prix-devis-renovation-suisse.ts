@@ -67,7 +67,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Il calcolo si fa da solo, il margine no',
       text: 'Su Cantia, l’IVA, i totali e il catalogo prezzi si calcolano automaticamente a ogni riga. L’unica cifra che resta da scegliere è il Suo margine.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

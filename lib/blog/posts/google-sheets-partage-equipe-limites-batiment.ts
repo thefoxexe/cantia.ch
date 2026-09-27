@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un chantier, une seule source d’information, pour toute l’équipe',
       text: 'Avec Cantia, chaque membre de l’équipe voit ce qui le concerne, les modifications sont notifiées en temps réel, et il n’existe qu’une seule version à jour d’un chantier, jamais une copie qui diverge.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

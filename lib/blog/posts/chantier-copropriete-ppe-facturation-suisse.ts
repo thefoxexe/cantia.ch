@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis clair, même avec un client collectif',
       text: 'Cantia permet d’établir un devis au nom d’une PPE ou d’une administration, avec un suivi de facturation centralisé sur un seul dossier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

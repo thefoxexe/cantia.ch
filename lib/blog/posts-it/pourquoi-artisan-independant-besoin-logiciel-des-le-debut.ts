@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Cominci con il piede giusto, fin dal primo preventivo',
       text: 'Cantia si installa in pochi minuti. Lo provi gratuitamente per 14 giorni, senza inserire alcun codice, fin dal Suo primissimo cliente.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

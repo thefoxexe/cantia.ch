@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Nachrichtenfeed pro Baustelle, nicht eine einzige grosse Gruppe',
       text: 'Cantia organisiert Austausch, Fotos und Notizen nach Baustelle (Monate später wiederauffindbar), ohne eine ganze Konversation durchscrollen zu müssen, um die gesuchte Information wiederzufinden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

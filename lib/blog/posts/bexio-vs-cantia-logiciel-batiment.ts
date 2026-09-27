@@ -66,7 +66,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pensé pour le chantier, pas pour la comptabilité générale',
       text: 'Cantia couvre tout le parcours d’un chantier suisse : devis, facturation QR, rapports, planning, rentabilité et RH, aussi bien depuis le van que depuis le bureau.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

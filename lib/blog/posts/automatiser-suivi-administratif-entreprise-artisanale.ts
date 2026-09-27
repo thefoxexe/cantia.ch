@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le suivi administratif automatisé, du chantier au client',
       text: 'Cantia automatise la génération de rapports, le classement de documents et les alertes de suivi, afin de libérer du temps administratif au quotidien.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

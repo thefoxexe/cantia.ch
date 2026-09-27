@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Rechnungsdossier, das immer bereit ist',
       text: 'Cantia hält jede Rechnung, ihren Versandverlauf und ihren Zahlungsstatus zentralisiert pro Kunde. So füllen Sie ein Betreibungsbegehren in wenigen Minuten aus, statt Monate von E-Mails zu durchsuchen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

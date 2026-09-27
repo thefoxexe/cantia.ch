@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des fiches de salaire claires, générées automatiquement',
       text: 'Cantia centralise les données de vos employés pour générer des décomptes de salaire clairs, prêts à être expliqués sans avoir à ressortir une calculatrice à chaque question.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

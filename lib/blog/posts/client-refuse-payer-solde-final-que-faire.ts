@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Chaque échange, chaque photo, au même endroit',
       text: 'Cantia centralise devis, factures, rapports de chantier et échanges par projet, si bien que le dossier existe déjà le jour où un litige survient, sans reconstitution de dernière minute.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

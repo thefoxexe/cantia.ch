@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Baustellenjournal, das auch der Ausbildung dient',
       text: 'Der Baustellen-Feed von Cantia ermöglicht es, die von jedem Teammitglied ausgeführten Aufgaben zu dokumentieren, Lernende eingeschlossen, was eine konkrete Grundlage für die Ausbildungsverfolgung bildet.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

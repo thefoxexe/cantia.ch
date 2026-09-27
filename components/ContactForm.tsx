@@ -103,16 +103,20 @@ export function ContactForm() {
 
 const styles = StyleSheet.create({
   card: {
-    maxWidth: 480,
+    maxWidth: 560,
     width: '100%',
     alignSelf: 'center',
     padding: spacing.xl,
     gap: spacing.md,
+    borderRadius: 3,
+    borderColor: '#D8C8B0',
+    shadowOpacity: 0,
   },
   formTitle: {
     ...displayType,
-    fontSize: fontSize.xl,
-    fontWeight: '700',
+    fontSize: 30,
+    lineHeight: 30,
+    fontWeight: '800',
     color: colors.text,
   },
   formSubtitle: {

@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La paie, sans recalculer chaque seuil à la main',
       text: 'Cantia garde la trace des salaires par employé, pour repérer facilement le moment où une augmentation fait franchir un seuil réglementaire comme celui de la LPP.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

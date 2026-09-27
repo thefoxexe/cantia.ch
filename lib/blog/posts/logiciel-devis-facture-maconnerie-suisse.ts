@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un catalogue de prix qui retient vos postes récurrents',
       text: 'Cantia garde en mémoire vos prix de maçonnerie (m³ béton, m² de mur, forfaits de finition) pour que chaque nouveau devis se construise en assemblant des postes déjà chiffrés, pas en repartant de zéro.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

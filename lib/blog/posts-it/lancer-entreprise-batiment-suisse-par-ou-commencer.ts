@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pronto a fatturare fin dal Suo primo giorno di attività',
       text: 'Cantia si installa rapidamente e copre preventivi, fatture e monitoraggio dei cantieri fin dal lancio. Lo provi gratuitamente per 14 giorni, senza inserire alcun codice.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

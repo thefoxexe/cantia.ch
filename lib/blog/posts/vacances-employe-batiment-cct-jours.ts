@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le solde de vacances de chaque employé, à jour en permanence',
       text: 'Cantia suit automatiquement les jours de vacances pris et restants pour chaque employé, pour que le calcul au prorata ne soit plus jamais fait à la main au moment d’un départ.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

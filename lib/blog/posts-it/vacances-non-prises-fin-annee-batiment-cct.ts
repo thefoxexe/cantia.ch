@@ -40,7 +40,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un planning di squadra che anticipa le assenze',
       text: 'Il modulo Planning di Cantia offre una vista chiara dei cantieri in corso e del team disponibile. Quanto basta per pianificare le vacanze senza ritrovarsi a corto di manodopera in piena stagione.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Tenga ben separati i Suoi cantieri puntuali e i Suoi contratti di manutenzione',
       text: 'Cantia permette di seguire ogni cantiere indipendentemente (preventivi, fatture e redditività) per distinguere chiaramente i Suoi progetti di sistemazione dai Suoi contratti di manutenzione ricorrenti.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

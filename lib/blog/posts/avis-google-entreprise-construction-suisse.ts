@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des photos de chantier prêtes à illustrer votre fiche Google',
       text: 'Cantia centralise les photos prises sur chaque chantier, pour facilement partager vos plus belles réalisations sur votre fiche Google Business ou vos réseaux professionnels.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

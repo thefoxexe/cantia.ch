@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: '14 jours pour tester Cantia en conditions réelles',
       text: 'L\'essai démarre automatiquement à la création du compte, sans code à saisir : testez Cantia 14 jours sur de vrais devis et factures, résiliable à tout moment avant la fin de l\'essai.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

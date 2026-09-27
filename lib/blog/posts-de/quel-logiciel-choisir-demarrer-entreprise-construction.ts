@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Tool, das mit dem Unternehmen mitwächst',
       text: 'Cantia begleitet ein Bauunternehmen von der ersten Offerte bis zur Führung eines ganzen Teams, ohne jemals unterwegs zu einem anderen Tool wechseln zu müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

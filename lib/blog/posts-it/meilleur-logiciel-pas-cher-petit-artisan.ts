@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un piano pensato per un artigiano solo, senza compromessi sull\'essenziale',
       text: 'Cantia propone un piano accessibile e completo per un artigiano che lavora da solo. Lo provi gratuitamente per 14 giorni, senza codice da inserire.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

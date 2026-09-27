@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine klare Historie zur Unterstützung einer Offerteingabe',
       text: 'Cantia bewahrt die vollständige Historie der ausgeführten Baustellen auf, nützlich für den Nachweis der in einem öffentlichen Ausschreibungsdossier geforderten Referenzen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

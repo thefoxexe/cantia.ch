@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gardez vos chantiers ponctuels et vos contrats d’entretien bien séparés',
       text: 'Cantia permet de suivre chaque chantier indépendamment (devis, factures et rentabilité) pour distinguer clairement vos projets d’aménagement de vos contrats d’entretien récurrents.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

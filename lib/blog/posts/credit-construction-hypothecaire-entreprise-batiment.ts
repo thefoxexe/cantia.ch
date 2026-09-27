@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Facturez au rythme réel du chantier, pas à l’aveugle',
       text: 'Émettre des situations claires, alignées sur l’avancement réel, aide autant l’entreprise que son client face à la banque. Cantia permet de facturer par étapes et de suivre chaque encaissement chantier par chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

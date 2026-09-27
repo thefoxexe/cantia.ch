@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un team e dei cantieri visibili a colpo d’occhio',
       text: 'Il planning di squadra di Cantia permette di riorganizzare rapidamente le assegnazioni se un membro del team deve essere temporaneamente sollevato dopo un infortunio.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

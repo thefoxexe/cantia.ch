@@ -13,7 +13,7 @@ import { CtaButton } from '../components/landing/CtaButton';
 import { SectionHead } from '../components/landing/SectionHead';
 import { Cartouche } from '../components/landing/Cartouche';
 import { bodyInk, ink, rule } from '../components/landing/brand';
-import { SituationTable } from '../components/landing/SituationTable';
+import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
 import { VoiceDemo } from '../components/landing/VoiceDemo';
 import { Disclosure } from '../components/landing/Disclosure';
@@ -173,7 +173,7 @@ function LandingContent() {
         <View style={[styles.wrap, styles.section]} ref={storiesRef}>
           <ScrollReveal>
             <SectionHead label={t.landingNav.features} title={t.stories.title} intro={t.stories.subtitle} />
-            <SituationTable dict={t.stories} hrefFor={solutionHref} />
+            <StoryShowcase dict={t.stories} hrefFor={solutionHref} />
           </ScrollReveal>
         </View>
 

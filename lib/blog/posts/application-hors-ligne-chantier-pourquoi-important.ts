@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Conçu pour fonctionner même sans réseau',
       text: 'Le fil d’actualité de chantier de Cantia enregistre photos et rapports même hors connexion, avec synchronisation automatique dès que le réseau revient, pensé pour de vraies conditions de chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

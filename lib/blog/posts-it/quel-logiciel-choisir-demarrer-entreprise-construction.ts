@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno strumento pensato per crescere con l\'impresa',
       text: 'Cantia accompagna un\'impresa di costruzioni dal primo preventivo fino alla gestione di un team completo, senza mai dover migrare verso un altro strumento lungo il percorso.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

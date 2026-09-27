@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Offerte, auch für einen kleinen Einsatz, in wenigen Minuten',
       text: 'Cantia erlaubt es, selbst für einen kleinen Einsatz rasch eine bezifferte Offerte zu erstellen. So entsteht die Spur, ohne den Rhythmus eines vollen Tages zu bremsen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

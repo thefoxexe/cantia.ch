@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un planning che tutto il team vede, in tempo reale',
       text: 'Il modulo Planning di Cantia centralizza le assegnazioni di squadra e di cantiere in un unico posto accessibile dal campo. Basta con le doppie prenotazioni scoperte troppo tardi.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

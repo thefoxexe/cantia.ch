@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Anticipez vos creux avant qu’ils ne deviennent des urgences',
       text: 'Un prévisionnel de trésorerie clair permet de voir arriver un creux plusieurs semaines à l’avance, et de décider calmement du bon outil pour le traverser. Cantia donne cette visibilité en temps réel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

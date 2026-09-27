@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Team im Blick, Baustelle für Baustelle',
       text: 'Das Personal-Modul von Cantia zentralisiert das Eintrittsdatum jedes Mitarbeitenden und dessen Verlauf, was nützlich ist, um das genaue Dienstalter bei der Berechnung einer Kündigungsfrist zu prüfen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

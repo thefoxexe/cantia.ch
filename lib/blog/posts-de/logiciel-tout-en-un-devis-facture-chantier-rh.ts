@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Vier Bereiche, eine einzige Datenbasis',
       text: 'Bei Cantia teilen sich Offerten, Rechnungen, Baustellen und Personal dieselben Informationen: eine heute dokumentierte Baustelle speist morgen automatisch ihre Rentabilität und ihre Fakturierung.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

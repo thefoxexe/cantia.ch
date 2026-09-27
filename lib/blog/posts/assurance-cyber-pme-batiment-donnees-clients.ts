@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Vos devis et factures, hébergés et sauvegardés sérieusement',
       text: 'Garder ses documents dans un outil professionnel plutôt que dans des fichiers dispersés sur un poste local réduit déjà une bonne partie du risque. Cantia héberge vos devis, factures et données de chantier de façon sécurisée.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

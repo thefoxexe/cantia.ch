@@ -39,7 +39,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Documenter l’état du chantier avant tout sinistre',
       text: 'Les rapports de chantier de Cantia, avec photos géolocalisées et horodatées, donnent une base factuelle précieuse pour toute déclaration de sinistre, que ce soit pour l’ECTR ou pour la RC professionnelle.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

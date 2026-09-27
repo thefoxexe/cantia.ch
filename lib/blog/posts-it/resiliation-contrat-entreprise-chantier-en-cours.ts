@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno storico chiaro, cantiere per cantiere',
       text: 'Cantia collega ogni preventivo, fattura e acconto al suo cantiere. Tutto il necessario per ricostruire in pochi clic ciò che è stato impegnato e fatturato se un cliente ferma un cantiere in corso.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

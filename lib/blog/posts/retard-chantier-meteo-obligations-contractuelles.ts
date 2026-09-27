@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un fil de chantier daté et documenté',
       text: 'Le fil d’actualité de Cantia horodate chaque photo et chaque message du chantier, de quoi reconstituer précisément un enchaînement de jours d’arrêt si un retard doit être justifié.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

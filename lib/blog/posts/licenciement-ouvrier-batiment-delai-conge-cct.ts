@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une équipe suivie, chantier par chantier',
       text: 'Le module RH de Cantia centralise les dates d’entrée de chaque employé et son historique, ce qui est utile pour vérifier l’ancienneté exacte au moment de calculer un délai de congé.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

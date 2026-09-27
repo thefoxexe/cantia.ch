@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Clarifier ce qui est dû, chantier après chantier',
       text: 'Suivre la rentabilité réelle de chaque chantier aide aussi à décider, chaque fin d’année, si une prime discrétionnaire est réellement justifiée. Avec Cantia, la rentabilité par chantier reste visible en continu, pas seulement au moment du bilan annuel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

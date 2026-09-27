@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Preventivi, fatture, cantieri e ore in un\'unica app',
       text: 'Cantia copre l\'intero percorso di una piccola impresa edile, dal primo preventivo al monitoraggio della liquidità, senza reinserimenti tra i moduli.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

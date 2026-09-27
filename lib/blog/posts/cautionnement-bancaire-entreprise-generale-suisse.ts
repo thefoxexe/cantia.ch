@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Sécurisez votre trésorerie avant de vous engager sur un gros marché',
       text: 'Avant de répondre à un appel d’offres qui exige un cautionnement, il faut connaître précisément sa propre santé financière et sa marge réelle. Cantia donne une vision claire de la rentabilité chantier par chantier pour engager ce type de décision en confiance.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

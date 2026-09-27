@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Offerte in wenigen Minuten fertig, mit automatischer Nachverfolgung',
       text: 'Cantia erstellt eine professionelle Offerte mit Schweizer QR-Rechnung, Preiskatalog und integrierter Statusverfolgung: testen Sie 14 Tage kostenlos, ohne Code eingeben zu müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

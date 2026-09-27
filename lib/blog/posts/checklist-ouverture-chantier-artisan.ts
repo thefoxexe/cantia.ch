@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Chaque chantier documenté dès le premier jour',
       text: 'Cantia centralise devis, acompte, équipe affectée et photos dès l’ouverture du chantier, ce qui fait que la checklist se coche presque toute seule.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

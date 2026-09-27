@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'QR-facture conforme, générée automatiquement',
       text: 'Cantia génère des QR-factures conformes à la norme suisse dès la création du devis ou de la facture, sans configuration technique de votre part.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

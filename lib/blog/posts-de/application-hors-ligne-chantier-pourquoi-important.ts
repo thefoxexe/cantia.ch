@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Entwickelt, um auch ohne Netz zu funktionieren',
       text: 'Der Baustellen-Feed von Cantia speichert Fotos und Rapporte auch ohne Verbindung, mit automatischer Synchronisation, sobald das Netz zurückkehrt – gedacht für echte Baustellenbedingungen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

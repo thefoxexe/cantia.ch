@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Piloter le chantier, pas gérer la paperasse d’assurance',
       text: 'Cantia centralise devis, factures et sous-traitants par chantier, pour se concentrer sur le travail plutôt que sur la recherche du bon document au mauvais moment.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

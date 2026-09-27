@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le quotidien sur mobile, la configuration sur ordinateur',
       text: 'Un seul compte Cantia suffit, aussi bien depuis un téléphone sur chantier que depuis un ordinateur pour les tâches plus poussées.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

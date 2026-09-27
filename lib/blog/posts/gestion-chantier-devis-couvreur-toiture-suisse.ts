@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivez l’avancement du chantier depuis le téléphone, même en hauteur',
       text: 'Cantia permet d’ajouter photos et rapports d’avancement directement depuis le chantier, ce qui est utile pour documenter un arrêt météo ou un imprévu de charpente découvert en cours de dépose.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un dossier de chantier complet, prêt pour la facture finale',
       text: 'Cantia relie devis, acomptes, travaux supplémentaires et photos au même chantier, si bien que la facture finale se prépare sans reconstituer l’historique à la main.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

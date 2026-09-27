@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un historique clair, chantier par chantier',
       text: 'Cantia relie chaque devis, facture et acompte à son chantier. De quoi reconstituer en quelques clics ce qui a été engagé et facturé si un client arrête un chantier en cours.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

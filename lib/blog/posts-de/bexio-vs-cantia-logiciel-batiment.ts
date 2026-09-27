@@ -66,7 +66,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Für die Baustelle konzipiert, nicht für die allgemeine Buchhaltung',
       text: 'Cantia deckt den gesamten Weg einer Schweizer Baustelle ab: Offerte, QR-Fakturierung, Rapporte, Planung, Rentabilität und HR, sowohl aus dem Lieferwagen als auch vom Büro aus.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Die Stunden einer temporären Verstärkung wie die des Stammteams verfolgen',
       text: 'Das Modul Stunden & Löhne von Cantia erfasst die Tätigkeit jeder Person auf einer Baustelle, temporäre Verstärkung inklusive, ohne doppeltes Parallelsystem.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

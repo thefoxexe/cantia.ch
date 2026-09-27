@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un fascicolo solido, pronto in caso di controversia',
       text: 'Cantia centralizza preventivi, fatture, scambi e foto per cantiere, così che lo storico completo rimanga disponibile se una conciliazione o una procedura si rendesse necessaria.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

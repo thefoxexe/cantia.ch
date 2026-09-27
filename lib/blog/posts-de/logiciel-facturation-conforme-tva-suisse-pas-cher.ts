@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'MWST-Konformität in allen Plänen inbegriffen',
       text: 'Bei Cantia ist die MWST- und QR-Rechnungskonformität in allen Plänen inbegriffen, auch im günstigsten. Testen Sie 14 Tage kostenlos, ohne Code einzugeben.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

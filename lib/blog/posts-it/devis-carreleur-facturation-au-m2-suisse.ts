@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Preventivi che conservano i Suoi prezzi per formato e per motivo',
       text: 'Cantia conserva il Suo catalogo di prezzi (formato, motivo, margine di rottura) per comporre un preventivo di piastrellatura coerente in pochi minuti, senza dover ricalcolare tutto a ogni nuovo cantiere.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

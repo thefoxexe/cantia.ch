@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Planung, die das ganze Team in Echtzeit sieht',
       text: 'Das Planungsmodul von Cantia zentralisiert Team- und Baustelleneinsätze an einem einzigen, vom Terrain aus zugänglichen Ort. Schluss mit Doppelreservierungen, die zu spät entdeckt werden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

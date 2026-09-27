@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Da solo a team, senza migrazione',
       text: 'Cantia propone più piani che evolvono con l’impresa, senza perdita di dati né migrazione tecnica il giorno della prima assunzione.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

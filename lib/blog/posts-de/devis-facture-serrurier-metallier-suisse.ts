@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Fakturieren Sie einen Notdienst vom Trottoir aus, in wenigen Minuten',
       text: 'Mit Cantia können Sie direkt nach einem Notfall-Einsatz eine Rechnung vom Telefon aus ausstellen, ohne in die Werkstatt zurückzukehren, um sie nicht zu vergessen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine erste Offerte in wenigen Minuten, ohne Schulung',
       text: 'Cantia ist so konzipiert, dass es schon bei der ersten Nutzung verständlich ist. Testen Sie es 14 Tage kostenlos, ohne Code-Eingabe, und urteilen Sie selbst.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Überall zugänglich, in der Schweiz gehostet',
       text: 'Cantia funktioniert online, zugänglich von jedem Gerät aus, mit in der Schweiz gehosteten Daten. Testen Sie 14 Tage kostenlos, ohne Code einzugeben.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -43,7 +43,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des factures conformes sans y penser',
       text: 'Cantia génère automatiquement des factures et QR-factures avec toutes les mentions légales à jour (TVA, IBAN, adresse structurée), sans que vous ayez à vérifier chaque champ à la main.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

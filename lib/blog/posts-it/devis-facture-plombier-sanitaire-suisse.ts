@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una fattura inviata dal cantiere, riparazione compresa',
       text: 'Con Cantia, un intervento di riparazione diventa una fattura in pochi minuti dal telefono, senza bisogno di tornare in ufficio né di lasciare un’urgenza fatturata tre settimane dopo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un dossier de financement commence par des chiffres clairs',
       text: 'Avant de solliciter une banque ou un organisme de cautionnement, il faut pouvoir présenter une vision nette de son activité, chantier par chantier. Cantia aide à préparer ces chiffres facilement, prêts à être montrés.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

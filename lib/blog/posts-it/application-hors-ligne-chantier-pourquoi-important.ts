@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Progettato per funzionare anche senza rete',
       text: 'Il feed di aggiornamenti di cantiere di Cantia registra foto e rapporti anche offline, con sincronizzazione automatica non appena la rete ritorna, pensato per le condizioni reali di cantiere.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

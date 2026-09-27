@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Einfach beginnen, den Rest später aktivieren',
       text: 'Cantia erlaubt einen Start mit Offerten, Rechnungen und Baustellen, um dann Personal & Löhne, Planung oder Liquidität nach und nach zu aktivieren, während das Unternehmen wächst.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una rubrica di subappaltatori sempre aggiornata',
       text: 'Il modulo Subappaltatori di Cantia centralizza i vostri partner per mestiere e per cantiere. Quanto basta per decidere in fretta tra rinforzo puntuale e assunzione, senza ripartire da zero a ogni picco di attività.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

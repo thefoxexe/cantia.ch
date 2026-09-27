@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ogni cantiere, un unico posto per tutto',
       text: 'Cantia centralizza pianificazione, preventivi, fatture, rapporti e subappaltatori per cantiere. L’intero team vede così la stessa informazione, aggiornata, nello stesso posto.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

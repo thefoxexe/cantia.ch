@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo pronto in pochi minuti, con monitoraggio automatico',
       text: 'Cantia genera un preventivo professionale con fattura QR svizzera, catalogo prezzi e monitoraggio dello stato integrati: provi gratuitamente per 14 giorni, senza codice da inserire.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

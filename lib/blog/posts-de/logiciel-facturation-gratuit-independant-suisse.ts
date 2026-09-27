@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Cantia bietet einen vollständigen Gratistest, keine abgespeckte Version',
       text: 'Der Test startet automatisch bei der Anmeldung, ohne Code-Eingabe: Testen Sie 14 Tage lang das vollständige Tool (Offerten, Rechnungen, Schweizer QR-Rechnung, Baustellen) ohne eingeschränkte Funktionen, die Sie zu einem früheren Kauf drängen sollen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

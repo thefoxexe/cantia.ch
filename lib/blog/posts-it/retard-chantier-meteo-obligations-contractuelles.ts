@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un feed di cantiere datato e documentato',
       text: 'Il feed di aggiornamenti di Cantia timbra con data e ora ogni foto e ogni messaggio del cantiere, quanto basta per ricostruire con precisione una sequenza di giorni di fermo se un ritardo deve essere giustificato.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

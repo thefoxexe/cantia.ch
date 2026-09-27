@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Aucune facture impayée oubliée dans un tiroir',
       text: 'Cantia garde un historique complet de chaque facture et son statut de paiement. De quoi repérer une créance ancienne avant qu’elle ne devienne irrécupérable.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

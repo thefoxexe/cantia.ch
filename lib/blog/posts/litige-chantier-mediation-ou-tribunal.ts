@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un dossier solide, prêt en cas de litige',
       text: 'Cantia centralise devis, factures, échanges et photos par chantier, de sorte que l’historique complet reste disponible si une conciliation ou une procédure devient nécessaire.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

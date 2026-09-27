@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le suivi de chantier inclus, pas en option coûteuse',
       text: 'Cantia intègre le suivi de chantier (photos, avancement, documents) directement dans ses plans, sans surcoût caché.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

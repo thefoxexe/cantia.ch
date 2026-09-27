@@ -67,7 +67,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le calcul se fait tout seul, pas la marge',
       text: 'Sur Cantia, la TVA, les totaux et le catalogue de prix se calculent automatiquement à chaque ligne. Le seul chiffre que vous gardez à choisir, c’est votre marge.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

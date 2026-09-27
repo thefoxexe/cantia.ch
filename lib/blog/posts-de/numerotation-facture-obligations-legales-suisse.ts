@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine durchgehende Nummerierung, automatisch verwaltet',
       text: 'Cantia vergibt jeder Rechnung eine eindeutige, chronologische Nummer, ohne je eine Nummer wiederzuverwenden oder ein Duplikat zwischen mehreren Quellen zu erzeugen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

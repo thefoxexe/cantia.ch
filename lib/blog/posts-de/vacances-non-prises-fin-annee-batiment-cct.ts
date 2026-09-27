@@ -40,7 +40,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Teamplanung, die Abwesenheiten vorausschaut',
       text: 'Das Modul Planung von Cantia gibt einen klaren Überblick über die laufenden Baustellen und das verfügbare Team. So planen Sie Ferien, ohne mitten in der Saison Personal zu verlieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

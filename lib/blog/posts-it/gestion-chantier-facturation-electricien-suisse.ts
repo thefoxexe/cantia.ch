@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le Sue ore, registrate cantiere per cantiere, in pochi secondi',
       text: 'Cantia permette di registrare le proprie ore direttamente dal telefono tra due interventi, cantiere per cantiere, il che permette di ritrovare a fine mese esattamente chi ha fatto cosa, senza ricostruire la giornata a memoria.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

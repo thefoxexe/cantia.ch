@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui intègre les surcoûts spécifiques d’une rénovation patrimoniale',
       text: 'Cantia permet de détailler chaque poste d’un devis, matériaux spécifiques et temps de restauration inclus, pour un chiffrage qui reflète la réalité du chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

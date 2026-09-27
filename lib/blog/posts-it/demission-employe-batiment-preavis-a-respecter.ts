@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Anticipare una partenza senza perdere il filo dei cantieri',
       text: 'La pianificazione del team di Cantia permette di riorganizzare rapidamente le assegnazioni non appena viene annunciata una partenza, senza attendere l’ultimo momento.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

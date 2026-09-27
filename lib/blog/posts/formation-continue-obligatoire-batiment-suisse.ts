@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ne plus perdre le fil des échéances de formation',
       text: 'Entre les chantiers, les devis et les urgences du quotidien, une échéance de recyclage se perd facilement. Cantia permet de garder une vision claire de chaque équipe et de ses tâches, un point d’appui utile pour ne pas laisser filer ces échéances.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Moins d’avis négatifs, en évitant les malentendus à la source',
       text: 'Avec Cantia, chaque chantier garde une trace claire : devis validé, rapports photo, échanges archivés. De quoi désamorcer un désaccord avec des faits précis plutôt que des souvenirs approximatifs.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

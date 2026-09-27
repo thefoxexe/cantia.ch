@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine akzeptierte Offerte wird mit einem Klick zur Rechnung',
       text: 'Cantia verwandelt eine akzeptierte Offerte automatisch in eine Rechnung, ohne erneute Eingabe und ohne Abschreibfehler.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

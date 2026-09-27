@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un chantier bien documenté se raconte mieux',
       text: 'Cantia garde une trace claire de chaque chantier (photos, rapports, avancement), de quoi partager facilement une belle réalisation avec un client qui songe à vous recommander.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

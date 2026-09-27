@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Alles automatisieren, auch im Alleingang',
       text: 'Um allein effizient zu bleiben, ohne dafür die Abende zu opfern, automatisiert Cantia die MWST, die Nummerierung und die Zahlungserinnerungen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

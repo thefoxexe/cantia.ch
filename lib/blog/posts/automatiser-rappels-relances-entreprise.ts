@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des relances qui partent toutes seules, au bon moment',
       text: 'Cantia peut automatiser vos relances de factures impayées, avec la possibilité d\'ajuster le ton ou de les suspendre au cas par cas.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

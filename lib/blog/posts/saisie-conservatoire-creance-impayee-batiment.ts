@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Repérez les signaux d’alerte avant qu’une créance ne devienne irrécupérable',
       text: 'Cantia suit vos factures et vos relances client par client, pour identifier tôt un client à risque plutôt que de le découvrir une fois la situation critique.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

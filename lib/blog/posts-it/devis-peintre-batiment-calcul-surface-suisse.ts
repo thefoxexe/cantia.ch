@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un catalogo di prezzi che distingue già le Sue diverse tariffe al m²',
       text: 'Cantia conserva in memoria le Sue diverse tariffe (supporto nuovo, da riparare, numero di mani), per comporre un preventivo corretto in pochi minuti invece di ricalcolare ogni superficie a mano.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

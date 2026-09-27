@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Tool, das ab dem ersten Tag einsatzbereit ist',
       text: 'Cantia vereint Offerten, Rechnungen und Baustellenverfolgung in einer einzigen App, die in wenigen Minuten vor Ort erlernt werden kann.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

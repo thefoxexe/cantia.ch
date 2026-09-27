@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Anticipez le creux d’été dans votre trésorerie',
       text: 'Cantia permet de planifier vos jalons de facturation en amont d’une fermeture de chantier, pour garder une trésorerie stable même pendant les vacances de la construction.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Tutte le Sue foto di cantiere centralizzate, cantiere per cantiere',
       text: 'Cantia organizza automaticamente le foto per cantiere, con geolocalizzazione e data. Così può ritrovare facilmente una bella realizzazione da riutilizzare, senza frugare nel rullino del telefono.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

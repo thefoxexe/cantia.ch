@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Photos de chantier horodatées, dès le premier jour',
       text: 'Le fil d’actualité de Cantia géolocalise et horodate chaque photo. Un état des lieux avant travaux devient ainsi un réflexe simple, documenté automatiquement.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

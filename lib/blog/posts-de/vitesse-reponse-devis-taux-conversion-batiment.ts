@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Offerte versandfertig, bevor Sie die Baustelle verlassen haben',
       text: 'Mit Cantia wird eine Offerte direkt vom Smartphone aus erstellt und versendet, mit Preiskatalog als Grundlage. Kein Warten mehr auf die Rückkehr ins Büro, um auf eine Anfrage zu antworten.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

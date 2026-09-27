@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une facture envoyée depuis le chantier, dépannage compris',
       text: 'Avec Cantia, une intervention de dépannage devient une facture en quelques minutes depuis le téléphone, sans besoin de revenir au bureau ni de laisser traîner une urgence facturée trois semaines plus tard.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

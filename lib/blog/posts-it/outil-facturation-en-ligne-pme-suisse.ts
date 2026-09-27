@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Accessibile ovunque, ospitato in Svizzera',
       text: 'Cantia funziona online, accessibile da qualsiasi dispositivo, con dati ospitati in Svizzera. Lo provi gratuitamente per 14 giorni, senza codice da inserire.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

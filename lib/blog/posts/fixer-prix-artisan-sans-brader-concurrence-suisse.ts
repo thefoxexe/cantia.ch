@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Connaître son vrai coût de revient avant de fixer un prix',
       text: 'Cantia calcule la rentabilité réelle de chaque chantier (devisé vs coût réel), pour fixer des prix qui couvrent vraiment les coûts de l’entreprise, pas seulement ce qui semble raisonnable au premier coup d’œil.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

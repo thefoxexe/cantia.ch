@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Gültigkeitsdauer, automatisch angewendet',
       text: 'Cantia berechnet und zeigt die Gültigkeitsdauer jeder Offerte anhand der Einstellungen Ihres Unternehmens an, ohne dass Sie bei jedem Dokument daran denken müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

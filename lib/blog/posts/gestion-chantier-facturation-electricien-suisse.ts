@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Vos heures, saisies chantier par chantier, en quelques secondes',
       text: 'Cantia permet de pointer ses heures directement depuis le téléphone entre deux interventions, chantier par chantier, ce qui permet de retrouver en fin de mois exactement qui a fait quoi, sans reconstituer la journée de mémoire.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

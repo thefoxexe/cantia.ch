@@ -53,7 +53,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un outil pensé pour le chantier, pas pour le bureau',
       text: 'Cantia accompagne l’artisan là où se passe vraiment le travail : devis dicté à la voix sur le chantier, factures QR conformes, rapports photo, planning et rentabilité par chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

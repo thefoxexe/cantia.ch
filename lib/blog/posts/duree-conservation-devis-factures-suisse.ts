@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Chaque devis et facture, retrouvable en un clic',
       text: 'Cantia conserve automatiquement chaque devis et facture générés, classés par chantier et par client, sans limite de temps ni classement manuel à tenir soi-même.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

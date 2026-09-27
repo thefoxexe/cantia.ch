@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Preventivi dettagliati, pronti ad accompagnare un fascicolo di sussidio',
       text: 'Cantia permette di generare preventivi chiari e dettagliati per voce, con tutte le superfici e quantità necessarie per corroborare un fascicolo di sussidio cantonale.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

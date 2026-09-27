@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Transparente Stunden und Löhne, ohne Reibung',
       text: 'Cantia ermöglicht es jedem Mitarbeitenden, seine Stunden einfach von der Baustelle aus zu erfassen, mit einer klaren Abrechnung, um Missverständnisse bei Überstunden zu vermeiden, die das Vertrauen auf Dauer untergraben.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

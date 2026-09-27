@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein stets aktuelles Verzeichnis der Subunternehmer',
       text: 'Das Modul Subunternehmer von Cantia zentralisiert Ihre Partner nach Gewerk und Baustelle. So entscheiden Sie schnell zwischen punktueller Verstärkung und Rekrutierung, ohne bei jeder Spitzenbelastung wieder bei null anzufangen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

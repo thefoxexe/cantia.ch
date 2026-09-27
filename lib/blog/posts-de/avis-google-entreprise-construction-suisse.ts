@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Baustellenfotos, bereit für Ihr Google-Profil',
       text: 'Cantia zentralisiert die auf jeder Baustelle aufgenommenen Fotos, damit Sie Ihre schönsten Arbeiten einfach auf Ihrem Google-Unternehmensprofil oder in Ihren beruflichen Netzwerken teilen können.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

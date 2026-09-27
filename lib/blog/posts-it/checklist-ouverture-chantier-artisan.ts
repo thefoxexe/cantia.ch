@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ogni cantiere documentato fin dal primo giorno',
       text: 'Cantia centralizza preventivo, acconto, team assegnato e foto fin dall’apertura del cantiere, il che fa sì che la checklist si spunti quasi da sola.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gardez une trace complète de chaque chantier, dès le premier jour',
       text: 'Cantia conserve photos, rapports et échanges par chantier au même endroit — une documentation précieuse en cas de désaccord technique à faire trancher plus tard.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

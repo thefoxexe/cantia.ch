@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine saubere Grundlage ab dem ersten Dokument',
       text: 'Cantia strukturiert Offerten und Rechnungen automatisch konform. Eine solide Basis, ob Sie heute selbst verwalten oder morgen mit einem Treuhandbüro arbeiten.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

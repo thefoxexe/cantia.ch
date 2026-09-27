@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des heures et des salaires transparents, sans friction',
       text: 'Cantia permet à chaque employé de saisir ses heures facilement depuis le chantier, avec un décompte clair, afin d’éviter les malentendus sur les heures supplémentaires qui érodent la confiance sur la durée.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Confrontare preventivato e costo reale, cantiere per cantiere',
       text: 'Il modulo Redditività di Cantia confronta automaticamente quanto preventivato con le ore e i costi realmente sostenuti su ogni cantiere. È il modo migliore per sapere se la vostra tariffa oraria è realistica.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

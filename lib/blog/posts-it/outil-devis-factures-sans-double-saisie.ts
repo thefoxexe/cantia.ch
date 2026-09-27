@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo accettato diventa fattura con un clic',
       text: 'Cantia trasforma automaticamente un preventivo accettato in fattura, senza reinserimento né rischio di errore di ricopiatura.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

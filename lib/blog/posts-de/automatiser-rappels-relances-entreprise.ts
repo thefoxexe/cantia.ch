@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Mahnungen, die von allein losgehen — zum richtigen Zeitpunkt',
       text: 'Cantia kann Ihre Mahnungen für unbezahlte Rechnungen automatisieren, mit der Möglichkeit, den Ton anzupassen oder sie im Einzelfall zu pausieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

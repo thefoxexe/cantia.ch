@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Die Gültigkeit, nie mehr vergessen auf einer Offerte',
       text: 'Jede Cantia-Offerte enthält automatisch ihr Gültigkeitsdatum, berechnet aus Ihren Unternehmenseinstellungen. Sie müssen nicht mehr bei jedem Versand daran denken.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

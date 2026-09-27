@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo inviato più in fretta, un cliente che esita meno',
       text: 'Cantia permette di generare un preventivo professionale dal cantiere, in pochi minuti. Il necessario per rispondere a una richiesta prima che il cliente abbia finito di confrontare gli altri artigiani contattati.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

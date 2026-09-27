@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ore monitorate, fatturate senza perdita di dettaglio',
       text: 'Il modulo Ore & Salari di Cantia collega il monitoraggio delle ore per cantiere direttamente alla fatturazione, così il dettaglio per giorno e per persona resta sempre disponibile in caso di domanda del cliente.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

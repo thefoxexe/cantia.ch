@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Offerte, die Studie, Fertigung und Montage unterscheidet',
       text: 'Cantia ermöglicht es, eine Offerte in klare Positionen zu gliedern, mit dem Katalog Ihrer wiederkehrenden Preise, damit Sie bei jedem neuen Massprojekt nicht wieder bei null anfangen müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

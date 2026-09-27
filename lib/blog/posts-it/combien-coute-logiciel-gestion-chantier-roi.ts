@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una prova di 14 giorni per valutare il guadagno prima di investire',
       text: 'Cantia si prova per 14 giorni in condizioni reali, preventivi, fatture QR e catalogo prezzi inclusi, il che permette di misurare concretamente il tempo recuperato prima di impegnarsi.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Provi prima di impegnarsi',
       text: 'Cantia propone una prova gratuita di 14 giorni, senza inserire alcun codice: perfetta per evitare gli errori di scelta classici testando su documenti reali.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

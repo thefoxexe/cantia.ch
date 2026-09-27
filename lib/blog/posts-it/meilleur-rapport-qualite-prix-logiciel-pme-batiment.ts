@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Giudichi il rapporto qualità-prezzo da solo',
       text: 'Cantia offre 14 giorni di prova gratuita fin dalla creazione dell’account, senza inserire alcun codice: perfetto per confrontare oggettivamente, su un utilizzo reale, piuttosto che su una brochure.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

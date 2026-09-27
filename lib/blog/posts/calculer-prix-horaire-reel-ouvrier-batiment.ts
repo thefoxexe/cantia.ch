@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Comparer devisé et coût réel, chantier par chantier',
       text: 'Le module Rentabilité de Cantia confronte automatiquement ce qui a été devisé aux heures et coûts réellement engagés sur chaque chantier. C’est la meilleure façon de savoir si votre taux horaire est réaliste.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

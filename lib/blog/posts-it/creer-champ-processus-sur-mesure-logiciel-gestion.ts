@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Parliamo di ciò che manca alla Sua quotidianità',
       text: 'Se un dettaglio del Suo modo di lavorare non trova posto in Cantia oggi, ne parliamo. È spesso il punto di partenza di una funzionalità su misura.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

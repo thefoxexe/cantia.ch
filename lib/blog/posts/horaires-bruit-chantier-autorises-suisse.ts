@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un planning de chantier qui tient compte des contraintes locales',
       text: 'Cantia permet de noter les contraintes propres à chaque chantier, horaires autorisés compris, directement au même endroit que le planning et les échanges avec le client.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des photos avant/après prêtes à partager, à la fin de chaque chantier',
       text: 'Avec Cantia, les rapports de chantier avec photos sont générés automatiquement au fil de l’avancement. Plus besoin de tout réorganiser à la fin pour avoir de quoi provoquer une recommandation.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

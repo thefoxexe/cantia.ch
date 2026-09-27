@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Provate Cantia sul vostro prossimo preventivo',
       text: '14 giorni di prova gratuita, senza inserire un codice: preventivi, fattura QR e catalogo prezzi inclusi fin dal primo giorno.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Derselbe Bedarf, ohne die blinden Flecken einer Tabelle',
       text: 'Cantia verknüpft Offerten, QR-Rechnungen und Zahlungen automatisch pro Kunde und pro Baustelle – etwas, das Excel niemals von allein leistet, selbst gut organisiert.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

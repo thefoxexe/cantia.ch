@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Einfach in der Anwendung, auch im Alleingang',
       text: 'Cantia ist für Selbstständige in Einzelfirma konzipiert, die alles allein steuern (Offerten, Rechnungen und Liquidität), ohne unnötige buchhalterische Komplexität.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

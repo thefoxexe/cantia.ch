@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Nessuna fattura impagata dimenticata in un cassetto',
       text: 'Cantia conserva uno storico completo di ogni fattura e del suo stato di pagamento. Quanto basta per individuare un credito vecchio prima che diventi irrecuperabile.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

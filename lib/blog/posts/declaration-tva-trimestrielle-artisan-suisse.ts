@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le trimestre TVA, sans reconstituer les factures à la dernière minute',
       text: 'Avec Cantia, chaque facture émise et chaque devis sont déjà classés par chantier et par taux de TVA appliqué. Au moment de boucler le décompte, l’essentiel du travail de tri est déjà fait.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -54,7 +54,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des devis professionnels, avec ou sans site internet',
       text: 'Avec Cantia, un devis envoyé depuis le chantier a déjà l’air professionnel, même avant d’avoir un site : logo, coordonnées, catalogue de prix et signature en ligne, tout est déjà là.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

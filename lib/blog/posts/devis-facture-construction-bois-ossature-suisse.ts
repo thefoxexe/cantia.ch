@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui distingue atelier et chantier',
       text: 'Cantia permet de structurer un devis de construction bois entre fabrication en atelier et montage sur site, avec un suivi de rentabilité sur les deux phases.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

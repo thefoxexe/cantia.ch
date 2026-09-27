@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ogni scambio, ogni foto, nello stesso posto',
       text: 'Cantia centralizza preventivi, fatture, rapporti di cantiere e scambi per progetto, cosicché il fascicolo esiste già il giorno in cui sorge una controversia, senza ricostruzione dell’ultimo minuto.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

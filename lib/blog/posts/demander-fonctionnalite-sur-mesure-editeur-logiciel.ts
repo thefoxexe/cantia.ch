@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un besoin précis à formuler ? Parlons-en',
       text: 'L\'équipe Cantia échange directement avec ses clients sur leurs besoins spécifiques. N\'hésitez pas à décrire le vôtre, même s\'il vous semble atypique.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

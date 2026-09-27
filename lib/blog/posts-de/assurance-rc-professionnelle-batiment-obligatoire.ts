@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Die Baustelle steuern, nicht den Versicherungspapierkram verwalten',
       text: 'Cantia zentralisiert Offerten, Rechnungen und Subunternehmer pro Baustelle, um sich auf die Arbeit zu konzentrieren statt auf die Suche nach dem richtigen Dokument im falschen Moment.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

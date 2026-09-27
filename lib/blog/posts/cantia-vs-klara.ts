@@ -54,7 +54,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pensé pour le chantier, du devis au paiement',
       text: 'Cantia couvre tout le parcours d’un chantier suisse : devis dicté à la voix, factures QR conformes, rapports photo, planning et rentabilité, sans jamais perdre de vue que le vrai métier se passe sur le terrain.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Cantia offre una prova gratuita completa, non una versione limitata',
       text: 'La prova inizia automaticamente all\'iscrizione, senza codice da inserire: testi per 14 giorni lo strumento completo (preventivi, fatture, fattura QR svizzera, cantieri) senza funzionalità limitate per costringerLa a pagare prima.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

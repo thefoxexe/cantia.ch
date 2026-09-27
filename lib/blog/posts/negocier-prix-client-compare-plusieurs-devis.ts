@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui se défend tout seul',
       text: 'Avec Cantia, chaque devis détaille clairement les postes, les matériaux et les garanties, avec un catalogue de prix cohérent d’un chantier à l’autre. Plus facile de justifier un prix quand il est présenté clairement.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

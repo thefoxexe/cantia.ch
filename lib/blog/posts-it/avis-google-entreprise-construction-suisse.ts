@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Foto di cantiere pronte a illustrare la Sua scheda Google',
       text: 'Cantia centralizza le foto scattate su ogni cantiere, per condividere facilmente le Sue realizzazioni migliori sulla Sua scheda Google Business o sui Suoi social professionali.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

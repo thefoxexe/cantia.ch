@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una numerazione continua, gestita automaticamente',
       text: 'Cantia attribuisce un numero unico e cronologico a ogni fattura, senza mai riutilizzare un numero né creare doppioni tra più fonti.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Nützlich ab der ersten Offerte, nicht erst zu mehreren',
       text: 'Der Essentiel-Plan von Cantia deckt Offerten, QR-Rechnungen und Preiskatalog ab, konzipiert, um schon beim Alleinarbeiten nützlich zu sein, nicht erst nach der Teamvergrösserung. Testen Sie ihn 14 Tage kostenlos.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

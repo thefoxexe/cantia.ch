@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Il Suo parere plasma direttamente lo strumento',
       text: 'Da Cantia, ogni feedback conta davvero nell’evoluzione del prodotto. Lo provi gratuitamente e ci dica cosa potrebbe adattarsi meglio al Suo modo di lavorare.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

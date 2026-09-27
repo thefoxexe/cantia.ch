@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Baustelle mit lückenlosen Daten, vom ersten bis zum letzten Tag',
       text: 'Cantia hält jede Baustelle von der Eröffnung bis zum Abschluss fest, wodurch sich das Ende der Arbeiten eindeutig belegen lässt, falls Sie schnell handeln müssen, um Ihr Bauhandwerkerpfandrecht zu sichern.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

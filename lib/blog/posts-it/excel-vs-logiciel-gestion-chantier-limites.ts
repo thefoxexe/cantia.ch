@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Lo stesso bisogno, senza gli angoli morti di un foglio di calcolo',
       text: 'Cantia collega automaticamente preventivi, fatture QR e pagamenti per cliente e per cantiere, qualcosa che Excel non fa mai da solo, anche se ben organizzato.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

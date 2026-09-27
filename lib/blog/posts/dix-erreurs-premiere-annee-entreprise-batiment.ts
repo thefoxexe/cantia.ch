@@ -64,7 +64,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Éviter ces erreurs sans y penser en permanence',
       text: 'Devis chiffrés justement, relances automatiques, rentabilité par chantier et trésorerie suivie en temps réel : Cantia couvre les erreurs les plus fréquentes de la première année, sans y passer un temps que vous n’avez pas.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

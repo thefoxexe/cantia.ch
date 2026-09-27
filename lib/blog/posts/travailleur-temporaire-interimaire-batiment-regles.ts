@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivre les heures d’un renfort temporaire comme celles de l’équipe fixe',
       text: 'Le module Heures & Salaires de Cantia permet de suivre l’activité de tout intervenant sur un chantier, renfort temporaire compris, sans double système parallèle.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

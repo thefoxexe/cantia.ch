@@ -53,7 +53,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis créé à la voix, directement sur le chantier',
       text: 'Avec Cantia, le devis se dicte à la voix pendant la visite, fonctionne hors ligne, et se transforme en facture QR conforme d’un simple clic une fois le client d’accord.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

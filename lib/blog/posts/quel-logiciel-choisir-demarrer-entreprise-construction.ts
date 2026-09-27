@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un outil pensé pour grandir avec l\'entreprise',
       text: 'Cantia accompagne une entreprise de construction du premier devis jusqu\'à la gestion d\'une équipe complète, sans jamais avoir à migrer vers un autre outil en cours de route.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

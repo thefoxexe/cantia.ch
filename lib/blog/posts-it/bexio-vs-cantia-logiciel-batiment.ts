@@ -66,7 +66,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pensata per il cantiere, non per la contabilità generale',
       text: 'Cantia copre tutto il percorso di un cantiere svizzero: preventivi, fatturazione QR, rapporti, pianificazione, redditività e RH, tanto dal furgone quanto dall’ufficio.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -2859,7 +2859,7 @@ export const it: TranslationDict = {
     comparisonEyebrow: 'Prima / con Cantia',
     comparisonBefore: 'Prima',
     comparisonAfter: 'Con Cantia',
-    secondaryEyebrow: 'E molto altro ancora',
+    secondaryEyebrow: 'Incluso anche',
     secondaryClientsTitle: 'Clienti',
     secondaryClientsText: 'Scheda cliente con cronologia completa di preventivi, fatture e cantieri.',
     secondaryQrTitle: 'QR-fattura',
@@ -2917,7 +2917,7 @@ export const it: TranslationDict = {
     includesNext: '{{plan}}, con in più',
   },
   planPage: {
-    ctaTrial: 'Inizi la prova gratuita',
+    ctaTrial: 'Provi 14 giorni',
     ctaAllPlans: 'Veda tutti i piani',
     perMonth: '/mese',
     statStorage: 'GB di archiviazione',
@@ -2960,7 +2960,7 @@ export const it: TranslationDict = {
     faqVatQ: 'Il prezzo include l\'IVA?',
     faqVatA: 'I prezzi indicati sono al netto dell\'IVA. L\'IVA svizzera viene aggiunta al momento della fatturazione.',
     closingTitle: 'Pronto a provare {{name}}?',
-    closingText: '14 giorni di prova gratuita — carta di credito richiesta alla registrazione, primo addebito solo dopo questi 14 giorni, disdicibile in qualsiasi momento e senza costi.',
+    closingText: '14 giorni di prova — carta di credito richiesta alla registrazione, primo addebito solo dopo questi 14 giorni, disdicibile in qualsiasi momento e senza costi.',
     plans: {
       solo: {
         heroText: 'Per iniziare da soli o in pochi, con preventivi e fatture professionali fin dal primo giorno.',

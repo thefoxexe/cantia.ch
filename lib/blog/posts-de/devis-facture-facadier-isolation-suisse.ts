@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Detaillierte Offerten, bereit als Grundlage für ein Fördergesuch',
       text: 'Cantia erstellt klare, nach Posten gegliederte Offerten mit allen Flächen und Mengen, die für ein kantonales Fördergesuch nötig sind.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

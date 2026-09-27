@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno storico di attività per dipendente, pronto quando serve',
       text: 'Il modulo HR di Cantia tiene traccia delle assegnazioni e dell’attività di ogni membro del team. È una base concreta per redigere un certificato di lavoro giusto e rapido.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

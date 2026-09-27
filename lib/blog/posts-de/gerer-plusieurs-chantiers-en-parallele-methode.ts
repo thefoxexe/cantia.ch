@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Jede Baustelle, ein einziger Ort für alles',
       text: 'Cantia zentralisiert Planung, Offerten, Rechnungen, Rapporte und Subunternehmer pro Baustelle. Das gesamte Team sieht so dieselbe, aktuelle Information am selben Ort.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

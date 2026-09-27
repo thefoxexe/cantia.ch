@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un historique d’activité par employé, prêt quand il le faut',
       text: 'Le module RH de Cantia garde une trace des affectations et de l’activité de chaque membre de l’équipe. C’est une base concrète pour rédiger un certificat de travail juste et rapide.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

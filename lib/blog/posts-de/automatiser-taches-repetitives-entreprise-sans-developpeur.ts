@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Bereits fertige Automatisierungen — und weitere massgeschneidert möglich',
       text: 'Cantia automatisiert bereits grundlegende Mahnungen und Benachrichtigungen. Bei Bedarf können auch Automatisierungen entwickelt werden, die genau auf Ihre Arbeitsweise zugeschnitten sind.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

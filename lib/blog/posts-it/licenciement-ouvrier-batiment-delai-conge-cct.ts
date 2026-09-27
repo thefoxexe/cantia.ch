@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un team seguito, cantiere per cantiere',
       text: 'Il modulo RH di Cantia centralizza le date di entrata di ogni dipendente e il suo storico, il che è utile per verificare l’anzianità esatta al momento di calcolare un termine di disdetta.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

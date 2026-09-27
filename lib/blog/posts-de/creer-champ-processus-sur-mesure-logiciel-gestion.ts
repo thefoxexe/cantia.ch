@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Sprechen wir über das, was in Ihrem Alltag fehlt',
       text: 'Wenn eine Besonderheit Ihrer Arbeitsweise heute in Cantia keinen Platz findet, sprechen wir darüber. Das ist oft der Ausgangspunkt für eine massgeschneiderte Funktion.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

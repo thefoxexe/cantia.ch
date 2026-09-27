@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivez la valeur de vos chantiers, pas seulement leur avancement',
       text: 'Savoir combien de matériel et de matériaux sont engagés sur un chantier en cours aide aussi à évaluer le bon niveau de couverture. Cantia centralise devis, matériel facturé et suivi de chantier au même endroit.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un rapport de fin de chantier en quelques minutes',
       text: 'Cantia génère un rapport PDF avec photos géolocalisées et horodatées, envoyable au client directement depuis le chantier. De quoi documenter proprement chaque réception de travaux.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

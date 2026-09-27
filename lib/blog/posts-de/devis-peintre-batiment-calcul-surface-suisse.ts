@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Preiskatalog, der Ihre verschiedenen m²-Tarife bereits unterscheidet',
       text: 'Cantia behält Ihre verschiedenen Tarife (neuer Untergrund, zu reparieren, Anzahl Schichten) im Gedächtnis, um eine korrekte Offerte in wenigen Minuten zu erstellen, statt jede Fläche von Hand neu zu berechnen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

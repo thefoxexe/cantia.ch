@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine gut dokumentierte Baustelle lässt sich besser erzählen',
       text: 'Cantia behält einen klaren Überblick über jede Baustelle (Fotos, Berichte, Fortschritt), um eine gelungene Realisation leicht mit einem Kunden zu teilen, der daran denkt, Sie weiterzuempfehlen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

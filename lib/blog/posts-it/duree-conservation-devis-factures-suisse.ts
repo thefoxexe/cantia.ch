@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ogni preventivo e fattura, ritrovabile con un clic',
       text: 'Cantia conserva automaticamente ogni preventivo e fattura generati, classificati per cantiere e per cliente, senza limite di tempo né classificazione manuale da tenere personalmente.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

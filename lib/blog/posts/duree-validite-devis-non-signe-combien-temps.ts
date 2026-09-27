@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une date de validité appliquée automatiquement',
       text: 'Cantia calcule et affiche la durée de validité de chaque devis à partir des paramètres de votre entreprise, sans avoir à y penser à chaque document.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

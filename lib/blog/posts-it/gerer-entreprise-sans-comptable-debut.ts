@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Una base pulita fin dal primo documento',
       text: 'Cantia struttura automaticamente preventivi e fatture in modo conforme. È una base solida, sia che Lei gestisca da solo oggi o con una fiduciaria domani.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

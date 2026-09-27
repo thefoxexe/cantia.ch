@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un fascicolo di cantiere completo, pronto per la fattura finale',
       text: 'Cantia collega preventivo, acconti, lavori supplementari e foto allo stesso cantiere, così che la fattura finale si prepari senza dover ricostruire lo storico a mano.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

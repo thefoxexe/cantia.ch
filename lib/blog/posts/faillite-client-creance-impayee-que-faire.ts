@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Repérez les signaux de risque avant qu’un client ne devienne insolvable',
       text: 'Cantia suit vos factures et vos délais de paiement client par client, pour repérer un retard qui se répète avant qu’il ne devienne une créance perdue.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

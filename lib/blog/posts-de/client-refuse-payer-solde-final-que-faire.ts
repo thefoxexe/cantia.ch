@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Jeder Austausch, jedes Foto, am selben Ort',
       text: 'Cantia zentralisiert Offerten, Rechnungen, Baustellenberichte und Austausch pro Projekt, sodass das Dossier bereits an dem Tag existiert, an dem ein Streit entsteht, ohne Rekonstruktion in letzter Minute.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

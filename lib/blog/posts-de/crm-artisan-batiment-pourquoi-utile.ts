@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine integrierte Kundenhistorie, keine separate Software',
       text: 'Cantia zentralisiert Offerten, Rechnungen und Notizen pro Kunde direkt verknüpft mit den Baustellen: kein separates CRM nötig, das zusätzlich synchronisiert werden müsste.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

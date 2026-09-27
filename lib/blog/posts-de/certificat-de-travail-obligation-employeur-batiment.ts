@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Tätigkeitsverlauf pro Mitarbeiter, bereit wenn Sie ihn brauchen',
       text: 'Das Modul Personal & Löhne von Cantia hält die Einsätze und die Tätigkeit jedes Teammitglieds fest. Das ist eine konkrete Grundlage, um ein faires und rasch erstelltes Arbeitszeugnis zu verfassen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

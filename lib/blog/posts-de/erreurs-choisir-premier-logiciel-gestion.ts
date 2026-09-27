@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Testen Sie, bevor Sie sich verpflichten',
       text: 'Cantia bietet einen kostenlosen 14-tägigen Test ohne Code-Eingabe: So vermeiden Sie klassische Fehlentscheidungen, indem Sie an echten Dokumenten testen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

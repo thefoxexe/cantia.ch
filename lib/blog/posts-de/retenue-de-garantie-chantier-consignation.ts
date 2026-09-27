@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Übersicht über einbehaltene Salden, Baustelle für Baustelle',
       text: 'Cantia behält eine klare Übersicht darüber, was auf jeder Rechnung noch offen ist, damit ein Garantierückbehalt nach Ablauf der Frist nie in Vergessenheit gerät.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

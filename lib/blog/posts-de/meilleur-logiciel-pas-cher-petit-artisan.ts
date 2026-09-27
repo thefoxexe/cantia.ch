@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Plan für den Solo-Handwerker, ohne Kompromisse beim Wesentlichen',
       text: 'Cantia bietet einen erschwinglichen und vollständigen Plan für einen alleine arbeitenden Handwerker. Testen Sie ihn 14 Tage kostenlos, ohne Code einzugeben.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis, même pour une petite intervention, en quelques minutes',
       text: 'Cantia permet de générer un devis rapide et chiffré même pour une petite intervention. La trace existe alors sans ralentir le rythme d’une journée chargée.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

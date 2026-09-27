@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Devisiertes und tatsächliches vergleichen, Baustelle für Baustelle',
       text: 'Das Rentabilitätsmodul von Cantia stellt automatisch das Devisierte den tatsächlich aufgewendeten Stunden und Kosten jeder Baustelle gegenüber. So sehen Sie am besten, ob Ihr Stundensatz realistisch ist.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

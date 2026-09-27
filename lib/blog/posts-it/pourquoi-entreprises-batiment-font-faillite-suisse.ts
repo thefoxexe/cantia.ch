@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Vedere arrivare i problemi di tesoreria prima che si presentino',
       text: 'Il modulo Liquidità di Cantia proietta il vostro saldo futuro tenendo conto delle fatture in sospeso e delle spese ricorrenti. Quanto basta per anticipare un calo piuttosto che subirlo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

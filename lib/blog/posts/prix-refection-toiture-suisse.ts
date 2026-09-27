@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis de toiture prêt en sortant du chantier',
       text: 'Sur Cantia, saisissez vos relevés de mesures directement depuis le chantier et générez un devis détaillé par poste — couverture, isolation, zinguerie — avant même de reprendre la voiture.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un outil pensé pour être utilisé dès le premier jour',
       text: 'Cantia réunit devis, factures et suivi de chantier dans une seule appli, pensée pour être prise en main en quelques minutes sur le terrain.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

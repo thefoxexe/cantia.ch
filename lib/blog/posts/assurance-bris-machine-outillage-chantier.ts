@@ -56,7 +56,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gardez une trace de votre matériel, pas seulement une assurance',
       text: 'En cas de vol ou de bris, un dossier de sinistre avance plus vite avec une liste claire du matériel utilisé par chantier. Cantia garde l’historique de chaque chantier au même endroit, factures et matériel compris.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

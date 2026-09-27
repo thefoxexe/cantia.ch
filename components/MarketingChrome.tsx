@@ -471,15 +471,15 @@ const styles = StyleSheet.create({
   langDropdown: {
     position: 'absolute',
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: 3,
     borderWidth: 1,
     borderColor: colors.border,
     paddingVertical: spacing.xs,
     shadowColor: '#000',
-    shadowOpacity: 0.16,
+    shadowOpacity: 0,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    elevation: 0,
   },
   langOption: {
     flexDirection: 'row',
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   hamburgerButton: {
     width: 40,
     height: 40,
-    borderRadius: radius.md,
+    borderRadius: 3,
     backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   footerBrand: {
     ...displayType,
     fontSize: fontSize.xxl,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: -0.5,
     color: colors.text,
   },
@@ -631,9 +631,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   footerColTitle: {
-    fontFamily: marketingFonts.body,
+    fontFamily: marketingFonts.mono,
     fontSize: fontSize.xs,
-    fontWeight: '700',
     color: colors.text,
     textTransform: 'uppercase',
     letterSpacing: 0.4,

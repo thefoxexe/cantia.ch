@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Il monitoraggio del cantiere incluso, non un\'opzione costosa',
       text: 'Cantia integra il monitoraggio del cantiere (foto, avanzamento, documenti) direttamente nei suoi piani, senza costi nascosti.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

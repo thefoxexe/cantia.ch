@@ -56,7 +56,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Deux logiques de facturation, un seul outil',
       text: 'Cantia permet de gérer aussi bien un dépannage urgent facturé rapidement qu’un devis de remplacement détaillé avec délai de fabrication intégré.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

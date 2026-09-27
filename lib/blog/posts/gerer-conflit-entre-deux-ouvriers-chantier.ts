@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Garder une trace claire de ce qui se passe sur chaque chantier',
       text: 'Un fil d’actualité par chantier permet de documenter les faits au moment où ils se produisent, plutôt que de reconstituer une situation a posteriori. Avec Cantia, chaque événement reste rattaché au bon chantier et à la bonne date.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

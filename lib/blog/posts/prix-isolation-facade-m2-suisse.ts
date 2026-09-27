@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis d’isolation de façade qui distingue clairement chaque poste',
       text: 'Échafaudage, isolant, finition : sur Cantia, vous construisez un devis façade détaillé par m² avec vos prix catalogue, prêt à envoyer et à faire signer en ligne.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

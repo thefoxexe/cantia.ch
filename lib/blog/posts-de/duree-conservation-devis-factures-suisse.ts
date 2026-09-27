@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Jede Offerte und Rechnung, mit einem Klick auffindbar',
       text: 'Cantia bewahrt automatisch jede erstellte Offerte und Rechnung auf, geordnet nach Baustelle und Kunde, ohne zeitliche Begrenzung und ohne manuelle Ablage, die Sie selbst pflegen müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

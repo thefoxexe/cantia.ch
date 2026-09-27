@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Il monitoraggio amministrativo automatizzato, dal cantiere al cliente',
       text: 'Cantia automatizza la generazione di rapporti, la classificazione di documenti e gli avvisi di monitoraggio, per liberare tempo amministrativo nella quotidianità.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

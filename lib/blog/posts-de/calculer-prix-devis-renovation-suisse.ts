@@ -67,7 +67,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Die Berechnung erledigt sich von selbst, die Marge nicht',
       text: 'Bei Cantia werden MWST, Summen und der Preiskatalog bei jeder Zeile automatisch berechnet. Die einzige Zahl, die Sie selbst wählen, ist Ihre Marge.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

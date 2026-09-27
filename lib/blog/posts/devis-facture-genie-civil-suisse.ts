@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des situations d’avancement générées sans ressaisie',
       text: 'Cantia permet de suivre l’avancement d’un chantier de génie civil et de générer des situations de facturation cohérentes avec le bordereau de prix unitaires.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

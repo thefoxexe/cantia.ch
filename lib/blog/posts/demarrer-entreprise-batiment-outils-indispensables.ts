@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Commencez simple, activez le reste plus tard',
       text: 'Cantia permet de démarrer avec devis, factures et chantiers, puis d\'activer RH, planning ou trésorerie au fur et à mesure que l\'entreprise grandit.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

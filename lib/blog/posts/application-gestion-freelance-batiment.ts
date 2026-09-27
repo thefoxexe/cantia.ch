@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pensée pour le chantier, pas juste pour le bureau',
       text: 'Cantia fonctionne aussi bien depuis un téléphone sur chantier que depuis un ordinateur : devis, photos et factures, où que vous soyez.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

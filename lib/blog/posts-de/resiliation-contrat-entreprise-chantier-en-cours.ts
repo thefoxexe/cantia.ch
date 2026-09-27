@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein klarer Verlauf, Baustelle für Baustelle',
       text: 'Cantia verknüpft jede Offerte, Rechnung und Anzahlung mit der zugehörigen Baustelle. So lässt sich in wenigen Klicks rekonstruieren, was eingesetzt und fakturiert wurde, falls ein Kunde eine laufende Baustelle abbricht.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

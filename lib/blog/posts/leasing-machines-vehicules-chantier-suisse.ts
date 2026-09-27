@@ -59,7 +59,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivez le vrai coût de votre matériel, chantier après chantier',
       text: 'Savoir combien un véhicule ou une machine coûte réellement par chantier aide à décider entre leasing et achat en connaissance de cause. Cantia aide à suivre la rentabilité réelle de chaque chantier, matériel compris.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

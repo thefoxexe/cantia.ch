@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Voir la marge de chaque chantier, pas seulement celle de l’année',
       text: 'Cantia calcule automatiquement la rentabilité de chaque chantier en comparant les heures et le matériel réellement engagés au devis initial, pour repérer les dérapages avant la clôture du dossier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Parliamo del Suo mestiere',
       text: 'Se la Sua attività ha esigenze che Cantia non copre ancora in modo standard, ci contatti. Molte funzionalità attuali sono nate da una richiesta precisa di un cliente.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivez vos achats matériaux par fournisseur, sans tableur',
       text: 'Cantia centralise vos commandes et vos dépenses par fournisseur, chantier par chantier, pour savoir précisément qui négocier et quand.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

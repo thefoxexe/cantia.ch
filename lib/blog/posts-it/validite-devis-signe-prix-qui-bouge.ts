@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La validità, mai dimenticata su un preventivo',
       text: 'Ogni preventivo Cantia include automaticamente la sua data di validità, calcolata a partire dai Suoi parametri aziendali. Non serve più pensarci a ogni invio.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

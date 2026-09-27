@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Spécialisé bâtiment, connecté à Bexio si besoin',
       text: 'Cantia couvre devis, factures et chantiers pensés pour le bâtiment, avec une synchronisation Bexio disponible dès le plan Équipe pour ceux qui en ont besoin.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

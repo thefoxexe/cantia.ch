@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Séparez structure et finition dans chaque devis',
       text: 'Cantia permet de détailler un devis de plâtrerie poste par poste, cloisons et finitions séparées, pour des factures qui correspondent exactement à ce qui a été livré.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

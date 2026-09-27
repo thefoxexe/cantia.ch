@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La conformità IVA inclusa in tutti i piani',
       text: 'Con Cantia, la conformità IVA e fattura QR è inclusa in tutti i piani, anche il più accessibile. Provi gratuitamente per 14 giorni, senza inserire alcun codice.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

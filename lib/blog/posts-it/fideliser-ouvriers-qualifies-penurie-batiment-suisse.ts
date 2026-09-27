@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ore e salari trasparenti, senza attriti',
       text: 'Cantia permette a ogni dipendente di registrare le proprie ore facilmente dal cantiere, con un conteggio chiaro, per evitare gli equivoci sulle ore straordinarie che erodono la fiducia nel tempo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

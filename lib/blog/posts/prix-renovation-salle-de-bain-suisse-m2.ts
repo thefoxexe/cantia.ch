@@ -54,7 +54,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis salle de bain qui tient sur une seule page, pas sur cinq corps de métier séparés',
       text: 'Sanitaire, carrelage, électricité, plomberie : sur Cantia, vous regroupez tous les postes d’un même chantier dans un seul devis clair, avec TVA et totaux calculés automatiquement.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

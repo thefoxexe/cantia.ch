@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Die eigenen Selbstkosten kennen, bevor man einen Preis festlegt',
       text: 'Cantia berechnet die tatsächliche Rentabilität jeder Baustelle (offeriert vs. real), um Preise festzulegen, die die Kosten des Unternehmens wirklich decken – nicht nur das, was auf den ersten Blick vernünftig erscheint.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

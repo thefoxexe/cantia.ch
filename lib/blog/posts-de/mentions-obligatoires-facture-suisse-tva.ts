@@ -43,7 +43,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Konforme Rechnungen, ohne darüber nachzudenken',
       text: 'Cantia erstellt automatisch Rechnungen und QR-Rechnungen mit allen aktuellen gesetzlichen Angaben (MWST, IBAN, strukturierte Adresse), ohne dass Sie jedes Feld von Hand prüfen müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

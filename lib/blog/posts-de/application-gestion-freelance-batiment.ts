@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gedacht für die Baustelle, nicht nur fürs Büro',
       text: 'Cantia funktioniert genauso gut vom Handy auf der Baustelle wie vom Computer aus: Offerten, Fotos und Rechnungen, wo auch immer Sie sind.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

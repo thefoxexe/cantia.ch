@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un piano su misura, che evolve con Lei',
       text: 'Cantia propone un piano pensato per una ditta individuale, capace di evolvere verso un piano team il giorno in cui l’attività cresce, senza migrazione di dati.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

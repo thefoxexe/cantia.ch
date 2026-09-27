@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Séparez matière, façonnage et pose sur chaque devis',
       text: 'Cantia permet de structurer un devis en postes distincts avec leurs propres quantités et prix, pour que chaque partie du chantier de charpente reste lisible et ajustable indépendamment des autres.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Donnez à votre successeur une vision claire de l’activité avant la reprise',
       text: 'Cantia centralise chantiers, devis et rentabilité au même endroit — un outil utile pour transmettre non seulement l’entreprise, mais la compréhension de son fonctionnement réel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

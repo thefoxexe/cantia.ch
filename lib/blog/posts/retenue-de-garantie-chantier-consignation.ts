@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivi des soldes retenus, chantier par chantier',
       text: 'Cantia garde une trace claire de ce qui reste dû sur chaque facture, pour ne jamais perdre le fil d’une retenue de garantie à réclamer une fois la période écoulée.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

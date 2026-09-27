@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le prix de revient calculé automatiquement',
       text: 'Le module Rentabilité de Cantia confronte le devisé aux heures et coûts réellement engagés sur chaque chantier, sans besoin de reconstituer le calcul à la main.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

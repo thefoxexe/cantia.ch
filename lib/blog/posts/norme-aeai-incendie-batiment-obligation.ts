@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des exigences techniques qui restent attachées au bon chantier',
       text: 'Cantia permet de rattacher les spécifications et les contraintes propres à chaque chantier, protection incendie comprise, pour que la bonne exigence reste visible au moment de commander le matériel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

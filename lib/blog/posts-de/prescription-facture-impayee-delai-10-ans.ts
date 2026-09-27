@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Keine unbezahlte Rechnung, die in einer Schublade vergessen wird',
       text: 'Cantia bewahrt eine vollständige Historie jeder Rechnung und ihres Zahlungsstatus. So erkennen Sie eine alte Forderung, bevor sie uneinbringlich wird.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

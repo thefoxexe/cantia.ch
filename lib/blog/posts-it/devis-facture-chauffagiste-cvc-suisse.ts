@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Preventivi precisi, pronti a corroborare una richiesta di sussidio',
       text: 'Cantia genera preventivi dettagliati e datati, con tutte le quantità e prestazioni necessarie per accompagnare un fascicolo di sussidio cantonale senza dover produrre alcun documento aggiuntivo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

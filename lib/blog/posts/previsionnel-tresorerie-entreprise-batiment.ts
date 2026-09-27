@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une prévision de trésorerie automatique',
       text: 'Le module Trésorerie de Cantia projette votre solde à venir à partir des factures en attente et des dépenses récurrentes, mis à jour en temps réel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

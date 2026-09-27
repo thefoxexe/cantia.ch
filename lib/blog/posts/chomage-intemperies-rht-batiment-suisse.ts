@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une trésorerie d’hiver moins tendue, chantier par chantier',
       text: 'Cantia aide à suivre l’avancement et la facturation de chaque chantier, pour visualiser l’impact réel d’un arrêt lié aux intempéries sur la trésorerie de l’entreprise, et anticiper plutôt que subir.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

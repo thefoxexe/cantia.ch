@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine schneller versandte Offerte, ein Kunde, der weniger zögert',
       text: 'Cantia ermöglicht es, eine professionelle Offerte direkt von der Baustelle aus in wenigen Minuten zu erstellen. So beantworten Sie eine Anfrage, bevor der Kunde den Vergleich mit den anderen kontaktierten Handwerkern abgeschlossen hat.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

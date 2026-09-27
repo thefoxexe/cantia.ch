@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis clair, dès la première ligne',
       text: 'Cantia permet d’ajouter une mention de conditions directement sur le devis : de quoi préciser une éventuelle facturation d’étude sans complexité administrative supplémentaire.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

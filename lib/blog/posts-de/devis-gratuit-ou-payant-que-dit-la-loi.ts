@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine klare Offerte, von der ersten Zeile an',
       text: 'Mit Cantia können Sie direkt auf der Offerte einen Vermerk zu den Bedingungen hinzufügen: So lässt sich eine allfällige Verrechnung der Studie ohne zusätzlichen administrativen Aufwand präzisieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

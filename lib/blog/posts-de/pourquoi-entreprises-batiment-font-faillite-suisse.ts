@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Liquiditätsprobleme kommen sehen, bevor sie eintreten',
       text: 'Das Liquiditätsmodul von Cantia projiziert Ihren zukünftigen Kontostand unter Berücksichtigung offener Rechnungen und wiederkehrender Ausgaben. So sehen Sie einen Engpass kommen, statt ihn zu erleiden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

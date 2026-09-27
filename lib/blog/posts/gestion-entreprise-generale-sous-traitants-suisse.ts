@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Piloter la rentabilité lot par lot, pas seulement chantier par chantier',
       text: 'Cantia permet de suivre les coûts et marges de chaque sous-traitant sur un même chantier, pour identifier immédiatement les lots qui dérapent.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

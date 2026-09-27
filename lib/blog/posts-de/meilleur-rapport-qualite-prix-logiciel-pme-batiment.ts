@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Beurteilen Sie das Preis-Leistungs-Verhältnis selbst',
       text: 'Cantia bietet 14 Tage kostenlose Testphase ab Kontoeröffnung, ohne Code einzugeben: So vergleichen Sie objektiv, anhand echter Nutzung, statt anhand einer Broschüre.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Installation et entretien, dans le même outil',
       text: 'Cantia gère aussi bien un devis d’installation ponctuel qu’un contrat d’entretien facturé automatiquement chaque année.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Utile dès le premier devis, pas seulement à plusieurs',
       text: 'Le plan Essentiel de Cantia couvre devis, factures QR et catalogue de prix, pensé pour être utile dès qu’on travaille seul, pas seulement une fois l’équipe agrandie. Testez-le 14 jours gratuitement.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

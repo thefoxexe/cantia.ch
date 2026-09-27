@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un forfait déplacement qui apparaît automatiquement sur chaque devis',
       text: 'Configurez une fois votre forfait ou votre tarif kilométrique dans Cantia, et il s’ajoute automatiquement à chaque nouveau devis, sans ligne oubliée ni surprise pour le client.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

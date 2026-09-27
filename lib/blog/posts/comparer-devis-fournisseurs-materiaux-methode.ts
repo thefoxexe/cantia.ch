@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Comparez vos coûts matériaux réels, fournisseur par fournisseur',
       text: 'Cantia garde l’historique de vos commandes et de vos prix par fournisseur, pour comparer sur des bases réelles plutôt que sur un devis isolé.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

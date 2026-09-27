@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un dossier de facture toujours prêt',
       text: 'Cantia garde chaque facture, son historique d’envoi et son statut de paiement centralisés par client. De quoi remplir une réquisition de poursuite en quelques minutes plutôt qu’en fouillant des mois d’e-mails.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

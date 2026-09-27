@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un diario di cantiere che serve anche a formare',
       text: 'Il feed di aggiornamenti per cantiere di Cantia permette di documentare i compiti svolti da ogni membro del team, apprendisti compresi, il che costituisce una base concreta per un follow-up di formazione.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

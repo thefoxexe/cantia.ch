@@ -1,11 +1,14 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Container, Screen } from '../components/ui';
+import { Screen } from '../components/ui';
+import { PageHero, pageWrap } from '../components/landing/PageHero';
+import { bodyInk, ink, rule } from '../components/landing/brand';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+import { breakpoints, colors, spacing } from '../lib/theme';
+import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
+import { authHref } from '../lib/appHost';
 import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../lib/tradeLandingPages';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
@@ -41,53 +44,47 @@ export default function MetiersScreen() {
   const { t } = useTranslation();
   const locale = getAppLocale();
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
+  const { width } = useWindowDimensions();
+  const twoCols = width >= breakpoints.desktop;
   return (
-    <Screen>
+    <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('metiers', locale)} />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
-        <Container style={styles.heroOuter}>
-          <Text style={styles.eyebrow}>{t('metiersPage.eyebrow')}</Text>
-          <Text style={styles.title}>{t('metiersPage.title')}</Text>
-          <Text style={styles.subtitle}>{t('metiersPage.subtitle')}</Text>
-        </Container>
+        <PageHero
+          kicker={t('metiersPage.eyebrow')}
+          title={t('metiersPage.title')}
+          lede={t('metiersPage.subtitle')}
+          cta={{ title: t('solutionPage.ctaTrial'), href: authHref('signup') }}
+        />
 
-        <Container style={styles.grid}>
+        {/* A typographic index rather than a wall of icon cards: every trade
+            readable at a glance, one ruled row each, two columns on desktop. */}
+        <View style={[styles.wrap, styles.index, twoCols && styles.indexTwoCols]}>
           {TRADE_PAGE_SLUGS.map((slug) => {
             const trade = getTradePage(slug, locale)!;
             return (
-              <View key={slug} style={styles.cardOuter}>
-                <Link href={`${tradeHrefPrefix}${slug}` as any} asChild>
-                  <Pressable style={({ hovered }: any) => [styles.card, hovered && styles.cardHovered]}>
-                    {({ hovered }: any) => (
-                      <>
-                        <View style={[styles.cardIcon, hovered && styles.cardIconHovered]}>
-                          <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={18} color={hovered ? '#fff' : colors.primary} />
-                        </View>
-                        <Text style={styles.cardTitle}>{locale === 'fr' ? pluralTradeName(trade.tradeName) : trade.tradeName}</Text>
-                        <Text style={styles.cardText} numberOfLines={3}>
-                          {trade.hero.subtitle}
-                        </Text>
-                        <View style={styles.cardLinkRow}>
-                          <Text style={styles.cardLinkText}>{t('metiersPage.discover')}</Text>
-                          <Feather name="arrow-right" size={13} color={colors.primary} />
-                        </View>
-                      </>
-                    )}
-                  </Pressable>
-                </Link>
-              </View>
+              <Link key={slug} href={`${tradeHrefPrefix}${slug}` as any} asChild>
+                <Pressable style={StyleSheet.flatten([styles.row, twoCols && styles.rowHalf])}>
+                  <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={18} color={colors.primary} style={{ marginTop: 6 }} />
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={styles.name}>{locale === 'fr' ? pluralTradeName(trade.tradeName) : trade.tradeName}</Text>
+                    <Text style={styles.text} numberOfLines={2}>{trade.hero.subtitle}</Text>
+                  </View>
+                  <Text style={styles.arrow}>→</Text>
+                </Pressable>
+              </Link>
             );
           })}
-        </Container>
+        </View>
 
-        <Container style={styles.noteOuter}>
+        <View style={[styles.wrap, { paddingTop: spacing.xxl, paddingBottom: 96 }]}>
           <Text style={styles.note}>
             {t('metiersPage.noteBefore')}
             <Link href={(locale === 'de' ? '/de/sur-mesure' : locale === 'it' ? '/it/sur-mesure' : '/sur-mesure') as any}><Text style={styles.noteLink}>{t('metiersPage.noteLink')}</Text></Link>.
           </Text>
-        </Container>
+        </View>
 
         <MarketingFooter />
       </ScrollView>
@@ -96,106 +93,14 @@ export default function MetiersScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 1 },
-  heroOuter: {
-    maxWidth: 780,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-    alignItems: 'center',
-  },
-  eyebrow: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
-    marginBottom: spacing.sm,
-  },
-  title: {
-    ...displayType,
-    fontSize: 38,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.5,
-    textAlign: 'center',
-    lineHeight: 44,
-  },
-  subtitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.md,
-    lineHeight: 23,
-    maxWidth: 560,
-  },
-  grid: {
-    maxWidth: 1080,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xl,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  cardOuter: {
-    flexGrow: 1,
-    flexBasis: 250,
-    maxWidth: 320,
-  },
-  card: {
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.xs,
-    transitionProperty: 'transform, border-color, box-shadow',
-    transitionDuration: '0.2s',
-  } as any,
-  cardHovered: {
-    borderColor: colors.primary,
-    transform: [{ translateY: -3 }],
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  cardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-    transitionProperty: 'background-color',
-    transitionDuration: '0.2s',
-  } as any,
-  cardIconHovered: { backgroundColor: colors.primary },
-  cardTitle: { fontFamily: marketingFonts.body, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
-  cardText: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 19 },
-  cardLinkRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.xs },
-  cardLinkText: { fontFamily: marketingFonts.body, fontSize: fontSize.xs, fontWeight: '700', color: colors.primary },
-  noteOuter: {
-    maxWidth: 720,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxxl,
-    alignItems: 'center',
-  },
-  note: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  noteLink: { color: colors.primary, fontWeight: '700', textDecorationLine: 'underline' },
+  wrap: pageWrap,
+  index: { borderTopWidth: 1.5, borderTopColor: ink, marginTop: spacing.xxl },
+  indexTwoCols: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 48 },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
+  rowHalf: { width: 'calc(50% - 24px)' as any },
+  name: { ...displayType, fontSize: 28, fontWeight: '800', lineHeight: 30, color: ink },
+  text: { fontFamily: marketingFonts.body, fontSize: 15, lineHeight: 22, color: bodyInk },
+  arrow: { fontSize: 18, color: colors.primary, marginTop: 4 },
+  note: { fontFamily: marketingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk, maxWidth: 680 },
+  noteLink: { color: colors.primary, fontWeight: '600', textDecorationLine: 'underline' },
 });

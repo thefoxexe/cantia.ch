@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Offerten, die Ihre Preise pro Format und Muster behalten',
       text: 'Cantia speichert Ihren Preiskatalog (Format, Muster, Bruchreserve), damit Sie eine stimmige Plattenleger-Offerte in wenigen Minuten erstellen, ohne bei jeder neuen Baustelle alles neu zu berechnen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

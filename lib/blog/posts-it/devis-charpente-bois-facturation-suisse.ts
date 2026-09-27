@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Separi materia, lavorazione e posa su ogni preventivo',
       text: 'Cantia permette di strutturare un preventivo in voci distinte con le proprie quantità e prezzi, affinché ogni parte del cantiere di carpenteria resti leggibile e regolabile indipendentemente dalle altre.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein datierter und dokumentierter Baustellen-Feed',
       text: 'Der Aktivitäten-Feed von Cantia versieht jedes Foto und jede Nachricht der Baustelle mit einem Zeitstempel – ideal, um eine Abfolge von Stillstandstagen präzise zu rekonstruieren, falls ein Verzug begründet werden muss.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

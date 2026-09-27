@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: '14 Tage, um Cantia unter echten Bedingungen zu testen',
       text: 'Der Test startet automatisch bei der Kontoerstellung, ohne Code-Eingabe: Testen Sie Cantia 14 Tage lang an echten Offerten und Rechnungen, jederzeit vor Ablauf der Testphase kündbar.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

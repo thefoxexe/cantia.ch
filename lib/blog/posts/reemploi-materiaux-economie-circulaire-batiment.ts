@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Chiffrer une déconstruction soignée sans se tromper',
       text: 'Un chantier de réemploi demande plus de temps de main-d’œuvre qu’une démolition classique — un détail qui se perd vite dans un devis standard. Avec Cantia, chaque poste de temps reste chiffré et suivi jusqu’à la facture finale, réemploi compris.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

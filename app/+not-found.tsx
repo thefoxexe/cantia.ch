@@ -44,10 +44,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   kicker: {
-    fontFamily: marketingFonts.body,
+    fontFamily: marketingFonts.mono,
     fontSize: fontSize.xs,
-    fontWeight: '800',
-    letterSpacing: 1.4,
+    letterSpacing: 0.4,
     textTransform: 'uppercase',
     color: colors.primary,
     marginBottom: spacing.sm,
@@ -55,7 +54,7 @@ const styles = StyleSheet.create({
   title: {
     ...displayType,
     fontSize: 34,
-    fontWeight: '600',
+    fontWeight: '800',
     letterSpacing: -0.4,
     color: colors.text,
     marginBottom: spacing.md,

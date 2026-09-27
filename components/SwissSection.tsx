@@ -1,13 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Container } from './ui';
 import { SwissCross } from './SwissCross';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+import { SectionHead } from './landing/SectionHead';
+import { pageWrap } from './landing/PageHero';
+import { bodyInk, ink, rule } from './landing/brand';
+import { breakpoints, colors, spacing } from '../lib/theme';
+import { marketingFonts } from '../lib/marketingTheme';
 import { useTranslation } from '../lib/translations';
 
 export function SwissSection() {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const isTablet = width < breakpoints.desktop;
   const FACTS: { icon: keyof typeof Feather.glyphMap | 'hosting'; title: string; text: string }[] = [
     { icon: 'dollar-sign', title: t('swissSection.factChfTitle'), text: t('swissSection.factChfText') },
     { icon: 'percent', title: t('swissSection.factVatTitle'), text: t('swissSection.factVatText') },
@@ -15,89 +19,31 @@ export function SwissSection() {
     { icon: 'hosting', title: t('swissSection.factHostingTitle'), text: t('swissSection.factHostingText') },
   ];
   return (
-    <Container style={styles.outer}>
-      <View style={styles.flagBadge}>
-        <SwissCross size={16} />
-      </View>
-      <Text style={styles.title}>{t('swissSection.title')}</Text>
-      <Text style={styles.text}>{t('swissSection.text')}</Text>
-      <View style={styles.grid}>
-        {FACTS.map((f) => (
-          <View key={f.title} style={styles.card}>
-            <View style={styles.iconBadge}>
-              {f.icon === 'hosting' ? <SwissCross size={16} /> : <Feather name={f.icon} size={16} color={colors.primary} />}
-            </View>
+    <View style={styles.outer}>
+      <SectionHead title={t('swissSection.title')} intro={t('swissSection.text')} />
+      <View style={[styles.columns, isTablet && styles.columnsCompact]}>
+        {FACTS.map((f, i) => (
+          <View
+            key={f.title}
+            style={[styles.column, isTablet ? styles.columnCompact : i > 0 && styles.columnDivider]}
+          >
+            {f.icon === 'hosting' ? <SwissCross size={16} /> : <Feather name={f.icon} size={18} color={colors.primary} />}
             <Text style={styles.cardTitle}>{f.title}</Text>
             <Text style={styles.cardText}>{f.text}</Text>
           </View>
         ))}
       </View>
-    </Container>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  outer: {
-    maxWidth: 1040,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
-    alignItems: 'center',
-  },
-  flagBadge: { marginBottom: spacing.sm },
-  title: {
-    ...displayType,
-    fontSize: 28,
-    fontWeight: '600',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  text: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-    maxWidth: 560,
-    lineHeight: 22,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.md,
-    marginTop: spacing.xl,
-    width: '100%',
-  },
-  card: {
-    width: 220,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.xs,
-  },
-  iconBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-  },
-  cardTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  cardText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    lineHeight: 17,
-  },
+  outer: { ...pageWrap, paddingTop: 96, paddingBottom: spacing.xxl },
+  columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
+  columnsCompact: { flexDirection: 'row', flexWrap: 'wrap', borderBottomWidth: 0 },
+  column: { flex: 1, gap: spacing.sm, paddingRight: spacing.lg, paddingBottom: spacing.xl },
+  columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.lg },
+  columnCompact: { flexBasis: '50%', flexGrow: 1, minWidth: 220, borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg },
+  cardTitle: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
+  cardText: { fontFamily: marketingFonts.body, fontSize: 15, color: bodyInk, lineHeight: 22 },
 });

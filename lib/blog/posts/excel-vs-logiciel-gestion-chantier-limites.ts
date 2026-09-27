@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le même besoin, sans les angles morts d’un tableur',
       text: 'Cantia relie automatiquement devis, factures QR et paiements par client et par chantier, quelque chose qu’Excel ne fait jamais tout seul, même bien organisé.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

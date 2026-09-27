@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'De solo à équipe, sans migration',
       text: 'Cantia propose plusieurs plans qui évoluent avec l\'entreprise, sans perte de données ni migration technique le jour de la première embauche.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

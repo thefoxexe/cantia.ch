@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Anticiper un départ sans perdre le fil des chantiers',
       text: 'Le planning d’équipe de Cantia permet de réorganiser rapidement les affectations dès qu’un départ est annoncé, sans attendre le dernier moment.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -85,14 +85,14 @@ export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMag
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.primarySoft,
-    borderRadius: radius.lg,
+    borderRadius: 3,
     padding: spacing.lg,
     gap: spacing.xs,
   },
   iconBadge: {
     width: 32,
     height: 32,
-    borderRadius: radius.md,
+    borderRadius: 3,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',

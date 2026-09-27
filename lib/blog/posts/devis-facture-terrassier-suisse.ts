@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis mixte forfait et régie, géré en un seul outil',
       text: 'Cantia permet de chiffrer un terrassement en combinant lignes forfaitaires et heures de machine, puis de facturer les avenants liés aux imprévus de terrain sans repartir de zéro.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

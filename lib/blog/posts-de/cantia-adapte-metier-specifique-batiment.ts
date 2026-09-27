@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Sprechen wir über Ihren Beruf',
       text: 'Wenn Ihre Tätigkeit Bedürfnisse hat, die Cantia noch nicht standardmässig abdeckt, kontaktieren Sie uns. Viele aktuelle Funktionen sind aus einer konkreten Anfrage eines Kunden entstanden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

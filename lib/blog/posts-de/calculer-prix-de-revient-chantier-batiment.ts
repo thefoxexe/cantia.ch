@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Der Selbstkostenpreis automatisch berechnet',
       text: 'Das Rentabilitätsmodul von Cantia stellt das Offerierte den tatsächlich für jede Baustelle aufgewendeten Stunden und Kosten gegenüber, ohne die Berechnung von Hand rekonstruieren zu müssen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein klarer Preis, schon im Businessplan einzuplanen',
       text: 'Cantia bietet einfache und vorhersehbare Tarife mit 14 Tagen kostenloser Testphase ab der Kontoerstellung, um es zu testen, bevor man es definitiv ins Budget aufnimmt.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

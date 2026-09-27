@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un prezzo semplice, senza sorprese all\'uso',
       text: 'Cantia propone piani chiari, senza fatturazione nascosta per documento. L\'azienda offre anche 14 giorni di prova gratuita, senza codice da inserire, per giudicare sui fatti prima di impegnarsi.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un essai de 14 jours pour évaluer le gain avant d’investir',
       text: 'Cantia se teste 14 jours en conditions réelles, devis, factures QR et catalogue de prix inclus, ce qui permet de mesurer concrètement le temps récupéré avant de s’engager.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

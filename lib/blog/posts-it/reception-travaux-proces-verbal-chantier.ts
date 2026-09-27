@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un rapporto di fine cantiere in pochi minuti',
       text: 'Cantia genera un rapporto PDF con foto geolocalizzate e datate, inviabile al cliente direttamente dal cantiere. Tutto il necessario per documentare correttamente ogni consegna di lavori.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

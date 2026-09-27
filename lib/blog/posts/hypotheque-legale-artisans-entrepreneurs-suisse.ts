@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un chantier daté, du premier au dernier jour',
       text: 'Cantia garde la trace de chaque chantier, de son ouverture à sa clôture, ce qui permet d’établir sans ambiguïté la date de fin de travaux si vous devez agir vite pour préserver votre hypothèque légale.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

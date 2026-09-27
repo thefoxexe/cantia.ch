@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un’esigenza precisa da formulare? Ne parliamo',
       text: 'Il team Cantia si confronta direttamente con i propri clienti sulle loro esigenze specifiche. Non esiti a descrivere la Sua, anche se Le sembra atipica.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un nucleo solido, completato secondo le Sue esigenze',
       text: 'Cantia combina un nucleo standard completo e mantenuto, con la possibilità di sviluppare funzionalità su misura per ciò che è davvero specifico alla Sua impresa.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

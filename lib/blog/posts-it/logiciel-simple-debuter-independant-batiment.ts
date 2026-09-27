@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un primo preventivo in pochi minuti, senza formazione',
       text: 'Cantia è pensato per essere capito fin dal primo utilizzo. Lo provi gratuitamente per 14 giorni, senza codice da inserire, e giudichi da sé.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

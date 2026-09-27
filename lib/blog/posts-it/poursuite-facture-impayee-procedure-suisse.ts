@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un fascicolo fattura sempre pronto',
       text: 'Cantia conserva ogni fattura, il suo storico di invio e il suo stato di pagamento centralizzati per cliente. Tutto il necessario per compilare una domanda d’esecuzione in pochi minuti piuttosto che frugando mesi di email.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

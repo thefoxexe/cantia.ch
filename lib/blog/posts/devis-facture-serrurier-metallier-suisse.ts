@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Facturez un dépannage depuis le trottoir, en quelques minutes',
       text: 'Cantia permet d’émettre une facture directement depuis le téléphone juste après une intervention de dépannage, sans besoin de rentrer à l’atelier pour ne pas oublier de la facturer.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

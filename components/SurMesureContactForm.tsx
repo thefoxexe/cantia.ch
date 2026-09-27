@@ -132,11 +132,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     padding: spacing.xl,
     gap: spacing.md,
+    borderRadius: 3,
+    borderColor: '#D8C8B0',
+    shadowOpacity: 0,
   },
   formTitle: {
     ...displayType,
-    fontSize: fontSize.xl,
-    fontWeight: '700',
+    fontSize: 30,
+    lineHeight: 30,
+    fontWeight: '800',
     color: colors.text,
   },
   formSubtitle: {

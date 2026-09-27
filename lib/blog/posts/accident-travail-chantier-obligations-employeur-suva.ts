@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une équipe et des chantiers visibles d’un coup d’œil',
       text: 'Le planning d’équipe de Cantia permet de réorganiser rapidement les affectations si un membre de l’équipe doit être temporairement déchargé après un accident.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

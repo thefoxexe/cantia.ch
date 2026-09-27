@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Planifiez la haute saison sans la subir',
       text: 'Cantia centralise vos devis, votre planning de pose et vos factures, pour garder une vue claire sur votre charge de travail avant que l’automne n’arrive.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

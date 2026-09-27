@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { Link } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { Button, Container, Screen } from '../components/ui';
+import { Screen } from '../components/ui';
+import { PageHero, pageWrap } from '../components/landing/PageHero';
+import { SectionHead } from '../components/landing/SectionHead';
+import { bodyInk, ink, rule } from '../components/landing/brand';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+import { breakpoints, colors, spacing } from '../lib/theme';
+import { marketingFonts, monoType } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
@@ -47,95 +49,62 @@ export default function TelechargementScreen() {
     { icon: 'flag', title: t('telechargementPage.trustSwissTitle'), text: t('telechargementPage.trustSwissText') },
     { icon: 'shield', title: t('telechargementPage.trustAccessTitle'), text: t('telechargementPage.trustAccessText') },
   ];
-  const heroAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(heroAnim, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [heroAnim]);
+  const { width } = useWindowDimensions();
+  const isTablet = width < breakpoints.desktop;
 
   return (
-    <Screen>
+    <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('telechargement', getAppLocale())} />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
-        {/* Same grid + soft blob backdrop as the homepage hero, so this page
-            reads as part of the same site rather than a bolted-on screen.
-            One message only: Cantia already works as an installable app
-            today, no store needed — everything else (native apps, security)
-            is secondary detail further down, not competing for attention. */}
-        <View style={styles.heroWrap}>
-          <View pointerEvents="none" style={styles.heroGrid} />
-          <View pointerEvents="none" style={styles.heroBlob} />
-          <Container style={styles.heroContainer}>
-            <Animated.View
-              style={{
-                opacity: heroAnim,
-                transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
-              }}
-            >
-              <View style={styles.kickerPill}>
-                <Text style={styles.kickerText}>{t('telechargementPage.kicker')}</Text>
-              </View>
-              <Text style={styles.title}>{t('telechargementPage.title')}</Text>
-              <Text style={styles.subtitle}>{t('telechargementPage.subtitle')}</Text>
-              <View style={styles.heroCtaRow}>
-                <Link href={authHref('signup')} asChild>
-                  <Button title={t('telechargementPage.ctaTry')} onPress={() => {}} />
-                </Link>
-              </View>
-            </Animated.View>
-          </Container>
+        <PageHero
+          kicker={t('telechargementPage.kicker')}
+          title={t('telechargementPage.title')}
+          lede={t('telechargementPage.subtitle')}
+          cta={{ title: t('telechargementPage.ctaTry'), href: authHref('signup') }}
+          aside={
+            // The one message Google Ads reviewers and visitors both need:
+            // nothing is downloaded, this is a browser shortcut.
+            <View style={styles.clarity}>
+              <Text style={styles.clarityLabel}>cantia.ch</Text>
+              <Text style={styles.clarityTitle}>{t('telechargementPage.clarityTitle')}</Text>
+              <Text style={styles.bodyText}>{t('telechargementPage.clarityText')}</Text>
+            </View>
+          }
+        />
+
+        <View style={[styles.wrap, styles.section]}>
+          <SectionHead title={t('telechargementPage.installTitle')} intro={t('telechargementPage.installLead')} />
+          <InstallGuide platforms={INSTALL_PLATFORMS} />
         </View>
 
-        <Container style={styles.container}>
-          <View style={styles.claritySection}>
-            <View style={styles.clarityIcon}>
-              <Feather name="globe" size={18} color={colors.primary} />
+        <View style={[styles.wrap, styles.section]}>
+          <View style={[styles.storeRow, isTablet && styles.storeRowCompact]}>
+            <View style={{ flex: 1, gap: spacing.sm }}>
+              <Text style={styles.columnTitle}>{t('telechargementPage.storeSectionTitle')}</Text>
+              <Text style={styles.bodyText}>{t('telechargementPage.storeSectionText')}</Text>
             </View>
-            <View style={styles.clarityBody}>
-              <Text style={styles.clarityTitle}>{t('telechargementPage.clarityTitle')}</Text>
-              <Text style={styles.clarityText}>{t('telechargementPage.clarityText')}</Text>
+            <View style={styles.storeChipRow}>
+              <StoreChip kind="apple" name={t('telechargementPage.appStoreName')} soonText={t('telechargementPage.storeSoon')} />
+              <StoreChip kind="google" name={t('telechargementPage.googlePlayName')} soonText={t('telechargementPage.storeSoon')} />
             </View>
           </View>
+        </View>
 
-          <View style={styles.installSection}>
-            <Text style={styles.installTitle}>{t('telechargementPage.installTitle')}</Text>
-            <Text style={styles.installLead}>{t('telechargementPage.installLead')}</Text>
-            <InstallGuide platforms={INSTALL_PLATFORMS} />
-          </View>
-
-          <View style={styles.storeSection}>
-            <View style={styles.storeSectionIcon}>
-              <Feather name="package" size={18} color={colors.primary} />
-            </View>
-            <View style={styles.storeSectionBody}>
-              <Text style={styles.storeSectionTitle}>{t('telechargementPage.storeSectionTitle')}</Text>
-              <Text style={styles.storeSectionText}>{t('telechargementPage.storeSectionText')}</Text>
-              <View style={styles.storeChipRow}>
-                <StoreChip kind="apple" name={t('telechargementPage.appStoreName')} soonText={t('telechargementPage.storeSoon')} />
-                <StoreChip kind="google" name={t('telechargementPage.googlePlayName')} soonText={t('telechargementPage.storeSoon')} />
+        <View style={[styles.wrap, styles.section]}>
+          <SectionHead title={t('telechargementPage.trustTitle')} intro={t('telechargementPage.trustLead')} />
+          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
+            {TRUST_ITEMS.map((item, i) => (
+              <View key={item.title} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
+                <Feather name={item.icon} size={20} color={colors.primary} />
+                <Text style={styles.columnTitle}>{item.title}</Text>
+                <Text style={styles.bodyText}>{item.text}</Text>
               </View>
-            </View>
+            ))}
           </View>
-
-          <View style={styles.trustSection}>
-            <Text style={styles.trustTitle}>{t('telechargementPage.trustTitle')}</Text>
-            <Text style={styles.trustLead}>{t('telechargementPage.trustLead')}</Text>
-            <View style={styles.trustGrid}>
-              {TRUST_ITEMS.map((item) => (
-                <View key={item.title} style={styles.trustCard}>
-                  <View style={styles.trustIcon}>
-                    <Feather name={item.icon} size={18} color={colors.primary} />
-                  </View>
-                  <Text style={styles.trustCardTitle}>{item.title}</Text>
-                  <Text style={styles.trustCardText}>{item.text}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
           <Text style={styles.note}>{t('telechargementPage.note')}</Text>
-        </Container>
+        </View>
 
         <MarketingFooter />
       </ScrollView>
@@ -143,37 +112,28 @@ export default function TelechargementScreen() {
   );
 }
 
-// Platform switcher + numbered steps only — no illustrated device mockup.
-// A real product photo/mockup is planned for this page (design in progress
-// separately); until then, plain steps read cleaner than an approximated
-// browser-chrome illustration built out of Views.
 function InstallGuide({ platforms }: { platforms: InstallPlatform[] }) {
   const [platform, setPlatform] = useState<InstallPlatform['key']>('ios');
   const active = platforms.find((p) => p.key === platform)!;
 
   return (
-    <View style={styles.installGuide}>
-      <View style={styles.installTabs}>
-        {platforms.map((p) => (
-          <Pressable
-            key={p.key}
-            onPress={() => setPlatform(p.key)}
-            style={[styles.installTab, platform === p.key && styles.installTabActive]}
-          >
-            <Feather name={p.icon} size={14} color={platform === p.key ? colors.primary : colors.textMuted} />
-            <Text style={[styles.installTabText, platform === p.key && styles.installTabTextActive]}>{p.label}</Text>
-          </Pressable>
-        ))}
+    <View>
+      <View style={styles.tabs}>
+        {platforms.map((p) => {
+          const on = platform === p.key;
+          return (
+            <Pressable key={p.key} onPress={() => setPlatform(p.key)} style={[styles.tab, on && styles.tabActive]}>
+              <Feather name={p.icon} size={15} color={on ? '#FBF6EE' : colors.primary} />
+              <Text style={[styles.tabText, on && { color: '#FBF6EE' }]}>{p.label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
-
-      <View style={styles.installStepsCard}>
+      <View style={styles.steps}>
         {active.steps.map((step, i) => (
-          <View key={step} style={styles.installStepRow}>
-            <View style={styles.installStepNumber}>
-              <Text style={styles.installStepNumberText}>{i + 1}</Text>
-            </View>
-            <Text style={styles.installStepText}>{step}</Text>
-            {i < active.steps.length - 1 ? <View style={styles.installStepConnector} /> : null}
+          <View key={step} style={styles.stepRow}>
+            <Text style={styles.stepNum}>{i + 1}</Text>
+            <Text style={styles.stepText}>{step}</Text>
           </View>
         ))}
       </View>
@@ -184,381 +144,43 @@ function InstallGuide({ platforms }: { platforms: InstallPlatform[] }) {
 function StoreChip({ kind, name, soonText }: { kind: 'apple' | 'google'; name: string; soonText: string }) {
   return (
     <View style={styles.storeChip}>
-      <Ionicons name={kind === 'apple' ? 'logo-apple' : 'logo-google-playstore'} size={16} color="#fff" />
+      <Ionicons name={kind === 'apple' ? 'logo-apple' : 'logo-google-playstore'} size={16} color="#FBF6EE" />
       <Text style={styles.storeChipName}>{name}</Text>
-      <View style={styles.storeChipSoonDot} />
-      <Text style={styles.storeChipSoonText}>{soonText}</Text>
+      <Text style={styles.storeChipSoon}>{soonText}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-  },
-  heroWrap: {
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  heroGrid: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage:
-      `linear-gradient(${colors.border} 1px, transparent 1px), linear-gradient(90deg, ${colors.border} 1px, transparent 1px)`,
-    backgroundSize: '44px 44px',
-    opacity: 0.5,
-    maskImage: 'linear-gradient(to bottom, black, transparent)',
-    WebkitMaskImage: 'linear-gradient(to bottom, black, transparent)',
-  } as unknown as ViewStyle,
-  heroBlob: {
-    position: 'absolute',
-    top: -140,
-    right: -120,
-    width: 420,
-    height: 420,
-    borderRadius: 210,
-    backgroundColor: colors.primarySoft,
-    opacity: 0.35,
-  },
-  heroContainer: {
-    maxWidth: 720,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-  },
-  kickerPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    marginBottom: spacing.md,
-  },
-  kickerText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-  },
-  title: {
-    ...displayType,
-    fontSize: 46,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.6,
-    lineHeight: 50,
-  } as unknown as ViewStyle,
-  subtitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    marginTop: spacing.md,
-    lineHeight: 24,
-    maxWidth: 540,
-  },
-  heroCtaRow: {
-    flexDirection: 'row',
-    marginTop: spacing.xl,
-  },
-  container: {
-    maxWidth: 720,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxxl,
-  },
-  sectionTitle: {
-    ...displayType,
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.3,
-  },
-  sectionLead: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginTop: spacing.xs,
-    lineHeight: 20,
-    maxWidth: 560,
-  },
-  // Sits right above the install steps, before any mention of "installer" —
-  // states plainly this is a browser shortcut, not a downloadable .exe.
-  // Added after Google Ads misclassified the ad under its Free Desktop
-  // Software policy (it read "logiciel" + "gratuit" + "télécharger" as
-  // signals for an actual installable executable).
-  claritySection: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginBottom: spacing.xl,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primarySoft,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  clarityIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  clarityBody: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  clarityTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  clarityText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-  },
-  storeSection: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginTop: spacing.xxl,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  storeSectionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  storeSectionBody: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  storeSectionTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  storeSectionText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-  },
-  storeChipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  storeChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    backgroundColor: '#111414',
-  },
-  storeChipName: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  storeChipSoonDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: colors.primary,
-    marginLeft: 2,
-  },
-  storeChipSoonText: {
-    fontFamily: marketingFonts.body,
-    fontSize: 10,
-    color: '#C7CCC9',
-  },
-  installSection: {
-    marginTop: spacing.sm,
-  },
-  installTitle: {
-    ...displayType,
-    fontSize: 26,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.3,
-  },
-  installLead: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginTop: spacing.xs,
-    marginBottom: spacing.lg,
-    lineHeight: 20,
-  },
-  installGuide: {
-    gap: spacing.lg,
-  },
-  installTabs: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  installTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  installTabActive: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  installTabText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  installTabTextActive: {
-    color: colors.primary,
-  },
-  installStepsCard: {
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  installStepRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    alignItems: 'flex-start',
-    position: 'relative',
-  },
-  installStepNumber: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    zIndex: 1,
-  },
-  installStepNumberText: {
-    fontFamily: marketingFonts.body,
-    fontSize: 12,
-    fontWeight: '800',
-    color: colors.primary,
-  },
-  installStepText: {
-    flex: 1,
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.text,
-    lineHeight: 20,
-    paddingVertical: spacing.xs,
-    paddingBottom: spacing.md,
-  },
-  installStepConnector: {
-    position: 'absolute',
-    left: 12,
-    top: 26,
-    bottom: -2,
-    width: 2,
-    backgroundColor: colors.border,
-  },
-  note: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: spacing.xl,
-    textAlign: 'center',
-  },
-  trustSection: {
-    marginTop: spacing.xxxl,
-    paddingTop: spacing.xxl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  trustTitle: {
-    ...displayType,
-    fontSize: 28,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -0.3,
-    textAlign: 'center',
-  },
-  trustLead: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-    maxWidth: 480,
-    alignSelf: 'center',
-  },
-  trustGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginTop: spacing.xl,
-  },
-  trustCard: {
-    flex: 1,
-    minWidth: 180,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.xs,
-  },
-  trustIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-  },
-  trustCardTitle: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  trustCardText: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    lineHeight: 17,
-  },
+  wrap: pageWrap,
+  section: { paddingTop: 96 },
+  bodyText: { fontFamily: marketingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
+  columnTitle: { fontFamily: marketingFonts.body, fontSize: 20, fontWeight: '700', lineHeight: 26, color: ink },
+
+  clarity: { borderWidth: 1.5, borderColor: ink, backgroundColor: '#FBF6EE', padding: spacing.xl, gap: spacing.sm, maxWidth: 460, borderRadius: 3 },
+  clarityLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
+  clarityTitle: { fontFamily: marketingFonts.body, fontSize: 22, fontWeight: '700', lineHeight: 28, color: ink },
+
+  tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.xl },
+  tab: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: rule, borderRadius: 3 },
+  tabActive: { backgroundColor: ink, borderColor: ink },
+  tabText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: ink },
+  steps: { borderTopWidth: 1.5, borderTopColor: ink, maxWidth: 760 },
+  stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
+  stepNum: { ...monoType, width: 28, height: 28, lineHeight: 25, borderRadius: 14, borderWidth: 1.5, borderColor: colors.primary, color: colors.primary, fontSize: 12, textAlign: 'center' },
+  stepText: { flex: 1, fontFamily: marketingFonts.body, fontSize: 18, lineHeight: 27, color: ink },
+
+  storeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxl, borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, paddingVertical: spacing.xl },
+  storeRowCompact: { flexDirection: 'column', alignItems: 'flex-start' },
+  storeChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  storeChip: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: ink, borderRadius: 3, paddingVertical: 10, paddingHorizontal: 14 },
+  storeChipName: { fontFamily: marketingFonts.body, fontSize: 14, fontWeight: '600', color: '#FBF6EE' },
+  storeChipSoon: { ...monoType, fontSize: 10, color: '#E8AD89', textTransform: 'uppercase' },
+
+  columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
+  columnsCompact: { flexDirection: 'column', borderBottomWidth: 0 },
+  column: { flex: 1, gap: spacing.sm, paddingRight: spacing.xl, paddingBottom: spacing.xl },
+  columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.xl },
+  columnCompact: { borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg, paddingRight: 0 },
+  note: { ...monoType, fontSize: 10.5, lineHeight: 17, color: colors.textMuted, marginTop: spacing.xl, marginBottom: 96 },
 });

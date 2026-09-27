@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un répertoire de sous-traitants toujours à jour',
       text: 'Le module Sous-traitants de Cantia centralise vos partenaires par métier et par chantier. De quoi décider vite entre renfort ponctuel et recrutement, sans repartir de zéro à chaque pic d’activité.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Trennen Sie Material, Vorfertigung und Montage auf jeder Offerte',
       text: 'Cantia erlaubt es, eine Offerte in klare Posten mit eigenen Mengen und Preisen zu strukturieren, damit jeder Teil einer Zimmerei-Baustelle unabhängig lesbar und anpassbar bleibt.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

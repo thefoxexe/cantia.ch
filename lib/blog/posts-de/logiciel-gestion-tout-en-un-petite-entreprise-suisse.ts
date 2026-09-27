@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Offerten, Rechnungen, Baustellen und Stunden in einer einzigen App',
       text: 'Cantia deckt den gesamten Weg eines kleinen Bauunternehmens ab, von der ersten Offerte bis zur Liquiditätsübersicht, ohne Neuerfassung zwischen den Modulen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

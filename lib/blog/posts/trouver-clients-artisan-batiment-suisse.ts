@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis envoyé plus vite, un client qui hésite moins',
       text: 'Cantia permet de générer un devis professionnel depuis le chantier, en quelques minutes. De quoi répondre à une demande avant que le client n’ait fini de comparer les autres artisans contactés.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

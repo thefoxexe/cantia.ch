@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des automatisations déjà prêtes, et d\'autres possibles sur mesure',
       text: 'Cantia automatise déjà relances et notifications de base. Elle peut aussi développer des automatisations propres à votre façon de travailler si besoin.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

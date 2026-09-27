@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Erfasste Stunden, fakturiert ohne Detailverlust',
       text: 'Das Modul Personal & Löhne von Cantia verknüpft die Stundenerfassung pro Baustelle direkt mit der Fakturierung, sodass das Detail pro Tag und pro Person bei Rückfragen des Kunden stets verfügbar bleibt.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

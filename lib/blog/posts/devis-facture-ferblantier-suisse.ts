@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Du mètre linéaire à la facture finale',
       text: 'Cantia permet de chiffrer une ferblanterie poste par poste, avec un prix au mètre linéaire et une ligne sécurité séparée, puis de facturer en coordination avec le reste du chantier de toiture.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

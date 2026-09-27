@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui sépare montage, location et dépassement',
       text: 'Cantia permet de structurer un devis d’échafaudage en plusieurs postes distincts et de facturer automatiquement un dépassement de durée constaté sur le chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Tenere traccia delle ore di un rinforzo temporaneo come quelle del team fisso',
       text: 'Il modulo Ore & Salari di Cantia permette di seguire l’attività di ogni collaboratore su un cantiere, rinforzo temporaneo compreso, senza doppio sistema parallelo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un planning de chantier qui tient compte de l’attente administrative',
       text: 'Cantia permet de suivre l’avancement d’un projet dès la phase de devis, permis compris, pour ne pas perdre le fil entre le dépôt du dossier et le premier jour de chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis prêt à envoyer avant d’avoir quitté le chantier',
       text: 'Avec Cantia, un devis se construit et s’envoie directement depuis le téléphone, catalogue de prix à l’appui. Plus besoin d’attendre le retour au bureau pour répondre à une demande.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

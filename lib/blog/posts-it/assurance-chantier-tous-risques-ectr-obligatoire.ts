@@ -39,7 +39,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Documentare lo stato del cantiere prima di ogni sinistro',
       text: 'I rapporti di cantiere di Cantia, con foto geolocalizzate e con data e ora, offrono una base fattuale preziosa per qualsiasi dichiarazione di sinistro, sia per l’ECTR sia per la RC professionale.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

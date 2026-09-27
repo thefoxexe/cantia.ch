@@ -2837,7 +2837,7 @@ export const fr = {
     comparisonEyebrow: 'Avant / avec Cantia',
     comparisonBefore: 'Avant',
     comparisonAfter: 'Avec Cantia',
-    secondaryEyebrow: 'Et bien plus encore',
+    secondaryEyebrow: 'Également inclus',
     secondaryClientsTitle: 'Clients',
     secondaryClientsText: 'Fiche client avec historique complet des devis, factures et chantiers.',
     secondaryQrTitle: 'QR-facture',
@@ -2895,7 +2895,7 @@ export const fr = {
     includesNext: '{{plan}}, avec en plus',
   },
   planPage: {
-    ctaTrial: "Commencer l'essai gratuit",
+    ctaTrial: 'Essayer 14 jours',
     ctaAllPlans: 'Voir tous les plans',
     perMonth: '/mois',
     statStorage: 'Go de stockage',
@@ -2941,7 +2941,7 @@ export const fr = {
     faqVatQ: "Le prix inclut-il la TVA ?",
     faqVatA: 'Les prix affichés sont hors TVA. La TVA suisse est ajoutée lors de la facturation.',
     closingTitle: 'Prêt à essayer {{name}} ?',
-    closingText: "14 jours d'essai gratuit — carte bancaire requise à l'inscription, premier prélèvement uniquement après ces 14 jours, résiliable à tout moment et sans frais.",
+    closingText: "14 jours d'essai — carte bancaire requise à l'inscription, premier prélèvement uniquement après ces 14 jours, résiliable à tout moment et sans frais.",
     plans: {
       solo: {
         heroText: "Pour démarrer seul ou à quelques-uns, avec des devis et factures professionnels dès le premier jour.",

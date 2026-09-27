@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo chiaro, fin dalla prima riga',
       text: 'Cantia permette di aggiungere una menzione di condizioni direttamente sul preventivo: tutto il necessario per precisare un’eventuale fatturazione dello studio senza ulteriore complessità amministrativa.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

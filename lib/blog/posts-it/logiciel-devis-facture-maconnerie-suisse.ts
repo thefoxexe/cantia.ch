@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un catalogo di prezzi che conserva le Sue voci ricorrenti',
       text: 'Cantia mantiene in memoria i Suoi prezzi di muratura (m³ di calcestruzzo, m² di muro, forfait di finitura) affinché ogni nuovo preventivo si costruisca assemblando voci già calcolate, non ripartendo da zero.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

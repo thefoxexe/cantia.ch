@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: '14 giorni per testare Cantia in condizioni reali',
       text: 'La prova inizia automaticamente alla creazione dell’account, senza inserire alcun codice: provi Cantia 14 giorni su preventivi e fatture reali, disdicibile in qualsiasi momento prima della fine della prova.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

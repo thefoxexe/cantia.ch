@@ -54,7 +54,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Documenter la qualité d’exécution, chantier après chantier',
       text: 'Sur un chantier labellisé, la traçabilité de ce qui a été posé et comment compte autant que le résultat final. Avec Cantia, photos, notes et suivi par étape restent rattachés au bon chantier, prêts à être montrés en cas de contrôle.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

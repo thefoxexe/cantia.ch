@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine Rechnung direkt von der Baustelle aus, auch für Notfälle',
       text: 'Mit Cantia wird ein Notfalleinsatz in wenigen Minuten vom Telefon aus zur Rechnung, ohne zurück ins Büro zu müssen oder einen Notfall wochenlang unfakturiert liegenzulassen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

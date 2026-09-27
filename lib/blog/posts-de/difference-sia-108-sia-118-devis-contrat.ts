@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Vermerken Sie die richtige Norm auf jeder Offerte',
       text: 'Cantia ermöglicht es, individuelle Bedingungen hinzuzufügen, einschliesslich eines ausdrücklichen Verweises auf die SIA 118, direkt auf Ihren Offerten und Verträgen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

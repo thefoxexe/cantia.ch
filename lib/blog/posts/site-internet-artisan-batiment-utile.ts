@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des chantiers documentés, prêts à alimenter votre site',
       text: 'Cantia centralise les photos et rapports de chaque chantier au fil de l’avancement, ce qui donne une base toute prête pour nourrir régulièrement un site ou une fiche Google sans effort supplémentaire.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

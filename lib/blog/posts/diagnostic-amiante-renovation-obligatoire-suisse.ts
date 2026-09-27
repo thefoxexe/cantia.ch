@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une rénovation, ça se planifie avant de sortir les outils',
       text: 'Cantia aide à garder trace de chaque étape préparatoire d’un chantier de rénovation, y compris les diagnostics réalisés avant travaux, pour que rien ne se perde entre le devis et le premier coup de disqueuse.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

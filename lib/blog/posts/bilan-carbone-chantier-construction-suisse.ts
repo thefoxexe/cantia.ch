@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Documenter les chantiers avec des arguments concrets',
       text: 'Un dossier de chantier qui montre les matériaux utilisés et la gestion des déchets constitue déjà un premier argument face à un maître d’ouvrage exigeant. Avec Cantia, chaque chantier garde son historique complet, prêt à être présenté.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

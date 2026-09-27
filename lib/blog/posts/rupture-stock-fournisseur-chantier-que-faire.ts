@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Anticipez les délais avant qu’ils ne deviennent un problème',
       text: 'Cantia centralise les commandes et les délais fournisseurs par chantier, pour repérer un risque de retard avant qu’il n’impacte le planning.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un feed di attività per cantiere, non un unico grande gruppo',
       text: 'Cantia organizza scambi, foto e note per cantiere (ritrovabili mesi dopo), senza dover scorrere un’intera conversazione per ritrovare l’informazione cercata.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

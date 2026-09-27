@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein solides Dossier, bereit im Streitfall',
       text: 'Cantia zentralisiert Offerten, Rechnungen, Korrespondenz und Fotos pro Baustelle, sodass der vollständige Verlauf verfügbar bleibt, falls eine Schlichtung oder ein Verfahren nötig wird.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

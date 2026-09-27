@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La paie du premier employé, sans réinventer le certificat de salaire chaque hiver',
       text: 'Cantia garde le suivi des salaires et des avantages en nature liés aux véhicules d’entreprise tout au long de l’année, pour que l’établissement du certificat de salaire ne devienne pas une reconstitution de dernière minute.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

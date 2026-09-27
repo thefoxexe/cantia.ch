@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Preiskatalog, der Ihre wiederkehrenden Posten speichert',
       text: 'Cantia behält Ihre Maurerpreise (m³ Beton, m² Mauerwerk, Ausbaupauschalen) im Gedächtnis, sodass sich jede neue Offerte aus bereits kalkulierten Posten zusammensetzt, statt bei null zu beginnen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

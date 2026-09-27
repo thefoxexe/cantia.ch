@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein vollständiges Baustellendossier, bereit für die Schlussrechnung',
       text: 'Cantia verknüpft Offerte, Anzahlungen, Zusatzarbeiten und Fotos mit derselben Baustelle, sodass sich die Schlussrechnung vorbereiten lässt, ohne den Verlauf von Hand zu rekonstruieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

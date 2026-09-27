@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La quotidianità su mobile, la configurazione su computer',
       text: 'Basta un unico account Cantia, tanto da un telefono in cantiere quanto da un computer per le attività più avanzate.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

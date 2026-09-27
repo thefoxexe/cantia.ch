@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'La conformité TVA incluse à tous les plans',
       text: 'Chez Cantia, la conformité TVA et QR-facture est incluse sur tous les plans, y compris le plus abordable. Testez gratuitement 14 jours, sans code à saisir.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

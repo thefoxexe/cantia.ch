@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gutschrift mit einem Klick erstellt',
       text: 'Cantia ermöglicht das Ausstellen einer Gutschrift, die direkt mit der ursprünglichen Rechnung verknüpft ist, mit automatischer und durchgehender Nummerierung.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

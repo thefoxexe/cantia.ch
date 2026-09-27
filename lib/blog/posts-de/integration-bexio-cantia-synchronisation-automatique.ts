@@ -64,7 +64,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Verfügbar ab dem Plan Entreprise',
       text: 'Die Bexio-Integration ist automatisch ab dem Plan Entreprise inbegriffen, ohne separat zu aktivierendes Modul. Verbinden Sie sie in zwei Minuten unter Konto → Integrationen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

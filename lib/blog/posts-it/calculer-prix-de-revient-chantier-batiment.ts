@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Il prezzo di costo calcolato automaticamente',
       text: 'Il modulo Redditività di Cantia confronta il preventivato con le ore e i costi realmente impiegati su ogni cantiere, senza bisogno di ricostruire il calcolo a mano.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

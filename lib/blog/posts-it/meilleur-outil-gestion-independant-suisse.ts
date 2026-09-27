@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno strumento pensato per essere usato fin dal primo giorno',
       text: 'Cantia riunisce preventivi, fatture e monitoraggio del cantiere in un\'unica app, pensata per essere padroneggiata in pochi minuti sul campo.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

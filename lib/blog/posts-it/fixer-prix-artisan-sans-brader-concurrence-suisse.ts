@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Conoscere il proprio vero costo di produzione prima di fissare un prezzo',
       text: 'Cantia calcola la redditività reale di ogni cantiere (preventivato vs costo reale), per fissare prezzi che coprano davvero i costi dell’impresa, non solo ciò che sembra ragionevole a prima vista.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Konforme QR-Rechnung, automatisch generiert',
       text: 'Cantia erstellt normkonforme QR-Rechnungen bereits bei der Erstellung von Offerte oder Rechnung, ohne technische Konfiguration Ihrerseits.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

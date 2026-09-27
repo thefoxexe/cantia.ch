@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Testez Cantia sur votre prochain devis',
       text: '14 jours d\'essai gratuit, sans code à saisir : devis, QR-facture et catalogue de prix inclus dès le premier jour.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

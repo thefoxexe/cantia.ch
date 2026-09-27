@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Einen Weggang vorausplanen, ohne den Überblick über die Baustellen zu verlieren',
       text: 'Die Team-Planung von Cantia erlaubt es, Einteilungen rasch neu zu organisieren, sobald ein Weggang angekündigt wird, ohne bis zum letzten Moment zu warten.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

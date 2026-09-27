@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Déléguer sans perdre la visibilité sur les chantiers',
       text: 'Déléguer devient plus simple quand chacun peut voir l’avancement réel d’un chantier sans passer systématiquement par le patron. Avec Cantia, le suivi des tâches, du planning et de la rentabilité reste visible par toute l’équipe, en temps réel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -56,7 +56,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un chantier organisé se voit, même depuis le trottoir',
       text: 'Planning clair, tâches suivies, équipe informée des consignes du jour : Cantia aide à garder un chantier organisé du premier coup de pioche à la dernière finition, ce qui se ressent directement dans la façon dont il est perçu autour de lui.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

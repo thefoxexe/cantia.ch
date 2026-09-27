@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Pronto a fatturare fin dal primo utilizzo',
       text: 'Cantia si configura in pochi minuti (coordinate, catalogo prezzi, primi preventivi) ancor prima dell’arrivo del primo cliente.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

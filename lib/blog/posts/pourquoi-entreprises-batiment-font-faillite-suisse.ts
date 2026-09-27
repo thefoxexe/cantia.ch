@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Voir venir les problèmes de trésorerie avant qu’ils n’arrivent',
       text: 'Le module Trésorerie de Cantia projette votre solde à venir en tenant compte des factures en attente et des dépenses récurrentes. De quoi anticiper un creux plutôt que le subir.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

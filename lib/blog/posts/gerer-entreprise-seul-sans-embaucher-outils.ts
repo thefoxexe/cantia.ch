@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Tout automatiser, même en solo',
       text: 'Pour rester efficace seul sans y passer ses soirées, Cantia automatise la TVA, la numérotation et les relances de paiement.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

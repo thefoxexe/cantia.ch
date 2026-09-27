@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno storico cliente integrato, non un software a parte',
       text: 'Cantia centralizza preventivi, fatture e note per cliente direttamente collegati ai cantieri: non serve un CRM separato da sincronizzare in più.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

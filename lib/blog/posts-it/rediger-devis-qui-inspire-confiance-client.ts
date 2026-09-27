@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Preventivi chiari, firmati online',
       text: 'Cantia genera preventivi dettagliati e ben presentati, con un portale cliente dove il preventivo si consulta, si discute e si firma online. Viene notificato non appena viene aperto.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

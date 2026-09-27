@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ihre Meinung gestaltet das Werkzeug direkt mit',
       text: 'Bei Cantia zählt jede Rückmeldung wirklich für die Weiterentwicklung des Produkts. Testen Sie es kostenlos und sagen Sie uns, was besser zu Ihrer Arbeitsweise passen könnte.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

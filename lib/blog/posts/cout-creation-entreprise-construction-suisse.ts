@@ -79,7 +79,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Le seul poste du budget qui doit rester sous contrôle en continu',
       text: 'Cantia suit vos encaissements réels par rapport aux charges à venir, pour voir venir un trou de trésorerie avant qu’il ne devienne un problème.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

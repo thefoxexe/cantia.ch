@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui sépare démolition, tri et évacuation',
       text: 'Cantia permet de détailler chaque poste d’un chantier de démolition, du diagnostic préalable jusqu’à l’évacuation finale des déchets.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

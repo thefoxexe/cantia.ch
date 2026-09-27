@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine solide Basis, ergänzt nach Ihren Bedürfnissen',
       text: 'Cantia kombiniert eine vollständige, gepflegte Standardbasis mit der Möglichkeit, massgeschneiderte Funktionen für das wirklich Spezifische Ihres Unternehmens zu entwickeln.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

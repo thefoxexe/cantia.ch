@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un prix clair à intégrer dès le business plan',
       text: 'Cantia affiche des tarifs simples et prévisibles, avec 14 jours d\'essai gratuit dès la création du compte, pour tester avant de l\'inscrire définitivement dans le budget.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

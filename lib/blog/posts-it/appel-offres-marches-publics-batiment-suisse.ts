@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno storico chiaro a sostegno di un’offerta',
       text: 'Cantia conserva lo storico completo dei cantieri realizzati, utile per costituire le referenze richieste in un fascicolo di offerta pubblica.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

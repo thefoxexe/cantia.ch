@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis accepté devient une facture en un clic',
       text: 'Cantia transforme automatiquement un devis accepté en facture, sans ressaisie ni risque d\'erreur de recopie.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -67,7 +67,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Passez du modèle statique au devis qui se remplit tout seul',
       text: 'Cantia calcule automatiquement TVA et totaux, garde en mémoire vos prix déjà utilisés dans un catalogue, et génère une QR-facture dès que le devis est accepté.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

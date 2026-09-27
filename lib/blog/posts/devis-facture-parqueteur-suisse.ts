@@ -55,7 +55,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui distingue fourniture, pose et finition',
       text: 'Cantia permet de détailler un devis de parquet poste par poste, avec le planning d’acclimatation intégré au calendrier du chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Cominci semplice, attivi il resto più tardi',
       text: 'Cantia permette di iniziare con preventivi, fatture e cantieri, per poi attivare HR, pianificazione o tesoreria man mano che l’impresa cresce.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

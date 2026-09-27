@@ -58,7 +58,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Avant de céder vos factures, sachez précisément ce qu’elles valent',
       text: 'Un suivi clair des factures émises, encaissées et en retard aide à décider si l’affacturage est vraiment justifié, et sur quels clients précisément. Cantia centralise cette vue en temps réel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

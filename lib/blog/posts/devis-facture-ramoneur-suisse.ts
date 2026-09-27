@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivez vos cycles de contrôle sans tableur',
       text: 'Cantia permet de programmer des factures récurrentes par client et de garder l’historique des rapports de contrôle liés à chaque installation.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

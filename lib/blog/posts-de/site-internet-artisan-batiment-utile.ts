@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Dokumentierte Baustellen, bereit für Ihre Website',
       text: 'Cantia zentralisiert Fotos und Berichte jeder Baustelle im Verlauf des Fortschritts – eine fertige Grundlage, um regelmässig eine Website oder ein Google-Profil ohne zusätzlichen Aufwand zu füttern.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

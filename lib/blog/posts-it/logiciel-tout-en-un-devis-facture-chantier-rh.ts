@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Quattro ambiti, un unico database',
       text: 'Con Cantia, preventivi, fatture, cantieri e HR condividono le stesse informazioni: un cantiere documentato oggi alimenta automaticamente la sua redditività e la sua fatturazione domani.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

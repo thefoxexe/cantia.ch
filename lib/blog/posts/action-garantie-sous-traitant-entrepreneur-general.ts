@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Sachez précisément qui a fait quoi sur chaque chantier',
       text: 'Cantia trace l’avancement du chantier par intervenant, avec dates et documents associés — une base utile en cas de désaccord sur une responsabilité à établir.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

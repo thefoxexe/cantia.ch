@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein einfacher Preis, ohne Überraschungen bei der Nutzung',
       text: 'Cantia bietet klare Pläne ohne versteckte Kosten pro Dokument. Das Unternehmen bietet zudem 14 Tage kostenlose Testphase, ohne Code-Eingabe, um sich vor der Entscheidung selbst ein Bild zu machen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

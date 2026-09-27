@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Préparer un entretien annuel avec des faits, pas des impressions',
       text: 'Avoir sous la main l’historique réel des chantiers d’un employé — tâches réalisées, régularité, évolution — rend un entretien annuel bien plus concret qu’une discussion générale. Cantia garde cet historique accessible chantier après chantier.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

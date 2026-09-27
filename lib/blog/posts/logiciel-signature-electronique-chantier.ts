@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Devis et réceptions signés sur place, archivés automatiquement',
       text: 'Avec Cantia, un devis ou une réception de travaux se signe directement sur tablette ou mobile, avec horodatage automatique et archivage lié au chantier concerné, retrouvable en quelques secondes.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

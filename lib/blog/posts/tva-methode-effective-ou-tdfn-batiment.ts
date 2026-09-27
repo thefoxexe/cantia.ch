@@ -53,7 +53,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Quelle que soit la méthode TVA choisie, gardez chaque facture rattachée à son chantier',
       text: 'Cantia centralise devis, factures et achats par chantier, ce qui simplifie le décompte que vous soyez en méthode effective ou en TDFN.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

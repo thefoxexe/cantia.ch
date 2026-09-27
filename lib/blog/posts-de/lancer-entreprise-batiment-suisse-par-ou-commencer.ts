@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Bereit, ab Ihrem ersten Geschäftstag zu fakturieren',
       text: 'Cantia richtet sich schnell ein und deckt Offerten, Rechnungen und Baustellenverfolgung ab dem Start ab. Testen Sie es 14 Tage kostenlos, ohne Code einzugeben.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

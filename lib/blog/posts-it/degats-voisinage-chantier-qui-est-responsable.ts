@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Foto di cantiere con data e ora, fin dal primo giorno',
       text: 'Il feed di aggiornamenti di Cantia geolocalizza e timbra con data e ora ogni foto. Un sopralluogo prima dei lavori diventa così un riflesso semplice, documentato automaticamente.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

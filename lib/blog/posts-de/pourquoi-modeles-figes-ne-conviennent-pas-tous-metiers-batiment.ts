@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Tool, das sich Ihrem Beruf anpasst, nicht umgekehrt',
       text: 'Cantia deckt bereits die Besonderheiten zahlreicher Berufe im Bauwesen ab und kann für jene, die noch aus dem Standardrahmen fallen, massgeschneidert angepasst werden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

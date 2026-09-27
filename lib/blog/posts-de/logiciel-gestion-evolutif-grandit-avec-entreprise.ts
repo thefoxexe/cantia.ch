@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Vom Alleinbetrieb zum Team, ohne Migration',
       text: 'Cantia bietet mehrere Pläne, die mit dem Unternehmen mitwachsen, ohne Datenverlust oder technische Migration am Tag der ersten Anstellung.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

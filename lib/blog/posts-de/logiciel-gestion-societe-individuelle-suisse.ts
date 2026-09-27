@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein passender Plan, der mit Ihnen mitwächst',
       text: 'Cantia bietet einen für Einzelunternehmen konzipierten Plan, der sich am Tag des Wachstums zu einem Team-Plan entwickeln kann, ohne Datenmigration.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

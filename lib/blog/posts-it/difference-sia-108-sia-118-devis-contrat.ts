@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Menzionate la norma giusta su ogni preventivo',
       text: 'Cantia permette di aggiungere condizioni personalizzate, incluso un riferimento esplicito alla SIA 118, direttamente sui vostri preventivi e contratti.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

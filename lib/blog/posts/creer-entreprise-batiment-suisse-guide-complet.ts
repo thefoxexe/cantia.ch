@@ -125,7 +125,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un seul outil pour tout ce parcours, dès le premier devis',
       text: 'Devis et factures conformes, QR-facture automatique, suivi de chantier et catalogue de prix : Cantia couvre l’essentiel dès le premier jour, et le reste s’active au fur et à mesure que l’entreprise grandit.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

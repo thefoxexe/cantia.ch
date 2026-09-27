@@ -41,7 +41,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Team und Baustellen auf einen Blick',
       text: 'Die Team-Planung von Cantia ermöglicht es, die Einsätze schnell umzuorganisieren, wenn ein Teammitglied nach einem Unfall vorübergehend entlastet werden muss.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

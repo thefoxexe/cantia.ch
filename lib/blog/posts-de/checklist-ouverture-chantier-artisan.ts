@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Jede Baustelle ab dem ersten Tag dokumentiert',
       text: 'Cantia zentralisiert Offerte, Anzahlung, eingeteiltes Team und Fotos bereits ab der Baustelleneröffnung, sodass sich die Checkliste fast von selbst abhaken lässt.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

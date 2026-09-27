@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Moins de litiges commencent par de meilleurs devis et de meilleures preuves',
       text: 'Un devis clair, des avenants signés et un historique de chantier documenté sont la meilleure défense avant même d’ouvrir un dossier juridique. Cantia garde toute cette traçabilité au même endroit, prête à être ressortie en cas de désaccord.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

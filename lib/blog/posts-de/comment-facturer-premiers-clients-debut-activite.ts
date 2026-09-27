@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine korrekte Rechnung schon beim ersten Versand',
       text: 'Cantia wendet automatisch Nummerierung, MWST und die Schweizer QR-Rechnung an: Selbst die allererste Rechnung ist damit tadellos.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Chaque chantier, un seul endroit pour tout',
       text: 'Cantia centralise planning, devis, factures, rapports et sous-traitants par chantier. L’équipe entière voit ainsi la même information, à jour, au même endroit.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

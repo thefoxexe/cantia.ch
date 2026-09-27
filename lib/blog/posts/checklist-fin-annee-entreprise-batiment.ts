@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Clôturez l’année avec des chiffres clairs',
       text: 'Cantia centralise vos devis, factures et chantiers, pour voir en un coup d’œil votre rentabilité par chantier et vos impayés avant la fin de l’année.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un socle solide, complété selon vos besoins',
       text: 'Cantia combine un socle standard complet et maintenu, avec la possibilité de développer des fonctionnalités sur mesure pour ce qui est vraiment spécifique à votre entreprise.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

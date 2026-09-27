@@ -49,7 +49,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des devis clairs, indépendants des subventions',
       text: 'Cantia permet de présenter un devis net et transparent à vos clients, qu’ils fassent ensuite ou non une demande auprès du Programme Bâtiments de leur canton.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

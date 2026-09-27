@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Halten Sie Ihre einmaligen Baustellen und Unterhaltsverträge sauber getrennt',
       text: 'Cantia erlaubt es, jede Baustelle unabhängig zu verfolgen (Offerten, Rechnungen und Rentabilität), um Ihre Gestaltungsprojekte klar von Ihren wiederkehrenden Unterhaltsverträgen zu unterscheiden.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

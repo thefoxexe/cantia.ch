@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Spezialisiert auf das Baugewerbe, bei Bedarf mit Bexio verbunden',
       text: 'Cantia deckt Offerten, Rechnungen und Baustellen ab, konzipiert für das Baugewerbe, mit einer Bexio-Synchronisation ab dem Plan Team für alle, die sie benötigen.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

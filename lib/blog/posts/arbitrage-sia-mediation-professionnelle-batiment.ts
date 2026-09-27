@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Gardez vos contrats et clauses de chantier centralisés et accessibles',
       text: 'Cantia conserve les contrats liés à chaque chantier au même endroit, pour retrouver rapidement quelle clause s’applique en cas de désaccord.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

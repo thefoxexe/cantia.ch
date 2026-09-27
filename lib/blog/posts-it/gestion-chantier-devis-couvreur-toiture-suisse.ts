@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Segua l’avanzamento del cantiere dal telefono, anche in quota',
       text: 'Cantia permette di aggiungere foto e rapporti di avanzamento direttamente dal cantiere, utile per documentare un blocco meteo o un imprevisto di carpenteria scoperto durante lo smontaggio.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

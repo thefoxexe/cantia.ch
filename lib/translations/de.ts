@@ -2851,7 +2851,7 @@ export const de: TranslationDict = {
     comparisonEyebrow: 'Vorher / mit Cantia',
     comparisonBefore: 'Vorher',
     comparisonAfter: 'Mit Cantia',
-    secondaryEyebrow: 'Und noch viel mehr',
+    secondaryEyebrow: 'Ebenfalls enthalten',
     secondaryClientsTitle: 'Kunden',
     secondaryClientsText: 'Kundenkartei mit vollständiger Historie zu Offerten, Rechnungen und Baustellen.',
     secondaryQrTitle: 'QR-Rechnung',
@@ -2909,7 +2909,7 @@ export const de: TranslationDict = {
     includesNext: '{{plan}}, zusätzlich mit',
   },
   planPage: {
-    ctaTrial: 'Kostenlose Testphase starten',
+    ctaTrial: '14 Tage testen',
     ctaAllPlans: 'Alle Pläne ansehen',
     perMonth: '/Monat',
     statStorage: 'GB Speicherplatz',
@@ -2952,7 +2952,7 @@ export const de: TranslationDict = {
     faqVatQ: 'Ist die MWST im Preis enthalten?',
     faqVatA: 'Die angezeigten Preise verstehen sich exklusive MWST. Die Schweizer MWST wird bei der Rechnungsstellung hinzugefügt.',
     closingTitle: 'Bereit, {{name}} auszuprobieren?',
-    closingText: '14 Tage kostenlose Testphase — Kreditkarte bei der Anmeldung erforderlich, erste Abbuchung erst nach diesen 14 Tagen, jederzeit kostenlos kündbar.',
+    closingText: '14 Tage Testphase — Kreditkarte bei der Anmeldung erforderlich, erste Abbuchung erst nach diesen 14 Tagen, jederzeit kostenlos kündbar.',
     plans: {
       solo: {
         heroText: 'Um allein oder zu wenigen zu starten, mit professionellen Offerten und Rechnungen ab dem ersten Tag.',

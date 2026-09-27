@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ein Baustellenabschlussbericht in wenigen Minuten',
       text: 'Cantia erstellt einen PDF-Bericht mit geolokalisierten, zeitgestempelten Fotos, der direkt von der Baustelle aus an den Kunden gesendet werden kann. Ideal, um jede Bauabnahme sauber zu dokumentieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

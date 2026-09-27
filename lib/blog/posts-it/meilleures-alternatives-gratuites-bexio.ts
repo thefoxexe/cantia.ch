@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Specializzato per l\'edilizia, collegato a Bexio se necessario',
       text: 'Cantia copre preventivi, fatture e cantieri pensati per l\'edilizia, con una sincronizzazione Bexio disponibile dal piano Équipe per chi ne ha bisogno.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

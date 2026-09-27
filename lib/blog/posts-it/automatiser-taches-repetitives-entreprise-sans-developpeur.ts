@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Automazioni già pronte, e altre possibili su misura',
       text: 'Cantia automatizza già solleciti e notifiche di base. Può anche sviluppare automazioni proprie del Suo modo di lavorare se necessario.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

@@ -48,7 +48,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un historique client intégré, pas un logiciel à part',
       text: 'Cantia centralise devis, factures et notes par client directement lié aux chantiers : pas besoin d’un CRM séparé à synchroniser en plus.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Solleciti che partono da soli, al momento giusto',
       text: 'Cantia può automatizzare i Suoi solleciti di fatture non pagate, con la possibilità di adattare il tono o sospenderli caso per caso.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

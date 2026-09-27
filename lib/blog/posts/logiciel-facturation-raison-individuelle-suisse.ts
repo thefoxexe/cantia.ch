@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Simple à utiliser, même en solo',
       text: 'Cantia est pensé pour un indépendant en raison individuelle qui gère tout seul (devis, factures et trésorerie), sans complexité comptable inutile.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

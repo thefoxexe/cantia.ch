@@ -44,7 +44,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un planning que toute l’équipe voit, en temps réel',
       text: 'Le module Planning de Cantia centralise les affectations d’équipe et de chantier en un seul endroit accessible depuis le terrain. Fini les doubles réservations découvertes trop tard.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

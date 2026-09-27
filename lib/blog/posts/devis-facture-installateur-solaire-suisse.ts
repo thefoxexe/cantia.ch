@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Du devis à la facture, sans ressaisie',
       text: 'Cantia permet de structurer un devis solaire poste par poste (matériel, pose, raccordement) et de le transformer en facture en un clic, une fois le chantier terminé.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

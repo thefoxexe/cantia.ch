@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un devis qui distingue étude, fabrication et pose',
       text: 'Cantia permet de structurer un devis en postes clairs, avec le catalogue de vos prix récurrents pour ne pas repartir de zéro à chaque nouveau projet sur mesure.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

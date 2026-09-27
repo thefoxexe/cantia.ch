@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un catalogue de prix qui distingue déjà vos différents tarifs au m²',
       text: 'Cantia garde vos différents tarifs (support neuf, à réparer, nombre de couches) en mémoire, pour composer un devis juste en quelques minutes au lieu de recalculer chaque surface à la main.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

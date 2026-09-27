@@ -62,7 +62,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivre les coûts d’évacuation sans mauvaise surprise',
       text: 'Les factures de tri et d’évacuation font partie des coûts qui s’oublient facilement dans un devis. Avec Cantia, chaque dépense de chantier — y compris les bennes et la taxe de déchets — reste rattachée au bon chantier, pour une rentabilité réelle et non estimée.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

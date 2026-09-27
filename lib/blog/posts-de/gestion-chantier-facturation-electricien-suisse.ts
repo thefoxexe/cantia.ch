@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Ihre Stunden, Baustelle für Baustelle erfasst, in Sekunden',
       text: 'Mit Cantia erfassen Sie Ihre Arbeitszeit direkt vom Handy aus zwischen zwei Einsätzen, Baustelle für Baustelle. So wissen Sie Ende Monat genau, wer was gemacht hat, ohne den Tag aus dem Gedächtnis zu rekonstruieren.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

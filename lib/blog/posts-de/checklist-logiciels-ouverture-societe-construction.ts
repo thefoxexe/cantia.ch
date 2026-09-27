@@ -47,7 +47,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Bereit zu fakturieren ab der ersten Nutzung',
       text: 'Cantia lässt sich in wenigen Minuten einrichten (Angaben, Preiskatalog, erste Offerten) — noch bevor der erste Kunde kommt.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [

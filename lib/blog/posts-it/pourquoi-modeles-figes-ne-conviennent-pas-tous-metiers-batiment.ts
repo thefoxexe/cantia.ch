@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Uno strumento che si adatta al Suo mestiere, non il contrario',
       text: 'Cantia copre già le specificità di numerosi mestieri dell’edilizia, e può essere regolato su misura per quelli che escono ancora dal quadro standard.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

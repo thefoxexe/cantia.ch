@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des devis détaillés, prêts à accompagner un dossier de subvention',
       text: 'Cantia permet de générer des devis clairs et détaillés par poste, avec toutes les surfaces et quantités nécessaires pour appuyer un dossier de subvention cantonale.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

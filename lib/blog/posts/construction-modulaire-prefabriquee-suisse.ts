@@ -51,7 +51,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Suivre un chantier modulaire du devis à la facturation',
       text: 'Cantia permet de piloter un chantier en plusieurs phases, atelier et site, avec un suivi de rentabilité clair même quand une partie du travail sort du chantier traditionnel.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

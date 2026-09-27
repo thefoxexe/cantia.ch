@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un journal de chantier qui sert aussi à former',
       text: 'Le fil d’actualité par chantier de Cantia permet de documenter les tâches réalisées par chaque membre de l’équipe, apprentis compris, ce qui constitue une base concrète pour un suivi de formation.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

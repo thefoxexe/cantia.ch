@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un preventivo pronto da inviare prima ancora di lasciare il cantiere',
       text: 'Con Cantia, un preventivo si costruisce e si invia direttamente dal telefono, con il catalogo prezzi a supporto. Non serve più aspettare il ritorno in ufficio per rispondere a una richiesta.',
-      buttonLabel: 'Provare gratuitamente',
+      buttonLabel: 'Provare 14 giorni',
     },
   ],
   faq: [

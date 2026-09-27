@@ -46,7 +46,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Une visibilité claire sur votre charge de travail, avant qu’un creux ne surprenne',
       text: 'Cantia vous donne une vue d’ensemble sur vos chantiers en cours et à venir, pour repérer un creux d’activité suffisamment tôt et décider sereinement des options disponibles.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

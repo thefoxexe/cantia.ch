@@ -57,7 +57,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un dossier de référence toujours prêt',
       text: 'Avec Cantia, chaque chantier terminé laisse une trace exploitable : photos avant/après, devis et factures archivés, historique client. De quoi constituer un dossier de références solide en quelques minutes le jour où un appel d’offres se présente.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

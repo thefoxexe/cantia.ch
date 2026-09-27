@@ -52,7 +52,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Des sous-traitants suivis chantier par chantier, pas seulement facture par facture',
       text: 'Cantia garde la trace de qui intervient sur quel chantier et pour quelle mission, un historique utile pour démontrer la nature réelle d’une relation de sous-traitance en cas de contrôle.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

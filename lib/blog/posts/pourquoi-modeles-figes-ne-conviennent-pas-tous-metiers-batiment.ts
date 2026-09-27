@@ -45,7 +45,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Un outil qui s\'adapte à votre métier, pas l\'inverse',
       text: 'Cantia couvre déjà les spécificités de nombreux métiers du bâtiment, et peut être ajusté sur mesure pour ceux qui sortent encore du cadre standard.',
-      buttonLabel: 'Essayer gratuitement',
+      buttonLabel: 'Essayer 14 jours',
     },
   ],
   faq: [

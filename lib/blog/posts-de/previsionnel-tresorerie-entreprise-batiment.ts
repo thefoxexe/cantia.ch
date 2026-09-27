@@ -50,7 +50,7 @@ export const post: BlogPost = {
       type: 'cta',
       title: 'Eine automatische Liquiditätsprognose',
       text: 'Das Cantia-Modul Liquidität projiziert Ihren künftigen Kontostand aus offenen Rechnungen und wiederkehrenden Ausgaben, in Echtzeit aktualisiert.',
-      buttonLabel: 'Kostenlos testen',
+      buttonLabel: '14 Tage testen',
     },
   ],
   faq: [
