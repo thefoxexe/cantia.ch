@@ -180,29 +180,30 @@ const chf = (n: number, decimals = 0) => {
 };
 const num = (n: number) => chf(n).replace('CHF ', '');
 
-function roiFigures(people: number, hours: number, rate: number) {
+function roiFigures(field: number, hours: number, rate: number) {
   const office = Math.round(hours * ROI_WEEKS * ROI_OFFICE_SHARE);
-  const field = Math.round((people - 1) * ROI_FIELD_HOURS * ROI_WEEKS);
-  const total = office + field;
+  const fieldHours = Math.round(field * ROI_FIELD_HOURS * ROI_WEEKS);
+  const total = office + fieldHours;
   const value = total * rate;
   const year = ROI_PRICE_MONTHLY * 12;
   const days = value > 0 ? Math.ceil((year / value) * 365) : null;
-  return { office, field, total, value, year, net: value - year, days };
+  return { office, field: fieldHours, total, value, year, net: value - year, days };
 }
 
 // "How much does admin cost you", for Cantia Équipe only: the visitor enters
-// the size of the company, weekly admin hours and the cost of an hour, and
+// the office admin hours (whoever does them), the people working on site and
+// the cost of an hour, and
 // gets hours recovered, net gain and payback. A toggle below writes out the
 // calculation with their own figures.
 function RoiCalculator({ compact }: { compact: boolean }) {
-  const [people, setPeople] = useState(4);
+  const [field, setField] = useState(3);
   const [hours, setHours] = useState(8);
   const [rate, setRate] = useState(35);
-  const f = roiFigures(people, hours, rate);
+  const f = roiFigures(field, hours, rate);
 
   const inputs = [
-    { label: 'Personnes dans l’entreprise', hint: 'vous compris, jusqu’à 10', value: `${people}`, dec: () => setPeople((v) => Math.max(1, v - 1)), inc: () => setPeople((v) => Math.min(ROI_MAX_PEOPLE, v + 1)) },
-    { label: 'Heures d’administratif par semaine', hint: 'devis, factures, heures, rapports', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(40, v + 1)) },
+    { label: 'Heures d’administratif par semaine', hint: 'au bureau, toutes personnes confondues : devis, factures, salaires', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(40, v + 1)) },
+    { label: 'Personnes sur les chantiers', hint: 'ouvriers et chefs d’équipe qui saisiront leurs heures et rapports', value: `${field}`, dec: () => setField((v) => Math.max(0, v - 1)), inc: () => setField((v) => Math.min(ROI_MAX_PEOPLE - 1, v + 1)) },
     { label: 'Combien vous coûte une heure', hint: 'votre tarif horaire ou ce que vous payez', value: `CHF ${rate}`, dec: () => setRate((v) => Math.max(25, v - 5)), inc: () => setRate((v) => Math.min(150, v + 5)) },
   ];
 
@@ -258,7 +259,7 @@ function RoiCalculator({ compact }: { compact: boolean }) {
           <Link href="/tarifs" style={styles.roiCompareLink}>Comparer les trois formules →</Link>
         </View>
       </View>
-      <RoiExplainer people={people} hours={hours} rate={rate} />
+      <RoiExplainer field={field} hours={hours} rate={rate} />
     </View>
   );
 }
@@ -279,9 +280,9 @@ const dec = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',');
 
 // "How is it calculated": the same computation as the calculator, written out
 // with the visitor's own figures so every number can be checked by hand.
-function RoiExplainer({ people, hours, rate }: { people: number; hours: number; rate: number }) {
+function RoiExplainer({ field, hours, rate }: { field: number; hours: number; rate: number }) {
   const [open, setOpen] = useState(false);
-  const f = roiFigures(people, hours, rate);
+  const f = roiFigures(field, hours, rate);
   const saved = ROI_TASKS.reduce((s, [, h, share]) => s + h * share, 0);
   return (
     <View style={styles.explain}>
@@ -292,11 +293,11 @@ function RoiExplainer({ people, hours, rate }: { people: number; hours: number; 
       {open ? (
         <View style={styles.explainBody}>
           <Text style={styles.explainP}>
-            On additionne le temps gagné au bureau et le temps gagné par chaque personne sur le terrain, sur {ROI_WEEKS} semaines travaillées par an. Seules les fonctions déjà disponibles dans Cantia Équipe sont comptées.
+            On additionne deux choses qui ne concernent pas les mêmes personnes : le temps gagné au bureau sur les heures d’administratif (quelle que soit la personne qui les fait), et le temps gagné par chaque personne sur les chantiers sur ses propres heures et rapports, sur {ROI_WEEKS} semaines travaillées par an. Seules les fonctions déjà disponibles dans Cantia Équipe sont comptées.
           </Text>
           <View style={styles.explainPlan}>
             <Text style={styles.explainLine}>Bureau : {hours} h × {ROI_WEEKS} semaines × {Math.round(ROI_OFFICE_SHARE * 100)} % = {num(f.office)} h</Text>
-            <Text style={styles.explainLine}>Terrain : {people - 1} {people - 1 > 1 ? 'personnes' : 'personne'} × {ROI_FIELD_HOURS} h × {ROI_WEEKS} semaines = {num(f.field)} h</Text>
+            <Text style={styles.explainLine}>Terrain : {field} {field > 1 ? 'personnes' : 'personne'} × {ROI_FIELD_HOURS} h × {ROI_WEEKS} semaines = {num(f.field)} h</Text>
             <Text style={styles.explainLine}>Valeur : {num(f.total)} h × CHF {rate} = {chf(f.value)}</Text>
             <Text style={styles.explainLine}>Gain : {chf(f.value)} − abonnement {chf(f.year)} = {chf(f.net)}</Text>
             <Text style={styles.explainLine}>Rentabilisé : {num(f.year)} ÷ {num(f.value)} × 365 jours = {f.days ?? '—'} jours</Text>
@@ -315,7 +316,7 @@ function RoiExplainer({ people, hours, rate }: { people: number; hours: number; 
             ))}
           </View>
           <Text style={styles.explainP}>
-            Sur le terrain, {ROI_FIELD_HOURS} h par semaine et par personne : heures, rapports et photos saisis sur le téléphone plutôt que sur papier, et moins d’appels au bureau pour savoir où aller. Ce sont des estimations : entrez vos propres chiffres pour ajuster le résultat.
+            Sur les chantiers, {ROI_FIELD_HOURS} h par semaine et par personne, sur son propre temps et non sur l’administratif du bureau : heures, rapports et photos saisis sur le téléphone plutôt que sur papier, et moins d’appels au bureau pour savoir où aller. Ce sont des estimations : entrez vos propres chiffres pour ajuster le résultat.
           </Text>
         </View>
       ) : null}
@@ -518,7 +519,7 @@ export default function LogicielChantierPage() {
         {/* 5 · ROI calculator */}
         <View style={[styles.wrap, styles.section]}>
           <ScrollReveal>
-            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Trois chiffres suffisent : la taille de votre entreprise, le temps passé chaque semaine sur l’administratif, et ce que vous coûte une heure." />
+            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Trois chiffres suffisent : le temps passé chaque semaine sur l’administratif au bureau, le nombre de personnes sur vos chantiers, et ce que vous coûte une heure." />
             <RoiCalculator compact={isTablet} />
           </ScrollReveal>
         </View>
