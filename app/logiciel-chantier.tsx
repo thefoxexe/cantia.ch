@@ -200,6 +200,7 @@ function RoiCalculator({ compact }: { compact: boolean }) {
   ];
 
   return (
+    <View>
     <View style={[styles.roi, compact && styles.roiCompact]}>
       <View style={[styles.roiInputs, !compact && { flex: 1 }]}>
         {inputs.map((i) => (
@@ -232,11 +233,11 @@ function RoiCalculator({ compact }: { compact: boolean }) {
       <View style={[styles.roiResult, !compact && { flex: 1.15 }]}>
         <Text style={styles.roiResultLabel}>Ce que chaque formule vous fait gagner</Text>
         {ROI_PLANS.map((p, idx) => {
-          const saved = Math.round(adminHours * p.office + (p.members - 1) * p.field * ROI_WEEKS);
+          const saved = Math.round(adminHours * p.office) + Math.round((p.members - 1) * p.field * ROI_WEEKS);
           const net = saved * rate - p.monthly * 12;
           const days = saved * rate > 0 ? Math.ceil(((p.monthly * 12) / (saved * rate)) * 365) : null;
           const best = idx === 0;
-          const maxSaved = Math.round(adminHours * ROI_PLANS[0].office + (ROI_PLANS[0].members - 1) * ROI_PLANS[0].field * ROI_WEEKS);
+          const maxSaved = Math.round(adminHours * ROI_PLANS[0].office) + Math.round((ROI_PLANS[0].members - 1) * ROI_PLANS[0].field * ROI_WEEKS);
           return (
             <View key={p.id} style={[styles.roiPlanBlock, best && styles.roiPlanBlockBest]}>
               <View style={styles.roiPlanHead}>
@@ -271,6 +272,78 @@ function RoiCalculator({ compact }: { compact: boolean }) {
           <Cta location="roi" label="Récupérer ce temps, essai 14 jours" />
         </View>
       </View>
+    </View>
+    <RoiExplainer hours={hours} rate={rate} />
+    </View>
+  );
+}
+
+// Task-by-task split of an 8 h admin week behind the 42 / 60 / 70 % office
+// shares: [task, hours per week, share Cantia removes, plans that cover it].
+const ROI_TASKS: [string, number, string, string][] = [
+  ['Rédaction des devis (dictée, catalogue de prix)', 2.5, '60 %', 'Toutes'],
+  ['Factures et relances de factures', 1.25, '70 %', 'Toutes'],
+  ['Rapports de chantier', 1, '70 %', 'Toutes'],
+  ['Heures et salaires', 1, '80 %', 'Équipe, Entreprise (Essentiel : heures seulement)'],
+  ['Planning', 0.75, '60 %', 'Équipe, Entreprise'],
+  ['Double saisie en comptabilité (Bexio)', 0.25, '90 %', 'Équipe, Entreprise'],
+  ['Rentabilité et trésorerie', 0.25, '90 %', 'Équipe, Entreprise'],
+  ['Suivi et relances des devis', 1, '80 %', 'Entreprise'],
+];
+
+// "How is it calculated": the same computation as the calculator, written out
+// with the visitor's own figures so every number can be checked by hand.
+function RoiExplainer({ hours, rate }: { hours: number; rate: number }) {
+  const [open, setOpen] = useState(false);
+  const fmt = (n: number) => chf(n).replace('CHF ', '');
+  return (
+    <View style={styles.explain}>
+      <Pressable onPress={() => setOpen((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: open }} style={styles.explainToggle}>
+        <Text style={styles.explainToggleText}>Comment c’est calculé ?</Text>
+        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={ink} />
+      </Pressable>
+      {open ? (
+        <View style={styles.explainBody}>
+          <Text style={styles.explainP}>
+            Pour chaque formule, on additionne deux choses : le temps gagné au bureau sur vos heures d’administratif, et le temps gagné par chaque personne sur le terrain. On compte {ROI_WEEKS} semaines travaillées par an.
+          </Text>
+          {ROI_PLANS.map((p) => {
+            const office = Math.round(hours * ROI_WEEKS * p.office);
+            const field = Math.round((p.members - 1) * p.field * ROI_WEEKS);
+            const total = office + field;
+            const value = total * rate;
+            const year = p.monthly * 12;
+            const days = value > 0 ? Math.ceil((year / value) * 365) : null;
+            const fieldLabel = p.field === 1 ? '1 h' : '30 min';
+            return (
+              <View key={p.id} style={styles.explainPlan}>
+                <Text style={styles.explainPlanName}>{p.name} · équipe de {p.members}</Text>
+                <Text style={styles.explainLine}>Bureau : {hours} h × {ROI_WEEKS} semaines × {Math.round(p.office * 100)} % = {fmt(office)} h</Text>
+                <Text style={styles.explainLine}>Terrain : {p.members - 1} personnes × {fieldLabel} × {ROI_WEEKS} semaines = {fmt(field)} h</Text>
+                <Text style={styles.explainLine}>Valeur : {fmt(total)} h × CHF {rate} = {chf(value)}</Text>
+                <Text style={styles.explainLine}>Gain net : {chf(value)} − abonnement {chf(year)} = {chf(value - year)}</Text>
+                <Text style={styles.explainLine}>Rentabilisé : {fmt(year)} ÷ {fmt(value)} × 365 jours = {days ?? '—'} jours</Text>
+              </View>
+            );
+          })}
+          <Text style={[styles.explainPlanName, { marginTop: spacing.lg }]}>D’où viennent les 42 / 60 / 70 % ?</Text>
+          <Text style={styles.explainP}>
+            Une semaine d’administratif de 8 h découpée par tâche. Chaque formule ne gagne du temps que sur les tâches qu’elle couvre. Additionné, ça donne 3,4 h gagnées sur 8 avec l’Essentiel (42 %), 4,8 h avec l’Équipe (60 %) et 5,6 h avec l’Entreprise (70 %).
+          </Text>
+          <View style={styles.explainTable}>
+            {ROI_TASKS.map(([task, h, share, plans]) => (
+              <View key={task} style={styles.explainRow}>
+                <Text style={styles.explainTask}>{task}</Text>
+                <Text style={styles.explainCell}>{String(h).replace('.', ',')} h/sem. · {share} gagnés</Text>
+                <Text style={styles.explainPlans}>{plans}</Text>
+              </View>
+            ))}
+          </View>
+          <Text style={styles.explainP}>
+            Sur le terrain, 1 h par semaine et par personne : heures, rapports et photos saisis sur le téléphone plutôt que sur papier, et moins d’appels au bureau pour savoir où aller. 30 min avec l’Essentiel, qui n’a ni planning ni salaires. Ce sont des estimations : entrez vos propres heures pour ajuster le résultat.
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -617,6 +690,19 @@ const styles = StyleSheet.create({
   roiNote: { ...monoType, fontSize: 10.5, lineHeight: 17, color: colors.textMuted, marginTop: spacing.md },
   roiResult: { backgroundColor: ink, borderRadius: 3, padding: spacing.xl },
   roiResultLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: '#E8AD89' },
+  explain: { marginTop: spacing.xl, borderTopWidth: 1, borderTopColor: rule, borderBottomWidth: 1, borderBottomColor: rule },
+  explainToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md },
+  explainToggleText: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
+  explainBody: { paddingBottom: spacing.xl, gap: spacing.md },
+  explainP: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 23, color: bodyInk, maxWidth: 760 },
+  explainPlan: { borderLeftWidth: 3, borderLeftColor: colors.primary, paddingLeft: spacing.md, gap: 3 },
+  explainPlanName: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: ink },
+  explainLine: { ...monoType, fontSize: 12.5, lineHeight: 20, color: bodyInk },
+  explainTable: { borderTopWidth: 1, borderTopColor: rule },
+  explainRow: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.md, rowGap: 2, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: rule },
+  explainTask: { flexGrow: 1, flexBasis: 260, fontFamily: landingFonts.body, fontSize: 14.5, color: ink },
+  explainCell: { ...monoType, fontSize: 12, color: colors.primary, flexBasis: 190 },
+  explainPlans: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, flexBasis: 240, flexGrow: 1 },
   roiTimeRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
   roiResultLabelLight: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
   roiMid: { ...displayType, fontSize: 52, lineHeight: 56, fontWeight: '800', color: ink },
