@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Screen } from '../components/ui';
@@ -9,15 +9,17 @@ import { Cartouche } from '../components/landing/Cartouche';
 import { useHeroFit } from '../components/landing/useHeroFit';
 import { bodyInk, ink, rule } from '../components/landing/brand';
 import { MarketingHead } from '../components/MarketingHead';
-import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
+import { MarketingFooter } from '../components/MarketingChrome';
 import { PricingSection } from '../components/PricingSection';
 import { SwissCross } from '../components/SwissCross';
-import { ModuleMockup } from '../components/solutions/ModuleMockup';
+import { DocumentShowcase } from '../components/landing/DocumentShowcase';
 import { HeroCross } from '../components/landing/HeroCross';
 import { ScrollReveal } from '../components/landing/ScrollReveal';
 import { colors, breakpoints, spacing } from '../lib/theme';
 import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
+import { supabase } from '../lib/supabase';
+import { useMarketingDict } from '../lib/i18n';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -68,6 +70,16 @@ const FEATURES: { icon: IconName; title: string; text: string; href: string }[] 
 
 const FAQ: { question: string; answer: string }[] = [
   {
+    question: 'Et si Cantia ne me convient pas ?',
+    answer:
+      "Vous résiliez en ligne depuis Compte → Abonnement avant la fin des 14 jours : aucun montant n'est débité. Après l'essai, l'abonnement reste sans engagement et se résilie à tout moment.",
+  },
+  {
+    question: 'Mes employés ne sont pas à l’aise avec l’informatique. Est-ce que ça marche quand même ?',
+    answer:
+      "Oui. Sur le chantier, ils saisissent leurs heures et ajoutent photos et notes vocales depuis leur téléphone, comme dans une messagerie. Vous choisissez ce que chacun voit : un employé n'a pas accès à la facturation.",
+  },
+  {
     question: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
     answer:
       "Les tarifs sont détaillés plus haut sur cette page — vous les choisissez selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
@@ -107,16 +119,113 @@ const CARTOUCHE = [
 
 const FACTS = ['Dès CHF 39.– par mois', '14 jours d’essai, sans engagement', 'Interface FR · DE · IT'];
 
+// Short, factual proof shown right under the hero.
+const PROOF = [
+  { value: 'Quelques min.', label: 'pour un devis complet, dicté sur le chantier' },
+  { value: 'CHF 39.–', label: 'par mois, devis et factures illimités' },
+  { value: '100 % suisse', label: 'QR-facture, TVA, AVS, données à Zurich' },
+  { value: 'FR · DE · IT', label: 'interface et documents dans votre langue' },
+];
+
+const STEPS = [
+  { title: 'Créez votre compte', text: 'Deux minutes : votre entreprise, votre logo, votre couleur. Carte demandée à l’inscription, aucun débit pendant 14 jours.' },
+  { title: 'Reprenez vos clients et vos prix', text: 'Importez vos fichiers Excel ou CSV (clients, catalogue), ou partez de zéro : Cantia retient chaque prestation que vous saisissez.' },
+  { title: 'Envoyez votre premier devis', text: 'Dictez les travaux sur place, relisez, envoyez. Le client signe en ligne, la facture QR suit en un clic.' },
+];
+
+const NO_RISK = [
+  { title: 'Aucun débit pendant 14 jours', text: 'Vous testez avec vos vrais chantiers avant de payer quoi que ce soit.' },
+  { title: 'Résiliation en ligne', text: 'Depuis Compte → Abonnement, sans justification ni frais de sortie.' },
+  { title: 'Sans engagement', text: 'Mois par mois, ou à l’année avec 20 % de réduction.' },
+  { title: 'Une vraie personne', text: 'Par téléphone ou e-mail, en français, en allemand ou en italien.' },
+];
+
+const PHONE_DISPLAY = '078 450 14 57';
+const PHONE_TEL = 'tel:+41784501457';
+
+// Every CTA on this page reports its position to Google Ads/Analytics
+// (gtag is loaded site-wide by app/+html.tsx), so the campaign can show
+// which block actually converts.
+function trackCta(location: string) {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+  gtag?.('event', 'cta_click', { event_category: 'logiciel_chantier', event_label: location });
+}
+
+function Cta({ label = 'Essayer 14 jours', location, small }: { label?: string; location: string; small?: boolean }) {
+  return (
+    <Link href={authHref('signup')} asChild onPress={() => trackCta(location)}>
+      <CtaButton title={label} style={small ? { paddingVertical: 9, paddingHorizontal: 14 } : undefined} />
+    </Link>
+  );
+}
+
+// "How much does admin cost you" — every figure comes from the visitor's own
+// inputs; the only assumption (share of that time Cantia saves) is shown and
+// adjustable, defaulting to a conservative value.
+function RoiCalculator({ compact }: { compact: boolean }) {
+  const [hours, setHours] = useState(8);
+  const [rate, setRate] = useState(90);
+  const [share, setShare] = useState(30);
+  const weeks = 46;
+  const hoursSaved = Math.round((hours * weeks * share) / 100);
+  const valueSaved = hoursSaved * rate;
+  const cantiaYear = 39 * 12;
+  const paybackDays = valueSaved > 0 ? Math.max(1, Math.ceil((cantiaYear / valueSaved) * 365)) : null;
+  const chf = (n: number) => `CHF ${Math.round(n).toLocaleString('fr-CH').replace(/ | |\s/g, '’')}`;
+  const inputs = [
+    { label: 'Heures d’administratif par semaine', value: `${hours} h`, dec: () => setHours((v) => Math.max(1, v - 1)), inc: () => setHours((v) => Math.min(30, v + 1)) },
+    { label: 'Valeur d’une de vos heures', value: `CHF ${rate}`, dec: () => setRate((v) => Math.max(40, v - 5)), inc: () => setRate((v) => Math.min(200, v + 5)) },
+    { label: 'Temps que Cantia vous fait gagner', value: `${share} %`, dec: () => setShare((v) => Math.max(10, v - 5)), inc: () => setShare((v) => Math.min(70, v + 5)) },
+  ];
+  return (
+    <View style={[styles.roi, compact && styles.roiCompact]}>
+      <View style={[styles.roiInputs, !compact && { flex: 1 }]}>
+        {inputs.map((i) => (
+          <View key={i.label} style={styles.roiRow}>
+            <Text style={styles.roiLabel}>{i.label}</Text>
+            <View style={styles.stepper}>
+              <Pressable onPress={i.dec} style={styles.stepBtn} accessibilityLabel={`Diminuer : ${i.label}`}>
+                <Text style={styles.stepBtnText}>−</Text>
+              </Pressable>
+              <Text style={styles.stepValue}>{i.value}</Text>
+              <Pressable onPress={i.inc} style={styles.stepBtn} accessibilityLabel={`Augmenter : ${i.label}`}>
+                <Text style={styles.stepBtnText}>+</Text>
+              </Pressable>
+            </View>
+          </View>
+        ))}
+        <Text style={styles.roiNote}>Estimation sur 46 semaines travaillées, selon vos chiffres. Ajustez la part de temps gagné à votre situation.</Text>
+      </View>
+      <View style={[styles.roiResult, !compact && { flex: 1 }]}>
+        <Text style={styles.roiResultLabel}>Temps récupéré par an</Text>
+        <Text style={styles.roiBig}>{hoursSaved} h</Text>
+        <Text style={styles.roiResultLabel}>Ce que ce temps vaut</Text>
+        <Text style={styles.roiBig}>{chf(valueSaved)}</Text>
+        <View style={styles.roiDivider} />
+        <Text style={styles.roiCompare}>
+          Cantia Essentiel : {chf(cantiaYear)} par an{paybackDays ? `, rentabilisé en ${paybackDays} jours.` : '.'}
+        </Text>
+        <View style={{ marginTop: spacing.lg }}>
+          <Cta location="roi" label="Récupérer ce temps, essai 14 jours" />
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export default function LogicielChantierPage() {
   const scrollRef = useRef<ScrollView>(null);
   const pricingRef = useRef<View>(null);
+  const docsRef = useRef<View>(null);
   const heroMountainRef = useRef<View>(null);
+  const dict = useMarketingDict();
 
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
   // Same fit-to-screen hero as the homepage (components/landing/useHeroFit).
-  const [navHeight, setNavHeight] = useState(isMobile ? 80 : 96);
+  const [navHeight, setNavHeight] = useState(isMobile ? 64 : 72);
   const heroAvailable = Math.max(0, height - navHeight);
   const heroFit = useHeroFit({
     designed: isMobile ? clamp(42, width * 0.12, 60) : clamp(60, width * 0.066, 104),
@@ -126,6 +235,18 @@ export default function LogicielChantierPage() {
   });
   const heroTitleSize = heroFit.size;
   const heroMinHeight = heroAvailable || undefined;
+
+  // Real, live number of companies on Cantia (landing_stats, public read).
+  const [orgCount, setOrgCount] = useState<number | null>(null);
+  useEffect(() => {
+    supabase
+      .from('landing_stats')
+      .select('organizations_count')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.organizations_count) setOrgCount(data.organizations_count);
+      });
+  }, []);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -139,18 +260,43 @@ export default function LogicielChantierPage() {
     });
   }
 
+  const solutionHref = (slug: string) => `/solutions/${slug}`;
+
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead
         title="Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia"
         description="Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. 14 jours d’essai, sans engagement, hébergé en Suisse."
       />
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
-        <View onLayout={(e) => setNavHeight(e.nativeEvent.layout.height)}>
-          <MarketingNav onPricingPress={() => scrollToRef(pricingRef)} />
-        </View>
 
-        {/* Hero */}
+      {/* Landing header: always visible, one goal. No site navigation to
+          leak ad traffic away — just the brand, a phone number and the CTA. */}
+      <View style={styles.header} onLayout={(e) => setNavHeight(e.nativeEvent.layout.height)}>
+        <View style={[styles.wrap, styles.headerInner]}>
+          <Link href="/" style={styles.brand}>
+            <View style={styles.brandRow}>
+              <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
+              <Text style={styles.brandText}>Cantia</Text>
+            </View>
+          </Link>
+          <View style={styles.headerRight}>
+            {!isMobile ? (
+              <Link href={PHONE_TEL as any} onPress={() => trackCta('header_phone')}>
+                <Text style={styles.headerPhone}>{PHONE_DISPLAY}</Text>
+              </Link>
+            ) : null}
+            {!isMobile ? (
+              <Pressable onPress={() => scrollToRef(pricingRef)}>
+                <Text style={styles.headerLink}>Tarifs</Text>
+              </Pressable>
+            ) : null}
+            <Cta location="header" small label={isMobile ? '14 jours d’essai' : 'Essayer 14 jours'} />
+          </View>
+        </View>
+      </View>
+
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
+        {/* 1 · Hero */}
         <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
           <View
             ref={heroMountainRef}
@@ -177,18 +323,21 @@ export default function LogicielChantierPage() {
               </ScrollReveal>
               <ScrollReveal delay={420} style={styles.heroBody}>
                 <Text style={[styles.heroLede, isMobile && { fontSize: 17, lineHeight: 25 }]}>
-                  Excel, WhatsApp, papier : chaque outil qui manque vous coûte de l’argent quelque part sur un chantier.
-                  Cantia rassemble devis, factures QR, rapports, planning et salaires, du premier devis au paiement.
+                  Devis, factures QR, rapports, planning et salaires dans un seul outil suisse. Vos devis partent depuis le
+                  chantier, vos suppléments sont signés, vos factures sont payées.
                 </Text>
                 <View style={styles.ctaRow}>
-                  <Link href={authHref('signup')} asChild>
-                    <CtaButton title="Essayer 14 jours" />
-                  </Link>
-                  <Pressable onPress={() => scrollToRef(pricingRef)}>
-                    <Text style={styles.underlineLink}>Voir les tarifs</Text>
+                  <Cta location="hero" />
+                  <Pressable onPress={() => { trackCta('hero_examples'); scrollToRef(docsRef); }}>
+                    <Text style={styles.underlineLink}>Voir des documents réels</Text>
                   </Pressable>
                 </View>
-                <Text style={styles.heroFacts}>{FACTS.join(isMobile ? '\n' : '   ·   ')}</Text>
+                <Text style={styles.riskLine}>Aucun débit pendant 14 jours · Sans engagement · Résiliable en ligne</Text>
+                {orgCount ? (
+                  <Text style={styles.heroCount}>
+                    <Text style={styles.heroCountNum}>{orgCount}</Text> entreprises du bâtiment utilisent déjà Cantia
+                  </Text>
+                ) : null}
               </ScrollReveal>
             </View>
             {!isMobile ? (
@@ -201,29 +350,19 @@ export default function LogicielChantierPage() {
           </View>
         </View>
 
-        {isMobile ? (
-          <View style={[styles.wrap, { marginTop: spacing.lg }]}>
-            <Cartouche cells={CARTOUCHE} compact />
+        {/* 2 · Proof strip */}
+        <View style={styles.wrap}>
+          <View style={[styles.proof, isTablet && styles.proofCompact]}>
+            {PROOF.map((p, i) => (
+              <View key={p.value} style={[styles.proofCell, isTablet ? styles.proofCellCompact : i > 0 && styles.proofDivider]}>
+                <Text style={styles.proofValue}>{p.value}</Text>
+                <Text style={styles.proofLabel}>{p.label}</Text>
+              </View>
+            ))}
           </View>
-        ) : null}
+        </View>
 
-        {/* Product preview */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label="En quelques minutes" title="Du devis chiffré à la facture QR, sans ressaisie." />
-          <View style={[styles.split, isTablet && styles.splitCompact]}>
-            <View style={styles.splitCol}>
-              <Text style={styles.bodyLarge}>
-                Décrivez le travail à voix haute, Cantia chiffre avec votre catalogue de prix et génère un PDF prêt à
-                envoyer. La facture reprend ensuite les mêmes lignes, avec la QR-facture suisse.
-              </Text>
-            </View>
-            <View style={[styles.splitCol, { alignItems: 'center' }]}>
-              <ModuleMockup kind="devis" />
-            </View>
-          </View>
-        </ScrollReveal>
-
-        {/* Pain / solution — full-bleed dark band, concrete scenarios */}
+        {/* 3 · The problem, and what it costs */}
         <View style={styles.darkBand}>
           <ScrollReveal style={styles.wrap}>
             <Text style={styles.darkEyebrow}>La facture cachée</Text>
@@ -247,58 +386,131 @@ export default function LogicielChantierPage() {
                   </View>
                 ))}
               </View>
+              <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
+                <Cta location="problem" label="Arrêter de perdre de l’argent" />
+                <Text style={styles.ctaNote}>14 jours pour essayer, sans engagement</Text>
+              </View>
             </View>
           </ScrollReveal>
         </View>
 
-        {/* Features, as a parts list */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label="Fonctionnalités" title="Tout ce dont votre entreprise a besoin, dans un seul outil." />
-          <View style={styles.featureGrid}>
-            {FEATURES.map((f) => (
-              <Link key={f.title} href={f.href as any} asChild>
-                <Pressable style={StyleSheet.flatten([styles.featureCard, isMobile && { flexBasis: '100%' }])}>
-                  <Feather name={f.icon} size={20} color={colors.primary} />
-                  <Text style={styles.featureTitle}>{f.title}</Text>
-                  <Text style={styles.featureText}>{f.text}</Text>
-                  <Text style={styles.featureLink}>{f.href} →</Text>
-                </Pressable>
-              </Link>
-            ))}
-          </View>
-        </ScrollReveal>
+        {/* 4 · Real documents */}
+        <View ref={docsRef} style={[styles.wrap, styles.section]}>
+          <ScrollReveal>
+            <SectionHead label="La preuve" title="Voici ce que vos clients recevront." intro={dict.documents.intro} />
+            <DocumentShowcase dict={dict.documents} hrefFor={solutionHref} />
+            <View style={[styles.ctaRow, { marginTop: spacing.xxl }]}>
+              <Cta location="documents" label="Créer mon premier devis" />
+              <Text style={styles.ctaNote}>À vos couleurs, avec votre logo, dès aujourd’hui</Text>
+            </View>
+          </ScrollReveal>
+        </View>
 
-        {/* Pricing */}
+        {/* 5 · ROI calculator */}
+        <View style={[styles.wrap, styles.section]}>
+          <ScrollReveal>
+            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Entrez vos propres chiffres : le temps passé le soir sur les devis, les factures et les heures, et ce que vaut une heure de votre travail." />
+            <RoiCalculator compact={isTablet} />
+          </ScrollReveal>
+        </View>
+
+        {/* 6 · How to start */}
+        <View style={[styles.wrap, styles.section]}>
+          <ScrollReveal>
+            <SectionHead label="Démarrer" title="Opérationnel aujourd’hui, en trois étapes." />
+            <View style={[styles.columns, isTablet && styles.columnsCompact]}>
+              {STEPS.map((step, i) => (
+                <View key={step.title} style={[styles.column, isTablet ? styles.columnCompact : i > 0 && styles.columnDivider]}>
+                  <Text style={styles.stepNum}>{String(i + 1).padStart(2, '0')}</Text>
+                  <Text style={styles.columnTitle}>{step.title}</Text>
+                  <Text style={styles.bodyText}>{step.text}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
+              <Cta location="steps" label="Créer mon compte" />
+              <Text style={styles.ctaNote}>Deux minutes, aucun débit pendant 14 jours</Text>
+            </View>
+          </ScrollReveal>
+        </View>
+
+        {/* 7 · Everything included */}
+        <View style={[styles.wrap, styles.section]}>
+          <ScrollReveal>
+            <SectionHead label="Tout inclus" title="Un seul outil à la place de cinq." />
+            <View style={styles.featureGrid}>
+              {FEATURES.map((f) => (
+                <Link key={f.title} href={f.href as any} asChild>
+                  <Pressable style={StyleSheet.flatten([styles.featureCard, isMobile && { flexBasis: '100%' }])}>
+                    <Feather name={f.icon} size={20} color={colors.primary} />
+                    <Text style={styles.featureTitle}>{f.title}</Text>
+                    <Text style={styles.featureText}>{f.text}</Text>
+                  </Pressable>
+                </Link>
+              ))}
+            </View>
+          </ScrollReveal>
+        </View>
+
+        {/* 8 · Pricing */}
         <View ref={pricingRef} style={{ paddingTop: 64 }}>
           <PricingSection />
         </View>
 
-        {/* FAQ */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label="Avant de vous lancer" title="Questions fréquentes" />
-          <View style={styles.faqList}>
-            {FAQ.map((f) => (
-              <View key={f.question} style={styles.faqRow}>
-                <Text style={styles.faqQuestion}>{f.question}</Text>
-                <Text style={styles.faqAnswer}>{f.answer}</Text>
+        {/* 9 · Risk reversal */}
+        <View style={[styles.wrap, styles.section]}>
+          <View style={[styles.noRisk, isTablet && styles.noRiskCompact]}>
+            <View style={!isTablet ? { width: '32%' } : undefined}>
+              <Text style={styles.noRiskEyebrow}>Ce que vous risquez</Text>
+              <Text style={styles.noRiskTitle}>Rien.</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              {NO_RISK.map((r) => (
+                <View key={r.title} style={styles.noRiskRow}>
+                  <Feather name="check" size={18} color={colors.primary} style={{ marginTop: 2 }} />
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={styles.noRiskRowTitle}>{r.title}</Text>
+                    <Text style={styles.bodyText}>{r.text}</Text>
+                  </View>
+                </View>
+              ))}
+              <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
+                <Cta location="no_risk" />
               </View>
-            ))}
+            </View>
           </View>
-        </ScrollReveal>
+        </View>
 
-        {/* Closing CTA */}
+        {/* 10 · Objections */}
+        <View style={[styles.wrap, styles.section]}>
+          <ScrollReveal>
+            <SectionHead label="Avant de vous lancer" title="Les questions qu’on nous pose." />
+            <View style={styles.faqList}>
+              {FAQ.map((f) => (
+                <View key={f.question} style={styles.faqRow}>
+                  <Text style={styles.faqQuestion}>{f.question}</Text>
+                  <Text style={styles.faqAnswer}>{f.answer}</Text>
+                </View>
+              ))}
+            </View>
+          </ScrollReveal>
+        </View>
+
+        {/* 11 · Final call */}
         <View style={styles.closing}>
           <ScrollReveal style={styles.wrap}>
             <Text style={styles.closingEyebrow}>Prêt à essayer ?</Text>
-            <Text style={styles.closingTitle}>Chaque chantier géré à l’ancienne, c’est de l’argent que vous risquez.</Text>
+            <Text style={[styles.closingTitle, isMobile && { fontSize: 42, lineHeight: 42 }]}>Votre prochain devis peut partir ce soir.</Text>
             <Text style={styles.closingText}>
-              14 jours d’essai sur toutes les formules, sans engagement. Devis et factures illimités dès le premier jour.
+              Créez votre compte, dictez votre premier devis, envoyez-le. 14 jours pour juger sur vos vrais chantiers.
             </Text>
             <View style={styles.ctaRow}>
-              <Link href={authHref('signup')} asChild>
-                <CtaButton title="Essayer 14 jours" />
+              <Cta location="closing" />
+              <Link href={PHONE_TEL as any} onPress={() => trackCta('closing_phone')}>
+                <Text style={styles.closingPhone}>Une question avant ? {PHONE_DISPLAY}</Text>
               </Link>
             </View>
+            <Text style={styles.closingFacts}>{FACTS.join('   ·   ')}</Text>
           </ScrollReveal>
         </View>
 
@@ -309,6 +521,62 @@ export default function LogicielChantierPage() {
 }
 
 const styles = StyleSheet.create({
+  header: { backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: rule, zIndex: 5 },
+  headerInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 },
+  brand: {},
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  brandLogo: { width: 26, height: 26 },
+  brandText: { ...displayType, fontSize: 24, fontWeight: '800', color: ink },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
+  headerPhone: { ...monoType, fontSize: 12, color: ink },
+  headerLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: ink },
+  riskLine: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },
+  heroCount: { fontFamily: landingFonts.body, fontSize: 15, color: bodyInk },
+  heroCountNum: { fontWeight: '800', color: colors.primary },
+  ctaNote: { ...monoType, fontSize: 10.5, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.2 },
+
+  proof: { flexDirection: 'row', borderTopWidth: 1.5, borderTopColor: ink, borderBottomWidth: 1, borderBottomColor: rule, marginTop: spacing.lg },
+  proofCompact: { flexDirection: 'row', flexWrap: 'wrap' },
+  proofCell: { flex: 1, paddingVertical: spacing.lg, paddingRight: spacing.lg, gap: 4 },
+  proofCellCompact: { flexBasis: '50%', flexGrow: 0, width: '50%', paddingRight: spacing.md },
+  proofDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.lg },
+  proofValue: { ...displayType, fontSize: 34, lineHeight: 36, fontWeight: '800', color: ink },
+  proofLabel: { fontFamily: landingFonts.body, fontSize: 14, lineHeight: 20, color: bodyInk },
+
+  roi: { flexDirection: 'row', gap: 48, borderTopWidth: 1.5, borderTopColor: ink, paddingTop: spacing.xl },
+  roiCompact: { flexDirection: 'column', gap: spacing.xxl },
+  roiInputs: { gap: 0 },
+  roiRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule, flexWrap: 'wrap' },
+  roiLabel: { flex: 1, minWidth: 180, fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: ink },
+  stepper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ink, borderRadius: 3 },
+  stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  stepBtnText: { fontSize: 20, color: ink, lineHeight: 22 },
+  stepValue: { ...monoType, minWidth: 84, textAlign: 'center', fontSize: 14, color: ink, borderLeftWidth: 1, borderRightWidth: 1, borderColor: ink, paddingVertical: 10 },
+  roiNote: { ...monoType, fontSize: 10.5, lineHeight: 17, color: colors.textMuted, marginTop: spacing.md },
+  roiResult: { backgroundColor: ink, borderRadius: 3, padding: spacing.xl },
+  roiResultLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: '#E8AD89' },
+  roiBig: { ...displayType, fontSize: 64, lineHeight: 66, fontWeight: '800', color: '#FBF6EE', marginBottom: spacing.md },
+  roiDivider: { height: 1, backgroundColor: 'rgba(251,246,238,0.2)', marginVertical: spacing.sm },
+  roiCompare: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 24, color: '#D5C8B8' },
+
+  columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
+  columnsCompact: { flexDirection: 'column', borderBottomWidth: 0 },
+  column: { flex: 1, gap: spacing.sm, paddingRight: spacing.xl, paddingBottom: spacing.xl },
+  columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.xl },
+  columnCompact: { borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg, paddingRight: 0 },
+  columnTitle: { fontFamily: landingFonts.body, fontSize: 20, fontWeight: '700', lineHeight: 26, color: ink },
+  stepNum: { ...monoType, fontSize: 12, color: colors.primary },
+  bodyText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
+
+  noRisk: { flexDirection: 'row', gap: 48, borderTopWidth: 1.5, borderTopColor: ink, paddingTop: spacing.xl },
+  noRiskCompact: { flexDirection: 'column', gap: spacing.lg },
+  noRiskEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
+  noRiskTitle: { ...displayType, fontSize: 96, lineHeight: 96, fontWeight: '800', color: ink, marginTop: spacing.sm },
+  noRiskRow: { flexDirection: 'row', gap: spacing.md, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule },
+  noRiskRowTitle: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
+  closingPhone: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: '#F1E6D5', borderBottomWidth: 1.5, borderBottomColor: '#F1E6D5', paddingBottom: 2 },
+  closingFacts: { ...monoType, fontSize: 10.5, letterSpacing: 0.2, color: '#A8988A', textTransform: 'uppercase', marginTop: spacing.xxl },
+
   wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
   section: { paddingTop: 112 },
   bodyLarge: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 30, color: bodyInk, maxWidth: 520 },
@@ -367,7 +635,7 @@ const styles = StyleSheet.create({
   reliefCard: { marginTop: spacing.xxl, backgroundColor: colors.bg, borderRadius: 3, padding: spacing.xl },
   reliefLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase', marginBottom: spacing.lg },
   reliefGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xl, rowGap: spacing.md },
-  reliefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, flexBasis: 440, flexGrow: 1 },
+  reliefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, flexBasis: 440, flexGrow: 1, flexShrink: 1, minWidth: 0, maxWidth: '100%' },
   reliefText: { flex: 1, fontFamily: landingFonts.body, fontSize: 16, color: ink, lineHeight: 24 },
 
   featureGrid: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1.5, borderTopColor: ink },
