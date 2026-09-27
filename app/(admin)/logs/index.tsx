@@ -6,6 +6,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listAuditLogs } from '../../../lib/api/admin';
 import type { AdminAuditLog } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 const ACTION_LABEL: Record<string, string> = {
   module_enabled: 'Module activé',
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

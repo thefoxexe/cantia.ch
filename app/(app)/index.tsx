@@ -12,6 +12,7 @@ import { FeatureHint } from '../../components/FeatureHint';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { DashboardTask, DashboardTaskCategory, OrganizationMember, Project } from '../../lib/types';
+import { displayType } from '../../lib/marketingTheme';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -420,6 +421,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   org: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
@@ -439,6 +441,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   clockText: {
+    ...displayType,
     fontSize: 28,
     fontWeight: '800',
     color: colors.text,

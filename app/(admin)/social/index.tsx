@@ -11,6 +11,7 @@ import { generateSocialPostDataUrl, SOCIAL_FORMAT_LABEL, type SocialFormat } fro
 import { SOCIAL_SCENES, type SocialScene } from '../../../lib/socialIllustrations';
 import { downloadFile } from '../../../lib/downloadFile';
 import type { AdminSocialPost, SocialPostStatus } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 const STATUS_ORDER: SocialPostStatus[] = ['idee', 'pret', 'publie'];
 const STATUS_LABEL: Record<SocialPostStatus, string> = {
@@ -508,6 +509,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

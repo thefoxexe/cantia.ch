@@ -7,6 +7,7 @@ import { Button, Field, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES, TRADE_KEYS } from '../../../lib/trades';
+import { displayType } from '../../../lib/marketingTheme';
 
 export default function CreateOrganizationScreen() {
   const { t } = useTranslation();
@@ -93,6 +94,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

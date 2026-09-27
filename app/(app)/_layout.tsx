@@ -6,6 +6,7 @@ import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../lib/auth-context';
 import { isModuleEnabled } from '../../lib/modules';
+import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 import { AccountMenu } from '../../components/AccountMenu';
 import { NotificationBell } from '../../components/NotificationBell';
@@ -343,7 +344,8 @@ const styles = StyleSheet.create({
     height: 24,
   },
   mobileBrand: {
-    fontSize: fontSize.md,
+    ...displayType,
+    fontSize: 20,
     fontWeight: '800',
     color: colors.text,
     flexShrink: 1,
@@ -399,7 +401,8 @@ const styles = StyleSheet.create({
     height: 28,
   },
   sidebarBrandText: {
-    fontSize: fontSize.lg,
+    ...displayType,
+    fontSize: 24,
     fontWeight: '800',
     color: colors.text,
   },
@@ -424,10 +427,11 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   sidebarSectionTitle: {
-    fontSize: 11,
-    fontWeight: '800',
+    ...monoType,
+    fontSize: 10.5,
     color: colors.textMuted,
-    letterSpacing: 0.6,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
     paddingHorizontal: spacing.sm,
     marginBottom: spacing.xs,
   },
@@ -443,8 +447,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 0,
   },
+  // Active item: a terracotta rule on the left edge and ink text, like the
+  // marketing site's selected tabs — no filled bubble.
   sidebarItemActive: {
     backgroundColor: colors.primarySoft,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.primary,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
   },
   sidebarItemText: {
     fontSize: fontSize.md,
@@ -452,7 +462,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   sidebarItemTextActive: {
-    color: colors.primary,
+    color: colors.text,
+    fontWeight: '700',
   },
   desktopContent: {
     flex: 1,

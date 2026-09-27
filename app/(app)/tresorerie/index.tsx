@@ -9,6 +9,7 @@ import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan, RecurringExpense, TreasuryForecast, TreasuryForecastItem, TreasuryItemKind } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -317,6 +318,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   balanceValue: {
+    ...displayType,
     fontSize: fontSize.xxxl,
     fontWeight: '800',
     color: colors.text,

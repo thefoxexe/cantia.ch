@@ -29,6 +29,7 @@ import { ProjectPicker } from '../../../components/ProjectPicker';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Expense, Plan, Project, RecurringExpense, RecurringExpenseFrequency } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 type Period = 'all' | 'month' | '30d';
 type Tab = 'list' | 'recurring';
@@ -872,6 +873,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   totalValue: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

@@ -9,6 +9,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { useAdminData } from '../../../lib/adminDataContext';
 import { deletePlatformExpense, listPlatformExpenses, upsertPlatformExpense } from '../../../lib/api/admin';
 import type { AdminPlatformExpense, AdminRevenueTransaction, PlatformExpenseCategory } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 2 }).format(amount);
@@ -450,6 +451,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

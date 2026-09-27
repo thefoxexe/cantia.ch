@@ -18,6 +18,7 @@ import { Link, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, AVAILABLE_LOCALES, type AppLocale } from '../lib/translations';
+import { displayType } from '../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -490,11 +491,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.05,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 1,
   },
   pageHeader: {
     flexDirection: 'row',
@@ -519,7 +515,9 @@ const styles = StyleSheet.create({
   },
   pageHeaderTitle: {
     flex: 1,
-    fontSize: fontSize.xl,
+    ...displayType,
+    fontSize: 30,
+    lineHeight: 32,
     fontWeight: '800',
     color: colors.text,
   },
@@ -542,11 +540,6 @@ const styles = StyleSheet.create({
   },
   buttonPrimary: {
     backgroundColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.22,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
   },
   buttonSecondary: {
     backgroundColor: colors.surface,
@@ -555,11 +548,6 @@ const styles = StyleSheet.create({
   },
   buttonDanger: {
     backgroundColor: colors.danger,
-    shadowColor: colors.danger,
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -568,7 +556,6 @@ const styles = StyleSheet.create({
   },
   buttonPressed: {
     opacity: 0.88,
-    transform: [{ scale: 0.98 }],
   },
   buttonPressedSecondary: {
     backgroundColor: colors.surfaceAlt,

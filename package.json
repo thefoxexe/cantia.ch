@@ -58,7 +58,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:marketing": "node scripts/build-marketing.mjs"
+    "build:marketing": "node scripts/build-marketing.mjs",
+    "postinstall": "node scripts/patch-rnw-font.mjs"
   },
   "private": true
 }

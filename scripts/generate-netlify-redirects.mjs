@@ -26,7 +26,7 @@ const blocks = nonBlog
   .join('\n\n');
 
 const header = `[build]
-  command = "npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs"
+  command = "node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs"
   publish = "dist"
 
 [build.environment]

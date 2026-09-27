@@ -11,6 +11,7 @@ import { getAppLocale, useTranslation } from '../../lib/translations';
 import { planHref } from '../../lib/appHost';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
+import { displayType } from '../../lib/marketingTheme';
 
 export default function ChoosePlanScreen() {
   const { t } = useTranslation();
@@ -362,6 +363,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
@@ -584,6 +586,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   price: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

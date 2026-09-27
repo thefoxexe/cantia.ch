@@ -7,6 +7,7 @@ import { TrafficChart } from '../../../components/TrafficChart';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getSiteTrafficOverview } from '../../../lib/api/admin';
 import type { AdminSiteTrafficOverview } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 function pct(current: number, previous: number): { label: string; direction: 'up' | 'down' | 'flat' } {
   if (previous === 0) {
@@ -263,6 +264,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
@@ -306,6 +308,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   statValue: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.primary,

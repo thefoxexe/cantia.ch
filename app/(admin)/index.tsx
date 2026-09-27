@@ -10,6 +10,7 @@ import { TrialForecast } from '../../components/TrialForecast';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { useAdminData } from '../../lib/adminDataContext';
 import type { AdminRevenueOverview } from '../../lib/types';
+import { displayType } from '../../lib/marketingTheme';
 
 function formatChf(amount: number, decimals = 0): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: decimals }).format(amount);
@@ -170,6 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
@@ -192,6 +194,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   heroValue: {
+    ...displayType,
     fontSize: 44,
     fontWeight: '800',
     color: '#fff',

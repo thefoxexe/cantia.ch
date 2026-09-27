@@ -7,6 +7,7 @@ import { getMyPendingRequest, cancelJoinRequest, type MyJoinRequest } from '../.
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { displayType } from '../../../lib/marketingTheme';
 
 export default function OnboardingHubScreen() {
   const { t } = useTranslation();
@@ -99,6 +100,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

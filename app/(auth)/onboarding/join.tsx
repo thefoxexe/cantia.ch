@@ -8,6 +8,7 @@ import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { OrganizationSearchResult } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 export default function JoinOrganizationScreen() {
   const { t } = useTranslation();
@@ -160,6 +161,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

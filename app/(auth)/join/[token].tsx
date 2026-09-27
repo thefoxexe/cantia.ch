@@ -9,6 +9,7 @@ import { setPendingInvite, clearPendingInvite } from '../../../lib/pendingInvite
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
+import { displayType } from '../../../lib/marketingTheme';
 
 export default function JoinScreen() {
   const { t } = useTranslation();
@@ -238,6 +239,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   orgName: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.primary,

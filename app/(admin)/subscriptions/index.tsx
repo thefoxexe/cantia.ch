@@ -12,6 +12,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import type { AdminOrgBillingStatus, AdminOrganizationSummary } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 const PAGE_SIZE = 50;
 
@@ -186,6 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

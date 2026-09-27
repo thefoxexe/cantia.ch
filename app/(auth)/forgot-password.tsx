@@ -5,6 +5,7 @@ import { useAuth } from '../../lib/auth-context';
 import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
+import { displayType } from '../../lib/marketingTheme';
 
 export default function ForgotPasswordScreen() {
   const { t } = useTranslation();
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   brand: {
+    ...displayType,
     fontSize: 34,
     fontWeight: '800',
     color: colors.primary,

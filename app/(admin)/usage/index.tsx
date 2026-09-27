@@ -7,6 +7,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getFeatureUsage, getFeatureUsageByOrg } from '../../../lib/api/admin';
 import type { AdminFeatureUsage, AdminFeatureUsageByOrg } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 const CATEGORY_ORDER = ['coeur_metier', 'rh', 'finance', 'integrations', 'ia', 'personnalisation'];
 const CATEGORY_LABEL: Record<string, string> = {
@@ -166,6 +167,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

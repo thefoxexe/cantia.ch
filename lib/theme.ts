@@ -39,11 +39,14 @@ export const spacing = {
   xxxl: 48,
 };
 
+// Crisp corners, matching the brand identity (September 2026, see
+// lib/marketingTheme.ts): controls and cards read as drawn objects, not
+// bubbles. pill stays for true pills (badges, toggles, avatars).
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 22,
+  sm: 3,
+  md: 4,
+  lg: 6,
+  xl: 8,
   pill: 999,
 };
 

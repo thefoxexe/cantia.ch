@@ -9,6 +9,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { deleteTutorialChapter, listTutorialChapters, upsertTutorialChapter } from '../../../lib/api/admin';
 import { buildPublicVideoDescription } from '../../../lib/tutorialYoutubeDescription';
 import type { AdminTutorialChapter, TutorialChapterStatus } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 const STATUS_ORDER: TutorialChapterStatus[] = ['a_faire', 'tourne', 'monte', 'publie'];
 const STATUS_LABEL: Record<TutorialChapterStatus, string> = {
@@ -408,6 +409,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

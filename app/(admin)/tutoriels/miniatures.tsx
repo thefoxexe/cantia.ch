@@ -12,6 +12,7 @@ import { generateThumbnailDataUrl } from '../../../lib/thumbnailGenerator';
 import { buildYoutubeDescription, buildYoutubeTitle } from '../../../lib/tutorialYoutubeDescription';
 import { downloadFile } from '../../../lib/downloadFile';
 import type { AdminTutorialChapter } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 function slugify(title: string): string {
   return title
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,

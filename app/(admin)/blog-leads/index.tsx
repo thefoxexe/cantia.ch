@@ -6,6 +6,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getBlogFunnelOverview } from '../../../lib/api/admin';
 import type { AdminBlogFunnelOverview } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
@@ -134,6 +135,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   statValue: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.primary,

@@ -8,6 +8,7 @@ import { BackToSiteButton, Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { siteHomeHref } from '../../lib/appHost';
+import { displayType } from '../../lib/marketingTheme';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -101,6 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   brand: {
+    ...displayType,
     fontSize: 34,
     fontWeight: '800',
     color: colors.primary,

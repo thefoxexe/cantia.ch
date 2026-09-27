@@ -18,6 +18,7 @@ import { SwissAddressField } from '../../../components/SwissAddressField';
 import { isValidSwissIban, formatIban } from '../../../lib/iban';
 import { ORG_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import type { Plan } from '../../../lib/types';
+import { displayType } from '../../../lib/marketingTheme';
 
 const DEFAULT_BRAND_COLOR = '#1F3D3A';
 const DEFAULT_ACTIVE_MODULES: ModuleKey[] = ['devis', 'planning'];
@@ -664,6 +665,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   title: {
+    ...displayType,
     fontSize: fontSize.xxl,
     fontWeight: '800',
     color: colors.text,
