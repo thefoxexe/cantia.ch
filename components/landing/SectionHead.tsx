@@ -17,7 +17,7 @@ export function SectionHead({ label, title, intro }: { label?: string; title: st
         {label ? <Text style={styles.label}>{label}</Text> : null}
       </View>
       <View style={compact ? undefined : styles.mainCol}>
-        <Text style={[styles.title, { fontSize: size, lineHeight: Math.round(size * 0.98) }]}>{title}</Text>
+        <Text role="heading" aria-level={2} style={[styles.title, { fontSize: size, lineHeight: Math.round(size * 0.98) }]}>{title}</Text>
         {intro ? <Text style={styles.intro}>{intro}</Text> : null}
       </View>
     </View>

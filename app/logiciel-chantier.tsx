@@ -153,7 +153,7 @@ export default function LogicielChantierPage() {
                 <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
               </ScrollReveal>
               <ScrollReveal delay={120}>
-                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>
+                <Text role="heading" aria-level={1} style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>
                   Reprenez le contrôle de vos chantiers.
                 </Text>
                 <View style={styles.crossedWrap}>

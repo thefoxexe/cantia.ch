@@ -3883,7 +3883,21 @@ export function jsonLdFor(url, route) {
       url: `${SITE}/`,
       logo: ORG_LOGO,
       email: 'info@cantia.ch',
+      telephone: '+41 78 450 14 57',
       areaServed: { '@type': 'Country', name: 'Switzerland' },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: 'info@cantia.ch',
+        telephone: '+41 78 450 14 57',
+        areaServed: 'CH',
+        availableLanguage: ['French', 'German', 'Italian'],
+      },
+      sameAs: [
+        'https://www.instagram.com/cantia.ch/',
+        'https://www.linkedin.com/company/cantiach/',
+        'https://www.youtube.com/@Cantiach',
+      ],
     },
   ];
 

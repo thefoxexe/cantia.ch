@@ -26,7 +26,7 @@ const blocks = nonBlog
   .join('\n\n');
 
 const header = `[build]
-  command = "npx expo export -p web -c && node scripts/inject-seo-meta.mjs"
+  command = "npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs"
   publish = "dist"
 
 [build.environment]
@@ -46,6 +46,17 @@ const header = `[build]
 # generated — do not hand-edit it, run
 # \`node scripts/generate-netlify-redirects.mjs\` after adding a route to
 # scripts/seo-routes.mjs instead.
+
+# app.cantia.ch shares this export, but its "/" is the signed-in app's entry
+# (it redirects to the dashboard or the login screen), never the marketing
+# homepage — serve the client-rendered shell there instead of the
+# pre-rendered homepage, so nobody sees the landing page flash before the
+# redirect. Exact path only: every asset request must still hit its file.
+[[redirects]]
+  from = "https://app.cantia.ch/"
+  to = "/app-shell.html"
+  status = 200
+  force = true
 
 ${blocks}
 
@@ -88,15 +99,15 @@ ${blocks}
 # the explicit rules above, so anything reaching this one is a genuinely
 # dead/mistyped URL — app/+not-found.tsx renders its branded page either
 # way, but a real 404 status here (not a "soft 404") is what tells Search
-# Console this URL isn't meant to be indexed. Netlify still serves
-# index.html's content with that status, so nothing breaks for a visitor or
+# Console this URL isn't meant to be indexed. Netlify serves app-shell.html
+# (the client-rendered shell written by scripts/inject-seo-meta.mjs) with that status, so nothing breaks for a visitor or
 # for app.cantia.ch's own client-side routes (that host is already
 # excluded from indexing — see lib/appHost.ts's excludeAppHostFromIndexing
 # — and a non-200 status on the initial document never stops a browser
 # from rendering/hydrating it).
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/app-shell.html"
   status = 404
 `;
 

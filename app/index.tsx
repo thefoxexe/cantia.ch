@@ -119,6 +119,8 @@ function LandingContent() {
               </ScrollReveal>
 
               <ScrollReveal delay={120}>
+                {/* One <h1> for the whole headline (role heading → <h1> on web). */}
+                <View role="heading" aria-level={1}>
                 <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titlePrefix}</Text>
                 <View style={styles.h1Line2}>
                   <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titleHighlight} </Text>
@@ -126,6 +128,7 @@ function LandingContent() {
                     <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.crossedText}</Text>
                     <HeroCross />
                   </View>
+                </View>
                 </View>
               </ScrollReveal>
 

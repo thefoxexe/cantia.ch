@@ -1,15 +1,11 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
-// Customizes the root HTML document for web builds only (native ignores this
-// file entirely). Its only job here is loading the marketing-site typefaces
-// as real `<link>` tags so they arrive with the page instead of a runtime
-// fetch, and font-display: swap keeps first paint from blocking on the font
-// request. The app's own screens don't reference any of these families, so
-// this has no visual effect outside app/index.tsx, app/solutions/*,
-// app/telechargement.tsx and MarketingChrome.
-// - Archivo (variable width, condensed for headings) + Martian Mono: the
-//   brand typography of every marketing page — see lib/marketingTheme.ts.
+// The root HTML document of every page pre-rendered at build time
+// (app.json web.output "static"; native ignores this file). Loads the brand
+// typefaces (Archivo + Martian Mono, see lib/marketingTheme.ts) and the
+// Google Ads tag as real tags in the <head>. Per-page SEO tags are added
+// afterwards by scripts/inject-seo-meta.mjs.
 export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="fr">

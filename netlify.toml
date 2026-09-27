@@ -20,6 +20,27 @@
 # `node scripts/generate-netlify-redirects.mjs` after adding a route to
 # scripts/seo-routes.mjs instead.
 
+# app.cantia.ch shares this export, but its "/" is the signed-in app's entry
+# (it redirects to the dashboard or the login screen), never the marketing
+# homepage — serve the client-rendered shell there instead of the
+# pre-rendered homepage, so nobody sees the landing page flash before the
+# redirect. Exact path only: every asset request must still hit its file.
+[[redirects]]
+  from = "https://app.cantia.ch/"
+  to = "/app-shell.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/tarifs"
+  to = "/tarifs/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/logiciel-chantier"
+  to = "/logiciel-chantier/index.html"
+  status = 200
+
 [[redirects]]
   from = "/solutions/devis"
   to = "/solutions/devis/index.html"
@@ -706,8 +727,83 @@
   status = 200
 
 [[redirects]]
+  from = "/de/aide/tableau-de-bord"
+  to = "/de/aide/tableau-de-bord/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/rejoindre-organisation"
+  to = "/de/aide/rejoindre-organisation/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/dictee-vocale"
+  to = "/de/aide/dictee-vocale/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/chantiers-documents"
+  to = "/de/aide/chantiers-documents/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/chantiers-sous-traitants"
+  to = "/de/aide/chantiers-sous-traitants/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/travaux-supplementaires"
+  to = "/de/aide/travaux-supplementaires/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/rh-heures-salaires"
+  to = "/de/aide/rh-heures-salaires/index.html"
+  status = 200
+
+[[redirects]]
   from = "/de/aide/rh-heures-guide"
   to = "/de/aide/rh-heures-guide/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/tresorerie"
+  to = "/de/aide/tresorerie/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/depenses"
+  to = "/de/aide/depenses/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/clients"
+  to = "/de/aide/clients/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/sous-traitants"
+  to = "/de/aide/sous-traitants/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/integration-bexio"
+  to = "/de/aide/integration-bexio/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/relances-impayes"
+  to = "/de/aide/relances-impayes/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/import-releve-bancaire"
+  to = "/de/aide/import-releve-bancaire/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/aide/portail-client"
+  to = "/de/aide/portail-client/index.html"
   status = 200
 
 [[redirects]]
@@ -1134,13 +1230,13 @@
 # the explicit rules above, so anything reaching this one is a genuinely
 # dead/mistyped URL — app/+not-found.tsx renders its branded page either
 # way, but a real 404 status here (not a "soft 404") is what tells Search
-# Console this URL isn't meant to be indexed. Netlify still serves
-# index.html's content with that status, so nothing breaks for a visitor or
+# Console this URL isn't meant to be indexed. Netlify serves app-shell.html
+# (the client-rendered shell written by scripts/inject-seo-meta.mjs) with that status, so nothing breaks for a visitor or
 # for app.cantia.ch's own client-side routes (that host is already
 # excluded from indexing — see lib/appHost.ts's excludeAppHostFromIndexing
 # — and a non-200 status on the initial document never stops a browser
 # from rendering/hydrating it).
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/app-shell.html"
   status = 404

@@ -76,7 +76,7 @@ export function StoryShowcase({ dict, hrefFor }: { dict: Dict['stories']; hrefFo
       <View style={[styles.stage, isCompact && styles.stageCompact]}>
         <View style={[styles.problem, !isCompact && { flex: 0.85 }]}>
           <Text style={styles.context}>{active.context}</Text>
-          <Text style={styles.question}>{active.question}</Text>
+          <Text role="heading" aria-level={3} style={styles.question}>{active.question}</Text>
         </View>
         <View style={[styles.response, !isCompact && { flex: 1.2 }]}>
           <View style={styles.responseSignature}>

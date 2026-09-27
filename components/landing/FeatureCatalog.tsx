@@ -28,7 +28,7 @@ export function FeatureCatalog({ dict, hrefFor }: { dict: Dict['catalog']; hrefF
           <Pressable style={StyleSheet.flatten([styles.row, compact && styles.rowCompact])}>
             <Text style={[styles.ref, !compact && styles.refCol]}>/{group.linkSlug}</Text>
             <View style={!compact ? styles.titleCol : undefined}>
-              <Text style={styles.title}>{group.title}</Text>
+              <Text role="heading" aria-level={3} style={styles.title}>{group.title}</Text>
               <Text style={styles.subtitle}>{group.subtitle}</Text>
             </View>
             <View style={[!compact ? styles.itemsCol : undefined, styles.itemsWrap]}>

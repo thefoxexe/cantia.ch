@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Dimensions, Platform } from 'react-native';
 import { Stack, useRouter, usePathname, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,11 +8,20 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
+import { forceLocale } from '../lib/translations';
 import { trackPageview } from '../lib/siteAnalytics';
 import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
 import '../lib/pwaInstall';
+
+// Build-time static rendering has no window: give React Native Web a desktop
+// viewport so the HTML crawlers read is the full desktop layout instead of
+// a zero-width one.
+if (Platform.OS === 'web' && typeof window === 'undefined') {
+  const size = { width: 1440, height: 900, scale: 1, fontScale: 1 };
+  (Dimensions as unknown as { set: (d: unknown) => void }).set({ window: size, screen: size });
+}
 
 function RootNavigation() {
   const { session, organization, loading, isPlatformAdmin, isPasswordRecovery } = useAuth();
@@ -150,12 +160,40 @@ function RootNavigation() {
   );
 }
 
+// The marketing URL is the source of truth for its language (/de/…, /it/…,
+// French otherwise). Applied synchronously during render — not in an effect —
+// so the build-time static HTML of every page (web.output "static") comes out
+// in the right language, and the browser's first render matches it when it
+// hydrates. Each /de and /it route file also calls forceLocale() at module
+// scope, but every route module is loaded in the same process at build time,
+// so those calls alone would leave whichever ran last in charge. The app host
+// (app.cantia.ch) keeps the signed-in member's own language instead.
+function MarketingLocaleFromPath() {
+  const pathname = usePathname();
+  if (Platform.OS === 'web' && !isAppHost()) {
+    const prefixed = (['de', 'it'] as const).find((loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`));
+    forceLocale(prefixed ?? 'fr');
+  }
+  return null;
+}
+
+// Pre-rendered pages keep #root hidden until React has rendered in the
+// browser (scripts/inject-seo-meta.mjs) — this reveals it.
+function MarkHydrated() {
+  useEffect(() => {
+    if (typeof document !== 'undefined') document.documentElement.classList.add('hydrated');
+  }, []);
+  return null;
+}
+
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
           <StatusBar style="dark" />
+          <MarketingLocaleFromPath />
+          <MarkHydrated />
           <RootNavigation />
         </AuthProvider>
       </SafeAreaProvider>
