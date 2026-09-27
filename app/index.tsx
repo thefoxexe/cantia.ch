@@ -12,6 +12,7 @@ import { SwissCross } from '../components/SwissCross';
 import { CtaButton } from '../components/landing/CtaButton';
 import { SectionHead } from '../components/landing/SectionHead';
 import { Cartouche } from '../components/landing/Cartouche';
+import { useHeroFit } from '../components/landing/useHeroFit';
 import { bodyInk, ink, rule } from '../components/landing/brand';
 import { StoryShowcase } from '../components/landing/StoryShowcase';
 import { FeatureCatalog } from '../components/landing/FeatureCatalog';
@@ -62,8 +63,15 @@ function LandingContent() {
   const isTablet = width < breakpoints.desktop;
   const showHeroMountainFull = !isMobile;
   const showHeroMountainPeek = isMobile;
-  const heroMinHeight = showHeroMountainFull ? clamp(600, height * 0.88, 940) : undefined;
-  const heroTitleSize = isMobile ? clamp(46, width * 0.13, 64) : clamp(64, width * 0.075, 116);
+  // The hero always fills exactly the screen under the nav, and its headline
+  // shrinks as needed so everything down to the title block stays visible.
+  const [navHeight, setNavHeight] = useState(isMobile ? 80 : 96);
+  const heroAvailable = Math.max(0, height - navHeight);
+  const heroDesigned = isMobile ? clamp(44, width * 0.13, 64) : clamp(64, width * 0.075, 116);
+  // chrome: heroCopy paddingTop + cartouche marginTop + hero paddingBottom.
+  const heroFit = useHeroFit({ designed: heroDesigned, min: isMobile ? 34 : 48, available: heroAvailable, chrome: isMobile ? spacing.xxxl + spacing.xl : spacing.xxxl + spacing.xl + spacing.xl });
+  const heroTitleSize = heroFit.size;
+  const heroMinHeight = heroAvailable || undefined;
   const closingTitleSize = clamp(44, width * 0.07, 96);
 
   const scrollRef = useRef<ScrollView>(null);
@@ -98,7 +106,9 @@ function LandingContent() {
     <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('home', appLocale)} />
 
-      <MarketingNav onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
+      <View onLayout={(e) => setNavHeight(e.nativeEvent.layout.height)}>
+        <MarketingNav onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
+      </View>
 
       <ScrollView ref={scrollRef}>
         {/* ——— Hero: the mountain stays, the type does the talking ——— */}
@@ -111,8 +121,8 @@ function LandingContent() {
             />
           ) : null}
           {showHeroMountainFull || showHeroMountainPeek ? <View pointerEvents="none" style={styles.heroBottomFade} /> : null}
-          <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }, showHeroMountainFull && styles.heroCopySpread]}>
-            <View style={[styles.heroMain, !isTablet && { maxWidth: '56%' }]}>
+          <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }, styles.heroCopySpread]}>
+            <View onLayout={heroFit.onPartLayout('main')} style={[styles.heroMain, !isTablet && { maxWidth: '56%' }]}>
               <ScrollReveal style={styles.heroKicker}>
                 <SwissCross size={14} />
                 <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
@@ -120,7 +130,7 @@ function LandingContent() {
 
               <ScrollReveal delay={120}>
                 {/* One <h1> for the whole headline (role heading → <h1> on web). */}
-                <View role="heading" aria-level={1}>
+                <View role="heading" aria-level={1} onLayout={heroFit.onTitleLayout}>
                 <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titlePrefix}</Text>
                 <View style={styles.h1Line2}>
                   <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titleHighlight} </Text>
@@ -133,7 +143,7 @@ function LandingContent() {
               </ScrollReveal>
 
               <ScrollReveal delay={420} style={styles.heroBody}>
-                <Text style={styles.heroLede}>{t.hero.lede}</Text>
+                <Text style={[styles.heroLede, isMobile && styles.heroLedeMobile]}>{t.hero.lede}</Text>
                 <View style={styles.heroCtas}>
                   <Link href={authHref('signup')} asChild>
                     <CtaButton title={t.hero.cta} />
@@ -147,11 +157,23 @@ function LandingContent() {
               </ScrollReveal>
             </View>
 
-            <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && styles.heroCartoucheCompact]}>
-              <Cartouche cells={t.hero.cartouche} compact={isMobile} />
-            </ScrollReveal>
+            {/* On phones the title block moves just below the hero, so the
+                hero itself (headline, lede, CTA, facts) fits one screen. */}
+            {!isMobile ? (
+              <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && styles.heroCartoucheCompact]}>
+                <View onLayout={heroFit.onPartLayout('cartouche')}>
+                  <Cartouche cells={t.hero.cartouche} compact={false} />
+                </View>
+              </ScrollReveal>
+            ) : null}
           </View>
         </View>
+
+        {isMobile ? (
+          <View style={[styles.wrap, { marginTop: spacing.lg }]}>
+            <Cartouche cells={t.hero.cartouche} compact />
+          </View>
+        ) : null}
 
         {/* ——— Swiss facts: three ruled columns, no cards ——— */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
@@ -465,7 +487,8 @@ const styles = StyleSheet.create({
   h1: { ...displayType, fontWeight: '800', letterSpacing: -0.5, color: ink },
   h1Line2: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end' },
   crossedWrap: { position: 'relative' },
-  heroBody: { marginTop: spacing.xxl, gap: spacing.lg, maxWidth: 660 },
+  heroBody: { marginTop: spacing.xxl, gap: spacing.lg, maxWidth: 780 },
+  heroLedeMobile: { fontSize: 17, lineHeight: 25 },
   heroLede: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 29, color: ink, maxWidth: 540 },
   heroCtas: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xs },
   heroFacts: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },

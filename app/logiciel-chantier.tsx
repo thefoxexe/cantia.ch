@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import { Screen } from '../components/ui';
 import { CtaButton } from '../components/landing/CtaButton';
 import { SectionHead } from '../components/landing/SectionHead';
 import { Cartouche } from '../components/landing/Cartouche';
+import { useHeroFit } from '../components/landing/useHeroFit';
 import { bodyInk, ink, rule } from '../components/landing/brand';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
@@ -114,8 +115,17 @@ export default function LogicielChantierPage() {
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width < breakpoints.desktop;
-  const heroMinHeight = !isMobile ? clamp(560, height * 0.82, 880) : undefined;
-  const heroTitleSize = isMobile ? clamp(44, width * 0.12, 60) : clamp(60, width * 0.066, 104);
+  // Same fit-to-screen hero as the homepage (components/landing/useHeroFit).
+  const [navHeight, setNavHeight] = useState(isMobile ? 80 : 96);
+  const heroAvailable = Math.max(0, height - navHeight);
+  const heroFit = useHeroFit({
+    designed: isMobile ? clamp(42, width * 0.12, 60) : clamp(60, width * 0.066, 104),
+    min: isMobile ? 32 : 46,
+    available: heroAvailable,
+    chrome: isMobile ? spacing.xxxl + spacing.xl : spacing.xxxl + spacing.xxl + spacing.xl,
+  });
+  const heroTitleSize = heroFit.size;
+  const heroMinHeight = heroAvailable || undefined;
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -136,7 +146,9 @@ export default function LogicielChantierPage() {
         description="Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. 14 jours d’essai, sans engagement, hébergé en Suisse."
       />
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
-        <MarketingNav onPricingPress={() => scrollToRef(pricingRef)} />
+        <View onLayout={(e) => setNavHeight(e.nativeEvent.layout.height)}>
+          <MarketingNav onPricingPress={() => scrollToRef(pricingRef)} />
+        </View>
 
         {/* Hero */}
         <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
@@ -147,13 +159,13 @@ export default function LogicielChantierPage() {
           />
           <View pointerEvents="none" style={styles.heroBottomFade} />
           <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }]}>
-            <View style={!isTablet ? { maxWidth: '58%' } : undefined}>
+            <View onLayout={heroFit.onPartLayout('main')} style={!isTablet ? { maxWidth: '58%' } : undefined}>
               <ScrollReveal style={styles.heroKicker}>
                 <SwissCross size={14} />
                 <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
               </ScrollReveal>
               <ScrollReveal delay={120}>
-                <Text role="heading" aria-level={1} style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>
+                <Text onLayout={heroFit.onTitleLayout} role="heading" aria-level={1} style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>
                   Reprenez le contrôle de vos chantiers.
                 </Text>
                 <View style={styles.crossedWrap}>
@@ -164,7 +176,7 @@ export default function LogicielChantierPage() {
                 </View>
               </ScrollReveal>
               <ScrollReveal delay={420} style={styles.heroBody}>
-                <Text style={styles.heroLede}>
+                <Text style={[styles.heroLede, isMobile && { fontSize: 17, lineHeight: 25 }]}>
                   Excel, WhatsApp, papier : chaque outil qui manque vous coûte de l’argent quelque part sur un chantier.
                   Cantia rassemble devis, factures QR, rapports, planning et salaires, du premier devis au paiement.
                 </Text>
@@ -179,11 +191,21 @@ export default function LogicielChantierPage() {
                 <Text style={styles.heroFacts}>{FACTS.join(isMobile ? '\n' : '   ·   ')}</Text>
               </ScrollReveal>
             </View>
-            <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && { alignSelf: 'stretch', maxWidth: undefined }]}>
-              <Cartouche cells={CARTOUCHE} compact={isMobile} />
-            </ScrollReveal>
+            {!isMobile ? (
+              <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && { alignSelf: 'stretch', maxWidth: undefined }]}>
+                <View onLayout={heroFit.onPartLayout('cartouche')}>
+                  <Cartouche cells={CARTOUCHE} compact={false} />
+                </View>
+              </ScrollReveal>
+            ) : null}
           </View>
         </View>
+
+        {isMobile ? (
+          <View style={[styles.wrap, { marginTop: spacing.lg }]}>
+            <Cartouche cells={CARTOUCHE} compact />
+          </View>
+        ) : null}
 
         {/* Product preview */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
