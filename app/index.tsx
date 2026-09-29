@@ -348,6 +348,24 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
+        {/* ——— Fiduciaries (accounting.cantia.ch) ——— */}
+        <ScrollReveal style={styles.wrap}>
+          <View style={[styles.bexioRow, isMobile && styles.noteRowCompact]}>
+            <View style={styles.bexioIcon}>
+              <Image source={require('../assets/logo-mark.png')} style={styles.bexioLogo} resizeMode="contain" accessibilityLabel="Cantia" />
+              <Text style={styles.bexioIconArrow}>↔</Text>
+              <Text style={[styles.bexioWord, { fontSize: 17, letterSpacing: -0.4, color: colors.primary }]}>{t.fiduciary.badge}</Text>
+            </View>
+            <View style={{ flex: 1, gap: 6 }}>
+              <Text style={styles.columnTitle}>{t.fiduciary.title}</Text>
+              <Text style={styles.bodyText}>{t.fiduciary.text}</Text>
+            </View>
+            <Link href={`https://accounting.cantia.ch${localePrefix}` as any}>
+              <Text style={styles.textLink}>{t.fiduciary.link} →</Text>
+            </Link>
+          </View>
+        </ScrollReveal>
+
         <View ref={pricingRef}>
           <ScrollReveal>
             <PricingSection />

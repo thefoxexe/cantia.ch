@@ -152,6 +152,7 @@ interface Dict {
     link: string;
   };
   bexio: { eyebrow: string; title: string; text: string; link: string };
+  fiduciary: { badge: string; title: string; text: string; link: string };
   docCustomization: {
     eyebrow: string;
     title: string;
@@ -214,6 +215,7 @@ interface Dict {
     legalLink: string;
     statusLink: string;
     partnersLink: string;
+    fiduciaryLink: string;
     privacyLink: string;
     cgvLink: string;
     copyright: string;
@@ -522,6 +524,12 @@ const fr: Dict = {
     text: 'Vous utilisez déjà Bexio ? Connectez vos données clients, factures et paiements pour découvrir Cantia dans la continuité de votre organisation. Sans Bexio, vous pouvez utiliser Cantia de façon autonome.',
     link: 'Voir l’intégration',
   },
+  fiduciary: {
+    badge: 'fiduciaire',
+    title: 'Votre fiduciaire travaille avec vous, directement dans Cantia.',
+    text: 'Donnez-lui un accès en lecture seule à vos factures, paiements et à votre comptabilité : plus besoin d’envoyer vos pièces par e-mail. Vous choisissez ce qu’elle voit. Pour les fiduciaires, c’est gratuit.',
+    link: 'Espace fiduciaires',
+  },
   docCustomization: {
     eyebrow: 'Vos documents, à votre image',
     title: 'Des devis et des factures à vos couleurs, avec le QR suisse',
@@ -635,6 +643,7 @@ const fr: Dict = {
     legalLink: 'Mentions légales',
     statusLink: 'Statut du service',
     partnersLink: 'Programme partenaire',
+    fiduciaryLink: 'Pour les fiduciaires',
     privacyLink: 'Confidentialité',
     cgvLink: 'Conditions générales',
     copyright: '© {year} Cantia. Conçu pour le bâtiment suisse.',
@@ -943,6 +952,12 @@ const de: Dict = {
     text: 'Sie nutzen bereits Bexio? Verbinden Sie Ihre Kunden-, Rechnungs- und Zahlungsdaten, um Cantia im Einklang mit Ihrer Organisation zu entdecken. Ohne Bexio können Sie Cantia eigenständig nutzen.',
     link: 'Die Integration ansehen',
   },
+  fiduciary: {
+    badge: 'Treuhand',
+    title: 'Ihre Treuhand arbeitet direkt in Cantia mit Ihnen.',
+    text: 'Geben Sie ihr Lesezugriff auf Rechnungen, Zahlungen und Buchhaltung: Belege per E-Mail schicken ist vorbei. Sie wählen, was sie sieht. Für Treuhänder kostenlos.',
+    link: 'Bereich für Treuhänder',
+  },
   docCustomization: {
     eyebrow: 'Ihre Dokumente, in Ihrem Look',
     title: 'Offerten und Rechnungen in Ihren Farben, mit Schweizer QR',
@@ -1056,6 +1071,7 @@ const de: Dict = {
     legalLink: 'Impressum',
     statusLink: 'Systemstatus',
     partnersLink: 'Partnerprogramm',
+    fiduciaryLink: 'Für Treuhänder',
     privacyLink: 'Datenschutz',
     cgvLink: 'AGB',
     copyright: '© {year} Cantia. Entwickelt für das Schweizer Baugewerbe.',
@@ -1364,6 +1380,12 @@ const it: Dict = {
     text: 'Usa già Bexio? Colleghi i suoi dati di clienti, fatture e pagamenti per scoprire Cantia in continuità con la sua organizzazione. Senza Bexio, può usare Cantia in modo autonomo.',
     link: 'Veda l’integrazione',
   },
+  fiduciary: {
+    badge: 'fiduciario',
+    title: 'Il suo fiduciario lavora con lei, direttamente in Cantia.',
+    text: 'Gli dia un accesso in sola lettura a fatture, pagamenti e contabilità: niente più documenti inviati per e-mail. Sceglie lei cosa vede. Per i fiduciari è gratuito.',
+    link: 'Spazio fiduciari',
+  },
   docCustomization: {
     eyebrow: 'I suoi documenti, a sua immagine',
     title: 'Preventivi e fatture nei suoi colori, con il QR svizzero',
@@ -1477,6 +1499,7 @@ const it: Dict = {
     legalLink: 'Note legali',
     statusLink: 'Stato del servizio',
     partnersLink: 'Programma partner',
+    fiduciaryLink: 'Per i fiduciari',
     privacyLink: 'Privacy',
     cgvLink: 'Condizioni generali',
     copyright: '© {year} Cantia. Pensato per l’edilizia svizzera.',

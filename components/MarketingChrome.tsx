@@ -355,6 +355,9 @@ export function MarketingFooter({
           <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
             <Text style={styles.footerLink}>{t.footer.partnersLink}</Text>
           </Link>
+          <Link href={`https://accounting.cantia.ch${localePrefix}` as any}>
+            <Text style={styles.footerLink}>{t.footer.fiduciaryLink}</Text>
+          </Link>
           <Link href={authHref('login')}>
             <Text style={styles.footerLink}>{t.footer.resourcesLogin}</Text>
           </Link>
