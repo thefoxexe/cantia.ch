@@ -179,6 +179,8 @@ function dotColor(kind: DevisEvent['kind']): string {
       return colors.warning;
     case 'reply_received':
       return colors.primary;
+    case 'email_logged':
+      return colors.textMuted;
     case 'bounced':
     case 'complained':
       return colors.danger;
@@ -195,6 +197,10 @@ function eventLabel(t: ReturnType<typeof useTranslation>['t'], e: DevisEvent): s
   if (e.kind === 'followup_sent') {
     const step = typeof e.meta?.step === 'number' ? e.meta.step : null;
     return step ? t('devisTracking.event.followupStep', { step }) : t('devisTracking.event.followup_sent');
+  }
+  // Filed through the Cantia address: the email's own subject says more.
+  if ((e.kind === 'reply_received' || e.kind === 'email_logged') && typeof e.meta?.subject === 'string' && e.meta.subject) {
+    return `${t(`devisTracking.event.${e.kind}`)} · ${e.meta.subject}`;
   }
   return t(`devisTracking.event.${e.kind}`);
 }

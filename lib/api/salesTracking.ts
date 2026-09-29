@@ -16,7 +16,8 @@ export type DevisEventKind =
   | 'clicked'
   | 'portal_viewed'
   | 'pdf_downloaded'
-  | 'reply_received';
+  | 'reply_received'
+  | 'email_logged';
 
 export interface DevisEvent {
   id: string;

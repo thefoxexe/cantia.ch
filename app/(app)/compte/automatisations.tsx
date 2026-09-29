@@ -14,6 +14,7 @@ import {
 } from '../../../lib/api/followups';
 import { hasSalesTracking, loadPipeline, type DevisTracking } from '../../../lib/api/salesTracking';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
+import { SalesInboxCard } from '../../../components/SalesInboxCard';
 import { AppScreen, Button, Card, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { monoType } from '../../../lib/marketingTheme';
@@ -279,6 +280,20 @@ export default function AutomationsScreen() {
           </>
         ) : null}
 
+        {/* Suivi des e-mails */}
+        <View style={[styles.sectionHead, { marginTop: spacing.xl }]}>
+          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('salesInbox.title')}</Text>
+        </View>
+        <Text style={[styles.intro, { marginTop: 0 }]}>{t('salesInbox.intro')}</Text>
+        {tracking && organization ? (
+          <SalesInboxCard orgId={organization.id} orgEmail={organization.email ?? null} />
+        ) : (
+          <Card>
+            <Text style={styles.planTag}>Entreprise</Text>
+            <Text style={styles.body}>{t('salesInbox.locked')}</Text>
+          </Card>
+        )}
+
         {/* Autres automatisations */}
         <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>{t('automations.others.title')}</Text>
         <Card style={{ padding: 0, overflow: 'hidden' }}>
@@ -286,7 +301,6 @@ export default function AutomationsScreen() {
           <LinkRow icon="file-text" title={t('automations.others.reports')} text={t('automations.others.reportsText')} onPress={() => router.push('/(app)/chantiers' as any)} />
           <LinkRow icon="refresh-cw" title={t('automations.others.bexio')} text={t('automations.others.bexioText')} onPress={() => router.push('/(app)/compte/integrations' as any)} />
           <LinkRow icon="bell" title={t('automations.others.notifications')} text={t('automations.others.notificationsText')} onPress={() => router.push('/(app)/compte/notifications' as any)} />
-          <LinkRow icon="at-sign" title={t('automations.others.bcc')} text={t('automations.others.bccText')} soon />
         </Card>
       </ScrollView>
     </AppScreen>

@@ -122,7 +122,7 @@ export async function sendResendEmail(params: {
   apiKey: string;
   from: string;
   to: string[];
-  replyTo?: string | null;
+  replyTo?: string | string[] | null;
   subject: string;
   html: string;
   attachments?: { filename: string; content: string }[];

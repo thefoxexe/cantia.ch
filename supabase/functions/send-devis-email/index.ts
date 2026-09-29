@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, base64FromBytes, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { pdfT, resolveDocLocale } from '../_shared/pdf-i18n.ts';
+import { salesInboxReplyTo } from '../_shared/sales-inbox.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -100,7 +101,7 @@ Deno.serve(async (req: Request) => {
       apiKey,
       from: `${orgName} <noreply@cantia.ch>`,
       to: [devis.client_email],
-      replyTo: org?.email,
+      replyTo: await salesInboxReplyTo(admin, devis.organization_id, org?.email),
       subject,
       html,
       attachments: [{ filename: `Devis-${devis.number ?? devis_id}.pdf`, content: base64FromBytes(pdfFile.bytes) }],

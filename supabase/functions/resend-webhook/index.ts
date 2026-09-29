@@ -1,9 +1,11 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { handleInboundEmail } from './inbound.ts';
 
 // Resend delivery events (delivered, bounced, complained, opened, clicked)
-// for devis emails, recorded in devis_events. Deployed without JWT
-// verification: Resend authenticates each delivery with a Svix signature
-// instead, checked against RESEND_WEBHOOK_SECRET.
+// for devis emails, recorded in devis_events, and inbound emails received
+// on the organizations' "suivi des e-mails" addresses (inbound.ts).
+// Deployed without JWT verification: Resend authenticates each delivery
+// with a Svix signature instead, checked against RESEND_WEBHOOK_SECRET.
 
 const KIND_BY_TYPE: Record<string, string> = {
   'email.delivered': 'delivered',
@@ -40,6 +42,17 @@ Deno.serve(async (req: Request) => {
     event = JSON.parse(body);
   } catch {
     return new Response('Invalid JSON', { status: 400 });
+  }
+
+  if (event.type === 'email.received') {
+    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    try {
+      const occurred = typeof event.created_at === 'string' ? event.created_at : new Date().toISOString();
+      return ok(await handleInboundEmail(admin, event.data ?? {}, occurred, svixId));
+    } catch (err) {
+      console.error(err);
+      return new Response('Storage error', { status: 500 });
+    }
   }
 
   const kind = KIND_BY_TYPE[event.type ?? ''];

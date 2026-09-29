@@ -18,6 +18,7 @@ import { AppScreen, Button, Card, EmptyState, LoadingScreen, PageHeader } from '
 import { useTranslation } from '../../../lib/translations';
 import { displayType, monoType } from '../../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { SalesEmailsList } from '../../../components/SalesEmailsList';
 
 const STAGES: PipelineStage[] = ['sent', 'viewed', 'discussion', 'signed', 'lost'];
 
@@ -129,6 +130,8 @@ export default function CommercialScreen() {
             ))
           )}
         </Card>
+
+        {organization ? <SalesEmailsList orgId={organization.id} /> : null}
 
         {items.length === 0 ? (
           <Card style={{ marginTop: spacing.lg }}>
