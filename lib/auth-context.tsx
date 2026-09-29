@@ -6,7 +6,8 @@ import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
-import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
+import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, i18next, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
+import { setWorkTerm, type WorkTerm } from './vocabulary';
 import { getStoredAttribution, getStoredFiduciaryInvite, getStoredReferral } from './siteAnalytics';
 import type { Organization, OrgRole } from './types';
 
@@ -81,7 +82,7 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
+  createOrganization: (name: string, trade: string | null, workTerm?: WorkTerm) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   // Supabase sends a confirmation link to the NEW address before the
@@ -141,6 +142,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const snapshot = JSON.stringify(orgData);
         if (snapshot !== lastOrgSnapshotRef.current) {
           lastOrgSnapshotRef.current = snapshot;
+          // Chantier / projet / mandat / dossier: re-render every string
+          // with the company's word (lib/vocabulary.ts).
+          if (setWorkTerm(orgData.work_term)) i18next.changeLanguage(i18next.language);
           setOrganization(orgData);
         }
         setRole(membership.role as OrgRole);
@@ -179,6 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         );
       } else {
         lastOrgSnapshotRef.current = null;
+        if (setWorkTerm(null)) i18next.changeLanguage(i18next.language);
         setOrganization(null);
         setRole(null);
         setCanViewFinances(false);
@@ -448,7 +453,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createOrganization = useCallback(
-    async (name: string, trade: string | null) => {
+    async (name: string, trade: string | null, workTerm: WorkTerm = 'chantier') => {
       // Attribution was captured (if any) back on cantia.ch's first pageview
       // and survives the domain jump to app.cantia.ch via a shared cookie —
       // see lib/siteAnalytics.ts. Native has no such cookie/URL, so this is
@@ -499,6 +504,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       if (fiduciaryInvite && orgId) {
         await supabase.rpc('org_claim_fiduciary_invite', { p_org: orgId, p_token: fiduciaryInvite });
+      }
+      // Chantier / projet / mandat / dossier, asked on the same screen.
+      if (workTerm !== 'chantier' && orgId) {
+        await supabase.from('organizations').update({ work_term: workTerm }).eq('id', orgId);
       }
       if (session?.user) await loadOrganization(session.user.id);
       return { error: null };

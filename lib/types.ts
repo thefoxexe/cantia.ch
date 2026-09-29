@@ -97,6 +97,8 @@ export interface Organization {
   // client-portal links default to this, independent of any individual
   // member's personal UI locale (organization_members.locale).
   locale: 'fr' | 'de' | 'it';
+  // What the company calls its jobs (lib/vocabulary.ts).
+  work_term: 'chantier' | 'projet' | 'mandat' | 'dossier';
   // Null until stripe-webhook confirms a real Checkout — see
   // app/_layout.tsx's redirect-to-choose-plan gate, which checks this
   // directly. Only ever written by the webhook (service-role-only column).

@@ -8,6 +8,7 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { displayType } from '../../../lib/marketingTheme';
+import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 
 export default function CreateOrganizationScreen() {
   const { t } = useTranslation();
@@ -15,6 +16,7 @@ export default function CreateOrganizationScreen() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [trade, setTrade] = useState<string | null>(null);
+  const [workTerm, setWorkTerm] = useState<WorkTerm>('chantier');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +27,7 @@ export default function CreateOrganizationScreen() {
       return;
     }
     setLoading(true);
-    const { error: createError } = await createOrganization(name.trim(), trade);
+    const { error: createError } = await createOrganization(name.trim(), trade, workTerm);
     setLoading(false);
     if (createError) {
       setError(createError);
@@ -64,6 +66,16 @@ export default function CreateOrganizationScreen() {
             </Pressable>
           ))}
         </View>
+
+        <Text style={styles.fieldLabel}>{t('authOnboardingCreate.workTermLabel')}</Text>
+        <View style={styles.chips}>
+          {WORK_TERMS.map((term) => (
+            <Pressable key={term} onPress={() => setWorkTerm(term)} style={[styles.chip, workTerm === term && styles.chipActive]}>
+              <Text style={[styles.chipText, workTerm === term && styles.chipTextActive]}>{workTermText(t, term, 'plural')}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <Text style={styles.hint}>{String(t('authOnboardingCreate.workTermHint', { example: workTermText(t, workTerm, 'example'), postProcess: [] } as any))}</Text>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -136,6 +148,12 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: colors.primary,
     fontWeight: '600',
+  },
+  hint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.sm,
   },
   error: {
     color: colors.danger,

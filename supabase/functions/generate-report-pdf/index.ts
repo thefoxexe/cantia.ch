@@ -32,6 +32,9 @@ import {
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
 
+// What the company calls its jobs (organizations.work_term).
+const WORK_TERM_LABEL: Record<string, string> = { chantier: 'Chantier', projet: 'Projet', mandat: 'Mandat', dossier: 'Dossier' };
+
 // Fixed (not brand-tinted) — an anomaly flag reads the same regardless of
 // which brand color the org picked, same way lib/theme.ts's warning token
 // is independent of primary/accent.
@@ -198,7 +201,9 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   page.drawRectangle({ x: MARGIN, y: y - 1, width: PAGE_WIDTH - 2 * MARGIN, height: 2, color: brand });
   y -= 26;
 
-  drawText(page, 'RAPPORT DE CHANTIER', MARGIN, y, fontBold, 8.5, MUTED);
+  // What the company calls its jobs (organizations.work_term, lib/vocabulary.ts).
+  const workTerm = WORK_TERM_LABEL[org?.work_term as string] ?? 'Chantier';
+  drawText(page, `RAPPORT DE ${workTerm.toUpperCase()}`, MARGIN, y, fontBold, 8.5, MUTED);
   drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 8.5, MUTED);
   y -= 22;
   // Wrapped rather than a single fixed line: the AI now writes a
@@ -215,7 +220,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
 
   const project = report.projects;
   const metaLines = [
-    project?.name ? `Chantier : ${project.name}` : null,
+    project?.name ? `${workTerm} : ${project.name}` : null,
     project?.client_name ? `Client : ${project.client_name}` : null,
     project?.address ? `Adresse : ${project.address}` : null,
   ].filter(Boolean) as string[];

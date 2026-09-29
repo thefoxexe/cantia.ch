@@ -13,6 +13,7 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
+import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -45,6 +46,7 @@ export default function EntrepriseScreen() {
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [iban, setIban] = useState(organization?.iban ?? '');
   const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
+  const [workTerm, setWorkTerm] = useState<WorkTerm>(organization?.work_term ?? 'chantier');
   const isAdmin = role === 'owner' || role === 'admin';
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
@@ -82,6 +84,7 @@ export default function EntrepriseScreen() {
     setWebsite(organization.website ?? '');
     setIban(organization.iban ?? '');
     setDocLocale(organization.locale ?? 'fr');
+    setWorkTerm(organization.work_term ?? 'chantier');
   }, [organization]);
 
   useFocusEffect(
@@ -108,6 +111,7 @@ export default function EntrepriseScreen() {
         website: website.trim() || null,
         iban: validIban ? ibanTrimmed.replace(/\s+/g, '').toUpperCase() || null : organization.iban,
         locale: docLocale,
+        work_term: workTerm,
       })
       .eq('id', organization.id);
     refreshOrganization();
@@ -234,6 +238,22 @@ export default function EntrepriseScreen() {
                   <Text style={[styles.chipText, docLocale === loc && styles.chipTextActive]}>
                     {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : t('entreprise.localeIt')}
                   </Text>
+                </Pressable>
+              ))}
+            </View>
+          </Card>
+
+          <SectionHeader icon="type" title={t('workTerm.settingsTitle')} hint={t('workTerm.settingsHint')} />
+          <Card style={styles.card}>
+            <View style={styles.chips}>
+              {WORK_TERMS.map((term) => (
+                <Pressable
+                  key={term}
+                  onPress={() => isAdmin && withDirty(setWorkTerm)(term)}
+                  disabled={!isAdmin}
+                  style={[styles.chip, workTerm === term && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                >
+                  <Text style={[styles.chipText, workTerm === term && styles.chipTextActive]}>{workTermText(t, term, 'plural')}</Text>
                 </Pressable>
               ))}
             </View>

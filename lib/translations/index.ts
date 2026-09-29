@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fr } from './fr';
 import { de } from './de';
 import { it } from './it';
+import { workTermPostProcessor } from '../vocabulary';
 
 export type AppLocale = 'fr' | 'de' | 'it';
 export const AVAILABLE_LOCALES: AppLocale[] = ['fr', 'de', 'it'];
@@ -12,7 +13,7 @@ export const DEFAULT_LOCALE: AppLocale = 'fr';
 
 const LOCALE_CACHE_KEY = 'cantia:locale';
 
-i18next.use(initReactI18next).init({
+i18next.use(initReactI18next).use(workTermPostProcessor).init({
   resources: {
     fr: { translation: fr },
     de: { translation: de },
@@ -25,6 +26,9 @@ i18next.use(initReactI18next).init({
   // than blank — makes an unconverted string impossible to miss during
   // development instead of silently showing nothing.
   returnEmptyString: false,
+  // "chantier" -> the company's own word (projet, mandat, dossier), see
+  // lib/vocabulary.ts. A no-op for the default.
+  postProcess: ['workTerm'],
 });
 
 // Read once at boot, before the Supabase session/org round-trip resolves,
