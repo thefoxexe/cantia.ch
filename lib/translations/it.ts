@@ -1850,6 +1850,7 @@ export const it: TranslationDict = {
     administration: 'Amministrazione',
     installApp: "Installa l'app",
     settings: 'Impostazioni',
+    partners: 'Diventa partner · 25 %',
     contactSupport: 'Contatta il supporto',
     serviceStatus: 'Stato del servizio',
     signOut: 'Disconnetti',

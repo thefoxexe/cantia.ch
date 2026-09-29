@@ -9,6 +9,7 @@ import { canPromptInstall, promptInstall } from '../lib/pwaInstall';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
 import { SupportPopup } from './SupportPopup';
+import { openPartnerSpace } from '../lib/api/partners';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -152,6 +153,14 @@ export function AccountMenu() {
               ) : null}
               <MenuRow icon="download" label={t('accountMenu.installApp')} onPress={handleInstall} />
               <MenuRow icon="settings" label={t('accountMenu.settings')} onPress={() => go('/(app)/compte')} />
+              <MenuRow
+                icon="gift"
+                label={t('accountMenu.partners')}
+                onPress={() => {
+                  onClose();
+                  openPartnerSpace();
+                }}
+              />
               <MenuRow
                 icon="life-buoy"
                 label={t('accountMenu.contactSupport')}

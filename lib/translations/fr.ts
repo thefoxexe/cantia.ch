@@ -1828,6 +1828,7 @@ export const fr = {
     administration: 'Administration',
     installApp: "Installer l'app",
     settings: 'Paramètres',
+    partners: 'Devenir partenaire · 25 %',
     contactSupport: 'Contacter le support',
     serviceStatus: 'Statut du service',
     signOut: 'Déconnexion',

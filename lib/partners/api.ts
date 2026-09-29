@@ -16,6 +16,7 @@ export interface PartnerProfile {
   locale: 'fr' | 'de' | 'it';
   payout_account_holder: string | null;
   iban_masked: string | null;
+  created_at: string;
 }
 
 export interface PartnerStats {
@@ -38,7 +39,7 @@ export interface PartnerReferral {
 export async function getMyPartnerProfile(): Promise<{ profile: PartnerProfile | null; code: string | null }> {
   const { data: profile } = await supabase
     .from('partner_profiles')
-    .select('id, status, first_name, last_name, company_name, partner_type, locale, payout_account_holder, iban_masked')
+    .select('id, status, first_name, last_name, company_name, partner_type, locale, payout_account_holder, iban_masked, created_at')
     .maybeSingle();
   if (!profile) return { profile: null, code: null };
   const { data: codes } = await supabase

@@ -15,7 +15,7 @@ const fr = {
     title: 'Recommandez Cantia.\nTouchez 25\u00a0% pendant 12 mois.',
     text: 'Pour les fiduciaires, consultants, agences et fournisseurs qui travaillent avec des entreprises du bâtiment en Suisse. Vous partagez votre lien, elles s’abonnent, vous recevez 25\u00a0% de ce qu’elles paient pendant un an.',
     cta: 'Devenir partenaire',
-    secondary: 'Comment ça marche',
+    secondary: 'Calculer mes gains',
     note: 'Gratuit, sans engagement, sans quota.',
   },
   example: {
@@ -57,6 +57,44 @@ const fr = {
     ],
   },
   finalCta: { title: 'Prêt à recommander Cantia ?', text: 'Votre lien est prêt dès l’inscription.', cta: 'Créer mon compte partenaire' },
+  preview: {
+    label: 'Aperçu de votre espace',
+    example: 'Exemple',
+    link: 'cantia.ch/?ref=K7M2QX',
+    stats: ['Clics', 'Inscriptions', 'Clients payants'],
+    rows: [
+      { ref: 'CNT-1042', plan: 'Équipe', amount: '+ CHF 19.75' },
+      { ref: 'CNT-1038', plan: 'Entreprise', amount: '+ CHF 32.25' },
+      { ref: 'CNT-1031', plan: 'Essentiel', amount: '+ CHF 9.75' },
+    ],
+    available: 'Disponible le 5 novembre',
+  },
+  figures: [
+    { value: '25\u00a0%', label: 'de chaque paiement' },
+    { value: '12 mois', label: 'par client recommandé' },
+    { value: '90 jours', label: 'pour que le clic compte' },
+    { value: 'CHF 30', label: 'dès le premier versement' },
+  ],
+  simulator: {
+    title: 'Calculez vos gains',
+    text: 'Combien d’entreprises de votre réseau pourraient passer à Cantia ?',
+    perMonth: 'CHF {price} / mois',
+    monthly: 'par mois',
+    yearly: 'sur 12 mois',
+    total: 'Vos commissions',
+    note: 'Calcul sur les abonnements mensuels, hors TVA. Pour un abonnement annuel, vous touchez 25\u00a0% du montant payé.',
+  },
+  product: {
+    title: 'Un logiciel facile à recommander',
+    text: 'Cantia est fait en Suisse pour les entreprises du bâtiment : vos contacts gagnent du temps dès la première semaine.',
+    items: [
+      { title: 'Devis et factures QR', text: 'Un devis propre en quelques minutes, signé en ligne, converti en facture QR.' },
+      { title: 'Rapports depuis le chantier', text: 'Photos, heures et dictée vocale depuis le téléphone, le rapport part tout seul.' },
+      { title: 'Planning, heures, salaires', text: 'Toute l’équipe au même endroit, jusqu’aux fiches de salaire.' },
+      { title: 'Hébergé en Suisse', text: 'Données à Zurich, en français, allemand et italien, 14 jours d’essai gratuits.' },
+    ],
+    cta: 'Découvrir Cantia',
+  },
   footer: { site: 'cantia.ch', privacy: 'Confidentialité', terms: 'Conditions', status: 'Statut du service' },
   auth: {
     loginTitle: 'Connexion',
@@ -135,6 +173,16 @@ const fr = {
     changeIban: 'Modifier',
     ibanSaved: 'Coordonnées enregistrées.',
     noIban: 'Ajoutez votre IBAN pour recevoir vos versements.',
+    share: {
+      title: 'Kit de partage',
+      text: 'Un message prêt à envoyer à vos contacts, par e-mail ou WhatsApp.',
+      message: 'Bonjour,\n\nJ’utilise et recommande Cantia, un logiciel suisse pour les entreprises du bâtiment : devis, factures QR, rapports de chantier, planning et salaires au même endroit. Vous pouvez l’essayer gratuitement pendant 14 jours :\n{link}\n\nBelle journée,',
+      copy: 'Copier le message',
+      copied: 'Message copié',
+      downloadQr: 'Télécharger le QR (PNG)',
+    },
+    memberSince: 'Partenaire depuis le {date}',
+    active: 'Actif',
     rules: 'Règles du programme',
   },
   loading: 'Chargement…',
@@ -150,7 +198,7 @@ const de: Copy = {
     title: 'Empfehlen Sie Cantia.\nErhalten Sie 25\u00a0% während 12 Monaten.',
     text: 'Für Treuhänder, Berater, Agenturen und Lieferanten, die mit Bauunternehmen in der Schweiz arbeiten. Sie teilen Ihren Link, die Unternehmen abonnieren, Sie erhalten ein Jahr lang 25\u00a0% ihrer Zahlungen.',
     cta: 'Partner werden',
-    secondary: 'So funktioniert es',
+    secondary: 'Einnahmen berechnen',
     note: 'Kostenlos, unverbindlich, ohne Quote.',
   },
   example: {
@@ -192,6 +240,44 @@ const de: Copy = {
     ],
   },
   finalCta: { title: 'Bereit, Cantia zu empfehlen?', text: 'Ihr Link ist ab der Registrierung bereit.', cta: 'Partnerkonto erstellen' },
+  preview: {
+    label: 'Vorschau Ihres Bereichs',
+    example: 'Beispiel',
+    link: 'cantia.ch/?ref=K7M2QX',
+    stats: ['Klicks', 'Registrierungen', 'Zahlende Kunden'],
+    rows: [
+      { ref: 'CNT-1042', plan: 'Team', amount: '+ CHF 19.75' },
+      { ref: 'CNT-1038', plan: 'Entreprise', amount: '+ CHF 32.25' },
+      { ref: 'CNT-1031', plan: 'Basis', amount: '+ CHF 9.75' },
+    ],
+    available: 'Verfügbar am 5. November',
+  },
+  figures: [
+    { value: '25\u00a0%', label: 'jeder Zahlung' },
+    { value: '12 Monate', label: 'pro empfohlenem Kunden' },
+    { value: '90 Tage', label: 'damit der Klick zählt' },
+    { value: 'CHF 30', label: 'ab der ersten Auszahlung' },
+  ],
+  simulator: {
+    title: 'Berechnen Sie Ihre Einnahmen',
+    text: 'Wie viele Unternehmen aus Ihrem Netzwerk könnten zu Cantia wechseln?',
+    perMonth: 'CHF {price} / Monat',
+    monthly: 'pro Monat',
+    yearly: 'in 12 Monaten',
+    total: 'Ihre Provisionen',
+    note: 'Berechnet auf Monatsabonnements, ohne MWST. Bei einem Jahresabonnement erhalten Sie 25\u00a0% des bezahlten Betrags.',
+  },
+  product: {
+    title: 'Eine Software, die man gern empfiehlt',
+    text: 'Cantia ist in der Schweiz für Bauunternehmen gemacht: Ihre Kontakte sparen ab der ersten Woche Zeit.',
+    items: [
+      { title: 'Offerten und QR-Rechnungen', text: 'Eine saubere Offerte in wenigen Minuten, online unterschrieben, in eine QR-Rechnung umgewandelt.' },
+      { title: 'Rapporte von der Baustelle', text: 'Fotos, Stunden und Sprachdiktat vom Telefon aus, der Rapport geht von selbst.' },
+      { title: 'Planung, Stunden, Löhne', text: 'Das ganze Team an einem Ort, bis zur Lohnabrechnung.' },
+      { title: 'In der Schweiz gehostet', text: 'Daten in Zürich, auf Deutsch, Französisch und Italienisch, 14 Tage gratis testen.' },
+    ],
+    cta: 'Cantia entdecken',
+  },
   footer: { site: 'cantia.ch', privacy: 'Datenschutz', terms: 'AGB', status: 'Systemstatus' },
   auth: {
     loginTitle: 'Anmelden',
@@ -270,6 +356,16 @@ const de: Copy = {
     changeIban: 'Ändern',
     ibanSaved: 'Angaben gespeichert.',
     noIban: 'Fügen Sie Ihr IBAN hinzu, um Ihre Auszahlungen zu erhalten.',
+    share: {
+      title: 'Teilen-Kit',
+      text: 'Eine fertige Nachricht für Ihre Kontakte, per E-Mail oder WhatsApp.',
+      message: 'Guten Tag\n\nIch nutze und empfehle Cantia, eine Schweizer Software für Bauunternehmen: Offerten, QR-Rechnungen, Baustellenrapporte, Planung und Löhne an einem Ort. Sie können sie 14 Tage kostenlos testen:\n{link}\n\nFreundliche Grüsse',
+      copy: 'Nachricht kopieren',
+      copied: 'Nachricht kopiert',
+      downloadQr: 'QR-Code herunterladen (PNG)',
+    },
+    memberSince: 'Partner seit {date}',
+    active: 'Aktiv',
     rules: 'Programmregeln',
   },
   loading: 'Wird geladen…',
@@ -283,7 +379,7 @@ const it: Copy = {
     title: 'Raccomandi Cantia.\nRiceva il 25\u00a0% per 12 mesi.',
     text: 'Per fiduciarie, consulenti, agenzie e fornitori che lavorano con imprese edili in Svizzera. Condivide il suo link, le imprese si abbonano, lei riceve per un anno il 25\u00a0% di ciò che pagano.',
     cta: 'Diventa partner',
-    secondary: 'Come funziona',
+    secondary: 'Calcola i guadagni',
     note: 'Gratuito, senza impegno, senza quote.',
   },
   example: {
@@ -325,6 +421,44 @@ const it: Copy = {
     ],
   },
   finalCta: { title: 'Pronto a raccomandare Cantia?', text: 'Il suo link è pronto fin dall’iscrizione.', cta: 'Crea il mio conto partner' },
+  preview: {
+    label: 'Anteprima del suo spazio',
+    example: 'Esempio',
+    link: 'cantia.ch/?ref=K7M2QX',
+    stats: ['Clic', 'Iscrizioni', 'Clienti paganti'],
+    rows: [
+      { ref: 'CNT-1042', plan: 'Team', amount: '+ CHF 19.75' },
+      { ref: 'CNT-1038', plan: 'Entreprise', amount: '+ CHF 32.25' },
+      { ref: 'CNT-1031', plan: 'Essenziale', amount: '+ CHF 9.75' },
+    ],
+    available: 'Disponibile il 5 novembre',
+  },
+  figures: [
+    { value: '25\u00a0%', label: 'di ogni pagamento' },
+    { value: '12 mesi', label: 'per cliente raccomandato' },
+    { value: '90 giorni', label: 'perché il clic conti' },
+    { value: 'CHF 30', label: 'dal primo versamento' },
+  ],
+  simulator: {
+    title: 'Calcoli i suoi guadagni',
+    text: 'Quante imprese della sua rete potrebbero passare a Cantia?',
+    perMonth: 'CHF {price} / mese',
+    monthly: 'al mese',
+    yearly: 'in 12 mesi',
+    total: 'Le sue commissioni',
+    note: 'Calcolo sugli abbonamenti mensili, IVA esclusa. Per un abbonamento annuale, riceve il 25\u00a0% dell’importo pagato.',
+  },
+  product: {
+    title: 'Un software facile da raccomandare',
+    text: 'Cantia è fatto in Svizzera per le imprese edili: i suoi contatti risparmiano tempo dalla prima settimana.',
+    items: [
+      { title: 'Preventivi e fatture QR', text: 'Un preventivo pulito in pochi minuti, firmato online, trasformato in fattura QR.' },
+      { title: 'Rapporti dal cantiere', text: 'Foto, ore e dettatura vocale dal telefono, il rapporto parte da solo.' },
+      { title: 'Pianificazione, ore, salari', text: 'Tutta la squadra in un unico posto, fino alle buste paga.' },
+      { title: 'Ospitato in Svizzera', text: 'Dati a Zurigo, in italiano, francese e tedesco, 14 giorni di prova gratuita.' },
+    ],
+    cta: 'Scopri Cantia',
+  },
   footer: { site: 'cantia.ch', privacy: 'Privacy', terms: 'Condizioni', status: 'Stato del servizio' },
   auth: {
     loginTitle: 'Accesso',
@@ -403,6 +537,16 @@ const it: Copy = {
     changeIban: 'Modifica',
     ibanSaved: 'Coordinate salvate.',
     noIban: 'Aggiunga il suo IBAN per ricevere i versamenti.',
+    share: {
+      title: 'Kit di condivisione',
+      text: 'Un messaggio pronto da inviare ai suoi contatti, per e-mail o WhatsApp.',
+      message: 'Buongiorno,\n\nUtilizzo e raccomando Cantia, un software svizzero per le imprese edili: preventivi, fatture QR, rapporti di cantiere, pianificazione e salari in un unico posto. Può provarlo gratuitamente per 14 giorni:\n{link}\n\nCordiali saluti,',
+      copy: 'Copia il messaggio',
+      copied: 'Messaggio copiato',
+      downloadQr: 'Scarica il QR (PNG)',
+    },
+    memberSince: 'Partner dal {date}',
+    active: 'Attivo',
     rules: 'Regole del programma',
   },
   loading: 'Caricamento…',
@@ -413,3 +557,11 @@ export const PARTNERS_COPY: Record<PartnersLocale, Copy> = { fr, de, it };
 export function fill(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 }
+
+// Monthly prices used by the landing simulator (CHF, excl. VAT), with each
+// plan's name as shown on cantia.ch in every language.
+export const SIMULATOR_PLANS: { id: string; price: number; names: Record<PartnersLocale, string> }[] = [
+  { id: 'solo', price: 39, names: { fr: 'Essentiel', de: 'Basis', it: 'Essenziale' } },
+  { id: 'equipe', price: 79, names: { fr: 'Équipe', de: 'Team', it: 'Team' } },
+  { id: 'pro', price: 129, names: { fr: 'Entreprise', de: 'Entreprise', it: 'Entreprise' } },
+];

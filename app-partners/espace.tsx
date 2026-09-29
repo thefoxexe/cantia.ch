@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { Button, Field } from '../components/ui';
 import { NavButton, PAGE_MAX, PartnersNav, PartnersPage, useIsWide } from '../components/partners/PartnersChrome';
 import { QrCode } from '../components/partners/QrCode';
+import QRCode from 'qrcode';
 import { usePartnersCopy } from '../lib/partners/locale';
 import { fill, PARTNER_TYPES, type PartnerType } from '../lib/partners/copy';
 import { usePartnerSession } from '../lib/partners/session';
@@ -187,9 +188,20 @@ function Dashboard({ profile, code, onProfileChanged }: { profile: PartnerProfil
 
   return (
     <View style={styles.section}>
-      <Text style={styles.h1} role="heading" aria-level={1}>
-        {fill(copy.dashboard.hello, { name: profile.first_name })}
-      </Text>
+      <View style={styles.headRow}>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={styles.h1} role="heading" aria-level={1}>
+            {fill(copy.dashboard.hello, { name: profile.first_name })}
+          </Text>
+          <Text style={styles.muted}>{fill(copy.dashboard.memberSince, { date: dateFmt(profile.created_at) })}</Text>
+        </View>
+        {profile.status === 'ACTIVE' ? (
+          <View style={styles.pill}>
+            <View style={styles.pillDot} />
+            <Text style={styles.pillText}>{copy.dashboard.active}</Text>
+          </View>
+        ) : null}
+      </View>
 
       {profile.status !== 'ACTIVE' ? (
         <View style={styles.alert}>
@@ -225,6 +237,8 @@ function Dashboard({ profile, code, onProfileChanged }: { profile: PartnerProfil
           </View>
         ) : null}
       </View>
+
+      {link ? <ShareKit link={link} code={code ?? ''} /> : null}
 
       <View style={styles.stats}>
         {statItems.map(([label, value]) => (
@@ -276,6 +290,48 @@ function Dashboard({ profile, code, onProfileChanged }: { profile: PartnerProfil
 
       <View style={styles.rulesLink}>
         <NavButton href={locale === 'fr' ? '/' : `/${locale}`} label={copy.dashboard.rules} />
+      </View>
+    </View>
+  );
+}
+
+function ShareKit({ link, code }: { link: string; code: string }) {
+  const { copy } = usePartnersCopy();
+  const message = fill(copy.dashboard.share.message, { link });
+  const [copied, setCopied] = useState(false);
+
+  async function copyMessage() {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard refused: the message stays selectable on screen.
+    }
+  }
+
+  // A 1024 px PNG, for flyers, business cards or a sticker on the van.
+  async function downloadQr() {
+    if (Platform.OS !== 'web') return;
+    const url = await QRCode.toDataURL(link, { errorCorrectionLevel: 'M', width: 1024, margin: 2, color: { dark: '#231A12', light: '#FFFFFF' } });
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cantia-partners-${code}.png`;
+    a.click();
+  }
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>{copy.dashboard.share.title}</Text>
+      <Text style={styles.muted}>{copy.dashboard.share.text}</Text>
+      <View style={styles.messageBox}>
+        <Text style={styles.messageText} selectable>
+          {message}
+        </Text>
+      </View>
+      <View style={styles.linkActions}>
+        <Button title={copied ? copy.dashboard.share.copied : copy.dashboard.share.copy} icon={copied ? 'check' : 'message-square'} variant="secondary" onPress={copyMessage} />
+        {Platform.OS === 'web' ? <Button title={copy.dashboard.share.downloadQr} icon="download" variant="secondary" onPress={downloadQr} /> : null}
       </View>
     </View>
   );
@@ -375,4 +431,10 @@ const styles = StyleSheet.create({
   signOut: { paddingVertical: 9, paddingHorizontal: 12 },
   signOutText: { fontSize: fontSize.sm, color: colors.textMuted, fontWeight: '600' },
   rulesLink: { flexDirection: 'row' },
+  headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, flexWrap: 'wrap' },
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.pill, paddingVertical: 5, paddingHorizontal: 12 },
+  pillDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.success },
+  pillText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.text },
+  messageBox: { backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
+  messageText: { fontSize: fontSize.sm, lineHeight: 20, color: colors.text },
 });

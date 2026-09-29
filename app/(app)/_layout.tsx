@@ -17,6 +17,7 @@ import { VoiceAssistant } from '../../components/VoiceAssistant';
 import { useTranslation } from '../../lib/translations';
 import { salesTrackingReady } from '../../lib/api/salesTracking';
 import { StatusLink } from '../../components/StatusLink';
+import { openPartnerSpace } from '../../lib/api/partners';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -308,6 +309,14 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
             >
               <Feather name="life-buoy" size={18} color={colors.textMuted} />
               {collapsed ? null : <Text style={styles.sidebarItemText}>{t('accountMenu.contactSupport')}</Text>}
+            </Pressable>
+            <Pressable
+              style={StyleSheet.flatten([styles.sidebarItem, collapsed && styles.sidebarItemCollapsed])}
+              onPress={openPartnerSpace}
+              accessibilityLabel={t('accountMenu.partners')}
+            >
+              <Feather name="gift" size={18} color={colors.textMuted} />
+              {collapsed ? null : <Text style={styles.sidebarItemText}>{t('accountMenu.partners')}</Text>}
             </Pressable>
             {collapsed ? null : <StatusLink label={t('accountMenu.serviceStatus')} textStyle={styles.statusText} style={styles.statusLink} />}
           </View>
