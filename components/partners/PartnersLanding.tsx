@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Head from 'expo-router/head';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -57,38 +57,61 @@ export function PartnersLanding() {
         <meta property="og:image" content={`${ORIGIN}/og-image.jpg`} />
       </Head>
 
-      {/* Hero */}
-      <View style={[styles.section, styles.hero, wide && styles.heroWide]}>
-        <View style={[styles.heroText, wide && { flex: 1.15 }]}>
-          <View style={styles.eyebrowRow}>
-            <View style={styles.eyebrowDot} />
-            <Text style={styles.eyebrow}>{copy.hero.eyebrow}</Text>
+      {/* Hero: full-bleed mountain */}
+      <View style={styles.heroBand}>
+        <Image source={{ uri: '/hero-mountain.webp' }} style={styles.heroImage} resizeMode="cover" accessibilityIgnoresInvertColors />
+        <View style={[styles.section, styles.hero, wide && styles.heroWide]}>
+          <View style={[styles.heroText, wide && { flex: 1.1 }]}>
+            <View style={styles.eyebrowRow}>
+              <View style={styles.eyebrowDot} />
+              <Text style={styles.eyebrow}>{copy.hero.eyebrow}</Text>
+            </View>
+            <Text style={[styles.h1, !wide && styles.h1Narrow]} role="heading" aria-level={1}>
+              {copy.hero.title}
+            </Text>
+            <Text style={styles.lead}>{copy.hero.text}</Text>
+            <View style={styles.ctaRow}>
+              <NavButton href="/connexion?mode=signup" label={copy.hero.cta} primary large />
+              <Pressable onPress={() => scrollToId('programme')} style={styles.ghost} accessibilityRole="button">
+                <Text style={styles.ghostText}>{copy.hero.secondary}</Text>
+                <Feather name="arrow-down" size={15} color={colors.text} />
+              </Pressable>
+            </View>
+            <Text style={styles.note}>{copy.hero.note}</Text>
           </View>
-          <Text style={[styles.h1, !wide && styles.h1Narrow]} role="heading" aria-level={1}>
-            {copy.hero.title}
-          </Text>
-          <Text style={styles.lead}>{copy.hero.text}</Text>
-          <View style={styles.ctaRow}>
-            <NavButton href="/connexion?mode=signup" label={copy.hero.cta} primary large />
-            <Pressable onPress={() => scrollToId('simulateur')} style={styles.ghost} accessibilityRole="button">
-              <Text style={styles.ghostText}>{copy.hero.secondary}</Text>
-              <Feather name="arrow-down" size={15} color={colors.text} />
-            </Pressable>
+          <View style={[wide && { flex: 0.9 }]}>
+            <SpacePreview />
           </View>
-          <Text style={styles.note}>{copy.hero.note}</Text>
-        </View>
-        <View style={[wide && { flex: 1 }]}>
-          <SpacePreview />
         </View>
       </View>
 
-      {/* Key figures */}
+      {/* Pillars */}
+      <View style={styles.section} nativeID="programme">
+        <Text style={styles.h2} role="heading" aria-level={2}>
+          {copy.pillars.title}
+        </Text>
+        <Text style={[styles.body, { maxWidth: 620 }]}>{copy.pillars.intro}</Text>
+        <View style={[styles.steps, wide && styles.row, { marginTop: spacing.xl }]}>
+          {copy.pillars.items.map((item, i) => (
+            <View key={item.title} style={[styles.pillar, wide && { flex: 1 }]}>
+              <Feather name={(['users', 'bar-chart-2', 'home'] as const)[i]} size={20} color={colors.primary} />
+              <Text style={styles.stepTitle}>{item.title}</Text>
+              <Text style={styles.body}>{item.text}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Profiles */}
       <View style={styles.section}>
-        <View style={[styles.figures, wide && styles.figuresWide]}>
-          {copy.figures.map((f, i) => (
-            <View key={f.label} style={[styles.figure, wide && styles.figureWide, wide && i > 0 && styles.figureDivider]}>
-              <Text style={styles.figureValue}>{f.value}</Text>
-              <Text style={styles.figureLabel}>{f.label}</Text>
+        <Text style={styles.h2} role="heading" aria-level={2}>
+          {copy.profiles.title}
+        </Text>
+        <View style={styles.productGrid}>
+          {copy.profiles.items.map((item) => (
+            <View key={item.title} style={[styles.profile, wide && styles.productItemWide]}>
+              <Text style={styles.productTitle}>{item.title}</Text>
+              <Text style={styles.bodySmall}>{item.text}</Text>
             </View>
           ))}
         </View>
@@ -111,8 +134,20 @@ export function PartnersLanding() {
       </View>
 
       {/* Simulator */}
-      <View style={styles.section} nativeID="simulateur">
+      <View style={styles.section}>
         <Simulator />
+      </View>
+
+      {/* Key figures */}
+      <View style={styles.section}>
+        <View style={[styles.figures, wide && styles.figuresWide]}>
+          {copy.figures.map((f, i) => (
+            <View key={f.label} style={[styles.figure, wide && styles.figureWide, wide && i > 0 && styles.figureDivider]}>
+              <Text style={styles.figureValue}>{f.value}</Text>
+              <Text style={styles.figureLabel}>{f.label}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       {/* Product */}
@@ -123,13 +158,6 @@ export function PartnersLanding() {
               {copy.product.title}
             </Text>
             <Text style={styles.body}>{copy.product.text}</Text>
-            <View style={styles.chips}>
-              {copy.who.items.map((item) => (
-                <View key={item} style={styles.chip}>
-                  <Text style={styles.chipText}>{item}</Text>
-                </View>
-              ))}
-            </View>
             <Link href={`https://cantia.ch${prefix || '/'}` as any} style={styles.textLink}>
               {copy.product.cta} →
             </Link>
@@ -160,11 +188,12 @@ export function PartnersLanding() {
       {/* Final CTA */}
       <View style={styles.section}>
         <View style={[styles.final, wide && styles.finalWide]}>
+          <Image source={{ uri: '/hero-mountain.webp' }} style={styles.heroImage} resizeMode="cover" />
           <View style={{ flex: 1, gap: spacing.sm }}>
             <Text style={styles.finalTitle}>{copy.finalCta.title}</Text>
             <Text style={styles.finalText}>{copy.finalCta.text}</Text>
           </View>
-          <NavButton href="/connexion?mode=signup" label={copy.finalCta.cta} inverse large />
+          <NavButton href="/connexion?mode=signup" label={copy.finalCta.cta} primary large />
         </View>
       </View>
     </PartnersPage>
@@ -274,19 +303,23 @@ function FaqItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: bo
 const styles = StyleSheet.create({
   section: { width: '100%', maxWidth: PAGE_MAX, alignSelf: 'center', paddingHorizontal: spacing.lg, marginTop: 72 },
   row: { flexDirection: 'row' },
-  hero: { gap: spacing.xxl, marginTop: spacing.xxxl },
-  heroWide: { flexDirection: 'row', alignItems: 'center', gap: 64, marginTop: 80 },
+  heroBand: { position: 'relative', overflow: 'hidden', backgroundColor: '#FBE3CB', paddingBottom: 88, borderBottomWidth: 1, borderBottomColor: colors.border },
+  heroImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  hero: { gap: spacing.xxl, marginTop: 56 },
+  heroWide: { flexDirection: 'row', alignItems: 'center', gap: 64, marginTop: 96 },
+  pillar: { gap: spacing.sm, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.border },
+  profile: { width: '100%', borderLeftWidth: 2, borderLeftColor: colors.primary, paddingVertical: spacing.sm, paddingLeft: spacing.lg, gap: 6 },
   heroText: { gap: spacing.lg },
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   eyebrowDot: { width: 8, height: 8, backgroundColor: colors.primary },
   eyebrow: { ...monoType, fontSize: 12, fontWeight: '600', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
-  h1: { ...displayType, fontSize: 54, lineHeight: 56, fontWeight: '800', color: colors.text, letterSpacing: -0.8 },
+  h1: { ...displayType, fontSize: 58, lineHeight: 60, fontWeight: '800', color: colors.text, letterSpacing: -0.8 },
   h1Narrow: { fontSize: 40, lineHeight: 42, letterSpacing: -0.4 },
-  lead: { fontSize: 18, lineHeight: 28, color: colors.textMuted, maxWidth: 540 },
+  lead: { fontSize: 18, lineHeight: 28, color: '#5A4A3B', maxWidth: 560 },
   ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md, marginTop: spacing.xs },
   ghost: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 12, paddingHorizontal: 4 },
   ghostText: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, textDecorationLine: 'underline' },
-  note: { fontSize: fontSize.sm, color: colors.textMuted },
+  note: { fontSize: fontSize.sm, color: '#7A6755' },
 
   preview: {
     backgroundColor: colors.surface,
@@ -365,8 +398,8 @@ const styles = StyleSheet.create({
   faqA: { fontSize: fontSize.md, lineHeight: 24, color: colors.textMuted, paddingBottom: spacing.lg, maxWidth: 760 },
   hidden: { display: 'none' },
 
-  final: { backgroundColor: colors.primary, borderRadius: radius.xl, padding: spacing.xxl, gap: spacing.lg },
-  finalWide: { flexDirection: 'row', alignItems: 'center' },
-  finalTitle: { ...displayType, fontSize: 34, lineHeight: 38, fontWeight: '800', color: '#fff' },
-  finalText: { fontSize: fontSize.md, color: '#F6E4D2' },
+  final: { position: 'relative', overflow: 'hidden', backgroundColor: '#FBE3CB', borderRadius: radius.xl, padding: spacing.xxl, paddingVertical: 56, gap: spacing.lg, borderWidth: 1, borderColor: colors.border },
+  finalWide: { flexDirection: 'column', alignItems: 'flex-start' },
+  finalTitle: { ...displayType, fontSize: 34, lineHeight: 38, fontWeight: '800', color: colors.text },
+  finalText: { fontSize: fontSize.md, color: '#5A4A3B', maxWidth: 520 },
 });

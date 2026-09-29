@@ -23,7 +23,7 @@ execFileSync('npx', ['expo', 'export', '-p', 'web', '-c', '--output-dir', path.r
 // (demo videos, PDFs, Netlify form stubs, the app's service worker...).
 for (const entry of [
   'aide', 'downloads', 'showcase', '_sitemap.html', 'contact-form.html', 'sur-mesure-form.html', 'llms.txt', 'sw.js',
-  'manifest.json', 'hero-mountain.webp', 'cantia-demo.mp4', 'cantia-demo.webm', 'cantia-demo-de.mp4', 'cantia-demo-de.webm',
+  'manifest.json', 'cantia-demo.mp4', 'cantia-demo.webm', 'cantia-demo-de.mp4', 'cantia-demo-de.webm',
   'cantia-dossier-b2b-fr.pdf', 'cantia-dossier-b2b-de.pdf',
 ]) {
   rmSync(path.join(outputDir, entry), { recursive: true, force: true });

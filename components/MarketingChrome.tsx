@@ -352,6 +352,9 @@ export function MarketingFooter({
           <Link href={contactHref as any}>
             <Text style={styles.footerLink}>{t.footer.resourcesContact}</Text>
           </Link>
+          <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
+            <Text style={styles.footerLink}>{t.footer.partnersLink}</Text>
+          </Link>
           <Link href={authHref('login')}>
             <Text style={styles.footerLink}>{t.footer.resourcesLogin}</Text>
           </Link>
@@ -385,9 +388,6 @@ export function MarketingFooter({
           </Link>
           <Link href={`${localePrefix}/conditions-generales` as any}>
             <Text style={styles.footerCopy}>{t.footer.cgvLink}</Text>
-          </Link>
-          <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
-            <Text style={styles.footerCopy}>{t.footer.partnersLink}</Text>
           </Link>
           <StatusLink label={t.footer.statusLink} textStyle={styles.footerCopy} />
         </View>
@@ -669,8 +669,10 @@ const styles = StyleSheet.create({
   },
   footerLegalLinks: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: spacing.lg,
+    columnGap: spacing.lg,
+    rowGap: spacing.sm,
   },
   footerSocialRow: {
     flexDirection: 'row',

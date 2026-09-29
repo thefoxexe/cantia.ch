@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Head from 'expo-router/head';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button, Field } from '../components/ui';
-import { PartnersNav, PartnersPage } from '../components/partners/PartnersChrome';
+import { PartnersNav, PartnersPage, useIsWide } from '../components/partners/PartnersChrome';
 import { usePartnersCopy } from '../lib/partners/locale';
 import { fill } from '../lib/partners/copy';
 import { usePartnerSession } from '../lib/partners/session';
@@ -27,6 +28,8 @@ export default function PartnersAuth() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const wide = useIsWide(900);
 
   // Applied after hydration: the prerendered page is the login form.
   useEffect(() => {
@@ -80,6 +83,18 @@ export default function PartnersAuth() {
     if (err) setError(err.message);
   }
 
+  // Same Google accounts as app.cantia.ch; back to the partner space after.
+  async function handleGoogle() {
+    setError(null);
+    setGoogleBusy(true);
+    const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/espace` : undefined;
+    const { error: err } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+    if (err) {
+      setError(err.message);
+      setGoogleBusy(false);
+    }
+  }
+
   async function handleResend() {
     setError(null);
     const { error: err } = await supabase.auth.resend({ type: 'signup', email: email.trim() });
@@ -95,7 +110,16 @@ export default function PartnersAuth() {
         <title>{`${title} · Cantia Partners`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <View style={styles.wrap}>
+      <View style={[styles.split, wide && styles.splitWide]}>
+        <View style={[styles.visual, wide && styles.visualWide]}>
+          <Image source={{ uri: '/hero-mountain.webp' }} style={styles.visualImage} resizeMode="cover" />
+          <View style={styles.visualText}>
+            <Text style={styles.visualEyebrow}>Cantia Partners</Text>
+            <Text style={[styles.visualTitle, !wide && { fontSize: 28, lineHeight: 32 }]}>{copy.auth.sideTitle}</Text>
+            {wide ? <Text style={styles.visualBody}>{copy.auth.sideText}</Text> : null}
+          </View>
+        </View>
+        <View style={[styles.formSide, wide && { flex: 1 }]}>
         <View style={styles.card}>
           <Text style={styles.title} role="heading" aria-level={1}>
             {title}
@@ -158,18 +182,44 @@ export default function PartnersAuth() {
                   </Pressable>
                 ) : null}
               </View>
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>{copy.auth.or}</Text>
+                <View style={styles.dividerLine} />
+              </View>
+              <Pressable onPress={handleGoogle} disabled={googleBusy} style={styles.google} accessibilityRole="button">
+                {googleBusy ? <ActivityIndicator size="small" color={colors.text} /> : <Ionicons name="logo-google" size={18} color={colors.text} />}
+                <Text style={styles.googleText}>{copy.auth.google}</Text>
+              </Pressable>
             </>
           )}
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {info ? <Text style={styles.info}>{info}</Text> : null}
         </View>
       </View>
+      </View>
     </PartnersPage>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { paddingHorizontal: spacing.lg, paddingTop: 56, alignItems: 'center' },
+  split: { flex: 1 },
+  splitWide: { flexDirection: 'row', minHeight: 680 },
+  visual: { height: 200, position: 'relative', overflow: 'hidden', backgroundColor: '#FBE3CB', justifyContent: 'flex-start' },
+  visualWide: { flex: 1, height: 'auto' as any },
+  // The photo's peak sits in its bottom-right corner: anchored there, wider
+  // than the panel, so the mountain fills the frame instead of the sky.
+  visualImage: { position: 'absolute', right: 0, bottom: 0, height: '100%', aspectRatio: 1672 / 941 },
+  visualText: { padding: spacing.xl, paddingTop: 56, gap: spacing.sm, maxWidth: 460 },
+  visualEyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
+  visualTitle: { ...displayType, fontSize: 44, lineHeight: 48, fontWeight: '800', color: colors.text },
+  visualBody: { fontSize: fontSize.md, lineHeight: 24, color: '#5A4A3B' },
+  formSide: { paddingHorizontal: spacing.lg, paddingVertical: 48, alignItems: 'center', justifyContent: 'center' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginVertical: spacing.xs },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { fontSize: fontSize.xs, color: colors.textMuted },
+  google: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing.md, backgroundColor: colors.surface },
+  googleText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
   card: {
     width: '100%',
     maxWidth: 440,

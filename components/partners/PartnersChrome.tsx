@@ -89,7 +89,7 @@ export function PartnersFooter() {
       <View style={styles.footer}>
         <View style={styles.footerBrand}>
           <Wordmark />
-          <Text style={styles.footerText}>{copy.hero.eyebrow}</Text>
+          <Text style={[styles.footerText, { maxWidth: 320 }]}>{copy.footer.tagline}</Text>
         </View>
         <View style={styles.footerCols}>
           <View style={styles.footerCol}>

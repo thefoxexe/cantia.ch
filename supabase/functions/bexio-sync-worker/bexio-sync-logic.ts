@@ -54,6 +54,39 @@ async function mapWithConcurrency<T>(items: T[], concurrency: number, fn: (item:
   await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, worker));
 }
 
+// Every mapping of one entity type for an integration. PostgREST returns at
+// most 1000 rows per request, so this pages through them: reading only the
+// first page made every contact past the 1000th look new on every sweep,
+// and the sync inserted a fresh duplicate client for each of them every 15
+// minutes (the mapping insert then failed on its unique key). Throws rather
+// than returning a partial list, since a partial list means duplicates.
+type ExistingMapping = { id: string; local_id: string; external_id: string; external_updated_at: string | null };
+async function loadMappings(admin: any, integrationId: string, entityType: string): Promise<Map<string, ExistingMapping>> {
+  const rows: ExistingMapping[] = [];
+  const PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await admin
+      .from('integration_mappings')
+      .select('id, local_id, external_id, external_updated_at')
+      .eq('integration_id', integrationId)
+      .eq('entity_type', entityType)
+      .order('id', { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`Lecture des correspondances impossible: ${error.message}`);
+    rows.push(...((data ?? []) as ExistingMapping[]));
+    if (!data || data.length < PAGE) break;
+  }
+  return new Map(rows.map((m) => [m.external_id, m]));
+}
+
+// Bexio's updated_at ("2026-09-29 08:15:00") against the stored
+// timestamptz ("2026-09-29T08:15:00+00:00"): same instant, compared on the
+// first 19 characters so the formats don't matter.
+function sameTimestamp(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  return a.replace('T', ' ').slice(0, 19) === b.replace('T', ' ').slice(0, 19);
+}
+
 async function logSync(
   admin: any,
   integration: BexioIntegrationRow,
@@ -189,25 +222,20 @@ export async function syncBexioContacts(admin: any, integration: BexioIntegratio
   try {
     const contacts = await fetchAllBexioPages<BexioContact>(admin, integration, '/2.0/contact');
 
-    // One query for every existing mapping instead of one per contact — see
-    // mapWithConcurrency's comment for why this mattered (an org with 1140
-    // Bexio contacts used to mean 1140 extra sequential round trips here
-    // alone).
-    const { data: existingMappings } = await admin
-      .from('integration_mappings')
-      .select('id, local_id, external_id')
-      .eq('integration_id', integration.id)
-      .eq('entity_type', 'client');
-    const mappingByExternalId = new Map<string, { id: string; local_id: string }>(
-      (existingMappings ?? []).map((m: any) => [m.external_id, m]),
-    );
+    const mappingByExternalId = await loadMappings(admin, integration.id, 'client');
 
     let count = 0;
+    let unchanged = 0;
     await mapWithConcurrency(contacts, SYNC_CONCURRENCY, async (contact) => {
       const externalId = String(contact.id);
       const mapped = mapBexioContactToClient(contact);
       const existingMapping = mappingByExternalId.get(externalId);
 
+      // Unchanged in Bexio since the last sweep: nothing to write.
+      if (existingMapping && sameTimestamp(existingMapping.external_updated_at, contact.updated_at)) {
+        unchanged += 1;
+        return;
+      }
       if (existingMapping) {
         const updatePayload: Record<string, unknown> = { type: mapped.type, name: mapped.name, company_name: mapped.company_name, email: mapped.email, phone: mapped.phone, address: mapped.address };
         if (mapped.notes) updatePayload.notes = mapped.notes;
@@ -223,7 +251,7 @@ export async function syncBexioContacts(admin: any, integration: BexioIntegratio
           .select('id')
           .single();
         if (insertError || !newClient) throw new Error(insertError?.message ?? 'Échec de création du client');
-        await admin.from('integration_mappings').insert({
+        const { error: mappingError } = await admin.from('integration_mappings').insert({
           integration_id: integration.id,
           organization_id: integration.organization_id,
           entity_type: 'client',
@@ -234,10 +262,16 @@ export async function syncBexioContacts(admin: any, integration: BexioIntegratio
           last_synced_at: new Date().toISOString(),
           external_updated_at: contact.updated_at,
         });
+        // No mapping means the next sweep would create the client again:
+        // undo it instead of leaving an orphan behind.
+        if (mappingError) {
+          await admin.from('clients').delete().eq('id', newClient.id);
+          throw new Error(`Correspondance du contact ${externalId} impossible: ${mappingError.message}`);
+        }
       }
       count += 1;
     });
-    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'client', payload_summary: { count } });
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'client', payload_summary: { count, unchanged } });
     return { action: 'contacts', ok: true, count };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -275,18 +309,11 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
   try {
     const articles = await fetchAllBexioPages<BexioArticle>(admin, integration, '/2.0/article');
 
-    // Same one-query-instead-of-one-per-row fix as syncBexioContacts.
-    const { data: existingMappings } = await admin
-      .from('integration_mappings')
-      .select('id, local_id, external_id')
-      .eq('integration_id', integration.id)
-      .eq('entity_type', 'article');
-    const mappingByExternalId = new Map<string, { id: string; local_id: string }>(
-      (existingMappings ?? []).map((m: any) => [m.external_id, m]),
-    );
+    const mappingByExternalId = await loadMappings(admin, integration.id, 'article');
 
     let count = 0;
     let skipped = 0;
+    let unchanged = 0;
     await mapWithConcurrency(articles, SYNC_CONCURRENCY, async (article) => {
       const name = article.intern_name?.trim();
       const price = article.sale_price != null ? Number(article.sale_price) : null;
@@ -297,6 +324,10 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
       const externalId = String(article.id);
       const existingMapping = mappingByExternalId.get(externalId);
 
+      if (existingMapping && sameTimestamp(existingMapping.external_updated_at, article.updated_at)) {
+        unchanged += 1;
+        return;
+      }
       if (existingMapping) {
         await admin.from('catalog_items').update({ description: name, unit_price: price }).eq('id', existingMapping.local_id);
         await admin
@@ -336,7 +367,7 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
       }
       count += 1;
     });
-    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'article', payload_summary: { count, skipped } });
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'article', payload_summary: { count, skipped, unchanged } });
     return { action: 'articles', ok: true, count };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -359,11 +390,7 @@ interface BexioInvoiceStatus {
 
 export async function syncBexioInvoiceStatuses(admin: any, integration: BexioIntegrationRow): Promise<SyncResult> {
   try {
-    const { data: mappings } = await admin
-      .from('integration_mappings')
-      .select('id, local_id, external_id')
-      .eq('integration_id', integration.id)
-      .eq('entity_type', 'facture');
+    const mappings = [...(await loadMappings(admin, integration.id, 'facture')).values()];
 
     // One query for every mapped facture's current status instead of one
     // per mapping — same fix as syncBexioContacts/syncBexioArticles, and
@@ -481,19 +508,10 @@ export async function syncBexioInvoicesFromBexio(admin: any, integration: BexioI
     // invoices used to mean 2-3x that many sequential round trips here
     // alone before even reaching the (also sequential) per-invoice detail
     // fetch below.
-    const { data: existingFactureMappings } = await admin
-      .from('integration_mappings')
-      .select('external_id')
-      .eq('integration_id', integration.id)
-      .eq('entity_type', 'facture');
-    const mappedExternalIds = new Set<string>((existingFactureMappings ?? []).map((m: any) => m.external_id));
-
-    const { data: clientMappings } = await admin
-      .from('integration_mappings')
-      .select('local_id, external_id')
-      .eq('integration_id', integration.id)
-      .eq('entity_type', 'client');
-    const clientIdByContactId = new Map<string, string>((clientMappings ?? []).map((m: any) => [m.external_id, m.local_id]));
+    const mappedExternalIds = new Set<string>((await loadMappings(admin, integration.id, 'facture')).keys());
+    const clientIdByContactId = new Map<string, string>(
+      [...(await loadMappings(admin, integration.id, 'client')).values()].map((m) => [m.external_id, m.local_id]),
+    );
 
     const toImport = invoices.filter((entry) => !mappedExternalIds.has(String(entry.id)));
     const neededClientIds = [
