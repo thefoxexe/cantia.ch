@@ -1,10 +1,13 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { PDFDocument, PDFImage, StandardFonts } from 'npm:pdf-lib@1.17.1';
+import { PDFDocument, PDFImage, PDFName, PDFString, StandardFonts, rgb, type PDFFont, type PDFPage } from 'npm:pdf-lib@1.17.1';
 import {
   decodeDataUrl,
   drawFooter,
   embedImageSmart,
   fetchStorageBytes,
+  hexToRgb,
+  MARGIN,
+  PAGE_WIDTH,
   orgHasCustomization,
   resolveBrand,
   resolveFooterText,
@@ -134,6 +137,16 @@ Deno.serve(async (req: Request) => {
       metaLine: null,
       locale,
     });
+    // A clickable "view and sign online" button under the signatures while
+    // the devis is still open: a client reading the attached PDF lands on
+    // the portal, where the visit is recorded (devis_events) and the devis
+    // can be signed. The renderer's y is the top of the signature block
+    // (about 90 pt tall), so the button goes under it; skipped when the last
+    // page has no room left for it.
+    const buttonTop = rendered.y - 100;
+    if (devis.public_token && devis.status !== 'accepted' && devis.status !== 'refused' && buttonTop - 24 > 48) {
+      drawPortalButton(pdfDoc, rendered.page, fontBold, font, buttonTop, `https://cantia.ch/devis-client/${devis.public_token}`, pdfT(locale, 'viewAndSignDevis'), hexToRgb(org?.brand_color));
+    }
     drawFooter(rendered.page, font, rendered.pageNum, footerText ?? org?.name ?? 'Cantia', locale);
     const pdfBytes = await pdfDoc.save();
 
@@ -154,6 +167,41 @@ Deno.serve(async (req: Request) => {
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);
   }
 });
+
+function drawPortalButton(
+  pdfDoc: PDFDocument,
+  page: PDFPage,
+  fontBold: PDFFont,
+  font: PDFFont,
+  top: number,
+  url: string,
+  label: string,
+  color: ReturnType<typeof rgb>,
+) {
+  const text = `${label}  >`;
+  const size = 10;
+  const padX = 12;
+  const height = 24;
+  const width = fontBold.widthOfTextAtSize(text, size) + padX * 2;
+  const x = MARGIN;
+  const y = top - height;
+  page.drawRectangle({ x, y, width, height, color });
+  page.drawText(text, { x: x + padX, y: y + 8, size, font: fontBold, color: rgb(1, 1, 1) });
+  const shown = url.replace(/^https:\/\//, '');
+  page.drawText(shown, { x: x + width + 10, y: y + 8, size: 8, font, color: rgb(0.43, 0.38, 0.33) });
+
+  const annotation = pdfDoc.context.obj({
+    Type: 'Annot',
+    Subtype: 'Link',
+    Rect: [x, y, Math.min(PAGE_WIDTH - MARGIN, x + width + 10 + font.widthOfTextAtSize(shown, 8)), y + height],
+    Border: [0, 0, 0],
+    A: { Type: 'Action', S: 'URI', URI: PDFString.of(url) },
+  });
+  const ref = pdfDoc.context.register(annotation);
+  const existing = page.node.lookup(PDFName.of('Annots'));
+  if (existing && 'push' in (existing as object)) (existing as unknown as { push: (r: unknown) => void }).push(ref);
+  else page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([ref]));
+}
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

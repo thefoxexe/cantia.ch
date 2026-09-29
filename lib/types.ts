@@ -59,6 +59,7 @@ export interface Plan {
   stripe_price_id: string | null;
   stripe_price_id_yearly: string | null;
   has_document_locale_override: boolean;
+  has_sales_tracking?: boolean;
 }
 
 export interface Organization {
@@ -1060,6 +1061,8 @@ export type NotificationType =
   | 'devis_stale_draft'
   | 'devis_expiring_soon'
   | 'devis_accepted'
+  | 'devis_viewed'
+  | 'devis_bounced'
   | 'facture_overdue'
   | 'recurring_expense_due'
   | 'extra_work_accepted'

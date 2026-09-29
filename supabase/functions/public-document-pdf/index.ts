@@ -27,7 +27,7 @@ Deno.serve(async (req: Request) => {
     const table = kind === 'devis' ? 'devis' : 'factures';
     const { data: row, error } = await admin
       .from(table)
-      .select('id, client_email')
+      .select('id, client_email, organization_id')
       .eq('public_token', token)
       .single();
 
@@ -58,6 +58,10 @@ Deno.serve(async (req: Request) => {
 
     const { data: signed, error: signError } = await admin.storage.from(BUCKET).createSignedUrl(genData.path, 60 * 15);
     if (signError || !signed?.signedUrl) return json({ error: 'Échec de la génération du lien de téléchargement.' }, 500);
+
+    if (kind === 'devis') {
+      await admin.from('devis_events').insert({ organization_id: row.organization_id, devis_id: row.id, kind: 'pdf_downloaded' });
+    }
 
     return json({ url: signed.signedUrl });
   } catch (err) {

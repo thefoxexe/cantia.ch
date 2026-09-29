@@ -47,6 +47,7 @@ function buildSections(
   canManagePayroll: boolean,
   treasuryEnabled: boolean,
   accountingEnabled: boolean,
+  commercialVisible: boolean,
 ): NavSection[] {
   const teamLinks = [
     ...(planningEnabled ? [{ href: '/(app)/planning', label: t('nav.planning'), icon: 'calendar' as const }] : []),
@@ -92,6 +93,10 @@ function buildSections(
             links: [
               { href: '/(app)/clients', label: t('nav.clients'), icon: 'users' as const },
               { href: '/(app)/devis', label: t('nav.devis'), icon: 'file-text' as const },
+              // Finance members only: amounts and the sales pipeline. Shown on
+              // every plan; without sales tracking it opens the locked teaser.
+              ...(commercialVisible ? [{ href: '/(app)/commercial', label: t('nav.commercial'), icon: 'trending-up' as const }] : []),
+              ...(commercialVisible ? [{ href: '/(app)/automatisations', label: t('nav.automations'), icon: 'zap' as const }] : []),
               { href: '/(app)/devis/trames', label: t('nav.trames'), icon: 'layout' as const },
               { href: '/(app)/devis/factures', label: t('nav.factures'), icon: 'dollar-sign' as const },
               { href: '/(app)/devis/inventaire', label: t('nav.catalogue'), icon: 'box' as const },
@@ -148,7 +153,7 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const devisVisible = devisEnabled && canManageDevis;
-  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled);
+  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

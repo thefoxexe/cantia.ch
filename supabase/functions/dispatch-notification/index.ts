@@ -30,6 +30,8 @@ const TONE_BY_TYPE: Record<string, Tone> = {
   extra_work_accepted: 'positive',
   devis_stale_draft: 'attention',
   devis_expiring_soon: 'attention',
+  devis_viewed: 'attention',
+  devis_bounced: 'urgent',
   recurring_expense_due: 'attention',
   facture_overdue: 'urgent',
   feed_message: 'neutral',

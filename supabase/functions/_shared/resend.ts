@@ -156,7 +156,10 @@ export async function sendResendEmail(params: {
   subject: string;
   html: string;
   attachments?: { filename: string; content: string }[];
-}): Promise<{ ok: boolean; error?: string }> {
+  // Resend tags come back on every webhook event for this email, so the
+  // webhook can match events to the document that was sent.
+  tags?: { name: string; value: string }[];
+}): Promise<{ ok: boolean; error?: string; id?: string }> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${params.apiKey}`, 'Content-Type': 'application/json' },
@@ -167,6 +170,7 @@ export async function sendResendEmail(params: {
       subject: params.subject,
       html: params.html,
       attachments: params.attachments,
+      tags: params.tags,
     }),
   });
 
@@ -175,5 +179,6 @@ export async function sendResendEmail(params: {
     console.error('Resend error', res.status, errText);
     return { ok: false, error: `Échec de l'envoi de l'e-mail (${res.status})` };
   }
-  return { ok: true };
+  const data = await res.json().catch(() => null);
+  return { ok: true, id: typeof data?.id === 'string' ? data.id : undefined };
 }

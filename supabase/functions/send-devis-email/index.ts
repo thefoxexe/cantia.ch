@@ -96,7 +96,7 @@ Deno.serve(async (req: Request) => {
       locale,
     });
 
-    const { ok, error } = await sendResendEmail({
+    const { ok, error, id: emailId } = await sendResendEmail({
       apiKey,
       from: `${orgName} <noreply@cantia.ch>`,
       to: [devis.client_email],
@@ -104,8 +104,19 @@ Deno.serve(async (req: Request) => {
       subject,
       html,
       attachments: [{ filename: `Devis-${devis.number ?? devis_id}.pdf`, content: base64FromBytes(pdfFile.bytes) }],
+      tags: [{ name: 'devis_id', value: devis_id }],
     });
     if (!ok) return json({ error }, 502);
+
+    // Starting point of the sales tracking timeline and of the follow-up
+    // schedule (see devis_events).
+    await admin.from('devis_events').insert({
+      organization_id: devis.organization_id,
+      devis_id,
+      kind: 'sent',
+      resend_email_id: emailId ?? null,
+      meta: { to: devis.client_email },
+    });
 
     if (devis.status === 'ready') {
       await admin.from('devis').update({ status: 'sent' }).eq('id', devis_id);

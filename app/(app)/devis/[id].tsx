@@ -25,6 +25,7 @@ import { breakpoints, colors, fontSize, radius, spacing } from '../../../lib/the
 import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
+import { DevisTrackingPanel } from '../../../components/DevisTrackingPanel';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
 
@@ -516,6 +517,14 @@ export default function DevisDetailScreen() {
             </Text>
           </Card>
         ) : null}
+
+        <DevisTrackingPanel
+          devisId={devis.id}
+          status={devis.status}
+          hasTracking={!!plan?.has_sales_tracking}
+          followupsPaused={!!(devis as typeof devis & { followups_paused?: boolean }).followups_paused}
+          onChanged={load}
+        />
 
         <Text style={styles.sectionTitle}>{t('devisDetail.linesTitle')}</Text>
         <Card>

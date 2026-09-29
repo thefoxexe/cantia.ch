@@ -6,6 +6,8 @@ export const NOTIFICATION_TYPES: { type: NotificationType; label: string; descri
   { type: 'devis_stale_draft', label: 'Devis en attente', description: "Un devis reste en brouillon depuis plusieurs jours sans avoir été envoyé." },
   { type: 'devis_expiring_soon', label: 'Devis bientôt échu', description: "Un devis envoyé arrive au bout de sa durée de validité." },
   { type: 'devis_accepted', label: 'Devis signé', description: "Un client a accepté et signé un devis depuis le portail client." },
+  { type: 'devis_viewed', label: 'Devis consulté', description: "Un client consulte un devis sur le portail (plan Entreprise)." },
+  { type: 'devis_bounced', label: 'Devis non délivré', description: "L'adresse du client a refusé l'e-mail du devis (plan Entreprise)." },
   { type: 'facture_overdue', label: 'Facture en retard', description: "Une facture envoyée a dépassé son échéance de paiement." },
   { type: 'recurring_expense_due', label: 'Dépense récurrente à venir', description: "Un abonnement ou une charge récurrente arrive à échéance." },
   { type: 'extra_work_accepted', label: 'Travaux supplémentaires acceptés', description: "Un client a accepté et signé des travaux supplémentaires." },
