@@ -219,6 +219,30 @@ function removeSharedCookie(name: string): void {
   }
 }
 
+// Cantia Accounting: a fiduciary's invitation link
+// (app.cantia.ch/signup?fiduciary_invite=TOKEN&ref=CODE). The token is
+// kept 30 days, copied onto the account at signup, and the new company is
+// linked to the firm (waiting for the client's consent) when it is created
+// (supabase/migrations/20260929210000_accounting_foundation.sql).
+const FIDUCIARY_INVITE_COOKIE = 'cantia_fid_invite';
+
+function captureFiduciaryInvite(): void {
+  const token = new URLSearchParams(window.location.search).get('fiduciary_invite')?.trim() ?? '';
+  if (!/^[a-f0-9]{24,64}$/.test(token)) return;
+  try {
+    const host = window.location.hostname;
+    const domainAttr = host.endsWith('cantia.ch') ? '; domain=.cantia.ch' : '';
+    document.cookie = `${FIDUCIARY_INVITE_COOKIE}=${token}; path=/; max-age=${30 * 24 * 60 * 60}${domainAttr}; SameSite=Lax`;
+  } catch {
+    // Without storage the link still works through the signup page.
+  }
+}
+
+export function getStoredFiduciaryInvite(): string | null {
+  const token = readCookie(FIDUCIARY_INVITE_COOKIE);
+  return token && /^[a-f0-9]{24,64}$/.test(token) ? token : null;
+}
+
 // Read back on app.cantia.ch right after the organization is created.
 export function getStoredReferral(): StoredReferral | null {
   const raw = readCookie(REF_COOKIE);
@@ -250,6 +274,7 @@ export function trackPageview(path: string): void {
   if (typeof window === 'undefined') return;
   // Partner links work on cantia.ch and on app.cantia.ch alike.
   if (isMarketingHost() || window.location.hostname.endsWith('cantia.ch')) captureReferral(path);
+  captureFiduciaryInvite();
   if (!isMarketingHost()) return;
   if (path === lastTrackedPath) return;
   lastTrackedPath = path;

@@ -7,7 +7,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
 import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
-import { getStoredAttribution, getStoredReferral } from './siteAnalytics';
+import { getStoredAttribution, getStoredFiduciaryInvite, getStoredReferral } from './siteAnalytics';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -81,9 +81,7 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  // partnerCode: a Cantia Partners code typed on the company creation
-  // screen; it wins over a clicked link.
-  createOrganization: (name: string, trade: string | null, partnerCode?: string | null) => Promise<{ error: string | null }>;
+  createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   // Supabase sends a confirmation link to the NEW address before the
@@ -333,10 +331,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // device or a cleared cookie (read back when the company is created).
     const stored = Platform.OS === 'web' ? getStoredReferral() : null;
     const referral = stored ? { ...stored, source: 'link' } : undefined;
+    // Cantia Accounting: same for a fiduciary's invitation link.
+    const fiduciaryInvite = Platform.OS === 'web' ? getStoredFiduciaryInvite() : null;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, locale, newsletter_opt_in: newsletterOptIn, ...(referral ? { referral } : {}) } },
+      options: {
+        data: {
+          full_name: fullName,
+          locale,
+          newsletter_opt_in: newsletterOptIn,
+          ...(referral ? { referral } : {}),
+          ...(fiduciaryInvite ? { fiduciary_invite: fiduciaryInvite } : {}),
+        },
+      },
     });
     // Supabase returns a user with no session when "Confirm email" is
     // enabled and this account isn't confirmed yet — that's the only
@@ -440,7 +448,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createOrganization = useCallback(
-    async (name: string, trade: string | null, partnerCode?: string | null) => {
+    async (name: string, trade: string | null) => {
       // Attribution was captured (if any) back on cantia.ch's first pageview
       // and survives the domain jump to app.cantia.ch via a shared cookie —
       // see lib/siteAnalytics.ts. Native has no such cookie/URL, so this is
@@ -451,17 +459,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // company is created; a database trigger then attributes the company
       // in the same transaction (see
       // supabase/migrations/20260929190000_partners_attribution_hardening.sql).
-      // A typed code wins; otherwise the link clicked (cookie), unless the
-      // account already carries one from its signup.
-      const typed = partnerCode?.trim().toUpperCase() || null;
+      // The link clicked (cookie), unless the account already carries one
+      // from its signup (first touch). Nothing to type for the client.
       const stored = Platform.OS === 'web' ? getStoredReferral() : null;
       const existing = (session?.user?.user_metadata as { referral?: { code?: string } } | undefined)?.referral;
-      const referral = typed
-        ? { code: typed, source: 'code' }
-        : stored && !existing?.code
-          ? { ...stored, source: 'link' }
-          : null;
-      if (referral) await supabase.auth.updateUser({ data: { referral } });
+      // Cantia Accounting: a fiduciary's invitation link, same mechanism
+      // (fiduciary_claim_on_new_owner trigger).
+      const metadata = session?.user?.user_metadata as { fiduciary_invite?: string } | undefined;
+      const fiduciaryInvite = (Platform.OS === 'web' ? getStoredFiduciaryInvite() : null) ?? metadata?.fiduciary_invite ?? null;
+      const patch: Record<string, unknown> = {};
+      if (stored && !existing?.code) patch.referral = { ...stored, source: 'link' };
+      if (fiduciaryInvite && metadata?.fiduciary_invite !== fiduciaryInvite) patch.fiduciary_invite = fiduciaryInvite;
+      if (Object.keys(patch).length) await supabase.auth.updateUser({ data: patch });
       const { data: created, error } = await supabase.rpc('create_organization', {
         org_name: name,
         org_trade: trade,
@@ -478,15 +487,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // refused, older session): the server ignores it when the company is
       // already attributed. Failing here never blocks the signup.
       const orgId = (created as { id?: string } | null)?.id;
-      const fallback = typed ? { code: typed, visitor_id: null, first_click_at: null } : stored;
+      const fallback = stored ?? (existing?.code ? (existing as { code: string; visitor_id?: string; first_click_at?: string }) : null);
       if (fallback && orgId) {
         const { error: refError } = await supabase.rpc('attribute_referral', {
           p_organization_id: orgId,
           p_code: fallback.code,
-          p_visitor_id: fallback.visitor_id,
-          p_first_click_at: fallback.first_click_at,
+          p_visitor_id: fallback.visitor_id ?? null,
+          p_first_click_at: fallback.first_click_at ?? null,
         });
         if (refError) console.warn('[partners] attribution skipped:', refError.message);
+      }
+      if (fiduciaryInvite && orgId) {
+        await supabase.rpc('org_claim_fiduciary_invite', { p_org: orgId, p_token: fiduciaryInvite });
       }
       if (session?.user) await loadOrganization(session.user.id);
       return { error: null };

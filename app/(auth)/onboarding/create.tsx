@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -8,31 +8,15 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { displayType } from '../../../lib/marketingTheme';
-import { getStoredReferral } from '../../../lib/siteAnalytics';
-import { supabase } from '../../../lib/supabase';
 
 export default function CreateOrganizationScreen() {
   const { t } = useTranslation();
-  const { createOrganization, user } = useAuth();
+  const { createOrganization } = useAuth();
   const router = useRouter();
   const [name, setName] = useState('');
   const [trade, setTrade] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  // Cantia Partners: prefilled with the partner link the visitor came
-  // through (or the one kept on the account at signup), editable.
-  const [partnerOpen, setPartnerOpen] = useState(false);
-  const [partnerCode, setPartnerCode] = useState('');
-
-  useEffect(() => {
-    const fromAccount = (user?.user_metadata as { referral?: { code?: string } } | undefined)?.referral?.code;
-    const fromLink = Platform.OS === 'web' ? getStoredReferral()?.code : undefined;
-    const code = fromAccount || fromLink;
-    if (code) {
-      setPartnerCode(code);
-      setPartnerOpen(true);
-    }
-  }, [user]);
 
   async function handleCreate() {
     setError(null);
@@ -41,16 +25,7 @@ export default function CreateOrganizationScreen() {
       return;
     }
     setLoading(true);
-    const code = partnerCode.trim().toUpperCase();
-    if (code) {
-      const { data: valid } = await supabase.rpc('partners_code_is_valid', { p_code: code });
-      if (valid === false) {
-        setLoading(false);
-        setError(t('authOnboardingCreate.partnerInvalid'));
-        return;
-      }
-    }
-    const { error: createError } = await createOrganization(name.trim(), trade, code || null);
+    const { error: createError } = await createOrganization(name.trim(), trade);
     setLoading(false);
     if (createError) {
       setError(createError);
@@ -89,23 +64,6 @@ export default function CreateOrganizationScreen() {
             </Pressable>
           ))}
         </View>
-
-        {partnerOpen ? (
-          <View>
-            <Field
-              label={t('authOnboardingCreate.partnerLabel')}
-              value={partnerCode}
-              onChangeText={(v: string) => setPartnerCode(v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12))}
-              placeholder={t('authOnboardingCreate.partnerPlaceholder')}
-              autoCapitalize="characters"
-            />
-            <Text style={styles.partnerHint}>{t('authOnboardingCreate.partnerHint')}</Text>
-          </View>
-        ) : (
-          <Pressable onPress={() => setPartnerOpen(true)} hitSlop={8} style={styles.partnerToggle}>
-            <Text style={styles.partnerToggleText}>{t('authOnboardingCreate.partnerToggle')}</Text>
-          </Pressable>
-        )}
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -147,9 +105,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
   },
-  partnerToggle: { alignSelf: 'flex-start', marginBottom: spacing.sm },
-  partnerToggleText: { fontSize: fontSize.sm, color: colors.textMuted, fontWeight: '600', textDecorationLine: 'underline' },
-  partnerHint: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: -spacing.sm, marginBottom: spacing.md, lineHeight: 17 },
   fieldLabel: {
     fontSize: fontSize.sm,
     color: colors.textMuted,

@@ -14,6 +14,7 @@ type IconName = keyof typeof Feather.glyphMap;
 type MenuKey =
   | 'entreprise'
   | 'partenaires'
+  | 'fiduciaire'
   | 'devis'
   | 'emails'
   | 'equipe'
@@ -106,6 +107,9 @@ const GROUP_COLORS: Record<MenuGroup['color'], { bg: string; fg: string }> = {
   success: { bg: colors.successSoft, fg: colors.success },
 };
 
+// Cantia Accounting: owners and admins decide what their fiduciary sees.
+const FIDUCIAIRE_ITEM: MenuItem = { href: '/(app)/compte/fiduciaire', icon: 'shield', key: 'fiduciaire' };
+
 const RH_ITEM: MenuItem = { href: '/(app)/compte/rh', icon: 'dollar-sign', key: 'rh' };
 
 // Relances de devis, rapports, synchronisations: finance members only, same
@@ -119,7 +123,8 @@ const EQUIPE_ITEM: MenuItem = { href: '/(app)/compte/equipe', icon: 'users', key
 export default function CompteIndexScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { organization, canManagePayroll, canViewFinances } = useAuth();
+  const { organization, canManagePayroll, canViewFinances, role } = useAuth();
+  const isOrgAdmin = role === 'owner' || role === 'admin';
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -133,13 +138,19 @@ export default function CompteIndexScreen() {
       ...(canViewFinances ? [AUTOMATIONS_ITEM] : []),
       ...(canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll') ? [RH_ITEM] : []),
     ];
-    const withRh = GROUPS.map((g) => (g.id === 'modules' ? { ...g, items: [...g.items, ...moduleExtras] } : g));
+    const withRh = GROUPS.map((g) =>
+      g.id === 'modules'
+        ? { ...g, items: [...g.items, ...moduleExtras] }
+        : g.id === 'entreprise' && isOrgAdmin
+          ? { ...g, items: [...g.items.slice(0, 5), FIDUCIAIRE_ITEM, ...g.items.slice(5)] }
+          : g,
+    );
     return withRh.map((g) => ({
       ...g,
       title: t(g.titleKey as any),
       items: g.items.map((item) => ({ ...item, label: t(`compteMenu.${item.key}.label`), description: t(`compteMenu.${item.key}.description`) })),
     }));
-  }, [canManagePayroll, canViewFinances, organization?.enabled_modules, t]);
+  }, [canManagePayroll, canViewFinances, isOrgAdmin, organization?.enabled_modules, t]);
 
   const standaloneItems = useMemo(
     () => [EQUIPE_ITEM].map((item) => ({ ...item, label: t(`compteMenu.${item.key}.label`), description: t(`compteMenu.${item.key}.description`) })),

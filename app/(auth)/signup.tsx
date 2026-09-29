@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
@@ -10,6 +10,8 @@ import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { siteHomeHref } from '../../lib/appHost';
 import { displayType } from '../../lib/marketingTheme';
+import { getStoredFiduciaryInvite } from '../../lib/siteAnalytics';
+import { supabase } from '../../lib/supabase';
 
 export default function SignupScreen() {
   const { t } = useTranslation();
@@ -21,6 +23,20 @@ export default function SignupScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  // Cantia Accounting: arrived through a fiduciary's invitation link.
+  const params = useLocalSearchParams<{ fiduciary_invite?: string }>();
+  const [invitedBy, setInvitedBy] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = (typeof params.fiduciary_invite === 'string' ? params.fiduciary_invite : null) ?? (Platform.OS === 'web' ? getStoredFiduciaryInvite() : null);
+    if (!token || !/^[a-f0-9]{24,64}$/.test(token)) return;
+    supabase.rpc('fiduciary_new_client_preview', { p_token: token }).then(({ data }) => {
+      const preview = data as { firm_name?: string; email?: string } | null;
+      if (!preview?.firm_name) return;
+      setInvitedBy(preview.firm_name);
+      if (preview.email) setEmail((current) => current || preview.email!);
+    });
+  }, [params.fiduciary_invite]);
 
   async function handleSubmit() {
     setError(null);
@@ -65,6 +81,12 @@ export default function SignupScreen() {
           <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Cantia</Text>
           <Text style={styles.subtitle}>{t('authSignup.subtitle')}</Text>
+          {invitedBy ? (
+            <View style={styles.invited}>
+              <Feather name="briefcase" size={16} color={colors.primary} />
+              <Text style={styles.invitedText}>{t('authSignup.invitedByFiduciary', { firm: invitedBy })}</Text>
+            </View>
+          ) : null}
 
           <View style={styles.form}>
             <Field
@@ -142,6 +164,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     textAlign: 'center',
   },
+  invited: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start', backgroundColor: colors.primarySoft, borderRadius: radius.md, padding: spacing.md, marginTop: spacing.md, maxWidth: 420, alignSelf: 'center' },
+  invitedText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19, color: colors.text },
   subtitle: {
     fontSize: fontSize.md,
     color: colors.textMuted,

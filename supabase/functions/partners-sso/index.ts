@@ -1,11 +1,16 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-// One-time sign-in link to partners.cantia.ch for the signed-in Cantia user
-// (app -> Compte -> Programme partenaire). Auth sessions stay per domain:
-// sharing them through a .cantia.ch cookie would expose them to every
-// subdomain, third-party ones included (status, links). The link is only
-// ever returned to the account it signs in.
-const PARTNERS_URL = Deno.env.get('PARTNERS_URL') ?? 'https://partners.cantia.ch';
+// One-time sign-in link from one Cantia site to another for the signed-in
+// user: app -> partners.cantia.ch (Compte -> Programme partenaire),
+// app -> accounting.cantia.ch, accounting -> partners (commissions).
+// Auth sessions stay per domain: sharing them through a .cantia.ch cookie
+// would expose them to every subdomain, third-party ones included (status,
+// links). The link is only ever returned to the account it signs in, and
+// only to one of the allowed destinations below.
+const TARGETS: Record<string, string> = {
+  partners: `${Deno.env.get('PARTNERS_URL') ?? 'https://partners.cantia.ch'}/espace`,
+  accounting: `${Deno.env.get('ACCOUNTING_URL') ?? 'https://accounting.cantia.ch'}/espace`,
+};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +25,9 @@ Deno.serve(async (req: Request) => {
   try {
     const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
     if (!token) return json({ error: 'Connexion requise' }, 401);
+    const body = await req.json().catch(() => ({}));
+    const redirectTo = TARGETS[typeof body?.target === 'string' ? body.target : 'partners'];
+    if (!redirectTo) return json({ error: 'Destination inconnue' }, 400);
 
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data: userData, error: userError } = await admin.auth.getUser(token);
@@ -29,7 +37,7 @@ Deno.serve(async (req: Request) => {
     const { data, error } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email,
-      options: { redirectTo: `${PARTNERS_URL}/espace` },
+      options: { redirectTo },
     });
     if (error || !data?.properties?.action_link) return json({ error: 'Lien indisponible' }, 500);
 
