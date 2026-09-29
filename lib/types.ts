@@ -1063,6 +1063,7 @@ export type NotificationType =
   | 'devis_accepted'
   | 'devis_viewed'
   | 'devis_bounced'
+  | 'email_bounced'
   | 'facture_overdue'
   | 'recurring_expense_due'
   | 'extra_work_accepted'

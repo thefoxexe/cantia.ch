@@ -98,6 +98,8 @@ function buildSections(
               // Finance members only: amounts and the sales pipeline. Shown on
               // every plan; without sales tracking it opens the locked teaser.
               ...(commercialVisible ? [{ href: '/(app)/commercial', label: t('nav.commercial'), icon: 'trending-up' as const }] : []),
+              // Every e-mail sent to clients and where it stands (same audience).
+              ...(commercialVisible ? [{ href: '/(app)/emails', label: t('nav.emails'), icon: 'mail' as const }] : []),
               { href: '/(app)/devis/trames', label: t('nav.trames'), icon: 'layout' as const },
               { href: '/(app)/devis/factures', label: t('nav.factures'), icon: 'dollar-sign' as const },
               { href: '/(app)/devis/inventaire', label: t('nav.catalogue'), icon: 'box' as const },
