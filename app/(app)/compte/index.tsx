@@ -107,7 +107,8 @@ const GROUP_COLORS: Record<MenuGroup['color'], { bg: string; fg: string }> = {
   success: { bg: colors.successSoft, fg: colors.success },
 };
 
-// Cantia Accounting: owners and admins decide what their fiduciary sees.
+// Cantia Accounting: owners and admins decide what their fiduciary sees;
+// everyone who handles the money answers its document requests there.
 const FIDUCIAIRE_ITEM: MenuItem = { href: '/(app)/compte/fiduciaire', icon: 'shield', key: 'fiduciaire' };
 
 const RH_ITEM: MenuItem = { href: '/(app)/compte/rh', icon: 'dollar-sign', key: 'rh' };
@@ -141,7 +142,7 @@ export default function CompteIndexScreen() {
     const withRh = GROUPS.map((g) =>
       g.id === 'modules'
         ? { ...g, items: [...g.items, ...moduleExtras] }
-        : g.id === 'entreprise' && isOrgAdmin
+        : g.id === 'entreprise' && canViewFinances
           ? { ...g, items: [...g.items.slice(0, 5), FIDUCIAIRE_ITEM, ...g.items.slice(5)] }
           : g,
     );

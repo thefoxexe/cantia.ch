@@ -19,6 +19,7 @@ import {
   type FiduciaryPermission,
 } from '../../../lib/api/fiduciary';
 import { AppScreen, Button, Card, Container, PageHeader, Switch } from '../../../components/ui';
+import { FiduciaryRequests } from '../../../components/FiduciaryRequests';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -30,7 +31,7 @@ const formatDate = (iso: string) => new Date(iso).toLocaleDateString(`${getAppLo
 
 export default function FiduciaireScreen() {
   const { t } = useTranslation();
-  const { organization, role } = useAuth();
+  const { organization, role, canViewFinances } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [data, setData] = useState<FiduciaryOverview | null>(null);
   const [audit, setAudit] = useState<FiduciaryAuditRow[]>([]);
@@ -92,6 +93,12 @@ export default function FiduciaireScreen() {
             <Feather name="shield" size={16} color={colors.success} />
             <Text style={styles.privacyText}>{t('fiduciary.privacy')}</Text>
           </View>
+
+          {organization && canViewFinances ? (
+            <View style={{ marginBottom: spacing.xl }}>
+              <FiduciaryRequests orgId={organization.id} />
+            </View>
+          ) : null}
 
           {!isAdmin ? (
             <Card>

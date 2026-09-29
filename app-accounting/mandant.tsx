@@ -4,7 +4,10 @@ import Head from 'expo-router/head';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button } from '../components/ui';
-import { AccNav, AccPage, PAGE_MAX, useIsWide } from '../components/accounting/AccountingChrome';
+import { PAGE_MAX, useIsWide } from '../components/accounting/AccountingChrome';
+import { AccShell } from '../components/accounting/Shell';
+import { DeadlinesSection, InsightsPanel, NotesPanel, ProfileForm, RequestsSection } from '../components/accounting/Workspace';
+import { useWorkCopy } from '../lib/accounting/workCopy';
 import { Chip, Metric, openDocument } from '../components/accounting/Cockpit';
 import { useAccCopy } from '../lib/accounting/locale';
 import { fill, type Permission } from '../lib/accounting/copy';
@@ -33,9 +36,11 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 // reports) is ever loaded here. Every query is filtered by the database
 // (ACTIVE access + permission); the id in the URL grants nothing by itself.
 
-type Section = 'summary' | 'invoices' | 'payments' | 'customers' | 'accounting' | 'documents' | 'quotes' | 'hours' | 'payroll' | 'integrations';
+type Section = 'overview' | 'requests' | 'deadlines' | 'invoices' | 'payments' | 'customers' | 'accounting' | 'documents' | 'quotes' | 'hours' | 'payroll' | 'integrations' | 'notes';
 const SECTION_PERMISSION: Record<Section, Permission | null> = {
-  summary: null,
+  overview: null,
+  requests: null,
+  deadlines: null,
   invoices: 'VIEW_INVOICES',
   payments: 'VIEW_PAYMENT_STATUS',
   customers: 'VIEW_CUSTOMERS',
@@ -45,7 +50,9 @@ const SECTION_PERMISSION: Record<Section, Permission | null> = {
   hours: 'VIEW_WORK_HOURS',
   payroll: 'VIEW_PAYROLL_DATA',
   integrations: 'VIEW_EXPORTS',
+  notes: null,
 };
+const WITH_PERIOD: Section[] = ['invoices', 'payments', 'accounting', 'quotes', 'hours', 'payroll'];
 type Period = 'month' | 'quarter' | 'year' | 'lastYear';
 
 function periodRange(p: Period): { start: string; end: string } {
@@ -80,12 +87,15 @@ export default function MandantPage() {
   const t = copy.client;
   const router = useRouter();
   const session = usePartnerSession();
-  const params = useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{ id?: string; tab?: string }>();
   const orgId = typeof params.id === 'string' ? params.id : null;
   const wide = useIsWide(900);
   const [me, setMe] = useState<Me | null>(null);
   const [client, setClient] = useState<ClientHeader | null | undefined>(undefined);
-  const [section, setSection] = useState<Section>('summary');
+  const [section, setSection] = useState<Section>(params.tab && params.tab in SECTION_PERMISSION ? (params.tab as Section) : 'overview');
+  const w = useWorkCopy();
+  const sectionLabel = (sec: Section) =>
+    sec === 'overview' ? w.client.overview : sec === 'requests' ? w.client.requests : sec === 'deadlines' ? w.client.deadlines : sec === 'notes' ? w.client.notes : t.sections[sec];
   const [period, setPeriod] = useState<Period>('year');
   const [confirmEnd, setConfirmEnd] = useState(false);
 
@@ -110,7 +120,7 @@ export default function MandantPage() {
   }
 
   return (
-    <AccPage nav={<AccNav right={<Pressable onPress={() => router.push('/espace?tab=clients' as any)}><Text style={styles.navLink}>{copy.nav.space}</Text></Pressable>} />}>
+    <AccShell me={me} active="clients">
       <Head>
         <title>{`${client?.name ?? t.back} · ${copy.brand}`}</title>
         <meta name="robots" content="noindex" />
@@ -170,17 +180,17 @@ export default function MandantPage() {
               ))}
             </View>
 
-            <View style={[styles.layout, wide && styles.layoutWide]}>
-              <ScrollView horizontal={!wide} showsHorizontalScrollIndicator={false} style={wide ? styles.sideNav : undefined} contentContainerStyle={!wide ? styles.topNav : { gap: 2 }}>
-                {sections.map((s) => (
-                  <Pressable key={s} onPress={() => setSection(s)} style={[styles.navItem, section === s && styles.navItemActive]} accessibilityRole="tab" aria-selected={section === s}>
-                    <Text style={[styles.navItemText, section === s && styles.navItemTextActive]}>{t.sections[s]}</Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
+            <View style={styles.tabs}>
+              {sections.map((sec) => (
+                <Pressable key={sec} onPress={() => setSection(sec)} style={[styles.tab, section === sec && styles.tabActive]} accessibilityRole="tab" aria-selected={section === sec}>
+                  <Text style={[styles.tabText, section === sec && styles.tabTextActive]}>{sectionLabel(sec)}</Text>
+                </Pressable>
+              ))}
+            </View>
 
+            <View style={styles.layout}>
               <View style={{ flex: 1, gap: spacing.md, minWidth: 0 }}>
-                {section !== 'customers' && section !== 'integrations' && section !== 'documents' ? (
+                {WITH_PERIOD.includes(section) ? (
                   <View style={styles.periodRow}>
                     <Text style={styles.label}>{t.period}</Text>
                     {(['month', 'quarter', 'year', 'lastYear'] as Period[]).map((p) => (
@@ -188,8 +198,14 @@ export default function MandantPage() {
                     ))}
                   </View>
                 ) : null}
-                {section === 'summary' ? (
-                  <Summary orgId={client.organization_id} range={range} can={can} />
+                {section === 'overview' ? (
+                  <InsightsPanel orgId={client.organization_id} onGo={(g) => setSection(g === 'invoices' && !can('VIEW_INVOICES') ? 'overview' : g)} />
+                ) : section === 'requests' ? (
+                  <RequestsSection mandants={[]} orgId={client.organization_id} embedded />
+                ) : section === 'deadlines' ? (
+                  <DeadlinesAndProfile orgId={client.organization_id} />
+                ) : section === 'notes' ? (
+                  <NotesPanel orgId={client.organization_id} />
                 ) : section === 'invoices' ? (
                   <Invoices orgId={client.organization_id} range={range} canDownload={can('DOWNLOAD_DOCUMENTS')} />
                 ) : section === 'payments' ? (
@@ -214,7 +230,7 @@ export default function MandantPage() {
           </>
         )}
       </View>
-    </AccPage>
+    </AccShell>
   );
 }
 
@@ -292,7 +308,7 @@ function Kpi({ label, value, warn = false }: { label: string; value: string; war
 function Table({ head, rows, empty, numeric = [] }: { head: string[]; rows: (string | React.ReactNode)[][]; empty: string; numeric?: number[] }) {
   if (!rows.length) return <Text style={styles.muted}>{empty}</Text>;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <View style={styles.tableScroll}>
       <View style={styles.table}>
         <View style={[styles.tr, styles.thRow]}>
           {head.map((h, i) => (
@@ -317,7 +333,17 @@ function Table({ head, rows, empty, numeric = [] }: { head: string[]; rows: (str
           </View>
         ))}
       </View>
-    </ScrollView>
+    </View>
+  );
+}
+
+function DeadlinesAndProfile({ orgId }: { orgId: string }) {
+  const [version, setVersion] = useState(0);
+  return (
+    <View style={{ gap: spacing.lg }}>
+      <DeadlinesSection key={version} orgId={orgId} embedded />
+      <ProfileForm orgId={orgId} onSaved={() => setVersion((v) => v + 1)} />
+    </View>
   );
 }
 
@@ -642,7 +668,13 @@ function Integrations({ orgId }: { orgId: string }) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: PAGE_MAX, alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, gap: spacing.lg },
+  wrap: { width: '100%', gap: spacing.lg },
+  tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, borderBottomWidth: 1, borderBottomColor: colors.border },
+  tab: { paddingVertical: 10, paddingHorizontal: spacing.md, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
+  tabActive: { borderBottomColor: colors.primary },
+  tabText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.textMuted },
+  tabTextActive: { color: colors.text, fontWeight: '800' },
+  tableScroll: { width: '100%', overflowX: 'auto' } as any,
   navLink: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   back: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   backText: { fontSize: fontSize.sm, color: colors.textMuted, fontWeight: '600' },
@@ -652,13 +684,6 @@ const styles = StyleSheet.create({
   permPill: { backgroundColor: colors.successSoft, borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
   permPillText: { fontSize: 11, fontWeight: '700', color: colors.success },
   layout: { gap: spacing.lg },
-  layoutWide: { flexDirection: 'row', alignItems: 'flex-start' },
-  sideNav: { width: 210, flexGrow: 0 },
-  topNav: { gap: spacing.xs },
-  navItem: { paddingVertical: 9, paddingHorizontal: spacing.md, borderRadius: radius.md },
-  navItemActive: { backgroundColor: colors.text },
-  navItemText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.textMuted },
-  navItemTextActive: { color: colors.surface },
   periodRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xs },
   kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   kpi: { flexGrow: 1, flexBasis: 170, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: 4 },
@@ -677,7 +702,7 @@ const styles = StyleSheet.create({
   table: { minWidth: '100%', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden' },
   tr: { flexDirection: 'row', alignItems: 'center', borderTopWidth: 1, borderTopColor: colors.border },
   thRow: { backgroundColor: colors.surfaceAlt, borderTopWidth: 0 },
-  cell: { width: 140, paddingVertical: 10, paddingHorizontal: spacing.md },
+  cell: { flex: 1, minWidth: 110, paddingVertical: 10, paddingHorizontal: spacing.md },
   th: { fontSize: 11, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
   td: { fontSize: fontSize.sm, color: colors.text },
   num: { textAlign: 'right', ...monoType, fontSize: 12 } as any,

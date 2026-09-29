@@ -3,7 +3,11 @@ import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, 
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Field } from '../ui';
-import { PAGE_MAX, useIsWide } from './AccountingChrome';
+import { useIsWide } from './AccountingChrome';
+import { SectionHeader, type SectionKey as Tab } from './Shell';
+import { DeadlinesSection, OverviewSection, RequestsSection } from './Workspace';
+import { useWorkCopy } from '../../lib/accounting/workCopy';
+import { work } from '../../lib/accounting/workspace';
 import { useAccCopy } from '../../lib/accounting/locale';
 import { fill, MANDATES, SOFTWARE } from '../../lib/accounting/copy';
 import {
@@ -25,16 +29,14 @@ import { openPartnerSpace } from '../../lib/api/partners';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
-export const TABS = ['dashboard', 'clients', 'documents', 'team', 'partner', 'settings'] as const;
-export type Tab = (typeof TABS)[number];
+export { SECTIONS as TABS, type SectionKey as Tab } from './Shell';
 
 // The fiduciary's cockpit (accounting.cantia.ch/espace). Every figure comes
 // from database functions that only return what the firm is allowed to see.
-export function Cockpit({ me, initialTab, onReload }: { me: Me; initialTab?: Tab; onReload: () => void }) {
+// The frame (sidebar, navigation) is AccShell; this renders one section.
+export function Cockpit({ me, tab, onGo, onReload, onCounts }: { me: Me; tab: Tab; onGo: (t: Tab) => void; onReload: () => void; onCounts?: (c: Partial<Record<Tab, number>>) => void }) {
   const { copy } = useAccCopy();
-  const isAdmin = me.role === 'OWNER' || me.role === 'ADMIN';
-  const tabs = TABS.filter((t) => t !== 'settings' || isAdmin);
-  const [tab, setTab] = useState<Tab>(initialTab && tabs.includes(initialTab) ? initialTab : 'dashboard');
+  const w = useWorkCopy();
   const [mandants, setMandants] = useState<Mandant[] | null>(null);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -42,11 +44,15 @@ export function Cockpit({ me, initialTab, onReload }: { me: Me; initialTab?: Tab
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const [m, d, i] = await Promise.all([acc.mandants(), acc.dashboard(), acc.invitations()]);
+    const [m, d, i, r] = await Promise.all([acc.mandants(), acc.dashboard(), acc.invitations(), work.requests()]);
     setMandants(m.data ?? []);
     setDashboard(d.data);
     setInvitations((i.data ?? []).filter((x) => x.kind === 'NEW_CLIENT'));
-  }, []);
+    onCounts?.({
+      clients: (m.data ?? []).filter((x) => x.status === 'PENDING_FIRM').length,
+      requests: (r.data ?? []).filter((x) => x.status === 'answered').length,
+    });
+  }, [onCounts]);
 
   useEffect(() => {
     load();
@@ -62,39 +68,26 @@ export function Cockpit({ me, initialTab, onReload }: { me: Me; initialTab?: Tab
     await load();
   }
 
+  const titles: Partial<Record<Tab, string>> = { clients: w.shell.clients, documents: w.shell.documents, team: w.shell.team, partner: w.shell.partner, settings: w.shell.settings };
+
   return (
     <View style={styles.wrap}>
-      <View style={styles.head}>
-        <View style={{ flex: 1, minWidth: 220 }}>
-          <Text style={styles.eyebrow}>{me.firm.name}</Text>
-          <Text style={styles.h1} role="heading" aria-level={1}>
-            {fill(copy.dashboard.hello, { name: me.first_name ?? '' }).trim()}
-          </Text>
+      {me.firm.status !== 'ACTIVE' ? (
+        <View style={styles.warnPill}>
+          <Text style={styles.warnPillText}>{me.firm.status}</Text>
         </View>
-        {me.firm.status !== 'ACTIVE' ? (
-          <View style={styles.warnPill}>
-            <Text style={styles.warnPillText}>{me.firm.status}</Text>
-          </View>
-        ) : null}
-      </View>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-        {tabs.map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]} accessibilityRole="tab" aria-selected={tab === t}>
-            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {copy.tabs[t]}
-              {t === 'clients' && dashboard?.pending_firm ? ` (${dashboard.pending_firm})` : ''}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-
+      ) : null}
+      {titles[tab] ? <SectionHeader eyebrow={me.firm.name} title={titles[tab]!} /> : null}
       {message ? <Text style={message.error ? styles.error : styles.success}>{message.text}</Text> : null}
 
-      {tab === 'dashboard' ? (
-        <DashboardTab me={me} dashboard={dashboard} mandants={mandants} busy={busy} run={run} onAdded={load} goClients={() => setTab('clients')} />
+      {tab === 'overview' ? (
+        <OverviewSection me={me} mandants={mandants} dashboard={dashboard} onGo={onGo} onRespond={(id, ok) => run(() => acc.respondClient(id, ok))} />
       ) : tab === 'clients' ? (
         <ClientsTab me={me} mandants={mandants} invitations={invitations} busy={busy} run={run} onAdded={load} />
+      ) : tab === 'requests' ? (
+        <RequestsSection mandants={mandants ?? []} />
+      ) : tab === 'deadlines' ? (
+        <DeadlinesSection />
       ) : tab === 'documents' ? (
         <DocumentsTab mandants={mandants ?? []} />
       ) : tab === 'team' ? (
@@ -104,107 +97,13 @@ export function Cockpit({ me, initialTab, onReload }: { me: Me; initialTab?: Tab
       ) : (
         <SettingsTab firm={me.firm} onSaved={onReload} />
       )}
-    </View>
-  );
-}
-
-// ---------------------------------------------------------------------------
-
-function DashboardTab({
-  me,
-  dashboard,
-  mandants,
-  busy,
-  run,
-  onAdded,
-  goClients,
-}: {
-  me: Me;
-  dashboard: Dashboard | null;
-  mandants: Mandant[] | null;
-  busy: boolean;
-  run: (a: () => Promise<{ error: string | null }>, s?: string) => void;
-  onAdded: () => void;
-  goClients: () => void;
-}) {
-  const { copy, locale } = useAccCopy();
-  const router = useRouter();
-  const d = copy.dashboard;
-  const isAdmin = me.role === 'OWNER' || me.role === 'ADMIN';
-  const pendingFirm = (mandants ?? []).filter((m) => m.status === 'PENDING_FIRM');
-  const attention = (mandants ?? []).filter((m) => m.status === 'ACTIVE' && (m.factures_overdue ?? 0) > 0).slice(0, 5);
-  if (!dashboard) return <Text style={styles.muted}>{copy.common.loading}</Text>;
-
-  return (
-    <View style={styles.stack}>
-      <View style={styles.kpis}>
-        <Kpi icon="briefcase" label={d.kpis.active} value={dashboard.active_clients} onPress={goClients} />
-        <Kpi icon="send" label={d.kpis.invitations} value={dashboard.pending_invitations} onPress={goClients} />
-        <Kpi icon="inbox" label={d.kpis.requests} value={dashboard.pending_client + dashboard.pending_firm} onPress={goClients} />
-        <Kpi icon="file-text" label={d.kpis.documents} value={dashboard.documents} />
-        <Kpi icon="alert-circle" label={d.kpis.overdue} value={dashboard.overdue_invoices} warn={dashboard.overdue_invoices > 0} onPress={goClients} />
-      </View>
-      {dashboard.open_chf > 0 ? <Text style={styles.body}>{fill(d.open, { amount: formatChf(dashboard.open_chf).replace('CHF ', '') })}</Text> : null}
-
-      {pendingFirm.length ? (
-        <View style={[styles.card, styles.highlight]}>
-          <Text style={styles.cardTitle}>{d.pendingFirmTitle}</Text>
-          {pendingFirm.map((m) => (
-            <View key={m.access_id} style={styles.pendingRow}>
-              <Text style={[styles.body, { flex: 1, minWidth: 200 }]}>{fill(d.pendingFirmText, { name: m.name })}</Text>
-              {isAdmin ? (
-                <View style={styles.actions}>
-                  <Button title={d.accept} icon="check" onPress={() => run(() => acc.respondClient(m.access_id, true))} disabled={busy} />
-                  <Button title={d.decline} variant="secondary" onPress={() => run(() => acc.respondClient(m.access_id, false))} disabled={busy} />
-                </View>
-              ) : null}
-            </View>
-          ))}
+      {mandants && mandants.length === 0 && tab === 'overview' ? (
+        <View style={[styles.card, { marginTop: spacing.lg }]}>
+          <Text style={styles.cardTitle}>{copy.dashboard.emptyTitle}</Text>
+          <Text style={styles.muted}>{copy.dashboard.emptyText}</Text>
+          <AddClientForm onAdded={load} />
         </View>
       ) : null}
-
-      {mandants && mandants.length === 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{d.emptyTitle}</Text>
-          <Text style={styles.muted}>{d.emptyText}</Text>
-          <AddClientForm onAdded={onAdded} />
-        </View>
-      ) : null}
-
-      <View style={styles.twoCols}>
-        {attention.length ? (
-          <View style={[styles.card, { flex: 1, minWidth: 280 }]}>
-            <Text style={styles.cardTitle}>{copy.clients.filters.attention}</Text>
-            {attention.map((m) => (
-              <Pressable key={m.access_id} onPress={() => router.push(`/mandant?id=${m.organization_id}` as any)} style={styles.listRow}>
-                <Text style={[styles.body, { flex: 1 }]} numberOfLines={1}>
-                  {m.name}
-                </Text>
-                <Text style={styles.danger}>{fill(copy.clients.overdue, { count: m.factures_overdue ?? 0 })}</Text>
-                <Feather name="chevron-right" size={16} color={colors.textMuted} />
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-        <View style={[styles.card, { flex: 1, minWidth: 280 }]}>
-          <Text style={styles.cardTitle}>{d.recentDocs}</Text>
-          {dashboard.recent_documents.length === 0 ? <Text style={styles.muted}>{d.noDocs}</Text> : null}
-          {dashboard.recent_documents.map((doc) => (
-            <Pressable key={doc.id} onPress={() => openDocument(doc.file_path)} style={styles.listRow}>
-              <Feather name="paperclip" size={14} color={colors.textMuted} />
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.body} numberOfLines={1}>
-                  {doc.file_name}
-                </Text>
-                <Text style={styles.small}>
-                  {doc.organization_name} · {formatDate(doc.created_at, locale)}
-                </Text>
-              </View>
-              <Feather name="download" size={15} color={colors.primary} />
-            </Pressable>
-          ))}
-        </View>
-      </View>
     </View>
   );
 }
@@ -490,7 +389,6 @@ export function StatusBadge({ status, label }: { status: string; label: string }
 export function Chip({ label, on, onPress, icon }: { label: string; on: boolean; onPress: () => void; icon?: keyof typeof Feather.glyphMap }) {
   return (
     <Pressable onPress={onPress} style={[styles.chip, on && styles.chipOn]} accessibilityRole="button" aria-pressed={on}>
-      {icon && on ? <Feather name={icon} size={12} color={colors.surface} /> : null}
       <Text style={[styles.chipText, on && styles.chipTextOn]}>{label}</Text>
     </Pressable>
   );
@@ -533,12 +431,12 @@ function DocumentsTab({ mandants }: { mandants: Mandant[] }) {
         <Chip label={t.kinds.invoice} on={kind === 'invoice'} onPress={() => setKind('invoice')} />
         <Chip label={t.kinds.receipt} on={kind === 'receipt'} onPress={() => setKind('receipt')} />
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+      <View style={styles.chips}>
         <Chip label={t.allClients} on={org === null} onPress={() => setOrg(null)} />
         {active.map((m) => (
           <Chip key={m.organization_id} label={m.name} on={org === m.organization_id} onPress={() => setOrg(m.organization_id)} />
         ))}
-      </ScrollView>
+      </View>
       {rows === null ? <Text style={styles.muted}>{copy.common.loading}</Text> : list.length === 0 ? <Text style={styles.muted}>{t.none}</Text> : null}
       <View style={styles.cardList}>
         {list.map((r) => (
@@ -853,7 +751,7 @@ function SettingsTab({ firm, onSaved }: { firm: Firm; onSaved: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: PAGE_MAX, alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.lg },
+  wrap: { width: '100%', gap: spacing.lg },
   head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing.md },
   eyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
   h1: { ...displayType, fontSize: 34, lineHeight: 38, fontWeight: '800', color: colors.text },
@@ -882,10 +780,10 @@ const styles = StyleSheet.create({
   toolbar: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: 10, paddingHorizontal: 12, fontSize: fontSize.sm, color: colors.text, backgroundColor: colors.surface },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12, backgroundColor: colors.surface },
-  chipOn: { backgroundColor: colors.text, borderColor: colors.text },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: 6, paddingHorizontal: 12, backgroundColor: colors.surface },
+  chipOn: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   chipText: { fontSize: fontSize.xs, color: colors.text, fontWeight: '600' },
-  chipTextOn: { color: colors.surface },
+  chipTextOn: { color: colors.primaryDark, fontWeight: '800' },
   table: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden' },
   tr: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 12, paddingHorizontal: spacing.lg, borderTopWidth: 1, borderTopColor: colors.border },
   thRow: { backgroundColor: colors.surfaceAlt, borderTopWidth: 0 },
@@ -915,7 +813,7 @@ const styles = StyleSheet.create({
   danger: { fontSize: 12, color: colors.danger, fontWeight: '700' },
   error: { fontSize: fontSize.sm, color: colors.danger },
   success: { fontSize: fontSize.sm, color: colors.success },
-  warnPill: { backgroundColor: colors.dangerSoft, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 12 },
+  warnPill: { alignSelf: 'flex-start', backgroundColor: colors.dangerSoft, borderRadius: radius.md, paddingVertical: 4, paddingHorizontal: 12 },
   warnPillText: { fontSize: 12, fontWeight: '700', color: colors.danger },
   auditRow: { flexDirection: 'row', gap: spacing.md },
   auditDate: { fontSize: 12, color: colors.textMuted, width: 86 },

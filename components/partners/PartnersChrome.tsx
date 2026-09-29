@@ -123,7 +123,7 @@ export function PartnersFooter() {
 
 export function PartnersPage({ children, nav }: { children: ReactNode; nav: ReactNode }) {
   return (
-    <ScrollView style={styles.page} contentContainerStyle={styles.pageContent} stickyHeaderIndices={[0]}>
+    <ScrollView style={styles.page} contentContainerStyle={styles.pageContent}>
       {nav}
       <View style={{ flex: 1 }}>{children}</View>
       <PartnersFooter />
@@ -145,7 +145,9 @@ export function NavButton({ href, label, primary = false, inverse = false, large
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: colors.bg },
   pageContent: { flexGrow: 1 },
-  navWrap: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: spacing.lg, backgroundColor: 'rgba(247,241,230,0.94)', backdropFilter: 'blur(8px)' } as any,
+  // Solid, not sticky: a blurred sticky header inside a scroll view painted
+  // black areas and blocked scrolling in Safari.
+  navWrap: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: spacing.lg, backgroundColor: colors.bg },
   nav: {
     width: '100%',
     maxWidth: PAGE_MAX - spacing.lg * 2,

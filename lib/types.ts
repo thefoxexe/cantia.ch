@@ -1066,6 +1066,7 @@ export type NotificationType =
   | 'devis_viewed'
   | 'devis_bounced'
   | 'email_bounced'
+  | 'fiduciary_request'
   | 'facture_overdue'
   | 'recurring_expense_due'
   | 'extra_work_accepted'

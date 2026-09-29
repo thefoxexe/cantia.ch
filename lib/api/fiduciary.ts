@@ -1,4 +1,5 @@
-import { supabase } from '../supabase';
+import { supabase, STORAGE_BUCKET } from '../supabase';
+import { uploadToOrgBucket } from './storage';
 
 // Paramètres › Fiduciaire (client side of Cantia Accounting). Every call is
 // checked in the database (owners and admins of the company only), see
@@ -105,4 +106,43 @@ export async function countPendingFiduciaryRequests(orgId: string): Promise<numb
     .eq('organization_id', orgId)
     .eq('status', 'PENDING_CLIENT');
   return count ?? 0;
+}
+
+// Document requests from the fiduciary (supabase/migrations/20260930120000_fiduciary_workspace.sql):
+// the client answers with files (uploaded to its own folder) and a message.
+export interface FiduciaryRequestForClient {
+  id: string;
+  firm_name: string;
+  title: string;
+  details: string | null;
+  due_date: string | null;
+  status: 'open' | 'answered' | 'done';
+  client_message: string | null;
+  created_at: string;
+  answered_at: string | null;
+  files: { id: string; file_path: string; file_name: string; created_at: string }[];
+}
+
+export async function getFiduciaryRequests(orgId: string): Promise<FiduciaryRequestForClient[]> {
+  const { data } = await supabase.rpc('org_fiduciary_requests', { p_org: orgId });
+  return (data as FiduciaryRequestForClient[] | null) ?? [];
+}
+
+export async function addFiduciaryRequestFile(orgId: string, requestId: string, file: { uri: string; name: string; mimeType?: string | null; size?: number | null }): Promise<{ error: string | null }> {
+  const safe = file.name.replace(/[^\w.\- ]+/g, '_').slice(-120);
+  const { path, error } = await uploadToOrgBucket(orgId, `fiduciary-requests/${requestId}/${Date.now()}-${safe}`, file.uri, file.mimeType ?? 'application/octet-stream');
+  if (error || !path) return { error: error ?? 'Upload failed' };
+  const { error: rpcError } = await supabase.rpc('org_add_request_file', { p_request: requestId, p_path: path, p_name: file.name, p_size: file.size ?? null });
+  return { error: rpcError?.message ?? null };
+}
+
+export async function removeFiduciaryRequestFile(fileId: string): Promise<{ error: string | null }> {
+  const { data, error } = await supabase.rpc('org_remove_request_file', { p_file: fileId });
+  if (!error && typeof data === 'string') await supabase.storage.from(STORAGE_BUCKET).remove([data]);
+  return { error: error?.message ?? null };
+}
+
+export async function answerFiduciaryRequest(requestId: string, message: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('org_answer_request', { p_request: requestId, p_message: message.trim() || null });
+  return { error: error?.message ?? null };
 }
