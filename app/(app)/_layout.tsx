@@ -16,6 +16,7 @@ import { SupportPopup } from '../../components/SupportPopup';
 import { VoiceAssistant } from '../../components/VoiceAssistant';
 import { useTranslation } from '../../lib/translations';
 import { salesTrackingReady } from '../../lib/api/salesTracking';
+import { StatusLink } from '../../components/StatusLink';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -97,7 +98,6 @@ function buildSections(
               // Finance members only: amounts and the sales pipeline. Shown on
               // every plan; without sales tracking it opens the locked teaser.
               ...(commercialVisible ? [{ href: '/(app)/commercial', label: t('nav.commercial'), icon: 'trending-up' as const }] : []),
-              ...(commercialVisible ? [{ href: '/(app)/automatisations', label: t('nav.automations'), icon: 'zap' as const }] : []),
               { href: '/(app)/devis/trames', label: t('nav.trames'), icon: 'layout' as const },
               { href: '/(app)/devis/factures', label: t('nav.factures'), icon: 'dollar-sign' as const },
               { href: '/(app)/devis/inventaire', label: t('nav.catalogue'), icon: 'box' as const },
@@ -309,6 +309,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
               <Feather name="life-buoy" size={18} color={colors.textMuted} />
               {collapsed ? null : <Text style={styles.sidebarItemText}>{t('accountMenu.contactSupport')}</Text>}
             </Pressable>
+            {collapsed ? null : <StatusLink label={t('accountMenu.serviceStatus')} textStyle={styles.statusText} style={styles.statusLink} />}
           </View>
         </View>
       </View>
@@ -426,6 +427,8 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingBottom: spacing.md,
   },
+  statusLink: { paddingHorizontal: spacing.md, paddingVertical: 6 },
+  statusText: { fontSize: 12, color: colors.textMuted },
   sidebarFooter: {
     gap: spacing.xs,
     paddingTop: spacing.sm,

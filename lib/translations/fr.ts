@@ -1210,6 +1210,7 @@ export const fr = {
     aide: { label: 'Aide', description: 'Questions fréquentes et assistance.' },
     danger: { label: 'Zone dangereuse', description: 'Supprimer votre compte personnel.' },
     entrepriseDanger: { label: 'Zone dangereuse', description: "Transférer la propriété ou supprimer l'entreprise." },
+    automatisations: { label: 'Automatisations', description: 'Relances de devis automatiques, rapports, synchronisations et leurs résultats.' },
     rh: { label: 'RH & Salaires', description: 'Catalogues utilisés par le module RH : types de travail, frais remboursables et cotisations appliquées aux salaires.' },
   },
   unsavedChanges: {
@@ -1827,6 +1828,7 @@ export const fr = {
     installApp: "Installer l'app",
     settings: 'Paramètres',
     contactSupport: 'Contacter le support',
+    serviceStatus: 'Statut du service',
     signOut: 'Déconnexion',
     supportTitle: 'Contacter le support',
     supportSubtitle: 'Comment pouvons-nous vous aider ?',
@@ -2816,6 +2818,7 @@ export const fr = {
   clientPortalFooter: {
     generatedBy: 'Document généré par Cantia, logiciel suisse de gestion pour entreprises du bâtiment.',
     discoverLink: 'Découvrir Cantia pour votre entreprise →',
+    status: 'Statut du service',
   },
   publicDevisPortal: {
     trustEncrypted: 'Lien chiffré et personnel',

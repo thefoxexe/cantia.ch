@@ -1232,6 +1232,7 @@ export const it: TranslationDict = {
     aide: { label: 'Aiuto', description: 'Domande frequenti e assistenza.' },
     danger: { label: 'Zona pericolosa', description: 'Elimini il suo account personale.' },
     entrepriseDanger: { label: 'Zona pericolosa', description: "Trasferisca la proprietà o elimini l'azienda." },
+    automatisations: { label: 'Automazioni', description: 'Solleciti automatici dei preventivi, rapporti, sincronizzazioni e i loro risultati.' },
     rh: { label: 'Personale e salari', description: 'Cataloghi usati dal modulo Personale: tipi di lavoro, spese rimborsabili e trattenute applicate ai salari.' },
   },
   unsavedChanges: {
@@ -1849,6 +1850,7 @@ export const it: TranslationDict = {
     installApp: "Installa l'app",
     settings: 'Impostazioni',
     contactSupport: 'Contatta il supporto',
+    serviceStatus: 'Stato del servizio',
     signOut: 'Disconnetti',
     supportTitle: 'Contatta il supporto',
     supportSubtitle: 'Come possiamo aiutarla?',
@@ -2838,6 +2840,7 @@ export const it: TranslationDict = {
   clientPortalFooter: {
     generatedBy: 'Documento generato da Cantia, software svizzero di gestione per le imprese del settore edile.',
     discoverLink: 'Scopra Cantia per la sua azienda →',
+    status: 'Stato del servizio',
   },
   publicDevisPortal: {
     trustEncrypted: 'Link cifrato e personale',

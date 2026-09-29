@@ -124,7 +124,7 @@ export function DevisTrackingPanel({
                   disabled={busy}
                 />
               ) : (
-                <Pressable onPress={() => router.push('/(app)/automatisations' as any)} style={styles.link}>
+                <Pressable onPress={() => router.push('/(app)/compte/automatisations' as any)} style={styles.link}>
                   <Text style={styles.linkText}>{t('devisTracking.setupFollowups')}</Text>
                 </Pressable>
               )}

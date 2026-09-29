@@ -26,6 +26,7 @@ type MenuKey =
   | 'danger'
   | 'entrepriseDanger'
   | 'rh'
+  | 'automatisations'
   | 'import';
 
 interface MenuItem {
@@ -104,6 +105,10 @@ const GROUP_COLORS: Record<MenuGroup['color'], { bg: string; fg: string }> = {
 
 const RH_ITEM: MenuItem = { href: '/(app)/compte/rh', icon: 'dollar-sign', key: 'rh' };
 
+// Relances de devis, rapports, synchronisations: finance members only, same
+// gate as the page itself.
+const AUTOMATIONS_ITEM: MenuItem = { href: '/(app)/compte/automatisations', icon: 'zap', key: 'automatisations' };
+
 // Facturation moved into the "Entreprise" group (see GROUPS above) — it's
 // the company's subscription, not a standalone concern like Équipe.
 const EQUIPE_ITEM: MenuItem = { href: '/(app)/compte/equipe', icon: 'users', key: 'equipe' };
@@ -111,7 +116,7 @@ const EQUIPE_ITEM: MenuItem = { href: '/(app)/compte/equipe', icon: 'users', key
 export default function CompteIndexScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { organization, canManagePayroll } = useAuth();
+  const { organization, canManagePayroll, canViewFinances } = useAuth();
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -121,16 +126,17 @@ export default function CompteIndexScreen() {
   // up). Spliced into the "modules" group rather than appended, so it
   // reads as "config for a module you enabled" alongside Bexio.
   const groups = useMemo(() => {
-    const withRh =
-      canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll')
-        ? GROUPS.map((g) => (g.id === 'modules' ? { ...g, items: [...g.items, RH_ITEM] } : g))
-        : GROUPS;
+    const moduleExtras = [
+      ...(canViewFinances ? [AUTOMATIONS_ITEM] : []),
+      ...(canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll') ? [RH_ITEM] : []),
+    ];
+    const withRh = GROUPS.map((g) => (g.id === 'modules' ? { ...g, items: [...g.items, ...moduleExtras] } : g));
     return withRh.map((g) => ({
       ...g,
       title: t(g.titleKey as any),
       items: g.items.map((item) => ({ ...item, label: t(`compteMenu.${item.key}.label`), description: t(`compteMenu.${item.key}.description`) })),
     }));
-  }, [canManagePayroll, organization?.enabled_modules, t]);
+  }, [canManagePayroll, canViewFinances, organization?.enabled_modules, t]);
 
   const standaloneItems = useMemo(
     () => [EQUIPE_ITEM].map((item) => ({ ...item, label: t(`compteMenu.${item.key}.label`), description: t(`compteMenu.${item.key}.description`) })),

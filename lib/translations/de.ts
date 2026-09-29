@@ -1224,6 +1224,7 @@ export const de: TranslationDict = {
     aide: { label: 'Hilfe', description: 'Häufige Fragen und Unterstützung.' },
     danger: { label: 'Gefahrenzone', description: 'Ihr persönliches Konto löschen.' },
     entrepriseDanger: { label: 'Gefahrenzone', description: 'Eigentümerschaft übertragen oder das Unternehmen löschen.' },
+    automatisations: { label: 'Automatisierungen', description: 'Automatisches Nachfassen bei Offerten, Berichte, Synchronisierungen und ihre Ergebnisse.' },
     rh: { label: 'Personal & Löhne', description: 'Kataloge des Personalmoduls: Arbeitsarten, erstattungsfähige Spesen und Lohnabzüge.' },
   },
   unsavedChanges: {
@@ -1841,6 +1842,7 @@ export const de: TranslationDict = {
     installApp: 'App installieren',
     settings: 'Einstellungen',
     contactSupport: 'Support kontaktieren',
+    serviceStatus: 'Systemstatus',
     signOut: 'Abmelden',
     supportTitle: 'Support kontaktieren',
     supportSubtitle: 'Wie können wir Ihnen helfen?',
@@ -2830,6 +2832,7 @@ export const de: TranslationDict = {
   clientPortalFooter: {
     generatedBy: 'Dokument erstellt mit Cantia, der Schweizer Verwaltungssoftware für Bauunternehmen.',
     discoverLink: 'Cantia für Ihr Unternehmen entdecken →',
+    status: 'Systemstatus',
   },
   publicDevisPortal: {
     trustEncrypted: 'Verschlüsselter, persönlicher Link',

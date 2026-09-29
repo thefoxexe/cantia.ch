@@ -83,7 +83,7 @@ export default function CommercialScreen() {
     return (
       <AppScreen>
         <ScrollView contentContainerStyle={styles.container}>
-          <PageHeader title={t('commercial.title')} backTo="/(app)" />
+          <PageHeader title={t('commercial.title')} backTo="/(app)" right={<AutomationsButton />} />
           <LockedCommercial teaser={teaser} onUpgrade={() => router.push('/(app)/compte/facturation')} />
         </ScrollView>
       </AppScreen>
@@ -93,7 +93,7 @@ export default function CommercialScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={styles.container}>
-        <PageHeader title={t('commercial.title')} backTo="/(app)" />
+        <PageHeader title={t('commercial.title')} backTo="/(app)" right={<AutomationsButton />} />
         <Text style={styles.subtitle}>{t('commercial.subtitle')}</Text>
 
         <View style={styles.kpis}>
@@ -167,6 +167,19 @@ export default function CommercialScreen() {
         )}
       </ScrollView>
     </AppScreen>
+  );
+}
+
+// Settings of everything that runs on its own (follow-ups…) live under
+// Paramètres; this is the shortcut from the sales page.
+function AutomationsButton() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  return (
+    <Pressable onPress={() => router.push('/(app)/compte/automatisations' as any)} style={styles.autoBtn} accessibilityRole="button">
+      <Feather name="zap" size={14} color={colors.text} />
+      <Text style={styles.autoBtnText}>{t('nav.automations')}</Text>
+    </Pressable>
   );
 }
 
@@ -288,6 +301,8 @@ function LockedCommercial({
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: spacing.xxl * 2, width: '100%', maxWidth: 1280, alignSelf: 'center' },
+  autoBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.text, borderRadius: radius.sm, paddingVertical: 7, paddingHorizontal: 10, backgroundColor: colors.surface },
+  autoBtnText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   subtitle: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: -spacing.sm, marginBottom: spacing.lg },
   kpis: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm },
   kpi: { flexGrow: 1, flexBasis: 180, padding: spacing.md, borderRightWidth: 1, borderRightColor: colors.border },

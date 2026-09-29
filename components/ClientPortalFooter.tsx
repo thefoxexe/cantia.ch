@@ -4,6 +4,7 @@ import { colors, fontSize, spacing } from '../lib/theme';
 import { portalFonts } from '../lib/clientPortalTheme';
 import { useTranslation } from '../lib/translations';
 import { SwissCross } from './SwissCross';
+import { StatusLink } from './StatusLink';
 
 // Closes every state of the client portal (gate, document view, accepted,
 // refused). This is the one place a soft acquisition pitch belongs: the
@@ -25,6 +26,7 @@ export function ClientPortalFooter() {
           <Text style={styles.link}>{t('clientPortalFooter.discoverLink')}</Text>
         </Pressable>
       </Link>
+      <StatusLink label={t('clientPortalFooter.status')} textStyle={styles.text} />
     </View>
   );
 }

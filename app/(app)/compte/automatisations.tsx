@@ -124,7 +124,7 @@ export default function AutomationsScreen() {
     return (
       <AppScreen>
         <ScrollView contentContainerStyle={styles.container}>
-          <PageHeader title={t('automations.title')} backTo="/(app)" />
+          <PageHeader title={t('automations.title')} backTo="/(app)/compte" />
           <Card>
             <EmptyState title={t('commercial.noAccessTitle')} subtitle={t('automations.noAccess')} />
           </Card>
@@ -136,7 +136,7 @@ export default function AutomationsScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={styles.container}>
-        <PageHeader title={t('automations.title')} backTo="/(app)" />
+        <PageHeader title={t('automations.title')} backTo="/(app)/compte" />
         <Text style={styles.intro}>{t('automations.intro')}</Text>
 
         {/* Relances de devis */}

@@ -9,6 +9,7 @@ import { landingFonts } from '../lib/landingTheme';
 import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { useMarketingDict } from '../lib/i18n';
 import { AVAILABLE_LOCALES, getAppLocale, useTranslation, type AppLocale } from '../lib/translations';
+import { StatusLink } from './StatusLink';
 
 const LOCALE_META: Record<AppLocale, { flag: string; label: string }> = {
   fr: { flag: '🇫🇷', label: 'Français' },
@@ -385,6 +386,7 @@ export function MarketingFooter({
           <Link href={`${localePrefix}/conditions-generales` as any}>
             <Text style={styles.footerCopy}>{t.footer.cgvLink}</Text>
           </Link>
+          <StatusLink label={t.footer.statusLink} textStyle={styles.footerCopy} />
         </View>
       </View>
     </View>
