@@ -522,6 +522,7 @@ export default function DevisDetailScreen() {
           devisId={devis.id}
           status={devis.status}
           hasTracking={!!plan?.has_sales_tracking}
+          ready={plan?.has_sales_tracking !== undefined}
           followupsPaused={!!(devis as typeof devis & { followups_paused?: boolean }).followups_paused}
           onChanged={load}
         />

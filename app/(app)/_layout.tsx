@@ -15,6 +15,7 @@ import { NavDrawer, type NavLink, type NavSection } from '../../components/NavDr
 import { SupportPopup } from '../../components/SupportPopup';
 import { VoiceAssistant } from '../../components/VoiceAssistant';
 import { useTranslation } from '../../lib/translations';
+import { salesTrackingReady } from '../../lib/api/salesTracking';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -153,7 +154,11 @@ export default function AppLayout() {
   // as orphaned entries. Clients stays a separate top-level route and isn't
   // affected.
   const devisVisible = devisEnabled && canManageDevis;
-  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances);
+  const [salesReady, setSalesReady] = useState(false);
+  useEffect(() => {
+    salesTrackingReady().then(setSalesReady);
+  }, []);
+  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances && salesReady);
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

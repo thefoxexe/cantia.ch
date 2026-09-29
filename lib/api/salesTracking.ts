@@ -45,6 +45,14 @@ export interface DevisTracking {
   lastActivityAt: string | null;
 }
 
+// Whether the sales tracking migration is live in this database (the
+// plans.has_sales_tracking column exists). The Commercial and Automatisations
+// entries stay hidden until it is, so the app can ship before the migration.
+export async function salesTrackingReady(): Promise<boolean> {
+  const { error } = await supabase.from('plans').select('has_sales_tracking').limit(1);
+  return !error;
+}
+
 export async function hasSalesTracking(planId: string | null | undefined): Promise<boolean> {
   if (!planId) return false;
   const { data } = await supabase.from('plans').select('has_sales_tracking').eq('id', planId).maybeSingle();

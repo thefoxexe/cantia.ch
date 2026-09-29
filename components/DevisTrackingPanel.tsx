@@ -16,12 +16,15 @@ export function DevisTrackingPanel({
   devisId,
   status,
   hasTracking,
+  ready = true,
   followupsPaused = false,
   onChanged,
 }: {
   devisId: string;
   status: string;
   hasTracking: boolean;
+  // False until the sales tracking migration is live: render nothing.
+  ready?: boolean;
   followupsPaused?: boolean;
   // Called after a pause/resume, so the page reloads the devis.
   onChanged?: () => void;
@@ -58,7 +61,7 @@ export function DevisTrackingPanel({
     setBusy(false);
   }
 
-  if (!canViewFinances || status === 'draft' || status === 'ready') return null;
+  if (!ready || !canViewFinances || status === 'draft' || status === 'ready') return null;
 
   if (!hasTracking) {
     return (
