@@ -11,6 +11,7 @@ import {
   formatChf,
   partnersAdmin,
   type AdminCommission,
+  type AdminOrganization,
   type AdminOverview,
   type AdminPartner,
   type AdminPayout,
@@ -24,9 +25,9 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 // routine: check bank details, prepare the payouts, make the transfers,
 // mark them paid. Internal tool: French only.
 
-const TABS = ['toPay', 'partners', 'commissions', 'history'] as const;
+const TABS = ['toPay', 'partners', 'commissions', 'attach', 'history'] as const;
 type Tab = (typeof TABS)[number];
-const TAB_LABELS: Record<Tab, string> = { toPay: 'Versements à faire', partners: 'Partenaires', commissions: 'Commissions', history: 'Historique' };
+const TAB_LABELS: Record<Tab, string> = { toPay: 'Versements à faire', partners: 'Partenaires', commissions: 'Commissions', attach: 'Rattacher un client', history: 'Historique' };
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Actif',
   SUSPENDED: 'Suspendu',
@@ -161,6 +162,14 @@ export default function PartnersAdmin() {
               />
             ) : tab === 'commissions' ? (
               <Commissions commissions={commissions} />
+            ) : tab === 'attach' ? (
+              <Attach
+                partners={partners}
+                busy={busy}
+                onAttach={(orgId, partnerId, reason) =>
+                  run(async () => ({ error: (await partnersAdmin.attribute(orgId, partnerId, reason)).error }), 'Entreprise rattachée au partenaire.')
+                }
+              />
             ) : (
               <History payouts={history} />
             )}
@@ -422,6 +431,98 @@ function Partners({
   );
 }
 
+// For a client who came through a partner but whose link was lost (other
+// device, code given by phone…). Allowed while no commission exists for the
+// company; every change is in the audit log with its reason.
+function Attach({
+  partners,
+  busy,
+  onAttach,
+}: {
+  partners: AdminPartner[] | null;
+  busy: boolean;
+  onAttach: (organizationId: string, partnerId: string, reason: string) => void;
+}) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<AdminOrganization[] | null>(null);
+  const [org, setOrg] = useState<AdminOrganization | null>(null);
+  const [partnerQuery, setPartnerQuery] = useState('');
+  const [partnerId, setPartnerId] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults(null);
+      return;
+    }
+    const timer = setTimeout(async () => setResults((await partnersAdmin.findOrganizations(q)).data ?? []), 250);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const pq = partnerQuery.trim().toLowerCase();
+  const partnerList = (partners ?? [])
+    .filter((p) => p.status === 'ACTIVE')
+    .filter((p) => !pq || [p.first_name, p.last_name, p.company_name, p.email, p.code].filter(Boolean).join(' ').toLowerCase().includes(pq))
+    .slice(0, 8);
+  const locked = !!org?.has_commissions;
+
+  return (
+    <View style={styles.stack}>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>1. L’entreprise cliente</Text>
+        <TextInput value={query} onChangeText={setQuery} placeholder="Nom de l’entreprise…" placeholderTextColor={colors.textMuted} style={styles.input} />
+        {results?.length === 0 ? <Text style={styles.muted}>Aucune entreprise trouvée.</Text> : null}
+        {(results ?? []).map((o) => (
+          <Pressable key={o.id} onPress={() => setOrg(o)} style={[styles.pick, org?.id === o.id && styles.pickActive]}>
+            <Text style={styles.cardTitle}>{o.name}</Text>
+            <Text style={styles.small}>
+              {[o.plan_name ?? 'sans plan', o.subscription_status ?? '–', `créée le ${date(o.created_at)}`, o.partner_name ? `rattachée à ${o.partner_name} (${o.public_ref})` : 'aucun partenaire'].join(' · ')}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {org ? (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>2. Le partenaire</Text>
+          {locked ? (
+            <Text style={styles.error}>Des commissions existent déjà pour cette entreprise : son partenaire ne peut plus changer.</Text>
+          ) : (
+            <>
+              <TextInput value={partnerQuery} onChangeText={setPartnerQuery} placeholder="Nom, e-mail ou code du partenaire…" placeholderTextColor={colors.textMuted} style={styles.input} />
+              {partnerList.map((p) => (
+                <Pressable key={p.id} onPress={() => setPartnerId(p.id)} style={[styles.pick, partnerId === p.id && styles.pickActive]}>
+                  <Text style={styles.cardTitle}>
+                    {p.first_name} {p.last_name}
+                    {p.company_name ? <Text style={styles.muted}>{`  ·  ${p.company_name}`}</Text> : null}
+                  </Text>
+                  <Text style={styles.small}>{[p.email, `code ${p.code ?? '–'}`].join(' · ')}</Text>
+                </Pressable>
+              ))}
+              <TextInput
+                value={reason}
+                onChangeText={setReason}
+                placeholder="Raison (ex. inscrit depuis son téléphone, code donné oralement)"
+                placeholderTextColor={colors.textMuted}
+                style={styles.input}
+              />
+              <Text style={styles.small}>La commission s’applique aux paiements reçus à partir de maintenant, pendant 12 mois dès le premier.</Text>
+              <View style={styles.actions}>
+                <Button
+                  title="Rattacher"
+                  onPress={() => partnerId && onAttach(org.id, partnerId, reason)}
+                  disabled={busy || !partnerId || reason.trim().length < 3}
+                />
+              </View>
+            </>
+          )}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.metric}>
@@ -514,6 +615,8 @@ const styles = StyleSheet.create({
   value: { fontSize: fontSize.sm, color: colors.text, fontWeight: '600' },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
   input: { flexGrow: 1, minWidth: 220, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: 10, paddingHorizontal: 12, fontSize: fontSize.sm, color: colors.text, backgroundColor: colors.surface },
+  pick: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, gap: 2 },
+  pickActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   metric: { flexGrow: 1, flexBasis: 110, gap: 2 },
   metricValue: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, fontVariant: ['tabular-nums'] },

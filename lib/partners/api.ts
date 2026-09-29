@@ -241,7 +241,21 @@ async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<{ d
   return { data: (data as T) ?? null, error: error?.message ?? null };
 }
 
+export interface AdminOrganization {
+  id: string;
+  name: string;
+  plan_name: string | null;
+  subscription_status: string | null;
+  created_at: string;
+  partner_name: string | null;
+  public_ref: string | null;
+  has_commissions: boolean;
+}
+
 export const partnersAdmin = {
+  findOrganizations: (query: string) => rpc<AdminOrganization[]>('partners_admin_find_organizations', { p_query: query }),
+  attribute: (organizationId: string, partnerId: string, reason: string) =>
+    rpc<{ attributed: boolean }>('partners_admin_attribute', { p_organization_id: organizationId, p_partner_id: partnerId, p_reason: reason }),
   overview: () => rpc<AdminOverview>('partners_admin_overview'),
   partners: () => rpc<AdminPartner[]>('partners_admin_partners'),
   payouts: (status?: 'TO_PAY' | 'PAID' | 'CANCELLED') => rpc<AdminPayout[]>('partners_admin_payouts', { p_status: status ?? null }),

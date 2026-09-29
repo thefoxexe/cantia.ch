@@ -81,7 +81,9 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  createOrganization: (name: string, trade: string | null) => Promise<{ error: string | null }>;
+  // partnerCode: a Cantia Partners code typed on the company creation
+  // screen; it wins over a clicked link.
+  createOrganization: (name: string, trade: string | null, partnerCode?: string | null) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   // Supabase sends a confirmation link to the NEW address before the
@@ -326,10 +328,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // created — there's no session yet to write newsletter_subscriptions
     // directly while "Confirm email" is still pending.
     const locale = getAppLocale();
+    // Cantia Partners: the partner link clicked before signing up travels
+    // with the account, so it survives an email confirmed on another
+    // device or a cleared cookie (read back when the company is created).
+    const stored = Platform.OS === 'web' ? getStoredReferral() : null;
+    const referral = stored ? { ...stored, source: 'link' } : undefined;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, locale, newsletter_opt_in: newsletterOptIn } },
+      options: { data: { full_name: fullName, locale, newsletter_opt_in: newsletterOptIn, ...(referral ? { referral } : {}) } },
     });
     // Supabase returns a user with no session when "Confirm email" is
     // enabled and this account isn't confirmed yet — that's the only
@@ -433,13 +440,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createOrganization = useCallback(
-    async (name: string, trade: string | null) => {
+    async (name: string, trade: string | null, partnerCode?: string | null) => {
       // Attribution was captured (if any) back on cantia.ch's first pageview
       // and survives the domain jump to app.cantia.ch via a shared cookie —
       // see lib/siteAnalytics.ts. Native has no such cookie/URL, so this is
       // naturally a no-op there.
       const attr = Platform.OS === 'web' ? getStoredAttribution() : null;
       const referrer = Platform.OS === 'web' && typeof document !== 'undefined' ? document.referrer || null : null;
+      // Cantia Partners: the referral is put on the user just before the
+      // company is created; a database trigger then attributes the company
+      // in the same transaction (see
+      // supabase/migrations/20260929190000_partners_attribution_hardening.sql).
+      // A typed code wins; otherwise the link clicked (cookie), unless the
+      // account already carries one from its signup.
+      const typed = partnerCode?.trim().toUpperCase() || null;
+      const stored = Platform.OS === 'web' ? getStoredReferral() : null;
+      const existing = (session?.user?.user_metadata as { referral?: { code?: string } } | undefined)?.referral;
+      const referral = typed
+        ? { code: typed, source: 'code' }
+        : stored && !existing?.code
+          ? { ...stored, source: 'link' }
+          : null;
+      if (referral) await supabase.auth.updateUser({ data: { referral } });
       const { data: created, error } = await supabase.rpc('create_organization', {
         org_name: name,
         org_trade: trade,
@@ -452,18 +474,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         p_referrer: referrer,
       });
       if (error) return { error: error.message };
-      // Cantia Partners: a partner link clicked on cantia.ch (first touch,
-      // 90 days, see lib/siteAnalytics.ts) credits the new organization to
-      // that partner. The server checks the code, the window and
-      // self-referral; failing here never blocks the signup.
-      const referral = Platform.OS === 'web' ? getStoredReferral() : null;
+      // Second chance if the trigger could not use the metadata (update
+      // refused, older session): the server ignores it when the company is
+      // already attributed. Failing here never blocks the signup.
       const orgId = (created as { id?: string } | null)?.id;
-      if (referral && orgId) {
+      const fallback = typed ? { code: typed, visitor_id: null, first_click_at: null } : stored;
+      if (fallback && orgId) {
         const { error: refError } = await supabase.rpc('attribute_referral', {
           p_organization_id: orgId,
-          p_code: referral.code,
-          p_visitor_id: referral.visitor_id,
-          p_first_click_at: referral.first_click_at,
+          p_code: fallback.code,
+          p_visitor_id: fallback.visitor_id,
+          p_first_click_at: fallback.first_click_at,
         });
         if (refError) console.warn('[partners] attribution skipped:', refError.message);
       }
