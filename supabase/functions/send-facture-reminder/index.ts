@@ -132,7 +132,7 @@ async function sendResendEmail(params: {
   subject: string;
   html: string;
   attachments?: { filename: string; content: string }[];
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; error?: string; id?: string }> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${params.apiKey}`, 'Content-Type': 'application/json' },
@@ -150,7 +150,8 @@ async function sendResendEmail(params: {
     console.error('Resend error', res.status, errText);
     return { ok: false, error: `Échec de l'envoi de l'e-mail (${res.status})` };
   }
-  return { ok: true };
+  const data = await res.json().catch(() => null);
+  return { ok: true, id: typeof data?.id === 'string' ? data.id : undefined };
 }
 
 const corsHeaders = {
@@ -255,7 +256,7 @@ Deno.serve(async (req: Request) => {
       signature,
     });
 
-    const { ok, error } = await sendResendEmail({
+    const { ok, error, id: resendId } = await sendResendEmail({
       apiKey,
       from: `${orgName} <noreply@cantia.ch>`,
       to: [facture.client_email],
@@ -265,6 +266,22 @@ Deno.serve(async (req: Request) => {
       attachments: [{ filename: `Facture-${facture.number ?? facture_id}.pdf`, content: base64FromBytes(pdfFile.bytes) }],
     });
     if (!ok) return json({ error }, 502);
+
+    // App › E-mails (same row shape as _shared/email-log.ts).
+    const { data: caller } = await userClient.auth.getUser().catch(() => ({ data: { user: null } }));
+    const { error: logError } = await admin.from('email_messages').insert({
+      organization_id: facture.organization_id,
+      kind: 'facture_reminder',
+      document_type: 'facture',
+      document_id: facture.id,
+      document_number: facture.number ?? null,
+      to_email: facture.client_email,
+      to_name: facture.client_name ?? null,
+      subject,
+      resend_email_id: resendId ?? null,
+      sent_by: caller?.user?.id ?? null,
+    });
+    if (logError) console.error('email_messages insert failed', logError);
 
     await admin.from('factures').update({ last_reminded_at: new Date().toISOString() }).eq('id', facture_id);
 

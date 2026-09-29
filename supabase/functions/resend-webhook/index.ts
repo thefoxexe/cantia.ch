@@ -2,8 +2,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { handleInboundEmail } from './inbound.ts';
 
 // Resend delivery events (delivered, bounced, complained, opened, clicked)
-// for devis emails, recorded in devis_events, and inbound emails received
-// on the organizations' "suivi des e-mails" addresses (inbound.ts).
+// for every client e-mail (email_messages, app › E-mails) and, for devis,
+// in devis_events too; and inbound emails received on the organizations'
+// "suivi des e-mails" addresses (inbound.ts).
 // Deployed without JWT verification: Resend authenticates each delivery
 // with a Svix signature instead, checked against RESEND_WEBHOOK_SECRET.
 
@@ -63,6 +64,18 @@ Deno.serve(async (req: Request) => {
   if (!emailId) return ok('no email id');
 
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const occurredAt = typeof event.created_at === 'string' ? event.created_at : new Date().toISOString();
+
+  // App › E-mails: every e-mail sent to a client (devis, factures, reminders,
+  // extra works) has its row in email_messages, updated here.
+  const bounceMessage = kind === 'bounced' ? ((data.bounce as { message?: string } | undefined)?.message ?? null) : null;
+  const { error: hubError } = await admin.rpc('email_message_event', {
+    p_resend_id: emailId,
+    p_kind: kind,
+    p_at: occurredAt,
+    p_reason: bounceMessage,
+  });
+  if (hubError) console.error('email_message_event failed', hubError);
 
   // The email that was sent for this devis: found through its Resend id,
   // which send-devis-email and the follow-up sender store on their event.
@@ -82,10 +95,9 @@ Deno.serve(async (req: Request) => {
     organizationId = devis?.organization_id ?? null;
     if (!organizationId) devisId = null;
   }
-  // Not a devis email (factures, invitations…): acknowledged and ignored.
+  // Not a devis email (factures, invitations…): nothing more to record.
   if (!devisId || !organizationId) return ok('not a devis email');
 
-  const occurredAt = typeof event.created_at === 'string' ? event.created_at : new Date().toISOString();
   const meta: Record<string, unknown> = {};
   const click = data.click as { link?: string; userAgent?: string } | undefined;
   if (kind === 'clicked' && click) {
@@ -94,8 +106,7 @@ Deno.serve(async (req: Request) => {
     if (sentAt !== null && new Date(occurredAt).getTime() - sentAt < BOT_CLICK_WINDOW_MS) meta.suspected_bot = true;
   }
   if (kind === 'bounced') {
-    const bounce = data.bounce as { message?: string } | undefined;
-    meta.reason = bounce?.message ?? null;
+    meta.reason = bounceMessage;
   }
 
   const { error } = await admin.from('devis_events').upsert(

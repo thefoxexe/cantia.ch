@@ -4,6 +4,7 @@ import { fetchStorageBytes } from '../_shared/pdf-helpers.ts';
 import { isValidSwissIban } from '../_shared/qrbill.ts';
 import { pdfT, resolveDocLocale } from '../_shared/pdf-i18n.ts';
 import { salesInboxReplyTo } from '../_shared/sales-inbox.ts';
+import { callerId, logEmailMessage } from '../_shared/email-log.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -115,7 +116,7 @@ Deno.serve(async (req: Request) => {
       locale,
     });
 
-    const { ok, error } = await sendResendEmail({
+    const { ok, error, id: resendId } = await sendResendEmail({
       apiKey,
       from: `${orgName} <noreply@cantia.ch>`,
       to: [facture.client_email],
@@ -125,6 +126,19 @@ Deno.serve(async (req: Request) => {
       attachments: [{ filename: `${kind}-${facture.number ?? facture_id}.pdf`, content: base64FromBytes(pdfFile.bytes) }],
     });
     if (!ok) return json({ error }, 502);
+
+    await logEmailMessage(admin, {
+      organizationId: facture.organization_id,
+      kind: 'facture',
+      documentType: 'facture',
+      documentId: facture.id,
+      documentNumber: facture.number ?? null,
+      toEmail: facture.client_email,
+      toName: facture.client_name ?? null,
+      subject,
+      resendId,
+      sentBy: await callerId(userClient),
+    });
 
     // Only a facture finalized but not yet sent flips to "sent" here — never
     // downgrade a partial/paid facture back to "sent".

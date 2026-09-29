@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { applyEmailVariables, buildDocumentEmailHtml, sendResendEmail } from '../_shared/resend.ts';
 import { pdfT, resolveDocLocale } from '../_shared/pdf-i18n.ts';
+import { callerId, logEmailMessage } from '../_shared/email-log.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -79,7 +80,7 @@ Deno.serve(async (req: Request) => {
       locale,
     });
 
-    const { ok, error } = await sendResendEmail({
+    const { ok, error, id: resendId } = await sendResendEmail({
       apiKey,
       from: `${orgName} <noreply@cantia.ch>`,
       to: [work.client_email],
@@ -88,6 +89,19 @@ Deno.serve(async (req: Request) => {
       html,
     });
     if (!ok) return json({ error }, 502);
+
+    await logEmailMessage(admin, {
+      organizationId: work.organization_id,
+      kind: 'extra_work',
+      documentType: 'extra_work',
+      documentId: work.id,
+      documentNumber: work.number ?? null,
+      toEmail: work.client_email,
+      toName: work.client_name ?? null,
+      subject,
+      resendId,
+      sentBy: await callerId(userClient),
+    });
 
     if (work.status === 'draft') {
       await admin.from('extra_works').update({ status: 'sent' }).eq('id', extra_work_id);
