@@ -10,7 +10,7 @@ import { isMarketingHost } from './appHost';
 //
 // Campaign attribution (UTM params, Google's gclid) is captured the same
 // way: no PII, first-party only, and — unlike the visitor id — shared via a
-// cookie scoped to ".cantia.ch" (see writeAttrCookie below) so it survives
+// cookie scoped to ".cantia.ch" (see writeSharedCookie below) so it survives
 // the cross-domain jump from cantia.ch (where an ad lands) to
 // app.cantia.ch (where signup actually happens), letting a signup be
 // credited to the campaign that drove the original click.
@@ -68,21 +68,87 @@ function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-function writeAttrCookie(attr: Attribution): void {
+// ".cantia.ch" makes a cookie readable from both cantia.ch and
+// app.cantia.ch. That domain attribute is rejected by the browser anywhere
+// else (localhost, Netlify preview URLs), so fall back to a host-only cookie
+// there — fine, since there's no cross-domain jump to survive in those
+// environments anyway.
+function writeSharedCookie(name: string, payload: unknown): void {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
   try {
-    const value = encodeURIComponent(JSON.stringify(attr));
+    const value = encodeURIComponent(JSON.stringify(payload));
     const maxAge = ATTR_MAX_AGE_DAYS * 24 * 60 * 60;
-    // ".cantia.ch" makes the cookie readable from both cantia.ch and
-    // app.cantia.ch. That domain attribute is rejected by the browser
-    // anywhere else (localhost, Netlify preview URLs), so fall back to a
-    // host-only cookie there — fine, since there's no cross-domain jump to
-    // survive in those environments anyway.
     const host = window.location.hostname;
     const domainAttr = host.endsWith('cantia.ch') ? '; domain=.cantia.ch' : '';
-    document.cookie = `${ATTR_COOKIE}=${value}; path=/; max-age=${maxAge}${domainAttr}`;
+    document.cookie = `${name}=${value}; path=/; max-age=${maxAge}${domainAttr}; SameSite=Lax`;
   } catch {
     // Storage blocked — attribution just won't survive to signup.
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Consent. The attribution cookies below (campaign + partner referral) are
+// only written once the visitor accepted them in the cookie banner
+// (components/CookieBanner.tsx). Until then, what arrived in the URL waits
+// in sessionStorage, and is written the moment they accept.
+export type CookieConsent = 'accepted' | 'refused';
+const CONSENT_KEY = 'cantia_cookie_consent';
+const PENDING_ATTR_KEY = 'cantia_attr_pending';
+const PENDING_REF_KEY = 'cantia_ref_pending';
+
+// The choice itself lives in a .cantia.ch cookie (plus localStorage as a
+// fallback) so that app.cantia.ch, where the signup conversion fires, knows
+// it too. app/+html.tsx reads that cookie before Google's tag loads.
+export function getCookieConsent(): CookieConsent | null {
+  if (typeof window === 'undefined') return null;
+  const fromCookie = readCookie(CONSENT_KEY);
+  if (fromCookie === 'accepted' || fromCookie === 'refused') return fromCookie;
+  try {
+    const value = window.localStorage.getItem(CONSENT_KEY);
+    return value === 'accepted' || value === 'refused' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setCookieConsent(value: CookieConsent): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(CONSENT_KEY, value);
+    const host = window.location.hostname;
+    const domainAttr = host.endsWith('cantia.ch') ? '; domain=.cantia.ch' : '';
+    document.cookie = `${CONSENT_KEY}=${value}; path=/; max-age=${365 * 24 * 60 * 60}${domainAttr}; SameSite=Lax`;
+  } catch {
+    // Blocked storage: the banner simply shows again next visit.
+  }
+  const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+  if (value === 'accepted') {
+    gtag?.('consent', 'update', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
+    const attr = takePending<Attribution>(PENDING_ATTR_KEY);
+    if (attr && !readCookie(ATTR_COOKIE)) writeSharedCookie(ATTR_COOKIE, attr);
+    const ref = takePending<StoredReferral>(PENDING_REF_KEY);
+    if (ref && !readCookie(REF_COOKIE)) writeSharedCookie(REF_COOKIE, ref);
+  } else {
+    takePending(PENDING_ATTR_KEY);
+    takePending(PENDING_REF_KEY);
+  }
+}
+
+function stashPending(key: string, payload: unknown): void {
+  try {
+    if (!window.sessionStorage.getItem(key)) window.sessionStorage.setItem(key, JSON.stringify(payload));
+  } catch {
+    // Nothing to do: without storage the visit simply isn't attributed.
+  }
+}
+
+function takePending<T>(key: string): T | null {
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    window.sessionStorage.removeItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -92,7 +158,62 @@ function writeAttrCookie(attr: Attribution): void {
 function captureAttribution(): void {
   if (readCookie(ATTR_COOKIE)) return;
   const attr = readUrlAttribution();
-  if (attr) writeAttrCookie(attr);
+  if (!attr) return;
+  if (getCookieConsent() === 'accepted') writeSharedCookie(ATTR_COOKIE, attr);
+  else if (getCookieConsent() === null) stashPending(PENDING_ATTR_KEY, attr);
+}
+
+// ---------------------------------------------------------------------------
+// Cantia Partners referral links (https://cantia.ch/?ref=CODE). Every click
+// is logged server-side (record_referral_click, anonymous visitor id only);
+// the code itself is kept first-touch for 90 days in a .cantia.ch cookie so
+// that the signup on app.cantia.ch can be attributed to the partner (see
+// lib/auth-context.tsx createOrganization -> attribute_referral).
+const REF_COOKIE = 'cantia_ref';
+const REF_PATTERN = /^[A-Z0-9]{6,12}$/;
+
+export interface StoredReferral {
+  code: string;
+  visitor_id: string;
+  first_click_at: string;
+}
+
+let lastReferralCode: string | null = null;
+
+function captureReferral(path: string): void {
+  const raw = new URLSearchParams(window.location.search).get('ref');
+  const code = raw?.trim().toUpperCase() ?? '';
+  if (!REF_PATTERN.test(code) || code === lastReferralCode) return;
+  lastReferralCode = code;
+  const visitorId = getVisitorId();
+  const utm = readUrlAttribution();
+  supabase
+    .rpc('record_referral_click', {
+      p_code: code,
+      p_visitor_id: visitorId,
+      p_landing_page: path,
+      p_referrer: document.referrer || null,
+      p_utm: utm ?? {},
+    })
+    .then(({ data, error }) => {
+      if (error || !(data as { valid?: boolean } | null)?.valid) return;
+      if (readCookie(REF_COOKIE)) return;
+      const ref: StoredReferral = { code, visitor_id: visitorId, first_click_at: new Date().toISOString() };
+      if (getCookieConsent() === 'accepted') writeSharedCookie(REF_COOKIE, ref);
+      else if (getCookieConsent() === null) stashPending(PENDING_REF_KEY, ref);
+    });
+}
+
+// Read back on app.cantia.ch right after the organization is created.
+export function getStoredReferral(): StoredReferral | null {
+  const raw = readCookie(REF_COOKIE);
+  if (!raw) return null;
+  try {
+    const ref = JSON.parse(raw) as StoredReferral;
+    return REF_PATTERN.test(ref.code) ? ref : null;
+  } catch {
+    return null;
+  }
 }
 
 // Read back on app.cantia.ch at signup time (see lib/auth-context.tsx's
@@ -116,6 +237,7 @@ export function trackPageview(path: string): void {
   lastTrackedPath = path;
 
   captureAttribution();
+  captureReferral(path);
   // Recorded per-pageview from the live URL (not the persisted cookie) so
   // the traffic log shows exactly which campaign params arrived on which
   // page, independent of first-touch attribution used for signups.

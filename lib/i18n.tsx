@@ -213,6 +213,7 @@ interface Dict {
     resourcesLogin: string;
     legalLink: string;
     statusLink: string;
+    partnersLink: string;
     privacyLink: string;
     cgvLink: string;
     copyright: string;
@@ -633,6 +634,7 @@ const fr: Dict = {
     resourcesLogin: 'Connexion',
     legalLink: 'Mentions légales',
     statusLink: 'Statut du service',
+    partnersLink: 'Devenir partenaire',
     privacyLink: 'Confidentialité',
     cgvLink: 'Conditions générales',
     copyright: '© {year} Cantia. Conçu pour le bâtiment suisse.',
@@ -1053,6 +1055,7 @@ const de: Dict = {
     resourcesLogin: 'Anmelden',
     legalLink: 'Impressum',
     statusLink: 'Systemstatus',
+    partnersLink: 'Partner werden',
     privacyLink: 'Datenschutz',
     cgvLink: 'AGB',
     copyright: '© {year} Cantia. Entwickelt für das Schweizer Baugewerbe.',
@@ -1473,6 +1476,7 @@ const it: Dict = {
     resourcesLogin: 'Accedi',
     legalLink: 'Note legali',
     statusLink: 'Stato del servizio',
+    partnersLink: 'Diventa partner',
     privacyLink: 'Privacy',
     cgvLink: 'Condizioni generali',
     copyright: '© {year} Cantia. Pensato per l’edilizia svizzera.',

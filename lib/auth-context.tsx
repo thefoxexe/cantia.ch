@@ -7,7 +7,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
 import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
-import { getStoredAttribution } from './siteAnalytics';
+import { getStoredAttribution, getStoredReferral } from './siteAnalytics';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -440,7 +440,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // naturally a no-op there.
       const attr = Platform.OS === 'web' ? getStoredAttribution() : null;
       const referrer = Platform.OS === 'web' && typeof document !== 'undefined' ? document.referrer || null : null;
-      const { error } = await supabase.rpc('create_organization', {
+      const { data: created, error } = await supabase.rpc('create_organization', {
         org_name: name,
         org_trade: trade,
         p_utm_source: attr?.utm_source ?? null,
@@ -452,6 +452,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         p_referrer: referrer,
       });
       if (error) return { error: error.message };
+      // Cantia Partners: a partner link clicked on cantia.ch (first touch,
+      // 90 days, see lib/siteAnalytics.ts) credits the new organization to
+      // that partner. The server checks the code, the window and
+      // self-referral; failing here never blocks the signup.
+      const referral = Platform.OS === 'web' ? getStoredReferral() : null;
+      const orgId = (created as { id?: string } | null)?.id;
+      if (referral && orgId) {
+        const { error: refError } = await supabase.rpc('attribute_referral', {
+          p_organization_id: orgId,
+          p_code: referral.code,
+          p_visitor_id: referral.visitor_id,
+          p_first_click_at: referral.first_click_at,
+        });
+        if (refError) console.warn('[partners] attribution skipped:', refError.message);
+      }
       if (session?.user) await loadOrganization(session.user.id);
       return { error: null };
     },

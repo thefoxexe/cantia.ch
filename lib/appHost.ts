@@ -187,7 +187,9 @@ function useRedirectToBrowserLocaleOnce(pathname: string, router: ReturnType<typ
     if (new URLSearchParams(window.location.search).has('locale')) return;
     const detected = detectBrowserLocale();
     if (!detected) return;
-    router.replace(toggleLocalePathname(pathname, detected) as any);
+    // Keep the query string: a partner link (?ref=) or a campaign (utm_*)
+    // must survive the redirect to be recorded.
+    router.replace(`${toggleLocalePathname(pathname, detected)}${window.location.search}` as any);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }

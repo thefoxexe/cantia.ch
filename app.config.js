@@ -10,7 +10,18 @@
 // build (npm run web, EAS builds, the normal `expo export` used for
 // app.cantia.ch) leaves MARKETING_BUILD unset and gets exactly the "single"
 // CSR SPA output, rooted at app/, that app.cantia.ch has always shipped.
+//
+// PARTNERS_BUILD=1 does the same with app-partners/ as the route root: the
+// partners.cantia.ch site (scripts/build-partners.mjs, run by netlify.toml
+// when the Netlify site has CANTIA_SURFACE=partners).
 module.exports = ({ config }) => {
+  if (process.env.PARTNERS_BUILD === '1') {
+    return {
+      ...config,
+      web: { ...config.web, output: 'static' },
+      extra: { ...config.extra, router: { ...config.extra?.router, root: './app-partners' } },
+    };
+  }
   if (process.env.MARKETING_BUILD !== '1') return config;
   return {
     ...config,

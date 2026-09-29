@@ -13,6 +13,7 @@ import { trackPageview } from '../lib/siteAnalytics';
 import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
+import { CookieBanner } from '../components/CookieBanner';
 import '../lib/pwaInstall';
 
 // Build-time static rendering has no window: give React Native Web a desktop
@@ -156,6 +157,7 @@ function RootNavigation() {
         <Stack screenOptions={{ headerShown: false }} />
       </ErrorBoundary>
       <SaveConfirmationOverlay />
+      <CookieBanner />
     </>
   );
 }

@@ -386,6 +386,9 @@ export function MarketingFooter({
           <Link href={`${localePrefix}/conditions-generales` as any}>
             <Text style={styles.footerCopy}>{t.footer.cgvLink}</Text>
           </Link>
+          <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
+            <Text style={styles.footerCopy}>{t.footer.partnersLink}</Text>
+          </Link>
           <StatusLink label={t.footer.statusLink} textStyle={styles.footerCopy} />
         </View>
       </View>

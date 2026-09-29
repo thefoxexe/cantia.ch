@@ -8,10 +8,12 @@ import { helpHref } from '../../../lib/appHost';
 import { Container, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { openPartnerSpace, PARTNERS_URL } from '../../../lib/api/partners';
 
 type IconName = keyof typeof Feather.glyphMap;
 type MenuKey =
   | 'entreprise'
+  | 'partenaires'
   | 'devis'
   | 'emails'
   | 'equipe'
@@ -64,6 +66,7 @@ const GROUPS: MenuGroup[] = [
       { href: '/(app)/compte/profil', icon: 'user', key: 'profil' },
       { href: '/(app)/compte/notifications', icon: 'bell', key: 'notifications' },
       { href: helpHref(), icon: 'help-circle', key: 'aide', external: true },
+      { href: PARTNERS_URL, icon: 'gift', key: 'partenaires', external: true },
       { href: '/(app)/compte/danger', icon: 'alert-triangle', key: 'danger' },
     ],
   },
@@ -163,7 +166,9 @@ export default function CompteIndexScreen() {
   }
 
   function openItem(item: { href: string; external?: boolean }) {
-    if (item.external) Linking.openURL(item.href);
+    // Cantia Partners: signed straight in with the same account.
+    if (item.href === PARTNERS_URL) openPartnerSpace();
+    else if (item.external) Linking.openURL(item.href);
     else router.push(item.href as any);
   }
 

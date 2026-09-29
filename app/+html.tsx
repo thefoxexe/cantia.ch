@@ -39,12 +39,17 @@ export default function Root({ children }: PropsWithChildren) {
             decorate outbound links to app.cantia.ch with the click id,
             otherwise the signup conversion on app.cantia.ch can't be
             attributed back to the ad. The actual conversion event fires
-            only on the verify-email screen after signup, not here. */}
+            only on the verify-email screen after signup, not here.
+            Consent mode: no ad cookie until the visitor accepts in the
+            cookie banner (components/CookieBanner.tsx), whose choice is
+            kept in the .cantia.ch cookie read below. */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566" />
         <script
           dangerouslySetInnerHTML={{
             __html: `window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
+var cantiaConsent = /(?:^|; )cantia_cookie_consent=accepted/.test(document.cookie) ? 'granted' : 'denied';
+gtag('consent', 'default', { ad_storage: cantiaConsent, ad_user_data: cantiaConsent, ad_personalization: cantiaConsent, analytics_storage: cantiaConsent });
 gtag('js', new Date());
 gtag('config', 'AW-18465996566');`,
           }}

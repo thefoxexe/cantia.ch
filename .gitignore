@@ -44,3 +44,4 @@ yarn-error.*
 # CRBX/CAN fixtures — never commit real .crbx/.01S files (CRB-owned data).
 /fixtures/*
 !/fixtures/README.md
+dist-partners/
