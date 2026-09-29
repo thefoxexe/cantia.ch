@@ -13,8 +13,17 @@
 //
 // PARTNERS_BUILD=1 does the same with app-partners/ as the route root: the
 // partners.cantia.ch site (scripts/build-partners.mjs, run by netlify.toml
-// when the Netlify site has CANTIA_SURFACE=partners).
+// when the Netlify site has CANTIA_SURFACE=partners). ACCOUNTING_BUILD=1:
+// app-accounting/, accounting.cantia.ch (scripts/build-accounting.mjs,
+// CANTIA_SURFACE=accounting).
 module.exports = ({ config }) => {
+  if (process.env.ACCOUNTING_BUILD === '1') {
+    return {
+      ...config,
+      web: { ...config.web, output: 'static' },
+      extra: { ...config.extra, router: { ...config.extra?.router, root: './app-accounting' } },
+    };
+  }
   if (process.env.PARTNERS_BUILD === '1') {
     return {
       ...config,

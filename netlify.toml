@@ -1,10 +1,10 @@
-# One repository, two Netlify sites: cantia.ch + app.cantia.ch (this build),
-# and partners.cantia.ch, whose Netlify site sets the environment variable
-# CANTIA_SURFACE=partners and gets scripts/build-partners.mjs instead (its
-# own route root app-partners/, and its own _redirects, which Netlify reads
-# before the rules below).
+# One repository, three Netlify sites: cantia.ch + app.cantia.ch (this build),
+# partners.cantia.ch (environment variable CANTIA_SURFACE=partners ->
+# scripts/build-partners.mjs) and accounting.cantia.ch (CANTIA_SURFACE=accounting
+# -> scripts/build-accounting.mjs). Each has its own route root and its own
+# _redirects, which Netlify reads before the rules below.
 [build]
-  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs; fi"
+  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs; fi"
   publish = "dist"
 
 [build.environment]
