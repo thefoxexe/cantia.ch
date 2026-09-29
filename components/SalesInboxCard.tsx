@@ -15,14 +15,18 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { Button, Card, Switch } from './ui';
 
 // "Suivi des e-mails" block of Paramètres › Automatisations (plan
-// Entreprise): the organization's Cantia address, how to use it, and the
-// Reply-To switch that makes client replies arrive on their own.
+// Entreprise). One switch: devis and factures sent from Cantia carry the
+// organization's Cantia address next to its own in "Répondre à", so a
+// client's reply is filed on the document with nothing to do
+// (supabase/functions/_shared/sales-inbox.ts). The address itself, for Cci
+// and forwards from Outlook / Gmail, sits under "Options avancées".
 export function SalesInboxCard({ orgId, orgEmail }: { orgId: string; orgEmail: string | null }) {
   const { t } = useTranslation();
   const [settings, setSettings] = useState<SalesInboxSettings | null>(null);
   const [count30, setCount30] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -71,6 +75,8 @@ export function SalesInboxCard({ orgId, orgEmail }: { orgId: string; orgEmail: s
     else if (token) setSettings((s) => (s ? { ...s, inbox_token: token } : s));
   }
 
+  const replyTarget = orgEmail || t('salesInbox.ownerEmail');
+
   return (
     <Card style={styles.card}>
       <View style={styles.row}>
@@ -78,56 +84,55 @@ export function SalesInboxCard({ orgId, orgEmail }: { orgId: string; orgEmail: s
           <Text style={styles.label}>{t('salesInbox.enable')}</Text>
           <Text style={styles.hint}>{t('salesInbox.enableHint')}</Text>
         </View>
-        <Switch value={settings.enabled} onChange={(v) => patch({ enabled: v })} />
+        <Switch value={settings.enabled && settings.reply_to_copy} onChange={(v) => patch({ enabled: v, reply_to_copy: v })} />
       </View>
 
+      <View style={{ gap: spacing.sm }}>
+        <Text style={styles.label}>{t('salesInbox.howTitle')}</Text>
+        <Way step={1} icon="send" title={t('salesInbox.step1Title')} text={t('salesInbox.step1')} />
+        <Way step={2} icon="corner-down-left" title={t('salesInbox.step2Title')} text={t('salesInbox.step2', { email: replyTarget })} />
+        <Way step={3} icon="inbox" title={t('salesInbox.step3Title')} text={t('salesInbox.step3')} />
+        <Text style={styles.hint}>{t('salesInbox.nothingToDo')}</Text>
+        {count30 !== null && settings.enabled ? <Text style={styles.count}>{t('salesInbox.count30', { count: count30 })}</Text> : null}
+      </View>
+
+      {!orgEmail ? <Text style={styles.warning}>{t('salesInbox.noOrgEmail')}</Text> : null}
+
       {settings.enabled ? (
-        <>
-          <View style={{ gap: 6 }}>
-            <Text style={styles.label}>{t('salesInbox.address')}</Text>
-            <View style={styles.addressRow}>
-              <Text style={styles.address} selectable numberOfLines={1}>
-                {address}
-              </Text>
-              <Button title={copied ? t('salesInbox.copied') : t('salesInbox.copy')} icon={copied ? 'check' : 'copy'} variant="secondary" onPress={copy} />
-            </View>
-            {count30 !== null ? <Text style={styles.hint}>{t('salesInbox.count30', { count: count30 })}</Text> : null}
-          </View>
-
-          <View style={styles.row}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.label}>{t('salesInbox.replyTo')}</Text>
-              <Text style={styles.hint}>{t('salesInbox.replyToHint')}</Text>
-            </View>
-            <Switch value={settings.reply_to_copy} onChange={(v) => patch({ reply_to_copy: v })} />
-          </View>
-          {settings.reply_to_copy && !orgEmail ? <Text style={styles.warning}>{t('salesInbox.noOrgEmail')}</Text> : null}
-
-          <View style={{ gap: spacing.sm }}>
-            <Text style={styles.label}>{t('salesInbox.howTitle')}</Text>
-            <Way icon="corner-down-left" title={t('salesInbox.how1Title')} text={t('salesInbox.how1')} />
-            <Way icon="eye-off" title={t('salesInbox.how2Title')} text={t('salesInbox.how2')} />
-            <Way icon="share" title={t('salesInbox.how3Title')} text={t('salesInbox.how3')} />
-            <Text style={styles.hint}>{t('salesInbox.tip')}</Text>
-          </View>
-
-          <Pressable onPress={regenerate} style={styles.regenerate}>
-            <Feather name="refresh-cw" size={13} color={confirming ? colors.danger : colors.textMuted} />
-            <Text style={[styles.regenerateText, confirming && { color: colors.danger }]}>
-              {confirming ? t('salesInbox.regenerateConfirm') : t('salesInbox.regenerate')}
-            </Text>
+        <View style={styles.advanced}>
+          <Pressable onPress={() => setAdvanced((v) => !v)} style={styles.advancedToggle}>
+            <Feather name={advanced ? 'chevron-down' : 'chevron-right'} size={14} color={colors.textMuted} />
+            <Text style={styles.advancedTitle}>{t('salesInbox.advanced')}</Text>
           </Pressable>
-        </>
+          {advanced ? (
+            <View style={{ gap: spacing.md }}>
+              <Text style={styles.hint}>{t('salesInbox.advancedIntro')}</Text>
+              <View style={styles.addressRow}>
+                <Text style={styles.address} selectable numberOfLines={1}>
+                  {address}
+                </Text>
+                <Button title={copied ? t('salesInbox.copied') : t('salesInbox.copy')} icon={copied ? 'check' : 'copy'} variant="secondary" onPress={copy} />
+              </View>
+              <Text style={styles.hint}>{t('salesInbox.tip')}</Text>
+              <Pressable onPress={regenerate} style={styles.regenerate}>
+                <Feather name="refresh-cw" size={13} color={confirming ? colors.danger : colors.textMuted} />
+                <Text style={[styles.regenerateText, confirming && { color: colors.danger }]}>
+                  {confirming ? t('salesInbox.regenerateConfirm') : t('salesInbox.regenerate')}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+        </View>
       ) : null}
       {error ? <Text style={styles.warning}>{error}</Text> : null}
     </Card>
   );
 }
 
-function Way({ icon, title, text }: { icon: keyof typeof Feather.glyphMap; title: string; text: string }) {
+function Way({ step, icon, title, text }: { step: number; icon: keyof typeof Feather.glyphMap; title: string; text: string }) {
   return (
     <View style={styles.way}>
-      <View style={styles.wayIcon}>
+      <View style={styles.wayIcon} accessibilityLabel={String(step)}>
         <Feather name={icon} size={14} color={colors.primary} />
       </View>
       <View style={{ flex: 1 }}>
@@ -162,6 +167,10 @@ const styles = StyleSheet.create({
   wayIcon: { width: 28, height: 28, borderRadius: radius.sm, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   wayTitle: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   warning: { fontSize: fontSize.sm, color: colors.warning, lineHeight: 19 },
+  count: { fontSize: fontSize.sm, color: colors.text, fontWeight: '600' },
+  advanced: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.md, gap: spacing.md },
+  advancedToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
+  advancedTitle: { fontSize: fontSize.sm, fontWeight: '600', color: colors.textMuted },
   regenerate: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   regenerateText: { fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600' },
 });

@@ -4,8 +4,9 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 // each organization (<token>@suivi.cantia.ch, see
 // supabase/migrations/20260929140000_sales_email_inbox.sql). An email is
 // kept only when it comes from a member of the organization (Bcc, forward)
-// or from one of its clients (reply through the Reply-To copy); anything
-// else is dropped.
+// or from one of its clients (reply through the Reply-To copy added to every
+// devis / facture email); anything else is dropped. It is filed on the
+// matching devis or facture.
 
 const INBOUND_DOMAIN = (Deno.env.get('INBOUND_EMAIL_DOMAIN') ?? 'suivi.cantia.ch').toLowerCase();
 const SNIPPET_MAX = 800;
@@ -85,8 +86,8 @@ export async function handleInboundEmail(admin: Admin, data: Record<string, unkn
   }
 
   const subject = (email.subject ?? '').slice(0, 300) || null;
-  const devis = await matchDevis(admin, organizationId, `${subject ?? ''}\n${text.slice(0, 4000)}`, counterpart);
-  let clientId = devis?.client_id ?? null;
+  const { devis, facture } = await matchDocument(admin, organizationId, `${subject ?? ''}\n${text.slice(0, 4000)}`, counterpart);
+  let clientId = devis?.client_id ?? facture?.client_id ?? null;
   if (!clientId && counterpart) {
     const { data: client } = await admin.from('clients').select('id').eq('organization_id', organizationId).ilike('email', counterpart).limit(1).maybeSingle();
     clientId = client?.id ?? null;
@@ -103,6 +104,7 @@ export async function handleInboundEmail(admin: Admin, data: Record<string, unkn
         subject,
         snippet: snippetOf(text, direction === 'incoming' && !!memberId),
         devis_id: devis?.id ?? null,
+        facture_id: facture?.id ?? null,
         client_id: clientId,
         member_user_id: memberId,
         occurred_at: email.created_at ?? occurredAt,
@@ -154,31 +156,51 @@ async function memberOf(admin: Admin, organizationId: string, email: string): Pr
 }
 
 async function isKnownClient(admin: Admin, organizationId: string, email: string): Promise<boolean> {
-  const [{ count: clients }, { count: devis }] = await Promise.all([
+  const [{ count: clients }, { count: devis }, { count: factures }] = await Promise.all([
     admin.from('clients').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).ilike('email', email),
     admin.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).ilike('client_email', email),
+    admin.from('factures').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).ilike('client_email', email),
   ]);
-  return (clients ?? 0) + (devis ?? 0) > 0;
+  return (clients ?? 0) + (devis ?? 0) + (factures ?? 0) > 0;
 }
 
-// A devis number written in the subject or the text wins; otherwise the
-// latest open devis of that client.
-async function matchDevis(admin: Admin, organizationId: string, haystack: string, counterpart: string | null) {
+interface DocRow {
+  id: string;
+  number: string | null;
+  client_id: string | null;
+  client_email: string | null;
+  status: string;
+  created_at: string;
+}
+
+// A devis or facture number written in the subject or the text wins;
+// otherwise the latest open document sent to that client (a devis waiting
+// for an answer, or an unpaid facture).
+async function matchDocument(admin: Admin, organizationId: string, haystack: string, counterpart: string | null): Promise<{ devis: DocRow | null; facture: DocRow | null }> {
   const upper = haystack.toUpperCase();
   const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
-  const { data: recent } = await admin
-    .from('devis')
-    .select('id, number, client_id, client_email, status, created_at')
-    .eq('organization_id', organizationId)
-    .gte('created_at', since)
-    .order('created_at', { ascending: false })
-    .limit(500);
-  const rows = recent ?? [];
-  const byNumber = rows.find((d) => d.number && d.number.length >= 4 && upper.includes(String(d.number).toUpperCase()));
-  if (byNumber) return byNumber;
-  if (!counterpart) return null;
-  const mine = rows.filter((d) => (d.client_email ?? '').toLowerCase() === counterpart);
-  return mine.find((d) => d.status === 'sent') ?? mine[0] ?? null;
+  const recent = (table: 'devis' | 'factures') =>
+    admin
+      .from(table)
+      .select('id, number, client_id, client_email, status, created_at')
+      .eq('organization_id', organizationId)
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(500);
+  const [{ data: devisRows }, { data: factureRows }] = await Promise.all([recent('devis'), recent('factures')]);
+  const devis = (devisRows ?? []) as DocRow[];
+  const factures = (factureRows ?? []) as DocRow[];
+  const byNumber = (rows: DocRow[]) => rows.find((d) => d.number && d.number.length >= 4 && upper.includes(String(d.number).toUpperCase())) ?? null;
+  const devisByNumber = byNumber(devis);
+  const factureByNumber = byNumber(factures);
+  if (devisByNumber || factureByNumber) return { devis: devisByNumber, facture: factureByNumber };
+  if (!counterpart) return { devis: null, facture: null };
+  const mine = (rows: DocRow[]) => rows.filter((d) => (d.client_email ?? '').toLowerCase() === counterpart);
+  const openDevis = mine(devis).find((d) => d.status === 'sent') ?? null;
+  const openFacture = mine(factures).find((d) => d.status === 'sent' || d.status === 'partial') ?? null;
+  if (openDevis && openFacture) return openDevis.created_at >= openFacture.created_at ? { devis: openDevis, facture: null } : { devis: null, facture: openFacture };
+  if (openDevis || openFacture) return { devis: openDevis, facture: openFacture };
+  return { devis: mine(devis)[0] ?? null, facture: null };
 }
 
 function list(value: unknown): string[] {

@@ -69,6 +69,10 @@ export function SalesEmailsList({ orgId }: { orgId: string }) {
                     <Pressable onPress={() => router.push(`/(app)/devis/${e.devis_id}` as any)} style={styles.devisChip} hitSlop={6}>
                       <Text style={styles.devisChipText}>{t('salesEmails.devis', { number: e.devis?.number ?? '' })}</Text>
                     </Pressable>
+                  ) : e.facture_id ? (
+                    <Pressable onPress={() => router.push(`/(app)/devis/factures/${e.facture_id}` as any)} style={styles.devisChip} hitSlop={6}>
+                      <Text style={styles.devisChipText}>{t('salesEmails.facture', { number: e.facture?.number ?? '' })}</Text>
+                    </Pressable>
                   ) : null}
                 </Pressable>
                 {expanded ? (

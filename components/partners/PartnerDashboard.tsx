@@ -280,12 +280,23 @@ function LevelCard({ summary, stats, wide }: { summary: PartnerSummary | null; s
       </View>
       <Text style={styles.small}>{next ? fill(app.level.progress, { count, target: to, level: app.level.names[next] }) : app.level.top}</Text>
       <Text style={styles.benefitsTitle}>{app.level.benefitsTitle}</Text>
-      {app.level.benefits[summary.level].map((b) => (
+      {LEVELS.slice(0, index + 1).flatMap((l) => app.level.benefits[l]).map((b) => (
         <View key={b} style={styles.benefit}>
           <Feather name="check" size={14} color={colors.success} />
           <Text style={styles.benefitText}>{b}</Text>
         </View>
       ))}
+      {next ? (
+        <>
+          <Text style={styles.benefitsTitle}>{fill(app.level.nextTitle, { level: app.level.names[next] })}</Text>
+          {app.level.benefits[next].map((b) => (
+            <View key={b} style={styles.benefit}>
+              <Feather name="lock" size={13} color={colors.textMuted} />
+              <Text style={[styles.benefitText, { color: colors.textMuted }]}>{b}</Text>
+            </View>
+          ))}
+        </>
+      ) : null}
     </View>
   );
 }
@@ -297,13 +308,17 @@ function Milestones({ summary, stats }: { summary: PartnerSummary | null; stats:
     { label: app.milestones.firstClick, done: (stats?.clicks ?? 0) > 0, icon: 'mouse-pointer' },
     { label: app.milestones.firstSignup, done: (stats?.signups ?? 0) > 0, icon: 'user-plus' },
     { label: app.milestones.firstPaying, done: paying >= 1 || (summary?.lifetime_chf ?? 0) > 0, icon: 'check-circle' },
-    { label: app.milestones.fivePaying, done: paying >= 5, icon: 'users' },
-    { label: app.milestones.tenPaying, done: paying >= 10, icon: 'star' },
-    { label: app.milestones.thousand, done: (summary?.lifetime_chf ?? 0) >= 1000, icon: 'award' },
+    { label: app.milestones.firstPayout, done: (summary?.paid_chf ?? 0) > 0, icon: 'credit-card' },
+    { label: fill(app.milestones.levelReached, { level: app.level.names.CONFIRMED }), done: paying >= LEVEL_THRESHOLDS.CONFIRMED, icon: 'shield' },
+    { label: fill(app.milestones.levelReached, { level: app.level.names.PREMIUM }), done: paying >= LEVEL_THRESHOLDS.PREMIUM, icon: 'award' },
   ];
+  const doneCount = items.filter((m) => m.done).length;
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>{app.milestones.title}</Text>
+      <View style={styles.cardHead}>
+        <Text style={styles.cardTitle}>{app.milestones.title}</Text>
+        <Text style={styles.small}>{doneCount} / {items.length}</Text>
+      </View>
       <View style={styles.milestones}>
         {items.map((m) => (
           <View key={m.label} style={[styles.milestone, m.done && styles.milestoneDone]}>

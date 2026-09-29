@@ -20,9 +20,11 @@ export interface SalesEmail {
   subject: string | null;
   snippet: string | null;
   devis_id: string | null;
+  facture_id: string | null;
   client_id: string | null;
   occurred_at: string;
   devis: { number: string | null; client_name: string | null } | null;
+  facture: { number: string | null } | null;
 }
 
 export function salesInboxAddress(token: string): string {
@@ -63,13 +65,17 @@ export async function regenerateSalesInbox(orgId: string): Promise<{ token: stri
 export async function listSalesEmails(orgId: string, options: { limit?: number; devisId?: string } = {}): Promise<SalesEmail[]> {
   let query = supabase
     .from('sales_emails')
-    .select('id, direction, from_email, counterpart_email, subject, snippet, devis_id, client_id, occurred_at, devis(number, client_name)')
+    .select('id, direction, from_email, counterpart_email, subject, snippet, devis_id, facture_id, client_id, occurred_at, devis(number, client_name), facture:factures(number)')
     .eq('organization_id', orgId)
     .order('occurred_at', { ascending: false })
     .limit(options.limit ?? 30);
   if (options.devisId) query = query.eq('devis_id', options.devisId);
   const { data } = await query;
-  return ((data ?? []) as unknown as SalesEmail[]).map((e) => ({ ...e, devis: Array.isArray(e.devis) ? e.devis[0] ?? null : e.devis }));
+  return ((data ?? []) as unknown as SalesEmail[]).map((e) => ({
+    ...e,
+    devis: Array.isArray(e.devis) ? e.devis[0] ?? null : e.devis,
+    facture: Array.isArray(e.facture) ? e.facture[0] ?? null : e.facture,
+  }));
 }
 
 export async function deleteSalesEmail(id: string): Promise<{ error: string | null }> {
