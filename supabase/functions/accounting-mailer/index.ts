@@ -16,6 +16,10 @@ type Payload = {
   token?: string;
   partner_code?: string | null;
   role?: string;
+  title?: string;
+  details?: string | null;
+  due_date?: string | null;
+  organization_id?: string;
 };
 type Mail = { subject: string; title: string; paragraphs: string[]; cta: string; url: string };
 
@@ -229,6 +233,57 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
           cta: 'Creare il mio account Cantia',
           url: newClientUrl(p),
         },
+      }[l];
+    }
+    case 'request_new':
+    case 'request_reminder': {
+      const title = esc(p.title);
+      const details = p.details ? esc(p.details).replace(/\n/g, '<br/>') : null;
+      const due = p.due_date ? p.due_date.split('-').reverse().join('.') : null;
+      const reminder = kind === 'request_reminder';
+      return {
+        fr: {
+          subject: reminder ? `Rappel : ${firm} attend « ${title} »` : `${firm} vous demande : ${title}`,
+          title: reminder ? 'Petit rappel de votre fiduciaire.' : 'Votre fiduciaire a besoin d’un document.',
+          paragraphs: [
+            `<strong>${title}</strong>${due ? ` · à fournir d’ici le ${due}` : ''}`,
+            ...(details ? [details] : []),
+            'Répondez depuis Cantia, dans Paramètres › Fiduciaire : ajoutez vos fichiers, ils arrivent directement chez votre fiduciaire. Pas besoin de les envoyer par e-mail.',
+          ],
+          cta: 'Répondre à la demande',
+          url: `${APP_URL}/compte/fiduciaire`,
+        },
+        de: {
+          subject: reminder ? `Erinnerung: ${firm} wartet auf «${title}»` : `${firm} bittet Sie um: ${title}`,
+          title: reminder ? 'Eine kurze Erinnerung Ihrer Treuhand.' : 'Ihre Treuhand benötigt ein Dokument.',
+          paragraphs: [
+            `<strong>${title}</strong>${due ? ` · bis ${due}` : ''}`,
+            ...(details ? [details] : []),
+            'Antworten Sie in Cantia unter Einstellungen › Treuhand: Fügen Sie Ihre Dateien hinzu, sie gehen direkt an Ihre Treuhand. Kein E-Mail-Versand nötig.',
+          ],
+          cta: 'Auf die Anfrage antworten',
+          url: `${APP_URL}/compte/fiduciaire`,
+        },
+        it: {
+          subject: reminder ? `Promemoria: ${firm} attende «${title}»` : `${firm} le chiede: ${title}`,
+          title: reminder ? 'Un breve promemoria del suo fiduciario.' : 'Il suo fiduciario ha bisogno di un documento.',
+          paragraphs: [
+            `<strong>${title}</strong>${due ? ` · entro il ${due}` : ''}`,
+            ...(details ? [details] : []),
+            'Risponda da Cantia, in Impostazioni › Fiduciario: aggiunga i suoi file, arrivano direttamente al suo fiduciario. Nessun invio per e-mail.',
+          ],
+          cta: 'Rispondere alla richiesta',
+          url: `${APP_URL}/compte/fiduciaire`,
+        },
+      }[l];
+    }
+    case 'request_answered': {
+      const title = esc(p.title);
+      const url = p.organization_id ? `${ACCOUNTING_URL}/mandant?id=${encodeURIComponent(p.organization_id)}&tab=requests` : `${ACCOUNTING_URL}/espace?tab=requests`;
+      return {
+        fr: { subject: `${org} a répondu : ${title}`, title: `${org} a répondu à votre demande.`, paragraphs: [`<strong>${title}</strong>`, 'Les fichiers et le message sont dans le dossier du mandant. Marquez la demande comme traitée une fois vérifiée.'], cta: 'Voir la réponse', url },
+        de: { subject: `${org} hat geantwortet: ${title}`, title: `${org} hat auf Ihre Anfrage geantwortet.`, paragraphs: [`<strong>${title}</strong>`, 'Dateien und Nachricht finden Sie im Dossier des Mandanten. Markieren Sie die Anfrage nach der Prüfung als erledigt.'], cta: 'Antwort ansehen', url },
+        it: { subject: `${org} ha risposto: ${title}`, title: `${org} ha risposto alla sua richiesta.`, paragraphs: [`<strong>${title}</strong>`, 'I file e il messaggio sono nel dossier del mandante. Segni la richiesta come evasa dopo la verifica.'], cta: 'Vedere la risposta', url },
       }[l];
     }
     default:
