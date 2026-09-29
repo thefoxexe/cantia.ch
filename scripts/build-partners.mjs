@@ -32,7 +32,7 @@ for (const entry of [
 // Netlify applies _redirects before netlify.toml, so these rules win over
 // the main site's ones (which don't apply to this site's files anyway).
 // Every route has its own prerendered HTML; anything else goes home.
-const routes = ['connexion', 'espace', 'de', 'it'];
+const routes = ['connexion', 'espace', 'admin', 'de', 'it'];
 const redirects = [
   ...routes.map((r) => `/${r}  /${r}.html  200`),
   '/*  /  302',
@@ -41,7 +41,7 @@ const redirects = [
 writeFileSync(path.join(outputDir, '_redirects'), redirects);
 writeFileSync(
   path.join(outputDir, 'robots.txt'),
-  'User-agent: *\nDisallow: /connexion\nDisallow: /espace\n\nSitemap: https://partners.cantia.ch/sitemap.xml\n',
+  'User-agent: *\nDisallow: /connexion\nDisallow: /espace\nDisallow: /admin\n\nSitemap: https://partners.cantia.ch/sitemap.xml\n',
 );
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync(

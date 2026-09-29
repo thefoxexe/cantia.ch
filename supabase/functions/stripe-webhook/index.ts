@@ -40,6 +40,110 @@ async function logOrgEvent(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Cantia Partners commissions (see 20260929150000_partners_commissions.sql).
+// All the rules (attribution, 12-month window, 25%, 30 days) live in the
+// database functions; this only extracts the Stripe facts. Best-effort: a
+// failure is logged and never fails the billing webhook itself.
+
+const STRIPE_API_VERSION = '2025-03-31.basil';
+
+// deno-lint-ignore no-explicit-any
+async function findOrganizationForInvoice(admin: ReturnType<typeof createClient>, invoice: any): Promise<string | null> {
+  const customer = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+  if (customer) {
+    const { data } = await admin.from('organizations').select('id').eq('stripe_customer_id', customer).limit(1).maybeSingle();
+    if (data?.id) return data.id;
+  }
+  const subscription =
+    (typeof invoice.subscription === 'string' ? invoice.subscription : null) ??
+    invoice.parent?.subscription_details?.subscription ??
+    null;
+  if (subscription) {
+    const { data } = await admin.from('organizations').select('id').eq('stripe_subscription_id', subscription).limit(1).maybeSingle();
+    if (data?.id) return data.id;
+  }
+  return invoice.parent?.subscription_details?.metadata?.organization_id ?? invoice.subscription_details?.metadata?.organization_id ?? null;
+}
+
+// Basil invoices no longer carry payment_intent: it comes from the
+// invoice's payments (needed to match a later refund or dispute).
+// deno-lint-ignore no-explicit-any
+async function paymentIntentForInvoice(stripeKey: string, invoice: any): Promise<string | null> {
+  if (typeof invoice.payment_intent === 'string') return invoice.payment_intent;
+  try {
+    const res = await fetch(`https://api.stripe.com/v1/invoice_payments?invoice=${encodeURIComponent(invoice.id)}&limit=3`, {
+      headers: { Authorization: `Bearer ${stripeKey}`, 'Stripe-Version': STRIPE_API_VERSION },
+    });
+    if (!res.ok) return null;
+    const body = await res.json();
+    // deno-lint-ignore no-explicit-any
+    const paid = (body.data ?? []).find((p: any) => p.status === 'paid') ?? body.data?.[0];
+    const pi = paid?.payment?.payment_intent;
+    return typeof pi === 'string' ? pi : pi?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// deno-lint-ignore no-explicit-any
+async function recordPartnerCommission(admin: ReturnType<typeof createClient>, stripeKey: string, invoice: any): Promise<void> {
+  try {
+    const paidCents = Number(invoice.amount_paid ?? 0);
+    if (paidCents <= 0) return;
+    const organizationId = await findOrganizationForInvoice(admin, invoice);
+    if (!organizationId) return;
+    // Quick exit for the (large) majority of organizations nobody referred.
+    const { data: attribution } = await admin.from('referral_attributions').select('organization_id').eq('organization_id', organizationId).maybeSingle();
+    if (!attribution) return;
+
+    // deno-lint-ignore no-explicit-any
+    const taxCents = Array.isArray(invoice.total_taxes) ? invoice.total_taxes.reduce((sum: number, t: any) => sum + Number(t.amount ?? 0), 0) : Number(invoice.tax ?? 0);
+    const netChf = Math.max(0, paidCents - taxCents) / 100;
+    const line = invoice.lines?.data?.[0];
+    const periodDays = line?.period ? (Number(line.period.end) - Number(line.period.start)) / 86400 : 0;
+    const billing = periodDays > 40 ? 'yearly' : 'monthly';
+    const paidAtSeconds = invoice.status_transitions?.paid_at ?? invoice.created;
+    const paymentIntent = await paymentIntentForInvoice(stripeKey, invoice);
+
+    const { data, error } = await admin.rpc('partners_record_payment', {
+      p_organization_id: organizationId,
+      p_invoice_id: invoice.id,
+      p_payment_intent: paymentIntent,
+      p_net_amount_chf: netChf,
+      p_paid_at: new Date(Number(paidAtSeconds) * 1000).toISOString(),
+      p_billing: billing,
+    });
+    if (error) console.error('partners_record_payment failed', error);
+    else console.log('partners commission', invoice.id, data);
+  } catch (err) {
+    console.error('recordPartnerCommission failed', err);
+  }
+}
+
+async function recordPartnerRefund(
+  admin: ReturnType<typeof createClient>,
+  paymentIntent: string | null,
+  eventId: string,
+  share: number,
+  reason: string,
+  reinstate = false,
+): Promise<void> {
+  if (!paymentIntent) return;
+  try {
+    const { error } = await admin.rpc('partners_record_refund', {
+      p_payment_intent: paymentIntent,
+      p_event_id: eventId,
+      p_share: share,
+      p_reason: reason,
+      p_reinstate: reinstate,
+    });
+    if (error) console.error('partners_record_refund failed', error);
+  } catch (err) {
+    console.error('recordPartnerRefund failed', err);
+  }
+}
+
 Deno.serve(async (req: Request) => {
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
@@ -215,6 +319,31 @@ Deno.serve(async (req: Request) => {
             }
           }
         }
+        break;
+      }
+      case 'invoice.paid': {
+        await recordPartnerCommission(admin, stripeKey, event.data.object);
+        break;
+      }
+      case 'charge.refunded': {
+        // deno-lint-ignore no-explicit-any
+        const charge = event.data.object as any;
+        const pi = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id ?? null;
+        // The refund this event is about (the newest), not the cumulative
+        // total, so a second partial refund doesn't cut twice.
+        const latest = charge.refunds?.data?.[0];
+        const refunded = latest?.amount != null ? Number(latest.amount) : Number(charge.amount_refunded);
+        const share = charge.amount ? refunded / Number(charge.amount) : 1;
+        await recordPartnerRefund(admin, pi, event.id, share, 'refund');
+        break;
+      }
+      case 'charge.dispute.created':
+      case 'charge.dispute.closed': {
+        // deno-lint-ignore no-explicit-any
+        const dispute = event.data.object as any;
+        const pi = typeof dispute.payment_intent === 'string' ? dispute.payment_intent : dispute.payment_intent?.id ?? null;
+        if (event.type === 'charge.dispute.created') await recordPartnerRefund(admin, pi, event.id, 1, 'dispute');
+        else if (dispute.status === 'won') await recordPartnerRefund(admin, pi, event.id, 0, 'dispute won', true);
         break;
       }
       default:

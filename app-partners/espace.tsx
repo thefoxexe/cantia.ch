@@ -4,40 +4,32 @@ import Head from 'expo-router/head';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button, Field } from '../components/ui';
-import { NavButton, PAGE_MAX, PartnersNav, PartnersPage, useIsWide } from '../components/partners/PartnersChrome';
-import { QrCode } from '../components/partners/QrCode';
-import QRCode from 'qrcode';
+import { NavButton, PAGE_MAX, PartnersNav, PartnersPage } from '../components/partners/PartnersChrome';
+import { PartnerDashboard } from '../components/partners/PartnerDashboard';
 import { usePartnersCopy } from '../lib/partners/locale';
 import { fill, PARTNER_TYPES, type PartnerType } from '../lib/partners/copy';
 import { usePartnerSession } from '../lib/partners/session';
-import {
-  becomePartner,
-  getMyPartnerProfile,
-  getMyPartnerReferrals,
-  getMyPartnerStats,
-  PARTNER_LINK_BASE,
-  setPayoutAccount,
-  type PartnerProfile,
-  type PartnerReferral,
-  type PartnerStats,
-} from '../lib/partners/api';
+import { amPartnersAdmin, becomePartner, getMyPartnerProfile, type PartnerProfile } from '../lib/partners/api';
+import { PARTNERS_APP_COPY } from '../lib/partners/appCopy';
 import { supabase } from '../lib/supabase';
 import { displayType, monoType } from '../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 export default function PartnerSpace() {
-  const { copy } = usePartnersCopy();
+  const { copy, locale } = usePartnersCopy();
   const router = useRouter();
   const session = usePartnerSession();
   const [loaded, setLoaded] = useState(false);
   const [profile, setProfile] = useState<PartnerProfile | null>(null);
   const [code, setCode] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const load = useCallback(async () => {
     const result = await getMyPartnerProfile();
     setProfile(result.profile);
     setCode(result.code);
     setLoaded(true);
+    setIsAdmin(await amPartnersAdmin());
   }, []);
 
   useEffect(() => {
@@ -56,9 +48,12 @@ export default function PartnerSpace() {
         <PartnersNav
           right={
             session ? (
-              <Pressable onPress={signOut} style={styles.signOut} accessibilityRole="button">
-                <Text style={styles.signOutText}>{copy.dashboard.signOut}</Text>
-              </Pressable>
+              <>
+                {isAdmin ? <NavButton href="/admin" label={PARTNERS_APP_COPY[locale].admin} /> : null}
+                <Pressable onPress={signOut} style={styles.signOut} accessibilityRole="button">
+                  <Text style={styles.signOutText}>{copy.dashboard.signOut}</Text>
+                </Pressable>
+              </>
             ) : null
           }
         />
@@ -71,7 +66,7 @@ export default function PartnerSpace() {
       {!session || !loaded ? (
         <Text style={styles.loading}>{copy.loading}</Text>
       ) : profile ? (
-        <Dashboard profile={profile} code={code} onProfileChanged={load} />
+        <PartnerDashboard profile={profile} code={code} email={session.user.email ?? null} />
       ) : (
         <Onboarding
           defaultFirst={(session.user.user_metadata?.first_name as string) ?? ((session.user.user_metadata?.full_name as string) ?? '').split(' ')[0] ?? ''}
@@ -149,237 +144,6 @@ function Onboarding({ defaultFirst, defaultLast, onDone }: { defaultFirst: strin
         <Button title={copy.onboarding.submit} onPress={submit} loading={busy} />
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </View>
-    </View>
-  );
-}
-
-function Dashboard({ profile, code, onProfileChanged }: { profile: PartnerProfile; code: string | null; onProfileChanged: () => void }) {
-  const { copy, locale } = usePartnersCopy();
-  const wide = useIsWide();
-  const [stats, setStats] = useState<PartnerStats | null>(null);
-  const [referrals, setReferrals] = useState<PartnerReferral[] | null>(null);
-  const [copied, setCopied] = useState(false);
-  const link = code ? `${PARTNER_LINK_BASE}${code}` : null;
-
-  useEffect(() => {
-    getMyPartnerStats().then(setStats);
-    getMyPartnerReferrals().then(setReferrals);
-  }, []);
-
-  async function copyLink() {
-    if (!link) return;
-    try {
-      if (Platform.OS === 'web') await navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard refused: the link stays selectable on screen.
-    }
-  }
-
-  const dateFmt = (iso: string) => new Date(iso).toLocaleDateString(`${locale}-CH`, { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const statItems: [string, number | undefined][] = [
-    [copy.dashboard.stats.clicks, stats?.clicks],
-    [copy.dashboard.stats.visitors, stats?.unique_visitors],
-    [copy.dashboard.stats.signups, stats?.signups],
-    [copy.dashboard.stats.trials, stats?.trials],
-    [copy.dashboard.stats.active, stats?.active_customers],
-  ];
-
-  return (
-    <View style={styles.section}>
-      <View style={styles.headRow}>
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text style={styles.h1} role="heading" aria-level={1}>
-            {fill(copy.dashboard.hello, { name: profile.first_name })}
-          </Text>
-          <Text style={styles.muted}>{fill(copy.dashboard.memberSince, { date: dateFmt(profile.created_at) })}</Text>
-        </View>
-        {profile.status === 'ACTIVE' ? (
-          <View style={styles.pill}>
-            <View style={styles.pillDot} />
-            <Text style={styles.pillText}>{copy.dashboard.active}</Text>
-          </View>
-        ) : null}
-      </View>
-
-      {profile.status !== 'ACTIVE' ? (
-        <View style={styles.alert}>
-          <Feather name="alert-triangle" size={16} color={colors.danger} />
-          <Text style={styles.alertText}>{copy.dashboard.suspended}</Text>
-        </View>
-      ) : null}
-
-      <View style={[styles.card, wide && styles.linkCardWide]}>
-        <View style={{ flex: 1, gap: spacing.md }}>
-          <Text style={styles.cardTitle}>{copy.dashboard.linkTitle}</Text>
-          <Text style={styles.muted}>{copy.dashboard.linkText}</Text>
-          {link ? (
-            <>
-              <View style={styles.linkBox}>
-                <Text style={styles.linkText} selectable>
-                  {link}
-                </Text>
-              </View>
-              <View style={styles.linkActions}>
-                <Button title={copied ? copy.dashboard.copied : copy.dashboard.copy} icon={copied ? 'check' : 'copy'} onPress={copyLink} />
-                <Text style={styles.codeText}>
-                  {copy.dashboard.code} <Text style={styles.codeValue}>{code}</Text>
-                </Text>
-              </View>
-            </>
-          ) : null}
-        </View>
-        {link ? (
-          <View style={styles.qr}>
-            <QrCode value={link} size={148} />
-            <Text style={styles.qrCaption}>{copy.dashboard.qr}</Text>
-          </View>
-        ) : null}
-      </View>
-
-      {link ? <ShareKit link={link} code={code ?? ''} /> : null}
-
-      <View style={styles.stats}>
-        {statItems.map(([label, value]) => (
-          <View key={label} style={styles.stat}>
-            <Text style={styles.statValue}>{value ?? '–'}</Text>
-            <Text style={styles.statLabel}>{label}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{copy.dashboard.commissions}</Text>
-        <View style={styles.stats}>
-          {[copy.dashboard.pending, copy.dashboard.available, copy.dashboard.paid].map((label) => (
-            <View key={label} style={styles.stat}>
-              <Text style={styles.statValue}>CHF 0.00</Text>
-              <Text style={styles.statLabel}>{label}</Text>
-            </View>
-          ))}
-        </View>
-        <Text style={styles.muted}>{copy.dashboard.commissionsSoon}</Text>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{copy.dashboard.referrals}</Text>
-        {referrals === null ? null : referrals.length === 0 ? (
-          <Text style={styles.muted}>{copy.dashboard.noReferrals}</Text>
-        ) : (
-          <View>
-            <View style={[styles.tr, styles.thRow]}>
-              <Text style={[styles.th, styles.cRef]}>{copy.dashboard.ref}</Text>
-              <Text style={[styles.th, styles.cDate]}>{copy.dashboard.since}</Text>
-              <Text style={[styles.th, styles.cPlan]}>{copy.dashboard.plan}</Text>
-              <Text style={[styles.th, styles.cStatus]}>{copy.dashboard.status}</Text>
-            </View>
-            {referrals.map((r) => (
-              <View key={r.public_ref} style={styles.tr}>
-                <Text style={[styles.td, styles.mono, styles.cRef]}>{r.public_ref}</Text>
-                <Text style={[styles.td, styles.cDate]}>{dateFmt(r.attributed_at)}</Text>
-                <Text style={[styles.td, styles.cPlan]}>{r.plan_name ?? '–'}</Text>
-                <Text style={[styles.td, styles.cStatus]}>{copy.dashboard.statuses[r.status] ?? r.status}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
-
-      <PayoutCard profile={profile} onSaved={onProfileChanged} />
-
-      <View style={styles.rulesLink}>
-        <NavButton href={locale === 'fr' ? '/' : `/${locale}`} label={copy.dashboard.rules} />
-      </View>
-    </View>
-  );
-}
-
-function ShareKit({ link, code }: { link: string; code: string }) {
-  const { copy } = usePartnersCopy();
-  const message = fill(copy.dashboard.share.message, { link });
-  const [copied, setCopied] = useState(false);
-
-  async function copyMessage() {
-    try {
-      await navigator.clipboard.writeText(message);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard refused: the message stays selectable on screen.
-    }
-  }
-
-  // A 1024 px PNG, for flyers, business cards or a sticker on the van.
-  async function downloadQr() {
-    if (Platform.OS !== 'web') return;
-    const url = await QRCode.toDataURL(link, { errorCorrectionLevel: 'M', width: 1024, margin: 2, color: { dark: '#231A12', light: '#FFFFFF' } });
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cantia-partners-${code}.png`;
-    a.click();
-  }
-
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{copy.dashboard.share.title}</Text>
-      <Text style={styles.muted}>{copy.dashboard.share.text}</Text>
-      <View style={styles.messageBox}>
-        <Text style={styles.messageText} selectable>
-          {message}
-        </Text>
-      </View>
-      <View style={styles.linkActions}>
-        <Button title={copied ? copy.dashboard.share.copied : copy.dashboard.share.copy} icon={copied ? 'check' : 'message-square'} variant="secondary" onPress={copyMessage} />
-        {Platform.OS === 'web' ? <Button title={copy.dashboard.share.downloadQr} icon="download" variant="secondary" onPress={downloadQr} /> : null}
-      </View>
-    </View>
-  );
-}
-
-function PayoutCard({ profile, onSaved }: { profile: PartnerProfile; onSaved: () => void }) {
-  const { copy } = usePartnersCopy();
-  const [editing, setEditing] = useState(!profile.iban_masked);
-  const [holder, setHolder] = useState(profile.payout_account_holder ?? `${profile.first_name} ${profile.last_name}`);
-  const [iban, setIban] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
-
-  async function save() {
-    if (!holder.trim() || !iban.trim()) return setMessage({ text: copy.auth.missing, error: true });
-    setBusy(true);
-    setMessage(null);
-    const { error } = await setPayoutAccount(holder, iban);
-    setBusy(false);
-    if (error) return setMessage({ text: error, error: true });
-    setIban('');
-    setEditing(false);
-    setMessage({ text: copy.dashboard.ibanSaved, error: false });
-    onSaved();
-  }
-
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{copy.dashboard.payout}</Text>
-      <Text style={styles.muted}>{profile.iban_masked ? copy.dashboard.payoutText : copy.dashboard.noIban}</Text>
-      {editing ? (
-        <>
-          <Field label={copy.dashboard.holder} value={holder} onChangeText={setHolder} />
-          <Field label={copy.dashboard.iban} value={iban} onChangeText={setIban} autoCapitalize="characters" placeholder="CH00 0000 0000 0000 0000 0" />
-          <View style={styles.linkActions}>
-            <Button title={copy.dashboard.saveIban} onPress={save} loading={busy} />
-          </View>
-        </>
-      ) : (
-        <View style={styles.linkActions}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.td}>{profile.payout_account_holder}</Text>
-            <Text style={[styles.td, styles.mono]}>{profile.iban_masked}</Text>
-          </View>
-          <Button title={copy.dashboard.changeIban} variant="secondary" onPress={() => setEditing(true)} />
-        </View>
-      )}
-      {message ? <Text style={message.error ? styles.error : styles.info}>{message.text}</Text> : null}
     </View>
   );
 }
