@@ -11,16 +11,16 @@ const ORIGIN = 'https://accounting.cantia.ch';
 
 const META = {
   fr: {
-    title: 'Cantia Fiduciaires · Tous vos clients Cantia, un seul espace',
-    description: 'Espace gratuit pour les fiduciaires : factures, paiements, écritures, TVA et justificatifs de vos clients du bâtiment qui utilisent Cantia, dans un seul cockpit.',
+    title: 'Cantia Fiduciaires · Portail gratuit pour fiduciaires en Suisse',
+    description: 'Logiciel gratuit pour fiduciaires : demandes de pièces aux mandants, échéances TVA, AVS et bouclement, factures, écritures et justificatifs de vos clients du bâtiment sur Cantia.',
   },
   de: {
-    title: 'Cantia Treuhand · Alle Cantia-Kunden in einem Bereich',
-    description: 'Kostenloser Bereich für Treuhänder: Rechnungen, Zahlungen, Buchungen, MWST und Belege Ihrer Baukunden, die Cantia nutzen, in einem Cockpit.',
+    title: 'Cantia Treuhand · Kostenloses Mandantenportal für Treuhänder',
+    description: 'Kostenlose Software für Treuhänder in der Schweiz: Belege bei Mandanten anfordern, MWST-, AHV- und Abschlussfristen, Rechnungen, Buchungen und Belege Ihrer Baukunden auf Cantia.',
   },
   it: {
-    title: 'Cantia Fiduciari · Tutti i clienti Cantia in un solo spazio',
-    description: 'Spazio gratuito per i fiduciari: fatture, pagamenti, registrazioni, IVA e giustificativi dei suoi clienti dell’edilizia che usano Cantia, in un unico cockpit.',
+    title: 'Cantia Fiduciari · Portale gratuito per fiduciari in Svizzera',
+    description: 'Software gratuito per fiduciari: richieste di documenti ai mandanti, scadenze IVA, AVS e chiusura, fatture, registrazioni e giustificativi dei suoi clienti edili su Cantia.',
   },
 };
 
@@ -31,7 +31,33 @@ const PREVIEW_ROWS = [
   { name: 'Métrailler Électricité', plan: 'Essentiel', open: 'CHF 860.00', overdue: 1, activity: '3 j' },
 ];
 
-const ICONS: (keyof typeof Feather.glyphMap)[] = ['refresh-cw', 'layers', 'download'];
+const ICONS: (keyof typeof Feather.glyphMap)[] = ['inbox', 'calendar', 'download'];
+
+// Search engines: the product (free business software for fiduciaries in
+// Switzerland), its publisher and the FAQ, in the page's language.
+function structuredData(locale: string, meta: { title: string; description: string }, faq: { q: string; a: string }[], url: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SoftwareApplication',
+        name: meta.title.split(' · ')[0],
+        url,
+        description: meta.description,
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        inLanguage: `${locale}-CH`,
+        areaServed: { '@type': 'Country', name: 'Switzerland' },
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'CHF' },
+        publisher: { '@type': 'Organization', name: 'Cantia', url: 'https://cantia.ch' },
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+      },
+    ],
+  };
+}
 
 export function AccountingLanding() {
   const { copy, locale } = useAccCopy();
@@ -54,6 +80,9 @@ export function AccountingLanding() {
         <meta property="og:description" content={meta.description} />
         <meta property="og:url" content={`${ORIGIN}${prefix || '/'}`} />
         <meta property="og:image" content={`${ORIGIN}/og-image.jpg`} />
+        <meta property="og:locale" content={`${locale}_CH`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify(structuredData(locale, meta, copy.faq.items, `${ORIGIN}${prefix || '/'}`))}</script>
       </Head>
 
       {/* Hero */}

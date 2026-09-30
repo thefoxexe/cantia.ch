@@ -153,6 +153,7 @@ interface Dict {
   };
   bexio: { eyebrow: string; title: string; text: string; link: string };
   fiduciary: { badge: string; title: string; text: string; link: string };
+  products: { eyebrow: string; title: string; items: { name: string; tag: string; text: string; cta: string }[] };
   docCustomization: {
     eyebrow: string;
     title: string;
@@ -216,6 +217,8 @@ interface Dict {
     statusLink: string;
     partnersLink: string;
     fiduciaryLink: string;
+    productsTitle: string;
+    productsApp: string;
     privacyLink: string;
     cgvLink: string;
     copyright: string;
@@ -530,6 +533,15 @@ const fr: Dict = {
     text: 'Donnez-lui un accès en lecture seule à vos factures, paiements et à votre comptabilité : plus besoin d’envoyer vos pièces par e-mail. Vous choisissez ce qu’elle voit. Pour les fiduciaires, c’est gratuit.',
     link: 'Espace fiduciaires',
   },
+  products: {
+    eyebrow: 'Produits',
+    title: 'Un écosystème pour tout le bâtiment.',
+    items: [
+      { name: 'Cantia', tag: 'Pour les entreprises', text: 'Devis, factures QR, chantiers, rapports, heures et salaires. Le logiciel de gestion des entreprises du bâtiment.', cta: 'Essayer gratuitement' },
+      { name: 'Cantia Fiduciaires', tag: 'Gratuit pour les fiduciaires', text: 'Toutes les données comptables de vos mandants, les demandes de pièces et les échéances TVA au même endroit.', cta: 'Découvrir l’espace' },
+      { name: 'Cantia Partners', tag: 'Programme partenaire', text: 'Recommandez Cantia et recevez 25 % des paiements de chaque entreprise amenée, pendant 12 mois.', cta: 'Devenir partenaire' },
+    ],
+  },
   docCustomization: {
     eyebrow: 'Vos documents, à votre image',
     title: 'Des devis et des factures à vos couleurs, avec le QR suisse',
@@ -644,6 +656,8 @@ const fr: Dict = {
     statusLink: 'Statut du service',
     partnersLink: 'Programme partenaire',
     fiduciaryLink: 'Pour les fiduciaires',
+    productsTitle: 'Produits',
+    productsApp: 'Cantia pour les entreprises',
     privacyLink: 'Confidentialité',
     cgvLink: 'Conditions générales',
     copyright: '© {year} Cantia. Conçu pour le bâtiment suisse.',
@@ -958,6 +972,15 @@ const de: Dict = {
     text: 'Geben Sie ihr Lesezugriff auf Rechnungen, Zahlungen und Buchhaltung: Belege per E-Mail schicken ist vorbei. Sie wählen, was sie sieht. Für Treuhänder kostenlos.',
     link: 'Bereich für Treuhänder',
   },
+  products: {
+    eyebrow: 'Produkte',
+    title: 'Ein Ökosystem für die ganze Baubranche.',
+    items: [
+      { name: 'Cantia', tag: 'Für Unternehmen', text: 'Offerten, QR-Rechnungen, Baustellen, Rapporte, Stunden und Löhne. Die Verwaltungssoftware für Bauunternehmen.', cta: 'Kostenlos testen' },
+      { name: 'Cantia Treuhand', tag: 'Kostenlos für Treuhänder', text: 'Alle Buchhaltungsdaten Ihrer Mandanten, Belegeanfragen und MWST-Fristen an einem Ort.', cta: 'Bereich entdecken' },
+      { name: 'Cantia Partners', tag: 'Partnerprogramm', text: 'Empfehlen Sie Cantia und erhalten Sie 25 % der Zahlungen jedes vermittelten Unternehmens während 12 Monaten.', cta: 'Partner werden' },
+    ],
+  },
   docCustomization: {
     eyebrow: 'Ihre Dokumente, in Ihrem Look',
     title: 'Offerten und Rechnungen in Ihren Farben, mit Schweizer QR',
@@ -1072,6 +1095,8 @@ const de: Dict = {
     statusLink: 'Systemstatus',
     partnersLink: 'Partnerprogramm',
     fiduciaryLink: 'Für Treuhänder',
+    productsTitle: 'Produkte',
+    productsApp: 'Cantia für Unternehmen',
     privacyLink: 'Datenschutz',
     cgvLink: 'AGB',
     copyright: '© {year} Cantia. Entwickelt für das Schweizer Baugewerbe.',
@@ -1386,6 +1411,15 @@ const it: Dict = {
     text: 'Gli dia un accesso in sola lettura a fatture, pagamenti e contabilità: niente più documenti inviati per e-mail. Sceglie lei cosa vede. Per i fiduciari è gratuito.',
     link: 'Spazio fiduciari',
   },
+  products: {
+    eyebrow: 'Prodotti',
+    title: 'Un ecosistema per tutta l’edilizia.',
+    items: [
+      { name: 'Cantia', tag: 'Per le imprese', text: 'Preventivi, fatture QR, cantieri, rapporti, ore e salari. Il software di gestione delle imprese edili.', cta: 'Provare gratis' },
+      { name: 'Cantia Fiduciari', tag: 'Gratuito per i fiduciari', text: 'Tutti i dati contabili dei suoi mandanti, le richieste di documenti e le scadenze IVA in un unico posto.', cta: 'Scoprire lo spazio' },
+      { name: 'Cantia Partners', tag: 'Programma partner', text: 'Raccomandi Cantia e riceva il 25 % dei pagamenti di ogni impresa presentata, per 12 mesi.', cta: 'Diventare partner' },
+    ],
+  },
   docCustomization: {
     eyebrow: 'I suoi documenti, a sua immagine',
     title: 'Preventivi e fatture nei suoi colori, con il QR svizzero',
@@ -1500,6 +1534,8 @@ const it: Dict = {
     statusLink: 'Stato del servizio',
     partnersLink: 'Programma partner',
     fiduciaryLink: 'Per i fiduciari',
+    productsTitle: 'Prodotti',
+    productsApp: 'Cantia per le imprese',
     privacyLink: 'Privacy',
     cgvLink: 'Condizioni generali',
     copyright: '© {year} Cantia. Pensato per l’edilizia svizzera.',

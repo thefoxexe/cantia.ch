@@ -34,9 +34,9 @@ const fr = {
   value: {
     title: 'Fini les factures envoyées par e-mail',
     items: [
-      { title: 'Des données à jour', text: 'Factures, paiements reçus, écritures, TVA et justificatifs de vos mandants, directement depuis leur Cantia. Plus de relances pour obtenir les pièces.' },
-      { title: 'Un cockpit, tous vos mandants', text: 'Passez d’un client à l’autre sans vous reconnecter. Factures en retard, documents récents et demandes en attente au même endroit.' },
-      { title: 'Exports prêts à l’emploi', text: 'Écritures en CSV, décompte TVA par code, feuille de travail TVA, bilan et compte de résultat. Bexio : état de la synchronisation visible.' },
+      { title: 'Demandes de pièces, sans relances', text: 'Demandez un relevé ou un justificatif en deux clics. Le mandant répond depuis son Cantia avec ses fichiers, vous êtes averti. Rappel en un clic si besoin.' },
+      { title: 'Échéances de chaque dossier', text: 'Décomptes TVA (effective ou TDFN), déclaration AVS, certificats de salaire, impôts, bouclement : calculés pour chaque mandant et suivis par toute l’équipe.' },
+      { title: 'Données à jour, exports prêts', text: 'Factures, paiements, écritures, TVA et justificatifs directement depuis Cantia. Écritures en CSV, TVA par code, bilan et compte de résultat.' },
     ],
   },
   trust: {
@@ -290,9 +290,9 @@ const de: AccCopy = {
   value: {
     title: 'Schluss mit Rechnungen per E-Mail',
     items: [
-      { title: 'Aktuelle Daten', text: 'Rechnungen, Zahlungseingänge, Buchungen, MWST und Belege Ihrer Mandanten direkt aus deren Cantia. Keine Nachfragen mehr nach Unterlagen.' },
-      { title: 'Ein Cockpit, alle Mandanten', text: 'Wechseln Sie ohne neue Anmeldung von Kunde zu Kunde. Überfällige Rechnungen, neue Dokumente und offene Anfragen an einem Ort.' },
-      { title: 'Exporte ohne Aufwand', text: 'Buchungen als CSV, MWST nach Code, MWST-Arbeitsblatt, Bilanz und Erfolgsrechnung. Bexio: Synchronisationsstatus sichtbar.' },
+      { title: 'Belege anfordern, ohne Nachfassen', text: 'Fordern Sie einen Auszug oder Beleg mit zwei Klicks an. Der Mandant antwortet in seinem Cantia mit seinen Dateien, Sie werden benachrichtigt. Erinnerung mit einem Klick.' },
+      { title: 'Fristen jedes Dossiers', text: 'MWST-Abrechnungen (effektiv oder Saldosteuersatz), AHV-Lohnmeldung, Lohnausweise, Steuern, Abschluss: für jeden Mandanten berechnet und vom ganzen Team verfolgt.' },
+      { title: 'Aktuelle Daten, fertige Exporte', text: 'Rechnungen, Zahlungen, Buchungen, MWST und Belege direkt aus Cantia. Buchungen als CSV, MWST nach Code, Bilanz und Erfolgsrechnung.' },
     ],
   },
   trust: {
@@ -536,9 +536,9 @@ const it: AccCopy = {
   value: {
     title: 'Basta fatture inviate per e-mail',
     items: [
-      { title: 'Dati aggiornati', text: 'Fatture, pagamenti ricevuti, registrazioni, IVA e giustificativi dei suoi mandanti, direttamente dal loro Cantia. Niente più solleciti per ottenere i documenti.' },
-      { title: 'Un cockpit, tutti i mandanti', text: 'Passi da un cliente all’altro senza riconnettersi. Fatture scadute, documenti recenti e richieste in attesa nello stesso posto.' },
-      { title: 'Esportazioni pronte', text: 'Registrazioni in CSV, IVA per codice, foglio di lavoro IVA, bilancio e conto economico. Bexio: stato della sincronizzazione visibile.' },
+      { title: 'Richieste di documenti, senza solleciti', text: 'Chieda un estratto o un giustificativo in due clic. Il mandante risponde dal suo Cantia con i suoi file e lei viene avvisato. Promemoria con un clic.' },
+      { title: 'Scadenze di ogni dossier', text: 'Rendiconti IVA (effettivo o aliquota saldo), dichiarazione AVS, certificati di salario, imposte, chiusura: calcolati per ogni mandante e seguiti da tutto il team.' },
+      { title: 'Dati aggiornati, esportazioni pronte', text: 'Fatture, pagamenti, registrazioni, IVA e giustificativi direttamente da Cantia. Registrazioni in CSV, IVA per codice, bilancio e conto economico.' },
     ],
   },
   trust: {

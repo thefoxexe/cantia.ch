@@ -114,6 +114,15 @@ Nouveau site Netlify sur le même dépôt et la même branche :
 - Nouveau client invité par une fiduciaire partenaire : accès `PENDING_CLIENT` à l'inscription, rattachement Partners,
   rien de visible avant accord, visible après, paiement de 79 CHF → commission 19.75 CHF.
 
+## Outils de travail (migration `20260930120000_fiduciary_workspace.sql`)
+
+- **Espace connecté** : barre latérale (Vue d’ensemble, Mandants, Demandes, Échéances, Documents, Équipe, Partenaire, Fiduciaire), une seule zone de défilement (`components/accounting/Shell.tsx`). Plus d’en-tête « sticky » flouté (zones noires et scroll bloqué sur Safari).
+- **Vue d’ensemble « À traiter »** : demandes d’accès, réponses de mandants à vérifier, échéances dépassées ou à moins de 14 jours, pièces en retard, factures en retard.
+- **Demandes de documents** : la fiduciaire demande une pièce (modèles fréquents, échéance facultative) ; le mandant reçoit un e-mail + une notification et répond dans l’app (Paramètres › Fiduciaire) avec ses fichiers et un message. Relance en un clic (une par jour), marquer traitée, rouvrir. Fichiers stockés dans `{org}/fiduciary-requests/{demande}/`, téléchargeables par la fiduciaire uniquement pour ces demandes.
+- **Échéances** calculées par mandant depuis son profil : TVA (effective trimestrielle/mensuelle/annuelle ou TDFN semestrielle, 60 jours après la période), déclaration AVS des salaires (30 janvier), certificats de salaire (31 janvier), déclaration d’impôt (date du canton), bouclement (6 mois après la fin d’exercice, ou avec l’impôt pour une raison individuelle). Statut À faire / En cours / Fait partagé par l’équipe.
+- **Dossier du mandant** : Aperçu (chiffres de l’année, CA des 12 derniers mois, points d’attention : factures en retard, écritures sans justificatif, brouillons, réponses à vérifier), Demandes, Échéances + profil, Notes internes (jamais visibles par le client), puis les onglets existants.
+- E-mails : `request_new`, `request_reminder` (au client), `request_answered` (à la fiduciaire).
+
 ## Prévu, pas encore construit
 
 Import CSV des mandants, annuaire public (`cantia.ch/fiduciaires`), limitation d'un collaborateur à certains mandants,

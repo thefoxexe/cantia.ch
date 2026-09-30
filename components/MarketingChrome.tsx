@@ -339,6 +339,18 @@ export function MarketingFooter({
           </Link>
         </View>
         <View style={styles.footerCol}>
+          <Text style={styles.footerColTitle}>{t.footer.productsTitle}</Text>
+          <Link href={authHref('signup')}>
+            <Text style={styles.footerLink}>{t.footer.productsApp}</Text>
+          </Link>
+          <Link href={`https://accounting.cantia.ch${localePrefix}` as any}>
+            <Text style={styles.footerLink}>{t.footer.fiduciaryLink}</Text>
+          </Link>
+          <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
+            <Text style={styles.footerLink}>{t.footer.partnersLink}</Text>
+          </Link>
+        </View>
+        <View style={styles.footerCol}>
           <Text style={styles.footerColTitle}>{t.footer.resourcesTitle}</Text>
           <Link href={aideHref as any}>
             <Text style={styles.footerLink}>{t.footer.resourcesHelp}</Text>
@@ -351,12 +363,6 @@ export function MarketingFooter({
           </Link>
           <Link href={contactHref as any}>
             <Text style={styles.footerLink}>{t.footer.resourcesContact}</Text>
-          </Link>
-          <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
-            <Text style={styles.footerLink}>{t.footer.partnersLink}</Text>
-          </Link>
-          <Link href={`https://accounting.cantia.ch${localePrefix}` as any}>
-            <Text style={styles.footerLink}>{t.footer.fiduciaryLink}</Text>
           </Link>
           <Link href={authHref('login')}>
             <Text style={styles.footerLink}>{t.footer.resourcesLogin}</Text>

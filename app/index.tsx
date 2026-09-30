@@ -348,21 +348,26 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
-        {/* ——— Fiduciaries (accounting.cantia.ch) ——— */}
-        <ScrollReveal style={styles.wrap}>
-          <View style={[styles.bexioRow, isMobile && styles.noteRowCompact]}>
-            <View style={styles.bexioIcon}>
-              <Image source={require('../assets/logo-mark.png')} style={styles.bexioLogo} resizeMode="contain" accessibilityLabel="Cantia" />
-              <Text style={styles.bexioIconArrow}>↔</Text>
-              <Text style={[styles.bexioWord, { fontSize: 17, letterSpacing: -0.4, color: colors.primary }]}>{t.fiduciary.badge}</Text>
-            </View>
-            <View style={{ flex: 1, gap: 6 }}>
-              <Text style={styles.columnTitle}>{t.fiduciary.title}</Text>
-              <Text style={styles.bodyText}>{t.fiduciary.text}</Text>
-            </View>
-            <Link href={`https://accounting.cantia.ch${localePrefix}` as any}>
-              <Text style={styles.textLink}>{t.fiduciary.link} →</Text>
-            </Link>
+        {/* ——— Products: the app, the fiduciary space, the partner program ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <SectionHead label={t.products.eyebrow} title={t.products.title} />
+          <View style={[styles.products, isTablet && styles.productsStacked]}>
+            {t.products.items.map((item, i) => {
+              const href = i === 0 ? authHref('signup') : i === 1 ? `https://accounting.cantia.ch${localePrefix}` : `https://partners.cantia.ch${localePrefix}`;
+              return (
+                <View key={item.name} style={[styles.productCard, i === 0 && styles.productCardMain]}>
+                  <View style={styles.productHead}>
+                    <Image source={require('../assets/logo-mark.png')} style={styles.productLogo} resizeMode="contain" accessibilityLabel="" />
+                    <Text style={styles.productName}>{item.name}</Text>
+                  </View>
+                  <Text style={styles.productTag}>{item.tag}</Text>
+                  <Text style={[styles.bodyText, { flexGrow: 1 }]}>{item.text}</Text>
+                  <Link href={href as any}>
+                    <Text style={styles.textLink}>{item.cta} →</Text>
+                  </Link>
+                </View>
+              );
+            })}
           </View>
         </ScrollReveal>
 
@@ -500,6 +505,14 @@ const styles = StyleSheet.create({
   terrainOuter: { backgroundColor: colors.primarySoft, paddingVertical: 88, marginTop: 112 },
   bandTitle: { ...displayType, fontSize: 44, fontWeight: '800', lineHeight: 44, color: ink, marginVertical: spacing.md },
 
+  products: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl, marginBottom: spacing.xxxl },
+  productsStacked: { flexDirection: 'column' },
+  productCard: { flex: 1, gap: spacing.sm, borderWidth: 1, borderColor: rule, borderRadius: 4, padding: spacing.xl, backgroundColor: '#FFFFFF' },
+  productCardMain: { borderColor: colors.primary, borderTopWidth: 3 },
+  productHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  productLogo: { width: 22, height: 22 },
+  productName: { fontFamily: landingFonts.display, fontSize: 22, fontWeight: '800', letterSpacing: -0.3, color: ink },
+  productTag: { fontFamily: landingFonts.mono, fontSize: 11, letterSpacing: 0.6, textTransform: 'uppercase', color: colors.primary },
   bexioRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, paddingVertical: spacing.xl, marginTop: 112, marginBottom: spacing.xxxl },
   bexioIcon: { flexDirection: 'row', alignItems: 'center', gap: 8, width: 160 },
   bexioLogo: { width: 26, height: 26 },

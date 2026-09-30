@@ -55,6 +55,28 @@ export function PartnersLanding() {
         <meta property="og:description" content={meta.description} />
         <meta property="og:url" content={`${ORIGIN}${prefix || '/'}`} />
         <meta property="og:image" content={`${ORIGIN}/og-image.jpg`} />
+        <meta property="og:locale" content={`${locale}_CH`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'WebPage',
+                name: meta.title,
+                description: meta.description,
+                url: `${ORIGIN}${prefix || '/'}`,
+                inLanguage: `${locale}-CH`,
+                isPartOf: { '@type': 'WebSite', name: 'Cantia', url: 'https://cantia.ch' },
+                about: { '@type': 'SoftwareApplication', name: 'Cantia', url: 'https://cantia.ch', applicationCategory: 'BusinessApplication', operatingSystem: 'Web, iOS, Android' },
+              },
+              {
+                '@type': 'FAQPage',
+                mainEntity: copy.rules.items.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+              },
+            ],
+          })}
+        </script>
       </Head>
 
       {/* Hero: full-bleed mountain */}
