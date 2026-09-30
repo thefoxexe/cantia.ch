@@ -1,4 +1,4 @@
-import { createElement, useState } from 'react';
+import { createElement, useEffect, useState } from 'react';
 import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import Head from 'expo-router/head';
@@ -17,14 +17,12 @@ import { trackLandingEvent } from '../lib/siteAnalytics';
 // cantia.ch/presentation: the page behind the "présentation en 37 secondes"
 // e-mail. Not in the menu, the sitemap or Google (noindex): people only land
 // here from the e-mail. One job: watch the video, then start the trial (or
-// call). Visits are logged with the page views (site_pageviews, path
+// write). Visits are logged with the page views (site_pageviews, path
 // /presentation + UTM); video plays and button clicks in landing_events.
 
 const PAGE = 'presentation';
 const VIDEO_ID = 'TsRzpiIl3BY';
 const COVER = '/presentation/cover.jpg';
-const PHONE_DISPLAY = '078 450 14 57';
-const PHONE_TEL = 'tel:+41784501457';
 const EMAIL = 'info@cantia.ch';
 
 // Only what Cantia really does today.
@@ -41,22 +39,22 @@ const PROOF = [
   { value: '14 jours', label: 'd’essai, aucun débit avant' },
   { value: 'Sans engagement', label: 'résiliable en ligne' },
   { value: '100 % suisse', label: 'QR-facture, TVA, données à Zurich' },
-  { value: 'FR · DE · IT', label: 'une vraie personne au bout du fil' },
+  { value: 'FR · DE · IT', label: 'une vraie personne pour vous répondre' },
 ];
 
-function SignupCta({ location, title = 'Essayer Cantia 14 jours', tone }: { location: string; title?: string; tone?: 'primary' | 'light' }) {
+function SignupCta({ location, title = 'Essayer Cantia 14 jours', tone, centered }: { location: string; title?: string; tone?: 'primary' | 'light'; centered?: boolean }) {
   return (
     <Link href={authHref('signup')} asChild onPress={() => trackLandingEvent(PAGE, 'cta_signup', location)}>
-      <CtaButton title={title} tone={tone} />
+      <CtaButton title={title} tone={tone} style={centered ? { alignSelf: 'center' } : undefined} />
     </Link>
   );
 }
 
-function CallLink({ location, light }: { location: string; light?: boolean }) {
+function MailLink({ location, light }: { location: string; light?: boolean }) {
   return (
-    <Link href={PHONE_TEL as any} onPress={() => trackLandingEvent(PAGE, 'cta_call', location)}>
-      <Text style={[styles.callText, light && { color: '#FBF6EE' }]}>
-        ou appelez-nous au <Text style={styles.callStrong}>{PHONE_DISPLAY}</Text>
+    <Link href={`mailto:${EMAIL}?subject=Pr%C3%A9sentation%20Cantia` as any} onPress={() => trackLandingEvent(PAGE, 'cta_email', location)}>
+      <Text style={[styles.mailText, light && { color: '#FBF6EE' }]}>
+        ou écrivez-nous à <Text style={styles.mailStrong}>{EMAIL}</Text>
       </Text>
     </Link>
   );
@@ -97,6 +95,12 @@ function Video() {
 export default function PresentationScreen() {
   const { width } = useWindowDimensions();
   const wide = width >= breakpoints.desktop;
+  // The page is pre-rendered at desktop width. On a phone, hydration keeps
+  // that markup when only styles differ (React does not patch attributes),
+  // so once running, the page is drawn again at the real width: the key
+  // below remounts it, footer included.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const pad = width < 600 ? 16 : 32;
 
   return (
@@ -108,41 +112,23 @@ export default function PresentationScreen() {
       <Head>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <ScrollView showsVerticalScrollIndicator={false} style={{ backgroundColor: colors.bg }}>
-        {/* Slim header: no menu to wander off into. */}
+      <ScrollView key={mounted ? 'client' : 'static'} showsVerticalScrollIndicator={false} style={{ backgroundColor: colors.bg }}>
+        {/* Logo only: nothing to wander off into. */}
         <View style={[styles.header, { paddingHorizontal: pad }]}>
           <Link href="/" accessibilityLabel="Cantia">
             <BrandLockup height={24} />
           </Link>
-          {wide ? <SignupCta location="header" title="Essayer gratuitement" /> : null}
         </View>
 
         <View style={[styles.wrap, { paddingHorizontal: pad }]}>
-          <View style={[styles.hero, wide && styles.heroWide]}>
-            <View style={[styles.heroText, wide && { flex: 0.9 }]}>
-              <Text style={styles.kicker}>PRÉSENTATION · 37 SECONDES</Text>
-              <Text style={[styles.title, { fontSize: wide ? 54 : width < 400 ? 34 : 40, lineHeight: wide ? 58 : width < 400 ? 38 : 44 }]}>
-                Gérez vos projets, pas votre <Text style={styles.strike}>administratif</Text>.
-              </Text>
-              <Text style={styles.lede}>
-                Cantia réunit devis, factures, chantiers, planning et salaires dans une seule app, pensée pour les entreprises suisses du bâtiment et des services.
-              </Text>
-              {wide ? (
-                <View style={styles.ctaBlock}>
-                  <SignupCta location="hero" />
-                  <CallLink location="hero" />
-                </View>
-              ) : null}
+          {/* The video is the hero (its own title says it all), then one
+              call to action. */}
+          <View style={styles.hero}>
+            <Video />
+            <View style={[styles.ctaRow, !wide && styles.ctaCol]}>
+              <SignupCta location="hero" centered />
+              <MailLink location="hero" />
             </View>
-            <View style={[styles.videoCol, wide && { flex: 1.1 }]}>
-              <Video />
-            </View>
-            {!wide ? (
-              <View style={styles.ctaBlock}>
-                <SignupCta location="hero" />
-                <CallLink location="hero" />
-              </View>
-            ) : null}
           </View>
 
           <View style={styles.proof}>
@@ -175,11 +161,8 @@ export default function PresentationScreen() {
             </Text>
             <View style={styles.ctaBlock}>
               <SignupCta location="closing" tone="light" title="Commencer mon essai" />
-              <CallLink location="closing" light />
+              <MailLink location="closing" light />
             </View>
-            <Link href={`mailto:${EMAIL}?subject=Pr%C3%A9sentation%20Cantia` as any} onPress={() => trackLandingEvent(PAGE, 'cta_email', 'closing')}>
-              <Text style={styles.mailLink}>Une question ? {EMAIL}</Text>
-            </Link>
           </View>
         </View>
 
@@ -192,18 +175,13 @@ export default function PresentationScreen() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 18, width: '100%', maxWidth: 1200, alignSelf: 'center' },
   wrap: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingBottom: 64 },
-  hero: { gap: 28, paddingTop: 16, paddingBottom: 40 },
-  heroWide: { flexDirection: 'row', alignItems: 'center', gap: 56, paddingTop: 40, paddingBottom: 56 },
-  heroText: { gap: 18 },
-  kicker: { ...monoType, fontSize: 12, letterSpacing: 1.4, color: colors.primary },
-  title: { ...displayType, color: ink, fontWeight: '800', letterSpacing: -1 } as any,
-  strike: { textDecorationLine: 'line-through', textDecorationColor: '#C33F32', color: ink } as any,
-  lede: { fontFamily: landingFonts.body, fontSize: 17, lineHeight: 26, color: bodyInk, maxWidth: 520 },
+  hero: { width: '100%', maxWidth: 1040, alignSelf: 'center', gap: 28, paddingTop: 8, paddingBottom: 56 },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 },
+  ctaCol: { flexDirection: 'column', gap: 12 },
   ctaBlock: { gap: 12, alignItems: 'flex-start' },
-  callText: { fontFamily: landingFonts.body, fontSize: 14.5, color: bodyInk },
-  callStrong: { fontWeight: '700', textDecorationLine: 'underline' },
-  videoCol: { width: '100%' },
-  video: { width: '100%', aspectRatio: 16 / 9, borderRadius: 10, overflow: 'hidden', backgroundColor: '#E9DFD0', borderWidth: 1, borderColor: rule, cursor: 'pointer' } as any,
+  mailText: { fontFamily: landingFonts.body, fontSize: 14.5, color: bodyInk },
+  mailStrong: { fontWeight: '700', textDecorationLine: 'underline' },
+  video: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12, shadowColor: '#2A1C10', shadowOpacity: 0.18, shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, overflow: 'hidden', backgroundColor: '#E9DFD0', borderWidth: 1, borderColor: rule, cursor: 'pointer' } as any,
   proof: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, marginBottom: 64 },
   proofItem: { paddingVertical: 20, paddingHorizontal: 16, gap: 4 },
   proofRule: { borderLeftWidth: 1, borderLeftColor: rule },
@@ -219,5 +197,4 @@ const styles = StyleSheet.create({
   closingInner: { width: '100%', maxWidth: 1200, alignSelf: 'center', gap: 18 },
   closingTitle: { ...displayType, color: '#FBF6EE', fontWeight: '800', letterSpacing: -0.5 } as any,
   closingText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 24, color: '#D9CDBD', maxWidth: 560 },
-  mailLink: { fontFamily: landingFonts.body, fontSize: 14, color: '#D9CDBD', textDecorationLine: 'underline', marginTop: 4 },
 });
