@@ -47,6 +47,19 @@
   status = 200
   force = true
 
+# Campaign landing page behind the "présentation en 37 secondes" e-mail
+# (app/presentation.tsx). Deliberately not in scripts/seo-routes.mjs: no
+# sitemap entry, and kept out of search engines.
+[[redirects]]
+  from = "/presentation"
+  to = "/presentation.html"
+  status = 200
+
+[[headers]]
+  for = "/presentation*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 [[headers]]
   for = "/version.json"
   [headers.values]

@@ -302,3 +302,29 @@ export function trackPageview(path: string): void {
       if (error) console.error('[analytics] pageview insert failed:', error.message);
     });
 }
+
+// Campaign landing pages (app/presentation.tsx): video played, which button
+// clicked. Same anonymous visitor id as the pageview, so a visit and its
+// action line up. Table public.landing_events (insert-only).
+export type LandingEventKind = 'video_play' | 'cta_signup' | 'cta_call' | 'cta_email';
+
+export function trackLandingEvent(page: string, kind: LandingEventKind, location?: string): void {
+  if (typeof window === 'undefined' || !isMarketingHost()) return;
+  const urlAttr = readUrlAttribution();
+  supabase
+    .from('landing_events')
+    .insert({
+      page,
+      kind,
+      location: location ?? null,
+      visitor_id: getVisitorId(),
+      utm_source: urlAttr?.utm_source ?? null,
+      utm_medium: urlAttr?.utm_medium ?? null,
+      utm_campaign: urlAttr?.utm_campaign ?? null,
+    })
+    .then(({ error }) => {
+      if (error) console.error('[analytics] landing event insert failed:', error.message);
+    });
+  const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+  gtag?.('event', kind, { event_category: page, event_label: location });
+}
