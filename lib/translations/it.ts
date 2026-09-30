@@ -88,6 +88,14 @@ export const it: TranslationDict = {
     countSuffix_other: '{{count}} preventivi',
   },
   emailHub: {
+    deliveryTitle: 'Risposte dei clienti',
+    deliveryLead: 'Quando un cliente risponde a un preventivo o a una fattura inviati da Cantia:',
+    delivery: { both: 'In Cantia e al suo indirizzo', app: 'Solo in Cantia', email: 'Solo al suo indirizzo' },
+    deliveryHint: {
+      both: 'Archiviata qui sul documento giusto e inoltrata al suo indirizzo e-mail come copia.',
+      app: 'Archiviata qui, senza copia via e-mail. Se la casella Cantia è disattivata, la risposta le viene comunque inoltrata.',
+      email: 'Il cliente risponde direttamente al suo indirizzo. Niente viene archiviato né seguito in Cantia.',
+    },
     markUnread: 'Segna come non letto',
     attachmentsLabel: 'Allegati',
     cc: 'Cc',

@@ -85,6 +85,14 @@ export const de: TranslationDict = {
     countSuffix_other: '{{count}} Offerten',
   },
   emailHub: {
+    deliveryTitle: 'Antworten Ihrer Kunden',
+    deliveryLead: 'Wenn ein Kunde auf eine aus Cantia gesendete Offerte oder Rechnung antwortet:',
+    delivery: { both: 'In Cantia und an Ihre Adresse', app: 'Nur in Cantia', email: 'Nur an Ihre Adresse' },
+    deliveryHint: {
+      both: 'Hier beim richtigen Dokument abgelegt und als Kopie an Ihre E-Mail-Adresse weitergeleitet.',
+      app: 'Hier abgelegt, ohne Kopie per E-Mail. Ist das Cantia-Postfach aus, wird die Antwort trotzdem weitergeleitet.',
+      email: 'Der Kunde antwortet direkt an Ihre Adresse. Nichts wird in Cantia abgelegt oder verfolgt.',
+    },
     markUnread: 'Als ungelesen markieren',
     attachmentsLabel: 'Anhänge',
     cc: 'Cc',

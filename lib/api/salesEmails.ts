@@ -6,10 +6,15 @@ import { supabase } from '../supabase';
 // supabase/functions/resend-webhook/inbound.ts).
 export const SALES_INBOX_DOMAIN = 'suivi.cantia.ch';
 
+// Where clients' replies to devis / factures go: the Cantia mailbox and a
+// copy to the company address, the mailbox only, or the company address only.
+export type ReplyDelivery = 'both' | 'app' | 'email';
+
 export interface SalesInboxSettings {
   enabled: boolean;
   inbox_token: string;
   reply_to_copy: boolean;
+  reply_delivery: ReplyDelivery;
 }
 
 export interface SalesEmail {
@@ -56,7 +61,7 @@ export function salesInboxAddress(token: string): string {
 export async function getSalesInboxSettings(orgId: string): Promise<SalesInboxSettings | null> {
   const { data, error } = await supabase
     .from('sales_email_settings')
-    .select('enabled, inbox_token, reply_to_copy')
+    .select('enabled, inbox_token, reply_to_copy, reply_delivery')
     .eq('organization_id', orgId)
     .maybeSingle();
   if (error) return null;
@@ -64,12 +69,12 @@ export async function getSalesInboxSettings(orgId: string): Promise<SalesInboxSe
   const { data: created } = await supabase
     .from('sales_email_settings')
     .insert({ organization_id: orgId })
-    .select('enabled, inbox_token, reply_to_copy')
+    .select('enabled, inbox_token, reply_to_copy, reply_delivery')
     .maybeSingle();
   return (created as SalesInboxSettings | null) ?? null;
 }
 
-export async function updateSalesInboxSettings(orgId: string, patch: Partial<Pick<SalesInboxSettings, 'enabled' | 'reply_to_copy'>>): Promise<{ error: string | null }> {
+export async function updateSalesInboxSettings(orgId: string, patch: Partial<Pick<SalesInboxSettings, 'enabled' | 'reply_to_copy' | 'reply_delivery'>>): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('sales_email_settings')
     .update({ ...patch, updated_at: new Date().toISOString() })

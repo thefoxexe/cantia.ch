@@ -84,7 +84,7 @@ export function SalesInboxCard({ orgId, orgEmail }: { orgId: string; orgEmail: s
           <Text style={styles.label}>{t('salesInbox.enable')}</Text>
           <Text style={styles.hint}>{t('salesInbox.enableHint')}</Text>
         </View>
-        <Switch value={settings.enabled && settings.reply_to_copy} onChange={(v) => patch({ enabled: v, reply_to_copy: v })} />
+        <Switch value={settings.enabled && settings.reply_to_copy} onChange={(v) => patch({ enabled: v, reply_to_copy: v, ...(v && settings.reply_delivery === 'email' ? { reply_delivery: 'both' as const } : {}) })} />
       </View>
 
       <View style={{ gap: spacing.sm }}>

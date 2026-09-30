@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { getSalesInboxSettings, salesInboxAddress, updateSalesInboxSettings, type SalesInboxSettings } from '../../lib/api/salesEmails';
+import { getSalesInboxSettings, salesInboxAddress, updateSalesInboxSettings, type ReplyDelivery, type SalesInboxSettings } from '../../lib/api/salesEmails';
 import { useTranslation } from '../../lib/translations';
 import { displayType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -82,8 +82,31 @@ export function MailboxSettings({ orgId, hasPlan, onBack }: { orgId: string; has
 
           <View style={styles.card}>
             <SettingRow label={t('emailHub.enabledLabel')} hint={t('emailHub.enabledHint')} value={settings.enabled} onChange={(v) => patch({ enabled: v })} />
-            <View style={styles.divider} />
-            <SettingRow label={t('emailHub.replyToLabel')} hint={t('emailHub.replyToHint')} value={settings.reply_to_copy} onChange={(v) => patch({ reply_to_copy: v })} disabled={!settings.enabled} />
+          </View>
+
+          <View style={[styles.card, !settings.enabled && { opacity: 0.5 }]}>
+            <Text style={styles.label}>{t('emailHub.deliveryTitle')}</Text>
+            <Text style={styles.hint}>{t('emailHub.deliveryLead')}</Text>
+            {(['both', 'app', 'email'] as ReplyDelivery[]).map((d) => {
+              const on = (settings.reply_delivery ?? 'both') === d;
+              return (
+                <Pressable
+                  key={d}
+                  disabled={!settings.enabled}
+                  onPress={() => patch({ reply_delivery: d, reply_to_copy: d !== 'email' })}
+                  style={[styles.option, on && styles.optionOn]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
+                >
+                  <View style={[styles.radio, on && styles.radioOn]}>{on ? <View style={styles.radioDot} /> : null}</View>
+                  <Feather name={d === 'both' ? 'copy' : d === 'app' ? 'inbox' : 'mail'} size={16} color={on ? colors.primaryDark : colors.textMuted} />
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={styles.settingLabel}>{t(`emailHub.delivery.${d}`)}</Text>
+                    <Text style={styles.hint}>{t(`emailHub.deliveryHint.${d}`)}</Text>
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -133,7 +156,11 @@ const styles = StyleSheet.create({
   setting: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   settingLabel: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   hint: { fontSize: 12.5, lineHeight: 18, color: colors.textMuted },
-  divider: { height: 1, backgroundColor: colors.border },
+  option: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: spacing.sm + 2 },
+  optionOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  radioOn: { borderColor: colors.primary },
+  radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
   error: { fontSize: fontSize.sm, color: colors.danger },
   how: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },
   howNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.primarySoft, color: colors.primaryDark, fontSize: 12, fontWeight: '800', textAlign: 'center', lineHeight: 22 },

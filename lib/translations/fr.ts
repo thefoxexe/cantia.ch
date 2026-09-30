@@ -66,6 +66,14 @@ export const fr = {
     countSuffix_other: '{{count}} devis',
   },
   emailHub: {
+    deliveryTitle: 'Réponses de vos clients',
+    deliveryLead: 'Quand un client répond à un devis ou une facture envoyé depuis Cantia :',
+    delivery: { both: 'Dans Cantia et sur votre adresse', app: 'Dans Cantia uniquement', email: 'Sur votre adresse uniquement' },
+    deliveryHint: {
+      both: 'Classée ici sur le bon document, et transférée à votre adresse e-mail pour garder le double.',
+      app: 'Classée ici, sans copie par e-mail. Si la boîte Cantia est coupée, la réponse vous est quand même transférée.',
+      email: 'Le client répond directement à votre adresse. Rien n’est classé dans Cantia ni suivi.',
+    },
     markUnread: 'Marquer comme non lu',
     attachmentsLabel: 'Pièces jointes',
     cc: 'Cc',

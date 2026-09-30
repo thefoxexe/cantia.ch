@@ -9,9 +9,10 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 // It is filed on the matching devis or facture when there is one.
 //
 // That Reply-To is the Cantia address alone, so every reply that does not
-// come from a member is first forwarded to the organization's own address
-// (forwardToOrganization), whoever sent it and whatever the plan: a client
-// reply must never be lost.
+// come from a member is also forwarded to the organization's own address
+// (forwardToOrganization), unless the organization chose "Dans Cantia
+// uniquement" (sales_email_settings.reply_delivery = 'app') and the mailbox
+// files it: a client reply must never be lost.
 
 const INBOUND_DOMAIN = (Deno.env.get('INBOUND_EMAIL_DOMAIN') ?? 'suivi.cantia.ch').toLowerCase();
 const SNIPPET_MAX = 800;
@@ -51,9 +52,12 @@ export async function handleInboundEmail(admin: Admin, data: Record<string, unkn
   let organizationId: string | null = null;
   let forwardError: unknown = null;
   if (tokens.length) {
-    const { data: settings } = await admin.from('sales_email_settings').select('organization_id, enabled').in('inbox_token', tokens).limit(1).maybeSingle();
+    const { data: settings } = await admin.from('sales_email_settings').select('organization_id, enabled, reply_delivery').in('inbox_token', tokens).limit(1).maybeSingle();
     const tokenOrgId = (settings?.organization_id as string | undefined) ?? null;
-    if (tokenOrgId && !(await memberOf(admin, tokenOrgId, from))) {
+    // "Dans Cantia uniquement": no copy to the company address, but only
+    // while the mailbox really files the e-mail - a reply is never lost.
+    const appOnly = !!tokenOrgId && settings?.reply_delivery === 'app' && !!settings?.enabled && (await admin.rpc('org_has_sales_tracking', { org_id: tokenOrgId })).data === true;
+    if (tokenOrgId && !appOnly && !(await memberOf(admin, tokenOrgId, from))) {
       try {
         await forwardToOrganization(admin, tokenOrgId, emailId, email, from, recipients);
       } catch (err) {
