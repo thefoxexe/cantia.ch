@@ -85,6 +85,8 @@ export const de: TranslationDict = {
     countSuffix_other: '{{count}} Offerten',
   },
   emailHub: {
+    advancedTitle: 'Für Fortgeschrittene',
+    advancedText: 'Für Kundenantworten brauchen Sie diese Adresse nicht: Das läuft automatisch. Sie dient nur dazu, auch Ihren eigenen E-Mail-Verkehr hier abzulegen.',
     deliveryTitle: 'Antworten Ihrer Kunden',
     deliveryLead: 'Wenn ein Kunde auf eine aus Cantia gesendete Offerte oder Rechnung antwortet:',
     delivery: { both: 'In Cantia und an Ihre Adresse', app: 'Nur in Cantia', email: 'Nur an Ihre Adresse' },
@@ -97,7 +99,7 @@ export const de: TranslationDict = {
     attachmentsLabel: 'Anhänge',
     cc: 'Cc',
     settings: 'Postfach-Einstellungen',
-    settingsLead: 'Alles, was an diese Adresse geht, erscheint in Ihrem Cantia-Posteingang, bei der richtigen Offerte oder Rechnung abgelegt.',
+    settingsLead: 'Antworten Ihrer Kunden auf Offerten und Rechnungen werden hier automatisch beim richtigen Dokument abgelegt. Sie müssen nichts tun.',
     addressLabel: 'Ihre Cantia-Adresse',
     copy: 'Kopieren',
     copied: 'Kopiert',

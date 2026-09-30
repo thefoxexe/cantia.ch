@@ -68,19 +68,6 @@ export function MailboxSettings({ orgId, hasPlan, onBack }: { orgId: string; has
         <>
           <Text style={styles.lead}>{t('emailHub.settingsLead')}</Text>
           <View style={styles.card}>
-            <Text style={styles.label}>{t('emailHub.addressLabel')}</Text>
-            <View style={styles.addressRow}>
-              <Text style={styles.address} selectable numberOfLines={1}>
-                {address}
-              </Text>
-              <Pressable onPress={copy} style={styles.copy} accessibilityRole="button">
-                <Feather name={copied ? 'check' : 'copy'} size={14} color={colors.text} />
-                <Text style={styles.copyText}>{copied ? t('emailHub.copied') : t('emailHub.copy')}</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.card}>
             <SettingRow label={t('emailHub.enabledLabel')} hint={t('emailHub.enabledHint')} value={settings.enabled} onChange={(v) => patch({ enabled: v })} />
           </View>
 
@@ -110,14 +97,25 @@ export function MailboxSettings({ orgId, hasPlan, onBack }: { orgId: string; has
           </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
+          {/* Not needed for replies (automatic): only for Cc / forwards. */}
           <View style={styles.card}>
-            <Text style={styles.label}>{t('emailHub.howTitle')}</Text>
-            {(['how1', 'how2', 'how3'] as const).map((k, i) => (
+            <Text style={styles.label}>{t('emailHub.advancedTitle')}</Text>
+            <Text style={styles.hint}>{t('emailHub.advancedText')}</Text>
+            {(['how2', 'how3'] as const).map((k) => (
               <View key={k} style={styles.how}>
-                <Text style={styles.howNum}>{i + 1}</Text>
+                <Feather name="corner-down-right" size={14} color={colors.textMuted} style={{ marginTop: 3 }} />
                 <Text style={styles.howText}>{t(`emailHub.${k}`)}</Text>
               </View>
             ))}
+            <View style={styles.addressRow}>
+              <Text style={styles.address} selectable numberOfLines={1}>
+                {address}
+              </Text>
+              <Pressable onPress={copy} style={styles.copy} accessibilityRole="button">
+                <Feather name={copied ? 'check' : 'copy'} size={14} color={colors.text} />
+                <Text style={styles.copyText}>{copied ? t('emailHub.copied') : t('emailHub.copy')}</Text>
+              </Pressable>
+            </View>
           </View>
 
           <View style={[styles.card, styles.soon]}>
@@ -150,7 +148,7 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm, backgroundColor: colors.surface },
   label: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color: colors.textMuted },
   addressRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  address: { flex: 1, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  address: { flex: 1, fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   copy: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 10, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border },
   copyText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
   setting: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

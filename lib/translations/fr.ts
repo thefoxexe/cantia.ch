@@ -66,6 +66,8 @@ export const fr = {
     countSuffix_other: '{{count}} devis',
   },
   emailHub: {
+    advancedTitle: 'Pour aller plus loin',
+    advancedText: 'Pas besoin de cette adresse pour les réponses de vos clients : c’est automatique. Elle sert seulement si vous voulez aussi classer ici vos propres échanges.',
     deliveryTitle: 'Réponses de vos clients',
     deliveryLead: 'Quand un client répond à un devis ou une facture envoyé depuis Cantia :',
     delivery: { both: 'Dans Cantia et sur votre adresse', app: 'Dans Cantia uniquement', email: 'Sur votre adresse uniquement' },
@@ -78,7 +80,7 @@ export const fr = {
     attachmentsLabel: 'Pièces jointes',
     cc: 'Cc',
     settings: 'Réglages de la boîte',
-    settingsLead: 'Tout ce qui arrive sur cette adresse apparaît dans votre boîte de réception Cantia, classé sur le bon devis ou la bonne facture.',
+    settingsLead: 'Les réponses de vos clients à vos devis et factures sont classées ici automatiquement, sur le bon document. Vous n’avez rien à faire.',
     addressLabel: 'Votre adresse Cantia',
     copy: 'Copier',
     copied: 'Copiée',

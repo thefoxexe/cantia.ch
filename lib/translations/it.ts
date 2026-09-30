@@ -88,6 +88,8 @@ export const it: TranslationDict = {
     countSuffix_other: '{{count}} preventivi',
   },
   emailHub: {
+    advancedTitle: 'Per andare oltre',
+    advancedText: 'Per le risposte dei clienti questo indirizzo non serve: è automatico. Serve solo se vuole archiviare qui anche i suoi scambi.',
     deliveryTitle: 'Risposte dei clienti',
     deliveryLead: 'Quando un cliente risponde a un preventivo o a una fattura inviati da Cantia:',
     delivery: { both: 'In Cantia e al suo indirizzo', app: 'Solo in Cantia', email: 'Solo al suo indirizzo' },
@@ -100,7 +102,7 @@ export const it: TranslationDict = {
     attachmentsLabel: 'Allegati',
     cc: 'Cc',
     settings: 'Impostazioni casella',
-    settingsLead: 'Tutto ciò che arriva a questo indirizzo compare nella sua posta in arrivo Cantia, archiviato sul preventivo o sulla fattura giusta.',
+    settingsLead: 'Le risposte dei clienti a preventivi e fatture vengono archiviate qui automaticamente, sul documento giusto. Non deve fare nulla.',
     addressLabel: 'Il suo indirizzo Cantia',
     copy: 'Copia',
     copied: 'Copiato',
