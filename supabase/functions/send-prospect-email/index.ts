@@ -40,7 +40,7 @@ function buildEmail(entreprise?: string): { subject: string; html: string } {
 
   const html = `
 <div style="font-family:${font}; font-size:15px; line-height:1.6; color:${text}; max-width:560px;">
-  <p style="margin:0 0 6px;"><img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-v2.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" /></p>
+  <div style="display:inline-block;background:#16120E;border-radius:10px;padding:12px 16px;margin:0 0 10px;" bgcolor="#16120E"><img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-on-dark-v1.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" /></div>
   <p style="margin:0 0 24px; font-size:12px; color:${textMuted}; text-transform:uppercase; letter-spacing:0.7px;">Devis, factures &amp; chantiers pour le bâtiment suisse</p>
 
   <p style="margin:0 0 16px;">Bonjour,</p>

@@ -60,8 +60,8 @@ function buildBrandedEmailShell(bodyHtml: string, locale: Locale): string {
   return `
     <div style="background: #F7F1E6; padding: 40px 20px; font-family: ${font};">
       <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6D8C2; overflow: hidden;">
-        <div style="padding: 28px 32px 20px; border-bottom: 1px solid #E6D8C2;">
-          <img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-v2.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" />
+        <div style="padding: 24px 32px; background: #16120E;" bgcolor="#16120E">
+          <img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-on-dark-v1.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" />
         </div>
         <div style="padding: 32px;">
           ${bodyHtml}

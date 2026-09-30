@@ -294,12 +294,14 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
 function render(m: Mail, l: Locale): string {
   return `
   <div style="background:#F7F1E6;padding:32px 16px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
-    <div style="max-width:560px;margin:0 auto;background:#FFFFFF;border:1px solid #E7DCCB;border-radius:14px;padding:32px">
-      <p style="margin:0 0 22px;"><img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-v2.png" width="170" height="32" alt="Cantia" style="display:inline-block;vertical-align:middle;border:0;height:32px;width:170px" /><span style="display:inline-block;vertical-align:middle;margin-left:10px;font-size:12px;font-weight:700;letter-spacing:2.4px;color:#A95C30">&mdash;&nbsp;ACCOUNTING</span></p>
+    <div style="max-width:560px;margin:0 auto;background:#FFFFFF;border:1px solid #E7DCCB;border-radius:14px;overflow:hidden">
+      <div style="background:#16120E;padding:22px 32px" bgcolor="#16120E"><img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-on-dark-v1.png" width="170" height="32" alt="Cantia" style="display:inline-block;vertical-align:middle;border:0;height:32px;width:170px" /><span style="display:inline-block;vertical-align:middle;margin-left:10px;font-size:12px;font-weight:700;letter-spacing:2.4px;color:#D9895A">&mdash;&nbsp;ACCOUNTING</span></div>
+      <div style="padding:32px">
       <p style="margin:0 0 16px;font-size:22px;line-height:1.3;font-weight:800;color:#231A12">${m.title}</p>
       ${m.paragraphs.map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#3D3126">${p}</p>`).join('')}
       <p style="margin:24px 0 8px"><a href="${m.url}" style="display:inline-block;background:#A95C30;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;padding:12px 20px;border-radius:10px">${m.cta}</a></p>
       <p style="margin:12px 0 0;font-size:12px;color:#8A7B6C;word-break:break-all">${m.url}</p>
+      </div>
     </div>
     <p style="max-width:560px;margin:16px auto 0;font-size:12px;color:#8A7B6C;text-align:center">${FOOTER[l]}</p>
   </div>`;
