@@ -4,7 +4,7 @@
 # -> scripts/build-accounting.mjs). Each has its own route root and its own
 # _redirects, which Netlify reads before the rules below.
 [build]
-  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs; fi"
+  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs && node scripts/write-version.mjs; fi"
   publish = "dist"
 
 [build.environment]
@@ -24,6 +24,34 @@
 # generated — do not hand-edit it, run
 # `node scripts/generate-netlify-redirects.mjs` after adding a route to
 # scripts/seo-routes.mjs instead.
+
+# Health endpoints for Better Stack (docs/health-monitoring.md): proxied to
+# the Supabase "health" function, so monitors use a stable Cantia URL
+# (https://app.cantia.ch/api/health, /api/health/live, /api/health/ready).
+# Status codes (200 / 503) and bodies pass through unchanged.
+[[redirects]]
+  from = "/api/health/live"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/health/live"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/health/ready"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/health/ready"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/health"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/health"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "no-store"
+    Access-Control-Allow-Origin = "*"
 
 # app.cantia.ch shares this export, but its "/" is the signed-in app's entry
 # (it redirects to the dashboard or the login screen), never the marketing
