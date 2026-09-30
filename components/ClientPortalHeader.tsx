@@ -4,6 +4,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { portalFonts } from '../lib/clientPortalTheme';
 import { AVAILABLE_LOCALES, AppLocale, getAppLocale, setClientPortalLocale, useTranslation } from '../lib/translations';
 import { SwissCross } from './SwissCross';
+import { Wordmark } from '../components/brand/Logo';
 
 // Session-only override of the org's default document locale (see
 // setClientPortalLocale) — the recipient of a devis/facture link can read it
@@ -42,8 +43,7 @@ export function ClientPortalHeader({ onMenuPress }: { onMenuPress?: () => void }
   return (
     <View style={styles.row}>
       <View style={styles.brand}>
-        <Image source={require('../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.brandText}>Cantia</Text>
+        <Wordmark height={15} />
       </View>
       <View style={styles.right}>
         <LanguageSwitcher />

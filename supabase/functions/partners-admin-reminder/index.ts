@@ -28,7 +28,7 @@ Deno.serve(async (req: Request) => {
     <div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#231A12;max-width:560px">
       <p style="margin:0 0 12px;font-weight:700">Versements Cantia Partners du ${d.payout_day} du mois</p>
       ${lines.map((l) => `<p style="margin:0 0 6px">${l}</p>`).join('')}
-      <p style="margin:20px 0 0"><a href="https://partners.cantia.ch/admin" style="color:#BC5A31;font-weight:700">Ouvrir l’administration partenaires</a></p>
+      <p style="margin:20px 0 0"><a href="https://app.cantia.ch/partners" style="color:#A95C30;font-weight:700">Ouvrir l’administration partenaires</a></p>
     </div>`;
 
   const res = await fetch('https://api.resend.com/emails', {

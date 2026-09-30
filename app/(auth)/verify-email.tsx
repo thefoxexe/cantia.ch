@@ -6,6 +6,7 @@ import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { displayType } from '../../lib/marketingTheme';
+import { BrandLogo } from '../../components/brand/Logo';
 
 // Reached two ways: signup.tsx routes here when signUp() comes back with
 // needsVerification (Supabase's "Confirm email" is on), and login.tsx
@@ -63,8 +64,7 @@ export default function VerifyEmailScreen() {
     <Screen background="mountain">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Cantia</Text>
+          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={styles.subtitle}>{t('authVerifyEmail.subtitle')}</Text>
           <Text style={styles.hint}>
             {email ? t('authVerifyEmail.hintWithEmail', { email }) : t('authVerifyEmail.hintNoEmail')}

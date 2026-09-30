@@ -6,6 +6,7 @@ import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { displayType } from '../../lib/marketingTheme';
+import { BrandLogo } from '../../components/brand/Logo';
 
 // Only reachable via the "mot de passe oublié" e-mail link — the root
 // layout force-redirects here for as long as isPasswordRecovery is true
@@ -44,8 +45,7 @@ export default function UpdatePasswordScreen() {
     <Screen background="mountain">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Cantia</Text>
+          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={styles.subtitle}>{t('authUpdatePassword.subtitle')}</Text>
 
           <Field

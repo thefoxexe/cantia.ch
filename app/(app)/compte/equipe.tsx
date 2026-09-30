@@ -42,7 +42,7 @@ const NO_ROLE_PILL = { bg: colors.surfaceAlt, fg: colors.textMuted };
 // tokens (terracotta/clay/olive/slate) rather than saturated Discord-style
 // primaries — enough hues to tell roles apart at a glance without any of
 // them reading as louder than the product's own accent color.
-const ROLE_COLORS = ['#BC5A31', '#2E6B4F', '#3F5D7D', '#9C6510', '#7C3B21', '#6B4E8E', '#5C7A5C', '#AB3327'];
+const ROLE_COLORS = ['#A95C30', '#2E6B4F', '#3F5D7D', '#9C6510', '#7C3B21', '#6B4E8E', '#5C7A5C', '#AB3327'];
 
 type IconName = keyof typeof Feather.glyphMap;
 

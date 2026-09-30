@@ -11,15 +11,15 @@ const ORIGIN = 'https://accounting.cantia.ch';
 
 const META = {
   fr: {
-    title: 'Cantia Fiduciaires · Portail gratuit pour fiduciaires en Suisse',
+    title: 'Cantia Accounting · Portail gratuit pour fiduciaires en Suisse',
     description: 'Logiciel gratuit pour fiduciaires : demandes de pièces aux mandants, échéances TVA, AVS et bouclement, factures, écritures et justificatifs de vos clients du bâtiment sur Cantia.',
   },
   de: {
-    title: 'Cantia Treuhand · Kostenloses Mandantenportal für Treuhänder',
+    title: 'Cantia Accounting · Kostenloses Mandantenportal für Treuhänder',
     description: 'Kostenlose Software für Treuhänder in der Schweiz: Belege bei Mandanten anfordern, MWST-, AHV- und Abschlussfristen, Rechnungen, Buchungen und Belege Ihrer Baukunden auf Cantia.',
   },
   it: {
-    title: 'Cantia Fiduciari · Portale gratuito per fiduciari in Svizzera',
+    title: 'Cantia Accounting · Portale gratuito per fiduciari in Svizzera',
     description: 'Software gratuito per fiduciari: richieste di documenti ai mandanti, scadenze IVA, AVS e chiusura, fatture, registrazioni e giustificativi dei suoi clienti edili su Cantia.',
   },
 };

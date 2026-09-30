@@ -14,7 +14,7 @@ const BACKGROUND_MODULE = require('../assets/marketing/Cantia_Fond_Miniature_4K_
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
-const PRIMARY = '#BC5A31';
+const PRIMARY = '#A95C30';
 const TEXT = '#231A12';
 
 const FONT_FAMILY = '"Helvetica Neue", Arial, sans-serif';

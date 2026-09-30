@@ -8,6 +8,7 @@ import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { AdminDataProvider, useAdminData } from '../../lib/adminDataContext';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
+import { Wordmark } from '../../components/brand/Logo';
 
 // Grouped by what you come to do. "Comptes" (individual users) is not a
 // top-level destination: a member is reached from its company's page. The
@@ -114,8 +115,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
       <View style={styles.desktopRoot}>
         <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
           <View style={styles.brandRow}>
-            <Image source={require('../../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" />
-            <Text style={styles.brandText}>Cantia</Text>
+            <Wordmark height={16} />
           </View>
           <View style={styles.badge}>
             <Feather name="shield" size={10} color="#fff" />
@@ -159,8 +159,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
   return (
     <View style={styles.mobileRoot}>
       <View style={[styles.mobileTopBar, { paddingTop: insets.top + spacing.sm }]}>
-        <Image source={require('../../assets/logo-mark.png')} style={styles.mobileBrandLogo} resizeMode="contain" />
-        <Text style={styles.brandText}>Cantia</Text>
+        <Wordmark height={14} />
         <View style={[styles.badge, styles.badgeInline]}>
           <Feather name="shield" size={10} color="#fff" />
           <Text style={styles.badgeText}>SUPER ADMIN</Text>

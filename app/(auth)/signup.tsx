@@ -12,6 +12,7 @@ import { siteHomeHref } from '../../lib/appHost';
 import { displayType } from '../../lib/marketingTheme';
 import { getStoredFiduciaryInvite } from '../../lib/siteAnalytics';
 import { supabase } from '../../lib/supabase';
+import { BrandLogo } from '../../components/brand/Logo';
 
 export default function SignupScreen() {
   const { t } = useTranslation();
@@ -64,8 +65,7 @@ export default function SignupScreen() {
     return (
       <Screen background="mountain">
         <View style={styles.container}>
-          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Cantia</Text>
+          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>{t('authSignup.accountCreated')}</Text>
           <Button title={t('authSignup.continueBtn')} onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
         </View>
@@ -78,8 +78,7 @@ export default function SignupScreen() {
       <BackToSiteButton href={siteHomeHref()} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Cantia</Text>
+          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={styles.subtitle}>{t('authSignup.subtitle')}</Text>
           {invitedBy ? (
             <View style={styles.invited}>

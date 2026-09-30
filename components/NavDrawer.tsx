@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { Wordmark } from '../components/brand/Logo';
 
 export type IconName = keyof typeof Feather.glyphMap;
 
@@ -36,8 +37,7 @@ export function NavDrawer({
       <View style={styles.backdrop}>
         <View style={[styles.panel, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
           <View style={styles.brand}>
-            <Image source={require('../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.brandText}>Cantia</Text>
+            <Wordmark height={16} />
           </View>
           <ScrollView style={styles.navScroll} contentContainerStyle={styles.nav} showsVerticalScrollIndicator={false}>
             {sections.map((section, i) => (

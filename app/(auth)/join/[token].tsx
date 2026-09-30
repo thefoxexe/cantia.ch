@@ -10,6 +10,7 @@ import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
 import { displayType } from '../../../lib/marketingTheme';
+import { BrandLogo } from '../../../components/brand/Logo';
 
 export default function JoinScreen() {
   const { t } = useTranslation();
@@ -85,7 +86,7 @@ export default function JoinScreen() {
       <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
-            <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
+            <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
             <Text style={styles.title}>{t('authJoinToken.invalidTitle')}</Text>
             <Text style={styles.subtitle}>
               {t('authJoinToken.invalidText')}
@@ -102,7 +103,7 @@ export default function JoinScreen() {
       <Screen background="mountain">
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
-            <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
+            <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
             <Text style={styles.title}>{t('authJoinToken.invitedTitle')}</Text>
             <Text style={styles.orgName}>{orgName}</Text>
             <Text style={styles.subtitle}>{t('authJoinToken.createAccountToJoin')}</Text>
@@ -197,7 +198,7 @@ export default function JoinScreen() {
     <Screen background="mountain">
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
-          <Image source={require('../../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
+          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={styles.title}>{t('authJoinToken.joinTitle')}</Text>
           <Text style={styles.orgName}>{orgName}</Text>
           <Text style={styles.subtitle}>{t('authJoinToken.joinSubtitle')}</Text>

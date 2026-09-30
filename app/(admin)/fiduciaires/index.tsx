@@ -6,7 +6,7 @@ import { accAdmin, formatChf, formatDate } from '../../../lib/accounting/api';
 import { displayType } from '../../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
-// Super Admin › Fiduciaires: administration of Cantia Fiduciaires (moved
+// Super Admin › Fiduciaires: administration of Cantia Accounting (moved
 // here from accounting.cantia.ch, one admin for everything). accounting.admin
 // permission, checked
 // by every database function; this screen only decides what to show).
@@ -52,7 +52,7 @@ export default function AdminFiduciaires() {
         ) : (
           <>
             <Text style={styles.eyebrow}>Écosystème</Text>
-            <Text style={styles.h1}>Cantia Fiduciaires</Text>
+            <Text style={styles.h1}>Cantia Accounting</Text>
             {overview ? (
               <View style={styles.kpis}>
                 <Kpi label="Fiduciaires" value={String(overview.firms)} hint={`${overview.firms_new_30d} en 30 jours`} />

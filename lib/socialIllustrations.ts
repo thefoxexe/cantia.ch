@@ -10,7 +10,7 @@
 
 const INK = '#231A12';
 const MUTED = '#6E6153';
-const PRIMARY = '#BC5A31';
+const PRIMARY = '#A95C30';
 const PRIMARY_DARK = '#7C3B21';
 const PRIMARY_SOFT = '#F5DECB';
 const ACCENT = '#D97B41';

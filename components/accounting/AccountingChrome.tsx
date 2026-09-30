@@ -7,6 +7,7 @@ import { useAccCopy } from '../../lib/accounting/locale';
 import { ACC_LOCALES, type AccLocale } from '../../lib/accounting/copy';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { Wordmark } from '../../components/brand/Logo';
 
 // Frame of accounting.cantia.ch: same brand family as Cantia and Partners,
 // with the localized name of the space (Fiduciaires / Treuhand / Fiduciari).
@@ -17,9 +18,7 @@ export function AccWordmark() {
   return (
     <Link href="/" asChild>
       <Pressable style={styles.wordmark} accessibilityLabel={copy.brand}>
-        <Image source={require('../../assets/logo-mark.png')} style={styles.logoMark} resizeMode="contain" />
-        <Text style={styles.wordmarkMain}>Cantia</Text>
-        <Text style={styles.wordmarkSub}>{copy.brandShort}</Text>
+        <Wordmark height={18} product="Accounting" />
       </Pressable>
     </Link>
   );

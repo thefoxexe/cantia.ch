@@ -9,6 +9,7 @@ import { PricingSection } from '../components/PricingSection';
 import { HeroCross } from '../components/landing/HeroCross';
 import { ScrollReveal } from '../components/landing/ScrollReveal';
 import { SwissCross } from '../components/SwissCross';
+import { BrandMark, Wordmark } from '../components/brand/Logo';
 import { CtaButton } from '../components/landing/CtaButton';
 import { SectionHead } from '../components/landing/SectionHead';
 import { Cartouche } from '../components/landing/Cartouche';
@@ -213,7 +214,7 @@ function LandingContent() {
         <ScrollReveal style={[styles.wrap, styles.section]}>
           <SectionHead label={t.profession.eyebrow} title={t.profession.title} intro={t.profession.text} />
           <View style={[styles.split, isTablet && styles.splitCompact]}>
-            <View style={styles.splitCol}>
+            <View style={[styles.splitCol, isTablet && styles.splitColStacked, isTablet && styles.splitColStacked]}>
               {t.profession.links.map((link) => (
                 <Link key={link.slug} href={pageHref(link.slug) as any} asChild>
                   <Pressable style={styles.listRow}>
@@ -226,7 +227,7 @@ function LandingContent() {
                 <Text style={styles.textLink}>{t.profession.allLink} →</Text>
               </Link>
             </View>
-            <View style={styles.splitCol}>
+            <View style={[styles.splitCol, isTablet && styles.splitColStacked, isTablet && styles.splitColStacked]}>
               <Text style={styles.subHead}>{t.profession.personalTitle}</Text>
               {t.profession.items.map((item) => (
                 <View key={item.title} style={styles.defRow}>
@@ -266,7 +267,7 @@ function LandingContent() {
         <ScrollReveal style={[styles.wrap, styles.section]}>
           <SectionHead label={t.automation.eyebrow} title={t.automation.title} intro={t.automation.text} />
           <View style={[styles.split, isTablet && styles.splitCompact]}>
-            <View style={[styles.splitCol, { gap: spacing.md }]}>
+            <View style={[styles.splitCol, isTablet && styles.splitColStacked, { gap: spacing.md }]}>
               <Text style={styles.subHead}>{t.automation.commandTitle}</Text>
               <Text style={styles.bodyText}>{t.automation.commandText}</Text>
               <Link href={solutionHref('dictee-vocale') as any}>
@@ -288,7 +289,7 @@ function LandingContent() {
         {/* ——— Field / office band ——— */}
         <View style={styles.terrainOuter}>
           <ScrollReveal style={[styles.wrap, styles.split, isTablet && styles.splitCompact]}>
-            <View style={styles.splitCol}>
+            <View style={[styles.splitCol, isTablet && styles.splitColStacked, isTablet && styles.splitColStacked]}>
               <Text style={styles.monoLabel}>{t.terrain.eyebrow}</Text>
               <Text style={styles.bandTitle}>{t.terrain.title}</Text>
               <Text style={styles.bodyText}>{t.terrain.text}</Text>
@@ -297,7 +298,7 @@ function LandingContent() {
               </Link>
               <Text style={styles.fineNote}>{t.terrain.installNote}</Text>
             </View>
-            <View style={[styles.splitCol, { justifyContent: 'center' }]}>
+            <View style={[styles.splitCol, isTablet && styles.splitColStacked, { justifyContent: 'center' }]}>
               {t.terrain.points.map((p) => (
                 <View key={p.label} style={[styles.defRow, { borderTopColor: '#E3B89C' }]}>
                   <Text style={styles.defTerm}>{p.label}</Text>
@@ -334,7 +335,7 @@ function LandingContent() {
         <ScrollReveal style={styles.wrap}>
           <View style={[styles.bexioRow, isMobile && styles.noteRowCompact]}>
             <View style={styles.bexioIcon}>
-              <Image source={require('../assets/logo-mark.png')} style={styles.bexioLogo} resizeMode="contain" accessibilityLabel="Cantia" />
+              <BrandMark size={28} />
               <Text style={styles.bexioIconArrow}>↔</Text>
               <Text style={styles.bexioWord}>bexio</Text>
             </View>
@@ -357,8 +358,7 @@ function LandingContent() {
               return (
                 <View key={item.name} style={[styles.productCard, i === 0 && styles.productCardMain]}>
                   <View style={styles.productHead}>
-                    <Image source={require('../assets/logo-mark.png')} style={styles.productLogo} resizeMode="contain" accessibilityLabel="" />
-                    <Text style={styles.productName}>{item.name}</Text>
+                    <Wordmark height={16} product={i === 1 ? 'Accounting' : i === 2 ? 'Partners' : undefined} />
                   </View>
                   <Text style={styles.productTag}>{item.tag}</Text>
                   <Text style={[styles.bodyText, { flexGrow: 1 }]}>{item.text}</Text>
@@ -488,6 +488,9 @@ const styles = StyleSheet.create({
   split: { flexDirection: 'row', gap: 64 },
   splitCompact: { flexDirection: 'column', gap: spacing.xxl },
   splitCol: { flex: 1 },
+  // Stacked (phones, tablets): size to the content. flex: 1 has a 0 basis,
+  // so in a column the text overflowed onto the next block.
+  splitColStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
   subHead: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', lineHeight: 29, letterSpacing: -0.3, color: ink, marginBottom: spacing.md },
   listRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: rule },
   listRowText: { ...displayType, fontSize: 26, fontWeight: '700', color: ink },

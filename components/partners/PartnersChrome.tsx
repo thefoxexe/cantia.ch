@@ -6,6 +6,7 @@ import { usePartnersCopy } from '../../lib/partners/locale';
 import { PARTNERS_LOCALES, type PartnersLocale } from '../../lib/partners/copy';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { Wordmark as BrandWordmark } from '../brand/Logo';
 
 export const PAGE_MAX = 1120;
 
@@ -23,9 +24,7 @@ export function Wordmark() {
   return (
     <Link href="/" asChild>
       <Pressable style={styles.wordmark} accessibilityLabel="Cantia Partners">
-        <Image source={require('../../assets/logo-mark.png')} style={styles.logoMark} resizeMode="contain" />
-        <Text style={styles.wordmarkMain}>Cantia</Text>
-        <Text style={styles.wordmarkSub}>Partners</Text>
+        <BrandWordmark height={18} product="Partners" />
       </Pressable>
     </Link>
   );

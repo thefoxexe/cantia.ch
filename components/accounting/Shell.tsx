@@ -9,6 +9,7 @@ import type { Me } from '../../lib/accounting/api';
 import { supabase } from '../../lib/supabase';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { Wordmark } from '../../components/brand/Logo';
 
 // The signed-in frame of accounting.cantia.ch: a fixed sidebar on large
 // screens, a top bar with a menu on phones, and ONE scrolling area for the
@@ -98,9 +99,7 @@ export function AccShell({
 
   const brand = (
     <Pressable onPress={() => go('overview')} style={styles.brand} accessibilityLabel={copy.brand}>
-      <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.brandMain}>Cantia</Text>
-      <Text style={styles.brandSub}>{copy.brandShort}</Text>
+      <Wordmark height={13} product="Accounting" />
     </Pressable>
   );
 

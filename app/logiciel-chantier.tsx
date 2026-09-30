@@ -20,6 +20,7 @@ import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
+import { Wordmark } from '../components/brand/Logo';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -385,8 +386,7 @@ export default function LogicielChantierPage() {
         <View style={[styles.wrap, styles.headerInner]}>
           <Link href="/" style={styles.brand}>
             <View style={styles.brandRow}>
-              <Image source={require('../assets/logo-mark.png')} style={styles.brandLogo} resizeMode="contain" accessibilityLabel="Cantia" />
-              <Text style={styles.brandText}>Cantia</Text>
+              <Wordmark height={17} />
             </View>
           </Link>
           <View style={styles.headerRight}>
@@ -754,6 +754,9 @@ const styles = StyleSheet.create({
   split: { flexDirection: 'row', gap: 64, alignItems: 'center' },
   splitCompact: { flexDirection: 'column', gap: spacing.xxl, alignItems: 'stretch' },
   splitCol: { flex: 1 },
+  // Stacked (phones, tablets): size to the content. flex: 1 has a 0 basis,
+  // so in a column the text overflowed onto the next block.
+  splitColStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
 
   darkBand: { backgroundColor: colors.primaryDark, paddingVertical: 96, marginTop: 112 },
   darkEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8B79A', textTransform: 'uppercase' },

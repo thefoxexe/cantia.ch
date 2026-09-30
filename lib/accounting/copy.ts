@@ -1,4 +1,4 @@
-// Every string of accounting.cantia.ch (Cantia Fiduciaires / Treuhand /
+// Every string of accounting.cantia.ch (Cantia Accounting / Treuhand /
 // Fiduciari), in the three languages of the site. Kept apart from
 // lib/translations: the accounting build doesn't load the app's i18n.
 export type AccLocale = 'fr' | 'de' | 'it';
@@ -20,8 +20,8 @@ export const PERMISSIONS = [
 export type Permission = (typeof PERMISSIONS)[number];
 
 const fr = {
-  brand: 'Cantia Fiduciaires',
-  brandShort: 'Fiduciaires',
+  brand: 'Cantia Accounting',
+  brandShort: 'Accounting',
   nav: { login: 'Se connecter', signup: 'Créer mon espace', space: 'Mon espace', logout: 'Se déconnecter', admin: 'Administration' },
   hero: {
     eyebrow: 'Pour les fiduciaires',
@@ -247,7 +247,7 @@ const fr = {
     title: 'Invitation',
     loading: 'Chargement…',
     invalid: 'Cette invitation n’existe pas ou a expiré.',
-    staff: '{firm} vous invite à rejoindre son espace Cantia Fiduciaires.',
+    staff: '{firm} vous invite à rejoindre son espace Cantia Accounting.',
     client: '{org} vous donne accès à ses données comptables sur Cantia.',
     signInFirst: 'Connectez-vous ou créez votre compte avec {email} pour accepter.',
     accept: 'Accepter',
@@ -276,8 +276,8 @@ const fr = {
 type AccCopy = typeof fr;
 
 const de: AccCopy = {
-  brand: 'Cantia Treuhand',
-  brandShort: 'Treuhand',
+  brand: 'Cantia Accounting',
+  brandShort: 'Accounting',
   nav: { login: 'Anmelden', signup: 'Bereich erstellen', space: 'Mein Bereich', logout: 'Abmelden', admin: 'Administration' },
   hero: {
     eyebrow: 'Für Treuhänder',
@@ -522,8 +522,8 @@ const de: AccCopy = {
 };
 
 const it: AccCopy = {
-  brand: 'Cantia Fiduciari',
-  brandShort: 'Fiduciari',
+  brand: 'Cantia Accounting',
+  brandShort: 'Accounting',
   nav: { login: 'Accedi', signup: 'Crea il mio spazio', space: 'Il mio spazio', logout: 'Esci', admin: 'Amministrazione' },
   hero: {
     eyebrow: 'Per i fiduciari',
@@ -744,7 +744,7 @@ const it: AccCopy = {
     title: 'Invito',
     loading: 'Caricamento…',
     invalid: 'Questo invito non esiste o è scaduto.',
-    staff: '{firm} la invita nel suo spazio Cantia Fiduciari.',
+    staff: '{firm} la invita nel suo spazio Cantia Accounting.',
     client: '{org} le dà accesso ai suoi dati contabili su Cantia.',
     signInFirst: 'Acceda o crei un account con {email} per accettare.',
     accept: 'Accettare',

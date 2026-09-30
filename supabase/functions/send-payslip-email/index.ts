@@ -129,11 +129,11 @@ Deno.serve(async (req: Request) => {
             <p style="margin: 0 0 16px; font-size: 15px; color: #231A12;">${t(locale, 'greeting')}${employeeName ? ` ${escapeHtml(employeeName)}` : ''},</p>
             <p style="margin: 0 0 28px; font-size: 15px; line-height: 1.6; color: #231A12;">${escapeHtml(t(locale, 'intro', { month: monthLabel }))}</p>
             <p style="margin: 0 0 8px; text-align: center;">
-              <a href="${portalUrl}" style="display: inline-block; background: #BC5A31; color: #FFFFFF; font-weight: 700; font-size: 14px; padding: 14px 28px; border-radius: 999px; text-decoration: none;">${escapeHtml(t(locale, 'cta'))}</a>
+              <a href="${portalUrl}" style="display: inline-block; background: #A95C30; color: #FFFFFF; font-weight: 700; font-size: 14px; padding: 14px 28px; border-radius: 999px; text-decoration: none;">${escapeHtml(t(locale, 'cta'))}</a>
             </p>
           </div>
           <div style="padding: 16px 32px 24px; border-top: 1px solid #F1E6D5;">
-            <p style="margin: 0; font-size: 11px; color: #6E6151; text-align: center;">${escapeHtml(t(locale, 'poweredBy'))} · <a href="https://cantia.ch" style="color: #BC5A31; text-decoration: none; font-weight: 600;">cantia.ch</a></p>
+            <p style="margin: 0; font-size: 11px; color: #6E6151; text-align: center;">${escapeHtml(t(locale, 'poweredBy'))} · <a href="https://cantia.ch" style="color: #A95C30; text-decoration: none; font-weight: 600;">cantia.ch</a></p>
           </div>
         </div>
         <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">

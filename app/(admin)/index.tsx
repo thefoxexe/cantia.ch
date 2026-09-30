@@ -70,7 +70,7 @@ function StatTile({ label, value, icon, accent, hint }: { label: string; value: 
 
 type AccountingOverview = NonNullable<Awaited<ReturnType<typeof accAdmin.overview>>['data']>;
 
-// Cantia Partners and Cantia Fiduciaires in one glance; their full
+// Cantia Partners and Cantia Accounting in one glance; their full
 // administration lives on their own pages (Écosystème in the sidebar).
 function Ecosystem() {
   const router = useRouter();
@@ -101,7 +101,7 @@ function Ecosystem() {
       </Pressable>
       <Pressable style={styles.ecoCard} onPress={() => router.replace('/(admin)/fiduciaires' as any)}>
         <View style={styles.ecoHead}>
-          <Text style={styles.ecoTitle}>Cantia Fiduciaires</Text>
+          <Text style={styles.ecoTitle}>Cantia Accounting</Text>
           {fiduciaries && fiduciaries.suspicious > 0 ? (
             <View style={styles.ecoAlert}>
               <Text style={styles.ecoAlertText}>{fiduciaries.suspicious} à vérifier</Text>

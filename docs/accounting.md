@@ -1,7 +1,7 @@
 # Cantia Accounting (accounting.cantia.ch)
 
 Espace gratuit pour les fiduciaires qui travaillent avec des entreprises clientes de Cantia.
-Nom affiché : **Cantia Fiduciaires** (FR), **Cantia Treuhand** (DE), **Cantia Fiduciari** (IT).
+Nom affiché : **Cantia Accounting** (FR), **Cantia Accounting** (DE), **Cantia Accounting** (IT).
 
 ## Architecture
 

@@ -17,6 +17,7 @@ import { VoiceAssistant } from '../../components/VoiceAssistant';
 import { useTranslation } from '../../lib/translations';
 import { salesTrackingReady } from '../../lib/api/salesTracking';
 import { StatusLink } from '../../components/StatusLink';
+import { BrandMark, Wordmark } from '../../components/brand/Logo';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -187,10 +188,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <Pressable onPress={() => setDrawerOpen(true)} hitSlop={8} style={styles.hamburger}>
           <Feather name="menu" size={22} color={colors.text} />
         </Pressable>
-        <Image source={require('../../assets/logo-mark.png')} style={styles.mobileLogo} resizeMode="contain" />
-        <Text style={styles.mobileBrand} numberOfLines={1}>
-          Cantia
-        </Text>
+        <Wordmark height={14} />
         <View style={{ flex: 1 }} />
         <SafeNotificationBell />
         <AccountMenu />
@@ -277,10 +275,10 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
         ]}
       >
         <View style={[styles.sidebarBrand, collapsed && styles.sidebarBrandCollapsed]}>
-          <Image source={require('../../assets/logo-mark.png')} style={styles.sidebarLogo} resizeMode="contain" />
+          {collapsed ? <BrandMark size={28} /> : null}
           {collapsed ? null : (
             <>
-              <Text style={styles.sidebarBrandText}>Cantia</Text>
+              <Wordmark height={15} />
               <View style={{ flex: 1 }} />
               <Pressable onPress={toggleCollapsed} hitSlop={8} style={styles.sidebarToggle}>
                 <Feather name="chevrons-left" size={16} color={colors.textMuted} />

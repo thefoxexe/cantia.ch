@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Feather } from '@expo/vector-icons';
 import { SolutionPage } from '../components/SolutionPage';
+import { BrandMark } from '../components/brand/Logo';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -39,9 +40,7 @@ const ARC_BADGE_SIZE = 26;
 
 function CantiaLogoBadge({ size }: { size: number }) {
   return (
-    <View style={[styles.visualLogoBadgeCantia, { width: size, height: size, borderRadius: size / 2.6 }]}>
-      <Image source={require('../assets/logo-mark.png')} style={{ width: size * 0.6, height: size * 0.6 }} resizeMode="contain" accessibilityLabel="Cantia" />
-    </View>
+    <BrandMark size={size} />
   );
 }
 

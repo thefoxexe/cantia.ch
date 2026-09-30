@@ -6,6 +6,7 @@ import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { displayType } from '../../lib/marketingTheme';
+import { BrandLogo } from '../../components/brand/Logo';
 
 export default function ForgotPasswordScreen() {
   const { t } = useTranslation();
@@ -29,8 +30,7 @@ export default function ForgotPasswordScreen() {
     <Screen background="mountain">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.brand}>Cantia</Text>
+          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
 
           {sent ? (
             <>

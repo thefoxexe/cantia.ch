@@ -8,7 +8,7 @@ export const colors = {
   border: '#E6D8C2',
   text: '#231A12',
   textMuted: '#6E6153',
-  primary: '#BC5A31',
+  primary: '#A95C30',
   primaryDark: '#7C3B21',
   primarySoft: '#F5DECB',
   accent: '#D97B41',
