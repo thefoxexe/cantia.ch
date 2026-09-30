@@ -66,6 +66,9 @@ export const fr = {
     countSuffix_other: '{{count}} devis',
   },
   emailHub: {
+    inboxOffTitle: 'Votre boîte Cantia est désactivée',
+    inboxOffText: 'Les réponses de vos clients partent directement sur votre adresse e-mail : rien n’est classé ici et les relances ne s’arrêtent pas quand un client répond.',
+    inboxOffCta: 'Activer la boîte de réception',
     advancedTitle: 'Pour aller plus loin',
     advancedText: 'Pas besoin de cette adresse pour les réponses de vos clients : c’est automatique. Elle sert seulement si vous voulez aussi classer ici vos propres échanges.',
     deliveryTitle: 'Réponses de vos clients',
@@ -106,7 +109,7 @@ export const fr = {
     from: 'De',
     statsLine: '30 j · {{sent}} envoyés · {{delivered}} délivrés · {{opened}} ouverts',
     inboxEmptyTitle: 'Aucune réponse pour l’instant',
-    inboxEmptyText: 'Les réponses de vos clients à vos devis et factures arrivent ici, classées sur le bon document. Activez le suivi des e-mails dans Automatisations (plan Entreprise).',
+    inboxEmptyText: 'Les réponses de vos clients à vos devis et factures arriveront ici, classées sur le bon document.',
     newBadge: 'Nouveau',
     aboutDocument: 'À propos de',
     originalEmail: 'E-mail d’origine',

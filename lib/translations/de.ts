@@ -85,6 +85,9 @@ export const de: TranslationDict = {
     countSuffix_other: '{{count}} Offerten',
   },
   emailHub: {
+    inboxOffTitle: 'Ihr Cantia-Postfach ist deaktiviert',
+    inboxOffText: 'Antworten Ihrer Kunden gehen direkt an Ihre E-Mail-Adresse: Hier wird nichts abgelegt, und Erinnerungen stoppen nicht, wenn ein Kunde antwortet.',
+    inboxOffCta: 'Posteingang aktivieren',
     advancedTitle: 'Für Fortgeschrittene',
     advancedText: 'Für Kundenantworten brauchen Sie diese Adresse nicht: Das läuft automatisch. Sie dient nur dazu, auch Ihren eigenen E-Mail-Verkehr hier abzulegen.',
     deliveryTitle: 'Antworten Ihrer Kunden',
@@ -125,7 +128,7 @@ export const de: TranslationDict = {
     from: 'Von',
     statsLine: '30 T · {{sent}} gesendet · {{delivered}} zugestellt · {{opened}} geöffnet',
     inboxEmptyTitle: 'Noch keine Antworten',
-    inboxEmptyText: 'Antworten Ihrer Kunden auf Offerten und Rechnungen landen hier, beim richtigen Dokument abgelegt. Aktivieren Sie die E-Mail-Verfolgung unter Automatisierungen (Plan Entreprise).',
+    inboxEmptyText: 'Antworten Ihrer Kunden auf Offerten und Rechnungen landen hier, beim richtigen Dokument abgelegt.',
     newBadge: 'Neu',
     aboutDocument: 'Zu',
     originalEmail: 'Ursprüngliche E-Mail',

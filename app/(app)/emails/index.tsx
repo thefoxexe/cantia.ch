@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { extraWorkProjects, listEmailMessages, matchesFilter, matchesSearch, sentByNames, type EmailMessage } from '../../../lib/api/emails';
-import { listSalesEmails, setSalesEmailRead, type SalesEmail } from '../../../lib/api/salesEmails';
+import { getSalesInboxSettings, listSalesEmails, setSalesEmailRead, updateSalesInboxSettings, type SalesEmail } from '../../../lib/api/salesEmails';
 import { supabase } from '../../../lib/supabase';
 import { AppScreen, Card, EmptyState, LoadingScreen, PageHeader } from '../../../components/ui';
 import { MailRow, type MailItem } from '../../../components/emails/MailParts';
@@ -82,6 +82,10 @@ export default function EmailsScreen() {
   const [received, setReceived] = useState<SalesEmail[]>([]);
   const [filedOut, setFiledOut] = useState<SalesEmail[]>([]);
   const [hasPlan, setHasPlan] = useState(true);
+  // null until known; false: the Cantia mailbox is switched off (replies go
+  // straight to the company address, nothing is filed here).
+  const [mailboxOn, setMailboxOn] = useState<boolean | null>(null);
+  const [enabling, setEnabling] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [names, setNames] = useState<Record<string, string>>({});
   const [projects, setProjects] = useState<Record<string, string>>({});
@@ -104,6 +108,7 @@ export default function EmailsScreen() {
     setFiledOut(filed.filter((e) => e.direction === 'outgoing'));
     setHasPlan(plan.data === true);
     setLoading(false);
+    if (plan.data === true) getSalesInboxSettings(organization.id).then((s) => setMailboxOn(s?.enabled ?? false));
     const [who, where] = await Promise.all([
       sentByNames(organization.id, rows.map((m) => m.sent_by ?? '')),
       extraWorkProjects(rows.filter((m) => m.document_type === 'extra_work').map((m) => m.document_id)),
@@ -267,15 +272,43 @@ export default function EmailsScreen() {
     </View>
   );
 
+  async function enableMailbox() {
+    if (!organization) return;
+    setEnabling(true);
+    const { error } = await updateSalesInboxSettings(organization.id, { enabled: true });
+    setEnabling(false);
+    if (!error) setMailboxOn(true);
+  }
+  // Inbox switched off (or no plan): say it plainly, with the way out.
+  const inboxNotice =
+    activeFolder === 'inbox' && (!hasPlan || mailboxOn === false) ? (
+      <View style={styles.notice}>
+        <Feather name="inbox" size={18} color={colors.primaryDark} />
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={styles.noticeTitle}>{hasPlan ? t('emailHub.inboxOffTitle') : t('emailHub.planTitle')}</Text>
+          <Text style={styles.noticeText}>{hasPlan ? t('emailHub.inboxOffText') : t('emailHub.planText')}</Text>
+          {hasPlan ? (
+            <Pressable onPress={enableMailbox} disabled={enabling} style={styles.noticeBtn} accessibilityRole="button">
+              <Text style={styles.noticeBtnText}>{enabling ? '…' : t('emailHub.inboxOffCta')}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      </View>
+    ) : null;
   const emptyList =
     activeFolder === 'inbox' && received.length === 0 ? (
-      <EmptyState title={t('emailHub.inboxEmptyTitle')} subtitle={t('emailHub.inboxEmptyText')} />
+      inboxNotice ? null : <EmptyState title={t('emailHub.inboxEmptyTitle')} subtitle={t('emailHub.inboxEmptyText')} />
     ) : sent.length === 0 && received.length === 0 ? (
       <EmptyState title={t('emailHub.emptyTitle')} subtitle={t('emailHub.emptyText')} />
     ) : (
       <Text style={styles.emptyFilter}>{t('emailHub.emptyFilter')}</Text>
     );
-  const rows = items.length ? items.map((i) => <MailRow key={i.id} item={i} selected={twoPanes && i.id === selectedId} onPress={() => open(i)} />) : emptyList;
+  const rows = (
+    <>
+      {inboxNotice}
+      {items.length ? items.map((i) => <MailRow key={i.id} item={i} selected={twoPanes && i.id === selectedId} onPress={() => open(i)} />) : emptyList}
+    </>
+  );
 
   const settingsBtn = (
     <Pressable onPress={() => { setShowSettings(true); setSelectedId(null); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel={t('emailHub.settings')}>
@@ -403,5 +436,10 @@ const styles = StyleSheet.create({
   chipText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.text },
   chipTextOn: { color: colors.surface },
   chipCount: { fontSize: fontSize.xs, fontWeight: '800', color: colors.textMuted },
+  notice: { flexDirection: 'row', gap: spacing.sm, margin: spacing.md, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.border },
+  noticeTitle: { fontSize: fontSize.sm, fontWeight: '800', color: colors.text },
+  noticeText: { fontSize: 12.5, lineHeight: 18, color: colors.textMuted },
+  noticeBtn: { alignSelf: 'flex-start', marginTop: 6, backgroundColor: colors.text, borderRadius: radius.sm, paddingVertical: 8, paddingHorizontal: 12 },
+  noticeBtnText: { fontSize: fontSize.sm, fontWeight: '700', color: '#FFFFFF' },
   emptyFilter: { fontSize: fontSize.sm, color: colors.textMuted, padding: spacing.lg, textAlign: 'center' },
 });

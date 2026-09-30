@@ -88,6 +88,9 @@ export const it: TranslationDict = {
     countSuffix_other: '{{count}} preventivi',
   },
   emailHub: {
+    inboxOffTitle: 'La sua casella Cantia è disattivata',
+    inboxOffText: 'Le risposte dei clienti vanno direttamente al suo indirizzo e-mail: qui non viene archiviato nulla e i solleciti non si fermano quando un cliente risponde.',
+    inboxOffCta: 'Attivare la posta in arrivo',
     advancedTitle: 'Per andare oltre',
     advancedText: 'Per le risposte dei clienti questo indirizzo non serve: è automatico. Serve solo se vuole archiviare qui anche i suoi scambi.',
     deliveryTitle: 'Risposte dei clienti',
@@ -128,7 +131,7 @@ export const it: TranslationDict = {
     from: 'Da',
     statsLine: '30 g · {{sent}} inviati · {{delivered}} consegnati · {{opened}} aperti',
     inboxEmptyTitle: 'Ancora nessuna risposta',
-    inboxEmptyText: 'Le risposte dei clienti a preventivi e fatture arrivano qui, archiviate sul documento giusto. Attivi il monitoraggio e-mail in Automazioni (piano Entreprise).',
+    inboxEmptyText: 'Le risposte dei clienti a preventivi e fatture arriveranno qui, archiviate sul documento giusto.',
     newBadge: 'Nuovo',
     aboutDocument: 'Riguardo a',
     originalEmail: 'E-mail originale',
