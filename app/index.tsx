@@ -239,6 +239,40 @@ function LandingContent() {
           </View>
         </ScrollReveal>
 
+        {/* ——— Beyond construction: any business that works by projects ——— */}
+        <ScrollReveal style={[styles.wrap, styles.section]}>
+          <View style={[styles.beyond, isTablet && styles.beyondCompact]}>
+            <View style={[styles.beyondIntro, isTablet && styles.beyondColStacked]}>
+              <Text style={styles.monoLabel}>{t.beyond.eyebrow}</Text>
+              <Text style={styles.beyondTitle}>{t.beyond.title}</Text>
+              <Text style={styles.bodyText}>{t.beyond.text}</Text>
+              <View style={styles.vocabBox}>
+                <Text style={styles.beyondLabel}>{t.beyond.vocabLabel}</Text>
+                <View style={styles.vocabRow}>
+                  {t.beyond.vocab.map((word, i) => (
+                    <View key={word} style={[styles.vocabChip, i === 0 && styles.vocabChipOn]}>
+                      <Text style={[styles.vocabText, i === 0 && styles.vocabTextOn]}>{word}</Text>
+                    </View>
+                  ))}
+                </View>
+                <Text style={styles.vocabNote}>{t.beyond.vocabText}</Text>
+              </View>
+            </View>
+            <View style={[styles.beyondNiches, isTablet && styles.beyondColStacked]}>
+              <Text style={styles.beyondLabel}>{t.beyond.nichesLabel}</Text>
+              {t.beyond.niches.map((niche, i) => (
+                <View key={niche} style={[styles.nicheRow, i === 0 && { borderTopWidth: 0 }]}>
+                  <Text style={styles.nicheIndex}>{String(i + 1).padStart(2, '0')}</Text>
+                  <Text style={styles.nicheText}>{niche}</Text>
+                </View>
+              ))}
+              <Link href={authHref('signup')}>
+                <Text style={styles.textLink}>{t.beyond.cta} →</Text>
+              </Link>
+            </View>
+          </View>
+        </ScrollReveal>
+
         {/* ——— Team ——— */}
         <ScrollReveal style={[styles.wrap, styles.section]}>
           <SectionHead label={t.team.eyebrow} title={`${t.team.titlePrefix} ${t.team.titleEm}`} intro={t.team.text} />
@@ -428,6 +462,23 @@ function LandingContent() {
 const styles = StyleSheet.create({
   wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
   section: { paddingTop: 112 },
+  beyond: { flexDirection: 'row', gap: 64, borderWidth: 1, borderColor: rule, borderRadius: 20, backgroundColor: colors.surface, padding: 48 },
+  beyondCompact: { flexDirection: 'column', gap: spacing.xl, padding: 24 },
+  beyondIntro: { flex: 1.1, gap: spacing.md },
+  beyondNiches: { flex: 1, gap: 0 },
+  beyondColStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
+  beyondTitle: { ...displayType, fontSize: 34, lineHeight: 40, fontWeight: '700', letterSpacing: -0.6, color: ink },
+  beyondLabel: { ...monoType, fontSize: 11, letterSpacing: 0.6, color: colors.textMuted, textTransform: 'uppercase', marginBottom: spacing.sm },
+  vocabBox: { marginTop: spacing.md, padding: 20, borderRadius: 14, backgroundColor: colors.bg, borderWidth: 1, borderColor: rule },
+  vocabRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  vocabChip: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: rule, backgroundColor: colors.surface },
+  vocabChipOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+  vocabText: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: ink },
+  vocabTextOn: { color: '#FFFFFF' },
+  vocabNote: { fontFamily: landingFonts.body, fontSize: 14, lineHeight: 21, color: colors.textMuted, marginTop: spacing.md },
+  nicheRow: { flexDirection: 'row', alignItems: 'baseline', gap: 16, paddingVertical: 13, borderTopWidth: 1, borderTopColor: rule },
+  nicheIndex: { ...monoType, fontSize: 11, color: colors.primary, width: 20 },
+  nicheText: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: ink, flex: 1 },
   monoLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase' },
   bodyText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
   textLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: colors.primary, marginTop: spacing.sm },

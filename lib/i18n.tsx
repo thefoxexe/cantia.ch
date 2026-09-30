@@ -87,6 +87,19 @@ interface Dict {
     personalTitle: string;
     items: { title: string; text: string }[];
   };
+  // Cantia was born in construction but fits any business that works by
+  // projects: this block opens the site to other trades.
+  beyond: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    vocabLabel: string;
+    vocabText: string;
+    vocab: string[];
+    nichesLabel: string;
+    niches: string[];
+    cta: string;
+  };
   stories: {
     title: string;
     subtitle: string;
@@ -236,7 +249,7 @@ const fr: Dict = {
     mobileApp: 'Application mobile',
   },
   hero: {
-    kicker: 'Logiciel de chantier pour les entreprises du bâtiment suisse',
+    kicker: 'Logiciel suisse de gestion de chantiers et de projets',
     titlePrefix: 'Gérez vos chantiers,',
     titleHighlight: 'pas votre',
     crossedText: 'administratif.',
@@ -246,7 +259,7 @@ const fr: Dict = {
     facts: ['Dès CHF 39.– par mois', '14 jours d’essai, sans engagement', 'Données hébergées à Zurich'],
     trustCount: '+{{count}} entreprises du bâtiment nous font déjà confiance',
     cartouche: [
-      { label: 'Objet', value: 'Logiciel de gestion de chantier' },
+      { label: 'Objet', value: 'Gestion de chantiers et de projets' },
       { label: 'Pour', value: 'Entreprises de 1 à 25 personnes' },
       { label: 'Langues', value: 'Français, Deutsch, Italiano' },
       { label: 'Hébergement', value: 'Zurich, Suisse' },
@@ -282,6 +295,17 @@ const fr: Dict = {
       { title: 'Votre identité', text: 'Votre logo et vos couleurs accompagnent les documents envoyés aux clients.' },
       { title: 'Votre organisation', text: 'Vous adaptez les accès aux responsabilités de chaque membre de l’équipe.' },
     ],
+  },
+  beyond: {
+    eyebrow: 'Pas que le bâtiment',
+    title: 'Né sur les chantiers. Prêt pour tous vos projets.',
+    text: 'Cantia a été pensé avec des entreprises du bâtiment, mais sa logique est universelle : un client, un devis, un projet, une équipe, une facture. Si votre entreprise avance par projets, Cantia travaille comme vous.',
+    vocabLabel: 'Votre vocabulaire',
+    vocabText: 'À l’inscription, vous choisissez comment vous appelez votre travail. Toute l’application s’adapte, jusqu’aux rapports PDF.',
+    vocab: ['Chantier', 'Projet', 'Mandat', 'Dossier'],
+    nichesLabel: 'Aussi pour',
+    niches: ['Paysagisme et jardins', 'Technique du bâtiment', 'Nettoyage et facility management', 'Événementiel et scénographie', 'Agences et studios créatifs', 'Bureaux d’études et architectes', 'Artisans d’art et ateliers', 'Déménagement et logistique'],
+    cta: 'Essayer avec votre métier',
   },
   stories: {
     title: 'Six situations que vous connaissez',
@@ -535,9 +559,9 @@ const fr: Dict = {
   },
   products: {
     eyebrow: 'Produits',
-    title: 'Un écosystème pour tout le bâtiment.',
+    title: 'Un écosystème pour les entreprises qui avancent par projets.',
     items: [
-      { name: 'Cantia', tag: 'Pour les entreprises', text: 'Devis, factures QR, chantiers, rapports, heures et salaires. Le logiciel de gestion des entreprises du bâtiment.', cta: 'Essayer gratuitement' },
+      { name: 'Cantia', tag: 'Pour les entreprises', text: 'Devis, factures QR, chantiers, rapports, heures et salaires. Le logiciel de gestion du bâtiment et des métiers de projets.', cta: 'Essayer gratuitement' },
       { name: 'Cantia Accounting', tag: 'Gratuit pour les fiduciaires', text: 'Toutes les données comptables de vos mandants, les demandes de pièces et les échéances TVA au même endroit.', cta: 'Découvrir l’espace' },
       { name: 'Cantia Partners', tag: 'Programme partenaire', text: 'Recommandez Cantia et recevez 25 % des paiements de chaque entreprise amenée, pendant 12 mois.', cta: 'Devenir partenaire' },
     ],
@@ -603,7 +627,7 @@ const fr: Dict = {
     title: 'Questions fréquentes',
     link: 'Consulter le centre d’aide',
     items: [
-      { q: 'À qui s’adresse Cantia ?', a: 'Aux indépendants et entreprises du bâtiment suisse : maçonnerie, charpente, peinture, électricité, génie civil et autres métiers de la construction.' },
+      { q: 'À qui s’adresse Cantia ?', a: 'D’abord aux indépendants et entreprises du bâtiment suisse : maçonnerie, charpente, peinture, électricité, génie civil et autres métiers de la construction. Mais aussi à toute entreprise qui travaille par projets, comme le paysagisme, le nettoyage, l’événementiel ou les agences : vous choisissez même si vous parlez de chantiers, de projets, de mandats ou de dossiers.' },
       { q: 'Est-ce que Cantia fonctionne sans Bexio ?', a: 'Oui. Vous pouvez gérer votre activité dans Cantia seul. L’intégration Bexio permet de retrouver vos données dans les deux outils si vous utilisez déjà Bexio.' },
       { q: 'Comment utiliser Cantia sur téléphone ?', a: 'Ouvrez Cantia dans votre navigateur et ajoutez-le à votre écran d’accueil. Les versions App Store et Google Play sont en développement.' },
       { q: 'Que comprend l’essai de 14 jours ?', a: 'Les nouveaux comptes disposent de 14 jours d’essai, sans code promotionnel. Choisissez votre formule lors de l’inscription et consultez ses conditions avant de confirmer.' },
@@ -633,7 +657,7 @@ const fr: Dict = {
     paidCta: 'Essayer 14 jours',
   },
   footer: {
-    blurb: 'La plateforme de gestion du bâtiment suisse.',
+    blurb: 'La plateforme suisse de gestion des chantiers et des projets.',
     platformTitle: 'La plateforme',
     platformDevis: 'Devis & offres',
     platformFactures: 'Factures & paiements',
@@ -660,7 +684,7 @@ const fr: Dict = {
     productsApp: 'Cantia pour les entreprises',
     privacyLink: 'Confidentialité',
     cgvLink: 'Conditions générales',
-    copyright: '© {year} Cantia. Conçu pour le bâtiment suisse.',
+    copyright: '© {year} Cantia. Né dans le bâtiment suisse, ouvert à tous les projets.',
   },
 };
 
@@ -675,7 +699,7 @@ const de: Dict = {
     mobileApp: 'Mobile App',
   },
   hero: {
-    kicker: 'Baustellensoftware für Schweizer Bauunternehmen',
+    kicker: 'Schweizer Software für Baustellen und Projekte',
     titlePrefix: 'Verwalten Sie Ihre Baustellen,',
     titleHighlight: 'nicht Ihre',
     crossedText: 'Administration.',
@@ -685,7 +709,7 @@ const de: Dict = {
     facts: ['Ab CHF 39.– pro Monat', '14 Tage Testphase, ohne Verpflichtung', 'Daten in Zürich gehostet'],
     trustCount: '+{{count}} Bauunternehmen vertrauen uns bereits',
     cartouche: [
-      { label: 'Gegenstand', value: 'Software für Baustellenverwaltung' },
+      { label: 'Gegenstand', value: 'Baustellen- und Projektverwaltung' },
       { label: 'Für', value: 'Unternehmen mit 1 bis 25 Personen' },
       { label: 'Sprachen', value: 'Français, Deutsch, Italiano' },
       { label: 'Hosting', value: 'Zürich, Schweiz' },
@@ -721,6 +745,17 @@ const de: Dict = {
       { title: 'Ihre Identität', text: 'Ihr Logo und Ihre Farben begleiten die an Kunden versendeten Dokumente.' },
       { title: 'Ihre Organisation', text: 'Sie passen die Zugriffe an die Verantwortlichkeiten jedes Teammitglieds an.' },
     ],
+  },
+  beyond: {
+    eyebrow: 'Nicht nur Bau',
+    title: 'Auf der Baustelle entstanden. Bereit für alle Ihre Projekte.',
+    text: 'Cantia wurde mit Bauunternehmen entwickelt, doch die Logik ist universell: ein Kunde, eine Offerte, ein Projekt, ein Team, eine Rechnung. Wenn Ihr Unternehmen in Projekten arbeitet, arbeitet Cantia wie Sie.',
+    vocabLabel: 'Ihre Begriffe',
+    vocabText: 'Bei der Anmeldung wählen Sie, wie Sie Ihre Arbeit nennen. Die ganze Anwendung passt sich an, bis zu den PDF-Rapporten.',
+    vocab: ['Baustelle', 'Projekt', 'Mandat', 'Dossier'],
+    nichesLabel: 'Auch für',
+    niches: ['Garten- und Landschaftsbau', 'Gebäudetechnik', 'Reinigung und Facility Management', 'Events und Szenografie', 'Agenturen und Kreativstudios', 'Planungs- und Architekturbüros', 'Kunsthandwerk und Ateliers', 'Umzug und Logistik'],
+    cta: 'Mit Ihrer Branche testen',
   },
   stories: {
     title: 'Sechs Situationen, die Sie kennen',
@@ -974,9 +1009,9 @@ const de: Dict = {
   },
   products: {
     eyebrow: 'Produkte',
-    title: 'Ein Ökosystem für die ganze Baubranche.',
+    title: 'Ein Ökosystem für Unternehmen, die in Projekten arbeiten.',
     items: [
-      { name: 'Cantia', tag: 'Für Unternehmen', text: 'Offerten, QR-Rechnungen, Baustellen, Rapporte, Stunden und Löhne. Die Verwaltungssoftware für Bauunternehmen.', cta: 'Kostenlos testen' },
+      { name: 'Cantia', tag: 'Für Unternehmen', text: 'Offerten, QR-Rechnungen, Baustellen, Rapporte, Stunden und Löhne. Die Verwaltungssoftware für den Bau und alle Projektbranchen.', cta: 'Kostenlos testen' },
       { name: 'Cantia Accounting', tag: 'Kostenlos für Treuhänder', text: 'Alle Buchhaltungsdaten Ihrer Mandanten, Belegeanfragen und MWST-Fristen an einem Ort.', cta: 'Bereich entdecken' },
       { name: 'Cantia Partners', tag: 'Partnerprogramm', text: 'Empfehlen Sie Cantia und erhalten Sie 25 % der Zahlungen jedes vermittelten Unternehmens während 12 Monaten.', cta: 'Partner werden' },
     ],
@@ -1042,7 +1077,7 @@ const de: Dict = {
     title: 'Häufige Fragen',
     link: 'Hilfe-Center besuchen',
     items: [
-      { q: 'An wen richtet sich Cantia?', a: 'An Selbstständige und Unternehmen des Schweizer Baugewerbes: Maurerarbeiten, Zimmerei, Malerarbeiten, Elektrik, Tiefbau und andere Bauberufe.' },
+      { q: 'An wen richtet sich Cantia?', a: 'Zuerst an Selbstständige und Unternehmen des Schweizer Baugewerbes: Maurerarbeiten, Zimmerei, Malerarbeiten, Elektrik, Tiefbau und andere Bauberufe. Aber auch an jedes Unternehmen, das in Projekten arbeitet, etwa Gartenbau, Reinigung, Events oder Agenturen: Sie wählen sogar, ob Sie von Baustellen, Projekten, Mandaten oder Dossiers sprechen.' },
       { q: 'Funktioniert Cantia auch ohne Bexio?', a: 'Ja. Sie können Ihre Tätigkeit allein in Cantia verwalten. Die Bexio-Integration erlaubt es, Ihre Daten in beiden Tools wiederzufinden, falls Sie Bexio bereits nutzen.' },
       { q: 'Wie nutzt man Cantia auf dem Telefon?', a: 'Öffnen Sie Cantia in Ihrem Browser und fügen Sie es zu Ihrem Startbildschirm hinzu. Die App-Store- und Google-Play-Versionen sind in Entwicklung.' },
       { q: 'Was umfasst die 14-tägige Testphase?', a: 'Neue Konten verfügen über 14 Tage Testphase, ohne Aktionscode. Wählen Sie Ihre Formel bei der Registrierung und prüfen Sie deren Bedingungen vor der Bestätigung.' },
@@ -1072,7 +1107,7 @@ const de: Dict = {
     paidCta: '14 Tage testen',
   },
   footer: {
-    blurb: 'Die Plattform für das Schweizer Baugewerbe.',
+    blurb: 'Die Schweizer Plattform für Baustellen und Projekte.',
     platformTitle: 'Die Plattform',
     platformDevis: 'Offerten & Angebote',
     platformFactures: 'Rechnungen & Zahlungen',
@@ -1099,7 +1134,7 @@ const de: Dict = {
     productsApp: 'Cantia für Unternehmen',
     privacyLink: 'Datenschutz',
     cgvLink: 'AGB',
-    copyright: '© {year} Cantia. Entwickelt für das Schweizer Baugewerbe.',
+    copyright: '© {year} Cantia. Im Schweizer Baugewerbe entstanden, offen für alle Projekte.',
   },
 };
 
@@ -1114,7 +1149,7 @@ const it: Dict = {
     mobileApp: 'App mobile',
   },
   hero: {
-    kicker: 'Software di cantiere per le imprese edili svizzere',
+    kicker: 'Software svizzero per la gestione di cantieri e progetti',
     titlePrefix: 'Gestisca i suoi cantieri,',
     titleHighlight: 'non la sua',
     crossedText: 'amministrazione.',
@@ -1124,7 +1159,7 @@ const it: Dict = {
     facts: ['Da CHF 39.– al mese', '14 giorni di prova, senza impegno', 'Dati ospitati a Zurigo'],
     trustCount: '+{{count}} imprese del settore edile si fidano già di noi',
     cartouche: [
-      { label: 'Oggetto', value: 'Software di gestione del cantiere' },
+      { label: 'Oggetto', value: 'Gestione di cantieri e progetti' },
       { label: 'Per', value: 'Imprese da 1 a 25 persone' },
       { label: 'Lingue', value: 'Français, Deutsch, Italiano' },
       { label: 'Hosting', value: 'Zurigo, Svizzera' },
@@ -1160,6 +1195,17 @@ const it: Dict = {
       { title: 'La sua identità', text: 'Il suo logo e i suoi colori accompagnano i documenti inviati ai clienti.' },
       { title: 'La sua organizzazione', text: 'Adatta gli accessi alle responsabilità di ogni membro della squadra.' },
     ],
+  },
+  beyond: {
+    eyebrow: 'Non solo edilizia',
+    title: 'Nato nei cantieri. Pronto per tutti i vostri progetti.',
+    text: 'Cantia è stato pensato con le imprese edili, ma la sua logica è universale: un cliente, un preventivo, un progetto, un team, una fattura. Se la vostra impresa lavora per progetti, Cantia lavora come voi.',
+    vocabLabel: 'Il vostro vocabolario',
+    vocabText: 'All’iscrizione scegliete come chiamate il vostro lavoro. Tutta l’applicazione si adatta, fino ai rapporti PDF.',
+    vocab: ['Cantiere', 'Progetto', 'Mandato', 'Dossier'],
+    nichesLabel: 'Anche per',
+    niches: ['Paesaggismo e giardini', 'Impiantistica', 'Pulizie e facility management', 'Eventi e scenografia', 'Agenzie e studi creativi', 'Studi tecnici e architetti', 'Artigianato artistico e laboratori', 'Traslochi e logistica'],
+    cta: 'Provatelo con il vostro mestiere',
   },
   stories: {
     title: 'Sei situazioni che conosce',
@@ -1413,9 +1459,9 @@ const it: Dict = {
   },
   products: {
     eyebrow: 'Prodotti',
-    title: 'Un ecosistema per tutta l’edilizia.',
+    title: 'Un ecosistema per le imprese che lavorano per progetti.',
     items: [
-      { name: 'Cantia', tag: 'Per le imprese', text: 'Preventivi, fatture QR, cantieri, rapporti, ore e salari. Il software di gestione delle imprese edili.', cta: 'Provare gratis' },
+      { name: 'Cantia', tag: 'Per le imprese', text: 'Preventivi, fatture QR, cantieri, rapporti, ore e salari. Il software di gestione per l’edilizia e tutti i mestieri a progetto.', cta: 'Provare gratis' },
       { name: 'Cantia Accounting', tag: 'Gratuito per i fiduciari', text: 'Tutti i dati contabili dei suoi mandanti, le richieste di documenti e le scadenze IVA in un unico posto.', cta: 'Scoprire lo spazio' },
       { name: 'Cantia Partners', tag: 'Programma partner', text: 'Raccomandi Cantia e riceva il 25 % dei pagamenti di ogni impresa presentata, per 12 mesi.', cta: 'Diventare partner' },
     ],
@@ -1481,7 +1527,7 @@ const it: Dict = {
     title: 'Domande frequenti',
     link: 'Consulti il centro assistenza',
     items: [
-      { q: 'A chi si rivolge Cantia?', a: 'A indipendenti e imprese dell’edilizia svizzera: muratura, carpenteria, pittura, elettricità, genio civile e altri mestieri delle costruzioni.' },
+      { q: 'A chi si rivolge Cantia?', a: 'Prima di tutto a indipendenti e imprese dell’edilizia svizzera: muratura, carpenteria, pittura, elettricità, genio civile e altri mestieri delle costruzioni. Ma anche a qualsiasi impresa che lavora per progetti, come paesaggismo, pulizie, eventi o agenzie: scegliete persino se parlare di cantieri, progetti, mandati o dossier.' },
       { q: 'Cantia funziona anche senza Bexio?', a: 'Sì. Può gestire la sua attività in Cantia da solo. L’integrazione Bexio permette di ritrovare i suoi dati in entrambi gli strumenti se usa già Bexio.' },
       { q: 'Come si usa Cantia sul telefono?', a: 'Apra Cantia nel suo browser e lo aggiunga alla schermata principale. Le versioni App Store e Google Play sono in sviluppo.' },
       { q: 'Cosa comprende la prova di 14 giorni?', a: 'I nuovi account dispongono di 14 giorni di prova, senza codice promozionale. Scelga la sua formula al momento della registrazione e ne consulti le condizioni prima di confermare.' },
@@ -1511,7 +1557,7 @@ const it: Dict = {
     paidCta: 'Provi 14 giorni',
   },
   footer: {
-    blurb: 'La piattaforma per l’edilizia svizzera.',
+    blurb: 'La piattaforma svizzera per cantieri e progetti.',
     platformTitle: 'La piattaforma',
     platformDevis: 'Preventivi & offerte',
     platformFactures: 'Fatture & pagamenti',
@@ -1538,7 +1584,7 @@ const it: Dict = {
     productsApp: 'Cantia per le imprese',
     privacyLink: 'Privacy',
     cgvLink: 'Condizioni generali',
-    copyright: '© {year} Cantia. Pensato per l’edilizia svizzera.',
+    copyright: '© {year} Cantia. Nato nell’edilizia svizzera, aperto a tutti i progetti.',
   },
 };
 
