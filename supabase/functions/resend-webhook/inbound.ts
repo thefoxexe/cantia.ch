@@ -3,10 +3,10 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 // Resend inbound (email.received) for the "suivi des e-mails" address of
 // each organization (<token>@suivi.cantia.ch, see
 // supabase/migrations/20260929140000_sales_email_inbox.sql). An email is
-// kept only when it comes from a member of the organization (Bcc, forward)
-// or from one of its clients (reply through the Reply-To of every devis /
-// facture email, see _shared/sales-inbox.ts); anything else is not filed.
-// It is filed on the matching devis or facture.
+// kept whole (body, recipients, attachments) whoever sent it: a member of
+// the organization (Bcc, forward), a client replying through the Reply-To of
+// every devis / facture email (see _shared/sales-inbox.ts), or anyone else.
+// It is filed on the matching devis or facture when there is one.
 //
 // That Reply-To is the Cantia address alone, so every reply that does not
 // come from a member is first forwarded to the organization's own address
@@ -15,6 +15,9 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 const INBOUND_DOMAIN = (Deno.env.get('INBOUND_EMAIL_DOMAIN') ?? 'suivi.cantia.ch').toLowerCase();
 const SNIPPET_MAX = 800;
+const BODY_MAX = 200_000;
+const HTML_MAX = 600_000;
+const ATTACHMENT_MAX_BYTES = 25 * 1024 * 1024;
 
 type Admin = SupabaseClient;
 
@@ -101,20 +104,17 @@ async function fileInboundEmail(
       direction = 'outgoing';
       counterpart = others[0];
     } else {
-      // Sent only to the address: a forwarded email from a client.
+      // Sent only to the address: something forwarded to the mailbox. It
+      // lands in the inbox, under the original sender when it can be read.
       const original = forwardedSender(text);
-      if (original && !(await memberOf(admin, organizationId, original))) {
-        direction = 'incoming';
-        counterpart = original;
-      } else {
-        direction = 'outgoing';
-      }
+      direction = 'incoming';
+      counterpart = original && !(await memberOf(admin, organizationId, original)) ? original : from;
     }
-  } else if (await isKnownClient(admin, organizationId, from)) {
+  } else {
+    // A client, or anyone else who wrote to the address: the mailbox keeps
+    // every e-mail received, like any inbox.
     direction = 'incoming';
     counterpart = from;
-  } else {
-    return 'unknown sender';
   }
 
   const subject = (email.subject ?? '').slice(0, 300) || null;
@@ -141,12 +141,20 @@ async function fileInboundEmail(
         member_user_id: memberId,
         occurred_at: email.created_at ?? occurredAt,
         resend_email_id: emailId,
+        from_name: displayNameOf(email.from),
+        to_emails: list(email.to).map(addressOf).filter((a): a is string => !!a),
+        cc_emails: list(email.cc).map(addressOf).filter((a): a is string => !!a),
+        body_text: text.slice(0, BODY_MAX),
+        body_html: email.html ? email.html.slice(0, HTML_MAX) : null,
+        // The member's own copy (Bcc, forward) is already read.
+        read_at: memberId && direction === 'outgoing' ? new Date().toISOString() : null,
       },
       { onConflict: 'resend_email_id', ignoreDuplicates: true },
     )
     .select('id')
     .maybeSingle();
   if (error) throw new Error(`sales_emails insert failed: ${error.message}`);
+  if (row) await storeAttachments(admin, organizationId, row.id as string, emailId);
 
   // On the devis timeline too. A client's reply also stops the follow-ups
   // (send-devis-followups skips devis with a reply_received event).
@@ -220,6 +228,45 @@ async function receivedAttachments(apiKey: string, emailId: string): Promise<{ f
   }
 }
 
+// Copies the attachments of a received e-mail into the private
+// mail-attachments bucket (Resend's download links expire), and lists them
+// on the row. A failed file is skipped, never the e-mail.
+async function storeAttachments(admin: Admin, organizationId: string, rowId: string, emailId: string): Promise<void> {
+  const apiKey = Deno.env.get('RESEND_API_KEY');
+  if (!apiKey) return;
+  let items: { filename?: string; content_type?: string; size?: number; download_url?: string }[] = [];
+  try {
+    const res = await fetch(`https://api.resend.com/emails/receiving/${emailId}/attachments`, { headers: { Authorization: `Bearer ${apiKey}` } });
+    if (!res.ok) return;
+    items = ((await res.json()) as { data?: typeof items }).data ?? [];
+  } catch (err) {
+    console.error('attachments list failed', err);
+    return;
+  }
+  const stored: { name: string; path: string; size: number; content_type: string }[] = [];
+  for (const [i, a] of items.entries()) {
+    if (!a.download_url || (a.size ?? 0) > ATTACHMENT_MAX_BYTES) continue;
+    try {
+      const file = await fetch(a.download_url);
+      if (!file.ok) continue;
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const name = a.filename || `piece-jointe-${i + 1}`;
+      const safe = name.normalize('NFKD').replace(/[^\w.\-]+/g, '_').slice(-120) || `piece-jointe-${i + 1}`;
+      const path = `${organizationId}/${rowId}/${i + 1}-${safe}`;
+      const contentType = a.content_type || 'application/octet-stream';
+      const { error } = await admin.storage.from('mail-attachments').upload(path, bytes, { contentType, upsert: true });
+      if (error) {
+        console.error('attachment upload failed', error.message);
+        continue;
+      }
+      stored.push({ name, path, size: bytes.length, content_type: contentType });
+    } catch (err) {
+      console.error('attachment copy failed', err);
+    }
+  }
+  if (stored.length) await admin.from('sales_emails').update({ attachments: stored }).eq('id', rowId);
+}
+
 async function ownerEmail(admin: Admin, organizationId: string): Promise<string | null> {
   const { data: owner } = await admin
     .from('organization_members')
@@ -263,15 +310,6 @@ async function fetchReceivedEmail(id: string): Promise<ReceivedEmail | null> {
 async function memberOf(admin: Admin, organizationId: string, email: string): Promise<string | null> {
   const { data } = await admin.rpc('sales_inbox_member', { p_org_id: organizationId, p_email: email });
   return typeof data === 'string' ? data : null;
-}
-
-async function isKnownClient(admin: Admin, organizationId: string, email: string): Promise<boolean> {
-  const [{ count: clients }, { count: devis }, { count: factures }] = await Promise.all([
-    admin.from('clients').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).ilike('email', email),
-    admin.from('devis').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).ilike('client_email', email),
-    admin.from('factures').select('id', { count: 'exact', head: true }).eq('organization_id', organizationId).ilike('client_email', email),
-  ]);
-  return (clients ?? 0) + (devis ?? 0) + (factures ?? 0) > 0;
 }
 
 interface DocRow {

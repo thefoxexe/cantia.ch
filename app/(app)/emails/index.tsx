@@ -4,10 +4,12 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { extraWorkProjects, listEmailMessages, matchesFilter, matchesSearch, sentByNames, type EmailMessage } from '../../../lib/api/emails';
-import { listSalesEmails, type SalesEmail } from '../../../lib/api/salesEmails';
+import { listSalesEmails, setSalesEmailRead, type SalesEmail } from '../../../lib/api/salesEmails';
+import { supabase } from '../../../lib/supabase';
 import { AppScreen, Card, EmptyState, LoadingScreen, PageHeader } from '../../../components/ui';
-import { MailRow, isFresh, type MailItem } from '../../../components/emails/MailParts';
+import { MailRow, type MailItem } from '../../../components/emails/MailParts';
 import { MailReader } from '../../../components/emails/MailReader';
+import { MailboxSettings } from '../../../components/emails/MailboxSettings';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -30,7 +32,7 @@ const LABEL_FOLDERS: { key: Folder; color: string }[] = [
   { key: 'factures', color: '#3E6B5A' },
 ];
 
-function folderItems(folder: Folder, sent: EmailMessage[], received: SalesEmail[]): MailItem[] {
+function folderItems(folder: Folder, sent: EmailMessage[], received: SalesEmail[], filedOut: SalesEmail[] = []): MailItem[] {
   const s = (list: EmailMessage[]): MailItem[] => list.map((m) => ({ type: 'sent', id: `s:${m.id}`, at: m.sent_at, m }));
   const r = (list: SalesEmail[]): MailItem[] => list.map((e) => ({ type: 'received', id: `r:${e.id}`, at: e.occurred_at, e }));
   let items: MailItem[];
@@ -39,7 +41,8 @@ function folderItems(folder: Folder, sent: EmailMessage[], received: SalesEmail[
       items = r(received);
       break;
     case 'sent':
-      items = s(sent);
+      // Sent from Cantia, and the copies of your own e-mails (Cc / Cci).
+      items = [...s(sent), ...r(filedOut)];
       break;
     case 'watch':
       items = s(sent.filter((m) => matchesFilter(m, 'watch')));
@@ -77,6 +80,9 @@ export default function EmailsScreen() {
   const [loading, setLoading] = useState(true);
   const [sent, setSent] = useState<EmailMessage[]>([]);
   const [received, setReceived] = useState<SalesEmail[]>([]);
+  const [filedOut, setFiledOut] = useState<SalesEmail[]>([]);
+  const [hasPlan, setHasPlan] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
   const [names, setNames] = useState<Record<string, string>>({});
   const [projects, setProjects] = useState<Record<string, string>>({});
   const [folder, setFolder] = useState<Folder | null>(null);
@@ -88,9 +94,15 @@ export default function EmailsScreen() {
       setLoading(false);
       return;
     }
-    const [rows, filed] = await Promise.all([listEmailMessages(organization.id), listSalesEmails(organization.id, { limit: 300 })]);
+    const [rows, filed, plan] = await Promise.all([
+      listEmailMessages(organization.id),
+      listSalesEmails(organization.id, { limit: 300 }),
+      supabase.rpc('org_has_sales_tracking', { org_id: organization.id }),
+    ]);
     setSent(rows);
     setReceived(filed.filter((e) => e.direction === 'incoming'));
+    setFiledOut(filed.filter((e) => e.direction === 'outgoing'));
+    setHasPlan(plan.data === true);
     setLoading(false);
     const [who, where] = await Promise.all([
       sentByNames(organization.id, rows.map((m) => m.sent_by ?? '')),
@@ -110,12 +122,12 @@ export default function EmailsScreen() {
     if (params.id) setSelectedId(`s:${params.id}`);
   }, [params.id]);
 
-  // Opens on the inbox when clients have replied, else on the sent e-mails.
-  const activeFolder: Folder = folder ?? (params.id || received.length === 0 ? 'sent' : 'inbox');
-  const items = useMemo(() => folderItems(activeFolder, sent, received).filter((i) => itemMatches(i, search)), [activeFolder, sent, received, search]);
+  // The mailbox opens on what was received, like any inbox.
+  const activeFolder: Folder = folder ?? (params.id ? 'sent' : 'inbox');
+  const items = useMemo(() => folderItems(activeFolder, sent, received, filedOut).filter((i) => itemMatches(i, search)), [activeFolder, sent, received, filedOut, search]);
   const counts = useMemo(
     () => ({
-      inbox: received.filter((e) => isFresh(e.occurred_at)).length,
+      inbox: received.filter((e) => !e.read_at).length,
       watch: sent.filter((m) => matchesFilter(m, 'watch')).length,
     }),
     [sent, received],
@@ -130,7 +142,22 @@ export default function EmailsScreen() {
     };
   }, [sent]);
 
-  const all = useMemo(() => [...folderItems('sent', sent, []), ...folderItems('inbox', [], received)], [sent, received]);
+  const all = useMemo(() => [...folderItems('sent', sent, [], filedOut), ...folderItems('inbox', [], received)], [sent, received, filedOut]);
+
+  // Opening a received e-mail marks it read.
+  const setRead = useCallback((id: string, read: boolean) => {
+    const at = read ? new Date().toISOString() : null;
+    setReceived((list) => list.map((e) => (e.id === id ? { ...e, read_at: at } : e)));
+    setSalesEmailRead(id, read);
+  }, []);
+  const open = useCallback(
+    (item: MailItem) => {
+      setShowSettings(false);
+      setSelectedId(item.id);
+      if (item.type === 'received' && !item.e.read_at) setRead(item.e.id, true);
+    },
+    [setRead],
+  );
   const selected = all.find((i) => i.id === selectedId) ?? null;
 
   if (loading) return <LoadingScreen />;
@@ -164,8 +191,17 @@ export default function EmailsScreen() {
       related={related}
       onBack={twoPanes ? undefined : () => setSelectedId(null)}
       onResent={load}
+      onMarkUnread={
+        selected.type === 'received'
+          ? () => {
+              setRead(selected.e.id, false);
+              setSelectedId(null);
+            }
+          : undefined
+      }
     />
   ) : null;
+  const settingsView = showSettings ? <MailboxSettings orgId={organization!.id} hasPlan={hasPlan} onBack={twoPanes ? undefined : () => setShowSettings(false)} /> : null;
 
   const statsLine = sent.length ? <Text style={styles.stats}>{t('emailHub.statsLine', stats)}</Text> : null;
   const folderLabel = (f: Folder) => (f === 'devis' || f === 'factures' ? t(`emailHub.label.${f}`) : t(`emailHub.folder.${f}`));
@@ -176,7 +212,7 @@ export default function EmailsScreen() {
       {MAIN_FOLDERS.map(({ key, icon }) => {
         const on = key === activeFolder;
         return (
-          <Pressable key={key} onPress={() => { setFolder(key); setSelectedId(null); }} style={[styles.folder, on && styles.folderOn]}>
+          <Pressable key={key} onPress={() => { setFolder(key); setSelectedId(null); setShowSettings(false); }} style={[styles.folder, on && !showSettings && styles.folderOn]}>
             <Feather name={icon} size={16} color={on ? colors.primaryDark : colors.textMuted} />
             <Text style={[styles.folderText, on && styles.folderTextOn]}>{folderLabel(key)}</Text>
             {badge(key) ? <Text style={[styles.folderCount, key === 'watch' && { color: colors.danger }]}>{badge(key)}</Text> : null}
@@ -187,7 +223,7 @@ export default function EmailsScreen() {
       {LABEL_FOLDERS.map(({ key, color }) => {
         const on = key === activeFolder;
         return (
-          <Pressable key={key} onPress={() => { setFolder(key); setSelectedId(null); }} style={[styles.folder, on && styles.folderOn]}>
+          <Pressable key={key} onPress={() => { setFolder(key); setSelectedId(null); setShowSettings(false); }} style={[styles.folder, on && !showSettings && styles.folderOn]}>
             <View style={[styles.labelDot, { backgroundColor: color }]} />
             <Text style={[styles.folderText, on && styles.folderTextOn]}>{folderLabel(key)}</Text>
           </Pressable>
@@ -203,6 +239,10 @@ export default function EmailsScreen() {
       ))}
       <Text style={styles.connectText}>{t('emailHub.connectedText')}</Text>
       <View style={{ flex: 1 }} />
+      <Pressable onPress={() => { setShowSettings(true); setSelectedId(null); }} style={[styles.folder, showSettings && styles.folderOn]}>
+        <Feather name="settings" size={16} color={showSettings ? colors.primaryDark : colors.textMuted} />
+        <Text style={[styles.folderText, showSettings && styles.folderTextOn]}>{t('emailHub.settings')}</Text>
+      </Pressable>
       {statsLine}
     </View>
   );
@@ -235,8 +275,13 @@ export default function EmailsScreen() {
     ) : (
       <Text style={styles.emptyFilter}>{t('emailHub.emptyFilter')}</Text>
     );
-  const rows = items.length ? items.map((i) => <MailRow key={i.id} item={i} selected={twoPanes && i.id === selectedId} onPress={() => setSelectedId(i.id)} />) : emptyList;
+  const rows = items.length ? items.map((i) => <MailRow key={i.id} item={i} selected={twoPanes && i.id === selectedId} onPress={() => open(i)} />) : emptyList;
 
+  const settingsBtn = (
+    <Pressable onPress={() => { setShowSettings(true); setSelectedId(null); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel={t('emailHub.settings')}>
+      <Feather name="settings" size={14} color={colors.text} />
+    </Pressable>
+  );
   const templatesBtn = (
     <Pressable onPress={() => router.push('/(app)/compte/emails' as any)} style={styles.headerBtn} accessibilityRole="button">
       <Feather name="edit-3" size={14} color={colors.text} />
@@ -250,7 +295,7 @@ export default function EmailsScreen() {
       {[...MAIN_FOLDERS.map((f) => f.key), ...LABEL_FOLDERS.map((f) => f.key)].map((key) => {
         const on = key === activeFolder;
         return (
-          <Pressable key={key} onPress={() => { setFolder(key); setSelectedId(null); }} style={[styles.chip, on && styles.chipOn]}>
+          <Pressable key={key} onPress={() => { setFolder(key); setSelectedId(null); setShowSettings(false); }} style={[styles.chip, on && styles.chipOn]}>
             <Text style={[styles.chipText, on && styles.chipTextOn]}>{folderLabel(key)}</Text>
             {badge(key) ? <Text style={[styles.chipCount, on && styles.chipTextOn, key === 'watch' && !on && { color: colors.danger }]}>{badge(key)}</Text> : null}
           </Pressable>
@@ -261,11 +306,21 @@ export default function EmailsScreen() {
 
   // Phone: the list, and the message full screen once opened.
   if (!twoPanes) {
+    if (settingsView) return <AppScreen>{settingsView}</AppScreen>;
     if (reader) return <AppScreen>{reader}</AppScreen>;
     return (
       <AppScreen>
         <ScrollView contentContainerStyle={styles.phone}>
-          <PageHeader title={t('emailHub.title')} backTo="/(app)" right={templatesBtn} />
+          <PageHeader
+            title={t('emailHub.title')}
+            backTo="/(app)"
+            right={
+              <View style={{ flexDirection: 'row', gap: spacing.xs }}>
+                {settingsBtn}
+                {templatesBtn}
+              </View>
+            }
+          />
           {chips}
           {statsLine}
           {searchBox}
@@ -279,7 +334,16 @@ export default function EmailsScreen() {
   return (
     <AppScreen>
       <View style={styles.page}>
-        <PageHeader title={t('emailHub.title')} backTo="/(app)" right={templatesBtn} />
+        <PageHeader
+          title={t('emailHub.title')}
+          backTo="/(app)"
+          right={
+            <View style={{ flexDirection: 'row', gap: spacing.xs }}>
+              {threePanes ? null : settingsBtn}
+              {templatesBtn}
+            </View>
+          }
+        />
         {threePanes ? null : chips}
         <View style={[styles.client, { height: paneHeight }]}>
           {threePanes ? sidebar : null}
@@ -292,7 +356,7 @@ export default function EmailsScreen() {
             <ScrollView style={{ flex: 1 }}>{rows}</ScrollView>
           </View>
           <View style={styles.readerPane}>
-            {reader ?? (
+            {settingsView ?? reader ?? (
               <View style={styles.placeholder}>
                 <Feather name="mail" size={34} color={colors.border} />
                 <Text style={styles.placeholderText}>{t('emailHub.selectPrompt')}</Text>

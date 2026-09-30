@@ -3,11 +3,12 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { conversationFor, documentHref, needsAttention, resendEmail, type EmailMessage } from '../../lib/api/emails';
-import type { SalesEmail } from '../../lib/api/salesEmails';
+import { getSalesEmailBody, type SalesEmail, type SalesEmailBody } from '../../lib/api/salesEmails';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 import { displayType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { Avatar, StatusTrack, type MailItem } from './MailParts';
+import { Attachments, MailBody } from './MailBody';
 
 // Reading pane of App › E-mails: a toolbar (reply, resend, open the
 // document), the message like a mail client shows it, then the exchange.
@@ -30,6 +31,7 @@ export function MailReader({
   related,
   onBack,
   onResent,
+  onMarkUnread,
 }: {
   item: MailItem;
   orgId: string;
@@ -39,6 +41,7 @@ export function MailReader({
   related: EmailMessage | null;
   onBack?: () => void;
   onResent: () => void;
+  onMarkUnread?: () => void;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -47,6 +50,12 @@ export function MailReader({
   const [confirming, setConfirming] = useState(false);
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const [body, setBody] = useState<SalesEmailBody | null>(null);
+  useEffect(() => {
+    setBody(null);
+    if (item.type === 'received') getSalesEmailBody(item.e.id).then(setBody);
+  }, [item.id]);
 
   useEffect(() => {
     setThread([]);
@@ -97,6 +106,12 @@ export function MailReader({
             {onBack ? null : <Text style={styles.toolText}>{sent.kind === 'facture_reminder' ? t('emailHub.sendReminder') : t('emailHub.resend')}</Text>}
           </Pressable>
         ) : null}
+        {received && onMarkUnread ? (
+          <Pressable onPress={onMarkUnread} style={styles.tool} accessibilityLabel={t('emailHub.markUnread')}>
+            <Feather name="mail" size={15} color={colors.text} />
+            {onBack ? null : <Text style={styles.toolText}>{t('emailHub.markUnread')}</Text>}
+          </Pressable>
+        ) : null}
         {href ? (
           <Pressable onPress={() => router.push(href as any)} style={styles.tool} accessibilityLabel={t('emailHub.openDocument')}>
             <Feather name="file-text" size={15} color={colors.text} />
@@ -122,13 +137,28 @@ export function MailReader({
         <Text style={styles.subject}>{subject || '—'}</Text>
 
         {received ? (
-          <Message
-            who={received.devis?.client_name || received.counterpart_email || received.from_email}
-            email={received.from_email}
-            to={orgName}
-            at={received.occurred_at}
-            text={received.snippet || t('emailHub.noSnippet')}
-          />
+          <View style={[styles.card, received.direction === 'incoming' && styles.cardIncoming]}>
+            <View style={styles.head}>
+              <Avatar label={received.from_name || received.devis?.client_name || received.counterpart_email || received.from_email} size={40} />
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.from} numberOfLines={1}>
+                  {received.from_name || received.devis?.client_name || received.from_email}{' '}
+                  <Text style={styles.fromEmail}>{`<${received.from_email}>`}</Text>
+                </Text>
+                <Text style={styles.to} numberOfLines={2} selectable>
+                  {t('emailHub.to')} {body?.to_emails?.length ? body.to_emails.join(', ') : orgName}
+                  {body?.cc_emails?.length ? `  ·  ${t('emailHub.cc')} ${body.cc_emails.join(', ')}` : ''}
+                </Text>
+              </View>
+              <Text style={styles.date}>{formatDateTime(received.occurred_at)}</Text>
+            </View>
+            {body ? (
+              <MailBody html={body.body_html} text={body.body_text || received.snippet || t('emailHub.noSnippet')} />
+            ) : (
+              <Text style={styles.text}>{received.snippet || ''}</Text>
+            )}
+            <Attachments items={body?.attachments ?? received.attachments ?? []} />
+          </View>
         ) : null}
 
         {sent ? (

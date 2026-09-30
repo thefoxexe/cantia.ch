@@ -23,8 +23,28 @@ export interface SalesEmail {
   facture_id: string | null;
   client_id: string | null;
   occurred_at: string;
+  from_name?: string | null;
+  read_at?: string | null;
+  attachments?: MailAttachment[];
   devis: { number: string | null; client_name: string | null } | null;
   facture: { number: string | null } | null;
+}
+
+export interface MailAttachment {
+  name: string;
+  path: string;
+  size: number;
+  content_type: string;
+}
+
+// The whole message, loaded when it is opened (the list only carries the
+// snippet).
+export interface SalesEmailBody {
+  body_text: string | null;
+  body_html: string | null;
+  to_emails: string[];
+  cc_emails: string[];
+  attachments: MailAttachment[];
 }
 
 export function salesInboxAddress(token: string): string {
@@ -65,7 +85,7 @@ export async function regenerateSalesInbox(orgId: string): Promise<{ token: stri
 export async function listSalesEmails(orgId: string, options: { limit?: number; devisId?: string } = {}): Promise<SalesEmail[]> {
   let query = supabase
     .from('sales_emails')
-    .select('id, direction, from_email, counterpart_email, subject, snippet, devis_id, facture_id, client_id, occurred_at, devis(number, client_name), facture:factures(number)')
+    .select('id, direction, from_email, from_name, counterpart_email, subject, snippet, devis_id, facture_id, client_id, occurred_at, read_at, attachments, devis(number, client_name), facture:factures(number)')
     .eq('organization_id', orgId)
     .order('occurred_at', { ascending: false })
     .limit(options.limit ?? 30);
@@ -81,4 +101,19 @@ export async function listSalesEmails(orgId: string, options: { limit?: number; 
 export async function deleteSalesEmail(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from('sales_emails').delete().eq('id', id);
   return { error: error?.message ?? null };
+}
+
+export async function getSalesEmailBody(id: string): Promise<SalesEmailBody | null> {
+  const { data } = await supabase.from('sales_emails').select('body_text, body_html, to_emails, cc_emails, attachments').eq('id', id).maybeSingle();
+  return (data as SalesEmailBody | null) ?? null;
+}
+
+export async function setSalesEmailRead(id: string, read: boolean): Promise<void> {
+  await supabase.rpc('set_sales_email_read', { p_id: id, p_read: read });
+}
+
+// Short-lived link to download an attachment (private bucket).
+export async function attachmentUrl(path: string): Promise<string | null> {
+  const { data } = await supabase.storage.from('mail-attachments').createSignedUrl(path, 300);
+  return data?.signedUrl ?? null;
 }

@@ -62,8 +62,9 @@ export function MailRow({ item, selected, onPress }: { item: MailItem; selected:
   const { t } = useTranslation();
   if (item.type === 'received') {
     const e = item.e;
-    const who = e.devis?.client_name || e.counterpart_email || e.from_email;
-    const fresh = isFresh(e.occurred_at);
+    const outgoing = e.direction === 'outgoing';
+    const who = outgoing ? e.counterpart_email || e.from_email : e.from_name || e.devis?.client_name || e.counterpart_email || e.from_email;
+    const fresh = !outgoing && !e.read_at;
     const doc = e.devis?.number ?? e.facture?.number ?? null;
     return (
       <Pressable onPress={onPress} style={({ pressed, hovered }: any) => [styles.row, (selected || pressed || hovered) && styles.rowActive, selected && styles.rowSelected]}>
@@ -72,6 +73,7 @@ export function MailRow({ item, selected, onPress }: { item: MailItem; selected:
           <View style={styles.rowTop}>
             {fresh ? <View style={styles.dot} /> : null}
             <Text style={[styles.rowWho, fresh && styles.bold]} numberOfLines={1}>{who}</Text>
+            {e.attachments?.length ? <Feather name="paperclip" size={12} color={colors.textMuted} /> : null}
             <Text style={[styles.rowTime, fresh && styles.timeFresh]}>{formatRelativeTime(e.occurred_at)}</Text>
           </View>
           <Text style={[styles.rowSubject, fresh && styles.bold]} numberOfLines={1}>{e.subject || '—'}</Text>
