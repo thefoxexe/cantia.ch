@@ -90,11 +90,6 @@ export function AccShell({
   const footer = (
     <View style={styles.sideFooter}>
       <AccLocaleSwitch />
-      {me?.is_admin ? (
-        <Pressable onPress={() => router.push('/admin' as any)}>
-          <Text style={styles.footLink}>{w.shell.admin}</Text>
-        </Pressable>
-      ) : null}
       <Pressable onPress={logout} accessibilityRole="button">
         <Text style={styles.footLink}>{w.shell.logout}</Text>
       </Pressable>

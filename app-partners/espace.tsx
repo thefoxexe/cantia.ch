@@ -49,7 +49,6 @@ export default function PartnerSpace() {
           right={
             session ? (
               <>
-                {isAdmin ? <NavButton href="/admin" label={PARTNERS_APP_COPY[locale].admin} /> : null}
                 <Pressable onPress={signOut} style={styles.signOut} accessibilityRole="button">
                   <Text style={styles.signOutText}>{copy.dashboard.signOut}</Text>
                 </Pressable>

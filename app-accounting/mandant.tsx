@@ -180,7 +180,7 @@ export default function MandantPage() {
               ))}
             </View>
 
-            <View style={styles.tabs}>
+            <View style={[styles.tabs, !wide && styles.tabsMobile]}>
               {sections.map((sec) => (
                 <Pressable key={sec} onPress={() => setSection(sec)} style={[styles.tab, section === sec && styles.tabActive]} accessibilityRole="tab" aria-selected={section === sec}>
                   <Text style={[styles.tabText, section === sec && styles.tabTextActive]}>{sectionLabel(sec)}</Text>
@@ -670,7 +670,10 @@ function Integrations({ orgId }: { orgId: string }) {
 const styles = StyleSheet.create({
   wrap: { width: '100%', gap: spacing.lg },
   tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, borderBottomWidth: 1, borderBottomColor: colors.border },
-  tab: { paddingVertical: 10, paddingHorizontal: spacing.md, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
+  // Phones: one line that slides sideways (plain CSS overflow, not a nested
+  // scroll view, which used to stretch over the whole screen).
+  tabsMobile: { flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'none' } as any,
+  tab: { flexShrink: 0, paddingVertical: 10, paddingHorizontal: spacing.md, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
   tabActive: { borderBottomColor: colors.primary },
   tabText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.textMuted },
   tabTextActive: { color: colors.text, fontWeight: '800' },

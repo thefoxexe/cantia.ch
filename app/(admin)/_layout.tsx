@@ -1,32 +1,55 @@
-import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/auth-context';
 import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { AdminDataProvider, useAdminData } from '../../lib/adminDataContext';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 
-// "Comptes" (individual users) is deliberately not a top-level destination —
-// entreprises are what matters day to day, a member is reached from its
-// org's detail page instead (see the "Membres" row there). The route itself
-// still exists and still works, just not in this nav.
-const NAV_ITEMS: { href: string; label: string; icon: keyof typeof Feather.glyphMap }[] = [
-  { href: '/(admin)', label: 'Dashboard', icon: 'home' },
-  { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase' },
-  { href: '/(admin)/usage', label: 'Utilisation', icon: 'bar-chart-2' },
-  { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
-  { href: '/(admin)/subscriptions', label: 'Abos', icon: 'credit-card' },
-  { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up' },
-  { href: '/(admin)/blog-leads', label: 'Blog & Leads', icon: 'download' },
-  { href: '/(admin)/trafic', label: 'Trafic', icon: 'compass' },
-  { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail' },
-  { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
-  { href: '/(admin)/social', label: 'Réseaux sociaux', icon: 'share-2' },
-  { href: '/(admin)/logs', label: 'Logs', icon: 'list' },
+// Grouped by what you come to do. "Comptes" (individual users) is not a
+// top-level destination: a member is reached from its company's page. The
+// partner program and the fiduciary space are administered here too (their
+// own sites have no admin anymore).
+type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap };
+const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
+  { title: null, items: [{ href: '/(admin)', label: 'Dashboard', icon: 'home' }] },
+  {
+    title: 'Clients',
+    items: [
+      { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase' },
+      { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card' },
+      { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up' },
+    ],
+  },
+  {
+    title: 'Produit',
+    items: [
+      { href: '/(admin)/usage', label: 'Utilisation', icon: 'bar-chart-2' },
+      { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
+    ],
+  },
+  {
+    title: 'Écosystème',
+    items: [
+      { href: '/(admin)/partners', label: 'Partners', icon: 'award' },
+      { href: '/(admin)/fiduciaires', label: 'Fiduciaires', icon: 'shield' },
+    ],
+  },
+  {
+    title: 'Acquisition',
+    items: [
+      { href: '/(admin)/trafic', label: 'Trafic', icon: 'compass' },
+      { href: '/(admin)/blog-leads', label: 'Blog & leads', icon: 'download' },
+      { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail' },
+      { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
+    ],
+  },
+  { title: 'Système', items: [{ href: '/(admin)/logs', label: 'Logs', icon: 'list' }] },
 ];
+const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 
 function activeHrefFor(pathname: string): string | null {
   let best: string | null = null;
@@ -80,6 +103,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
   const isDesktop = width >= breakpoints.tablet;
   const activeHref = activeHrefFor(pathname);
   const { loading: dataLoading } = useAdminData();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (dataLoading) {
     return <LoadingScreen label="Calcul en cours… récupération des données" />;
@@ -97,22 +121,27 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
             <Feather name="shield" size={10} color="#fff" />
             <Text style={styles.badgeText}>SUPER ADMIN</Text>
           </View>
-          <View style={styles.nav}>
-            {NAV_ITEMS.map((item) => {
-              const active = item.href === activeHref;
-              return (
-                <Pressable
-                  key={item.href}
-                  style={[styles.navItem, active && styles.navItemActive]}
-                  onPress={() => router.replace(item.href as any)}
-                >
-                  {active ? <View style={styles.navItemBar} /> : null}
-                  <Feather name={item.icon} size={17} color={active ? colors.primary : colors.textMuted} />
-                  <Text style={[styles.navItemText, active && styles.navItemTextActive]}>{item.label}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <ScrollView style={styles.nav} contentContainerStyle={{ gap: 2, paddingBottom: spacing.md }} showsVerticalScrollIndicator={false}>
+            {NAV_GROUPS.map((group) => (
+              <View key={group.title ?? 'home'} style={{ gap: 2 }}>
+                {group.title ? <Text style={styles.groupTitle}>{group.title}</Text> : null}
+                {group.items.map((item) => {
+                  const active = item.href === activeHref;
+                  return (
+                    <Pressable
+                      key={item.href}
+                      style={({ hovered }: any) => [styles.navItem, hovered && !active && styles.navItemHover, active && styles.navItemActive]}
+                      onPress={() => router.replace(item.href as any)}
+                    >
+                      {active ? <View style={styles.navItemBar} /> : null}
+                      <Feather name={item.icon} size={16} color={active ? colors.primary : colors.textMuted} />
+                      <Text style={[styles.navItemText, active && styles.navItemTextActive]}>{item.label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
+          </ScrollView>
           <Pressable style={styles.exitLink} onPress={signOut}>
             <Feather name="log-out" size={15} color={colors.textMuted} />
             <Text style={styles.exitLinkText}>Déconnexion</Text>
@@ -132,7 +161,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
       <View style={[styles.mobileTopBar, { paddingTop: insets.top + spacing.sm }]}>
         <Image source={require('../../assets/logo-mark.png')} style={styles.mobileBrandLogo} resizeMode="contain" />
         <Text style={styles.brandText}>Cantia</Text>
-        <View style={styles.badge}>
+        <View style={[styles.badge, styles.badgeInline]}>
           <Feather name="shield" size={10} color="#fff" />
           <Text style={styles.badgeText}>SUPER ADMIN</Text>
         </View>
@@ -141,31 +170,41 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
           <Feather name="log-out" size={18} color={colors.textMuted} />
         </Pressable>
       </View>
-      {/* A top nav strip, not a bottom tab bar — 7 destinations crammed into
-          equal-width bottom tabs left every label either truncated or
-          unreadably tiny on a real phone. Chips size to their own label
-          instead. This is a flexWrap row, NOT a horizontal ScrollView: a
-          ScrollView here — even one that isn't nested inside the page's own
-          vertical scroller, just a sibling above it in the same flex
-          column — was still enough to break that page's vertical scroll on
-          real mobile browsers (confirmed live on Entreprises). Wrapping to
-          a second line on narrow phones costs a little height; it never
-          costs scroll. */}
-      <View style={styles.mobileNavBar}>
-        {NAV_ITEMS.map((item) => {
-          const active = item.href === activeHref;
-          return (
-            <Pressable
-              key={item.href}
-              style={[styles.mobileNavItem, active && styles.mobileNavItemActive]}
-              onPress={() => router.replace(item.href as any)}
-            >
-              <Feather name={item.icon} size={15} color={active ? colors.primary : colors.textMuted} />
-              <Text style={[styles.mobileNavItemText, active && styles.mobileNavItemTextActive]}>{item.label}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {/* Current page + a menu button: the grouped list opens under the
+          bar (no horizontal ScrollView here, it broke the page's vertical
+          scroll on real phones). */}
+      <Pressable style={styles.mobileCurrent} onPress={() => setMenuOpen((v) => !v)}>
+        <Feather name={NAV_ITEMS.find((i) => i.href === activeHref)?.icon ?? 'menu'} size={15} color={colors.primary} />
+        <Text style={styles.mobileCurrentText}>{NAV_ITEMS.find((i) => i.href === activeHref)?.label ?? 'Menu'}</Text>
+        <Feather name={menuOpen ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+      </Pressable>
+      {menuOpen ? (
+        <View style={styles.mobileMenu}>
+          {NAV_GROUPS.map((group) => (
+            <View key={group.title ?? 'home'} style={{ gap: 2 }}>
+              {group.title ? <Text style={styles.groupTitle}>{group.title}</Text> : null}
+              <View style={styles.mobileMenuRow}>
+                {group.items.map((item) => {
+                  const active = item.href === activeHref;
+                  return (
+                    <Pressable
+                      key={item.href}
+                      style={[styles.mobileNavItem, active && styles.mobileNavItemActive]}
+                      onPress={() => {
+                        setMenuOpen(false);
+                        router.replace(item.href as any);
+                      }}
+                    >
+                      <Feather name={item.icon} size={15} color={active ? colors.primary : colors.textMuted} />
+                      <Text style={[styles.mobileNavItemText, active && styles.mobileNavItemTextActive]}>{item.label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
       <View style={styles.mobileContent}>
         <ErrorBoundary key={pathname}>
           <Slot />
@@ -224,6 +263,11 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.sm,
     marginBottom: spacing.xl,
   },
+  badgeInline: {
+    marginBottom: 0,
+    marginHorizontal: 0,
+    alignSelf: 'center',
+  },
   badgeText: {
     fontSize: 10,
     fontWeight: '800',
@@ -239,11 +283,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.md,
+    paddingVertical: 9,
     borderRadius: radius.md,
   },
   navItemActive: {
     backgroundColor: colors.primarySoft,
+  },
+  navItemHover: {
+    backgroundColor: colors.bg,
+  },
+  groupTitle: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
+    paddingHorizontal: spacing.sm,
+    marginTop: spacing.md,
+    marginBottom: 2,
+  },
+  mobileCurrent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm + 2,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  mobileCurrentText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  mobileMenu: {
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
+  },
+  mobileMenuRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
   },
   navItemBar: {
     position: 'absolute',
@@ -256,7 +341,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   navItemText: {
-    fontSize: fontSize.md,
+    fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.textMuted,
   },

@@ -16,7 +16,7 @@ Un seul dépôt, un seul `netlify.toml`, un seul projet Supabase. `app.config.js
 
 Fichiers principaux :
 
-- `app-accounting/` : `index|de|it` (landing), `connexion`, `espace` (onboarding + cockpit), `mandant?id=`, `invitation?token=`, `admin`
+- `app-accounting/` : `index|de|it` (landing), `connexion`, `espace` (onboarding + cockpit), `mandant?id=`, `invitation?token=` ; l’admin est dans l’app (`app/(admin)/fiduciaires`)
 - `components/accounting/` : `AccountingChrome`, `AccountingLanding`, `Onboarding`, `Cockpit`
 - `lib/accounting/` : `copy.ts` (FR/DE/IT), `locale.tsx`, `api.ts`
 - App (client) : `app/(app)/compte/fiduciaire.tsx`, `lib/api/fiduciary.ts`
@@ -92,7 +92,7 @@ invitation nouveau client.
 
 ## Admin
 
-`accounting.cantia.ch/admin` (permission `accounting.admin`, donnée aux admins plateforme) : nombre de fiduciaires,
+Super Admin de l’app › Écosystème › Fiduciaires (permission `accounting.admin`, donnée aux admins plateforme ; plus d’admin sur accounting.cantia.ch) : nombre de fiduciaires,
 actives, mandants liés, clients acquis, MRR acquis, fiduciaires partenaires, demandes suspectes (refus répétés,
 volume anormal). Fiche : profil, membres, mandants, invitations, profil Partners, commissions, notes, journal ;
 actions vérifier / suspendre / bloquer / retirer un accès / ajouter une note.

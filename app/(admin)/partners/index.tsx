@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Head from 'expo-router/head';
-import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button } from '../components/ui';
-import { NavButton, PAGE_MAX, PartnersNav, PartnersPage } from '../components/partners/PartnersChrome';
-import { usePartnerSession } from '../lib/partners/session';
+import { Button } from '../../../components/ui';
 import {
   amPartnersAdmin,
   formatChf,
@@ -15,13 +11,15 @@ import {
   type AdminOverview,
   type AdminPartner,
   type AdminPayout,
-} from '../lib/partners/api';
-import { PARTNERS_COPY } from '../lib/partners/copy';
-import { displayType, monoType } from '../lib/marketingTheme';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+} from '../../../lib/partners/api';
+import { PARTNERS_COPY } from '../../../lib/partners/copy';
+import { displayType, monoType } from '../../../lib/marketingTheme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
-// Cantia Partners administration (partners.admin permission, checked by
-// every database function; this screen only decides what to show). Monthly
+// Super Admin › Partners: administration of Cantia Partners (moved here
+// from partners.cantia.ch, one admin for everything). partners.admin
+// permission, checked by every database function; this screen only decides
+// what to show. Monthly
 // routine: check bank details, prepare the payouts, make the transfers,
 // mark them paid. Internal tool: French only.
 
@@ -43,9 +41,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString('fr-CH', { day: '
 const month = (iso: string) => new Date(iso).toLocaleDateString('fr-CH', { month: 'long', year: 'numeric' });
 const formatIban = (iban: string | null) => (iban ?? '').replace(/(.{4})/g, '$1 ').trim();
 
-export default function PartnersAdmin() {
-  const router = useRouter();
-  const session = usePartnerSession();
+export default function AdminPartners() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [partners, setPartners] = useState<AdminPartner[] | null>(null);
@@ -72,16 +68,11 @@ export default function PartnersAdmin() {
   }, []);
 
   useEffect(() => {
-    if (session === null) {
-      router.replace('/connexion');
-      return;
-    }
-    if (!session) return;
     amPartnersAdmin().then((ok) => {
       setAllowed(ok);
       if (ok) load();
     });
-  }, [session, router, load]);
+  }, [load]);
 
   async function run(action: () => Promise<{ error: string | null }>, success: string) {
     setBusy(true);
@@ -93,12 +84,7 @@ export default function PartnersAdmin() {
   }
 
   return (
-    <PartnersPage nav={<PartnersNav right={<NavButton href="/espace" label="Espace partenaire" />} />}>
-      <Head>
-        <title>Administration · Cantia Partners</title>
-        <meta name="robots" content="noindex" />
-      </Head>
-      <View style={styles.wrap}>
+    <ScrollView contentContainerStyle={styles.wrap}>
         {allowed === null ? (
           <Text style={styles.muted}>Chargement…</Text>
         ) : !allowed ? (
@@ -110,7 +96,7 @@ export default function PartnersAdmin() {
           <>
             <View style={styles.head}>
               <View style={{ flex: 1, minWidth: 240 }}>
-                <Text style={styles.eyebrow}>Administration</Text>
+                <Text style={styles.eyebrow}>Écosystème</Text>
                 <Text style={styles.h1} role="heading" aria-level={1}>
                   Cantia Partners
                 </Text>
@@ -136,7 +122,7 @@ export default function PartnersAdmin() {
 
             {message ? <Text style={message.error ? styles.error : styles.info}>{message.text}</Text> : null}
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+            <View style={styles.tabs}>
               {TABS.map((t) => (
                 <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]}>
                   <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
@@ -145,7 +131,7 @@ export default function PartnersAdmin() {
                   </Text>
                 </Pressable>
               ))}
-            </ScrollView>
+            </View>
 
             {tab === 'toPay' ? (
               <ToPay
@@ -175,8 +161,7 @@ export default function PartnersAdmin() {
             )}
           </>
         )}
-      </View>
-    </PartnersPage>
+    </ScrollView>
   );
 }
 
@@ -581,7 +566,7 @@ function History({ payouts }: { payouts: AdminPayout[] | null }) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: PAGE_MAX, alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: 32, gap: spacing.lg },
+  wrap: { width: '100%', maxWidth: 1180, alignSelf: 'center', padding: spacing.xl, paddingBottom: 80, gap: spacing.lg },
   head: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap', gap: spacing.md },
   eyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
   h1: { ...displayType, fontSize: 36, lineHeight: 40, fontWeight: '800', color: colors.text },
@@ -601,7 +586,7 @@ const styles = StyleSheet.create({
   kpi: { flexGrow: 1, flexBasis: 170, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: 4 },
   kpiLabel: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.6 },
   kpiValue: { ...displayType, fontSize: 22, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
-  tabs: { gap: 4, borderBottomWidth: 1, borderBottomColor: colors.border, flexGrow: 1 },
+  tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, borderBottomWidth: 1, borderBottomColor: colors.border },
   tab: { paddingVertical: 12, paddingHorizontal: 14, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
   tabActive: { borderBottomColor: colors.primary },
   tabText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.textMuted },

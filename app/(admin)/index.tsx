@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container } from '../../components/ui';
 import { AdminErrorBanner } from '../../components/AdminErrorBanner';
@@ -11,6 +12,8 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { useAdminData } from '../../lib/adminDataContext';
 import type { AdminRevenueOverview } from '../../lib/types';
 import { displayType } from '../../lib/marketingTheme';
+import { partnersAdmin, type AdminOverview as PartnersOverview } from '../../lib/partners/api';
+import { accAdmin } from '../../lib/accounting/api';
 
 function formatChf(amount: number, decimals = 0): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: decimals }).format(amount);
@@ -61,6 +64,67 @@ function StatTile({ label, value, icon, accent, hint }: { label: string; value: 
         <Text style={styles.statLabel}>{label}</Text>
         {hint ? <Text style={styles.statHint}>{hint}</Text> : null}
       </View>
+    </View>
+  );
+}
+
+type AccountingOverview = NonNullable<Awaited<ReturnType<typeof accAdmin.overview>>['data']>;
+
+// Cantia Partners and Cantia Fiduciaires in one glance; their full
+// administration lives on their own pages (Écosystème in the sidebar).
+function Ecosystem() {
+  const router = useRouter();
+  const [partners, setPartners] = useState<PartnersOverview | null>(null);
+  const [fiduciaries, setFiduciaries] = useState<AccountingOverview | null>(null);
+  useEffect(() => {
+    partnersAdmin.overview().then(({ data }) => setPartners(data));
+    accAdmin.overview().then(({ data }) => setFiduciaries(data));
+  }, []);
+  return (
+    <View style={styles.ecoRow}>
+      <Pressable style={styles.ecoCard} onPress={() => router.replace('/(admin)/partners' as any)}>
+        <View style={styles.ecoHead}>
+          <Text style={styles.ecoTitle}>Cantia Partners</Text>
+          {partners && partners.to_pay_count > 0 ? (
+            <View style={styles.ecoAlert}>
+              <Text style={styles.ecoAlertText}>{partners.to_pay_count} virement(s) à faire</Text>
+            </View>
+          ) : null}
+          <Feather name="chevron-right" size={16} color={colors.textMuted} />
+        </View>
+        <View style={styles.ecoStats}>
+          <EcoStat label="Partenaires actifs" value={partners ? String(partners.partners_active) : '—'} />
+          <EcoStat label="Clients payants amenés" value={partners ? String(partners.paying_customers) : '—'} />
+          <EcoStat label="Commissions dues" value={partners ? formatChf(Number(partners.available_chf) + Number(partners.pending_chf)) : '—'} />
+          <EcoStat label="Versé au total" value={partners ? formatChf(Number(partners.paid_chf)) : '—'} />
+        </View>
+      </Pressable>
+      <Pressable style={styles.ecoCard} onPress={() => router.replace('/(admin)/fiduciaires' as any)}>
+        <View style={styles.ecoHead}>
+          <Text style={styles.ecoTitle}>Cantia Fiduciaires</Text>
+          {fiduciaries && fiduciaries.suspicious > 0 ? (
+            <View style={styles.ecoAlert}>
+              <Text style={styles.ecoAlertText}>{fiduciaries.suspicious} à vérifier</Text>
+            </View>
+          ) : null}
+          <Feather name="chevron-right" size={16} color={colors.textMuted} />
+        </View>
+        <View style={styles.ecoStats}>
+          <EcoStat label="Fiduciaires" value={fiduciaries ? String(fiduciaries.firms) : '—'} />
+          <EcoStat label="Mandants liés" value={fiduciaries ? String(fiduciaries.linked_clients) : '—'} />
+          <EcoStat label="Clients acquis" value={fiduciaries ? String(fiduciaries.acquired_clients) : '—'} />
+          <EcoStat label="MRR acquis" value={fiduciaries ? formatChf(Number(fiduciaries.acquired_mrr_chf)) : '—'} />
+        </View>
+      </Pressable>
+    </View>
+  );
+}
+
+function EcoStat({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.ecoStat}>
+      <Text style={styles.ecoValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
 }
@@ -139,6 +203,9 @@ export default function AdminDashboard() {
           ) : null}
         </View>
 
+        <SectionHeading title="Écosystème" subtitle="Programme partenaire et espace fiduciaires." />
+        <Ecosystem />
+
         <SectionHeading title="Prévisions" subtitle="Essais en cours, triés par date de fin, avec le montant réel qui sera facturé à la conversion." />
         <TrialForecast rows={trialForecast} />
 
@@ -157,6 +224,15 @@ export default function AdminDashboard() {
 }
 
 const styles = StyleSheet.create({
+  ecoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  ecoCard: { flexGrow: 1, flexBasis: 320, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md },
+  ecoHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  ecoTitle: { flex: 1, fontSize: fontSize.md, fontWeight: '800', color: colors.text },
+  ecoAlert: { backgroundColor: colors.warningSoft, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
+  ecoAlertText: { fontSize: 11, fontWeight: '700', color: colors.warning },
+  ecoStats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  ecoStat: { flexGrow: 1, flexBasis: 120, gap: 2 },
+  ecoValue: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
   scroll: {
     flexGrow: 1,
   },

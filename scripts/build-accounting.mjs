@@ -30,11 +30,11 @@ for (const entry of [
 }
 
 // Every route has its own prerendered HTML; anything else goes home.
-const routes = ['connexion', 'espace', 'mandant', 'invitation', 'admin', 'de', 'it'];
+const routes = ['connexion', 'espace', 'mandant', 'invitation', 'de', 'it'];
 writeFileSync(path.join(outputDir, '_redirects'), [...routes.map((r) => `/${r}  /${r}.html  200`), '/*  /  302', ''].join('\n'));
 writeFileSync(
   path.join(outputDir, 'robots.txt'),
-  'User-agent: *\nDisallow: /connexion\nDisallow: /espace\nDisallow: /mandant\nDisallow: /invitation\nDisallow: /admin\n\nSitemap: https://accounting.cantia.ch/sitemap.xml\n',
+  'User-agent: *\nDisallow: /connexion\nDisallow: /espace\nDisallow: /mandant\nDisallow: /invitation\n\nSitemap: https://accounting.cantia.ch/sitemap.xml\n',
 );
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync(

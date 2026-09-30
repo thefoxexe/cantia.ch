@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import Head from 'expo-router/head';
-import { useRouter } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Button } from '../components/ui';
-import { AccNav, AccPage, NavButton, PAGE_MAX } from '../components/accounting/AccountingChrome';
-import { accAdmin, formatChf, formatDate } from '../lib/accounting/api';
-import { usePartnerSession } from '../lib/partners/session';
-import { displayType } from '../lib/marketingTheme';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { Button } from '../../../components/ui';
+import { accAdmin, formatChf, formatDate } from '../../../lib/accounting/api';
+import { displayType } from '../../../lib/marketingTheme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
-// Cantia administration of Accounting (accounting.admin permission, checked
+// Super Admin › Fiduciaires: administration of Cantia Fiduciaires (moved
+// here from accounting.cantia.ch, one admin for everything). accounting.admin
+// permission, checked
 // by every database function; this screen only decides what to show).
 // Internal tool: French only.
 
@@ -19,9 +17,7 @@ type Overview = NonNullable<Awaited<ReturnType<typeof accAdmin.overview>>['data'
 
 const STATUS: Record<string, string> = { ACTIVE: 'Active', SUSPENDED: 'Suspendue', BLOCKED: 'Bloquée', PENDING_CLIENT: 'Attente client', PENDING_FIRM: 'Attente fiduciaire', REFUSED: 'Refusé', REVOKED: 'Révoqué', CANCELLED: 'Annulé', PENDING: 'En attente', ACCEPTED: 'Acceptée' };
 
-export default function AccountingAdmin() {
-  const router = useRouter();
-  const session = usePartnerSession();
+export default function AdminFiduciaires() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [overview, setOverview] = useState<Overview | null>(null);
   const [firms, setFirms] = useState<Firms>([]);
@@ -35,27 +31,17 @@ export default function AccountingAdmin() {
   }, []);
 
   useEffect(() => {
-    if (session === null) {
-      router.replace('/connexion?next=%2Fadmin');
-      return;
-    }
-    if (!session) return;
     accAdmin.am().then(({ data }) => {
       setAllowed(!!data);
       if (data) load();
     });
-  }, [session, router, load]);
+  }, [load]);
 
   const q = query.trim().toLowerCase();
   const list = firms.filter((f) => !q || [f.name, f.city, f.owner_email].filter(Boolean).join(' ').toLowerCase().includes(q));
 
   return (
-    <AccPage nav={<AccNav right={<NavButton href="/espace" label="Espace" />} />}>
-      <Head>
-        <title>Administration · Cantia Fiduciaires</title>
-        <meta name="robots" content="noindex" />
-      </Head>
-      <View style={styles.wrap}>
+    <ScrollView contentContainerStyle={styles.wrap}>
         {allowed === null ? (
           <Text style={styles.muted}>Chargement…</Text>
         ) : !allowed ? (
@@ -65,8 +51,8 @@ export default function AccountingAdmin() {
           </View>
         ) : (
           <>
-            <Text style={styles.eyebrow}>Administration</Text>
-            <Text style={styles.h1}>Fiduciaires</Text>
+            <Text style={styles.eyebrow}>Écosystème</Text>
+            <Text style={styles.h1}>Cantia Fiduciaires</Text>
             {overview ? (
               <View style={styles.kpis}>
                 <Kpi label="Fiduciaires" value={String(overview.firms)} hint={`${overview.firms_new_30d} en 30 jours`} />
@@ -107,8 +93,7 @@ export default function AccountingAdmin() {
             ))}
           </>
         )}
-      </View>
-    </AccPage>
+    </ScrollView>
   );
 }
 
@@ -265,7 +250,7 @@ function Pill({ label, tone }: { label: string; tone: 'ok' | 'bad' | 'accent' })
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: PAGE_MAX, alignSelf: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.md },
+  wrap: { width: '100%', maxWidth: 1180, alignSelf: 'center', padding: spacing.xl, paddingBottom: 80, gap: spacing.lg },
   eyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
   h1: { ...displayType, fontSize: 34, fontWeight: '800', color: colors.text },
   kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
