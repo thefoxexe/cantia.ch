@@ -72,15 +72,29 @@ export function Wordmark({
   height = 18,
   tone = 'color',
   product,
+  stacked = false,
   style,
 }: {
   height?: number;
   tone?: BrandTone;
   product?: string;
+  // Product name under the wordmark instead of after it: for narrow
+  // columns (phones), where the one-line lockup would overflow.
+  stacked?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const image = <Image source={WORDMARK[tone]} style={{ height, width: height * WORDMARK_RATIO }} resizeMode="contain" accessibilityLabel="Cantia" />;
   if (!product) return <View style={style}>{image}</View>;
+  if (stacked) {
+    return (
+      <View style={[{ alignItems: 'flex-start', gap: Math.round(height * 0.45) }, style]} accessibilityLabel={`Cantia ${product}`}>
+        {image}
+        <View style={styles.row}>
+          <ProductSuffix product={product} textHeight={height} tone={tone} dash={false} />
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={[styles.row, style]} accessibilityLabel={`Cantia ${product}`}>
       {image}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { SocialLinks } from './brand/SocialLinks';
 import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
@@ -369,23 +370,7 @@ export function MarketingFooter({
       </View>
       <View style={styles.footerBottom}>
         <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
-        <View style={styles.footerSocialRow}>
-          <Link href="https://www.instagram.com/cantia.ch/" target="_blank" asChild>
-            <Pressable style={styles.footerSocialLink} accessibilityLabel="Instagram">
-              <Ionicons name="logo-instagram" size={18} color="#E1306C" />
-            </Pressable>
-          </Link>
-          <Link href="https://www.linkedin.com/company/cantiach/" target="_blank" asChild>
-            <Pressable style={styles.footerSocialLink} accessibilityLabel="LinkedIn">
-              <Ionicons name="logo-linkedin" size={18} color="#0A66C2" />
-            </Pressable>
-          </Link>
-          <Link href="https://www.youtube.com/@Cantiach" target="_blank" asChild>
-            <Pressable style={styles.footerSocialLink} accessibilityLabel="YouTube">
-              <Ionicons name="logo-youtube" size={18} color="#FF0000" />
-            </Pressable>
-          </Link>
-        </View>
+        <SocialLinks />
         <View style={styles.footerLegalLinks}>
           <Link href={`${localePrefix}/mentions-legales` as any}>
             <Text style={styles.footerCopy}>{t.footer.legalLink}</Text>
@@ -682,14 +667,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     columnGap: spacing.lg,
     rowGap: spacing.sm,
-  },
-  footerSocialRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  footerSocialLink: {
-    padding: 2,
   },
 });
 

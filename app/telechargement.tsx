@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useRef, useState } from 'react';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../components/ui';
 import { PageHero, pageWrap } from '../components/landing/PageHero';
@@ -8,6 +8,7 @@ import { bodyInk, ink, rule } from '../components/landing/brand';
 import { MarketingHead } from '../components/MarketingHead';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { breakpoints, colors, spacing } from '../lib/theme';
+import { Wordmark } from '../components/brand/Logo';
 import { marketingFonts, monoType } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -51,11 +52,22 @@ export default function TelechargementScreen() {
   ];
   const { width } = useWindowDimensions();
   const isTablet = width < breakpoints.desktop;
+  const isMobile = width < breakpoints.tablet;
+  const locale = getAppLocale();
+  const localePrefix = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '';
+  const scrollRef = useRef<ScrollView>(null);
+  const installY = useRef(0);
+  // The app installs; Accounting and Partners are plain web apps.
+  const APPS: { product?: string; tag: string; badge: string; installable: boolean; text: string; cta: string; href?: string }[] = [
+    { tag: t('telechargementPage.appsMainTag'), badge: t('telechargementPage.appsMainBadge'), installable: true, text: t('telechargementPage.appsMainText'), cta: t('telechargementPage.appsMainCta') },
+    { product: 'Accounting', tag: t('telechargementPage.appsAccountingTag'), badge: t('telechargementPage.appsWebBadge'), installable: false, text: t('telechargementPage.appsAccountingText'), cta: t('telechargementPage.appsAccountingCta'), href: `https://accounting.cantia.ch${localePrefix}` },
+    { product: 'Partners', tag: t('telechargementPage.appsPartnersTag'), badge: t('telechargementPage.appsWebBadge'), installable: false, text: t('telechargementPage.appsPartnersText'), cta: t('telechargementPage.appsPartnersCta'), href: `https://partners.cantia.ch${localePrefix}` },
+  ];
 
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead title={marketingPageTitle('telechargement', getAppLocale())} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
         <MarketingNav />
 
         <PageHero
@@ -75,6 +87,31 @@ export default function TelechargementScreen() {
         />
 
         <View style={[styles.wrap, styles.section]}>
+          <SectionHead title={t('telechargementPage.appsTitle')} intro={t('telechargementPage.appsLead')} />
+          <View style={[styles.apps, isTablet && styles.appsStacked]}>
+            {APPS.map((app) => (
+              <View key={app.tag} style={[styles.appCard, app.installable && styles.appCardMain, isMobile && styles.appCardPhone]}>
+                <Wordmark height={isMobile ? 14 : 15} stacked={isMobile} product={app.product} />
+                <View style={styles.appMeta}>
+                  <Text style={styles.appTag}>{app.tag}</Text>
+                  <View style={[styles.appBadge, app.installable && styles.appBadgeMain]}>
+                    <Feather name={app.installable ? 'download' : 'globe'} size={12} color={app.installable ? '#FBF6EE' : colors.primary} />
+                    <Text style={[styles.appBadgeText, app.installable && { color: '#FBF6EE' }]}>{app.badge}</Text>
+                  </View>
+                </View>
+                <Text style={[styles.bodyText, !isTablet && { flexGrow: 1 }]}>{app.text}</Text>
+                <Pressable
+                  onPress={() => (app.href ? Linking.openURL(app.href) : scrollRef.current?.scrollTo({ y: Math.max(0, installY.current - 80), animated: true }))}
+                  accessibilityRole="link"
+                >
+                  <Text style={styles.appLink}>{app.cta} {app.href ? '↗' : '↓'}</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={[styles.wrap, styles.section]} onLayout={(e) => (installY.current = e.nativeEvent.layout.y)}>
           <SectionHead title={t('telechargementPage.installTitle')} intro={t('telechargementPage.installLead')} />
           <InstallGuide platforms={INSTALL_PLATFORMS} />
         </View>
@@ -160,6 +197,18 @@ const styles = StyleSheet.create({
   clarity: { borderWidth: 1.5, borderColor: ink, backgroundColor: '#FBF6EE', padding: spacing.xl, gap: spacing.sm, maxWidth: 460, borderRadius: 3 },
   clarityLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
   clarityTitle: { fontFamily: marketingFonts.body, fontSize: 22, fontWeight: '700', lineHeight: 28, color: ink },
+
+  apps: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl },
+  appsStacked: { flexDirection: 'column' },
+  appCard: { flex: 1, gap: spacing.md, borderWidth: 1, borderColor: rule, borderRadius: 4, padding: spacing.xl, backgroundColor: '#FFFFFF' },
+  appCardMain: { borderColor: colors.primary, borderTopWidth: 3 },
+  appCardPhone: { padding: spacing.lg },
+  appMeta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
+  appTag: { ...monoType, fontSize: 11, letterSpacing: 0.6, textTransform: 'uppercase', color: colors.primary },
+  appBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
+  appBadgeMain: { backgroundColor: ink, borderColor: ink },
+  appBadgeText: { fontFamily: marketingFonts.body, fontSize: 12, fontWeight: '600', color: colors.primary },
+  appLink: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: colors.primary },
 
   tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.xl },
   tab: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: rule, borderRadius: 3 },

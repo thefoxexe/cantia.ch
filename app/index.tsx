@@ -390,12 +390,12 @@ function LandingContent() {
             {t.products.items.map((item, i) => {
               const href = i === 0 ? authHref('signup') : i === 1 ? `https://accounting.cantia.ch${localePrefix}` : `https://partners.cantia.ch${localePrefix}`;
               return (
-                <View key={item.name} style={[styles.productCard, i === 0 && styles.productCardMain]}>
+                <View key={item.name} style={[styles.productCard, i === 0 && styles.productCardMain, isMobile && styles.productCardPhone]}>
                   <View style={styles.productHead}>
-                    <Wordmark height={16} product={i === 1 ? 'Accounting' : i === 2 ? 'Partners' : undefined} />
+                    <Wordmark height={isMobile ? 14 : 16} stacked={isMobile} product={i === 1 ? 'Accounting' : i === 2 ? 'Partners' : undefined} />
                   </View>
                   <Text style={styles.productTag}>{item.tag}</Text>
-                  <Text style={[styles.bodyText, { flexGrow: 1 }]}>{item.text}</Text>
+                  <Text style={[styles.bodyText, !isTablet && { flexGrow: 1 }]}>{item.text}</Text>
                   <Link href={href as any}>
                     <Text style={styles.textLink}>{item.cta} →</Text>
                   </Link>
@@ -563,6 +563,7 @@ const styles = StyleSheet.create({
   productsStacked: { flexDirection: 'column' },
   productCard: { flex: 1, gap: spacing.sm, borderWidth: 1, borderColor: rule, borderRadius: 4, padding: spacing.xl, backgroundColor: '#FFFFFF' },
   productCardMain: { borderColor: colors.primary, borderTopWidth: 3 },
+  productCardPhone: { padding: spacing.lg },
   productHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   productLogo: { width: 22, height: 22 },
   productName: { fontFamily: landingFonts.display, fontSize: 22, fontWeight: '800', letterSpacing: -0.3, color: ink },

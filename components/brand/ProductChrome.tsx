@@ -7,6 +7,7 @@ import { SwissCross } from '../SwissCross';
 import { monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { BrandLockup, BRAND_TERRACOTTA } from './Logo';
+import { SocialLinks } from './SocialLinks';
 
 // Shared frame of the Cantia product sites (accounting.cantia.ch,
 // partners.cantia.ch): a black ecosystem strip that links the three
@@ -186,6 +187,7 @@ export function ProductFooter({
               <SwissCross size={13} />
               <Text style={styles.swissText}>{t.swiss}</Text>
             </View>
+            <SocialLinks />
           </View>
           <View style={styles.cols}>
             {column(t.product, productLinks)}

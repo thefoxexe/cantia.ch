@@ -563,7 +563,7 @@ const fr: Dict = {
     items: [
       { name: 'Cantia', tag: 'Pour les entreprises', text: 'Devis, factures QR, chantiers, rapports, heures et salaires. Le logiciel de gestion du bâtiment et des métiers de projets.', cta: 'Essayer gratuitement' },
       { name: 'Cantia Accounting', tag: 'Gratuit pour les fiduciaires', text: 'Toutes les données comptables de vos mandants, les demandes de pièces et les échéances TVA au même endroit.', cta: 'Découvrir l’espace' },
-      { name: 'Cantia Partners', tag: 'Programme partenaire', text: 'Recommandez Cantia et recevez 25 % des paiements de chaque entreprise amenée, pendant 12 mois.', cta: 'Devenir partenaire' },
+      { name: 'Cantia Partners', tag: 'Programme partenaire', text: 'Recommandez Cantia autour de vous et gagnez davantage : une commission sur chaque entreprise que vous amenez.', cta: 'Devenir partenaire' },
     ],
   },
   docCustomization: {
@@ -1013,7 +1013,7 @@ const de: Dict = {
     items: [
       { name: 'Cantia', tag: 'Für Unternehmen', text: 'Offerten, QR-Rechnungen, Baustellen, Rapporte, Stunden und Löhne. Die Verwaltungssoftware für den Bau und alle Projektbranchen.', cta: 'Kostenlos testen' },
       { name: 'Cantia Accounting', tag: 'Kostenlos für Treuhänder', text: 'Alle Buchhaltungsdaten Ihrer Mandanten, Belegeanfragen und MWST-Fristen an einem Ort.', cta: 'Bereich entdecken' },
-      { name: 'Cantia Partners', tag: 'Partnerprogramm', text: 'Empfehlen Sie Cantia und erhalten Sie 25 % der Zahlungen jedes vermittelten Unternehmens während 12 Monaten.', cta: 'Partner werden' },
+      { name: 'Cantia Partners', tag: 'Partnerprogramm', text: 'Empfehlen Sie Cantia weiter und verdienen Sie mehr: eine Provision für jedes Unternehmen, das Sie vermitteln.', cta: 'Partner werden' },
     ],
   },
   docCustomization: {
@@ -1463,7 +1463,7 @@ const it: Dict = {
     items: [
       { name: 'Cantia', tag: 'Per le imprese', text: 'Preventivi, fatture QR, cantieri, rapporti, ore e salari. Il software di gestione per l’edilizia e tutti i mestieri a progetto.', cta: 'Provare gratis' },
       { name: 'Cantia Accounting', tag: 'Gratuito per i fiduciari', text: 'Tutti i dati contabili dei suoi mandanti, le richieste di documenti e le scadenze IVA in un unico posto.', cta: 'Scoprire lo spazio' },
-      { name: 'Cantia Partners', tag: 'Programma partner', text: 'Raccomandi Cantia e riceva il 25 % dei pagamenti di ogni impresa presentata, per 12 mesi.', cta: 'Diventare partner' },
+      { name: 'Cantia Partners', tag: 'Programma partner', text: 'Raccomandi Cantia e guadagni di più: una commissione per ogni impresa che presenta.', cta: 'Diventare partner' },
     ],
   },
   docCustomization: {

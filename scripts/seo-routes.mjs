@@ -3897,6 +3897,7 @@ export function jsonLdFor(url, route) {
         'https://www.instagram.com/cantia.ch/',
         'https://www.linkedin.com/company/cantiach/',
         'https://www.youtube.com/@Cantiach',
+        'https://www.google.com/search?kgmid=/g/11y0c24pg4',
       ],
     },
   ];
