@@ -99,7 +99,7 @@ async function fetchStorageBytes(admin: ReturnType<typeof createClient>, bucket:
 
 // Inlined copy of _shared/sales-inbox.ts (see the note at the top).
 // deno-lint-ignore no-explicit-any
-async function salesInboxReplyTo(admin: any, orgId: string, orgEmail: string | null | undefined): Promise<string | string[] | null> {
+async function salesInboxReplyTo(admin: any, orgId: string, orgEmail: string | null | undefined): Promise<string | null> {
   let human = orgEmail?.trim() || null;
   if (!human) {
     const { data: owner } = await admin
@@ -121,7 +121,13 @@ async function salesInboxReplyTo(admin: any, orgId: string, orgEmail: string | n
   const { data: hasTracking } = await admin.rpc('org_has_sales_tracking', { org_id: orgId });
   if (!hasTracking) return human;
   const domain = Deno.env.get('INBOUND_EMAIL_DOMAIN') ?? 'suivi.cantia.ch';
-  return [human, `${data.inbox_token}@${domain}`];
+  // The Cantia address alone, shown with the organization's name: the
+  // client sees one clean recipient, Cantia files the reply and forwards it
+  // to the human address (resend-webhook/inbound.ts).
+  const { data: org } = await admin.from('organizations').select('name').eq('id', orgId).maybeSingle();
+  const name = String(org?.name ?? '').replace(/["\\\r\n<>]/g, '').trim();
+  const address = `${data.inbox_token}@${domain}`;
+  return name ? `"${name}" <${address}>` : address;
 }
 
 async function sendResendEmail(params: {

@@ -4,9 +4,14 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 // each organization (<token>@suivi.cantia.ch, see
 // supabase/migrations/20260929140000_sales_email_inbox.sql). An email is
 // kept only when it comes from a member of the organization (Bcc, forward)
-// or from one of its clients (reply through the Reply-To copy added to every
-// devis / facture email); anything else is dropped. It is filed on the
-// matching devis or facture.
+// or from one of its clients (reply through the Reply-To of every devis /
+// facture email, see _shared/sales-inbox.ts); anything else is not filed.
+// It is filed on the matching devis or facture.
+//
+// That Reply-To is the Cantia address alone, so every reply that does not
+// come from a member is first forwarded to the organization's own address
+// (forwardToOrganization), whoever sent it and whatever the plan: a client
+// reply must never be lost.
 
 const INBOUND_DOMAIN = (Deno.env.get('INBOUND_EMAIL_DOMAIN') ?? 'suivi.cantia.ch').toLowerCase();
 const SNIPPET_MAX = 800;
@@ -41,10 +46,37 @@ export async function handleInboundEmail(admin: Admin, data: Record<string, unkn
   // The organization: through its address, or (Bcc headers are usually
   // stripped) through the member who sent it.
   let organizationId: string | null = null;
+  let forwardError: unknown = null;
   if (tokens.length) {
-    const { data: settings } = await admin.from('sales_email_settings').select('organization_id').in('inbox_token', tokens).eq('enabled', true).limit(1).maybeSingle();
-    organizationId = settings?.organization_id ?? null;
+    const { data: settings } = await admin.from('sales_email_settings').select('organization_id, enabled').in('inbox_token', tokens).limit(1).maybeSingle();
+    const tokenOrgId = (settings?.organization_id as string | undefined) ?? null;
+    if (tokenOrgId && !(await memberOf(admin, tokenOrgId, from))) {
+      try {
+        await forwardToOrganization(admin, tokenOrgId, emailId, email, from, recipients);
+      } catch (err) {
+        // Filed below all the same; the error then makes Resend retry the
+        // webhook (the forward is idempotent, the filing too).
+        forwardError = err;
+      }
+    }
+    organizationId = settings?.enabled ? tokenOrgId : null;
   }
+  const result = await fileInboundEmail(admin, organizationId, emailId, email, from, recipients, occurredAt, webhookId);
+  if (forwardError) throw forwardError;
+  return result;
+}
+
+async function fileInboundEmail(
+  admin: Admin,
+  tokenOrganizationId: string | null,
+  emailId: string,
+  email: ReceivedEmail,
+  from: string,
+  recipients: string[],
+  occurredAt: string,
+  webhookId: string,
+): Promise<string> {
+  let organizationId = tokenOrganizationId;
   if (!organizationId) {
     const { data: orgs } = await admin.rpc('sales_inbox_orgs_for_member', { p_email: from });
     const ids = ((orgs ?? []) as unknown[]).filter((id): id is string => typeof id === 'string');
@@ -132,6 +164,84 @@ export async function handleInboundEmail(admin: Admin, data: Record<string, unkn
     );
   }
   return row ? 'email filed' : 'already filed';
+}
+
+// Forwards a reply received on the Cantia address to the organization's own
+// address: original subject, body and attachments, Reply-To the sender so
+// that "Répondre" goes straight back to the client. Skipped when the human
+// address already received it (e-mails sent before the Reply-To became the
+// Cantia address alone listed both). Idempotent per received e-mail.
+async function forwardToOrganization(admin: Admin, organizationId: string, emailId: string, email: ReceivedEmail, from: string, recipients: string[]): Promise<void> {
+  const { data: org } = await admin.from('organizations').select('name, email, locale').eq('id', organizationId).maybeSingle();
+  const human = (org?.email as string | null)?.trim() || (await ownerEmail(admin, organizationId));
+  if (!human || recipients.includes(human.toLowerCase())) return;
+  const apiKey = Deno.env.get('RESEND_API_KEY');
+  if (!apiKey) throw new Error('RESEND_API_KEY missing');
+
+  const senderName = displayNameOf(email.from) || from;
+  const locale = org?.locale === 'de' || org?.locale === 'it' ? org.locale : 'fr';
+  const note = {
+    fr: `Réponse de ${senderName} (${from}), reçue et classée par Cantia. Répondez normalement : votre message lui parviendra directement.`,
+    de: `Antwort von ${senderName} (${from}), von Cantia empfangen und abgelegt. Antworten Sie ganz normal: Ihre Nachricht geht direkt an den Absender.`,
+    it: `Risposta di ${senderName} (${from}), ricevuta e archiviata da Cantia. Risponda normalmente: il suo messaggio arriverà direttamente al mittente.`,
+  }[locale as 'fr' | 'de' | 'it'];
+  const banner = `<div style="margin:0 0 16px;padding:10px 14px;border-radius:8px;background:#F7F1E6;border:1px solid #E6D8C2;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#6E6151">${escapeHtml(note)}</div>`;
+  const text = bodyText(email);
+  const html = banner + (email.html ?? `<div style="white-space:pre-wrap;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px">${escapeHtml(text)}</div>`);
+
+  const attachments = await receivedAttachments(apiKey, emailId);
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `inbound-forward-${emailId}` },
+    body: JSON.stringify({
+      from: `"${senderName.replace(/["\\<>\r\n]/g, '')} via Cantia" <noreply@cantia.ch>`,
+      to: [human],
+      reply_to: email.from ?? from,
+      subject: (email.subject ?? '').slice(0, 300) || '(sans objet)',
+      html,
+      text: `${note}\n\n${text}`,
+      attachments: attachments.length ? attachments : undefined,
+    }),
+  });
+  if (!res.ok) throw new Error(`inbound forward failed: ${res.status} ${(await res.text()).slice(0, 300)}`);
+}
+
+async function receivedAttachments(apiKey: string, emailId: string): Promise<{ filename: string; path: string }[]> {
+  try {
+    const res = await fetch(`https://api.resend.com/emails/receiving/${emailId}/attachments`, { headers: { Authorization: `Bearer ${apiKey}` } });
+    if (!res.ok) return [];
+    const body = (await res.json()) as { data?: { filename?: string; download_url?: string }[] };
+    return (body.data ?? [])
+      .filter((a) => a.download_url)
+      .map((a, i) => ({ filename: a.filename || `piece-jointe-${i + 1}`, path: a.download_url as string }));
+  } catch (err) {
+    console.error('received attachments fetch failed', err);
+    return [];
+  }
+}
+
+async function ownerEmail(admin: Admin, organizationId: string): Promise<string | null> {
+  const { data: owner } = await admin
+    .from('organization_members')
+    .select('user_id')
+    .eq('organization_id', organizationId)
+    .eq('role', 'owner')
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (!owner?.user_id) return null;
+  const { data } = await admin.auth.admin.getUserById(owner.user_id as string);
+  return data?.user?.email ?? null;
+}
+
+function displayNameOf(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const match = value.match(/^\s*"?([^"<]+?)"?\s*</);
+  return match ? match[1].trim() : null;
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 async function fetchReceivedEmail(id: string): Promise<ReceivedEmail | null> {
