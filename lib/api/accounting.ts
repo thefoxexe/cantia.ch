@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { factureSubtotals } from './subtotals';
 import { invokeFunction } from './functions';
 import { getLatestCashSnapshot } from './treasury';
 
@@ -522,13 +523,12 @@ export async function getFinancialSnapshot(organizationId: string): Promise<Fina
   let receivables = 0;
   if (factures?.length) {
     const ids = factures.map((f) => f.id);
-    const [{ data: items }, { data: payments }] = await Promise.all([
-      supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', ids),
+    const [subs, { data: payments }] = await Promise.all([
+      factureSubtotals(ids),
       supabase.from('facture_payments').select('facture_id, amount').in('facture_id', ids),
     ]);
     const vatByFacture = new Map(factures.map((f) => [f.id, Number(f.vat_rate)]));
-    const htByFacture = new Map<string, number>();
-    for (const it of items ?? []) htByFacture.set(it.facture_id, (htByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
+    const htByFacture = new Map(Object.entries(subs));
     const paidByFacture = new Map<string, number>();
     for (const p of payments ?? []) paidByFacture.set(p.facture_id, (paidByFacture.get(p.facture_id) ?? 0) + Number(p.amount));
 

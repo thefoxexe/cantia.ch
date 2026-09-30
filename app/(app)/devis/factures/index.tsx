@@ -3,6 +3,7 @@ import { ActivityIndicator, Modal, ScrollView, Pressable, StyleSheet, Text, Text
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
+import { factureSubtotals } from '../../../../lib/api/subtotals';
 import { supabase } from '../../../../lib/supabase';
 import { sendFactureReminder, recomputeFactureDepositDeduction, addLateFeeToFacture } from '../../../../lib/api/factures';
 import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../../lib/api/integrations';
@@ -102,6 +103,9 @@ function relativeReminder(iso: string, t: ReturnType<typeof useTranslation>['t']
   return t('facturesList.remindDaysAgo', { days });
 }
 
+// Last list per organization, kept while the app is open (see load()).
+const facturesCache = new Map<string, { factures: Facture[]; totals: Record<string, number>; projects: { id: string; name: string }[] }>();
+
 export default function FacturesListScreen() {
   const { t } = useTranslation();
   const { organization, role } = useAuth();
@@ -131,32 +135,30 @@ export default function FacturesListScreen() {
 
   const load = useCallback(async () => {
     if (!organization) return;
-    setLoading(true);
+    // Back on the tab: show the last list at once and refresh it quietly;
+    // the full-screen spinner is only for the very first load.
+    const cached = facturesCache.get(organization.id);
+    if (cached) {
+      setFactures(cached.factures);
+      setTotals(cached.totals);
+      setProjects(cached.projects);
+      setLoading(false);
+    }
     const [{ data: fData }, { data: projectsData }, directions] = await Promise.all([
       supabase.from('factures').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
       supabase.from('projects').select('id, name').eq('organization_id', organization.id),
       getBexioSyncDirectionsByLocalId(organization.id, 'facture'),
     ]);
     const list = fData ?? [];
+    // One call for every subtotal, computed in the database.
+    const subtotals = await factureSubtotals(list.map((f) => f.id));
+    const withVat: Record<string, number> = {};
+    for (const f of list) withVat[f.id] = (subtotals[f.id] ?? 0) * (1 + Number(f.vat_rate) / 100);
     setFactures(list);
     setProjects(projectsData ?? []);
     setBexioDirections(directions);
-
-    const ids = list.map((f) => f.id);
-    if (ids.length) {
-      const { data: itemsData } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', ids);
-      const byFacture: Record<string, number> = {};
-      for (const it of itemsData ?? []) {
-        byFacture[it.facture_id] = (byFacture[it.facture_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
-      }
-      const withVat: Record<string, number> = {};
-      for (const f of list) {
-        withVat[f.id] = (byFacture[f.id] ?? 0) * (1 + Number(f.vat_rate) / 100);
-      }
-      setTotals(withVat);
-    } else {
-      setTotals({});
-    }
+    setTotals(withVat);
+    facturesCache.set(organization.id, { factures: list, totals: withVat, projects: projectsData ?? [] });
     setLoading(false);
   }, [organization]);
 
@@ -468,12 +470,12 @@ export default function FacturesListScreen() {
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
             {!openProject ? (
               <View style={{ gap: spacing.md }}>
-                <View style={styles.kpiGrid}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kpiGrid}>
                   <KpiTile label={t('facturesList.kpiOverdue')} amount={kpis.overdueSum} count={kpis.overdueCount} tone="danger" icon="alert-triangle" />
                   <KpiTile label={t('facturesList.kpiPending')} amount={kpis.pendingSum} count={kpis.pendingCount} tone="primary" icon="clock" />
                   <KpiTile label={t('facturesList.kpiPaidThisMonth')} amount={kpis.paidSum} tone="success" icon="check-circle" />
                   <KpiTile label={t('facturesList.kpiDraft')} count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
-                </View>
+                </ScrollView>
 
                 <View style={styles.searchRow}>
                   <Feather name="search" size={15} color={colors.textMuted} />
@@ -648,10 +650,12 @@ function KpiTile({
   const tone_ = TONE_COLORS[tone];
   return (
     <View style={styles.kpiTile}>
-      <View style={[styles.kpiIcon, { backgroundColor: tone_.bg }]}>
-        <Feather name={icon} size={14} color={tone_.fg} />
+      <View style={styles.kpiHead}>
+        <View style={[styles.kpiIcon, { backgroundColor: tone_.bg }]}>
+          <Feather name={icon} size={12} color={tone_.fg} />
+        </View>
+        <Text style={styles.kpiLabel} numberOfLines={1}>{label}</Text>
       </View>
-      <Text style={styles.kpiLabel}>{label}</Text>
       {!hideAmount ? <Text style={styles.kpiAmount}>CHF {(amount ?? 0).toFixed(2)}</Text> : null}
       {count !== undefined ? (
         <Text style={styles.kpiCount}>
@@ -685,36 +689,28 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '600',
   },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
+  kpiGrid: { flexGrow: 1, gap: spacing.sm },
   kpiTile: {
-    flexBasis: '47%',
+    minWidth: 150,
     flexGrow: 1,
+    flexBasis: 0,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    padding: spacing.md,
-    gap: 4,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    gap: 2,
   },
-  kpiIcon: {
-    width: 26,
-    height: 26,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 2,
-  },
+  kpiHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  kpiIcon: { width: 20, height: 20, borderRadius: 5, alignItems: 'center', justifyContent: 'center' },
   kpiLabel: {
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.textMuted,
   },
   kpiAmount: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.md,
     fontWeight: '800',
     color: colors.text,
     fontVariant: ['tabular-nums'],

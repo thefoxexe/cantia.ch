@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { devisSubtotals } from '../lib/api/subtotals';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -70,8 +71,8 @@ export function ProjectProfitability({ projectId, organizationId }: { projectId:
 
     const devisIds = (devisList ?? []).map((d) => d.id);
     if (devisIds.length) {
-      const { data: items } = await supabase.from('devis_items').select('devis_id, quantity, unit_price').in('devis_id', devisIds);
-      setDevisedTotal((items ?? []).reduce((sum, it) => sum + Number(it.quantity) * Number(it.unit_price), 0));
+      const subs = await devisSubtotals(devisIds);
+      setDevisedTotal(Object.values(subs).reduce((sum, v) => sum + v, 0));
     } else {
       setDevisedTotal(0);
     }

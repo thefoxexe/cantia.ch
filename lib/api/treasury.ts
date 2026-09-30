@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { factureSubtotals } from './subtotals';
 import type { CashSnapshot, Expense, Organization, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem } from '../types';
 
 export async function getLatestCashSnapshot(organizationId: string): Promise<CashSnapshot | null> {
@@ -146,14 +147,11 @@ export async function buildForecast(organization: Organization, days = 90): Prom
   const factures = facturesRes.data ?? [];
   if (factures.length) {
     const factureIds = factures.map((f) => f.id);
-    const [{ data: fItems }, { data: fPayments }] = await Promise.all([
-      supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', factureIds),
+    const [subs, { data: fPayments }] = await Promise.all([
+      factureSubtotals(factureIds),
       supabase.from('facture_payments').select('facture_id, amount').in('facture_id', factureIds),
     ]);
-    const subtotalByFacture = new Map<string, number>();
-    for (const it of fItems ?? []) {
-      subtotalByFacture.set(it.facture_id, (subtotalByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
-    }
+    const subtotalByFacture = new Map(Object.entries(subs));
     const paidByFacture = new Map<string, number>();
     for (const p of fPayments ?? []) {
       paidByFacture.set(p.facture_id, (paidByFacture.get(p.facture_id) ?? 0) + Number(p.amount));

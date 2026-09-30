@@ -1,4 +1,5 @@
 import { invokeFunction } from './functions';
+import { factureSubtotals } from './subtotals';
 import { supabase } from '../supabase';
 import type { Facture, FacturePayment, FactureStatus } from '../types';
 
@@ -201,10 +202,10 @@ async function getSalesVatRows(organizationId: string, periodStart: string, peri
     if (!factures?.length) return byRate;
 
     const vatRateByFacture = new Map(factures.map((f) => [f.id, Number(f.vat_rate)]));
-    const { data: items } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', factures.map((f) => f.id));
-    for (const it of items ?? []) {
-      const rate = vatRateByFacture.get(it.facture_id) ?? 0;
-      byRate.set(rate, (byRate.get(rate) ?? 0) + Number(it.quantity) * Number(it.unit_price));
+    const subs = await factureSubtotals(factures.map((f) => f.id));
+    for (const [id, subtotal] of Object.entries(subs)) {
+      const rate = vatRateByFacture.get(id) ?? 0;
+      byRate.set(rate, (byRate.get(rate) ?? 0) + subtotal);
     }
   } else {
     const { data: payments } = await supabase
@@ -319,15 +320,12 @@ export async function listFacturesForProjects(projectIds: string[]): Promise<Rec
   if (!factures?.length) return {};
 
   const factureIds = factures.map((f) => f.id);
-  const [{ data: items }, { data: payments }] = await Promise.all([
-    supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', factureIds),
+  const [subs, { data: payments }] = await Promise.all([
+    factureSubtotals(factureIds),
     supabase.from('facture_payments').select('facture_id, amount').in('facture_id', factureIds),
   ]);
 
-  const subtotalByFacture = new Map<string, number>();
-  for (const it of items ?? []) {
-    subtotalByFacture.set(it.facture_id, (subtotalByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
-  }
+  const subtotalByFacture = new Map(Object.entries(subs));
   const paidByFacture = new Map<string, number>();
   for (const p of payments ?? []) {
     paidByFacture.set(p.facture_id, (paidByFacture.get(p.facture_id) ?? 0) + Number(p.amount));
@@ -373,15 +371,12 @@ export async function listReconciliationCandidates(organizationId: string): Prom
   if (!factures?.length) return [];
 
   const ids = factures.map((f) => f.id);
-  const [{ data: items }, { data: payments }] = await Promise.all([
-    supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', ids),
+  const [subs, { data: payments }] = await Promise.all([
+    factureSubtotals(ids),
     supabase.from('facture_payments').select('facture_id, amount').in('facture_id', ids),
   ]);
 
-  const subtotalByFacture = new Map<string, number>();
-  for (const it of items ?? []) {
-    subtotalByFacture.set(it.facture_id, (subtotalByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
-  }
+  const subtotalByFacture = new Map(Object.entries(subs));
   const paidByFacture = new Map<string, number>();
   for (const p of payments ?? []) {
     paidByFacture.set(p.facture_id, (paidByFacture.get(p.facture_id) ?? 0) + Number(p.amount));

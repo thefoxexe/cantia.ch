@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { devisSubtotals } from './subtotals';
 import type { Devis } from '../types';
 
 // Suivi commercial (plan Entreprise): what happened to each devis after it
@@ -197,13 +198,11 @@ export async function loadPipeline(organizationId: string): Promise<DevisTrackin
   if (!list.length) return [];
   const ids = list.map((d) => d.id);
 
-  const [{ data: items }, { data: events }] = await Promise.all([
-    supabase.from('devis_items').select('devis_id, quantity, unit_price').in('devis_id', ids),
+  const [subtotal, { data: events }] = await Promise.all([
+    devisSubtotals(ids),
     supabase.from('devis_events').select('id, devis_id, kind, occurred_at, meta').in('devis_id', ids).order('occurred_at', { ascending: true }),
   ]);
 
-  const subtotal: Record<string, number> = {};
-  for (const it of items ?? []) subtotal[it.devis_id] = (subtotal[it.devis_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
   const byDevis: Record<string, DevisEvent[]> = {};
   for (const e of (events ?? []) as DevisEvent[]) (byDevis[e.devis_id] ??= []).push(e);
 

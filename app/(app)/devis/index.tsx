@@ -3,6 +3,7 @@ import { ScrollView, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
+import { devisSubtotals } from '../../../lib/api/subtotals';
 import { supabase } from '../../../lib/supabase';
 import { confirm } from '../../../lib/confirm';
 import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../lib/api/integrations';
@@ -50,10 +51,12 @@ function KpiTile({
   const tone_ = TONE_COLORS[tone];
   return (
     <View style={styles.kpiTile}>
-      <View style={[styles.kpiIcon, { backgroundColor: tone_.bg }]}>
-        <Feather name={icon} size={14} color={tone_.fg} />
+      <View style={styles.kpiHead}>
+        <View style={[styles.kpiIcon, { backgroundColor: tone_.bg }]}>
+          <Feather name={icon} size={12} color={tone_.fg} />
+        </View>
+        <Text style={styles.kpiLabel} numberOfLines={1}>{label}</Text>
       </View>
-      <Text style={styles.kpiLabel}>{label}</Text>
       {!hideAmount ? <Text style={styles.kpiAmount}>CHF {(amount ?? 0).toFixed(2)}</Text> : null}
       {count !== undefined ? (
         <Text style={styles.kpiCount}>
@@ -68,6 +71,9 @@ function KpiTile({
 // level, chantiers that do have devis appear as folders you tap into. This
 // mirrors how the org actually thinks about its documents (by chantier)
 // instead of one long undifferentiated feed.
+// Last list per organization, kept while the app is open (see load()).
+const devisCache = new Map<string, { list: any[]; totals: Record<string, number>; projects: { id: string; name: string }[] }>();
+
 export default function DevisListScreen() {
   const { t } = useTranslation();
   const { organization, role } = useAuth();
@@ -83,32 +89,28 @@ export default function DevisListScreen() {
 
   const load = useCallback(async () => {
     if (!organization) return;
-    setLoading(true);
+    // Back on the tab: last list at once, refreshed quietly.
+    const cached = devisCache.get(organization.id);
+    if (cached) {
+      setDevisList(cached.list);
+      setTotals(cached.totals);
+      setProjects(cached.projects);
+      setLoading(false);
+    }
     const [{ data: d }, { data: p }, directions] = await Promise.all([
       supabase.from('devis').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
       supabase.from('projects').select('id, name').eq('organization_id', organization.id),
       getBexioSyncDirectionsByLocalId(organization.id, 'devis'),
     ]);
     const list = d ?? [];
+    const subtotals = await devisSubtotals(list.map((item) => item.id));
+    const withVat: Record<string, number> = {};
+    for (const item of list) withVat[item.id] = (subtotals[item.id] ?? 0) * (1 + Number(item.vat_rate) / 100);
     setDevisList(list);
     setProjects(p ?? []);
     setBexioDirections(directions);
-
-    const ids = list.map((item) => item.id);
-    if (ids.length) {
-      const { data: itemsData } = await supabase.from('devis_items').select('devis_id, quantity, unit_price').in('devis_id', ids);
-      const byDevis: Record<string, number> = {};
-      for (const it of itemsData ?? []) {
-        byDevis[it.devis_id] = (byDevis[it.devis_id] ?? 0) + Number(it.quantity) * Number(it.unit_price);
-      }
-      const withVat: Record<string, number> = {};
-      for (const item of list) {
-        withVat[item.id] = (byDevis[item.id] ?? 0) * (1 + Number(item.vat_rate) / 100);
-      }
-      setTotals(withVat);
-    } else {
-      setTotals({});
-    }
+    setTotals(withVat);
+    devisCache.set(organization.id, { list, totals: withVat, projects: p ?? [] });
     setLoading(false);
   }, [organization]);
 
@@ -250,12 +252,12 @@ export default function DevisListScreen() {
         ) : (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
             {!openProject ? (
-              <View style={styles.kpiGrid}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kpiGrid}>
                 <KpiTile label={t('devisList.kpiPending')} amount={kpis.sentSum} count={kpis.sentCount} tone="primary" icon="clock" />
                 <KpiTile label={t('devisList.kpiAccepted')} amount={kpis.acceptedSum} tone="success" icon="check-circle" />
                 <KpiTile label={t('devisList.kpiRefused')} count={kpis.refusedCount} tone="danger" icon="x-circle" hideAmount />
                 <KpiTile label={t('devisList.kpiDraft')} count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
-              </View>
+              </ScrollView>
             ) : null}
             {openProject ? (
               openProjectDevis.length === 0 ? (
@@ -338,36 +340,28 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
+  kpiGrid: { flexGrow: 1, gap: spacing.sm },
   kpiTile: {
-    flexBasis: '47%',
+    minWidth: 150,
     flexGrow: 1,
+    flexBasis: 0,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    padding: spacing.md,
-    gap: 4,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    gap: 2,
   },
-  kpiIcon: {
-    width: 26,
-    height: 26,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 2,
-  },
+  kpiHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  kpiIcon: { width: 20, height: 20, borderRadius: 5, alignItems: 'center', justifyContent: 'center' },
   kpiLabel: {
     fontSize: fontSize.xs,
     fontWeight: '600',
     color: colors.textMuted,
   },
   kpiAmount: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.md,
     fontWeight: '800',
     color: colors.text,
     fontVariant: ['tabular-nums'],

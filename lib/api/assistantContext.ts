@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { factureSubtotals } from './subtotals';
 import type { Organization } from '../types';
 import type { AssistantContext } from './ai';
 import { listRecurringExpenses, upcomingRecurringCount } from './treasury';
@@ -61,11 +62,7 @@ export async function buildAssistantContext(
   let overdueTotalChf = 0;
   if (overdueRows.length) {
     const ids = overdueRows.map((f) => f.id);
-    const { data: itemsData } = await supabase.from('facture_items').select('facture_id, quantity, unit_price').in('facture_id', ids);
-    const subtotalByFacture = new Map<string, number>();
-    for (const it of itemsData ?? []) {
-      subtotalByFacture.set(it.facture_id, (subtotalByFacture.get(it.facture_id) ?? 0) + Number(it.quantity) * Number(it.unit_price));
-    }
+    const subtotalByFacture = new Map(Object.entries(await factureSubtotals(ids)));
     const withAmounts = overdueRows.map((f) => {
       const amountChf = (subtotalByFacture.get(f.id) ?? 0) * (1 + Number(f.vat_rate) / 100);
       overdueTotalChf += amountChf;
