@@ -67,21 +67,6 @@ function formatDate(iso: string, locale: Locale): string {
   }
 }
 
-// A friendly "join the team" badge — two overlapping figures, same warm
-// terracotta family as every other transactional e-mail in the product
-// (see send-payment-failed-email / dispatch-notification for the same
-// icon-badge pattern).
-const TEAM_BADGE_SVG = `
-  <div style="width: 56px; height: 56px; border-radius: 16px; background: #F5DECB; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="9" cy="8.5" r="3" stroke="#A95C30" stroke-width="1.8"/>
-      <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="#A95C30" stroke-width="1.8" stroke-linecap="round"/>
-      <circle cx="17" cy="9" r="2.4" stroke="#A95C30" stroke-width="1.6"/>
-      <path d="M15.2 19c0.3-2.2 1.9-4 3.9-4.4" stroke="#A95C30" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-  </div>
-`;
-
 function buildBrandedEmailShell(bodyHtml: string, locale: Locale): string {
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
   return `
@@ -171,7 +156,6 @@ Deno.serve(async (req: Request) => {
 
     const joinUrl = `${APP_URL}/join/${invite.token}?locale=${locale}`;
     const html = buildBrandedEmailShell(`
-      ${TEAM_BADGE_SVG}
       <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #A95C30; text-transform: uppercase; letter-spacing: 0.6px;">${escapeHtml(org.name)}</p>
       <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(t(locale, 'title'))}</p>
       <p style="margin: 0 0 28px; font-size: 15px; line-height: 1.6; color: #231A12;">${escapeHtml(t(locale, 'intro', { from: inviterName, org: org.name }))}</p>

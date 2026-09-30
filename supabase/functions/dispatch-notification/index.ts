@@ -44,30 +44,6 @@ const TONE_COLORS: Record<Tone, { fg: string; bg: string }> = {
   neutral: { fg: '#A95C30', bg: '#F5DECB' },
 };
 
-// Three glyphs cover every current notification type: a checkmark for
-// something accepted/signed, an exclamation for something needing
-// attention or overdue, a chat bubble for a chantier feed message. Same
-// stroke weight/style as the card-declined badge in
-// send-payment-failed-email, so every transactional e-mail in the product
-// reads as one family.
-function toneIconSvg(tone: Tone, color: string): string {
-  if (tone === 'positive') {
-    return `<path d="M5 12.5l4.5 4.5L19 7" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-  }
-  if (tone === 'neutral') {
-    return `<path d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H10l-4.2 3.2A0.6 0.6 0 0 1 5 19.7V17H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1z" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" fill="none"/>`;
-  }
-  return `<circle cx="12" cy="12" r="9" stroke="${color}" stroke-width="1.8" fill="none"/><line x1="12" y1="7.5" x2="12" y2="13" stroke="${color}" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1.15" fill="${color}"/>`;
-}
-
-function buildIconBadge(tone: Tone): string {
-  const { fg, bg } = TONE_COLORS[tone];
-  return `
-  <div style="width: 56px; height: 56px; border-radius: 16px; background: ${bg}; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${toneIconSvg(tone, fg)}</svg>
-  </div>`;
-}
-
 function buildBrandedNotificationEmail(params: {
   title: string;
   body: string;
@@ -86,7 +62,6 @@ function buildBrandedNotificationEmail(params: {
           <img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-on-dark-v1.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" />
         </div>
         <div style="padding: 32px;">
-          ${buildIconBadge(tone)}
           <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: ${eyebrowColor}; text-transform: uppercase; letter-spacing: 0.6px;">${escapeHtml(orgName)}</p>
           <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(title)}</p>
           <p style="margin: 0 0 28px; font-size: 15px; line-height: 1.6; color: #231A12;">${textToHtmlLines(body)}</p>

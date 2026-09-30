@@ -67,21 +67,6 @@ function t(locale: Locale, key: keyof typeof LABELS, vars?: Record<string, strin
   return text;
 }
 
-// A soft terracotta "card declined" badge — warm and on-brand rather than
-// an alarming red siren, matching the reassuring tone of the copy below it
-// (this is a routine dunning notice, not an incident).
-const CARD_BADGE_SVG = `
-  <div style="width: 56px; height: 56px; border-radius: 16px; background: #F3E8D6; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#9C6510" stroke-width="1.8"/>
-      <line x1="2" y1="9.5" x2="22" y2="9.5" stroke="#9C6510" stroke-width="1.8"/>
-      <line x1="5.5" y1="14.5" x2="10" y2="14.5" stroke="#9C6510" stroke-width="1.8" stroke-linecap="round"/>
-      <circle cx="18" cy="15.5" r="4.5" fill="#F3E8D6" stroke="#9C6510" stroke-width="1.6"/>
-      <line x1="16.4" y1="15.5" x2="19.6" y2="15.5" stroke="#9C6510" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-  </div>
-`;
-
 function buildBrandedEmailShell(bodyHtml: string, locale: Locale): string {
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
   return `
@@ -166,7 +151,6 @@ Deno.serve(async (req: Request) => {
     const locale = resolveLocale(org);
     const html = buildBrandedEmailShell(
       `
-      ${CARD_BADGE_SVG}
       <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #9C6510; text-transform: uppercase; letter-spacing: 0.6px;">${escapeHtml(t(locale, 'eyebrow'))}</p>
       <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(t(locale, 'title'))}</p>
       <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #231A12;">${escapeHtml(t(locale, 'intro', { org: org.name }))}</p>
