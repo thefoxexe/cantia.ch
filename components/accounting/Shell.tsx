@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AccLocaleSwitch, useIsWide } from './AccountingChrome';
@@ -9,7 +9,7 @@ import type { Me } from '../../lib/accounting/api';
 import { supabase } from '../../lib/supabase';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { Wordmark } from '../../components/brand/Logo';
+import { BRAND_DISPLAY_FONT, BRAND_TERRACOTTA, BrandLockup, BrandLogo } from '../brand/Logo';
 
 // The signed-in frame of accounting.cantia.ch: a fixed sidebar on large
 // screens, a top bar with a menu on phones, and ONE scrolling area for the
@@ -97,9 +97,16 @@ export function AccShell({
     </View>
   );
 
-  const brand = (
+  // Sidebar: full logo with the product name set under the wordmark;
+  // phone top bar: the mark + ACCOUNTING.
+  const brand = wide ? (
+    <Pressable onPress={() => go('overview')} style={styles.brandStacked} accessibilityLabel={copy.brand}>
+      <BrandLogo height={26} />
+      <Text style={styles.brandProduct}>ACCOUNTING</Text>
+    </Pressable>
+  ) : (
     <Pressable onPress={() => go('overview')} style={styles.brand} accessibilityLabel={copy.brand}>
-      <Wordmark height={13} product="Accounting" />
+      <BrandLockup height={30} compact product="Accounting" />
     </Pressable>
   );
 
@@ -185,9 +192,9 @@ const styles = StyleSheet.create({
   rootMobile: { flex: 1, backgroundColor: colors.bg },
   sidebar: { width: 256, backgroundColor: colors.surface, borderRightWidth: 1, borderRightColor: colors.border, paddingVertical: spacing.lg, paddingHorizontal: spacing.md, gap: spacing.lg },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: spacing.xs },
-  logo: { width: 24, height: 24 },
-  brandMain: { ...displayType, fontSize: 19, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
-  brandSub: { ...displayType, fontSize: 19, fontWeight: '500', color: colors.accent },
+  brandStacked: { gap: 6, paddingHorizontal: spacing.xs },
+  // Aligned with the wordmark's first letter (the mark is 26 px wide + gap).
+  brandProduct: { marginLeft: 32, fontSize: 10, letterSpacing: 2.6, color: BRAND_TERRACOTTA, fontFamily: BRAND_DISPLAY_FONT },
   firm: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.sm, borderRadius: radius.md, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },
   firmAvatar: { width: 32, height: 32, borderRadius: radius.md, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
   firmAvatarText: { color: colors.surface, fontWeight: '800', fontSize: 14 },

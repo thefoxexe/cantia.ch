@@ -17,7 +17,7 @@ import { VoiceAssistant } from '../../components/VoiceAssistant';
 import { useTranslation } from '../../lib/translations';
 import { salesTrackingReady } from '../../lib/api/salesTracking';
 import { StatusLink } from '../../components/StatusLink';
-import { BrandMark, Wordmark } from '../../components/brand/Logo';
+import { BrandLogo, BrandMark } from '../../components/brand/Logo';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -188,7 +188,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <Pressable onPress={() => setDrawerOpen(true)} hitSlop={8} style={styles.hamburger}>
           <Feather name="menu" size={22} color={colors.text} />
         </Pressable>
-        <Wordmark height={14} />
+        <BrandMark size={30} />
         <View style={{ flex: 1 }} />
         <SafeNotificationBell />
         <AccountMenu />
@@ -278,7 +278,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
           {collapsed ? <BrandMark size={28} /> : null}
           {collapsed ? null : (
             <>
-              <Wordmark height={15} />
+              <BrandLogo height={28} />
               <View style={{ flex: 1 }} />
               <Pressable onPress={toggleCollapsed} hitSlop={8} style={styles.sidebarToggle}>
                 <Feather name="chevrons-left" size={16} color={colors.textMuted} />

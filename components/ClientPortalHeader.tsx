@@ -1,10 +1,10 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { portalFonts } from '../lib/clientPortalTheme';
 import { AVAILABLE_LOCALES, AppLocale, getAppLocale, setClientPortalLocale, useTranslation } from '../lib/translations';
 import { SwissCross } from './SwissCross';
-import { Wordmark } from '../components/brand/Logo';
+import { BrandLockup } from '../components/brand/Logo';
 
 // Session-only override of the org's default document locale (see
 // setClientPortalLocale) — the recipient of a devis/facture link can read it
@@ -40,10 +40,11 @@ function LanguageSwitcher() {
 // security read as one unified statement instead of two stacked notices.
 export function ClientPortalHeader({ onMenuPress }: { onMenuPress?: () => void }) {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
   return (
     <View style={styles.row}>
       <View style={styles.brand}>
-        <Wordmark height={15} />
+        <BrandLockup height={width < 560 ? 30 : 28} compact={width < 560} />
       </View>
       <View style={styles.right}>
         <LanguageSwitcher />

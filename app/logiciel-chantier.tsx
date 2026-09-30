@@ -20,7 +20,7 @@ import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
-import { Wordmark } from '../components/brand/Logo';
+import { BrandLockup } from '../components/brand/Logo';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -386,7 +386,7 @@ export default function LogicielChantierPage() {
         <View style={[styles.wrap, styles.headerInner]}>
           <Link href="/" style={styles.brand}>
             <View style={styles.brandRow}>
-              <Wordmark height={17} />
+              <BrandLockup height={isMobile ? 32 : 30} compact={isMobile} />
             </View>
           </Link>
           <View style={styles.headerRight}>

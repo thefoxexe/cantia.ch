@@ -10,7 +10,7 @@ import { authHref, toggleLocalePathname, useSyncMarketingLocaleFromPath } from '
 import { useMarketingDict } from '../lib/i18n';
 import { AVAILABLE_LOCALES, getAppLocale, useTranslation, type AppLocale } from '../lib/translations';
 import { StatusLink } from './StatusLink';
-import { BrandLogo, Wordmark } from '../components/brand/Logo';
+import { BrandLockup, BrandLogo } from '../components/brand/Logo';
 
 const LOCALE_META: Record<AppLocale, { flag: string; label: string }> = {
   fr: { flag: '🇫🇷', label: 'Français' },
@@ -124,8 +124,8 @@ export function MarketingNav({
     <View style={styles.navOuter}>
       <View style={styles.nav}>
       <Link href={homeHref as any} asChild>
-        <Pressable style={styles.navBrandRow}>
-          <Wordmark height={17} />
+        <Pressable style={styles.navBrandRow} accessibilityLabel="Cantia">
+          <BrandLockup height={isCompactNav ? 32 : 30} compact={isCompactNav} />
         </Pressable>
       </Link>
 
@@ -185,7 +185,7 @@ export function MarketingNav({
           >
             <View style={styles.mobileMenuHeader}>
               <View style={styles.navBrandRow}>
-                <Wordmark height={17} />
+                <BrandLogo height={26} />
               </View>
               <View style={styles.mobileMenuHeaderRight}>
                 <LanguageSwitcher />
@@ -274,7 +274,7 @@ export function MarketingFooter({
       <View style={styles.footerGrid}>
         <View style={styles.footerBrandCol}>
           <View style={styles.footerBrandRow}>
-            <BrandLogo height={34} />
+            <BrandLogo height={38} tone="black" />
           </View>
           <Text style={styles.footerText}>{t.footer.blurb}</Text>
           <Link href="mailto:info@cantia.ch" target="_blank" asChild>
@@ -675,6 +675,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   footerLegalLinks: {
+    flexShrink: 1,
+    maxWidth: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',

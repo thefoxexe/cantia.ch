@@ -112,7 +112,7 @@ export function AccountMenu() {
 
   return (
     <>
-      <View ref={triggerRef} collapsable={false}>
+      <View ref={triggerRef} collapsable={false} style={{ flexShrink: 1, minWidth: 0 }}>
         <Pressable onPress={open} style={styles.trigger} hitSlop={6}>
           <View style={styles.avatar}>
             {avatarUrl ? (
@@ -200,6 +200,8 @@ function MenuRow({ icon, label, onPress, danger }: { icon: IconName; label: stri
 
 const styles = StyleSheet.create({
   trigger: {
+    flexShrink: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
@@ -218,7 +220,9 @@ const styles = StyleSheet.create({
     height: 34,
   },
   identity: {
-    maxWidth: 90,
+    flexShrink: 1,
+    minWidth: 0,
+    maxWidth: 110,
   },
   identityName: {
     fontSize: fontSize.xs,

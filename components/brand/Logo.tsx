@@ -48,9 +48,26 @@ export function BrandLogo({ height = 32, tone = 'color', style }: { height?: num
   return <Image source={LOGO[tone]} style={[{ height, width: height * LOGO_RATIO }, style]} resizeMode="contain" accessibilityLabel="Cantia" />;
 }
 
-// The wordmark, optionally extended with a product name set in the same
-// spirit: a dash like the ones between the letters, then the name in wide
-// capitals ("C-A-N-T-I-A — ACCOUNTING").
+// The product name that extends the wordmark: a dash like the ones between
+// the letters, then the name in wide capitals ("C-A-N-T-I-A — ACCOUNTING").
+// textHeight is the height of the wordmark it follows.
+function ProductSuffix({ product, textHeight, tone, dash = true }: { product: string; textHeight: number; tone: BrandTone; dash?: boolean }) {
+  const ink = tone === 'white' ? '#FFFFFF' : BRAND_INK;
+  const accent = tone === 'color' ? BRAND_TERRACOTTA : ink;
+  const fontSize = Math.max(10, Math.round(textHeight * 0.8));
+  return (
+    <>
+      {dash ? (
+        <View style={{ width: textHeight * 0.55, height: Math.max(2, Math.round(textHeight * 0.1)), backgroundColor: ink, marginHorizontal: textHeight * 0.32 }} />
+      ) : null}
+      <Text style={[styles.product, { fontSize, lineHeight: Math.round(textHeight), color: accent, letterSpacing: fontSize * 0.16, fontFamily: BRAND_DISPLAY_FONT }]} numberOfLines={1}>
+        {product.toUpperCase()}
+      </Text>
+    </>
+  );
+}
+
+// The wordmark alone (text only), optionally extended with a product name.
 export function Wordmark({
   height = 18,
   tone = 'color',
@@ -64,24 +81,53 @@ export function Wordmark({
 }) {
   const image = <Image source={WORDMARK[tone]} style={{ height, width: height * WORDMARK_RATIO }} resizeMode="contain" accessibilityLabel="Cantia" />;
   if (!product) return <View style={style}>{image}</View>;
-  const ink = tone === 'white' ? '#FFFFFF' : BRAND_INK;
-  const accent = tone === 'color' ? BRAND_TERRACOTTA : ink;
-  // Letters of the wordmark are ~height tall; the product name sits a bit
-  // lower (0.72 x) so the brand keeps the lead.
-  const fontSize = Math.round(height * 0.62);
   return (
     <View style={[styles.row, style]} accessibilityLabel={`Cantia ${product}`}>
       {image}
-      <View style={[styles.dash, { width: height * 0.55, height: Math.max(2, height * 0.1), backgroundColor: ink, marginHorizontal: height * 0.3 }]} />
-      <Text style={[styles.product, { fontSize, lineHeight: height, color: accent, letterSpacing: fontSize * 0.14, fontFamily: BRAND_DISPLAY_FONT }]} numberOfLines={1}>
-        {product.toUpperCase()}
-      </Text>
+      <ProductSuffix product={product} textHeight={height} tone={tone} />
+    </View>
+  );
+}
+
+// What navbars and footers use. Wide screens get the full logo (mark +
+// wordmark); compact ones (phones) only the mark, so the bar never
+// overflows. With a product, the name follows in both cases.
+export function BrandLockup({
+  height = 30,
+  tone = 'color',
+  product,
+  compact = false,
+  style,
+}: {
+  height?: number;
+  tone?: BrandTone;
+  product?: string;
+  compact?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const label = product ? `Cantia ${product}` : 'Cantia';
+  if (compact) {
+    return (
+      <View style={[styles.row, style]} accessibilityLabel={label}>
+        <BrandMark size={height} tone={tone} />
+        {product ? (
+          <View style={{ marginLeft: height * 0.34 }}>
+            <ProductSuffix product={product} textHeight={height * 0.5} tone={tone === 'color' ? 'black' : tone} dash={false} />
+          </View>
+        ) : null}
+      </View>
+    );
+  }
+  // In the delivered logo the wordmark is ~45 % of the full height.
+  return (
+    <View style={[styles.row, style]} accessibilityLabel={label}>
+      <BrandLogo height={height} tone={tone} />
+      {product ? <ProductSuffix product={product} textHeight={height * 0.45} tone={tone} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
-  dash: {},
   product: { fontWeight: '400', includeFontPadding: false } as any,
 });
