@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { StatusLink } from '../StatusLink';
@@ -63,7 +63,7 @@ function EcoBar({ product, locale, localeSwitch }: { product: ProductKey; locale
   return (
     <View style={styles.eco}>
       <View style={styles.ecoInner}>
-        <View style={styles.ecoLinks}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.ecoScroll} contentContainerStyle={styles.ecoLinks}>
           {items.map((it) => {
             const on = it.key === product;
             return (
@@ -75,8 +75,8 @@ function EcoBar({ product, locale, localeSwitch }: { product: ProductKey; locale
               </Link>
             );
           })}
-        </View>
-        {localeSwitch}
+        </ScrollView>
+        <View style={styles.ecoLocale}>{localeSwitch}</View>
       </View>
     </View>
   );
@@ -133,6 +133,76 @@ export function ProductNav({
 
 // ---------------------------------------------------------------- footer
 
+export type FooterItem = { label: string; href?: string; onPress?: () => void };
+export type FooterColumn = { title: string; links: FooterItem[]; extra?: ReactNode };
+
+// The footer of every Cantia site (cantia.ch, accounting, partners): brand
+// block (logo, tagline, contact, Swiss chip, social links), link columns,
+// the full-width wordmark, then copyright and legal links.
+export function BrandFooter({
+  lockup,
+  tagline,
+  contact,
+  locale,
+  wide,
+  columns,
+  bottomLinks,
+}: {
+  lockup: ReactNode;
+  tagline: string;
+  contact?: ReactNode;
+  locale: Loc;
+  wide: boolean;
+  columns: FooterColumn[];
+  bottomLinks?: ReactNode;
+}) {
+  const t = T[locale];
+  const item = (l: FooterItem) =>
+    l.onPress ? (
+      <Pressable key={l.label} onPress={l.onPress} accessibilityRole="link">
+        <Text style={styles.colLink}>{l.label}</Text>
+      </Pressable>
+    ) : (
+      <Link key={l.href ?? l.label} href={(l.href ?? '/') as any} style={styles.colLink}>
+        {l.label}
+      </Link>
+    );
+  return (
+    <View style={styles.footerWrap}>
+      <View style={styles.footer}>
+        <View style={[styles.footerTop, !wide && styles.footerTopStacked]}>
+          <View style={styles.footerBrand}>
+            {lockup}
+            <Text style={styles.tagline}>{tagline}</Text>
+            {contact}
+            <View style={styles.swiss}>
+              <SwissCross size={13} />
+              <Text style={styles.swissText}>{t.swiss}</Text>
+            </View>
+            <SocialLinks />
+          </View>
+          <View style={[styles.cols, !wide && styles.colsNarrow]}>
+            {columns.map((c) => (
+              <View key={c.title} style={[styles.col, !wide && styles.colNarrow]}>
+                <Text style={styles.colTitle}>{c.title}</Text>
+                {c.links.map(item)}
+                {c.extra}
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <Image source={require('../../assets/brand/wordmark.png')} style={styles.giant} resizeMode="contain" accessibilityLabel="Cantia" />
+
+        <View style={styles.bottom}>
+          <Text style={styles.small}>© {new Date().getFullYear()} Cantia · Suisse</Text>
+          {bottomLinks ?? <Text style={styles.small}>cantia.ch</Text>}
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export function ProductFooter({
   product,
   locale,
@@ -163,59 +233,27 @@ export function ProductFooter({
     { label: privacy, href: `https://cantia.ch${prefix}/confidentialite` },
     { label: terms, href: `https://cantia.ch${prefix}/conditions-generales` },
   ];
-
-  const column = (title: string, links: FooterLink[], extra?: ReactNode) => (
-    <View style={styles.col}>
-      <Text style={styles.colTitle}>{title}</Text>
-      {links.map((l) => (
-        <Link key={l.href} href={l.href as any} style={styles.colLink}>
-          {l.label}
-        </Link>
-      ))}
-      {extra}
-    </View>
-  );
-
   return (
-    <View style={styles.footerWrap}>
-      <View style={styles.footer}>
-        <View style={[styles.footerTop, !wide && styles.footerTopStacked]}>
-          <View style={styles.footerBrand}>
-            <BrandLockup height={wide ? 34 : 30} tone="black" product={PRODUCT_NAME[product]} />
-            <Text style={styles.tagline}>{tagline}</Text>
-            <View style={styles.swiss}>
-              <SwissCross size={13} />
-              <Text style={styles.swissText}>{t.swiss}</Text>
-            </View>
-            <SocialLinks />
-          </View>
-          <View style={styles.cols}>
-            {column(t.product, productLinks)}
-            {column(t.ecosystem, ecosystem)}
-            {column(t.legal, legal, <StatusLink label={status} textStyle={styles.colLink} />)}
-          </View>
-        </View>
-
-        <Image
-          source={require('../../assets/brand/wordmark.png')}
-          style={styles.giant}
-          resizeMode="contain"
-          accessibilityLabel="Cantia"
-        />
-
-        <View style={styles.bottom}>
-          <Text style={styles.small}>© {new Date().getFullYear()} Cantia · Suisse</Text>
-          <Text style={styles.small}>cantia.ch</Text>
-        </View>
-      </View>
-    </View>
+    <BrandFooter
+      lockup={<BrandLockup height={wide ? 34 : 30} tone="black" product={PRODUCT_NAME[product]} />}
+      tagline={tagline}
+      locale={locale}
+      wide={wide}
+      columns={[
+        { title: t.product, links: productLinks },
+        { title: t.ecosystem, links: ecosystem },
+        { title: t.legal, links: legal, extra: <StatusLink label={status} textStyle={styles.colLink} /> },
+      ]}
+    />
   );
 }
 
 const styles = StyleSheet.create({
   eco: { backgroundColor: INK, paddingHorizontal: spacing.lg },
   ecoInner: { width: '100%', maxWidth: PRODUCT_PAGE_MAX - spacing.lg * 2, alignSelf: 'center', minHeight: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
-  ecoLinks: { flexDirection: 'row', alignItems: 'center', gap: 18, flexShrink: 1 },
+  ecoScroll: { flexShrink: 1, flexGrow: 0 },
+  ecoLinks: { flexDirection: 'row', alignItems: 'center', gap: 18, paddingRight: spacing.sm },
+  ecoLocale: { flexShrink: 0 },
   ecoLink: { paddingVertical: 10 },
   ecoItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   ecoDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: BRAND_TERRACOTTA },
@@ -247,6 +285,8 @@ const styles = StyleSheet.create({
   swissText: { fontSize: 12, fontWeight: '600', color: colors.text },
   cols: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 56, rowGap: spacing.xl },
   col: { gap: 12, minWidth: 130 },
+  colsNarrow: { columnGap: spacing.xl },
+  colNarrow: { minWidth: 0, flexBasis: '44%', flexGrow: 1 },
   colTitle: { ...monoType, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.textMuted, marginBottom: 2 },
   colLink: { fontSize: fontSize.sm, color: colors.text, fontWeight: '500' },
 

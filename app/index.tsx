@@ -390,7 +390,7 @@ function LandingContent() {
             {t.products.items.map((item, i) => {
               const href = i === 0 ? authHref('signup') : i === 1 ? `https://accounting.cantia.ch${localePrefix}` : `https://partners.cantia.ch${localePrefix}`;
               return (
-                <View key={item.name} style={[styles.productCard, i === 0 && styles.productCardMain, isMobile && styles.productCardPhone]}>
+                <View key={item.name} style={[styles.productCard, isTablet && styles.productCardStacked, i === 0 && styles.productCardMain, isMobile && styles.productCardPhone]}>
                   <View style={styles.productHead}>
                     <Wordmark height={isMobile ? 14 : 16} stacked={isMobile} product={i === 1 ? 'Accounting' : i === 2 ? 'Partners' : undefined} />
                   </View>
@@ -561,6 +561,7 @@ const styles = StyleSheet.create({
 
   products: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl, marginBottom: spacing.xxxl },
   productsStacked: { flexDirection: 'column' },
+  productCardStacked: { flex: 0, flexGrow: 0, flexBasis: 'auto' },
   productCard: { flex: 1, gap: spacing.sm, borderWidth: 1, borderColor: rule, borderRadius: 4, padding: spacing.xl, backgroundColor: '#FFFFFF' },
   productCardMain: { borderColor: colors.primary, borderTopWidth: 3 },
   productCardPhone: { padding: spacing.lg },

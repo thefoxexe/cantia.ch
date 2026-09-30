@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
+import { BrowserFrame } from '../brand/BrowserFrame';
 import Head from 'expo-router/head';
 import { Feather } from '@expo/vector-icons';
 import { AccNav, AccPage, NavButton, PAGE_MAX, useIsWide } from './AccountingChrome';
 import { useAccCopy } from '../../lib/accounting/locale';
-import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 const ORIGIN = 'https://accounting.cantia.ch';
@@ -98,23 +99,34 @@ export function AccountingLanding() {
               <NavButton href="/connexion?mode=signup" label={copy.hero.cta} primary large />
               <NavButton href="/connexion" label={copy.hero.secondary} large />
             </View>
-            <View style={styles.noteRow}>
-              <Feather name="check-circle" size={15} color={colors.success} />
-              <Text style={styles.note}>{copy.hero.note}</Text>
-            </View>
+            <Text style={styles.note}>{copy.hero.note}</Text>
           </View>
-          <CockpitPreview />
+          <View style={[wide ? { flex: 1.05 } : { width: '100%' }]}>
+            <BrowserFrame url="accounting.cantia.ch/espace">
+              <CockpitPreview />
+            </BrowserFrame>
+          </View>
+        </View>
+      </View>
+
+      {/* Facts */}
+      <View style={styles.factsWrap}>
+        <View style={[styles.facts, wide && styles.factsWide]}>
+          {copy.facts.map((f, i) => (
+            <View key={f} style={[styles.fact, wide && i > 0 && styles.factDivider]}>
+              <Feather name={(['gift', 'map-pin', 'eye', 'list'] as const)[i] ?? 'check'} size={15} color={colors.primary} />
+              <Text style={styles.factText}>{f}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
       {/* Value */}
       <Section title={copy.value.title}>
-        <View style={[styles.grid, wide && styles.gridWide]}>
+        <View style={[styles.cols, wide && styles.colsWide]}>
           {copy.value.items.map((item, i) => (
-            <View key={item.title} style={[styles.card, wide && { flex: 1 }]}>
-              <View style={styles.iconBox}>
-                <Feather name={ICONS[i]} size={18} color={colors.primary} />
-              </View>
+            <View key={item.title} style={[styles.col, wide && { flex: 1 }, wide && i > 0 && styles.colDivider]}>
+              <Feather name={ICONS[i]} size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.body}>{item.text}</Text>
             </View>
@@ -125,14 +137,14 @@ export function AccountingLanding() {
       {/* Trust */}
       <View style={styles.bandWrap}>
         <View style={[styles.band, wide && styles.bandWide]}>
-          <View style={[{ gap: spacing.sm }, wide && { flex: 1 }]}>
-            <Feather name="shield" size={26} color="#F6E4D2" />
+          <View style={[{ gap: spacing.md }, wide && { flex: 1 }]}>
+            <Text style={styles.bandEyebrow}>{copy.hero.eyebrow}</Text>
             <Text style={styles.bandTitle}>{copy.trust.title}</Text>
           </View>
-          <View style={[{ gap: spacing.md }, wide && { flex: 1.4 }]}>
-            {copy.trust.items.map((line) => (
-              <View key={line} style={styles.bandRow}>
-                <Feather name="check" size={16} color="#F6E4D2" style={{ marginTop: 3 }} />
+          <View style={[wide && { flex: 1.3 }]}>
+            {copy.trust.items.map((line, i) => (
+              <View key={line} style={[styles.bandRow, i > 0 && styles.bandRowBorder]}>
+                <Text style={styles.bandNum}>{String(i + 1).padStart(2, '0')}</Text>
                 <Text style={styles.bandText}>{line}</Text>
               </View>
             ))}
@@ -142,10 +154,15 @@ export function AccountingLanding() {
 
       {/* Steps */}
       <Section title={copy.steps.title}>
-        <View style={[styles.grid, wide && styles.gridWide]}>
+        <View style={[styles.steps, wide && styles.stepsWide]}>
           {copy.steps.items.map((item, i) => (
             <View key={item.title} style={[styles.step, wide && { flex: 1 }]}>
-              <Text style={styles.stepNumber}>{String(i + 1).padStart(2, '0')}</Text>
+              <View style={styles.stepHead}>
+                <View style={styles.stepDot}>
+                  <Text style={styles.stepDotText}>{i + 1}</Text>
+                </View>
+                {wide && i < copy.steps.items.length - 1 ? <View style={styles.stepLine} /> : null}
+              </View>
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.body}>{item.text}</Text>
             </View>
@@ -158,38 +175,42 @@ export function AccountingLanding() {
         <View style={[styles.partner, wide && styles.partnerWide]}>
           <View style={[{ gap: spacing.sm }, wide && { flex: 1 }]}>
             <Text style={styles.eyebrow}>Cantia Partners</Text>
-            <Text style={styles.h2}>{copy.partner.title}</Text>
+            <Text style={styles.h3}>{copy.partner.title}</Text>
             <Text style={styles.body}>{copy.partner.text}</Text>
           </View>
-          <View style={styles.partnerFigure}>
-            <Text style={styles.partnerBig}>25 %</Text>
-            <Text style={styles.partnerSmall}>× 12</Text>
-          </View>
+          <Link href={`https://partners.cantia.ch${prefix}` as any} style={styles.partnerLink}>
+            {copy.partner.cta} →
+          </Link>
         </View>
       </Section>
 
       {/* FAQ */}
-      <Section title={copy.faq.title}>
-        <View style={styles.faq}>
-          {copy.faq.items.map((item, i) => (
-            <Pressable key={item.q} onPress={() => setOpenFaq(openFaq === i ? null : i)} style={styles.faqItem} accessibilityRole="button" aria-expanded={openFaq === i}>
-              <View style={styles.faqHead}>
-                <Text style={styles.faqQ}>{item.q}</Text>
-                <Feather name={openFaq === i ? 'minus' : 'plus'} size={18} color={colors.textMuted} />
-              </View>
-              {openFaq === i ? <Text style={styles.body}>{item.a}</Text> : null}
-            </Pressable>
-          ))}
+      <Section>
+        <View style={[{ gap: spacing.xl }, wide && styles.faqWide]}>
+          <Text style={[styles.h2, wide && { flex: 0.8 }]} role="heading" aria-level={2}>
+            {copy.faq.title}
+          </Text>
+          <View style={[styles.faq, wide && { flex: 1.4 }]}>
+            {copy.faq.items.map((item, i) => (
+              <Pressable key={item.q} onPress={() => setOpenFaq(openFaq === i ? null : i)} style={styles.faqItem} accessibilityRole="button" aria-expanded={openFaq === i}>
+                <View style={styles.faqHead}>
+                  <Text style={styles.faqQ}>{item.q}</Text>
+                  <Feather name={openFaq === i ? 'minus' : 'plus'} size={18} color={colors.textMuted} />
+                </View>
+                {openFaq === i ? <Text style={styles.body}>{item.a}</Text> : null}
+              </Pressable>
+            ))}
+          </View>
         </View>
       </Section>
 
       {/* Final CTA */}
-      <Section>
-        <View style={styles.final}>
-          <Text style={[styles.h2, { textAlign: 'center' }]}>{copy.finalCta.title}</Text>
+      <View style={styles.bandWrap}>
+        <View style={[styles.final, wide && styles.finalWide]}>
+          <Text style={[styles.finalTitle, wide && { flex: 1 }]}>{copy.finalCta.title}</Text>
           <NavButton href="/connexion?mode=signup" label={copy.finalCta.cta} primary large />
         </View>
-      </Section>
+      </View>
     </AccPage>
   );
 }
@@ -259,75 +280,79 @@ function PreviewKpi({ label, value, warn = false }: { label: string; value: stri
   );
 }
 
+// Headings at normal width (not the condensed display cut of the main
+// site): calmer and more institutional for a professional audience.
+const heading = { fontFamily: 'Archivo, system-ui, sans-serif', fontWeight: '700' as const, color: colors.text };
+
 const styles = StyleSheet.create({
-  heroWrap: { paddingHorizontal: spacing.lg, backgroundColor: colors.surfaceAlt, borderBottomWidth: 1, borderBottomColor: colors.border },
-  hero: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', paddingVertical: 56, gap: 40 },
-  heroWide: { flexDirection: 'row', alignItems: 'center', paddingVertical: 88 },
+  heroWrap: { paddingHorizontal: spacing.lg, backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: colors.border },
+  hero: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', paddingTop: 48, paddingBottom: 56, gap: 44 },
+  heroWide: { flexDirection: 'row', alignItems: 'center', paddingTop: 80, paddingBottom: 88, gap: 64 },
   heroText: { gap: spacing.lg },
-  eyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1.2 },
-  h1: { ...displayType, fontSize: 52, lineHeight: 56, fontWeight: '800', color: colors.text, letterSpacing: -1 },
-  h1Narrow: { fontSize: 36, lineHeight: 40 },
-  lead: { fontSize: 18, lineHeight: 28, color: '#4A3F35', maxWidth: 560 },
-  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  noteRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  eyebrow: { fontSize: 12.5, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1.4 },
+  h1: { ...heading, fontSize: 50, lineHeight: 58, letterSpacing: -1.2 },
+  h1Narrow: { fontSize: 34, lineHeight: 41, letterSpacing: -0.6 },
+  h2: { ...heading, fontSize: 32, lineHeight: 40, letterSpacing: -0.6 },
+  h3: { ...heading, fontSize: 24, lineHeight: 31, letterSpacing: -0.3 },
+  lead: { fontSize: 18, lineHeight: 29, color: '#4A3F35', maxWidth: 540 },
+  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.xs },
   note: { fontSize: fontSize.sm, color: colors.textMuted },
+  factsWrap: { paddingHorizontal: spacing.lg, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
+  facts: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', paddingVertical: spacing.lg, gap: spacing.md },
+  factsWide: { flexDirection: 'row', justifyContent: 'space-between', gap: 0 },
+  fact: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
+  factDivider: { borderLeftWidth: 1, borderLeftColor: colors.border, paddingLeft: spacing.xl },
+  factText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
   sectionWrap: { paddingHorizontal: spacing.lg },
-  section: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', paddingTop: 80, gap: spacing.xl },
-  h2: { ...displayType, fontSize: 32, lineHeight: 38, fontWeight: '800', color: colors.text, letterSpacing: -0.5 },
-  grid: { gap: spacing.lg },
-  gridWide: { flexDirection: 'row' },
-  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.xl, gap: spacing.sm },
-  iconBox: { width: 40, height: 40, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.xs },
-  cardTitle: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text },
-  body: { fontSize: fontSize.md, lineHeight: 24, color: '#4A3F35' },
-  bandWrap: { paddingHorizontal: spacing.lg, marginTop: 80 },
-  band: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', backgroundColor: '#2B211A', borderRadius: radius.lg, padding: 40, gap: spacing.xl },
-  bandWide: { flexDirection: 'row', padding: 56 },
-  bandTitle: { ...displayType, fontSize: 30, lineHeight: 36, fontWeight: '800', color: '#FFFFFF' },
-  bandRow: { flexDirection: 'row', gap: spacing.md },
-  bandText: { flex: 1, fontSize: fontSize.md, lineHeight: 24, color: '#EFE4D6' },
-  step: { gap: spacing.sm, borderTopWidth: 2, borderTopColor: colors.text, paddingTop: spacing.lg },
-  stepNumber: { ...monoType, fontSize: 13, fontWeight: '700', color: colors.primary },
-  partner: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: 40, gap: spacing.xl },
-  partnerWide: { flexDirection: 'row', alignItems: 'center' },
-  partnerFigure: { flexDirection: 'row', alignItems: 'flex-end', gap: 6 },
-  partnerBig: { ...displayType, fontSize: 72, lineHeight: 72, fontWeight: '800', color: colors.primary },
-  partnerSmall: { ...monoType, fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 10 },
+  section: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', paddingTop: 96, gap: spacing.xl },
+  cols: { gap: spacing.xl },
+  colsWide: { flexDirection: 'row', gap: 0 },
+  col: { gap: spacing.sm, paddingTop: spacing.lg, borderTopWidth: 1, borderTopColor: colors.border },
+  colDivider: { borderLeftWidth: 1, borderLeftColor: colors.border, paddingLeft: spacing.xl, marginLeft: spacing.xl },
+  cardTitle: { fontSize: 19, lineHeight: 26, fontWeight: '700', color: colors.text },
+  body: { fontSize: fontSize.md, lineHeight: 25, color: '#4A3F35' },
+  bandWrap: { paddingHorizontal: spacing.lg, marginTop: 96 },
+  band: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', backgroundColor: '#16120E', borderRadius: 14, padding: 32, gap: spacing.xl },
+  bandWide: { flexDirection: 'row', padding: 56, gap: 64 },
+  bandEyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.4, textTransform: 'uppercase', color: '#D9895A' },
+  bandTitle: { ...heading, fontSize: 30, lineHeight: 38, color: '#FFFFFF', letterSpacing: -0.4 },
+  bandRow: { flexDirection: 'row', gap: spacing.lg, paddingVertical: spacing.md },
+  bandRowBorder: { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.12)' },
+  bandNum: { fontSize: 12, fontWeight: '700', color: '#D9895A', marginTop: 4, fontVariant: ['tabular-nums'] },
+  bandText: { flex: 1, fontSize: fontSize.md, lineHeight: 25, color: '#EFE4D6' },
+  steps: { gap: spacing.xl },
+  stepsWide: { flexDirection: 'row', gap: spacing.xl },
+  step: { gap: spacing.sm },
+  stepHead: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs },
+  stepDot: { width: 34, height: 34, borderRadius: 17, borderWidth: 1.5, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  stepDotText: { fontSize: 14, fontWeight: '700', color: colors.primary },
+  stepLine: { flex: 1, height: 1, backgroundColor: colors.border, marginLeft: spacing.md },
+  partner: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: 14, padding: 32, gap: spacing.lg },
+  partnerWide: { flexDirection: 'row', alignItems: 'center', padding: 44, gap: 48 },
+  partnerLink: { fontSize: fontSize.md, fontWeight: '700', color: colors.primary },
+  faqWide: { flexDirection: 'row', gap: 64 },
   faq: { borderTopWidth: 1, borderTopColor: colors.border },
   faqItem: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: spacing.lg, gap: spacing.sm },
   faqHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
-  faqQ: { flex: 1, fontSize: fontSize.lg, fontWeight: '700', color: colors.text },
-  final: { alignItems: 'center', gap: spacing.xl, paddingVertical: spacing.xl },
-  preview: {
-    flex: 1,
-    maxWidth: 480,
-    width: '100%',
-    alignSelf: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 18,
-    padding: spacing.xl,
-    gap: spacing.md,
-    shadowColor: '#2B211A',
-    shadowOpacity: 0.12,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 18 },
-  },
+  faqQ: { flex: 1, fontSize: 17, fontWeight: '600', color: colors.text },
+  final: { width: '100%', maxWidth: PAGE_MAX - spacing.lg * 2, alignSelf: 'center', backgroundColor: colors.primarySoft, borderRadius: 14, padding: 32, gap: spacing.lg, alignItems: 'flex-start' },
+  finalWide: { flexDirection: 'row', alignItems: 'center', padding: 48, gap: 48 },
+  finalTitle: { ...heading, fontSize: 26, lineHeight: 34, letterSpacing: -0.4 },
+  preview: { padding: spacing.lg, gap: spacing.md },
   previewHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   previewTitle: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text },
   previewPill: { backgroundColor: colors.primarySoft, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 2 },
-  previewPillText: { ...monoType, fontSize: 12, fontWeight: '700', color: colors.primary },
+  previewPillText: { fontSize: 12, fontWeight: '700', color: colors.primary },
   previewKpis: { flexDirection: 'row', gap: spacing.sm },
   previewKpi: { flex: 1, backgroundColor: colors.bg, borderRadius: radius.md, padding: spacing.md, gap: 2 },
-  previewKpiValue: { ...displayType, fontSize: 24, fontWeight: '800', color: colors.text },
+  previewKpiValue: { fontSize: 22, fontWeight: '700', color: colors.text, fontVariant: ['tabular-nums'] },
   previewKpiLabel: { fontSize: 11, color: colors.textMuted },
   previewRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
   previewAvatar: { width: 34, height: 34, borderRadius: 10, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
   previewAvatarText: { fontWeight: '800', color: colors.accent },
   previewName: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   previewMeta: { fontSize: 12, color: colors.textMuted },
-  previewAmount: { ...monoType, fontSize: 12, fontWeight: '600', color: colors.text },
+  previewAmount: { fontSize: 12.5, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
   previewOverdue: { fontSize: 11, color: colors.danger, fontWeight: '700' },
   previewOk: { fontSize: 11, color: colors.success },
 });

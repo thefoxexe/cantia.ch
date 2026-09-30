@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { SocialLinks } from './brand/SocialLinks';
+import { BrandFooter } from './brand/ProductChrome';
 import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Button } from './ui';
@@ -270,121 +270,80 @@ export function MarketingFooter({
   const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
   const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   const localePrefix = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '';
-  return (
-    <View style={styles.footer}>
-      <View style={styles.footerGrid}>
-        <View style={styles.footerBrandCol}>
-          <View style={styles.footerBrandRow}>
-            <BrandLogo height={38} tone="black" />
-          </View>
-          <Text style={styles.footerText}>{t.footer.blurb}</Text>
-          <Link href="mailto:info@cantia.ch" target="_blank" asChild>
-            <Pressable style={styles.footerContact}>
-              <Text style={styles.footerContactText}>info@cantia.ch</Text>
-            </Pressable>
-          </Link>
-          <Link href="tel:+41784501457" asChild>
-            <Pressable style={styles.footerContact}>
-              <Text style={styles.footerContactText}>+41 78 450 14 57</Text>
-            </Pressable>
-          </Link>
-        </View>
-        <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>{t.footer.platformTitle}</Text>
-          <Link href={`${localePrefix}/solutions/devis` as any}>
-            <Text style={styles.footerLink}>{t.footer.platformDevis}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/facturation` as any}>
-            <Text style={styles.footerLink}>{t.footer.platformFactures}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/rapports-chantier` as any}>
-            <Text style={styles.footerLink}>{t.footer.platformChantiers}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/rh-salaires` as any}>
-            <Text style={styles.footerLink}>{t.footer.platformRh}</Text>
-          </Link>
-          <Link href={`${localePrefix}/solutions/rentabilite` as any}>
-            <Text style={styles.footerLink}>{t.footer.platformRentabilite}</Text>
-          </Link>
-        </View>
-        <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>{t.footer.discoverTitle}</Text>
-          {onServicesPress ? (
-            <Pressable onPress={onServicesPress}>
-              <Text style={styles.footerLink}>{t.footer.discoverFeatures}</Text>
-            </Pressable>
-          ) : (
-            <Link href={servicesHref as any}>
-              <Text style={styles.footerLink}>{t.footer.discoverFeatures}</Text>
-            </Link>
-          )}
-          {onPricingPress ? (
-            <Pressable onPress={onPricingPress}>
-              <Text style={styles.footerLink}>{t.footer.discoverPricing}</Text>
-            </Pressable>
-          ) : (
-            <Link href={pricingHref as any}>
-              <Text style={styles.footerLink}>{t.footer.discoverPricing}</Text>
-            </Link>
-          )}
-          <Link href={`${localePrefix}/metiers` as any}>
-            <Text style={styles.footerLink}>{t.footer.discoverMetier}</Text>
-          </Link>
-          <Link href={`${localePrefix}/integrations` as any}>
-            <Text style={styles.footerLink}>{t.footer.discoverIntegrations}</Text>
-          </Link>
-          <Link href={`${localePrefix}/sur-mesure` as any}>
-            <Text style={styles.footerLink}>{t.footer.discoverSurMesure}</Text>
-          </Link>
-        </View>
-        <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>{t.footer.productsTitle}</Text>
-          <Link href={authHref('signup')}>
-            <Text style={styles.footerLink}>{t.footer.productsApp}</Text>
-          </Link>
-          <Link href={`https://accounting.cantia.ch${localePrefix}` as any}>
-            <Text style={styles.footerLink}>{t.footer.fiduciaryLink}</Text>
-          </Link>
-          <Link href={`https://partners.cantia.ch${localePrefix}` as any}>
-            <Text style={styles.footerLink}>{t.footer.partnersLink}</Text>
-          </Link>
-        </View>
-        <View style={styles.footerCol}>
-          <Text style={styles.footerColTitle}>{t.footer.resourcesTitle}</Text>
-          <Link href={aideHref as any}>
-            <Text style={styles.footerLink}>{t.footer.resourcesHelp}</Text>
-          </Link>
-          <Link href={`${localePrefix}/telechargement` as any}>
-            <Text style={styles.footerLink}>{t.footer.resourcesMobile}</Text>
-          </Link>
-          <Link href={locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog'}>
-            <Text style={styles.footerLink}>{t.footer.resourcesBlog}</Text>
-          </Link>
-          <Link href={contactHref as any}>
-            <Text style={styles.footerLink}>{t.footer.resourcesContact}</Text>
-          </Link>
-          <Link href={authHref('login')}>
-            <Text style={styles.footerLink}>{t.footer.resourcesLogin}</Text>
-          </Link>
-        </View>
-      </View>
-      <View style={styles.footerBottom}>
-        <Text style={styles.footerCopy}>{t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}</Text>
-        <SocialLinks />
-        <View style={styles.footerLegalLinks}>
-          <Link href={`${localePrefix}/mentions-legales` as any}>
-            <Text style={styles.footerCopy}>{t.footer.legalLink}</Text>
-          </Link>
-          <Link href={`${localePrefix}/confidentialite` as any}>
-            <Text style={styles.footerCopy}>{t.footer.privacyLink}</Text>
-          </Link>
-          <Link href={`${localePrefix}/conditions-generales` as any}>
-            <Text style={styles.footerCopy}>{t.footer.cgvLink}</Text>
-          </Link>
-          <StatusLink label={t.footer.statusLink} textStyle={styles.footerCopy} />
-        </View>
-      </View>
+  const { width } = useWindowDimensions();
+  const wide = width >= 960;
+  const legalLinks = (
+    <View style={styles.footerLegalLinks}>
+      <Link href={`${localePrefix}/mentions-legales` as any}>
+        <Text style={styles.footerCopy}>{t.footer.legalLink}</Text>
+      </Link>
+      <Link href={`${localePrefix}/confidentialite` as any}>
+        <Text style={styles.footerCopy}>{t.footer.privacyLink}</Text>
+      </Link>
+      <Link href={`${localePrefix}/conditions-generales` as any}>
+        <Text style={styles.footerCopy}>{t.footer.cgvLink}</Text>
+      </Link>
+      <StatusLink label={t.footer.statusLink} textStyle={styles.footerCopy} />
     </View>
+  );
+  return (
+    <BrandFooter
+      lockup={<BrandLogo height={wide ? 38 : 34} tone="black" />}
+      tagline={t.footer.blurb}
+      contact={
+        <View style={{ gap: 4 }}>
+          <Link href="mailto:info@cantia.ch" style={styles.footerContactText}>
+            info@cantia.ch
+          </Link>
+          <Link href="tel:+41784501457" style={styles.footerContactText}>
+            +41 78 450 14 57
+          </Link>
+        </View>
+      }
+      locale={locale}
+      wide={wide}
+      columns={[
+        {
+          title: t.footer.platformTitle,
+          links: [
+            { label: t.footer.platformDevis, href: `${localePrefix}/solutions/devis` },
+            { label: t.footer.platformFactures, href: `${localePrefix}/solutions/facturation` },
+            { label: t.footer.platformChantiers, href: `${localePrefix}/solutions/rapports-chantier` },
+            { label: t.footer.platformRh, href: `${localePrefix}/solutions/rh-salaires` },
+            { label: t.footer.platformRentabilite, href: `${localePrefix}/solutions/rentabilite` },
+          ],
+        },
+        {
+          title: t.footer.discoverTitle,
+          links: [
+            onServicesPress ? { label: t.footer.discoverFeatures, onPress: onServicesPress } : { label: t.footer.discoverFeatures, href: servicesHref },
+            onPricingPress ? { label: t.footer.discoverPricing, onPress: onPricingPress } : { label: t.footer.discoverPricing, href: pricingHref },
+            { label: t.footer.discoverMetier, href: `${localePrefix}/metiers` },
+            { label: t.footer.discoverIntegrations, href: `${localePrefix}/integrations` },
+            { label: t.footer.discoverSurMesure, href: `${localePrefix}/sur-mesure` },
+          ],
+        },
+        {
+          title: t.footer.productsTitle,
+          links: [
+            { label: t.footer.productsApp, href: authHref('signup') as string },
+            { label: t.footer.fiduciaryLink, href: `https://accounting.cantia.ch${localePrefix}` },
+            { label: t.footer.partnersLink, href: `https://partners.cantia.ch${localePrefix}` },
+          ],
+        },
+        {
+          title: t.footer.resourcesTitle,
+          links: [
+            { label: t.footer.resourcesHelp, href: aideHref },
+            { label: t.footer.resourcesMobile, href: `${localePrefix}/telechargement` },
+            { label: t.footer.resourcesBlog, href: locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog' },
+            { label: t.footer.resourcesContact, href: contactHref },
+            { label: t.footer.resourcesLogin, href: authHref('login') as string },
+          ],
+        },
+      ]}
+      bottomLinks={legalLinks}
+    />
   );
 }
 

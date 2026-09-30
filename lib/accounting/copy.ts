@@ -58,8 +58,10 @@ const fr = {
   },
   partner: {
     title: 'Recommandez Cantia à vos mandants',
-    text: 'Activez Cantia Partners depuis votre espace : quand un mandant que vous invitez devient client payant, vous recevez 25 % de ses paiements pendant 12 mois. Avec le même compte, sans formalité.',
+    text: 'Activez Cantia Partners depuis votre espace : quand un mandant que vous invitez devient client payant, vous touchez une commission. Avec le même compte, sans formalité.',
+    cta: 'Découvrir Cantia Partners',
   },
+  facts: ['Gratuit, sans limite de mandants', 'Données hébergées en Suisse', 'Lecture seule, accès révocable', 'Chaque accès journalisé'],
   faq: {
     title: 'Questions fréquentes',
     items: [
@@ -314,8 +316,10 @@ const de: AccCopy = {
   },
   partner: {
     title: 'Empfehlen Sie Cantia Ihren Mandanten',
-    text: 'Aktivieren Sie Cantia Partners in Ihrem Bereich: Wird ein eingeladener Mandant zahlender Kunde, erhalten Sie 12 Monate lang 25 % seiner Zahlungen. Mit demselben Konto, ohne Formalitäten.',
+    text: 'Aktivieren Sie Cantia Partners in Ihrem Bereich: Wird ein eingeladener Mandant zahlender Kunde, erhalten Sie eine Provision. Mit demselben Konto, ohne Formalitäten.',
+    cta: 'Cantia Partners entdecken',
   },
+  facts: ['Kostenlos, beliebig viele Mandanten', 'Daten in der Schweiz gehostet', 'Nur Lesezugriff, jederzeit widerrufbar', 'Jeder Zugriff protokolliert'],
   faq: {
     title: 'Häufige Fragen',
     items: [
@@ -560,8 +564,10 @@ const it: AccCopy = {
   },
   partner: {
     title: 'Consigli Cantia ai suoi mandanti',
-    text: 'Attivi Cantia Partners dal suo spazio: quando un mandante invitato diventa cliente pagante, riceve il 25 % dei suoi pagamenti per 12 mesi. Con lo stesso account, senza formalità.',
+    text: 'Attivi Cantia Partners dal suo spazio: quando un mandante invitato diventa cliente pagante, riceve una commissione. Con lo stesso account, senza formalità.',
+    cta: 'Scoprire Cantia Partners',
   },
+  facts: ['Gratuito, mandanti illimitati', 'Dati ospitati in Svizzera', 'Sola lettura, accesso revocabile', 'Ogni accesso registrato'],
   faq: {
     title: 'Domande frequenti',
     items: [

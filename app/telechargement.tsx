@@ -90,7 +90,7 @@ export default function TelechargementScreen() {
           <SectionHead title={t('telechargementPage.appsTitle')} intro={t('telechargementPage.appsLead')} />
           <View style={[styles.apps, isTablet && styles.appsStacked]}>
             {APPS.map((app) => (
-              <View key={app.tag} style={[styles.appCard, app.installable && styles.appCardMain, isMobile && styles.appCardPhone]}>
+              <View key={app.tag} style={[styles.appCard, isTablet && styles.appCardStacked, app.installable && styles.appCardMain, isMobile && styles.appCardPhone]}>
                 <Wordmark height={isMobile ? 14 : 15} stacked={isMobile} product={app.product} />
                 <View style={styles.appMeta}>
                   <Text style={styles.appTag}>{app.tag}</Text>
@@ -200,6 +200,9 @@ const styles = StyleSheet.create({
 
   apps: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl },
   appsStacked: { flexDirection: 'column' },
+  // Stacked: each card as tall as its content (flex: 1 would share the
+  // column's height and push the link out of the frame).
+  appCardStacked: { flex: 0, flexGrow: 0, flexBasis: 'auto' },
   appCard: { flex: 1, gap: spacing.md, borderWidth: 1, borderColor: rule, borderRadius: 4, padding: spacing.xl, backgroundColor: '#FFFFFF' },
   appCardMain: { borderColor: colors.primary, borderTopWidth: 3 },
   appCardPhone: { padding: spacing.lg },
