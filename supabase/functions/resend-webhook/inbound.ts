@@ -52,7 +52,10 @@ export async function handleInboundEmail(admin: Admin, data: Record<string, unkn
   let organizationId: string | null = null;
   let forwardError: unknown = null;
   if (tokens.length) {
-    const { data: settings } = await admin.from('sales_email_settings').select('organization_id, enabled, reply_delivery').in('inbox_token', tokens).limit(1).maybeSingle();
+    // Current address or a previous one (e-mails sent before the address
+    // was renamed still carry it as Reply-To).
+    const { data: found } = await admin.rpc('sales_inbox_lookup', { p_tokens: tokens });
+    const settings = ((Array.isArray(found) ? found[0] : found) ?? null) as { organization_id: string; enabled: boolean; reply_delivery: string } | null;
     const tokenOrgId = (settings?.organization_id as string | undefined) ?? null;
     // "Dans Cantia uniquement": no copy to the company address, but only
     // while the mailbox really files the e-mail - a reply is never lost.
