@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Martian+Mono:wght@400;600&family=Michroma&display=swap"><link rel="stylesheet" href="common.css">
+<style>
+.stage{position:relative;width:3600px;height:1500px;overflow:hidden;background:#16120E}
+.grain{position:absolute;inset:0;background:radial-gradient(1200px 900px at 300px 1300px,rgba(169,92,48,.28),transparent 70%),radial-gradient(900px 700px at 3300px 200px,rgba(169,92,48,.16),transparent 70%)}
+.panel{position:absolute;top:0;width:1200px;height:1500px;padding:110px 110px 120px}
+.p1{left:0}.p2{left:1200px}.p3{left:2400px}
+.rail{position:absolute;left:0;right:0;top:1170px;height:3px;background:#A95C30}
+.node{position:absolute;top:1152px;width:40px;height:40px;border-radius:50%;background:#16120E;border:3px solid #A95C30;display:flex;align-items:center;justify-content:center}
+.node i{width:14px;height:14px;border-radius:50%;background:#D9895A}
+.tick{position:absolute;top:1200px;font-size:20px;color:#A59684}
+.arc{position:absolute;left:-200px;top:1040px;width:4200px;height:1400px;border-radius:50%;border-top:2px solid rgba(217,137,90,.35)}
+.kick{font-size:22px;color:#D9895A}
+h1{font-weight:800;font-stretch:112%;font-size:150px;line-height:.95;letter-spacing:-.02em;margin-top:70px}
+h2{font-weight:800;font-stretch:108%;font-size:92px;line-height:1;letter-spacing:-.015em;margin-top:26px}
+.lede{font-size:38px;line-height:1.35;color:#CFC4B6;margin-top:48px;max-width:900px}
+.list{margin-top:56px;display:flex;flex-direction:column;gap:30px}
+.item{display:flex;gap:26px;align-items:flex-start;border-top:1px solid rgba(247,241,230,.14);padding-top:26px}
+.item b{font-size:36px;font-weight:700;display:block}
+.item span{font-size:27px;line-height:1.4;color:#A59684;display:block;margin-top:6px}
+.num{font-size:20px;color:#D9895A;padding-top:12px;min-width:48px}
+.prod{margin-top:60px;border:1px solid rgba(247,241,230,.18);border-radius:18px;padding:40px 44px;background:rgba(247,241,230,.03)}
+.prod+.prod{margin-top:28px}
+.prod .suffix{font-family:'Michroma',sans-serif;font-size:28px;letter-spacing:.18em;color:#D9895A;margin-top:18px}
+.prod p{font-size:30px;line-height:1.4;color:#CFC4B6;margin-top:18px}
+.tag{display:inline-block;margin-top:20px;font-size:17px;padding:8px 16px;border-radius:999px;border:1px solid #A95C30;color:#D9895A}
+.foot{position:absolute;left:110px;right:110px;bottom:110px;display:flex;justify-content:space-between;align-items:flex-end}
+.url{font-weight:800;font-stretch:112%;font-size:64px}
+.swiss{display:flex;align-items:center;gap:14px;font-size:20px;color:#CFC4B6}
+.flag{width:34px;height:34px;background:#DA291C;border-radius:5px;position:relative}
+.flag:before{content:'';position:absolute;left:14px;top:7px;width:6px;height:20px;background:#fff}
+.flag:after{content:'';position:absolute;left:7px;top:14px;width:20px;height:6px;background:#fff}
+.swipe{font-size:20px;color:#A59684}
+</style></head><body><div class="stage">
+<div class="grain"></div><div class="arc"></div>
+<div class="rail"></div>
+<div class="node" style="left:110px"><i></i></div><div class="tick mono" style="left:110px">01 · Identité</div>
+<div class="node" style="left:1310px"><i></i></div><div class="tick mono" style="left:1310px">02 · Fonctions</div>
+<div class="node" style="left:2510px"><i></i></div><div class="tick mono" style="left:2510px">03 · Extensions</div>
+
+<section class="panel p1">
+  <img src="logo-on-dark.png" style="height:64px">
+  <div class="kick mono" style="margin-top:120px">La grande mise à jour · 2026</div>
+  <h1>Le nouveau<br><span class="accent">Cantia.</span></h1>
+  <p class="lede">Nouvelle identité, nouvelles fonctions et deux nouvelles extensions. Pour piloter vos chantiers et vos projets.</p>
+  <div class="foot" style="bottom:120px"><span class="swipe mono">Glissez →</span></div>
+</section>
+
+<section class="panel p2">
+  <div class="kick mono">Nouvelles fonctions</div>
+  <h2>Chaque devis<br>suivi jusqu’au oui.</h2>
+  <div class="list">
+    <div class="item"><div class="num mono">01</div><div><b>Suivi commercial</b><span>Ouvertures, clics et réponses sur chaque devis.</span></div></div>
+    <div class="item"><div class="num mono">02</div><div><b>Relances automatiques</b><span>Vos devis relancés au bon moment, à votre place.</span></div></div>
+    <div class="item"><div class="num mono">03</div><div><b>Boîte e-mails intégrée</b><span>Réponses des clients classées sur le bon document.</span></div></div>
+    <div class="item"><div class="num mono">04</div><div><b>Chantier, projet, mandat</b><span>Cantia parle le vocabulaire de votre métier.</span></div></div>
+  </div>
+</section>
+
+<section class="panel p3">
+  <div class="kick mono">Nouvelles extensions</div>
+  <h2>Un écosystème<br>complet.</h2>
+  <div class="prod">
+    <img src="wordmark-white.png" style="height:30px"><div class="suffix">— ACCOUNTING</div>
+    <p>L’espace des fiduciaires : pièces, paiements et échéances TVA de leurs clients.</p>
+    <span class="tag mono">Gratuit pour les fiduciaires</span>
+  </div>
+  <div class="prod">
+    <img src="wordmark-white.png" style="height:30px"><div class="suffix">— PARTNERS</div>
+    <p>Recommandez Cantia autour de vous et gagnez davantage.</p>
+    <span class="tag mono">Programme partenaire</span>
+  </div>
+  <div class="foot" style="bottom:120px"><span class="url">cantia.ch</span><span class="swiss mono">Suisse <span class="flag"></span></span></div>
+</section>
+</div></body></html>

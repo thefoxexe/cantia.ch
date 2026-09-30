@@ -1,0 +1,4 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#16120E;color:#F7F1E6;font-family:'Archivo',sans-serif}
+.mono{font-family:'Martian Mono',monospace;text-transform:uppercase;letter-spacing:.14em}
+.accent{color:#D9895A}
