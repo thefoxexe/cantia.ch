@@ -29,7 +29,7 @@ export function AccNav({ right, landing = false, cta = false }: { right?: ReactN
       product="accounting"
       locale={locale}
       wide={wide}
-      localeSwitch={<AccLocaleSwitch landing={landing} inverse />}
+      localeSwitch={<AccLocaleSwitch landing={landing} />}
       login={cta ? { label: copy.nav.login, href: '/connexion' } : undefined}
       primary={cta ? { label: copy.nav.signup, href: '/connexion?mode=signup' } : undefined}
       right={right}

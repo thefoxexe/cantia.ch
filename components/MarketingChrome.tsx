@@ -19,6 +19,7 @@ const LOCALE_META: Record<AppLocale, { flag: string; label: string }> = {
   it: { flag: '🇮🇹', label: 'Italiano' },
 };
 const LANG_DROPDOWN_WIDTH = 168;
+const NAV_FULL_MIN_WIDTH = 1100;
 
 export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
@@ -106,7 +107,11 @@ export function MarketingNav({
   const telechargementHref = locale === 'de' ? '/de/telechargement' : locale === 'it' ? '/it/telechargement' : '/telechargement';
   const contactHref = locale === 'de' ? '/de/contact' : locale === 'it' ? '/it/contact' : '/contact';
   const { width } = useWindowDimensions();
-  const isCompactNav = width < breakpoints.tablet;
+  // The full lockup (C-A-N-T-I-A) plus seven entries need ~1000px (French
+  // is the longest); below that the links go into the hamburger menu. The
+  // lockup only shrinks to the mark on phones.
+  const isCompactNav = width < NAV_FULL_MIN_WIDTH;
+  const isPhone = width < breakpoints.tablet;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuAnim = useRef(new Animated.Value(0)).current;
 
@@ -126,7 +131,7 @@ export function MarketingNav({
       <View style={styles.nav}>
       <Link href={homeHref as any} asChild>
         <Pressable style={styles.navBrandRow} accessibilityLabel="Cantia">
-          <BrandLockup height={isCompactNav ? 32 : 30} compact={isCompactNav} />
+          <BrandLockup height={isPhone ? 32 : 30} compact={isPhone} />
         </Pressable>
       </Link>
 

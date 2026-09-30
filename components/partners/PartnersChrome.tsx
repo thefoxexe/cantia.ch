@@ -39,7 +39,7 @@ export function PartnersNav({ right, landing = false, cta = false }: { right?: R
       product="partners"
       locale={locale}
       wide={wide}
-      localeSwitch={<LocaleSwitch landing={landing} inverse />}
+      localeSwitch={<LocaleSwitch landing={landing} />}
       login={cta ? { label: copy.nav.login, href: '/connexion' } : undefined}
       primary={cta ? { label: copy.nav.join, href: '/connexion?mode=signup' } : undefined}
       right={right}

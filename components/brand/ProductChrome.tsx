@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { StatusLink } from '../StatusLink';
@@ -10,9 +10,9 @@ import { BrandLockup, BRAND_TERRACOTTA } from './Logo';
 import { SocialLinks } from './SocialLinks';
 
 // Shared frame of the Cantia product sites (accounting.cantia.ch,
-// partners.cantia.ch): a black ecosystem strip that links the three
-// products and holds the language switch, the navbar with the product
-// lockup ("C-A-N-T-I-A — ACCOUNTING"), and the footer signed with the
+// partners.cantia.ch): the navbar with the product lockup
+// ("C-A-N-T-I-A — ACCOUNTING") and the language switch, and the footer
+// (which links the three products) signed with the
 // black logo and a full-width wordmark. Solid, never sticky: a sticky
 // blurred header inside a scroll view broke scrolling in Safari.
 
@@ -53,35 +53,6 @@ export function LocaleTabs<L extends string>({ locales, value, onChange, inverse
   );
 }
 
-function EcoBar({ product, locale, localeSwitch }: { product: ProductKey; locale: Loc; localeSwitch: ReactNode }) {
-  const prefix = prefixFor(locale);
-  const items: { key: 'cantia' | ProductKey; label: string; href: string }[] = [
-    { key: 'cantia', label: 'Cantia', href: `https://cantia.ch${prefix || '/'}` },
-    { key: 'accounting', label: 'Accounting', href: product === 'accounting' ? '/' : `https://accounting.cantia.ch${prefix}` },
-    { key: 'partners', label: 'Partners', href: product === 'partners' ? '/' : `https://partners.cantia.ch${prefix}` },
-  ];
-  return (
-    <View style={styles.eco}>
-      <View style={styles.ecoInner}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.ecoScroll} contentContainerStyle={styles.ecoLinks}>
-          {items.map((it) => {
-            const on = it.key === product;
-            return (
-              <Link key={it.key} href={it.href as any} style={styles.ecoLink}>
-                <View style={styles.ecoItem}>
-                  {on ? <View style={styles.ecoDot} /> : null}
-                  <Text style={[styles.ecoText, on && styles.ecoTextOn]}>{it.label}</Text>
-                </View>
-              </Link>
-            );
-          })}
-        </ScrollView>
-        <View style={styles.ecoLocale}>{localeSwitch}</View>
-      </View>
-    </View>
-  );
-}
-
 // ---------------------------------------------------------------- nav
 
 export function ProductNav({
@@ -103,7 +74,8 @@ export function ProductNav({
 }) {
   return (
     <View>
-      <EcoBar product={product} locale={locale} localeSwitch={localeSwitch} />
+      {/* No platform bar on top: Cantia, Accounting and Partners are linked
+          from the footer ("Écosystème"). The language sits in the nav. */}
       <View style={styles.navWrap}>
         <View style={styles.nav}>
           <Link href="/" asChild>
@@ -112,6 +84,7 @@ export function ProductNav({
             </Pressable>
           </Link>
           <View style={styles.navRight}>
+            {localeSwitch}
             {login ? (
               <Link href={login.href as any} style={styles.navLink}>
                 {login.label}
@@ -249,16 +222,6 @@ export function ProductFooter({
 }
 
 const styles = StyleSheet.create({
-  eco: { backgroundColor: INK, paddingHorizontal: spacing.lg },
-  ecoInner: { width: '100%', maxWidth: PRODUCT_PAGE_MAX - spacing.lg * 2, alignSelf: 'center', minHeight: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
-  ecoScroll: { flexShrink: 1, flexGrow: 0 },
-  ecoLinks: { flexDirection: 'row', alignItems: 'center', gap: 18, paddingRight: spacing.sm },
-  ecoLocale: { flexShrink: 0 },
-  ecoLink: { paddingVertical: 10 },
-  ecoItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  ecoDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: BRAND_TERRACOTTA },
-  ecoText: { ...monoType, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', color: '#A59684' },
-  ecoTextOn: { color: '#FFFFFF', fontWeight: '700' },
 
   locales: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   locale: { paddingVertical: 8, paddingHorizontal: 7, alignItems: 'center' },
