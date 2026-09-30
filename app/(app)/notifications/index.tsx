@@ -15,6 +15,7 @@ import { DEFAULT_NOTIFICATION_ICON, DEFAULT_NOTIFICATION_TONE, NOTIFICATION_ICON
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Notification } from '../../../lib/types';
+import { applyWorkTerm } from '../../../lib/vocabulary';
 
 function dayLabel(iso: string): string {
   const date = new Date(iso);
@@ -103,7 +104,7 @@ export default function NotificationsScreen() {
 
         {items.length === 0 ? (
           <Card style={{ marginTop: spacing.lg }}>
-            <EmptyState title="Aucune notification" subtitle="Devis à relancer, factures en retard, messages de chantier : tout apparaîtra ici." />
+            <EmptyState title="Aucune notification" subtitle={applyWorkTerm("Devis à relancer, factures en retard, messages de chantier : tout apparaîtra ici.", "fr")} />
           </Card>
         ) : (
           <View style={{ gap: spacing.lg, marginTop: spacing.lg }}>

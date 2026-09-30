@@ -58,7 +58,7 @@ export default function DevisSolutionPage() {
         },
         {
           icon: 'layout',
-          title: 'Trames de devis réutilisables',
+          title: 'Modèles de devis réutilisables',
           text: "Enregistrez vos positions types (pose de carrelage, isolation, etc.) une fois sous forme de trame, puis démarrez chaque nouveau devis avec toutes les lignes déjà là — il ne reste qu'à ajuster les quantités.",
         },
         {

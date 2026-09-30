@@ -291,7 +291,7 @@ const fr: Dict = {
     allLink: 'Découvrir tous les métiers',
     personalTitle: 'Réglé comme vous travaillez',
     items: [
-      { title: 'Vos prestations', text: 'Votre catalogue, vos prix et vos trames de devis suivent votre façon de chiffrer.' },
+      { title: 'Vos prestations', text: 'Votre catalogue, vos prix et vos modèles de devis suivent votre façon de chiffrer.' },
       { title: 'Votre identité', text: 'Votre logo et vos couleurs accompagnent les documents envoyés aux clients.' },
       { title: 'Votre organisation', text: 'Vous adaptez les accès aux responsabilités de chaque membre de l’équipe.' },
     ],
@@ -413,7 +413,7 @@ const fr: Dict = {
         items: [
           { title: 'Clients', text: 'Retrouvez les coordonnées du client et réutilisez-les dans vos documents.' },
           { title: 'Catalogue de prestations', text: 'Mémorisez descriptions, prix et unités ; repérez les écarts de prix.' },
-          { title: 'Trames de devis', text: 'Repartez de vos prestations habituelles et adaptez les quantités.' },
+          { title: 'Modèles de devis', text: 'Repartez de vos prestations habituelles et adaptez les quantités.' },
           { title: 'Métrés', text: 'Détaillez les quantités nécessaires au chiffrage.' },
           { title: 'Devis et signature', text: 'Préparez le PDF, partagez-le et suivez son statut jusqu’à l’acceptation.' },
         ],

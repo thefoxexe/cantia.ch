@@ -50,36 +50,32 @@ function buildSections(
   canManagePayroll: boolean,
   treasuryEnabled: boolean,
   accountingEnabled: boolean,
-  commercialVisible: boolean,
+  emailsVisible: boolean,
 ): NavSection[] {
-  const teamLinks = [
+  // What people open every day sits on top: home (tasks live there, no
+  // separate entry), the mailbox and the planning.
+  const daily = [
+    { href: '/(app)', label: t('nav.home'), icon: 'home' as const },
+    // Finance members only (the mail is about quotes and invoices). Follow-up
+    // automations and templates live in its settings.
+    ...(emailsVisible ? [{ href: '/(app)/emails', label: t('nav.emails'), icon: 'mail' as const }] : []),
     ...(planningEnabled ? [{ href: '/(app)/planning', label: t('nav.planning'), icon: 'calendar' as const }] : []),
-    // "clock", not "dollar-sign" — Factures already owns the money icon in
-    // the FACTURATION section just above; sharing it here made the two
-    // entries visually indistinguishable in the sidebar. Open to every
-    // member (they log their own hours here) — the payroll-manager-only
-    // side (employee records, salary generation, cotisations) lives behind
-    // its own separate "Salaires" entry below, never mixed into this one.
+  ];
+  const teamLinks = [
+    // Open to every member (they log their own hours here).
     ...(payrollEnabled ? [{ href: '/(app)/rh', label: t('nav.hoursExpenses'), icon: 'clock' as const }] : []),
-    // Deliberately a second, separate nav entry rather than a tab inside
-    // "Heures & frais" — a plain member should never even see that a
-    // payroll section exists, let alone land on a locked screen for it.
+    // A separate entry, payroll managers only: a plain member never even
+    // sees that a payroll section exists.
     ...(payrollEnabled && canManagePayroll ? [{ href: '/(app)/rh/salaires', label: t('nav.salaries'), icon: 'user-check' as const }] : []),
+  ];
+  const financeLinks = [
     ...(treasuryEnabled ? [{ href: '/(app)/tresorerie', label: t('nav.treasury'), icon: 'archive' as const }] : []),
-    // Same gate as Trésorerie itself — the one place to see and manage every
-    // expense: chantier-linked purchases (still created from each chantier's
-    // Rentabilité tab) plus general/overhead spend and recurring charges,
-    // which are created, edited and deleted here rather than in Trésorerie.
+    // Same gate as Trésorerie: every expense, chantier-linked or general.
     ...(treasuryEnabled ? [{ href: '/(app)/depenses', label: t('nav.depenses'), icon: 'shopping-bag' as const }] : []),
     ...(accountingEnabled ? [{ href: '/(app)/compta', label: t('nav.accounting'), icon: 'book' as const }] : []),
   ];
   return [
-    {
-      links: [
-        { href: '/(app)', label: t('nav.home'), icon: 'home' as const },
-        { href: '/(app)/taches', label: t('nav.tasks'), icon: 'check-square' as const },
-      ],
-    },
+    { links: daily },
     {
       title: t('nav.sectionChantiers'),
       links: [
@@ -93,15 +89,11 @@ function buildSections(
       ? [
           {
             title: t('nav.sectionFacturation'),
+            // Quote templates are picked right where a devis / facture is
+            // created ("Utiliser un modèle"), not from the menu.
             links: [
               { href: '/(app)/clients', label: t('nav.clients'), icon: 'users' as const },
               { href: '/(app)/devis', label: t('nav.devis'), icon: 'file-text' as const },
-              // Finance members only: amounts and the sales pipeline. Shown on
-              // every plan; without sales tracking it opens the locked teaser.
-              ...(commercialVisible ? [{ href: '/(app)/commercial', label: t('nav.commercial'), icon: 'trending-up' as const }] : []),
-              // Every e-mail sent to clients and where it stands (same audience).
-              ...(commercialVisible ? [{ href: '/(app)/emails', label: t('nav.emails'), icon: 'mail' as const }] : []),
-              { href: '/(app)/devis/trames', label: t('nav.trames'), icon: 'layout' as const },
               { href: '/(app)/devis/factures', label: t('nav.factures'), icon: 'dollar-sign' as const },
               { href: '/(app)/devis/inventaire', label: t('nav.catalogue'), icon: 'box' as const },
             ],
@@ -109,6 +101,7 @@ function buildSections(
         ]
       : []),
     ...(teamLinks.length > 0 ? [{ title: t('nav.sectionEquipe'), links: teamLinks }] : []),
+    ...(financeLinks.length > 0 ? [{ title: t('nav.sectionFinances'), links: financeLinks }] : []),
     { links: [{ href: '/(app)/compte', label: t('nav.settings'), icon: 'settings' }] },
   ];
 }

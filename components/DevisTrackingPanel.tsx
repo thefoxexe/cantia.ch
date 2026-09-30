@@ -65,7 +65,7 @@ export function DevisTrackingPanel({
 
   if (!hasTracking) {
     return (
-      <Pressable onPress={() => router.push('/(app)/commercial' as any)} style={styles.upsell}>
+      <Pressable onPress={() => router.push('/(app)/emails' as any)} style={styles.upsell}>
         <Feather name="eye" size={15} color={colors.primary} />
         <Text style={styles.upsellText}>{t('devisTracking.upsell')}</Text>
         <Feather name="chevron-right" size={16} color={colors.primary} />
@@ -124,7 +124,7 @@ export function DevisTrackingPanel({
                   disabled={busy}
                 />
               ) : (
-                <Pressable onPress={() => router.push('/(app)/compte/automatisations' as any)} style={styles.link}>
+                <Pressable onPress={() => router.push('/(app)/emails/reglages?tab=relances' as any)} style={styles.link}>
                   <Text style={styles.linkText}>{t('devisTracking.setupFollowups')}</Text>
                 </Pressable>
               )}

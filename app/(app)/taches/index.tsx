@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
+import { applyWorkTerm } from '../../../lib/vocabulary';
 import { supabase } from '../../../lib/supabase';
 import { confirm } from '../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
@@ -104,7 +105,7 @@ export default function TachesScreen() {
         <View style={{ flex: 1 }}>
           <Text style={[styles.taskTitle, task.done && styles.taskTitleDone]}>{task.title}</Text>
           <View style={[styles.categoryPill, { backgroundColor: meta.bg }]}>
-            <Text style={[styles.categoryPillText, { color: meta.fg }]}>{meta.label}</Text>
+            <Text style={[styles.categoryPillText, { color: meta.fg }]}>{applyWorkTerm(meta.label, 'fr')}</Text>
           </View>
         </View>
         {canDelete ? (
@@ -147,7 +148,7 @@ export default function TachesScreen() {
                   onPress={() => setNewCategory(cat)}
                   style={[styles.categoryChip, { backgroundColor: active ? meta.bg : colors.surfaceAlt }]}
                 >
-                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{meta.label}</Text>
+                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{applyWorkTerm(meta.label, 'fr')}</Text>
                 </Pressable>
               );
             })}
@@ -162,7 +163,7 @@ export default function TachesScreen() {
           </Pressable>
           {CATEGORY_ORDER.map((cat) => (
             <Pressable key={cat} onPress={() => setFilter(cat)} style={[styles.filterChip, filter === cat && styles.filterChipActive]}>
-              <Text style={[styles.filterChipText, filter === cat && styles.filterChipTextActive]}>{CATEGORY_META[cat].label}</Text>
+              <Text style={[styles.filterChipText, filter === cat && styles.filterChipTextActive]}>{applyWorkTerm(CATEGORY_META[cat].label, 'fr')}</Text>
             </Pressable>
           ))}
         </View>

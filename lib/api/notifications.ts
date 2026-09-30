@@ -8,6 +8,7 @@ export const NOTIFICATION_TYPES: { type: NotificationType; label: string; descri
   { type: 'devis_accepted', label: 'Devis signé', description: "Un client a accepté et signé un devis depuis le portail client." },
   { type: 'devis_viewed', label: 'Devis consulté', description: "Un client consulte un devis sur le portail (plan Entreprise)." },
   { type: 'devis_bounced', label: 'Devis non délivré', description: "L'adresse du client a refusé l'e-mail du devis (plan Entreprise)." },
+  { type: 'email_replied', label: 'E-mail reçu', description: "Un client écrit à l'adresse Cantia de l'entreprise (réponse à un devis, une facture…)." },
   { type: 'email_bounced', label: 'E-mail non délivré', description: "L'adresse du client a refusé une facture, un rappel ou des travaux supplémentaires." },
   { type: 'fiduciary_request', label: 'Demande de votre fiduciaire', description: 'Votre fiduciaire vous demande un document (relevés, justificatifs…).' },
   { type: 'facture_overdue', label: 'Facture en retard', description: "Une facture envoyée a dépassé son échéance de paiement." },

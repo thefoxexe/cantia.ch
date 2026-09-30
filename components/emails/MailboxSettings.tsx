@@ -13,7 +13,7 @@ import { Switch } from '../ui';
 // factures carry that address as Reply-To. Without the Entreprise plan: what
 // the mailbox would bring.
 
-export function MailboxSettings({ orgId, hasPlan, onBack }: { orgId: string; hasPlan: boolean; onBack?: () => void }) {
+export function MailboxSettings({ orgId, hasPlan }: { orgId: string; hasPlan: boolean }) {
   const { t } = useTranslation();
   const router = useRouter();
   const [settings, setSettings] = useState<SalesInboxSettings | null>(null);
@@ -48,12 +48,6 @@ export function MailboxSettings({ orgId, hasPlan, onBack }: { orgId: string; has
 
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body}>
-      {onBack ? (
-        <Pressable onPress={onBack} style={styles.back} accessibilityRole="button">
-          <Feather name="arrow-left" size={18} color={colors.text} />
-        </Pressable>
-      ) : null}
-      <Text style={styles.title}>{t('emailHub.settings')}</Text>
 
       {!hasPlan ? (
         <View style={styles.plan}>
@@ -66,7 +60,6 @@ export function MailboxSettings({ orgId, hasPlan, onBack }: { orgId: string; has
         </View>
       ) : settings ? (
         <>
-          <Text style={styles.lead}>{t('emailHub.settingsLead')}</Text>
           <View style={styles.card}>
             <SettingRow label={t('emailHub.enabledLabel')} hint={t('emailHub.enabledHint')} value={settings.enabled} onChange={(v) => patch({ enabled: v })} />
           </View>
@@ -141,7 +134,7 @@ function SettingRow({ label, hint, value, onChange, disabled }: { label: string;
 }
 
 const styles = StyleSheet.create({
-  body: { padding: spacing.lg, gap: spacing.md, maxWidth: 680 },
+  body: { padding: spacing.lg, paddingBottom: spacing.xxl * 2, gap: spacing.md, width: '100%', maxWidth: 852, alignSelf: 'center' },
   back: { alignSelf: 'flex-start', padding: 6, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border },
   title: { ...displayType, fontSize: 22, fontWeight: '800', color: colors.text },
   lead: { fontSize: fontSize.sm, lineHeight: 20, color: colors.textMuted },

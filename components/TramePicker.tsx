@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { listTrames, fetchTrame } from '../lib/api/trames';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
@@ -12,6 +13,7 @@ import type { DevisTrame, DevisTrameItem } from '../lib/types';
 // gets its own dedicated screen (devis/trames/new.tsx) instead.
 export function TramePicker({ organizationId, onSelect }: { organizationId: string; onSelect: (items: DevisTrameItem[]) => void }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [trames, setTrames] = useState<DevisTrame[]>([]);
   const [loading, setLoading] = useState(false);
@@ -83,6 +85,17 @@ export function TramePicker({ organizationId, onSelect }: { organizationId: stri
                 ))
               )}
             </ScrollView>
+            {/* The library lives here now (no menu entry of its own). */}
+            <Pressable
+              onPress={() => {
+                close();
+                router.push('/(app)/devis/trames' as any);
+              }}
+              style={styles.manage}
+            >
+              <Feather name="settings" size={14} color={colors.accent} />
+              <Text style={styles.manageText}>{t('tramePicker.manage')}</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -91,6 +104,16 @@ export function TramePicker({ organizationId, onSelect }: { organizationId: stri
 }
 
 const styles = StyleSheet.create({
+  manage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingTop: spacing.md,
+    marginTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  manageText: { color: colors.accent, fontSize: fontSize.sm, fontWeight: '600' },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',

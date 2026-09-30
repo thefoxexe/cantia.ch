@@ -48,6 +48,7 @@ export default function EntrepriseScreen() {
   const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
   const [workTerm, setWorkTerm] = useState<WorkTerm>(organization?.work_term ?? 'chantier');
   const isAdmin = role === 'owner' || role === 'admin';
+  const [saveError, setSaveError] = useState(false);
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
     useUnsavedChanges(handleSave);
@@ -97,7 +98,8 @@ export default function EntrepriseScreen() {
     if (!organization) return false;
     const ibanTrimmed = iban.trim();
     const validIban = !ibanTrimmed || isValidSwissIban(ibanTrimmed);
-    await supabase
+    setSaveError(false);
+    const { error } = await supabase
       .from('organizations')
       .update({
         name: name.trim(),
@@ -114,7 +116,14 @@ export default function EntrepriseScreen() {
         work_term: workTerm,
       })
       .eq('id', organization.id);
-    refreshOrganization();
+    if (error) {
+      // Keep the bar up (returning false) so the edits aren't lost.
+      setSaveError(true);
+      return false;
+    }
+    // Reloads the organization, which also switches the vocabulary
+    // (chantier / projet / mandat / dossier) everywhere at once.
+    await refreshOrganization();
   }
 
   return (
@@ -260,6 +269,7 @@ export default function EntrepriseScreen() {
           </Card>
         </Container>
       </ScrollView>
+      {saveError ? <Text style={[styles.errorHint, { textAlign: 'center', padding: spacing.sm }]}>{t('entreprise.saveFailed')}</Text> : null}
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </AppScreen>

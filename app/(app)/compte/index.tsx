@@ -81,7 +81,7 @@ const GROUPS: MenuGroup[] = [
       { href: '/(app)/compte/entreprise', icon: 'home', key: 'entreprise' },
       { href: '/(app)/compte/apparence', icon: 'droplet', key: 'apparence' },
       { href: '/(app)/compte/devis', icon: 'file-text', key: 'devis' },
-      { href: '/(app)/compte/emails', icon: 'mail', key: 'emails' },
+      { href: '/(app)/emails/reglages?tab=modeles', icon: 'mail', key: 'emails' },
       { href: '/(app)/compte/facturation', icon: 'credit-card', key: 'facturation' },
       { href: '/(app)/compte/stockage', icon: 'hard-drive', key: 'stockage' },
       { href: '/(app)/compte/import', icon: 'upload-cloud', key: 'import' },
@@ -115,7 +115,7 @@ const RH_ITEM: MenuItem = { href: '/(app)/compte/rh', icon: 'dollar-sign', key: 
 
 // Relances de devis, rapports, synchronisations: finance members only, same
 // gate as the page itself.
-const AUTOMATIONS_ITEM: MenuItem = { href: '/(app)/compte/automatisations', icon: 'zap', key: 'automatisations' };
+const AUTOMATIONS_ITEM: MenuItem = { href: '/(app)/emails/reglages?tab=relances', icon: 'zap', key: 'automatisations' };
 
 // Facturation moved into the "Entreprise" group (see GROUPS above) — it's
 // the company's subscription, not a standalone concern like Équipe.

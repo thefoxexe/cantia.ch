@@ -39,7 +39,7 @@ export default function TramesListScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('tramesList.title')} backTo="/(app)" />
+        <PageHeader title={t('tramesList.title')} backTo="/(app)/devis" />
         <Text style={styles.pageSubtitle}>
           {t('tramesList.subtitle')}
         </Text>

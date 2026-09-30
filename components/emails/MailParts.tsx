@@ -104,12 +104,44 @@ export function MailRow({ item, selected, onPress }: { item: MailItem; selected:
             {m.document_number ? ` · ${m.document_number}` : ''}
           </Text>
           <View style={{ flex: 1 }} />
-          <Feather name={STATUS_ICON[status]} size={12} color={statusColor(status)} />
-          <Text style={[styles.statusText, { color: statusColor(status) }]}>{t(`emailHub.status.${status}`)}</Text>
+          <StatusPill m={m} />
         </View>
       </View>
     </Pressable>
   );
+}
+
+// Where a sent e-mail stands, at a glance: a tinted pill, with how many
+// times it was opened once that happened more than once.
+export function StatusPill({ m }: { m: EmailMessage }) {
+  const { t } = useTranslation();
+  const status = emailStatus(m);
+  const color = statusColor(status);
+  const opens = status === 'opened' && m.open_count > 1 ? ` · ${m.open_count}×` : status === 'viewed' && m.view_count > 1 ? ` · ${m.view_count}×` : '';
+  return (
+    <View style={[styles.pill, { backgroundColor: statusTint(status) }]}>
+      <Feather name={STATUS_ICON[status]} size={11} color={color} />
+      <Text style={[styles.pillText, { color }]} numberOfLines={1}>
+        {t(`emailHub.status.${status}`)}
+        {opens}
+      </Text>
+    </View>
+  );
+}
+
+function statusTint(status: EmailStatus): string {
+  switch (status) {
+    case 'bounced':
+      return colors.dangerSoft;
+    case 'replied':
+      return colors.successSoft;
+    case 'viewed':
+      return colors.primarySoft;
+    case 'opened':
+      return colors.warningSoft;
+    default:
+      return colors.surfaceAlt;
+  }
 }
 
 // The five steps of a sent e-mail on one line: dots joined by a rail.
@@ -161,6 +193,8 @@ const styles = StyleSheet.create({
   rowMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   docTag: { fontSize: 11, fontWeight: '700', letterSpacing: 0.2, color: colors.textMuted },
   statusText: { fontSize: 11.5, fontWeight: '700' },
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
+  pillText: { fontSize: 11, fontWeight: '700', fontVariant: ['tabular-nums'] },
   track: { flexDirection: 'row' },
   trackStep: { flex: 1, alignItems: 'center', gap: 4 },
   trackLineWrap: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch' },

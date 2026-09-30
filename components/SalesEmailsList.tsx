@@ -41,7 +41,7 @@ export function SalesEmailsList({ orgId }: { orgId: string }) {
           <View style={styles.empty}>
             <Text style={styles.emptyText}>{enabled ? t('salesEmails.empty') : t('salesEmails.setupHint')}</Text>
             {!enabled ? (
-              <Pressable onPress={() => router.push('/(app)/compte/automatisations' as any)}>
+              <Pressable onPress={() => router.push('/(app)/emails/reglages?tab=relances' as any)}>
                 <Text style={styles.link}>{t('salesEmails.setup')} →</Text>
               </Pressable>
             ) : null}
