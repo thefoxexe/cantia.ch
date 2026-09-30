@@ -11,7 +11,7 @@ import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { TRADES, TRADE_KEYS } from '../../../lib/trades';
+import { LEGACY_TRADE_KEYS, TRADES, TRADE_KEYS } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 import { SwissAddressField } from '../../../components/SwissAddressField';
@@ -138,6 +138,13 @@ export default function EntrepriseScreen() {
             <Field label={t('entreprise.nameLabel')} value={name} onChangeText={withDirty(setName)} editable={isAdmin} />
             <Text style={styles.fieldLabel}>{t('entreprise.tradeLabel')}</Text>
             <View style={styles.chips}>
+              {/* A value from the first, trade-level list stays shown until
+                  a sector is picked. */}
+              {trade && LEGACY_TRADE_KEYS[trade] ? (
+                <View style={[styles.chip, styles.chipActive]}>
+                  <Text style={[styles.chipText, styles.chipTextActive]}>{t(`trades.${LEGACY_TRADE_KEYS[trade]}` as any)}</Text>
+                </View>
+              ) : null}
               {TRADES.map((tr) => (
                 <Pressable
                   key={tr}
