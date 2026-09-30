@@ -160,9 +160,9 @@ const LABELS = {
   },
   verificationCodeSubject: { fr: '{code} — votre code de vérification', de: '{code} — Ihr Bestätigungscode', it: '{code} — il vostro codice di verifica' },
   emailFooterTagline: {
-    fr: 'Cantia — logiciel suisse de gestion pour entreprises du bâtiment',
-    de: 'Cantia — Schweizer Verwaltungssoftware für Bauunternehmen',
-    it: 'Cantia — software svizzero di gestione per aziende edili',
+    fr: 'Cantia — le logiciel suisse pour piloter vos chantiers et vos projets',
+    de: 'Cantia — die Schweizer Software für Ihre Baustellen und Projekte',
+    it: 'Cantia — il software svizzero per i vostri cantieri e progetti',
   },
 } as const;
 

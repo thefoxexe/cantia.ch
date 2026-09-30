@@ -28,9 +28,9 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'https://app.cantia.ch';
 
 const BRAND: Record<Locale, string> = { fr: 'Cantia Accounting', de: 'Cantia Accounting', it: 'Cantia Accounting' };
 const FOOTER: Record<Locale, string> = {
-  fr: 'Cantia, le logiciel suisse des entreprises du bâtiment. Espace fiduciaires gratuit.',
-  de: 'Cantia, die Schweizer Software für Bauunternehmen. Treuhandbereich kostenlos.',
-  it: 'Cantia, il software svizzero per le imprese edili. Spazio fiduciari gratuito.',
+  fr: 'Cantia, le logiciel suisse pour piloter chantiers et projets. Espace fiduciaires gratuit.',
+  de: 'Cantia, die Schweizer Software für Baustellen und Projekte. Treuhandbereich kostenlos.',
+  it: 'Cantia, il software svizzero per cantieri e progetti. Spazio fiduciari gratuito.',
 };
 
 function esc(text: string | null | undefined): string {
@@ -205,7 +205,7 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
           title: hello ? `Bonjour ${hello},` : 'Bonjour,',
           paragraphs: [
             `Votre fiduciaire, ${firm}, vous invite à utiliser Cantia afin de simplifier votre collaboration.`,
-            'Cantia est le logiciel suisse des entreprises du bâtiment : devis, factures avec QR-bill, suivi des paiements, heures et salaires, comptabilité. Votre fiduciaire retrouve ce dont elle a besoin directement, sans échanges de fichiers.',
+            'Cantia est le logiciel suisse des entreprises qui travaillent sur chantiers et par projets : devis, factures avec QR-bill, suivi des paiements, heures et salaires, comptabilité. Votre fiduciaire retrouve ce dont elle a besoin directement, sans échanges de fichiers.',
             'Vous pouvez essayer gratuitement. Rien n’est partagé avec votre fiduciaire tant que vous ne l’avez pas accepté.',
           ],
           cta: 'Créer mon compte Cantia',
@@ -216,7 +216,7 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
           title: hello ? `Guten Tag ${hello}` : 'Guten Tag',
           paragraphs: [
             `Ihre Treuhand, ${firm}, lädt Sie ein, Cantia zu nutzen, um Ihre Zusammenarbeit zu vereinfachen.`,
-            'Cantia ist die Schweizer Software für Bauunternehmen: Offerten, Rechnungen mit QR-Rechnung, Zahlungsüberwachung, Stunden und Löhne, Buchhaltung. Ihre Treuhand findet direkt, was sie braucht, ohne Dateiaustausch.',
+            'Cantia ist die Schweizer Software für Unternehmen, die auf Baustellen und in Projekten arbeiten: Offerten, Rechnungen mit QR-Rechnung, Zahlungsüberwachung, Stunden und Löhne, Buchhaltung. Ihre Treuhand findet direkt, was sie braucht, ohne Dateiaustausch.',
             'Sie können Cantia kostenlos testen. Mit Ihrer Treuhand wird nichts geteilt, bevor Sie zustimmen.',
           ],
           cta: 'Mein Cantia-Konto erstellen',
@@ -227,7 +227,7 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
           title: hello ? `Buongiorno ${hello},` : 'Buongiorno,',
           paragraphs: [
             `Il suo fiduciario, ${firm}, la invita a usare Cantia per semplificare la vostra collaborazione.`,
-            'Cantia è il software svizzero per le imprese edili: preventivi, fatture con QR-bill, pagamenti, ore e salari, contabilità. Il suo fiduciario trova direttamente ciò che gli serve, senza scambi di file.',
+            'Cantia è il software svizzero per le imprese che lavorano su cantieri e per progetti: preventivi, fatture con QR-bill, pagamenti, ore e salari, contabilità. Il suo fiduciario trova direttamente ciò che gli serve, senza scambi di file.',
             'Può provarlo gratuitamente. Nulla viene condiviso con il suo fiduciario finché lei non accetta.',
           ],
           cta: 'Creare il mio account Cantia',
@@ -295,7 +295,7 @@ function render(m: Mail, l: Locale): string {
   return `
   <div style="background:#F7F1E6;padding:32px 16px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
     <div style="max-width:560px;margin:0 auto;background:#FFFFFF;border:1px solid #E7DCCB;border-radius:14px;padding:32px">
-      <p style="margin:0 0 22px;"><img src="data:image/png;base64,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" width="170" height="32" alt="Cantia" style="display:inline-block;vertical-align:middle;border:0;height:32px;width:170px" /><span style="display:inline-block;vertical-align:middle;margin-left:10px;font-size:12px;font-weight:700;letter-spacing:2.4px;color:#A95C30">&mdash;&nbsp;ACCOUNTING</span></p>
+      <p style="margin:0 0 22px;"><img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-v2.png" width="170" height="32" alt="Cantia" style="display:inline-block;vertical-align:middle;border:0;height:32px;width:170px" /><span style="display:inline-block;vertical-align:middle;margin-left:10px;font-size:12px;font-weight:700;letter-spacing:2.4px;color:#A95C30">&mdash;&nbsp;ACCOUNTING</span></p>
       <p style="margin:0 0 16px;font-size:22px;line-height:1.3;font-weight:800;color:#231A12">${m.title}</p>
       ${m.paragraphs.map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#3D3126">${p}</p>`).join('')}
       <p style="margin:24px 0 8px"><a href="${m.url}" style="display:inline-block;background:#A95C30;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;padding:12px 20px;border-radius:10px">${m.cta}</a></p>

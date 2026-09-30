@@ -31,9 +31,9 @@ const LABELS = {
   cta: { fr: 'Consulter ma fiche de salaire', de: 'Meine Lohnabrechnung ansehen', it: 'Consultare la mia busta paga' },
   poweredBy: { fr: 'Envoyé via Cantia', de: 'Gesendet über Cantia', it: 'Inviato tramite Cantia' },
   footerTagline: {
-    fr: 'Cantia — logiciel suisse de gestion pour entreprises du bâtiment',
-    de: 'Cantia — Schweizer Verwaltungssoftware für Bauunternehmen',
-    it: 'Cantia — software svizzero di gestione per aziende edili',
+    fr: 'Cantia — le logiciel suisse pour piloter vos chantiers et vos projets',
+    de: 'Cantia — die Schweizer Software für Ihre Baustellen und Projekte',
+    it: 'Cantia — il software svizzero per i vostri cantieri e progetti',
   },
 } as const;
 
@@ -45,13 +45,6 @@ function t(locale: Locale, key: keyof typeof LABELS, vars?: Record<string, strin
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function base64FromBytes(bytes: Uint8Array): string {
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  return btoa(binary);
 }
 
 const corsHeaders = {
@@ -107,13 +100,13 @@ Deno.serve(async (req: Request) => {
     const employeeName = member?.full_name ?? '';
 
     let logoImgTag = `<span style="font-size: 17px; font-weight: 700; color: #231A12;">${escapeHtml(orgName)}</span>`;
+    // A signed link, not a data: URI: Gmail does not display embedded
+    // data: images. One year is plenty for an e-mail that is read soon after
+    // it is sent, and Gmail's image proxy keeps its own copy.
     if (org?.logo_url) {
-      const { data: file } = await admin.storage.from(BUCKET).download(org.logo_url);
-      if (file) {
-        const bytes = new Uint8Array(await file.arrayBuffer());
-        const contentType = (file.type as string) || 'image/png';
-        const dataUri = `data:${contentType};base64,${base64FromBytes(bytes)}`;
-        logoImgTag = `<img src="${dataUri}" alt="${escapeHtml(orgName)}" height="36" style="height: 36px; max-width: 180px; object-fit: contain; display: inline-block; vertical-align: middle;" />`;
+      const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(org.logo_url, 60 * 60 * 24 * 365);
+      if (signed?.signedUrl) {
+        logoImgTag = `<img src="${escapeHtml(signed.signedUrl)}" alt="${escapeHtml(orgName)}" height="36" style="height: 36px; max-width: 180px; object-fit: contain; display: inline-block; vertical-align: middle;" />`;
       }
     }
 
