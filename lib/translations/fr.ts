@@ -1672,6 +1672,13 @@ export const fr = {
     privateHint: "Les autres membres ne verront que « Rendez-vous privé » sur ce créneau.",
     privateBusy: "Rendez-vous privé",
     readOnly: "Seul son auteur peut modifier cet événement.",
+    viewDay: "Jour",
+    viewWeek: "Semaine",
+    people: "Personnes",
+    peopleTitle: "Personnes affichées",
+    peopleHint: "Décochez les personnes que vous ne voulez pas voir dans votre planning. Ce réglage ne concerne que vous.",
+    done: "Terminé",
+    allDayShort: "Journée",
   },
   treasury: {
     title: 'Trésorerie',

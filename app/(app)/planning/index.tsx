@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modal, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import {
 import { parseFlexibleTime } from '../../../lib/api/payroll';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
+import { DayView } from '../../../components/planning/DayView';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -79,7 +81,27 @@ export default function PlanningScreen() {
   // Owner/admin plan for anyone; a member only for themself.
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
+  const [view, setView] = useState<'week' | 'day'>('week');
+  const [cursor, setCursor] = useState(() => new Date());
+  const weekStart = useMemo(() => startOfWeek(cursor), [toIso(cursor)]);
+  // People hidden from my view (draftsmen who never plan anything, etc.).
+  // A per-device display preference, not shared with anyone.
+  const [hidden, setHidden] = useState<string[]>([]);
+  const [showPeople, setShowPeople] = useState(false);
+  const hiddenKey = organization && user ? `planning.hidden.${organization.id}.${user.id}` : null;
+  useEffect(() => {
+    if (!hiddenKey) return;
+    AsyncStorage.getItem(hiddenKey)
+      .then((v) => setHidden(v ? JSON.parse(v) : []))
+      .catch(() => {});
+  }, [hiddenKey]);
+  function toggleHidden(id: string) {
+    setHidden((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      if (hiddenKey) AsyncStorage.setItem(hiddenKey, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }
   const [assignments, setAssignments] = useState<PlanningAssignmentWithNames[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<PickItem[]>([]);
@@ -121,7 +143,13 @@ export default function PlanningScreen() {
     setMembers((memberRows ?? []).map((m) => ({ id: m.user_id, label: m.full_name || t('planning.memberFallback') })));
     setPlan(planRow ?? null);
     setLoading(false);
-  }, [organization, weekStart, weekEnd]);
+  }, [organization, toIso(weekStart)]);
+
+  const visibleMembers = useMemo(() => members.filter((m) => !hidden.includes(m.id)), [members, hidden]);
+
+  function eventLabel(a: PlanningAssignmentWithNames): string {
+    return a.title || (a.project_id ? a.project_name : a.note) || t('planning.noProject');
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -142,7 +170,7 @@ export default function PlanningScreen() {
     return isAdmin && !a.is_private;
   }
 
-  function openCreateForm(day?: Date, memberId?: string) {
+  function openCreateForm(day?: Date, memberId?: string, time?: string | null) {
     if (memberId && !isAdmin && memberId !== user?.id) return;
     setEditingId(null);
     setFormReadOnly(false);
@@ -153,9 +181,9 @@ export default function PlanningScreen() {
     const iso = toIso(day ?? new Date());
     setFormStart(iso);
     setFormEnd(iso);
-    setFormAllDay(true);
-    setFormStartTime('');
-    setFormEndTime('');
+    setFormAllDay(!time);
+    setFormStartTime(time ?? '');
+    setFormEndTime(time ? `${String(Math.min(23, Number(time.slice(0, 2)) + 1)).padStart(2, '0')}:00` : '');
     setFormPrivate(false);
     setFormNote('');
     setFormError(null);
@@ -289,22 +317,57 @@ export default function PlanningScreen() {
         <PageHeader title={t('planning.title')} backTo="/(app)" right={<Button title={t('planning.assign')} icon="plus" onPress={() => openCreateForm()} />} />
         <Text style={styles.pageSubtitle}>{t('planning.subtitle')}</Text>
 
-        <View style={styles.weekNav}>
-          <Pressable onPress={() => setWeekStart((w) => addDays(w, -7))} hitSlop={8} style={styles.weekNavButton}>
-            <Feather name="chevron-left" size={18} color={colors.text} />
-          </Pressable>
-          <Pressable onPress={() => setWeekStart(startOfWeek(new Date()))} hitSlop={8}>
-            <Text style={styles.weekLabel}>
-              {formatShort(weekStart)} – {formatShort(weekEnd)}
+        <View style={styles.toolbar}>
+          <View style={styles.segment}>
+            {(['day', 'week'] as const).map((v) => (
+              <Pressable key={v} onPress={() => setView(v)} style={[styles.segmentItem, view === v && styles.segmentItemActive]}>
+                <Text style={[styles.segmentText, view === v && styles.segmentTextActive]}>{v === 'day' ? t('planning.viewDay') : t('planning.viewWeek')}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <View style={styles.weekNav}>
+            <Pressable onPress={() => setCursor((c) => addDays(c, view === 'day' ? -1 : -7))} hitSlop={8} style={styles.weekNavButton}>
+              <Feather name="chevron-left" size={18} color={colors.text} />
+            </Pressable>
+            <Pressable onPress={() => setCursor(new Date())} hitSlop={8}>
+              <Text style={styles.weekLabel}>
+                {view === 'day'
+                  ? cursor.toLocaleDateString(`${getAppLocale()}-CH`, { weekday: 'long', day: 'numeric', month: 'long' })
+                  : `${formatShort(weekStart)} – ${formatShort(weekEnd)}`}
+              </Text>
+            </Pressable>
+            <Pressable onPress={() => setCursor((c) => addDays(c, view === 'day' ? 1 : 7))} hitSlop={8} style={styles.weekNavButton}>
+              <Feather name="chevron-right" size={18} color={colors.text} />
+            </Pressable>
+          </View>
+          <Pressable onPress={() => setShowPeople(true)} style={styles.peopleBtn}>
+            <Feather name="users" size={14} color={colors.text} />
+            <Text style={styles.peopleBtnText}>
+              {t('planning.people')}
+              {hidden.length > 0 ? ` · ${visibleMembers.length}/${members.length}` : ''}
             </Text>
-          </Pressable>
-          <Pressable onPress={() => setWeekStart((w) => addDays(w, 7))} hitSlop={8} style={styles.weekNavButton}>
-            <Feather name="chevron-right" size={18} color={colors.text} />
           </Pressable>
         </View>
 
         {members.length === 0 ? (
           <EmptyState title={t('planning.emptyMembersTitle')} subtitle={t('planning.emptyMembersSubtitle')} />
+        ) : view === 'day' ? (
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.primary} />}
+          >
+            <DayView
+              dayIso={toIso(cursor)}
+              members={visibleMembers}
+              events={assignments}
+              colorFor={(a) => colorForProject(a.project_id)}
+              labelFor={eventLabel}
+              privateLabel={t('planning.privateBusy')}
+              allDayLabel={t('planning.allDayShort')}
+              onPressEvent={openEditForm}
+              onCreateAt={(memberId, time) => openCreateForm(cursor, memberId, time)}
+            />
+          </ScrollView>
         ) : (
           <ScrollView
             contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
@@ -314,7 +377,7 @@ export default function PlanningScreen() {
               {/* Member axis — stays put while the day grid scrolls horizontally. */}
               <View style={{ width: MEMBER_COL_WIDTH }}>
                 <View style={styles.cornerCell} />
-                {members.map((m) => (
+                {visibleMembers.map((m) => (
                   <View key={m.id} style={styles.memberCell}>
                     <View style={styles.memberAvatar}>
                       <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
@@ -332,17 +395,24 @@ export default function PlanningScreen() {
                     {days.map((day) => {
                       const isToday = toIso(day) === toIso(new Date());
                       return (
-                        <View key={toIso(day)} style={[styles.dayHeaderCell, isToday && styles.dayHeaderCellToday]}>
+                        <Pressable
+                          key={toIso(day)}
+                          onPress={() => {
+                            setCursor(day);
+                            setView('day');
+                          }}
+                          style={[styles.dayHeaderCell, isToday && styles.dayHeaderCellToday]}
+                        >
                           <Text style={[styles.dayHeaderLabel, isToday && styles.dayHeaderLabelToday]}>
                             {t(`planning.${DAY_LABEL_KEYS[(day.getDay() + 6) % 7]}`)}
                           </Text>
                           <Text style={[styles.dayHeaderDate, isToday && styles.dayHeaderLabelToday]}>{formatShort(day)}</Text>
-                        </View>
+                        </Pressable>
                       );
                     })}
                   </View>
 
-                  {members.map((m) => (
+                  {visibleMembers.map((m) => (
                     <View key={m.id} style={styles.gridDataRow}>
                       {days.map((day) => {
                         const cellAssignments = assignmentsForCell(day, m.id);
@@ -358,7 +428,7 @@ export default function PlanningScreen() {
                               const isStart = a.starts_on === iso;
                               const isEnd = a.ends_on === iso;
                               const showLabel = isStart || day.getTime() === weekStart.getTime();
-                              const label = a.masked ? t('planning.privateBusy') : a.title || (a.project_id ? a.project_name : a.note) || t('planning.noProject');
+                              const label = a.masked ? t('planning.privateBusy') : eventLabel(a);
                               const time = isStart && a.start_time ? `${hm(a.start_time)}${a.end_time && a.ends_on === a.starts_on ? `–${hm(a.end_time)}` : ''} ` : '';
                               return (
                                 <Pressable
@@ -415,6 +485,30 @@ export default function PlanningScreen() {
           </ScrollView>
         )}
       </View>
+
+      <Modal visible={showPeople} animationType="fade" transparent onRequestClose={() => setShowPeople(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setShowPeople(false)}>
+          <Pressable style={[styles.sheet, { maxWidth: 380 }]} onPress={() => {}}>
+            <Text style={styles.sheetTitle}>{t('planning.peopleTitle')}</Text>
+            <Text style={[styles.toggleHint, { marginTop: -spacing.md, marginBottom: spacing.md }]}>{t('planning.peopleHint')}</Text>
+            <ScrollView style={{ maxHeight: 420 }}>
+              {members.map((m) => {
+                const on = !hidden.includes(m.id);
+                return (
+                  <Pressable key={m.id} onPress={() => toggleHidden(m.id)} style={styles.personRow}>
+                    <View style={[styles.checkbox, on && styles.checkboxOn]}>{on ? <Feather name="check" size={12} color="#fff" /> : null}</View>
+                    <View style={styles.memberAvatar}>
+                      <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
+                    </View>
+                    <Text style={[styles.toggleText, { flex: 1 }]}>{m.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+            <Button title={t('planning.done')} onPress={() => setShowPeople(false)} style={{ marginTop: spacing.md }} />
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <Modal visible={showForm} animationType="fade" transparent onRequestClose={() => setShowForm(false)}>
         <View style={styles.backdrop}>
@@ -599,12 +693,63 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
+  toolbar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  segment: {
+    flexDirection: 'row',
+    padding: 3,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+  },
+  segmentItem: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+  },
+  segmentItemActive: {
+    backgroundColor: colors.surface,
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0 1px 2px rgba(0,0,0,0.08)' } as any) : {}),
+  },
+  segmentText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  segmentTextActive: {
+    color: colors.text,
+  },
   weekNav: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.lg,
-    marginBottom: spacing.lg,
+    gap: spacing.md,
+  },
+  peopleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  peopleBtnText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  personRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 8,
   },
   weekNavButton: {
     width: 32,
@@ -615,6 +760,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   weekLabel: {
+    minWidth: 120,
+    textAlign: 'center',
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.text,

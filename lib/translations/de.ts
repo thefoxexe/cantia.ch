@@ -1686,6 +1686,13 @@ export const de: TranslationDict = {
     privateHint: "Die anderen Mitglieder sehen in diesem Zeitfenster nur « Privater Termin ».",
     privateBusy: "Privater Termin",
     readOnly: "Nur der Ersteller kann diesen Termin bearbeiten.",
+    viewDay: "Tag",
+    viewWeek: "Woche",
+    people: "Personen",
+    peopleTitle: "Angezeigte Personen",
+    peopleHint: "Entfernen Sie das Häkchen bei Personen, die Sie in Ihrer Planung nicht sehen möchten. Diese Einstellung gilt nur für Sie.",
+    done: "Fertig",
+    allDayShort: "Ganztags",
   },
   treasury: {
     title: 'Liquidität',

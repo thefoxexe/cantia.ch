@@ -122,15 +122,3 @@ export async function swissPeriodInputFor(
   const whtSteps = subject && overrides.whtRatePercent == null ? await getWhtSteps(year, whtCantonFor(situation), code) : null;
   return { situation, overrides, whtSteps, year };
 }
-
-// The checklist only gates an employee's FIRST payslip: employees already
-// paid through Cantia keep working as before until their file is completed.
-export async function hasAnyPayslip(organizationId: string, ref: { userId?: string; ghostEmployeeId?: string }): Promise<boolean> {
-  const column = ref.userId ? 'user_id' : 'ghost_employee_id';
-  const { count } = await supabase
-    .from('payroll_slips')
-    .select('id', { count: 'exact', head: true })
-    .eq('organization_id', organizationId)
-    .eq(column, (ref.userId ?? ref.ghostEmployeeId)!);
-  return (count ?? 0) > 0;
-}

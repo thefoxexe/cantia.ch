@@ -1694,6 +1694,13 @@ export const it: TranslationDict = {
     privateHint: "Gli altri membri vedranno solo « Appuntamento privato » in questa fascia.",
     privateBusy: "Appuntamento privato",
     readOnly: "Solo l’autore può modificare questo evento.",
+    viewDay: "Giorno",
+    viewWeek: "Settimana",
+    people: "Persone",
+    peopleTitle: "Persone visualizzate",
+    peopleHint: "Togli la spunta alle persone che non vuoi vedere nella tua pianificazione. Questa impostazione vale solo per te.",
+    done: "Fatto",
+    allDayShort: "Giornata",
   },
   treasury: {
     title: 'Liquidità',
