@@ -5,12 +5,13 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import {
-  createPlanningAssignment,
+  createPlanningEvent,
   deletePlanningAssignment,
   listPlanningAssignments,
-  updatePlanningAssignment,
+  updatePlanningEvent,
   type PlanningAssignmentWithNames,
 } from '../../../lib/api/planning';
+import { parseFlexibleTime } from '../../../lib/api/payroll';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { ProjectPicker } from '../../../components/ProjectPicker';
@@ -36,6 +37,8 @@ function colorForProject(projectId: string | null): string {
   for (let i = 0; i < projectId.length; i++) hash = (hash * 31 + projectId.charCodeAt(i)) >>> 0;
   return PROJECT_PALETTE[hash % PROJECT_PALETTE.length];
 }
+
+const hm = (t: string | null | undefined) => (t ? t.slice(0, 5) : '');
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -72,7 +75,9 @@ function formatShort(d: Date): string {
 
 export default function PlanningScreen() {
   const { t } = useTranslation();
-  const { organization, user, permissions } = useAuth();
+  const { organization, user, role, permissions } = useAuth();
+  // Owner/admin plan for anyone; a member only for themself.
+  const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [assignments, setAssignments] = useState<PlanningAssignmentWithNames[]>([]);
@@ -83,7 +88,14 @@ export default function PlanningScreen() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [formTitle, setFormTitle] = useState('');
   const [formProject, setFormProject] = useState<Project | null>(null);
+  const [showProject, setShowProject] = useState(false);
+  const [formAllDay, setFormAllDay] = useState(true);
+  const [formStartTime, setFormStartTime] = useState('');
+  const [formEndTime, setFormEndTime] = useState('');
+  const [formPrivate, setFormPrivate] = useState(false);
+  const [formReadOnly, setFormReadOnly] = useState(false);
   const [formMemberId, setFormMemberId] = useState<string | null>(null);
   const [formStart, setFormStart] = useState('');
   const [formEnd, setFormEnd] = useState('');
@@ -122,30 +134,61 @@ export default function PlanningScreen() {
     return assignments.filter((a) => a.member_user_id === memberId && a.starts_on <= iso && a.ends_on >= iso);
   }
 
+  // Own events, ones you created, or (admin) anyone's shared ones. Other
+  // people's private events only come back as masked busy slots.
+  function canEdit(a: PlanningAssignmentWithNames): boolean {
+    if (a.masked) return false;
+    if (a.member_user_id === user?.id || a.created_by === user?.id) return true;
+    return isAdmin && !a.is_private;
+  }
+
   function openCreateForm(day?: Date, memberId?: string) {
+    if (memberId && !isAdmin && memberId !== user?.id) return;
     setEditingId(null);
-    setFormProject(projects[0] ?? null);
-    setFormMemberId(memberId ?? user?.id ?? members[0]?.id ?? null);
+    setFormReadOnly(false);
+    setFormTitle('');
+    setFormProject(null);
+    setShowProject(false);
+    setFormMemberId(isAdmin ? memberId ?? user?.id ?? members[0]?.id ?? null : user?.id ?? null);
     const iso = toIso(day ?? new Date());
     setFormStart(iso);
     setFormEnd(iso);
+    setFormAllDay(true);
+    setFormStartTime('');
+    setFormEndTime('');
+    setFormPrivate(false);
     setFormNote('');
     setFormError(null);
     setShowForm(true);
   }
 
   function openEditForm(a: PlanningAssignmentWithNames) {
+    if (a.masked) return;
+    const project = projects.find((p) => p.id === a.project_id) ?? null;
     setEditingId(a.id);
-    setFormProject(projects.find((p) => p.id === a.project_id) ?? null);
+    setFormReadOnly(!canEdit(a));
+    // Events from before titles existed: the chantier name stands in.
+    setFormTitle(a.title ?? (a.project_id ? '' : a.note ?? ''));
+    setFormProject(project);
+    setShowProject(!!project);
     setFormMemberId(a.member_user_id);
     setFormStart(a.starts_on);
     setFormEnd(a.ends_on);
-    setFormNote(a.note ?? '');
+    setFormAllDay(!a.start_time);
+    setFormStartTime(hm(a.start_time));
+    setFormEndTime(hm(a.end_time));
+    setFormPrivate(!!a.is_private);
+    setFormNote(a.title || a.project_id ? a.note ?? '' : '');
     setFormError(null);
     setShowForm(true);
   }
 
   async function handleSubmit() {
+    const title = formTitle.trim() || (formProject?.name ?? '');
+    if (!title) {
+      setFormError(t('planning.titleRequired'));
+      return;
+    }
     if (!organization || !formMemberId || !formStart || !formEnd) {
       setFormError(t('planning.memberRequired'));
       return;
@@ -154,19 +197,34 @@ export default function PlanningScreen() {
       setFormError(t('planning.endAfterStart'));
       return;
     }
+    let startTime: string | null = null;
+    let endTime: string | null = null;
+    if (!formAllDay) {
+      startTime = parseFlexibleTime(formStartTime);
+      endTime = formEndTime.trim() ? parseFlexibleTime(formEndTime) : null;
+      if (!startTime || (formEndTime.trim() && !endTime)) {
+        setFormError(t('planning.timeInvalid'));
+        return;
+      }
+      if (endTime && formStart === formEnd && endTime <= startTime) {
+        setFormError(t('planning.endTimeAfterStart'));
+        return;
+      }
+    }
     setSaving(true);
     setFormError(null);
-    const { error } = editingId
-      ? await updatePlanningAssignment(editingId, { startsOn: formStart, endsOn: formEnd, note: formNote })
-      : await createPlanningAssignment({
-          organizationId: organization.id,
-          projectId: formProject?.id ?? null,
-          memberUserId: formMemberId,
-          startsOn: formStart,
-          endsOn: formEnd,
-          note: formNote,
-          createdBy: user?.id,
-        });
+    const input = {
+      title,
+      projectId: formProject?.id ?? null,
+      memberUserId: formMemberId,
+      startsOn: formStart,
+      endsOn: formEnd,
+      startTime,
+      endTime,
+      isPrivate: formPrivate,
+      note: formNote,
+    };
+    const { error } = editingId ? await updatePlanningEvent(editingId, input) : await createPlanningEvent(organization.id, user?.id, input);
     setSaving(false);
     if (error) {
       setFormError(error);
@@ -293,32 +351,44 @@ export default function PlanningScreen() {
                         return (
                           <Pressable
                             key={iso}
-                            onPress={() => (cellAssignments.length > 0 ? openEditForm(cellAssignments[0]) : openCreateForm(day, m.id))}
+                            onPress={() => openCreateForm(day, m.id)}
                             style={[styles.dayCell, isToday && styles.dayCellToday]}
                           >
-                            {cellAssignments.map((a) => {
+                            {cellAssignments.slice(0, cellAssignments.length > 2 ? 1 : 2).map((a) => {
                               const isStart = a.starts_on === iso;
                               const isEnd = a.ends_on === iso;
                               const showLabel = isStart || day.getTime() === weekStart.getTime();
+                              const label = a.masked ? t('planning.privateBusy') : a.title || (a.project_id ? a.project_name : a.note) || t('planning.noProject');
+                              const time = isStart && a.start_time ? `${hm(a.start_time)}${a.end_time && a.ends_on === a.starts_on ? `–${hm(a.end_time)}` : ''} ` : '';
                               return (
                                 <Pressable
                                   key={a.id}
                                   onPress={() => openEditForm(a)}
+                                  disabled={a.masked}
                                   style={[
                                     styles.assignmentBar,
-                                    { backgroundColor: colorForProject(a.project_id) },
+                                    { backgroundColor: a.masked ? colors.border : colorForProject(a.project_id) },
                                     isStart ? styles.assignmentBarStart : styles.assignmentBarNoStart,
                                     isEnd ? styles.assignmentBarEnd : styles.assignmentBarNoEnd,
                                   ]}
                                 >
                                   {showLabel ? (
-                                    <Text style={styles.assignmentBarText} numberOfLines={1}>
-                                      {a.project_name}
-                                    </Text>
+                                    <View style={styles.assignmentBarInner}>
+                                      {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : '#fff'} /> : null}
+                                      <Text style={[styles.assignmentBarText, a.masked && { color: colors.textMuted }]} numberOfLines={1}>
+                                        {time}
+                                        {label}
+                                      </Text>
+                                    </View>
                                   ) : null}
                                 </Pressable>
                               );
                             })}
+                            {cellAssignments.length > 2 ? (
+                              <Pressable onPress={() => openEditForm(cellAssignments.find((x) => !x.masked) ?? cellAssignments[1])} hitSlop={4}>
+                                <Text style={styles.moreText}>+{cellAssignments.length - 1}</Text>
+                              </Pressable>
+                            ) : null}
                           </Pressable>
                         );
                       })}
@@ -352,30 +422,107 @@ export default function PlanningScreen() {
             <ScrollView style={{ flex: 1 }}>
               <Text style={styles.sheetTitle}>{editingId ? t('planning.editAssignmentTitle') : t('planning.newAssignmentTitle')}</Text>
 
-              <Text style={styles.fieldLabel}>{t('planning.projectOptional')}</Text>
-              <ProjectPicker organizationId={organization?.id ?? ''} selectedProject={formProject} onSelect={setFormProject} />
+              <Text style={styles.fieldLabel}>{t('planning.titleLabel')}</Text>
+              <TextInput
+                style={styles.input}
+                value={formTitle}
+                onChangeText={setFormTitle}
+                placeholder={t('planning.titlePlaceholder')}
+                placeholderTextColor={colors.textMuted}
+                editable={!formReadOnly}
+                autoFocus={!editingId}
+              />
 
-              <Text style={styles.fieldLabel}>{t('planning.memberLabel')}</Text>
-              <View style={styles.chips}>
-                {members.map((m) => (
-                  <Pressable
-                    key={m.id}
-                    onPress={() => setFormMemberId(m.id)}
-                    style={[styles.chip, formMemberId === m.id && styles.chipActive]}
-                  >
-                    <Text style={[styles.chipText, formMemberId === m.id && styles.chipTextActive]}>{m.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
+              {showProject ? (
+                <View style={{ marginBottom: spacing.md }}>
+                  <ProjectPicker organizationId={organization?.id ?? ''} selectedProject={formProject} onSelect={setFormProject} />
+                  {!formReadOnly ? (
+                    <Pressable
+                      onPress={() => {
+                        setFormProject(null);
+                        setShowProject(false);
+                      }}
+                      hitSlop={6}
+                      style={styles.smallLink}
+                    >
+                      <Feather name="x" size={12} color={colors.textMuted} />
+                      <Text style={styles.smallLinkTextMuted}>{t('planning.unlinkProject')}</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : !formReadOnly ? (
+                <Pressable onPress={() => setShowProject(true)} hitSlop={6} style={[styles.smallLink, { marginBottom: spacing.md }]}>
+                  <Feather name="link-2" size={12} color={colors.primary} />
+                  <Text style={styles.smallLinkText}>{t('planning.linkProject')}</Text>
+                </Pressable>
+              ) : null}
+
+              {isAdmin ? (
+                <>
+                  <Text style={styles.fieldLabel}>{t('planning.forLabel')}</Text>
+                  <View style={styles.chips}>
+                    {members.map((m) => (
+                      <Pressable
+                        key={m.id}
+                        disabled={formReadOnly}
+                        onPress={() => setFormMemberId(m.id)}
+                        style={[styles.chip, formMemberId === m.id && styles.chipActive]}
+                      >
+                        <Text style={[styles.chipText, formMemberId === m.id && styles.chipTextActive]}>{m.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </>
+              ) : null}
+
+              <Pressable disabled={formReadOnly} onPress={() => setFormAllDay((v) => !v)} style={styles.toggleRow}>
+                <View style={[styles.checkbox, formAllDay && styles.checkboxOn]}>{formAllDay ? <Feather name="check" size={12} color="#fff" /> : null}</View>
+                <Text style={styles.toggleText}>{t('planning.allDay')}</Text>
+              </Pressable>
 
               <View style={styles.row2}>
                 <View style={styles.row2Item}>
-                  <DateField label={t('planning.startLabel')} value={formStart} onChange={(v) => setFormStart(v ?? '')} />
+                  <DateField label={t('planning.startLabel')} value={formStart} onChange={(v) => {
+                    setFormStart(v ?? '');
+                    if (v && (!formEnd || formEnd < v)) setFormEnd(v);
+                  }} />
+                  {!formAllDay ? (
+                    <TextInput
+                      style={styles.input}
+                      value={formStartTime}
+                      onChangeText={setFormStartTime}
+                      onBlur={() => setFormStartTime((v) => parseFlexibleTime(v) ?? v)}
+                      placeholder={t('planning.timePlaceholder')}
+                      placeholderTextColor={colors.textMuted}
+                      accessibilityLabel={t('planning.startTime')}
+                      editable={!formReadOnly}
+                    />
+                  ) : null}
                 </View>
                 <View style={styles.row2Item}>
                   <DateField label={t('planning.endLabel')} value={formEnd} onChange={(v) => setFormEnd(v ?? '')} />
+                  {!formAllDay ? (
+                    <TextInput
+                      style={styles.input}
+                      value={formEndTime}
+                      onChangeText={setFormEndTime}
+                      onBlur={() => setFormEndTime((v) => parseFlexibleTime(v) ?? v)}
+                      placeholder="16:15"
+                      placeholderTextColor={colors.textMuted}
+                      accessibilityLabel={t('planning.endTime')}
+                      editable={!formReadOnly}
+                    />
+                  ) : null}
                 </View>
               </View>
+
+              <Pressable disabled={formReadOnly} onPress={() => setFormPrivate((v) => !v)} style={styles.toggleRow}>
+                <View style={[styles.checkbox, formPrivate && styles.checkboxOn]}>{formPrivate ? <Feather name="lock" size={11} color="#fff" /> : null}</View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.toggleText}>{t('planning.privateLabel')}</Text>
+                  <Text style={styles.toggleHint}>{t('planning.privateHint')}</Text>
+                </View>
+              </Pressable>
 
               <Text style={styles.fieldLabel}>{t('planning.noteOptional')}</Text>
               <TextInput
@@ -385,18 +532,22 @@ export default function PlanningScreen() {
                 placeholder={t('planning.notePlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 multiline
+                editable={!formReadOnly}
               />
 
+              {formReadOnly ? <Text style={styles.toggleHint}>{t('planning.readOnly')}</Text> : null}
               {formError ? <Text style={styles.error}>{formError}</Text> : null}
 
-              <Button
-                title={editingId ? t('planning.save') : t('planning.create')}
-                icon="check"
-                onPress={handleSubmit}
-                loading={saving}
-                style={{ marginTop: spacing.md }}
-              />
-              {editingId ? (
+              {!formReadOnly ? (
+                <Button
+                  title={editingId ? t('planning.save') : t('planning.create')}
+                  icon="check"
+                  onPress={handleSubmit}
+                  loading={saving}
+                  style={{ marginTop: spacing.md }}
+                />
+              ) : null}
+              {editingId && !formReadOnly ? (
                 <Button
                   title={t('planning.delete')}
                   icon="trash-2"
@@ -575,10 +726,22 @@ const styles = StyleSheet.create({
   assignmentBarNoEnd: {
     marginRight: -1,
   },
+  assignmentBarInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
   assignmentBarText: {
+    flexShrink: 1,
     fontSize: 10,
     fontWeight: '700',
     color: '#fff',
+  },
+  moreText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    paddingLeft: 2,
   },
   legendRow: {
     flexDirection: 'row',
@@ -662,6 +825,65 @@ const styles = StyleSheet.create({
   },
   row2Item: {
     flex: 1,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    fontSize: fontSize.md,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.md,
+  },
+  smallLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginTop: -spacing.xs,
+  },
+  smallLinkText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  smallLinkTextMuted: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxOn: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  toggleText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  toggleHint: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+    lineHeight: 16,
   },
   noteInput: {
     minHeight: 60,

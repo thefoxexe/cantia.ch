@@ -49,3 +49,23 @@ export async function searchSwissAddress(query: string): Promise<SwissAddressRes
     return [];
   }
 }
+
+// Same, for addresses in France (cross-border employees): the French
+// government's address base (Base Adresse Nationale), public, free, no key.
+export async function searchFrenchAddress(query: string): Promise<SwissAddressResult[]> {
+  try {
+    const res = await fetch(`https://api-adresse.data.gouv.fr/search/?limit=6&type=housenumber&q=${encodeURIComponent(query)}`);
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json.features ?? [])
+      .map((f: { properties?: { label?: string; name?: string; postcode?: string; city?: string } }) => ({
+        label: f.properties?.label ?? '',
+        street: f.properties?.name ?? '',
+        postalCode: f.properties?.postcode ?? '',
+        locality: f.properties?.city ?? '',
+      }))
+      .filter((r: SwissAddressResult) => r.street && r.postalCode);
+  } catch {
+    return [];
+  }
+}

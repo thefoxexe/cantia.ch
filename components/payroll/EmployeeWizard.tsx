@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Field, Switch } from '../ui';
 import { DateField } from '../DateField';
+import { SwissAddressField } from '../SwissAddressField';
 import { SalarySimulator } from './SalarySimulator';
 import { createGhostEmployee, upsertPayrollProfile, type EmployeeRef } from '../../lib/api/payroll';
 import { getWhtSteps } from '../../lib/api/payrollSwiss';
@@ -34,9 +35,10 @@ interface Draft {
   amount: string;
   avs: string;
   iban: string;
+  addressCountry: Country;
   swiss: boolean;
+  nationality: string;
   permit: Permit;
-  residenceCountry: Country;
   marital: MaritalStatus;
   spouseSwiss: boolean;
   spouseWorks: boolean;
@@ -69,9 +71,10 @@ function draftFrom(profile: Partial<PayrollProfile> | null, name: string): Draft
     amount: String((profile?.salary_type === 'hourly' ? profile?.hourly_rate_chf : profile?.monthly_salary_chf) ?? ''),
     avs: profile?.avs_number ?? '',
     iban: profile?.iban ?? '',
+    addressCountry: profile?.residence_country ?? 'CH',
     swiss: (profile?.permit ?? 'swiss') === 'swiss',
+    nationality: profile?.nationality && profile.nationality !== 'CH' ? profile.nationality : '',
     permit: profile?.permit && profile.permit !== 'swiss' ? profile.permit : 'B',
-    residenceCountry: profile?.residence_country ?? 'CH',
     marital: profile?.marital_status ?? 'single',
     spouseSwiss: !!profile?.spouse_is_swiss_or_c,
     spouseWorks: !!profile?.spouse_works,
@@ -129,6 +132,11 @@ export function EmployeeWizard({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [steps2, setSteps2] = useState<WhtSteps | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  // Each step starts at the top (on a phone, « Continuer » is at the bottom).
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [index]);
 
   useEffect(() => {
     if (visible) {
@@ -152,8 +160,8 @@ export function EmployeeWizard({
       childrenUnder16: d.kids16,
       childrenInTraining: d.kidsTraining,
       church: d.church,
-      residenceCountry: d.swiss ? 'CH' : d.residenceCountry,
-      residenceCanton: cantonForNpa(d.postalCode),
+      residenceCountry: d.addressCountry,
+      residenceCanton: d.addressCountry === 'CH' ? cantonForNpa(d.postalCode) : null,
       workCanton: cantonForNpa(companyPostalCode) ?? 'GE',
       lppInsured: d.lppInsured,
       receivesFamilyAllowances: d.allowances,
@@ -223,6 +231,7 @@ export function EmployeeWizard({
     const swissFields = {
       swiss_auto: true,
       permit: situation.permit,
+      nationality: d.swiss ? 'CH' : d.nationality.trim() || null,
       marital_status: d.marital,
       spouse_is_swiss_or_c: d.spouseSwiss,
       spouse_works: d.spouseWorks,
@@ -281,7 +290,7 @@ export function EmployeeWizard({
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
           {step === 0 ? (
             <View style={styles.stack}>
               <Field label={c.fullName} value={d.name} onChangeText={(v) => set('name', v)} placeholder={c.fullNamePlaceholder} autoFocus />
@@ -293,19 +302,32 @@ export function EmployeeWizard({
                 <DateField label={c.birthDate} value={d.birthDate} onChange={(v) => set('birthDate', v ?? '')} />
                 <Text style={styles.hint}>{c.birthHint}</Text>
               </View>
-              <Field label={c.address} value={d.street} onChangeText={(v) => set('street', v)} placeholder="Rue du Lac 12" />
+              <Question label={c.addressCountry}>
+                <Choices options={COUNTRIES.map((k) => [k, c.countries[k]])} value={d.addressCountry} onChange={(v) => set('addressCountry', v as Country)} />
+              </Question>
+              {d.addressCountry === 'CH' || d.addressCountry === 'FR' ? (
+                <SwissAddressField
+                  label={c.address}
+                  value={d.street}
+                  onChangeText={(v) => set('street', v)}
+                  country={d.addressCountry}
+                  onSelectAddress={(a) => setD((prev) => ({ ...prev, street: a.street, postalCode: a.postalCode, locality: a.locality }))}
+                />
+              ) : (
+                <Field label={c.address} value={d.street} onChangeText={(v) => set('street', v)} />
+              )}
               <View style={styles.row2}>
-                <View style={{ width: 110 }}>
+                <View style={{ width: 120 }}>
                   <Field
-                    label={c.npa}
+                    label={d.addressCountry === 'CH' ? c.npa : c.postalCode}
                     value={d.postalCode}
                     onChangeText={(v) => {
                       set('postalCode', v);
-                      const loc = localityForNpa(v);
+                      const loc = d.addressCountry === 'CH' ? localityForNpa(v) : null;
                       if (loc && !d.locality) set('locality', loc);
                     }}
                     keyboardType="number-pad"
-                    maxLength={4}
+                    maxLength={d.addressCountry === 'CH' || d.addressCountry === 'AT' ? 4 : 5}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
@@ -330,15 +352,13 @@ export function EmployeeWizard({
           {step === 1 ? (
             <View style={styles.stack}>
               <Question label={c.nationality}>
-                <Choices options={[['swiss', `${c.swiss} 🇨🇭`], ['other', c.otherNationality]]} value={d.swiss ? 'swiss' : 'other'} onChange={(v) => set('swiss', v === 'swiss')} big />
+                <Choices options={[['swiss', c.swiss], ['other', c.otherNationality]]} value={d.swiss ? 'swiss' : 'other'} onChange={(v) => set('swiss', v === 'swiss')} big />
               </Question>
               {!d.swiss ? (
                 <>
+                  <Field label={c.nationalityField} value={d.nationality} onChangeText={(v) => set('nationality', v)} placeholder={c.nationalityPlaceholder} />
                   <Question label={c.permit}>
                     <Choices options={PERMITS.map((p) => [p, c.permits[p]])} value={d.permit} onChange={(v) => set('permit', v as Permit)} />
-                  </Question>
-                  <Question label={c.residence}>
-                    <Choices options={COUNTRIES.map((k) => [k, c.countries[k]])} value={d.residenceCountry} onChange={(v) => set('residenceCountry', v as Country)} />
                   </Question>
                 </>
               ) : null}

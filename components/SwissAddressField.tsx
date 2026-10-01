@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { searchSwissAddress, type SwissAddressResult } from '../lib/api/swissAddress';
+import { searchFrenchAddress, searchSwissAddress, type SwissAddressResult } from '../lib/api/swissAddress';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
 
@@ -20,11 +20,14 @@ export function SwissAddressField({
   editable = true,
   placeholder,
   inputStyle,
+  country = 'CH',
 }: {
   label?: string;
   value: string;
   onChangeText: (v: string) => void;
   onSelectAddress: (addr: { street: string; postalCode: string; locality: string }) => void;
+  // Where to search: Swiss addresses (geo.admin.ch) or French ones (BAN).
+  country?: 'CH' | 'FR';
   editable?: boolean;
   placeholder?: string;
   inputStyle?: StyleProp<TextStyle>;
@@ -48,7 +51,7 @@ export function SwissAddressField({
     }
     setLoading(true);
     debounceRef.current = setTimeout(async () => {
-      const found = await searchSwissAddress(text.trim());
+      const found = await (country === 'FR' ? searchFrenchAddress : searchSwissAddress)(text.trim());
       setResults(found);
       setLoading(false);
     }, 350);

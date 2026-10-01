@@ -7,6 +7,7 @@
 -- the computed ones.
 alter table public.payroll_profiles
   add column if not exists swiss_auto boolean not null default false,
+  add column if not exists nationality text check (nationality is null or char_length(nationality) <= 60),
   add column if not exists permit text check (permit in ('swiss', 'C', 'B', 'L', 'G', 'F', 'N', 'S', 'other')),
   add column if not exists marital_status text check (marital_status in ('single', 'married', 'registered', 'divorced', 'separated', 'widowed')),
   add column if not exists spouse_is_swiss_or_c boolean not null default false,

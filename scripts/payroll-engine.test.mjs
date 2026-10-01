@@ -148,3 +148,22 @@ test('Postcode → canton (swisstopo register)', async () => {
   assert.equal(cantonForNpa('6900'), 'TI');
   assert.equal(cantonForNpa('12'), null);
 });
+
+test('Family allowances = OFAS table 2026 (child / training, CHF per month)', async () => {
+  const { FAMILY_ALLOWANCES } = await import('../lib/payroll/swissReferences.ts');
+  // [child, training] as printed in « Genres et montants des allocations familiales 2026 » (état 12.12.2025)
+  const official = {
+    ZH: [215, 268], BE: [250, 310], LU: [215, 268], UR: [240, 290], SZ: [230, 280], OW: [220, 270], NW: [258, 311],
+    GL: [215, 268], ZG: [330, 330], FR: [265, 325], SO: [215, 268], BS: [275, 325], BL: [215, 268], SH: [230, 290],
+    AR: [230, 280], AI: [245, 298], SG: [245, 298], GR: [240, 290], AG: [225, 278], TG: [215, 280], TI: [215, 268],
+    VD: [322, 425], VS: [327, 477], NE: [240, 320], GE: [311, 415], JU: [275, 325],
+  };
+  for (const [canton, [child, training]] of Object.entries(official)) {
+    assert.equal(FAMILY_ALLOWANCES[canton].child[0], child, `${canton} child`);
+    assert.equal(FAMILY_ALLOWANCES[canton].training[0], training, `${canton} training`);
+  }
+  // From the 3rd child.
+  assert.deepEqual([FAMILY_ALLOWANCES.GE.child[1], FAMILY_ALLOWANCES.GE.training[1]], [411, 515]);
+  assert.deepEqual([FAMILY_ALLOWANCES.VD.child[1], FAMILY_ALLOWANCES.VD.training[1]], [365, 468]);
+  assert.deepEqual([FAMILY_ALLOWANCES.VS.child[1], FAMILY_ALLOWANCES.VS.training[1]], [435, 585]);
+});

@@ -724,6 +724,7 @@ export async function upsertPayrollProfile(
       | 'iban'
       | 'personal_email'
       | 'swiss_auto'
+      | 'nationality'
       | 'permit'
       | 'marital_status'
       | 'spouse_is_swiss_or_c'

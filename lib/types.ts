@@ -289,6 +289,11 @@ export interface PlanningAssignment {
   member_user_id: string;
   starts_on: string;
   ends_on: string;
+  // Migration 20261001110000: what it is, hours (null = all day), private.
+  title?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  is_private?: boolean;
   note: string | null;
   created_by: string | null;
   created_at: string;
@@ -850,6 +855,7 @@ export interface PayrollProfile {
   // charges »), read by lib/payroll/swissEngine.ts. Optional: absent until
   // migration 20261001100000_payroll_swiss_situation is applied.
   swiss_auto?: boolean;
+  nationality?: string | null;
   permit?: 'swiss' | 'C' | 'B' | 'L' | 'G' | 'F' | 'N' | 'S' | 'other' | null;
   marital_status?: 'single' | 'married' | 'registered' | 'divorced' | 'separated' | 'widowed' | null;
   spouse_is_swiss_or_c?: boolean;
