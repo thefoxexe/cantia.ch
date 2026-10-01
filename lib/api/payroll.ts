@@ -1,3 +1,5 @@
+import { computeSwissPayroll, type SwissOverrides, type SwissSituation } from '../payroll/swissEngine.ts';
+import type { WhtSteps } from '../payroll/swissReferences.ts';
 import { supabase } from '../supabase';
 import { invokeFunction } from './functions';
 import type {
@@ -721,6 +723,19 @@ export async function upsertPayrollProfile(
       | 'treizieme_mois'
       | 'iban'
       | 'personal_email'
+      | 'swiss_auto'
+      | 'permit'
+      | 'marital_status'
+      | 'spouse_is_swiss_or_c'
+      | 'spouse_works'
+      | 'lives_with_children'
+      | 'children_under_16'
+      | 'children_in_training'
+      | 'church_tax'
+      | 'residence_country'
+      | 'lpp_insured'
+      | 'receives_family_allowances'
+      | 'payroll_overrides'
     >
   >,
   updatedBy: string | undefined,
@@ -1186,6 +1201,20 @@ export interface PayrollPeriodCalculation {
   manualLines: { label: string; kind: PayrollWageKind; amount: number }[];
 }
 
+// Swiss engine input for one period (lib/payroll/swissEngine.ts): when an
+// employee's situation is filled in (profile.swiss_auto), the engine
+// computes the statutory and policy lines from the situation, and the
+// standard catalog lines it replaces are skipped. Custom catalog lines
+// (LAAC, advances…) still apply.
+export interface SwissPeriodInput {
+  situation: SwissSituation;
+  overrides: SwissOverrides;
+  whtSteps: WhtSteps | null;
+  year: number;
+}
+
+const ENGINE_REPLACES = /^(cotisation (avs|ac\b|caf|aanp|ijm|lpp)|imp[oô]t à la source)/i;
+
 export function computePayrollPeriod(
   profile: Pick<PayrollProfile, 'salary_type' | 'hourly_rate_chf' | 'monthly_salary_chf' | 'treizieme_mode' | 'treizieme_mois'>,
   totalHours: number,
@@ -1195,6 +1224,7 @@ export function computePayrollPeriod(
   wageRateOverrides: PayrollProfileWageRate[],
   manualLines: PayrollSlipWageLineWithType[],
   month: number,
+  swiss?: SwissPeriodInput,
 ): PayrollPeriodCalculation {
   const baseGross = computeMonthlyGross(profile.salary_type, profile.hourly_rate_chf, profile.monthly_salary_chf, totalHours);
 
@@ -1214,9 +1244,22 @@ export function computePayrollPeriod(
   }
   const totalGross = round2(grossBeforeRecurring + wageAdditions.total);
 
-  const breakdown = computeSalaryBreakdown(totalGross, deductionTypes, deductionOverrides);
-  const employerCost = computeEmployerCost(totalGross, deductionTypes, deductionOverrides);
-  const finalNet = round2(breakdown.net + netAdjustmentsTotal);
+  let breakdown = computeSalaryBreakdown(totalGross, deductionTypes, deductionOverrides);
+  let employerCost = computeEmployerCost(totalGross, deductionTypes, deductionOverrides);
+  let familyAllowance = 0;
+  if (swiss) {
+    const custom = deductionTypes.filter((d) => !ENGINE_REPLACES.test(d.label));
+    const others = computeSalaryBreakdown(totalGross, custom, deductionOverrides);
+    const otherEmployer = computeEmployerCost(totalGross, custom, deductionOverrides);
+    const sp = computeSwissPayroll(swiss.situation, totalGross, swiss.year, { overrides: swiss.overrides, whtSteps: swiss.whtSteps });
+    const lines = [...sp.employee.map((l) => ({ label: l.label, amount: l.amount })), ...others.lines];
+    const totalDeductions = round2(lines.reduce((sum, l) => sum + l.amount, 0));
+    breakdown = { gross: round2(totalGross), lines, totalDeductions, net: round2(totalGross - totalDeductions) };
+    const employerLines = [...sp.employer.map((l) => ({ label: l.label, amount: l.amount })), ...otherEmployer.lines];
+    employerCost = { lines: employerLines, total: round2(employerLines.reduce((sum, l) => sum + l.amount, 0)) };
+    familyAllowance = sp.familyAllowance;
+  }
+  const finalNet = round2(breakdown.net + netAdjustmentsTotal + familyAllowance);
 
   return {
     totalHours,
@@ -1228,7 +1271,10 @@ export function computePayrollPeriod(
     breakdown,
     employerCost,
     finalNet,
-    manualLines: manualLines.map((l) => ({ label: l.wage_type_label, kind: l.wage_type_kind, amount: Number(l.amount_chf) })),
+    manualLines: [
+      ...manualLines.map((l) => ({ label: l.wage_type_label, kind: l.wage_type_kind, amount: Number(l.amount_chf) })),
+      ...(familyAllowance > 0 ? [{ label: 'Allocations familiales', kind: 'net_adjustment' as PayrollWageKind, amount: familyAllowance }] : []),
+    ],
   };
 }
 
@@ -1258,13 +1304,14 @@ export async function calculateAndSavePayrollSlip(
   overrides: PayrollProfileDeduction[],
   wageTypes: PayrollWageType[] = [],
   wageRateOverrides: PayrollProfileWageRate[] = [],
+  swiss?: SwissPeriodInput,
 ): Promise<{ id: string | null; error: string | null }> {
   const runId = await findOrCreatePayrollRun(organizationId, year, month);
   const isHourly = profile.salary_type === 'hourly' && !!ref.userId;
   const totalHours = await totalHoursForPeriod(organizationId, ref, profile.salary_type, year, month);
   const manualLines = await listSlipWageLines(organizationId, ref, year, month);
 
-  const calc = computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines, month);
+  const calc = computePayrollPeriod(profile, totalHours, deductionTypes, overrides, wageTypes, wageRateOverrides, manualLines, month, swiss);
 
   const snapshot: PayrollSlipSnapshot = {
     deductionTypes: deductionTypes.map((d) => ({ id: d.id, label: d.label, defaultRatePercent: d.default_rate_percent, employerRatePercent: d.employer_rate_percent })),
@@ -1290,7 +1337,7 @@ export async function calculateAndSavePayrollSlip(
       p_snapshot: snapshot,
       p_employer_cost_chf: calc.employerCost.total,
       p_wage_additions_chf: round2(calc.totalGross - calc.baseGross),
-      p_net_adjustments_chf: calc.netAdjustmentsTotal,
+      p_net_adjustments_chf: round2(calc.finalNet - calc.breakdown.net),
     });
     if (error) return { id: null, error: error.message };
     return { id: data, error: null };

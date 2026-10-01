@@ -1,3 +1,4 @@
+import { hasAnyPayslip, missingForPayslip, swissPeriodInputFor } from '../../../lib/api/payrollSwiss';
 import { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -122,6 +123,10 @@ export default function PayrollSlipsScreen() {
     if (!organization) return { error: null };
     const profile = await getPayrollProfile(organization.id, item.ref);
     if (!profile) return { error: t('payrollSlips.noProfile', { name: item.name }) };
+    // The employer completes the employee's file before the first payslip.
+    const missing = missingForPayslip(profile);
+    if (missing.length && !(await hasAnyPayslip(organization.id, item.ref))) return { error: `${item.name} : ${missing.map((m) => m.label).join(', ')}` };
+    const swiss = await swissPeriodInputFor(profile, organization.postal_code, year);
     const [deductionTypes, overrides, wageRateOverrides] = await Promise.all([
       listDeductionTypes(organization.id),
       listProfileDeductions(organization.id, item.ref),
@@ -137,6 +142,7 @@ export default function PayrollSlipsScreen() {
       overrides,
       wageTypes,
       wageRateOverrides,
+      swiss,
     );
   }
 

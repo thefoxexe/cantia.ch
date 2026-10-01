@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { createGhostEmployee, listGhostEmployees } from '../../../../lib/api/payroll';
+import { listGhostEmployees } from '../../../../lib/api/payroll';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
+import { EmployeeWizard } from '../../../../components/payroll/EmployeeWizard';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -30,9 +31,7 @@ export default function PayrollEmployeesScreen() {
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [ghosts, setGhosts] = useState<MemberItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [addingGhost, setAddingGhost] = useState(false);
-  const [ghostName, setGhostName] = useState('');
-  const [savingGhost, setSavingGhost] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -52,18 +51,6 @@ export default function PayrollEmployeesScreen() {
     }, [load]),
   );
 
-  async function handleCreateGhost() {
-    if (!organization || !user || !ghostName.trim()) return;
-    setSavingGhost(true);
-    const { id, error } = await createGhostEmployee(organization.id, ghostName, user.id);
-    setSavingGhost(false);
-    if (error || !id) return;
-    setGhostName('');
-    setAddingGhost(false);
-    await load();
-    router.push({ pathname: '/(app)/rh/[userId]', params: { userId: id, kind: 'ghost' } });
-  }
-
   if (!organization || loading) return <LoadingScreen />;
 
   if (!canManagePayroll) {
@@ -82,6 +69,9 @@ export default function PayrollEmployeesScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('payrollSalariesHub.employeesTitle')} backTo="/(app)/rh/salaires" />
         <Text style={styles.subtitle}>{t('payrollSalariesHub.employeesSubtitle')}</Text>
+        {/* The questionnaire: identity, situation, insurances, then the
+            charges that apply and a salary simulation. */}
+        <Button title={t('payrollSalariesHub.addEmployee')} icon="user-plus" onPress={() => setWizardOpen(true)} style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }} />
 
         {members.length === 0 && ghosts.length === 0 ? (
           <Card><EmptyState title={t('payrollSalariesHub.emptyTitle')} subtitle={t('payrollSalariesHub.emptySubtitle')} /></Card>
@@ -111,23 +101,10 @@ export default function PayrollEmployeesScreen() {
         <Card style={{ marginTop: spacing.lg }}>
           <View style={styles.ghostHeader}>
             <Text style={styles.sectionTitle}>{t('payrollSalariesHub.ghostSectionTitle')}</Text>
-            <Pressable onPress={() => setAddingGhost((v) => !v)} hitSlop={8}>
-              <Feather name={addingGhost ? 'x' : 'user-plus'} size={17} color={colors.primary} />
+            <Pressable onPress={() => setWizardOpen(true)} hitSlop={8} accessibilityLabel={t('payrollSalariesHub.addEmployee')}>
+              <Feather name="user-plus" size={17} color={colors.primary} />
             </Pressable>
           </View>
-          {addingGhost ? (
-            <View style={styles.addGhostRow}>
-              <TextInput
-                style={styles.addGhostInput}
-                value={ghostName}
-                onChangeText={setGhostName}
-                placeholder={t('payrollHub.ghostNamePlaceholder')}
-                placeholderTextColor={colors.textMuted}
-                autoFocus
-              />
-              <Button title={t('payrollSalariesHub.addGhost')} onPress={handleCreateGhost} loading={savingGhost} disabled={!ghostName.trim()} />
-            </View>
-          ) : null}
           {ghosts.length === 0 ? (
             <Text style={styles.hint}>{t('payrollSalariesHub.emptySubtitle')}</Text>
           ) : (
@@ -149,6 +126,18 @@ export default function PayrollEmployeesScreen() {
           )}
         </Card>
       </ScrollView>
+      <EmployeeWizard
+        visible={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        organizationId={organization.id}
+        userId={user?.id}
+        companyPostalCode={organization.postal_code}
+        onSaved={async (ref) => {
+          setWizardOpen(false);
+          await load();
+          if (ref.ghostEmployeeId) router.push({ pathname: '/(app)/rh/[userId]', params: { userId: ref.ghostEmployeeId, kind: 'ghost' } });
+        }}
+      />
     </AppScreen>
   );
 }

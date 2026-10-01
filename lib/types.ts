@@ -846,6 +846,22 @@ export interface PayrollProfile {
   // contract can grant more, so the app only ever suggests that minimum
   // client-side rather than writing it here automatically.
   hire_date: string | null;
+  // The employee's situation (« Ajouter un employé » / « Situation &
+  // charges »), read by lib/payroll/swissEngine.ts. Optional: absent until
+  // migration 20261001100000_payroll_swiss_situation is applied.
+  swiss_auto?: boolean;
+  permit?: 'swiss' | 'C' | 'B' | 'L' | 'G' | 'F' | 'N' | 'S' | 'other' | null;
+  marital_status?: 'single' | 'married' | 'registered' | 'divorced' | 'separated' | 'widowed' | null;
+  spouse_is_swiss_or_c?: boolean;
+  spouse_works?: boolean;
+  lives_with_children?: boolean;
+  children_under_16?: number;
+  children_in_training?: number;
+  church_tax?: boolean;
+  residence_country?: 'CH' | 'FR' | 'DE' | 'IT' | 'AT' | 'other';
+  lpp_insured?: boolean;
+  receives_family_allowances?: boolean;
+  payroll_overrides?: Record<string, number | boolean | string | null>;
   vacation_days_per_year: number | null;
   weekly_contract_hours: number | null;
   // CHF/heure pour les heures supplémentaires — permet à Fiches de salaire

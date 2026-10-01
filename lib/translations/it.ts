@@ -1821,6 +1821,7 @@ export const it: TranslationDict = {
     showDetail: 'Vedi il dettaglio ({{count}})',
   },
   payrollSalariesHub: {
+    addEmployee: 'Aggiungere un dipendente',
     title: 'Salari',
     subtitle: 'Riservato a chi gestisce la busta paga — invisibile al resto del team.',
     employees: 'Dipendenti',

@@ -1799,6 +1799,7 @@ export const fr = {
     showDetail: 'Voir le détail ({{count}})',
   },
   payrollSalariesHub: {
+    addEmployee: 'Ajouter un employé',
     title: 'Salaires',
     subtitle: "Réservé à la personne qui gère la paie — invisible pour le reste de l'équipe.",
     employees: 'Employés',

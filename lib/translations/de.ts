@@ -1813,6 +1813,7 @@ export const de: TranslationDict = {
     showDetail: 'Details ansehen ({{count}})',
   },
   payrollSalariesHub: {
+    addEmployee: 'Mitarbeitende hinzufügen',
     title: 'Löhne',
     subtitle: 'Nur für die Person zugänglich, die die Lohnbuchhaltung führt — für den Rest des Teams unsichtbar.',
     employees: 'Mitarbeitende',

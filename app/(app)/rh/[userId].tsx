@@ -27,6 +27,7 @@ import { DateField } from '../../../components/DateField';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, LoadingScreen, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { SituationCard } from '../../../components/payroll/SituationCard';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
@@ -331,6 +332,18 @@ export default function PayrollProfileScreen() {
               <Feather name="user-x" size={16} color={colors.textMuted} />
               <Text style={styles.ghostBannerText}>{t('payrollProfile.ghostBanner')}</Text>
             </Card>
+          ) : null}
+
+          {organization ? (
+            <SituationCard
+              organizationId={organization.id}
+              userId={user?.id}
+              companyPostalCode={organization.postal_code}
+              employee={employeeRef}
+              name={memberName}
+              profile={profile}
+              onUpdated={load}
+            />
           ) : null}
 
           <Card>
