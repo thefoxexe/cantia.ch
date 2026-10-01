@@ -2803,6 +2803,8 @@ export const it: TranslationDict = {
     ech0217NeedsEffective: "Disponibile solo per il metodo effettivo — il metodo delle aliquote saldo (TDFN) non è ancora supportato da questa esportazione.",
     ech0217NeedsInvoiced: "Disponibile solo in modalità «controprestazioni convenute» — il registro IVA di Cantia non calcola ancora gli importi su base «incassata».",
     ech0217NeedsIde: 'Numero IDI mancante o non valido nei dati aziendali (formato atteso: CHE-123.456.789).',
+    vatReturnCtaTitle: "Preparare il rendiconto IVA",
+    vatReturnCtaText: "Il modulo dell’AFC compilato cifra per cifra, con i controlli e il monitoraggio di ogni periodo.",
   },
   inventaire: {
     title: 'Catalogo',

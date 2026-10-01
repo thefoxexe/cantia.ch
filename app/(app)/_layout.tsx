@@ -73,6 +73,7 @@ function buildSections(
     // Same gate as Trésorerie: every expense, chantier-linked or general.
     ...(treasuryEnabled ? [{ href: '/(app)/depenses', label: t('nav.depenses'), icon: 'shopping-bag' as const }] : []),
     ...(accountingEnabled ? [{ href: '/(app)/compta', label: t('nav.accounting'), icon: 'book' as const }] : []),
+    ...(accountingEnabled ? [{ href: '/(app)/compta/tva', label: t('nav.vatReport'), icon: 'percent' as const }] : []),
   ];
   return [
     { links: daily },

@@ -1,6 +1,3 @@
--- À coller dans Supabase > SQL Editor > New query, puis Run.
--- Décomptes TVA : suivi déposé / payé de chaque période.
-begin;
 -- One VAT return (« décompte TVA ») per period: the amounts the taxpayer
 -- typed in (adjustments: transfers, acquisition tax, corrections, TDFN
 -- rates…), and once filed, a frozen copy of every figure as declared to the
@@ -47,6 +44,3 @@ $$;
 drop trigger if exists trg_touch_vat_declarations on public.vat_declarations;
 create trigger trg_touch_vat_declarations before update on public.vat_declarations
   for each row execute function public.touch_vat_declarations();
-
-insert into supabase_migrations.schema_migrations(version, name) values ('20261001120000', 'vat_declarations') on conflict do nothing;
-commit;

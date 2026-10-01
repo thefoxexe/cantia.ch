@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import {
@@ -93,6 +93,7 @@ interface DraftLine {
 
 export default function AccountingScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { organization } = useAuth();
   const now = useMemo(() => new Date(), []);
   const [tab, setTab] = useState<Tab>('apercu');
@@ -643,6 +644,14 @@ export default function AccountingScreen() {
           </View>
         ) : (
           <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
+            <Pressable onPress={() => router.push('/(app)/compta/tva' as any)} style={styles.vatReturnCta}>
+              <Feather name="file-text" size={20} color="#fff" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.vatReturnCtaTitle}>{t('accounting.vatReturnCtaTitle')}</Text>
+                <Text style={styles.vatReturnCtaText}>{t('accounting.vatReturnCtaText')}</Text>
+              </View>
+              <Feather name="arrow-right" size={18} color="#fff" />
+            </Pressable>
             <Card>
               <Pressable style={styles.ledgerToggle} onPress={() => setVatSettingsOpen((v) => !v)}>
                 <Text style={styles.sectionTitle}>{t('accounting.vatSettingsTitle')}</Text>
@@ -991,6 +1000,9 @@ function statusStyle(status: string) {
 }
 
 const styles = StyleSheet.create({
+  vatReturnCta: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radius.lg, backgroundColor: colors.text },
+  vatReturnCtaTitle: { fontSize: fontSize.md, fontWeight: '800', color: '#fff' },
+  vatReturnCtaText: { fontSize: fontSize.sm, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
   pageSubtitle: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 19, marginBottom: spacing.lg },
   tabRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg, flexWrap: 'wrap' },
   tabChip: { flex: 1, minWidth: 80, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },

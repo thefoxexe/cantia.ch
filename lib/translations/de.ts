@@ -2795,6 +2795,8 @@ export const de: TranslationDict = {
     ech0217NeedsEffective: 'Nur für die effektive Methode verfügbar — die Saldosteuersatzmethode (TDFN) wird von diesem Export noch nicht unterstützt.',
     ech0217NeedsInvoiced: 'Nur bei "vereinbarten Entgelten" verfügbar — das MWST-Register von Cantia berechnet die Beträge noch nicht auf Basis "vereinnahmt".',
     ech0217NeedsIde: 'UID-Nummer in den Firmendaten fehlt oder ungültig (erwartetes Format: CHE-123.456.789).',
+    vatReturnCtaTitle: "MWST-Abrechnung vorbereiten",
+    vatReturnCtaText: "Das ESTV-Formular Ziffer für Ziffer ausgefüllt, mit Kontrollen und Verfolgung jeder Periode.",
   },
   inventaire: {
     title: 'Katalog',

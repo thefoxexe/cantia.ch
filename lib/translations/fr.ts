@@ -2781,6 +2781,8 @@ export const fr = {
     ech0217NeedsEffective: "Disponible uniquement pour la méthode effective — la méthode du taux de la dette fiscale nette (TDFN) n'est pas encore prise en charge par cet export.",
     ech0217NeedsInvoiced: 'Disponible uniquement en mode « contre-prestations convenues » — le registre TVA de Cantia ne calcule pas encore les montants sur une base « reçues ».',
     ech0217NeedsIde: "Numéro IDE manquant ou invalide dans les informations de l'entreprise (format attendu : CHE-123.456.789).",
+    vatReturnCtaTitle: "Préparer le décompte TVA",
+    vatReturnCtaText: "Le formulaire de l’AFC rempli chiffre par chiffre, les contrôles et le suivi de chaque période.",
   },
   inventaire: {
     title: 'Catalogue',
