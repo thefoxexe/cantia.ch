@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { compactIban, formatIbanInput } from '../../lib/iban';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Field, Switch } from '../ui';
@@ -70,7 +71,7 @@ function draftFrom(profile: Partial<PayrollProfile> | null, name: string): Draft
     salaryType: profile?.salary_type ?? 'monthly',
     amount: String((profile?.salary_type === 'hourly' ? profile?.hourly_rate_chf : profile?.monthly_salary_chf) ?? ''),
     avs: profile?.avs_number ?? '',
-    iban: profile?.iban ?? '',
+    iban: formatIbanInput(profile?.iban ?? ''),
     addressCountry: profile?.residence_country ?? 'CH',
     swiss: (profile?.permit ?? 'swiss') === 'swiss',
     nationality: profile?.nationality && profile.nationality !== 'CH' ? profile.nationality : '',
@@ -226,7 +227,7 @@ export function EmployeeWizard({
       salary_type: d.salaryType,
       ...(d.salaryType === 'hourly' ? { hourly_rate_chf: num(d.amount) } : { monthly_salary_chf: num(d.amount) }),
       avs_number: d.avs.trim() || null,
-      iban: d.iban.replace(/\s+/g, '').toUpperCase() || null,
+      iban: compactIban(d.iban) || null,
     };
     const swissFields = {
       swiss_auto: true,
@@ -342,7 +343,7 @@ export function EmployeeWizard({
                   <Field label={c.avs} value={d.avs} onChangeText={(v) => set('avs', v)} placeholder={c.avsPlaceholder} keyboardType="number-pad" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Field label={c.iban} value={d.iban} onChangeText={(v) => set('iban', v)} placeholder="CH93 0076 2011 6238 5295 7" autoCapitalize="characters" />
+                  <Field label={c.iban} value={d.iban} onChangeText={(v) => set('iban', formatIbanInput(v))} placeholder="CH93 0076 2011 6238 5295 7" autoCapitalize="characters" />
                 </View>
               </View>
               <Text style={styles.hint}>{c.optionalNow}</Text>

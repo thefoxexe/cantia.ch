@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { compactIban } from '../iban';
 
 // ==========================================================================
 // §6.5 "PAIN.001" — ISO 20022 Customer Credit Transfer Initiation files for
@@ -90,12 +91,12 @@ export async function listPayableExpenseReimbursements(organizationId: string): 
 }
 
 export async function setSubcontractorIban(organizationId: string, subcontractorId: string, iban: string | null): Promise<{ error: string | null }> {
-  const { error } = await supabase.rpc('payments_set_subcontractor_iban', { p_organization_id: organizationId, p_subcontractor_id: subcontractorId, p_iban: iban });
+  const { error } = await supabase.rpc('payments_set_subcontractor_iban', { p_organization_id: organizationId, p_subcontractor_id: subcontractorId, p_iban: iban && compactIban(iban) });
   return { error: error?.message ?? null };
 }
 
 export async function setEmployeeIban(organizationId: string, userId: string, iban: string | null): Promise<{ error: string | null }> {
-  const { error } = await supabase.rpc('payments_set_employee_iban', { p_organization_id: organizationId, p_user_id: userId, p_iban: iban });
+  const { error } = await supabase.rpc('payments_set_employee_iban', { p_organization_id: organizationId, p_user_id: userId, p_iban: iban && compactIban(iban) });
   return { error: error?.message ?? null };
 }
 

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
@@ -8,13 +8,13 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
-import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
+import { BrandColorPicker } from '../../../components/BrandColorPicker';
 import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
-import { BRAND_COLOR_PRESETS, HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
+import { HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -28,9 +28,7 @@ export default function ApparenceScreen() {
   const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
-  const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
-  const [websiteColors, setWebsiteColors] = useState<string[]>([]);
-  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [logoColors, setLogoColors] = useState<string[]>([]);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
@@ -92,22 +90,11 @@ export default function ApparenceScreen() {
       const url = await getSignedUrl(path);
       setLogoUrl(url);
       const suggested = await suggestBrandColorFromImage(uri);
-      if (suggested) setBrandColor(suggested);
+      if (suggested) {
+        setLogoColors([suggested]);
+        withDirty(setBrandColor)(suggested);
+      }
       showSavedCheckmark();
-    }
-  }
-
-  async function analyzeWebsite() {
-    if (!website.trim() || analyzingWebsite) return;
-    setAnalyzingWebsite(true);
-    setAnalyzeError(null);
-    setWebsiteColors([]);
-    const found = await suggestBrandColorsFromWebsite(website.trim());
-    setAnalyzingWebsite(false);
-    if (found.length) {
-      setWebsiteColors(found);
-    } else {
-      setAnalyzeError(t('apparence.websiteNoColorsFound'));
     }
   }
 
@@ -172,93 +159,23 @@ export default function ApparenceScreen() {
               <Text style={styles.sectionTitle}>{t('apparence.brandColorTitle')}</Text>
               <Text style={styles.hint}>{t('apparence.brandColorHint')}</Text>
 
-              <Text style={styles.searchLabel}>{t('apparence.websiteLabel')}</Text>
-              <View style={styles.searchBar}>
-                <Feather name="search" size={15} color={colors.textMuted} />
-                <TextInput
-                  style={styles.searchInput}
-                  value={website}
-                  onChangeText={(v) => {
-                    withDirty(setWebsite)(v);
-                    setWebsiteColors([]);
-                    setAnalyzeError(null);
-                  }}
-                  editable={isAdmin}
-                  autoCapitalize="none"
-                  keyboardType="url"
-                  placeholder={t('apparence.websitePlaceholder')}
-                  placeholderTextColor={colors.textMuted}
-                  onSubmitEditing={analyzeWebsite}
-                  returnKeyType="search"
-                />
-                {isAdmin && website.trim() ? (
-                  <Pressable onPress={analyzeWebsite} disabled={analyzingWebsite} style={styles.searchButton}>
-                    {analyzingWebsite ? (
-                      <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                      <Text style={styles.searchButtonText}>{t('apparence.analyzeWebsite')}</Text>
-                    )}
-                  </Pressable>
-                ) : null}
-              </View>
-              <Text style={styles.hint}>{analyzingWebsite ? t('apparence.analyzing') : t('apparence.websiteHint')}</Text>
-
-              {websiteColors.length > 0 ? (
-                <View style={styles.resultsBlock}>
-                  <Text style={styles.resultsLabel}>{t('apparence.websiteResultsLabel')}</Text>
-                  <View style={styles.colorRow}>
-                    {websiteColors.map((hex) => (
-                      <Pressable
-                        key={hex}
-                        onPress={() => withDirty(setBrandColor)(hex)}
-                        style={[
-                          styles.colorSwatch,
-                          { backgroundColor: hex },
-                          brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive,
-                        ]}
-                      >
-                        {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color="#fff" /> : null}
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              ) : analyzeError ? (
-                <Text style={styles.errorHint}>{analyzeError}</Text>
-              ) : null}
-
-              <Text style={styles.sectionTitle}>{t('apparence.presetsTitle')}</Text>
-              <View style={styles.colorRow}>
-                {BRAND_COLOR_PRESETS.map((hex) => (
-                  <Pressable
-                    key={hex}
-                    onPress={() => isAdmin && withDirty(setBrandColor)(hex)}
-                    disabled={!isAdmin}
-                    style={[
-                      styles.colorSwatch,
-                      { backgroundColor: hex },
-                      brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive,
-                    ]}
-                  >
-                    {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color={colors.surface} /> : null}
-                  </Pressable>
-                ))}
-              </View>
-              <View style={styles.hexRow}>
-                <View style={[styles.hexPreview, { backgroundColor: previewColor }]} />
-                <View style={{ flex: 1 }}>
-                  <Field
-                    label={t('apparence.customColorLabel')}
-                    value={brandColor}
-                    onChangeText={withDirty(setBrandColor)}
-                    editable={isAdmin}
-                    autoCapitalize="none"
-                    placeholder="#1F3D3A"
-                  />
-                </View>
-              </View>
-              {isAdmin && brandColor.trim() && !HEX_COLOR_RE.test(brandColor.trim()) ? (
-                <Text style={styles.errorHint}>{t('apparence.hexFormatError')}</Text>
-              ) : null}
+              <Field
+                label={t('apparence.websiteLabel')}
+                value={website}
+                onChangeText={withDirty(setWebsite)}
+                editable={isAdmin}
+                autoCapitalize="none"
+                keyboardType="url"
+                placeholder={t('apparence.websitePlaceholder')}
+              />
+              <BrandColorPicker
+                value={brandColor}
+                onChange={withDirty(setBrandColor)}
+                website={website}
+                logoColors={logoColors}
+                companyName={organization?.name}
+                disabled={!isAdmin}
+              />
 
               <Text style={styles.sectionTitle}>{t('apparence.logoPlacementTitle')}</Text>
               <View style={styles.placementRow}>

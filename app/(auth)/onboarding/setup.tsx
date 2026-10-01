@@ -8,14 +8,14 @@ import { supabase } from '../../../lib/supabase';
 import { uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
-import { suggestBrandColorsFromWebsite } from '../../../lib/api/brandColors';
+import { BrandColorPicker } from '../../../components/BrandColorPicker';
 import { Button, Field, Screen } from '../../../components/ui';
-import { BRAND_COLOR_PRESETS, HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
+import { HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
-import { isValidSwissIban, formatIban } from '../../../lib/iban';
+import { isValidSwissIban, formatIban, formatIbanInput } from '../../../lib/iban';
 import { ORG_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import type { Plan } from '../../../lib/types';
 import { displayType } from '../../../lib/marketingTheme';
@@ -67,11 +67,10 @@ export default function OnboardingSetupScreen() {
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
-  const [iban, setIban] = useState(organization?.iban ?? '');
+  const [iban, setIban] = useState(formatIbanInput(organization?.iban ?? ''));
   const [logoAsset, setLogoAsset] = useState<{ uri: string; mimeType?: string | null } | null>(null);
   const [brandColor, setBrandColor] = useState(organization?.brand_color ?? DEFAULT_BRAND_COLOR);
   const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
-  const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
 
   // Step 2 — modules
   const [plan, setPlan] = useState<Plan | null | undefined>(undefined);
@@ -121,14 +120,6 @@ export default function OnboardingSetupScreen() {
     setLogoAsset({ uri: asset.uri, mimeType: asset.mimeType });
     const suggested = await suggestBrandColorFromImage(asset.uri);
     if (suggested) addSuggestions([suggested]);
-  }
-
-  async function analyzeWebsite() {
-    if (!website.trim() || analyzingWebsite) return;
-    setAnalyzingWebsite(true);
-    const found = await suggestBrandColorsFromWebsite(website.trim());
-    setAnalyzingWebsite(false);
-    addSuggestions(found);
   }
 
   function validateProfile(): string | null {
@@ -277,8 +268,6 @@ export default function OnboardingSetupScreen() {
             brandColor={brandColor}
             setBrandColor={setBrandColor}
             suggestedColors={suggestedColors}
-            analyzingWebsite={analyzingWebsite}
-            onAnalyzeWebsite={analyzeWebsite}
           />
         ) : null}
 
@@ -358,8 +347,6 @@ function StepProfile({
   brandColor,
   setBrandColor,
   suggestedColors,
-  analyzingWebsite,
-  onAnalyzeWebsite,
 }: {
   organization: { name: string; logo_url: string | null } | null;
   website: string;
@@ -383,8 +370,6 @@ function StepProfile({
   brandColor: string;
   setBrandColor: (v: string) => void;
   suggestedColors: string[];
-  analyzingWebsite: boolean;
-  onAnalyzeWebsite: () => void;
 }) {
   const { t } = useTranslation();
   const validIban = !iban.trim() || isValidSwissIban(iban.trim());
@@ -407,33 +392,11 @@ function StepProfile({
         </Pressable>
       </View>
 
-      <Text style={styles.fieldLabel}>{t('authOnboardingSetup.brandColorLabel')}</Text>
-      {suggestedColors.length ? (
-        <Text style={styles.hint}>{t('authOnboardingSetup.colorSuggestedHint')}</Text>
-      ) : (
-        <Text style={styles.hint}>{t('authOnboardingSetup.colorDefaultHint')}</Text>
-      )}
-      <View style={styles.colorRow}>
-        {[...new Set([...suggestedColors, ...BRAND_COLOR_PRESETS])].map((hex) => (
-          <Pressable
-            key={hex}
-            onPress={() => setBrandColor(hex)}
-            style={[styles.colorSwatch, { backgroundColor: hex }, brandColor.toLowerCase() === hex.toLowerCase() && styles.colorSwatchActive]}
-          >
-            {brandColor.toLowerCase() === hex.toLowerCase() ? <Feather name="check" size={14} color={colors.surface} /> : null}
-          </Pressable>
-        ))}
-      </View>
-
       <Field label={t('authOnboardingSetup.websiteLabel')} value={website} onChangeText={setWebsite} autoCapitalize="none" placeholder={t('authOnboardingSetup.websitePlaceholder')} />
-      {website.trim() ? (
-        <Pressable onPress={onAnalyzeWebsite} style={styles.analyzeLink} disabled={analyzingWebsite}>
-          <Feather name="globe" size={13} color={colors.primary} />
-          <Text style={styles.analyzeLinkText}>
-            {analyzingWebsite ? t('authOnboardingSetup.analyzingWebsite') : t('authOnboardingSetup.analyzeWebsite')}
-          </Text>
-        </Pressable>
-      ) : null}
+
+      <Text style={styles.fieldLabel}>{t('authOnboardingSetup.brandColorLabel')}</Text>
+      <Text style={styles.hint}>{t('authOnboardingSetup.brandColorChooseHint')}</Text>
+      <BrandColorPicker value={brandColor} onChange={setBrandColor} website={website} logoColors={suggestedColors} companyName={organization?.name} />
 
       <View style={styles.sectionDivider}>
         <Text style={styles.sectionDividerText}>{t('authOnboardingSetup.requiredSectionTitle')}</Text>
@@ -475,7 +438,7 @@ function StepProfile({
       <Field
         label={t('authOnboardingSetup.ibanLabel')}
         value={iban}
-        onChangeText={setIban}
+        onChangeText={(v) => setIban(formatIbanInput(v))}
         autoCapitalize="characters"
         placeholder="CH93 0076 2011 6238 5295 7"
       />

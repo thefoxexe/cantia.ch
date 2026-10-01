@@ -21,3 +21,15 @@ export function formatIban(raw: string): string {
   const iban = raw.replace(/\s+/g, '').toUpperCase();
   return iban.replace(/(.{4})/g, '$1 ').trim();
 }
+
+// As-you-type formatting for every IBAN field: whatever is typed or pasted
+// (all in one block, with spaces, dashes or dots) shows as groups of four,
+// like on a bank card. Letters become capitals; 34 characters max (ISO 13616).
+export function formatIbanInput(raw: string): string {
+  return formatIban(raw.replace(/[^0-9A-Za-z]/g, '').slice(0, 34));
+}
+
+// The value to store: no spaces, capitals.
+export function compactIban(raw: string | null | undefined): string {
+  return (raw ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+}

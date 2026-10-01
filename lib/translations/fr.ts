@@ -2540,6 +2540,7 @@ export const fr = {
     changeLogo: 'Changer le logo',
     chooseLogo: 'Choisir un logo',
     brandColorLabel: 'Couleur de marque',
+    brandColorChooseHint: "Prête à l’emploi, tirée de votre site web, ou sur mesure avec le code HEX de votre charte. Vous pourrez la changer à tout moment.",
     colorSuggestedHint: 'Suggérée à partir de votre logo et/ou site web — choisissez une autre couleur si elle ne vous convient pas.',
     colorDefaultHint: 'Ajoutez un logo ou un site web pour une suggestion automatique, ou choisissez une couleur ci-dessous.',
     websiteLabel: 'Site web (optionnel)',

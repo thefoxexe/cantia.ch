@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { isValidSwissIban } from '../../../lib/iban';
+import { formatIbanInput, isValidSwissIban } from '../../../lib/iban';
 import { Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
@@ -44,7 +44,7 @@ export default function EntrepriseScreen() {
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
-  const [iban, setIban] = useState(organization?.iban ?? '');
+  const [iban, setIban] = useState(formatIbanInput(organization?.iban ?? ''));
   const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
   const [workTerm, setWorkTerm] = useState<WorkTerm>(organization?.work_term ?? 'chantier');
   const isAdmin = role === 'owner' || role === 'admin';
@@ -83,7 +83,7 @@ export default function EntrepriseScreen() {
     setPhone(organization.phone ?? '');
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
-    setIban(organization.iban ?? '');
+    setIban(formatIbanInput(organization.iban ?? ''));
     setDocLocale(organization.locale ?? 'fr');
     setWorkTerm(organization.work_term ?? 'chantier');
   }, [organization]);
@@ -233,7 +233,7 @@ export default function EntrepriseScreen() {
             <Field
               label={t('entreprise.ibanLabel')}
               value={iban}
-              onChangeText={withDirty(setIban)}
+              onChangeText={(v) => withDirty(setIban)(formatIbanInput(v))}
               editable={isAdmin}
               autoCapitalize="characters"
               placeholder="CH00 0000 0000 0000 0000 0"

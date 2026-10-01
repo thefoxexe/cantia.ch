@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { compactIban, formatIbanInput } from '../../../lib/iban';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -139,7 +140,7 @@ export default function PayrollProfileScreen() {
       setLocality(profileRow.locality ?? '');
       setNotes(profileRow.notes ?? '');
       setAvsNumber(profileRow.avs_number ?? '');
-      setIban(profileRow.iban ?? '');
+      setIban(formatIbanInput(profileRow.iban ?? ''));
       setPersonalEmail(profileRow.personal_email ?? '');
       setBirthDate(profileRow.birth_date);
       setHireDate(profileRow.hire_date);
@@ -261,7 +262,7 @@ export default function PayrollProfileScreen() {
         locality: locality.trim() || null,
         notes: notes.trim() || null,
         avs_number: avsNumber.trim() || null,
-        iban: iban.trim() || null,
+        iban: compactIban(iban) || null,
         personal_email: personalEmail.trim() ? personalEmail.trim().toLowerCase() : null,
         birth_date: birthDate,
         hire_date: hireDate,
@@ -394,7 +395,7 @@ export default function PayrollProfileScreen() {
             <TextInput
               style={styles.addressInput}
               value={iban}
-              onChangeText={withDirty(setIban)}
+              onChangeText={(v) => withDirty(setIban)(formatIbanInput(v))}
               placeholder="CH00 0000 0000 0000 0000 0"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="characters"

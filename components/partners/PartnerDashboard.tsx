@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { formatIbanInput } from '../../lib/iban';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -504,7 +505,7 @@ function PayoutAccountCard({ profile, onSaved }: { profile: PartnerProfile; onSa
       {editing ? (
         <>
           <Field label={copy.dashboard.holder} value={holder} onChangeText={setHolder} />
-          <Field label={copy.dashboard.iban} value={iban} onChangeText={setIban} autoCapitalize="characters" placeholder="CH00 0000 0000 0000 0000 0" />
+          <Field label={copy.dashboard.iban} value={iban} onChangeText={(v) => setIban(formatIbanInput(v))} autoCapitalize="characters" placeholder="CH00 0000 0000 0000 0000 0" />
           <View style={styles.actions}>
             <Button title={copy.dashboard.saveIban} onPress={save} loading={busy} />
           </View>

@@ -2562,6 +2562,7 @@ export const it: TranslationDict = {
     changeLogo: 'Cambia il logo',
     chooseLogo: 'Scelga un logo',
     brandColorLabel: 'Colore del marchio',
+    brandColorChooseHint: "Pronto, preso dal vostro sito o su misura con il codice HEX della vostra identità grafica. Potrete cambiarlo in qualsiasi momento.",
     colorSuggestedHint: 'Suggerito a partire dal suo logo e/o sito web — scelga un altro colore se non le va bene.',
     colorDefaultHint: 'Aggiunga un logo o un sito web per un suggerimento automatico, oppure scelga un colore qui sotto.',
     websiteLabel: 'Sito web (facoltativo)',

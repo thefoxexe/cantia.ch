@@ -2554,6 +2554,7 @@ export const de: TranslationDict = {
     changeLogo: 'Logo ändern',
     chooseLogo: 'Logo auswählen',
     brandColorLabel: 'Markenfarbe',
+    brandColorChooseHint: "Fertig, von Ihrer Website übernommen oder individuell mit dem HEX-Code Ihres Corporate Designs. Sie können sie jederzeit ändern.",
     colorSuggestedHint: 'Vorgeschlagen basierend auf Ihrem Logo und/oder Ihrer Website — wählen Sie eine andere Farbe, falls diese Ihnen nicht zusagt.',
     colorDefaultHint: 'Fügen Sie ein Logo oder eine Website hinzu für einen automatischen Vorschlag, oder wählen Sie unten eine Farbe.',
     websiteLabel: 'Website (optional)',

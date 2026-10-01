@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { formatIbanInput } from '../../../../lib/iban';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -145,7 +146,7 @@ export default function PaymentsScreen() {
                             style={styles.ibanInput}
                             placeholder="CH00 0000 0000 0000 0000 0"
                             value={ibanDrafts[item.sourceId] ?? ''}
-                            onChangeText={(v) => setIbanDrafts((prev) => ({ ...prev, [item.sourceId]: v }))}
+                            onChangeText={(v) => setIbanDrafts((prev) => ({ ...prev, [item.sourceId]: formatIbanInput(v) }))}
                             placeholderTextColor={colors.textMuted}
                           />
                           <Pressable onPress={() => handleSaveIban(item)} hitSlop={8}>

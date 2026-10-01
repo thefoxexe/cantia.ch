@@ -91,7 +91,7 @@ export async function getMyPartnerReferrals(): Promise<PartnerReferral[]> {
 }
 
 export async function setPayoutAccount(holder: string, iban: string): Promise<{ ibanMasked: string | null; error: string | null }> {
-  const { data, error } = await supabase.rpc('set_partner_payout_account', { p_account_holder: holder, p_iban: iban });
+  const { data, error } = await supabase.rpc('set_partner_payout_account', { p_account_holder: holder, p_iban: iban.replace(/[^0-9A-Za-z]/g, '').toUpperCase() });
   if (error) return { ibanMasked: null, error: error.message };
   return { ibanMasked: (data as { iban_masked?: string } | null)?.iban_masked ?? null, error: null };
 }
