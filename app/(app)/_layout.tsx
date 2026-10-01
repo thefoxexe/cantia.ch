@@ -80,9 +80,9 @@ function buildSections(
       title: t('nav.sectionChantiers'),
       links: [
         { href: '/(app)/chantiers', label: t('nav.chantiers'), icon: 'layers' as const },
-        ...(subcontractorsVisible
-          ? [{ href: '/(app)/sous-traitants', label: t('nav.subcontractors'), icon: 'briefcase' as const }]
-          : []),
+        // Contacts (clients + sous-traitants) normally sits under Facturation;
+        // without devis access it lands here, sous-traitants only.
+        ...(!devisVisible && subcontractorsVisible ? [{ href: '/(app)/clients', label: t('nav.clients'), icon: 'users' as const }] : []),
       ],
     },
     ...(devisVisible

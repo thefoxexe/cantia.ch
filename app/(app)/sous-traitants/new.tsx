@@ -1,63 +1,6 @@
-import { useState } from 'react';
-import { ScrollView, Text } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../../../lib/auth-context';
-import { createSubcontractor } from '../../../lib/api/subcontractors';
-import { Button, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
-import { useTranslation } from '../../../lib/translations';
-import { colors, fontSize, spacing } from '../../../lib/theme';
+import { Redirect } from 'expo-router';
 
-export default function NewSubcontractorScreen() {
-  const { t } = useTranslation();
-  const { organization, user } = useAuth();
-  const router = useRouter();
-  const [companyName, setCompanyName] = useState('');
-  const [trade, setTrade] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSave() {
-    if (!organization || !user) return;
-    if (!companyName.trim()) {
-      setError(t('projectSubcontractors.companyNameRequired'));
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    const { subcontractor, error: createError } = await createSubcontractor(organization.id, user.id, {
-      companyName,
-      trade,
-      contactName,
-      phone,
-      email,
-    });
-    setSaving(false);
-    if (createError || !subcontractor) {
-      setError(createError ?? t('projectSubcontractors.createError'));
-      return;
-    }
-    router.replace(`/(app)/sous-traitants/${subcontractor.id}`);
-  }
-
-  return (
-    <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
-        <Container>
-          <PageHeader title={t('newSubcontractor.title')} backTo="/(app)/sous-traitants" />
-
-          <Field label={t('projectSubcontractors.companyNameLabel')} value={companyName} onChangeText={setCompanyName} placeholder={t('projectSubcontractors.companyNamePlaceholder')} />
-          <Field label={t('projectSubcontractors.tradeLabel')} value={trade} onChangeText={setTrade} placeholder={t('projectSubcontractors.tradePlaceholder')} />
-          <Field label={t('projectSubcontractors.contactLabel')} value={contactName} onChangeText={setContactName} placeholder={t('projectSubcontractors.contactPlaceholder')} />
-          <Field label={t('projectSubcontractors.phoneLabel')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-          <Field label={t('projectSubcontractors.emailLabel')} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-
-          {error ? <Text style={{ color: colors.danger, fontSize: fontSize.sm, marginTop: spacing.sm }}>{error}</Text> : null}
-          <Button title={t('newSubcontractor.create')} icon="check" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
-        </Container>
-      </ScrollView>
-    </AppScreen>
-  );
+// Created from Contacts › Nouveau contact › Sous-traitant. Kept for old links.
+export default function NewSubcontractorRedirect() {
+  return <Redirect href={{ pathname: '/(app)/clients/new', params: { type: 'sous-traitant' } } as any} />;
 }

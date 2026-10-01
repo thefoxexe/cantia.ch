@@ -241,7 +241,7 @@ export default function SubcontractorDetailScreen() {
     const ok = await confirm(t('subcontractorDetail.deleteCompanyConfirmTitle'), t('subcontractorDetail.deleteCompanyConfirmBody', { name: subcontractor.company_name }));
     if (!ok) return;
     await deleteSubcontractor(subcontractor);
-    router.replace('/(app)/sous-traitants');
+    router.replace('/(app)/clients?type=sous-traitant' as any);
   }
 
   if (!loaded || !subcontractor) {
@@ -260,7 +260,7 @@ export default function SubcontractorDetailScreen() {
         <View style={styles.container}>
           <PageHeader
             title={subcontractor.company_name}
-            backTo="/(app)/sous-traitants"
+            backTo="/(app)/clients?type=sous-traitant"
             right={<RowActionMenu actions={[{ key: 'delete', icon: 'trash-2', label: t('subcontractorDetail.delete'), danger: true, onPress: handleDeleteCompany }]} />}
           />
 

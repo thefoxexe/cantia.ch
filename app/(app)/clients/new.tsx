@@ -1,18 +1,24 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { createClient } from '../../../lib/api/clients';
+import { createSubcontractor } from '../../../lib/api/subcontractors';
 import { Button, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { ClientType } from '../../../lib/types';
 
+type ContactType = ClientType | 'sous-traitant';
+
 export default function NewClientScreen() {
   const { t } = useTranslation();
-  const { organization } = useAuth();
+  const { organization, user, permissions, canManageDevis } = useAuth();
   const router = useRouter();
-  const [type, setType] = useState<ClientType>('particulier');
+  const params = useLocalSearchParams<{ type?: string }>();
+  const types: ContactType[] = [...(canManageDevis ? (['particulier', 'entreprise'] as const) : []), ...(permissions.subcontractors ? (['sous-traitant'] as const) : [])];
+  const [type, setType] = useState<ContactType>(() => (types.includes(params.type as ContactType) ? (params.type as ContactType) : types[0] ?? 'particulier'));
+  const [trade, setTrade] = useState('');
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
@@ -24,6 +30,30 @@ export default function NewClientScreen() {
 
   async function handleSave() {
     if (!organization) return;
+    if (type === 'sous-traitant') {
+      if (!user) return;
+      if (!companyName.trim()) {
+        setError(t('projectSubcontractors.companyNameRequired'));
+        return;
+      }
+      setSaving(true);
+      setError(null);
+      const { subcontractor, error: subError } = await createSubcontractor(organization.id, user.id, {
+        companyName,
+        trade,
+        contactName: name,
+        phone,
+        email,
+        notes,
+      });
+      setSaving(false);
+      if (subError || !subcontractor) {
+        setError(subError ?? t('projectSubcontractors.createError'));
+        return;
+      }
+      router.replace(`/(app)/sous-traitants/${subcontractor.id}`);
+      return;
+    }
     if (!name.trim()) {
       setError(t('newClient.nameRequired'));
       return;
@@ -31,7 +61,7 @@ export default function NewClientScreen() {
     setSaving(true);
     setError(null);
     const { id, error: createError } = await createClient(organization.id, {
-      type,
+      type: type as ClientType,
       name: name.trim(),
       company_name: companyName.trim() || null,
       email: email.trim() || null,
@@ -55,22 +85,32 @@ export default function NewClientScreen() {
 
           <Text style={styles.fieldLabel}>{t('newClient.typeLabel')}</Text>
           <View style={styles.typeRow}>
-            {(['particulier', 'entreprise'] as ClientType[]).map((ct) => (
+            {types.map((ct) => (
               <Pressable key={ct} onPress={() => setType(ct)} style={[styles.typeChip, type === ct && styles.typeChipActive]}>
                 <Text style={[styles.typeChipText, type === ct && styles.typeChipTextActive]}>
-                  {ct === 'particulier' ? t('newClient.typeParticulier') : t('newClient.typeEntreprise')}
+                  {ct === 'particulier' ? t('newClient.typeParticulier') : ct === 'entreprise' ? t('newClient.typeEntreprise') : t('newClient.typeSubcontractor')}
                 </Text>
               </Pressable>
             ))}
           </View>
 
-          <Field label={t('newClient.nameLabel')} value={name} onChangeText={setName} placeholder={t('newClient.namePlaceholder')} />
-          {type === 'entreprise' ? (
-            <Field label={t('newClient.companyLabel')} value={companyName} onChangeText={setCompanyName} placeholder={t('newClient.companyPlaceholder')} />
-          ) : null}
+          {type === 'sous-traitant' ? (
+            <>
+              <Field label={t('projectSubcontractors.companyNameLabel')} value={companyName} onChangeText={setCompanyName} placeholder={t('projectSubcontractors.companyNamePlaceholder')} />
+              <Field label={t('projectSubcontractors.tradeLabel')} value={trade} onChangeText={setTrade} placeholder={t('projectSubcontractors.tradePlaceholder')} />
+              <Field label={t('projectSubcontractors.contactLabel')} value={name} onChangeText={setName} placeholder={t('projectSubcontractors.contactPlaceholder')} />
+            </>
+          ) : (
+            <>
+              <Field label={t('newClient.nameLabel')} value={name} onChangeText={setName} placeholder={t('newClient.namePlaceholder')} />
+              {type === 'entreprise' ? (
+                <Field label={t('newClient.companyLabel')} value={companyName} onChangeText={setCompanyName} placeholder={t('newClient.companyPlaceholder')} />
+              ) : null}
+            </>
+          )}
           <Field label={t('newClient.emailLabel')} value={email} onChangeText={setEmail} placeholder={t('newClient.emailPlaceholder')} keyboardType="email-address" autoCapitalize="none" />
           <Field label={t('newClient.phoneLabel')} value={phone} onChangeText={setPhone} placeholder="+41 79 000 00 00" keyboardType="phone-pad" />
-          <Field label={t('newClient.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('newClient.addressPlaceholder')} />
+          {type !== 'sous-traitant' ? <Field label={t('newClient.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('newClient.addressPlaceholder')} /> : null}
           <Field label={t('newClient.notesLabel')} value={notes} onChangeText={setNotes} placeholder={t('newClient.notesPlaceholder')} multiline style={styles.notes} />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -90,6 +130,7 @@ const styles = StyleSheet.create({
   },
   typeRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },

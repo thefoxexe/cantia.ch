@@ -1,31 +1,71 @@
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listClients } from '../../../lib/api/clients';
+import { listSubcontractors } from '../../../lib/api/subcontractors';
 import { Button, Card, EmptyState, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Client, ClientType } from '../../../lib/types';
+import type { ClientType } from '../../../lib/types';
 
-type FilterKey = 'all' | ClientType;
+type ContactType = ClientType | 'sous-traitant';
+type FilterKey = 'all' | ContactType;
+
+// Clients and sous-traitants live in their own tables (devis and factures
+// point at clients, chantier interventions at sous-traitants); this page
+// shows them as one address book.
+interface ContactRow {
+  id: string;
+  type: ContactType;
+  name: string;
+  meta: (string | null | undefined)[];
+  href: string;
+  search: string;
+}
+
+const FILTER_KEYS: FilterKey[] = ['all', 'particulier', 'entreprise', 'sous-traitant'];
 
 export default function ClientsListScreen() {
   const { t } = useTranslation();
-  const { organization } = useAuth();
+  const { organization, permissions, canManageDevis } = useAuth();
   const router = useRouter();
-  const [clients, setClients] = useState<Client[]>([]);
+  const params = useLocalSearchParams<{ type?: string }>();
+  const showClients = canManageDevis;
+  const showSubs = permissions.subcontractors;
+  const [contacts, setContacts] = useState<ContactRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<FilterKey>('all');
+  const [filter, setFilter] = useState<FilterKey>(() =>
+    FILTER_KEYS.includes(params.type as FilterKey) ? (params.type as FilterKey) : showClients ? 'all' : 'sous-traitant',
+  );
 
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    setClients(await listClients(organization.id));
+    const [clients, subs] = await Promise.all([showClients ? listClients(organization.id) : [], showSubs ? listSubcontractors(organization.id) : []]);
+    const rows: ContactRow[] = [
+      ...clients.map((c) => ({
+        id: c.id,
+        type: c.type as ContactType,
+        name: c.name,
+        meta: [c.company_name, c.email, c.phone],
+        href: `/(app)/clients/${c.id}`,
+        search: [c.name, c.company_name, c.email].join(' ').toLowerCase(),
+      })),
+      ...subs.map((s) => ({
+        id: s.id,
+        type: 'sous-traitant' as const,
+        name: s.company_name,
+        meta: [[s.trade, s.contact_name].filter(Boolean).join(' · '), s.email, s.phone],
+        href: `/(app)/sous-traitants/${s.id}`,
+        search: [s.company_name, s.trade, s.contact_name, s.email].join(' ').toLowerCase(),
+      })),
+    ];
+    setContacts(rows.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })));
     setLoading(false);
-  }, [organization]);
+  }, [organization, showClients, showSubs]);
 
   useFocusEffect(
     useCallback(() => {
@@ -34,18 +74,25 @@ export default function ClientsListScreen() {
   );
 
   const filtered = useMemo(() => {
-    const byType = filter === 'all' ? clients : clients.filter((c) => c.type === filter);
+    const byType = filter === 'all' ? contacts : contacts.filter((c) => c.type === filter);
     const q = search.trim().toLowerCase();
-    if (!q) return byType;
-    return byType.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.company_name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q),
-    );
-  }, [clients, filter, search]);
+    return q ? byType.filter((c) => c.search.includes(q)) : byType;
+  }, [contacts, filter, search]);
 
+  const typeLabel: Record<ContactType, string> = {
+    particulier: t('newClient.typeParticulier'),
+    entreprise: t('newClient.typeEntreprise'),
+    'sous-traitant': t('newClient.typeSubcontractor'),
+  };
   const filters: { key: FilterKey; label: string }[] = [
-    { key: 'all', label: t('clientsList.filterAll') },
-    { key: 'particulier', label: t('clientsList.filterParticulier') },
-    { key: 'entreprise', label: t('clientsList.filterEntreprise') },
+    ...(showClients
+      ? [
+          { key: 'all' as const, label: t('clientsList.filterAll') },
+          { key: 'particulier' as const, label: t('clientsList.filterParticulier') },
+          { key: 'entreprise' as const, label: t('clientsList.filterEntreprise') },
+        ]
+      : []),
+    ...(showSubs ? [{ key: 'sous-traitant' as const, label: t('clientsList.filterSubcontractor') }] : []),
   ];
 
   return (
@@ -57,7 +104,7 @@ export default function ClientsListScreen() {
         <Button
           title={t('clientsList.newClient')}
           icon="plus"
-          onPress={() => router.push('/(app)/clients/new')}
+          onPress={() => router.push(filter === 'all' ? '/(app)/clients/new' : (`/(app)/clients/new?type=${filter}` as any))}
           style={{ marginBottom: spacing.sm }}
         />
 
@@ -73,21 +120,23 @@ export default function ClientsListScreen() {
           />
         </View>
 
-        <View style={styles.filterRow}>
-          {filters.map((f) => (
-            <Pressable
-              key={f.key}
-              onPress={() => setFilter(f.key)}
-              style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
-            >
-              <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>{f.label}</Text>
-            </Pressable>
-          ))}
-        </View>
+        {filters.length > 1 ? (
+          <View style={styles.filterRow}>
+            {filters.map((f) => (
+              <Pressable
+                key={f.key}
+                onPress={() => setFilter(f.key)}
+                style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
+              >
+                <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>{f.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
 
         <FlatList
           data={filtered}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => `${item.type}:${item.id}`}
           refreshing={loading}
           onRefresh={load}
           contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }}
@@ -97,13 +146,20 @@ export default function ClientsListScreen() {
             ) : null
           }
           renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/(app)/clients/${item.id}`)}>
+            <Pressable onPress={() => router.push(item.href as any)}>
               <Card style={styles.card}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.name}>{item.name}</Text>
-                  {item.company_name ? <Text style={styles.meta}>{item.company_name}</Text> : null}
-                  {item.email ? <Text style={styles.meta}>{item.email}</Text> : null}
-                  {item.phone ? <Text style={styles.meta}>{item.phone}</Text> : null}
+                  <View style={styles.nameRow}>
+                    <Text style={styles.name}>{item.name}</Text>
+                    <View style={[styles.typeBadge, item.type === 'sous-traitant' && styles.typeBadgeSub]}>
+                      <Text style={[styles.typeBadgeText, item.type === 'sous-traitant' && styles.typeBadgeTextSub]}>{typeLabel[item.type]}</Text>
+                    </View>
+                  </View>
+                  {item.meta.filter(Boolean).map((m, i) => (
+                    <Text key={i} style={styles.meta}>
+                      {m}
+                    </Text>
+                  ))}
                 </View>
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Card>
@@ -174,6 +230,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  typeBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+  },
+  typeBadgeSub: {
+    backgroundColor: colors.primarySoft,
+  },
+  typeBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  typeBadgeTextSub: {
+    color: colors.primary,
   },
   name: {
     fontSize: fontSize.md,
