@@ -121,6 +121,11 @@ export const post: BlogPost = {
       ],
     },
     {
+      type: 'callout',
+      title: 'Faites le calcul pour votre employé',
+      text: 'Le calculateur gratuit sur cantia.ch/calculateur-salaire applique exactement ces règles : âge, seuil d’entrée, plan de votre caisse dès 18 ans, part employeur, et donne aussi l’AVS, le chômage, l’assurance accidents, les allocations familiales et l’impôt à la source.',
+    },
+    {
       type: 'cta',
       title: 'Des fiches de salaire suisses, calculées pour vous',
       text: 'AVS, AC, LPP par âge, accidents, allocations familiales et impôt à la source selon les barèmes officiels : Cantia applique les bons taux et vous indique ce qui manque avant la première fiche.',

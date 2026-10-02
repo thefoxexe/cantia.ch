@@ -28,6 +28,34 @@ export const ROUTES = [
       'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, 14 jours d’essai.',
   },
   {
+    path: 'calculateur-salaire',
+    title: 'Calculateur de salaire suisse 2026 : brut, net, LPP et charges | Cantia',
+    description:
+      'Calculez gratuitement le salaire net et le coût employeur en Suisse : AVS, AC, LPP selon l’âge, LAA, allocations familiales et impôt à la source par canton. Montants 2026.',
+    faq: [
+      {
+        q: 'Comment passer du salaire brut au salaire net en Suisse ?',
+        a: 'On retire du brut l’AVS/AI/APG (5,3 %), l’assurance chômage (1,1 % jusqu’à CHF 148’200 par an), la part employé de la LPP (selon l’âge, sur le salaire coordonné), l’assurance accidents non professionnels et, le cas échéant, l’impôt à la source. Les allocations familiales s’ajoutent au net.',
+      },
+      {
+        q: 'Quel taux LPP selon l’âge ?',
+        a: 'Minimum légal 2026 : rien avant 25 ans (seulement la couverture décès et invalidité dès 18 ans), puis 7 % de 25 à 34 ans, 10 % de 35 à 44, 15 % de 45 à 54 et 18 % dès 55, sur le salaire coordonné. L’employeur paie au moins la moitié. Beaucoup de caisses prévoient des taux plus élevés ou une cotisation dès 18 ans.',
+      },
+      {
+        q: 'Qui paie l’impôt à la source ?',
+        a: 'Les employés étrangers sans permis C (permis B, L, etc.) et les frontaliers, sauf les frontaliers résidant en France qui travaillent dans un canton de l’accord de 1983 (BE, BS, BL, JU, NE, SO, VD, VS). Les Suisses, les permis C et les personnes mariées à un·e Suisse ou titulaire d’un permis C ne sont pas imposés à la source.',
+      },
+      {
+        q: 'Combien coûte un employé à l’employeur en Suisse ?',
+        a: 'Au salaire brut s’ajoutent les charges patronales : AVS/AI/APG 5,3 %, chômage 1,1 %, au moins la moitié de la LPP, l’assurance accidents professionnels et la caisse d’allocations familiales du canton (environ 1,2 à 2,8 %). Comptez en général 12 à 18 % de plus que le brut.',
+      },
+      {
+        q: 'Le calculateur est-il gratuit ?',
+        a: 'Oui, sans inscription, et rien n’est enregistré. Pour générer automatiquement les fiches de salaire chaque mois avec ces mêmes calculs, Cantia propose 14 jours d’essai.',
+      },
+    ],
+  },
+  {
     path: 'logiciel-chantier',
     title: 'Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia',
     description:
