@@ -4,7 +4,10 @@ import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { formatIbanInput, isValidSwissIban } from '../../../lib/iban';
+import { compactIban, formatIbanInput, isValidSwissIban } from '../../../lib/iban';
+import { IbanField, ibanMessage } from '../../../components/IbanField';
+import { VatQuestion, useVatQuestionCopy } from '../../../components/VatQuestion';
+import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
@@ -41,6 +44,8 @@ export default function EntrepriseScreen() {
   const [postalCode, setPostalCode] = useState(organization?.postal_code ?? '');
   const [locality, setLocality] = useState(organization?.locality ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
+  const [vatLiable, setVatLiable] = useState<boolean | null>(organization ? !!organization.vat_liable : null);
+  const vatCopy = useVatQuestionCopy();
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
@@ -48,7 +53,7 @@ export default function EntrepriseScreen() {
   const [docLocale, setDocLocale] = useState<'fr' | 'de' | 'it'>(organization?.locale ?? 'fr');
   const [workTerm, setWorkTerm] = useState<WorkTerm>(organization?.work_term ?? 'chantier');
   const isAdmin = role === 'owner' || role === 'admin';
-  const [saveError, setSaveError] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
     useUnsavedChanges(handleSave);
@@ -80,6 +85,7 @@ export default function EntrepriseScreen() {
     setPostalCode(organization.postal_code ?? '');
     setLocality(organization.locality ?? '');
     setIdeNumber(organization.ide_number ?? '');
+    setVatLiable(!!organization.vat_liable);
     setPhone(organization.phone ?? '');
     setEmail(organization.email ?? '');
     setWebsite(organization.website ?? '');
@@ -97,11 +103,22 @@ export default function EntrepriseScreen() {
   async function handleSave() {
     if (!organization) return false;
     const ibanTrimmed = iban.trim();
-    const validIban = !ibanTrimmed || isValidSwissIban(ibanTrimmed);
-    setSaveError(false);
-    const { error } = await supabase
-      .from('organizations')
-      .update({
+    // An IBAN that can't be valid is never saved silently: say why and
+    // keep the edits (the bar stays).
+    if (vatLiable && !hasValidIde(ideNumber)) {
+      setSaveError(vatCopy.ideRequired);
+      return false;
+    }
+    if (ideNumber.trim() && !hasValidIde(ideNumber)) {
+      setSaveError(vatCopy.ideInvalid);
+      return false;
+    }
+    if (ibanTrimmed && !isValidSwissIban(ibanTrimmed)) {
+      setSaveError(ibanMessage(ibanTrimmed) ?? t('entreprise.ibanInvalid'));
+      return false;
+    }
+    setSaveError(null);
+    const patch = {
         name: name.trim(),
         trade,
         street: street.trim() || null,
@@ -111,14 +128,25 @@ export default function EntrepriseScreen() {
         phone: phone.trim() || null,
         email: email.trim() || null,
         website: website.trim() || null,
-        iban: validIban ? ibanTrimmed.replace(/\s+/g, '').toUpperCase() || null : organization.iban,
+        iban: compactIban(ibanTrimmed) || null,
         locale: docLocale,
         work_term: workTerm,
-      })
-      .eq('id', organization.id);
+    };
+    let { error } = await supabase.from('organizations').update(patch).eq('id', organization.id);
+    // A dropped connection or an expired session (tablets left open): renew
+    // the session once and retry before giving up.
+    if (error && /fetch|load failed|network|jwt|token/i.test(error.message)) {
+      await supabase.auth.refreshSession();
+      ({ error } = await supabase.from('organizations').update(patch).eq('id', organization.id));
+    }
+    // Separate write: VAT registration (grant from migration 20261002090000).
+    if (!error && vatLiable !== null && vatLiable !== !!organization.vat_liable) {
+      const { error: vatError } = await supabase.from('organizations').update({ vat_liable: vatLiable }).eq('id', organization.id);
+      if (vatError) error = vatError;
+    }
     if (error) {
       // Keep the bar up (returning false) so the edits aren't lost.
-      setSaveError(true);
+      setSaveError(`${t('entreprise.saveFailed')} (${error.message})`);
       return false;
     }
     // Reloads the organization, which also switches the vocabulary
@@ -194,7 +222,14 @@ export default function EntrepriseScreen() {
 
           <SectionHeader icon="phone" title={t('entreprise.contactTitle')} />
           <Card style={styles.card}>
-            <Field label={t('entreprise.ideLabel')} value={ideNumber} onChangeText={withDirty(setIdeNumber)} editable={isAdmin} />
+            <VatQuestion
+              liable={vatLiable}
+              onLiableChange={withDirty(setVatLiable)}
+              ide={ideNumber}
+              onIdeChange={withDirty(setIdeNumber)}
+              rate={organization?.default_vat_rate ?? 8.1}
+              editable={isAdmin}
+            />
             <View style={styles.row2}>
               <View style={styles.row2Item}>
                 <Field
@@ -230,15 +265,7 @@ export default function EntrepriseScreen() {
 
           <SectionHeader icon="credit-card" title={t('entreprise.billingTitle')} hint={t('entreprise.ibanHint')} />
           <Card style={styles.card}>
-            <Field
-              label={t('entreprise.ibanLabel')}
-              value={iban}
-              onChangeText={(v) => withDirty(setIban)(formatIbanInput(v))}
-              editable={isAdmin}
-              autoCapitalize="characters"
-              placeholder="CH00 0000 0000 0000 0000 0"
-            />
-            {iban.trim() && !isValidSwissIban(iban.trim()) ? <Text style={styles.errorHint}>{t('entreprise.ibanInvalid')}</Text> : null}
+            <IbanField label={t('entreprise.ibanLabel')} value={iban} onChangeText={withDirty(setIban)} editable={isAdmin} />
           </Card>
 
           <SectionHeader icon="globe" title={t('entreprise.documentLocaleTitle')} hint={t('entreprise.documentLocaleHint')} />
@@ -276,7 +303,7 @@ export default function EntrepriseScreen() {
           </Card>
         </Container>
       </ScrollView>
-      {saveError ? <Text style={[styles.errorHint, { textAlign: 'center', padding: spacing.sm }]}>{t('entreprise.saveFailed')}</Text> : null}
+      {saveError ? <Text style={[styles.errorHint, { textAlign: 'center', padding: spacing.sm }]}>{saveError}</Text> : null}
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </AppScreen>

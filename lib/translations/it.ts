@@ -1262,6 +1262,7 @@ export const it: TranslationDict = {
     termsLabel: 'Note / condizioni (piè di pagina PDF)',
     termsPlaceholder: 'Es.: Pagamento a 30 giorni netti. IVA non inclusa negli acconti.',
     layoutHint: "I suoi preventivi e fatture condividono un layout unico, senza logo — logo e colore si personalizzano dalla scheda Aspetto.",
+    vatOff: "Nessuna IVA: la vostra impresa non è dichiarata assoggettata (La mia impresa).",
   },
   entreprise: {
     title: 'Azienda',
@@ -2375,6 +2376,7 @@ export const it: TranslationDict = {
     page1: 'Pagina 1',
     discountLine: 'Sconto ({{pct}}%)',
     remarkLabel: 'Osservazione',
+    total: 'Totale',
   },
   dateField: {
     placeholder: 'Scelga una data',
@@ -2595,6 +2597,9 @@ export const it: TranslationDict = {
     recapEdit: 'Modifica',
     recapModules: 'Strumenti attivati',
     recapNoModules: 'Nessuno strumento attivato per ora — potrà aggiungerli in seguito.',
+    vatQuestionRequired: "Indicate se la vostra impresa è assoggettata all’IVA.",
+    vatIdeRequired: "Assoggettati all’IVA: indicate il vostro numero IDI (CHE-123.456.789).",
+    ideInvalid: "Numero IDI non valido: formato CHE-123.456.789 (9 cifre).",
   },
   authOnboardingJoin: {
     requestSentTitle: 'Richiesta inviata',
@@ -2979,6 +2984,7 @@ export const it: TranslationDict = {
     trameNameRequired: 'Il nome del modello è obbligatorio.',
     createFailed: 'Creazione non riuscita.',
     emailSendFailed: "Invio dell'e-mail non riuscito.",
+    total: 'Totale',
   },
   devisNew: {
     clientNameRequired: 'Il nome del cliente è obbligatorio.',
@@ -3125,6 +3131,7 @@ export const it: TranslationDict = {
     messageLabel: 'Messaggio',
     lockedNoticeText: 'Il PDF allegato e il link sicuro «Consulta questa fattura online» vengono sempre aggiunti automaticamente di seguito — non modificabili.',
     send: 'Invia',
+    total: 'Totale',
   },
   clientPortalHeader: {
     secure: 'Sicuro',

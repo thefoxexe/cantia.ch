@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { documentVatRate } from '../../../lib/vat/vatStatus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Feather } from '@expo/vector-icons';
@@ -262,7 +263,7 @@ export default function DataImportScreen() {
     }
     setImporting(true);
     setError(null);
-    const vatRate = organization.default_vat_rate ?? 8.1;
+    const vatRate = documentVatRate(organization);
     switch (kind) {
       case 'clients': {
         const rows = csv.rows.map((r) => ({

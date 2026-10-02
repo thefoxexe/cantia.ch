@@ -6,7 +6,7 @@
 // matches the one printed on the actual QR-bill.
 export function isValidSwissIban(raw: string | null | undefined): boolean {
   if (!raw) return false;
-  const iban = raw.replace(/\s+/g, '').toUpperCase();
+  const iban = raw.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
   if (!/^(CH|LI)\d{19}$/.test(iban)) return false;
   const rearranged = iban.slice(4) + iban.slice(0, 4);
   const numeric = rearranged.replace(/[A-Z]/g, (ch) => String(ch.charCodeAt(0) - 55));
@@ -15,7 +15,7 @@ export function isValidSwissIban(raw: string | null | undefined): boolean {
 
 export function isQrIban(raw: string | null | undefined): boolean {
   if (!isValidSwissIban(raw)) return false;
-  const iban = (raw ?? '').replace(/\s+/g, '').toUpperCase();
+  const iban = (raw ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
   const iid = Number(iban.slice(4, 9));
   return iid >= 30000 && iid <= 31999;
 }

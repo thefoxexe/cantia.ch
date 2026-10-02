@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { documentVatRate } from '../../../../lib/vat/vatStatus';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -453,7 +454,7 @@ export default function NewFactureScreen() {
         client_email: clientEmail.trim() || null,
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
-        vat_rate: organization.default_vat_rate,
+        vat_rate: documentVatRate(organization),
         notes: remark.trim() || null,
         created_by: user?.id,
       })

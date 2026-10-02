@@ -1240,6 +1240,7 @@ export const fr = {
     termsLabel: 'Mentions / conditions (pied de page PDF)',
     termsPlaceholder: 'Ex : Paiement à 30 jours net. TVA non incluse dans les acomptes.',
     layoutHint: "Vos devis et factures partagent une mise en page unique, sans logo — logo et couleur se personnalisent depuis l'onglet Apparence.",
+    vatOff: "Pas de TVA : votre entreprise n’est pas déclarée assujettie (Mon entreprise).",
   },
   entreprise: {
     title: 'Entreprise',
@@ -2353,6 +2354,7 @@ export const fr = {
     page1: 'Page 1',
     discountLine: 'Remise ({{pct}}%)',
     remarkLabel: 'Remarque',
+    total: 'Total',
   },
   dateField: {
     placeholder: 'Choisir une date',
@@ -2573,6 +2575,9 @@ export const fr = {
     recapEdit: 'Modifier',
     recapModules: 'Outils activés',
     recapNoModules: 'Aucun outil activé pour l’instant — vous pourrez les ajouter plus tard.',
+    vatQuestionRequired: "Indiquez si votre entreprise est assujettie à la TVA.",
+    vatIdeRequired: "Assujetti à la TVA : indiquez votre numéro IDE (CHE-123.456.789).",
+    ideInvalid: "Numéro IDE invalide : format CHE-123.456.789 (9 chiffres).",
   },
   authOnboardingJoin: {
     requestSentTitle: 'Demande envoyée',
@@ -2957,6 +2962,7 @@ export const fr = {
     trameNameRequired: 'Le nom du modèle est requis.',
     createFailed: 'Échec de la création.',
     emailSendFailed: "Échec de l'envoi de l'e-mail.",
+    total: 'Total',
   },
   devisNew: {
     clientNameRequired: 'Le nom du client est requis.',
@@ -3103,6 +3109,7 @@ export const fr = {
     messageLabel: 'Message',
     lockedNoticeText: 'Le PDF joint et le lien sécurisé « Consulter cette facture en ligne » sont toujours ajoutés automatiquement à la suite — non modifiables.',
     send: 'Envoyer',
+    total: 'Total',
   },
   clientPortalHeader: {
     secure: 'Sécurisé',

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { VatLockedCard } from '../../../components/VatLockedCard';
+import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -269,12 +271,8 @@ export default function VatReturnScreen() {
 
           {loading ? (
             <LoadingScreen />
-          ) : !settings?.vatLiable ? (
-            <View style={[styles.panel, { alignItems: 'flex-start' }]}>
-              <Text style={styles.panelTitle}>{c.notLiableTitle}</Text>
-              <Text style={styles.panelText}>{c.notLiableText}</Text>
-              <Button title={c.openSettings} icon="settings" variant="secondary" onPress={() => router.push('/(app)/compta' as any)} />
-            </View>
+          ) : !settings?.vatLiable || !hasValidIde(settings.ideNumber) ? (
+            <VatLockedCard liable={!!settings?.vatLiable} />
           ) : (
             <>
               {/* Periods of the year */}

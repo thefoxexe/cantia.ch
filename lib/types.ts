@@ -77,6 +77,8 @@ export interface Organization {
   email: string | null;
   website: string | null;
   default_vat_rate: number;
+  // VAT-registered (Comptabilité › TVA, onboarding). VAT applies only with a valid IDE too: lib/vat/vatStatus.ts
+  vat_liable?: boolean;
   devis_validity_days: number;
   devis_terms: string | null;
   devis_template: string;

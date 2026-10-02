@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { documentVatRate } from '../../../lib/vat/vatStatus';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -472,7 +473,7 @@ export default function NewDevisScreen() {
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         valid_until: resolveValidUntil(),
-        vat_rate: organization.default_vat_rate,
+        vat_rate: documentVatRate(organization),
         notes: remark.trim() || null,
         created_by: user?.id,
       })

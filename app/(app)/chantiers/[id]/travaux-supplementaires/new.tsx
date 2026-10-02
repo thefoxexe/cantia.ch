@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { documentVatRate } from '../../../../../lib/vat/vatStatus';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -159,7 +160,7 @@ export default function NewExtraWorkScreen() {
         client_name: clientName.trim(),
         client_email: clientEmail.trim() || null,
         notes: notes.trim() || null,
-        vat_rate: organization.default_vat_rate,
+        vat_rate: documentVatRate(organization),
         created_by: user?.id,
       })
       .select()

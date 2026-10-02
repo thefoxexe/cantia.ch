@@ -1254,6 +1254,7 @@ export const de: TranslationDict = {
     termsLabel: 'Hinweise / Bedingungen (PDF-Fusszeile)',
     termsPlaceholder: 'Z. B.: Zahlbar netto innert 30 Tagen. MWST nicht in Akontozahlungen enthalten.',
     layoutHint: 'Ihre Offerten und Rechnungen teilen sich ein einheitliches Layout ohne Logo — Logo und Farbe werden im Tab Erscheinungsbild angepasst.',
+    vatOff: "Keine MWST: Ihr Unternehmen ist nicht als steuerpflichtig erfasst (Mein Unternehmen).",
   },
   entreprise: {
     title: 'Unternehmen',
@@ -2367,6 +2368,7 @@ export const de: TranslationDict = {
     page1: 'Seite 1',
     discountLine: 'Rabatt ({{pct}}%)',
     remarkLabel: 'Bemerkung',
+    total: 'Total',
   },
   dateField: {
     placeholder: 'Datum wählen',
@@ -2587,6 +2589,9 @@ export const de: TranslationDict = {
     recapEdit: 'Ändern',
     recapModules: 'Aktivierte Werkzeuge',
     recapNoModules: 'Noch kein Werkzeug aktiviert — Sie können später welche hinzufügen.',
+    vatQuestionRequired: "Geben Sie an, ob Ihr Unternehmen mehrwertsteuerpflichtig ist.",
+    vatIdeRequired: "MWST-pflichtig: Geben Sie Ihre UID-Nummer an (CHE-123.456.789).",
+    ideInvalid: "Ungültige UID-Nummer: Format CHE-123.456.789 (9 Ziffern).",
   },
   authOnboardingJoin: {
     requestSentTitle: 'Anfrage gesendet',
@@ -2971,6 +2976,7 @@ export const de: TranslationDict = {
     trameNameRequired: 'Der Name der Vorlage ist erforderlich.',
     createFailed: 'Erstellung fehlgeschlagen.',
     emailSendFailed: 'E-Mail-Versand fehlgeschlagen.',
+    total: 'Total',
   },
   devisNew: {
     clientNameRequired: 'Der Name des Kunden ist erforderlich.',
@@ -3117,6 +3123,7 @@ export const de: TranslationDict = {
     messageLabel: 'Nachricht',
     lockedNoticeText: 'Das angehängte PDF und der sichere Link «Diese Rechnung online ansehen» werden immer automatisch angehängt — nicht änderbar.',
     send: 'Senden',
+    total: 'Total',
   },
   clientPortalHeader: {
     secure: 'Sicher',

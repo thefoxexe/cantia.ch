@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { documentVatRate } from '../lib/vat/vatStatus';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing } from '../lib/theme';
@@ -98,7 +99,7 @@ function readableTextColor(hex: string): string {
 export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent, remark }: Props) {
   const { t } = useTranslation();
   const brandColor = safeHex(organization?.brand_color);
-  const vatRate = organization?.default_vat_rate ?? 8.1;
+  const vatRate = documentVatRate(organization);
   const docLabel = kind === 'devis' ? t('documentPreview.docLabelDevis') : t('documentPreview.docLabelFacture');
   const { tableRows, subtotal, vat, total } = computeDocumentTotals(lines, discountPercent, vatRate);
 
@@ -225,12 +226,14 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
             <Text style={styles.body}>{t('documentPreview.subtotal')}</Text>
             <Text style={styles.body}>CHF {subtotal.toFixed(2)}</Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.body}>{t('documentPreview.vat', { rate: vatRate })}</Text>
-            <Text style={styles.body}>CHF {vat.toFixed(2)}</Text>
-          </View>
+          {vatRate > 0 ? (
+            <View style={styles.totalRow}>
+              <Text style={styles.body}>{t('documentPreview.vat', { rate: vatRate })}</Text>
+              <Text style={styles.body}>CHF {vat.toFixed(2)}</Text>
+            </View>
+          ) : null}
           <View style={[styles.grandTotalBox, { backgroundColor: totalBoxBg, borderColor: brandColor }]}>
-            <Text style={[styles.grandTotalLabel, { color: brandColor }]}>{t('documentPreview.grandTotal')}</Text>
+            <Text style={[styles.grandTotalLabel, { color: brandColor }]}>{vatRate > 0 ? t('documentPreview.grandTotal') : t('documentPreview.total')}</Text>
             <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {total.toFixed(2)}</Text>
           </View>
         </View>

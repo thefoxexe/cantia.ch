@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { vatApplies } from '../../../lib/vat/vatStatus';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -75,7 +76,14 @@ export default function DevisSettingsScreen() {
           <Card style={styles.card}>
             <View style={styles.row2}>
               <View style={styles.row2Item}>
-                <Field label={t('devisSettings.vatRateLabel')} value={vatRate} onChangeText={withDirty(setVatRate)} editable={isAdmin} keyboardType="decimal-pad" />
+                <Field
+                  label={t('devisSettings.vatRateLabel')}
+                  value={vatApplies(organization) ? vatRate : '0'}
+                  onChangeText={withDirty(setVatRate)}
+                  editable={isAdmin && vatApplies(organization)}
+                  keyboardType="decimal-pad"
+                />
+                {!vatApplies(organization) ? <Text style={styles.sectionHint}>{t('devisSettings.vatOff')}</Text> : null}
               </View>
               <View style={styles.row2Item}>
                 <Field

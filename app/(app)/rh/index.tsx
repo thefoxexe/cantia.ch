@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { documentVatRate } from '../../../lib/vat/vatStatus';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -457,7 +458,7 @@ export default function PayrollScreen() {
         visible={showInvoiceModal}
         onClose={() => setShowInvoiceModal(false)}
         organizationId={organization.id}
-        defaultVatRate={organization.default_vat_rate}
+        defaultVatRate={documentVatRate(organization)}
         project={invoiceProject}
         candidateLines={invoiceCandidateLines}
         onCreated={(factureId) => {

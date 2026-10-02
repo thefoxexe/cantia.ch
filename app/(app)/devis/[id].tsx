@@ -545,12 +545,15 @@ export default function DevisDetailScreen() {
               <Text style={styles.meta}>{t('devisDetail.subtotal')}</Text>
               <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
             </View>
+            {/* No VAT line for a company that isn't VAT-registered (rate 0). */}
+            {Number(devis.vat_rate) > 0 ? (
+              <View style={styles.totalRow}>
+                <Text style={styles.meta}>{t('devisDetail.vat', { rate: devis.vat_rate })}</Text>
+                <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
+              </View>
+            ) : null}
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>{t('devisDetail.vat', { rate: devis.vat_rate })}</Text>
-              <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
-            </View>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>{t('devisDetail.totalInclVat')}</Text>
+              <Text style={styles.totalLabel}>{Number(devis.vat_rate) > 0 ? t('devisDetail.totalInclVat') : t('devisDetail.total')}</Text>
               <Text style={styles.totalLabel}>CHF {total.toFixed(2)}</Text>
             </View>
           </View>

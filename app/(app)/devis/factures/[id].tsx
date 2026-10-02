@@ -729,12 +729,15 @@ export default function FactureDetailScreen() {
               <Text style={styles.meta}>{t('factureDetail.subtotal')}</Text>
               <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
             </View>
+            {/* No VAT line for a company that isn't VAT-registered (rate 0). */}
+            {Number(facture.vat_rate) > 0 ? (
+              <View style={styles.totalRow}>
+                <Text style={styles.meta}>{t('factureDetail.vat', { rate: facture.vat_rate })}</Text>
+                <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
+              </View>
+            ) : null}
             <View style={styles.totalRow}>
-              <Text style={styles.meta}>{t('factureDetail.vat', { rate: facture.vat_rate })}</Text>
-              <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
-            </View>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>{t('factureDetail.totalInclVat')}</Text>
+              <Text style={styles.totalLabel}>{Number(facture.vat_rate) > 0 ? t('factureDetail.totalInclVat') : t('factureDetail.total')}</Text>
               <Text style={styles.totalLabel}>CHF {total.toFixed(2)}</Text>
             </View>
           </View>

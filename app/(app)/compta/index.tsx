@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { VatLockedCard } from '../../../components/VatLockedCard';
+import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -641,6 +643,10 @@ export default function AccountingScreen() {
                 )}
               </Card>
             )}
+          </View>
+        ) : !vatSettings?.vatLiable || !hasValidIde(vatSettings?.ideNumber) ? (
+          <View style={{ marginTop: spacing.lg }}>
+            <VatLockedCard liable={!!vatSettings?.vatLiable} />
           </View>
         ) : (
           <View style={{ gap: spacing.md, marginTop: spacing.lg }}>

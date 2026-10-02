@@ -389,8 +389,11 @@ function renderUnified(ctx: RenderCtx): RenderResult {
 
   plainRow(pdfT(locale, 'subtotal'), chf(visibleSubtotal));
   if (depositTotal) plainRow(pdfT(locale, 'depositsDeducted'), chf(depositTotal));
-  plainRow(pdfT(locale, 'vat', { rate: devis.vat_rate }), chf(vat));
-  boxedRow(pdfT(locale, 'totalIncl'), chf(total));
+  // A company that isn't VAT-registered (rate 0) shows no VAT line and a
+  // plain "Total" — no "TTC" (lib/vat/vatStatus.ts).
+  const hasVat = Number(devis.vat_rate) > 0;
+  if (hasVat) plainRow(pdfT(locale, 'vat', { rate: devis.vat_rate }), chf(vat));
+  boxedRow(pdfT(locale, hasVat ? 'totalIncl' : 'total'), chf(total));
   if (netToPay != null) {
     plainRow(pdfT(locale, 'alreadyPaid'), chf(-(paidSum as number)));
     boxedRow(pdfT(locale, 'netToPay'), chf(netToPay));

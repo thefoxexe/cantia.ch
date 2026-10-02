@@ -9,13 +9,16 @@ import { uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { BrandColorPicker } from '../../../components/BrandColorPicker';
+import { IbanField, ibanMessage } from '../../../components/IbanField';
+import { VatQuestion } from '../../../components/VatQuestion';
+import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Button, Field, Screen } from '../../../components/ui';
 import { HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
-import { isValidSwissIban, formatIban, formatIbanInput } from '../../../lib/iban';
+import { compactIban, isValidSwissIban, formatIban, formatIbanInput } from '../../../lib/iban';
 import { ORG_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import type { Plan } from '../../../lib/types';
 import { displayType } from '../../../lib/marketingTheme';
@@ -67,6 +70,8 @@ export default function OnboardingSetupScreen() {
   const [phone, setPhone] = useState(organization?.phone ?? '');
   const [email, setEmail] = useState(organization?.email ?? '');
   const [ideNumber, setIdeNumber] = useState(organization?.ide_number ?? '');
+  // null = not answered yet: the question is mandatory.
+  const [vatLiable, setVatLiable] = useState<boolean | null>(organization?.vat_liable ? true : null);
   const [iban, setIban] = useState(formatIbanInput(organization?.iban ?? ''));
   const [logoAsset, setLogoAsset] = useState<{ uri: string; mimeType?: string | null } | null>(null);
   const [brandColor, setBrandColor] = useState(organization?.brand_color ?? DEFAULT_BRAND_COLOR);
@@ -126,7 +131,10 @@ export default function OnboardingSetupScreen() {
     if (!street.trim() || !postalCode.trim() || !locality.trim()) return t('authOnboardingSetup.addressRequired');
     if (!phone.trim()) return t('authOnboardingSetup.phoneRequired');
     if (!email.trim()) return t('authOnboardingSetup.emailRequired');
-    if (iban.trim() && !isValidSwissIban(iban.trim())) return t('authOnboardingSetup.ibanInvalid');
+    if (vatLiable === null) return t('authOnboardingSetup.vatQuestionRequired');
+    if (vatLiable && !hasValidIde(ideNumber)) return t('authOnboardingSetup.vatIdeRequired');
+    if (ideNumber.trim() && !hasValidIde(ideNumber)) return t('authOnboardingSetup.ideInvalid');
+    if (iban.trim() && !isValidSwissIban(iban.trim())) return ibanMessage(iban) ?? t('authOnboardingSetup.ibanInvalid');
     return null;
   }
 
@@ -143,7 +151,7 @@ export default function OnboardingSetupScreen() {
       ide_number: ideNumber.trim(),
     };
     if (website.trim()) updates.website = website.trim();
-    if (iban.trim()) updates.iban = iban.trim().replace(/\s+/g, '').toUpperCase();
+    if (iban.trim()) updates.iban = compactIban(iban);
     if (HEX_COLOR_RE.test(brandColor) && brandColor.toLowerCase() !== DEFAULT_BRAND_COLOR.toLowerCase()) {
       updates.brand_color = brandColor;
     }
@@ -155,6 +163,11 @@ export default function OnboardingSetupScreen() {
       else if (uploadError) console.error('Logo upload failed:', uploadError);
     }
     const { error: dbError } = await supabase.from('organizations').update(updates).eq('id', organization.id);
+    // Separate write: VAT registration (grant from migration 20261002090000).
+    if (!dbError && vatLiable !== null) {
+      const { error: vatError } = await supabase.from('organizations').update({ vat_liable: vatLiable }).eq('id', organization.id);
+      if (vatError) console.error('vat_liable not saved:', vatError.message);
+    }
     if (dbError) {
       setError(dbError.message);
       return false;
@@ -261,6 +274,9 @@ export default function OnboardingSetupScreen() {
             setEmail={setEmail}
             ideNumber={ideNumber}
             setIdeNumber={setIdeNumber}
+            vatLiable={vatLiable}
+            setVatLiable={setVatLiable}
+            vatRate={organization?.default_vat_rate ?? 8.1}
             iban={iban}
             setIban={setIban}
             logoAsset={logoAsset}
@@ -340,6 +356,9 @@ function StepProfile({
   setEmail,
   ideNumber,
   setIdeNumber,
+  vatLiable,
+  setVatLiable,
+  vatRate,
   iban,
   setIban,
   logoAsset,
@@ -363,6 +382,9 @@ function StepProfile({
   setEmail: (v: string) => void;
   ideNumber: string;
   setIdeNumber: (v: string) => void;
+  vatLiable: boolean | null;
+  setVatLiable: (v: boolean) => void;
+  vatRate: number;
   iban: string;
   setIban: (v: string) => void;
   logoAsset: { uri: string } | null;
@@ -431,22 +453,13 @@ function StepProfile({
         </View>
       </View>
 
+      <VatQuestion liable={vatLiable} onLiableChange={setVatLiable} ide={ideNumber} onIdeChange={setIdeNumber} rate={vatRate} />
+
       <View style={styles.sectionDivider}>
         <Text style={styles.sectionDividerText}>{t('authOnboardingSetup.optionalSectionTitle')}</Text>
       </View>
-      <Field label={t('authOnboardingSetup.ideLabel')} value={ideNumber} onChangeText={setIdeNumber} placeholder="CHE-123.456.789" />
-      <Field
-        label={t('authOnboardingSetup.ibanLabel')}
-        value={iban}
-        onChangeText={(v) => setIban(formatIbanInput(v))}
-        autoCapitalize="characters"
-        placeholder="CH93 0076 2011 6238 5295 7"
-      />
-      {iban.trim() && !validIban ? (
-        <Text style={styles.errorHint}>{t('authOnboardingSetup.ibanInvalid')}</Text>
-      ) : (
-        <Text style={styles.hint}>{t('authOnboardingSetup.ibanHint')}</Text>
-      )}
+      <IbanField label={t('authOnboardingSetup.ibanLabel')} value={iban} onChangeText={setIban} />
+      {!iban.trim() ? <Text style={styles.hint}>{t('authOnboardingSetup.ibanHint')}</Text> : null}
     </View>
   );
 }

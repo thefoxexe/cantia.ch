@@ -1,6 +1,3 @@
--- À coller dans Supabase > SQL Editor > New query, puis Run.
--- TVA : permet d'enregistrer « assujetti à la TVA » + garde la TVA pour les entreprises qui ont déjà un numéro IDE valide.
-begin;
 -- VAT only applies to companies that are VAT-registered AND have a valid
 -- IDE number (lib/vat/vatStatus.ts).
 --
@@ -20,6 +17,3 @@ update public.organizations
   where not vat_liable
     and ide_number ~* 'CHE'
     and length(regexp_replace(ide_number, '\D', '', 'g')) = 9;
-
-insert into supabase_migrations.schema_migrations(version, name) values ('20261002090000', 'vat_registration') on conflict do nothing;
-commit;

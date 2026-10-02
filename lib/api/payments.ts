@@ -27,7 +27,7 @@ import { compactIban } from '../iban';
 // public algorithm (not Swiss-specific ambiguity), computed in 7-digit
 // chunks to stay within safe integer range on long IBANs.
 export function isValidIban(raw: string): boolean {
-  const iban = raw.replace(/\s+/g, '').toUpperCase();
+  const iban = raw.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
   if (!/^[A-Z]{2}[0-9]{2}[A-Z0-9]{10,30}$/.test(iban)) return false;
   const rearranged = iban.slice(4) + iban.slice(0, 4);
   const numeric = rearranged.replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
