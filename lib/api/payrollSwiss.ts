@@ -38,6 +38,8 @@ export function overridesFromProfile(profile: Partial<PayrollProfile>): SwissOve
     ijmEmployeePercent: num('ijmEmployeePercent'),
     ijmEmployerPercent: num('ijmEmployerPercent'),
     lppTotalPercent: num('lppTotalPercent'),
+    lppYoungPercent: num('lppYoungPercent'),
+    lppEmployerSharePercent: num('lppEmployerSharePercent'),
     cafEmployerPercent: num('cafEmployerPercent'),
     whtSubject: typeof o.whtSubject === 'boolean' ? (o.whtSubject as boolean) : null,
     whtCode: typeof o.whtCode === 'string' && o.whtCode ? (o.whtCode as string) : null,

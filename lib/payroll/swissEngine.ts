@@ -44,7 +44,13 @@ export interface SwissOverrides {
   aapPercent?: number | null;
   ijmEmployeePercent?: number | null;
   ijmEmployerPercent?: number | null;
-  lppTotalPercent?: number | null; // replaces the legal minimum credit by age
+  lppTotalPercent?: number | null; // the fund's own total rate from 25 (replaces the legal minimum credit)
+  // Many funds (often « surobligatoire » plans) already insure from 18:
+  // risk (death / disability) and sometimes savings. No legal rate, so
+  // only applied when the employer enters the fund's rate for 18-24.
+  lppYoungPercent?: number | null;
+  // Employer's share of the total LPP contribution, at least 50 % (art. 66 LPP).
+  lppEmployerSharePercent?: number | null;
   cafEmployerPercent?: number | null;
   whtSubject?: boolean | null;
   whtCode?: string | null;
@@ -81,7 +87,7 @@ export interface SwissPayroll {
   totalEmployer: number;
   totalCost: number; // gross + employer charges
   age: number | null;
-  lpp: { creditPercent: number; coordinatedMonthly: number; applies: boolean; reason: string };
+  lpp: { creditPercent: number; employerSharePercent: number; coordinatedMonthly: number; applies: boolean; reason: string };
   wht: WhtInfo;
 }
 
@@ -131,19 +137,27 @@ export function computeSwissPayroll(
   else if (annual < rates.lppEntryThresholdChf) {
     lppApplies = false;
     lppReason = `Salaire annuel sous le seuil d’entrée (CHF ${rates.lppEntryThresholdChf.toLocaleString('fr-CH')})`;
-  } else if (age !== null && age < 25 && o.lppTotalPercent == null) {
+  } else if (age !== null && age < 18) {
     lppApplies = false;
-    lppReason = 'Moins de 25 ans : pas encore d’épargne LPP (seulement le risque, selon la caisse)';
+    lppReason = 'Moins de 18 ans : pas de LPP';
+  } else if (age !== null && age < 25 && o.lppYoungPercent == null) {
+    lppApplies = false;
+    lppReason = 'De 18 à 24 ans, la loi n’impose pas d’épargne : indiquez le taux de votre caisse si elle assure dès 18 ans';
   }
-  const creditPercent = o.lppTotalPercent ?? (age === null ? 7 : lppCreditPercent(age));
+  const young = age !== null && age < 25;
+  const creditPercent = young ? o.lppYoungPercent ?? 0 : o.lppTotalPercent ?? (age === null ? 7 : lppCreditPercent(age));
+  // Employer pays at least half (art. 66 LPP); more if the plan says so.
+  const employerShare = Math.min(100, Math.max(50, o.lppEmployerSharePercent ?? 50)) / 100;
   const coordinatedAnnual = lppApplies
     ? Math.min(Math.max(annual - rates.lppCoordinationDeductionChf, rates.lppMinCoordinatedChf), rates.lppMaxInsuredChf - rates.lppCoordinationDeductionChf)
     : 0;
   const coordinatedMonthly = r2(coordinatedAnnual / 12);
   if (lppApplies && creditPercent > 0) {
-    const half = creditPercent / 2;
-    employee.push(line('lpp', 'LPP (2e pilier)', half, coordinatedMonthly, `Bonification ${creditPercent} % sur le salaire coordonné`));
-    employer.push(line('lpp', 'LPP (2e pilier)', half, coordinatedMonthly, `Bonification ${creditPercent} % sur le salaire coordonné`));
+    const erPct = r4(creditPercent * employerShare);
+    const eePct = r4(creditPercent - erPct);
+    const note = `${young ? 'Plan de la caisse dès 18 ans' : 'Bonification'} ${creditPercent} % sur le salaire coordonné`;
+    if (eePct > 0) employee.push(line('lpp', 'LPP (2e pilier)', eePct, coordinatedMonthly, note));
+    employer.push(line('lpp', 'LPP (2e pilier)', erPct, coordinatedMonthly, note));
   }
 
   // LAA: up to the same ceiling as AC.
@@ -219,9 +233,13 @@ export function computeSwissPayroll(
     totalEmployer,
     totalCost: r2(gross + totalEmployer),
     age,
-    lpp: { creditPercent: lppApplies ? creditPercent : 0, coordinatedMonthly, applies: lppApplies, reason: lppReason },
+    lpp: { creditPercent: lppApplies ? creditPercent : 0, employerSharePercent: employerShare * 100, coordinatedMonthly, applies: lppApplies, reason: lppReason },
     wht,
   };
+}
+
+function r4(n: number): number {
+  return Math.round(n * 10000) / 10000;
 }
 
 function line(key: string, label: string, ratePercent: number, base: number, note?: string): PayLine {

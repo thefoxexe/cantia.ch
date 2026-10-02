@@ -167,3 +167,21 @@ test('Family allowances = OFAS table 2026 (child / training, CHF per month)', as
   assert.deepEqual([FAMILY_ALLOWANCES.VD.child[1], FAMILY_ALLOWANCES.VD.training[1]], [365, 468]);
   assert.deepEqual([FAMILY_ALLOWANCES.VS.child[1], FAMILY_ALLOWANCES.VS.training[1]], [435, 585]);
 });
+
+test('LPP from 18 with the fund rate, and an employer share above 50 %', () => {
+  const twenty = { ...base, birthDate: '2006-03-01' }; // 20 in 2026
+  // No fund rate for 18-24: nothing (the law only requires savings from 25).
+  assert.equal(computeSwissPayroll(twenty, 5000, 2026).lpp.applies, false);
+  // Fund insures from 18 at 4 %: 60'000 − 26'460 = 33'540/yr = 2'795/month coordinated.
+  const p = computeSwissPayroll(twenty, 5000, 2026, { overrides: { lppYoungPercent: 4, lppEmployerSharePercent: 60 } });
+  assert.equal(p.lpp.applies, true);
+  assert.equal(p.lpp.creditPercent, 4);
+  assert.equal(amount(p.employee, 'lpp'), 44.7); // 2'795 × 1.6 % = 44.72
+  assert.equal(amount(p.employer, 'lpp'), 67.1); // 2'795 × 2.4 % = 67.08
+  // Under 18: never.
+  const sixteen = { ...base, birthDate: '2010-01-01' };
+  assert.equal(computeSwissPayroll(sixteen, 5000, 2026, { overrides: { lppYoungPercent: 4 } }).lpp.applies, false);
+  // A share below 50 % is raised to 50 % (art. 66 LPP).
+  const q = computeSwissPayroll(base, 5000, 2026, { overrides: { lppEmployerSharePercent: 30 } });
+  assert.equal(amount(q.employee, 'lpp'), amount(q.employer, 'lpp'));
+});

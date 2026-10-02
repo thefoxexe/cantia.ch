@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { documentVatRate } from '../../../lib/vat/vatStatus';
+import { documentVatRate, vatApplies } from '../../../lib/vat/vatStatus';
+import { VatRateChips } from '../../../components/VatRateChips';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -104,6 +105,9 @@ export default function NewDevisScreen() {
   // below the totals (see devis.notes) — distinct from org.devis_terms,
   // which is the organization's fixed, always-the-same legal mention.
   const [remark, setRemark] = useState('');
+  // Per document: a registered company can still issue one without VAT
+  // (excluded services such as insurance brokerage, art. 21 LTVA).
+  const [vatRate, setVatRate] = useState(() => documentVatRate(organization));
 
   useEffect(() => {
     if (!organization) return;
@@ -199,6 +203,7 @@ export default function NewDevisScreen() {
       setClientEmail(source.client_email ?? '');
       setClientId(source.client_id ?? null);
       setRemark(source.notes ?? '');
+      if (source.vat_rate != null) setVatRate(Number(source.vat_rate));
       if (source.project_id) {
         const { data: project } = await supabase.from('projects').select('id, name').eq('id', source.project_id).maybeSingle();
         if (project) setSelectedProject(project as Project);
@@ -473,7 +478,7 @@ export default function NewDevisScreen() {
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         valid_until: resolveValidUntil(),
-        vat_rate: documentVatRate(organization),
+        vat_rate: vatApplies(organization) ? vatRate : 0,
         notes: remark.trim() || null,
         created_by: user?.id,
       })
@@ -540,6 +545,7 @@ export default function NewDevisScreen() {
         project_id: selectedProject?.id ?? null,
         valid_until: resolveValidUntil(),
         notes: remark.trim() || null,
+        ...(vatApplies(organization) ? { vat_rate: vatRate } : {}),
       })
       .eq('id', id);
 
@@ -609,6 +615,7 @@ export default function NewDevisScreen() {
       lines={lines}
       discountPercent={discountPercent}
       remark={remark}
+      vatRate={vatApplies(organization) ? vatRate : 0}
     />
   );
 
@@ -648,6 +655,8 @@ export default function NewDevisScreen() {
           {organization ? (
             <ProjectPicker organizationId={organization.id} selectedProject={selectedProject} onSelect={setSelectedProject} />
           ) : null}
+
+          {vatApplies(organization) ? <VatRateChips value={vatRate} onChange={setVatRate} /> : null}
 
           <Text style={styles.sectionTitle}>{t('devisNew.validityTitle')}</Text>
           <View style={styles.validityChips}>

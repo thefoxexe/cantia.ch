@@ -27,6 +27,8 @@ interface Props {
   // — printed below the totals, ahead of the org-wide terms. Distinct from
   // organization.devis_terms, which is fixed across every document.
   remark?: string;
+  // The document's own VAT rate (per-document choice); defaults to the company's.
+  vatRate?: number;
 }
 
 // Same shape the real submit builds: the discount is one more (negative)
@@ -96,10 +98,10 @@ function readableTextColor(hex: string): string {
   return luminance > 0.5 ? INK : '#fff';
 }
 
-export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent, remark }: Props) {
+export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent, remark, vatRate: vatRateProp }: Props) {
   const { t } = useTranslation();
   const brandColor = safeHex(organization?.brand_color);
-  const vatRate = documentVatRate(organization);
+  const vatRate = vatRateProp ?? documentVatRate(organization);
   const docLabel = kind === 'devis' ? t('documentPreview.docLabelDevis') : t('documentPreview.docLabelFacture');
   const { tableRows, subtotal, vat, total } = computeDocumentTotals(lines, discountPercent, vatRate);
 

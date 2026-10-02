@@ -23,7 +23,7 @@ import type { PayrollProfile } from '../../lib/types';
 // under « avancé ».
 
 type Country = SwissSituation['residenceCountry'];
-type OverrideKey = 'aanpPercent' | 'aapPercent' | 'ijmEmployeePercent' | 'ijmEmployerPercent' | 'lppTotalPercent' | 'cafEmployerPercent' | 'whtRatePercent';
+type OverrideKey = 'aanpPercent' | 'aapPercent' | 'ijmEmployeePercent' | 'ijmEmployerPercent' | 'lppTotalPercent' | 'lppYoungPercent' | 'lppEmployerSharePercent' | 'cafEmployerPercent' | 'whtRatePercent';
 
 interface Draft {
   name: string;
@@ -91,6 +91,8 @@ function draftFrom(profile: Partial<PayrollProfile> | null, name: string): Draft
       ijmEmployeePercent: str('ijmEmployeePercent'),
       ijmEmployerPercent: str('ijmEmployerPercent'),
       lppTotalPercent: str('lppTotalPercent'),
+      lppYoungPercent: str('lppYoungPercent'),
+      lppEmployerSharePercent: str('lppEmployerSharePercent'),
       cafEmployerPercent: str('cafEmployerPercent'),
       whtRatePercent: str('whtRatePercent'),
     },
@@ -175,6 +177,8 @@ export function EmployeeWizard({
     ijmEmployeePercent: num(d.overrides.ijmEmployeePercent),
     ijmEmployerPercent: num(d.overrides.ijmEmployerPercent),
     lppTotalPercent: num(d.overrides.lppTotalPercent),
+    lppYoungPercent: num(d.overrides.lppYoungPercent),
+    lppEmployerSharePercent: num(d.overrides.lppEmployerSharePercent),
     cafEmployerPercent: num(d.overrides.cafEmployerPercent),
     whtRatePercent: num(d.overrides.whtRatePercent),
     whtCode: d.whtCode.trim() || null,
@@ -401,7 +405,11 @@ export function EmployeeWizard({
                 <Rate label="AC (chômage)" value={`${rates.acPercent} % + ${rates.acPercent} %`} />
                 <Rate
                   label={payroll.age != null && payroll.lpp.applies ? fill(c.lppAge, { pct: payroll.lpp.creditPercent, age: payroll.age }) : c.lppNone}
-                  value={payroll.lpp.applies ? `${payroll.lpp.creditPercent / 2} % + ${payroll.lpp.creditPercent / 2} %` : '—'}
+                  value={
+                    payroll.lpp.applies
+                      ? `${+(payroll.lpp.creditPercent * (1 - payroll.lpp.employerSharePercent / 100)).toFixed(3)} % + ${+(payroll.lpp.creditPercent * (payroll.lpp.employerSharePercent / 100)).toFixed(3)} %`
+                      : '—'
+                  }
                 />
               </Panel>
               <View style={styles.toggles}>
@@ -430,7 +438,9 @@ export function EmployeeWizard({
                         ['aapPercent', c.aap, DEFAULT_LAA.aapPercent],
                         ['ijmEmployeePercent', c.ijmEmp, 0],
                         ['ijmEmployerPercent', c.ijmEr, 0],
-                        ['lppTotalPercent', c.lppTotal, payroll.age != null ? lppCreditPercent(payroll.age) : 7],
+                        ['lppTotalPercent', c.lppTotal, payroll.age != null && payroll.age >= 25 ? lppCreditPercent(payroll.age) : 7],
+                        ['lppYoungPercent', c.lppYoung, 0],
+                        ['lppEmployerSharePercent', c.lppShare, 50],
                         ['cafEmployerPercent', c.cafEr, Number(caf.cafEmployerPercent.toFixed(3))],
                       ] as [OverrideKey, string, number][]
                     ).map(([k, label, auto]) => (
