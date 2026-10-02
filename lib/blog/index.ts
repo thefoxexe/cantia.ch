@@ -245,6 +245,7 @@ import { post as p241 } from './posts/rupture-stock-fournisseur-chantier-que-fai
 import { post as p242 } from './posts/saisie-conservatoire-creance-impayee-batiment';
 import { post as p243 } from './posts/succession-familiale-entreprise-artisanale-batiment';
 import { post as p244 } from './posts/transmettre-entreprise-batiment-retraite';
+import { post as p245 } from './posts/calcul-lpp-employe-taux-salaire-coordonne-2026';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -265,7 +266,7 @@ export const BLOG_POSTS: BlogPost[] = [
   p185, p186, p187, p188, p189, p190, p191, p192, p193, p194,
   p195, p196, p197, p198, p199, p200, p201, p202, p203, p204, p205, p206, p207, p208, p209, p210, p211, p212, p213, p214,
   p215, p216, p217, p218, p219, p220, p221, p222, p223, p224, p225, p226, p227, p228, p229, p230, p231, p232, p233, p234,
-  p235, p236, p237, p238, p239, p240, p241, p242, p243, p244,
+  p235, p236, p237, p238, p239, p240, p241, p242, p243, p244, p245,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

@@ -3824,6 +3824,19 @@ export const ROUTES = [
       { q: 'Que faire si aucun repreneur ne se présente ?', a: 'La cessation d’activité reste une option, avec la liquidation des actifs. Dans ce cas, anticiper permet au moins d’organiser la fin de l’activité et les obligations envers les employés et les chantiers en cours dans de bonnes conditions.' },
     ],
   },
+  {
+    path: 'blog/calcul-lpp-employe-taux-salaire-coordonne-2026',
+    title: 'Calcul LPP 2026 : taux par âge, salaire coordonné et exemples chiffrés | Cantia',
+    description:
+      'Seuil d’entrée, déduction de coordination, taux de 7 à 18 % selon l’âge, part employeur et plans dès 18 ans : le calcul de la LPP expliqué pas à pas avec exemples 2026.',
+    faq: [
+      { q: 'À partir de quel salaire faut-il cotiser à la LPP en 2026 ?', a: 'Dès un salaire annuel de CHF 22’680 (CHF 1’890 par mois) chez le même employeur. En dessous, l’affiliation n’est pas obligatoire.' },
+      { q: 'Quel est le taux LPP minimum pour un employé de 30 ans ?', a: '7 % du salaire coordonné au total, en général 3,5 % retenus sur le salaire et 3,5 % payés par l’employeur. La caisse peut prévoir davantage.' },
+      { q: 'Un employé de moins de 25 ans cotise-t-il à la LPP ?', a: 'La loi n’impose pas d’épargne avant 25 ans, seulement l’assurance des risques décès et invalidité dès 18 ans. Beaucoup de caisses prélèvent donc une petite cotisation dès 18 ans : c’est leur règlement qui fixe le taux.' },
+      { q: 'L’employeur peut-il payer moins de la moitié de la LPP ?', a: 'Non. L’employeur doit verser au moins la moitié des cotisations de ses employés (art. 66 LPP). Il peut en revanche payer plus, selon le règlement de la caisse.' },
+      { q: 'Que faire si le salaire dépasse CHF 90’720 par an ?', a: 'Pour le minimum légal, le salaire coordonné est plafonné à CHF 64’260 par an. Au-delà, seule une caisse avec un plan surobligatoire assure la part de salaire supplémentaire.' },
+    ],
+  },
   ...HELP_SEO_IT,
   ...BLOG_SEO_IT,
 ];
