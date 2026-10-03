@@ -14,6 +14,7 @@ import { CANTONS, DEFAULT_LAA, socialRatesFor, whtCode, type Canton, type Permit
 import { CALCULATOR_COPY, type CalculatorCopy } from '../lib/payroll/calculatorCopy';
 import { fill } from '../lib/payroll/wizardCopy';
 import { SimplePdf, downloadPdf, type Rgb } from '../lib/pdf/simplePdf';
+import { LeadGate } from '../components/tools/LeadGate';
 import { getAppLocale, type AppLocale } from '../lib/translations';
 import { supabase } from '../lib/supabase';
 import { breakpoints, colors, spacing } from '../lib/theme';
@@ -291,9 +292,7 @@ export default function SalaryCalculatorPage() {
 
       {Platform.OS === 'web' ? (
         <View style={styles.pdfRow}>
-          <Pressable onPress={onPdf} style={({ pressed }) => [styles.pdfButton, pressed && { opacity: 0.85 }]} accessibilityRole="button">
-            <Text style={styles.pdfButtonText}>↓  {c.pdfButton}</Text>
-          </Pressable>
+          <LeadGate source="outil:calculateur-salaire" locale={locale} onUnlock={onPdf} label={c.pdfButton} />
           <Text style={styles.hint}>{c.pdfHint}</Text>
         </View>
       ) : null}

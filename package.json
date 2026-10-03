@@ -63,7 +63,7 @@
     "build:marketing": "node scripts/build-marketing.mjs",
     "postinstall": "node scripts/patch-rnw-font.mjs",
     "test:health": "node --experimental-strip-types --no-warnings --test scripts/health.test.mjs",
-    "test:payroll": "node --experimental-strip-types --no-warnings --test scripts/payroll-engine.test.mjs scripts/vat-form.test.mjs scripts/iban.test.mjs scripts/treasury-curve.test.mjs scripts/closing.test.mjs"
+    "test:payroll": "node --experimental-strip-types --no-warnings --test scripts/payroll-engine.test.mjs scripts/vat-form.test.mjs scripts/iban.test.mjs scripts/treasury-curve.test.mjs scripts/closing.test.mjs scripts/tools.test.mjs"
   },
   "private": true
 }

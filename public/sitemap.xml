@@ -13,6 +13,42 @@
     <priority>0.2</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/outils</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/outils/calcul-taux-horaire</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/outils/calcul-tva</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/outils/calcul-marge</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/outils/interets-de-retard</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/outils/indemnite-vacances</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/calculateur-salaire</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>monthly</changefreq>

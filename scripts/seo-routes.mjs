@@ -28,6 +28,132 @@ export const ROUTES = [
       'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, 14 jours d’essai.',
   },
   {
+    path: 'outils',
+    title: "Outils gratuits pour les entreprises du bâtiment en Suisse | Cantia",
+    description:
+      "Calculateurs gratuits : salaire net et charges, taux horaire, TVA, marge, intérêts de retard, indemnité de vacances. Aux règles suisses 2026, sans inscription.",
+  },
+  {
+    path: 'outils/calcul-taux-horaire',
+    title: "Calcul du taux horaire artisan en Suisse (gratuit) | Cantia",
+    description:
+      "Calculez le prix de revient d’une heure et le taux horaire à facturer : salaires, 13e, charges sociales, frais généraux et marge. Outil gratuit pour les entreprises du bâtiment.",
+    faq: [
+      {
+        q: "Comment calculer le taux horaire d’un artisan en Suisse ?",
+        a: "Additionnez sur une année les salaires bruts (13e salaire compris), les charges patronales (environ 14 à 18 % : AVS, AC, LPP, LAA, allocations familiales) et les frais généraux (loyer, véhicules, assurances, outillage, administration). Divisez par les heures réellement facturables, puis ajoutez votre marge : vous obtenez le taux horaire de vente hors TVA.",
+      },
+      {
+        q: "Combien d’heures facturables compter par employé ?",
+        a: "Un plein temps à 42 heures représente environ 2’100 heures par an. Après vacances, jours fériés, maladie, formation, déplacements et temps non facturable (préparation, rangement, garanties), il reste en général 1’500 à 1’700 heures réellement facturées.",
+      },
+      {
+        q: "Quelle marge appliquer sur le taux horaire ?",
+        a: "Dans le bâtiment, une marge bénéficiaire de 5 à 15 % du prix de vente est courante. Elle doit couvrir les risques (dépassements, mauvais payeurs) et permettre d’investir. Le calculateur montre aussi le bénéfice annuel que représente votre marge.",
+      },
+      {
+        q: "Le taux horaire inclut-il la TVA ?",
+        a: "Non, le taux calculé est hors TVA. Si vous êtes assujetti, ajoutez 8,1 % sur la facture ; le calculateur affiche aussi le taux TTC.",
+      },
+    ],
+  },
+  {
+    path: 'outils/calcul-tva',
+    title: "Calcul TVA Suisse 2026 : HT ↔ TTC à 8,1 %, 2,6 %, 3,8 % | Cantia",
+    description:
+      "Calculateur de TVA suisse gratuit : passez du hors taxe au TTC et inversement aux taux 2026 (8,1 %, 2,6 %, 3,8 %), avec arrondi aux 5 centimes.",
+    faq: [
+      {
+        q: "Quels sont les taux de TVA en Suisse en 2026 ?",
+        a: "Depuis le 1er janvier 2024 : 8,1 % (taux normal, la plupart des travaux et prestations du bâtiment), 2,6 % (taux réduit : denrées alimentaires, livres, médicaments) et 3,8 % (taux spécial pour l’hébergement).",
+      },
+      {
+        q: "Comment passer d’un prix TTC à un prix HT ?",
+        a: "Divisez le prix TTC par 1 + le taux. Au taux normal : HT = TTC ÷ 1,081. La TVA vaut alors TTC − HT. Par exemple, CHF 1’081 TTC = CHF 1’000 HT + CHF 81 de TVA.",
+      },
+      {
+        q: "Faut-il arrondir la TVA aux 5 centimes ?",
+        a: "Sur une facture, l’arrondi aux 5 centimes est l’usage en Suisse pour les montants payables en espèces, mais il n’est pas obligatoire. Dans le décompte TVA, seul le montant final peut être arrondi, en faveur du contribuable.",
+      },
+      {
+        q: "À partir de quel chiffre d’affaires faut-il s’assujettir à la TVA ?",
+        a: "L’assujettissement est obligatoire dès CHF 100’000 de chiffre d’affaires annuel provenant de prestations imposables en Suisse. En dessous, on peut s’assujettir volontairement pour récupérer la TVA sur les achats.",
+      },
+    ],
+  },
+  {
+    path: 'outils/calcul-marge',
+    title: "Calcul de marge et prix de vente (marge, majoration, coefficient) | Cantia",
+    description:
+      "Calculez votre prix de vente à partir du coût et de la marge souhaitée, et comprenez la différence entre marge, majoration et coefficient. Outil gratuit.",
+    faq: [
+      {
+        q: "Quelle est la différence entre marge et majoration ?",
+        a: "La marge se calcule sur le prix de vente, la majoration (ou taux de marque) sur le coût. Un matériel acheté CHF 100 et revendu CHF 125 donne CHF 25 de bénéfice : 20 % de marge (25 ÷ 125) mais 25 % de majoration (25 ÷ 100). Confondre les deux fait perdre de l’argent sur chaque devis.",
+      },
+      {
+        q: "Comment calculer un prix de vente à partir d’une marge ?",
+        a: "Prix de vente = coût ÷ (1 − marge). Pour 20 % de marge sur un coût de CHF 100 : 100 ÷ 0,8 = CHF 125. Multiplier le coût par 1,20 ne donne que 16,7 % de marge.",
+      },
+      {
+        q: "Qu’est-ce que le coefficient multiplicateur ?",
+        a: "C’est le nombre par lequel multiplier le coût d’achat pour obtenir le prix de vente : prix ÷ coût. Un coefficient de 1,25 correspond à 25 % de majoration et 20 % de marge.",
+      },
+      {
+        q: "Quelle marge appliquer sur le matériel dans le bâtiment ?",
+        a: "Elle varie selon le métier et la concurrence : souvent 10 à 25 % sur le matériel fourni, davantage sur les petites fournitures. Elle doit couvrir la commande, le transport, le stockage, la garantie et le risque d’impayé.",
+      },
+    ],
+  },
+  {
+    path: 'outils/interets-de-retard',
+    title: "Calcul des intérêts de retard en Suisse (5 %, art. 104 CO) | Cantia",
+    description:
+      "Calculez gratuitement les intérêts moratoires d’une facture impayée selon le Code des obligations : 5 % par an dès l’échéance. Avec le total à réclamer.",
+    faq: [
+      {
+        q: "Quel est le taux d’intérêt de retard en Suisse ?",
+        a: "Le Code des obligations (art. 104 CO) fixe l’intérêt moratoire à 5 % par an, sauf si le contrat ou vos conditions générales prévoient un autre taux. Entre commerçants, un taux plus élevé peut être réclamé s’il correspond au taux d’escompte bancaire usuel.",
+      },
+      {
+        q: "À partir de quand courent les intérêts de retard ?",
+        a: "Si la facture indique une échéance précise (par exemple « payable à 30 jours »), le client est en demeure dès le lendemain de l’échéance, sans rappel (art. 102 al. 2 CO). Sans échéance fixe, il faut d’abord une interpellation, en pratique un rappel.",
+      },
+      {
+        q: "Peut-on facturer des frais de rappel ?",
+        a: "Seulement s’ils sont prévus dans le contrat ou les conditions générales acceptées par le client. Les intérêts moratoires, eux, sont dus de par la loi.",
+      },
+      {
+        q: "Comment calculer les intérêts de retard ?",
+        a: "Montant × taux × nombre de jours de retard ÷ 365. Pour une facture de CHF 10’000 payée 60 jours après l’échéance : 10’000 × 5 % × 60 ÷ 365 = CHF 82.20.",
+      },
+    ],
+  },
+  {
+    path: 'outils/indemnite-vacances',
+    title: "Indemnité de vacances salaire horaire : 8,33 %, 10,64 %, 13,04 % | Cantia",
+    description:
+      "Calculez l’indemnité de vacances d’un employé payé à l’heure en Suisse selon le nombre de semaines de vacances, avec le salaire horaire vacances comprises.",
+    faq: [
+      {
+        q: "Comment calculer l’indemnité de vacances d’un employé payé à l’heure ?",
+        a: "On ajoute au salaire horaire un pourcentage qui correspond aux semaines de vacances : semaines ÷ (52 − semaines). Pour 4 semaines : 8,33 % ; 5 semaines : 10,64 % ; 6 semaines : 13,04 %.",
+      },
+      {
+        q: "Combien de semaines de vacances au minimum en Suisse ?",
+        a: "Le Code des obligations prévoit au moins 4 semaines par an, et 5 semaines jusqu’à 20 ans révolus (art. 329a CO). Beaucoup de conventions collectives du bâtiment en prévoient davantage, par exemple 5 semaines dès 50 ans ou plus selon la CCT.",
+      },
+      {
+        q: "L’indemnité de vacances doit-elle apparaître sur la fiche de salaire ?",
+        a: "Oui. Le Tribunal fédéral admet le paiement des vacances avec le salaire uniquement pour un travail irrégulier, et à condition que le montant ou le pourcentage figure clairement sur chaque décompte de salaire.",
+      },
+      {
+        q: "Les jours fériés sont-ils compris ?",
+        a: "Non. Le pourcentage ne couvre que les vacances. Selon la CCT applicable, les jours fériés payés font l’objet d’une indemnité séparée (souvent environ 3 %).",
+      },
+    ],
+  },
+  {
     path: 'calculateur-salaire',
     title: 'Calculateur de salaire suisse 2026 : brut, net, LPP et charges | Cantia',
     description:
