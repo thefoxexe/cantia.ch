@@ -3,6 +3,7 @@ import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
+import { releaseHydrationViewport } from '../../lib/hydrationViewport';
 import { useAuth } from '../../lib/auth-context';
 import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
@@ -24,6 +25,10 @@ const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
       { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card' },
       { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up' },
     ],
+  },
+  {
+    title: 'Ma gestion',
+    items: [{ href: '/(admin)/compta', label: 'Comptabilité', icon: 'book' }],
   },
   {
     title: 'Produit',
@@ -69,6 +74,7 @@ function activeHrefFor(pathname: string): string | null {
 // so a request that somehow reaches this screen without it still fails at
 // the DB regardless of what this component renders.
 export default function AdminLayout() {
+  useEffect(releaseHydrationViewport, []);
   const { session, isPlatformAdmin, loading, signOut } = useAuth();
   const router = useRouter();
 

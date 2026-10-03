@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { releaseHydrationViewport } from '../../lib/hydrationViewport';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -128,6 +129,7 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 // component doesn't affect routing itself: expo-router resolves the active
 // child route the same way whether it's rendered by <Slot/> in either shell.
 export default function AppLayout() {
+  useEffect(releaseHydrationViewport, []);
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
   const { organization, canViewFinances, canManageDevis, canManagePayroll, permissions } = useAuth();

@@ -23,7 +23,7 @@ export function holdHydrationViewport(): void {
     (window.visualViewport ?? window).dispatchEvent(new Event('resize'));
   };
   // Pages that don't use <Screen> still get their real size.
-  setTimeout(releaseHydrationViewport, 3000);
+  setTimeout(releaseHydrationViewport, 1500);
 }
 
 export function releaseHydrationViewport(): void {

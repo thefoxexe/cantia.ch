@@ -84,8 +84,29 @@ const hex = (s: string) => `<${winAnsi(s).map((b) => b.toString(16).padStart(2, 
 export class SimplePdf {
   readonly width = A4[0];
   readonly height = A4[1];
-  private ops: string[] = [];
-  private links: { x: number; y: number; w: number; h: number; url: string }[] = [];
+  private pages: { ops: string[]; links: { x: number; y: number; w: number; h: number; url: string }[] }[] = [{ ops: [], links: [] }];
+  private current = 0;
+  private get ops() {
+    return this.pages[this.current].ops;
+  }
+  private get links() {
+    return this.pages[this.current].links;
+  }
+
+  // Starts a new page; drawing calls go to it from now on.
+  addPage() {
+    this.pages.push({ ops: [], links: [] });
+    this.current = this.pages.length - 1;
+  }
+
+  // Draw on an existing page again (e.g. « page 2 / 5 » once all pages exist).
+  goToPage(index: number) {
+    this.current = Math.max(0, Math.min(this.pages.length - 1, index));
+  }
+
+  get pageCount() {
+    return this.pages.length;
+  }
 
   text(s: string, x: number, y: number, opts: { size?: number; bold?: boolean; color?: Rgb; align?: 'left' | 'right' } = {}) {
     const size = opts.size ?? 10;
@@ -118,23 +139,32 @@ export class SimplePdf {
 
   // The whole file as a string of ASCII characters.
   build(title: string): string {
-    const content = this.ops.join('\n');
+    // Object numbers: 1 catalog, 2 pages, 3 font, 4 bold font, then per page
+    // [page, content, ...links], then info.
     const objs: string[] = [];
     objs.push('<< /Type /Catalog /Pages 2 0 R >>');
-    objs.push('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-    const annotIds = this.links.map((_, i) => 7 + i);
-    objs.push(
-      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${f(this.width)} ${f(this.height)}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R${
-        annotIds.length ? ` /Annots [${annotIds.map((id) => `${id} 0 R`).join(' ')}]` : ''
-      } >>`,
-    );
+    objs.push(''); // pages, filled in below
     objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
     objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
-    objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
-    for (const l of this.links) {
-      const y1 = this.height - l.y - l.h;
-      objs.push(`<< /Type /Annot /Subtype /Link /Rect [${f(l.x)} ${f(y1)} ${f(l.x + l.w)} ${f(y1 + l.h)}] /Border [0 0 0] /A << /S /URI /URI (${l.url.replace(/[()\\]/g, '')}) >> >>`);
+    const pageIds: number[] = [];
+    for (const page of this.pages) {
+      const pageId = objs.length + 1;
+      const contentId = pageId + 1;
+      const annotIds = page.links.map((_, i) => contentId + 1 + i);
+      pageIds.push(pageId);
+      objs.push(
+        `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${f(this.width)} ${f(this.height)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentId} 0 R${
+          annotIds.length ? ` /Annots [${annotIds.map((id) => `${id} 0 R`).join(' ')}]` : ''
+        } >>`,
+      );
+      const content = page.ops.join('\n');
+      objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      for (const l of page.links) {
+        const y1 = this.height - l.y - l.h;
+        objs.push(`<< /Type /Annot /Subtype /Link /Rect [${f(l.x)} ${f(y1)} ${f(l.x + l.w)} ${f(y1 + l.h)}] /Border [0 0 0] /A << /S /URI /URI (${l.url.replace(/[()\\]/g, '')}) >> >>`);
+      }
     }
+    objs[1] = `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(' ')}] /Count ${pageIds.length} >>`;
     objs.push(`<< /Title ${hex(title)} /Producer (Cantia) >>`);
     const infoId = objs.length;
 
