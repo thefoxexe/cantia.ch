@@ -21,6 +21,56 @@ const CATEGORY_META: Record<DashboardTaskCategory, { label: string; fg: string; 
 const CATEGORY_ORDER: DashboardTaskCategory[] = ['general', 'urgent', 'chantier', 'client', 'administratif'];
 type FilterKey = 'all' | DashboardTaskCategory;
 
+type DueKey = 'none' | 'today' | 'tomorrow' | 'friday' | 'nextweek';
+const DUE_OPTIONS: { value: DueKey; label: string }[] = [
+  { value: 'none', label: 'Aucune' },
+  { value: 'today', label: 'Aujourd’hui' },
+  { value: 'tomorrow', label: 'Demain' },
+  { value: 'friday', label: 'Vendredi' },
+  { value: 'nextweek', label: 'Dans une semaine' },
+];
+
+function todayIso(): string {
+  return isoOf(new Date());
+}
+
+function isoOf(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function dueDate(key: DueKey): string | null {
+  const d = new Date();
+  if (key === 'none') return null;
+  if (key === 'tomorrow') d.setDate(d.getDate() + 1);
+  if (key === 'friday') d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7));
+  if (key === 'nextweek') d.setDate(d.getDate() + 7);
+  return isoOf(d);
+}
+
+function formatDue(iso: string): string {
+  if (iso === todayIso()) return 'Aujourd’hui';
+  const label = new Date(`${iso}T12:00:00`).toLocaleDateString('fr-CH', { weekday: 'short', day: 'numeric', month: 'short' });
+  return iso < todayIso() ? `En retard · ${label}` : label;
+}
+
+function OptionRow<T extends string | null>({ label, value, onChange, options }: { label: string; value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.optionRow}>
+      <Text style={styles.optionLabel}>{label}</Text>
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <Pressable key={String(o.value)} onPress={() => onChange(o.value)} style={[styles.optionChip, active && styles.optionChipActive]}>
+            <Text style={[styles.optionChipText, active && styles.optionChipTextActive]} numberOfLines={1}>
+              {o.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
 export default function TachesScreen() {
   const { organization, user, role } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
@@ -30,17 +80,25 @@ export default function TachesScreen() {
   const [showDone, setShowDone] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState<DashboardTaskCategory>('general');
+  const [newProject, setNewProject] = useState<string | null>(null);
+  const [newDue, setNewDue] = useState<DueKey>('none');
+  const [newAssignee, setNewAssignee] = useState<string | null>(null);
+  const [projectFilter, setProjectFilter] = useState<string | 'all'>('all');
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
+  const [members, setMembers] = useState<{ user_id: string; full_name: string | null }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!organization) return;
     setLoading(true);
-    const { data } = await supabase
-      .from('dashboard_tasks')
-      .select('*')
-      .eq('organization_id', organization.id)
-      .order('created_at', { ascending: false });
+    const [{ data }, { data: proj }, { data: team }] = await Promise.all([
+      supabase.from('dashboard_tasks').select('*').eq('organization_id', organization.id).order('created_at', { ascending: false }),
+      supabase.from('projects').select('id, name').eq('organization_id', organization.id).eq('status', 'active').order('name'),
+      supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organization.id),
+    ]);
     setTasks((data ?? []) as DashboardTask[]);
+    setProjects(proj ?? []);
+    setMembers(team ?? []);
     setLoading(false);
   }, [organization]);
 
@@ -50,8 +108,18 @@ export default function TachesScreen() {
     }, [load]),
   );
 
-  const open = useMemo(() => tasks.filter((t) => !t.done && (filter === 'all' || t.category === filter)), [tasks, filter]);
-  const done = useMemo(() => tasks.filter((t) => t.done && (filter === 'all' || t.category === filter)), [tasks, filter]);
+  const matches = useCallback(
+    (t: DashboardTask) => (filter === 'all' || t.category === filter) && (projectFilter === 'all' || (projectFilter === '' ? !t.project_id : t.project_id === projectFilter)),
+    [filter, projectFilter],
+  );
+  // Open tasks: due first (earliest), then newest.
+  const open = useMemo(
+    () => tasks.filter((t) => !t.done && matches(t)).sort((a, b) => ((a.due_on ?? '9999') === (b.due_on ?? '9999') ? 0 : (a.due_on ?? '9999') < (b.due_on ?? '9999') ? -1 : 1)),
+    [tasks, matches],
+  );
+  const done = useMemo(() => tasks.filter((t) => t.done && matches(t)), [tasks, matches]);
+  const projectName = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects]);
+  const memberName = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.full_name || 'Membre'])), [members]);
 
   async function handleAdd() {
     const title = newTitle.trim();
@@ -59,7 +127,15 @@ export default function TachesScreen() {
     setError(null);
     const { data, error: err } = await supabase
       .from('dashboard_tasks')
-      .insert({ organization_id: organization.id, title, category: newCategory, created_by: user?.id ?? null })
+      .insert({
+        organization_id: organization.id,
+        title,
+        category: newCategory,
+        created_by: user?.id ?? null,
+        project_id: newProject,
+        due_on: dueDate(newDue),
+        assigned_to: newAssignee,
+      })
       .select('*')
       .single();
     if (err) {
@@ -67,6 +143,7 @@ export default function TachesScreen() {
       return;
     }
     setNewTitle('');
+    setNewDue('none');
     setTasks((prev) => [data as DashboardTask, ...prev]);
   }
 
@@ -104,8 +181,25 @@ export default function TachesScreen() {
         </Pressable>
         <View style={{ flex: 1 }}>
           <Text style={[styles.taskTitle, task.done && styles.taskTitleDone]}>{task.title}</Text>
-          <View style={[styles.categoryPill, { backgroundColor: meta.bg }]}>
-            <Text style={[styles.categoryPillText, { color: meta.fg }]}>{applyWorkTerm(meta.label, 'fr')}</Text>
+          <View style={styles.metaRow}>
+            <View style={[styles.categoryPill, { backgroundColor: meta.bg }]}>
+              <Text style={[styles.categoryPillText, { color: meta.fg }]}>{applyWorkTerm(meta.label, 'fr')}</Text>
+            </View>
+            {task.project_id && projectName[task.project_id] ? (
+              <Text style={styles.metaText}>
+                <Feather name="layers" size={11} /> {projectName[task.project_id]}
+              </Text>
+            ) : null}
+            {task.due_on ? (
+              <Text style={[styles.metaText, !task.done && task.due_on < todayIso() && { color: colors.danger }]}>
+                <Feather name="calendar" size={11} /> {formatDue(task.due_on)}
+              </Text>
+            ) : null}
+            {task.assigned_to ? (
+              <Text style={styles.metaText}>
+                <Feather name="user" size={11} /> {memberName[task.assigned_to] ?? 'Membre'}
+              </Text>
+            ) : null}
           </View>
         </View>
         {canDelete ? (
@@ -153,6 +247,23 @@ export default function TachesScreen() {
               );
             })}
           </View>
+          {projects.length ? (
+            <OptionRow
+              label={applyWorkTerm('Chantier', 'fr')}
+              value={newProject}
+              onChange={setNewProject}
+              options={[{ value: null, label: 'Aucun' }, ...projects.map((p) => ({ value: p.id, label: p.name }))]}
+            />
+          ) : null}
+          <OptionRow label="Échéance" value={newDue} onChange={(v) => setNewDue(v as DueKey)} options={DUE_OPTIONS} />
+          {members.length > 1 ? (
+            <OptionRow
+              label="Pour"
+              value={newAssignee}
+              onChange={setNewAssignee}
+              options={[{ value: null, label: 'Toute l’équipe' }, ...members.map((m) => ({ value: m.user_id, label: m.full_name || 'Membre' }))]}
+            />
+          ) : null}
         </Card>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -167,6 +278,24 @@ export default function TachesScreen() {
             </Pressable>
           ))}
         </View>
+
+        {projects.length ? (
+          <View style={styles.filterRow}>
+            <Pressable onPress={() => setProjectFilter('all')} style={[styles.filterChip, projectFilter === 'all' && styles.filterChipActive]}>
+              <Text style={[styles.filterChipText, projectFilter === 'all' && styles.filterChipTextActive]}>{applyWorkTerm('Tous les chantiers', 'fr')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setProjectFilter('')} style={[styles.filterChip, projectFilter === '' && styles.filterChipActive]}>
+              <Text style={[styles.filterChipText, projectFilter === '' && styles.filterChipTextActive]}>{applyWorkTerm('Sans chantier', 'fr')}</Text>
+            </Pressable>
+            {projects.map((p) => (
+              <Pressable key={p.id} onPress={() => setProjectFilter(p.id)} style={[styles.filterChip, projectFilter === p.id && styles.filterChipActive]}>
+                <Text style={[styles.filterChipText, projectFilter === p.id && styles.filterChipTextActive]} numberOfLines={1}>
+                  {p.name}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
 
         {loading ? (
           <LoadingScreen />
@@ -198,6 +327,14 @@ export default function TachesScreen() {
 }
 
 const styles = StyleSheet.create({
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm, marginTop: 4 },
+  metaText: { fontSize: fontSize.xs, color: colors.textMuted },
+  optionRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  optionLabel: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted, width: 70 },
+  optionChip: { paddingHorizontal: spacing.sm, paddingVertical: 5, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, maxWidth: 200 },
+  optionChipActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  optionChipText: { fontSize: fontSize.xs, fontWeight: '600', color: colors.text },
+  optionChipTextActive: { color: colors.primaryDark },
   container: {
     flex: 1,
     maxWidth: 720,

@@ -360,6 +360,10 @@ export interface DashboardTask {
   done_at: string | null;
   created_by: string | null;
   created_at: string;
+  // Migration 20261003100000: optional chantier, due date and assignee.
+  project_id?: string | null;
+  due_on?: string | null;
+  assigned_to?: string | null;
 }
 
 export type ExtraWorkStatus = 'draft' | 'sent' | 'accepted' | 'refused';
