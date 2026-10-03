@@ -17,8 +17,141 @@ export interface LedgerEntry {
   reference: string | null;
   receipt_path: string | null;
   notes: string | null;
-  source: 'manuel' | 'stripe';
+  source: 'manuel' | 'stripe' | 'recurrent';
   source_id: string | null;
+  proof?: ProofKind | null; // how it is justified when no file is attached
+  recurring_id?: string | null;
+}
+
+// ---- Justificatifs ----------------------------------------------------------
+// A file attached is the best proof. Without one, the entry says where the
+// proof is: an invoice that can be downloaded any time from the supplier's
+// account (Google Ads, Meta, Stripe…), the bank or card statement only, or an
+// internal receipt written when no document exists (parking meter, tip…).
+export type ProofKind = 'piece' | 'facture_en_ligne' | 'releve' | 'quittance_interne';
+
+export const PROOFS: { key: ProofKind; label: string; short: string; level: 'ok' | 'weak' }[] = [
+  { key: 'piece', label: 'Facture ou ticket conservé (papier ou PDF ailleurs)', short: 'Pièce conservée', level: 'ok' },
+  { key: 'facture_en_ligne', label: 'Facture téléchargeable dans le compte du fournisseur', short: 'Facture en ligne', level: 'ok' },
+  { key: 'quittance_interne', label: 'Quittance interne (aucun document n’existe)', short: 'Quittance interne', level: 'weak' },
+  { key: 'releve', label: 'Seulement le relevé bancaire ou de carte', short: 'Relevé seul', level: 'weak' },
+];
+
+export type ProofStatus = 'file' | 'stripe' | 'declared' | 'weak' | 'missing' | 'na';
+
+// Income needs no receipt from you (your own invoices / Stripe are the proof).
+export function proofStatus(e: Pick<LedgerEntry, 'kind' | 'receipt_path' | 'source' | 'proof'>): ProofStatus {
+  if (e.kind === 'recette') return 'na';
+  if (e.receipt_path) return e.proof === 'quittance_interne' ? 'weak' : 'file';
+  if (e.source === 'stripe') return 'stripe';
+  if (!e.proof) return 'missing';
+  return PROOFS.find((p) => p.key === e.proof)?.level === 'weak' ? 'weak' : 'declared';
+}
+
+export function isJustified(e: Pick<LedgerEntry, 'kind' | 'receipt_path' | 'source' | 'proof'>): boolean {
+  return proofStatus(e) !== 'missing';
+}
+
+// What to keep, by expense category, and where to find it.
+export const PROOF_GUIDE: Record<string, string> = {
+  logiciels: 'Facture mensuelle ou annuelle dans le compte du service (Billing / Facturation). Téléchargez le PDF chaque mois ou chaque année.',
+  marketing: 'Google Ads : Facturation › Documents (une facture ou un reçu par paiement). Meta : Paramètres de facturation › Activité de paiement › Télécharger. LinkedIn : Campaign Manager › Historique de facturation. Ces documents existent toujours, même si vous ne les avez pas encore téléchargés.',
+  materiel: 'Facture ou ticket de caisse. À partir d’environ CHF 1’000, le matériel durable est en principe amorti sur plusieurs années plutôt que déduit d’un coup : demandez à votre fiduciaire.',
+  telecom: 'Facture de l’opérateur (My Swisscom, Salt, Sunrise…). Si l’abonnement sert aussi en privé, ne comptez que la part professionnelle et notez le pourcentage.',
+  deplacements: 'Billets CFF (historique d’achats SwissPass), tickets de parking, carburant. Voiture privée : carnet de bord (date, trajet, km, motif), puis un forfait par km.',
+  repas: 'Ticket + au dos ou en note : avec qui et dans quel but professionnel. Vos repas seuls en déplacement sont souvent limités par le fisc.',
+  bureau: 'Contrat de bail et quittances. Bureau à domicile : seulement si une pièce sert surtout à l’activité ; notez la surface et le calcul.',
+  assurances: 'Police et facture de prime (RC professionnelle, choses…). Les primes privées (maladie, 3e pilier) ne vont pas ici.',
+  formation: 'Facture du cours, du livre ou de l’abonnement. Le lien avec l’activité actuelle doit être clair.',
+  honoraires: 'Facture de la fiduciaire, de l’avocat ou du notaire.',
+  sous_traitance: 'Facture du freelance ou du sous-traitant, avec son nom et son adresse.',
+  frais_financiers: 'Relevé de frais de la banque ou rapport de frais Stripe / TWINT. Le relevé suffit généralement.',
+  taxes: 'Décision ou facture de l’autorité (registre du commerce, émoluments).',
+  autres_charges: 'Facture ou ticket, et une note sur le lien avec l’activité.',
+};
+
+// ---- Récurrents -------------------------------------------------------------
+export type Frequency = 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+
+export const FREQUENCIES: { key: Frequency; label: string; perYear: number }[] = [
+  { key: 'weekly', label: 'Chaque semaine', perYear: 52 },
+  { key: 'monthly', label: 'Chaque mois', perYear: 12 },
+  { key: 'quarterly', label: 'Chaque trimestre', perYear: 4 },
+  { key: 'yearly', label: 'Chaque année', perYear: 1 },
+];
+
+export interface RecurringRule {
+  id: string;
+  kind: LedgerKind;
+  category: string;
+  label: string;
+  counterparty: string | null;
+  amount_chf: number;
+  vat_rate: number;
+  payment_method: string | null;
+  frequency: Frequency;
+  day_of_month: number;
+  start_date: string;
+  end_date: string | null;
+  last_date: string | null;
+  proof: ProofKind | null;
+  notes: string | null;
+  active: boolean;
+}
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const isoOf = (d: Date) => `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+const dim = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).getUTCDate(); // m: 1-12
+
+// Every date of the rule from its start up to `until` (inclusive), capped.
+export function occurrences(rule: Pick<RecurringRule, 'frequency' | 'day_of_month' | 'start_date' | 'end_date'>, until: string, cap = 400): string[] {
+  const end = rule.end_date && rule.end_date < until ? rule.end_date : until;
+  const out: string[] = [];
+  if (rule.start_date > end) return out;
+  if (rule.frequency === 'weekly') {
+    const d = new Date(`${rule.start_date}T00:00:00Z`);
+    while (out.length < cap) {
+      const iso = isoOf(d);
+      if (iso > end) break;
+      out.push(iso);
+      d.setUTCDate(d.getUTCDate() + 7);
+    }
+    return out;
+  }
+  const step = rule.frequency === 'monthly' ? 1 : rule.frequency === 'quarterly' ? 3 : 12;
+  let y = Number(rule.start_date.slice(0, 4));
+  let m = Number(rule.start_date.slice(5, 7));
+  // First occurrence on or after the start date.
+  if (Math.min(rule.day_of_month, dim(y, m)) < Number(rule.start_date.slice(8, 10))) {
+    m += step;
+    while (m > 12) (m -= 12), (y += 1);
+  }
+  while (out.length < cap) {
+    const iso = `${y}-${pad2(m)}-${pad2(Math.min(rule.day_of_month, dim(y, m)))}`;
+    if (iso > end) break;
+    out.push(iso);
+    m += step;
+    while (m > 12) (m -= 12), (y += 1);
+  }
+  return out;
+}
+
+// Occurrences not posted yet (after last_date), up to today.
+export function dueOccurrences(rule: RecurringRule, today: string): string[] {
+  if (!rule.active) return [];
+  return occurrences(rule, today).filter((d) => !rule.last_date || d > rule.last_date);
+}
+
+export function nextOccurrence(rule: RecurringRule, today: string): string | null {
+  if (!rule.active) return null;
+  const y = Number(today.slice(0, 4));
+  const list = occurrences(rule, `${y + 2}-12-31`).filter((d) => d > today && (!rule.last_date || d > rule.last_date));
+  return list[0] ?? null;
+}
+
+export function monthlyEquivalent(rule: Pick<RecurringRule, 'frequency' | 'amount_chf'>): number {
+  const f = FREQUENCIES.find((x) => x.key === rule.frequency)?.perYear ?? 12;
+  return r2((Number(rule.amount_chf) * f) / 12);
 }
 
 export const CATEGORIES: Record<LedgerKind, { key: string; label: string }[]> = {
@@ -69,7 +202,7 @@ export function filterEntries(entries: LedgerEntry[], f: LedgerFilter): LedgerEn
       (!f.to || e.entry_date <= f.to) &&
       (!f.kind || f.kind === 'all' || e.kind === f.kind) &&
       (!f.categories?.length || f.categories.includes(e.category)) &&
-      (!f.missingReceipt || !e.receipt_path) &&
+      (!f.missingReceipt || !isJustified(e)) &&
       (!q || [e.label, e.counterparty, e.reference, e.notes].some((v) => v?.toLowerCase().includes(q))),
   );
 }
@@ -85,7 +218,8 @@ export interface LedgerSummary {
   incomeVat: number;
   expensesVat: number;
   count: number;
-  missingReceipts: number; // expenses without a receipt
+  missingReceipts: number; // expenses with no proof at all
+  weakProofs: number; // bank statement only / internal receipt
   byCategory: { kind: LedgerKind; category: string; label: string; total: number; count: number; share: number }[];
   byMonth: { month: string; income: number; expenses: number; profit: number; cumulative: number }[];
 }
@@ -198,7 +332,8 @@ export function summarize(entries: LedgerEntry[], period?: number | { from: stri
     incomeVat: r2(incomeVat),
     expensesVat: r2(expensesVat),
     count: entries.length,
-    missingReceipts: entries.filter((e) => e.kind === 'depense' && !e.receipt_path).length,
+    missingReceipts: entries.filter((e) => !isJustified(e)).length,
+    weakProofs: entries.filter((e) => proofStatus(e) === 'weak').length,
     byCategory,
     byMonth,
   };
@@ -222,7 +357,7 @@ export function ledgerCsv(entries: LedgerEntry[]): string {
         String(e.vat_rate ?? 0),
         vatIncluded(Number(e.amount_chf), Number(e.vat_rate)).toFixed(2),
         (e.kind === 'depense' ? -1 : 1) * Number(e.amount_chf) + '',
-        e.receipt_path ? 'oui' : 'non',
+        e.receipt_path ? 'fichier joint' : e.source === 'stripe' ? 'Stripe' : PROOFS.find((p) => p.key === e.proof)?.short ?? (e.kind === 'recette' ? '' : 'manquant'),
         e.notes ?? '',
       ]
         .map(esc)

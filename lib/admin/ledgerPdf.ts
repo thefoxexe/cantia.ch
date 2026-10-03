@@ -1,5 +1,5 @@
 import { SimplePdf, downloadPdf, textWidth, type Rgb } from '../pdf/simplePdf.ts';
-import { categoryLabel, fullYearOf, summarize, vatIncluded, type LedgerEntry } from './ledgerCalc.ts';
+import { categoryLabel, fullYearOf, proofStatus, summarize, vatIncluded, type LedgerEntry } from './ledgerCalc.ts';
 
 // Yearly report of admin › Comptabilité: the income statement of a
 // self-employed person keeping « recettes et dépenses » books (art. 957
@@ -245,7 +245,9 @@ export function buildLedgerReport(opts: LedgerReportOptions): { pdf: string; fil
     const lbl = `${e.counterparty ? `${e.label} · ${e.counterparty}` : e.label}${vat}`;
     doc.text(fit(lbl, 8, jcols.ref - jcols.label - 8), jcols.label, y, { size: 8 });
     doc.text(fit(e.reference ?? '', 8, jcols.just - jcols.ref - 6), jcols.ref, y, { size: 8, color: MUTED });
-    doc.text(e.receipt_path ? 'oui' : e.source === 'stripe' ? 'Stripe' : '—', jcols.just, y, { size: 8, color: e.receipt_path || e.source === 'stripe' ? GREEN : RED });
+    const st = proofStatus(e);
+    const proofText = { file: 'oui', stripe: 'Stripe', declared: e.proof === 'facture_en_ligne' ? 'en ligne' : 'conservée', weak: e.proof === 'releve' ? 'relevé' : 'quittance', missing: '—', na: '' }[st];
+    doc.text(proofText, jcols.just, y, { size: 8, color: st === 'missing' ? RED : st === 'weak' ? [156, 101, 16] : GREEN });
     doc.text(chf(sign * Number(e.amount_chf)), jcols.amount, y, { size: 8, align: 'right', color: sign < 0 ? RED : INK });
   });
   y += 17;
@@ -282,4 +284,57 @@ export function buildLedgerReport(opts: LedgerReportOptions): { pdf: string; fil
     doc.text('Établi avec Cantia', L, doc.height - 26, { size: 7.5, color: MUTED });
   }
   return { pdf: doc.build(title), file: year ? `${title.toLowerCase().replace(/\s+/g, '-')}.pdf` : `compte-de-resultat-${opts.from}-au-${opts.to}.pdf` };
+}
+
+// Pièce justificative interne: one page, for an expense with no document
+// (parking meter, tip, lost ticket). Weaker than a real receipt; keep it
+// for exceptions, together with the bank or card statement line.
+export function buildInternalReceipt(e: LedgerEntry, holder: LedgerHolder, reason: string): { pdf: string; file: string } {
+  const doc = new SimplePdf();
+  const L = 56;
+  const R = doc.width - 56;
+  const W = R - L;
+  doc.rect(0, 0, doc.width, 5, BRAND);
+  doc.text('Quittance interne', L, 64, { size: 22, bold: true });
+  doc.text('Pièce justificative établie faute de document du fournisseur', L, 84, { size: 10, color: MUTED });
+  let y = 124;
+  const rows: [string, string][] = [
+    ['Établie par', holder.name || '—'],
+    ['Activité', holder.activity || '—'],
+    ['Date de la dépense', swiss(e.entry_date)],
+    ['Montant payé', `CHF ${chf(Number(e.amount_chf))}`],
+    ['Bénéficiaire', e.counterparty || '—'],
+    ['Objet', e.label],
+    ['Catégorie', categoryLabel(e.kind, e.category)],
+    ['Moyen de paiement', ({ banque: 'Virement', carte: 'Carte', twint: 'TWINT', especes: 'Espèces', stripe: 'Stripe', autre: 'Autre' } as Record<string, string>)[e.payment_method ?? ''] ?? '—'],
+    ['Référence', e.reference || '—'],
+  ];
+  doc.rect(L, y - 14, W, rows.length * 22 + 16, SOFT);
+  for (const [k, v] of rows) {
+    doc.text(k, L + 14, y + 4, { size: 9, color: MUTED });
+    doc.text(fit(v, 10.5, W - 170), L + 150, y + 4, { size: 10.5, bold: true });
+    y += 22;
+  }
+  y += 30;
+  doc.text('Pourquoi il n’y a pas de justificatif', L, y, { size: 11.5, bold: true });
+  y = doc.paragraph(reason || '—', L, y + 18, W, { size: 10, leading: 14 });
+  y += 18;
+  doc.text('Lien avec l’activité', L, y, { size: 11.5, bold: true });
+  y = doc.paragraph(e.notes?.trim() || 'Dépense engagée pour les besoins de l’activité indépendante.', L, y + 18, W, { size: 10, leading: 14 });
+  y += 30;
+  y = doc.paragraph(
+    'Le/la soussigné(e) atteste que la dépense ci-dessus a été réellement payée pour les besoins de l’activité et qu’aucun autre justificatif n’a pu être obtenu. La ligne correspondante du relevé bancaire ou de carte est conservée avec cette quittance.',
+    L,
+    y,
+    W,
+    { size: 9.5, leading: 13.5, color: MUTED },
+  );
+  y += 50;
+  doc.line(L, y, L + 200, y, INK, 0.7);
+  doc.line(R - 200, y, R, y, INK, 0.7);
+  doc.text('Lieu et date', L, y + 14, { size: 8.5, color: MUTED });
+  doc.text('Signature', R - 200, y + 14, { size: 8.5, color: MUTED });
+  doc.text(`Établie le ${swiss(new Date().toISOString().slice(0, 10))} avec Cantia`, L, doc.height - 40, { size: 8, color: MUTED });
+  const safe = e.label.normalize('NFD').replace(/[^\w-]+/g, '-').slice(0, 40).toLowerCase();
+  return { pdf: doc.build(`Quittance interne ${swiss(e.entry_date)}`), file: `quittance-${e.entry_date}-${safe}.pdf` };
 }

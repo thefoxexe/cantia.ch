@@ -1,50 +1,40 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import Svg, { G, Line, Rect, Text as SvgText } from 'react-native-svg';
-import { Container } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
-import { CATEGORIES, categoryLabel, filterEntries, ledgerCsv, periodPresets, summarize, type LedgerEntry, type LedgerFilter, type LedgerKind } from '../../../lib/admin/ledgerCalc';
 import { DateField } from '../../../components/DateField';
-import { deleteLedgerEntry, importStripe, listLedger, receiptUrl, saveLedgerEntry, uploadReceipt, type LedgerInput } from '../../../lib/admin/ledgerApi';
-import { downloadLedgerReport, type LedgerHolder } from '../../../lib/admin/ledgerPdf';
-import { downloadText } from '../../../lib/api/closing';
+import { categoryLabel, CATEGORIES, dueOccurrences, filterEntries, proofStatus, summarize, type LedgerEntry, type LedgerKind, type ProofKind, type RecurringRule } from '../../../lib/admin/ledgerCalc';
+import {
+  attachGeneratedReceipt,
+  deleteLedgerEntry,
+  importStripe,
+  ledgerV2,
+  listLedger,
+  listRecurring,
+  postDueRecurring,
+  receiptUrl,
+  saveLedgerEntry,
+  uploadReceipt,
+} from '../../../lib/admin/ledgerApi';
+import { buildInternalReceipt, type LedgerHolder } from '../../../lib/admin/ledgerPdf';
+import { downloadPdf } from '../../../lib/pdf/simplePdf';
 import { confirm } from '../../../lib/confirm';
-import { breakpoints, colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { displayType, monoType } from '../../../lib/marketingTheme';
+import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { Btn, CategoryIcon, chf, Chip, kit, MONTHS_LONG, MonthChart, parseAmount, ProofBadge, Segmented, swiss, todayIso, usePhone } from '../../../components/admin/ledger/kit';
+import { EntryModal, emptyEntry, type EntryDraft } from '../../../components/admin/ledger/EntryModal';
+import { RecurringTab } from '../../../components/admin/ledger/RecurringTab';
+import { ProofGuide } from '../../../components/admin/ledger/ProofGuide';
+import { ExportDialog } from '../../../components/admin/ledger/ExportDialog';
 
-// Admin › Comptabilité: the platform owner's own books as a self-employed
-// person — every income and expense with its receipt, filters, the result
-// by category and by month, and the yearly report (PDF) to give the AVS or
-// the tax office. Stripe payments and fees import in one click.
+// Admin › Ma gestion › Comptabilité: the self-employed bookkeeping of the
+// platform owner. Journal of income and expenses with receipts, recurring
+// entries, how each expense is justified, and the report (PDF) for the AVS
+// or the tax office.
 
 const HOLDER_KEY = 'cantia.admin.ledger.holder';
-const PAYMENT_METHODS: { key: string; label: string }[] = [
-  { key: 'banque', label: 'Virement' },
-  { key: 'carte', label: 'Carte' },
-  { key: 'twint', label: 'TWINT' },
-  { key: 'especes', label: 'Espèces' },
-  { key: 'stripe', label: 'Stripe' },
-  { key: 'autre', label: 'Autre' },
-];
-const VAT_RATES = [0, 8.1, 2.6, 3.8];
-const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-
-function chf(n: number): string {
-  const [int, dec] = Math.abs(n).toFixed(2).split('.');
-  return `${n < 0 ? '−' : ''}${int.replace(/\B(?=(\d{3})+(?!\d))/g, '’')}.${dec}`;
-}
-const swiss = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
-function parseSwiss(s: string): string | null {
-  const t = s.trim();
-  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
-  m = t.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/);
-  if (m) return `${m[3].length === 2 ? `20${m[3]}` : m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
-  return null;
-}
-const todayIso = () => new Date().toISOString().slice(0, 10);
+type Tab = 'journal' | 'recurrents' | 'justificatifs';
+type Period = { key: string; from: string; to: string };
 
 function readHolder(): LedgerHolder {
   try {
@@ -56,39 +46,34 @@ function readHolder(): LedgerHolder {
   return { name: '', address: '', activity: '', avsNumber: '', vatNumber: '' };
 }
 
-type Draft = LedgerInput & { amountText: string; dateText: string };
-
-function emptyDraft(kind: LedgerKind): Draft {
-  const d = todayIso();
-  return {
-    entry_date: d,
-    dateText: swiss(d),
-    kind,
-    category: CATEGORIES[kind][0].key,
-    label: '',
-    counterparty: '',
-    amount_chf: 0,
-    amountText: '',
-    vat_rate: 0,
-    payment_method: kind === 'recette' ? 'banque' : 'carte',
-    reference: '',
-    receipt_path: null,
-    notes: '',
-  };
+function periods(today: string): (Period & { label: string })[] {
+  const y = Number(today.slice(0, 4));
+  const m = Number(today.slice(5, 7));
+  const q = Math.floor((m - 1) / 3);
+  const last = (yy: number, mm: number) => new Date(Date.UTC(yy, mm, 0)).getUTCDate();
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  return [
+    { key: `y${y}`, label: String(y), from: `${y}-01-01`, to: `${y}-12-31` },
+    { key: 'month', label: 'Ce mois', from: `${y}-${p2(m)}-01`, to: `${y}-${p2(m)}-${last(y, m)}` },
+    { key: 'quarter', label: `T${q + 1}`, from: `${y}-${p2(q * 3 + 1)}-01`, to: `${y}-${p2(q * 3 + 3)}-${last(y, q * 3 + 3)}` },
+    { key: `y${y - 1}`, label: String(y - 1), from: `${y - 1}-01-01`, to: `${y - 1}-12-31` },
+    { key: `y${y - 2}`, label: String(y - 2), from: `${y - 2}-01-01`, to: `${y - 2}-12-31` },
+  ];
 }
 
 export default function AdminLedgerScreen() {
-  const { width } = useWindowDimensions();
-  const wide = width >= breakpoints.desktop;
-  const thisYear = new Date().getFullYear();
-  const [year, setYear] = useState<number | 'custom'>(thisYear);
-  const [fromText, setFromText] = useState(`01.01.${thisYear}`);
-  const [toText, setToText] = useState(`31.12.${thisYear}`);
-  const from = year === 'custom' ? parseSwiss(fromText) ?? `${thisYear}-01-01` : `${year}-01-01`;
-  const to = year === 'custom' ? parseSwiss(toText) ?? `${thisYear}-12-31` : `${year}-12-31`;
+  const { phone, wide } = usePhone();
+  const today = todayIso();
+  const presets = useMemo(() => periods(today), [today]);
+  const [period, setPeriod] = useState<Period>(presets[0]);
+  const [custom, setCustom] = useState(false);
+  const { from, to } = period;
 
+  const [tab, setTab] = useState<Tab>('journal');
   const [rows, setRows] = useState<LedgerEntry[]>([]);
+  const [rules, setRules] = useState<RecurringRule[]>([]);
   const [available, setAvailable] = useState(true);
+  const [v2, setV2] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -96,19 +81,23 @@ export default function AdminLedgerScreen() {
   const [cats, setCats] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [missingOnly, setMissingOnly] = useState(false);
-  const [draft, setDraft] = useState<Draft | null>(null);
+  const [draft, setDraft] = useState<EntryDraft | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [posting, setPosting] = useState(false);
   const [holder, setHolder] = useState<LedgerHolder>(readHolder);
   const [showHolder, setShowHolder] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const r = await listLedger(from, to);
+    const [r, hasV2] = await Promise.all([listLedger(from, to), ledgerV2()]);
     setRows(r.rows);
     setAvailable(r.available);
     setError(r.error);
+    setV2(hasV2);
+    if (hasV2) setRules((await listRecurring()).rules);
     setLoading(false);
   }, [from, to]);
 
@@ -127,22 +116,49 @@ export default function AdminLedgerScreen() {
   const filtered = useMemo(() => filterEntries(rows, { kind, categories: cats, search, missingReceipt: missingOnly }), [rows, kind, cats, search, missingOnly]);
   const isFiltered = kind !== 'all' || cats.length > 0 || !!search.trim() || missingOnly;
   const summary = useMemo(() => summarize(filtered, { from, to }), [filtered, from, to]);
+  const periodSummary = useMemo(() => summarize(rows, { from, to }), [rows, from, to]);
+  const dueCount = useMemo(() => rules.reduce((n, r) => n + dueOccurrences(r, today).length, 0), [rules, today]);
+  const expenseCount = rows.filter((e) => e.kind === 'depense').length;
+  const justifiedPct = expenseCount ? Math.round(((expenseCount - periodSummary.missingReceipts) / expenseCount) * 100) : 100;
   const catOptions = kind === 'all' ? [...CATEGORIES.recette.map((c) => ({ ...c, kind: 'recette' as const })), ...CATEGORIES.depense.map((c) => ({ ...c, kind: 'depense' as const }))] : CATEGORIES[kind].map((c) => ({ ...c, kind }));
+
+  // Journal grouped by month (newest first).
+  const groups = useMemo(() => {
+    const map = new Map<string, LedgerEntry[]>();
+    for (const e of filtered) {
+      const k = e.entry_date.slice(0, 7);
+      map.set(k, [...(map.get(k) ?? []), e]);
+    }
+    return [...map.entries()].sort(([a], [b]) => (a < b ? 1 : -1));
+  }, [filtered]);
+
+  function openNew(k: LedgerKind) {
+    setDraftError(null);
+    setDraft(emptyEntry(k));
+  }
+
+  function edit(e: LedgerEntry) {
+    setDraftError(null);
+    setDraft({ ...e, counterparty: e.counterparty ?? '', reference: e.reference ?? '', notes: e.notes ?? '', amountText: String(e.amount_chf) });
+  }
+
+  async function persist(d: EntryDraft): Promise<LedgerEntry | null> {
+    const amount = parseAmount(d.amountText);
+    if (!d.label.trim()) return setDraftError('Le libellé est obligatoire.'), null;
+    if (!Number.isFinite(amount) || amount <= 0) return setDraftError('Montant invalide.'), null;
+    setSaving(true);
+    const { entry, error: err } = await saveLedgerEntry({ ...d, amount_chf: amount });
+    setSaving(false);
+    if (err) return setDraftError(err), null;
+    return entry;
+  }
 
   async function save() {
     if (!draft) return;
-    const date = parseSwiss(draft.dateText);
-    const amount = Number(draft.amountText.replace(/[’'\s]/g, '').replace(',', '.'));
-    if (!date) return setNotice('Date invalide (JJ.MM.AAAA).');
-    if (!draft.label.trim()) return setNotice('Le libellé est obligatoire.');
-    if (!Number.isFinite(amount) || amount <= 0) return setNotice('Montant invalide.');
-    setSaving(true);
-    const { error: err } = await saveLedgerEntry({ ...draft, entry_date: date, amount_chf: amount });
-    setSaving(false);
-    if (err) return setNotice(err);
-    setDraft(null);
-    setNotice(null);
-    load();
+    if (await persist(draft)) {
+      setDraft(null);
+      load();
+    }
   }
 
   async function remove(entry: LedgerEntry) {
@@ -159,15 +175,36 @@ export default function AdminLedgerScreen() {
     if (picked.canceled || !picked.assets?.[0]) return;
     const a = picked.assets[0];
     setSaving(true);
-    const { path, error: err } = await uploadReceipt(a.uri, a.name, a.mimeType ?? null, parseSwiss(draft.dateText) ?? todayIso());
+    const { path, error: err } = await uploadReceipt(a.uri, a.name, a.mimeType ?? null, draft.entry_date);
     setSaving(false);
-    if (err || !path) return setNotice(err ?? 'Envoi impossible');
-    setDraft({ ...draft, receipt_path: path });
+    if (err || !path) return setDraftError(err ?? 'Envoi impossible');
+    setDraft({ ...draft, receipt_path: path, proof: null });
+  }
+
+  async function internalReceipt(reason: string) {
+    if (!draft) return;
+    const saved = await persist(draft);
+    if (!saved) return;
+    const { pdf, file } = buildInternalReceipt(saved, holder, reason.trim());
+    setSaving(true);
+    const { path, error: err } = await attachGeneratedReceipt(saved, pdf, file);
+    setSaving(false);
+    if (err || !path) return setDraftError(err ?? 'Quittance impossible');
+    downloadPdf(pdf, file);
+    setDraft(null);
+    setNotice('Quittance interne créée, jointe à l’écriture et téléchargée : imprimez-la, signez-la et gardez-la avec le relevé.');
+    load();
   }
 
   async function openReceipt(path: string) {
     const url = await receiptUrl(path);
     if (url) Platform.OS === 'web' ? window.open(url, '_blank') : Linking.openURL(url);
+  }
+
+  async function setProof(e: LedgerEntry, proof: ProofKind) {
+    const { error: err } = await saveLedgerEntry({ ...e, proof });
+    if (err) setError(err);
+    load();
   }
 
   async function runImport() {
@@ -178,564 +215,369 @@ export default function AdminLedgerScreen() {
     load();
   }
 
+  async function postDue() {
+    setPosting(true);
+    const { added, error: err } = await postDueRecurring(rules, today);
+    setPosting(false);
+    setNotice(err ? `Récurrents : ${err}` : `${added} écriture(s) récurrente(s) ajoutée(s) au journal.`);
+    load();
+  }
 
-  const edit = (e: LedgerEntry) =>
-    setDraft({ ...e, counterparty: e.counterparty ?? '', reference: e.reference ?? '', notes: e.notes ?? '', amountText: String(e.amount_chf), dateText: swiss(e.entry_date) });
+  const resetFilters = () => (setKind('all'), setCats([]), setSearch(''), setMissingOnly(false));
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 80 }}>
+      <View style={[styles.page, { paddingHorizontal: phone ? spacing.lg : spacing.xl }]}>
+        {/* Header */}
         <View style={styles.header}>
-          <View style={{ flex: 1, minWidth: 260 }}>
-            <Text style={styles.title}>Comptabilité</Text>
-            <Text style={styles.hint}>
-              Vos recettes et dépenses d’indépendant, avec les justificatifs. Le rapport PDF (compte de résultat, détail par catégorie et par mois, journal complet, attestation) est celui que vous remettez à la caisse AVS ou aux impôts pour justifier votre bénéfice.
-            </Text>
+          <View style={{ flex: 1, minWidth: phone ? '100%' : 280, gap: 4 }}>
+            <Text style={kit.eyebrow}>Ma gestion · indépendant</Text>
+            <Text style={[kit.display, { fontSize: phone ? 34 : 42 }]}>Comptabilité</Text>
+            <Text style={[kit.muted, { maxWidth: 620 }]}>Recettes, dépenses et justificatifs. Le rapport PDF justifie votre bénéfice auprès de la caisse AVS ou des impôts.</Text>
           </View>
-          <View style={styles.actions}>
-            <Action icon="plus" label="Recette" onPress={() => setDraft(emptyDraft('recette'))} tone="ok" />
-            <Action icon="minus" label="Dépense" onPress={() => setDraft(emptyDraft('depense'))} tone="bad" />
-            <Action icon="download-cloud" label={importing ? 'Import…' : 'Importer Stripe'} onPress={runImport} disabled={importing || !available} />
-            {Platform.OS === 'web' ? <Action icon="download" label="Exporter (PDF / CSV)" onPress={() => setExportOpen(true)} primary disabled={!available} /> : null}
+          <View style={[kit.row, phone && { width: '100%' }]}>
+            <Btn icon="arrow-down-left" label="Recette" variant="ok" onPress={() => openNew('recette')} grow={phone} />
+            <Btn icon="arrow-up-right" label="Dépense" variant="bad" onPress={() => openNew('depense')} grow={phone} />
+            {!phone ? <Btn icon="download-cloud" label={importing ? 'Import…' : 'Stripe'} onPress={runImport} disabled={importing || !available} /> : null}
+            {!phone && Platform.OS === 'web' ? <Btn icon="download" label="Exporter" variant="primary" onPress={() => setExportOpen(true)} disabled={!available} /> : null}
           </View>
+          {phone ? (
+            <View style={[kit.row, { width: '100%' }]}>
+              <Btn icon="download-cloud" label={importing ? 'Import…' : 'Stripe'} onPress={runImport} disabled={importing || !available} grow />
+              {Platform.OS === 'web' ? <Btn icon="download" label="Exporter" variant="primary" onPress={() => setExportOpen(true)} disabled={!available} grow /> : null}
+            </View>
+          ) : null}
         </View>
 
+        {/* Banners */}
         {!available ? (
-          <View style={[styles.banner, { backgroundColor: colors.warningSoft }]}>
+          <View style={[kit.banner, { backgroundColor: colors.warningSoft }]}>
             <Feather name="database" size={16} color={colors.warning} />
-            <Text style={styles.bannerText}>La table de la comptabilité n’existe pas encore. Collez docs/sql/a-coller-dans-supabase.sql dans Supabase › SQL Editor, puis rechargez la page.</Text>
+            <Text style={[kit.body, { flex: 1 }]}>La table de la comptabilité n’existe pas encore. Collez docs/sql/a-coller-dans-supabase.sql dans Supabase › SQL Editor, puis rechargez.</Text>
+          </View>
+        ) : !v2 ? (
+          <View style={[kit.banner, { backgroundColor: colors.warningSoft }]}>
+            <Feather name="database" size={16} color={colors.warning} />
+            <Text style={[kit.body, { flex: 1, minWidth: 200 }]}>Pour les récurrents et le suivi des justificatifs, collez le bloc « Récurrents et justificatifs » de docs/sql/a-coller-dans-supabase.sql dans Supabase, puis rechargez.</Text>
           </View>
         ) : null}
         {error ? <AdminErrorBanner message={error} /> : null}
         {notice ? (
-          <Pressable onPress={() => setNotice(null)} style={[styles.banner, { backgroundColor: colors.surfaceAlt }]}>
-            <Feather name="info" size={16} color={colors.text} />
-            <Text style={styles.bannerText}>{notice}</Text>
+          <Pressable onPress={() => setNotice(null)} style={[kit.banner, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}>
+            <Feather name="info" size={16} color={colors.primary} />
+            <Text style={[kit.body, { flex: 1 }]}>{notice}</Text>
             <Feather name="x" size={14} color={colors.textMuted} />
           </Pressable>
         ) : null}
-
-        {exportOpen ? (
-          <ExportDialog
-            initialFrom={from}
-            initialTo={to}
-            filter={isFiltered ? { kind, categories: cats, search, missingReceipt: missingOnly } : null}
-            holder={holder}
-            onClose={() => setExportOpen(false)}
-          />
+        {dueCount > 0 && tab !== 'recurrents' ? (
+          <View style={[kit.banner, { backgroundColor: colors.primarySoft }]}>
+            <Feather name="repeat" size={16} color={colors.primaryDark} />
+            <Text style={[kit.body, { flex: 1, minWidth: 180, color: colors.primaryDark }]}>{dueCount} écriture(s) récurrente(s) à comptabiliser.</Text>
+            <Btn label="Voir" variant="ghost" onPress={() => setTab('recurrents')} />
+            <Btn icon="check-circle" label={posting ? '…' : 'Comptabiliser'} variant="primary" onPress={postDue} disabled={posting} />
+          </View>
         ) : null}
 
         {/* Period */}
-        <View style={styles.periodRow}>
-          {[thisYear, thisYear - 1, thisYear - 2].map((y) => (
-            <Chip key={y} label={String(y)} active={year === y} onPress={() => setYear(y)} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.lg }}>
+          {presets.map((p) => (
+            <Chip
+              key={p.key}
+              label={p.label}
+              active={!custom && period.key === p.key}
+              onPress={() => {
+                setCustom(false);
+                setPeriod(p);
+              }}
+            />
           ))}
-          <Chip label="Période…" active={year === 'custom'} onPress={() => setYear('custom')} />
-          {year === 'custom' ? (
-            <>
-              <TextInput value={fromText} onChangeText={setFromText} style={[styles.input, styles.dateInput]} placeholder="01.01.2026" placeholderTextColor={colors.textMuted} />
-              <Text style={styles.muted}>→</Text>
-              <TextInput value={toText} onChangeText={setToText} style={[styles.input, styles.dateInput]} placeholder="31.12.2026" placeholderTextColor={colors.textMuted} />
-            </>
-          ) : null}
-        </View>
-
-        {/* KPIs */}
-        <View style={styles.kpis}>
-          <Kpi label="Recettes" value={`CHF ${chf(summary.income)}`} color={colors.success} />
-          <Kpi label="Dépenses" value={`CHF ${chf(summary.expenses)}`} color={colors.danger} />
-          <Kpi label={summary.profit >= 0 ? 'Bénéfice' : 'Perte'} value={`CHF ${chf(summary.profit)}`} dark />
-          <Kpi label="Marge" value={`${summary.marginPercent.toFixed(1).replace('.', ',')} %`} />
-          <Kpi label="Sans justificatif" value={String(summary.missingReceipts)} color={summary.missingReceipts ? colors.warning : colors.success} onPress={() => setMissingOnly((v) => !v)} />
-        </View>
-
-        <View style={[styles.cols, wide && { flexDirection: 'row', alignItems: 'flex-start' }]}>
-          <View style={[styles.card, wide && { flex: 1.3 }]}>
-            <Text style={styles.cardTitle}>Recettes et dépenses par mois</Text>
-            <MonthChart months={summary.byMonth} />
-          </View>
-          <View style={[styles.card, wide && { flex: 1 }]}>
-            <Text style={styles.cardTitle}>Par catégorie</Text>
-            {summary.byCategory.length === 0 ? <Text style={styles.muted}>Aucune écriture.</Text> : null}
-            {summary.byCategory.map((c) => (
-              <Pressable key={`${c.kind}:${c.category}`} onPress={() => setCats((cur) => (cur.includes(c.category) ? cur.filter((x) => x !== c.category) : [...cur, c.category]))} style={styles.catRow}>
-                <View style={[styles.catDot, { backgroundColor: c.kind === 'recette' ? colors.success : colors.danger }]} />
-                <Text style={styles.catLabel} numberOfLines={1}>
-                  {c.label}
-                </Text>
-                <View style={styles.catBarTrack}>
-                  <View style={[styles.catBar, { width: `${Math.min(100, c.share)}%`, backgroundColor: c.kind === 'recette' ? colors.success : colors.danger }]} />
-                </View>
-                <Text style={styles.catValue}>{chf(c.total)}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        {/* Filters */}
-        <View style={styles.card}>
-          <View style={styles.filterRow}>
-            <Chip label="Tout" active={kind === 'all'} onPress={() => (setKind('all'), setCats([]))} />
-            <Chip label="Recettes" active={kind === 'recette'} onPress={() => (setKind('recette'), setCats([]))} />
-            <Chip label="Dépenses" active={kind === 'depense'} onPress={() => (setKind('depense'), setCats([]))} />
-            <Chip label="Sans justificatif" active={missingOnly} onPress={() => setMissingOnly((v) => !v)} />
-            <View style={styles.searchWrap}>
-              <Feather name="search" size={14} color={colors.textMuted} />
-              <TextInput value={search} onChangeText={setSearch} placeholder="Rechercher (libellé, contrepartie, réf.)" placeholderTextColor={colors.textMuted} style={styles.searchInput} />
+          <Chip icon="calendar" label="Période…" active={custom} onPress={() => setCustom(true)} />
+        </ScrollView>
+        {custom ? (
+          <View style={[kit.row, { alignItems: 'flex-end' }]}>
+            <View style={{ flexGrow: 1, flexBasis: 150, minWidth: 0 }}>
+              <DateField label="Du" value={from} onChange={(v) => v && setPeriod({ key: 'custom', from: v, to: v > to ? v : to })} />
+            </View>
+            <View style={{ flexGrow: 1, flexBasis: 150, minWidth: 0 }}>
+              <DateField label="Au" value={to} onChange={(v) => v && setPeriod({ key: 'custom', from: v < from ? v : from, to: v })} />
             </View>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-            {catOptions.map((c) => (
-              <Chip key={`${c.kind}-${c.key}`} small label={c.label} active={cats.includes(c.key)} onPress={() => setCats((cur) => (cur.includes(c.key) ? cur.filter((x) => x !== c.key) : [...cur, c.key]))} />
-            ))}
-          </ScrollView>
-          {isFiltered ? (
-            <Pressable onPress={() => (setKind('all'), setCats([]), setSearch(''), setMissingOnly(false))}>
-              <Text style={styles.link}>Effacer les filtres · {filtered.length} / {rows.length} écritures</Text>
-            </Pressable>
-          ) : null}
+        ) : null}
+
+        {/* Result + proofs health */}
+        <View style={[styles.split, wide && { flexDirection: 'row' }]}>
+          <View style={[styles.hero, wide && { flex: 1.6 }]}>
+            <View style={{ gap: 2 }}>
+              <Text style={[kit.eyebrow, { color: '#E8C9A8' }]}>
+                {periodSummary.profit >= 0 ? 'Bénéfice' : 'Perte'} · {swiss(from)} → {swiss(to)}
+              </Text>
+              <Text style={[kit.display, { color: '#FBF6EE', fontSize: phone ? 34 : 44 }]}>CHF {chf(periodSummary.profit)}</Text>
+            </View>
+            <View style={styles.heroStats}>
+              <HeroStat label="Recettes" value={chf(periodSummary.income)} color="#9FD3B5" />
+              <HeroStat label="Dépenses" value={chf(periodSummary.expenses)} color="#F0A99F" />
+              <HeroStat label="Marge" value={`${periodSummary.marginPercent.toFixed(1).replace('.', ',')} %`} color="#FBF6EE" />
+            </View>
+          </View>
+          <Pressable onPress={() => setTab('justificatifs')} style={({ hovered }: any) => [kit.card, wide && { flex: 1 }, hovered && { borderColor: colors.primary }]}>
+            <View style={[kit.row, { justifyContent: 'space-between' }]}>
+              <Text style={kit.eyebrow}>Justificatifs</Text>
+              <Feather name="chevron-right" size={16} color={colors.textMuted} />
+            </View>
+            <Text style={[kit.display, { fontSize: 30, color: periodSummary.missingReceipts ? colors.warning : colors.success }]}>{justifiedPct} %</Text>
+            <View style={{ height: 8, borderRadius: 4, backgroundColor: colors.surfaceAlt, overflow: 'hidden' }}>
+              <View style={{ height: 8, width: `${justifiedPct}%`, backgroundColor: periodSummary.missingReceipts ? colors.warning : colors.success }} />
+            </View>
+            <Text style={kit.hint}>
+              {periodSummary.missingReceipts ? `${periodSummary.missingReceipts} dépense(s) à justifier` : 'Toutes les dépenses ont une preuve'}
+              {periodSummary.weakProofs ? ` · ${periodSummary.weakProofs} preuve(s) fragile(s)` : ''}
+            </Text>
+          </Pressable>
         </View>
 
-        {/* Journal */}
-        <View style={styles.card}>
-          <View style={styles.journalHead}>
-            <Text style={styles.cardTitle}>Journal</Text>
-            <Text style={styles.muted}>{filtered.length} écriture(s)</Text>
-          </View>
-          {loading ? <ActivityIndicator color={colors.primary} /> : null}
-          {!loading && filtered.length === 0 ? <Text style={styles.muted}>Aucune écriture sur la période. Ajoutez une recette ou une dépense, ou importez vos paiements Stripe.</Text> : null}
-          {filtered.map((e) => (
-            <Pressable key={e.id} onPress={() => edit(e)} style={({ hovered }: any) => [styles.row, hovered && { backgroundColor: colors.bg }]}>
-              <Text style={styles.rowDate}>{swiss(e.entry_date)}</Text>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.rowLabel} numberOfLines={1}>
-                  {e.label}
-                </Text>
-                <Text style={styles.rowMeta} numberOfLines={1}>
-                  {[categoryLabel(e.kind, e.category), e.counterparty, e.reference, e.source === 'stripe' ? 'Stripe' : null].filter(Boolean).join(' · ')}
-                </Text>
+        {/* Tabs */}
+        <Segmented<Tab>
+          value={tab}
+          onChange={setTab}
+          options={[
+            { key: 'journal', label: 'Journal' },
+            { key: 'recurrents', label: 'Récurrents', badge: dueCount || undefined },
+            { key: 'justificatifs', label: 'Justificatifs', badge: periodSummary.missingReceipts || undefined },
+          ]}
+        />
+
+        {tab === 'recurrents' ? (
+          <RecurringTab rules={rules} available={v2} onChanged={load} onPostDue={postDue} posting={posting} />
+        ) : tab === 'justificatifs' ? (
+          <ProofGuide entries={rows} onOpen={edit} onSetProof={v2 ? setProof : undefined} />
+        ) : (
+          <>
+            <View style={[styles.split, wide && { flexDirection: 'row', alignItems: 'flex-start' }]}>
+              <View style={[kit.card, wide && { flex: 1.4 }]}>
+                <View style={[kit.row, { justifyContent: 'space-between' }]}>
+                  <Text style={kit.cardTitle}>Par mois</Text>
+                  <View style={kit.row}>
+                    <Legend color={colors.success} label="Recettes" />
+                    <Legend color={colors.danger} label="Dépenses" />
+                  </View>
+                </View>
+                <MonthChart months={summary.byMonth} />
               </View>
-              {e.receipt_path ? (
-                <Pressable onPress={() => openReceipt(e.receipt_path!)} hitSlop={6}>
-                  <Feather name="paperclip" size={15} color={colors.success} />
+              <View style={[kit.card, wide && { flex: 1 }]}>
+                <Text style={kit.cardTitle}>Par catégorie</Text>
+                {summary.byCategory.length === 0 ? <Text style={kit.muted}>Aucune écriture.</Text> : null}
+                {summary.byCategory.slice(0, 8).map((c) => (
+                  <Pressable key={`${c.kind}:${c.category}`} onPress={() => setCats((cur) => (cur.includes(c.category) ? cur.filter((x) => x !== c.category) : [...cur, c.category]))} style={styles.catRow}>
+                    <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm }}>
+                        <Text style={[kit.body, { flex: 1, color: cats.includes(c.category) ? colors.primary : colors.text }]} numberOfLines={1}>
+                          {c.label}
+                        </Text>
+                        <Text style={[kit.body, { fontWeight: '700', fontVariant: ['tabular-nums'] }]}>{chf(c.total)}</Text>
+                      </View>
+                      <View style={styles.catTrack}>
+                        <View style={{ height: 5, borderRadius: 3, width: `${Math.max(2, Math.min(100, c.share))}%`, backgroundColor: c.kind === 'recette' ? colors.success : colors.danger }} />
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* Filters */}
+            <View style={{ gap: spacing.sm }}>
+              <View style={kit.row}>
+                <View style={{ flexGrow: 1, flexBasis: phone ? '100%' : 300 }}>
+                  <Segmented<LedgerKind | 'all'>
+                    value={kind}
+                    onChange={(k) => (setKind(k), setCats([]))}
+                    options={[
+                      { key: 'all', label: 'Tout' },
+                      { key: 'recette', label: 'Recettes' },
+                      { key: 'depense', label: 'Dépenses' },
+                    ]}
+                  />
+                </View>
+                <View style={[styles.search, { flexBasis: phone ? '100%' : 260 }]}>
+                  <Feather name="search" size={15} color={colors.textMuted} />
+                  <TextInput value={search} onChangeText={setSearch} placeholder="Rechercher" placeholderTextColor={colors.textMuted} style={styles.searchInput} />
+                  {search ? (
+                    <Pressable onPress={() => setSearch('')} hitSlop={8}>
+                      <Feather name="x" size={14} color={colors.textMuted} />
+                    </Pressable>
+                  ) : null}
+                </View>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingRight: spacing.lg }}>
+                <Chip small icon="alert-circle" label="À justifier" tone="bad" active={missingOnly} onPress={() => setMissingOnly((v) => !v)} />
+                {catOptions.map((c) => (
+                  <Chip key={`${c.kind}-${c.key}`} small label={c.label} active={cats.includes(c.key)} onPress={() => setCats((cur) => (cur.includes(c.key) ? cur.filter((x) => x !== c.key) : [...cur, c.key]))} />
+                ))}
+              </ScrollView>
+              {isFiltered ? (
+                <Pressable onPress={resetFilters} hitSlop={6}>
+                  <Text style={kit.link}>
+                    Effacer les filtres · {filtered.length} / {rows.length} écritures
+                  </Text>
                 </Pressable>
-              ) : e.kind === 'depense' && e.source !== 'stripe' ? (
-                <Feather name="alert-circle" size={15} color={colors.warning} />
-              ) : (
-                <View style={{ width: 15 }} />
-              )}
-              <Text style={[styles.rowAmount, { color: e.kind === 'recette' ? colors.success : colors.danger }]}>
-                {e.kind === 'recette' ? '+' : '−'}
-                {chf(e.amount_chf)}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+              ) : null}
+            </View>
+
+            {/* Journal */}
+            <View style={[kit.card, { padding: 0, gap: 0, overflow: 'hidden' }]}>
+              {loading ? <ActivityIndicator color={colors.primary} style={{ margin: spacing.xl }} /> : null}
+              {!loading && filtered.length === 0 ? (
+                <View style={{ padding: spacing.xl, alignItems: 'center', gap: spacing.sm }}>
+                  <Feather name="inbox" size={26} color={colors.textMuted} />
+                  <Text style={[kit.muted, { textAlign: 'center' }]}>Aucune écriture. Ajoutez une recette ou une dépense, créez vos récurrents ou importez Stripe.</Text>
+                </View>
+              ) : null}
+              {groups.map(([month, list]) => {
+                const net = list.reduce((s, e) => s + (e.kind === 'recette' ? 1 : -1) * Number(e.amount_chf), 0);
+                return (
+                  <View key={month}>
+                    <View style={styles.monthHead}>
+                      <Text style={styles.monthTitle}>
+                        {MONTHS_LONG[Number(month.slice(5, 7)) - 1]} {month.slice(0, 4)}
+                      </Text>
+                      <Text style={[styles.monthNet, { color: net >= 0 ? colors.success : colors.danger }]}>
+                        {net >= 0 ? '+' : '−'}
+                        {chf(Math.abs(net))}
+                      </Text>
+                    </View>
+                    {list.map((e) => (
+                      <Pressable key={e.id} onPress={() => edit(e)} style={({ hovered }: any) => [styles.row, hovered && { backgroundColor: colors.bg }]}>
+                        <CategoryIcon kind={e.kind} category={e.category} size={phone ? 36 : 38} />
+                        <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={[kit.body, { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>
+                              {e.label}
+                            </Text>
+                            {e.source === 'recurrent' ? <Feather name="repeat" size={11} color={colors.textMuted} /> : null}
+                          </View>
+                          <Text style={kit.hint} numberOfLines={1}>
+                            {[e.entry_date.slice(8, 10) + '.' + e.entry_date.slice(5, 7), categoryLabel(e.kind, e.category), e.counterparty].filter(Boolean).join(' · ')}
+                          </Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                          <Text style={[styles.amount, { color: e.kind === 'recette' ? colors.success : colors.text }]}>
+                            {e.kind === 'recette' ? '+' : '−'}
+                            {chf(e.amount_chf)}
+                          </Text>
+                          {e.kind === 'depense' ? (
+                            e.receipt_path ? (
+                              <Pressable onPress={(ev: any) => (ev?.stopPropagation?.(), openReceipt(e.receipt_path!))} hitSlop={6}>
+                                <ProofBadge entry={e} />
+                              </Pressable>
+                            ) : (
+                              <ProofBadge entry={e} />
+                            )
+                          ) : null}
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        )}
 
         {/* Report identity */}
-        <View style={styles.card}>
-          <Pressable onPress={() => setShowHolder((v) => !v)} style={styles.journalHead}>
-            <Text style={styles.cardTitle}>Informations du rapport</Text>
+        <View style={kit.card}>
+          <Pressable onPress={() => setShowHolder((v) => !v)} style={[kit.row, { justifyContent: 'space-between' }]}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={kit.cardTitle}>En-tête du rapport PDF</Text>
+              <Text style={kit.hint}>{holder.name ? `${holder.name}${holder.activity ? ` · ${holder.activity}` : ''}` : 'Nom, adresse, N° AVS… (gardés dans ce navigateur)'}</Text>
+            </View>
             <Feather name={showHolder ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
           </Pressable>
           {showHolder ? (
-            <View style={{ gap: spacing.sm }}>
-              <Text style={styles.muted}>Imprimées en tête du rapport PDF. Gardées dans ce navigateur uniquement.</Text>
+            <View style={kit.row}>
               {(
                 [
                   ['name', 'Titulaire (nom et prénom)'],
-                  ['address', 'Adresse'],
                   ['activity', 'Activité'],
+                  ['address', 'Adresse'],
                   ['avsNumber', 'N° AVS'],
                   ['vatNumber', 'N° IDE / TVA (si assujetti)'],
                 ] as [keyof LedgerHolder, string][]
               ).map(([k, label]) => (
-                <View key={k} style={{ gap: 4 }}>
-                  <Text style={styles.fieldLabel}>{label}</Text>
-                  <TextInput value={holder[k]} onChangeText={(v) => setHolder((h) => ({ ...h, [k]: v }))} style={styles.input} />
+                <View key={k} style={{ gap: 6, flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
+                  <Text style={kit.fieldLabel}>{label}</Text>
+                  <TextInput value={holder[k]} onChangeText={(v) => setHolder((h) => ({ ...h, [k]: v }))} style={kit.input} />
                 </View>
               ))}
             </View>
           ) : null}
-          <Text style={[styles.muted, { marginTop: spacing.sm }]}>
-            Indépendant avec moins de CHF 500’000 de chiffre d’affaires : une comptabilité des recettes et des dépenses et de l’état du patrimoine suffit (art. 957 al. 2 CO). Gardez les justificatifs dix ans (art. 958f CO).
-          </Text>
         </View>
-      </Container>
+      </View>
 
-      <EntryModal
-        draft={draft}
-        setDraft={setDraft}
-        saving={saving}
-        notice={notice}
-        onSave={save}
-        onDelete={draft?.id ? () => remove(rows.find((r) => r.id === draft.id)!) : undefined}
-        onPickReceipt={pickReceipt}
-        onOpenReceipt={openReceipt}
-      />
+      {draft ? (
+        <EntryModal
+          draft={draft}
+          setDraft={setDraft}
+          saving={saving}
+          error={draftError}
+          v2={v2}
+          onSave={save}
+          onDelete={draft.id ? () => remove(rows.find((r) => r.id === draft.id)!) : undefined}
+          onPickReceipt={pickReceipt}
+          onOpenReceipt={openReceipt}
+          onInternalReceipt={Platform.OS === 'web' ? internalReceipt : undefined}
+          onMakeRecurring={
+            v2
+              ? () => {
+                  setDraft(null);
+                  setTab('recurrents');
+                  setNotice('Créez la récurrence avec « + Dépense » ou un modèle ci-dessous.');
+                }
+              : undefined
+          }
+        />
+      ) : null}
+      {exportOpen ? (
+        <ExportDialog initialFrom={from} initialTo={to} filter={isFiltered ? { kind, categories: cats, search, missingReceipt: missingOnly } : null} holder={holder} onClose={() => setExportOpen(false)} />
+      ) : null}
     </ScrollView>
   );
 }
 
-function EntryModal({
-  draft,
-  setDraft,
-  saving,
-  notice,
-  onSave,
-  onDelete,
-  onPickReceipt,
-  onOpenReceipt,
-}: {
-  draft: Draft | null;
-  setDraft: (d: Draft | null) => void;
-  saving: boolean;
-  notice: string | null;
-  onSave: () => void;
-  onDelete?: () => void;
-  onPickReceipt: () => void;
-  onOpenReceipt: (path: string) => void;
-}) {
-  if (!draft) return null;
-  const set = (p: Partial<Draft>) => setDraft({ ...draft, ...p });
+function HeroStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <Modal transparent animationType="fade" visible onRequestClose={() => setDraft(null)}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
-          <ScrollView contentContainerStyle={{ gap: spacing.md, padding: spacing.xl }}>
-            <View style={styles.journalHead}>
-              <Text style={styles.cardTitle}>{draft.id ? 'Modifier l’écriture' : draft.kind === 'recette' ? 'Nouvelle recette' : 'Nouvelle dépense'}</Text>
-              <Pressable onPress={() => setDraft(null)} hitSlop={8}>
-                <Feather name="x" size={18} color={colors.textMuted} />
-              </Pressable>
-            </View>
-            <View style={styles.filterRow}>
-              <Chip label="Recette" active={draft.kind === 'recette'} onPress={() => set({ kind: 'recette', category: CATEGORIES.recette[0].key })} />
-              <Chip label="Dépense" active={draft.kind === 'depense'} onPress={() => set({ kind: 'depense', category: CATEGORIES.depense[0].key })} />
-            </View>
-            <View style={styles.formRow}>
-              <Field label="Date" half>
-                <TextInput value={draft.dateText} onChangeText={(v) => set({ dateText: v })} placeholder="JJ.MM.AAAA" placeholderTextColor={colors.textMuted} style={styles.input} />
-              </Field>
-              <Field label="Montant payé / reçu (CHF, TVA comprise)" half>
-                <TextInput value={draft.amountText} onChangeText={(v) => set({ amountText: v })} keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor={colors.textMuted} style={[styles.input, { fontWeight: '700' }]} />
-              </Field>
-            </View>
-            <Field label="Libellé">
-              <TextInput value={draft.label} onChangeText={(v) => set({ label: v })} placeholder={draft.kind === 'recette' ? 'Ex. Abonnement Cantia, mission de conseil' : 'Ex. Supabase Pro, Google Ads, abonnement CFF'} placeholderTextColor={colors.textMuted} style={styles.input} />
-            </Field>
-            <Field label="Catégorie">
-              <View style={styles.filterRow}>
-                {CATEGORIES[draft.kind].map((c) => (
-                  <Chip key={c.key} small label={c.label} active={draft.category === c.key} onPress={() => set({ category: c.key })} />
-                ))}
-              </View>
-            </Field>
-            <View style={styles.formRow}>
-              <Field label={draft.kind === 'recette' ? 'Client' : 'Fournisseur'} half>
-                <TextInput value={draft.counterparty ?? ''} onChangeText={(v) => set({ counterparty: v })} style={styles.input} />
-              </Field>
-              <Field label="Référence (n° de facture…)" half>
-                <TextInput value={draft.reference ?? ''} onChangeText={(v) => set({ reference: v })} style={styles.input} />
-              </Field>
-            </View>
-            <Field label="TVA comprise dans le montant">
-              <View style={styles.filterRow}>
-                {VAT_RATES.map((r) => (
-                  <Chip key={r} small label={r ? `${String(r).replace('.', ',')} %` : 'Sans TVA'} active={draft.vat_rate === r} onPress={() => set({ vat_rate: r })} />
-                ))}
-              </View>
-            </Field>
-            <Field label="Moyen de paiement">
-              <View style={styles.filterRow}>
-                {PAYMENT_METHODS.map((m) => (
-                  <Chip key={m.key} small label={m.label} active={draft.payment_method === m.key} onPress={() => set({ payment_method: m.key })} />
-                ))}
-              </View>
-            </Field>
-            <Field label="Justificatif (photo ou PDF)">
-              <View style={styles.filterRow}>
-                {draft.receipt_path ? (
-                  <>
-                    <Pressable onPress={() => onOpenReceipt(draft.receipt_path!)} style={styles.receiptChip}>
-                      <Feather name="paperclip" size={14} color={colors.success} />
-                      <Text style={[styles.link, { color: colors.success }]}>Voir le justificatif</Text>
-                    </Pressable>
-                    <Pressable onPress={() => set({ receipt_path: null })}>
-                      <Text style={styles.muted}>Retirer</Text>
-                    </Pressable>
-                  </>
-                ) : (
-                  <Pressable onPress={onPickReceipt} style={styles.receiptChip}>
-                    <Feather name="upload" size={14} color={colors.primary} />
-                    <Text style={styles.link}>Ajouter un justificatif</Text>
-                  </Pressable>
-                )}
-              </View>
-            </Field>
-            <Field label="Notes">
-              <TextInput value={draft.notes ?? ''} onChangeText={(v) => set({ notes: v })} multiline style={[styles.input, { minHeight: 60 }]} />
-            </Field>
-            {notice ? <Text style={{ color: colors.danger, fontSize: fontSize.sm }}>{notice}</Text> : null}
-            <View style={styles.modalActions}>
-              {onDelete ? (
-                <Pressable onPress={onDelete} style={styles.deleteBtn}>
-                  <Feather name="trash-2" size={14} color={colors.danger} />
-                  <Text style={{ color: colors.danger, fontWeight: '600' }}>Supprimer</Text>
-                </Pressable>
-              ) : (
-                <View />
-              )}
-              <Pressable onPress={onSave} disabled={saving} style={[styles.saveBtn, saving && { opacity: 0.6 }]}>
-                <Text style={styles.saveText}>{saving ? 'Enregistrement…' : 'Enregistrer'}</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
-function MonthChart({ months }: { months: { month: string; income: number; expenses: number; profit: number }[] }) {
-  const [w, setW] = useState(0);
-  const H = 190;
-  const pad = { l: 46, r: 8, t: 10, b: 24 };
-  const max = Math.max(1, ...months.map((m) => Math.max(m.income, m.expenses)));
-  const step = Math.pow(10, Math.floor(Math.log10(max)));
-  const top = Math.ceil(max / step) * step;
-  const plotW = Math.max(10, w - pad.l - pad.r);
-  const plotH = H - pad.t - pad.b;
-  const slot = plotW / Math.max(1, months.length);
-  const y = (v: number) => pad.t + plotH - (v / top) * plotH;
-  return (
-    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height: H }}>
-      {w > 0 ? (
-        <Svg width={w} height={H}>
-          {[0, 0.5, 1].map((f) => (
-            <Line key={f} x1={pad.l} x2={w - pad.r} y1={y(top * f)} y2={y(top * f)} stroke={colors.border} strokeWidth={1} />
-          ))}
-          {[0, 0.5, 1].map((f) => (
-            <SvgText key={`t${f}`} x={pad.l - 6} y={y(top * f) + 4} fontSize={10} fill={colors.textMuted} textAnchor="end">
-              {top * f >= 1000 ? `${Math.round((top * f) / 1000)}k` : Math.round(top * f)}
-            </SvgText>
-          ))}
-          {months.map((m, i) => {
-            const bw = Math.max(3, slot * 0.32);
-            const x = pad.l + i * slot + slot * 0.16;
-            return (
-              <G key={m.month}>
-                <Rect x={x} y={y(m.income)} width={bw} height={Math.max(0, pad.t + plotH - y(m.income))} fill={colors.success} rx={2} />
-                <Rect x={x + bw + 2} y={y(m.expenses)} width={bw} height={Math.max(0, pad.t + plotH - y(m.expenses))} fill={colors.danger} rx={2} />
-                <SvgText x={pad.l + i * slot + slot / 2} y={H - 6} fontSize={10} fill={colors.textMuted} textAnchor="middle">
-                  {MONTHS[Number(m.month.slice(5, 7)) - 1] ?? m.month}
-                </SvgText>
-              </G>
-            );
-          })}
-        </Svg>
-      ) : null}
+    <View style={{ flexGrow: 1, flexBasis: 0, minWidth: 0, gap: 2 }}>
+      <Text style={[kit.eyebrow, { color: '#BFA48A', fontSize: 9.5 }]} numberOfLines={1}>
+        {label}
+      </Text>
+      <Text style={{ color, fontSize: fontSize.md, fontWeight: '800', fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+        {value}
+      </Text>
     </View>
   );
 }
 
-// Export: any period (quick choices or two dates), PDF report or CSV.
-// Loads the period on its own, so it does not depend on what the page shows.
-function ExportDialog({
-  initialFrom,
-  initialTo,
-  filter,
-  holder,
-  onClose,
-}: {
-  initialFrom: string;
-  initialTo: string;
-  filter: LedgerFilter | null;
-  holder: LedgerHolder;
-  onClose: () => void;
-}) {
-  const presets = useMemo(() => periodPresets(todayIso()), []);
-  const [from, setFrom] = useState(initialFrom);
-  const [to, setTo] = useState(initialTo);
-  const [useFilter, setUseFilter] = useState(false);
-  const [rows, setRows] = useState<LedgerEntry[] | null>(null);
-  const valid = !!from && !!to && from <= to;
-
-  useEffect(() => {
-    if (!valid) return;
-    let alive = true;
-    setRows(null);
-    listLedger(from, to).then((r) => alive && setRows(r.rows));
-    return () => {
-      alive = false;
-    };
-  }, [from, to, valid]);
-
-  const entries = useMemo(() => (rows ? filterEntries(rows, { ...(useFilter && filter ? filter : {}), from, to }) : []), [rows, useFilter, filter, from, to]);
-  const s = useMemo(() => summarize(entries), [entries]);
-  const active = presets.find((p) => p.from === from && p.to === to)?.key ?? null;
-
+function Legend({ color, label }: { color: string; label: string }) {
   return (
-    <Modal transparent animationType="fade" visible onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
-          <ScrollView contentContainerStyle={{ gap: spacing.md, padding: spacing.xl }}>
-            <View style={styles.journalHead}>
-              <Text style={styles.cardTitle}>Exporter la comptabilité</Text>
-              <Pressable onPress={onClose} hitSlop={8}>
-                <Feather name="x" size={18} color={colors.textMuted} />
-              </Pressable>
-            </View>
-
-            <Field label="Période">
-              <View style={styles.periodRow}>
-                {presets.map((p) => (
-                  <Chip
-                    key={p.key}
-                    small
-                    label={p.label}
-                    active={active === p.key}
-                    onPress={() => {
-                      setFrom(p.from);
-                      setTo(p.to);
-                    }}
-                  />
-                ))}
-              </View>
-            </Field>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md }}>
-              <View style={{ flexGrow: 1, flexBasis: 200 }}>
-                <DateField label="Du" value={from} onChange={(v) => v && setFrom(v)} />
-              </View>
-              <View style={{ flexGrow: 1, flexBasis: 200 }}>
-                <DateField label="Au" value={to} onChange={(v) => v && setTo(v)} />
-              </View>
-            </View>
-            {!valid ? <Text style={{ color: colors.danger, fontSize: fontSize.sm }}>La date de fin doit être après la date de début.</Text> : null}
-
-            {filter ? (
-              <Pressable onPress={() => setUseFilter((v) => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-                <Feather name={useFilter ? 'check-square' : 'square'} size={16} color={colors.text} />
-                <Text style={styles.muted}>Appliquer aussi les filtres de la page (type, catégories, recherche)</Text>
-              </Pressable>
-            ) : null}
-
-            <View style={[styles.banner, { backgroundColor: colors.surfaceAlt }]}>
-              {rows === null && valid ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : (
-                <Text style={styles.bannerText}>
-                  {swiss(from)} → {swiss(to)} · {s.count} écriture(s){'\n'}Recettes CHF {chf(s.income)} · Dépenses CHF {chf(s.expenses)} · {s.profit >= 0 ? 'Bénéfice' : 'Perte'} CHF {chf(s.profit)}
-                </Text>
-              )}
-            </View>
-
-            <View style={styles.modalActions}>
-              <Action icon="grid" label="CSV (tableur)" disabled={!valid || !rows || !entries.length} onPress={() => downloadText(ledgerCsv(entries), `journal-${from}-au-${to}.csv`)} />
-              <Action
-                icon="file-text"
-                label="Rapport PDF"
-                primary
-                disabled={!valid || !rows || !entries.length}
-                onPress={() => downloadLedgerReport({ entries, from, to, holder, filtered: useFilter && !!filter })}
-              />
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
-function Kpi({ label, value, color, dark, onPress }: { label: string; value: string; color?: string; dark?: boolean; onPress?: () => void }) {
-  return (
-    <Pressable onPress={onPress} disabled={!onPress} style={[styles.kpi, dark && styles.kpiDark]}>
-      <Text style={[styles.kpiLabel, dark && { color: '#E8C9A8' }]}>{label.toUpperCase()}</Text>
-      <Text style={[styles.kpiValue, color ? { color } : null, dark && { color: '#FBF6EE' }]}>
-        {value}
-      </Text>
-    </Pressable>
-  );
-}
-
-function Chip({ label, active, onPress, small }: { label: string; active: boolean; onPress: () => void; small?: boolean }) {
-  return (
-    <Pressable onPress={onPress} style={[styles.chip, small && styles.chipSmall, active && styles.chipOn]}>
-      <Text style={[styles.chipText, small && { fontSize: 12 }, active && styles.chipTextOn]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function Action({ icon, label, onPress, primary, tone, disabled }: { icon: keyof typeof Feather.glyphMap; label: string; onPress: () => void; primary?: boolean; tone?: 'ok' | 'bad'; disabled?: boolean }) {
-  const c = primary ? '#fff' : tone === 'ok' ? colors.success : tone === 'bad' ? colors.danger : colors.text;
-  return (
-    <Pressable onPress={onPress} disabled={disabled} style={[styles.action, primary && styles.actionPrimary, disabled && { opacity: 0.5 }]}>
-      <Feather name={icon} size={14} color={c} />
-      <Text style={[styles.actionText, { color: c }]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function Field({ label, children, half }: { label: string; children: React.ReactNode; half?: boolean }) {
-  return (
-    <View style={half ? { gap: 4, flexGrow: 1, flexBasis: 220, minWidth: 200 } : { gap: 4 }}>
-      <Text style={styles.fieldLabel}>{label}</Text>
-      {children}
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+      <View style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: color }} />
+      <Text style={kit.hint}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { paddingVertical: spacing.xl, gap: spacing.lg },
-  header: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg, alignItems: 'flex-start', justifyContent: 'space-between' },
-  title: { ...displayType, fontSize: fontSize.xxxl, fontWeight: '800', color: colors.text },
-  hint: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20, maxWidth: 680, marginTop: 4 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  action: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 9, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  actionPrimary: { backgroundColor: colors.primary, borderColor: colors.primary },
-  actionText: { fontSize: fontSize.sm, fontWeight: '700' },
-  banner: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
-  bannerText: { flex: 1, fontSize: fontSize.sm, color: colors.text },
-  periodRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
-  kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  kpi: { flexGrow: 1, flexBasis: 190, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 4 },
-  kpiDark: { backgroundColor: colors.text, borderColor: colors.text },
-  kpiLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.8, color: colors.textMuted },
-  kpiValue: { ...displayType, fontSize: 21, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
-  cols: { gap: spacing.lg },
-  card: { padding: spacing.lg, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: spacing.sm },
-  cardTitle: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text },
-  muted: { fontSize: fontSize.sm, color: colors.textMuted },
-  link: { fontSize: fontSize.sm, fontWeight: '600', color: colors.primary },
-  catRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 5 },
-  catDot: { width: 8, height: 8, borderRadius: 4 },
-  catLabel: { width: 190, fontSize: fontSize.sm, color: colors.text },
-  catBarTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
-  catBar: { height: 6, borderRadius: 3 },
-  catValue: { width: 96, textAlign: 'right', fontSize: fontSize.sm, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
-  filterRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  chip: { paddingHorizontal: spacing.md, paddingVertical: 7, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  chipSmall: { paddingHorizontal: spacing.sm, paddingVertical: 5 },
-  chipOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  chipText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
-  chipTextOn: { color: colors.primaryDark },
-  searchWrap: { flexDirection: 'row', alignItems: 'center', gap: 6, flexGrow: 1, minWidth: 220, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.sm, backgroundColor: colors.bg },
-  searchInput: { flex: 1, paddingVertical: 8, fontSize: fontSize.sm, color: colors.text, outlineStyle: 'none' } as any,
-  journalHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 9, paddingHorizontal: 4, borderTopWidth: 1, borderTopColor: colors.border },
-  rowDate: { ...monoType, width: 84, fontSize: 11.5, color: colors.textMuted },
-  rowLabel: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
-  rowMeta: { fontSize: fontSize.xs, color: colors.textMuted },
-  rowAmount: { width: 110, textAlign: 'right', fontSize: fontSize.sm, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: 9, fontSize: fontSize.sm, color: colors.text, backgroundColor: colors.bg },
-  dateInput: { width: 120 },
-  fieldLabel: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted },
-  formRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  backdrop: { flex: 1, backgroundColor: 'rgba(20,14,10,0.45)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
-  modal: { width: '100%', maxWidth: 640, maxHeight: '92%', backgroundColor: colors.surface, borderRadius: radius.lg, overflow: 'hidden' },
-  receiptChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 8, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
-  modalActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
-  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  saveBtn: { paddingHorizontal: spacing.xl, paddingVertical: 12, borderRadius: radius.md, backgroundColor: colors.primary },
-  saveText: { color: '#fff', fontWeight: '700', fontSize: fontSize.md },
+  page: { width: '100%', maxWidth: 1180, alignSelf: 'center', paddingTop: spacing.xl, gap: spacing.lg },
+  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing.md },
+  split: { gap: spacing.lg },
+  hero: { backgroundColor: colors.text, borderRadius: radius.xl, padding: spacing.xl, gap: spacing.lg, justifyContent: 'space-between' },
+  heroStats: { flexDirection: 'row', gap: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.12)', paddingTop: spacing.md },
+  catRow: { paddingVertical: 4 },
+  catTrack: { height: 5, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
+  search: { flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing.md, backgroundColor: colors.surface, minHeight: 44 },
+  searchInput: { flex: 1, minWidth: 0, paddingVertical: 10, fontSize: fontSize.sm, color: colors.text, outlineStyle: 'none' } as any,
+  monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: 10, backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: colors.border },
+  monthTitle: { fontSize: fontSize.sm, fontWeight: '800', color: colors.text },
+  monthNet: { fontSize: fontSize.sm, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border },
+  amount: { fontSize: fontSize.md, fontWeight: '800', fontVariant: ['tabular-nums'] },
 });

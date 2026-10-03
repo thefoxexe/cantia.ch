@@ -57,3 +57,29 @@ test('periods: months between, full year, presets', async () => {
   assert.equal(s.byMonth.length, 4);
   assert.equal(s.byMonth[0].month, '2025-12');
 });
+
+test('recurring: occurrences, due, next, monthly equivalent', async () => {
+  const { occurrences, dueOccurrences, nextOccurrence, monthlyEquivalent } = await import('../lib/admin/ledgerCalc.ts');
+  const rule = { id: 'r', kind: 'depense', category: 'logiciels', label: 'Supabase', counterparty: null, amount_chf: 25, vat_rate: 0, payment_method: 'carte', frequency: 'monthly', day_of_month: 31, start_date: '2026-01-15', end_date: null, last_date: null, proof: null, notes: null, active: true };
+  assert.deepEqual(occurrences(rule, '2026-04-30'), ['2026-01-31', '2026-02-28', '2026-03-31', '2026-04-30']);
+  assert.deepEqual(occurrences({ ...rule, day_of_month: 10 }, '2026-03-31'), ['2026-02-10', '2026-03-10']);
+  assert.deepEqual(dueOccurrences({ ...rule, last_date: '2026-02-28' }, '2026-04-02'), ['2026-03-31']);
+  assert.deepEqual(dueOccurrences({ ...rule, active: false }, '2026-04-02'), []);
+  assert.equal(nextOccurrence({ ...rule, last_date: '2026-03-31' }, '2026-04-02'), '2026-04-30');
+  assert.deepEqual(occurrences({ ...rule, frequency: 'quarterly', day_of_month: 1, start_date: '2026-01-01' }, '2026-12-31'), ['2026-01-01', '2026-04-01', '2026-07-01', '2026-10-01']);
+  assert.deepEqual(occurrences({ ...rule, frequency: 'weekly', start_date: '2026-01-05' }, '2026-01-20'), ['2026-01-05', '2026-01-12', '2026-01-19']);
+  assert.deepEqual(occurrences({ ...rule, end_date: '2026-02-15' }, '2026-12-31'), ['2026-01-31']);
+  assert.equal(monthlyEquivalent({ frequency: 'yearly', amount_chf: 120 }), 10);
+  assert.equal(monthlyEquivalent({ frequency: 'weekly', amount_chf: 12 }), 52);
+});
+
+test('proof status', async () => {
+  const { proofStatus } = await import('../lib/admin/ledgerCalc.ts');
+  assert.equal(proofStatus({ kind: 'recette', receipt_path: null, source: 'manuel', proof: null }), 'na');
+  assert.equal(proofStatus({ kind: 'depense', receipt_path: 'x', source: 'manuel', proof: null }), 'file');
+  assert.equal(proofStatus({ kind: 'depense', receipt_path: null, source: 'manuel', proof: 'facture_en_ligne' }), 'declared');
+  assert.equal(proofStatus({ kind: 'depense', receipt_path: null, source: 'manuel', proof: 'releve' }), 'weak');
+  assert.equal(proofStatus({ kind: 'depense', receipt_path: null, source: 'manuel', proof: null }), 'missing');
+  const s = summarize([...data, E('6', '2026-03-12', 'depense', 'marketing', 300, { proof: 'facture_en_ligne' })], 2026);
+  assert.equal(s.missingReceipts, 2);
+});
