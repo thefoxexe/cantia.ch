@@ -310,10 +310,31 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
     const articles = await fetchAllBexioPages<BexioArticle>(admin, integration, '/2.0/article');
 
     const mappingByExternalId = await loadMappings(admin, integration.id, 'article');
+    const mappedLocalIds = new Set([...mappingByExternalId.values()].map((m) => m.local_id));
+    // Bexio's article list has no updated_at, so « unchanged » is decided on
+    // the content itself: comparing with the local catalogue (one paged read)
+    // instead of rewriting all ~2'700 articles every 15 minutes.
+    const catalogById = new Map<string, { id: string; description: string; unit_price: number; description_key: string | null }>();
+    const catalogByKey = new Map<string, string>();
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await admin
+        .from('catalog_items')
+        .select('id, description, unit_price, description_key')
+        .eq('organization_id', integration.organization_id)
+        .order('id', { ascending: true })
+        .range(from, from + 999);
+      if (error) throw new Error(`Lecture du catalogue impossible: ${error.message}`);
+      for (const c of data ?? []) {
+        catalogById.set(c.id, { ...c, unit_price: Number(c.unit_price) });
+        if (c.description_key) catalogByKey.set(c.description_key, c.id);
+      }
+      if (!data || data.length < 1000) break;
+    }
 
     let count = 0;
     let skipped = 0;
     let unchanged = 0;
+    let duplicates = 0;
     await mapWithConcurrency(articles, SYNC_CONCURRENCY, async (article) => {
       const name = article.intern_name?.trim();
       const price = article.sale_price != null ? Number(article.sale_price) : null;
@@ -324,20 +345,29 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
       const externalId = String(article.id);
       const existingMapping = mappingByExternalId.get(externalId);
 
-      if (existingMapping && sameTimestamp(existingMapping.external_updated_at, article.updated_at)) {
-        unchanged += 1;
-        return;
-      }
       if (existingMapping) {
+        const local = catalogById.get(existingMapping.local_id);
+        if (local && local.description === name && Math.abs(local.unit_price - price) < 0.005) {
+          unchanged += 1;
+          return;
+        }
         await admin.from('catalog_items').update({ description: name, unit_price: price }).eq('id', existingMapping.local_id);
         await admin
           .from('integration_mappings')
-          .update({ last_synced_at: new Date().toISOString(), external_updated_at: article.updated_at })
+          .update({ last_synced_at: new Date().toISOString(), external_updated_at: article.updated_at ?? null })
           .eq('id', existingMapping.id);
       } else {
         const key = normalizeCatalogKey(name);
         if (!key) {
           skipped += 1;
+          return;
+        }
+        // Two Bexio articles with the same name land on the same catalogue
+        // row, which can carry only one mapping: the second one used to be
+        // upserted and rejected (409) on every sweep. Skip it without writing.
+        const sameName = catalogByKey.get(key);
+        if (sameName && mappedLocalIds.has(sameName)) {
+          duplicates += 1;
           return;
         }
         // A local catalogue row with the same normalized description
@@ -353,6 +383,8 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
           .select('id')
           .single();
         if (upsertError || !upserted) throw new Error(upsertError?.message ?? 'Échec de création de la position de catalogue');
+        mappedLocalIds.add(upserted.id);
+        catalogByKey.set(key, upserted.id);
         await admin.from('integration_mappings').insert({
           integration_id: integration.id,
           organization_id: integration.organization_id,
@@ -367,7 +399,7 @@ export async function syncBexioArticles(admin: any, integration: BexioIntegratio
       }
       count += 1;
     });
-    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'article', payload_summary: { count, skipped, unchanged } });
+    await logSync(admin, integration, { direction: 'pull', action: 'update', status: 'success', entity_type: 'article', payload_summary: { count, skipped, unchanged, duplicates } });
     return { action: 'articles', ok: true, count };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -407,7 +439,8 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
       const facture = factureById.get(mapping.local_id);
       // Never let an automated pull resurrect a locally cancelled/draft
       // invoice — those are deliberate local states, not payment states.
-      if (!facture || facture.status === 'cancelled' || facture.status === 'draft') return;
+      // Paid is final: no need to ask Bexio again every 15 minutes.
+      if (!facture || facture.status === 'cancelled' || facture.status === 'draft' || facture.status === 'paid') return;
 
       let invoice: BexioInvoiceStatus;
       try {
@@ -437,8 +470,8 @@ export async function syncBexioInvoiceStatuses(admin: any, integration: BexioInt
           .from('factures')
           .update({ status: nextStatus, paid_at: nextStatus === 'paid' && !facture.paid_at ? new Date().toISOString() : facture.paid_at })
           .eq('id', facture.id);
+        await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
       }
-      await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
       count += 1;
     });
     if (failed > 0 && count === 0) {
@@ -787,7 +820,7 @@ export async function syncBexioDevisStatuses(admin: any, integration: BexioInteg
     // One query for every mapped devis's current status instead of one per
     // mapping — same fix as the other sync* functions here.
     const localIds = (mappings ?? []).map((m: any) => m.local_id);
-    const { data: devisRows } = localIds.length ? await admin.from('devis').select('id, status').in('id', localIds) : { data: [] as any[] };
+    const { data: devisRows } = localIds.length ? await admin.from('devis').select('id, status, bexio_status_id, bexio_document_nr').in('id', localIds) : { data: [] as any[] };
     const devisById = new Map<string, any>((devisRows ?? []).map((d: any) => [d.id, d]));
 
     let count = 0;
@@ -810,8 +843,10 @@ export async function syncBexioDevisStatuses(admin: any, integration: BexioInteg
       const justAccepted = offer.kb_item_status_id === BEXIO_OFFER_STATUS_ACCEPTED && !wasAccepted && localDevis != null;
       if (justAccepted) updatePayload.status = 'accepted';
 
-      await admin.from('devis').update(updatePayload).eq('id', mapping.local_id);
-      await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
+      if (justAccepted || localDevis?.bexio_status_id !== offer.kb_item_status_id || localDevis?.bexio_document_nr !== offer.document_nr) {
+        await admin.from('devis').update(updatePayload).eq('id', mapping.local_id);
+        await admin.from('integration_mappings').update({ last_synced_at: new Date().toISOString() }).eq('id', mapping.id);
+      }
       count += 1;
 
       if (justAccepted) await autoCreateAndPushFactureForAcceptedDevis(admin, integration, mapping.local_id);

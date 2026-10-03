@@ -40,7 +40,14 @@ export class BexioError extends Error {
 // and — critically — always stores whatever refresh_token Bexio returns,
 // since it may issue a new one on every renewal (cahier des charges
 // section 6: never treat a refresh token as eternal/immutable).
+// Access tokens kept in memory for the life of the function instance: a
+// sweep makes hundreds of Bexio calls, and reading the credentials row and
+// the vault secret before each one was ~20'000 database calls a day.
+const tokenCache = new Map<string, { token: string; until: number }>();
+
 export async function getValidAccessToken(admin: any, integration: BexioIntegrationRow): Promise<string> {
+  const cached = tokenCache.get(integration.id);
+  if (cached && cached.until > Date.now() + 60_000) return cached.token;
   const { data: creds } = await admin
     .from('integration_credentials')
     .select('id, access_token_secret_id, refresh_token_secret_id, expires_at')
@@ -60,7 +67,10 @@ export async function getValidAccessToken(admin: any, integration: BexioIntegrat
   const stillValid = expiresAt > Date.now() + 60_000;
   if (stillValid) {
     const { data: token } = await admin.rpc('vault_read_secret', { secret_id: creds.access_token_secret_id });
-    if (token) return token as string;
+    if (token) {
+      tokenCache.set(integration.id, { token: token as string, until: expiresAt });
+      return token as string;
+    }
   }
 
   return refreshAccessToken(admin, integration, creds);
@@ -103,6 +113,7 @@ async function refreshAccessToken(admin: any, integration: BexioIntegrationRow, 
   }
   const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null;
   await admin.from('integration_credentials').update({ expires_at: expiresAt }).eq('id', creds.id);
+  tokenCache.set(integration.id, { token: tokens.access_token, until: expiresAt ? new Date(expiresAt).getTime() : Date.now() + 10 * 60_000 });
 
   return tokens.access_token;
 }
@@ -118,6 +129,7 @@ export async function bexioFetch(admin: any, integration: BexioIntegrationRow, p
   let token = await getValidAccessToken(admin, integration);
   let res = await doFetch(token, path, init);
   if (res.status === 401) {
+    tokenCache.delete(integration.id);
     const { data: creds } = await admin
       .from('integration_credentials')
       .select('id, access_token_secret_id, refresh_token_secret_id, expires_at')
