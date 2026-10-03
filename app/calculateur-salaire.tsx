@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Screen } from '../components/ui';
 import { MarketingHead } from '../components/MarketingHead';
@@ -9,41 +9,34 @@ import { CtaButton } from '../components/landing/CtaButton';
 import { bodyInk, ink, rule } from '../components/landing/brand';
 import { Heading } from '../components/Heading';
 import { authHref } from '../lib/appHost';
-import { computeSwissPayroll, type PayLine, type SwissOverrides, type SwissSituation } from '../lib/payroll/swissEngine.ts';
-import { CANTONS, DEFAULT_LAA, isSubjectToWht, socialRatesFor, whtCode, type Canton, type Permit, type WhtSteps } from '../lib/payroll/swissReferences.ts';
+import { computeSwissPayroll, type PayLine, type SwissOverrides, type SwissPayroll, type SwissSituation } from '../lib/payroll/swissEngine.ts';
+import { CANTONS, DEFAULT_LAA, socialRatesFor, whtCode, type Canton, type Permit, type WhtSteps } from '../lib/payroll/swissReferences.ts';
+import { CALCULATOR_COPY, type CalculatorCopy } from '../lib/payroll/calculatorCopy';
+import { fill } from '../lib/payroll/wizardCopy';
+import { SimplePdf, downloadPdf, type Rgb } from '../lib/pdf/simplePdf';
+import { getAppLocale, type AppLocale } from '../lib/translations';
 import { supabase } from '../lib/supabase';
 import { breakpoints, colors, spacing } from '../lib/theme';
 import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
 
-// Free public salary calculator (cantia.ch/calculateur-salaire): gross →
-// net and employer cost for one employee, with the same engine as the
-// payslips in the app (lib/payroll/swissEngine.ts): AVS/AI/APG, AC, LPP by
-// age on the coordinated salary (legal minimum or the fund's own plan,
-// from 18), LAA, family allowances, withholding tax from the official
-// ESTV scale (public.swiss_wht_tariffs, readable anonymously). Nothing is
-// stored; everything runs in the visitor's browser.
+// Free public salary calculator (cantia.ch/calculateur-salaire, plus the
+// /de and /it twins): gross → net and employer cost for one employee, with
+// the same engine as the payslips in the app (lib/payroll/swissEngine.ts):
+// AVS/AI/APG, AC, LPP by age on the coordinated salary (legal minimum or
+// the fund's own plan, from 18), LAA, family allowances, withholding tax
+// from the official ESTV scale (public.swiss_wht_tariffs, readable
+// anonymously). Nothing is stored; everything runs in the visitor's
+// browser, including the one-page PDF summary.
 
 const YEAR = 2026;
 const RATES = socialRatesFor(YEAR);
 
 type Residence = SwissSituation['residenceCountry'];
+type WhtReason = keyof CalculatorCopy['whtReasons'];
 
-const PERMITS: { value: Permit; label: string }[] = [
-  { value: 'swiss', label: 'Suisse' },
-  { value: 'C', label: 'Permis C' },
-  { value: 'B', label: 'Permis B' },
-  { value: 'L', label: 'Permis L' },
-  { value: 'G', label: 'Frontalier (G)' },
-  { value: 'other', label: 'Autre' },
-];
-
-const RESIDENCES: { value: Residence; label: string }[] = [
-  { value: 'CH', label: 'En Suisse' },
-  { value: 'FR', label: 'France' },
-  { value: 'DE', label: 'Allemagne' },
-  { value: 'IT', label: 'Italie' },
-  { value: 'AT', label: 'Autriche' },
-];
+const PERMITS: Permit[] = ['swiss', 'C', 'B', 'L', 'G', 'other'];
+const RESIDENCES: Exclude<Residence, 'other'>[] = ['CH', 'FR', 'DE', 'IT', 'AT'];
+const FRANCE_AGREEMENT: Canton[] = ['BE', 'BS', 'BL', 'JU', 'NE', 'SO', 'VD', 'VS'];
 
 function chf(n: number): string {
   const [int, dec] = Math.abs(n).toFixed(2).split('.');
@@ -55,22 +48,39 @@ function num(s: string): number | null {
   return s.trim() && Number.isFinite(n) ? n : null;
 }
 
-function pct(n: number): string {
-  return `${Number(n.toFixed(3)).toString().replace('.', ',')} %`;
+function pct(n: number, locale: AppLocale): string {
+  const v = Number(n.toFixed(3)).toString();
+  return `${locale === 'fr' || locale === 'it' ? v.replace('.', ',') : v} %`;
+}
+
+// The step-by-step LPP article exists in French only.
+const LPP_ARTICLE = '/blog/calcul-lpp-employe-taux-salaire-coordonne-2026';
+
+// Same rules as isSubjectToWht (lib/payroll/swissReferences.ts), with the
+// reason as a key so it can be said in the visitor's language.
+function whtSubject(permit: Permit, couple: boolean, spouseSwiss: boolean, residence: Residence, canton: Canton): { subject: boolean; reason: WhtReason } {
+  if (permit === 'swiss') return { subject: false, reason: 'swiss' };
+  if (permit === 'C') return { subject: false, reason: 'C' };
+  if (couple && spouseSwiss && residence === 'CH') return { subject: false, reason: 'spouse' };
+  if (residence === 'FR' && FRANCE_AGREEMENT.includes(canton)) return { subject: false, reason: 'france' };
+  return { subject: true, reason: residence === 'CH' ? 'permit' : 'border' };
 }
 
 export default function SalaryCalculatorPage() {
+  const locale = getAppLocale();
+  const c = CALCULATOR_COPY[locale] ?? CALCULATOR_COPY.fr;
   const { width } = useWindowDimensions();
   const wide = width >= breakpoints.desktop;
 
   const [grossInput, setGrossInput] = useState('5’500');
   const [period, setPeriod] = useState<'month' | 'year'>('month');
   const [birthYear, setBirthYear] = useState('1994');
-  const [canton, setCanton] = useState<Canton>('VD');
+  const [canton, setCanton] = useState<Canton>(locale === 'de' ? 'ZH' : locale === 'it' ? 'TI' : 'VD');
   const [permit, setPermit] = useState<Permit>('swiss');
   const [residence, setResidence] = useState<Residence>('CH');
   const [married, setMarried] = useState(false);
   const [spouseWorks, setSpouseWorks] = useState(false);
+  const [spouseSwiss, setSpouseSwiss] = useState(false);
   const [kids, setKids] = useState(0);
   const [kidsTraining, setKidsTraining] = useState(0);
   const [church, setChurch] = useState(false);
@@ -88,30 +98,30 @@ export default function SalaryCalculatorPage() {
   const by = num(birthYear);
   const validYear = by !== null && by > 1940 && by <= YEAR - 14;
   const age = validYear ? YEAR - by! : null;
+  const effResidence: Residence = permit === 'G' && residence === 'CH' ? 'FR' : residence;
 
   const situation: SwissSituation = {
     birthDate: validYear ? `${by}-07-01` : null,
     permit,
     maritalStatus: married ? 'married' : 'single',
-    spouseIsSwissOrC: false,
+    spouseIsSwissOrC: married && spouseSwiss,
     spouseWorks: married && spouseWorks,
     livesWithChildren: kids + kidsTraining > 0,
     childrenUnder16: kids,
     childrenInTraining: kidsTraining,
     church,
-    residenceCountry: permit === 'G' && residence === 'CH' ? 'FR' : residence,
+    residenceCountry: effResidence,
     residenceCanton: canton,
     workCanton: canton,
     lppInsured: true,
     receivesFamilyAllowances: kids + kidsTraining > 0,
   };
-  const whtSit = { ...situation, children: kids + kidsTraining };
-  const subject = isSubjectToWht(whtSit, canton).subject;
-  const code = subject ? whtCode(whtSit) : null;
+  const wht = whtSubject(permit, married, spouseSwiss, effResidence, canton);
+  const code = wht.subject ? whtCode({ ...situation, children: kids + kidsTraining }) : null;
 
   useEffect(() => {
     let alive = true;
-    if (!subject || !code) {
+    if (!wht.subject || !code) {
       setSteps(null);
       return;
     }
@@ -139,7 +149,7 @@ export default function SalaryCalculatorPage() {
       alive = false;
       clearTimeout(timer);
     };
-  }, [subject, code, canton]);
+  }, [wht.subject, code, canton]);
 
   const overrides: SwissOverrides = {
     aanpPercent: num(aanp) ?? DEFAULT_LAA.aanpPercent,
@@ -147,6 +157,7 @@ export default function SalaryCalculatorPage() {
     lppTotalPercent: plan === 'fund' ? num(fundRate) : null,
     lppYoungPercent: plan === 'fund' ? num(fundYoungRate) : null,
     lppEmployerSharePercent: plan === 'fund' ? num(erShare) : 50,
+    whtSubject: wht.subject,
   };
   const payroll = useMemo(
     () => computeSwissPayroll(situation, monthly, YEAR, { overrides, whtSteps: steps }),
@@ -154,78 +165,93 @@ export default function SalaryCalculatorPage() {
     [JSON.stringify(situation), monthly, JSON.stringify(overrides), steps],
   );
 
-  const lppSituation = lppStory(age, monthly * 12, plan, payroll.lpp);
+  const label = (l: PayLine, side: 'ee' | 'er') => lineLabel(c, l, side, canton, code);
+  const lpp = lppStory(c, locale, age, monthly * 12, plan, payroll.lpp);
+  const whtTitle = wht.subject ? fill(c.whtYes, { code: code ?? '' }) : c.whtNo;
+  const whtText = whtStory(c, locale, wht, permit, canton, code, payroll.wht.ratePercent, stepsLoading, payroll.wht.missingScale);
+
+  const onPdf = () => {
+    const pdf = buildPdf({ c, locale, payroll, age, canton, permitLabel: c.permits[permit as keyof typeof c.permits], lppTitle: c.lppPrefix + lpp.title, lppText: lpp.text, whtTitle, whtText: stepsLoading ? whtText.replace(` ${c.whtLoading}`, '') : whtText, label });
+    downloadPdf(pdf, `${c.pdfFile}-${YEAR}`);
+  };
 
   const form = (
     <View style={styles.form}>
-      <Group title="Salaire">
+      <Group title={c.salary}>
         <View style={styles.inline}>
-          <Input value={grossInput} onChange={setGrossInput} suffix="CHF brut" wide />
-          <Segmented value={period} onChange={setPeriod} options={[{ value: 'month', label: 'par mois' }, { value: 'year', label: 'par an' }]} />
+          <Input value={grossInput} onChange={setGrossInput} suffix={c.grossSuffix} wide />
+          <Chips value={period} onChange={setPeriod} options={[{ value: 'month', label: c.perMonth }, { value: 'year', label: c.perYear }]} />
         </View>
-        <Hint>{period === 'year' ? `Soit CHF ${chf(monthly)} par mois (12 salaires).` : `Soit CHF ${chf(monthly * 12)} par an (12 salaires).`}</Hint>
+        <Hint>{period === 'year' ? fill(c.monthlyIs, { v: chf(monthly) }) : fill(c.yearlyIs, { v: chf(monthly * 12) })}</Hint>
       </Group>
 
-      <Group title="Employé·e">
-        <Label>Année de naissance</Label>
+      <Group title={c.employee}>
+        <Label>{c.birthYear}</Label>
         <View style={styles.inline}>
           <Input value={birthYear} onChange={setBirthYear} placeholder="1994" />
-          <Text style={styles.ageText}>{age !== null ? `${age} ans en ${YEAR}` : 'Année invalide'}</Text>
+          <Text style={styles.ageText}>{age !== null ? fill(c.ageIn, { age, year: YEAR }) : c.badYear}</Text>
         </View>
-        <Label>Nationalité / permis</Label>
-        <Chips value={permit} onChange={setPermit} options={PERMITS} />
-        <Label>Domicile</Label>
-        <Chips value={situation.residenceCountry} onChange={setResidence} options={RESIDENCES} />
-        <Label>État civil</Label>
-        <Chips value={married ? 'm' : 's'} onChange={(v) => setMarried(v === 'm')} options={[{ value: 's', label: 'Célibataire' }, { value: 'm', label: 'Marié·e / partenariat' }]} />
-        {married ? <Chips value={spouseWorks ? 'y' : 'n'} onChange={(v) => setSpouseWorks(v === 'y')} options={[{ value: 'n', label: 'Conjoint·e sans revenu' }, { value: 'y', label: 'Conjoint·e qui travaille' }]} /> : null}
+        <Label>{c.permit}</Label>
+        <Chips value={permit} onChange={setPermit} options={PERMITS.map((p) => ({ value: p, label: c.permits[p as keyof typeof c.permits] }))} />
+        <Label>{c.residence}</Label>
+        <Chips value={effResidence} onChange={setResidence} options={RESIDENCES.map((r) => ({ value: r as Residence, label: c.residences[r] }))} />
+        <Label>{c.marital}</Label>
+        <Chips value={married ? 'm' : 's'} onChange={(v) => setMarried(v === 'm')} options={[{ value: 's', label: c.single }, { value: 'm', label: c.married }]} />
+        {married ? (
+          <>
+            <Chips value={spouseWorks ? 'y' : 'n'} onChange={(v) => setSpouseWorks(v === 'y')} options={[{ value: 'n', label: c.spouseNoIncome }, { value: 'y', label: c.spouseWorks }]} />
+            {permit !== 'swiss' && permit !== 'C' ? (
+              <Chips value={spouseSwiss ? 'y' : 'n'} onChange={(v) => setSpouseSwiss(v === 'y')} options={[{ value: 'n', label: c.spouseForeign }, { value: 'y', label: c.spouseSwiss }]} />
+            ) : null}
+          </>
+        ) : null}
         <View style={styles.counters}>
-          <Counter label="Enfants de moins de 16 ans" value={kids} onChange={setKids} />
-          <Counter label="Enfants en formation (16-25 ans)" value={kidsTraining} onChange={setKidsTraining} />
+          <Counter label={c.kids} value={kids} onChange={setKids} less={c.less} more={c.more} />
+          <Counter label={c.kidsTraining} value={kidsTraining} onChange={setKidsTraining} less={c.less} more={c.more} />
         </View>
-        {subject ? <Chips value={church ? 'y' : 'n'} onChange={(v) => setChurch(v === 'y')} options={[{ value: 'n', label: 'Sans impôt ecclésiastique' }, { value: 'y', label: 'Membre d’une Église' }]} /> : null}
+        {wht.subject ? <Chips value={church ? 'y' : 'n'} onChange={(v) => setChurch(v === 'y')} options={[{ value: 'n', label: c.noChurch }, { value: 'y', label: c.church }]} /> : null}
       </Group>
 
-      <Group title="Entreprise">
-        <Label>Canton de travail</Label>
+      <Group title={c.company}>
+        <Label>{c.workCanton}</Label>
         <View style={styles.cantons}>
-          {CANTONS.map((c) => (
-            <Pressable key={c} onPress={() => setCanton(c)} style={[styles.canton, canton === c && styles.chipOn]}>
-              <Text style={[styles.cantonText, canton === c && styles.chipTextOn]}>{c}</Text>
+          {CANTONS.map((k) => (
+            <Pressable key={k} onPress={() => setCanton(k)} style={[styles.canton, canton === k && styles.chipOn]}>
+              <Text style={[styles.cantonText, canton === k && styles.chipTextOn]}>{k}</Text>
             </Pressable>
           ))}
         </View>
-        <Label>Caisse de pension (LPP)</Label>
-        <Chips value={plan} onChange={setPlan} options={[{ value: 'legal', label: 'Minimum légal' }, { value: 'fund', label: 'Plan de ma caisse' }]} />
+        <Label>{c.pension}</Label>
+        <Chips value={plan} onChange={setPlan} options={[{ value: 'legal', label: c.legalMin }, { value: 'fund', label: c.fundPlan }]} />
         {plan === 'fund' ? (
           <View style={styles.fundBox}>
             <View style={styles.fundRow}>
               <View style={styles.fundCell}>
-                <Label>Taux total dès 25 ans</Label>
-                <Input value={fundRate} onChange={setFundRate} placeholder={age !== null && age >= 25 ? String(payroll.lpp.creditPercent || 7) : '7'} suffix="%" />
+                <Label>{c.fundRate}</Label>
+                <Input value={fundRate} onChange={setFundRate} placeholder="7" suffix="%" />
               </View>
               <View style={styles.fundCell}>
-                <Label>Taux de 18 à 24 ans</Label>
-                <Input value={fundYoungRate} onChange={setFundYoungRate} placeholder="p. ex. 4" suffix="%" />
+                <Label>{c.fundYoung}</Label>
+                <Input value={fundYoungRate} onChange={setFundYoungRate} placeholder={c.fundYoungPh} suffix="%" />
               </View>
               <View style={styles.fundCell}>
-                <Label>Part employeur</Label>
+                <Label>{c.erShare}</Label>
                 <Input value={erShare} onChange={setErShare} placeholder="50" suffix="%" />
               </View>
             </View>
-            <Hint>Reprenez les taux du règlement ou de la fiche de votre caisse. Vide = minimum légal selon l’âge. La part employeur est d’au moins 50 % (art. 66 LPP).</Hint>
+            <Hint>{c.fundHint}</Hint>
           </View>
         ) : null}
-        <Label>Assurance accidents (LAA)</Label>
+        <Label>{c.laa}</Label>
         <View style={styles.fundRow}>
           <View style={styles.fundCell}>
-            <Input value={aanp} onChange={setAanp} suffix="% AANP employé" />
+            <Input value={aanp} onChange={setAanp} suffix={c.aanpSuffix} />
           </View>
           <View style={styles.fundCell}>
-            <Input value={aap} onChange={setAap} suffix="% AAP employeur" />
+            <Input value={aap} onChange={setAap} suffix={c.aapSuffix} />
           </View>
         </View>
-        <Hint>Taux indicatifs : ceux de votre police LAA peuvent varier selon le métier.</Hint>
+        <Hint>{c.laaHint}</Hint>
       </Group>
     </View>
   );
@@ -233,63 +259,91 @@ export default function SalaryCalculatorPage() {
   const result = (
     <View style={styles.result}>
       <View style={styles.netCard}>
-        <Text style={styles.netLabel}>SALAIRE NET / MOIS</Text>
-        <Text style={[styles.netValue, !wide && width < breakpoints.tablet && { fontSize: 38, lineHeight: 42 }]}>CHF {chf(payroll.net)}</Text>
+        <Text style={styles.netLabel}>{c.netLabel}</Text>
+        <Text style={[styles.netValue, width < breakpoints.tablet && { fontSize: 38, lineHeight: 42 }]}>CHF {chf(payroll.net)}</Text>
         <Text style={styles.netSub}>
-          Brut CHF {chf(payroll.gross)} − retenues CHF {chf(payroll.totalDeductions)}
-          {payroll.familyAllowance > 0 ? ` + allocations CHF ${chf(payroll.familyAllowance)}` : ''}
+          {fill(c.netSub, { gross: chf(payroll.gross), ded: chf(payroll.totalDeductions) })}
+          {payroll.familyAllowance > 0 ? fill(c.netSubAllow, { v: chf(payroll.familyAllowance) }) : ''}
         </Text>
         <View style={styles.costRow}>
-          <Text style={styles.costLabel}>Coût total employeur</Text>
-          <Text style={styles.costValue}>CHF {chf(payroll.totalCost)} / mois</Text>
+          <Text style={styles.costLabel}>{c.totalCost}</Text>
+          <Text style={styles.costValue}>
+            CHF {chf(payroll.totalCost)} {c.perMonthShort}
+          </Text>
         </View>
       </View>
 
-      <Table title="Retenues sur le salaire" lines={payroll.employee} sign="−" total={payroll.totalDeductions} totalLabel="Total des retenues" />
+      <Table title={c.deductions} lines={payroll.employee} label={(l) => label(l, 'ee')} of={c.of} locale={locale} sign="−" total={payroll.totalDeductions} totalLabel={c.totalDeductions} />
       {payroll.familyAllowance > 0 ? (
         <View style={styles.allowRow}>
-          <Text style={styles.lineLabel}>Allocations familiales ({canton})</Text>
+          <Text style={styles.lineLabel}>{fill(c.allowances, { canton })}</Text>
           <Text style={[styles.lineAmount, { color: colors.success }]}>+{chf(payroll.familyAllowance)}</Text>
         </View>
       ) : null}
-      <Table title="Charges patronales" lines={payroll.employer} sign="+" total={payroll.totalEmployer} totalLabel="Total employeur" />
+      <Table title={c.employerCharges} lines={payroll.employer} label={(l) => label(l, 'er')} of={c.of} locale={locale} sign="+" total={payroll.totalEmployer} totalLabel={c.totalEmployer} />
 
-      <Explain tone={payroll.lpp.applies ? 'ok' : 'info'} title={`LPP : ${lppSituation.title}`}>
-        {lppSituation.text}
+      <Explain tone={payroll.lpp.applies ? 'ok' : 'info'} title={c.lppPrefix + lpp.title}>
+        {lpp.text}
       </Explain>
-      <Explain tone={subject ? 'warn' : 'ok'} title={subject ? `Impôt à la source : oui (barème ${code})` : 'Impôt à la source : non'}>
-        {whtStory(subject, payroll.wht.reason, canton, code, payroll.wht.ratePercent, stepsLoading, payroll.wht.missingScale)}
+      <Explain tone={wht.subject ? 'warn' : 'ok'} title={whtTitle}>
+        {whtText}
       </Explain>
+
+      {Platform.OS === 'web' ? (
+        <View style={styles.pdfRow}>
+          <Pressable onPress={onPdf} style={({ pressed }) => [styles.pdfButton, pressed && { opacity: 0.85 }]} accessibilityRole="button">
+            <Text style={styles.pdfButtonText}>↓  {c.pdfButton}</Text>
+          </Pressable>
+          <Text style={styles.hint}>{c.pdfHint}</Text>
+        </View>
+      ) : null}
     </View>
   );
 
   return (
     <Screen style={{ padding: 0 }}>
-      <MarketingHead
-        title="Calculateur de salaire suisse 2026 : brut, net, LPP et charges | Cantia"
-        description="Calculez gratuitement le salaire net et le coût employeur en Suisse : AVS, AC, LPP selon l’âge, LAA, allocations familiales et impôt à la source par canton. Montants 2026."
-      />
+      <MarketingHead title={c.metaTitle} description={c.metaDescription} />
       <MarketingNav />
       <ScrollView>
-        <PageHero
-          kicker={`Outil gratuit · Montants ${YEAR}`}
-          title="Calculateur de salaire suisse"
-          lede="Du brut au net et au coût employeur, en direct : AVS, chômage, LPP selon l’âge et votre caisse, accidents, allocations familiales et impôt à la source avec les barèmes officiels des 26 cantons. Gratuit, sans inscription, rien n’est enregistré."
-        />
+        <PageHero kicker={fill(c.kicker, { year: YEAR })} title={c.title} lede={c.lede} />
         <View style={[pageWrap, styles.body]}>
           <View style={[styles.columns, wide && styles.columnsWide]}>
             <View style={wide ? { flex: 1 } : null}>{form}</View>
             <View style={wide ? { flex: 1 } : null}>{result}</View>
           </View>
 
-          <Cta />
+          <Cta c={c} />
 
-          <Situations />
+          <View style={styles.section}>
+            <Heading level={2} style={styles.h2}>
+              {c.sitTitle}
+            </Heading>
+            <Text style={styles.p}>{c.sitText}</Text>
+            <ScrollView horizontal contentContainerStyle={{ minWidth: '100%' }}>
+              <View style={styles.sitTable}>
+                <View style={[styles.sitRow, styles.sitHead]}>
+                  {c.sitHead.map((h, i) => (
+                    <Text key={h} style={[styles.sitCell, styles.sitHeadText, { flex: [1, 1.4, 1.2][i] }]}>
+                      {h}
+                    </Text>
+                  ))}
+                </View>
+                {c.sitRows.map((r) => (
+                  <View key={r[0]} style={styles.sitRow}>
+                    <Text style={[styles.sitCell, { flex: 1, fontWeight: '600' }]}>{r[0]}</Text>
+                    <Text style={[styles.sitCell, { flex: 1.4 }]}>{r[1]}</Text>
+                    <Text style={[styles.sitCell, { flex: 1.2 }]}>{r[2]}</Text>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+            <Link href={LPP_ARTICLE as any}>
+              <Text style={styles.link}>{c.sitLink}</Text>
+            </Link>
+          </View>
 
           <View style={styles.sources}>
-            <Text style={styles.sourcesText}>
-              Sources : OFAS (AVS/AI/APG {pct(RATES.avsAiApgPercent)}, AC {pct(RATES.acPercent)} jusqu’à CHF {chf(RATES.acCeilingChf).replace('.00', '')} par an), LPP art. 7, 8, 16 et 66 (montants {YEAR}), OFAS allocations familiales {YEAR}, AFC barèmes de l’impôt à la source {YEAR}. Résultat indicatif : le règlement de votre caisse de pension, votre police LAA et la décision de l’administration fiscale font foi.
-            </Text>
+            <Text style={styles.sourcesText}>{fill(c.sources, { avs: pct(RATES.avsAiApgPercent, locale), ac: pct(RATES.acPercent, locale), year: YEAR })}</Text>
           </View>
         </View>
         <MarketingFooter />
@@ -301,95 +355,169 @@ export default function SalaryCalculatorPage() {
 // ---------------------------------------------------------------------------
 // The words around the numbers
 
-function lppStory(age: number | null, annual: number, plan: 'legal' | 'fund', lpp: { applies: boolean; creditPercent: number; employerSharePercent: number; coordinatedMonthly: number }): { title: string; text: string } {
-  if (annual < RATES.lppEntryThresholdChf) {
-    return {
-      title: 'pas assujetti',
-      text: `Le salaire annuel (CHF ${chf(annual)}) est sous le seuil d’entrée de CHF 22’680 : l’affiliation n’est pas obligatoire. Une caisse peut quand même l’assurer si son règlement le prévoit.`,
-    };
-  }
-  if (age !== null && age < 18) return { title: 'pas de LPP avant 18 ans', text: 'Avant le 1er janvier qui suit le 17e anniversaire, il n’y a jamais de LPP obligatoire.' };
-  if (age !== null && age < 25 && !lpp.applies) {
-    return {
-      title: 'rien à épargner avant 25 ans (minimum légal)',
-      text: 'De 18 à 24 ans, la loi impose seulement la couverture décès et invalidité, sans épargne. Beaucoup de caisses prélèvent pourtant une cotisation dès 18 ans : choisissez « Plan de ma caisse » et indiquez son taux de 18 à 24 ans pour la voir ici.',
-    };
-  }
-  const er = lpp.employerSharePercent;
-  const base = `Salaire coordonné : CHF ${chf(lpp.coordinatedMonthly)} par mois (salaire annuel plafonné à CHF 90’720, moins CHF 26’460, minimum CHF 3’780).`;
-  const split = `Répartition : ${pct(er)} employeur, ${pct(100 - er)} employé·e.`;
-  if (age !== null && age < 25) return { title: `${pct(lpp.creditPercent)} dès 18 ans (plan de la caisse)`, text: `${base} Taux de la caisse pour les 18-24 ans : ${pct(lpp.creditPercent)}. ${split}` };
+function lineLabel(c: CalculatorCopy, l: PayLine, side: 'ee' | 'er', canton: Canton, code: string | null): string {
+  if (l.key === 'caf') return fill(side === 'ee' ? c.lines.cafEe : c.lines.cafEr, { canton });
+  if (l.key === 'wht') return fill(c.lines.wht, { code: code ?? '' });
+  return (c.lines as Record<string, string>)[l.key] ?? l.label;
+}
+
+function lppStory(
+  c: CalculatorCopy,
+  locale: AppLocale,
+  age: number | null,
+  annual: number,
+  plan: 'legal' | 'fund',
+  lpp: SwissPayroll['lpp'],
+): { title: string; text: string } {
+  if (annual < RATES.lppEntryThresholdChf) return { title: c.lppBelowTitle, text: fill(c.lppBelow, { v: chf(annual) }) };
+  if (age !== null && age < 18) return { title: c.lppMinorTitle, text: c.lppMinor };
+  if (age !== null && age < 25 && !lpp.applies) return { title: c.lppYoungNoneTitle, text: c.lppYoungNone };
+  const rate = pct(lpp.creditPercent, locale);
+  const base = fill(c.lppBase, { v: chf(lpp.coordinatedMonthly) });
+  const split = fill(c.lppSplit, { er: pct(lpp.employerSharePercent, locale), ee: pct(100 - lpp.employerSharePercent, locale) });
+  if (age !== null && age < 25) return { title: fill(c.lppYoungTitle, { rate }), text: `${base} ${fill(c.lppYoung, { rate })} ${split}` };
   const legal = plan === 'legal' || lpp.creditPercent === 0;
   return {
-    title: `${pct(lpp.creditPercent)} à ${age ?? '?'} ans${legal ? ' (minimum légal)' : ' (plan de la caisse)'}`,
-    text: `${base} ${legal ? 'Bonification de vieillesse légale : 7 % de 25 à 34 ans, 10 % de 35 à 44, 15 % de 45 à 54, 18 % dès 55.' : 'Taux du règlement de la caisse.'} ${split}`,
+    title: fill(c.lppTitle, { rate, age: age ?? '?' }) + (legal ? c.lppLegalTag : c.lppFundTag),
+    text: `${base} ${legal ? c.lppLegal : c.lppFund} ${split}`,
   };
 }
 
-function whtStory(subject: boolean, reason: string, canton: Canton, code: string | null, rate: number, loading: boolean, missing: boolean): string {
-  if (!subject) return `${reason} : l’impôt est payé sur la déclaration d’impôt ordinaire, rien n’est retenu sur le salaire.`;
-  const why = `${reason} : l’employeur retient l’impôt chaque mois et le verse au canton. Barème ${code} (${code?.[0] === 'A' ? 'personne seule' : code?.[0] === 'B' ? 'marié·e, un seul revenu' : code?.[0] === 'C' ? 'marié·e, deux revenus' : 'famille monoparentale'}, ${code?.[1]} enfant(s), ${code?.[2] === 'Y' ? 'avec' : 'sans'} impôt ecclésiastique), canton ${canton}.`;
-  if (loading) return `${why} Chargement du barème…`;
-  if (missing) return `${why} Le barème officiel de ce cas n’est pas disponible ici : le taux n’est pas compté dans le net.`;
-  return `${why} Taux du barème officiel ${YEAR} pour ce salaire : ${pct(rate)}.`;
+function whtStory(
+  c: CalculatorCopy,
+  locale: AppLocale,
+  wht: { subject: boolean; reason: WhtReason },
+  permit: Permit,
+  canton: Canton,
+  code: string | null,
+  rate: number,
+  loading: boolean,
+  missing: boolean,
+): string {
+  const reason = fill(c.whtReasons[wht.reason], { p: permit });
+  if (!wht.subject) return fill(c.whtNot, { reason });
+  const letter = (code?.[0] ?? 'A') as keyof CalculatorCopy['whtWho'];
+  const why = fill(c.whtWhy, { reason, code: code ?? '', who: c.whtWho[letter] ?? '', kids: code?.[1] ?? '0', church: code?.[2] === 'Y' ? c.whtChurchYes : c.whtChurchNo, canton });
+  if (loading) return `${why} ${c.whtLoading}`;
+  if (missing) return `${why} ${c.whtMissing}`;
+  return `${why} ${fill(c.whtRate, { year: YEAR, rate: pct(rate, locale) })}`;
 }
 
 // ---------------------------------------------------------------------------
-// Every LPP situation at a glance
+// One-page PDF summary
 
-function Situations() {
-  const rows: [string, string, string][] = [
-    ['Moins de 18 ans', 'Aucune LPP', 'Aucune'],
-    ['18 à 24 ans', 'Décès et invalidité seulement, pas d’épargne', 'Selon la caisse (souvent 1 à 5 %)'],
-    ['25 à 34 ans', '7 % du salaire coordonné', 'Souvent 7 à 10 %'],
-    ['35 à 44 ans', '10 %', 'Souvent 10 à 13 %'],
-    ['45 à 54 ans', '15 %', 'Souvent 15 à 18 %'],
-    ['55 ans à la retraite', '18 %', 'Souvent 18 à 21 %'],
-    ['Salaire sous CHF 22’680 / an', 'Pas d’affiliation obligatoire', 'Possible si le règlement le prévoit'],
+const INK: Rgb = [35, 26, 18];
+const MUTED: Rgb = [110, 97, 83];
+const BRAND: Rgb = [169, 92, 48];
+const DARK: Rgb = [124, 59, 33];
+const SOFT: Rgb = [247, 241, 230];
+
+function buildPdf(o: {
+  c: CalculatorCopy;
+  locale: AppLocale;
+  payroll: SwissPayroll;
+  age: number | null;
+  canton: Canton;
+  permitLabel: string;
+  lppTitle: string;
+  lppText: string;
+  whtTitle: string;
+  whtText: string;
+  label: (l: PayLine, side: 'ee' | 'er') => string;
+}): string {
+  const { c, locale, payroll: p } = o;
+  const doc = new SimplePdf();
+  const L = 48;
+  const R = doc.width - 48;
+  const W = R - L;
+
+  doc.rect(0, 0, doc.width, 6, BRAND);
+  doc.text('CANTIA', L, 40, { size: 11, bold: true, color: BRAND });
+  doc.text(fill(c.pdfTitle, { year: YEAR }), L, 66, { size: 20, bold: true });
+  const date = new Date().toLocaleDateString(locale === 'de' ? 'de-CH' : locale === 'it' ? 'it-CH' : 'fr-CH');
+  doc.text(fill(c.pdfMade, { date }), L, 82, { size: 8.5, color: MUTED });
+
+  // Situation strip
+  let y = 102;
+  doc.rect(L, y, W, 40, SOFT);
+  const cells: [string, string][] = [
+    [c.pdfGross, `CHF ${chf(p.gross)}`],
+    [c.pdfAge, o.age !== null ? String(o.age) : '—'],
+    [c.permit, o.permitLabel],
+    [c.pdfCanton, o.canton],
   ];
-  return (
-    <View style={styles.section}>
-      <Heading level={2} style={styles.h2}>Toutes les situations LPP en un coup d’œil</Heading>
-      <Text style={styles.p}>
-        L’âge compte par année civile : année en cours moins année de naissance. Le taux change donc le 1er janvier, pour tout le monde né la même année. L’employeur paie toujours au moins la moitié.
-      </Text>
-      <ScrollView horizontal contentContainerStyle={{ minWidth: '100%' }}>
-        <View style={styles.sitTable}>
-          <View style={[styles.sitRow, styles.sitHead]}>
-            <Text style={[styles.sitCell, styles.sitHeadText, { flex: 1 }]}>Situation</Text>
-            <Text style={[styles.sitCell, styles.sitHeadText, { flex: 1.4 }]}>Minimum légal</Text>
-            <Text style={[styles.sitCell, styles.sitHeadText, { flex: 1.2 }]}>Plans de caisse courants</Text>
-          </View>
-          {rows.map((r) => (
-            <View key={r[0]} style={styles.sitRow}>
-              <Text style={[styles.sitCell, { flex: 1, fontWeight: '600' }]}>{r[0]}</Text>
-              <Text style={[styles.sitCell, { flex: 1.4 }]}>{r[1]}</Text>
-              <Text style={[styles.sitCell, { flex: 1.2 }]}>{r[2]}</Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-      <Link href={'/blog/calcul-lpp-employe-taux-salaire-coordonne-2026' as any}>
-        <Text style={styles.link}>Le calcul de la LPP expliqué pas à pas, avec exemples →</Text>
-      </Link>
-    </View>
-  );
+  cells.forEach(([k, v], i) => {
+    const x = L + 12 + (i * (W - 24)) / 4;
+    doc.text(k.toUpperCase(), x, y + 15, { size: 6.5, bold: true, color: MUTED });
+    doc.text(v, x, y + 30, { size: 10.5, bold: true });
+  });
+
+  // Net
+  y += 56;
+  doc.rect(L, y, W, 52, INK);
+  doc.text(c.pdfNet.toUpperCase(), L + 14, y + 18, { size: 7.5, bold: true, color: [232, 201, 168] });
+  doc.text(`CHF ${chf(p.net)}`, L + 14, y + 40, { size: 20, bold: true, color: [251, 246, 238] });
+  doc.text(`${c.pdfMonth}`, R - 14, y + 18, { size: 7.5, bold: true, color: [232, 201, 168], align: 'right' });
+  doc.text(`${c.pdfYear}${locale === 'fr' ? ' :' : ':'} CHF ${chf(p.net * 12)}`, R - 14, y + 40, { size: 10, color: [251, 246, 238], align: 'right' });
+
+  const table = (title: string, lines: PayLine[], side: 'ee' | 'er', sign: string, total: number, totalLabel: string) => {
+    y += 22;
+    doc.text(title, L, y, { size: 11, bold: true });
+    y += 6;
+    for (const l of lines) {
+      y += 17;
+      doc.line(L, y - 12, R, y - 12);
+      doc.text(o.label(l, side), L, y, { size: 9.5 });
+      doc.text(`${l.ratePercent != null ? pct(l.ratePercent, locale) : ''} ${c.of} CHF ${chf(l.base)}`, R - 110, y, { size: 8, color: MUTED, align: 'right' });
+      doc.text(`${sign}${chf(l.amount)}`, R, y, { size: 9.5, align: 'right' });
+    }
+    y += 18;
+    doc.line(L, y - 12, R, y - 12, INK, 0.9);
+    doc.text(totalLabel, L, y, { size: 9.5, bold: true });
+    doc.text(`${sign}${chf(total)}`, R, y, { size: 9.5, bold: true, align: 'right' });
+  };
+
+  y += 52;
+  table(c.deductions, p.employee, 'ee', '-', p.totalDeductions, c.totalDeductions);
+  if (p.familyAllowance > 0) {
+    y += 17;
+    doc.text(fill(c.allowances, { canton: o.canton }), L, y, { size: 9.5 });
+    doc.text(`+${chf(p.familyAllowance)}`, R, y, { size: 9.5, align: 'right', color: [46, 107, 79] });
+  }
+  table(c.employerCharges, p.employer, 'er', '+', p.totalEmployer, c.totalEmployer);
+  y += 18;
+  doc.text(c.totalCost, L, y, { size: 10, bold: true, color: DARK });
+  doc.text(`CHF ${chf(p.totalCost)} ${c.perMonthShort}`, R, y, { size: 10, bold: true, color: DARK, align: 'right' });
+
+  // Explanations
+  y += 26;
+  doc.text(o.lppTitle, L, y, { size: 9.5, bold: true });
+  y = doc.paragraph(o.lppText, L, y + 13, W, { size: 8.5, color: MUTED, leading: 11.5 });
+  y += 8;
+  doc.text(o.whtTitle, L, y, { size: 9.5, bold: true });
+  y = doc.paragraph(o.whtText, L, y + 13, W, { size: 8.5, color: MUTED, leading: 11.5 });
+
+  // CTA footer
+  const ctaY = Math.max(y + 16, doc.height - 92);
+  doc.rect(L, ctaY, W, 34, DARK);
+  doc.text(c.pdfCta, L + 14, ctaY + 21, { size: 9.5, bold: true, color: [251, 246, 238] });
+  doc.link(L, ctaY, W, 34, 'https://cantia.ch');
+  doc.paragraph(c.pdfDisclaimer, L, ctaY + 50, W, { size: 7, color: MUTED, leading: 9 });
+
+  return doc.build(fill(c.pdfTitle, { year: YEAR }));
 }
 
-function Cta() {
-  const points = [
-    'La fiche de salaire PDF est générée chaque mois, prête à envoyer',
-    'Le taux LPP change tout seul au 1er janvier selon l’âge',
-    'Impôt à la source : bon barème, bon canton, mis à jour chaque année',
-    'Allocations familiales, LAA, IJM et plan de votre caisse pris en compte',
-    'Il vous manque une information ? Cantia vous le dit avant la première fiche',
-  ];
+// ---------------------------------------------------------------------------
+
+function Cta({ c }: { c: CalculatorCopy }) {
   return (
     <View style={styles.cta}>
-      <Text style={styles.ctaKicker}>DANS CANTIA, TOUT EST AUTOMATIQUE</Text>
-      <Heading level={2} style={styles.ctaTitle}>Ce calcul, Cantia le fait chaque mois à votre place</Heading>
+      <Text style={styles.ctaKicker}>{c.ctaKicker}</Text>
+      <Heading level={2} style={styles.ctaTitle}>
+        {c.ctaTitle}
+      </Heading>
       <View style={styles.ctaList}>
-        {points.map((p) => (
+        {c.ctaPoints.map((p) => (
           <View key={p} style={styles.ctaItem}>
             <Text style={styles.ctaCheck}>✓</Text>
             <Text style={styles.ctaText}>{p}</Text>
@@ -398,16 +526,13 @@ function Cta() {
       </View>
       <View style={styles.ctaButtons}>
         <Link href={authHref('signup') as any} asChild>
-          <CtaButton title="Essayer 14 jours" tone="light" />
+          <CtaButton title={c.ctaButton} tone="light" />
         </Link>
-        <Text style={styles.ctaNote}>Sans engagement · Données hébergées en Suisse</Text>
+        <Text style={styles.ctaNote}>{c.ctaNote}</Text>
       </View>
     </View>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Small form pieces
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -447,20 +572,16 @@ function Chips<T extends string>({ value, onChange, options }: { value: T; onCha
   );
 }
 
-function Segmented<T extends string>(props: { value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
-  return <Chips {...props} />;
-}
-
-function Counter({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) {
+function Counter({ label, value, onChange, less, more }: { label: string; value: number; onChange: (n: number) => void; less: string; more: string }) {
   return (
     <View style={styles.counter}>
       <Text style={styles.counterLabel}>{label}</Text>
       <View style={styles.counterCtl}>
-        <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={styles.counterBtn} accessibilityLabel={`Moins : ${label}`}>
+        <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={styles.counterBtn} accessibilityLabel={`${less} : ${label}`}>
           <Text style={styles.counterBtnText}>−</Text>
         </Pressable>
         <Text style={styles.counterValue}>{value}</Text>
-        <Pressable onPress={() => onChange(Math.min(9, value + 1))} style={styles.counterBtn} accessibilityLabel={`Plus : ${label}`}>
+        <Pressable onPress={() => onChange(Math.min(9, value + 1))} style={styles.counterBtn} accessibilityLabel={`${more} : ${label}`}>
           <Text style={styles.counterBtnText}>+</Text>
         </Pressable>
       </View>
@@ -468,16 +589,34 @@ function Counter({ label, value, onChange }: { label: string; value: number; onC
   );
 }
 
-function Table({ title, lines, sign, total, totalLabel }: { title: string; lines: PayLine[]; sign: '−' | '+'; total: number; totalLabel: string }) {
+function Table({
+  title,
+  lines,
+  label,
+  of,
+  locale,
+  sign,
+  total,
+  totalLabel,
+}: {
+  title: string;
+  lines: PayLine[];
+  label: (l: PayLine) => string;
+  of: string;
+  locale: AppLocale;
+  sign: '−' | '+';
+  total: number;
+  totalLabel: string;
+}) {
   return (
     <View style={styles.table}>
       <Text style={styles.tableTitle}>{title}</Text>
       {lines.map((l) => (
         <View key={l.key + l.label} style={styles.line}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.lineLabel}>{l.label}</Text>
+            <Text style={styles.lineLabel}>{label(l)}</Text>
             <Text style={styles.lineMeta}>
-              {l.ratePercent != null ? pct(l.ratePercent) : ''} de CHF {chf(l.base)}
+              {l.ratePercent != null ? pct(l.ratePercent, locale) : ''} {of} CHF {chf(l.base)}
             </Text>
           </View>
           <Text style={styles.lineAmount}>
@@ -560,6 +699,9 @@ const styles = StyleSheet.create({
   explain: { padding: spacing.lg, borderRadius: 4, gap: 4 },
   explainTitle: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700' },
   explainText: { fontFamily: marketingFonts.body, fontSize: 14, lineHeight: 21, color: ink },
+  pdfRow: { gap: spacing.xs },
+  pdfButton: { alignSelf: 'flex-start', paddingVertical: 13, paddingHorizontal: 18, borderRadius: 3, borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
+  pdfButtonText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: colors.primary },
 
   cta: { padding: spacing.xxl, backgroundColor: colors.primaryDark, borderRadius: 4, gap: spacing.md },
   ctaKicker: { ...monoType, fontSize: 11, letterSpacing: 1.4, color: '#F5DECB' },

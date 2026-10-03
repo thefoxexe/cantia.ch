@@ -3060,6 +3060,30 @@ export const ROUTES = [
     description: 'Alle Antworten auf häufige Fragen zu Cantia: Offerten, Rechnungen, Baustellen, Team, Abrechnung. Anleitungen und Video-Tutorials.',
   },
   {
+    path: 'de/calculateur-salaire',
+    title: 'Lohnrechner Schweiz 2026: Brutto, Netto, BVG und Abzüge | Cantia',
+    description:
+      'Berechnen Sie kostenlos Nettolohn und Arbeitgeberkosten in der Schweiz: AHV, ALV, BVG nach Alter, UVG, Familienzulagen und Quellensteuer nach Kanton. Werte 2026.',
+    faq: [
+      {
+        q: 'Wie berechnet man den Nettolohn in der Schweiz?',
+        a: 'Vom Bruttolohn werden AHV/IV/EO (5,3 %), ALV (1,1 % bis CHF 148’200 pro Jahr), der Arbeitnehmeranteil BVG (nach Alter, auf dem koordinierten Lohn), die Nichtberufsunfallversicherung und gegebenenfalls die Quellensteuer abgezogen. Familienzulagen kommen zum Nettolohn hinzu.',
+      },
+      {
+        q: 'Welcher BVG-Satz gilt nach Alter?',
+        a: 'Gesetzliches Minimum 2026: kein Sparen vor 25 (ab 18 nur Risikoversicherung), dann 7 % von 25 bis 34, 10 % von 35 bis 44, 15 % von 45 bis 54 und 18 % ab 55, auf dem koordinierten Lohn. Der Arbeitgeber zahlt mindestens die Hälfte.',
+      },
+      {
+        q: 'Wer bezahlt Quellensteuer?',
+        a: 'Ausländische Arbeitnehmende ohne Ausweis C (z. B. B oder L) und Grenzgänger, ausser Grenzgänger mit Wohnsitz in Frankreich, die in einem Kanton des Abkommens von 1983 arbeiten (BE, BS, BL, JU, NE, SO, VD, VS).',
+      },
+      {
+        q: 'Ist der Lohnrechner kostenlos?',
+        a: 'Ja, ohne Anmeldung, und nichts wird gespeichert. Die Berechnung lässt sich als PDF herunterladen. Mit Cantia werden die Lohnabrechnungen jeden Monat automatisch erstellt (14 Tage gratis testen).',
+      },
+    ],
+  },
+  {
     path: 'de/contact',
     title: 'Kontakt | Cantia',
     description: 'Eine Frage, ein Problem, ein Vorschlag? Kontaktieren Sie das Cantia-Team — Antwort innert 24 Werkstunden.',
@@ -3284,6 +3308,30 @@ export const ROUTES = [
     title: 'Centro assistenza | Cantia',
     description:
       "Tutte le risposte alle domande frequenti su Cantia: preventivi, fatture, cantieri, squadra, fatturazione. Guide e tutorial video.",
+  },
+  {
+    path: 'it/calculateur-salaire',
+    title: 'Calcolatore di salario svizzero 2026: lordo, netto, LPP e oneri | Cantia',
+    description:
+      'Calcolate gratuitamente il salario netto e il costo per il datore di lavoro in Svizzera: AVS, AD, LPP secondo l’età, LAINF, assegni familiari e imposta alla fonte per cantone. Importi 2026.',
+    faq: [
+      {
+        q: 'Come si calcola il salario netto in Svizzera?',
+        a: 'Dal salario lordo si trattengono AVS/AI/IPG (5,3 %), AD (1,1 % fino a CHF 148’200 all’anno), la quota LPP del dipendente (secondo l’età, sul salario coordinato), l’assicurazione infortuni non professionali e, se del caso, l’imposta alla fonte. Gli assegni familiari si aggiungono al netto.',
+      },
+      {
+        q: 'Quale aliquota LPP secondo l’età?',
+        a: 'Minimo legale 2026: nessun risparmio prima dei 25 anni (dai 18 solo la copertura rischi), poi 7 % dai 25 ai 34 anni, 10 % dai 35 ai 44, 15 % dai 45 ai 54 e 18 % dai 55, sul salario coordinato. Il datore di lavoro paga almeno la metà.',
+      },
+      {
+        q: 'Chi paga l’imposta alla fonte?',
+        a: 'I dipendenti stranieri senza permesso C (p. es. B o L) e i frontalieri, tranne i frontalieri residenti in Francia che lavorano in un cantone dell’accordo del 1983 (BE, BS, BL, JU, NE, SO, VD, VS).',
+      },
+      {
+        q: 'Il calcolatore è gratuito?',
+        a: 'Sì, senza registrazione, e nulla viene salvato. Il calcolo si può scaricare in PDF. Con Cantia i conteggi di salario sono generati automaticamente ogni mese (14 giorni di prova).',
+      },
+    ],
   },
   {
     path: 'it/contact',

@@ -342,7 +342,7 @@ export function MarketingFooter({
             { label: t.footer.resourcesHelp, href: aideHref },
             { label: t.footer.resourcesMobile, href: `${localePrefix}/telechargement` },
             { label: t.footer.resourcesBlog, href: locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog' },
-            ...(locale === 'fr' ? [{ label: 'Calculateur de salaire', href: '/calculateur-salaire' }] : []),
+            { label: locale === 'de' ? 'Lohnrechner' : locale === 'it' ? 'Calcolatore di salario' : 'Calculateur de salaire', href: `${localePrefix}/calculateur-salaire` },
             { label: t.footer.resourcesContact, href: contactHref },
             { label: t.footer.resourcesLogin, href: authHref('login') as string },
           ],
