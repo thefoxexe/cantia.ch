@@ -90,14 +90,76 @@ export interface LedgerSummary {
   byMonth: { month: string; income: number; expenses: number; profit: number; cumulative: number }[];
 }
 
-export function summarize(entries: LedgerEntry[], year?: number): LedgerSummary {
+// Every month of a period, so empty months still show (« 2026-01 » …).
+export function monthsBetween(from: string, to: string): string[] {
+  const out: string[] = [];
+  let y = Number(from.slice(0, 4));
+  let m = Number(from.slice(5, 7));
+  const end = to.slice(0, 7);
+  for (let guard = 0; guard < 600; guard++) {
+    const key = `${y}-${String(m).padStart(2, '0')}`;
+    if (key > end) break;
+    out.push(key);
+    m += 1;
+    if (m > 12) {
+      m = 1;
+      y += 1;
+    }
+  }
+  return out;
+}
+
+const iso = (y: number, m: number, d: number) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+const lastDay = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+
+// The calendar year when the period is exactly one, else null.
+export function fullYearOf(from: string, to: string): number | null {
+  const y = Number(from.slice(0, 4));
+  return from === iso(y, 1, 1) && to === iso(y, 12, 31) ? y : null;
+}
+
+export interface PeriodPreset {
+  key: string;
+  label: string;
+  from: string;
+  to: string;
+}
+
+// Quick choices of the export dialog, relative to today (YYYY-MM-DD).
+export function periodPresets(today: string): PeriodPreset[] {
+  const y = Number(today.slice(0, 4));
+  const m = Number(today.slice(5, 7));
+  const pm = m === 1 ? 12 : m - 1;
+  const py = m === 1 ? y - 1 : y;
+  const q = Math.floor((m - 1) / 3);
+  const MONTH = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const list: PeriodPreset[] = [
+    { key: 'month', label: `Ce mois (${MONTH[m - 1]})`, from: iso(y, m, 1), to: iso(y, m, lastDay(y, m)) },
+    { key: 'prev-month', label: `Mois passé (${MONTH[pm - 1]})`, from: iso(py, pm, 1), to: iso(py, pm, lastDay(py, pm)) },
+  ];
+  for (let i = 0; i <= q; i++) list.push({ key: `q${i + 1}`, label: `T${i + 1} ${y}`, from: iso(y, i * 3 + 1, 1), to: iso(y, i * 3 + 3, lastDay(y, i * 3 + 3)) });
+  if (q === 0) list.push({ key: 'q4-prev', label: `T4 ${y - 1}`, from: iso(y - 1, 10, 1), to: iso(y - 1, 12, 31) });
+  list.push(
+    { key: 'h1', label: `1er semestre ${y}`, from: iso(y, 1, 1), to: iso(y, 6, 30) },
+    ...(m > 6 ? [{ key: 'h2', label: `2e semestre ${y}`, from: iso(y, 7, 1), to: iso(y, 12, 31) }] : []),
+    { key: 'ytd', label: `Depuis le 1er janvier`, from: iso(y, 1, 1), to: today },
+    { key: 'year', label: `Année ${y}`, from: iso(y, 1, 1), to: iso(y, 12, 31) },
+    { key: 'prev-year', label: `Année ${y - 1}`, from: iso(y - 1, 1, 1), to: iso(y - 1, 12, 31) },
+    { key: '12m', label: '12 derniers mois', from: iso(m === 12 ? y : y - 1, m === 12 ? 1 : m + 1, 1), to: iso(y, m, lastDay(y, m)) },
+  );
+  return list;
+}
+
+// period: a calendar year, or { from, to } — every month of it is listed.
+export function summarize(entries: LedgerEntry[], period?: number | { from: string; to: string }): LedgerSummary {
   let income = 0;
   let expenses = 0;
   let incomeVat = 0;
   let expensesVat = 0;
   const cats = new Map<string, { kind: LedgerKind; category: string; total: number; count: number }>();
   const months = new Map<string, { income: number; expenses: number }>();
-  if (year) for (let m = 1; m <= 12; m++) months.set(`${year}-${String(m).padStart(2, '0')}`, { income: 0, expenses: 0 });
+  const range = typeof period === 'number' ? { from: `${period}-01-01`, to: `${period}-12-31` } : period;
+  if (range) for (const mk of monthsBetween(range.from, range.to)) months.set(mk, { income: 0, expenses: 0 });
   for (const e of entries) {
     const a = Number(e.amount_chf);
     const key = `${e.kind}:${e.category}`;

@@ -38,3 +38,22 @@ test('VAT included and CSV', () => {
   assert.equal(csv.length, 6);
   assert.ok(csv[2].includes('-80.1'));
 });
+
+test('periods: months between, full year, presets', async () => {
+  const { monthsBetween, fullYearOf, periodPresets } = await import('../lib/admin/ledgerCalc.ts');
+  assert.deepEqual(monthsBetween('2025-11-15', '2026-02-03'), ['2025-11', '2025-12', '2026-01', '2026-02']);
+  assert.equal(fullYearOf('2026-01-01', '2026-12-31'), 2026);
+  assert.equal(fullYearOf('2026-01-01', '2026-06-30'), null);
+  const p = periodPresets('2026-10-03');
+  const byKey = Object.fromEntries(p.map((x) => [x.key, x]));
+  assert.deepEqual([byKey['prev-month'].from, byKey['prev-month'].to], ['2026-09-01', '2026-09-30']);
+  assert.deepEqual([byKey.q3.from, byKey.q3.to], ['2026-07-01', '2026-09-30']);
+  assert.ok(byKey.q4 && byKey.h2);
+  assert.deepEqual([byKey['12m'].from, byKey['12m'].to], ['2025-11-01', '2026-10-31']);
+  const jan = Object.fromEntries(periodPresets('2026-01-10').map((x) => [x.key, x]));
+  assert.deepEqual([jan['prev-month'].from, jan['prev-month'].to], ['2025-12-01', '2025-12-31']);
+  assert.ok(jan['q4-prev']);
+  const s = summarize(data, { from: '2025-12-01', to: '2026-03-31' });
+  assert.equal(s.byMonth.length, 4);
+  assert.equal(s.byMonth[0].month, '2025-12');
+});

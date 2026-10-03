@@ -5,7 +5,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import Svg, { G, Line, Rect, Text as SvgText } from 'react-native-svg';
 import { Container } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
-import { CATEGORIES, categoryLabel, filterEntries, ledgerCsv, summarize, type LedgerEntry, type LedgerKind } from '../../../lib/admin/ledgerCalc';
+import { CATEGORIES, categoryLabel, filterEntries, ledgerCsv, periodPresets, summarize, type LedgerEntry, type LedgerFilter, type LedgerKind } from '../../../lib/admin/ledgerCalc';
+import { DateField } from '../../../components/DateField';
 import { deleteLedgerEntry, importStripe, listLedger, receiptUrl, saveLedgerEntry, uploadReceipt, type LedgerInput } from '../../../lib/admin/ledgerApi';
 import { downloadLedgerReport, type LedgerHolder } from '../../../lib/admin/ledgerPdf';
 import { downloadText } from '../../../lib/api/closing';
@@ -28,7 +29,7 @@ const PAYMENT_METHODS: { key: string; label: string }[] = [
   { key: 'autre', label: 'Autre' },
 ];
 const VAT_RATES = [0, 8.1, 2.6, 3.8];
-const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
 function chf(n: number): string {
   const [int, dec] = Math.abs(n).toFixed(2).split('.');
@@ -100,6 +101,7 @@ export default function AdminLedgerScreen() {
   const [importing, setImporting] = useState(false);
   const [holder, setHolder] = useState<LedgerHolder>(readHolder);
   const [showHolder, setShowHolder] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -124,7 +126,7 @@ export default function AdminLedgerScreen() {
 
   const filtered = useMemo(() => filterEntries(rows, { kind, categories: cats, search, missingReceipt: missingOnly }), [rows, kind, cats, search, missingOnly]);
   const isFiltered = kind !== 'all' || cats.length > 0 || !!search.trim() || missingOnly;
-  const summary = useMemo(() => summarize(filtered, typeof year === 'number' ? year : undefined), [filtered, year]);
+  const summary = useMemo(() => summarize(filtered, { from, to }), [filtered, from, to]);
   const catOptions = kind === 'all' ? [...CATEGORIES.recette.map((c) => ({ ...c, kind: 'recette' as const })), ...CATEGORIES.depense.map((c) => ({ ...c, kind: 'depense' as const }))] : CATEGORIES[kind].map((c) => ({ ...c, kind }));
 
   async function save() {
@@ -176,13 +178,6 @@ export default function AdminLedgerScreen() {
     load();
   }
 
-  function pdf() {
-    downloadLedgerReport({ entries: filtered, from, to, year: typeof year === 'number' ? year : null, holder, filtered: isFiltered });
-  }
-
-  function csv() {
-    downloadText(ledgerCsv(filtered), `journal-${from}-${to}.csv`);
-  }
 
   const edit = (e: LedgerEntry) =>
     setDraft({ ...e, counterparty: e.counterparty ?? '', reference: e.reference ?? '', notes: e.notes ?? '', amountText: String(e.amount_chf), dateText: swiss(e.entry_date) });
@@ -201,8 +196,7 @@ export default function AdminLedgerScreen() {
             <Action icon="plus" label="Recette" onPress={() => setDraft(emptyDraft('recette'))} tone="ok" />
             <Action icon="minus" label="Dépense" onPress={() => setDraft(emptyDraft('depense'))} tone="bad" />
             <Action icon="download-cloud" label={importing ? 'Import…' : 'Importer Stripe'} onPress={runImport} disabled={importing || !available} />
-            {Platform.OS === 'web' ? <Action icon="file-text" label="Rapport PDF" onPress={pdf} primary disabled={!filtered.length} /> : null}
-            {Platform.OS === 'web' ? <Action icon="grid" label="CSV" onPress={csv} disabled={!filtered.length} /> : null}
+            {Platform.OS === 'web' ? <Action icon="download" label="Exporter (PDF / CSV)" onPress={() => setExportOpen(true)} primary disabled={!available} /> : null}
           </View>
         </View>
 
@@ -219,6 +213,16 @@ export default function AdminLedgerScreen() {
             <Text style={styles.bannerText}>{notice}</Text>
             <Feather name="x" size={14} color={colors.textMuted} />
           </Pressable>
+        ) : null}
+
+        {exportOpen ? (
+          <ExportDialog
+            initialFrom={from}
+            initialTo={to}
+            filter={isFiltered ? { kind, categories: cats, search, missingReceipt: missingOnly } : null}
+            holder={holder}
+            onClose={() => setExportOpen(false)}
+          />
         ) : null}
 
         {/* Period */}
@@ -532,6 +536,114 @@ function MonthChart({ months }: { months: { month: string; income: number; expen
         </Svg>
       ) : null}
     </View>
+  );
+}
+
+// Export: any period (quick choices or two dates), PDF report or CSV.
+// Loads the period on its own, so it does not depend on what the page shows.
+function ExportDialog({
+  initialFrom,
+  initialTo,
+  filter,
+  holder,
+  onClose,
+}: {
+  initialFrom: string;
+  initialTo: string;
+  filter: LedgerFilter | null;
+  holder: LedgerHolder;
+  onClose: () => void;
+}) {
+  const presets = useMemo(() => periodPresets(todayIso()), []);
+  const [from, setFrom] = useState(initialFrom);
+  const [to, setTo] = useState(initialTo);
+  const [useFilter, setUseFilter] = useState(false);
+  const [rows, setRows] = useState<LedgerEntry[] | null>(null);
+  const valid = !!from && !!to && from <= to;
+
+  useEffect(() => {
+    if (!valid) return;
+    let alive = true;
+    setRows(null);
+    listLedger(from, to).then((r) => alive && setRows(r.rows));
+    return () => {
+      alive = false;
+    };
+  }, [from, to, valid]);
+
+  const entries = useMemo(() => (rows ? filterEntries(rows, { ...(useFilter && filter ? filter : {}), from, to }) : []), [rows, useFilter, filter, from, to]);
+  const s = useMemo(() => summarize(entries), [entries]);
+  const active = presets.find((p) => p.from === from && p.to === to)?.key ?? null;
+
+  return (
+    <Modal transparent animationType="fade" visible onRequestClose={onClose}>
+      <View style={styles.backdrop}>
+        <View style={styles.modal}>
+          <ScrollView contentContainerStyle={{ gap: spacing.md, padding: spacing.xl }}>
+            <View style={styles.journalHead}>
+              <Text style={styles.cardTitle}>Exporter la comptabilité</Text>
+              <Pressable onPress={onClose} hitSlop={8}>
+                <Feather name="x" size={18} color={colors.textMuted} />
+              </Pressable>
+            </View>
+
+            <Field label="Période">
+              <View style={styles.periodRow}>
+                {presets.map((p) => (
+                  <Chip
+                    key={p.key}
+                    small
+                    label={p.label}
+                    active={active === p.key}
+                    onPress={() => {
+                      setFrom(p.from);
+                      setTo(p.to);
+                    }}
+                  />
+                ))}
+              </View>
+            </Field>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md }}>
+              <View style={{ flexGrow: 1, flexBasis: 200 }}>
+                <DateField label="Du" value={from} onChange={(v) => v && setFrom(v)} />
+              </View>
+              <View style={{ flexGrow: 1, flexBasis: 200 }}>
+                <DateField label="Au" value={to} onChange={(v) => v && setTo(v)} />
+              </View>
+            </View>
+            {!valid ? <Text style={{ color: colors.danger, fontSize: fontSize.sm }}>La date de fin doit être après la date de début.</Text> : null}
+
+            {filter ? (
+              <Pressable onPress={() => setUseFilter((v) => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                <Feather name={useFilter ? 'check-square' : 'square'} size={16} color={colors.text} />
+                <Text style={styles.muted}>Appliquer aussi les filtres de la page (type, catégories, recherche)</Text>
+              </Pressable>
+            ) : null}
+
+            <View style={[styles.banner, { backgroundColor: colors.surfaceAlt }]}>
+              {rows === null && valid ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <Text style={styles.bannerText}>
+                  {swiss(from)} → {swiss(to)} · {s.count} écriture(s){'\n'}Recettes CHF {chf(s.income)} · Dépenses CHF {chf(s.expenses)} · {s.profit >= 0 ? 'Bénéfice' : 'Perte'} CHF {chf(s.profit)}
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.modalActions}>
+              <Action icon="grid" label="CSV (tableur)" disabled={!valid || !rows || !entries.length} onPress={() => downloadText(ledgerCsv(entries), `journal-${from}-au-${to}.csv`)} />
+              <Action
+                icon="file-text"
+                label="Rapport PDF"
+                primary
+                disabled={!valid || !rows || !entries.length}
+                onPress={() => downloadLedgerReport({ entries, from, to, holder, filtered: useFilter && !!filter })}
+              />
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
   );
 }
 

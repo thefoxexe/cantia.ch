@@ -1,5 +1,5 @@
 import { SimplePdf, downloadPdf, textWidth, type Rgb } from '../pdf/simplePdf.ts';
-import { categoryLabel, summarize, vatIncluded, type LedgerEntry } from './ledgerCalc.ts';
+import { categoryLabel, fullYearOf, summarize, vatIncluded, type LedgerEntry } from './ledgerCalc.ts';
 
 // Yearly report of admin › Comptabilité: the income statement of a
 // self-employed person keeping « recettes et dépenses » books (art. 957
@@ -24,6 +24,7 @@ const GREEN: Rgb = [46, 107, 79];
 const RED: Rgb = [171, 51, 39];
 const SOFT: Rgb = [247, 241, 230];
 
+const SHORT = ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
 const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
 function chf(n: number): string {
@@ -44,7 +45,7 @@ export interface LedgerReportOptions {
   entries: LedgerEntry[];
   from: string;
   to: string;
-  year: number | null;
+  year?: number | null; // derived from from/to when omitted
   holder: LedgerHolder;
   filtered: boolean;
 }
@@ -56,14 +57,15 @@ export function downloadLedgerReport(opts: LedgerReportOptions) {
 
 export function buildLedgerReport(opts: LedgerReportOptions): { pdf: string; file: string } {
   const entries = [...opts.entries].sort((a, b) => (a.entry_date < b.entry_date ? -1 : a.entry_date > b.entry_date ? 1 : a.kind < b.kind ? -1 : 1));
-  const s = summarize(entries, opts.year ?? undefined);
+  const year = opts.year ?? fullYearOf(opts.from, opts.to);
+  const s = summarize(entries, { from: opts.from, to: opts.to });
   const doc = new SimplePdf();
   const L = 44;
   const R = doc.width - 44;
   const W = R - L;
   const BOTTOM = doc.height - 60;
   const period = `${swiss(opts.from)} – ${swiss(opts.to)}`;
-  const title = opts.year ? `Compte de résultat ${opts.year}` : 'Compte de résultat';
+  const title = year ? `Compte de résultat ${year}` : 'Compte de résultat';
 
   const header = (sub: string) => {
     doc.rect(0, 0, doc.width, 5, BRAND);
@@ -173,7 +175,11 @@ export function buildLedgerReport(opts: LedgerReportOptions): { pdf: string; fil
     if (hi > 0) doc.rect(x, y + chartH - hi, bwm, hi, GREEN);
     if (he > 0) doc.rect(x + bwm + 2, y + chartH - he, bwm, he, RED);
     const idx = Number(m.month.slice(5, 7)) - 1;
-    doc.text((MONTHS[idx] ?? m.month).slice(0, 3), L + i * slot + slot / 2 - 8, y + chartH + 12, { size: 7.5, color: MUTED });
+    const every = Math.ceil(months.length / 12);
+    if (i % every === 0) {
+      const lbl = months.length > 12 ? `${SHORT[idx] ?? m.month} ${m.month.slice(2, 4)}` : SHORT[idx] ?? m.month;
+      doc.text(lbl, L + i * slot + slot / 2 - (months.length > 12 ? 13 : 8), y + chartH + 12, { size: 7.5, color: MUTED });
+    }
   });
   doc.rect(L, y + chartH + 22, 8, 8, GREEN);
   doc.text('Recettes', L + 12, y + chartH + 29, { size: 8, color: MUTED });
@@ -185,6 +191,11 @@ export function buildLedgerReport(opts: LedgerReportOptions): { pdf: string; fil
   ['MOIS', 'RECETTES', 'DÉPENSES', 'RÉSULTAT', 'CUMUL'].forEach((h, i) => doc.text(h, cols[i], y, { size: 7, bold: true, color: MUTED, align: i ? 'right' : 'left' }));
   y += 4;
   for (const m of months) {
+    if (y > BOTTOM - 20) {
+      doc.addPage();
+      header(title);
+      y = 66;
+    }
     y += 16;
     doc.line(L, y - 12, R, y - 12, RULE);
     const idx = Number(m.month.slice(5, 7)) - 1;
@@ -270,5 +281,5 @@ export function buildLedgerReport(opts: LedgerReportOptions): { pdf: string; fil
     doc.text(`Page ${p + 1} / ${total}`, R, doc.height - 26, { size: 7.5, color: MUTED, align: 'right' });
     doc.text('Établi avec Cantia', L, doc.height - 26, { size: 7.5, color: MUTED });
   }
-  return { pdf: doc.build(title), file: `${title.toLowerCase().replace(/\s+/g, '-')}.pdf` };
+  return { pdf: doc.build(title), file: year ? `${title.toLowerCase().replace(/\s+/g, '-')}.pdf` : `compte-de-resultat-${opts.from}-au-${opts.to}.pdf` };
 }
