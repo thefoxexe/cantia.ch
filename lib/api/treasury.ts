@@ -13,6 +13,16 @@ export async function getLatestCashSnapshot(organizationId: string): Promise<Cas
   return data ?? null;
 }
 
+// Every balance typed in since `since` (YYYY-MM-DD), plus the last one
+// before it — the Trésorerie curve holds each value until the next one.
+export async function listCashSnapshots(organizationId: string, since: string): Promise<CashSnapshot[]> {
+  const [{ data: recent }, before] = await Promise.all([
+    supabase.from('cash_snapshots').select('*').eq('organization_id', organizationId).gte('recorded_at', since).order('recorded_at'),
+    supabase.from('cash_snapshots').select('*').eq('organization_id', organizationId).lt('recorded_at', since).order('recorded_at', { ascending: false }).limit(1),
+  ]);
+  return [...(before.data ?? []), ...(recent ?? [])];
+}
+
 export async function addCashSnapshot(organizationId: string, balanceChf: number, userId: string | undefined): Promise<{ error: string | null }> {
   const { error } = await supabase.from('cash_snapshots').insert({ organization_id: organizationId, balance_chf: balanceChf, created_by: userId });
   return { error: error?.message ?? null };
@@ -186,17 +196,19 @@ export async function buildForecast(organization: Organization, days = 90): Prom
     if (p.salary_type === 'monthly') payrollTotal += Number(p.monthly_salary_chf ?? 0);
     else payrollTotal += hoursByUser.get(p.user_id) ?? 0;
   }
+  // Every payday in the window (about three over 90 days), not just the next.
   if (payrollTotal > 0) {
-    const payday = nextPayday(today, organization.payroll_payday);
-    if (payday <= horizon) {
+    let payday = nextPayday(today, organization.payroll_payday);
+    for (let guard = 0; payday <= horizon && guard < 6; guard++) {
       items.push({
         kind: 'salaire',
         label: `Masse salariale estimée (${profiles.length} personne${profiles.length > 1 ? 's' : ''})`,
         amount: -Math.round(payrollTotal * 100) / 100,
         date: payday,
         overdue: false,
-        sourceId: 'payroll',
+        sourceId: `payroll-${payday}`,
       });
+      payday = nextPayday(addDays(payday, 1), organization.payroll_payday);
     }
   }
 
