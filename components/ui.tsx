@@ -19,7 +19,8 @@ import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, AVAILABLE_LOCALES, type AppLocale } from '../lib/translations';
 import { displayType } from '../lib/marketingTheme';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { colors, fontSize, radius, spacing } from '../lib/theme'
+import { releaseHydrationViewport } from '../lib/hydrationViewport';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -43,6 +44,7 @@ export function Screen({
   background?: 'mountain';
 }) {
   const insets = useSafeAreaInsets();
+  useEffect(releaseHydrationViewport, []);
   return (
     <View style={[styles.screen, style]}>
       {background === 'mountain' ? <MountainBackdrop /> : null}

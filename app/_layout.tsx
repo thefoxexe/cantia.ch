@@ -14,6 +14,7 @@ import { registerForPushNotificationsAsync } from '../lib/notifications/register
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
 import { CookieBanner } from '../components/CookieBanner';
+import { holdHydrationViewport } from '../lib/hydrationViewport';
 import '../lib/pwaInstall';
 
 // Build-time static rendering has no window: give React Native Web a desktop
@@ -23,6 +24,8 @@ if (Platform.OS === 'web' && typeof window === 'undefined') {
   const size = { width: 1440, height: 900, scale: 1, fontScale: 1 };
   (Dimensions as unknown as { set: (d: unknown) => void }).set({ window: size, screen: size });
 }
+
+holdHydrationViewport();
 
 function RootNavigation() {
   const { session, organization, loading, isPlatformAdmin, isPasswordRecovery } = useAuth();
