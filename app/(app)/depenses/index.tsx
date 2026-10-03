@@ -26,6 +26,7 @@ import { Button, Card, EmptyState, Field, LoadingScreen, PageHeader, AppScreen, 
 import { DateField } from '../../../components/DateField';
 import { ReceiptScanTiles } from '../../../components/ReceiptScanTiles';
 import { ProjectPicker } from '../../../components/ProjectPicker';
+import { SendToFiduciaryModal, fiduciaryShareCopy } from '../../../components/SendToFiduciaryModal';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Expense, Plan, Project, RecurringExpense, RecurringExpenseFrequency } from '../../../lib/types';
@@ -81,6 +82,7 @@ function daysUntil(iso: string): number {
 export default function DepensesScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
+  const [fiduciaryOpen, setFiduciaryOpen] = useState(false);
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('list');
   const [loading, setLoading] = useState(true);
@@ -232,6 +234,10 @@ export default function DepensesScreen() {
       <View style={styles.container}>
         <PageHeader title={t('depensesList.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('depensesList.subtitle')}</Text>
+        <Pressable onPress={() => setFiduciaryOpen(true)} style={styles.fiduciaryLink} accessibilityRole="button">
+          <Feather name="send" size={14} color={colors.primary} />
+          <Text style={styles.fiduciaryLinkText}>{fiduciaryShareCopy().receipt}</Text>
+        </Pressable>
 
         {plan.has_treasury ? (
           <View style={styles.tabSwitch}>
@@ -377,6 +383,16 @@ export default function DepensesScreen() {
           load();
         }}
       />
+      {organization ? (
+        <SendToFiduciaryModal
+          visible={fiduciaryOpen}
+          onClose={() => setFiduciaryOpen(false)}
+          orgId={organization.id}
+          kind="expense"
+          title=""
+          pickFile
+        />
+      ) : null}
     </AppScreen>
   );
 }
@@ -778,6 +794,8 @@ function OneOffExpenseModal({
 }
 
 const styles = StyleSheet.create({
+  fiduciaryLink: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginBottom: spacing.md },
+  fiduciaryLinkText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.primary },
   container: {
     gap: spacing.md,
   },

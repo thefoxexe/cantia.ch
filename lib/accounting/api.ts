@@ -98,7 +98,7 @@ export interface ClientHeader {
 
 export interface DocumentRow {
   id: string;
-  kind: 'invoice' | 'receipt';
+  kind: 'invoice' | 'receipt' | 'shared';
   organization_id: string;
   organization_name: string;
   title: string;
@@ -186,7 +186,7 @@ export const acc = {
   cancelInvitation: (id: string) => call<null>('acc_cancel_invitation', { p_id: id }),
   resendInvitation: (id: string) => call<null>('acc_resend_invitation', { p_id: id }),
   client: (orgId: string) => call<ClientHeader | null>('acc_client', { p_org: orgId }),
-  documents: (params: { org?: string | null; from?: string | null; to?: string | null; kind?: 'invoice' | 'receipt' | null } = {}) =>
+  documents: (params: { org?: string | null; from?: string | null; to?: string | null; kind?: 'invoice' | 'receipt' | 'shared' | null } = {}) =>
     call<DocumentRow[]>('acc_documents', { p_org: params.org ?? null, p_from: params.from ?? null, p_to: params.to ?? null, p_kind: params.kind ?? null }),
   team: () => call<Team>('acc_team'),
   inviteStaff: (email: string, role: 'ADMIN' | 'MEMBER') => call<null>('acc_invite_staff', { p_email: email, p_role: role }),

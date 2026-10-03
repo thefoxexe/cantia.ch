@@ -410,7 +410,7 @@ function DocumentsTab({ mandants }: { mandants: Mandant[] }) {
   const t = copy.documents;
   const active = mandants.filter((m) => m.status === 'ACTIVE');
   const [org, setOrg] = useState<string | null>(null);
-  const [kind, setKind] = useState<'invoice' | 'receipt' | null>(null);
+  const [kind, setKind] = useState<'invoice' | 'receipt' | 'shared' | null>(null);
   const [query, setQuery] = useState('');
   const [rows, setRows] = useState<DocumentRow[] | null>(null);
 
@@ -430,6 +430,7 @@ function DocumentsTab({ mandants }: { mandants: Mandant[] }) {
         <Chip label={t.kinds.all} on={kind === null} onPress={() => setKind(null)} />
         <Chip label={t.kinds.invoice} on={kind === 'invoice'} onPress={() => setKind('invoice')} />
         <Chip label={t.kinds.receipt} on={kind === 'receipt'} onPress={() => setKind('receipt')} />
+        <Chip label={t.kinds.shared} on={kind === 'shared'} onPress={() => setKind('shared')} />
       </View>
       <View style={styles.chips}>
         <Chip label={t.allClients} on={org === null} onPress={() => setOrg(null)} />
@@ -442,7 +443,7 @@ function DocumentsTab({ mandants }: { mandants: Mandant[] }) {
         {list.map((r) => (
           <View key={`${r.kind}-${r.id}`} style={styles.docRow}>
             <View style={styles.docIcon}>
-              <Feather name={r.kind === 'invoice' ? 'file-text' : 'paperclip'} size={16} color={colors.primary} />
+              <Feather name={r.kind === 'invoice' ? 'file-text' : r.kind === 'shared' ? 'send' : 'paperclip'} size={16} color={colors.primary} />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.body} numberOfLines={1}>

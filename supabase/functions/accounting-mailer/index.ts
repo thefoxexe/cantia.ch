@@ -286,6 +286,16 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
         it: { subject: `${org} ha risposto: ${title}`, title: `${org} ha risposto alla sua richiesta.`, paragraphs: [`<strong>${title}</strong>`, 'I file e il messaggio sono nel dossier del mandante. Segni la richiesta come evasa dopo la verifica.'], cta: 'Vedere la risposta', url },
       }[l];
     }
+    case 'document_shared': {
+      const title = esc(p.title);
+      const details = p.details ? esc(p.details).replace(/\n/g, '<br/>') : null;
+      const url = p.organization_id ? `${ACCOUNTING_URL}/mandant?id=${encodeURIComponent(p.organization_id)}&tab=documents` : `${ACCOUNTING_URL}/espace`;
+      return {
+        fr: { subject: `${org} vous a envoyé un document`, title: `${org} vous a envoyé un document.`, paragraphs: [`<strong>${title}</strong>`, ...(details ? [details] : []), 'Le document est dans le dossier du mandant, rubrique Documents.'], cta: 'Ouvrir le document', url },
+        de: { subject: `${org} hat Ihnen ein Dokument gesendet`, title: `${org} hat Ihnen ein Dokument gesendet.`, paragraphs: [`<strong>${title}</strong>`, ...(details ? [details] : []), 'Das Dokument finden Sie im Dossier des Mandanten unter Dokumente.'], cta: 'Dokument öffnen', url },
+        it: { subject: `${org} le ha inviato un documento`, title: `${org} le ha inviato un documento.`, paragraphs: [`<strong>${title}</strong>`, ...(details ? [details] : []), 'Il documento è nel dossier del mandante, sezione Documenti.'], cta: 'Aprire il documento', url },
+      }[l];
+    }
     default:
       return null;
   }

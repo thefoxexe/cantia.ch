@@ -28,6 +28,7 @@ import {
 import { generatePayslipPdf } from '../../../lib/api/pdf';
 import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
+import { SendToFiduciaryModal } from '../../../components/SendToFiduciaryModal';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollWageType } from '../../../lib/types';
@@ -222,6 +223,8 @@ export default function PayrollSlipsScreen() {
     if (lastError) setError(lastError);
     load();
   }
+
+  const [fiduciaryFor, setFiduciaryFor] = useState<EmployeeItem | null>(null);
 
   async function handleExportPdf(item: EmployeeItem, key: string) {
     setExportingKey(key);
@@ -427,6 +430,11 @@ export default function PayrollSlipsScreen() {
                         <Feather name="download" size={14} color={colors.text} />
                       </Pressable>
                     ) : null}
+                    {canDownload && slip && (slip.status === 'validee' || slip.status === 'payee') ? (
+                      <Pressable onPress={() => setFiduciaryFor(item)} hitSlop={8} style={styles.pdfBtn} accessibilityLabel="Envoyer au fiduciaire">
+                        <Feather name="send" size={14} color={colors.text} />
+                      </Pressable>
+                    ) : null}
                     {slip && (slip.status === 'validee' || slip.status === 'payee') ? (
                       <Button
                         title={notifiedKeys.has(key) ? t('payrollSlips.emailSent') : t('payrollSlips.sendEmail')}
@@ -552,6 +560,21 @@ export default function PayrollSlipsScreen() {
           </View>
         </View>
       </Modal>
+      {organization && fiduciaryFor ? (
+        <SendToFiduciaryModal
+          visible
+          onClose={() => setFiduciaryFor(null)}
+          orgId={organization.id}
+          kind="payslip"
+          title={t('payrollSlips.payslipFilename', { name: fiduciaryFor.name, month: monthLabel(year, month) })}
+          docDate={`${year}-${String(month).padStart(2, '0')}-01`}
+          getFile={async () => {
+            const { url, error: genError } = await generatePayslipPdf(fiduciaryFor.ref, `${year}-${String(month).padStart(2, '0')}-01`);
+            if (genError || !url) return { file: null, error: genError ?? t('payrollSlips.pdfGenerationFailed') };
+            return { file: { uri: url, name: `${t('payrollSlips.payslipFilename', { name: fiduciaryFor.name, month: monthLabel(year, month) })}.pdf`, mimeType: 'application/pdf' }, error: null };
+          }}
+        />
+      ) : null}
     </AppScreen>
   );
 }

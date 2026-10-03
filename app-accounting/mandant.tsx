@@ -537,14 +537,20 @@ function Line({ label, value, strong = false }: { label: string; value: number; 
 
 function Documents({ orgId, canDownload }: { orgId: string; canDownload: boolean }) {
   const { copy, locale } = useAccCopy();
-  const rows = useAsync(async () => (await acc.documents({ org: orgId })).data ?? ([] as DocumentRow[]), [orgId]);
+  const rows = useAsync(async () => {
+    const list = (await acc.documents({ org: orgId })).data ?? ([] as DocumentRow[]);
+    // Documents the client sent: opening the list marks them as seen.
+    if (list.some((r) => r.kind === 'shared'))
+      void supabase.from('fiduciary_shared_documents').update({ seen_at: new Date().toISOString() }).eq('organization_id', orgId).is('seen_at', null);
+    return list;
+  }, [orgId]);
   if (!rows) return <Text style={styles.muted}>{copy.common.loading}</Text>;
   if (!rows.length) return <Text style={styles.muted}>{copy.documents.none}</Text>;
   return (
     <View style={{ gap: spacing.sm }}>
       {rows.map((r) => (
         <View key={`${r.kind}-${r.id}`} style={styles.docRow}>
-          <Feather name={r.kind === 'invoice' ? 'file-text' : 'paperclip'} size={16} color={colors.primary} />
+          <Feather name={r.kind === 'invoice' ? 'file-text' : r.kind === 'shared' ? 'send' : 'paperclip'} size={16} color={colors.primary} />
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.body} numberOfLines={1}>
               {r.title}
@@ -554,7 +560,7 @@ function Documents({ orgId, canDownload }: { orgId: string; canDownload: boolean
               {r.amount_chf != null ? ` · ${formatChf(r.amount_chf)}` : ''}
             </Text>
           </View>
-          {canDownload && r.file_path ? (
+          {(canDownload || r.kind === 'shared') && r.file_path ? (
             <Pressable onPress={() => openDocument(r.file_path)} style={styles.dl}>
               <Feather name="download" size={15} color={colors.primary} />
               <Text style={styles.link}>{copy.documents.download}</Text>

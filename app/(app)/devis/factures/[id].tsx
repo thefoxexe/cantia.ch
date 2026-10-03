@@ -23,6 +23,7 @@ import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureT
 import { backfillDocumentClientContact } from '../../../../lib/api/clients';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../../components/ui';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
+import { SendToFiduciaryModal, sendToFiduciaryLabel } from '../../../../components/SendToFiduciaryModal';
 import { DateField } from '../../../../components/DateField';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { generatePaymentReference, formatReferenceForDisplay } from '../../../../lib/qrReference';
@@ -64,7 +65,7 @@ export default function FactureDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { role } = useAuth();
+  const { role, organization } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [facture, setFacture] = useState<Facture | null>(null);
   const [items, setItems] = useState<FactureItem[]>([]);
@@ -75,6 +76,7 @@ export default function FactureDetailScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [fiduciaryOpen, setFiduciaryOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -469,6 +471,19 @@ export default function FactureDetailScreen() {
 
   const actionRows: ActionRow[] = [
     { key: 'pdf', icon: 'download', label: t('factureDetail.downloadPdf'), onPress: handleDownloadPdf },
+    ...(facture.status !== 'draft'
+      ? ([
+          {
+            key: 'fiduciary',
+            icon: 'send',
+            label: sendToFiduciaryLabel(),
+            onPress: () => {
+              setActionsOpen(false);
+              setFiduciaryOpen(true);
+            },
+          },
+        ] as ActionRow[])
+      : []),
     ...(facture.status === 'draft'
       ? ([{ key: 'finalize', icon: 'check', label: t('factureDetail.finalize'), onPress: handleFinalize }] as ActionRow[])
       : []),
@@ -777,6 +792,25 @@ export default function FactureDetailScreen() {
         ) : null}
       </Container>
       </ScrollView>
+
+      {organization ? (
+        <SendToFiduciaryModal
+          visible={fiduciaryOpen}
+          onClose={() => setFiduciaryOpen(false)}
+          orgId={organization.id}
+          kind="invoice"
+          title={`Facture ${facture.number ?? ''} · ${facture.client_name}`.replace('  ', ' ')}
+          amountChf={total}
+          docDate={facture.created_at?.slice(0, 10) ?? null}
+          sourceTable="factures"
+          sourceId={facture.id}
+          getFile={async () => {
+            const { url, error: genError } = await generateFacturePdf(id);
+            if (genError || !url) return { file: null, error: genError ?? t('factureDetail.pdfGenFailed') };
+            return { file: { uri: url, name: `Facture ${facture.number || facture.client_name}.pdf`, mimeType: 'application/pdf' }, error: null };
+          }}
+        />
+      ) : null}
 
       <Modal visible={paymentModalVisible} transparent animationType="fade" onRequestClose={() => setPaymentModalVisible(false)}>
         <View style={styles.modalBackdrop}>

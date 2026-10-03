@@ -20,6 +20,7 @@ import {
 } from '../../../lib/api/fiduciary';
 import { AppScreen, Button, Card, Container, PageHeader, Switch } from '../../../components/ui';
 import { FiduciaryRequests } from '../../../components/FiduciaryRequests';
+import { FiduciarySharedList } from '../../../components/FiduciarySharedList';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -120,6 +121,10 @@ export default function FiduciaireScreen() {
                     />
                   ))}
                 </View>
+              ) : null}
+
+              {organization && active.length ? (
+                <FiduciarySharedList orgId={organization.id} firmNames={Object.fromEntries(active.map((a) => [a.firm.id, a.firm.name]))} />
               ) : null}
 
               <Text style={styles.sectionTitle}>{t('fiduciary.activeTitle')}</Text>

@@ -1,90 +1,7 @@
--- À coller dans Supabase > SQL Editor > New query, puis Run.
--- Bouclement : crée la table où l'assistant de bouclement enregistre vos saisies (une ligne par exercice).
-begin;
-create table if not exists public.fiscal_closings (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  fiscal_year_id uuid not null references public.accounting_fiscal_years(id) on delete cascade,
-  legal_form text check (legal_form in ('ri', 'sarl', 'sa')),
-  data jsonb not null default '{}'::jsonb,
-  status text not null default 'en_cours' check (status in ('en_cours', 'verrouille', 'transmis')),
-  transmitted_at timestamptz,
-  updated_by uuid references auth.users(id) on delete set null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (fiscal_year_id)
-);
-
-create index if not exists fiscal_closings_org_idx on public.fiscal_closings (organization_id);
-
-alter table public.fiscal_closings enable row level security;
-
-drop policy if exists "accounting members view closings" on public.fiscal_closings;
-create policy "accounting members view closings" on public.fiscal_closings
-  for select using (public.can_view_org_accounting(organization_id));
-drop policy if exists "fiduciaries view closings" on public.fiscal_closings;
-create policy "fiduciaries view closings" on public.fiscal_closings
-  for select using (organization_id in (select public.fiduciary_org_ids('VIEW_ACCOUNTING_DOCUMENTS')));
-drop policy if exists "accounting managers create closings" on public.fiscal_closings;
-create policy "accounting managers create closings" on public.fiscal_closings
-  for insert with check (public.can_manage_org_accounting_drafts(organization_id));
-drop policy if exists "accounting managers update closings" on public.fiscal_closings;
-create policy "accounting managers update closings" on public.fiscal_closings
-  for update using (public.can_manage_org_accounting_drafts(organization_id));
-
-grant select, insert, update on public.fiscal_closings to authenticated;
-commit;
-
--- ============================================================
--- Admin › Comptabilité : vos recettes, dépenses et justificatifs (réservé à l'admin).
-begin;
-create table if not exists public.admin_ledger_entries (
-  id uuid primary key default gen_random_uuid(),
-  entry_date date not null,
-  kind text not null check (kind in ('recette', 'depense')),
-  category text not null check (char_length(category) between 1 and 60),
-  label text not null check (char_length(label) between 1 and 300),
-  counterparty text check (counterparty is null or char_length(counterparty) <= 200),
-  amount_chf numeric(12, 2) not null check (amount_chf >= 0),
-  vat_rate numeric(4, 2) not null default 0 check (vat_rate >= 0 and vat_rate < 30),
-  payment_method text check (payment_method is null or payment_method in ('banque', 'carte', 'twint', 'especes', 'stripe', 'autre')),
-  reference text check (reference is null or char_length(reference) <= 120),
-  receipt_path text,
-  notes text check (notes is null or char_length(notes) <= 2000),
-  source text not null default 'manuel' check (source in ('manuel', 'stripe')),
-  source_id text unique,
-  created_by uuid references auth.users(id) on delete set null default auth.uid(),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists admin_ledger_entries_date_idx on public.admin_ledger_entries (entry_date desc);
-
-alter table public.admin_ledger_entries enable row level security;
-drop policy if exists "platform admins manage the ledger" on public.admin_ledger_entries;
-create policy "platform admins manage the ledger" on public.admin_ledger_entries
-  for all using (public.is_platform_admin()) with check (public.is_platform_admin());
-grant select, insert, update, delete on public.admin_ledger_entries to authenticated;
-
--- Receipts (photos, PDF): private bucket, platform admins only.
-insert into storage.buckets (id, name, public, file_size_limit)
-values ('admin-ledger', 'admin-ledger', false, 15728640)
-on conflict (id) do nothing;
-
-drop policy if exists "platform admins read ledger receipts" on storage.objects;
-create policy "platform admins read ledger receipts" on storage.objects
-  for select using (bucket_id = 'admin-ledger' and public.is_platform_admin());
-drop policy if exists "platform admins add ledger receipts" on storage.objects;
-create policy "platform admins add ledger receipts" on storage.objects
-  for insert with check (bucket_id = 'admin-ledger' and public.is_platform_admin());
-drop policy if exists "platform admins remove ledger receipts" on storage.objects;
-create policy "platform admins remove ledger receipts" on storage.objects
-  for delete using (bucket_id = 'admin-ledger' and public.is_platform_admin());
-commit;
-
--- ============================================================
--- Envoyer au fiduciaire : documents envoyés par l'entreprise à sa fiduciaire sur Cantia.
-begin;
+-- « Envoyer au fiduciaire »: a company sends a document (invoice, receipt,
+-- payslip, closing file, any upload) to a fiduciary that has ACTIVE access
+-- to it on Cantia. The fiduciary sees it in its documents (acc_documents,
+-- kind 'shared'), can download the file, and gets an email.
 create table if not exists public.fiduciary_shared_documents (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
@@ -207,4 +124,3 @@ as $function$
   order by d.created_at desc nulls last
   limit 500;
 $function$;
-commit;
