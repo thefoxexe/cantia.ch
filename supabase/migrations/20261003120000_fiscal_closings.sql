@@ -1,6 +1,8 @@
--- À coller dans Supabase > SQL Editor > New query, puis Run.
--- Bouclement : crée la table où l'assistant de bouclement enregistre vos saisies (une ligne par exercice).
-begin;
+-- Year-end closing assistant (app/(app)/compta/bouclement.tsx): one row per
+-- fiscal year with what the company typed in (legal form, tax rate, assets,
+-- accruals, work in progress…), the entries generated, and whether the
+-- closing was locked and sent to the fiduciary. The fiduciary reads it with
+-- the same permission as the ledger.
 create table if not exists public.fiscal_closings (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
@@ -33,4 +35,3 @@ create policy "accounting managers update closings" on public.fiscal_closings
   for update using (public.can_manage_org_accounting_drafts(organization_id));
 
 grant select, insert, update on public.fiscal_closings to authenticated;
-commit;

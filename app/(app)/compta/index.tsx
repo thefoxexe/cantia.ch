@@ -4,6 +4,7 @@ import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { ComptaHub } from '../../../components/accounting/ComptaHub';
 import { useAuth } from '../../../lib/auth-context';
 import {
   createDraftEntry,
@@ -399,6 +400,8 @@ export default function AccountingScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader title={t('accounting.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('accounting.subtitleV2')}</Text>
+
+        <ComptaHub />
 
         <View style={styles.tabRow}>
           {(['apercu', 'ecritures', 'rapports', 'tva'] as Tab[]).map((tKey) => (
