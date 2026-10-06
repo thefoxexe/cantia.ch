@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
@@ -10,6 +10,7 @@ import { isModuleEnabled } from '../../../../lib/modules';
 import { LoadingScreen, StatusBadge, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { ChantierDesk } from '../../../../components/chantier/ChantierDesk';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -35,7 +36,8 @@ interface HubItem {
 const COUNTABLE: Record<string, { table: string; countKey: string }> = {
   reports: { table: 'reports', countKey: 'countReports' },
   documents: { table: 'files', countKey: 'countDocuments' },
-  metre: { table: 'metre_items', countKey: 'countMetre' },
+  // soumissions to fill (the old métré lines are no longer used)
+  metre: { table: 'tenders', countKey: 'countTenders' },
   subcontractors: { table: 'project_subcontractors', countKey: 'countSubcontractors' },
   extraWorks: { table: 'extra_works', countKey: 'countExtraWorks' },
   situations: { table: 'chantier_situations', countKey: 'countSituations' },
@@ -49,6 +51,9 @@ export default function ChantierDetailScreen() {
   const { project } = useProject(id);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
+  // Computer: a working layout (see ChantierDesk); phone: the tiles below.
+  const desk = width >= 1000;
 
   const loadCounts = useCallback(async () => {
     const entries = Object.entries(COUNTABLE);
@@ -165,6 +170,14 @@ export default function ChantierDetailScreen() {
   }
 
   const visibleItems = items.filter((it) => it.visible);
+
+  if (desk) {
+    return (
+      <AppScreen>
+        <ChantierDesk project={project} coverUrl={coverUrl} items={visibleItems.map((it) => ({ key: it.key, label: it.label, icon: it.icon, route: it.route, subtitle: subtitleFor(it.key), featured: it.featured }))} />
+      </AppScreen>
+    );
+  }
 
   return (
     <AppScreen>

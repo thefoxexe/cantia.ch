@@ -3,7 +3,7 @@ import { getAppLocale } from '../translations';
 // Copy of the Métrés & Soumissions module (app/(app)/chantiers/[id]/metre*.tsx).
 
 const fr = {
-  moduleTitle: 'Métrés & soumissions',
+  moduleTitle: 'Remplir une soumission',
   hintTitle: 'Une soumission, un métré, une offre',
   hintText: 'Importez la soumission PDF de l’architecte. Les quantités du document restent intactes : vous choisissez celles que vous offrez, ajoutez vos prix et Cantia calcule l’offre.',
   newTender: 'Nouveau métré',
@@ -38,7 +38,7 @@ const fr = {
   upsellCta: 'Voir les plans',
   readOnly: 'Consultation',
   // editor
-  back: 'Métrés',
+  back: 'Soumissions',
   search: 'Rechercher : 241, 121.111, béton…',
   expandAll: 'Tout déplier',
   collapseAll: 'Tout replier',
@@ -264,7 +264,7 @@ type Copy = typeof fr;
 
 const de: Copy = {
   ...fr,
-  moduleTitle: 'Ausmass & Devis',
+  moduleTitle: 'Leistungsverzeichnis ausfüllen',
   hintTitle: 'Ein Leistungsverzeichnis, ein Ausmass, ein Angebot',
   hintText: 'Importieren Sie das PDF-Leistungsverzeichnis des Architekten. Die Mengen des Dokuments bleiben unverändert: Sie wählen die angebotenen Mengen, ergänzen Ihre Preise und Cantia berechnet das Angebot.',
   newTender: 'Neues Ausmass',
@@ -298,7 +298,7 @@ const de: Copy = {
   upsellText: 'Leistungsverzeichnisse importieren, Mengen vergleichen, kalkulieren und das Angebot erstellen. Bestehende Ausmasse bleiben einsehbar.',
   upsellCta: 'Pläne ansehen',
   readOnly: 'Nur Lesen',
-  back: 'Ausmasse',
+  back: 'Leistungsverzeichnisse',
   search: 'Suchen: 241, 121.111, Beton…',
   expandAll: 'Alles aufklappen',
   collapseAll: 'Alles zuklappen',
@@ -518,7 +518,7 @@ const de: Copy = {
 
 const it: Copy = {
   ...fr,
-  moduleTitle: 'Computi & capitolati',
+  moduleTitle: 'Compilare un capitolato',
   hintTitle: 'Un capitolato, un computo, un’offerta',
   hintText: 'Importate il capitolato PDF dell’architetto. Le quantità del documento restano intatte: scegliete quelle che offrite, aggiungete i prezzi e Cantia calcola l’offerta.',
   newTender: 'Nuovo computo',
@@ -552,7 +552,7 @@ const it: Copy = {
   upsellText: 'Importate i capitolati, confrontate le quantità, prezzate e create l’offerta. I computi esistenti restano consultabili.',
   upsellCta: 'Vedi i piani',
   readOnly: 'Sola lettura',
-  back: 'Computi',
+  back: 'Capitolati',
   search: 'Cerca: 241, 121.111, calcestruzzo…',
   expandAll: 'Espandi tutto',
   collapseAll: 'Comprimi tutto',

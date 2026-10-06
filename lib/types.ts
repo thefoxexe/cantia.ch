@@ -60,7 +60,7 @@ export interface Plan {
   stripe_price_id_yearly: string | null;
   has_document_locale_override: boolean;
   has_sales_tracking?: boolean;
-  // Métrés & soumissions (Équipe, Entreprise, Sur mesure).
+  // Remplir une soumission (tous les plans depuis le 07.10.2026).
   has_tenders?: boolean;
 }
 

@@ -16,8 +16,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 // list in the middle, the message on the right (phones: list, then the
 // message full screen). "Réception" holds the clients' replies filed by the
 // "suivi des e-mails" address; "Envoyés" every devis / facture / reminder
-// sent from Cantia with where it stands. The "Boîtes connectées" block is
-// where Gmail / Outlook will plug in. New mail shows up on its own: every
+// sent from Cantia with where it stands. New mail shows up on its own: every
 // folder switch and every minute re-read the lists, without a spinner.
 // Réglages (mailbox, follow-ups, templates) is its own page, ./reglages.
 
@@ -282,15 +281,6 @@ export default function EmailsScreen() {
           </Pressable>
         );
       })}
-      <Text style={styles.sideTitle}>{t('emailHub.connected')}</Text>
-      {['Gmail', 'Outlook'].map((name) => (
-        <View key={name} style={styles.connect}>
-          <Feather name="mail" size={15} color={colors.textMuted} />
-          <Text style={styles.connectName}>{name}</Text>
-          <Text style={styles.soon}>{t('emailHub.soon')}</Text>
-        </View>
-      ))}
-      <Text style={styles.connectText}>{t('emailHub.connectedText')}</Text>
       <View style={{ flex: 1 }} />
       <Pressable onPress={openSettings} style={styles.folder}>
         <Feather name="settings" size={16} color={colors.textMuted} />
@@ -520,10 +510,6 @@ const styles = StyleSheet.create({
   folderCount: { fontSize: 12, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
   sideTitle: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color: colors.textMuted, marginTop: spacing.md, marginBottom: 4, paddingHorizontal: 10 },
   labelDot: { width: 10, height: 10, borderRadius: 3, marginHorizontal: 3 },
-  connect: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 6, paddingHorizontal: 10, opacity: 0.75 },
-  connectName: { flex: 1, fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
-  soon: { fontSize: 10, fontWeight: '700', color: colors.primaryDark, backgroundColor: colors.primarySoft, borderRadius: 999, paddingHorizontal: 7, paddingVertical: 2, overflow: 'hidden' },
-  connectText: { fontSize: 11.5, lineHeight: 16, color: colors.textMuted, paddingHorizontal: 10, marginTop: 4 },
   stats: { fontSize: 11.5, color: colors.textMuted, paddingHorizontal: 10, paddingVertical: 4, fontVariant: ['tabular-nums'] },
   listPane: { width: 390, borderLeftWidth: 1, borderLeftColor: colors.border, borderRightWidth: 1, borderRightColor: colors.border },
   listHead: { padding: spacing.md, gap: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },

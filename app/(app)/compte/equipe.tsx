@@ -113,6 +113,8 @@ export default function EquipeScreen() {
   const [roleDraftError, setRoleDraftError] = useState<string | null>(null);
   const [savingRole, setSavingRole] = useState(false);
   const [assigningMember, setAssigningMember] = useState<OrganizationMember | null>(null);
+  // A refused role change must say so instead of silently snapping back.
+  const [memberError, setMemberError] = useState<string | null>(null);
   const isAdmin = role === 'owner' || role === 'admin';
   const atCapacity = maxMembers != null && members.length >= maxMembers;
   const rolesAtCapacity = maxOrgRoles != null && roles.length >= maxOrgRoles;
@@ -160,7 +162,8 @@ export default function EquipeScreen() {
   async function toggleMemberRole(member: OrganizationMember) {
     if (!isAdmin || member.role === 'owner') return;
     const nextRole: OrgRole = member.role === 'admin' ? 'member' : 'admin';
-    await supabase.from('organization_members').update({ role: nextRole }).eq('id', member.id);
+    const { error } = await supabase.from('organization_members').update({ role: nextRole }).eq('id', member.id);
+    setMemberError(error ? error.message : null);
     load();
   }
 
@@ -284,7 +287,8 @@ export default function EquipeScreen() {
 
   async function handleAssignRole(roleId: string | null) {
     if (!assigningMember) return;
-    await assignMemberRole(assigningMember.id, roleId);
+    const { error } = await assignMemberRole(assigningMember.id, roleId);
+    setMemberError(error);
     setAssigningMember(null);
     load();
   }
@@ -496,6 +500,7 @@ export default function EquipeScreen() {
               </View>
               <Text style={styles.sectionTitle}>{t('equipe.membersTitle', { count: members.length })}</Text>
             </View>
+            {memberError ? <Text style={styles.memberError}>{memberError}</Text> : null}
             {members.map((m) => {
               const pill = pillFor(m);
               const assignable = isAdmin && m.role === 'member';
@@ -644,6 +649,7 @@ export default function EquipeScreen() {
 }
 
 const styles = StyleSheet.create({
+  memberError: { color: colors.danger, fontSize: fontSize.sm, marginBottom: spacing.sm },
   statsRow: {
     flexDirection: 'row',
     gap: spacing.sm,

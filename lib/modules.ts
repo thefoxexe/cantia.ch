@@ -27,7 +27,7 @@ export const ORG_MODULES: ModuleDef[] = [
 export const PROJECT_MODULES: ModuleDef[] = [
   { key: 'documents', label: 'Documents', description: 'Classeur de dossiers et fichiers.' },
   { key: 'photos', label: 'Photos', description: 'Galerie photo filtrable, avec une carte des prises de vue.' },
-  { key: 'metre', label: 'Métrés & soumissions', description: 'Soumissions importées, métrés, quantités retenues, prix et offre.' },
+  { key: 'metre', label: 'Remplir une soumission', description: 'Importez la soumission reçue, mettez vos prix et renvoyez le PDF rempli.' },
   { key: 'subcontractors', label: 'Sous-traitants', description: "Entreprises sous-traitées, interventions et attestations d'assurance." },
   { key: 'profitability', label: 'Rentabilité', description: 'Devisé vs coût réel (matériel + main d’œuvre).' },
 ];
