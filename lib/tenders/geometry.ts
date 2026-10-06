@@ -8,7 +8,8 @@ import { round } from './numbers.ts';
 export type Point = [number, number];
 export type MeasureKind = 'distance' | 'polyline' | 'polygon' | 'perimeter' | 'count';
 
-export type Calibration = { method: 'scale'; scale: number } | { method: 'two_points'; a: Point; b: Point; real_m: number };
+// source 'pdf': the scale was read on the plan itself at import ("Échelle 1:50").
+export type Calibration = { method: 'scale'; scale: number; source?: 'pdf' | 'user'; quote?: string } | { method: 'two_points'; a: Point; b: Point; real_m: number };
 
 export interface PageSize {
   width_pt: number;

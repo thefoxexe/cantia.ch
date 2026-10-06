@@ -26,6 +26,10 @@ export interface PlanCanvasProps {
   // A vertex dragged on the selected measure.
   onReshape: (id: string, pts: Point[]) => void;
   color: string;
+  // Escape with nothing being drawn (leave the calibration pick, unselect…).
+  onEscape?: () => void;
+  // Shown under the live figure while drawing ("Entrée : terminer…").
+  drawHint?: string;
 }
 
 const docs = new Map<string, Promise<any>>();
@@ -48,7 +52,7 @@ const MAX_PIXELS = 14_000_000; // canvas limit on Safari is ~16.7 M
 export const MEASURE_COLORS = ['#A95C30', '#3F5D7D', '#2E6B4F', '#6B4E8E', '#9C6510', '#AB3327'];
 
 export function PlanCanvas(props: PlanCanvasProps) {
-  const { url, pageIndex, page, mpp, zoom, onZoom, tool, objects, selectedId, onSelect, onComplete, onReshape, color } = props;
+  const { url, pageIndex, page, mpp, zoom, onZoom, tool, objects, selectedId, onSelect, onComplete, onReshape, color, onEscape, drawHint } = props;
   const boxRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [boxW, setBoxW] = useState(0);
@@ -202,7 +206,10 @@ export function PlanCanvas(props: PlanCanvasProps) {
         e.preventDefault();
         finish(draft);
       } else if (e.key === 'Escape') {
-        if (draft.length) setDraft([]);
+        // One point back at a time; with nothing drawn, leave.
+        e.preventDefault();
+        if (draft.length) setDraft(draft.slice(0, -1));
+        else if (onEscape) onEscape();
         else onSelect(null);
       } else if (e.key === 'Backspace' && draft.length) {
         e.preventDefault();
@@ -211,7 +218,7 @@ export function PlanCanvas(props: PlanCanvasProps) {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [draft, finish, onSelect]);
+  }, [draft, finish, onSelect, onEscape]);
 
   // Ctrl / ⌘ + wheel (and trackpad pinch) zooms around the pointer.
   useEffect(() => {
@@ -314,7 +321,7 @@ export function PlanCanvas(props: PlanCanvasProps) {
           width={w}
           height={h}
           viewBox={`0 0 ${w} ${h}`}
-          style={{ position: 'absolute', left: 0, top: 0, cursor: crosshair ? 'crosshair' : 'default', touchAction: 'none', userSelect: 'none' }}
+          style={{ position: 'absolute', left: 0, top: 0, cursor: crosshair ? 'crosshair' : 'default', touchAction: 'none', userSelect: 'none', fontFamily: '"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif' }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -345,12 +352,24 @@ export function PlanCanvas(props: PlanCanvasProps) {
               {nearFirst(hover ?? [-1, -1]) ? <circle cx={sx(draft[0])} cy={sy(draft[0])} r={9} fill="none" stroke={color} strokeWidth={2} /> : null}
             </g>
           ) : null}
-          {live && hover ? (
+          {hover && (live || (drawHint && draft.length)) ? (
             <g pointerEvents="none">
-              <rect x={sx(hover) + 14} y={sy(hover) + 10} width={live.length * 7 + 14} height={22} rx={4} fill={colors.text} fillOpacity={0.9} />
-              <text x={sx(hover) + 21} y={sy(hover) + 25} fontSize={12} fontWeight={700} fill="#fff">
-                {live}
-              </text>
+              {(() => {
+                const lines = [live, draft.length ? drawHint : null].filter(Boolean) as string[];
+                const wBox = Math.max(...lines.map((l, i) => l.length * (i === 0 && live ? 7 : 6))) + 16;
+                const x = Math.min(sx(hover) + 14, w - wBox - 4);
+                const y = Math.min(sy(hover) + 10, h - lines.length * 17 - 10);
+                return (
+                  <>
+                    <rect x={x} y={y} width={wBox} height={lines.length * 17 + 8} rx={4} fill={colors.text} fillOpacity={0.9} />
+                    {lines.map((l, i) => (
+                      <text key={i} x={x + 8} y={y + 17 + i * 17} fontSize={i === 0 && live ? 12 : 10.5} fontWeight={i === 0 && live ? 700 : 500} fill="#fff" fillOpacity={i === 0 && live ? 1 : 0.85}>
+                        {l}
+                      </text>
+                    ))}
+                  </>
+                );
+              })()}
             </g>
           ) : null}
         </svg>

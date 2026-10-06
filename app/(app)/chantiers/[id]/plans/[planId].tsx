@@ -32,7 +32,6 @@ type Action =
 
 const TOOLS: { key: Tool; icon: keyof typeof Feather.glyphMap }[] = [
   { key: 'select', icon: 'mouse-pointer' },
-  { key: 'calibrate', icon: 'sliders' },
   { key: 'distance', icon: 'minus' },
   { key: 'polyline', icon: 'activity' },
   { key: 'polygon', icon: 'square' },
@@ -167,6 +166,15 @@ export default function PlanMeasureScreen() {
   const pageObjs = useMemo(() => objects.filter((o) => o.plan_page_id === page?.id), [objects, page?.id]);
   const selected = pageObjs.find((o) => o.id === selectedId) ?? null;
 
+  // No scale read on the plan: ask for a calibration once per page.
+  const askedCal = useRef(new Set<string>());
+  useEffect(() => {
+    if (!page || !canDraw || page.meters_per_pt != null || askedCal.current.has(page.id)) return;
+    askedCal.current.add(page.id);
+    setCalSheet({ pts: null });
+  }, [page, canDraw]);
+
+
   const track = useCallback(async <T,>(p: Promise<T>): Promise<T> => {
     setSaving((n) => n + 1);
     try {
@@ -294,7 +302,7 @@ export default function PlanMeasureScreen() {
         e.preventDefault();
         k.removeMeasure(k.selectedId);
       } else if (!mod) {
-        const map: Record<string, Tool> = { v: 'select', k: 'calibrate', d: 'distance', l: 'polyline', s: 'polygon', p: 'perimeter', c: 'count' };
+        const map: Record<string, Tool> = { v: 'select', d: 'distance', l: 'polyline', s: 'polygon', p: 'perimeter', c: 'count' };
         if (map[e.key.toLowerCase()]) setTool(map[e.key.toLowerCase()]);
       }
     }
@@ -321,7 +329,7 @@ export default function PlanMeasureScreen() {
           <Pressable
             key={t.key}
             onPress={() => setTool(t.key)}
-            style={[styles.tool, tool === t.key && styles.toolOn, t.key === 'calibrate' && !page?.meters_per_pt && tool !== t.key && styles.toolAttention]}
+            style={[styles.tool, tool === t.key && styles.toolOn]}
             accessibilityLabel={c.tools[t.key]}
           >
             <Feather name={t.icon} size={15} color={tool === t.key ? '#fff' : colors.text} />
@@ -350,11 +358,26 @@ export default function PlanMeasureScreen() {
     </View>
   );
 
+  const cal = page?.calibration ?? null;
+  const scaleSource = !cal ? null : cal.method === 'two_points' ? c.scaleFromDim : cal.source === 'pdf' ? c.scaleFromPdf : c.scaleTyped;
   const scaleBadge = (
-    <Pressable onPress={() => canDraw && setCalSheet({ pts: null })} style={[styles.scaleBadge, !scale && styles.scaleBadgeWarn]}>
-      <Feather name={scale ? 'check-circle' : 'alert-triangle'} size={13} color={scale ? colors.success : colors.warning} />
-      <Text style={[styles.scaleText, { color: scale ? colors.success : colors.warning }]}>{scale ? `${c.scale} ${fill(c.scaleApprox, { n: scale })}` : c.notCalibrated}</Text>
-    </Pressable>
+    <View style={styles.scaleWrap}>
+      {scale ? (
+        <View style={styles.scaleBadge}>
+          <Feather name="check-circle" size={13} color={colors.success} />
+          <Text style={[styles.scaleText, { color: colors.success }]}>
+            {c.scale} {cal?.method === 'scale' ? `1:${cal.scale}` : fill(c.scaleApprox, { n: scale })}
+          </Text>
+          {scaleSource ? <Text style={styles.scaleSource}>· {scaleSource}</Text> : null}
+        </View>
+      ) : (
+        <View style={[styles.scaleBadge, styles.scaleBadgeWarn]}>
+          <Feather name="alert-triangle" size={13} color={colors.warning} />
+          <Text style={[styles.scaleText, { color: colors.warning }]}>{c.notCalibrated}</Text>
+        </View>
+      )}
+      {canDraw ? <Btn label={scale ? c.changeScale : c.calibrateBtn} icon="sliders" variant={scale ? 'secondary' : 'primary'} onPress={() => setCalSheet({ pts: null })} /> : null}
+    </View>
   );
 
   const panel = (
@@ -538,12 +561,18 @@ export default function PlanMeasureScreen() {
           />
         ) : null}
         {toolbar}
-        {canDraw ? (
+        {canDraw && tool === 'calibrate' ? (
+          <View style={[styles.help, styles.picking]}>
+            <Feather name="crosshair" size={14} color={colors.slate} />
+            <Text style={[styles.pickingText, { flex: 1 }]}>{c.pickingDim}</Text>
+            <Btn label={c.cancelPick} variant="ghost" onPress={() => setTool('select')} />
+          </View>
+        ) : canDraw ? (
           <View style={styles.help}>
             <Feather name="info" size={13} color={colors.textMuted} />
             <Text style={[kit.hint, { flex: 1 }]}>{c.toolHelp[tool]}</Text>
-            {!page?.meters_per_pt && tool !== 'calibrate' ? (
-              <Pressable onPress={() => setTool('calibrate')}>
+            {!page?.meters_per_pt ? (
+              <Pressable onPress={() => setCalSheet({ pts: null })}>
                 <Text style={styles.link}>{c.calibrateFirst}</Text>
               </Pressable>
             ) : null}
@@ -582,6 +611,12 @@ export default function PlanMeasureScreen() {
                 onComplete={onComplete}
                 onReshape={canDraw ? onReshape : () => {}}
                 color={color}
+                drawHint={c.escHint}
+                onEscape={() => {
+                  if (tool === 'calibrate') return setTool('select');
+                  if (selectedId) return setSelectedId(null);
+                  if (!target && tool !== 'select') setTool('select');
+                }}
               />
             ) : (
               <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
@@ -771,7 +806,7 @@ function CalibrationSheet({ page, pts, onApply, onClose, onPick }: { page: PlanP
     } else {
       const s = parseScale(scaleText);
       if (!s) return setErr(c.calInvalid);
-      cal = { method: 'scale', scale: s };
+      cal = { method: 'scale', scale: s, source: 'user' };
     }
     setBusy(true);
     await onApply(cal);
@@ -793,6 +828,11 @@ function CalibrationSheet({ page, pts, onApply, onClose, onPick }: { page: PlanP
         <Chip label={c.calByDim} active={mode === 'dim'} onPress={() => setMode('dim')} small icon="maximize-2" />
         <Chip label={c.calByScale} active={mode === 'scale'} onPress={() => setMode('scale')} small icon="percent" />
       </View>
+      {page.calibration?.method === 'scale' && page.calibration.source === 'pdf' ? (
+        <Text style={[kit.hint, { color: colors.slate }]}>{fill(c.readOnPlan, { q: page.calibration.quote ?? `1:${page.calibration.scale}` })}</Text>
+      ) : !page.calibration ? (
+        <Text style={[kit.hint, { color: colors.warning, fontWeight: '700' }]}>{c.calNeeded}</Text>
+      ) : null}
       {mode === 'dim' ? (
         pts ? (
           <>
@@ -832,6 +872,10 @@ const styles = StyleSheet.create({
   iconBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md },
   help: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap', paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
   link: { fontSize: 12.5, fontWeight: '700', color: colors.warning, textDecorationLine: 'underline' },
+  scaleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  scaleSource: { fontSize: 12, fontWeight: '600', color: colors.success },
+  picking: { marginHorizontal: spacing.lg, paddingVertical: 8, paddingHorizontal: 12, borderRadius: radius.lg, backgroundColor: colors.slateSoft },
+  pickingText: { fontSize: 13.5, fontWeight: '700', color: colors.slate },
   scaleBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, height: 30, borderRadius: radius.pill, backgroundColor: colors.successSoft },
   scaleBadgeWarn: { backgroundColor: colors.warningSoft },
   scaleText: { fontSize: 12.5, fontWeight: '800' },

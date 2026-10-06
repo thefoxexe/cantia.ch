@@ -39,10 +39,10 @@ const fr = {
   toolHelp: {
     select: 'Cliquez une mesure pour la sélectionner. Glissez ses points pour la corriger.',
     calibrate: 'Cliquez les deux extrémités d’une cote connue, puis saisissez sa longueur réelle.',
-    distance: 'Cliquez le point de départ puis le point d’arrivée. Maj = horizontal / vertical.',
-    polyline: 'Cliquez chaque point. Double-clic ou Entrée pour terminer. Retour arrière = dernier point.',
-    polygon: 'Cliquez les angles de la surface. Cliquez le premier point, double-cliquez ou Entrée pour fermer.',
-    perimeter: 'Cliquez les angles du contour. Cliquez le premier point ou Entrée pour fermer.',
+    distance: 'Cliquez le point de départ puis le point d’arrivée. Maj = horizontal / vertical. Échap retire le point.',
+    polyline: 'Cliquez chaque point. Double-clic ou Entrée pour terminer. Échap retire le dernier point.',
+    polygon: 'Cliquez les angles de la surface. Cliquez le premier point, double-cliquez ou Entrée pour fermer. Échap retire le dernier point.',
+    perimeter: 'Cliquez les angles du contour. Cliquez le premier point ou Entrée pour fermer. Échap retire le dernier point.',
     count: 'Cliquez chaque élément à compter. Entrée pour terminer.',
   } as Record<string, string>,
   scale: 'Échelle',
@@ -88,7 +88,17 @@ const fr = {
   makeActive: 'Rendre active',
   kindsShort: { distance: 'Distance', polyline: 'Longueur', polygon: 'Surface', perimeter: 'Périmètre', count: 'Comptage' } as Record<string, string>,
   back: 'Métrés',
-  shortcuts: 'Raccourcis : Entrée terminer · Échap annuler · ⌘Z / Ctrl+Z annuler · Ctrl + molette zoom',
+  shortcuts: 'Raccourcis : Entrée terminer · Échap retire le dernier point · ⌘Z / Ctrl+Z annuler · Ctrl + molette zoom',
+  calibrateBtn: 'Calibrer le plan',
+  changeScale: 'Modifier',
+  scaleFromPdf: 'lue sur le plan',
+  scaleFromDim: 'par une cote',
+  scaleTyped: 'saisie',
+  calNeeded: 'Aucune échelle trouvée sur ce plan. Calibrez-le pour que les mesures soient justes.',
+  pickingDim: 'Cliquez les deux extrémités d’une cote connue (Échap pour annuler).',
+  cancelPick: 'Annuler',
+  escHint: 'Entrée : terminer · Échap : retirer le dernier point',
+  readOnPlan: 'Échelle lue sur le plan : « {{q}} ». Si le PDF a pu être réduit (impression, scan), vérifiez avec une cote connue.',
 };
 
 type Copy = typeof fr;
@@ -172,6 +182,16 @@ const de: Copy = {
   kindsShort: { distance: 'Distanz', polyline: 'Länge', polygon: 'Fläche', perimeter: 'Umfang', count: 'Zählen' },
   back: 'Ausmasse',
   shortcuts: 'Tasten: Enter beenden · Esc abbrechen · ⌘Z / Ctrl+Z rückgängig · Ctrl + Mausrad Zoom',
+  calibrateBtn: 'Plan kalibrieren',
+  changeScale: 'Ändern',
+  scaleFromPdf: 'auf dem Plan gelesen',
+  scaleFromDim: 'über ein Mass',
+  scaleTyped: 'eingegeben',
+  calNeeded: 'Kein Massstab auf diesem Plan gefunden. Kalibrieren Sie ihn für genaue Messungen.',
+  pickingDim: 'Klicken Sie die beiden Enden eines bekannten Masses an (Esc zum Abbrechen).',
+  cancelPick: 'Abbrechen',
+  escHint: 'Enter: beenden · Esc: letzten Punkt entfernen',
+  readOnPlan: 'Massstab auf dem Plan gelesen: «{{q}}». Falls das PDF verkleinert sein könnte, prüfen Sie mit einem bekannten Mass.',
 };
 
 const it: Copy = {
@@ -253,6 +273,16 @@ const it: Copy = {
   kindsShort: { distance: 'Distanza', polyline: 'Lunghezza', polygon: 'Superficie', perimeter: 'Perimetro', count: 'Conteggio' },
   back: 'Computi',
   shortcuts: 'Tasti: Invio terminare · Esc annullare · ⌘Z / Ctrl+Z annulla · Ctrl + rotella zoom',
+  calibrateBtn: 'Calibra il piano',
+  changeScale: 'Modifica',
+  scaleFromPdf: 'letta sul piano',
+  scaleFromDim: 'con una quota',
+  scaleTyped: 'inserita',
+  calNeeded: 'Nessuna scala trovata su questo piano. Calibratelo per misure corrette.',
+  pickingDim: 'Cliccate le due estremità di una quota nota (Esc per annullare).',
+  cancelPick: 'Annulla',
+  escHint: 'Invio: terminare · Esc: togliere l’ultimo punto',
+  readOnPlan: 'Scala letta sul piano: «{{q}}». Se il PDF può essere ridotto, verificate con una quota nota.',
 };
 
 const COPY: Record<string, Copy> = { fr, de, it };

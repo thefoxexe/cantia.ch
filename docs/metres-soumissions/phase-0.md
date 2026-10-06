@@ -320,3 +320,8 @@ Tests à chaque phase :
   - La barre indique comment mesurer (la meilleure façon d'abord : tracer le mur pour un coffrage en m², dessiner la surface pour une dalle), demande les dimensions nécessaires, puis affiche le total mesuré face à la quantité de la soumission.
   - Chaque tracé est affecté à la position ; changer une dimension recalcule les tracés déjà faits.
   - « Terminer » revient au métré sur la même position.
+- **Échelle à l'import** (`lib/tenders/planScale.ts`) : le texte de chaque page est lu (« Échelle 1:50 », « M 1:100 », « Massstab », « Scala »).
+  - Une échelle usuelle trouvée près de son mot-clé est appliquée d'office et affichée « lue sur le plan ».
+  - Sans échelle (ou avec deux échelles différentes sur la feuille), la calibration est demandée à l'ouverture.
+- **Calibrer** est un bouton à côté de l'échelle, plus un outil de dessin. Pendant le choix d'une cote, un bandeau l'indique avec « Annuler ».
+- **Échap** retire le dernier point du tracé en cours ; sans point, il quitte l'outil. Une aide suit le curseur pendant le tracé.

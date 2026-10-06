@@ -7,6 +7,7 @@ import { uploadToOrgBucket } from '../api/storage';
 import { fileSignedUrl, type PickedFile } from './importer.ts';
 import { loadPdfJs } from './pdfjs.ts';
 import type { Calibration, MeasureKind, Point } from './geometry.ts';
+import { detectScale } from './planScale.ts';
 
 export interface SitePlanSummary {
   id: string;
@@ -164,11 +165,20 @@ export async function uploadPlan(
     if (bytes.length < 5 || String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') return { planId: null, error: 'Ce fichier n’est pas un PDF.' };
     const pdfjs = await loadPdfJs();
     const doc = await pdfjs.getDocument({ data: bytes.slice() }).promise;
-    const sizes: Array<{ w: number; h: number; rotation: number }> = [];
+    const sizes: Array<{ w: number; h: number; rotation: number; calibration: Calibration | null }> = [];
     for (let n = 1; n <= Math.min(doc.numPages, 500); n++) {
       const p = await doc.getPage(n);
       const vp = p.getViewport({ scale: 1 });
-      sizes.push({ w: vp.width, h: vp.height, rotation: ((p.rotate % 360) + 360) % 360 });
+      // The scale printed in the title block, when there is one.
+      let calibration: Calibration | null = null;
+      try {
+        const content = await p.getTextContent();
+        const found = detectScale(content.items.map((i) => i.str ?? ''));
+        if (found) calibration = { method: 'scale', scale: found.scale, source: 'pdf', quote: found.quote };
+      } catch {
+        calibration = null;
+      }
+      sizes.push({ w: vp.width, h: vp.height, rotation: ((p.rotate % 360) + 360) % 360, calibration });
     }
     await doc.destroy?.();
 
@@ -203,7 +213,7 @@ export async function uploadPlan(
     if (revErr || !rev) return { planId, error: revErr?.message ?? 'Création de la révision impossible' };
     const { error: pagesErr } = await supabase
       .from('site_plan_pages')
-      .insert(sizes.map((s, i) => ({ revision_id: rev.id, page_index: i + 1, width_pt: Math.round(s.w * 1000) / 1000, height_pt: Math.round(s.h * 1000) / 1000, rotation: s.rotation })));
+      .insert(sizes.map((s, i) => ({ revision_id: rev.id, page_index: i + 1, width_pt: Math.round(s.w * 1000) / 1000, height_pt: Math.round(s.h * 1000) / 1000, rotation: s.rotation, calibration: s.calibration })));
     if (pagesErr) return { planId, error: pagesErr.message };
     const { error: actErr } = await supabase.from('site_plans').update({ active_revision_id: rev.id }).eq('id', planId);
     return { planId, error: actErr?.message ?? null };
