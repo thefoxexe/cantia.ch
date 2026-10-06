@@ -11,6 +11,8 @@ import {
   type AdminOverview,
   type AdminPartner,
   type AdminPayout,
+  partnerLogoUrl,
+  type ShowcaseStatus,
 } from '../../../lib/partners/api';
 import { PARTNERS_COPY } from '../../../lib/partners/copy';
 import { displayType, monoType } from '../../../lib/marketingTheme';
@@ -145,6 +147,13 @@ export default function AdminPartners() {
                 partners={partners}
                 busy={busy}
                 onUpdate={(id, patch, label) => run(async () => ({ error: (await partnersAdmin.setPartner(id, patch)).error }), label)}
+                onTerms={(id, rate, months, note) =>
+                  run(async () => {
+                    const r = await partnersAdmin.setTerms(id, rate, months, note);
+                    return { error: r.error };
+                  }, rate == null ? 'Taux retiré : la commission est de nouveau masquée.' : `Conditions enregistrées : ${rate} % pendant ${months ?? 12} mois. Commissions en attente recalculées.`)
+                }
+                onShowcase={(id, status) => run(async () => ({ error: (await partnersAdmin.setShowcase(id, status)).error }), status === 'APPROVED' ? 'Logo publié sur partners.cantia.ch.' : 'Logo retiré de la page.')}
               />
             ) : tab === 'commissions' ? (
               <Commissions commissions={commissions} />
@@ -340,10 +349,14 @@ function Partners({
   partners,
   busy,
   onUpdate,
+  onTerms,
+  onShowcase,
 }: {
   partners: AdminPartner[] | null;
   busy: boolean;
   onUpdate: (id: string, patch: { status?: AdminPartner['status']; frozen?: boolean }, label: string) => void;
+  onTerms: (id: string, ratePercent: number | null, months: number | null, note: string) => void;
+  onShowcase: (id: string, status: ShowcaseStatus) => void;
 }) {
   const [confirm, setConfirm] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -369,12 +382,31 @@ function Partners({
                 {p.company_name ? <Text style={styles.muted}>{`  ·  ${p.company_name}`}</Text> : null}
               </Text>
               <Text style={styles.small}>
-                {[p.email, PARTNERS_COPY.fr.types[p.partner_type as keyof typeof PARTNERS_COPY.fr.types] ?? p.partner_type, `code ${p.code ?? '–'}`, `depuis le ${date(p.created_at)}`].join(' · ')}
+                {[p.email, p.phone, p.city, PARTNERS_COPY.fr.types[p.partner_type as keyof typeof PARTNERS_COPY.fr.types] ?? p.partner_type, `code ${p.code ?? '–'}`, `depuis le ${date(p.created_at)}`].join(' · ')}
               </Text>
             </View>
+            {p.commission_rate == null ? <Pill status="Taux à négocier" /> : <Pill status={`${(Number(p.commission_rate) * 100).toFixed(2).replace(/\.?0+$/, '')} % · ${p.commission_months ?? 12} mois`} />}
+            {p.contact_requested_at && p.commission_rate == null ? <Pill status="Demande de rappel" /> : null}
             <Pill status={p.status} />
             {p.payouts_frozen ? <Pill status="Versements gelés" /> : null}
           </View>
+          <TermsEditor p={p} busy={busy} onSave={onTerms} />
+          {p.logo_path ? (
+            <View style={styles.showcase}>
+              <View style={styles.logoBox}>
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                <img src={partnerLogoUrl(p.logo_path)} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+              </View>
+              <View style={{ flex: 1, minWidth: 200, gap: 2 }}>
+                <Text style={styles.rowTitle}>Logo pour partners.cantia.ch · {SHOWCASE_LABELS[p.showcase_status ?? 'NONE']}</Text>
+                <Text style={styles.small}>{[p.website, p.showcase_tagline].filter(Boolean).join(' · ') || 'Sans site ni phrase'}</Text>
+              </View>
+              {p.showcase_status !== 'APPROVED' ? <Button title="Publier le logo" onPress={() => onShowcase(p.id, 'APPROVED')} disabled={busy} /> : null}
+              {p.showcase_status === 'APPROVED' || p.showcase_status === 'PENDING' ? (
+                <Button title={p.showcase_status === 'PENDING' ? 'Refuser' : 'Retirer'} variant="secondary" onPress={() => onShowcase(p.id, p.showcase_status === 'PENDING' ? 'REJECTED' : 'NONE')} disabled={busy} />
+              ) : null}
+            </View>
+          ) : null}
           <View style={styles.metrics}>
             <Metric label="Clics" value={String(p.clicks)} />
             <Metric label="Inscriptions" value={String(p.signups)} />
@@ -412,6 +444,49 @@ function Partners({
           </View>
         </View>
       ))}
+    </View>
+  );
+}
+
+const SHOWCASE_LABELS: Record<ShowcaseStatus, string> = { NONE: 'non demandé', PENDING: 'à valider', APPROVED: 'publié', REJECTED: 'refusé' };
+
+// Personal terms, agreed after the call with the partner. Until a rate is
+// set, the partner sees it blurred; commissions recorded meanwhile at 0 are
+// recalculated on save.
+function TermsEditor({ p, busy, onSave }: { p: AdminPartner; busy: boolean; onSave: (id: string, ratePercent: number | null, months: number | null, note: string) => void }) {
+  const [rate, setRate] = useState(p.commission_rate != null ? String(Number(p.commission_rate) * 100) : '');
+  const [months, setMonths] = useState(String(p.commission_months ?? 12));
+  const [note, setNote] = useState(p.terms_note ?? '');
+  const value = Number(rate.replace(',', '.'));
+  const valid = rate.trim() !== '' && Number.isFinite(value) && value >= 0 && value <= 60;
+  return (
+    <View style={styles.terms}>
+      <View style={{ gap: 2, flexBasis: 220, flexGrow: 1 }}>
+        <Text style={styles.rowTitle}>{p.commission_rate == null ? 'Conditions à définir' : 'Conditions convenues'}</Text>
+        <Text style={styles.small}>
+          {p.commission_rate == null
+            ? p.contact_requested_at
+              ? `A demandé à être rappelé le ${date(p.contact_requested_at)}. Le taux est masqué dans son espace.`
+              : 'Le taux est masqué dans son espace tant qu’il n’est pas fixé.'
+            : `Fixé le ${p.terms_set_at ? date(p.terms_set_at) : '–'}.`}
+        </Text>
+      </View>
+      <View style={styles.termsField}>
+        <Text style={styles.fieldLabel}>Taux (%)</Text>
+        <TextInput value={rate} onChangeText={setRate} keyboardType="decimal-pad" placeholder="ex. 20" placeholderTextColor={colors.textMuted} style={[styles.input, { minWidth: 90 }]} />
+      </View>
+      <View style={styles.termsField}>
+        <Text style={styles.fieldLabel}>Durée (mois)</Text>
+        <TextInput value={months} onChangeText={setMonths} keyboardType="number-pad" style={[styles.input, { minWidth: 90 }]} />
+      </View>
+      <View style={[styles.termsField, { flexGrow: 2, flexBasis: 220 }]}>
+        <Text style={styles.fieldLabel}>Note interne</Text>
+        <TextInput value={note} onChangeText={setNote} placeholder="Ce qui a été convenu…" placeholderTextColor={colors.textMuted} style={styles.input} />
+      </View>
+      <View style={[styles.actions, { alignSelf: 'flex-end' }]}>
+        <Button title="Enregistrer" onPress={() => onSave(p.id, value, Math.max(1, Math.min(120, Number(months) || 12)), note)} disabled={busy || !valid} />
+        {p.commission_rate != null ? <Button title="Remettre à négocier" variant="secondary" onPress={() => onSave(p.id, null, null, note)} disabled={busy} /> : null}
+      </View>
     </View>
   );
 }
@@ -616,4 +691,8 @@ const styles = StyleSheet.create({
   pillWarn: { backgroundColor: colors.warningSoft },
   error: { fontSize: fontSize.sm, color: colors.danger },
   info: { fontSize: fontSize.sm, color: colors.success },
+  terms: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', gap: spacing.md, backgroundColor: colors.bg, borderRadius: radius.md, padding: spacing.md },
+  termsField: { gap: 4, flexGrow: 0 },
+  showcase: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.md },
+  logoBox: { width: 110, height: 60, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', padding: 6, overflow: 'hidden' },
 });

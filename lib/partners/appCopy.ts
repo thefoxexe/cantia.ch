@@ -15,7 +15,7 @@ const fr = {
     benefitsTitle: 'Vos avantages',
     nextTitle: 'À débloquer au niveau {level}',
     benefits: {
-      MEMBER: ['25 % des paiements pendant 12 mois', 'Espace partenaire, lien et code QR', 'Versements mensuels dès CHF 30'],
+      MEMBER: ['Commission personnelle convenue avec Cantia', 'Espace partenaire, lien et code QR', 'Versements mensuels dès CHF 30'],
       CONFIRMED: ['Démonstration de Cantia pour vos clients, avec l’équipe', 'Supports de présentation sur demande', 'Accès anticipé aux nouveautés'],
       PREMIUM: ['Interlocuteur dédié chez Cantia', 'Mise en avant de votre entreprise sur partners.cantia.ch', 'Priorité sur les demandes de vos clients', 'Votre avis compte dans les prochaines fonctionnalités'],
     },
@@ -34,7 +34,7 @@ const fr = {
   seeAll: 'Tout voir',
   commissions: {
     title: 'Commissions',
-    intro: '25 % du montant payé hors TVA, pendant 12 mois pour chaque client. Une commission devient disponible 30 jours après le paiement.',
+    intro: 'Votre taux, convenu avec Cantia, s’applique au montant payé hors TVA par chaque client. Une commission devient disponible 30 jours après le paiement.',
     date: 'Paiement',
     client: 'Client',
     base: 'Montant payé',
@@ -92,7 +92,7 @@ const de: AppCopy = {
     benefitsTitle: 'Ihre Vorteile',
     nextTitle: 'Freischalten auf Stufe {level}',
     benefits: {
-      MEMBER: ['25 % der Zahlungen während 12 Monaten', 'Partnerbereich, Link und QR-Code', 'Monatliche Auszahlungen ab CHF 30'],
+      MEMBER: ['Persönliche, mit Cantia vereinbarte Provision', 'Partnerbereich, Link und QR-Code', 'Monatliche Auszahlungen ab CHF 30'],
       CONFIRMED: ['Cantia-Demo für Ihre Kunden, mit dem Team', 'Präsentationsunterlagen auf Anfrage', 'Früher Zugang zu Neuheiten'],
       PREMIUM: ['Persönliche Ansprechperson bei Cantia', 'Präsentation Ihres Unternehmens auf partners.cantia.ch', 'Priorität bei Anfragen Ihrer Kunden', 'Mitsprache bei neuen Funktionen'],
     },
@@ -111,7 +111,7 @@ const de: AppCopy = {
   seeAll: 'Alle anzeigen',
   commissions: {
     title: 'Provisionen',
-    intro: '25 % des bezahlten Betrags ohne MWST, während 12 Monaten pro Kunde. Eine Provision wird 30 Tage nach der Zahlung verfügbar.',
+    intro: 'Ihr mit Cantia vereinbarter Satz gilt für den bezahlten Betrag ohne MWST jedes Kunden. Eine Provision wird 30 Tage nach der Zahlung verfügbar.',
     date: 'Zahlung',
     client: 'Kunde',
     base: 'Bezahlter Betrag',
@@ -167,7 +167,7 @@ const it: AppCopy = {
     benefitsTitle: 'I suoi vantaggi',
     nextTitle: 'Da sbloccare al livello {level}',
     benefits: {
-      MEMBER: ['25 % dei pagamenti per 12 mesi', 'Spazio partner, link e codice QR', 'Versamenti mensili da CHF 30'],
+      MEMBER: ['Commissione personale concordata con Cantia', 'Spazio partner, link e codice QR', 'Versamenti mensili da CHF 30'],
       CONFIRMED: ['Dimostrazione di Cantia per i suoi clienti, con il team', 'Materiale di presentazione su richiesta', 'Accesso anticipato alle novità'],
       PREMIUM: ['Interlocutore dedicato presso Cantia', 'Presentazione della sua impresa su partners.cantia.ch', 'Priorità sulle richieste dei suoi clienti', 'Voce in capitolo sulle nuove funzionalità'],
     },
@@ -186,7 +186,7 @@ const it: AppCopy = {
   seeAll: 'Vedi tutto',
   commissions: {
     title: 'Commissioni',
-    intro: 'Il 25 % dell’importo pagato IVA esclusa, per 12 mesi per ogni cliente. Una commissione diventa disponibile 30 giorni dopo il pagamento.',
+    intro: 'Il suo tasso, concordato con Cantia, si applica all’importo pagato IVA esclusa da ogni cliente. Una commissione diventa disponibile 30 giorni dopo il pagamento.',
     date: 'Pagamento',
     client: 'Cliente',
     base: 'Importo pagato',

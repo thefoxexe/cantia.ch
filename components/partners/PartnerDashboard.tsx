@@ -4,11 +4,14 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } fr
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import QRCode from 'qrcode';
+import * as DocumentPicker from 'expo-document-picker';
 import { Button, Field } from '../ui';
 import { PAGE_MAX, useIsWide } from './PartnersChrome';
 import { QrCode } from './QrCode';
 import { usePartnersCopy } from '../../lib/partners/locale';
 import { PARTNERS_APP_COPY } from '../../lib/partners/appCopy';
+import { TERMS_COPY } from '../../lib/partners/termsCopy';
+import { supabase } from '../../lib/supabase';
 import { fill } from '../../lib/partners/copy';
 import {
   formatChf,
@@ -17,7 +20,14 @@ import {
   getMyPartnerReferrals,
   getMyPartnerStats,
   getMyPartnerSummary,
+  getMyShowcase,
   LEVEL_THRESHOLDS,
+  notifyPartnersAdmin,
+  partnerLogoUrl,
+  requestShowcase,
+  uploadPartnerLogo,
+  withdrawShowcase,
+  type MyShowcase,
   PARTNER_LINK_BASE,
   setPayoutAccount,
   type PartnerCommission,
@@ -81,6 +91,23 @@ export function PartnerDashboard({ profile, code, email }: { profile: PartnerPro
   }, [params.tab]);
 
   useEffect(() => {
+    // New partner: tells the Cantia team once (no-op server-side afterwards).
+    try {
+      if (typeof sessionStorage === 'undefined' || !sessionStorage.getItem('cantia.partners.notified')) {
+        notifyPartnersAdmin('signup').finally(() => {
+          try {
+            sessionStorage?.setItem('cantia.partners.notified', '1');
+          } catch {
+            // ignore
+          }
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
     getMyPartnerSummary().then(setSummary);
     getMyPartnerStats().then(setStats);
     getMyPartnerReferrals().then(setReferrals);
@@ -122,18 +149,216 @@ export function PartnerDashboard({ profile, code, email }: { profile: PartnerPro
       </ScrollView>
 
       {tab === 'overview' ? (
-        <Overview summary={summary} stats={stats} commissions={commissions} link={link} code={code} wide={wide} onSeeAll={() => go('commissions')} />
+        <>
+          <TermsCard summary={summary} phone={profileState.phone ?? ''} onRequested={() => getMyPartnerSummary().then(setSummary)} />
+          <Overview summary={summary} stats={stats} commissions={commissions} link={link} code={code} wide={wide} onSeeAll={() => go('commissions')} />
+        </>
       ) : tab === 'clients' ? (
         <Clients stats={stats} referrals={referrals} />
       ) : tab === 'commissions' ? (
-        <Commissions commissions={commissions} />
+        <>
+          <TermsCard summary={summary} phone={profileState.phone ?? ''} onRequested={() => getMyPartnerSummary().then(setSummary)} />
+          <Commissions commissions={commissions} />
+        </>
       ) : tab === 'payouts' ? (
         <Payouts payouts={payouts} summary={summary} profile={profileState} onSaved={(p) => setProfileState(p)} />
       ) : tab === 'resources' ? (
         <Resources link={link} code={code} />
       ) : (
-        <ProfileTab profile={profileState} email={email} />
+        <>
+          <ProfileTab profile={profileState} email={email} />
+          <ShowcaseCard />
+        </>
       )}
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Personal terms: blurred until Cantia sets the partner's rate.
+
+function TermsCard({ summary, phone: defaultPhone, onRequested }: { summary: PartnerSummary | null; phone: string; onRequested: () => void }) {
+  const { locale } = usePartnersCopy();
+  const t = TERMS_COPY[locale];
+  const date = useDate();
+  const wide = useIsWide();
+  const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState(defaultPhone);
+  const [availability, setAvailability] = useState('');
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!summary) return null;
+
+  if (summary.commission_rate != null) {
+    const rate = (Number(summary.commission_rate) * 100).toFixed(2).replace(/\.?0+$/, '');
+    return (
+      <View style={[styles.card, styles.termsSet]}>
+        <Text style={styles.termsEyebrow}>{t.setTitle}</Text>
+        <Text style={styles.termsValue}>{fill(t.setValue, { rate, months: summary.commission_months ?? 12 })}</Text>
+        <Text style={styles.small}>{fill(t.setText, { date: summary.terms_set_at ? date(summary.terms_set_at) : '–' })}</Text>
+      </View>
+    );
+  }
+
+  async function send() {
+    setBusy(true);
+    setError(null);
+    const r = await notifyPartnersAdmin('contact', { phone, availability, message });
+    setBusy(false);
+    if (r.error) return setError(r.error);
+    setSent(true);
+    setOpen(false);
+    onRequested();
+  }
+
+  const requested = sent || !!summary.contact_requested_at;
+  return (
+    <View style={[styles.terms, wide && { flexDirection: 'row', alignItems: 'center' }]}>
+      <View style={[{ gap: spacing.sm }, wide && { flex: 1.4 }]}>
+        <Text style={styles.termsEyebrowDark}>{t.title}</Text>
+        <Text style={styles.termsTitle}>{t.pendingTitle}</Text>
+        <Text style={styles.termsText}>{t.pendingText}</Text>
+        {summary.awaiting_terms_base_chf ? <Text style={[styles.termsText, { color: '#F6E4D2' }]}>{fill(t.awaiting, { amount: formatChf(summary.awaiting_terms_base_chf) })}</Text> : null}
+        {requested ? (
+          <View style={styles.termsDone}>
+            <Feather name="check-circle" size={16} color="#9FD3B5" />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.termsDoneTitle}>{t.requestedTitle}</Text>
+              <Text style={styles.termsText}>{fill(t.requestedText, { date: date(summary.contact_requested_at ?? new Date().toISOString()) })}</Text>
+            </View>
+          </View>
+        ) : open ? (
+          <View style={styles.termsForm}>
+            <TextInput value={phone} onChangeText={setPhone} placeholder={t.form.phone} placeholderTextColor="#9C8B78" keyboardType="phone-pad" style={styles.termsInput} />
+            <TextInput value={availability} onChangeText={setAvailability} placeholder={t.form.availabilityPh} placeholderTextColor="#9C8B78" style={styles.termsInput} />
+            <TextInput value={message} onChangeText={setMessage} placeholder={t.form.messagePh} placeholderTextColor="#9C8B78" multiline style={[styles.termsInput, { minHeight: 72, textAlignVertical: 'top' }]} />
+            <View style={styles.actions}>
+              <Pressable onPress={send} disabled={busy} style={[styles.termsBtn, busy && { opacity: 0.6 }]}>
+                <Text style={styles.termsBtnText}>{busy ? '…' : t.form.send}</Text>
+              </Pressable>
+              <Pressable onPress={() => setOpen(false)}>
+                <Text style={[styles.termsText, { textDecorationLine: 'underline' }]}>{t.form.cancel}</Text>
+              </Pressable>
+            </View>
+            {error ? <Text style={[styles.small, { color: '#F0A99F' }]}>{error}</Text> : null}
+          </View>
+        ) : (
+          <View style={styles.actions}>
+            <Pressable onPress={() => setOpen(true)} style={styles.termsBtn}>
+              <Feather name="phone-call" size={15} color={colors.text} />
+              <Text style={styles.termsBtnText}>{t.cta}</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+      <View style={[styles.termsBlurBox, wide && { flex: 1 }]}>
+        <Text style={styles.termsBlurLabel}>{t.blurLabel}</Text>
+        <Text style={[styles.termsBlur, Platform.OS === 'web' ? ({ filter: 'blur(14px)', userSelect: 'none' } as any) : { opacity: 0.08 }]} aria-hidden>
+          00 %
+        </Text>
+        <Feather name="lock" size={18} color="#E8C9A8" style={{ position: 'absolute', top: 16, right: 16 }} />
+      </View>
+    </View>
+  );
+}
+
+// Logo on partners.cantia.ch (published after approval).
+function ShowcaseCard() {
+  const { locale } = usePartnersCopy();
+  const t = TERMS_COPY[locale].showcase;
+  const [mine, setMine] = useState<MyShowcase | null | undefined>(undefined);
+  const [logo, setLogo] = useState<string | null>(null);
+  const [website, setWebsite] = useState('');
+  const [tagline, setTagline] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getMyShowcase().then((m) => {
+      setMine(m);
+      if (m) {
+        setLogo(m.logo_path);
+        setWebsite(m.website ?? '');
+        setTagline(m.showcase_tagline ?? '');
+      }
+    });
+  }, []);
+
+  if (mine === undefined) return null;
+  if (mine === null)
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{t.title}</Text>
+        <Text style={styles.muted}>{t.unavailable}</Text>
+      </View>
+    );
+
+  async function pick() {
+    const r = await DocumentPicker.getDocumentAsync({ type: ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'], copyToCacheDirectory: true });
+    if (r.canceled || !r.assets?.[0]) return;
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return;
+    setBusy(true);
+    setError(null);
+    const up = await uploadPartnerLogo(data.user.id, { uri: r.assets[0].uri, name: r.assets[0].name, mimeType: r.assets[0].mimeType });
+    setBusy(false);
+    if (up.error || !up.path) return setError(up.error ?? 'Upload');
+    setLogo(up.path);
+  }
+
+  async function submit() {
+    if (!logo) return;
+    setBusy(true);
+    setError(null);
+    const r = await requestShowcase(logo, website.trim(), tagline.trim());
+    setBusy(false);
+    if (r.error) return setError(r.error);
+    setMine({ logo_path: logo, website, showcase_tagline: tagline, showcase_status: 'PENDING' });
+  }
+
+  async function withdraw() {
+    setBusy(true);
+    await withdrawShowcase();
+    setBusy(false);
+    setMine({ ...mine!, showcase_status: 'NONE' });
+  }
+
+  const status = mine.showcase_status;
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardHead}>
+        <Text style={styles.cardTitle}>{t.title}</Text>
+        <View style={[styles.pill, status === 'APPROVED' ? styles.pillPaid : status === 'PENDING' ? styles.pillPending : status === 'REJECTED' ? styles.pillCancelled : styles.pillAvailable]}>
+          <Text style={styles.pillText}>{t.statuses[status]}</Text>
+        </View>
+      </View>
+      <Text style={styles.muted}>{t.text}</Text>
+      <View style={[styles.actions, { alignItems: 'center' }]}>
+        <View style={styles.logoBox}>
+          {logo ? (
+            // eslint-disable-next-line jsx-a11y/alt-text
+            Platform.OS === 'web' ? <img src={partnerLogoUrl(logo)} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} /> : <Feather name="image" size={22} color={colors.textMuted} />
+          ) : (
+            <Feather name="image" size={22} color={colors.textMuted} />
+          )}
+        </View>
+        <View style={{ flex: 1, minWidth: 200, gap: 6 }}>
+          <Text style={styles.small}>{t.logo}</Text>
+          <Text style={styles.small}>{t.hint}</Text>
+          <View style={styles.actions}>
+            <Button title={logo ? t.change : t.choose} icon="upload" variant="secondary" onPress={pick} loading={busy} />
+          </View>
+        </View>
+      </View>
+      <Field label={t.website} value={website} onChangeText={setWebsite} autoCapitalize="none" keyboardType="url" placeholder="https://" />
+      <Field label={t.tagline} value={tagline} onChangeText={setTagline} placeholder={t.taglinePh} maxLength={120} />
+      <View style={styles.actions}>
+        <Button title={t.submit} onPress={submit} disabled={!logo || busy} />
+        {status === 'APPROVED' || status === 'PENDING' ? <Button title={t.withdraw} variant="secondary" onPress={withdraw} disabled={busy} /> : null}
+      </View>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
@@ -737,4 +962,21 @@ const styles = StyleSheet.create({
   kvValue: { flex: 1, minWidth: 160, fontSize: fontSize.sm, color: colors.text, fontWeight: '600' },
   error: { fontSize: fontSize.sm, color: colors.danger },
   info: { fontSize: fontSize.sm, color: colors.success },
+  terms: { backgroundColor: '#16120E', borderRadius: radius.lg, padding: spacing.xl, gap: spacing.xl, overflow: 'hidden' },
+  termsEyebrowDark: { ...monoType, fontSize: 11, letterSpacing: 1.6, textTransform: 'uppercase', color: '#D9895A' },
+  termsTitle: { ...displayType, fontSize: 28, lineHeight: 32, fontWeight: '800', color: '#FBF6EE' },
+  termsText: { fontSize: fontSize.sm, lineHeight: 21, color: '#D8CCBB', maxWidth: 560 },
+  termsBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F6E4D2', paddingVertical: 12, paddingHorizontal: 18, borderRadius: radius.md },
+  termsBtnText: { fontSize: fontSize.sm, fontWeight: '800', color: colors.text },
+  termsDone: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', borderRadius: radius.md, padding: spacing.md },
+  termsDoneTitle: { fontSize: fontSize.sm, fontWeight: '800', color: '#FBF6EE' },
+  termsForm: { gap: spacing.sm, maxWidth: 520 },
+  termsInput: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: radius.md, paddingVertical: 11, paddingHorizontal: 12, fontSize: fontSize.sm, color: '#FBF6EE' },
+  termsBlurBox: { minHeight: 150, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(232,201,168,0.25)', backgroundColor: 'rgba(255,255,255,0.03)', alignItems: 'center', justifyContent: 'center', padding: spacing.lg, position: 'relative' },
+  termsBlurLabel: { ...monoType, fontSize: 10.5, letterSpacing: 1.4, textTransform: 'uppercase', color: '#BFA48A', position: 'absolute', top: 18, left: 18 },
+  termsBlur: { ...displayType, fontSize: 84, lineHeight: 92, fontWeight: '800', color: '#F6E4D2' },
+  termsSet: { borderLeftWidth: 3, borderLeftColor: colors.primary, gap: 6 },
+  termsEyebrow: { ...monoType, fontSize: 11, letterSpacing: 1.4, textTransform: 'uppercase', color: colors.primary },
+  termsValue: { ...displayType, fontSize: 30, lineHeight: 34, fontWeight: '800', color: colors.text },
+  logoBox: { width: 132, height: 80, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', padding: 8, overflow: 'hidden' },
 });

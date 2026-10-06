@@ -16,6 +16,7 @@ export interface PartnerProfile {
   locale: 'fr' | 'de' | 'it';
   payout_account_holder: string | null;
   iban_masked: string | null;
+  phone?: string | null;
   created_at: string;
 }
 
@@ -39,7 +40,7 @@ export interface PartnerReferral {
 export async function getMyPartnerProfile(): Promise<{ profile: PartnerProfile | null; code: string | null }> {
   const { data: profile } = await supabase
     .from('partner_profiles')
-    .select('id, status, first_name, last_name, company_name, partner_type, locale, payout_account_holder, iban_masked, created_at')
+    .select('id, status, first_name, last_name, company_name, partner_type, locale, payout_account_holder, iban_masked, phone, created_at')
     .maybeSingle();
   if (!profile) return { profile: null, code: null };
   const { data: codes } = await supabase
@@ -113,6 +114,13 @@ export interface PartnerSummary {
   level: PartnerLevel;
   min_payout_chf: number;
   payout_day: number;
+  // Personal terms (migration 20261006100000). Null rate = still to agree
+  // with Cantia: the dashboard blurs it and invites the partner to call.
+  commission_rate?: number | null;
+  commission_months?: number | null;
+  terms_set_at?: string | null;
+  contact_requested_at?: string | null;
+  awaiting_terms_base_chf?: number;
 }
 
 export interface PartnerCommission {
@@ -205,6 +213,17 @@ export interface AdminPartner {
   pending_chf: number;
   available_chf: number;
   paid_chf: number;
+  phone?: string | null;
+  city?: string | null;
+  commission_rate?: number | null;
+  commission_months?: number | null;
+  terms_set_at?: string | null;
+  terms_note?: string | null;
+  contact_requested_at?: string | null;
+  logo_path?: string | null;
+  website?: string | null;
+  showcase_tagline?: string | null;
+  showcase_status?: ShowcaseStatus;
 }
 
 export interface AdminPayout {
@@ -263,6 +282,9 @@ export const partnersAdmin = {
   preparePayouts: () => rpc<{ created: number; skipped_missing_iban: number }>('partners_admin_prepare_payouts'),
   markPaid: (id: string, reference: string) => rpc<{ paid: boolean }>('partners_admin_mark_paid', { p_payout_id: id, p_reference: reference }),
   cancelPayout: (id: string) => rpc<{ cancelled: boolean }>('partners_admin_cancel_payout', { p_payout_id: id }),
+  setTerms: (id: string, ratePercent: number | null, months: number | null, note: string) =>
+    rpc<{ updated: boolean; recalculated: number }>('partners_admin_set_terms', { p_partner_id: id, p_rate_percent: ratePercent, p_months: months, p_note: note || null }),
+  setShowcase: (id: string, status: ShowcaseStatus) => rpc<{ updated: boolean }>('partners_admin_set_showcase', { p_partner_id: id, p_status: status }),
   setPartner: (id: string, patch: { status?: AdminPartner['status']; frozen?: boolean; reason?: string }) =>
     rpc<{ updated: boolean }>('partners_admin_set_partner', {
       p_partner_id: id,
@@ -276,4 +298,74 @@ export function formatChf(amount: number): string {
   const n = Number(amount) || 0;
   const [int, dec] = Math.abs(n).toFixed(2).split('.');
   return `${n < 0 ? '−' : ''}CHF ${int.replace(/\B(?=(\d{3})+(?!\d))/g, '’')}.${dec}`;
+}
+
+// ---------------------------------------------------------------------------
+// Admin notifications (edge function partners-notify, PARTNERS_ADMIN_EMAIL).
+
+export async function notifyPartnersAdmin(kind: 'signup' | 'contact', extra: { message?: string; phone?: string; availability?: string } = {}): Promise<{ sent: boolean; error: string | null }> {
+  const { data, error } = await supabase.functions.invoke('partners-notify', { body: { kind, ...extra } });
+  if (error) return { sent: false, error: error.message };
+  return { sent: !!(data as { sent?: boolean } | null)?.sent, error: null };
+}
+
+// ---------------------------------------------------------------------------
+// Logo wall of partners.cantia.ch (public bucket partner-logos).
+
+export type ShowcaseStatus = 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+const LOGO_BUCKET = 'partner-logos';
+
+export interface ShowcaseEntry {
+  name: string;
+  logo_path: string;
+  website: string | null;
+  tagline: string | null;
+  city: string | null;
+  partner_type: string;
+}
+
+export interface MyShowcase {
+  logo_path: string | null;
+  website: string | null;
+  showcase_tagline: string | null;
+  showcase_status: ShowcaseStatus;
+}
+
+export function partnerLogoUrl(path: string): string {
+  return supabase.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+export async function getShowcase(): Promise<ShowcaseEntry[]> {
+  const { data, error } = await supabase.rpc('partners_showcase');
+  if (error) return [];
+  return (data as ShowcaseEntry[] | null) ?? [];
+}
+
+// Null when the columns don't exist yet (migration not applied).
+export async function getMyShowcase(): Promise<MyShowcase | null> {
+  const { data, error } = await supabase.from('partner_profiles').select('logo_path, website, showcase_tagline, showcase_status').maybeSingle();
+  if (error || !data) return null;
+  return data as MyShowcase;
+}
+
+export async function uploadPartnerLogo(userId: string, file: { uri: string; name: string; mimeType?: string | null }): Promise<{ path: string | null; error: string | null }> {
+  try {
+    const blob = await (await fetch(file.uri)).blob();
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const path = `${userId}/logo-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from(LOGO_BUCKET).upload(path, blob, { contentType: file.mimeType ?? blob.type ?? 'image/png', upsert: true });
+    return error ? { path: null, error: error.message } : { path, error: null };
+  } catch (e) {
+    return { path: null, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+export async function requestShowcase(logoPath: string, website: string, tagline: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('partner_request_showcase', { p_website: website || null, p_tagline: tagline || null, p_logo_path: logoPath });
+  return { error: error?.message ?? null };
+}
+
+export async function withdrawShowcase(): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('partner_withdraw_showcase');
+  return { error: error?.message ?? null };
 }

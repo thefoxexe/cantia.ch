@@ -9,7 +9,7 @@ import { PartnerDashboard } from '../components/partners/PartnerDashboard';
 import { usePartnersCopy } from '../lib/partners/locale';
 import { fill, PARTNER_TYPES, type PartnerType } from '../lib/partners/copy';
 import { usePartnerSession } from '../lib/partners/session';
-import { amPartnersAdmin, becomePartner, getMyPartnerProfile, type PartnerProfile } from '../lib/partners/api';
+import { amPartnersAdmin, becomePartner, getMyPartnerProfile, notifyPartnersAdmin, type PartnerProfile } from '../lib/partners/api';
 import { PARTNERS_APP_COPY } from '../lib/partners/appCopy';
 import { supabase } from '../lib/supabase';
 import { displayType, monoType } from '../lib/marketingTheme';
@@ -98,8 +98,10 @@ function Onboarding({ defaultFirst, defaultLast, onDone }: { defaultFirst: strin
     setError(null);
     const { error: err } = await becomePartner({ firstName, lastName, companyName, partnerType, phone, address, postalCode, city, locale });
     setBusy(false);
-    if (err) setError(err);
-    else onDone();
+    if (err) return setError(err);
+    // Tells the Cantia team a new partner is waiting for their terms.
+    await notifyPartnersAdmin('signup');
+    onDone();
   }
 
   return (

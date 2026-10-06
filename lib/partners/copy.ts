@@ -23,7 +23,7 @@ const fr = {
     intro: 'Nous choisissons nos partenaires comme nos clients : pour travailler ensemble dans la durée.',
     items: [
       { title: 'Une relation qui dure', text: 'Vous restez l’interlocuteur de confiance de vos clients. Cantia s’occupe du logiciel, de l’accompagnement et du support, vous gardez la relation.' },
-      { title: 'Une rémunération claire', text: '25\u00a0% de chaque paiement pendant 12 mois pour chaque entreprise recommandée, avec un suivi transparent et des versements mensuels.' },
+      { title: 'Une rémunération claire', text: 'Des conditions définies avec vous, un suivi transparent et des versements mensuels.' },
       { title: 'La famille Cantia', text: 'Un contact direct avec l’équipe, vos retours pris en compte dans le produit et les nouveautés présentées en avant-première.' },
     ],
   },
@@ -49,7 +49,7 @@ const fr = {
     items: [
       { title: 'Inscrivez-vous', text: 'Créez votre compte partenaire en deux minutes. Vous recevez un lien personnel et son code QR.' },
       { title: 'Recommandez', text: 'Vos contacts découvrent Cantia par votre lien. Leur inscription vous est rattachée pendant 90 jours après le clic.' },
-      { title: 'Soyez payé', text: '25\u00a0% de chaque paiement pendant 12 mois. Chaque commission est validée après 30 jours puis versée sur votre IBAN.' },
+      { title: 'Soyez payé', text: 'Selon les conditions convenues avec vous. Chaque commission est validée après 30 jours puis versée sur votre IBAN.' },
     ],
   },
   who: {
@@ -151,7 +151,7 @@ const fr = {
     address: 'Adresse',
     postalCode: 'NPA',
     city: 'Localité',
-    accept: 'J’accepte les conditions du programme : 25\u00a0% des paiements pendant 12 mois, validation après 30 jours, versement dès CHF 30, pas d’auto-recommandation.',
+    accept: 'J’accepte les conditions du programme : commission personnelle convenue avec Cantia, validation après 30 jours, versement dès CHF 30, pas d’auto-recommandation.',
     submit: 'Activer mon espace partenaire',
     mustAccept: 'Veuillez accepter les conditions du programme.',
   },
@@ -228,7 +228,7 @@ const de: Copy = {
     intro: 'Wir wählen unsere Partner wie unsere Kunden: um langfristig zusammenzuarbeiten.',
     items: [
       { title: 'Eine Beziehung, die hält', text: 'Sie bleiben die Vertrauensperson Ihrer Kunden. Cantia kümmert sich um Software, Begleitung und Support, die Beziehung bleibt bei Ihnen.' },
-      { title: 'Eine klare Vergütung', text: '25\u00a0% jeder Zahlung während 12 Monaten für jedes empfohlene Unternehmen, mit transparenter Übersicht und monatlichen Auszahlungen.' },
+      { title: 'Eine klare Vergütung', text: 'Mit Ihnen vereinbarte Konditionen, transparente Übersicht und monatliche Auszahlungen.' },
       { title: 'Die Cantia-Familie', text: 'Direkter Kontakt zum Team, Ihr Feedback fliesst ins Produkt ein und Neuheiten sehen Sie zuerst.' },
     ],
   },
@@ -254,7 +254,7 @@ const de: Copy = {
     items: [
       { title: 'Registrieren', text: 'Erstellen Sie Ihr Partnerkonto in zwei Minuten. Sie erhalten einen persönlichen Link und seinen QR-Code.' },
       { title: 'Empfehlen', text: 'Ihre Kontakte entdecken Cantia über Ihren Link. Ihre Registrierung wird Ihnen während 90 Tagen nach dem Klick zugeordnet.' },
-      { title: 'Bezahlt werden', text: '25\u00a0% jeder Zahlung während 12 Monaten. Jede Provision wird nach 30 Tagen bestätigt und dann auf Ihr IBAN überwiesen.' },
+      { title: 'Bezahlt werden', text: 'Gemäss den mit Ihnen vereinbarten Konditionen. Jede Provision wird nach 30 Tagen bestätigt und dann auf Ihr IBAN überwiesen.' },
     ],
   },
   who: {
@@ -356,7 +356,7 @@ const de: Copy = {
     address: 'Adresse',
     postalCode: 'PLZ',
     city: 'Ort',
-    accept: 'Ich akzeptiere die Programmbedingungen: 25\u00a0% der Zahlungen während 12 Monaten, Bestätigung nach 30 Tagen, Auszahlung ab CHF 30, keine Selbstempfehlung.',
+    accept: 'Ich akzeptiere die Programmbedingungen: persönliche, mit Cantia vereinbarte Provision, Bestätigung nach 30 Tagen, Auszahlung ab CHF 30, keine Selbstempfehlung.',
     submit: 'Partnerbereich aktivieren',
     mustAccept: 'Bitte akzeptieren Sie die Programmbedingungen.',
   },
@@ -431,7 +431,7 @@ const it: Copy = {
     intro: 'Scegliamo i nostri partner come i nostri clienti: per lavorare insieme a lungo.',
     items: [
       { title: 'Una relazione che dura', text: 'Lei resta l’interlocutore di fiducia dei suoi clienti. Cantia si occupa del software, dell’accompagnamento e del supporto, la relazione resta sua.' },
-      { title: 'Una remunerazione chiara', text: 'Il 25\u00a0% di ogni pagamento per 12 mesi per ogni impresa raccomandata, con un monitoraggio trasparente e versamenti mensili.' },
+      { title: 'Una remunerazione chiara', text: 'Condizioni definite con lei, monitoraggio trasparente e versamenti mensili.' },
       { title: 'La famiglia Cantia', text: 'Un contatto diretto con il team, i suoi riscontri considerati nel prodotto e le novità presentate in anteprima.' },
     ],
   },
@@ -457,7 +457,7 @@ const it: Copy = {
     items: [
       { title: 'Si iscriva', text: 'Crei il suo conto partner in due minuti. Riceve un link personale e il relativo codice QR.' },
       { title: 'Raccomandi', text: 'I suoi contatti scoprono Cantia tramite il suo link. La loro iscrizione le viene attribuita per 90 giorni dopo il clic.' },
-      { title: 'Venga pagato', text: 'Il 25\u00a0% di ogni pagamento per 12 mesi. Ogni commissione è convalidata dopo 30 giorni e poi versata sul suo IBAN.' },
+      { title: 'Venga pagato', text: 'Secondo le condizioni concordate con lei. Ogni commissione è convalidata dopo 30 giorni e poi versata sul suo IBAN.' },
     ],
   },
   who: {
@@ -559,7 +559,7 @@ const it: Copy = {
     address: 'Indirizzo',
     postalCode: 'NPA',
     city: 'Località',
-    accept: 'Accetto le condizioni del programma: 25\u00a0% dei pagamenti per 12 mesi, convalida dopo 30 giorni, versamento da CHF 30, nessuna auto-raccomandazione.',
+    accept: 'Accetto le condizioni del programma: commissione personale concordata con Cantia, convalida dopo 30 giorni, versamento da CHF 30, nessuna auto-raccomandazione.',
     submit: 'Attiva il mio spazio partner',
     mustAccept: 'Accetti le condizioni del programma.',
   },
