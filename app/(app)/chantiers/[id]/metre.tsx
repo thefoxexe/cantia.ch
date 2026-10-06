@@ -122,12 +122,17 @@ export default function ChantierMetresScreen() {
           {editable ? (
             <View style={kit.row}>
               {Platform.OS === 'web' ? <Btn label={c.importPdf} icon="upload" variant="primary" onPress={startImport} disabled={!!progress} /> : null}
-              <Btn label={c.newTender} icon="plus" onPress={() => setCreating(true)} />
             </View>
           ) : null}
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+        {editable ? (
+          <View style={styles.importOnly}>
+            <Feather name="info" size={14} color={colors.slate} />
+            <Text style={[kit.hint, { flex: 1, color: colors.slate }]}>{c.importOnly}</Text>
+          </View>
+        ) : null}
 
         {pending.length && editable ? (
           <View style={styles.pending}>
@@ -164,7 +169,6 @@ export default function ChantierMetresScreen() {
             {editable ? (
               <View style={kit.row}>
                 {Platform.OS === 'web' ? <Btn label={c.importPdf} icon="upload" variant="primary" onPress={startImport} disabled={!!progress} /> : null}
-                <Btn label={c.newTender} icon="plus" onPress={() => setCreating(true)} />
               </View>
             ) : null}
           </View>
@@ -345,6 +349,7 @@ const styles = StyleSheet.create({
   tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   tagText: { fontSize: 11.5, fontWeight: '700', color: colors.textMuted },
   error: { fontSize: fontSize.sm, color: colors.danger },
+  importOnly: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.slateSoft },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.sm },
   pending: { gap: spacing.sm, padding: spacing.lg, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.primary + '55', backgroundColor: colors.surface },
   pendingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
