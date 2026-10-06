@@ -19,6 +19,7 @@ import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
 import { buildSchedulePdf } from '../../../../lib/schedule/pdf';
 import { templateStats, toTemplate } from '../../../../lib/schedule/templates';
+import { scheduleMspdi, scheduleSheetRows } from '../../../../lib/schedule/exports';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 // Planning de chantier (Gantt) — cahier des charges v1.0, MVP. Building
@@ -314,7 +315,7 @@ export default function ChantierGanttScreen() {
         {header}
         {phone ? (
           <>
-            {Platform.OS === 'web' ? <Btn icon="download" label={c.exportPdf} onPress={() => setPdfOpen(true)} /> : null}
+            {Platform.OS === 'web' ? <Btn icon="download" label={c.exportAll} onPress={() => setPdfOpen(true)} /> : null}
             <PhoneList c={c} rows={rows} rolled={rolled} onOpen={(item) => setEditing({ item, initial: {} })} />
           </>
         ) : (
@@ -342,7 +343,7 @@ export default function ChantierGanttScreen() {
               <View style={{ flex: 1 }} />
               <Btn icon="clock" label={c.history} variant="ghost" onPress={async () => setHistory(await listAudit(bundle.schedule.id))} />
               {editable && items.length ? <Btn icon="bookmark" label={c.saveTemplate} variant="ghost" onPress={() => setTplOpen(true)} /> : null}
-              {Platform.OS === 'web' ? <Btn icon="download" label={c.exportPdf} onPress={() => setPdfOpen(true)} /> : null}
+              {Platform.OS === 'web' ? <Btn icon="download" label={c.exportAll} onPress={() => setPdfOpen(true)} /> : null}
             </View>
             <View style={styles.filters}>
               <Chip small label={c.hideDone} active={hideDone} onPress={() => setHideDone((v) => !v)} />
@@ -497,7 +498,7 @@ export default function ChantierGanttScreen() {
           }}
         />
       ) : null}
-      {pdfOpen ? <PdfSheet c={c} project={project.name} items={items} rolled={rolled} today={today} onClose={() => setPdfOpen(false)} /> : null}
+      {pdfOpen ? <PdfSheet c={c} project={project.name} items={items} links={links} workdays={workdays} rolled={rolled} today={today} onClose={() => setPdfOpen(false)} /> : null}
 
       {history ? (
         <Sheet title={c.history} onClose={() => setHistory(null)}>
@@ -598,6 +599,17 @@ function TemplateSheet({ c, defaultName, onClose, onSave }: { c: ReturnType<type
   );
 }
 
+function save(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 // The org logo (any format the browser reads) redrawn as PNG for pdf-lib;
 // null when it cannot be loaded — the PDF then carries the name only.
 async function logoAsPng(path: string): Promise<Uint8Array | null> {
@@ -618,7 +630,7 @@ async function logoAsPng(path: string): Promise<Uint8Array | null> {
   }
 }
 
-function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType<typeof useScheduleCopy>; project: string; items: ScheduleItem[]; rolled: ReturnType<typeof rollup>; today: string; onClose: () => void }) {
+function PdfSheet({ c, project, items, links, workdays, rolled, today, onClose }: { c: ReturnType<typeof useScheduleCopy>; project: string; items: ScheduleItem[]; links: ScheduleBundle['links']; workdays: number[]; rolled: ReturnType<typeof rollup>; today: string; onClose: () => void }) {
   const dates = [...rolled.values()].flatMap((r) => [r.start, r.end]).filter(Boolean).sort() as string[];
   const [from, setFrom] = useState<string | null>(dates[0] ?? today);
   const [to, setTo] = useState<string | null>(dates.at(-1) ?? today);
@@ -628,6 +640,7 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
   const [error, setError] = useState<string | null>(null);
   const { organization } = useAuth();
   const [brand, setBrand] = useState(false);
+  const [format, setFormat] = useState<'pdf' | 'xlsx' | 'xml'>('pdf');
 
   const download = async () => {
     if (!from || !to) return;
@@ -640,7 +653,26 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
         const p = items.find((x) => x.id === i.parent_id);
         return p ? inPicked(p) : true;
       };
-      const rows = flatten(items.filter(inPicked)).map((r) => ({ item: r.item, depth: r.depth }));
+      const kept = items.filter(inPicked);
+      const rows = flatten(kept).map((r) => ({ item: r.item, depth: r.depth }));
+      const base = `${c.pdfTitle} - ${project}`.replace(/[\\/:*?"<>|]+/g, ' ');
+      if (format !== 'pdf') {
+        const ids = new Set(kept.map((i) => i.id));
+        const keptLinks = links.filter((l) => ids.has(l.from_item) && ids.has(l.to_item));
+        if (format === 'xlsx') {
+          const XLSX = await import('xlsx');
+          const ws = XLSX.utils.aoa_to_sheet(scheduleSheetRows(kept, keptLinks, rolled, workdays), { cellDates: true, dateNF: 'm/d/yy' /* Excel's short date: dd.mm.yyyy on Swiss settings */ });
+          ws['!cols'] = [{ wch: 7 }, { wch: 44 }, { wch: 8 }, { wch: 22 }, { wch: 22 }, { wch: 11 }, { wch: 11 }, { wch: 10 }, { wch: 12 }, { wch: 11 }, { wch: 12 }, { wch: 30 }];
+          ws['!autofilter'] = { ref: `A1:L${rows.length + 1}` };
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Planning');
+          save(new Blob([XLSX.write(wb, { type: 'array', bookType: 'xlsx' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${base}.xlsx`);
+        } else {
+          save(new Blob([scheduleMspdi({ project, items: kept, links: keptLinks, rolled, workdays })], { type: 'application/xml' }), `${base}.xml`);
+        }
+        onClose();
+        return;
+      }
       const pdfLib = await loadPdfLib();
       const now = new Date();
       const bytes = await buildSchedulePdf(pdfLib, {
@@ -654,14 +686,7 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
         generatedAt: `${now.toLocaleDateString('fr-CH')} ${now.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}`,
         brand: brand && organization ? { name: organization.name, logoPng: organization.logo_url ? await logoAsPng(organization.logo_url) : null } : null,
       });
-      const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'application/pdf' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${c.pdfTitle} - ${project}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      save(new Blob([bytes as BlobPart], { type: 'application/pdf' }), `${base}.pdf`);
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -672,24 +697,37 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
 
   return (
     <Sheet
-      title={c.exportPdf}
+      title={c.exportAll}
       onClose={onClose}
       footer={
         <>
           <Btn label={c.cancel} onPress={onClose} grow />
-          <Btn label={busy ? '…' : c.pdfDownload} icon="download" variant="primary" grow disabled={busy} onPress={download} />
+          <Btn label={busy ? '…' : format === 'pdf' ? c.pdfDownload : c.fileDownload} icon="download" variant="primary" grow disabled={busy} onPress={download} />
         </>
       }
     >
-      <Text style={kit.eyebrow}>{c.pdfPeriod}</Text>
-      <View style={{ flexDirection: 'row', gap: spacing.md, flexWrap: 'wrap' }}>
-        <View style={{ flex: 1, minWidth: 160 }}>
-          <DateField label={c.pdfFrom} value={from} onChange={setFrom} />
-        </View>
-        <View style={{ flex: 1, minWidth: 160 }}>
-          <DateField label={c.pdfTo} value={to} onChange={setTo} />
-        </View>
+      <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+        {(['pdf', 'xlsx', 'xml'] as const).map((f) => (
+          <Pressable key={f} onPress={() => setFormat(f)} style={[styles.fmt, format === f && styles.fmtOn]}>
+            <Feather name={f === 'pdf' ? 'file-text' : f === 'xlsx' ? 'grid' : 'git-branch'} size={15} color={format === f ? colors.primary : colors.textMuted} />
+            <Text style={[kit.body, { fontWeight: '700' }]}>{f === 'pdf' ? 'PDF' : f === 'xlsx' ? 'Excel' : 'MS Project'}</Text>
+          </Pressable>
+        ))}
       </View>
+      <Text style={kit.hint}>{format === 'pdf' ? c.fmtHintPdf : format === 'xlsx' ? c.fmtHintExcel : c.fmtHintProject}</Text>
+      {format === 'pdf' ? (
+        <>
+          <Text style={kit.eyebrow}>{c.pdfPeriod}</Text>
+          <View style={{ flexDirection: 'row', gap: spacing.md, flexWrap: 'wrap' }}>
+            <View style={{ flex: 1, minWidth: 160 }}>
+              <DateField label={c.pdfFrom} value={from} onChange={setFrom} />
+            </View>
+            <View style={{ flex: 1, minWidth: 160 }}>
+              <DateField label={c.pdfTo} value={to} onChange={setTo} />
+            </View>
+          </View>
+        </>
+      ) : null}
       {phases.length ? (
         <>
           <Text style={kit.eyebrow}>{c.pdfPhases}</Text>
@@ -714,7 +752,7 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
           </View>
         </>
       ) : null}
-      {organization ? (
+      {organization && format === 'pdf' ? (
         <Pressable onPress={() => setBrand((b) => !b)} style={styles.brandRow}>
           <View style={[styles.check, brand && styles.checkOn]}>{brand ? <Feather name="check" size={13} color="#fff" /> : null}</View>
           <View style={{ flex: 1 }}>
@@ -735,6 +773,8 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', color: colors.text },
   toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
+  fmt: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  fmtOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
   tplRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: 10, borderWidth: 1, borderColor: colors.border },
   check: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },

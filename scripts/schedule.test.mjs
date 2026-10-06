@@ -90,3 +90,29 @@ test('templates: villa plan and round trip keep dates and links', async () => {
   assert.equal(again['Terrassement'].start_date, '2026-09-23');
   assert.equal(again['Réception'].start_date > by['Réception'].start_date, true);
 });
+
+test('exports: Excel rows numbered like a WBS, MS Project XML with links and constraints', async () => {
+  const { VILLA_TEMPLATE, planTemplate } = await import('../lib/schedule/templates.ts');
+  const { scheduleSheetRows, scheduleMspdi } = await import('../lib/schedule/exports.ts');
+  const lines = planTemplate(VILLA_TEMPLATE, '2026-09-07');
+  const items = lines.map((l) => item({ id: 'i' + l.key, parent_id: l.parent ? 'i' + l.parent : null, kind: l.kind, name: l.name, trade: l.trade, duration: l.duration, start_date: l.start_date, end_date: l.end_date, sort_order: l.sort_order }));
+  const links = VILLA_TEMPLATE.links.map(([a, b], i) => ({ id: 'l' + i, from_item: 'i' + a, to_item: 'i' + b }));
+  const rolled = rollup(items, '2026-10-06');
+  const rows = scheduleSheetRows(items, links, rolled);
+  assert.equal(rows[0][0], 'N°');
+  const terr = rows.find((r) => String(r[1]).trim() === 'Terrassement');
+  assert.equal(terr[0], '2.1');
+  assert.equal(terr[8], '1.1');
+  assert.equal(terr[7], 5);
+  const phase = rows.find((r) => r[1] === 'Gros œuvre');
+  assert.equal(phase[2], 'Phase');
+  const xml = scheduleMspdi({ project: 'Villa <Test> & Co', items, links, rolled, now: '2026-10-06T10:00:00' });
+  assert.ok(xml.includes('<Title>Villa &lt;Test&gt; &amp; Co</Title>'));
+  assert.equal((xml.match(/<Task>/g) ?? []).length, items.length);
+  assert.equal((xml.match(/<PredecessorLink>/g) ?? []).length, links.length);
+  assert.ok(xml.includes('<Duration>PT40H0M0S</Duration>'));
+  assert.ok(xml.includes('<ConstraintType>4</ConstraintType><ConstraintDate>2026-09-07T08:00:00</ConstraintDate>'));
+  assert.ok(xml.includes('<DayType>1</DayType><DayWorking>0</DayWorking>')); // Sunday off
+  // balanced tags
+  for (const t of ['Task', 'Project', 'Tasks', 'Calendar', 'WeekDay']) assert.equal((xml.match(new RegExp(`<${t}[ >]`, "g")) ?? []).length, (xml.match(new RegExp(`</${t}>`, 'g')) ?? []).length, t);
+});
