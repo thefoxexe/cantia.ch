@@ -1682,6 +1682,9 @@ export const de: TranslationDict = {
     lohnausweisFilename: 'Lohnausweis {{name}} - {{year}}',
   },
   planning: {
+    calendars: 'Meine Kalender',
+    calendarConnected: 'Kalender verbunden: Planung und Kalender werden jetzt synchronisiert.',
+    calendarFailed: 'Die Verbindung des Kalenders ist fehlgeschlagen.',
     title: 'Planung',
     dayMon: 'Mo',
     dayTue: 'Di',

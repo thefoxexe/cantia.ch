@@ -1690,6 +1690,9 @@ export const it: TranslationDict = {
     lohnausweisFilename: 'Certificato di salario {{name}} - {{year}}',
   },
   planning: {
+    calendars: 'I miei calendari',
+    calendarConnected: 'Calendario collegato: pianificazione e calendario ora si sincronizzano.',
+    calendarFailed: 'Il collegamento del calendario non è riuscito.',
     title: 'Pianificazione',
     dayMon: 'Lun',
     dayTue: 'Mar',

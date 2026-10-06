@@ -1668,6 +1668,9 @@ export const fr = {
     lohnausweisFilename: 'Certificat de salaire {{name}} - {{year}}',
   },
   planning: {
+    calendars: 'Mes agendas',
+    calendarConnected: 'Agenda connecté : votre planning et votre agenda se synchronisent maintenant.',
+    calendarFailed: 'La connexion de l’agenda a échoué.',
     title: 'Planning',
     dayMon: 'Lun',
     dayTue: 'Mar',

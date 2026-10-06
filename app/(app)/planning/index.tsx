@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modal, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
@@ -16,6 +16,8 @@ import { parseFlexibleTime } from '../../../lib/api/payroll';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { DayView } from '../../../components/planning/DayView';
+import { CalendarSheet } from '../../../components/planning/CalendarSheet';
+import { syncCalendars } from '../../../lib/api/calendars';
 import { ProjectPicker } from '../../../components/ProjectPicker';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -78,6 +80,16 @@ function formatShort(d: Date): string {
 export default function PlanningScreen() {
   const { t } = useTranslation();
   const { organization, user, role, permissions } = useAuth();
+  // Google / Outlook (components/planning/CalendarSheet): back from the
+  // provider with ?calendar=connected|error.
+  const params = useLocalSearchParams<{ calendar?: string; message?: string }>();
+  const [calendarsOpen, setCalendarsOpen] = useState(false);
+  const [calendarNotice, setCalendarNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  // after mount: the static page has no query string (hydration)
+  useEffect(() => {
+    if (params.calendar === 'connected') setCalendarNotice({ ok: true, text: '' });
+    else if (params.calendar === 'error') setCalendarNotice({ ok: false, text: String(params.message ?? '') });
+  }, [params.calendar, params.message]);
   // Owner/admin plan for anyone; a member only for themself.
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
@@ -155,6 +167,21 @@ export default function PlanningScreen() {
     useCallback(() => {
       load();
     }, [load]),
+  );
+
+  // Pull the connected calendars once the planning is open, then show
+  // what came in. Silent when nothing is connected.
+  useFocusEffect(
+    useCallback(() => {
+      if (!organization) return;
+      let live = true;
+      syncCalendars(organization.id).then((n) => {
+        if (live && n) load();
+      });
+      return () => {
+        live = false;
+      };
+    }, [organization?.id]),
   );
 
   function assignmentsForCell(day: Date, memberId: string): PlanningAssignmentWithNames[] {
@@ -260,6 +287,8 @@ export default function PlanningScreen() {
     }
     setShowForm(false);
     load();
+    // the member's own calendar, and the author's
+    syncCalendars(organization.id, formMemberId ? [formMemberId] : []);
   }
 
   async function handleDelete() {
@@ -273,6 +302,7 @@ export default function PlanningScreen() {
     }
     setShowForm(false);
     load();
+    if (organization) syncCalendars(organization.id, formMemberId ? [formMemberId] : []);
   }
 
   if (loading && assignments.length === 0 && projects.length === 0) {
@@ -314,8 +344,21 @@ export default function PlanningScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('planning.title')} backTo="/(app)" right={<Button title={t('planning.assign')} icon="plus" onPress={() => openCreateForm()} />} />
+        <PageHeader title={t('planning.title')} backTo="/(app)" right={
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <Button title={t('planning.calendars')} icon="link" variant="secondary" onPress={() => setCalendarsOpen(true)} />
+              <Button title={t('planning.assign')} icon="plus" onPress={() => openCreateForm()} />
+            </View>
+          }
+        />
         <Text style={styles.pageSubtitle}>{t('planning.subtitle')}</Text>
+        {calendarNotice ? (
+          <Pressable onPress={() => setCalendarNotice(null)} style={[styles.calendarNotice, !calendarNotice.ok && { borderColor: colors.danger }]}>
+            <Feather name={calendarNotice.ok ? 'check-circle' : 'alert-triangle'} size={16} color={calendarNotice.ok ? colors.success : colors.danger} />
+            <Text style={{ flex: 1, color: colors.text, fontSize: fontSize.sm }}>{calendarNotice.ok ? t('planning.calendarConnected') : `${t('planning.calendarFailed')} ${calendarNotice.text}`}</Text>
+          </Pressable>
+        ) : null}
+        {calendarsOpen && organization && user ? <CalendarSheet organizationId={organization.id} userId={user.id} onClose={() => setCalendarsOpen(false)} onSynced={load} /> : null}
 
         <View style={styles.toolbar}>
           <View style={styles.segment}>
@@ -666,6 +709,7 @@ export default function PlanningScreen() {
 }
 
 const styles = StyleSheet.create({
+  calendarNotice: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderColor: colors.success, borderRadius: radius.md, backgroundColor: colors.surface, marginBottom: spacing.md },
   container: {
     flex: 1,
     maxWidth: 880,
