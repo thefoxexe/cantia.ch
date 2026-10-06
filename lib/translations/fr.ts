@@ -2401,6 +2401,7 @@ export const fr = {
     noAccount: 'Pas encore de compte ? Créer un compte',
   },
   authSignup: {
+    referralKept: 'Lien partenaire pris en compte · code {{code}}',
     invitedByFiduciary: 'Votre fiduciaire, {{firm}}, vous invite sur Cantia. Rien n’est partagé avec elle tant que vous ne l’avez pas accepté.',
     subtitle: 'Créez votre compte',
     nameRequired: 'Votre nom est requis.',

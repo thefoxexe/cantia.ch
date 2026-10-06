@@ -10,7 +10,7 @@ import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { siteHomeHref } from '../../lib/appHost';
 import { displayType } from '../../lib/marketingTheme';
-import { getStoredFiduciaryInvite } from '../../lib/siteAnalytics';
+import { getStoredFiduciaryInvite, getStoredReferral } from '../../lib/siteAnalytics';
 import { supabase } from '../../lib/supabase';
 import { BrandLogo } from '../../components/brand/Logo';
 
@@ -38,6 +38,19 @@ export default function SignupScreen() {
       if (preview.email) setEmail((current) => current || preview.email!);
     });
   }, [params.fiduciary_invite]);
+
+  // Cantia Partners: shows the visitor that the partner link they came
+  // through is kept. Read again shortly after mount, since a ?ref on this
+  // very URL is captured by the root layout and an unknown code is dropped
+  // once the server answers.
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const read = () => setReferralCode(getStoredReferral()?.code ?? null);
+    read();
+    const timer = setTimeout(read, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   async function handleSubmit() {
     setError(null);
@@ -86,6 +99,12 @@ export default function SignupScreen() {
             <View style={styles.invited}>
               <Feather name="briefcase" size={16} color={colors.primary} />
               <Text style={styles.invitedText}>{t('authSignup.invitedByFiduciary', { firm: invitedBy })}</Text>
+            </View>
+          ) : null}
+          {referralCode && !invitedBy ? (
+            <View style={styles.referral}>
+              <Feather name="link" size={14} color={colors.primary} />
+              <Text style={styles.referralText}>{t('authSignup.referralKept', { code: referralCode })}</Text>
             </View>
           ) : null}
 
@@ -166,6 +185,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   invited: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start', backgroundColor: colors.primarySoft, borderRadius: radius.md, padding: spacing.md, marginTop: spacing.md, maxWidth: 420, alignSelf: 'center' },
+  referral: { flexDirection: 'row', gap: 6, alignItems: 'center', alignSelf: 'center', backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingVertical: 6, paddingHorizontal: 12, marginTop: spacing.md },
+  referralText: { fontSize: fontSize.xs, fontWeight: '600', color: colors.text },
   invitedText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19, color: colors.text },
   subtitle: {
     fontSize: fontSize.md,

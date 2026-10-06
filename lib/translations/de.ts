@@ -2415,6 +2415,7 @@ export const de: TranslationDict = {
     noAccount: 'Noch kein Konto? Konto erstellen',
   },
   authSignup: {
+    referralKept: 'Partner-Link berücksichtigt · Code {{code}}',
     invitedByFiduciary: 'Ihre Treuhand, {{firm}}, lädt Sie zu Cantia ein. Mit ihr wird nichts geteilt, bevor Sie zustimmen.',
     subtitle: 'Erstellen Sie Ihr Konto',
     nameRequired: 'Ihr Name ist erforderlich.',

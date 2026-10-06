@@ -2423,6 +2423,7 @@ export const it: TranslationDict = {
     noAccount: 'Non ha ancora un account? Crei un account',
   },
   authSignup: {
+    referralKept: 'Link partner registrato · codice {{code}}',
     invitedByFiduciary: 'Il suo fiduciario, {{firm}}, la invita su Cantia. Nulla viene condiviso finché non accetta.',
     subtitle: 'Crei il suo account',
     nameRequired: 'Il suo nome è obbligatorio.',

@@ -164,7 +164,8 @@ function captureAttribution(): void {
 // accepted on app.cantia.ch). Every click is logged server-side
 // (record_referral_click, anonymous visitor id only).
 //
-// The code is kept first-touch for 90 days in a .cantia.ch cookie. Unlike
+// The code is kept for 90 days in a .cantia.ch cookie; a later valid link
+// from another partner replaces it. Unlike
 // the campaign cookie it does not wait for the cookie banner: it only
 // carries the partner's code (no advertising, no third party) and is what
 // the partner contract relies on, so it is a functional cookie (described
@@ -193,8 +194,10 @@ function captureReferral(path: string): void {
   lastReferralCode = code;
   const visitorId = getVisitorId();
   const utm = readUrlAttribution();
-  const firstTouch = !readCookie(REF_COOKIE);
-  if (firstTouch) writeSharedCookie(REF_COOKIE, { code, visitor_id: visitorId, first_click_at: new Date().toISOString() } satisfies StoredReferral);
+  const stored = getStoredReferral();
+  const firstTouch = !stored;
+  const entry = { code, visitor_id: visitorId, first_click_at: new Date().toISOString() } satisfies StoredReferral;
+  if (firstTouch) writeSharedCookie(REF_COOKIE, entry);
   supabase
     .rpc('record_referral_click', {
       p_code: code,
@@ -204,8 +207,17 @@ function captureReferral(path: string): void {
       p_utm: utm ?? {},
     })
     .then(({ data, error }) => {
-      if (error || !firstTouch) return;
-      if ((data as { valid?: boolean } | null)?.valid === false && getStoredReferral()?.code === code) removeSharedCookie(REF_COOKIE);
+      if (error) return;
+      const valid = (data as { valid?: boolean } | null)?.valid;
+      if (firstTouch) {
+        if (valid === false && getStoredReferral()?.code === code) removeSharedCookie(REF_COOKIE);
+      } else if (valid === true && stored.code !== code) {
+        // A different partner's link, clicked after an older one: the
+        // latest valid link wins. Otherwise a code kept from an earlier
+        // visit (or from a partner account since closed) would silently
+        // swallow every later partner link in this browser.
+        writeSharedCookie(REF_COOKIE, entry);
+      }
     });
 }
 
