@@ -1,6 +1,7 @@
 // Planning de chantier — data access (migration 20261007160000_site_schedules).
 import { supabase } from '../supabase';
-import { DEFAULT_WORKDAYS, endFromDuration, nextWorkday, addDays, type ItemKind, type ScheduleItem, type ScheduleLink } from './calc.ts';
+import { DEFAULT_WORKDAYS, type ItemKind, type ScheduleItem, type ScheduleLink } from './calc.ts';
+import { VILLA_TEMPLATE, planTemplate, type TemplateData } from './templates.ts';
 
 export interface Schedule {
   id: string;
@@ -60,68 +61,71 @@ export interface NewItem {
   sort_order: number;
 }
 
-export async function createSchedule(organizationId: string, projectId: string, template: 'empty' | 'villa', start: string): Promise<{ error: string | null }> {
+export async function createSchedule(organizationId: string, projectId: string, template: 'empty' | 'villa' | TemplateData, start: string): Promise<{ error: string | null }> {
   const { data: sched, error } = await supabase.from('site_schedules').insert({ organization_id: organizationId, project_id: projectId, workdays: DEFAULT_WORKDAYS }).select('id').single();
   if (error || !sched) return { error: error?.message ?? 'Création impossible' };
-  if (template === 'villa') return { error: await insertTemplate(sched.id, organizationId, start) };
-  return { error: null };
+  if (template === 'empty') return { error: null };
+  return { error: await insertTemplate(sched.id, organizationId, template === 'villa' ? VILLA_TEMPLATE : template, start) };
 }
 
-// Cahier des charges §5: villa, indicative durations, finish-to-start.
-const VILLA: { phase: string; tasks: { key: string; name: string; trade: string; days: number; after: string[]; milestone?: boolean }[] }[] = [
-  { phase: 'Préparation', tasks: [{ key: '1', name: 'Installation et préparation', trade: 'Installation de chantier', days: 2, after: [] }] },
-  {
-    phase: 'Gros œuvre',
-    tasks: [
-      { key: '2', name: 'Terrassement', trade: 'Terrassement', days: 5, after: ['1'] },
-      { key: '3', name: 'Fondations et radier', trade: 'Maçonnerie / béton', days: 5, after: ['2'] },
-      { key: '4', name: 'Murs et dalle du rez-de-chaussée', trade: 'Maçonnerie / béton', days: 10, after: ['3'] },
-      { key: '5', name: 'Murs et dalle de l’étage', trade: 'Maçonnerie / béton', days: 10, after: ['4'] },
-    ],
-  },
-  {
-    phase: 'Enveloppe',
-    tasks: [
-      { key: '6', name: 'Charpente', trade: 'Charpente', days: 5, after: ['5'] },
-      { key: '7', name: 'Couverture et mise hors d’eau', trade: 'Couverture', days: 5, after: ['6'] },
-      { key: '8', name: 'Fenêtres et étanchéité extérieure', trade: 'Fenêtres / façade', days: 5, after: ['5'] },
-    ],
-  },
-  {
-    phase: 'Second œuvre',
-    tasks: [
-      { key: '9', name: 'Installations techniques', trade: 'Électricité', days: 10, after: ['7', '8'] },
-      { key: '10', name: 'Cloisons et plâtrerie', trade: 'Plâtrerie', days: 8, after: ['9'] },
-      { key: '11', name: 'Chape', trade: 'Chape', days: 3, after: ['10'] },
-      { key: '12', name: 'Carrelage, peinture et finitions', trade: 'Peinture', days: 10, after: ['11'] },
-    ],
-  },
-  { phase: 'Fin de chantier', tasks: [{ key: '13', name: 'Réception', trade: 'Réception', days: 0, after: ['12'], milestone: true }] },
-];
-
-async function insertTemplate(scheduleId: string, organizationId: string, start: string): Promise<string | null> {
-  const placed = new Map<string, { id: string; end: string }>();
-  let order = 0;
-  for (const ph of VILLA) {
-    order += 1;
-    const { data: phase, error } = await supabase.from('schedule_items').insert({ schedule_id: scheduleId, organization_id: organizationId, kind: 'phase', name: ph.phase, sort_order: order * 1000 }).select('id').single();
-    if (error || !phase) return error?.message ?? 'Modèle incomplet';
-    for (const [i, t] of ph.tasks.entries()) {
-      const after = t.after.map((k) => placed.get(k)!.end).sort().at(-1);
-      const s = after ? nextWorkday(addDays(after, 1)) : nextWorkday(start);
-      const e = t.milestone ? s : endFromDuration(s, t.days);
-      const { data: row, error: e2 } = await supabase
-        .from('schedule_items')
-        .insert({ schedule_id: scheduleId, organization_id: organizationId, parent_id: phase.id, kind: t.milestone ? 'milestone' : 'task', name: t.name, trade: t.trade, duration: t.milestone ? 0 : t.days, start_date: s, end_date: e, status: 'planned', sort_order: order * 1000 + i + 1 })
-        .select('id')
-        .single();
-      if (e2 || !row) return e2?.message ?? 'Modèle incomplet';
-      placed.set(t.key, { id: row.id, end: e });
-    }
+async function insertTemplate(scheduleId: string, organizationId: string, data: TemplateData, start: string): Promise<string | null> {
+  const lines = planTemplate(data, start);
+  const ids = new Map<string, string>();
+  for (const l of lines) {
+    const { data: row, error } = await supabase
+      .from('schedule_items')
+      .insert({
+        schedule_id: scheduleId,
+        organization_id: organizationId,
+        parent_id: l.parent ? ids.get(l.parent) ?? null : null,
+        kind: l.kind,
+        name: l.name,
+        trade: l.trade,
+        duration: l.duration,
+        start_date: l.start_date,
+        end_date: l.end_date,
+        status: l.start_date || l.kind === 'phase' ? 'planned' : 'todo',
+        sort_order: l.sort_order,
+      })
+      .select('id')
+      .single();
+    if (error || !row) return error?.message ?? 'Modèle incomplet';
+    ids.set(l.key, row.id);
   }
-  const links = VILLA.flatMap((ph) => ph.tasks.flatMap((t) => t.after.map((k) => ({ schedule_id: scheduleId, from_item: placed.get(k)!.id, to_item: placed.get(t.key)!.id }))));
+  const links = data.links.filter(([a, b]) => ids.has(a) && ids.has(b)).map(([a, b]) => ({ schedule_id: scheduleId, from_item: ids.get(a)!, to_item: ids.get(b)! }));
+  if (!links.length) return null;
   const { error } = await supabase.from('schedule_links').insert(links);
   return error?.message ?? null;
+}
+
+// Company templates ----------------------------------------------------------
+export interface ScheduleTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  data: TemplateData;
+  created_by: string | null;
+  updated_at: string;
+}
+
+export async function listTemplates(organizationId: string): Promise<ScheduleTemplate[]> {
+  const { data } = await supabase.from('schedule_templates').select('id, name, description, data, created_by, updated_at').eq('organization_id', organizationId).order('name');
+  return (data as ScheduleTemplate[]) ?? [];
+}
+
+export async function saveTemplate(organizationId: string, name: string, description: string | null, data: TemplateData): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('schedule_templates').insert({ organization_id: organizationId, name: name.trim(), description, data });
+  return { error: error?.message ?? null };
+}
+
+export async function updateTemplate(id: string, patch: { name?: string; description?: string | null }): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('schedule_templates').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteTemplate(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('schedule_templates').delete().eq('id', id);
+  return { error: error?.message ?? null };
 }
 
 export async function addItem(scheduleId: string, organizationId: string, item: NewItem): Promise<{ item: ScheduleItem | null; error: string | null }> {

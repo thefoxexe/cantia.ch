@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AppScreen, LoadingScreen } from '../../../../components/ui';
-import { Btn, Chip, Sheet, kit } from '../../../../components/admin/ledger/kit';
+import { Btn, Chip, Field, Sheet, kit } from '../../../../components/admin/ledger/kit';
 import { DateField } from '../../../../components/DateField';
 import { GanttView, StatusPill, tradeColor, type Zoom } from '../../../../components/schedule/GanttView';
 import { ItemSheet, type ItemDraft } from '../../../../components/schedule/ItemSheet';
@@ -13,11 +13,12 @@ import { supabase } from '../../../../lib/supabase';
 import { fillsSoumissions } from '../../../../lib/trades';
 import { loadPdfLib } from '../../../../lib/loadPdfLib';
 import { getSignedUrl } from '../../../../lib/api/storage';
-import { hasSiteSchedule, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
+import { hasSiteSchedule, listTemplates, saveTemplate, type ScheduleTemplate, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
 import { cascade, endFromDuration, flatten, isWorkday, nextWorkday, addDays as addD, reconcile, rollup, workdaysBetween, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
 import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
 import { buildSchedulePdf } from '../../../../lib/schedule/pdf';
+import { templateStats, toTemplate } from '../../../../lib/schedule/templates';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 // Planning de chantier (Gantt) — cahier des charges v1.0, MVP. Building
@@ -66,6 +67,8 @@ export default function ChantierGanttScreen() {
   // after a bar snapped right after another line: offer to link them
   const [snapped, setSnapped] = useState<{ fromId: string; fromName: string; toId: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<ScheduleTemplate[]>([]);
+  const [tplOpen, setTplOpen] = useState(false);
 
   const reload = useCallback(async () => {
     if (!id) return;
@@ -78,6 +81,7 @@ export default function ChantierGanttScreen() {
   useEffect(() => {
     if (!organization) return;
     listTrades(organization.id).then(setTrades);
+    listTemplates(organization.id).then(setTemplates);
     supabase
       .from('organization_members')
       .select('user_id, full_name')
@@ -240,6 +244,15 @@ export default function ChantierGanttScreen() {
     </View>
   );
 
+  async function create(tpl: Parameters<typeof createSchedule>[2]) {
+    if (!organization || !id) return;
+    setCreating(true);
+    const { error: e } = await createSchedule(organization.id, id, tpl, startDate ?? today);
+    setCreating(false);
+    if (e) setError(e);
+    reload();
+  }
+
   if (!bundle) {
     return (
       <AppScreen>
@@ -262,16 +275,30 @@ export default function ChantierGanttScreen() {
                       icon={tpl === 'villa' ? 'layers' : 'plus'}
                       variant={tpl === 'villa' ? 'primary' : 'secondary'}
                       disabled={creating || !organization}
-                      onPress={async () => {
-                        setCreating(true);
-                        const { error: e } = await createSchedule(organization!.id, id!, tpl, startDate ?? today);
-                        setCreating(false);
-                        if (e) setError(e);
-                        reload();
-                      }}
+                      onPress={() => create(tpl)}
                     />
                   ))}
                 </View>
+                {templates.length ? (
+                  <>
+                    <Text style={kit.eyebrow}>{c.yourTemplates}</Text>
+                    <View style={{ gap: 6 }}>
+                      {templates.map((tp) => {
+                        const st = templateStats(tp.data);
+                        return (
+                          <Pressable key={tp.id} disabled={creating} onPress={() => create(tp.data)} style={styles.tplRow}>
+                            <Feather name="bookmark" size={16} color={colors.primary} />
+                            <View style={{ flex: 1 }}>
+                              <Text style={[kit.body, { fontWeight: '700' }]}>{tp.name}</Text>
+                              <Text style={kit.hint}>{tp.description ? `${tp.description} · ` : ''}{fill(c.templateStats, { p: st.phases, t: st.tasks + st.milestones, d: st.days })}</Text>
+                            </View>
+                            <Feather name="arrow-right" size={16} color={colors.textMuted} />
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  </>
+                ) : null}
               </>
             ) : null}
             {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
@@ -314,6 +341,7 @@ export default function ChantierGanttScreen() {
               <Btn icon="crosshair" label={c.today} onPress={() => setToToday((n) => n + 1)} />
               <View style={{ flex: 1 }} />
               <Btn icon="clock" label={c.history} variant="ghost" onPress={async () => setHistory(await listAudit(bundle.schedule.id))} />
+              {editable && items.length ? <Btn icon="bookmark" label={c.saveTemplate} variant="ghost" onPress={() => setTplOpen(true)} /> : null}
               {Platform.OS === 'web' ? <Btn icon="download" label={c.exportPdf} onPress={() => setPdfOpen(true)} /> : null}
             </View>
             <View style={styles.filters}>
@@ -454,6 +482,21 @@ export default function ChantierGanttScreen() {
         </Sheet>
       ) : null}
 
+      {tplOpen && organization ? (
+        <TemplateSheet
+          c={c}
+          defaultName={project.name}
+          onClose={() => setTplOpen(false)}
+          onSave={async (name, description) => {
+            const { error: e } = await saveTemplate(organization.id, name, description, toTemplate(items, links, workdays));
+            if (e) return e;
+            setTplOpen(false);
+            setNotice(fill(c.templateSaved, { name }));
+            listTemplates(organization.id).then(setTemplates);
+            return null;
+          }}
+        />
+      ) : null}
       {pdfOpen ? <PdfSheet c={c} project={project.name} items={items} rolled={rolled} today={today} onClose={() => setPdfOpen(false)} /> : null}
 
       {history ? (
@@ -513,6 +556,45 @@ function PhoneList({ c, rows, rolled, onOpen }: { c: ReturnType<typeof useSchedu
         );
       })}
     </ScrollView>
+  );
+}
+
+function TemplateSheet({ c, defaultName, onClose, onSave }: { c: ReturnType<typeof useScheduleCopy>; defaultName: string; onClose: () => void; onSave: (name: string, description: string | null) => Promise<string | null> }) {
+  const [name, setName] = useState(defaultName);
+  const [description, setDescription] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <Sheet
+      title={c.saveTemplate}
+      onClose={onClose}
+      footer={
+        <>
+          <Btn label={c.cancel} onPress={onClose} grow />
+          <Btn
+            label={busy ? '…' : c.save}
+            icon="bookmark"
+            variant="primary"
+            grow
+            disabled={busy || !name.trim()}
+            onPress={async () => {
+              setBusy(true);
+              setError(await onSave(name.trim(), description.trim() || null));
+              setBusy(false);
+            }}
+          />
+        </>
+      }
+    >
+      <Text style={kit.hint}>{c.saveTemplateText}</Text>
+      <Field label={c.templateName}>
+        <TextInput value={name} onChangeText={setName} style={kit.input} maxLength={120} autoFocus />
+      </Field>
+      <Field label={c.templateDesc}>
+        <TextInput value={description} onChangeText={setDescription} style={kit.input} />
+      </Field>
+      {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
+    </Sheet>
   );
 }
 
@@ -653,6 +735,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', color: colors.text },
   toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
+  tplRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: 10, borderWidth: 1, borderColor: colors.border },
   check: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.primary, borderColor: colors.primary },

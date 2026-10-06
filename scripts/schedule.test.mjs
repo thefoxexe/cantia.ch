@@ -67,3 +67,26 @@ test('tree order with collapse', () => {
   assert.deepEqual(flatten(items).map((r) => `${r.item.id}${r.depth}`), ['P0', 'a1', 'b1', 'Q0']);
   assert.deepEqual(flatten(items, new Set(['P'])).map((r) => r.item.id), ['P', 'Q']);
 });
+
+test('templates: villa plan and round trip keep dates and links', async () => {
+  const { VILLA_TEMPLATE, planTemplate, toTemplate } = await import('../lib/schedule/templates.ts');
+  const lines = planTemplate(VILLA_TEMPLATE, '2026-09-05'); // a Saturday
+  const by = Object.fromEntries(lines.map((l) => [l.name, l]));
+  assert.equal(by['Installation et préparation'].start_date, '2026-09-07');
+  assert.equal(by['Installation et préparation'].end_date, '2026-09-08');
+  assert.equal(by['Terrassement'].start_date, '2026-09-09');
+  assert.equal(by['Réception'].kind, 'milestone');
+  assert.equal(by['Réception'].start_date, by['Réception'].end_date);
+  // parents first
+  const seen = new Set();
+  for (const l of lines) { if (l.parent) assert.ok(seen.has(l.parent)); seen.add(l.key); }
+  // chantier -> template -> new start two weeks later: same shape, shifted
+  const items = lines.map((l) => ({ id: 'i' + l.key, parent_id: l.parent ? 'i' + l.parent : null, kind: l.kind, name: l.name, trade: l.trade, duration: l.duration, start_date: l.start_date, end_date: l.end_date, sort_order: l.sort_order, status: 'planned', progress: 0 }));
+  const links = VILLA_TEMPLATE.links.map(([a, b]) => ({ from_item: 'i' + a, to_item: 'i' + b }));
+  const tpl = toTemplate(items, links);
+  assert.equal(tpl.links.length, VILLA_TEMPLATE.links.length);
+  assert.ok(!JSON.stringify(tpl).includes('2026'));
+  const again = Object.fromEntries(planTemplate(tpl, '2026-09-21').map((l) => [l.name, l]));
+  assert.equal(again['Terrassement'].start_date, '2026-09-23');
+  assert.equal(again['Réception'].start_date > by['Réception'].start_date, true);
+});

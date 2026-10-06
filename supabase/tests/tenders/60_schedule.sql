@@ -43,3 +43,13 @@ set test.uid = '00000000-0000-0000-0000-0000000000f3';
 insert into site_schedules (organization_id, project_id) values ('00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000b1');
 reset role;
 select org_has_site_schedule('00000000-0000-0000-0000-00000000000b') as solo, org_has_site_schedule('00000000-0000-0000-0000-00000000000a') as pro_but_finance;
+\echo '--- S8. templates: org A member saves one; org B neither sees it nor can create one (Essentiel)'
+update organizations set trade = 'Construction & bâtiment' where id = '00000000-0000-0000-0000-00000000000a';
+set role authenticated;
+set test.uid = '00000000-0000-0000-0000-0000000000f1';
+insert into schedule_templates (organization_id, name, data) values ('00000000-0000-0000-0000-00000000000a', 'Villa type', '{"items":[{"key":"1","parent":null,"kind":"phase","name":"Gros œuvre"}],"links":[]}');
+select count(*) as a_sees from schedule_templates;
+set test.uid = '00000000-0000-0000-0000-0000000000f3';
+select count(*) as b_sees from schedule_templates;
+insert into schedule_templates (organization_id, name) values ('00000000-0000-0000-0000-00000000000b', 'Refusé');
+reset role;

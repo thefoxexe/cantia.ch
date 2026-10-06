@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -19,6 +19,9 @@ import {
   updateCatalogItem,
   type CatalogEntry,
 } from '../../../lib/catalog';
+import { hasSiteSchedule } from '../../../lib/schedule/api';
+import { useScheduleCopy } from '../../../lib/schedule/useCopy';
+import { TemplatesCatalog } from '../../../components/schedule/TemplatesCatalog';
 
 interface ActionRow {
   key: string;
@@ -30,14 +33,21 @@ interface ActionRow {
 
 export default function InventaireScreen() {
   const { t } = useTranslation();
-  const { organization, role } = useAuth();
+  const { organization, role, user } = useAuth();
+  const sc = useScheduleCopy();
   const isAdmin = role === 'owner' || role === 'admin';
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   // Prices saved from soumissions (by CAN number) apart from the everyday
   // devis / factures items.
-  const [kind, setKind] = useState<'base' | 'tenders' | 'all'>('base');
+  const [kind, setKind] = useState<'base' | 'tenders' | 'all' | 'plans'>('base');
+  // site planning templates live here too (plan Équipe+, construction)
+  const [plans, setPlans] = useState(false);
+  useEffect(() => {
+    if (organization) hasSiteSchedule(organization.id).then(setPlans);
+  }, [organization?.id]);
+  const kinds = [...(catalog.some((e) => e.canRef) ? (['base', 'tenders', 'all'] as const) : (['base'] as const)), ...(plans ? (['plans'] as const) : [])];
   const [importing, setImporting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [importSummary, setImportSummary] = useState<string | null>(null);
@@ -211,18 +221,22 @@ export default function InventaireScreen() {
         {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}
         {importSummary ? <Text style={styles.importSummary}>{importSummary}</Text> : null}
 
-        {tenderCount ? (
+        {kinds.length > 1 ? (
           <View style={styles.kindRow}>
-            {(['base', 'tenders', 'all'] as const).map((k) => (
+            {kinds.map((k) => (
               <Pressable key={k} onPress={() => setKind(k)} style={[styles.kindChip, kind === k && styles.kindChipOn]}>
                 <Text style={[styles.kindText, kind === k && styles.kindTextOn]}>
-                  {t(k === 'base' ? 'inventaire.filterBase' : k === 'tenders' ? 'inventaire.filterTenders' : 'inventaire.filterAll')}
+                  {k === 'plans' ? sc.catalogTab : t(k === 'base' ? 'inventaire.filterBase' : k === 'tenders' ? 'inventaire.filterTenders' : 'inventaire.filterAll')}
                   {k === 'tenders' ? ` · ${tenderCount}` : k === 'base' ? ` · ${catalog.length - tenderCount}` : ''}
                 </Text>
               </Pressable>
             ))}
           </View>
         ) : null}
+        {kind === 'plans' && organization ? (
+          <TemplatesCatalog organizationId={organization.id} canManage={isAdmin} userId={user?.id ?? null} />
+        ) : (
+        <>
         <View style={styles.searchRow}>
           <Feather name="search" size={16} color={colors.textMuted} />
           <TextInput
@@ -269,6 +283,8 @@ export default function InventaireScreen() {
             </Pressable>
           )}
         />
+        </>
+        )}
       </View>
 
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
