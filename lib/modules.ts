@@ -27,7 +27,7 @@ export const ORG_MODULES: ModuleDef[] = [
 export const PROJECT_MODULES: ModuleDef[] = [
   { key: 'documents', label: 'Documents', description: 'Classeur de dossiers et fichiers.' },
   { key: 'photos', label: 'Photos', description: 'Galerie photo filtrable, avec une carte des prises de vue.' },
-  { key: 'metre', label: 'Métré', description: 'Tableau de quantités poste par poste.' },
+  { key: 'metre', label: 'Métrés & soumissions', description: 'Soumissions importées, métrés, quantités retenues, prix et offre.' },
   { key: 'subcontractors', label: 'Sous-traitants', description: "Entreprises sous-traitées, interventions et attestations d'assurance." },
   { key: 'profitability', label: 'Rentabilité', description: 'Devisé vs coût réel (matériel + main d’œuvre).' },
 ];
@@ -36,6 +36,7 @@ export const PROJECT_MODULES: ModuleDef[] = [
 // per-project toggle.
 export const PROJECT_MODULE_PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   profitability: 'has_profitability',
+  metre: 'has_tenders',
 };
 
 export function isModuleEnabled(enabledModules: string[] | undefined, key: ModuleKey): boolean {

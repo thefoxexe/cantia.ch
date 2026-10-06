@@ -92,3 +92,36 @@ test('subtotals roll up through any depth', () => {
   assert.equal(s.get('ch'), 150.3);
   assert.equal(s.get('ch2'), 0);
 });
+
+import { flattenTree, searchTree, sortOrderAfter } from '../lib/tenders/tree.ts';
+
+const N = (id, parent_id, sort_order, node_type = 'section', title = id) => ({ id, parent_id, sort_order, node_type, title });
+const tree = [
+  N('241', null, 1000, 'chapter', 'CAN 241 Béton coulé sur place'),
+  N('120', '241', 2000, 'section', 'Béton'),
+  N('121.111', '120', 3000, 'billable_position', 'Béton de propreté épaisseur 50'),
+  N('121.112', '120', 4000, 'billable_position', 'Béton de propreté épaisseur 100'),
+  N('200', '241', 5000, 'section', 'Coffrages'),
+  N('211.114', '200', 6000, 'billable_position', 'Coffrage une face'),
+];
+const text = (n) => `${n.id} ${n.title}`;
+
+test('tree: depth-first order and collapse', () => {
+  assert.deepEqual(flattenTree(tree, new Set()).map((r) => `${r.level}:${r.node.id}`), ['0:241', '1:120', '2:121.111', '2:121.112', '1:200', '2:211.114']);
+  assert.deepEqual(flattenTree(tree, new Set(['120'])).map((r) => r.node.id), ['241', '120', '200', '211.114']);
+  assert.equal(flattenTree(tree, new Set())[1].hasChildren, true);
+});
+
+test('tree: search keeps ancestors, all words must match', () => {
+  const keep = searchTree(tree, 'beton 121.112', text);
+  assert.deepEqual(flattenTree(tree, new Set(), keep).map((r) => r.node.id), ['241', '120', '121.112']);
+  assert.deepEqual([...searchTree(tree, 'coffrage', text)].sort(), ['200', '211.114', '241']);
+  assert.equal(searchTree(tree, '  ', text), null);
+});
+
+test('tree: insertion order between siblings', () => {
+  const sib = [{ sort_order: 1000 }, { sort_order: 2000 }];
+  assert.equal(sortOrderAfter(sib, sib[0]), 1500);
+  assert.equal(sortOrderAfter(sib, sib[1]), 3000);
+  assert.equal(sortOrderAfter([], null), 1000);
+});

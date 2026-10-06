@@ -311,7 +311,7 @@ const QUANTITY_HEADERS = ['quantite', 'qte', 'qty', 'quantity', 'q'];
 const SECTION_HEADERS = ['lot', 'chapitre', 'section', 'categorie', 'groupe', 'ouvrage'];
 
 // Shared column-detection between parseMetreCsv (plain CSV/text export) and
-// the Excel import path in ProjectMetre.tsx, which reads a .xlsx via
+// the Excel import path (formerly ProjectMetre.tsx), which reads a .xlsx via
 // SheetJS into this same {headers, rows} shape — one pass of the same
 // French-first header vocabulary covers a métré exported from Excel,
 // BauBit Pro or a plain CSV alike, whichever format someone actually has.
