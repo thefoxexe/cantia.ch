@@ -195,3 +195,25 @@ test('reference soumission 01_BA_maconnerie.pdf', { skip: !existsSync(FIXTURE) &
   // more than 95 % of positions settled without asking
   assert.ok(res.stats.certain / res.stats.billable > 0.95);
 });
+
+// ---- scanned PDF: OCR rows go through the same parser ---------------------
+import { rowsToItems } from '../lib/tenders/parser/ocrLayout.ts';
+test('OCR rows are laid out and parsed like a native soumission', () => {
+  const L = (o) => ({ kind: 'line', reserved: false, number: '', text: '', zone: '', quantity: '', unit: '', unit_price: '', amount: '', ...o });
+  const doc = rowsToItems([
+    { page: 1, rows: [L({ kind: 'chapter_header', text: 'CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)' }), L({ number: '121', text: 'Béton maigre' }), L({ number: '.111', text: 'Epaisseur 50' }), L({ zone: 'PG', quantity: '650', unit: 'm2' }), L({ zone: 'A-B', quantity: '70', unit: 'm2' }), L({ zone: 'Total', quantity: '720', unit: 'm2' }), L({ reserved: true, number: '.903', text: 'Trous' }), L({ zone: 'PG', quantity: "1'250", unit: 'p' })] },
+    { page: 2, rows: [L({ kind: 'chapter_header', text: 'CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)' }), L({ number: '222', text: 'Régie' }), L({ number: '.001', text: 'Salaires' }), L({ zone: 'PG', quantity: "8'000", unit: 'up', unit_price: '0.90', amount: "7'200.00" })] },
+    { page: 3, rows: [L({ kind: 'chapter_header', text: 'CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)' }), L({ text: 'Fin' })] },
+  ]);
+  const res = parseTender(doc);
+  assert.equal(res.classification, 'CAN');
+  const p = res.nodes.find((n) => n.positionPath === '121.111');
+  assert.equal(p.quantity, 720);
+  assert.deepEqual(p.breakdowns.map((b) => b.code), ['PG', 'A-B']);
+  const r = res.nodes.find((n) => n.positionPath === '121.903');
+  assert.equal(r.isReserved, true);
+  assert.equal(r.quantity, 1250);
+  const regie = res.nodes.find((n) => n.positionPath === '222.001');
+  assert.equal(regie.documentUnitPrice, 0.9);
+  assert.equal(regie.documentAmount, 7200);
+});

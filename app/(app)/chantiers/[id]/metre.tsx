@@ -1,8 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useProject } from '../../../../lib/useProject';
+import { useAuth } from '../../../../lib/auth-context';
+import { discardImport, importSoumission, pendingImports, type ImportJob, type ImportProgress } from '../../../../lib/tenders/importer';
 import { FeatureHint } from '../../../../components/FeatureHint';
 import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { Btn, Chip, Field, Sheet, kit, usePhone } from '../../../../components/admin/ledger/kit';
@@ -27,14 +30,31 @@ export default function ChantierMetresScreen() {
   const [creating, setCreating] = useState(false);
   const [toDelete, setToDelete] = useState<TenderSummary | null>(null);
   const [busy, setBusy] = useState(false);
+  const { user } = useAuth();
+  const [pending, setPending] = useState<ImportJob[]>([]);
+  const [progress, setProgress] = useState<ImportProgress | null>(null);
 
   const load = useCallback(async () => {
     if (!project) return;
-    const [{ tenders: list, error: err }, can] = await Promise.all([listTenders(id), canEditTenders(project.organization_id)]);
+    const [{ tenders: list, error: err }, can, jobs] = await Promise.all([listTenders(id), canEditTenders(project.organization_id), pendingImports(id)]);
     setTenders(list);
     setError(err);
     setEditable(can);
+    setPending(jobs);
   }, [id, project]);
+
+  async function startImport() {
+    if (!project) return;
+    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', multiple: false, copyToCacheDirectory: true });
+    if (result.canceled || !result.assets?.[0]) return;
+    const a = result.assets[0] as DocumentPicker.DocumentPickerAsset & { file?: File };
+    setError(null);
+    setProgress({ step: 'reading' });
+    const { jobId, error: err } = await importSoumission(id, project.organization_id, user?.id ?? null, { name: a.name, uri: a.uri, size: a.size, mimeType: a.mimeType, file: a.file ?? null }, setProgress);
+    setProgress(null);
+    if (err && !jobId) return setError(err);
+    if (jobId) router.push(`/(app)/chantiers/${id}/metres/import/${jobId}` as any);
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -96,17 +116,54 @@ export default function ChantierMetresScreen() {
 
         <View style={styles.toolbar}>
           <Text style={kit.eyebrow}>{c.moduleTitle}</Text>
-          {editable ? <Btn label={c.newTender} icon="plus" variant="primary" onPress={() => setCreating(true)} /> : null}
+          {editable ? (
+            <View style={kit.row}>
+              {Platform.OS === 'web' ? <Btn label={c.importPdf} icon="upload" variant="primary" onPress={startImport} disabled={!!progress} /> : null}
+              <Btn label={c.newTender} icon="plus" onPress={() => setCreating(true)} />
+            </View>
+          ) : null}
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        {pending.length ? (
+          <View style={styles.pending}>
+            <Text style={kit.eyebrow}>{c.pendingImports}</Text>
+            {pending.map((j) => (
+              <View key={j.id} style={styles.pendingRow}>
+                <Feather name={j.status === 'failed' ? 'alert-circle' : 'file-text'} size={16} color={j.status === 'failed' ? colors.danger : colors.primary} />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={kit.body} numberOfLines={1}>
+                    {j.file_name}
+                  </Text>
+                  <Text style={kit.hint}>{j.status === 'failed' ? `${c.failed} : ${j.error ?? ''}` : fill(c.detected, { n: (j as unknown as { stats?: { billable?: number } }).stats?.billable ?? 0 })}</Text>
+                </View>
+                {j.status !== 'failed' ? <Btn label={c.resume} icon="arrow-right" variant="ghost" onPress={() => router.push(`/(app)/chantiers/${id}/metres/import/${j.id}` as any)} /> : null}
+                <Btn
+                  label={c.discard}
+                  icon="x"
+                  variant="ghost"
+                  onPress={async () => {
+                    await discardImport(j.id);
+                    load();
+                  }}
+                />
+              </View>
+            ))}
+          </View>
+        ) : null}
 
         {tenders.length === 0 ? (
           <View style={styles.empty}>
             <Feather name="layers" size={28} color={colors.textMuted} />
             <Text style={styles.emptyTitle}>{c.empty}</Text>
             <Text style={[kit.muted, { textAlign: 'center', maxWidth: 420 }]}>{c.emptyText}</Text>
-            {editable ? <Btn label={c.newTender} icon="plus" variant="primary" onPress={() => setCreating(true)} /> : null}
+            {editable ? (
+              <View style={kit.row}>
+                {Platform.OS === 'web' ? <Btn label={c.importPdf} icon="upload" variant="primary" onPress={startImport} disabled={!!progress} /> : null}
+                <Btn label={c.newTender} icon="plus" onPress={() => setCreating(true)} />
+              </View>
+            ) : null}
           </View>
         ) : (
           <View style={{ gap: spacing.sm }}>
@@ -148,6 +205,8 @@ export default function ChantierMetresScreen() {
         )}
       </ScrollView>
 
+      {progress ? <ImportProgressSheet progress={progress} /> : null}
+
       {creating ? (
         <CreateTenderSheet
           onClose={() => setCreating(false)}
@@ -177,6 +236,29 @@ export default function ChantierMetresScreen() {
         </Sheet>
       ) : null}
     </AppScreen>
+  );
+}
+
+const STEPS = ['reading', 'uploading', 'extracting', 'parsing', 'saving'];
+
+function ImportProgressSheet({ progress }: { progress: ImportProgress }) {
+  const c = useTenderCopy();
+  const idx = progress.step === 'ocr' ? 2 : Math.max(0, STEPS.indexOf(progress.step));
+  return (
+    <Sheet title={c.importTitle} onClose={() => {}}>
+      <View style={{ alignItems: 'center', gap: spacing.md, paddingVertical: spacing.lg }}>
+        <ActivityIndicator color={colors.primary} />
+        <Text style={kit.eyebrow}>{fill(c.importStepOf, { n: Math.min(5, idx + 1) })}</Text>
+        <Text style={styles.upsellTitle}>
+          {c.importSteps[progress.step]}
+          {progress.page && progress.pages ? ` — ${fill(c.importPage, { page: progress.page, pages: progress.pages })}` : ''}
+        </Text>
+        <View style={styles.bar}>
+          <View style={[styles.barFill, { width: `${((idx + (progress.page && progress.pages ? progress.page / progress.pages : 0.5)) / 5) * 100}%` }]} />
+        </View>
+        <Text style={[kit.hint, { textAlign: 'center', maxWidth: 420 }]}>{c.importIntro}</Text>
+      </View>
+    </Sheet>
   );
 }
 
@@ -257,4 +339,8 @@ const styles = StyleSheet.create({
   tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   tagText: { fontSize: 11.5, fontWeight: '700', color: colors.textMuted },
   error: { fontSize: fontSize.sm, color: colors.danger },
+  pending: { gap: spacing.sm, padding: spacing.lg, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.primary + '55', backgroundColor: colors.surface },
+  pendingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  bar: { width: '100%', maxWidth: 360, height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
+  barFill: { height: 6, borderRadius: 3, backgroundColor: colors.primary },
 });
