@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AppScreen, LoadingScreen } from '../../../../../components/ui';
@@ -33,7 +33,13 @@ const STRUCTURE: NodeType[] = ['contract', 'chapter', 'section', 'subsection', '
 export default function TenderEditorScreen() {
   const c = useTenderCopy();
   const router = useRouter();
-  const { phone, wide } = usePhone();
+  const { phone } = usePhone();
+  const { width } = useWindowDimensions();
+  // The detail panel sits beside the table only when both fit comfortably.
+  const sidePanel = (width >= 1024 ? width - 240 : width) >= 1200;
+  const [view, setView] = useState<'positions' | 'tree'>('positions');
+  const [filter, setFilter] = useState<'all' | 'noprice' | 'review' | 'gap'>('all');
+  const priceInputs = useRef(new Map<string, TextInput | null>());
   const { id: projectId, tenderId } = useLocalSearchParams<{ id: string; tenderId: string }>();
   const [bundle, setBundle] = useState<TenderBundle | null | undefined>(undefined);
   const [editable, setEditable] = useState(false);
@@ -101,8 +107,50 @@ export default function TenderEditorScreen() {
       const pos = derived.posByNode.get(n.id);
       return [n.is_reserved ? 'R' : '', n.can_chapter, n.display_reference, n.raw_number, n.position_path, n.title, n.description, pos?.unit].filter(Boolean).join(' ');
     });
-    return flattenTree(bundle.nodes, keep ? new Set() : collapsed, keep ?? undefined);
-  }, [bundle, derived, query, collapsed]);
+    if (view === 'tree' && filter === 'all') return flattenTree(bundle.nodes, keep ? new Set() : collapsed, keep ?? undefined);
+    // "Positions" view: chapters as headings, then only the lines to price.
+    const passes = (n: TenderNode) => {
+      const pos = derived.posByNode.get(n.id);
+      if (!pos) return false;
+      if (filter === 'noprice') return !pos.excluded && derived.priceByPos.get(pos.id)?.unit_price == null;
+      if (filter === 'review') return n.needs_review;
+      if (filter === 'gap') return pos.quantity_original != null && pos.quantity_selected != null && pos.quantity_selected !== pos.quantity_original;
+      return true;
+    };
+    const out: FlatRow<TenderNode>[] = [];
+    let heading: FlatRow<TenderNode> | null = null;
+    for (const r of flattenTree(bundle.nodes, new Set(), keep ?? undefined)) {
+      if (r.node.node_type === 'chapter' || (r.node.node_type === 'contract' && !bundle.nodes.some((x) => x.node_type === 'chapter'))) {
+        heading = { node: r.node, level: 0, hasChildren: false };
+        continue;
+      }
+      if (!passes(r.node)) continue;
+      if (heading) {
+        out.push(heading);
+        heading = null;
+      }
+      out.push({ node: r.node, level: 1, hasChildren: false });
+    }
+    return out;
+  }, [bundle, derived, query, collapsed, view, filter]);
+
+  // Short context above a position: its nearest titled parents.
+  const breadcrumbs = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!bundle) return map;
+    const byId = new Map(bundle.nodes.map((n) => [n.id, n]));
+    for (const n of bundle.nodes) {
+      if (n.node_type !== 'billable_position') continue;
+      const parts: string[] = [];
+      let cur = n.parent_id ? byId.get(n.parent_id) : undefined;
+      while (cur && cur.node_type !== 'chapter' && cur.node_type !== 'contract' && parts.length < 2) {
+        if (cur.title) parts.unshift(cur.title.replace(/\.$/, ''));
+        cur = cur.parent_id ? byId.get(cur.parent_id) : undefined;
+      }
+      map.set(n.id, parts.join(' › '));
+    }
+    return map;
+  }, [bundle]);
 
   if (bundle === undefined) {
     return (
@@ -287,10 +335,20 @@ export default function TenderEditorScreen() {
             </Pressable>
           ) : null}
         </View>
-        {!phone ? <Btn label={c.expandAll} icon="chevrons-down" variant="ghost" onPress={() => setCollapsed(new Set())} /> : null}
-        {!phone ? <Btn label={c.collapseAll} icon="chevrons-up" variant="ghost" onPress={collapseAll} /> : null}
         {editable ? <Btn label={c.addSection} icon="folder-plus" onPress={() => setAdding('section')} /> : null}
         {editable ? <Btn label={c.addPosition} icon="plus" variant="primary" onPress={() => setAdding('position')} /> : null}
+      </View>
+      <View style={[styles.filters, phone && { paddingHorizontal: spacing.lg }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
+          <Chip small label={c.filterPositions} icon="list" active={view === 'positions' && filter === 'all'} onPress={() => (setView('positions'), setFilter('all'))} />
+          <Chip small label={c.filterTree} icon="git-merge" active={view === 'tree' && filter === 'all'} onPress={() => (setView('tree'), setFilter('all'))} />
+          <View style={styles.filterSep} />
+          {showPrices ? <Chip small label={`${c.filterNoPrice} · ${derived.noPrice}`} active={filter === 'noprice'} onPress={() => setFilter(filter === 'noprice' ? 'all' : 'noprice')} /> : null}
+          <Chip small label={`${c.filterReview} · ${derived.toReview}`} active={filter === 'review'} onPress={() => setFilter(filter === 'review' ? 'all' : 'review')} />
+          <Chip small label={c.filterGap} active={filter === 'gap'} onPress={() => setFilter(filter === 'gap' ? 'all' : 'gap')} />
+          {view === 'tree' && filter === 'all' && !phone ? <Btn label={c.expandAll} icon="chevrons-down" variant="ghost" onPress={() => setCollapsed(new Set())} /> : null}
+          {view === 'tree' && filter === 'all' && !phone ? <Btn label={c.collapseAll} icon="chevrons-up" variant="ghost" onPress={collapseAll} /> : null}
+        </ScrollView>
       </View>
 
       <View style={styles.body}>
@@ -325,12 +383,20 @@ export default function TenderEditorScreen() {
                   const p = derived.posByNode.get(item.node.id);
                   if (p) onPrice(p, n);
                 }}
+                breadcrumb={view === 'positions' || filter !== 'all' ? breadcrumbs.get(item.node.id) ?? '' : ''}
+                flat={view === 'positions' || filter !== 'all'}
+                priceRef={(r) => priceInputs.current.set(item.node.id, r)}
+                onPriceNext={() => {
+                  const ids = rows.filter((x) => derived.posByNode.has(x.node.id)).map((x) => x.node.id);
+                  const next = ids[ids.indexOf(item.node.id) + 1];
+                  if (next) priceInputs.current.get(next)?.focus();
+                }}
               />
             )}
             ListFooterComponent={showPrices && billableCount ? <Totals c={c} totals={derived.totals} tender={tender} editable={editable} onTender={onTender} /> : null}
           />
         </View>
-        {wide && selected ? (
+        {sidePanel && selected ? (
           <View style={styles.side}>
             <View style={styles.sideHead}>
               <Text style={kit.cardTitle}>{selectedPos ? c.colPosition : c.colDescription}</Text>
@@ -343,8 +409,8 @@ export default function TenderEditorScreen() {
         ) : null}
       </View>
 
-      {!wide && selected ? (
-        <Sheet title={selected.display_reference ?? selected.raw_number ?? c.colPosition} onClose={() => setSelectedId(null)}>
+      {!sidePanel && selected ? (
+        <Sheet title={selectedPos ? c.colPosition : c.colDescription} onClose={() => setSelectedId(null)}>
           {detail}
         </Sheet>
       ) : null}
@@ -434,12 +500,18 @@ interface RowProps {
   onToggle: () => void;
   onSelect: () => void;
   onPrice: (n: number | null) => void;
+  breadcrumb: string;
+  flat: boolean;
+  priceRef: (r: TextInput | null) => void;
+  onPriceNext: () => void;
 }
 
-function Row({ row, c, phone, selected, collapsed, position, price, amount, subtotal, showPrices, editable, onToggle, onSelect, onPrice }: RowProps) {
+function Row({ row, c, phone, selected, collapsed, position, price, amount, subtotal, showPrices, editable, onToggle, onSelect, onPrice, breadcrumb, flat, priceRef, onPriceNext }: RowProps) {
   const { node, level, hasChildren } = row;
-  const indent = Math.min(level, 6) * (phone ? 12 : 18);
-  const ref = node.display_reference ?? node.raw_number ?? '';
+  const indent = flat ? 0 : Math.min(level, 6) * (phone ? 12 : 16);
+  // The chapter is already the heading: show the local reference only.
+  const ref = node.node_type === 'chapter' ? `CAN ${node.raw_number ?? ''}` : node.position_path ?? node.raw_number ?? node.display_reference ?? '';
+  const text = position ? (node.description || node.title || '').replace(/\s*\n\s*/g, ' ') : node.title || node.description;
   const isStructure = !position && STRUCTURE.includes(node.node_type);
   const isFinancial = ['carry_forward', 'subtotal', 'chapter_total', 'financial_adjustment'].includes(node.node_type);
   const differs = position && position.quantity_selected_source !== 'original' && position.quantity_original != null && position.quantity_selected !== position.quantity_original;
@@ -470,8 +542,13 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
           {node.needs_review ? <Feather name="alert-triangle" size={13} color={colors.danger} /> : null}
           {isStructure && showPrices && subtotal ? <Text style={[styles.mono, { marginLeft: 'auto' }]}>{formatChf(subtotal)}</Text> : null}
         </View>
-        <Text style={[styles.desc, isStructure && styles.descStructure, isFinancial && styles.descFinancial, position?.excluded && styles.strike]} numberOfLines={2}>
-          {node.title || node.description}
+        {breadcrumb ? (
+          <Text style={styles.crumb} numberOfLines={1}>
+            {breadcrumb}
+          </Text>
+        ) : null}
+        <Text style={[styles.desc, isStructure && styles.descStructure, isFinancial && styles.descFinancial, position?.excluded && styles.strike]} numberOfLines={position ? 3 : 2}>
+          {text}
         </Text>
         {position ? (
           <View style={styles.mLine}>
@@ -491,11 +568,18 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
     <Pressable onPress={onSelect} style={[styles.tr, selected && styles.rowSelected, isStructure && level === 0 && styles.chapterRow]}>
       {refView}
       <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6, paddingLeft: indent }}>
-        {chevron}
+        {flat ? null : chevron}
         {node.needs_review ? <Feather name="alert-triangle" size={13} color={colors.danger} /> : null}
-        <Text style={[styles.desc, isStructure && styles.descStructure, isFinancial && styles.descFinancial, position?.excluded && styles.strike, { flex: 1 }]} numberOfLines={1}>
-          {node.title || node.description}
-        </Text>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          {breadcrumb ? (
+            <Text style={styles.crumb} numberOfLines={1}>
+              {breadcrumb}
+            </Text>
+          ) : null}
+          <Text style={[styles.desc, isStructure && styles.descStructure, isFinancial && styles.descFinancial, position?.excluded && styles.strike]} numberOfLines={position ? 2 : 1}>
+            {text}
+          </Text>
+        </View>
       </View>
       {position ? (
         <>
@@ -507,7 +591,7 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
           {showPrices ? (
             <View style={styles.cPrice}>
               {editable ? (
-                <NumberInput value={price?.unit_price ?? null} editable onCommit={onPrice} style={styles.inlinePrice} />
+                <NumberInput value={price?.unit_price ?? null} editable onCommit={onPrice} style={styles.inlinePrice} placeholder={c.colPrice} inputRef={priceRef} onSubmitNext={onPriceNext} />
               ) : (
                 <Text style={[styles.mono, { textAlign: 'right' }]}>{price?.unit_price == null ? '' : formatChf(price.unit_price)}</Text>
               )}
@@ -614,13 +698,16 @@ const styles = StyleSheet.create({
   statValue: { ...displayType, fontSize: 20, fontWeight: '800', fontVariant: ['tabular-nums'] },
   totalStat: { marginLeft: 'auto', alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radius.lg, backgroundColor: colors.text },
   totalValue: { ...displayType, fontSize: 20, fontWeight: '800', color: '#fff', fontVariant: ['tabular-nums'] },
+  filters: { paddingHorizontal: spacing.xl, paddingBottom: spacing.md },
+  filterSep: { width: 1, height: 20, backgroundColor: colors.border, marginHorizontal: 4 },
+  crumb: { fontSize: 11.5, color: colors.textMuted, marginBottom: 1 },
   toolbar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing.sm, paddingHorizontal: spacing.xl, paddingBottom: spacing.md },
   search: { flexDirection: 'row', alignItems: 'center', gap: 8, flexGrow: 1, flexBasis: 240, minWidth: 0, paddingHorizontal: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, minHeight: 42 },
   searchInput: { flex: 1, fontSize: fontSize.sm, color: colors.text, paddingVertical: 10, minWidth: 0 },
   body: { flex: 1, flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.surface },
-  side: { width: 400, borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: colors.surface },
+  side: { width: 420, borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: colors.surface },
   sideHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  tr: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, minHeight: 40, borderBottomWidth: 1, borderBottomColor: colors.border },
+  tr: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: 6, minHeight: 44, borderBottomWidth: 1, borderBottomColor: colors.border },
   th: { backgroundColor: colors.bg, minHeight: 34 },
   thText: { ...monoType, fontSize: 10.5, letterSpacing: 0.8, textTransform: 'uppercase', color: colors.textMuted },
   chapterRow: { backgroundColor: colors.bg },

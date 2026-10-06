@@ -30,7 +30,7 @@ export interface DetailProps {
 }
 
 // Number field that keeps what is being typed and commits on blur / enter.
-export function NumberInput({ value, onCommit, editable, placeholder, style }: { value: number | null; onCommit: (n: number | null) => void; editable: boolean; placeholder?: string; style?: object }) {
+export function NumberInput({ value, onCommit, editable, placeholder, style, inputRef, onSubmitNext }: { value: number | null; onCommit: (n: number | null) => void; editable: boolean; placeholder?: string; style?: object; inputRef?: (r: TextInput | null) => void; onSubmitNext?: () => void }) {
   const [text, setText] = useState(value == null ? '' : String(value));
   useEffect(() => setText(value == null ? '' : String(value)), [value]);
   const commit = () => {
@@ -43,8 +43,13 @@ export function NumberInput({ value, onCommit, editable, placeholder, style }: {
       style={[kit.input, styles.num, !editable && styles.readonly, style]}
       value={text}
       onChangeText={setText}
+      ref={inputRef}
       onBlur={commit}
-      onSubmitEditing={commit}
+      onSubmitEditing={() => {
+        commit();
+        onSubmitNext?.();
+      }}
+      blurOnSubmit={!onSubmitNext}
       editable={editable}
       keyboardType="decimal-pad"
       placeholder={placeholder}
@@ -75,10 +80,12 @@ export function TenderDetail(p: DetailProps) {
   const { c, node, position, price, editable } = p;
   const [history, setHistory] = useState<AuditEntry[] | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSource, setShowSource] = useState(false);
 
   useEffect(() => {
     setHistory(null);
     setShowHistory(false);
+    setShowSource(false);
   }, [node.id]);
 
   useEffect(() => {
@@ -92,90 +99,81 @@ export function TenderDetail(p: DetailProps) {
   const amount = position ? lineAmount(position.quantity_selected, price?.unit_price ?? null, position.excluded) : null;
   const ref = node.display_reference ?? node.raw_number;
   const zone = (code: string) => p.zoneLabels.find((z) => z.code === code)?.label ?? null;
+  const u = position ? unitLabel(position.unit) : '';
+  const pick = (k: QuantitySource) => editable && position && p.onPosition({ quantity_selected_source: k });
 
   return (
     <View style={{ gap: spacing.lg }}>
-      <View style={{ gap: 6 }}>
+      <View style={{ gap: spacing.sm }}>
         <View style={kit.row}>
           {node.is_reserved ? <Text style={styles.reserved}>R</Text> : null}
-          {ref ? <Text style={styles.ref}>{node.can_chapter && !ref.startsWith(node.can_chapter) ? `${node.can_chapter} / ${ref}` : ref}</Text> : null}
-          {node.needs_review ? <Chip small label={c.toReview} active tone="bad" icon="alert-triangle" onPress={() => {}} /> : null}
+          {ref ? <Text style={styles.ref}>{ref}</Text> : null}
+          {node.source_page ? <Text style={kit.hint}>{fill(c.sourcePage, { page: node.source_page })}</Text> : null}
           {position?.excluded ? <Chip small label={c.excluded} active onPress={() => {}} /> : null}
         </View>
-        <Field label={c.title}>
-          <TextCommit value={node.title} editable={editable} onCommit={(title) => p.onNode({ title })} multiline />
-        </Field>
-        {node.description || editable ? (
-          <Field label={c.description}>
-            <TextCommit value={node.description} editable={editable} onCommit={(description) => p.onNode({ description })} multiline />
-          </Field>
+        {node.needs_review ? (
+          <View style={styles.warn}>
+            <Feather name="alert-triangle" size={15} color="#9A6412" />
+            <Text style={[kit.body, { flex: 1 }]}>{c.toReview}</Text>
+            {editable ? <Btn label={c.markValidated} icon="check" variant="ok" onPress={() => p.onNode({ needs_review: false, validated_at: new Date().toISOString() })} /> : null}
+          </View>
         ) : null}
-        {node.needs_review && editable ? <Btn label={c.markValidated} icon="check" variant="ok" onPress={() => p.onNode({ needs_review: false, validated_at: new Date().toISOString() })} /> : null}
+        <TextCommit
+          value={node.description || node.title}
+          editable={editable}
+          multiline
+          onCommit={(text) => p.onNode({ description: text, title: text.split('\n')[0] })}
+        />
       </View>
 
       {position ? (
         <>
-          <View style={styles.block}>
-            <View style={styles.qtyRow}>
-              <Text style={styles.qtyLabel}>{c.qtyOriginal}</Text>
-              <Text style={styles.qtyValue}>{position.quantity_original == null ? '—' : `${formatQuantity(position.quantity_original)} ${unitLabel(position.unit)}`}</Text>
-            </View>
-            <Text style={kit.hint}>{c.qtyOriginalHint}</Text>
-            <View style={styles.qtyRow}>
-              <Text style={styles.qtyLabel}>{c.qtyMeasured}</Text>
-              <Text style={styles.qtyValue}>{position.quantity_measured == null ? '—' : `${formatQuantity(position.quantity_measured)} ${unitLabel(position.unit)}`}</Text>
-            </View>
-            <Text style={kit.hint}>{c.qtyMeasuredHint}</Text>
-            <View style={styles.qtyRow}>
-              <Text style={styles.qtyLabel}>{c.qtyManual}</Text>
+          <View style={{ gap: 6 }}>
+            <Text style={kit.fieldLabel}>{c.qtySelected}</Text>
+            <QtyOption active={position.quantity_selected_source === 'original'} onPress={() => pick('original')} label={c.useSource.original} hint={c.qtyOriginalHint}>
+              <Text style={styles.qtyValue}>{position.quantity_original == null ? '—' : `${formatQuantity(position.quantity_original)} ${u}`}</Text>
+            </QtyOption>
+            <QtyOption active={position.quantity_selected_source === 'measured'} onPress={() => position.quantity_measured != null && pick('measured')} label={c.useSource.measured} hint={c.qtyMeasuredHint} disabled={position.quantity_measured == null}>
+              <Text style={styles.qtyValue}>{position.quantity_measured == null ? '—' : `${formatQuantity(position.quantity_measured)} ${u}`}</Text>
+            </QtyOption>
+            <QtyOption active={position.quantity_selected_source === 'manual'} onPress={() => position.quantity_manual != null && pick('manual')} label={c.useSource.manual}>
               <NumberInput
                 value={position.quantity_manual}
                 editable={editable}
-                onCommit={(n) => p.onPosition({ quantity_manual: n, ...(n != null ? { quantity_selected_source: 'manual' as QuantitySource } : {}) })}
-                style={{ width: 130 }}
+                onCommit={(n) => p.onPosition({ quantity_manual: n, ...(n != null ? { quantity_selected_source: 'manual' as QuantitySource } : { quantity_selected_source: 'original' as QuantitySource }) })}
+                placeholder={u}
+                style={{ width: 120 }}
               />
-            </View>
-            {position.quantity_manual != null || position.manual_note ? (
+            </QtyOption>
+            {position.quantity_manual != null ? (
               <TextCommit value={position.manual_note} editable={editable} onCommit={(manual_note) => p.onPosition({ manual_note: manual_note || null })} placeholder={c.manualNote} />
             ) : null}
-            <Field label={c.qtySelected}>
-              <Segmented
-                value={position.quantity_selected_source}
-                options={(['original', 'measured', 'manual'] as QuantitySource[]).map((k) => ({ key: k, label: c.useSource[k] }))}
-                onChange={(k) => editable && p.onPosition({ quantity_selected_source: k })}
-              />
-            </Field>
-            <View style={styles.selected}>
-              <Text style={styles.selectedValue}>
-                {position.quantity_selected == null ? '—' : formatQuantity(position.quantity_selected)} <Text style={styles.selectedUnit}>{unitLabel(position.unit)}</Text>
+            {gap && gap.delta !== 0 ? (
+              <Text style={[styles.gap, { color: gap.delta > 0 ? colors.success : colors.danger }]}>
+                {c.colGap} : {gap.delta > 0 ? '+' : ''}
+                {formatQuantity(gap.delta)} {u} {gap.percent != null ? `(${gap.percent > 0 ? '+' : ''}${gap.percent} %)` : ''}
               </Text>
-              {gap ? (
-                <Text style={[styles.gap, { color: gap.delta === 0 ? colors.textMuted : gap.delta > 0 ? colors.success : colors.danger }]}>
-                  {gap.delta > 0 ? '+' : ''}
-                  {formatQuantity(gap.delta)} {gap.percent != null ? `(${gap.percent > 0 ? '+' : ''}${gap.percent} %)` : ''}
-                </Text>
-              ) : null}
-            </View>
+            ) : null}
           </View>
 
           <Field label={c.unit}>
             <View style={kit.row}>
-              {Array.from(new Set([...UNIT_CHOICES, ...(position.unit && !UNIT_CHOICES.includes(position.unit) ? [position.unit] : [])])).map((u) => (
-                <Chip key={u} small label={unitLabel(u)} active={position.unit === u} onPress={() => editable && p.onPosition({ unit: u })} />
+              {Array.from(new Set([...UNIT_CHOICES, ...(position.unit && !UNIT_CHOICES.includes(position.unit) ? [position.unit] : [])])).map((un) => (
+                <Chip key={un} small label={unitLabel(un)} active={position.unit === un} onPress={() => editable && p.onPosition({ unit: un })} />
               ))}
             </View>
             {position.raw_unit && position.raw_unit !== position.unit ? <Text style={kit.hint}>Document : « {position.raw_unit} »</Text> : null}
           </Field>
 
           {p.pricesVisible ? (
-            <View style={styles.block}>
-              <View style={styles.qtyRow}>
-                <Text style={styles.qtyLabel}>{c.unitPrice}</Text>
-                <NumberInput value={price?.unit_price ?? null} editable={editable} onCommit={p.onPrice} style={{ width: 130 }} />
+            <View style={styles.priceRow}>
+              <View style={{ gap: 4 }}>
+                <Text style={kit.fieldLabel}>{c.unitPrice}</Text>
+                <NumberInput value={price?.unit_price ?? null} editable={editable} onCommit={p.onPrice} style={{ width: 140 }} placeholder="0.00" />
+                {price?.document_unit_price != null ? <Text style={kit.hint}>Document : {formatChf(price.document_unit_price, 2)}</Text> : null}
               </View>
-              {price?.document_unit_price != null ? <Text style={kit.hint}>Document : {formatChf(price.document_unit_price, 2)}</Text> : null}
-              <View style={styles.qtyRow}>
-                <Text style={styles.qtyLabel}>{c.amount}</Text>
+              <View style={{ alignItems: 'flex-end', gap: 4, marginLeft: 'auto' }}>
+                <Text style={kit.fieldLabel}>{c.amount}</Text>
                 <Text style={styles.amount}>{amount == null ? '—' : `CHF ${formatChf(amount)}`}</Text>
               </View>
             </View>
@@ -193,7 +191,7 @@ export function TenderDetail(p: DetailProps) {
                       <ZoneLabelInput code={b.code} label={zone(b.code)} editable={editable} c={c} onCommit={(l) => p.onZoneLabel(b.code, l)} />
                     </View>
                     <Text style={styles.bdOrig}>{b.quantity_original == null ? '—' : formatQuantity(b.quantity_original)}</Text>
-                    <NumberInput value={b.quantity_manual} editable={editable} onCommit={(n) => p.onBreakdown(b.id, n)} placeholder={c.qtyManual} style={{ width: 96 }} />
+                    <NumberInput value={b.quantity_manual} editable={editable} onCommit={(n) => p.onBreakdown(b.id, n)} placeholder={c.useSource.manual} style={{ width: 96 }} />
                   </View>
                 ))}
                 {check ? (
@@ -214,12 +212,18 @@ export function TenderDetail(p: DetailProps) {
         </>
       ) : null}
 
-      <Field label={c.provenance}>
-        <Text style={kit.body}>{node.source_page ? fill(c.sourcePage, { page: node.source_page }) : c.noSource}</Text>
-        {node.raw_text ? <Text style={styles.raw}>{node.raw_text}</Text> : null}
-      </Field>
-
-      <View style={{ gap: spacing.sm }}>
+      <View style={{ gap: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.md }}>
+        {node.raw_text ? (
+          <>
+            <Pressable onPress={() => setShowSource((v) => !v)} style={kit.row}>
+              <Feather name={showSource ? 'chevron-down' : 'chevron-right'} size={15} color={colors.textMuted} />
+              <Text style={kit.link}>{c.rawText}</Text>
+            </Pressable>
+            {showSource ? <Text style={styles.raw}>{node.raw_text}</Text> : null}
+          </>
+        ) : (
+          <Text style={kit.hint}>{c.noSource}</Text>
+        )}
         <Pressable onPress={() => setShowHistory((v) => !v)} style={kit.row}>
           <Feather name={showHistory ? 'chevron-down' : 'chevron-right'} size={15} color={colors.textMuted} />
           <Text style={kit.link}>{c.history}</Text>
@@ -235,10 +239,22 @@ export function TenderDetail(p: DetailProps) {
             ))
           )
         ) : null}
+        {editable ? <Btn label={c.deleteNode} icon="trash-2" variant="ghost" onPress={p.onDelete} /> : null}
       </View>
-
-      {editable ? <Btn label={c.deleteNode} icon="trash-2" variant="bad" onPress={p.onDelete} /> : null}
     </View>
+  );
+}
+
+function QtyOption({ active, onPress, label, hint, disabled, children }: { active: boolean; onPress: () => void; label: string; hint?: string; disabled?: boolean; children: React.ReactNode }) {
+  return (
+    <Pressable onPress={onPress} style={[styles.qtyOpt, active && styles.qtyOptOn, disabled && { opacity: 0.55 }]}>
+      <View style={[styles.radio, active && styles.radioOn]}>{active ? <View style={styles.radioDot} /> : null}</View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.qtyLabel}>{label}</Text>
+        {hint ? <Text style={kit.hint}>{hint}</Text> : null}
+      </View>
+      {children}
+    </Pressable>
   );
 }
 
@@ -259,7 +275,14 @@ function ZoneLabelInput({ code, label, editable, c, onCommit }: { code: string; 
 }
 
 const styles = StyleSheet.create({
-  ref: { ...monoType, fontSize: 13, fontWeight: '700', color: colors.text },
+  ref: { ...monoType, fontSize: 14, fontWeight: '800', color: colors.text },
+  warn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap', padding: spacing.md, borderRadius: radius.lg, backgroundColor: '#FBF0D9' },
+  qtyOpt: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  qtyOptOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  radioOn: { borderColor: colors.primary },
+  radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
+  priceRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },
   reserved: { ...monoType, fontSize: 11, fontWeight: '800', color: '#fff', backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, overflow: 'hidden' },
   block: { gap: spacing.sm, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },
   qtyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
