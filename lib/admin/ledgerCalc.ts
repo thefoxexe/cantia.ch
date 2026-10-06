@@ -66,6 +66,7 @@ export const PROOF_GUIDE: Record<string, string> = {
   honoraires: 'Facture de la fiduciaire, de l’avocat ou du notaire.',
   sous_traitance: 'Facture du freelance ou du sous-traitant, avec son nom et son adresse.',
   frais_financiers: 'Relevé de frais de la banque ou rapport de frais Stripe / TWINT. Le relevé suffit généralement.',
+  remboursements: 'Remboursement Stripe : la ligne du tableau de bord Stripe (Paiements › Remboursé) suffit. Sinon, la note de crédit envoyée au client.',
   taxes: 'Décision ou facture de l’autorité (registre du commerce, émoluments).',
   autres_charges: 'Facture ou ticket, et une note sur le lien avec l’activité.',
 };
@@ -174,6 +175,7 @@ export const CATEGORIES: Record<LedgerKind, { key: string; label: string }[]> = 
     { key: 'honoraires', label: 'Honoraires (fiduciaire, juridique)' },
     { key: 'sous_traitance', label: 'Sous-traitance et freelances' },
     { key: 'frais_financiers', label: 'Frais bancaires et de paiement' },
+    { key: 'remboursements', label: 'Remboursements clients' },
     { key: 'taxes', label: 'Taxes et émoluments' },
     { key: 'autres_charges', label: 'Autres charges' },
   ],

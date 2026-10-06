@@ -38,6 +38,7 @@ export const CATEGORY_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   honoraires: 'file-text',
   sous_traitance: 'users',
   frais_financiers: 'credit-card',
+  remboursements: 'rotate-ccw',
   taxes: 'flag',
   autres_charges: 'more-horizontal',
 };

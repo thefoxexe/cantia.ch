@@ -1271,6 +1271,20 @@ export interface AdminRevenueOverview {
   // Most recent paid invoices (net of Stripe fees), newest first — feeds the
   // Rentabilité screen's transaction ledger alongside manual expenses.
   recent_transactions: AdminRevenueTransaction[];
+  // Refunds to real customers, newest first (absent on an older deployment
+  // of admin-billing-overview). ca_* figures are already net of them.
+  refunds_total_chf?: number;
+  refunds_this_month_chf?: number;
+  recent_refunds?: AdminRevenueRefund[];
+}
+
+export interface AdminRevenueRefund {
+  id: string;
+  customer_name: string;
+  number: string | null;
+  amount_chf: number;
+  date: string;
+  reason: string | null;
 }
 
 export interface AdminOrganizationMember {

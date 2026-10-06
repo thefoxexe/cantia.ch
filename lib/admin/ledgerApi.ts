@@ -81,7 +81,7 @@ export async function receiptUrl(path: string): Promise<string | null> {
 }
 
 // Stripe: each paid invoice becomes an income (gross) and its Stripe fee an
-// expense. source_id is unique, so importing again only adds what is new.
+// expense; each refund an expense. source_id is unique, so importing again only adds what is new.
 export async function importStripe(): Promise<{ added: number; error: string | null }> {
   const { overview, error } = await getRevenueOverview();
   if (error || !overview) return { added: 0, error: error ?? 'Stripe indisponible' };
@@ -117,6 +117,24 @@ export async function importStripe(): Promise<{ added: number; error: string | n
         source: 'stripe',
         source_id: `stripe-fee:${tx.id}`,
       });
+  }
+  // Refunds: money paid back to a customer, recorded as its own expense
+  // (Stripe keeps its original fee, so the fee entry above stays).
+  for (const r of overview.recent_refunds ?? []) {
+    if (!(Number(r.amount_chf) > 0)) continue;
+    rows.push({
+      entry_date: r.date.slice(0, 10),
+      kind: 'depense',
+      category: 'remboursements',
+      label: `Remboursement Stripe${r.number ? ` · facture ${r.number}` : ''}`,
+      counterparty: r.customer_name,
+      amount_chf: Number(r.amount_chf),
+      vat_rate: 0,
+      payment_method: 'stripe',
+      reference: r.number,
+      source: 'stripe',
+      source_id: `stripe-refund:${r.id}`,
+    });
   }
   if (!rows.length) return { added: 0, error: null };
   const { data, error: upsertError } = await supabase.from('admin_ledger_entries').upsert(rows, { onConflict: 'source_id', ignoreDuplicates: true }).select('id');

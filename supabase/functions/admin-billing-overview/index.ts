@@ -484,6 +484,51 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
   }
   transactions.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
+  // Refunds: money given back to a customer leaves the Stripe balance too,
+  // so "encaissé" drops by the refunded amount on the day of the refund
+  // (Stripe keeps its original processing fee). Listed separately for the
+  // admin ledger, which records each refund as its own expense.
+  const invoiceNumberById = new Map(transactions.map((t) => [t.id, t.number]));
+  const refunds: { id: string; customer_name: string; number: string | null; amount_chf: number; date: string; reason: string | null }[] = [];
+  let refundsTotalChf = 0;
+  let refundsThisMonthChf = 0;
+  let refundAfter: string | undefined;
+  for (let page = 0; page < 3; page++) {
+    let list: Stripe.ApiList<Stripe.Refund>;
+    try {
+      list = await stripe.refunds.list({ limit: 100, starting_after: refundAfter, expand: ['data.charge'] });
+    } catch (err) {
+      console.error('refunds.list failed', err);
+      break;
+    }
+    for (const r of list.data) {
+      if (r.status !== 'succeeded' && r.status !== 'pending') continue;
+      const charge = r.charge && typeof r.charge === 'object' ? (r.charge as Stripe.Charge) : null;
+      const customerId = charge ? (typeof charge.customer === 'string' ? charge.customer : charge.customer?.id) : null;
+      if (!customerId || !knownCustomerIds.has(customerId)) continue;
+      const amount = (r.amount ?? 0) / 100;
+      if (amount <= 0) continue;
+      const invoiceId = (charge as unknown as { invoice?: string | { id: string } | null })?.invoice;
+      const invId = typeof invoiceId === 'string' ? invoiceId : invoiceId?.id ?? null;
+      refundsTotalChf += amount;
+      if (r.created >= monthStartTs) refundsThisMonthChf += amount;
+      const day = dayKey(r.created);
+      revenueByDay.set(day, (revenueByDay.get(day) ?? 0) - amount);
+      refunds.push({
+        id: r.id,
+        customer_name: orgNameByCustomerId.get(customerId) ?? charge?.billing_details?.name ?? 'Client',
+        number: (invId && invoiceNumberById.get(invId)) ?? null,
+        amount_chf: round2(amount),
+        date: new Date(r.created * 1000).toISOString(),
+        reason: r.reason ?? null,
+      });
+    }
+    if (!list.has_more) break;
+    refundAfter = list.data[list.data.length - 1]?.id;
+  }
+  caTotalChf -= refundsTotalChf;
+  caThisMonthChf -= refundsThisMonthChf;
+
   // Daily growth series for the last 90 days — the client filters this down
   // to "aujourd'hui" / "7 jours" / "ce mois" / "depuis toujours" itself,
   // one fetch covers every period switch without re-querying Stripe.
@@ -560,6 +605,9 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     promo_codes: Array.from(promoCounts.values()).sort((a, b) => b.org_count - a.org_count),
     timeseries: points,
     recent_transactions: transactions.slice(0, 100),
+    refunds_total_chf: round2(refundsTotalChf),
+    refunds_this_month_chf: round2(refundsThisMonthChf),
+    recent_refunds: refunds.slice(0, 100),
   };
 }
 
