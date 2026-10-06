@@ -14,7 +14,7 @@ import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { LEGACY_TRADE_KEYS, TRADES, TRADE_KEYS } from '../../../lib/trades';
+import { LEGACY_TRADE_KEYS, SPECIALTIES, TRADES, TRADE_KEYS, type Trade } from '../../../lib/trades';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 import { SwissAddressField } from '../../../components/SwissAddressField';
@@ -40,6 +40,7 @@ export default function EntrepriseScreen() {
   const { organization, role, refreshOrganization } = useAuth();
   const [name, setName] = useState(organization?.name ?? '');
   const [trade, setTrade] = useState(organization?.trade ?? null);
+  const [specialties, setSpecialties] = useState<string[]>(organization?.trade_specialties ?? []);
   const [street, setStreet] = useState(organization?.street ?? '');
   const [postalCode, setPostalCode] = useState(organization?.postal_code ?? '');
   const [locality, setLocality] = useState(organization?.locality ?? '');
@@ -81,6 +82,7 @@ export default function EntrepriseScreen() {
     if (!organization) return;
     setName(organization.name);
     setTrade(organization.trade ?? null);
+    setSpecialties(organization.trade_specialties ?? []);
     setStreet(organization.street ?? '');
     setPostalCode(organization.postal_code ?? '');
     setLocality(organization.locality ?? '');
@@ -121,6 +123,7 @@ export default function EntrepriseScreen() {
     const patch = {
         name: name.trim(),
         trade,
+        trade_specialties: specialties,
         street: street.trim() || null,
         postal_code: postalCode.trim() || null,
         locality: locality.trim() || null,
@@ -184,6 +187,26 @@ export default function EntrepriseScreen() {
                 </Pressable>
               ))}
             </View>
+            {trade && SPECIALTIES[trade as Trade] ? (
+              <>
+                <Text style={styles.fieldLabel}>{t('trades.specialtiesLabel')}</Text>
+                <View style={styles.chips}>
+                  {SPECIALTIES[trade as Trade]!.map((k) => {
+                    const on = specialties.includes(k);
+                    return (
+                      <Pressable
+                        key={k}
+                        disabled={!isAdmin}
+                        onPress={() => withDirty(setSpecialties)(on ? specialties.filter((x) => x !== k) : [...specialties, k])}
+                        style={[styles.chip, on && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                      >
+                        <Text style={[styles.chipText, on && styles.chipTextActive]}>{t(`specialties.${k}` as any)}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </>
+            ) : null}
           </Card>
 
           <SectionHeader icon="map-pin" title={t('entreprise.addressTitle')} hint={t('entreprise.addressHint')} />

@@ -82,7 +82,7 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  createOrganization: (name: string, trade: string | null, workTerm?: WorkTerm) => Promise<{ error: string | null }>;
+  createOrganization: (name: string, trade: string | null, workTerm?: WorkTerm, specialties?: string[]) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   // Supabase sends a confirmation link to the NEW address before the
@@ -456,7 +456,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createOrganization = useCallback(
-    async (name: string, trade: string | null, workTerm: WorkTerm = 'chantier') => {
+    async (name: string, trade: string | null, workTerm: WorkTerm = 'chantier', specialties: string[] = []) => {
       // Attribution was captured (if any) back on cantia.ch's first pageview
       // and survives the domain jump to app.cantia.ch via a shared cookie —
       // see lib/siteAnalytics.ts. Native has no such cookie/URL, so this is
@@ -509,8 +509,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await supabase.rpc('org_claim_fiduciary_invite', { p_org: orgId, p_token: fiduciaryInvite });
       }
       // Chantier / projet / mandat / dossier, asked on the same screen.
-      if (workTerm !== 'chantier' && orgId) {
-        await supabase.from('organizations').update({ work_term: workTerm }).eq('id', orgId);
+      // and the trades inside the sector.
+      if ((workTerm !== 'chantier' || specialties.length) && orgId) {
+        await supabase.from('organizations').update({ work_term: workTerm, ...(specialties.length ? { trade_specialties: specialties } : {}) }).eq('id', orgId);
       }
       if (session?.user) await loadOrganization(session.user.id);
       return { error: null };

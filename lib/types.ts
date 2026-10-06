@@ -68,6 +68,8 @@ export interface Organization {
   id: string;
   name: string;
   trade: string | null;
+  // What the company does inside its sector (lib/trades.ts SPECIALTIES keys).
+  trade_specialties?: string[] | null;
   logo_url: string | null;
   signature_url: string | null;
   address: string | null;

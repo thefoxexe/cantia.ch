@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, PageHeader, AppScreen } from '../../../components/ui';
-import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
+import { fillsSoumissions } from '../../../lib/trades';
+import { PROJECT_MODULE_PLAN_GATED, projectModulesFor, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
@@ -22,7 +23,9 @@ export default function NewChantierScreen() {
 
   const [plan, setPlan] = useState<Plan | null>(null);
   const [createdId, setCreatedId] = useState<string | null>(null);
-  const [enabledModules, setEnabledModules] = useState<string[]>(DEFAULT_MODULES);
+  // "Remplir une soumission" only for building companies (lib/trades.ts).
+  const defaultModules = fillsSoumissions(organization) ? DEFAULT_MODULES : DEFAULT_MODULES.filter((m) => m !== 'metre');
+  const [enabledModules, setEnabledModules] = useState<string[]>(defaultModules);
   const [savingModules, setSavingModules] = useState(false);
 
   useEffect(() => {
@@ -76,7 +79,7 @@ export default function NewChantierScreen() {
     }
     // The row already has the DB default enabled_modules — this step just
     // lets the user customize it for this specific chantier before entering it.
-    setEnabledModules(DEFAULT_MODULES);
+    setEnabledModules(defaultModules);
     setCreatedId(data.id);
   }
 
@@ -98,7 +101,7 @@ export default function NewChantierScreen() {
             <Text style={styles.sheetTitle}>{t('newChantier.modulesTitle')}</Text>
             <Text style={styles.sheetSubtitle}>{t('newChantier.modulesSubtitle')}</Text>
             <ScrollView contentContainerStyle={styles.sheetList}>
-              {PROJECT_MODULES.map((m) => {
+              {projectModulesFor(organization).map((m) => {
                 const gated = isPlanGated(m.key);
                 return (
                   <View key={m.key} style={styles.row}>

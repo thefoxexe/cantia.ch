@@ -26,3 +26,10 @@ reset role;
 insert into tenders (project_id, name, kind, source_type, metadata) select project_id, 'Import TVA', 'soumission', 'pdf', '{"document_vat_rate": 7.7}' from tenders where name = 'Soumission CFC 211';
 insert into tenders (project_id, name, kind, source_type, metadata) select project_id, 'Manuel TVA', 'soumission', 'manual', '{"document_vat_rate": 7.7}' from tenders where name = 'Soumission CFC 211';
 select name, vat_rate from tenders where name in ('Import TVA', 'Manuel TVA') order by name;
+\echo '--- C5. soumissions only for building companies: true, then false for a fiduciaire, false for mandats'
+reset role;
+select org_has_tenders('00000000-0000-0000-0000-00000000000a') as building;
+update organizations set trade = 'Services & conseil' where id = '00000000-0000-0000-0000-00000000000a';
+select org_has_tenders('00000000-0000-0000-0000-00000000000a') as services;
+update organizations set trade = 'Technique du bâtiment', work_term = 'mandat' where id = '00000000-0000-0000-0000-00000000000a';
+select org_has_tenders('00000000-0000-0000-0000-00000000000a') as mandats;

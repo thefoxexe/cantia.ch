@@ -10,6 +10,7 @@ import { isModuleEnabled } from '../../../../lib/modules';
 import { LoadingScreen, StatusBadge, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { fillsSoumissions } from '../../../../lib/trades';
 import { ChantierDesk } from '../../../../components/chantier/ChantierDesk';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -47,7 +48,7 @@ export default function ChantierDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { canViewFinances, canManageDevis, permissions } = useAuth();
+  const { canViewFinances, canManageDevis, permissions, organization } = useAuth();
   const { project } = useProject(id);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.metre'),
       icon: 'list',
       route: `/(app)/chantiers/${id}/metre`,
-      visible: isModuleEnabled(enabled, 'metre') && permissions.metre,
+      visible: isModuleEnabled(enabled, 'metre') && permissions.metre && fillsSoumissions(organization),
     },
     {
       key: 'subcontractors',

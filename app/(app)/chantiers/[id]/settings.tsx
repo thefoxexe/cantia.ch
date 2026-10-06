@@ -11,7 +11,7 @@ import { Button, Card, Container, Field, LoadingScreen, PageHeader, AppScreen, S
 import { UnsavedChangesBar } from '../../../../components/UnsavedChangesBar';
 import { UnsavedChangesModal } from '../../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../../lib/useUnsavedChanges';
-import { PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
+import { PROJECT_MODULE_PLAN_GATED, projectModulesFor, isModuleEnabled, type ModuleKey } from '../../../../lib/modules';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { confirm } from '../../../../lib/confirm';
@@ -27,7 +27,8 @@ export default function ChantierSettingsScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { role } = useAuth();
+  const { role, organization } = useAuth();
+  const projectModules = projectModulesFor(organization);
   const isAdmin = role === 'owner' || role === 'admin';
   const [name, setName] = useState('');
   const [clientName, setClientName] = useState('');
@@ -259,10 +260,10 @@ export default function ChantierSettingsScreen() {
           <Text style={[styles.sectionTitle, { marginTop: spacing.xxl, marginBottom: spacing.sm }]}>{t('chantierSettings.toolsTitle')}</Text>
           <Text style={styles.accessHint}>{t('chantierSettings.toolsHint')}</Text>
           <Card style={{ padding: 0, overflow: 'hidden' }}>
-            {PROJECT_MODULES.map((m, i) => {
+            {projectModules.map((m, i) => {
               const gated = isPlanGated(m.key);
               return (
-                <View key={m.key} style={[styles.memberRow, i < PROJECT_MODULES.length - 1 && styles.memberRowBorder]}>
+                <View key={m.key} style={[styles.memberRow, i < projectModules.length - 1 && styles.memberRowBorder]}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.memberName}>{t(`modules.${m.key}.label` as any)}</Text>
                     <Text style={styles.memberRole}>{t(`modules.${m.key}.description` as any)}</Text>
