@@ -72,7 +72,8 @@ Il n'y a rien à redéployer : la fonction lit ces secrets à chaque appel. Tant
 
 - **Dans quel agenda va un événement** : il va dans l'agenda de la personne concernée (le membre), même s'il a été créé par un administrateur.
 - **Événement créé dans Cantia** : Cantia fait foi. Une modification faite dans l'agenda n'est pas reprise ; une modification dans Cantia remplace celle de l'agenda.
-- **Rendez-vous importé de l'agenda** : l'agenda fait foi. S'il est supprimé dans l'agenda, il disparaît du planning.
+- **Rendez-vous importé de l'agenda** : l'agenda fait foi pour les modifications.
+- **Suppression** : dans les deux sens, quelle que soit l'origine. Supprimé dans Cantia, il disparaît de l'agenda ; supprimé dans l'agenda, il disparaît du planning.
 - **Période couverte** : les 30 derniers jours et l'année à venir.
 - **Deux agendas connectés** : un rendez-vous importé de Google n'est pas recopié dans Outlook, et inversement.
 - **Déconnexion** : les rendez-vous importés de cet agenda disparaissent du planning ; ce que Cantia a écrit dans l'agenda y reste.

@@ -321,9 +321,10 @@ async function syncConnection(admin: Db, c: Db): Promise<void> {
   const byAssignment = new Map(links.filter((l) => l.assignment_id).map((l) => [l.assignment_id!, l]));
   const byExternal = new Map(links.map((l) => [l.external_id, l]));
 
-  // 1. Cantia → calendar. Events deleted in Cantia first.
+  // 1. Cantia → calendar. Events deleted in Cantia first — whichever side
+  // created them: deleted here means deleted there too.
   for (const l of links.filter((x) => !x.assignment_id)) {
-    if (l.origin === 'cantia') await deleteRemote(c, token, l.external_id);
+    await deleteRemote(c, token, l.external_id);
     await admin.from('calendar_event_links').delete().eq('id', l.id);
     byExternal.delete(l.external_id);
   }
@@ -362,7 +363,8 @@ async function syncConnection(admin: Db, c: Db): Promise<void> {
     const link = byExternal.get(e.id);
     if (e.cancelled) {
       if (link) {
-        if (link.origin === 'calendar' && link.assignment_id) await admin.from('planning_assignments').delete().eq('id', link.assignment_id);
+        // deleted in the calendar: deleted in Cantia too, wherever it came from
+        if (link.assignment_id) await admin.from('planning_assignments').delete().eq('id', link.assignment_id);
         await admin.from('calendar_event_links').delete().eq('id', link.id);
         byExternal.delete(e.id);
       }
