@@ -94,7 +94,8 @@ function mode(values: number[], bucket = 2): number | null {
 }
 
 const ZONE = /^:[\p{L}\d][\p{L}\d\-/._ ]{0,15}$/u;
-const DOTS = /^\.{4,}$/;
+// "......" and the spaced ". . . . ." of some programs are both fields.
+const DOTS = /^(?:[.…_]\s*){4,}$/;
 const ARTICLE = /^\d{3}(\.\d{3})?$/;
 const SUBARTICLE = /^\.\d{3}\b/;
 
@@ -122,6 +123,12 @@ export function detectColumns(lines: Line[]): Columns {
       // "820 m2": a number immediately followed by a known unit.
       const next = its[i + 1];
       if (next && parseSwissNumber(s) != null && normalizeUnit(next.str).known && next.x - (its[i].x + its[i].w) < 40) {
+        unitXs.push(next.x);
+        qtyRights.push(its[i].x + its[i].w);
+        for (const r of its.slice(i + 2)) rightOfUnit.push(r.x + r.w);
+      }
+      // "...... m2": a blank quantity field, to be filled in, before its unit.
+      if (next && isDots(s) && normalizeUnit(next.str).known && next.x - (its[i].x + its[i].w) < 40) {
         unitXs.push(next.x);
         qtyRights.push(its[i].x + its[i].w);
         for (const r of its.slice(i + 2)) rightOfUnit.push(r.x + r.w);

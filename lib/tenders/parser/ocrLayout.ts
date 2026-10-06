@@ -14,6 +14,52 @@ export interface OcrRow {
   unit: string;
   unit_price: string;
   amount: string;
+  y?: number | null; // top of the row, % of the page height
+}
+
+export interface OcrPage {
+  page: number;
+  rows: OcrRow[];
+  // right edges of the columns, % of the page width
+  quantity_right?: number | null;
+  price_right?: number | null;
+  amount_right?: number | null;
+}
+
+// Where the figures go on a scanned page: kept with the métré so the
+// export can write into the scan (see pdfFill.fieldLinesFromOcr).
+export interface OcrFieldLine {
+  y: number; // 0..1 from the top
+  kind: 'position' | 'carry' | 'chapter_total' | 'grand_total';
+  blankQuantity: boolean;
+}
+export interface OcrFields {
+  page: number;
+  quantityRight: number | null; // 0..1
+  priceRight: number | null;
+  amountRight: number | null;
+  lines: OcrFieldLine[];
+}
+
+export function ocrFields(pages: OcrPage[]): OcrFields[] {
+  return pages.map((p) => ({
+    page: p.page,
+    quantityRight: p.quantity_right != null ? p.quantity_right / 100 : null,
+    priceRight: p.price_right != null ? p.price_right / 100 : null,
+    amountRight: p.amount_right != null ? p.amount_right / 100 : null,
+    lines: p.rows.flatMap((r): OcrFieldLine[] => {
+      if (r.y == null) return [];
+      const y = r.y / 100;
+      const t = `${r.number} ${r.text}`.trim();
+      if (r.kind === 'total') {
+        if (/report|übertrag|riporto/i.test(t)) return [{ y, kind: 'carry', blankQuantity: false }];
+        if (/total\s*g[ée]n[ée]ral|gesamttotal|totale\s*generale/i.test(t)) return [{ y, kind: 'grand_total', blankQuantity: false }];
+        return [{ y, kind: 'chapter_total', blankQuantity: false }];
+      }
+      if (r.kind === 'line' && (r.unit || r.quantity) && !r.amount) return [{ y, kind: 'position', blankQuantity: !r.quantity }];
+      return [];
+    }),
+  }));
 }
 
 const W = 595;
@@ -24,11 +70,14 @@ const run = (page: number, x: number, y: number, str: string): TextItem => ({ pa
 const right = (page: number, edge: number, y: number, str: string): TextItem => ({ page, x: edge - str.length * 5, y, w: str.length * 5, h: 10, str, fontSize: 10 });
 
 // Rows → positioned runs. Exported for the tests.
-export function rowsToItems(pages: { page: number; rows: OcrRow[] }[]): ExtractedDocument {
+export function rowsToItems(pages: OcrPage[]): ExtractedDocument {
   const items: TextItem[] = [];
   for (const { page, rows } of pages) {
     let y = 106;
     for (const r of rows) {
+      // The row's real height on the scan, when the reader gave it, so the
+      // source boxes (and the filled PDF) land on the right line.
+      if (r.y != null && r.kind !== 'chapter_header') y = Math.max(y, (r.y / 100) * H);
       if (r.kind === 'chapter_header') {
         items.push(run(page, 113, 78, r.text));
         continue;

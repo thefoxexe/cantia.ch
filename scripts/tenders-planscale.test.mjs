@@ -13,3 +13,14 @@ test('scale read on a plan', () => {
   assert.equal(detectScale(['Echelle 1:50', 'Echelle 1:20']), null);
   assert.equal(detectScale(['Plan sans échelle']), null);
 });
+
+test('a plan saved smaller than its paper format', async () => {
+  const { adjustScaleForPaper, detectPaperFormat } = await import('../lib/tenders/planScale.ts');
+  assert.equal(detectPaperFormat(['échelle', '1:50', 'format', 'A0']), 'A0');
+  // real A0 (2384 × 3370 pt): unchanged
+  assert.deepEqual(adjustScaleForPaper(50, 'A0', 2384, 3370), { scale: 50, reduced: false });
+  // A0 plan saved as A3 (842 × 1191 pt): 1:50 becomes ≈ 1:141.5
+  const r = adjustScaleForPaper(50, 'A0', 842, 1191);
+  assert.equal(r.reduced, true);
+  assert.ok(Math.abs(r.scale - 141.5) < 0.5);
+});

@@ -10,6 +10,7 @@ import { uploadToOrgBucket } from '../api/storage';
 import { extractText } from './parser/extract.ts';
 import { parseTender, PARSER_VERSION } from './parser/parse.ts';
 import { ocrDocument } from './ocr.ts';
+import type { OcrFields } from './parser/ocrLayout.ts';
 import { loadPdfJs, sha256Hex } from './pdfjs.ts';
 import type { ParseResult } from './parser/types.ts';
 
@@ -79,18 +80,22 @@ export async function importSoumission(
     const pdfjs = await loadPdfJs();
     let doc = await extractText(pdfjs, bytes.slice(), (page, pages) => onProgress({ step: 'extracting', page, pages }));
     let aiModel: string | null = null;
+    let scanFields: OcrFields[] | null = null;
     if (doc.scanned) {
       onProgress({ step: 'ocr', page: 0, pages: doc.pages.length });
       const ocr = await ocrDocument(pdfjs, bytes.slice(), (page, pages) => onProgress({ step: 'ocr', page, pages }), organizationId);
       if (ocr.error) return fail(ocr.error);
       doc = ocr.doc!;
       aiModel = ocr.model;
+      scanFields = ocr.fields;
     }
 
     // 3. Rules-based parsing.
     onProgress({ step: 'parsing' });
-    const result: ParseResult & { answers?: Record<string, string> } = parseTender(doc);
+    const result: ParseResult & { answers?: Record<string, string>; ocrFields?: OcrFields[] } = parseTender(doc);
     result.answers = {};
+    // Scan: where the figures go, kept for the filled-PDF export.
+    if (scanFields) result.ocrFields = scanFields;
 
     // 4. Draft saved for the review screen.
     onProgress({ step: 'saving' });
@@ -143,7 +148,17 @@ export async function saveDraft(id: string, draft: ImportJob['draft'], status?: 
 
 export async function finalizeImport(jobId: string, name: string, kind: string) {
   const { data, error } = await supabase.rpc('import_tender_draft', { p_job: jobId, p_name: name, p_kind: kind });
-  return { tenderId: (data as string | null) ?? null, error: error?.message ?? null };
+  const tenderId = (data as string | null) ?? null;
+  // A scan: keep where its figures go, for the filled-PDF export.
+  if (tenderId && !error) {
+    const { data: job } = await supabase.from('tender_import_jobs').select('draft').eq('id', jobId).maybeSingle();
+    const fields = (job?.draft as { ocrFields?: OcrFields[] } | null)?.ocrFields;
+    if (fields?.length) {
+      const { data: docRow } = await supabase.from('tender_documents').select('id, detected').eq('tender_id', tenderId).eq('role', 'soumission').maybeSingle();
+      if (docRow) await supabase.from('tender_documents').update({ detected: { ...(docRow.detected ?? {}), ocr_fields: fields } }).eq('id', docRow.id);
+    }
+  }
+  return { tenderId, error: error?.message ?? null };
 }
 
 export async function pendingImports(projectId: string): Promise<ImportJob[]> {

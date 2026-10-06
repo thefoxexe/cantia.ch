@@ -185,6 +185,10 @@ const KEYWORDS: Record<Element, RegExp> = {
   items: /\b(pi[eè]ces?|pce|up\s*=\s*pce|éléments?|regards?|fourreaux|réservations?|percements?|carottages?|goujons?|ancrages?)\b/i,
 };
 
+const EARTH = /excavat|terrassement|d[ée]blai|remblai|fouille|d[ée]capage|talus/i;
+const DEMOLISH = /d[ée]moli|d[ée]mont|d[ée]pose/i;
+const MASONRY = /ma[cç]onnerie|briques?|plots?|blocs?|terre cuite|agglom[ée]r|parpaing|b[ée]ton cellulaire/i;
+
 export interface PositionLite {
   id: string;
   ref: string | null;
@@ -245,6 +249,11 @@ export function suggestPositions(kind: MeasureKind, element: Element, positions:
     for (const other of ELEMENTS) if (other !== element && KEYWORDS[other].test(full) && !KEYWORDS[element].test(full)) score -= 1;
     if (/b[ée]ton|coffrage|armature/i.test(full) && (element === 'wall' || element === 'slab' || element === 'footing')) score += 1;
     if (Object.keys(params).length) score += 0.5;
+    // What gets built from the element first; earthworks only for footings,
+    // demolitions after new work.
+    if (EARTH.test(full)) score -= element === 'footing' || element === 'surface' ? 0.5 : 2.5;
+    if (DEMOLISH.test(full)) score -= 1;
+    if (element === 'wall' && MASONRY.test(full)) score += 1.5;
     // The work that is the element itself (formwork, concrete, masonry of the
     // wall) before what merely runs along it (joints, strips).
     const own: Record<Element, RegExp> = { wall: /^wall_/, slab: /^(slab_|area$)/, footing: /^strip_/, surface: /^area$/, line: /^(length|perimeter)$/, items: /^count$/ };

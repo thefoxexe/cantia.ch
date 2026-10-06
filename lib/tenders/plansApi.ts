@@ -7,7 +7,8 @@ import { uploadToOrgBucket } from '../api/storage';
 import { fileSignedUrl, type PickedFile } from './importer.ts';
 import { loadPdfJs } from './pdfjs.ts';
 import type { Calibration, MeasureKind, Point } from './geometry.ts';
-import { detectScale } from './planScale.ts';
+import { adjustScaleForPaper, detectPaperFormat, detectScale } from './planScale.ts';
+import { ocrPlanScale, renderPage } from './ocr.ts';
 
 export interface SitePlanSummary {
   id: string;
@@ -147,7 +148,7 @@ async function readBytes(f: PickedFile): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer());
 }
 
-export type UploadStep = 'reading' | 'uploading' | 'saving';
+export type UploadStep = 'reading' | 'scale' | 'uploading' | 'saving';
 
 // New plan, or a new revision of an existing plan (planId). The new revision
 // becomes the active one; older revisions and their measures are kept.
@@ -166,17 +167,37 @@ export async function uploadPlan(
     const pdfjs = await loadPdfJs();
     const doc = await pdfjs.getDocument({ data: bytes.slice() }).promise;
     const sizes: Array<{ w: number; h: number; rotation: number; calibration: Calibration | null }> = [];
+    const scanCache: { doc?: any } = {};
     for (let n = 1; n <= Math.min(doc.numPages, 500); n++) {
       const p = await doc.getPage(n);
       const vp = p.getViewport({ scale: 1 });
-      // The scale printed in the title block, when there is one.
+      // The scale printed in the title block, when there is one; corrected
+      // when the PDF is smaller than the paper format it announces.
       let calibration: Calibration | null = null;
+      let texts: string[] = [];
       try {
         const content = await p.getTextContent();
-        const found = detectScale(content.items.map((i) => i.str ?? ''));
-        if (found) calibration = { method: 'scale', scale: found.scale, source: 'pdf', quote: found.quote };
+        texts = content.items.map((i) => i.str ?? '');
       } catch {
-        calibration = null;
+        texts = [];
+      }
+      const found = detectScale(texts);
+      if (found) {
+        const adj = adjustScaleForPaper(found.scale, detectPaperFormat(texts), vp.width, vp.height);
+        calibration = { method: 'scale', scale: adj.scale, source: 'pdf', quote: adj.reduced ? `${found.quote} · PDF réduit` : found.quote };
+      } else if (texts.filter((t) => t.trim()).length < 5 && n <= 3 && organizationId) {
+        // A scanned plan: the title block is read from the image (one AI use).
+        onStep?.('scale');
+        try {
+          const img = await renderPage(pdfjs, bytes.slice(), n, scanCache, 3200);
+          const r = await ocrPlanScale(img, organizationId);
+          if (r.scale) {
+            const adj = adjustScaleForPaper(r.scale, r.paperFormat, vp.width, vp.height);
+            calibration = { method: 'scale', scale: adj.scale, source: 'pdf', quote: `${r.quote ?? `1:${r.scale}`} (scan)${adj.reduced ? ' · PDF réduit' : ''}` };
+          }
+        } catch {
+          calibration = null;
+        }
       }
       sizes.push({ w: vp.width, h: vp.height, rotation: ((p.rotate % 360) + 360) % 360, calibration });
     }

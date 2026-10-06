@@ -13,11 +13,12 @@ import type { NodeType, SourceBox } from '../types.ts';
 import { isDots, isZoneToken, readDocument, type Columns } from './layout.ts';
 import type { Certainty, DocumentMeta, DraftNode, DraftQuestion, ExtractedDocument, Line, ParseResult, TextItem } from './types.ts';
 
-export const PARSER_VERSION = 'tenders-parser/1.0.0';
+export const PARSER_VERSION = 'tenders-parser/1.1.0';
 
 // "Contrat : 1    CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)"
 // "NPK Bau : 241 Ortbetonbau D/04(V'11)"
 const CAN_HEADER = /\b(?:CAN|NPK|CPN)\b[^:]*:\s*(\d{3})\s+(.+?)\s+([FDI])\/(\d{2})\s*\(\s*V.?\s*(\d{2})\s*\)/i;
+const CAP_HEADER = /^(\d{3})\s*-\s*(?:CAP|CAN|NPK|CPN)\s*-\s*(.+)$/i;
 const CONTRACT = /\b(?:Contrat|Vertrag|Contratto)\s*:\s*(\S+)/i;
 const CFC = /\b(?:CFC|BKP|CCC)\s*(\d{1,4}(?:\.\d+)?)\s*[:\-–]?\s*(.*)$/i;
 const DATE = /\b(\d{2})\.(\d{2})\.(\d{4})\b/;
@@ -72,6 +73,7 @@ interface Fields {
   price: number | null;
   amount: number | null;
   hasPriceColumns: boolean;
+  blankQuantity: boolean; // "...... m2": quantity left for the bidder
   items: TextItem[];
 }
 
@@ -80,9 +82,11 @@ function readFields(line: Line, cols: Columns): Fields | null {
   const zoneX = cols.zoneX;
   const unitX = cols.unitX;
   const minX = Math.min(zoneX ?? Infinity, unitX != null ? unitX - 60 : Infinity);
-  const right = line.items.filter((it) => it.x >= minX - 4 || isZoneToken(it.str));
+  // A blank quantity field ("......") can start well left of the unit:
+  // what counts is that it ends at the quantity column.
+  const right = line.items.filter((it) => it.x >= minX - 4 || isZoneToken(it.str) || (isDots(it.str) && unitX != null && it.x + it.w >= unitX - 40 && it.x + it.w <= unitX + 2));
   if (!right.length) return null;
-  const f: Fields = { zone: null, quantity: null, rawQuantity: null, unit: null, price: null, amount: null, hasPriceColumns: false, items: right };
+  const f: Fields = { zone: null, quantity: null, rawQuantity: null, unit: null, price: null, amount: null, hasPriceColumns: false, blankQuantity: false, items: right };
   const afterUnit: { n: number; edge: number }[] = [];
   for (const it of right) {
     const s = it.str.trim();
@@ -96,7 +100,8 @@ function readFields(line: Line, cols: Columns): Fields | null {
       continue;
     }
     if (isDots(s)) {
-      f.hasPriceColumns = true;
+      if (unitX != null && edge <= unitX + 2) f.blankQuantity = true;
+      else f.hasPriceColumns = true;
       continue;
     }
     const n = parseSwissNumber(s);
@@ -121,6 +126,7 @@ function readFields(line: Line, cols: Columns): Fields | null {
     else f.amount = n;
   }
   if (afterUnit.length) f.hasPriceColumns = true;
+  if (f.blankQuantity && !f.unit) f.blankQuantity = false;
   if (f.zone == null && f.quantity == null && f.unit == null && f.price == null && f.amount == null) return null;
   return f;
 }
@@ -303,8 +309,9 @@ function onFields(ctx: Ctx, f: Fields, line: Line) {
     return onFields(ctx, f, line);
   }
   target.rawText = target.rawText.includes(line.text) ? target.rawText : `${target.rawText}\n${line.text}`;
-  if (f.zone != null || f.quantity != null) {
+  if (f.zone != null || f.quantity != null || f.blankQuantity) {
     target.breakdowns.push({
+      ...(f.blankQuantity && f.quantity == null ? { blank: true } : {}),
       code: f.zone ?? '',
       quantity: f.quantity,
       rawQuantity: f.rawQuantity,
@@ -348,6 +355,11 @@ export function parseTender(doc: ExtractedDocument): ParseResult {
     const m = CAN_HEADER.exec(l.text);
     if (m && !chapterOfPage.has(l.page)) chapterOfPage.set(l.page, { code: m[1], title: m[2].trim(), version: `${m[3]}/${m[4]}(V'${m[5]})`, lang: m[3].toUpperCase(), contract: CONTRACT.exec(l.text)?.[1] ?? null });
   }
+  // Other programs head each page with "113 - CAP - Installations de chantier".
+  for (const l of lines.filter((x) => x.y < 120)) {
+    const m = CAP_HEADER.exec(l.text.replace(/\s+Page\s*:?\s*\d+\s*$/i, '').trim());
+    if (m && !chapterOfPage.has(l.page)) chapterOfPage.set(l.page, { code: m[1], title: m[2].trim(), version: '', lang: 'F', contract: null });
+  }
   const can = chapterOfPage.size > 0;
   const canLines = body.filter((l) => /^(R\s+)?\.?\d{3}(\.\d{3})?\b/.test(l.text)).length;
   const classification: ParseResult['classification'] = can ? 'CAN' : canLines > 20 ? 'CAN' : body.length ? 'CUSTOM' : 'UNKNOWN';
@@ -367,13 +379,15 @@ export function parseTender(doc: ExtractedDocument): ParseResult {
     if (line.page < firstContentPage) continue; // cover + récapitulation: read into meta only
     const ch = chapterOfPage.get(line.page);
     if (ch) {
-      ctx.canVersion = ch.version;
+      ctx.canVersion = ch.version || null;
       ctx.canLanguage = ch.lang === 'D' ? 'de' : ch.lang === 'I' ? 'it' : 'fr';
       ensureChapter(ctx, ch.code, ch.title, null);
     }
     // Dotted amount fields are layout, not words.
     const text = line.items.filter((it) => !isDots(it.str)).map((it) => it.str.trim()).join(' ').trim();
     if (!text || DASHES.test(text)) continue;
+    // "211 - CAP - Terrassements … Page: 8": page heading, not an article.
+    if (line.y < 120 && CAP_HEADER.test(text.replace(/\s+Page\s*:?\s*\d+\s*$/i, '').trim())) continue;
     if (CARRY.test(text)) {
       carryForwards += 1;
       continue;
@@ -493,10 +507,13 @@ function finalize(ctx: Ctx, cols: Columns) {
       n.quantity = round(zones.reduce((s, z) => s + (z.quantity ?? 0), 0), 3);
       n.certainty = 'probable';
     }
-    if (n.quantity == null && n.documentAmount == null) n.issues.push({ kind: 'quantity_missing', message: 'Quantité absente.' });
+    // A blank field is not a missing quantity: it is the one to measure.
+    const toMeasure = n.breakdowns.length > 0 && n.breakdowns.every((b) => b.blank);
+    if (n.quantity == null && n.documentAmount == null && !toMeasure) n.issues.push({ kind: 'quantity_missing', message: 'Quantité absente.' });
     if (checkLineAmount(n.quantity, n.documentUnitPrice, n.documentAmount) === false) n.issues.push({ kind: 'amount_mismatch', message: 'Quantité × prix ≠ montant du document.' });
     // A bare zone code ("" when the document has no zones) is not a breakdown.
     if (n.breakdowns.length === 1 && !n.breakdowns[0].code) n.breakdowns = [];
+    n.breakdowns = n.breakdowns.filter((b) => !b.blank || b.code);
 
     if (n.issues.some((i) => i.kind === 'unit_missing' || i.kind === 'unit_unknown' || i.kind === 'quantity_missing' || i.kind === 'orphan_quantity')) n.certainty = 'uncertain';
     else if (n.issues.length && n.certainty === 'certain') n.certainty = 'probable';

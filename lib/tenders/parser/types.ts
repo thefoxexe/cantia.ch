@@ -48,6 +48,8 @@ export interface DraftBreakdown {
   unit: string | null;
   page: number;
   bbox: SourceBox;
+  // The document leaves the quantity as a field to fill in ("...... m2").
+  blank?: boolean;
 }
 
 export interface DraftNode {

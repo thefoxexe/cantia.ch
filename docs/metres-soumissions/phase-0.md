@@ -325,3 +325,14 @@ Tests à chaque phase :
   - Sans échelle (ou avec deux échelles différentes sur la feuille), la calibration est demandée à l'ouverture.
 - **Calibrer** est un bouton à côté de l'échelle, plus un outil de dessin. Pendant le choix d'une cote, un bandeau l'indique avec « Annuler ».
 - **Échap** retire le dernier point du tracé en cours ; sans point, il quitte l'outil. Une aide suit le curseur pendant le tracé.
+
+## 12. Nouveaux formats et scans (exemples réels)
+
+- **Format « CAP »** (`01_MACONNERIE.pdf`, 20 pages) : en-tête de page « 113 - CAP - Installations de chantier » reconnu comme chapitre ; page 1 de récapitulatif ignorée à l'import ; cases en points espacés « . . . . . » ; 49 positions sur 49 certaines.
+  - Export : reports « report de la page précédente / de bas de page » et « total chapitre » écrits dans la colonne Montant.
+  - Le récapitulatif de la page 1 est rempli : total par chapitre, montant brut, rabais, escompte, TVA (au taux imprimé) et net arrondi à 5 centimes.
+- **« Descriptif type »** (`muster_23-200.pdf`) : la quantité est une case vide (« ...... m2 »). Ces positions sont importées « à mesurer », sans signalement d'erreur. À l'export, la quantité retenue (mesurée) est écrite dans la case, avec le PU et le montant.
+- **Plans** : l'échelle lue est corrigée si le cartouche annonce un format (A0…A4) différent de la taille réelle du PDF (plan A0 enregistré en A3). Sur un plan scanné, le cartouche est lu par l'IA (une utilisation du quota) ; sinon la calibration est demandée.
+- **Soumissions scannées** : l'OCR (`tender-ocr` v2) donne aussi la hauteur de chaque ligne et les bords des colonnes Quantité / Prix / Montant. Cette grille est gardée avec le métré (`tender_documents.detected.ocr_fields`) et l'export « PDF rempli » écrit dans le scan. Les scans importés avant cette version doivent être réimportés pour l'export rempli.
+- **Suggestions** : les ouvrages à construire (maçonnerie, briques, plots, béton) passent avant les terrassements et les démolitions pour un mur.
+- Fixtures locales seulement (`fixtures/`, ignoré par git).

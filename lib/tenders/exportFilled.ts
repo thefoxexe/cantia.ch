@@ -8,7 +8,8 @@ import { supabase } from '../supabase';
 import { fileSignedUrl } from './importer.ts';
 import { loadPdfJs } from './pdfjs.ts';
 import { extractText } from './parser/extract.ts';
-import { applyFill, detectFieldLines, planFill, type FillNode, type PdfLibLike } from './pdfFill.ts';
+import type { OcrFields } from './parser/ocrLayout.ts';
+import { applyFill, detectFieldLines, fieldLinesFromOcr, planFill, type FillNode, type PdfLibLike } from './pdfFill.ts';
 import type { TenderBundle } from './api.ts';
 
 let loading: Promise<PdfLibLike> | null = null;
@@ -49,7 +50,7 @@ export async function exportFilledSoumission(bundle: TenderBundle, basis: Quanti
   const empty = { filled: 0, unpriced: 0, notPlaced: 0, total: 0 };
   if (Platform.OS !== 'web') return { error: 'Disponible sur ordinateur.', ...empty };
   try {
-    const { data: docs } = await supabase.from('tender_documents').select('file_id, file_name').eq('tender_id', bundle.tender.id).eq('role', 'soumission').not('file_id', 'is', null).limit(1);
+    const { data: docs } = await supabase.from('tender_documents').select('file_id, file_name, detected').eq('tender_id', bundle.tender.id).eq('role', 'soumission').not('file_id', 'is', null).limit(1);
     const src = docs?.[0];
     if (!src?.file_id) return { error: 'Ce métré n’a pas de PDF de soumission d’origine.', ...empty };
     const url = await fileSignedUrl(src.file_id);
@@ -58,7 +59,13 @@ export async function exportFilledSoumission(bundle: TenderBundle, basis: Quanti
 
     const [pdfjs, pdfLib] = await Promise.all([loadPdfJs(), loadPdfLib()]);
     const text = await extractText(pdfjs, bytes.slice());
-    if (text.scanned) return { error: 'Ce PDF est un scan : ses cases ne peuvent pas être remplies automatiquement. Utilisez l’export Excel ou le devis.', ...empty };
+    // A scan has no text layer: its field grid was read by the OCR at import.
+    let lines = text.scanned ? [] : detectFieldLines(text);
+    if (text.scanned) {
+      const ocr = (src.detected as { ocr_fields?: OcrFields[] } | null)?.ocr_fields;
+      if (!ocr?.length) return { error: 'Ce scan a été importé avant la lecture des cases : réimportez la soumission pour obtenir le PDF rempli, ou utilisez l’export Excel.', ...empty };
+      lines = fieldLinesFromOcr(ocr, text.pages);
+    }
     const heights = new Map(text.pages.map((p) => [p.page, p.height]));
 
     const nodes = new Map(bundle.nodes.map((n) => [n.id, n]));
@@ -77,9 +84,12 @@ export async function exportFilledSoumission(bundle: TenderBundle, basis: Quanti
         unitPrice,
         amount: unitPrice != null && qty != null ? Math.round(qty * unitPrice * 100) / 100 : null,
         printedAmount: pr?.document_amount ?? null,
+        chapter: n.can_chapter,
+        // The soumission left the quantity blank: write the one we offer.
+        quantity: pos.quantity_original == null ? pos.quantity_selected : null,
       });
     }
-    const plan = planFill(detectFieldLines(text), fill);
+    const plan = planFill(lines, fill, { discountPercent: Number(bundle.tender.discount_percent) || 0, escomptePercent: Number(bundle.tender.escompte_percent) || 0, vatRate: Number(bundle.tender.vat_rate) || 0 });
     const out = await applyFill(pdfLib, bytes, plan);
 
     const name = `${(src.file_name ?? bundle.tender.name).replace(/\.pdf$/i, '')} - rempli.pdf`;

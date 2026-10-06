@@ -45,3 +45,22 @@ export function detectScale(texts: string[]): ScaleFound | null {
   const f = pool.find((x) => x.scale === best)!;
   return { scale: best, quote: f.quote, confident: f.keyword };
 }
+
+// "Format A0" in the title block vs. the PDF's real size: a plan drawn at
+// 1:50 on A0 but saved or printed as A3 is really at 1:50 × 1189/420.
+const PAPER_LONG_MM: Record<string, number> = { A0: 1189, A1: 841, A2: 594, A3: 420, A4: 297 };
+
+export function detectPaperFormat(texts: string[]): string | null {
+  const joined = texts.join(' ').replace(/\s+/g, ' ');
+  const m = /\bformat\s*:?\s*(A[0-4])\b/i.exec(joined) ?? /\b(A[0-4])\s*(?:quer|hoch|paysage|portrait|landscape)\b/i.exec(joined);
+  return m ? m[1].toUpperCase() : null;
+}
+
+export function adjustScaleForPaper(scale: number, paper: string | null, widthPt: number, heightPt: number): { scale: number; reduced: boolean } {
+  const expected = paper ? PAPER_LONG_MM[paper] : null;
+  if (!expected) return { scale, reduced: false };
+  const actual = (Math.max(widthPt, heightPt) * 25.4) / 72;
+  const ratio = expected / actual;
+  if (Math.abs(ratio - 1) < 0.04) return { scale, reduced: false };
+  return { scale: Math.round(scale * ratio * 10) / 10, reduced: true };
+}
