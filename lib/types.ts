@@ -211,9 +211,29 @@ export interface Project {
   cover_photo_url: string | null;
   enabled_modules: string[];
   auto_daily_report_enabled: boolean;
+  // n° de chantier / mandat, the folder it is filed in, the full card
+  reference: string | null;
+  folder_id: string | null;
+  client_id: string | null;
+  contact_name: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  notes: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProjectFolder {
+  id: string;
+  organization_id: string;
+  parent_id: string | null;
+  name: string;
+  color: string | null;
+  created_by: string | null;
+  created_at: string;
 }
 
 export interface ReportTemplate {

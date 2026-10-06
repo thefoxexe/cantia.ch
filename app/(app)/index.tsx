@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
+import { listFavorites, setFavorite } from '../../lib/projectFolders';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
 import { listPlanningAssignments, type PlanningAssignmentWithNames } from '../../lib/api/planning';
 import { Button, Card, AppScreen } from '../../components/ui';
@@ -176,6 +177,9 @@ export default function DashboardScreen() {
   const today = iso(new Date());
   const [weather, setWeather] = useState<WeatherNow | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  // starred chantiers, any status, shown first
+  const [favIds, setFavIds] = useState<Set<string>>(new Set());
+  const [favProjects, setFavProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [events, setEvents] = useState<PlanningAssignmentWithNames[]>([]);
   const [tasks, setTasks] = useState<DashboardTask[]>([]);
@@ -209,6 +213,12 @@ export default function DashboardScreen() {
       planningEnabled ? listPlanningAssignments(organization.id, iso(new Date()), iso(addDays(new Date(), 7))).catch(() => []) : Promise.resolve([]),
     ]);
     setProjects((proj ?? []) as Project[]);
+    const favs = await listFavorites();
+    setFavIds(favs);
+    if (favs.size) {
+      const { data: fp } = await supabase.from('projects').select('*').in('id', [...favs]);
+      setFavProjects(((fp ?? []) as Project[]).sort((a, b) => (a.reference ?? a.name).localeCompare(b.reference ?? b.name, 'fr', { numeric: true })));
+    } else setFavProjects([]);
     setMembers((team ?? []) as OrganizationMember[]);
     setTasks((openTasks ?? []) as DashboardTask[]);
     setEvents(planning);
@@ -441,6 +451,46 @@ export default function DashboardScreen() {
     </Card>
   );
 
+  async function toggleFavorite(p: Project) {
+    const on = !favIds.has(p.id);
+    setFavIds((s) => {
+      const n = new Set(s);
+      if (on) n.add(p.id);
+      else n.delete(p.id);
+      return n;
+    });
+    setFavProjects((list) => (on ? [...list, p] : list.filter((x) => x.id !== p.id)));
+    await setFavorite(p.id, on);
+  }
+
+  const favoritesCard = favProjects.length ? (
+    <Card style={styles.card}>
+      <View style={styles.cardHead}>
+        <Text style={styles.cardTitle}>
+          <FontAwesome name="star" size={15} color="#E0A100" /> {t('explorer.favorites')}
+        </Text>
+      </View>
+      <View style={styles.favGrid}>
+        {favProjects.map((p) => (
+          <Pressable key={p.id} onPress={() => router.push(`/(app)/chantiers/${p.id}` as any)} style={({ hovered }: any) => [styles.favTile, hovered && { borderColor: colors.primary }]}>
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              {p.reference ? <Text style={styles.favRef}>{p.reference}</Text> : null}
+              <Text style={styles.projectName} numberOfLines={1}>
+                {p.name}
+              </Text>
+              <Text style={styles.projectMeta} numberOfLines={1}>
+                {[p.client_name, p.address].filter(Boolean).join(' · ') || ' '}
+              </Text>
+            </View>
+            <Pressable onPress={() => toggleFavorite(p)} hitSlop={8} accessibilityLabel={t('explorer.unfavorite')}>
+              <FontAwesome name="star" size={16} color="#E0A100" />
+            </Pressable>
+          </Pressable>
+        ))}
+      </View>
+    </Card>
+  ) : null;
+
   const projectsCard = (
     <Card style={styles.card}>
       <View style={styles.cardHead}>
@@ -455,16 +505,17 @@ export default function DashboardScreen() {
         <Text style={styles.muted}>{c.noProjects}</Text>
       ) : (
         <View>
-          {projects.slice(0, 6).map((p) => {
+          {[...projects].sort((a, b) => Number(favIds.has(b.id)) - Number(favIds.has(a.id))).slice(0, 6).map((p) => {
             const onSite = [...(onSiteByProject[p.id] ?? [])].map((id) => memberName[id]).filter(Boolean);
             const open = openTasksByProject[p.id] ?? 0;
             return (
               <Pressable key={p.id} onPress={() => router.push(`/(app)/chantiers/${p.id}` as any)} style={styles.projectRow}>
-                <View style={styles.projectIcon}>
-                  <Feather name="layers" size={15} color={colors.primary} />
-                </View>
+                <Pressable onPress={() => toggleFavorite(p)} hitSlop={8} style={styles.projectIcon} accessibilityLabel={favIds.has(p.id) ? t('explorer.unfavorite') : t('explorer.favorite')}>
+                  <FontAwesome name={favIds.has(p.id) ? 'star' : 'star-o'} size={15} color={favIds.has(p.id) ? '#E0A100' : colors.primary} />
+                </Pressable>
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={styles.projectName} numberOfLines={1}>
+                    {p.reference ? <Text style={styles.favRef}>{p.reference}  </Text> : null}
                     {p.name}
                   </Text>
                   <Text style={styles.projectMeta} numberOfLines={1}>
@@ -568,6 +619,8 @@ export default function DashboardScreen() {
           {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
         </View>
 
+        {favoritesCard}
+
         {wide ? (
           <View style={styles.columns}>
             <View style={styles.col}>
@@ -660,6 +713,9 @@ const styles = StyleSheet.create({
   taskMeta: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 1 },
   categoryDot: { width: 7, height: 7, borderRadius: 4 },
   moreText: { fontSize: fontSize.xs, color: colors.textMuted, paddingTop: 4, paddingLeft: 28 },
+  favGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+  favTile: { flexGrow: 1, flexBasis: 220, maxWidth: 360, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  favRef: { fontSize: fontSize.xs, fontWeight: '800', color: colors.primary, fontVariant: ['tabular-nums'] },
   projectRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
   projectIcon: { width: 32, height: 32, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   projectName: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },

@@ -87,6 +87,7 @@ export function ChantierDesk({ project, coverUrl, items }: { project: Project; c
             {coverUrl ? <Image source={{ uri: coverUrl }} style={styles.cover} /> : null}
             <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                {project.reference ? <Text style={styles.ref}>{project.reference}</Text> : null}
                 <Text style={styles.title} numberOfLines={2}>
                   {project.name}
                 </Text>
@@ -175,6 +176,12 @@ export function ChantierDesk({ project, coverUrl, items }: { project: Project; c
                   value={project.address}
                   link={project.address ? { label: t('chantierHub.openMap'), url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}` } : undefined}
                 />
+                {project.contact_name || project.contact_phone || project.contact_email ? (
+                  <Info label={t('projectInfo.sectionContact')} value={[project.contact_name, project.contact_phone, project.contact_email].filter(Boolean).join(' · ')} />
+                ) : null}
+                {project.start_date || project.end_date ? (
+                  <Info label={t('projectInfo.sectionDates')} value={`${project.start_date ? day(project.start_date) : '…'} → ${project.end_date ? day(project.end_date) : '…'}`} />
+                ) : null}
                 <Info label={t('chantierHub.created')} value={day(project.created_at)} />
               </View>
             </View>
@@ -219,6 +226,7 @@ function Info({ label, value, link }: { label: string; value: string | null; lin
 }
 
 const styles = StyleSheet.create({
+  ref: { fontSize: fontSize.sm, fontWeight: '800', color: colors.primary, backgroundColor: colors.primarySoft, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, fontVariant: ['tabular-nums'], overflow: 'hidden' },
   scroll: { flexGrow: 1, paddingBottom: spacing.xxl },
   page: { width: '100%', maxWidth: 1180, alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xl, gap: spacing.xl },
   head: { gap: spacing.md },

@@ -28,3 +28,5 @@ insert into public.metre_items (organization_id,project_id,reference,description
  ('00000000-0000-0000-0000-00000000000a','00000000-0000-0000-0000-0000000000a1',null,'Divers',1,'gl',3,500,null);
 create table public.catalog_items (id uuid primary key default gen_random_uuid(), organization_id uuid not null, description text not null, description_key text not null, unit text not null default 'pce', unit_price numeric not null default 0, use_count integer not null default 1, last_used_at timestamptz not null default now(), created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create unique index catalog_items_org_key on public.catalog_items (organization_id, description_key);
+create table public.clients (id uuid primary key default gen_random_uuid(), organization_id uuid, name text);
+create function public.can_create_org_projects(org uuid) returns boolean language sql stable as $$ select public.is_org_member(org) $$;

@@ -218,6 +218,7 @@ export default function ChantierDetailScreen() {
 
           <View style={coverUrl ? styles.heroBottom : styles.heroBottomCompact}>
             <View style={styles.heroBadgeRow}>
+              {project.reference ? <Text style={styles.heroRef}>{project.reference}</Text> : null}
               <StatusBadge status={project.status} />
             </View>
             <Text style={styles.heroTitle} numberOfLines={2}>
@@ -280,6 +281,7 @@ export default function ChantierDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  heroRef: { fontSize: 12, fontWeight: '800', color: '#fff', backgroundColor: 'rgba(0,0,0,0.35)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, overflow: 'hidden' },
   scroll: {
     flexGrow: 1,
     paddingBottom: spacing.xxl,
@@ -348,6 +350,8 @@ const styles = StyleSheet.create({
   },
   heroBadgeRow: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 2,
   },
   heroTitle: {

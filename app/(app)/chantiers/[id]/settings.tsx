@@ -15,7 +15,10 @@ import { PROJECT_MODULE_PLAN_GATED, projectModulesFor, isModuleEnabled, type Mod
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { confirm } from '../../../../lib/confirm';
-import type { OrganizationMember, Plan } from '../../../../lib/types';
+import { listFolders } from '../../../../lib/projectFolders';
+import { listClients } from '../../../../lib/api/clients';
+import { EMPTY_PROJECT_INFO, ProjectInfoForm, projectInfoRow, type ProjectInfo } from '../../../../components/chantier/ProjectInfoForm';
+import type { Client, OrganizationMember, Plan, ProjectFolder } from '../../../../lib/types';
 
 const STATUSES: { key: string; labelKey: 'active' | 'completed' | 'archived' }[] = [
   { key: 'active', labelKey: 'active' },
@@ -30,9 +33,10 @@ export default function ChantierSettingsScreen() {
   const { role, organization } = useAuth();
   const projectModules = projectModulesFor(organization);
   const isAdmin = role === 'owner' || role === 'admin';
-  const [name, setName] = useState('');
-  const [clientName, setClientName] = useState('');
-  const [address, setAddress] = useState('');
+  const [info, setInfo] = useState<ProjectInfo>(EMPTY_PROJECT_INFO);
+  const name = info.name;
+  const [folders, setFolders] = useState<ProjectFolder[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [status, setStatus] = useState('active');
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -58,9 +62,22 @@ export default function ChantierSettingsScreen() {
   const load = useCallback(async () => {
     const { data: project } = await supabase.from('projects').select('*').eq('id', id).single();
     if (project) {
-      setName(project.name);
-      setClientName(project.client_name ?? '');
-      setAddress(project.address ?? '');
+      setInfo({
+        reference: project.reference ?? '',
+        name: project.name,
+        folder_id: project.folder_id ?? null,
+        client_id: project.client_id ?? null,
+        client_name: project.client_name ?? '',
+        address: project.address ?? '',
+        contact_name: project.contact_name ?? '',
+        contact_phone: project.contact_phone ?? '',
+        contact_email: project.contact_email ?? '',
+        start_date: project.start_date ?? null,
+        end_date: project.end_date ?? null,
+        notes: project.notes ?? '',
+      });
+      listFolders(project.organization_id).then(setFolders);
+      listClients(project.organization_id).then(setClients).catch(() => setClients([]));
       setStatus(project.status);
       setCoverPhotoUrl(project.cover_photo_url ? await getSignedUrl(project.cover_photo_url) : null);
       setEnabledModules(project.enabled_modules ?? []);
@@ -96,9 +113,7 @@ export default function ChantierSettingsScreen() {
     await supabase
       .from('projects')
       .update({
-        name: name.trim(),
-        client_name: clientName.trim() || null,
-        address: address.trim() || null,
+        ...projectInfoRow(info),
         status,
         enabled_modules: enabledModules,
         auto_daily_report_enabled: autoDailyReport,
@@ -230,19 +245,18 @@ export default function ChantierSettingsScreen() {
             </View>
           </View>
 
-          <Field label={t('chantierSettings.nameLabel')} value={name} onChangeText={withDirty(setName)} />
-          <Field
-            label={t('chantierSettings.clientLabel')}
-            value={clientName}
-            onChangeText={withDirty(setClientName)}
-            placeholder={t('chantierSettings.clientPlaceholder')}
-          />
-          <Field
-            label={t('chantierSettings.addressLabel')}
-            value={address}
-            onChangeText={withDirty(setAddress)}
-            placeholder={t('chantierSettings.addressPlaceholder')}
-          />
+          <View style={{ marginBottom: spacing.lg }}>
+            <ProjectInfoForm
+              value={info}
+              onChange={(patch) => {
+                setInfo((v) => ({ ...v, ...patch }));
+                markDirty();
+              }}
+              folders={folders}
+              clients={clients}
+              editable={isAdmin}
+            />
+          </View>
 
           <Text style={styles.fieldLabel}>{t('chantierSettings.statusLabel')}</Text>
           <View style={styles.statusRow}>

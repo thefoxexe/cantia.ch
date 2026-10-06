@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
-import { Button, Field, PageHeader, AppScreen } from '../../../components/ui';
+import { Button, PageHeader, AppScreen } from '../../../components/ui';
 import { PROJECT_MODULE_PLAN_GATED, defaultProjectModules, projectModulesFor, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import type { Plan } from '../../../lib/types';
+import { listFolders, suggestReference } from '../../../lib/projectFolders';
+import { listClients } from '../../../lib/api/clients';
+import { EMPTY_PROJECT_INFO, ProjectInfoForm, projectInfoRow, type ProjectInfo } from '../../../components/chantier/ProjectInfoForm';
+import type { Client, Plan, ProjectFolder } from '../../../lib/types';
 
 
 export default function NewChantierScreen() {
   const { t } = useTranslation();
   const { organization, user } = useAuth();
-  const [name, setName] = useState('');
-  const [clientName, setClientName] = useState('');
-  const [address, setAddress] = useState('');
+  const params = useLocalSearchParams<{ folder?: string }>();
+  const [info, setInfo] = useState<ProjectInfo>(EMPTY_PROJECT_INFO);
+  const [folders, setFolders] = useState<ProjectFolder[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [suggestion, setSuggestion] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +30,23 @@ export default function NewChantierScreen() {
   const defaultModules = defaultProjectModules(organization);
   const [enabledModules, setEnabledModules] = useState<string[]>(defaultModules);
   const [savingModules, setSavingModules] = useState(false);
+
+  // the folder the user was in (Chantiers › 2026 › …), set after mount
+  useEffect(() => {
+    if (params.folder) setInfo((v) => ({ ...v, folder_id: String(params.folder) }));
+  }, [params.folder]);
+
+  useEffect(() => {
+    if (!organization) return;
+    listFolders(organization.id).then(setFolders);
+    listClients(organization.id).then(setClients).catch(() => setClients([]));
+    supabase
+      .from('projects')
+      .select('reference')
+      .eq('organization_id', organization.id)
+      .not('reference', 'is', null)
+      .then(({ data }) => setSuggestion(suggestReference((data ?? []).map((r) => r.reference))));
+  }, [organization?.id]);
 
   useEffect(() => {
     if (!organization) return;
@@ -53,7 +75,7 @@ export default function NewChantierScreen() {
 
   async function handleCreate() {
     if (!organization) return;
-    if (!name.trim()) {
+    if (!info.name.trim()) {
       setError(t('newChantier.nameRequired'));
       return;
     }
@@ -63,9 +85,7 @@ export default function NewChantierScreen() {
       .from('projects')
       .insert({
         organization_id: organization.id,
-        name: name.trim(),
-        client_name: clientName.trim() || null,
-        address: address.trim() || null,
+        ...projectInfoRow(info),
         created_by: user?.id,
       })
       .select()
@@ -84,13 +104,13 @@ export default function NewChantierScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <ScrollView style={{ flex: 1 }}>
-        <PageHeader title={t('newChantier.title')} backTo="/(app)/chantiers" />
+        <PageHeader title={t('newChantier.title')} backTo={params.folder ? (`/(app)/chantiers?folder=${params.folder}` as never) : '/(app)/chantiers'} />
 
-        <Field label={t('newChantier.nameLabel')} value={name} onChangeText={setName} placeholder={t('newChantier.namePlaceholder')} />
-        <Field label={t('newChantier.clientLabel')} value={clientName} onChangeText={setClientName} placeholder={t('newChantier.clientPlaceholder')} />
-        <Field label={t('newChantier.addressLabel')} value={address} onChangeText={setAddress} placeholder={t('newChantier.addressPlaceholder')} />
-        {error ? <Text style={{ color: colors.danger, fontSize: fontSize.sm, marginBottom: spacing.md }}>{error}</Text> : null}
-        <Button title={t('newChantier.create')} onPress={handleCreate} loading={loading} />
+        <View style={{ width: '100%', maxWidth: 860, alignSelf: 'center', gap: spacing.lg, paddingBottom: spacing.xxl }}>
+          <ProjectInfoForm value={info} onChange={(patch) => setInfo((v) => ({ ...v, ...patch }))} folders={folders} clients={clients} suggestion={suggestion} />
+          {error ? <Text style={{ color: colors.danger, fontSize: fontSize.sm }}>{error}</Text> : null}
+          <Button title={t('newChantier.create')} icon="check" onPress={handleCreate} loading={loading} />
+        </View>
       </ScrollView>
 
       <Modal visible={!!createdId} animationType="fade" transparent onRequestClose={confirmModules}>
