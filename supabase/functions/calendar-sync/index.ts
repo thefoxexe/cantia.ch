@@ -11,7 +11,7 @@ import { fromGoogle, fromMicrosoft, toGoogle, toMicrosoft, TZ, addDays, type Inc
 //   POST { action: 'sync', organization_id, user_ids? } → { synced }
 // Secrets: GOOGLE_CALENDAR_CLIENT_ID / _SECRET, MICROSOFT_CALENDAR_CLIENT_ID
 // / _SECRET. Redirect URI to register with both:
-//   <SUPABASE_URL>/functions/v1/calendar-sync
+//   https://app.cantia.ch/api/calendar/callback
 
 type Provider = 'google' | 'microsoft';
 // deno-lint-ignore no-explicit-any
@@ -45,7 +45,9 @@ const PROVIDERS = {
   },
 } as const;
 
-const redirectUri = () => `${Deno.env.get('SUPABASE_URL')}/functions/v1/calendar-sync`;
+// Proxied to this function by Netlify (netlify.toml): only cantia.ch is
+// declared to Google and Microsoft.
+const redirectUri = () => Deno.env.get('CALENDAR_REDIRECT_URI') ?? 'https://app.cantia.ch/api/calendar/callback';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });

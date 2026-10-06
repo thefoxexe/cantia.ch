@@ -47,6 +47,15 @@
   status = 200
   force = true
 
+# Google / Microsoft send people back here after they allow Cantia to use
+# their calendar (supabase/functions/calendar-sync). A cantia.ch address, so
+# the consent screens and Google's app verification only involve our domain.
+[[redirects]]
+  from = "/api/calendar/callback"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/calendar-sync"
+  status = 200
+  force = true
+
 # Campaign landing page behind the "présentation en 37 secondes" e-mail
 # (app/presentation.tsx). Deliberately not in scripts/seo-routes.mjs: no
 # sitemap entry, and kept out of search engines.

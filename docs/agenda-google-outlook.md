@@ -14,7 +14,7 @@ Côté serveur, tout passe par une seule fonction : `supabase/functions/calendar
 **Adresse de retour à déclarer chez Google et chez Microsoft** (identique pour les deux) :
 
 ```
-https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/calendar-sync
+https://app.cantia.ch/api/calendar/callback
 ```
 
 ## 1. Google (Google Cloud Console)
@@ -24,7 +24,7 @@ https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/calendar-sync
 3. Configure l'écran de consentement OAuth (*API et services › Écran de consentement OAuth*) :
    - type d'utilisateurs : **Externe** ;
    - nom de l'application : Cantia ; e-mail d'assistance ; logo ;
-   - domaines autorisés : `cantia.ch` et `supabase.co` ;
+   - domaines autorisés : `cantia.ch` ;
    - page d'accueil `https://cantia.ch`, règles de confidentialité `https://cantia.ch/confidentialite` ;
    - champs d'application (scopes) : `openid`, `email`, `https://www.googleapis.com/auth/calendar.events`.
 4. Ajoute des utilisateurs de test. Tant que l'application est « en test », seuls ces comptes Google peuvent se connecter (100 maximum).
