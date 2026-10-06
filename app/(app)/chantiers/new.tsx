@@ -4,13 +4,11 @@ import { router } from 'expo-router';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Button, Field, PageHeader, AppScreen } from '../../../components/ui';
-import { fillsSoumissions } from '../../../lib/trades';
-import { PROJECT_MODULE_PLAN_GATED, projectModulesFor, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
+import { PROJECT_MODULE_PLAN_GATED, defaultProjectModules, projectModulesFor, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
 
-const DEFAULT_MODULES = ['documents', 'photos', 'metre'];
 
 export default function NewChantierScreen() {
   const { t } = useTranslation();
@@ -23,8 +21,8 @@ export default function NewChantierScreen() {
 
   const [plan, setPlan] = useState<Plan | null>(null);
   const [createdId, setCreatedId] = useState<string | null>(null);
-  // "Remplir une soumission" only for building companies (lib/trades.ts).
-  const defaultModules = fillsSoumissions(organization) ? DEFAULT_MODULES : DEFAULT_MODULES.filter((m) => m !== 'metre');
+  // The company's default tools (sign-up / Paramètres › Modules).
+  const defaultModules = defaultProjectModules(organization);
   const [enabledModules, setEnabledModules] = useState<string[]>(defaultModules);
   const [savingModules, setSavingModules] = useState(false);
 

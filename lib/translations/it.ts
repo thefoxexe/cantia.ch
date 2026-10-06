@@ -967,6 +967,7 @@ export const it: TranslationDict = {
     photos: { label: 'Foto', description: 'Galleria fotografica filtrabile, con una mappa degli scatti.' },
     devis: { label: 'Preventivi', description: 'Creazione di preventivi e monitoraggio dello stato.' },
     metre: { label: 'Compilare un capitolato', description: 'Importate il capitolato ricevuto, inserite i prezzi e rinviate il PDF compilato.' },
+    gantt: { label: 'Programma lavori', description: 'Fasi, attività, dipendenze e avanzamento (Gantt).' },
     planning: { label: 'Pianificazione', description: 'Chi va su quale cantiere, e quando.' },
     profitability: { label: 'Redditività', description: 'Preventivato vs costo reale (materiale + manodopera).' },
     subcontractors: { label: 'Subappaltatori', description: 'Imprese subappaltate, interventi e attestati assicurativi.' },
@@ -1354,6 +1355,8 @@ export const it: TranslationDict = {
     lockedNotice: 'Il link sicuro di consultazione online viene sempre aggiunto automaticamente alla fine dell\'e-mail — è anche ciò che permette al suo cliente di ritrovare e firmare il documento senza creare un account. Tutto il resto, incluso il saluto iniziale, è a sua scelta.',
   },
   moduleSettings: {
+    projectToolsTitle: 'Strumenti dei nuovi cantieri',
+    projectToolsHint: 'Ciò che ogni nuovo cantiere ha da subito. Un cantiere esistente si regola nelle sue impostazioni.',
     title: 'Strumenti e moduli',
     intro: "Sezioni principali dell'applicazione, per tutto il team. Gli strumenti specifici di un cantiere (documenti, foto, computo metrico, subappaltatori, redditività) si scelgono separatamente nelle impostazioni di ogni cantiere.",
     rolesHint: "Questi interruttori attivano una sezione per tutta l'azienda. Chi può poi vederla o agire su di essa si regola membro per membro, con ruoli personalizzati.",
@@ -2705,6 +2708,8 @@ export const it: TranslationDict = {
     submit: 'Continua',
   },
   authOnboardingSetup: {
+    projectToolsTitle: 'Gli strumenti dei vostri cantieri',
+    projectToolsSubtitle: 'Ciò che ogni nuovo cantiere avrà da subito. Potrete sempre attivarli o disattivarli nelle impostazioni di un cantiere.',
     stepLabel: 'Passo {{current}} di {{total}}',
     previous: 'Indietro',
     skip: 'Salta per ora',

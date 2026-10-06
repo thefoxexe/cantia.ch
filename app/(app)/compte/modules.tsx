@@ -5,7 +5,8 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Card, Container, PageHeader, Switch, AppScreen } from '../../../components/ui';
-import { ORG_MODULES, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
+import { ProjectToolsPicker } from '../../../components/ProjectToolsPicker';
+import { ORG_MODULES, defaultProjectModules, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
@@ -25,6 +26,7 @@ const MODULE_ICON: Record<ModuleKey, IconName> = {
   photos: 'image',
   devis: 'file-text',
   metre: 'grid',
+  gantt: 'bar-chart-2',
   planning: 'calendar',
   profitability: 'pie-chart',
   subcontractors: 'briefcase',
@@ -39,6 +41,7 @@ export default function ModulesScreen() {
   const router = useRouter();
   const [enabledModules, setEnabledModules] = useState<string[]>(organization?.enabled_modules ?? []);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [projectTools, setProjectTools] = useState<string[]>(defaultProjectModules(organization));
   const [saving, setSaving] = useState(false);
   const [privateModules, setPrivateModules] = useState<PrivateModuleGrant[]>([]);
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
@@ -46,6 +49,7 @@ export default function ModulesScreen() {
 
   const load = useCallback(async () => {
     setEnabledModules(organization?.enabled_modules ?? []);
+    setProjectTools(defaultProjectModules(organization));
     if (!organization) return;
     const { data } = await supabase.from('plans').select('*').eq('id', organization.plan_id).single();
     setPlan(data ?? null);
@@ -81,6 +85,14 @@ export default function ModulesScreen() {
     setSaving(true);
     await supabase.from('organizations').update({ enabled_modules: next }).eq('id', organization.id);
     setSaving(false);
+    refreshOrganization();
+  }
+
+  // Default tools of new chantiers (each chantier can still change its own).
+  async function saveProjectTools(next: string[]) {
+    if (!organization || !isAdmin) return;
+    setProjectTools(next);
+    await supabase.from('organizations').update({ default_project_modules: next }).eq('id', organization.id);
     refreshOrganization();
   }
 
@@ -123,6 +135,12 @@ export default function ModulesScreen() {
                 </Card>
               );
             })}
+          </View>
+
+          <Text style={styles.sectionTitle}>{t('moduleSettings.projectToolsTitle')}</Text>
+          <Text style={styles.hint}>{t('moduleSettings.projectToolsHint')}</Text>
+          <View style={{ marginTop: spacing.lg }}>
+            <ProjectToolsPicker organization={organization} plan={plan} value={projectTools} onChange={saveProjectTools} disabled={!isAdmin} />
           </View>
 
           {privateModules.length > 0 ? (

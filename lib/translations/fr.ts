@@ -945,6 +945,7 @@ export const fr = {
     photos: { label: 'Photos', description: 'Galerie photo filtrable, avec une carte des prises de vue.' },
     devis: { label: 'Devis', description: 'Création de devis et suivi de statut.' },
     metre: { label: 'Remplir une soumission', description: 'Importez la soumission reçue, mettez vos prix et renvoyez le PDF rempli.' },
+    gantt: { label: 'Planning de chantier', description: 'Phases, tâches, dépendances et avancement (Gantt).' },
     planning: { label: 'Planning', description: 'Qui va sur quel chantier, et quand.' },
     profitability: { label: 'Rentabilité', description: 'Devisé vs coût réel (matériel + main d’œuvre).' },
     subcontractors: { label: 'Sous-traitants', description: "Entreprises sous-traitées, interventions et attestations d'assurance." },
@@ -1332,6 +1333,8 @@ export const fr = {
     lockedNotice: 'Le lien sécurisé de consultation en ligne reste toujours ajouté automatiquement en fin d’e-mail — c’est aussi ce qui permet à votre client de retrouver et signer le document sans créer de compte. Tout le reste, y compris "Bonjour", est à vous.',
   },
   moduleSettings: {
+    projectToolsTitle: 'Outils des nouveaux chantiers',
+    projectToolsHint: 'Ce que chaque nouveau chantier a d\'office. Un chantier existant se règle dans ses propres paramètres.',
     title: 'Outils & modules',
     intro: "Sections principales de l'application, pour toute l'équipe. Les outils propres à un chantier (documents, photos, métré, sous-traitants, rentabilité) se choisissent séparément dans les paramètres de chaque chantier.",
     rolesHint: "Ces interrupteurs activent une section pour toute l'entreprise. Qui peut ensuite la voir ou y agir se règle membre par membre, avec des rôles personnalisés.",
@@ -2683,6 +2686,8 @@ export const fr = {
     submit: 'Continuer',
   },
   authOnboardingSetup: {
+    projectToolsTitle: 'Les outils de vos chantiers',
+    projectToolsSubtitle: 'Ce que chaque nouveau chantier aura d\'office. Vous pourrez toujours en activer ou en désactiver dans les paramètres d\'un chantier.',
     stepLabel: 'Étape {{current}} sur {{total}}',
     previous: 'Précédent',
     skip: 'Passer pour l’instant',

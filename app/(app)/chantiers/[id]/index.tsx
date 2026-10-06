@@ -114,7 +114,7 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.gantt'),
       icon: 'calendar',
       route: `/(app)/chantiers/${id}/gantt`,
-      visible: siteSchedule,
+      visible: siteSchedule && isModuleEnabled(enabled, 'gantt'),
     },
     {
       key: 'documents',
@@ -135,8 +135,8 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.metre'),
       icon: 'list',
       route: `/(app)/chantiers/${id}/metre`,
-      // compulsory for building companies, absent for everyone else
-      visible: permissions.metre && fillsSoumissions(organization),
+      // building companies only; on by default, switchable per chantier
+      visible: isModuleEnabled(enabled, 'metre') && permissions.metre && fillsSoumissions(organization),
     },
     {
       key: 'subcontractors',

@@ -19,8 +19,9 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { SwissAddressField } from '../../../components/SwissAddressField';
 import { compactIban, isValidSwissIban, formatIban, formatIbanInput } from '../../../lib/iban';
-import { ORG_MODULES, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
-import type { Plan } from '../../../lib/types';
+import { ORG_MODULES, defaultProjectModules, isModuleEnabled, type ModuleKey } from '../../../lib/modules';
+import { ProjectToolsPicker } from '../../../components/ProjectToolsPicker';
+import type { Organization, Plan } from '../../../lib/types';
 import { displayType } from '../../../lib/marketingTheme';
 
 const DEFAULT_BRAND_COLOR = '#1F3D3A';
@@ -42,6 +43,7 @@ const MODULE_ICONS: Record<ModuleKey, keyof typeof Feather.glyphMap> = {
   documents: 'folder',
   photos: 'camera',
   metre: 'list',
+  gantt: 'bar-chart-2',
   subcontractors: 'briefcase',
   profitability: 'bar-chart-2',
 };
@@ -81,6 +83,8 @@ export default function OnboardingSetupScreen() {
   const [plan, setPlan] = useState<Plan | null | undefined>(undefined);
   const [enabledModules, setEnabledModules] = useState<ModuleKey[]>(DEFAULT_ACTIVE_MODULES);
   const [modulesLoaded, setModulesLoaded] = useState(false);
+  // What every new chantier starts with (site tools ticked for building).
+  const [projectTools, setProjectTools] = useState<string[]>(() => defaultProjectModules(organization));
 
   function loadPlanOnce() {
     if (modulesLoaded || !organization?.plan_id) return;
@@ -194,7 +198,7 @@ export default function OnboardingSetupScreen() {
     if (step === 2) {
       if (!organization) return;
       setFinishing(true);
-      const { error: dbError } = await supabase.from('organizations').update({ enabled_modules: enabledModules }).eq('id', organization.id);
+      const { error: dbError } = await supabase.from('organizations').update({ enabled_modules: enabledModules, default_project_modules: projectTools }).eq('id', organization.id);
       setFinishing(false);
       if (dbError) {
         setError(dbError.message);
@@ -294,6 +298,9 @@ export default function OnboardingSetupScreen() {
             isPlanGated={isPlanGated}
             onToggle={toggleModule}
             onReachStep={loadPlanOnce}
+            organization={organization}
+            projectTools={projectTools}
+            onProjectTools={setProjectTools}
           />
         ) : null}
 
@@ -470,12 +477,18 @@ function StepModules({
   isPlanGated,
   onToggle,
   onReachStep,
+  organization,
+  projectTools,
+  onProjectTools,
 }: {
   plan: Plan | null | undefined;
   enabledModules: ModuleKey[];
   isPlanGated: (key: ModuleKey) => boolean;
   onToggle: (key: ModuleKey) => void;
   onReachStep: () => void;
+  organization: Organization | null;
+  projectTools: string[];
+  onProjectTools: (next: string[]) => void;
 }) {
   const { t } = useTranslation();
   useEffect(() => {
@@ -512,6 +525,11 @@ function StepModules({
           );
         })}
       </View>
+
+      {/* the tools of each chantier, kept as the default for new ones */}
+      <Text style={[styles.title, { fontSize: 20, marginTop: spacing.xl }]}>{t('authOnboardingSetup.projectToolsTitle')}</Text>
+      <Text style={styles.subtitle}>{t('authOnboardingSetup.projectToolsSubtitle')}</Text>
+      <ProjectToolsPicker organization={organization} plan={plan ?? null} value={projectTools} onChange={onProjectTools} />
       <Text style={styles.hint}>{t('authOnboardingSetup.modulesChangeLaterHint')}</Text>
     </View>
   );

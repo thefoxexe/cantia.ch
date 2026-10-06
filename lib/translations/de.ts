@@ -964,6 +964,7 @@ export const de: TranslationDict = {
     photos: { label: 'Fotos', description: 'Filterbare Fotogalerie mit Aufnahmeort-Karte.' },
     devis: { label: 'Offerten', description: 'Offertenerstellung und Statusverfolgung.' },
     metre: { label: 'Leistungsverzeichnis ausfüllen', description: 'Erhaltenes LV importieren, Preise eintragen und das ausgefüllte PDF zurücksenden.' },
+    gantt: { label: 'Bauprogramm', description: 'Phasen, Aufgaben, Abhängigkeiten und Fortschritt (Gantt).' },
     planning: { label: 'Planung', description: 'Wer geht wann auf welche Baustelle.' },
     profitability: { label: 'Rentabilität', description: 'Offeriert vs. effektive Kosten (Material + Arbeit).' },
     subcontractors: { label: 'Subunternehmer', description: 'Beauftragte Firmen, Einsätze und Versicherungsnachweise.' },
@@ -1346,6 +1347,8 @@ export const de: TranslationDict = {
     lockedNotice: 'Der sichere Link zur Online-Ansicht wird immer automatisch am Ende der E-Mail hinzugefügt — so kann Ihr Kunde das Dokument auch ohne Konto finden und unterschreiben. Alles andere, einschliesslich der Anrede, liegt bei Ihnen.',
   },
   moduleSettings: {
+    projectToolsTitle: 'Werkzeuge neuer Baustellen',
+    projectToolsHint: 'Was jede neue Baustelle von Anfang an hat. Eine bestehende Baustelle wird in ihren eigenen Einstellungen angepasst.',
     title: 'Werkzeuge & Module',
     intro: 'Hauptbereiche der Anwendung für das gesamte Team. Baustellenspezifische Werkzeuge (Dokumente, Fotos, Aufmass, Subunternehmer, Rentabilität) werden separat in den Einstellungen jeder Baustelle gewählt.',
     rolesHint: 'Diese Schalter aktivieren einen Bereich für das gesamte Unternehmen. Wer ihn dann sehen oder darin handeln kann, wird pro Mitglied mit individuellen Rollen geregelt.',
@@ -2697,6 +2700,8 @@ export const de: TranslationDict = {
     submit: 'Weiter',
   },
   authOnboardingSetup: {
+    projectToolsTitle: 'Die Werkzeuge Ihrer Baustellen',
+    projectToolsSubtitle: 'Was jede neue Baustelle von Anfang an hat. In den Einstellungen einer Baustelle lässt sich das jederzeit ändern.',
     stepLabel: 'Schritt {{current}} von {{total}}',
     previous: 'Zurück',
     skip: 'Vorerst überspringen',

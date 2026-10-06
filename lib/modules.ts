@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 import { useAuth } from './auth-context';
 import type { Plan } from './types';
+import { fillsSoumissions } from './trades';
 
-export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury' | 'accounting';
+export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'gantt' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury' | 'accounting';
 
 interface ModuleDef {
   key: ModuleKey;
@@ -28,6 +29,7 @@ export const PROJECT_MODULES: ModuleDef[] = [
   { key: 'documents', label: 'Documents', description: 'Classeur de dossiers et fichiers.' },
   { key: 'photos', label: 'Photos', description: 'Galerie photo filtrable, avec une carte des prises de vue.' },
   { key: 'metre', label: 'Remplir une soumission', description: 'Importez la soumission reçue, mettez vos prix et renvoyez le PDF rempli.' },
+  { key: 'gantt', label: 'Planning de chantier', description: 'Phases, tâches, dépendances et avancement (Gantt).' },
   { key: 'subcontractors', label: 'Sous-traitants', description: "Entreprises sous-traitées, interventions et attestations d'assurance." },
   { key: 'profitability', label: 'Rentabilité', description: 'Devisé vs coût réel (matériel + main d’œuvre).' },
 ];
@@ -37,13 +39,25 @@ export const PROJECT_MODULES: ModuleDef[] = [
 export const PROJECT_MODULE_PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   profitability: 'has_profitability',
   metre: 'has_tenders',
+  gantt: 'has_site_schedule',
 };
 
-// The project modules a chantier can switch on or off. "Remplir une
-// soumission" is not one of them: always there for building companies,
-// never for the others (lib/trades.ts fillsSoumissions).
-export function projectModulesFor(_org?: unknown): ModuleDef[] {
-  return PROJECT_MODULES.filter((m) => m.key !== 'metre');
+// Site tools: building companies only (lib/trades.ts). Anyone else never
+// sees them, not even as a switch.
+const BUILDING_ONLY: ModuleKey[] = ['metre', 'gantt'];
+
+// The project modules this company can switch on or off per chantier.
+export function projectModulesFor(org: { trade: string | null } | null | undefined): ModuleDef[] {
+  return PROJECT_MODULES.filter((m) => !BUILDING_ONLY.includes(m.key) || fillsSoumissions(org));
+}
+
+// What a new chantier starts with: the company's choice (sign-up, then
+// Paramètres › Modules), else documents and photos, plus the site tools for
+// building companies.
+export function defaultProjectModules(org: { trade: string | null; default_project_modules?: string[] | null } | null | undefined): string[] {
+  const allowed = new Set(projectModulesFor(org).map((m) => m.key as string));
+  const base = org?.default_project_modules ?? ['documents', 'photos', ...(fillsSoumissions(org) ? BUILDING_ONLY : [])];
+  return base.filter((k) => allowed.has(k));
 }
 
 export function isModuleEnabled(enabledModules: string[] | undefined, key: ModuleKey): boolean {

@@ -62,6 +62,8 @@ export interface Plan {
   has_sales_tracking?: boolean;
   // Remplir une soumission (tous les plans depuis le 07.10.2026).
   has_tenders?: boolean;
+  // Planning de chantier (Équipe, Entreprise, Sur mesure).
+  has_site_schedule?: boolean;
 }
 
 export interface Organization {
@@ -70,6 +72,8 @@ export interface Organization {
   trade: string | null;
   // What the company does inside its sector (lib/trades.ts SPECIALTIES keys).
   trade_specialties?: string[] | null;
+  // Modules a new chantier starts with (null: lib/modules defaultProjectModules).
+  default_project_modules?: string[] | null;
   logo_url: string | null;
   signature_url: string | null;
   address: string | null;
